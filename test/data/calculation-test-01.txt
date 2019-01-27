@@ -1,0 +1,12 @@
+arcscalc-01.bin
+
+Contains 786432 random bytes (created by dd from /dev/urandom)
+
+To be interpreted as test audio data for testing ARCSCalc.
+
+For example:
+
+- 3 blocks x 65536 PCM samples (each block containing 262144 bytes)
+
+When choosing 65536 as block size, file content is aligned with the block size.
+
