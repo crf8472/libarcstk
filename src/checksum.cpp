@@ -16,13 +16,9 @@
 
 namespace arcs
 {
-
-
 /// \cond IMPL_ONLY
 /// \internal \addtogroup calcImpl
 /// @{
-
-
 inline namespace v_1_0_0
 {
 

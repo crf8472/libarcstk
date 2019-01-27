@@ -18,19 +18,14 @@
 #include "logging.hpp"
 #endif
 
+
 namespace arcs
 {
-
-
 /// \internal \defgroup matchImpl Implementation of ARCSs comparison
 /// \ingroup match
 /// @{
-
-
 inline namespace v_1_0_0
 {
-
-
 // unnamed namespace for declarations only used in .cpp-file
 namespace {
 

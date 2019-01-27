@@ -28,20 +28,15 @@
 
 namespace arcs
 {
-
-
 /// \cond IMPL_ONLY
 /// \internal \defgroup parseImpl Implementation of an AccurateRip response parser
 /// \ingroup parse
 /// @{
-
-
 inline namespace v_1_0_0
 {
 
 namespace
 {
-
 
 /**
  * Represents limited access to stdin.
@@ -1193,9 +1188,9 @@ DefaultHandler::Impl::Impl()
 DefaultHandler::Impl::Impl(
 		const DefaultHandler::Impl &rhs)
 	: current_block_(rhs.current_block_
-			? std::make_unique<ARBlock>(*(rhs.current_block_.get()))
-			: nullptr
-			)
+		? std::make_unique<ARBlock>(*(rhs.current_block_.get()))
+		: nullptr
+		)
 	, response_(rhs.response_)
 {
 	// empty
@@ -1218,9 +1213,9 @@ void DefaultHandler::Impl::start_block()
 
 
 void DefaultHandler::Impl::id(const uint8_t track_count,
-			const uint32_t id1,
-			const uint32_t id2,
-			const uint32_t cddb_id)
+		const uint32_t id1,
+		const uint32_t id2,
+		const uint32_t cddb_id)
 {
 	current_block_ =
 		std::make_unique<ARBlock>(ARId(track_count, id1, id2, cddb_id));
@@ -1228,19 +1223,19 @@ void DefaultHandler::Impl::id(const uint8_t track_count,
 
 
 void DefaultHandler::Impl::triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs)
+		const uint8_t confidence,
+		const uint32_t frame450_arcs)
 {
 	current_block_->append(ARTriplet(arcs, confidence, frame450_arcs));
 }
 
 
 void DefaultHandler::Impl::triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs,
-			const bool arcs_valid,
-			const bool confidence_valid,
-			const bool frame450_arcs_valid)
+		const uint8_t confidence,
+		const uint32_t frame450_arcs,
+		const bool arcs_valid,
+		const bool confidence_valid,
+		const bool frame450_arcs_valid)
 {
 	if (arcs_valid and confidence_valid and frame450_arcs_valid)
 	{
@@ -1306,28 +1301,28 @@ void DefaultHandler::start_block()
 
 
 void DefaultHandler::id(const uint8_t track_count,
-			const uint32_t id1,
-			const uint32_t id2,
-			const uint32_t cddb_id)
+		const uint32_t id1,
+		const uint32_t id2,
+		const uint32_t cddb_id)
 {
 	impl_->id(track_count, id1, id2, cddb_id);
 }
 
 
 void DefaultHandler::triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs)
+		const uint8_t confidence,
+		const uint32_t frame450_arcs)
 {
 	impl_->triplet(arcs, confidence, frame450_arcs);
 }
 
 
 void DefaultHandler::triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs,
-			const bool arcs_valid,
-			const bool confidence_valid,
-			const bool frame450_arcs_valid)
+		const uint8_t confidence,
+		const uint32_t frame450_arcs,
+		const bool arcs_valid,
+		const bool confidence_valid,
+		const bool frame450_arcs_valid)
 {
 	impl_->triplet(arcs, confidence, frame450_arcs, arcs_valid,
 			confidence_valid, frame450_arcs_valid);
@@ -1362,7 +1357,7 @@ ARResponse DefaultHandler::result() const
 
 
 void DefaultErrorHandler::error(const uint32_t byte_pos,
-	const uint32_t block, const uint32_t block_byte_pos)
+		const uint32_t block, const uint32_t block_byte_pos)
 {
 	constexpr int BHB = 13; // number of block header bytes
 	constexpr int BPT =  9; // number of bytes in a triplet
@@ -1502,9 +1497,9 @@ std::unique_ptr<ErrorHandler> DefaultErrorHandler::clone()
 
 
 StreamReadException::StreamReadException(const uint32_t byte_pos,
-	const uint32_t block,
-	const uint32_t block_byte_pos,
-	const std::string &what_arg)
+		const uint32_t block,
+		const uint32_t block_byte_pos,
+		const std::string &what_arg)
 	: std::runtime_error(what_arg)
 	, byte_pos_(byte_pos)
 	, block_(block)
@@ -1515,9 +1510,9 @@ StreamReadException::StreamReadException(const uint32_t byte_pos,
 
 
 StreamReadException::StreamReadException(const uint32_t byte_pos,
-	const uint32_t block,
-	const uint32_t block_byte_pos,
-	const char *what_arg)
+		const uint32_t block,
+		const uint32_t block_byte_pos,
+		const char *what_arg)
 	: std::runtime_error(what_arg)
 	, byte_pos_(byte_pos)
 	, block_(block)
@@ -1994,7 +1989,7 @@ uint32_t ARStreamParser::Impl::le_bytes_to_uint32(const char b1,
 		const char b3,
 		const char b4) const
 {
-	return	static_cast<uint32_t>(b4 & 0xFF) << 24 |
+	return  static_cast<uint32_t>(b4 & 0xFF) << 24 |
 			static_cast<uint32_t>(b3 & 0xFF) << 16 |
 			static_cast<uint32_t>(b2 & 0xFF) <<  8 |
 			static_cast<uint32_t>(b1 & 0xFF);

@@ -520,9 +520,9 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
  * \throw InvalidMetadataException If the input data forms no valid TOC
  */
 std::unique_ptr<TOC> make_toc(const uint32_t track_count,
-			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
-			const std::vector<std::string> &files);
+		const std::vector<int32_t> &offsets,
+		const std::vector<int32_t> &lengths,
+		const std::vector<std::string> &files);
 
 
 /**
@@ -648,7 +648,7 @@ public:
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
 	std::unique_ptr<ARId> build(const uint32_t &track_count,
-			const std::vector<int32_t> &offsets, const uint32_t leadout) const;
+		const std::vector<int32_t> &offsets, const uint32_t leadout) const;
 
 	/**
 	 * Build an ARId object from the specified TOC.
@@ -785,8 +785,8 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	std::unique_ptr<TOC> build(const uint32_t track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout);
+			const std::vector<int32_t> &offsets,
+			const uint32_t leadout);
 
 	/**
 	 * Build a TOC object from the specified information.
@@ -875,8 +875,8 @@ public:
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	void validate(const uint16_t track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout) const;
+			const std::vector<int32_t> &offsets,
+			const uint32_t leadout) const;
 
 	/**
 	 * Validate TOC information and leadout.
@@ -902,7 +902,7 @@ public:
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	void validate_offsets(const uint16_t track_count,
-		const std::vector<int32_t> &offsets) const;
+			const std::vector<int32_t> &offsets) const;
 
 	/**
 	 * Validate offsets.

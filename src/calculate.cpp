@@ -35,10 +35,7 @@ namespace arcs
 inline namespace v_1_0_0
 {
 
-
-/**
- * Unnamed namespace for internal APIs and their implementations
- */
+// Unnamed namespace for internal APIs and their implementations
 namespace {
 
 #ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
@@ -47,7 +44,7 @@ namespace {
 
 } // namespace
 
-
+// Unnamed namespace for internal APIs and their implementations
 namespace {
 
 /**
@@ -340,7 +337,7 @@ uint32_t BaseCalcContext::num_skip_back() const
 
 
 void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
-			const uint32_t num_skip_back)
+		const uint32_t num_skip_back)
 {
 	num_skip_front_ = num_skip_front;
 	num_skip_back_  = num_skip_back;
@@ -458,7 +455,7 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
-			const bool skip_front, const bool skip_back)
+		const bool skip_front, const bool skip_back)
 	: BaseCalcContext(filename, 2939, 2940)
 	, skip_front_(skip_front)
 	, skip_back_(skip_back)
@@ -468,8 +465,8 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
-			const bool skip_front, const uint32_t num_skip_front,
-			const bool skip_back,  const uint32_t num_skip_back)
+		const bool skip_front, const uint32_t num_skip_front,
+		const bool skip_back,  const uint32_t num_skip_back)
 	: BaseCalcContext(filename, num_skip_front, num_skip_back)
 	, skip_front_(skip_front)
 	, skip_back_(skip_back)
@@ -2243,7 +2240,7 @@ Checksums Calculation::Impl::result() const
 
 
 void Calculation::Impl::set_partitioner(
-		std::unique_ptr<Partitioner> partitioner)
+			std::unique_ptr<Partitioner> partitioner)
 {
 	partitioner_ = std::move(partitioner);
 }
@@ -2289,7 +2286,7 @@ Calculation::Impl& Calculation::Impl::operator = (const Calculation::Impl& rhs)
 
 
 Calculation::Impl& Calculation::Impl::operator = (
-		Calculation::Impl &&rhs) noexcept = default;
+			Calculation::Impl &&rhs) noexcept = default;
 
 
 void Calculation::Impl::sync_state_and_context()

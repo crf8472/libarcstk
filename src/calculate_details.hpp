@@ -13,7 +13,6 @@
 // Forward Declaration Required for Partitioner
 class SampleChunk;
 
-
 /**
  * Partitioning of a SampleBlock.
  */
@@ -56,9 +55,9 @@ public:
 	 * \return Partitioning of \c samples as a sequence of sample chunks.
 	 */
 	Partitioning create_partition(
-		const uint32_t offset,
-		const SampleBlock *samples,
-		const CalcContext &context) const;
+			const uint32_t offset,
+			const SampleBlock *samples,
+			const CalcContext &context) const;
 
 	/**
 	 * Clone this Partitioner object.
@@ -81,7 +80,7 @@ protected:
 	 * \return Index of the last physical sample in the block
 	 */
 	uint32_t last_sample_idx(const uint32_t offset,
-		const uint32_t sample_count) const;
+			const uint32_t sample_count) const;
 
 	/**
 	 * Creates a SampleChunk.
@@ -100,13 +99,13 @@ protected:
 	 * \return A SampleChunk as specified
 	 */
 	SampleChunk create_chunk(
-		const SampleBlock::const_iterator &begin_it,
-		const SampleBlock::const_iterator &end_it,
-		const uint32_t     &first,
-		const uint32_t     &last,
-		const bool         &first_in_track,
-		const bool         &last_in_track,
-		const TrackNo      &track) const;
+			const SampleBlock::const_iterator &begin_it,
+			const SampleBlock::const_iterator &end_it,
+			const uint32_t     &first,
+			const uint32_t     &last,
+			const bool         &first_in_track,
+			const bool         &last_in_track,
+			const TrackNo      &track) const;
 
 
 private:
@@ -115,9 +114,9 @@ private:
 	 * Implements Partitioner::create_partition().
 	 */
 	virtual Partitioning do_create_partition(
-		const uint32_t offset,
-		const SampleBlock *samples,
-		const CalcContext &context) const
+			const uint32_t offset,
+			const SampleBlock *samples,
+			const CalcContext &context) const
 	= 0;
 };
 
@@ -140,10 +139,10 @@ public:
 protected:
 
 	Partitioning do_create_partition(
-		const uint32_t offset,
-		const SampleBlock *samples,
-		const CalcContext &context)
-		const override;
+			const uint32_t offset,
+			const SampleBlock *samples,
+			const CalcContext &context)
+			const override;
 };
 
 
@@ -165,10 +164,10 @@ public:
 protected:
 
 	Partitioning do_create_partition(
-		const uint32_t offset,
-		const SampleBlock *samples,
-		const CalcContext &context)
-		const override;
+			const uint32_t offset,
+			const SampleBlock *samples,
+			const CalcContext &context)
+			const override;
 };
 
 
@@ -279,13 +278,13 @@ private:
 	 * \param[in] track          Number of the track that contains this chunk
 	 */
 	SampleChunk(
-		const const_iterator &begin_it,
-		const const_iterator &end_it,
-		const uint32_t     &first,
-		const uint32_t     &last,
-		const bool         &first_in_track,
-		const bool         &last_in_track,
-		const TrackNo      &track);
+			const const_iterator &begin_it,
+			const const_iterator &end_it,
+			const uint32_t     &first,
+			const uint32_t     &last,
+			const bool         &first_in_track,
+			const bool         &last_in_track,
+			const TrackNo      &track);
 
 	/**
 	 * Iterator to start of the chunk
@@ -656,20 +655,20 @@ Partitioning Partitioner::create_partition(
 
 
 uint32_t Partitioner::last_sample_idx(const uint32_t offset,
-			const uint32_t sample_count) const
+		const uint32_t sample_count) const
 {
 	return offset + sample_count - 1;
 }
 
 
 SampleChunk Partitioner::create_chunk(
-			const SampleBlock::const_iterator &begin_it,
-			const SampleBlock::const_iterator &end_it,
-			const uint32_t     &first,
-			const uint32_t     &last,
-			const bool         &first_in_track,
-			const bool         &last_in_track,
-			const TrackNo      &track) const
+		const SampleBlock::const_iterator &begin_it,
+		const SampleBlock::const_iterator &end_it,
+		const uint32_t     &first,
+		const uint32_t     &last,
+		const bool         &first_in_track,
+		const bool         &last_in_track,
+		const TrackNo      &track) const
 {
 	return SampleChunk(begin_it, end_it, first, last, first_in_track,
 			last_in_track, track);

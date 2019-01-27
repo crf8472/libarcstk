@@ -25,8 +25,8 @@ I decided to reduce the wiggle room for stylistic creativity.
 
 # Formatting
 
-- Use spaces, not tabs
-- 1 indent step is 4 spaces.
+- Use tabs not spaces for indenting
+- 1 indent step is 1 tab = 4 spaces.
 - Put opening and closing curly braces (``{`` and ``}``) on the next line.
 - There is no space after the opening parenthesis ``(`` and no space before the
   closing parenthesis ``)``.
@@ -45,9 +45,13 @@ I decided to reduce the wiggle room for stylistic creativity.
 
 # Documentation Comments
 
-- Every namespace, every function, every constant, every type, every class and
-  every class member must have a documentation comment (regardless whether it's
-  part of a public API, an internal API or any API at all).
+- Everything declared in a header, i.e. every namespace, every function,
+  every constant, every type, every class and every class member must have a
+  documentation comment.
+- Every declaration in a source file except implementation classes must have
+  documentation comment.
+- Implementation classes (i.e. subclasses that are ``final`` and not declared in
+  a header) and their members may or may not have documentation comments.
 - If something involves a value, make the unit of the value maximally clear
   (bad: "size"; good: "number of samples", "size in bytes").
 - If something involves an index, make maximally clear whether the index is

@@ -23,16 +23,13 @@
 namespace arcs
 {
 
-
 inline namespace v_1_0_0
 {
-
 
 /**
  * Global instance of the CDDA constants
  */
 const CDDA_t CDDA;
-
 
 /// \cond IMPL_ONLY
 /// \internal \defgroup idImpl Implementation of the AccurateRip ID
@@ -352,16 +349,16 @@ public:
 	 * Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const uint32_t leadout);
 	 */
 	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout);
+			const std::vector<int32_t> &offsets,
+			const uint32_t leadout);
 
 	/**
 	 * Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
 	 */
 	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
-		const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files);
+			const std::vector<int32_t> &offsets,
+			const std::vector<int32_t> &lengths,
+			const std::vector<std::string> &files);
 
 	std::unique_ptr<TOC::Impl> merge(const TOC &toc, const uint32_t leadout)
 		const;
@@ -474,15 +471,6 @@ protected:
 	 */
 	std::vector<std::string> build_files(std::vector<std::string> files) const;
 
-	/**
-	 * Create metadata flags indicating the audio file layout.
-	 *
-	 * \param[in] files List of audiofile names
-	 *
-	 * \return The flags for the audiofile layout
-	 */
-	//unsigned int audiofile_layout(std::vector<std::string> files) const;
-
 
 private:
 
@@ -515,7 +503,7 @@ class TOC::Impl final
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
-	friend	std::unique_ptr<TOC::Impl> details::TOCBuilder::Impl::merge(
+	friend std::unique_ptr<TOC::Impl> details::TOCBuilder::Impl::merge(
 			const TOC &toc, const uint32_t leadout) const;
 
 public:
@@ -566,8 +554,8 @@ private:
 	 * \param[in] leadout     Leadout frame
 	 */
 	Impl(const uint32_t track_count,
-		const std::vector<uint32_t> &offsets,
-		const uint32_t leadout);
+			const std::vector<uint32_t> &offsets,
+			const uint32_t leadout);
 
 	/**
 	 * Implements private constructor of TOC.
@@ -578,9 +566,9 @@ private:
 	 * \param[in] files       File name of each track
 	 */
 	Impl(const uint32_t track_count,
-		const std::vector<uint32_t> &offsets,
-		const std::vector<uint32_t> &lengths,
-		const std::vector<std::string> &files);
+			const std::vector<uint32_t> &offsets,
+			const std::vector<uint32_t> &lengths,
+			const std::vector<std::string> &files);
 
 	/**
 	 * Number of tracks
@@ -638,9 +626,9 @@ TOC::Impl::Impl(const uint32_t track_count,
 	, offsets_(offsets)
 	, lengths_(lengths)
 	, leadout_( // compute leadout, if length of last track is known
-		(lengths_.at(track_count - 1) > 0)
-			? offsets_.at(track_count - 1) + lengths_.at(track_count - 1)
-			: 0)
+			(lengths_.at(track_count - 1) > 0)
+				? offsets_.at(track_count - 1) + lengths_.at(track_count - 1)
+				: 0)
 	, files_(files)
 {
 	// empty
@@ -1072,8 +1060,7 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build_empty_id() const noexcept
 
 
 uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t track_count,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout
-		) const
+		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
@@ -1086,8 +1073,7 @@ uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t track_count,
 
 
 uint32_t ARIdBuilder::Impl::disc_id_2(const uint16_t track_count,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout
-		) const
+		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
@@ -1105,8 +1091,7 @@ uint32_t ARIdBuilder::Impl::disc_id_2(const uint16_t track_count,
 
 
 uint32_t ARIdBuilder::Impl::cddb_id(const uint16_t track_count,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout
-		) const
+		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// The CDDB id is a 32bit unsigned integer, formed of a concatenation of
 	// the following 3 numbers:
@@ -1165,7 +1150,7 @@ ARIdBuilder::~ARIdBuilder() noexcept = default;
 
 
 std::unique_ptr<ARId> ARIdBuilder::build(const uint32_t &track_count,
-			const std::vector<int32_t> &offsets, const uint32_t leadout) const
+		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	TOCBuilder builder;
 	auto toc = builder.build(track_count, offsets, leadout);
@@ -1220,8 +1205,7 @@ TOCBuilder::Impl::Impl()
 
 
 TOCBuilder::Impl::Impl(const TOCBuilder::Impl &rhs)
-	: validator_(std::make_unique<TOCValidator>(*rhs.validator_))
-	  // deep copy
+	: validator_(std::make_unique<TOCValidator>(*rhs.validator_)) // deep copy
 {
 	// empty
 }
@@ -1469,7 +1453,7 @@ TOCBuilder& TOCBuilder::operator = (TOCBuilder &&rhs) noexcept = default;
 
 
 void TOCValidator::validate(const uint16_t track_count,
-	const std::vector<int32_t> &offsets, const uint32_t leadout) const
+		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	this->validate_leadout(leadout);
 
@@ -1502,7 +1486,7 @@ void TOCValidator::validate(const TOC &toc, const uint32_t leadout) const
 
 
 void TOCValidator::validate_offsets(const uint16_t track_count,
-	const std::vector<int32_t> &offsets) const
+		const std::vector<int32_t> &offsets) const
 {
 	this->validate_trackcount(track_count);
 
@@ -1801,9 +1785,9 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 
 
 std::unique_ptr<TOC> make_toc(const uint32_t track_count,
-			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
-			const std::vector<std::string> &files)
+		const std::vector<int32_t> &offsets,
+		const std::vector<int32_t> &lengths,
+		const std::vector<std::string> &files)
 {
 	details::TOCBuilder builder;
 	return builder.build(track_count, offsets, lengths, files);

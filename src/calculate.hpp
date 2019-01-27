@@ -456,7 +456,7 @@ public:
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
 	virtual void notify_skips(const uint32_t num_skip_front, const uint32_t
-			num_skip_back) = 0;
+		num_skip_back) = 0;
 
 	/**
 	 * Clone this CalcContext object.
