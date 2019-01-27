@@ -6,20 +6,20 @@
 #include "calculate.hpp"
 #endif
 
-#include <algorithm> // for sort, adjacent_find
-#include <chrono>    // only for debug (used in update())
-#include <iomanip>
+#include <algorithm>     // for copy
+#include <chrono>
+#include <cmath>         // for exp2
+#include <cstdint>
+#include <exception>     // for exception
 #include <fstream>
 #include <memory>
-#include <sstream>
-#include <tuple>    // for std::tuple_element_t, std::tuple_size
-					// C++17: for std::tuple_size_v instead of std::tuple_size
-#include <type_traits>  // for std::enable_if_t, std::is_same, std::decay_t
-						// C++17: for std::is_same_v instead of std::is_same
+#include <stdexcept>     // for logic_error, invalid_argument
+#include <tuple>         // for tuple_element_t, tuple_size
+                         // C++17: for tuple_size_v instead of tuple_size
+#include <type_traits>   // for enable_if_t, is_same, decay_t
+                         // C++17: for is_same_v instead of is_same
 #include <unordered_map>
-#include <utility>   // for std::pair, std::forward, std::make_index_sequence
-#include <stdexcept>   // for std::invalid_argument
-#include <cmath>  // for std::log2
+#include <utility>       // for pair, forward, make_index_sequence
 #include <vector>
 
 #ifndef __LIBARCS_LOGGING_HPP__

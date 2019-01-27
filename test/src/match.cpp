@@ -5,8 +5,14 @@
 #include <memory>
 #include <vector>
 
+#ifndef __LIBARCS_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
 #ifndef __LIBARCS_MATCH_HPP__
 #include "match.hpp"
+#endif
+#ifndef __LIBARCS_PARSE_HPP__
+#include "parse.hpp"
 #endif
 
 

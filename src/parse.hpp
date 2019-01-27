@@ -37,9 +37,7 @@
 #include <string>
 #include <vector>
 
-#ifndef __LIBARCS_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
+namespace arcs { inline namespace v_1_0_0 { class ARId; } }
 
 
 namespace arcs

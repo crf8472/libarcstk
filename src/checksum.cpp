@@ -1,17 +1,11 @@
 #ifndef __LIBARCS_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
-#ifndef __LIBARCS_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCS_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
-#include <iomanip>        // for std::uppercase, std::nouppercase, std::setw,
-                          // std::setfill, std::showbase, std::noshowbase
-#include <sstream>        // for std::stringstream
-#include <unordered_map>
+#include <cmath>          // for log2
+#include <iomanip>        // for uppercase, nouppercase, setw, setfill
+                          // showbase, noshowbase
+#include <sstream>        // for stringstream
 
 
 namespace arcs

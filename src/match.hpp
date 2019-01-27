@@ -22,17 +22,12 @@
 
 
 #include <cstdint>
+#include <cstddef>
 #include <memory>
 
-#ifndef __LIBARCS_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCS_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
-#ifndef __LIBARCS_PARSE_HPP__
-#include "parse.hpp"
-#endif
+namespace arcs { inline namespace v_1_0_0 { class ARId;       } }
+namespace arcs { inline namespace v_1_0_0 { class ARResponse; } }
+namespace arcs { inline namespace v_1_0_0 { class Checksums;  } }
 
 
 namespace arcs

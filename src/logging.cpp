@@ -8,9 +8,11 @@
 #endif
 
 #include <chrono>
-#include <iomanip> // for std::put_time
-#include <mutex>
-
+#include <ctime>     // for localtime
+#include <iomanip>   // for put_time
+#include <memory>
+#include <mutex>     // for lock_guard, mutex
+#include <stdexcept> // for runtime_error
 
 namespace arcs
 {

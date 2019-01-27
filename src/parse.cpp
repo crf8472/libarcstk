@@ -7,16 +7,13 @@
 #include "parse.hpp"
 #endif
 
-#include <array>
-#include <cstdio>   // for std::freopen, std::ferror, std::fread, std::feof
-#include <cstring>  // for EOF, std::strerror
+#include <cerrno>   // for errno
+#include <cstdio>   // for feof, ferror, fread, freopen, stdin
+#include <cstring>  // for EOF, strerror
 #include <fstream>
-#include <ios>
-#include <iomanip>
 #include <memory>
-#include <streambuf> // for std::basic_streambuf
-#include <string>    // from .h
-#include <vector>    // from .h
+#include <string>
+#include <vector>
 
 #ifndef __LIBARCS_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -970,7 +967,7 @@ ARResponse::ARResponse(const ARResponse &rhs)
 ARResponse::ARResponse(ARResponse &&rhs) noexcept = default;
 
 
-ARResponse::~ARResponse() = default;
+ARResponse::~ARResponse() noexcept = default;
 
 
 void ARResponse::append(const ARBlock &block)
@@ -1197,7 +1194,7 @@ DefaultHandler::Impl::Impl(
 }
 
 
-DefaultHandler::Impl::~Impl() = default;
+DefaultHandler::Impl::~Impl() noexcept = default;
 
 
 void DefaultHandler::Impl::start_input()
@@ -1285,7 +1282,7 @@ DefaultHandler::DefaultHandler(const DefaultHandler &rhs)
 }
 
 
-DefaultHandler::~DefaultHandler() = default;
+DefaultHandler::~DefaultHandler() noexcept = default;
 
 
 void DefaultHandler::start_input()

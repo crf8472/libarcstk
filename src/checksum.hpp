@@ -23,15 +23,14 @@
  */
 
 
-#include <cmath>   // for std::exp2 and std::log2
+#include <array>
 #include <cstdint>
-#include <memory>  // for std::unique_ptr
+#include <cstddef>     // for size_t
+#include <map>         // (ChecksumList)
+#include <set>         // (ChecksumList)
 #include <string>
-
-// Used by ChecksumList\<\>
-#include <map>
-#include <set>
-#include <type_traits>
+#include <type_traits> // for conditional
+#include <utility>     // for pair
 
 
 namespace arcs

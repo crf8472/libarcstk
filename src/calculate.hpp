@@ -41,9 +41,13 @@
 
 
 #include <cstdint>
+#include <cstddef>     // for size_t
+#include <iterator>    // for random_access_iterator_tag
 #include <memory>
-#include <stdexcept>
+#include <stdexcept>   // for logic_error
 #include <string>
+#include <type_traits> // for conditional
+#include <vector>
 
 
 #ifndef __LIBARCS_CHECKSUM_HPP__

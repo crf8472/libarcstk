@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <stdexcept>  // for logic_error
 #include <string>
 #include <vector>
 

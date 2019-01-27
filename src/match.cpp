@@ -7,13 +7,22 @@
 #include "match.hpp"
 #endif
 
-#include <bitset>
 #include <cstdint>
 #include <iomanip>
-#include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
+#ifndef __LIBARCS_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
+#ifndef __LIBARCS_IDENTIFIER_HPP__
+#include "identifier.hpp"
+#endif
+#ifndef __LIBARCS_PARSE_HPP__
+#include "parse.hpp"
+#endif
 #ifndef __LIBARCS_LOGGING_HPP__
 #include "logging.hpp"
 #endif

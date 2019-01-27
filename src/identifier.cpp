@@ -7,13 +7,13 @@
 #include "identifier.hpp"
 #endif
 
-#include <cstdint> // from .h
-#include <iomanip> // for setw
+#include <cstdint>
+#include <iomanip>   // for setw, setfill
 #include <memory>
-#include <sstream> // for stringstream
-#include <stdexcept>
-#include <string>  // from .h
-#include <vector>  // from .h
+#include <sstream>   // for stringstream
+#include <stdexcept> // for logic_error
+#include <string>
+#include <vector>
 
 #ifndef __LIBARCS_LOGGING_HPP__
 #include "logging.hpp"

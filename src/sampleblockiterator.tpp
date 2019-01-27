@@ -100,6 +100,5 @@ SampleBlockIterator<is_const>& SampleBlockIterator<is_const>::operator -= (
 	return *this;
 }
 
-
 #endif
 
