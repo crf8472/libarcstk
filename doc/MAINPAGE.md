@@ -1,7 +1,7 @@
-# libarcs - A library to calculate and verify AccurateRip checksums and ids
+\mainpage libarcs - A library to calculate and verify AccurateRip checksums and ids
 
 
-# Features
+\section features Features
 
 The libarcs function library provides offline service functions for working with
 AccurateRip checksums ("ARCSs"). Although AccurateRip checksums are often
@@ -21,7 +21,7 @@ Libarcs supports the following tasks for working with ARCSs:
 
 
 
-# What libarcs does not
+\section nonfeatures What libarcs does not
 
 Libarcs has no network facilities and is not supposed to get any. The actual
 HTTP request for fetching the reference values is better performed by the
@@ -29,7 +29,7 @@ HTTP networking client of your choice.
 
 
 
-# Current Limitations
+\section restrictions Current Limitations
 
 - Not considered stable before 1.0.0, the API may change any time in any way
 - Supports only little endian plattforms. Release-build on big endian plattforms
@@ -38,29 +38,29 @@ HTTP networking client of your choice.
 
 
 
-# Bugs
+\section bugs Bugs
 
 - Data tracks are just processed like audio tracks. What happens is completely
   untested.
 
 
 
-# How to Build
+\section howtobuild How to Build
 
 Build and install to just use the API:
 
-	$ cd libarcs     # your libarcs root directory where README.md resides
+	$ cd libarcs          # your libarcs root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
-	$ sudo make install    # installs to /usr/local
+	$ sudo make install   # installs to /usr/local
 
 A detailed HowTo explaining different build scenarios and all build switches see
 BUILD.md.
 
 
 
-# libarcs API
+\section howtouse How to Use
 
 For the API reference see API.md. An introductory tutorial is to follow.
 
