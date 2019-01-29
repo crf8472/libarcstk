@@ -26,6 +26,7 @@
 #include <array>
 #include <cstdint>
 #include <cstddef>     // for size_t
+#include <memory>
 #include <map>         // (ChecksumList)
 #include <set>         // (ChecksumList)
 #include <string>
@@ -566,7 +567,7 @@ private: // TODO Hide this!
 /**
  * A set of <tt>Checksum</tt>s of different types for a single track.
  */
-class ChecksumSet : public details::ChecksumList<checksum::type>
+class ChecksumSet final : public details::ChecksumList<checksum::type>
 {
 
 public:
@@ -577,11 +578,30 @@ public:
 	ChecksumSet();
 
 	/**
+	 * Copy constructor
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
+	ChecksumSet(const ChecksumSet &rhs);
+
+	/**
+	 * Move constructor
+	 *
+	 * \param[in] rhs The instance to move
+	 */
+	ChecksumSet(ChecksumSet &&rhs) noexcept;
+
+	/**
 	 * Constructor
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
 	explicit ChecksumSet(const uint32_t length);
+
+	/**
+	 * Default destructor
+	 */
+	~ChecksumSet() noexcept;
 
 	/**
 	 * Length (in LBA frames) of this track.
@@ -590,13 +610,25 @@ public:
 	 */
 	uint32_t length() const;
 
+	/**
+	 * Copy assignment.
+	 *
+	 * \param[in] rhs Right hand side of the assignment
+	 *
+	 * \return The right hand side of the assignment
+	 */
+	ChecksumSet& operator = (const ChecksumSet &rhs);
 
-private: // TODO Hide this!
+
+private:
+
+	// forward declaration for ChecksumSet::Impl
+	class Impl;
 
 	/**
-	 * Internal representation of the length (in frames)
+	 * Private implementation of ChecksumSet
 	 */
-	uint32_t length_;
+	std::unique_ptr<Impl> impl_;
 };
 
 

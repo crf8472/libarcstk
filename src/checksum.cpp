@@ -66,26 +66,123 @@ bool Checksum::operator != (const Checksum &rhs) const
 //= default;
 
 
-// ChecksumSet
+// ChecksumSet::Impl
 
 
-ChecksumSet::ChecksumSet()
-	: length_(0)
+/**
+ * Private implementation of ChecksumSet.
+ */
+class ChecksumSet::Impl final
 {
-	// empty
-}
+
+public:
+
+	/**
+	 * Constructor
+	 *
+	 * \param[in] length Length (in LBA frames) of this track
+	 */
+	explicit Impl(const uint32_t length);
+
+	/**
+	 * Copy constructor
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
+	Impl(const Impl &rhs);
+
+	/**
+	 * Length (in LBA frames) of this track.
+	 *
+	 * \return Length of this track in LBA frames
+	 */
+	uint32_t length() const;
+
+	/**
+	 * Copy assignment.
+	 *
+	 * \param[in] rhs Right hand side of the assignment
+	 *
+	 * \return The right hand side of the assignment
+	 */
+	Impl& operator = (const Impl &rhs);
 
 
-ChecksumSet::ChecksumSet(const uint32_t length)
+private:
+
+	/**
+	 * Internal representation of the length (in frames)
+	 */
+	uint32_t length_;
+};
+
+
+ChecksumSet::Impl::Impl(const uint32_t length)
 	: length_(length)
 {
 	// empty
 }
 
 
-uint32_t ChecksumSet::length() const
+ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
+	: length_(rhs.length_)
+{
+	// empty
+}
+
+
+uint32_t ChecksumSet::Impl::length() const
 {
 	return length_;
+}
+
+
+ChecksumSet::Impl& ChecksumSet::Impl::operator = (const ChecksumSet::Impl& rhs)
+= default;
+
+
+// ChecksumSet
+
+
+ChecksumSet::ChecksumSet()
+	: impl_(std::make_unique<ChecksumSet::Impl>(0))
+{
+	// empty
+}
+
+
+ChecksumSet::ChecksumSet(const uint32_t length)
+	: impl_(std::make_unique<ChecksumSet::Impl>(length))
+{
+	// empty
+}
+
+
+ChecksumSet::ChecksumSet(const ChecksumSet &rhs)
+	: ChecksumList<checksum::type>(rhs)
+	, impl_(std::make_unique<ChecksumSet::Impl>(*rhs.impl_))
+{
+	// empty
+}
+
+
+ChecksumSet::~ChecksumSet() noexcept = default;
+
+
+ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
+
+
+uint32_t ChecksumSet::length() const
+{
+	return impl_->length();
+}
+
+
+ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
+{
+	ChecksumList<checksum::type>::operator=(rhs);
+	impl_ = std::make_unique<ChecksumSet::Impl>(rhs.length());
+	return *this;
 }
 
 
