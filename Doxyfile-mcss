@@ -17,7 +17,7 @@ GENERATE_LATEX         = NO
 # readers/editors.
 # The default value is: NO.
 
-GENERATE_RTF           = NO
+# GENERATE_RTF           = NO
 
 # If the GENERATE_MAN tag is set to YES, doxygen will generate man pages for
 # classes and files.
