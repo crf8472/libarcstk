@@ -1,7 +1,8 @@
-# How to Build															{#build}
+# How to Build
 
 
-# Building libarcs on Linux and \*BSD
+
+## Building libarcs on Linux and \*BSD
 
 Libarcs is written in C++14. It was developed on Linux with a strong focus on
 C++ standard compliance and has no runtime dependencies other than the C++
@@ -21,92 +22,73 @@ BSDs but don't expect major issues.
 
 ### Optional Buildtime Dependencies
 
-- git - testing: to clone test framework [Catch2][2] as an external project when running the unit tests
-- Doxygen - documentation: to build the API documentation in HTML or LaTeX
-- LaTeX (TeXLive for instance) - documentation: to build the documentation in LaTeX
-- include-what-you-use - development: to control ``include``-relationships when working on the code
-
-
-
-## Buildtime switches
-
-The desired buildtime configuration for libarcs may differ for users, developers
-and packagers of libarcs, which is pointed out below.
-
-Libarcs' CMake configuration knows the following switches:
-
-|Switch         |Description                                     |Default|
-|---------------|------------------------------------------------|-------|
-|AS_STATIC      |Build static library instead of shared library  |OFF    |
-|WITH_NATIVE    |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
-|WITH_TESTS     |Compile tests for runing ctest                  |OFF    |
-|IWYU           |Use include-what-you-use on compiling           |OFF    |
-
-If you are experienced in compiling libraries and know what you are doing, you
-may skip the following part of this paragraph and proceed to the paragraph
-``Building the documentation``.
+- git - for testing: to clone test framework [Catch2][2] as an external project
+  when running the unit tests
+- Doxygen - for documentation: to build the API documentation in HTML or LaTeX
+- LaTeX (TeXLive for instance) - for documentation: to build the documentation
+  in LaTeX
+- include-what-you-use - for development: to control ``include``-relationships
+  when working on the code
 
 
 ## How to build
 
-The build is quite standard. The steps for building are as follows:
+The build is quite standard. We presuppose you have downloaded and unpacked or
+git-clonde libarcs to a folder ``libarcs``.
 
--# Download and unpack libarcs to directory ``libarcs``
--# Change to directory ``libarcs``
--# Beneath directory ``libarcs``, create a directory named ``build`` and change
-   to it
--# Configure the project by calling ``cmake ..`` with the desired options from
-   the table above
--# Build the project by calling ``cmake --build .``
--# Install the provided files to your system by calling the ``install`` target
+The steps for building are then as follows (for Linux and \*nix):
 
-The first step may vary with the method you acquired a copy of libarcs. If you
-have just cloned the repository to directory ``libarcs`` you already completed
-the first step.
+	$ cd libarcs         # your libarcs root folder where README.md resides
+	$ mkdir build && cd build  # create build folder for out-of-source-build
+	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # configure build type
+	$ cmake --build .    # perform the actual build
+	$ sudo make install  # installs to /usr/local
 
-Second step (for Linux and \*nix):
+This will install libarcs with all optimizations and without debug-symbols and
+tests.
 
-	$ cd libarcs
+The latter three steps may be different for you depending whether you act as
+- a user (read: a developer who uses libarcs in her project)
+- a contributing developer (who wants to debug and test) or
+- as a package maintainer (who intends to package libarcs for some target
+  system).
 
-Third step (for Linux and \*nix):
-
-	$ mkdir build
-	$ cd build
-
-The last three steps may be different for you depending whether you act as a
-user, a developer (maybe who intends to contribute to libarcs) or as a package
-maintainer (who intends to package libarcs for some target system).
-
-We therefore describe the steps separately for users, developers and package
+We therefore describe the steps separately for users, contributors and package
 maintainers.
+
 
 ### Users
 
-You want to install libarcs on your system, say, for using ``arcs_tools`` or for
-writing your own tools that use the libarcs API. You just want libarcs to be
-available along with its headers, running fast and remaining small:
+You intend to install libarcs on your system, say, as a dependency for your own
+project. You just want libarcs to be available along with its headers, running
+fast, remaining small and not getting in your way:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
 	$ sudo make install
 
-If your user has write permissions in the install directory, you should stick
-to the cmake-only version instead:
+Better not use cmake via sudo, stick to the first-order build tool. If your user
+has write permissions in the install directory, you can stick to the cmake-only
+version instead:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build . --target install
 
 This will install the following files to your system:
 
-- the shared object libarcs.so.x.y.z (along with a symbolic link ``libarcs.so``) in the standard library location
-- the six public header files \ref calculate.hpp, \ref checksum.hpp, \ref identifier.hpp, \ref logging.hpp, \ref match.hpp and \ref parse.hpp in the standard include location.
+- the shared object libarcs.so.x.y.z (along with a symbolic link ``libarcs.so``)
+  in the standard library location (e.g. /usr/local/lib)
+- the six public header files calculate.hpp, checksum.hpp, identifier.hpp,
+  logging.hpp, match.hpp and parse.hpp in the standard include location
+  (e.g. /usr/local/include).
 - the pkg-config configuration file libarcs.pc
 
 On \*nix environments, as you guessed, the default install prefix is
 ``/usr/local`` but you can change this by calling cmake with the
 ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` switch.
 
-### Developers
+
+### Contributors
 
 You want to debug into the libarcs code, which may be helpful when working on
 the code. You need to build libarcs with debugging symbols and without
@@ -116,7 +98,7 @@ aggressive optimization:
 	$ cmake --build .
 	$ sudo make install
 
-For also building the tests, just use the corresponding switch:
+For also building and running the tests, just use the corresponding switch:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_TESTS=ON ..
 	$ cmake --build .
@@ -126,34 +108,40 @@ For also building the tests, just use the corresponding switch:
 Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework Catch2
 within your directory ``build`` and fail if this does not work.
 
-Running the unit tests is not part of the build process. The tests have to be
+Running the unit tests is *not* part of the build process. The tests have to be
 executed manually after the build is completed, just by invoking ``ctest``.
 
-NOTE that currently there are tests that read test data by hardcoded relative
-paths. These tests will only pass if ``ctest`` is called from directory
-``build``. This behaviour is considered a bug and will be fixed soon.
+Note that ctest will write report files in the ``build`` folder.
+
+You may or may not want the ``-march=native`` and ``-mtune=native`` switches on
+compilation. For Debug-builds, they are not used by default, but can be added by
+using ``-DWITH_NATIVE=ON``. For now, this switch has only influence when using
+gcc or clang. For other compilers, default settings apply.
 
 For controlling the ``include``-relationships within the code, CMake knows
 about Google's tool [include-what-you-use][1]. If you have installed this tool,
-you can instruct CMake to create a buildfile for calling include-what-you-use
-(in this example, we use ``make``):
+you can instruct CMake to create a buildfile for calling include-what-you-use:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON ..
 	$ cmake --build . 2>iwuy.txt
 
-This runs every source file through inlcude-what-you-use and writes the
-resulting analysis to file ``iwyu.txt``.
+This runs every source file through inlcude-what-you-use instead of the actual
+compiler and writes the resulting analysis to file ``iwyu.txt``.
 
 
 ### Package maintainers
 
 You want to build libarcs with a release profile but without having the compiler
-performing any architecture specific optimization (e.g. without -march=native
-for gcc). Furthermore, you would like to adjust the install prefix path such
-that libarcs is configured to expect being installed in the real system prefix
-(such as ``/usr``) instead of some default prefix (such as ``/usr/local``). (So
-when executing the install target after build, you choose the staging directory
-as the intermediate target.)
+performing any architecture specific optimization (e.g. without
+``-march=native`` for gcc or clang).
+
+Furthermore, you would like to adjust the install prefix path such that libarcs
+is configured to expect being installed in the real system prefix (such as
+``/usr``) instead of some default prefix (such as ``/usr/local``).
+
+Thus, when executing the install target after build, you choose the staging
+directory as the intermediate target but you tell libarcs that it may expect to
+be installed in another target.
 
 When using clang or gcc, this can be achieved as follows:
 
@@ -167,6 +155,18 @@ If you use another compiler than clang or gcc, CMake will not apply any project
 specific modifications to the compiler default settings. Therefore, you have to
 carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
+
+
+
+## Buildtime switches
+
+|Switch         |Description                                     |Default|
+|---------------|------------------------------------------------|-------|
+|AS_STATIC      |Build static library instead of shared library  |OFF    |
+|WITH_NATIVE    |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
+|WITH_TESTS     |Compile tests (but don't run them)              |OFF    |
+|IWYU           |Use include-what-you-use on compiling           |OFF    |
+
 
 
 ## Building the documentation
@@ -184,18 +184,17 @@ manually by calling target ``doc``.
 	$ cmake --build . --target doc
 
 This will create the HTML documentation in ``build/html``. Open the file
-``build/html/index.html`` in your browser to see *this* page.
+``build/html/index.html`` in your browser to see the entry page.
 
 Building the ``doc`` target will also create the LaTeX sources for the PDF
-manual. Creating the actual PDF file from those sources requires manual
-compilation. Compile the manual as follows (while still in directory ``build``):
+manual but will not automatically typeset the actual PDF document. Compile the
+manual as follows (while still in directory ``build``):
 
 	$ cd latex
 	$ make
 
-The manual [refman.pdf](../latex/refman.pdf) will be created in
-``build/latex`` (while issueing loads of ``Underfull \hbox`` warnings, which is
-quite normal).
+This will create the manual ``refman.pdf`` in folder ``build/latex`` (while
+issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 
 
 ## No Windows port yet :-(
