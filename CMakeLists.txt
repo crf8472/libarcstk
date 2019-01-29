@@ -224,7 +224,7 @@ endif (NOT SKIP_INSTALL_ALL)
 
 ## --- Compiler Specific Settings
 
-option (WITH_NATIVE "Use platform specific optimization on compiling" ON )
+option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
 
 ## Settings for g++ and clang
 
@@ -238,13 +238,23 @@ if (CMAKE_COMPILER_IS_GNUCXX
 
 	## Platform specific optimizations (default ON for Release, otherwise OFF)
 
-	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND WITH_NATIVE )
+	if (CMAKE_BUILD_TYPE STREQUAL "Release")
+
+		set (WITH_NATIVE ON CACHE BOOL
+			"Build with platform specific optimization" FORCE )
+
+	endif (CMAKE_BUILD_TYPE STREQUAL "Release" )
+
+	if (WITH_NATIVE )
 
 		message (STATUS "Build with platform specific optimization")
 
 		add_compile_options (-march=native -mtune=native )
+	else()
 
-	endif (CMAKE_BUILD_TYPE STREQUAL "Release" AND WITH_NATIVE )
+		message (STATUS "Build without platform specific optimization")
+
+	endif (WITH_NATIVE )
 
 else()
 
