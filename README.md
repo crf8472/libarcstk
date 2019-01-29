@@ -1,15 +1,20 @@
-# libarcs - A library to calculate and verify AccurateRip checksums and ids
+# A library to calculate and verify AccurateRip checksums and ids
 
 
-# Features
 
-The libarcs function library provides offline service functions for working with
-AccurateRip checksums ("ARCSs"). Although AccurateRip checksums are often
-referred to as "CRCs", in a mathematical sense, they are not CRCs. Therefore, we
-call them "ARCS"s (not "CRC"s).
+## What libarcs is
 
-Libarcs is written in C++14. It exposes a conservative API that is intended to
-be open for use by pre-C++11 applications. (Untested at the moment.)
+- Function library for AccurateRip checksums ("ARCS"s)
+- Calculates checksums and AccurateRip ids
+- Verifies checksums against reference sums from AccurateRip
+- Written in C++14
+- Conservative API, intended to be open for use by pre-C++11 applications
+  (yet untested).
+- Seems pretty fast
+
+
+
+## Features
 
 Libarcs supports the following tasks for working with ARCSs:
 
@@ -17,50 +22,55 @@ Libarcs supports the following tasks for working with ARCSs:
   sample blocks (from a CD TOC and the actual audio samples)
 - Verify ARCSs against reference sums from AccurateRip
 - Compute the AccurateRip ID of a CD from its TOC information
-- Parse the response of an request to the AccurateRip database
+- Parse the response from AccurateRip database to plain text
+
+Although AccurateRip checksums are often referred to as "CRCs", in a
+mathematical sense, they are not CRCs. Therefore, we call them "AccurateRip
+Checksums" or "ARCS"s for short.
 
 
 
-# What libarcs does not
+## What libarcs does not
 
-Libarcs has no network facilities and is not supposed to get any. The actual
+Libarcs offers no network facilities and is not supposed to do so. The actual
 HTTP request for fetching the reference values is better performed by the
 HTTP networking client of your choice.
 
 
 
-# Current Limitations
+## Current Limitations
 
-- Not considered stable before 1.0.0, the API may change any time in any way
+- No production release yet - will be 1.0.0
+- API is not considered stable before 1.0.0 - For now, API may change any time
+  in any way
 - Supports only little endian plattforms. Release-build on big endian plattforms
-  is therefore ruled out by cmake. Will just assume a little endian plattform
-  and fail silently on big endian plattforms without reporting.
+  is therefore ruled out by cmake.
 
 
 
-# Bugs
+## Bugs
 
-- Data tracks are just processed like audio tracks. What happens is completely
-  untested.
-
+- Never tested calculation any images containing data tracks.
 
 
-# How to Build
+
+## How to Build
 
 Build and install to just use the API:
 
-	$ cd libarcs     # your libarcs root directory where README.md resides
+	$ cd libarcs         # your libarcs root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
-	$ sudo make install    # installs to /usr/local
+	$ sudo make install  # installs to /usr/local
 
-A detailed HowTo explaining different build scenarios and all build switches see
-BUILD.md.
+See a [detailed HowTo](BUILD.md) explaining different build scenarios and all
+build switches.
 
 
 
-# libarcs API
+## How to Use
 
-For the API reference see API.md. An introductory tutorial is to follow.
+An introductory tutorial will be found in the Wiki. You can find the API
+documentation here.
 

@@ -1,6 +1,11 @@
-# ToDos																	{#todo}
+# ToDos
 
-# API
+
+A list of ToDos, mainly for myself, do not expect consistency. Especially do not
+expect that I really do anything of what I noted here any time soon.
+
+
+## API
 
 - Make all concrete classes regular, whenever possible i.e.:
 	- Copy+Move ctor
@@ -14,13 +19,14 @@
 - Implement non-member non-friend functions as function objects
 
 
-# Technical
+## Technical
 
-- Make project compileable on Windows (as dll)
+- Make project compileable on Windows
 - Ruby bindings (e.g. using rice)
+- Python bindings
 
 
-# Features
+## Features
 
 - Offset correction i.e. fast re-computation of ARCSs for specified read offsets
 like in CUE.Tools (not sure whether this is needed)

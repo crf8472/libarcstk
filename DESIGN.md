@@ -1,32 +1,41 @@
-# Design Principles													{#design}
+# Design Principles
 
 
 Libarcs embraces "modern" C++, which means to choose the contemporary way of
-doing things, not the way things were done back in the Nineties.
+doing things, not the way things were done back in the Nineties. Currently,
+libarcs is compiled as C++14.
 
-On the other hand, libarcs has a tendency to OOP-style design along with its
-patterns but avoids deep inheritance levels. Inheritance is good in case it
-helps to avoid repeating yourself, assists the intuition of the reader and
-models a natural is-a relationship. However, genericity is considered as the
-bigger achievement, so when in doubt, prefer the generic solution over OOP.
+On the other hand, libarcs has a tendency to OOP-style design along with some of
+its patterns but avoids deep inheritance levels. Inheritance is good in case it
+helps to avoid repeating yourself, assists the intuition of the reader, helps
+decoupling and models a natural is-a relationship. However, genericity is
+considered as the bigger achievement, so when in doubt, I tried to prefer the
+generic solution over OOP.
 
-For example: it is tried not to bloat classes with members just to make
-something a member. Always consider whether it is better to make it a non-member
-non-friend.
+For example: I tried not to bloat classes with members just to make something a
+member. Always consider whether it is better to make it a non-member non-friend.
 
 The API is deliberately conservative to enable its use also by pre-C++11-code.
 
-# Macros
+I used the project to improve my C++ knowledge which also entailed that I tried
+to reflect my lib design. I noted the following points mainly as a log for
+myself.
+
+Beware: the following contains my opinion. You might not like it.
+
+
+## Macros
 
 - Avoid new macros whenever possible. Especially, avoid defining macros for data
   values, use constant variables instead.
 
-# C-Style things
 
-- Avoid using the C-API entirely wherever possible, do things C++style.
+## C-Style things
+
 - Absolutely *never* use C-style casts, they are totally forbidden. Use
   only C++-casts. For conversions of arithmetic types prefer braced initializers
   (e.g. ``uint32_t{foo}``).
+- Avoid using the C-API entirely wherever possible, do things C++style.
 - If you absolutely must use the C-API for now, use it via its C++-headers
   whenever possible (e.g. ``cstdint`` instead of ``stdint.h``) to avoid
   polluting the global namespace.
@@ -36,35 +45,48 @@ The API is deliberately conservative to enable its use also by pre-C++11-code.
   completely unavoidable. (For example: using libfoo imposes using C-style code
   but not using libfoo would reinvent the wheel.)
 
-# Globals
 
-- Avoid new globals whenever possible.
-- Make it a member of a class, except for good reasons (e.g. in case of
+## Globals
+
+- Avoid new globals whenever possible. (Providing a constant is usually not a
+  reason for a global: this can also be a static member of a class/struct or a
+  function just returning the constant.)
+- Make it a member of a class except for good reasons (e.g. in case of
   operators, service methods or if encapsulation is better supported by making
   it a non-member non-friend.).
 
-# Types
 
-- Use STL data types whenever possible: std::string instead of foo::myStr.
-- Prefer C++14-style smart pointers (using ``std::make_*``) over raw pointers.
+## Types
+
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
-- Avoid non-owning raw pointers except for very good reasons (e.g. when
+- Use STL data types whenever possible: std::string instead of foo::myStr.
+- Prefer smart pointers over raw pointers. Use C++14's std::make_unique except
+  when initialization is positively to be excluded.
+- Use non-owning raw pointers sparingly, except for very good reasons (e.g. when
   protected accessors seem unavoidable).
-- Prefer ``using A = foo:A`` over ``typedef``s.
+- Prefer ``using A = foo::A`` over ``typedef foo::A A``.
+- Prefer choosing the minimal possible scope for a using declarative. Of course
+  any declarative of the form ``using namespace`` is totally forbidden.
 
-# Classes
+
+## Classes
 
 - Absolutely avoid class members that are ``public`` and non-const. Use
   accessors and mutators instead.
 - Classes in exported header files do not have private members, except a single
   pointer to an instance whose type is initially forward declared in the same
   class. (In short: if it's declared in an exported header and happens to need
-  private members, hide them by making it a ``Pimpl``.)
+  private members, hide them by making it a ``Pimpl``. Forward declarations in
+  Pimpls are private except for good reasons.)
 - A class declaration contains only declaration of its members, but never their
   inline implementation. (Inlining is no reason, static is no reason.)
-- The definition ``= default`` has to be in the ``.cpp`` file not in the header.
+- The definition ``= default`` has to be in the source file not in the header
+  since it is an implementation detail.
+- The definition ``= delete`` has to be in the header not in the source file
+  since it is part of the API.
 
-# Linkage
+
+## Linkage
 
 - Libarcs does never ever put anything in the global namespace. Everything that
   is part of libarcs *must* reside in the ``arcs`` namespace or one of its
@@ -72,26 +94,35 @@ The API is deliberately conservative to enable its use also by pre-C++11-code.
 - When it is arcs-global, it should have ``extern`` linkage to avoid unnecessary
   instances.
 - What is declared and used only within a ``.cpp`` file must have internal
-  linkage, usually by putting it an unnamed namespace or declaring it as static.
+  linkage, usually by putting it an unnamed namespace. See the static qualifier
+  only as a last resort.
 
-# Header files
+
+## Header files
 
 - Any header file only declares symbols that are intentionally part of its API.
   Symbols in a header may not exist "by accident" or for "technical reasons".
   If you absolutely must provide a symbol in a header that is not considered
-  part of the public API enclose it in a namespace ``details``.
+  part of the public API enclose it in a namespace ``details``. (I did this on
+  one site and I do not like it, I will refactor it away!)
 - Of course forward declared implementation pointers are ok.
 
-# Dependencies
+
+## Dependencies
 
 - Do not introduce any new external dependencies. For runtime, prefer standard
   library whenever reasonably possible and for buildtime stick to the tools
   already involved (CMake, Catch2, git).
 
-# Tests
+
+## Tests
 
 - If it does anything non-trivial, add a unit test for it.
 - Test filenames are of the scheme: ``<compilation_unit>-<classname>`` where the
   classname may be omitted if the test tests multiple entities of the
   compilation unit.
+- If it is not part of the public API but needs to be tested, move it to a
+  separate header, that is included to a non-public namespace at its actual site
+  and included "as-if-public" by the test class. Give it the same name as the
+  public header it belongs to, suffixed by ``_details``.
 

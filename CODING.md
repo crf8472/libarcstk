@@ -1,5 +1,9 @@
-# Coding Style														{#coding}
+# Coding Style
 
+
+Beware: the following contains my opinion. You might not like it. It does *not*
+claim to be the truth to obey for everybody, it is just the current setting for
+libarcs.
 
 I describe the coding style I used to use in the project. It's main purpose is a
 documentation for myself. It's not comprehensive but enumerates the points where
@@ -67,7 +71,7 @@ I decided to reduce the wiggle room for stylistic creativity.
   document its indispensability.
 - If you have to comment out code or place a commented code snippet, include the
   reasons to do that in the comment.
-- If a comment is indicated, prefer commenting blocks to commenting single
+- If a comment is indicated, prefer commenting blocks over commenting single
   lines. If you comment a block, the comment is preferably as short as possible
   and just summons up what the block is achieving.
 - Don't use ``/*`` ``*/`` for commenting out multiple lines. Use ``//`` on
