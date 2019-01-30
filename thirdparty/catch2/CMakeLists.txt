@@ -37,7 +37,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 	ExternalProject_Get_Property(catch2 SOURCE_DIR BINARY_DIR TMP_DIR )
 
 
-	## --- Actually fetch catch2 using the config created by ExternalProject_Add
+	## --- Actually fetch Catch2 using the config created by ExternalProject_Add
 
 	execute_process(
 		COMMAND ${CMAKE_COMMAND} -P ${TMP_DIR}/catch2-gitclone.cmake
