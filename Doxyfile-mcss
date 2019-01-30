@@ -54,3 +54,20 @@ GENERATE_XML           = YES
 
 XML_PROGRAMLISTING     = NO
 
+# If the XML_NS_MEMB_FILE_SCOPE tag is set to YES, doxygen will include
+# namespace members in file scope as well, matching the HTML output.
+# The default value is: NO.
+
+XML_NS_MEMB_FILE_SCOPE = YES
+
+# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
+# into which the generated documentation will be written. If a relative path is
+# entered, it will be relative to the location where doxygen was started. If
+# left blank the current directory will be used.
+
+OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/doc-mcss
+
+# This comes with: https://github.com/doxygen/doxygen/pull/6729
+# See: https://github.com/doxygen/doxygen/commit/7f40e488e27bcea4bb15045df05479dc5fbd9d6d
+#EXTRACT_PRIV_VIRTUAL   = YES
+
