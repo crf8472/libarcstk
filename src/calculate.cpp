@@ -5,6 +5,9 @@
 #ifndef __LIBARCS_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
+#ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
+#include "calculate_details.hpp"
+#endif
 
 #include <algorithm>     // for copy
 #include <chrono>
@@ -34,15 +37,6 @@ namespace arcs
 /// @{
 inline namespace v_1_0_0
 {
-
-// Unnamed namespace for internal APIs and their implementations
-namespace {
-
-#ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"  // classes hidden in anon ns but testable
-#endif
-
-} // namespace
 
 // Unnamed namespace for internal APIs and their implementations
 namespace {

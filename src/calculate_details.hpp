@@ -1,5 +1,5 @@
 #ifndef __LIBARCS_CALCULATE_HPP__
-#error "Do not include calculate_details.hpp directly, include calculate.hpp instead"
+#error "Do not include calculate_details.hpp, include calculate.hpp instead"
 #endif
 
 #ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
@@ -9,6 +9,22 @@
  * \file calculate_details.hpp Internal APIs and implementations for calculation
  */
 
+
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#ifndef __LIBARCS_LOGGING_HPP__
+#include "logging.hpp"
+#endif
+
+
+namespace arcs
+{
+/// \internal \addtogroup calcImpl
+/// @{
+inline namespace v_1_0_0
+{
 
 // Forward Declaration Required for Partitioner
 class SampleChunk;
@@ -904,6 +920,13 @@ Partitioning SingletrackPartitioner::do_create_partition(
 
 
 CalcState::~CalcState() noexcept = default;
+
+
+} // namespace v_1_0_0
+
+/// @}
+
+} // namespace arcs
 
 #endif
 
