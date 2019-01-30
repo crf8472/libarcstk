@@ -290,6 +290,7 @@ endif (WITH_TESTS)
 
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (WITH_IMPLONLY_DOCS "Build documentation also for implementations" OFF )
+option (USE_MCSS           "Build documentation using m.css" OFF )
 
 find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
 
@@ -336,6 +337,25 @@ if (DOXYGEN_FOUND)
 	else ()
 		set (PROJECT_DOXYGEN_ENABLED_SECTIONS "" )
 	endif (WITH_IMPLONLY_DOCS)
+
+
+	## Use the fabulous m.css HTML5/CSS3 doxygen design from m.css
+
+	if (USE_MCSS )
+
+		if (NOT WIN32 )
+
+			message (STATUS "Will build documentation with m.css" )
+
+			add_subdirectory (thirdparty/m.css )
+
+		else (NOT WIN32 )
+
+			message (WARNING "USE_MCSS is currently not available for Windows" )
+
+		endif (NOT WIN32 )
+
+	endif (USE_MCSS )
 
 
 	## Create Doxyfile and add 'doc' target
