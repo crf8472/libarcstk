@@ -339,6 +339,14 @@ if (DOXYGEN_FOUND)
 	endif (WITH_IMPLONLY_DOCS)
 
 
+	## Create Doxyfile
+
+	configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+		@ONLY
+	)
+
+
 	## Use the fabulous m.css HTML5/CSS3 doxygen design from m.css
 
 	if (USE_MCSS )
@@ -347,29 +355,41 @@ if (DOXYGEN_FOUND)
 
 			message (STATUS "Will build documentation with m.css" )
 
+			set(DOC_COMMENT "${DOC_COMMENT}, using m.css" )
+
 			add_subdirectory (thirdparty/m.css )
+
+			add_subdirectory (thirdparty/python-virtualenv )
+
+			configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-mcss.in
+				${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss
+				@ONLY
+			)
+
+			## Run dox2html5.py
+
+			add_custom_target (doc Doxygen::doxygen
+				${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+				WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+				COMMENT ${DOC_COMMENT} VERBATIM
+			)
 
 		else (NOT WIN32 )
 
 			message (WARNING "USE_MCSS is currently not available for Windows" )
 
 		endif (NOT WIN32 )
+	else()
+
+		## Run doxygen
+
+		add_custom_target (doc Doxygen::doxygen
+			${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+			COMMENT ${DOC_COMMENT} VERBATIM
+		)
 
 	endif (USE_MCSS )
-
-
-	## Create Doxyfile and add 'doc' target
-
-	configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
-		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		@ONLY
-	)
-
-	add_custom_target (doc Doxygen::doxygen
-		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		COMMENT ${DOC_COMMENT} VERBATIM
-	)
 
 	## Commented out: example how to add target 'doc' to target 'all':
     ## add_custom_target (doc ALL ${DOXYGEN_EXECUTABLE} ... )
