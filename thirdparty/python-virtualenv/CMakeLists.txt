@@ -30,7 +30,7 @@ else()
 endif()
 
 
-set (VIRTUALENV ${VIRTUALENV} -p ${PYTHON_EXECUTABLE} )
+set (VIRTUALENV ${VIRTUALENV} -p ${CALL_PYTHON} )
 
 
 ## Create and setup an up-to-date virtual python environment
@@ -43,6 +43,7 @@ set (ENV_DIR  "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
 add_custom_command(
 	OUTPUT ${ENV_NAME}
 	COMMAND ${CALL_PYTHON} -m virtualenv ${ENV_DIR}
+	COMMENT "Create virtual python environment for m.css"
 )
 
 
@@ -53,6 +54,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt ./requirements.txt
     COMMAND ./bin/pip install -r ./requirements.txt --upgrade
 	WORKING_DIRECTORY ${ENV_DIR}
+	COMMENT "Setup virtual python environment for m.css"
 )
 
 
