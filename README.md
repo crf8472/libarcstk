@@ -5,36 +5,37 @@
 ## What libarcs is
 
 - Function library for AccurateRip checksums ("ARCS"s)
-- Calculates checksums and AccurateRip ids
+- Calculates checksums and ids on CD images
 - Verifies checksums against reference sums from AccurateRip
 - Written in C++14
-- Conservative API, intended to be open for use by pre-C++11 applications
-  (yet untested).
+- Conservative API, also for pre-C++11 (untested) applications
 - Seems pretty fast
 
 
 
 ## Features
 
-Libarcs supports the following tasks for working with ARCSs:
+Libarcs supports the following tasks:
 
-- Compute the AccurateRip checksums of a succession of uint32_t represented
-  sample blocks (from a CD TOC and the actual audio samples)
-- Verify ARCSs against reference sums from AccurateRip
-- Compute the AccurateRip ID of a CD from its TOC information
+- Compute the ARCSs of a succession of uint32_t sample blocks
+  (from a CD TOC and the actual audio samples)
+- Verify local ARCSs against the checksums provided by AccurateRip
+- Calculate the AccurateRip ID of a CD image from TOC information
 - Parse the response from AccurateRip database to plain text
 
-Although AccurateRip checksums are often referred to as "CRCs", in a
-mathematical sense, they are not CRCs. Therefore, we call them "AccurateRip
+Although AccurateRip checksums are often referred to as "CRCs", they are not
+CRCs in a mathematical sense. Therefore, we call them just "AccurateRip
 Checksums" or "ARCS"s for short.
 
 
 
 ## What libarcs does not
 
-Libarcs offers no network facilities and is not supposed to do so. The actual
-HTTP request for fetching the reference values is better performed by the
-HTTP networking client of your choice.
+- Libarcs does not offer to read, buffer or decode any audio data. You have to
+  provide the samples on your own. (Solution is underway.)
+- Libarcs offers no network facilities and is not supposed to do so. The actual
+  HTTP request for fetching the reference values is better performed by the HTTP
+  networking client of your choice.
 
 
 
@@ -50,7 +51,7 @@ HTTP networking client of your choice.
 
 ## Bugs
 
-- Never tested calculation any images containing data tracks.
+- Never tested with CD images containing data tracks.
 
 
 
@@ -71,6 +72,6 @@ build switches.
 
 ## How to Use
 
-An introductory tutorial will be found in the Wiki. You can find the API
-documentation here.
+A quickstart tutorial will be found (soon) in the Wiki. You can [build the API
+documentation](BUILD.md#building-the-documentation) and view it in a browser.
 

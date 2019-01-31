@@ -163,38 +163,65 @@ verify which compiler settings are actually used.
 |Switch         |Description                                     |Default|
 |---------------|------------------------------------------------|-------|
 |AS_STATIC      |Build static library instead of shared library  |OFF    |
+|IWYU           |Use include-what-you-use on compiling           |OFF    |
 |WITH_NATIVE    |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
 |WITH_TESTS     |Compile tests (but don't run them)              |OFF    |
-|IWYU           |Use include-what-you-use on compiling           |OFF    |
+|USE_MCSS       |Use [m.css][3] when building the documentation  |OFF    |
 
 
 
 ## Building the documentation
 
-Libarcs provides support for a HTML documentation and a PDF manual.
-
-Doxygen is required for creating the documentation in HTML and as latex sources.
-An actual LaTeX installation (along with ``pdflatex``) is required for creating
-the manual.
+### Quickstart: Doxygen Stock HTML
 
 The documentation will not be built automatically during build but is built
-manually by calling target ``doc``.
+manually by calling target ``doc``. Calling this target requires doxygen.
 
 	$ cd build
 	$ cmake --build . --target doc
 
-This will create the HTML documentation in ``build/html``. Open the file
-``build/html/index.html`` in your browser to see the entry page.
+This will build the documentation sources for HTML as well as LaTeX in
+``build/doc/``. Open the file ``build/doc/html/index.html`` in your browser to
+see the entry page.
 
-Building the ``doc`` target will also create the LaTeX sources for the PDF
-manual but will not automatically typeset the actual PDF document. Compile the
-manual as follows (while still in directory ``build``):
+### Doxygen with HTML5 and CSS3
 
-	$ cd latex
+Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
+and generates HTML5/CSS3 from it. Its presentation of the content is much
+cleaner and (at least in my opinion) more to the point regarding its structure
+than the stock doxygen HTML output. (Which, on the other hand, gives us this
+warm nostalgic memory of the Nineties... we loved the Nineties, didn't we?)
+
+I simply could not withstand to build a CMake pipeline to use m.css for libarcs:
+
+	$ cd build
+	$ cmake -DUSE_MCSS=YES
+	$ cmake --build . --target doc
+
+This generates the documentation in ``build/doc-mcss/``, you can load
+``build/doc-mcss/html/index.html`` in your browser.
+
+CMake builds a local python sandbox with ``virtualenv``, installs jinja2 and
+Pygments in it, clones m.css, and then runs doxygen by m.css's ``dox2html.py``
+in the process. This is a bit of a machinery and maybe it needs finetuning for
+some environments I did not foresee. Help on improvements is welcome.
+
+### Manual: PDF by LaTeX
+
+Libarcs provides also support for a PDF manual using LaTeX. An actual LaTeX
+installation (along with ``pdflatex``) is required for creating the manual.
+
+Building the ``doc`` target will create the LaTeX sources for the PDF manual but
+will not automatically typeset the actual PDF document. Compile the manual as
+follows (while still in directory ``build``):
+
+	$ cd doc/latex
 	$ make
 
-This will create the manual ``refman.pdf`` in folder ``build/latex`` (while
+This will create the manual ``refman.pdf`` in folder ``build/doc/latex`` (while
 issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
+
+Note that switch ``-DUSE_MCSS=YES`` will turn off LaTeX source generation!
 
 
 ## No Windows port yet :-(
@@ -211,4 +238,4 @@ expected not to be difficult, but is just not done.
 
 [1]: https://include-what-you-use.org/
 [2]: https://github.com/catchorg/Catch2
-
+[3]: https://mcss.mosra.cz/doxygen/
