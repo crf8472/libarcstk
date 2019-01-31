@@ -31,12 +31,10 @@ BSDs but don't expect major issues.
   when working on the code
 
 
-## How to build
+## Building the library
 
-The build is quite standard. We presuppose you have downloaded and unpacked or
-git-clonde libarcs to a folder ``libarcs``.
-
-The steps for building are then as follows (for Linux and \*nix):
+We presuppose you have downloaded and unpacked or git-cloned libarcs to a
+folder named ``libarcs``. Then do:
 
 	$ cd libarcs         # your libarcs root folder where README.md resides
 	$ mkdir build && cd build  # create build folder for out-of-source-build
@@ -44,17 +42,13 @@ The steps for building are then as follows (for Linux and \*nix):
 	$ cmake --build .    # perform the actual build
 	$ sudo make install  # installs to /usr/local
 
-This will install libarcs with all optimizations and without debug-symbols and
-tests.
+This will just install libarcs with all optimizations and without debug-symbols
+and tests.
 
-The latter three steps may be different for you depending whether you act as
-- a user (read: a developer who uses libarcs in her project)
-- a contributing developer (who wants to debug and test) or
-- as a package maintainer (who intends to package libarcs for some target
-  system).
-
-We therefore describe the steps separately for users, contributors and package
-maintainers.
+We describe the build configuration for the following profiles:
+- User (read: a developer who uses libarcs in her project)
+- Contributing developer (who wants to debug and test)
+- Package maintainer (who intends to package libarcs for some target system).
 
 
 ### Users
@@ -67,13 +61,6 @@ fast, remaining small and not getting in your way:
 	$ cmake --build .
 	$ sudo make install
 
-Better not use cmake via sudo, stick to the first-order build tool. If your user
-has write permissions in the install directory, you can stick to the cmake-only
-version instead:
-
-	$ cmake -DCMAKE_BUILD_TYPE=Release ..
-	$ cmake --build . --target install
-
 This will install the following files to your system:
 
 - the shared object libarcs.so.x.y.z (along with a symbolic link ``libarcs.so``)
@@ -83,27 +70,25 @@ This will install the following files to your system:
   (e.g. /usr/local/include).
 - the pkg-config configuration file libarcs.pc
 
-On \*nix environments, as you guessed, the default install prefix is
-``/usr/local`` but you can change this by calling cmake with the
+You can change the install prefix by calling cmake with the
 ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` switch.
 
 
 ### Contributors
 
-You want to debug into the libarcs code, which may be helpful when working on
-the code. You need to build libarcs with debugging symbols and without
-aggressive optimization:
+You want to debug into the libarcs code, hence you need to build libarcs
+with debugging symbols and without aggressive optimization:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug ..
 	$ cmake --build .
-	$ sudo make install
 
 For also building and running the tests, just use the corresponding switch:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_TESTS=ON ..
 	$ cmake --build .
 	$ ctest
-	$ sudo make install
+
+This will take significantly longer than building without tests.
 
 Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework Catch2
 within your directory ``build`` and fail if this does not work.
@@ -111,16 +96,18 @@ within your directory ``build`` and fail if this does not work.
 Running the unit tests is *not* part of the build process. The tests have to be
 executed manually after the build is completed, just by invoking ``ctest``.
 
-Note that ctest will write report files in the ``build`` folder.
+Note that ctest will write report files in the ``build`` folder, their name
+pattern is ``report.<testcase>.xml``.
 
 You may or may not want the ``-march=native`` and ``-mtune=native`` switches on
 compilation. For Debug-builds, they are not used by default, but can be added by
 using ``-DWITH_NATIVE=ON``. For now, this switch has only influence when using
 gcc or clang. For other compilers, default settings apply.
 
-For controlling the ``include``-relationships within the code, CMake knows
-about Google's tool [include-what-you-use][1]. If you have installed this tool,
-you can instruct CMake to create a buildfile for calling include-what-you-use:
+During early development stage, I tended to mess up the includes. So for mere
+personal use, I configured a workflow for reviewing the includes. CMake brings
+some support for Google's tool [include-what-you-use][1]. If you have installed
+this tool, you can instruct CMake to use it:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON ..
 	$ cmake --build . 2>iwuy.txt
@@ -131,17 +118,14 @@ compiler and writes the resulting analysis to file ``iwyu.txt``.
 
 ### Package maintainers
 
-You want to build libarcs with a release profile but without having the compiler
-performing any architecture specific optimization (e.g. without
-``-march=native`` for gcc or clang).
+You want to build libarcs with a release profile but without any architecture
+specific optimization (e.g. without ``-march=native`` and ``-mtune=native`` for
+gcc or clang).
 
 Furthermore, you would like to adjust the install prefix path such that libarcs
-is configured to expect being installed in the real system prefix (such as
-``/usr``) instead of some default prefix (such as ``/usr/local``).
-
-Thus, when executing the install target after build, you choose the staging
-directory as the intermediate target but you tell libarcs that it may expect to
-be installed in another target.
+is configured for being installed in the real system prefix (such as ``/usr``)
+instead of some default prefix (such as ``/usr/local``). You will also choose a
+staging directory as an intermediate install target.
 
 When using clang or gcc, this can be achieved as follows:
 
@@ -155,6 +139,12 @@ If you use another compiler than clang or gcc, CMake will not apply any project
 specific modifications to the compiler default settings. Therefore, you have to
 carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
+
+Use ``-DAS_STATIC=ON`` if you like to compile libarcs as a static library.
+
+By default, libarcs is configured to be build with -O3. If you intend to change
+that, locate ``CMakeLists.txt`` in the root directory and adjust it to your
+needs.
 
 
 
@@ -172,19 +162,21 @@ verify which compiler settings are actually used.
 
 ## Building the documentation
 
+
 ### Quickstart: Doxygen Stock HTML
 
-The documentation will not be built automatically during build but is built
-manually by calling target ``doc``. Calling this target requires doxygen.
+The documentation will not be built automatically during build. It is built
+manually by calling target ``doc``. This target requires doxygen.
 
 	$ cd build
 	$ cmake --build . --target doc
 
 This will build the documentation sources for HTML as well as LaTeX in
-``build/doc/``. Open the file ``build/doc/html/index.html`` in your browser to
-see the entry page.
+subdirectories of ``build/doc/``. Open the file ``build/doc/html/index.html`` in
+your browser to see the entry page.
 
-### Doxygen with HTML5 and CSS3
+
+### Doxygen with HTML5 and CSS3 (experimental)
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
 and generates a HTML5 + CSS3 site from it. Its presentation of the content is
@@ -207,6 +199,7 @@ Pygments in it, clones m.css, and then runs doxygen by m.css's ``dox2html.py``
 in the process. This is a bit of a machinery and maybe it needs finetuning for
 some environments I did not foresee. Help on improvements is welcome.
 
+
 ### Manual: PDF by LaTeX
 
 Libarcs provides also support for a PDF manual using LaTeX. An actual LaTeX
@@ -225,9 +218,12 @@ issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 Note that switch ``-DUSE_MCSS=YES`` will turn off LaTeX source generation!
 
 
-## No Windows port yet :-(
+## Build on Windows ... duh!
 
-Libarcs has not yet been tried to be built on Windows.
+No Windows port yet :-(
+
+In fact, as a lack of requirement, libarcs has not yet even been tried to be
+built on Windows.
 
 To avoid any show-stoppers for porting libarcs to Windows or other platforms,
 libarcs relies completely on pure C++14 and the C++ standard library. It
