@@ -6,25 +6,13 @@
 #ifndef __LIBARCS_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
-
-#ifndef __LIBARCS_LOGGING_HPP__
-#include "logging.hpp"
-#endif
-
-namespace arcs
-{
-
-inline namespace v_1_0_0
-{
-
 #ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif
 
-} // namespace v_1_0_0
-
-} // namespace arcs
-
+#ifndef __LIBARCS_LOGGING_HPP__
+#include "logging.hpp"
+#endif
 
 
 /**
