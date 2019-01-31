@@ -187,15 +187,16 @@ see the entry page.
 ### Doxygen with HTML5 and CSS3
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
-and generates HTML5/CSS3 from it. Its presentation of the content is much
-cleaner and (at least in my opinion) more to the point regarding its structure
-than the stock doxygen HTML output. (Which, on the other hand, gives us this
-warm nostalgic memory of the Nineties... we loved the Nineties, didn't we?)
+and generates a HTML5 + CSS3 site from it. Its presentation of the content is
+much cleaner and (at least in my opinion) more to the point regarding its
+structure than the stock doxygen HTML output. (Which, on the other hand, gives
+us this warm nostalgic memory of the Nineties... we loved the Nineties, didn't
+we?)
 
 I simply could not withstand to build a CMake pipeline to use m.css for libarcs:
 
 	$ cd build
-	$ cmake -DUSE_MCSS=YES
+	$ cmake -DUSE_MCSS=ON ..
 	$ cmake --build . --target doc
 
 This generates the documentation in ``build/doc-mcss/``, you can load
