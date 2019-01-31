@@ -26,7 +26,7 @@ if (NOT VIRTUALENV )
     message (FATAL_ERROR "Could not find `virtualenv` in PATH" )
 else()
 
-	message (STATUS "`virtualenv` was found: ${VIRTUALENV}" )
+	message (STATUS "Found `virtualenv`: ${VIRTUALENV}" )
 endif()
 
 
@@ -35,7 +35,8 @@ set (VIRTUALENV ${VIRTUALENV} -p ${CALL_PYTHON} )
 
 ## Create and setup an up-to-date virtual python environment
 
-set (ENV_NAME venv )
+set (ENV_NAME python-sandbox )
+set (ENV_TGT  python-virtualenv )
 set (ENV_DIR  "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
 
 
@@ -59,10 +60,10 @@ add_custom_command(
 
 
 ## Export target depending on virtual environment
-add_custom_target (virtualenv DEPENDS ${ENV_NAME}_stamp )
+add_custom_target (${ENV_TGT} DEPENDS ${ENV_NAME}_stamp )
 
 ## Export variables used in parent CMakeLists.txt
 set (ENV_DIRECTORY ${ENV_DIR}              PARENT_SCOPE )
-set (ENV_TARGET    virtualenv              PARENT_SCOPE )
+set (ENV_TARGET    ${ENV_TGT}              PARENT_SCOPE )
 set (PYTHON_CMD    "${ENV_DIR}/bin/python" PARENT_SCOPE )
 

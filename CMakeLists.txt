@@ -368,8 +368,9 @@ if (DOXYGEN_FOUND)
 
 			## Run dox2html5.py
 
-			message (STATUS "Python: ${PYTHON_CMD}" )
-			message (STATUS "dox2html5: ${MCSS_DOX2HTML5}" )
+			message (STATUS "Sanbox directory: ${ENV_DIRECTORY}" )
+			message (STATUS "Use python: ${PYTHON_CMD}" )
+			message (STATUS "Use dox2html5: ${MCSS_DOX2HTML5}" )
 
 			add_custom_target (doc
 				COMMAND ${PYTHON_CMD} ${MCSS_DOX2HTML5} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss
