@@ -368,9 +368,13 @@ if (DOXYGEN_FOUND)
 
 			## Run dox2html5.py
 
-			add_custom_target (doc Doxygen::doxygen
-				${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-				WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+			message (STATUS "Python: ${PYTHON_CMD}" )
+			message (STATUS "dox2html5: ${MCSS_DOX2HTML5}" )
+
+			add_custom_target (doc
+				COMMAND ${PYTHON_CMD} ${MCSS_DOX2HTML5} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss
+				DEPENDS ${ENV_TARGET}
+				WORKING_DIRECTORY ${ENV_DIRECTORY}
 				COMMENT ${DOC_COMMENT} VERBATIM
 			)
 
@@ -383,8 +387,8 @@ if (DOXYGEN_FOUND)
 
 		## Run doxygen
 
-		add_custom_target (doc Doxygen::doxygen
-			${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+		add_custom_target (doc
+			Doxygen::doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 			COMMENT ${DOC_COMMENT} VERBATIM
 		)
