@@ -26,10 +26,10 @@ set (PROJECT_VERSION_STRING_WITHOUT_SUFFIX
 
 set (PROJECT_VERSION_STRING "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
-if (PROJECT_VERSION_SUFFIX)
+if (PROJECT_VERSION_SUFFIX )
 	set(PROJECT_VERSION_STRING
 		"${PROJECT_VERSION_STRING}${PROJECT_VERSION_SUFFIX}" )
-endif(PROJECT_VERSION_SUFFIX)
+endif (PROJECT_VERSION_SUFFIX )
 
 message (STATUS
 "Building lib${PROJECT_NAME} version ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
@@ -49,7 +49,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
 
-## --- Abort releases on BigEndian platforms
+## --- Abort release-builds on big endian platforms
 
 include (TestBigEndian)
 
@@ -86,10 +86,6 @@ set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include"
 set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
 	CACHE PATH "Installation directory for pkgconfig (.pc) files" )
 
-## Commented out: find project's cmake modules
-#set (CMAKE_MODULE_PATH     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" )
-#message (STATUS "Changed CMAKE_MODULE_PATH to: ${CMAKE_MODULE_PATH}" )
-
 
 ## --- Add Sources
 
@@ -122,11 +118,12 @@ if (IWYU)
 	else (IWYU_PATH)
 
 		message (WARNING "Program include-what-you-use not found" )
+
 	endif (IWYU_PATH)
 endif (IWYU)
 
 
-## --- Files configured by CMake
+## --- Configure files by CMake
 
 ## Configure all .in files producing C++ headers files
 
@@ -151,7 +148,7 @@ configure_file (
 )
 
 
-## --- Exported headers
+## --- Specify Exported headers
 
 set (EXPORTED_HEADERS )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/calculate.hpp" )
@@ -164,29 +161,31 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/parse.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/checksumlist.tpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/sampleblockiterator.tpp" )
 
+
 ## --- Add and configure project target
 
-## Build libarcs shared library as project target
+## Build libarcs library as project target (either shared or static)
 
 option (AS_STATIC "Build as static library" OFF )
+#set (LINKFLAG SHARED )
 
 if (AS_STATIC)
 
 	message (STATUS "Build as static library" )
 	add_library (${PROJECT_NAME} STATIC ${SOURCES} )
+
 else (AS_STATIC)
 
 	message (STATUS "Build as shared library" )
 	add_library (${PROJECT_NAME} SHARED ${SOURCES} )
+
 endif (AS_STATIC)
 
 ## Include generated sources
 ## (required to find version.hpp and the other configured headers)
-
 target_include_directories (${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR} )
 
 ## Configure properties for project target
-
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD  14
 	PUBLIC_HEADER "${EXPORTED_HEADERS}"
@@ -286,12 +285,12 @@ else ()
 endif (WITH_TESTS)
 
 
-## --- Generate documentation
+## --- Optional: Build documentation
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (WITH_IMPLONLY_DOCS "Build documentation also for implementations" OFF )
-option (USE_MCSS           "Build documentation using m.css" OFF )
+option (USE_MCSS           "Build documentation using m.css"              OFF )
 
 ## Auto-activate WITH_DOCS if settings for documentation are present
 if (WITH_INTERNAL_DOCS OR WITH_IMPLONLY_DOCS OR USE_MCSS )
@@ -306,6 +305,9 @@ if (WITH_DOCS )
 	add_subdirectory(${PROJECT_DOC_DIR} )
 
 endif (WITH_DOCS )
+
+
+## --- Cleanup
 
 ## Unset all cached option values to have their default values active
 ## on the next invokation of CMake
