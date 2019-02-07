@@ -75,7 +75,7 @@ endif()
 set (PROJECT_BINARY_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 set (PROJECT_SOURCE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 set (PROJECT_TEST_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/test" )
-set (PROJECT_DOC_DIR     "${PROJECT_BINARY_DIR}/doc" )
+set (PROJECT_DOC_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/doc" )
 
 set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 	CACHE PATH "Installation directory for library (.so) files" )
@@ -293,137 +293,29 @@ option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (WITH_IMPLONLY_DOCS "Build documentation also for implementations" OFF )
 option (USE_MCSS           "Build documentation using m.css" OFF )
 
-## Auto-activate DOCS if settings for DOCS are present
+## Auto-activate WITH_DOCS if settings for documentation are present
 if (WITH_INTERNAL_DOCS OR WITH_IMPLONLY_DOCS OR USE_MCSS )
 
 	set(WITH_DOCS ON )
 
 endif()
 
-
+## Process configuration for building the documentation
 if (WITH_DOCS )
 
-find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
-
-if (DOXYGEN_FOUND)
-
-	message (STATUS
-		"Note: to build documentation do 'cmake --build . --target doc'" )
-
-	set(DOC_COMMENT "Build documentation for APIs" )
-
-
-	## Build internal docs if requested
-
-	if (WITH_INTERNAL_DOCS)
-
-		message (STATUS "Will build documentation also for internal APIs" )
-		set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
-
-		set(DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
-	else ()
-		set (PROJECT_DOXYGEN_INTERNAL_DOCS "NO" )
-	endif (WITH_INTERNAL_DOCS)
-
-
-	## Build impl-only docs if requested (includes internal docs)
-
-	if (WITH_IMPLONLY_DOCS)
-
-		if (NOT WITH_INTERNAL_DOCS)
-
-			## print message that has not been printed so far
-			message (STATUS "Will build documentation also for internal APIs" )
-
-		endif (NOT WITH_INTERNAL_DOCS)
-
-		set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
-
-		set(DOC_COMMENT "${DOC_COMMENT} and implementations" )
-
-		message (STATUS "Will build documentation also for implementations" )
-
-		set (PROJECT_DOXYGEN_ENABLED_SECTIONS "IMPL_ONLY" )
-
-	else ()
-		set (PROJECT_DOXYGEN_ENABLED_SECTIONS "" )
-	endif (WITH_IMPLONLY_DOCS)
-
-
-	## Create Doxyfile
-
-	configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
-		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		@ONLY
-	)
-
-
-	## Use the fabulous m.css HTML5/CSS3 doxygen design from m.css
-
-	if (USE_MCSS )
-
-		if (NOT WIN32 )
-
-			message (STATUS "Will build documentation with m.css" )
-
-			set(DOC_COMMENT "${DOC_COMMENT}, using m.css" )
-
-			add_subdirectory (thirdparty/m.css )
-
-			add_subdirectory (thirdparty/python-virtualenv )
-
-			configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile-mcss.in
-				${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss
-				@ONLY
-			)
-
-			## Run dox2html5.py
-
-			message (STATUS "Sanbox directory: ${ENV_DIRECTORY}" )
-			message (STATUS "Use python: ${PYTHON_CMD}" )
-			message (STATUS "Use dox2html5: ${MCSS_DOX2HTML5}" )
-
-			add_custom_target (doc
-				COMMAND ${PYTHON_CMD} ${MCSS_DOX2HTML5} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss
-				DEPENDS ${ENV_TARGET}
-				WORKING_DIRECTORY ${ENV_DIRECTORY}
-				COMMENT ${DOC_COMMENT} VERBATIM
-			)
-
-		else (NOT WIN32 )
-
-			message (WARNING "USE_MCSS is currently not available for Windows" )
-
-		endif (NOT WIN32 )
-	else()
-
-		## Run doxygen
-
-		add_custom_target (doc
-			Doxygen::doxygen ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-			COMMENT ${DOC_COMMENT} VERBATIM
-		)
-
-	endif (USE_MCSS )
-
-	## Commented out: example how to add target 'doc' to target 'all':
-    ## add_custom_target (doc ALL ${DOXYGEN_EXECUTABLE} ... )
-
-else ()
-
-	message (STATUS "Doxygen not found. API documentation cannot be generated" )
-endif (DOXYGEN_FOUND)
+	add_subdirectory(${PROJECT_DOC_DIR} )
 
 endif (WITH_DOCS )
 
 ## Unset all cached option values to have their default values active
 ## on the next invokation of CMake
 
-unset (AS_STATIC CACHE)
-unset (IWYU CACHE)
-unset (WITH_TESTS CACHE)
+unset (AS_STATIC          CACHE)
+unset (IWYU               CACHE)
+unset (WITH_TESTS         CACHE)
+unset (WITH_DOCS          CACHE)
 unset (WITH_INTERNAL_DOCS CACHE)
 unset (WITH_IMPLONLY_DOCS CACHE)
-unset (WITH_NATIVE CACHE)
+unset (USE_MCSS           CACHE)
+unset (WITH_NATIVE        CACHE)
 

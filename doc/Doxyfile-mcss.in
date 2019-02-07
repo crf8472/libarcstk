@@ -65,7 +65,7 @@ XML_NS_MEMB_FILE_SCOPE = YES
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "@PROJECT_DOC_DIR@-mcss"
+OUTPUT_DIRECTORY       = "@PROJECT_BUILD_DOC_DIR@-mcss"
 
 # This comes with: https://github.com/doxygen/doxygen/pull/6729
 # See: https://github.com/doxygen/doxygen/commit/7f40e488e27bcea4bb15045df05479dc5fbd9d6d
