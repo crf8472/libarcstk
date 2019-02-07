@@ -288,9 +288,20 @@ endif (WITH_TESTS)
 
 ## --- Generate documentation
 
+option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (WITH_IMPLONLY_DOCS "Build documentation also for implementations" OFF )
 option (USE_MCSS           "Build documentation using m.css" OFF )
+
+## Auto-activate DOCS if settings for DOCS are present
+if (WITH_INTERNAL_DOCS OR WITH_IMPLONLY_DOCS OR USE_MCSS )
+
+	set(WITH_DOCS ON )
+
+endif()
+
+
+if (WITH_DOCS )
 
 find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
 
@@ -403,6 +414,8 @@ else ()
 
 	message (STATUS "Doxygen not found. API documentation cannot be generated" )
 endif (DOXYGEN_FOUND)
+
+endif (WITH_DOCS )
 
 ## Unset all cached option values to have their default values active
 ## on the next invokation of CMake
