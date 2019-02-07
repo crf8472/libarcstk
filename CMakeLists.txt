@@ -20,31 +20,23 @@ set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
 ## --- Setup Version Information
 
-set (PROJECT_VERSION_STRING_WITHOUT_SUFFIX
-	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+set (PROJECT_VERSION_STRING
+	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}"
 	)
 
-set (PROJECT_VERSION_STRING "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
-
-if (PROJECT_VERSION_SUFFIX )
-	set(PROJECT_VERSION_STRING
-		"${PROJECT_VERSION_STRING}${PROJECT_VERSION_SUFFIX}" )
-endif (PROJECT_VERSION_SUFFIX )
-
-message (STATUS
-"Building lib${PROJECT_NAME} version ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
+message (STATUS "Building lib${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
 
 
 ## --- Setup Default Build Type
 
-if (NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE )
 
 	set (CMAKE_BUILD_TYPE "${PROJECT_DEFAULT_BUILD_TYPE}"
 		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
 
-	message (WARNING "No build type specified, set to: ${CMAKE_BUILD_TYPE}" )
+	message (STATUS "No build type specified, set to default" )
 
-endif (NOT CMAKE_BUILD_TYPE)
+endif (NOT CMAKE_BUILD_TYPE )
 
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
@@ -53,7 +45,7 @@ message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
 include (TestBigEndian)
 
-TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+TEST_BIG_ENDIAN (IS_BIG_ENDIAN )
 
 if (IS_BIG_ENDIAN )
 
@@ -63,8 +55,7 @@ if (IS_BIG_ENDIAN )
 			"Big endian platforms are not yet supported, use -DCMAKE_BUILD_TYPE=Debug to configure your build." )
 	else ()
 
-		message (WARNING
-			"Big endian platform support is not yet available" )
+		message (WARNING "Big endian platform support is not yet available" )
 	endif ()
 
 endif()
@@ -260,7 +251,7 @@ else()
 endif()
 
 
-## --- Optional: Build tests, using Catch2 testing framework
+## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
 
 option (WITH_TESTS "Build unit tests" OFF )
 
@@ -282,7 +273,7 @@ else ()
 endif (WITH_TESTS)
 
 
-## --- Optional: Build documentation
+## --- Optional: Build documentation (default: OFF)
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
