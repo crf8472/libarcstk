@@ -167,19 +167,16 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/sampleblockiterator.tpp" )
 ## Build libarcs library as project target (either shared or static)
 
 option (AS_STATIC "Build as static library" OFF )
-#set (LINKFLAG SHARED )
+set (LINKFLAG SHARED )
 
 if (AS_STATIC)
 
-	message (STATUS "Build as static library" )
-	add_library (${PROJECT_NAME} STATIC ${SOURCES} )
+	set (LINKFLAG STATIC )
 
-else (AS_STATIC)
+endif ()
 
-	message (STATUS "Build as shared library" )
-	add_library (${PROJECT_NAME} SHARED ${SOURCES} )
-
-endif (AS_STATIC)
+message (STATUS "Build library as: ${LINKFLAG}" )
+add_library (${PROJECT_NAME} ${LINKFLAG} ${SOURCES} )
 
 ## Include generated sources
 ## (required to find version.hpp and the other configured headers)
@@ -195,28 +192,28 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 
 ## --- Install binary and exported header files
 
-if (NOT SKIP_INSTALL_ALL)
+if (NOT SKIP_INSTALL_ALL )
 
-	if (AS_STATIC)
+	if (AS_STATIC )
 
 		## install static library
 		install (TARGETS ${PROJECT_NAME}
 			LIBRARY        DESTINATION  "${INSTALL_LIBRARY_DIR}"
 			ARCHIVE        DESTINATION  "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs" )
-	else (AS_STATIC)
+	else (AS_STATIC )
 
 		## install shared library
 		install (TARGETS ${PROJECT_NAME}
 			LIBRARY        DESTINATION  "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs" )
-	endif (AS_STATIC)
+	endif (AS_STATIC )
 
-	if (NOT SKIP_INSTALL_FILES)
+	if (NOT SKIP_INSTALL_FILES )
 
 		install (FILES "${PROJECT_BINARY_DIR}/libarcs.pc"
 			DESTINATION "${INSTALL_PKGCONFIG_DIR}" )
-	endif()
+	endif ()
 
 endif (NOT SKIP_INSTALL_ALL)
 
