@@ -73,5 +73,6 @@ build switches.
 ## How to Use
 
 A quickstart tutorial will be found (soon) in the Wiki. You can [build the API
-documentation](BUILD.md#building-the-documentation) and view it in a browser.
+documentation](BUILD.md#building-the-api-documentation) and view it in a
+browser.
 

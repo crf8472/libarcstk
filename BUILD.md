@@ -23,12 +23,12 @@ BSDs but don't expect major issues.
 ### Optional Buildtime Dependencies
 
 - git - for testing: to clone test framework [Catch2][2] as an external project
-  when running the unit tests
+  when running the unit tests. You also need git if you want to build the
+  documentation with m.css (instead of stock doxygen).
 - Doxygen - for documentation: to build the API documentation in HTML or LaTeX
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
 - include-what-you-use - for development: to control ``include``-relationships
-  when working on the code
 
 
 ## Building the library
@@ -154,21 +154,30 @@ needs.
 |---------------|------------------------------------------------|-------|
 |AS_STATIC      |Build static library instead of shared library  |OFF    |
 |IWYU           |Use include-what-you-use on compiling           |OFF    |
+|WITH_DOCS      |Configure documentation (but don't build it)    |OFF    |
 |WITH_NATIVE    |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
 |WITH_TESTS     |Compile tests (but don't run them)              |OFF    |
 |USE_MCSS       |Use [m.css][3] when building the documentation  |OFF    |
 
 
 
-## Building the documentation
+## Building the API documentation
+
+When you configure the project, switch ``-DWITH_DOCS=ON`` is required to prepare
+building the documentation.
+
+Doxygen and the tool ``dot`` from graphviz are required for building the
+documentation. The documentation can be build as a set static HTML pages
+or as a PDF manual using LaTeX.
 
 
 ### Quickstart: Doxygen Stock HTML
 
 The documentation will not be built automatically during build. It is built
-manually by calling target ``doc``. This target requires doxygen.
+manually by calling target ``doc``. This target requires doxygen and graphviz.
 
 	$ cd build
+	$ cmake -DWITH_DOCS=ON ..
 	$ cmake --build . --target doc
 
 This will build the documentation sources for HTML as well as LaTeX in
@@ -179,16 +188,16 @@ your browser to see the entry page.
 ### Doxygen with HTML5 and CSS3 (experimental)
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
-and generates a HTML5 + CSS3 site from it. Its presentation of the content is
-much cleaner and (at least in my opinion) more to the point regarding its
-structure than the stock doxygen HTML output. (Which, on the other hand, gives
-us this warm nostalgic memory of the Nineties... we loved the Nineties, didn't
-we?)
+and generates a static site in plain HTML5 and CSS3 from it (without
+JavaScript). The resulting site presents the content much cleaner and (at least
+in my opinion) more to the point regarding its structure than the stock doxygen
+HTML output. (Which, on the other hand, gives us this warm nostalgic memory of
+the Nineties... we loved the Nineties, didn't we?)
 
 I simply could not withstand to build a CMake pipeline to use m.css for libarcs:
 
 	$ cd build
-	$ cmake -DUSE_MCSS=ON ..
+	$ cmake -DUSE_MCSS=ON ..   # Implies -DWITH_DOCS=ON
 	$ cmake --build . --target doc
 
 This generates the documentation in ``build/doc-mcss/``, you can load
@@ -205,17 +214,43 @@ some environments I did not foresee. Help on improvements is welcome.
 Libarcs provides also support for a PDF manual using LaTeX. An actual LaTeX
 installation (along with ``pdflatex``) is required for creating the manual.
 
-Building the ``doc`` target will create the LaTeX sources for the PDF manual but
-will not automatically typeset the actual PDF document. Compile the manual as
-follows (while still in directory ``build``):
+Building the PDF manual is only available without ``-DUSE_MCSS=ON``. Using
+``-DUSE_MCSS=ON`` will effectively turn off LaTeX source generation!
 
+Building the ``doc`` target like in the examples above will create the LaTeX
+sources for the PDF manual but will not automatically typeset the actual PDF
+document. If you intend to build the PDF manual, do:
+
+	$ cd build
+	$ cmake -DWITH_DOCS=ON ..  # Do not use -DUSE_MCSS=ON!
+	$ cmake --build . --target doc
 	$ cd doc/latex
 	$ make
 
 This will create the manual ``refman.pdf`` in folder ``build/doc/latex`` (while
 issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 
-Note that switch ``-DUSE_MCSS=YES`` will turn off LaTeX source generation!
+
+## Libarcs code in my $EDITOR
+
+If you used to work with some features of what is called "deep language support"
+for C++, you may notice that libarcs comes with a top-level ``.clang`` file that
+points to a file ``compile_commands.json`` in the same directory that will only
+exist if you generate it. Generate it by:
+
+	$ cd libarcs
+	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+
+This generated file is a compilation database. If your $EDITOR is configured
+accordingly, the compilation database may (or may not) help your $EDITOR to
+provide some enhanced features for navigating the code (i.e.
+``goto-definition``) or autocompletion. If this sounds odd for you, it is
+completely safe to skip this paragraph, ignore the ``.clang`` file and just feel
+good.
+
+I used to work with autocompletion for C++ in neovim. With the project, I share
+the ``.clang`` file as a configuration stub for this. If you ignore it, it will
+not get in your way.
 
 
 ## Build on Windows ... duh!
@@ -227,10 +262,10 @@ built on Windows.
 
 To avoid any show-stoppers for porting libarcs to Windows or other platforms,
 libarcs relies completely on pure C++14 and the C++ standard library. It
-requires no other dependencies and does not use platform specific operations
-within the source code without asserting the platform. (At least it is not
-intended to do so, and the author will consider this as a bug). The porting is
-expected not to be difficult, but is just not done.
+requires no other dependencies. In fact, it is intended to not use platform
+specific operations at all. Code that breaks platform independence will be
+considered being a bug). The porting is expected not to be difficult, but is
+just not done.
 
 
 [1]: https://include-what-you-use.org/
