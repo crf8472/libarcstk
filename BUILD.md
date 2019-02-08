@@ -238,8 +238,9 @@ for C++, you may notice that libarcs comes with a top-level ``.clang`` file that
 points to a file ``compile_commands.json`` in the same directory that will only
 exist if you generate it. Generate it by:
 
-	$ cd libarcs
-	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+	$ cd build
+	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+	$ ln -s compile_commands.json ..  # May or may not be required
 
 This generated file is a compilation database. If your $EDITOR is configured
 accordingly, the compilation database may (or may not) help your $EDITOR to
