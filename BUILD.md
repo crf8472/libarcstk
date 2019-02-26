@@ -54,8 +54,8 @@ We describe the build configuration for the following profiles:
 ### Users
 
 You intend to install libarcs on your system, say, as a dependency for your own
-project. You just want libarcs to be available along with its headers, running
-fast, remaining small and not getting in your way:
+project. You just want libarcs to be available along with its headers and not
+getting in your way:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
