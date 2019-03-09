@@ -27,8 +27,8 @@
 #include <cstdint>
 #include <cstddef>     // for size_t
 #include <memory>
-#include <map>         // (ChecksumList)
-#include <set>         // (ChecksumList)
+#include <map>         // (ChecksumMap)
+#include <set>         // (ChecksumMap)
 #include <string>
 #include <type_traits> // for conditional
 #include <utility>     // for pair
@@ -191,24 +191,24 @@ namespace checksum
 namespace details
 {
 
-// ChecksumListIterator needs this
+// ChecksumMapIterator needs this
 template <typename K>
-class ChecksumList;
+class ChecksumMap;
 
 
 /**
- * Iterator for <tt>ChecksumList<></tt>s.
+ * Iterator for <tt>ChecksumMap<></tt>s.
  */
 template <typename K, bool is_const = false>
-class ChecksumListIterator
+class ChecksumMapIterator
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
-	friend ChecksumListIterator<K, not is_const>;
+	friend ChecksumMapIterator<K, not is_const>;
 
-	// ChecksumList shall exclusively construct iterators by their private
+	// ChecksumMap shall exclusively construct iterators by their private
 	// constructor
-	friend ChecksumList<K>;
+	friend ChecksumMap<K>;
 
 
 public: /* types */
@@ -248,7 +248,7 @@ public: /* methods */
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
-	ChecksumListIterator(const ChecksumListIterator<K, false> &rhs);
+	ChecksumMapIterator(const ChecksumMapIterator<K, false> &rhs);
 
 	/**
 	 * Dereference operator
@@ -260,12 +260,12 @@ public: /* methods */
 	/**
 	 * Increment operator
 	 */
-	ChecksumListIterator& operator ++ ();
+	ChecksumMapIterator& operator ++ ();
 
 	/**
 	 * Decrement operator
 	 */
-	ChecksumListIterator& operator -- ();
+	ChecksumMapIterator& operator -- ();
 
 	/**
 	 * Equality
@@ -275,8 +275,8 @@ public: /* methods */
 	 *
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
-	friend bool operator == (const ChecksumListIterator &lhs,
-			const ChecksumListIterator &rhs) /* const */
+	friend bool operator == (const ChecksumMapIterator &lhs,
+			const ChecksumMapIterator &rhs) /* const */
 	{
 		return lhs.it_ == rhs.it_;
 	}
@@ -289,8 +289,8 @@ public: /* methods */
 	 *
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
-	friend bool operator != (const ChecksumListIterator &lhs,
-			const ChecksumListIterator &rhs) /* const */
+	friend bool operator != (const ChecksumMapIterator &lhs,
+			const ChecksumMapIterator &rhs) /* const */
 	{
 		return not(lhs == rhs);
 	}
@@ -301,39 +301,39 @@ private:
 	/**
 	 * Private Constructor.
 	 *
-	 * Constructs a ChecksumListIterator from the iterator of the
+	 * Constructs a ChecksumMapIterator from the iterator of the
 	 * wrapped type.
 	 *
-	 * This constructor is private since ChecksumList<> instantiates
+	 * This constructor is private since ChecksumMap<> instantiates
 	 * its iterators exclusively.
 	 *
 	 * \param[in] i iterator of the wrapped type
 	 */
-	explicit ChecksumListIterator(const WrappedIteratorType &it);
+	explicit ChecksumMapIterator(const WrappedIteratorType &it);
 
 	/**
-	 * Wrapped iterator of the class implementing ChecksumList
+	 * Wrapped iterator of the class implementing ChecksumMap
 	 */
 	WrappedIteratorType it_;
 };
 
 
 /**
- * Generic implementation of a ChecksumList.
+ * Generic implementation of a ChecksumMap.
  *
- * This is a generic container for ChecksumLists adaptable to different
+ * This is a generic container for ChecksumMaps adaptable to different
  * checksum types and different keys.
  */
 template <typename K>
-class ChecksumList
+class ChecksumMap
 {
 
 public: /* types */
 
 
-	using iterator = ChecksumListIterator<K>;
+	using iterator = ChecksumMapIterator<K>;
 
-	using const_iterator = ChecksumListIterator<K, true>;
+	using const_iterator = ChecksumMapIterator<K, true>;
 
 
 public: /* methods */
@@ -341,56 +341,56 @@ public: /* methods */
 	/**
 	 * Constructor
 	 */
-	ChecksumList();
+	ChecksumMap();
 
 	/**
 	 * Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
-	ChecksumList(const ChecksumList &rhs);
+	ChecksumMap(const ChecksumMap &rhs);
 
 	/**
 	 * Move constructor
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	ChecksumList(ChecksumList &&rhs) noexcept;
+	ChecksumMap(ChecksumMap &&rhs) noexcept;
 
 	/**
 	 * Virtual default destructor
 	 */
-	~ChecksumList() noexcept;
+	~ChecksumMap() noexcept;
 
 
 // Access
 
 
 	/**
-	 * Returns a ChecksumList::const_iterator to the beginning
+	 * Returns a ChecksumMap::const_iterator to the beginning
 	 *
-	 * \return ChecksumList::const_iterator to the beginning
+	 * \return ChecksumMap::const_iterator to the beginning
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * Returns a ChecksumList::const_iterator to the beginning
+	 * Returns a ChecksumMap::const_iterator to the beginning
 	 *
-	 * \return ChecksumList::const_iterator to the beginning
+	 * \return ChecksumMap::const_iterator to the beginning
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * Returns a ChecksumList::const_iterator to the end
+	 * Returns a ChecksumMap::const_iterator to the end
 	 *
-	 * \return ChecksumList::const_iterator to the end
+	 * \return ChecksumMap::const_iterator to the end
 	 */
 	const_iterator end() const;
 
 	/**
-	 * Returns a ChecksumList::const_iterator to the end
+	 * Returns a ChecksumMap::const_iterator to the end
 	 *
-	 * \return ChecksumList::const_iterator to the end
+	 * \return ChecksumMap::const_iterator to the end
 	 */
 	const_iterator cend() const;
 
@@ -404,7 +404,7 @@ public: /* methods */
 	 *
 	 * \param[in] key The key to lookup
 	 *
-	 * \return ChecksumList::const_iterator to the element or to end()
+	 * \return ChecksumMap::const_iterator to the element or to end()
 	 */
 	const_iterator find(const K &key) const;
 
@@ -444,30 +444,30 @@ public: /* methods */
 	 *
 	 * \param[in] rhs The instance to check for equality
 	 */
-	bool operator == (const ChecksumList<K> &rhs) const;
+	bool operator == (const ChecksumMap<K> &rhs) const;
 
 	/**
 	 * Inequality.
 	 *
 	 * \param[in] rhs The instance to check for inequality
 	 */
-	bool operator != (const ChecksumList<K> &rhs) const;
+	bool operator != (const ChecksumMap<K> &rhs) const;
 
 
 // Modify
 
 
 	/**
-	 * Returns a ChecksumList::iterator to the beginning
+	 * Returns a ChecksumMap::iterator to the beginning
 	 *
-	 * \return ChecksumList::iterator to the beginning
+	 * \return ChecksumMap::iterator to the beginning
 	 */
 	iterator begin();
 
 	/**
-	 * Returns a ChecksumList::iterator to the end
+	 * Returns a ChecksumMap::iterator to the end
 	 *
-	 * \return ChecksumList::iterator to the end
+	 * \return ChecksumMap::iterator to the end
 	 */
 	iterator end();
 
@@ -479,7 +479,7 @@ public: /* methods */
 	 *
 	 * \param[in] key The key to lookup
 	 *
-	 * \return ChecksumList::const_iterator to the element or to end()
+	 * \return ChecksumMap::const_iterator to the element or to end()
 	 */
 	iterator find(const K &key);
 
@@ -509,7 +509,7 @@ public: /* methods */
 	 *
 	 * \param[in] rhs The list to be merged into the instance
 	 */
-	void merge(const ChecksumList<K> &rhs);
+	void merge(const ChecksumMap<K> &rhs);
 
 	/**
 	 * Erases the element with the given key.
@@ -534,7 +534,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumList<K>& operator = (const ChecksumList<K> &rhs);
+	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs);
 
 	/**
 	 * Move assignment.
@@ -543,7 +543,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumList<K>& operator = (ChecksumList<K> &&rhs) noexcept;
+	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept;
 
 
 private: // TODO Hide this!
@@ -567,7 +567,7 @@ private: // TODO Hide this!
 /**
  * A set of <tt>Checksum</tt>s of different types for a single track.
  */
-class ChecksumSet final : public details::ChecksumList<checksum::type>
+class ChecksumSet final : public details::ChecksumMap<checksum::type>
 {
 
 public:

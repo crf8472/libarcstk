@@ -7,11 +7,11 @@
 #define __LIBARCS_CHECKSUM_TPP__
 
 
-// ChecksumListIterator
+// ChecksumMapIterator
 
 
 template <typename K, bool is_const>
-ChecksumListIterator<K, is_const>::ChecksumListIterator(
+ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
 		const WrappedIteratorType &it)
 	: it_(it)
 {
@@ -20,8 +20,8 @@ ChecksumListIterator<K, is_const>::ChecksumListIterator(
 
 
 template <typename K, bool is_const>
-ChecksumListIterator<K, is_const>::ChecksumListIterator(
-		const ChecksumListIterator<K, false> &rhs)
+ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
+		const ChecksumMapIterator<K, false> &rhs)
 	: it_(rhs.it_)
 {
 	// empty
@@ -29,15 +29,15 @@ ChecksumListIterator<K, is_const>::ChecksumListIterator(
 
 
 template <typename K, bool is_const>
-typename ChecksumListIterator<K, is_const>::reference
-	ChecksumListIterator<K, is_const>::operator * ()
+typename ChecksumMapIterator<K, is_const>::reference
+	ChecksumMapIterator<K, is_const>::operator * ()
 {
 	return (*it_).second;
 }
 
 
 template <typename K, bool is_const>
-ChecksumListIterator<K, is_const>& ChecksumListIterator<K, is_const>::operator ++ ()
+ChecksumMapIterator<K, is_const>& ChecksumMapIterator<K, is_const>::operator ++ ()
 {
 	++it_;
 	return *this;
@@ -45,18 +45,18 @@ ChecksumListIterator<K, is_const>& ChecksumListIterator<K, is_const>::operator +
 
 
 template <typename K, bool is_const>
-ChecksumListIterator<K, is_const>& ChecksumListIterator<K, is_const>::operator -- ()
+ChecksumMapIterator<K, is_const>& ChecksumMapIterator<K, is_const>::operator -- ()
 {
 	--it_;
 	return *this;
 }
 
 
-// ChecksumList
+// ChecksumMap
 
 
 template <typename K>
-	ChecksumList<K>::ChecksumList()
+	ChecksumMap<K>::ChecksumMap()
 	: map_()
 {
 	// empty
@@ -64,65 +64,65 @@ template <typename K>
 
 
 template <typename K>
-	ChecksumList<K>::ChecksumList(const ChecksumList &rhs)
+	ChecksumMap<K>::ChecksumMap(const ChecksumMap &rhs)
 = default;
 
 
 template <typename K>
-	ChecksumList<K>::ChecksumList(ChecksumList &&rhs) noexcept
+	ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept
 = default;
 
 
 template <typename K>
-	ChecksumList<K>::~ChecksumList() noexcept
+	ChecksumMap<K>::~ChecksumMap() noexcept
 = default;
 
 
-// ChecksumList : Accessors
+// ChecksumMap : Accessors
 
 
 template <typename K>
-typename ChecksumList<K>::const_iterator
-	ChecksumList<K>::begin() const
+typename ChecksumMap<K>::const_iterator
+	ChecksumMap<K>::begin() const
 {
 	return const_iterator(this->map_.begin());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::const_iterator
-	ChecksumList<K>::cbegin() const
+typename ChecksumMap<K>::const_iterator
+	ChecksumMap<K>::cbegin() const
 {
 	return const_iterator(this->map_.cbegin());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::const_iterator
-	ChecksumList<K>::end() const
+typename ChecksumMap<K>::const_iterator
+	ChecksumMap<K>::end() const
 {
 	return const_iterator(this->map_.end());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::const_iterator
-	ChecksumList<K>::cend() const
+typename ChecksumMap<K>::const_iterator
+	ChecksumMap<K>::cend() const
 {
 	return const_iterator(this->map_.cend());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::const_iterator
-	ChecksumList<K>::find(const K &key) const
+typename ChecksumMap<K>::const_iterator
+	ChecksumMap<K>::find(const K &key) const
 {
 	return const_iterator(this->map_.find(key));
 }
 
 
 template <typename K>
-bool ChecksumList<K>::contains(const K &key) const
+bool ChecksumMap<K>::contains(const K &key) const
 {
 #if __cplusplus >= 201703L
 	return this->map_.contains(key); // C++20
@@ -133,7 +133,7 @@ bool ChecksumList<K>::contains(const K &key) const
 
 
 template <typename K>
-std::set<K> ChecksumList<K>::keys() const
+std::set<K> ChecksumMap<K>::keys() const
 {
 	std::set<K> keys;
 
@@ -147,63 +147,63 @@ std::set<K> ChecksumList<K>::keys() const
 
 
 template <typename K>
-std::size_t ChecksumList<K>::size() const
+std::size_t ChecksumMap<K>::size() const
 {
 	return this->map_.size();
 }
 
 
 template <typename K>
-bool ChecksumList<K>::empty() const
+bool ChecksumMap<K>::empty() const
 {
 	return this->map_.empty();
 }
 
 
 template <typename K>
-bool ChecksumList<K>::operator == (const ChecksumList<K> &rhs) const
+bool ChecksumMap<K>::operator == (const ChecksumMap<K> &rhs) const
 {
 	return this->map_ == rhs.map_;
 }
 
 
 template <typename K>
-bool ChecksumList<K>::operator != (const ChecksumList<K> &rhs) const
+bool ChecksumMap<K>::operator != (const ChecksumMap<K> &rhs) const
 {
 	return not (*this == rhs);
 }
 
 
-// ChecksumList : Modifiers
+// ChecksumMap : Modifiers
 
 
 template <typename K>
-typename ChecksumList<K>::iterator
-	ChecksumList<K>::begin()
+typename ChecksumMap<K>::iterator
+	ChecksumMap<K>::begin()
 {
 	return iterator(this->map_.begin());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::iterator
-	ChecksumList<K>::end()
+typename ChecksumMap<K>::iterator
+	ChecksumMap<K>::end()
 {
 	return iterator(this->map_.end());
 }
 
 
 template <typename K>
-typename ChecksumList<K>::iterator
-	ChecksumList<K>::find(const K &key)
+typename ChecksumMap<K>::iterator
+	ChecksumMap<K>::find(const K &key)
 {
 	return iterator(this->map_.find(key));
 }
 
 
 template <typename K>
-std::pair<typename ChecksumList<K>::iterator, bool>
-	ChecksumList<K>::insert(const K &key, const Checksum &checksum)
+std::pair<typename ChecksumMap<K>::iterator, bool>
+	ChecksumMap<K>::insert(const K &key, const Checksum &checksum)
 {
 	auto result = this->map_.insert(std::make_pair(key, checksum));
 	return std::make_pair(iterator(result.first), result.second);
@@ -211,7 +211,7 @@ std::pair<typename ChecksumList<K>::iterator, bool>
 
 
 template <typename K>
-void ChecksumList<K>::merge(const ChecksumList<K> &rhs)
+void ChecksumMap<K>::merge(const ChecksumMap<K> &rhs)
 {
 #if __cplusplus >= 201703L
 	this->map_.merge(rhs.map_);
@@ -222,7 +222,7 @@ void ChecksumList<K>::merge(const ChecksumList<K> &rhs)
 
 // Note: merge with overwrite would be:
 //template <typename K>
-//void ChecksumList<K>::merge_overwrite(const ChecksumList<K> &rhs)
+//void ChecksumMap<K>::merge_overwrite(const ChecksumMap<K> &rhs)
 //{
 //	for(auto& it : rhs.map_)
 //	{
@@ -232,22 +232,22 @@ void ChecksumList<K>::merge(const ChecksumList<K> &rhs)
 
 
 template <typename K>
-void ChecksumList<K>::erase(const K &key)
+void ChecksumMap<K>::erase(const K &key)
 {
 	this->map_.erase(key);
 }
 
 
 template <typename K>
-void ChecksumList<K>::clear()
+void ChecksumMap<K>::clear()
 {
 	this->map_.clear();
 }
 
 
 template <typename K>
-ChecksumList<K>& ChecksumList<K>::operator =
-	(const ChecksumList<K> &rhs)
+ChecksumMap<K>& ChecksumMap<K>::operator =
+	(const ChecksumMap<K> &rhs)
 {
 	this->map_ = rhs.map_;
 	return *this;
@@ -255,8 +255,8 @@ ChecksumList<K>& ChecksumList<K>::operator =
 
 
 template <typename K>
-ChecksumList<K>& ChecksumList<K>::operator =
-	(ChecksumList<K> &&rhs) noexcept = default;
+ChecksumMap<K>& ChecksumMap<K>::operator =
+	(ChecksumMap<K> &&rhs) noexcept = default;
 
 #endif
 

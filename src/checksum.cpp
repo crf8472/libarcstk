@@ -159,7 +159,7 @@ ChecksumSet::ChecksumSet(const uint32_t length)
 
 
 ChecksumSet::ChecksumSet(const ChecksumSet &rhs)
-	: ChecksumList<checksum::type>(rhs)
+	: ChecksumMap<checksum::type>(rhs)
 	, impl_(std::make_unique<ChecksumSet::Impl>(*rhs.impl_))
 {
 	// empty
@@ -186,7 +186,7 @@ Checksum ChecksumSet::get(checksum::type type) const
 
 ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
 {
-	ChecksumList<checksum::type>::operator=(rhs);
+	ChecksumMap<checksum::type>::operator=(rhs);
 	impl_ = std::make_unique<ChecksumSet::Impl>(rhs.length());
 	return *this;
 }
