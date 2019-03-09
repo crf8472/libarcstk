@@ -275,7 +275,7 @@ private:
 /// @}
 
 #ifndef __LIBARCSREAD_SAMPLES_TPP__
-#include "samples.tpp"
+#include "details/samples.tpp"
 #endif
 
 #endif

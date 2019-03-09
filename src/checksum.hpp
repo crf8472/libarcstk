@@ -558,7 +558,7 @@ private: // TODO Hide this!
 
 
 #ifndef __LIBARCS_CHECKSUM_TPP__
-#include "checksum.tpp"
+#include "details/checksum.tpp"
 #endif
 
 } // namespace arcs::details
