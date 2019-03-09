@@ -206,7 +206,7 @@ private:
 namespace details
 {
 
-/* *
+/**
  * Get value_type of Iterator.
  */
 template<typename Iterator>
@@ -214,13 +214,15 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 // This is SFINAE compatible and respects bare pointers, which would not
 // have been respected when using std::iterator_traits<Iterator>::value_type
 
-/* *
+
+/**
  * Check a given Iterator whether it iterates over type T
  */
 template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 } // namespace details
+
 
 /**
  * ForwardIterator over PCM 32 Bit samples.
@@ -237,7 +239,7 @@ public:
 
 	using value_type        = uint32_t;
 
-	using reference         = uint32_t;
+	using reference         = uint32_t; // Note that this is NOT a reference
 
 	using pointer           = const uint32_t*;
 
@@ -251,9 +253,11 @@ private:
 	 */
 	struct Concept
 	{
+		/**
+		 * Virtual default destructor
+		 */
 		virtual ~Concept() noexcept
 		= default;
-
 
 		/**
 		 * Advances iterator by \c n positions
@@ -271,20 +275,41 @@ private:
 		virtual reference dereference() const
 		= 0;
 
-
+		/**
+		 * Returns TRUE if \c rhs is equal to the instance
+		 *
+		 * \param[in] rhs The instance to test for equality
+		 *
+		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+		 */
 		virtual bool equals(const void* rhs) const // required by ==
 		= 0;
 
+		/**
+		 * Returns RTTI
+		 *
+		 * \return Runtime type information of this instance
+		 */
 		virtual const std::type_info& type() const // required by ==
 		= 0;
 
+		/**
+		 * Returns the address of the instance
+		 *
+		 * \return Address of the instance
+		 */
 		virtual const void* pointer() const // required by ==
 		= 0;
 
-
+		/**
+		 * Returns a deep copy of the instance
+		 *
+		 * \return A deep copy of the instance
+		 */
 		virtual std::unique_ptr<Concept> clone() const // for copy constructor
 		= 0;
 	};
+
 
 	/**
 	 * Internal object representation
@@ -298,7 +323,6 @@ private:
 			// empty
 		}
 
-
 		void advance(const int n) override
 		{
 			std::advance(iterator_, n);
@@ -309,31 +333,31 @@ private:
 			return *iterator_;
 		}
 
-
-		bool equals(const void* rhs) const override // required by ==
+		bool equals(const void* rhs) const override
 		{
 			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
 		}
 
-		const std::type_info& type() const override // required by ==
+		const std::type_info& type() const override
 		{
 			return typeid(iterator_);
 		}
 
-		const void* pointer() const override // required by ==
+		const void* pointer() const override
 		{
 			return this;
 		}
 
-
-		std::unique_ptr<Concept> clone() const override // for copy constructor
+		std::unique_ptr<Concept> clone() const override
 		{
 			return std::make_unique<Model>(*this);
 		}
 
-
 		private:
 
+			/**
+			 * Type erased iterator
+			 */
 			Iter iterator_;
 	};
 
@@ -363,19 +387,54 @@ public:
 	 */
 	PCMForwardIterator(const PCMForwardIterator& rhs);
 
+	/**
+	 * Dereferences the iterator
+	 *
+	 * \return A uint32_t sample, returned by value
+	 */
 	reference operator * () const; // required by ForwardIterator
 
+	/**
+	 * Pre-increment iterator
+	 *
+	 * \return Incremented iterator
+	 */
 	PCMForwardIterator& operator ++ (); // required by ForwardIterator
 
+	/**
+	 * Post-increment iterator
+	 *
+	 * \return Iterator representing the state befor the increment
+	 */
 	PCMForwardIterator operator ++ (int); // required by ForwardIterator
 
-	// required by ForwardIterator
+	/**
+	 * Returns TRUE if \c rhs is equal to the instance
+	 *
+	 * \param[in] rhs The instance to test for equality
+	 *
+	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+	 */
 	bool operator == (const PCMForwardIterator& rhs) const;
-
 	// required by ForwardIterator
+
+	/**
+	 * Returns TRUE if \c rhs is not equal to the instance
+	 *
+	 * \param[in] rhs The instance to test for inequality
+	 *
+	 * \return TRUE if \c rhs is not equal to the instance, otherwise FALSE
+	 */
 	bool operator != (const PCMForwardIterator& rhs) const;
+	// required by ForwardIterator
 
-
+	/**
+	 * Advance the iterator by a non-negative amount.
+	 *
+	 * \param[in] amount A non-negative amount to advance the iterator
+	 *
+	 * \return Iterator pointing to the position advanced by \c amount
+	 */
 	PCMForwardIterator operator + (const uint32_t amount) const;
 
 
