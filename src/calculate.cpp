@@ -155,6 +155,58 @@ uint64_t AudioSize::Impl::pcm_byte_count() const
 }
 
 
+// PCMForwardIterator
+
+
+PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
+	: object_(rhs.object_->clone())
+{
+	// empty
+}
+
+
+PCMForwardIterator::reference PCMForwardIterator::operator * () const
+{
+	return object_->dereference();
+}
+
+
+PCMForwardIterator& PCMForwardIterator::operator ++ ()
+{
+	object_->advance(1);
+	return *this;
+}
+
+
+PCMForwardIterator PCMForwardIterator::operator ++ (int)
+{
+	PCMForwardIterator prev_val(*this);
+	object_->advance(1);
+	return prev_val;
+}
+
+
+bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs) const
+{
+	return object_->type() == rhs.object_->type()
+		and object_->equals(rhs.object_->pointer());
+}
+
+
+bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs) const
+{
+	return not (*this == rhs);
+}
+
+
+PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount) const
+{
+	PCMForwardIterator it(*this);
+	it.object_->advance(amount);
+	return it;
+}
+
+
 /**
  * Non-abstract base class for CalcContext implementations.
  *
@@ -650,7 +702,7 @@ public:
 	std::unique_ptr<CalcContext> clone() const override;
 
 
-protected:
+private:
 
 	/**
 	 * Set the TOC for the audio input.
@@ -658,9 +710,6 @@ protected:
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
 	void set_toc(const TOC &toc);
-
-
-private:
 
 	/**
 	 * TOC representation
@@ -912,164 +961,175 @@ std::unique_ptr<CalcContext> MultitrackCalcContext::clone() const
 
 
 /**
- * Private implementation of SampleBlock.
+ * Interface to the Calculation state.
+ *
+ * A calculation state is initialized with a multiplier. It is subsequently
+ * updated with new samples. After a track is completed, the calculated
+ * checksums for a specified track must be saved and can thereafter be accessed
+ * via the appropriate accessors.
+ *
+ * The calculation state determines which checksums a Calculation actually
+ * calculates.
  */
-class SampleBlock::Impl final
+class CalcState
 {
 
-private: /* types */
-
-	using container_type = std::vector<uint32_t>;
-
-
-public: /* types */
-
-	using iterator = container_type::iterator;
-
-	using const_iterator = container_type::const_iterator;
-
-
-public: /* methods */
+public:
 
 	/**
-	 * Constructor.
+	 * Virtual default destructor.
+	 */
+	virtual ~CalcState() noexcept;
+
+	/**
+	 * Initializes the instance for calculating a new track and skip the
+	 * amount of samples specific for this state at the beginning.
 	 *
-	 * Construct the instance with a fixed capacity.
+	 * Initializing calles <tt>wipe()</tt> before doing anything.
+	 */
+	virtual void init_with_skip()
+	= 0;
+
+	/**
+	 * Initializes the instance for calculating a new track.
 	 *
-	 * \param capacity Capacity of the container in number of PCM 32 bit samples
+	 * Initializing calles <tt>wipe()</tt> before doing anything.
 	 */
-	explicit Impl(const std::size_t capacity);
+	virtual void init_without_skip()
+	= 0;
 
 	/**
-	 * Return iterator pointing to the beginning
+	 * Amount of samples to be skipped at the beginning.
 	 *
-	 * \return iterator pointing to the beginning
+	 * \return Amount of samples to be skipped at the beginning
 	 */
-	iterator begin();
+	virtual uint32_t num_skip_front() const
+	= 0;
 
 	/**
-	 * Return iterator pointing to the end
+	 * Amount of samples to be skipped at the end.
 	 *
-	 * \return iterator pointing to the end
+	 * \return Amount of samples to be skipped at the end
 	 */
-	iterator end();
+	virtual uint32_t num_skip_back() const
+	= 0;
 
 	/**
-	 * Return const_iterator pointing to the beginning
+	 * Update the calculation state with the samples in the chunk.
 	 *
-	 * \return const_iterator pointing to the beginning
+	 * \param[in] chunk The Partition to update the calculation state
 	 */
-	const_iterator cbegin() const;
+	virtual void update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	= 0;
 
 	/**
-	 * Return const_iterator pointing to the end
+	 * Saves the current subtotals as ARCSs for the specified track and resets
+	 * the instance.
 	 *
-	 * \return const_iterator pointing to the end
-	 */
-	const_iterator cend() const;
-
-	/**
-	 * Actual number of elements in the instance.
+	 * Saving the ARCSs is necessary whenever the calculation for a track is
+	 * finished.
 	 *
-	 * \return Actual number of elements in the container
+	 * \param[in] track The 0-based track number to save the ARCSs for
 	 */
-	std::size_t size() const;
+	virtual void save(const TrackNo track)
+	= 0;
 
 	/**
-	 * Capacity of this instance.
+	 * Returns the number of currently saved tracks.
 	 *
-	 * \return Capacity of this instance in number of PCM 32 bit samples
+	 * \return Number of currently saved tracks
 	 */
-	std::size_t capacity() const;
+	virtual int track_count() const
+	= 0;
 
 	/**
-	 * \todo This is due to a current bug and is to be removed
-	 */
-	void resize(std::size_t num_samples);
-
-	/**
-	 * Returns TRUE if the instance holds no elements.
+	 * Returns current type.
 	 *
-	 * \return TRUE if the instance holds no elements, otherwise FALSE
+	 * \return A disjunction of all requested types.
 	 */
-	bool empty() const;
+	virtual checksum::type type() const
+	= 0;
 
 	/**
-	 * Pointer to the start of the samples.
+	 * Returns the result for track \c track in a multitrack calculation.
 	 *
-	 * \return Raw pointer to the first of the samples.
+	 * The result will be empty in singletrack calculation.
+	 *
+	 * Note that the state is allowed to return more than one type of
+	 * <tt>Checksum</tt>s, but the type requested from Calculation is
+	 * guaranteed to be included.
+	 *
+	 * \param[in] track Track number to get the <tt>Checksum</tt>s for.
+	 *
+	 * \return The <tt>Checksum</tt>s calculated
 	 */
-	uint32_t* front();
-
-
-private: /* members */
+	virtual ChecksumSet result(const TrackNo track) const
+	= 0;
 
 	/**
-	 * Representation of the samples in the wrapped container
+	 * Returns the result of a singletrack calculation.
+	 *
+	 * The result will be empty for a multitrack calculation.
+	 *
+	 * Note that the state is allowed to return more than one type of
+	 * <tt>Checksum</tt>s, but the type requested from Calculation is
+	 * guaranteed to be included.
+	 *
+	 * \return The <tt>Checksum</tt>s calculated
 	 */
-	container_type container_;
+	virtual ChecksumSet result() const
+	= 0;
+
+	/**
+	 * Resets the internal subtotals and the multiplier.
+	 *
+	 * Computation results that have already been <tt>save()</tt>d are kept.
+	 * Calling <tt>reset()</tt> does therefore not change the output of
+	 * subsequent calls of <tt>arcs1()</tt> or <tt>arcs2()</tt>.
+	 *
+	 * Resetting the instance is necessary before starting the calculation for a
+	 * new track. However, it is not necessary to <tt>reset()</tt> an instance
+	 * that was already <tt>init()</tt>ed.
+	 */
+	virtual void reset()
+	= 0;
+
+	/**
+	 * Resets the internal subtotals and the multiplier and deletes all
+	 * previously saved computation results.
+	 */
+	virtual void wipe()
+	= 0;
+
+	/**
+	 * Returns the current multiplier.
+	 *
+	 * The current multiplier will be applied on the <i>next</i> multiplication
+	 * operation. The <i>last</i> multiplier that was actually applied is
+	 * <tt>mult() - 1</tt>.
+	 *
+	 * \return Multiplier for next multiplication operation
+	 */
+	virtual uint32_t mult() const
+	= 0;
+
+	/**
+	 * Clone this CalcState object.
+	 *
+	 * A clone is a deep copy, i.e. the result of the cloning will be a
+	 * different object with the exact same state.
+	 *
+	 * \return A clone of this instance
+	 */
+	virtual std::unique_ptr<CalcState> clone() const
+	= 0;
 };
 
 
-SampleBlock::Impl::Impl(const std::size_t capacity)
-	: container_(capacity)
-{
-	// empty
-}
+// CalcState
 
 
-SampleBlock::Impl::iterator SampleBlock::Impl::begin()
-{
-	return container_.begin();
-}
-
-
-SampleBlock::Impl::iterator SampleBlock::Impl::end()
-{
-	return container_.end();
-}
-
-
-SampleBlock::Impl::const_iterator SampleBlock::Impl::cbegin() const
-{
-	return container_.cbegin();
-}
-
-
-SampleBlock::Impl::const_iterator SampleBlock::Impl::cend() const
-{
-	return container_.cend();
-}
-
-
-std::size_t SampleBlock::Impl::size() const
-{
-	return container_.size();
-}
-
-
-std::size_t SampleBlock::Impl::capacity() const
-{
-	return container_.capacity();
-}
-
-
-void SampleBlock::Impl::resize(std::size_t num_samples)
-{
-	container_.resize(num_samples);
-}
-
-
-bool SampleBlock::Impl::empty() const
-{
-	return container_.empty();
-}
-
-
-uint32_t* SampleBlock::Impl::front()
-{
-	return &container_.front();
-}
+CalcState::~CalcState() noexcept = default;
 
 
 /**
@@ -1121,6 +1181,8 @@ public:
 
 	uint32_t num_skip_back() const override;
 
+	void update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
+
 
 protected:
 
@@ -1132,18 +1194,24 @@ protected:
 	~CalcStateARCS() noexcept;
 
 	/**
-	 * Worker: initialize state with specified multiplier.
-	 */
-	virtual void init(const uint32_t mult)
-	= 0;
-
-	/**
 	 * Bitmask for getting the lower 32 bits of a 64 bit unsigned integer.
 	 */
 	static constexpr uint_fast32_t LOWER_32_BITS_ = 0xFFFFFFFF;
 
 
 private:
+
+	/**
+	 * Worker: initialize state with specified multiplier.
+	 */
+	virtual void init(const uint32_t mult)
+	= 0;
+
+	/**
+	 * Worker: implement update()
+	 */
+	virtual void do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	= 0;
 
 	/**
 	 * Actual amount of skipped samples at front
@@ -1198,6 +1266,14 @@ uint32_t CalcStateARCS::num_skip_back() const
 }
 
 
+void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
+{
+	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
+	this->do_update(begin, end);
+	ARCS_LOG_DEBUG << "    Last multiplier was: " << (this->mult() - 1);
+}
+
+
 /**
  * CalcState for calculation of ARCSv1.
  */
@@ -1210,8 +1286,6 @@ public:
 	 * Default constructor
 	 */
 	CalcStateV1();
-
-	void update(const SampleChunk &chunk) override;
 
 	void save(const TrackNo track) override;
 
@@ -1234,8 +1308,6 @@ public:
 
 protected:
 
-	void init(const uint32_t mult) override;
-
 	/**
 	 * Worker: find Checksum for specified track or 0
 	 *
@@ -1256,6 +1328,10 @@ protected:
 
 
 private:
+
+	void init(const uint32_t mult) override;
+
+	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
 
 	/**
 	 * The multiplier to compute the ARCS values v1 and v2. Starts with 1
@@ -1284,9 +1360,9 @@ CalcStateV1::CalcStateV1()
 }
 
 
-void CalcStateV1::update(const SampleChunk &chunk)
+void CalcStateV1::do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
 {
-	for (auto pos = chunk.begin(); pos != chunk.end(); ++pos, ++multiplier_)
+	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
 		subtotal_v1_ += (multiplier_ * (*pos)) & LOWER_32_BITS_;
 	}
@@ -1411,8 +1487,6 @@ public:
 	 */
 	CalcStateV1andV2();
 
-	void update(const SampleChunk &chunk) override;
-
 	void save(const TrackNo track) override;
 
 	int track_count() const override;
@@ -1434,12 +1508,14 @@ public:
 
 protected:
 
-	void init(const uint32_t mult) override;
-
 	ChecksumSet find(const uint8_t track) const;
 
 
 private:
+
+	void init(const uint32_t mult) override;
+
+	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
 
 	/**
 	 * The multiplier to compute the ARCS values v1 and v2. Starts with 1
@@ -1481,9 +1557,10 @@ CalcStateV1andV2::CalcStateV1andV2()
 }
 
 
-void CalcStateV1andV2::update(const SampleChunk &chunk)
+void CalcStateV1andV2::do_update(PCMForwardIterator &begin,
+		PCMForwardIterator &end)
 {
-	for (auto pos = chunk.begin(); pos != chunk.end(); ++pos, ++multiplier_)
+	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
 		update64_ = multiplier_ * (*pos);
 		subtotal_v1_ +=  update64_ & LOWER_32_BITS_;
@@ -1761,7 +1838,7 @@ R instantiate(F&& func, std::size_t i)
  * Instantiate the CalcState for a checksum::type.
  *
  * \param[in] state_type The state type to instantiate
- * \param[in] x Argument
+ * \param[in] x Constructor arguments for constructing CalcState
  *
  * \return The CalcState for \c stateType
  */
@@ -1843,9 +1920,9 @@ public:
 	checksum::type type() const;
 
 	/**
-	 * Implements Calculation::update(const SampleBlock *samples)
+	 * Implements Calculation::update(const SampleBlock &samples)
 	 */
-	void update(const SampleBlock *samples);
+	void update(PCMForwardIterator &begin, PCMForwardIterator &end);
 
 	/**
 	 * Implements Calculation::update_audiosize(const AudioSize &audiosize).
@@ -1928,14 +2005,14 @@ protected:
 	void set_context_or_default(std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Log statistics about a SampleChunk.
+	 * Log statistics about a Partition.
 	 *
 	 * \param[in] i     Chunk counter
 	 * \param[in] n     Number of chunks in block
 	 * \param[in] chunk Chunk to log
 	 */
-	void log_chunk_stats(const uint16_t i, const uint16_t n,
-			const SampleChunk &chunk) const;
+	void log_partition(const uint16_t i, const uint16_t n,
+			const Partition &chunk) const;
 
 
 private:
@@ -2076,88 +2153,71 @@ bool Calculation::Impl::complete() const
 }
 
 
-void Calculation::Impl::update(const SampleBlock *samples)
+void Calculation::Impl::update(PCMForwardIterator &begin,
+		PCMForwardIterator &end)
 {
-	ARCS_LOG_DEBUG << "PROCESS BLOCK";
-
-	if (samples == nullptr or samples->empty())
-	{
-		ARCS_LOG_WARNING << "No samples to update calculation. Return";
-		return;
-	}
-	if (not context_)
-	{
-		ARCS_LOG_ERROR << "No stream context available. Return";
-		return;
-	}
-
-	const auto audiosize { context_->audio_size() };
-
-	if (audiosize.pcm_byte_count() == 0)
-	{
-		ARCS_LOG_ERROR << "Context says there are 0 bytes to process";
-		return;
-	}
-
-	const auto samples_in_block     { samples->size()                     };
+	const auto samples_in_block     { std::distance(begin, end) };
 	const auto last_sample_in_block { smpl_offset_ + samples_in_block - 1 };
+
+	ARCS_LOG_DEBUG << "  Offset:  " << smpl_offset_ << " samples";
+	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block << " samples";
+	ARCS_LOG_DEBUG << "  Indices: " <<
+		smpl_offset_ << " - " << last_sample_in_block;
+
+
+	// Create a partitioning following the track bounds in this block
+
+	auto partitioning {
+		partitioner_->create_partitioning(smpl_offset_, samples_in_block,
+				context())
+	};
+
+	ARCS_LOG_DEBUG << "  Partitions:  " << partitioning.size();
 
 	const bool is_last_relevant_block {
 		Interval(smpl_offset_, last_sample_in_block).contains(
 			context().last_relevant_sample())
 	};
 
-	ARCS_LOG_DEBUG << "  Contains " << samples_in_block << " samples";
-	ARCS_LOG_DEBUG << "  Samples: " << smpl_offset_
-			<< " - " << last_sample_in_block;
-	ARCS_LOG_DEBUG << "  Offset:  " << smpl_offset_ << " samples";
 
+	// Update the internal CalcState with each chunk in this block
 
-	// Create a partition of chunks following the track bounds
-
-	auto chunks { partitioner_->create_partition(
-			smpl_offset_, samples, context())
-	};
-
-	ARCS_LOG_DEBUG << "  Chunks:  " << chunks.size();
-
-
-	// Now update the internal CalcState with each chunk in this block
-
-	uint16_t chunk_counter             { 0 };
-	uint32_t relevant_samples_in_block { 0 };
-	TrackNo track { 0 };
+	uint16_t partition_counter        { 0 };
+	uint32_t relevant_samples_counter { 0 };
 
 	const auto start_time { std::chrono::steady_clock::now() };
-	for (const auto& chunk : chunks)
+	for (const auto& partition : partitioning)
 	{
-		++chunk_counter;
-		relevant_samples_in_block += chunk.size();
+		++partition_counter;
+		relevant_samples_counter += partition.size();
 
-		this->log_chunk_stats(chunk_counter, chunks.size(), chunk);
+		this->log_partition(partition_counter, partitioning.size(), partition);
 
 		// Update the calculation state with the current chunk
 
-		ARCS_LOG_DEBUG << "    First multiplier is: " << state_->mult();
-		state_->update(chunk);
-		ARCS_LOG_DEBUG << "    Last multiplier was: " << (state_->mult() - 1);
+		PCMForwardIterator chunk_begin { begin + partition.begin_offset() };
+		PCMForwardIterator chunk_end   { begin + partition.end_offset()   };
 
-		// If this chunk ends a track, save the calculated ARCSs for this track
+		state_->update(chunk_begin, chunk_end);
 
-		if (chunk.last_in_track())
+		// If the current partition ends a track, save the ARCSs for this track
+
+		if (partition.ends_track())
 		{
-			track = chunk.track();
-			ARCS_LOG_DEBUG << "    Completed track: " << std::to_string(track);
-			state_->save(track);
+			state_->save(partition.track());
+
+			ARCS_LOG_DEBUG << "    Completed track: "
+				<< std::to_string(partition.track());
 		}
 	}
+	smpl_offset_ += samples_in_block;
 	const auto end_time { std::chrono::steady_clock::now() };
 
+
+	// Do the logging
+
 	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
-			<< relevant_samples_in_block;
-
-
-	// Log the processing time for this block
+			<< relevant_samples_counter;
 
 	{
 		const auto block_time_elapsed {
@@ -2170,10 +2230,6 @@ void Calculation::Impl::update(const SampleBlock *samples)
 		ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
 			<<	block_time_elapsed.count();
 	}
-
-	smpl_offset_ += samples_in_block;
-
-	ARCS_LOG_DEBUG << "END BLOCK";
 
 	if (is_last_relevant_block)
 	{
@@ -2328,8 +2384,8 @@ void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
 }
 
 
-void Calculation::Impl::log_chunk_stats(const uint16_t i,
-		const uint16_t n, const SampleChunk &chunk) const
+void Calculation::Impl::log_partition(const uint16_t i,
+		const uint16_t n, const Partition &chunk) const
 {
 	ARCS_LOG_DEBUG << "  CHUNK " << i << "/" << n;
 
@@ -2341,12 +2397,12 @@ void Calculation::Impl::log_chunk_stats(const uint16_t i,
 		// chunk_first_smpl_idx counts as relevant therefore + 1
 	};
 
-	const bool chunk_starts_track { chunk.first_in_track() };
+	const bool chunk_starts_track { chunk.starts_track() };
 
 	ARCS_LOG_DEBUG << "    Samples " << chunk_first_smpl_idx
 			<< " - "              << chunk_last_smpl_idx
 			<< " (Track "         << std::to_string(chunk.track()) << ", "
-			<< (chunk.last_in_track()
+			<< (chunk.ends_track()
 				? (chunk_starts_track
 					? "complete"
 					: "last part")
@@ -2422,6 +2478,12 @@ uint64_t AudioSize::pcm_byte_count() const
 }
 
 
+bool AudioSize::null() const
+{
+	return 0 == impl_->pcm_byte_count();
+}
+
+
 AudioSize& AudioSize::operator = (AudioSize rhs)
 {
 	std::swap(*impl_, *rhs.impl_);
@@ -2493,9 +2555,25 @@ checksum::type Calculation::type() const
 }
 
 
-void Calculation::update(const SampleBlock *samples)
+void Calculation::update(PCMForwardIterator begin, PCMForwardIterator end)
 {
-	impl_->update(samples);
+	ARCS_LOG_DEBUG << "PROCESS BLOCK";
+
+	if (end == begin)
+	{
+		ARCS_LOG_WARNING << "No samples to update calculation. Return";
+		return;
+	}
+
+	if (impl_->context().audio_size().pcm_byte_count() == 0)
+	{
+		ARCS_LOG_ERROR << "Context says there are 0 bytes to process";
+		return;
+	}
+
+	impl_->update(begin, end);
+
+	ARCS_LOG_DEBUG << "END BLOCK";
 }
 
 
@@ -2644,99 +2722,6 @@ InvalidAudioException::InvalidAudioException(const char *what_arg)
 	: std::logic_error(what_arg)
 {
 	// empty
-}
-
-
-// SampleBlock
-
-
-SampleBlock::SampleBlock(const std::size_t capacity)
-	: impl_(std::make_unique<SampleBlock::Impl>(capacity))
-{
-	// empty
-}
-
-
-SampleBlock::SampleBlock(SampleBlock&& rhs) noexcept
-	: impl_(std::move(rhs.impl_))
-{
-	// empty
-}
-
-
-SampleBlock::~SampleBlock() noexcept = default;
-
-
-SampleBlock::iterator SampleBlock::begin()
-{
-	return SampleBlockIterator<false>(impl_->begin());
-}
-
-
-SampleBlock::iterator SampleBlock::end()
-{
-	return SampleBlockIterator<false>(impl_->end());
-}
-
-
-SampleBlock::const_iterator SampleBlock::begin() const
-{
-	return SampleBlockIterator<true>(impl_->cbegin());
-}
-
-
-SampleBlock::const_iterator SampleBlock::end() const
-{
-	return SampleBlockIterator<true>(impl_->cend());
-}
-
-
-SampleBlock::const_iterator SampleBlock::cbegin() const
-{
-	return SampleBlockIterator<true>(impl_->cbegin());
-}
-
-
-SampleBlock::const_iterator SampleBlock::cend() const
-{
-	return SampleBlockIterator<true>(impl_->cend());
-}
-
-
-std::size_t SampleBlock::size() const
-{
-	return impl_->size();
-}
-
-
-std::size_t SampleBlock::capacity() const
-{
-	return impl_->capacity();
-}
-
-
-void SampleBlock::set_size(std::size_t num_samples)
-{
-	return impl_->resize(num_samples);
-}
-
-
-bool SampleBlock::empty() const
-{
-	return impl_->empty();
-}
-
-
-uint32_t* SampleBlock::front()
-{
-	return impl_->front();
-}
-
-
-SampleBlock& SampleBlock::operator = (SampleBlock&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
 }
 
 

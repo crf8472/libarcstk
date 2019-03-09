@@ -28,6 +28,8 @@ list (APPEND TEST_SETS match )
 
 list (APPEND TEST_SETS parse )
 
+list (APPEND TEST_SETS samples )
+
 set (TEST_EXE_NAMES )
 
 

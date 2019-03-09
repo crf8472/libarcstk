@@ -304,7 +304,8 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 
 	// Initialize Buffer
 
-	arcs::SampleBlock buffer(65536); // samples
+	//arcs::SampleBlock buffer(65536); // samples
+	std::vector<uint32_t> buffer(65536); // samples
 	// This forms 3 blocks with 65536 samples each
 
 
@@ -328,7 +329,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 
 		try
 		{
-			in.read(reinterpret_cast<char*>(buffer.front()), 262144);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 262144);
 
 		} catch (const std::ifstream::failure& f)
 		{
@@ -338,7 +339,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 
 		try
 		{
-			calc.update(&buffer);
+			calc.update(buffer.begin(), buffer.end());
 		} catch (...)
 		{
 			in.close();
@@ -393,7 +394,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 
 	// Initialize Buffer
 
-	arcs::SampleBlock buffer(80000); // samples
+	std::vector<uint32_t> buffer(80000); // samples
 	// This forms 3 blocks: two with 80000 samples and one with 36608 samples
 
 
@@ -415,7 +416,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 	{
 		try
 		{
-			in.read(reinterpret_cast<char*>(buffer.front()), 320000);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 320000);
 
 		} catch (const std::ifstream::failure& f)
 		{
@@ -425,7 +426,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 
 		try
 		{
-			calc.update(&buffer);
+			calc.update(buffer.begin(), buffer.end());
 		} catch (...)
 		{
 			in.close();
@@ -436,8 +437,9 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 	}
 	try // last block is smaller
 	{
-		buffer.set_size(36608);
-		in.read(reinterpret_cast<char*>(buffer.front()), 146432);
+		//buffer.set_size(36608);
+		buffer.resize(36608);
+		in.read(reinterpret_cast<char*>(&buffer[0]), 146432);
 
 	} catch (const std::ifstream::failure& f)
 	{
@@ -447,7 +449,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 
 	in.close();
 
-	calc.update(&buffer);
+	calc.update(buffer.begin(), buffer.end());
 
 	REQUIRE ( calc.complete() );
 
@@ -511,7 +513,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 
 	// Initialize Buffer
 
-	arcs::SampleBlock buffer(181251); // samples
+	std::vector<uint32_t> buffer(181251); // samples
 	// Gives 4 blocks with 181251 samples (==725004 bytes) each
 	// ==725004 samples total, 2900016 bytes total
 
@@ -535,7 +537,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 
 		try
 		{
-			in.read(reinterpret_cast<char*>(buffer.front()), 725004);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 725004);
 
 		} catch (const std::ifstream::failure& f)
 		{
@@ -545,7 +547,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 
 		try
 		{
-			calc.update(&buffer);
+			calc.update(buffer.begin(), buffer.end());
 		} catch (...)
 		{
 			in.close();
@@ -627,7 +629,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 
 	// Initialize Buffer
 
-	arcs::SampleBlock buffer(241584); // samples
+	std::vector<uint32_t> buffer(241584); // samples
 	// Gives 3 blocks with 241584 samples each (== 966336 bytes)
 	// and 1 block with 252 samples (== 1008 bytes)
 	// ==725004 samples total, 2900016 bytes total
@@ -650,7 +652,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 	{
 		try
 		{
-			in.read(reinterpret_cast<char*>(buffer.front()), 966336);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 966336);
 
 		} catch (const std::ifstream::failure& f)
 		{
@@ -660,7 +662,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 
 		try
 		{
-			calc.update(&buffer);
+			calc.update(buffer.begin(), buffer.end());
 		} catch (...)
 		{
 			in.close();
@@ -671,8 +673,9 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 	}
 	try // last block is smaller
 	{
-		buffer.set_size(252);
-		in.read(reinterpret_cast<char*>(buffer.front()), 1008);
+		//buffer.set_size(252);
+		buffer.resize(252);
+		in.read(reinterpret_cast<char*>(&buffer[0]), 1008);
 	} catch (const std::ifstream::failure& f)
 	{
 		in.close();
@@ -681,7 +684,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 
 	in.close();
 
-	calc.update(&buffer);
+	calc.update(buffer.begin(), buffer.end());
 
 	REQUIRE ( calc.complete() );
 
@@ -712,5 +715,52 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 		REQUIRE ( 0xB845A497 == (*track3.find(type::ARCS2)).value());
 		REQUIRE ( 0xDD95CE6C == (*track3.find(type::ARCS1)).value());
 	}
+}
+
+
+TEST_CASE ( "Calculation::update() accepts vector<uint32_t>", "" )
+{
+	// Load example samples
+
+	std::ifstream in;
+	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+	try
+	{
+		in.open("samplesequence-test-01.bin",
+				std::ifstream::in | std::ifstream::binary);
+	} catch (const std::ifstream::failure& f)
+	{
+		FAIL ("Could not open test data file calculation-test-01.bin");
+	}
+
+	std::vector<uint8_t> bytes(
+			(std::istreambuf_iterator<char>(in)),
+			std::istreambuf_iterator<char>()
+	);
+
+	in.close();
+
+	arcs::Calculation calc(arcs::make_context("bar", false, false));
+
+	arcs::AudioSize audiosize;
+	audiosize.set_sample_count(196608);
+	calc.update_audiosize(audiosize);
+
+	REQUIRE ( calc.context().audio_size().pcm_byte_count() == 786432 );
+	REQUIRE ( calc.context().audio_size().sample_count() == 196608 );
+	REQUIRE ( calc.context().audio_size().leadout_frame() == 334 );
+	REQUIRE ( calc.context().filename() == "bar" );
+	REQUIRE ( not calc.context().is_multi_track() );
+	REQUIRE ( not calc.context().skips_front() );
+	REQUIRE ( not calc.context().skips_back() );
+	REQUIRE ( not calc.complete() );
+
+
+	// Initialize Buffer
+
+	std::vector<uint32_t> buffer(80000); // samples
+
+	//calc.update(buffer);
 }
 

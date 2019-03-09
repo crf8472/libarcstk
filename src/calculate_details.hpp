@@ -27,12 +27,12 @@ inline namespace v_1_0_0
 {
 
 // Forward Declaration Required for Partitioner
-class SampleChunk;
+class Partition;
 
 /**
  * Partitioning of a SampleBlock.
  */
-using Partitioning = std::vector<SampleChunk>;
+using Partitioning = std::vector<Partition>;
 
 
 // Partitioner
@@ -65,14 +65,14 @@ public:
 	 * the partition will only contain a single chunk.
 	 *
 	 * \param[in] offset  Offset of the first sample
-	 * \param[in] samples Samples in the block
+	 * \param[in] number_of_samples Number of samples in the block
 	 * \param[in] context The context to derive the partitioning from
 	 *
 	 * \return Partitioning of \c samples as a sequence of sample chunks.
 	 */
-	Partitioning create_partition(
+	Partitioning create_partitioning(
 			const uint32_t offset,
-			const SampleBlock *samples,
+			const uint32_t number_of_samples,
 			const CalcContext &context) const;
 
 	/**
@@ -99,39 +99,37 @@ protected:
 			const uint32_t sample_count) const;
 
 	/**
-	 * Creates a SampleChunk.
+	 * Creates a Partition.
 	 *
-	 * This method is the exclusive way to create <tt>SampleChunk</tt>s. It is
+	 * This method is the exclusive way to create <tt>Partition</tt>s. It is
 	 * provided to all Partitioners.
 	 *
-	 * \param[in] begin_it        Iterator to first sample in this chunk
-	 * \param[in] end_it          Iterator to last sample in this chunk
-	 * \param[in] first           Global index of the first sample in this chunk
-	 * \param[in] last            Global index of the last sample in this chunk
-	 * \param[in] first_in_track  TRUE iff this chunk starts its track
-	 * \param[in] last_in_track   TRUE iff this chunk ends its track
-	 * \param[in] track           Number of the track that contains this chunk
+	 * \param[in] first        Global index of the first sample in this chunk
+	 * \param[in] last         Global index of the last sample in this chunk
+	 * \param[in] starts_track TRUE iff this chunk starts its track
+	 * \param[in] ends_track   TRUE iff this chunk ends its track
+	 * \param[in] track        Number of the track that contains this chunk
 	 *
-	 * \return A SampleChunk as specified
+	 * \return A Partition as specified
 	 */
-	SampleChunk create_chunk(
-			const SampleBlock::const_iterator &begin_it,
-			const SampleBlock::const_iterator &end_it,
+	Partition create_partition(
+			const uint32_t     &begin_offset,
+			const uint32_t     &end_offset,
 			const uint32_t     &first,
 			const uint32_t     &last,
-			const bool         &first_in_track,
-			const bool         &last_in_track,
+			const bool         &starts_track,
+			const bool         &ends_track,
 			const TrackNo      &track) const;
 
 
 private:
 
 	/**
-	 * Implements Partitioner::create_partition().
+	 * Implements Partitioner::create_partitioning().
 	 */
-	virtual Partitioning do_create_partition(
+	virtual Partitioning do_create_partitioning(
 			const uint32_t offset,
-			const SampleBlock *samples,
+			const uint32_t number_of_samples,
 			const CalcContext &context) const
 	= 0;
 };
@@ -152,11 +150,11 @@ public:
 	std::unique_ptr<Partitioner> clone() const override;
 
 
-protected:
+private:
 
-	Partitioning do_create_partition(
+	Partitioning do_create_partitioning(
 			const uint32_t offset,
-			const SampleBlock *samples,
+			const uint32_t number_of_samples,
 			const CalcContext &context)
 			const override;
 };
@@ -177,59 +175,52 @@ public:
 	std::unique_ptr<Partitioner> clone() const override;
 
 
-protected:
+private:
 
-	Partitioning do_create_partition(
+	Partitioning do_create_partitioning(
 			const uint32_t offset,
-			const SampleBlock *samples,
+			const uint32_t number_of_samples,
 			const CalcContext &context)
 			const override;
 };
 
 
-// SampleChunk
+// Partition
 
 
 /**
  * Represents a slice of a sequence of samples.
  *
- * A SampleChunk is a contigous subset of a block of samples. A chunk does not
+ * A Partition is a contigous subset of a block of samples. A chunk does not
  * hold any samples but provides access to a slice of the underlying block of
  * samples.
  *
  * This class remains opaque. It just represents the input to
  * CalcState::update().
  */
-class SampleChunk final
+class Partition final
 {
-	// Partitioners are friends of SampleChunk since they construct
-	// SampleChunks exclusively
+	// Partitioners are friends of Partition since they construct
+	// Partitions exclusively
 
 	friend Partitioner;
-
-
-public: /* types */
-
-	//using iterator = SampleBlock::iterator;
-
-	using const_iterator = SampleBlock::const_iterator;
 
 
 public: /* methods */
 
 	/**
-	 * Iterator pointing to first_sample_idx().
+	 * Relative offset of the first sample in the chunk.
 	 *
-	 * \return Iterator pointing to the first sample
+	 * \return Relative offset of the first sample in the chunk.
 	 */
-	const_iterator begin() const;
+	uint32_t begin_offset() const;
 
 	/**
-	 * Iterator pointing behind last_sample_idx().
+	 * Relative offset of the last sample in the chunk + 1.
 	 *
-	 * \return Iterator pointing behind the last sample
+	 * \return Relative offset of the last sample in the chunk + 1.
 	 */
-	const_iterator end() const;
+	uint32_t end_offset() const;
 
 	/**
 	 * Returns global index of the first sample in the chunk.
@@ -251,7 +242,7 @@ public: /* methods */
 	 *
 	 * \return TRUE iff this is chunk starts a track
 	 */
-	bool first_in_track() const;
+	bool starts_track() const;
 
 	/**
 	 * Returns TRUE if the last sample of this chunk is also the last sample
@@ -259,7 +250,7 @@ public: /* methods */
 	 *
 	 * \return TRUE iff this is chunk ends a track
 	 */
-	bool last_in_track() const;
+	bool ends_track() const;
 
 	/**
 	 * The track of which the samples in the chunk are part of.
@@ -278,47 +269,45 @@ public: /* methods */
 
 private:
 
-	// NOTE: There is no default constructor since SampleChunk have constant
+	// NOTE: There is no default constructor since Partition have constant
 	// elements that cannot be default initialized
 
 
 	/**
 	 * Constructor.
 	 *
-	 * \param[in] begin_it       Iterator to first sample in this chunk
-	 * \param[in] end_it         Iterator to last sample in this chunk
-	 * \param[in] first          Global index of the first sample in this chunk
-	 * \param[in] last           Global index of the last sample in this chunk
-	 * \param[in] first_in_track TRUE iff this chunk starts its track
-	 * \param[in] last_in_track  TRUE iff this chunk ends its track
-	 * \param[in] track          Number of the track that contains this chunk
+	 * \param[in] first        Global index of the first sample in this chunk
+	 * \param[in] last         Global index of the last sample in this chunk
+	 * \param[in] starts_track TRUE iff this chunk starts its track
+	 * \param[in] ends_track   TRUE iff this chunk ends its track
+	 * \param[in] track        Number of the track that contains this chunk
 	 */
-	SampleChunk(
-			const const_iterator &begin_it,
-			const const_iterator &end_it,
+	Partition(
+			const uint32_t     &begin_offset,
+			const uint32_t     &end_offset,
 			const uint32_t     &first,
 			const uint32_t     &last,
-			const bool         &first_in_track,
-			const bool         &last_in_track,
+			const bool         &starts_track,
+			const bool         &ends_track,
 			const TrackNo      &track);
 
 	/**
-	 * Iterator to start of the chunk
+	 * Relative offset of the first sample in this chunk
 	 */
-	const_iterator begin_it_;
+	const uint32_t begin_offset_;
 
 	/**
-	 * Iterator to end of the chunk
+	 * Relative offset of the last sample in this chunk + 1
 	 */
-	const_iterator end_it_;
+	const uint32_t end_offset_;
 
 	/**
-	 * Global index of the first sample in this chunk
+	 * Global (absolute) index of the first sample in this chunk
 	 */
 	const uint32_t first_sample_idx_;
 
 	/**
-	 * Global index of the last sample in this chunk
+	 * Global (absolute) index of the last sample in this chunk
 	 */
 	const uint32_t last_sample_idx_;
 
@@ -326,13 +315,13 @@ private:
 	 * TRUE iff the first sample in this chunk is also the first sample in the
 	 * track
 	 */
-	const bool first_in_track_;
+	const bool starts_track_;
 
 	/**
 	 * TRUE iff the last sample in this chunk is also the last sample in the
 	 * track
 	 */
-	const bool last_in_track_;
+	const bool ends_track_;
 
 	/**
 	 * 1-based number of the track of which the samples in the chunk are part
@@ -382,239 +371,73 @@ private:
 };
 
 
-/**
- * Interface to the Calculation state.
- *
- * A calculation state is initialized with a multiplier. It is subsequently
- * updated with new samples. After a track is completed, the calculated
- * checksums for a specified track must be saved and can thereafter be accessed
- * via the appropriate accessors.
- *
- * The calculation state determines which checksums a Calculation actually
- * calculates.
- */
-class CalcState
-{
-
-public:
-
-	/**
-	 * Virtual default destructor.
-	 */
-	virtual ~CalcState() noexcept;
-
-	/**
-	 * Initializes the instance for calculating a new track and skip the
-	 * amount of samples specific for this state at the beginning.
-	 *
-	 * Initializing calles <tt>wipe()</tt> before doing anything.
-	 */
-	virtual void init_with_skip()
-	= 0;
-
-	/**
-	 * Initializes the instance for calculating a new track.
-	 *
-	 * Initializing calles <tt>wipe()</tt> before doing anything.
-	 */
-	virtual void init_without_skip()
-	= 0;
-
-	/**
-	 * Amount of samples to be skipped at the beginning.
-	 *
-	 * \return Amount of samples to be skipped at the beginning
-	 */
-	virtual uint32_t num_skip_front() const
-	= 0;
-
-	/**
-	 * Amount of samples to be skipped at the end.
-	 *
-	 * \return Amount of samples to be skipped at the end
-	 */
-	virtual uint32_t num_skip_back() const
-	= 0;
-
-	/**
-	 * Update the calculation state with the samples in the chunk.
-	 *
-	 * \param[in] chunk The SampleChunk to update the calculation state
-	 */
-	virtual void update(const SampleChunk &chunk)
-	= 0;
-
-	/**
-	 * Saves the current subtotals as ARCSs for the specified track and resets
-	 * the instance.
-	 *
-	 * Saving the ARCSs is necessary whenever the calculation for a track is
-	 * finished.
-	 *
-	 * \param[in] track The 0-based track number to save the ARCSs for
-	 */
-	virtual void save(const TrackNo track)
-	= 0;
-
-	/**
-	 * Returns the number of currently saved tracks.
-	 *
-	 * \return Number of currently saved tracks
-	 */
-	virtual int track_count() const
-	= 0;
-
-	/**
-	 * Returns current type.
-	 *
-	 * \return A disjunction of all requested types.
-	 */
-	virtual checksum::type type() const
-	= 0;
-
-	/**
-	 * Returns the result for track \c track in a multitrack calculation.
-	 *
-	 * The result will be empty in singletrack calculation.
-	 *
-	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
-	 *
-	 * \param[in] track Track number to get the <tt>Checksum</tt>s for.
-	 *
-	 * \return The <tt>Checksum</tt>s calculated
-	 */
-	virtual ChecksumSet result(const TrackNo track) const
-	= 0;
-
-	/**
-	 * Returns the result of a singletrack calculation.
-	 *
-	 * The result will be empty for a multitrack calculation.
-	 *
-	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
-	 *
-	 * \return The <tt>Checksum</tt>s calculated
-	 */
-	virtual ChecksumSet result() const
-	= 0;
-
-	/**
-	 * Resets the internal subtotals and the multiplier.
-	 *
-	 * Computation results that have already been <tt>save()</tt>d are kept.
-	 * Calling <tt>reset()</tt> does therefore not change the output of
-	 * subsequent calls of <tt>arcs1()</tt> or <tt>arcs2()</tt>.
-	 *
-	 * Resetting the instance is necessary before starting the calculation for a
-	 * new track. However, it is not necessary to <tt>reset()</tt> an instance
-	 * that was already <tt>init()</tt>ed.
-	 */
-	virtual void reset()
-	= 0;
-
-	/**
-	 * Resets the internal subtotals and the multiplier and deletes all
-	 * previously saved computation results.
-	 */
-	virtual void wipe()
-	= 0;
-
-	/**
-	 * Returns the current multiplier.
-	 *
-	 * The current multiplier will be applied on the <i>next</i> multiplication
-	 * operation. The <i>last</i> multiplier that was actually applied is
-	 * <tt>mult() - 1</tt>.
-	 *
-	 * \return Multiplier for next multiplication operation
-	 */
-	virtual uint32_t mult() const
-	= 0;
-
-	/**
-	 * Clone this CalcState object.
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return A clone of this instance
-	 */
-	virtual std::unique_ptr<CalcState> clone() const
-	= 0;
-};
+// Partition
 
 
-// SampleChunk
-
-
-SampleChunk::SampleChunk(
-		const SampleBlock::const_iterator &begin_it,
-		const SampleBlock::const_iterator &end_it,
-		const uint32_t    &first,
-		const uint32_t    &last,
-		const bool        &first_in_track,
-		const bool        &last_in_track,
-		const TrackNo     &track
+Partition::Partition(
+		const uint32_t &begin_offset,
+		const uint32_t &end_offset,
+		const uint32_t &first,
+		const uint32_t &last,
+		const bool     &starts_track,
+		const bool     &ends_track,
+		const TrackNo  &track
 	)
-	: begin_it_(begin_it)
-	, end_it_(end_it)
+	: begin_offset_(begin_offset)
+	, end_offset_(end_offset)
 	, first_sample_idx_(first)
 	, last_sample_idx_(last)
-	, first_in_track_(first_in_track)
-	, last_in_track_(last_in_track)
+	, starts_track_(starts_track)
+	, ends_track_(ends_track)
 	, track_(track)
 {
 	// empty
 }
 
 
-SampleChunk::const_iterator SampleChunk::begin() const
+uint32_t Partition::begin_offset() const
 {
-	return begin_it_;
+	return begin_offset_;
 }
 
 
-SampleChunk::const_iterator SampleChunk::end() const
+uint32_t Partition::end_offset() const
 {
-	return end_it_;
+	return end_offset_;
 }
 
 
-uint32_t SampleChunk::first_sample_idx() const
+uint32_t Partition::first_sample_idx() const
 {
 	return first_sample_idx_;
 }
 
 
-uint32_t SampleChunk::last_sample_idx() const
+uint32_t Partition::last_sample_idx() const
 {
 	return last_sample_idx_;
 }
 
 
-bool SampleChunk::first_in_track() const
+bool Partition::starts_track() const
 {
-	return first_in_track_;
+	return starts_track_;
 }
 
 
-bool SampleChunk::last_in_track() const
+bool Partition::ends_track() const
 {
-	return last_in_track_;
+	return ends_track_;
 }
 
 
-TrackNo SampleChunk::track() const
+TrackNo Partition::track() const
 {
 	return track_;
 }
 
 
-uint32_t SampleChunk::size() const
+uint32_t Partition::size() const
 {
 	return last_sample_idx() - first_sample_idx() + 1;
 }
@@ -648,15 +471,15 @@ bool Interval::contains(const uint32_t i) const
 Partitioner::~Partitioner() noexcept = default;
 
 
-Partitioning Partitioner::create_partition(
+Partitioning Partitioner::create_partitioning(
 		const uint32_t offset,
-		const SampleBlock *samples,
+		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
 	// If the sample block does not contain any relevant samples,
 	// just return an empty chunk list
 
-	auto const block_end = last_sample_idx(offset, samples->size());
+	auto const block_end = last_sample_idx(offset, number_of_samples);//samples.size());
 
 	if (block_end < context.first_relevant_sample(1)
 		or offset > context.last_relevant_sample())
@@ -666,7 +489,7 @@ Partitioning Partitioner::create_partition(
 		return Partitioning();
 	}
 
-	return this->do_create_partition(offset, samples, context);
+	return this->do_create_partitioning(offset, number_of_samples, context);
 }
 
 
@@ -677,17 +500,17 @@ uint32_t Partitioner::last_sample_idx(const uint32_t offset,
 }
 
 
-SampleChunk Partitioner::create_chunk(
-		const SampleBlock::const_iterator &begin_it,
-		const SampleBlock::const_iterator &end_it,
+Partition Partitioner::create_partition(
+		const uint32_t     &begin_offset,
+		const uint32_t     &end_offset,
 		const uint32_t     &first,
 		const uint32_t     &last,
-		const bool         &first_in_track,
-		const bool         &last_in_track,
+		const bool         &starts_track,
+		const bool         &ends_track,
 		const TrackNo      &track) const
 {
-	return SampleChunk(begin_it, end_it, first, last, first_in_track,
-			last_in_track, track);
+	return Partition(begin_offset, end_offset, first, last, starts_track,
+			ends_track, track);
 }
 
 
@@ -700,12 +523,12 @@ std::unique_ptr<Partitioner> MultitrackPartitioner::clone() const
 }
 
 
-Partitioning MultitrackPartitioner::do_create_partition(
+Partitioning MultitrackPartitioner::do_create_partitioning(
 		const uint32_t offset,
-		const SampleBlock *samples,
+		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count = samples->size();
+	const uint32_t sample_count = number_of_samples;//samples.size();
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -740,10 +563,10 @@ Partitioning MultitrackPartitioner::do_create_partition(
 	// If track > track_count this is global last sample
 	uint32_t  chunk_last_smpl   = context.last_relevant_sample(track);
 
-	uint32_t  begin_offset      = 0;
-	uint32_t  end_offset        = 0;
-	bool      is_first_in_track = false;
-	bool      is_last_in_track  = false;
+	uint32_t  begin_offset = 0;
+	uint32_t  end_offset   = 0;
+	bool      starts_track = false;
+	bool      ends_track   = false;
 
 	const uint8_t last_track    = context.track_count();
 
@@ -755,10 +578,10 @@ Partitioning MultitrackPartitioner::do_create_partition(
 
 	while (chunk_last_smpl < block_last_smpl and track <= last_track)
 	{
-		is_last_in_track  =
+		ends_track  =
 			(chunk_last_smpl == context.last_relevant_sample(track));
 
-		is_first_in_track =
+		starts_track =
 			(chunk_first_smpl == context.first_relevant_sample(track));
 
 		begin_offset = chunk_first_smpl - offset;
@@ -766,13 +589,13 @@ Partitioning MultitrackPartitioner::do_create_partition(
 		end_offset   = chunk_last_smpl  - offset + 1;
 
 		chunks.push_back(
-			this->create_chunk(
-				samples->cbegin() + begin_offset,
-				samples->cbegin() + end_offset,
+			this->create_partition(
+				begin_offset,
+				end_offset,
 				chunk_first_smpl,
 				chunk_last_smpl,
-				is_first_in_track,
-				is_last_in_track,
+				starts_track,
+				ends_track,
 				track
 			)
 		);
@@ -804,10 +627,10 @@ Partitioning MultitrackPartitioner::do_create_partition(
 
 	// Prepare last chunk
 
-	is_first_in_track =
+	starts_track =
 			(chunk_first_smpl == context.first_relevant_sample(track));
 
-	is_last_in_track  =
+	ends_track  =
 			(chunk_last_smpl == context.last_relevant_sample(track));
 
 	begin_offset = chunk_first_smpl - offset;
@@ -818,13 +641,13 @@ Partitioning MultitrackPartitioner::do_create_partition(
 				<< " - " << chunk_last_smpl;
 
 	chunks.push_back(
-		this->create_chunk(
-			samples->cbegin() + begin_offset,
-			samples->cbegin() + end_offset,
+		this->create_partition(
+			begin_offset,
+			end_offset,
 			chunk_first_smpl,
 			chunk_last_smpl,
-			is_first_in_track,
-			is_last_in_track,
+			starts_track,
+			ends_track,
 			track
 		)
 	);
@@ -844,12 +667,12 @@ std::unique_ptr<Partitioner> SingletrackPartitioner::clone() const
 }
 
 
-Partitioning SingletrackPartitioner::do_create_partition(
+Partitioning SingletrackPartitioner::do_create_partitioning(
 		const uint32_t offset,
-		const SampleBlock *samples,
+		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count = samples->size();
+	const uint32_t sample_count = number_of_samples;//samples.size();
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -882,13 +705,13 @@ Partitioning SingletrackPartitioner::do_create_partition(
 
 	// Is this the last chunk in the current track?
 
-	const bool is_last_in_track {
+	const bool ends_track {
 		chunk_last_smpl == context.last_relevant_sample()
 	};
 
 	// Is this the first chunk of the current track in the current block?
 
-	const bool is_first_in_track {
+	const bool starts_track {
 		chunk_first_smpl == context.first_relevant_sample(1)
 	};
 
@@ -902,24 +725,18 @@ Partitioning SingletrackPartitioner::do_create_partition(
 
 	Partitioning chunks;
 	chunks.push_back(
-		this->create_chunk(
-			samples->cbegin() + begin_offset,
-			samples->cbegin() + end_offset,
+		this->create_partition(
+			begin_offset,
+			end_offset,
 			chunk_first_smpl,
 			chunk_last_smpl,
-			is_first_in_track,
-			is_last_in_track,
+			starts_track,
+			ends_track,
 			0
 		));
 
 	return chunks;
 }
-
-
-// CalcState
-
-
-CalcState::~CalcState() noexcept = default;
 
 
 } // namespace v_1_0_0

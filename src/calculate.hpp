@@ -21,10 +21,6 @@
  * during calculation. Calculation computes checksums from a sequence of
  * sample blocks according to its current CalcContext.
  *
- * SampleBlock represents a block of samples from the input sample
- * sequence. SampleBlock represents 16 bit stereo samples as 32 bit wide
- * unsigned integers.
- *
  * Checksums represent a calculation result for all requested checksum
  * types and all tracks of the audio input.
  *
@@ -56,6 +52,9 @@
 #ifndef __LIBARCS_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCS_SAMPLES_HPP__
+#include "samples.hpp"
+#endif
 
 
 /**
@@ -70,6 +69,11 @@ namespace arcs
  */
 inline namespace v_1_0_0
 {
+
+/**
+ * Type for internal representation of samples.
+ */
+using sample_type = uint32_t;
 
 
 /**
@@ -162,6 +166,13 @@ public:
 	uint64_t pcm_byte_count() const;
 
 	/**
+	 * Return TRUE if the AudioSize is 0.
+	 *
+	 * \return TRUE if the AudioSize is 0
+	 */
+	bool null() const;
+
+	/**
 	 * Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
@@ -189,6 +200,191 @@ private:
 	 * Private implementation of AudioSize
 	 */
 	std::unique_ptr<AudioSize::Impl> impl_;
+};
+
+
+namespace details
+{
+
+/* *
+ * Get value_type of Iterator.
+ */
+template<typename Iterator>
+using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
+// This is SFINAE compatible and respects bare pointers, which would not
+// have been respected when using std::iterator_traits<Iterator>::value_type
+
+/* *
+ * Check a given Iterator whether it iterates over type T
+ */
+template<typename Iterator, typename T>
+using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
+
+} // namespace details
+
+/**
+ * ForwardIterator over PCM 32 Bit samples.
+ *
+ * Type erasure class for iterators with the value_type uint32_t. It wraps the
+ * concrete iterator to be passed for updating a \ref Calculation.
+ */
+class PCMForwardIterator
+{
+
+public:
+
+	using iterator_category = std::forward_iterator_tag;
+
+	using value_type        = uint32_t;
+
+	using reference         = uint32_t;
+
+	using pointer           = const uint32_t*;
+
+	using difference_type   = std::ptrdiff_t;
+
+
+private:
+
+	/**
+	 * Internal object interface
+	 */
+	struct Concept
+	{
+		virtual ~Concept() noexcept
+		= default;
+
+
+		/**
+		 * Advances iterator by \c n positions
+		 *
+		 * \param[in] n Number of positions to advance
+		 */
+		virtual void advance(const int n)
+		= 0;
+
+		/**
+		 * Reference to the actual value under the iterator.
+		 *
+		 * \return Reference to actual value
+		 */
+		virtual reference dereference() const
+		= 0;
+
+
+		virtual bool equals(const void* rhs) const // required by ==
+		= 0;
+
+		virtual const std::type_info& type() const // required by ==
+		= 0;
+
+		virtual const void* pointer() const // required by ==
+		= 0;
+
+
+		virtual std::unique_ptr<Concept> clone() const // for copy constructor
+		= 0;
+	};
+
+	/**
+	 * Internal object representation
+	 */
+	template<class Iter>
+	struct Model : Concept
+	{
+		Model(Iter iter)
+			: iterator_(iter)
+		{
+			// empty
+		}
+
+
+		void advance(const int n) override
+		{
+			std::advance(iterator_, n);
+		}
+
+		reference dereference() const override
+		{
+			return *iterator_;
+		}
+
+
+		bool equals(const void* rhs) const override // required by ==
+		{
+			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
+		}
+
+		const std::type_info& type() const override // required by ==
+		{
+			return typeid(iterator_);
+		}
+
+		const void* pointer() const override // required by ==
+		{
+			return this;
+		}
+
+
+		std::unique_ptr<Concept> clone() const override // for copy constructor
+		{
+			return std::make_unique<Model>(*this);
+		}
+
+
+		private:
+
+			Iter iterator_;
+	};
+
+
+public:
+
+	/**
+	 * Converting constructor
+	 *
+	 * \param[in] i Instance of an iterator over sample_type
+	 */
+	template <class Iterator,
+			typename = std::enable_if_t<
+				details::is_iterator_over<Iterator, sample_type>::value
+			>
+	>
+	PCMForwardIterator(const Iterator &i)
+		: object_(std::make_unique<Model<Iterator>>(std::move(i)))
+	{
+		// empty
+	}
+
+	/**
+	 * Copy constructor
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	PCMForwardIterator(const PCMForwardIterator& rhs);
+
+	reference operator * () const; // required by ForwardIterator
+
+	PCMForwardIterator& operator ++ (); // required by ForwardIterator
+
+	PCMForwardIterator operator ++ (int); // required by ForwardIterator
+
+	// required by ForwardIterator
+	bool operator == (const PCMForwardIterator& rhs) const;
+
+	// required by ForwardIterator
+	bool operator != (const PCMForwardIterator& rhs) const;
+
+
+	PCMForwardIterator operator + (const uint32_t amount) const;
+
+
+private:
+
+	/**
+	 * Internal representation of wrapped object
+	 */
+	std::unique_ptr<Concept> object_;
 };
 
 
@@ -502,304 +698,6 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 		const TOC &toc);
 
 
-// SampleBlockIterator needs this
-class SampleBlock;
-
-
-/**
- * Iterator of a SampleBlock
- */
-template <bool is_const>
-class SampleBlockIterator final
-{
-	// Befriend the converse version of the type: const_iterator can access
-	// private members of iterator (and vice versa)
-	friend SampleBlockIterator<not is_const>;
-
-	// SampleBlock shall exclusively construct iterators by their private
-	// constructor
-	friend SampleBlock;
-
-public:
-
-	using iterator_category = std::random_access_iterator_tag;
-
-	using value_type        = uint32_t;
-
-	using difference_type   = uint32_t;
-
-	using pointer           = typename std::conditional<is_const,
-			const uint32_t*, uint32_t*>::type;
-
-	using reference         = typename std::conditional<is_const,
-			const uint32_t&, uint32_t&>::type;
-
-	/**
-	 * Construct const_iterator from iterator
-	 *
-	 * \param[in] rhs The iterator to construct a const_iterator
-	 */
-	SampleBlockIterator(const SampleBlockIterator<false> &rhs);
-
-	/**
-	 * Dereference operator
-	 *
-	 * \return The value the iterator points to
-	 */
-	reference operator * ();
-
-	/**
-	 * Prefix increment operator
-	 */
-	SampleBlockIterator& operator ++ ();
-
-	/**
-	 * Postfix increment operator
-	 */
-	SampleBlockIterator operator ++ (int);
-
-	/**
-	 * Prefix decrement operator
-	 */
-	SampleBlockIterator& operator -- ();
-
-	/**
-	 * Postfix decrement operator
-	 */
-	SampleBlockIterator operator -- (int);
-
-	/**
-	 * Add amount
-	 */
-	SampleBlockIterator operator + (const uint32_t value);
-
-	/**
-	 * Subtract amount
-	 */
-	SampleBlockIterator operator - (const uint32_t value);
-
-	/**
-	 * Add-assign amount
-	 */
-	SampleBlockIterator& operator += (const uint32_t value);
-
-	/**
-	 * Subtract-assign amount
-	 */
-	SampleBlockIterator& operator -= (const uint32_t value);
-
-	// FIXME operators [] required to be a random_access_iterator
-
-	/**
-	 * Equality
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
-	friend bool operator == (const SampleBlockIterator &lhs,
-			const SampleBlockIterator &rhs) /* const */
-	{
-		return lhs.it_ == rhs.it_;
-	}
-
-	/**
-	 * Inequality
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
-	friend bool operator != (const SampleBlockIterator &lhs,
-			const SampleBlockIterator &rhs) /* const */
-	{
-		return not(lhs == rhs);
-	}
-
-
-private:
-
-	// Type of the container to iterate
-	using IteratedContainerType = typename std::vector<uint32_t>;
-
-	// Type of the container's iterator to wrap
-	using WrappedIteratorType = typename std::conditional<is_const,
-			typename IteratedContainerType::const_iterator,
-			typename IteratedContainerType::iterator
-		>::type;
-
-	/**
-	 * Private Constructor.
-	 *
-	 * Constructs a SampleBlockIterator from the iterator of the
-	 * wrapped type.
-	 *
-	 * This constructor is private since SampleBlock instantiates
-	 * its iterators exclusively.
-	 *
-	 * \param[in] i iterator of the wrapped type
-	 */
-	explicit SampleBlockIterator(const WrappedIteratorType &it);
-
-	/**
-	 * Wrapped iterator of the class implementing SampleBlock
-	 */
-	WrappedIteratorType it_;
-};
-
-
-#ifndef __LIBARCS_SAMPLEBLOCKITERATOR_TPP__
-#include "sampleblockiterator.tpp"
-#endif
-
-
-/**
- * A block of samples to <tt>update()</tt> a Calculation.
- *
- * This block has its initial capacity fixed and is non-copyable.
- *
- * Samples can only be assigned in two ways: via iterator or via the
- * <tt>front()</tt> pointer. The latter method is useful when using
- * SampleBlock as a target for using the <tt>read()</tt> method of an
- * STL stream.
- */
-class SampleBlock final
-{
-
-public: /* types */
-
-	using iterator = SampleBlockIterator<false>;
-
-	using const_iterator = SampleBlockIterator<true>;
-
-public: /* methods */
-
-	/**
-	 * Constructor.
-	 *
-	 * Construct the instance with a fixed capacity.
-	 *
-	 * \param capacity Capacity of the container in number of PCM 32 bit samples
-	 */
-	explicit SampleBlock(const std::size_t capacity);
-
-	// Non-copyable class
-	SampleBlock(const SampleBlock &rhs) = delete;
-
-	/**
-	 * Move constructor
-	 *
-	 * \param[in] rhs The instance to move
-	 */
-	SampleBlock(SampleBlock&& rhs) noexcept;
-
-	/**
-	 * Default destructor
-	 */
-	~SampleBlock() noexcept;
-
-	/**
-	 * Return iterator pointing to the beginning
-	 *
-	 * \return iterator pointing to the beginning
-	 */
-	iterator begin();
-
-	/**
-	 * Return iterator pointing to the end
-	 *
-	 * \return iterator pointing to the end
-	 */
-	iterator end();
-
-	/**
-	 * Return const_iterator pointing to the beginning
-	 *
-	 * \return const_iterator pointing to the beginning
-	 */
-	const_iterator begin() const;
-
-	/**
-	 * Return const_iterator pointing to the end
-	 *
-	 * \return const_iterator pointing to the end
-	 */
-	const_iterator end() const;
-
-	/**
-	 * Return const_iterator pointing to the beginning
-	 *
-	 * \return const_iterator pointing to the beginning
-	 */
-	const_iterator cbegin() const;
-
-	/**
-	 * Return const_iterator pointing to the end
-	 *
-	 * \return const_iterator pointing to the end
-	 */
-	const_iterator cend() const;
-
-	/**
-	 * Actual number of elements in the instance.
-	 *
-	 * \return Actual number of elements in the container
-	 */
-	std::size_t size() const;
-
-	/**
-	 * Set the capacity to a new value.
-	 *
-	 * \param[in] num_samples Number of 32 bit PCM samples
-	 */
-	void set_size(std::size_t num_samples);
-
-	/**
-	 * Capacity of this instance.
-	 *
-	 * \return Capacity of this instance in number of 32 bit PCM samples
-	 */
-	std::size_t capacity() const;
-
-	/**
-	 * Returns TRUE if the instance holds no elements.
-	 *
-	 * \return TRUE if the instance holds no elements, otherwise FALSE
-	 */
-	bool empty() const;
-
-	/**
-	 * Pointer to the start of the samples.
-	 *
-	 * \return Raw pointer to the beginning of the buffer
-	 */
-	uint32_t* front();
-
-	// Non-copyable class
-	SampleBlock& operator = (const SampleBlock &rhs) = delete;
-
-	/**
-	 * Move assignment
-	 *
-	 * \param[in] rhs The instance to move
-	 */
-	SampleBlock& operator = (SampleBlock&& rhs) noexcept;
-
-
-private:
-
-	// forward declaration
-	class Impl;
-
-	/**
-	 * Private implementation of SampleBlock
-	 */
-	std::unique_ptr<SampleBlock::Impl> impl_;
-};
-
-
 /**
  * Result of a Calculation
  */
@@ -1032,7 +930,7 @@ public:
 	 *
 	 * \param[in] samples Sample block to process
 	 */
-	void update(const SampleBlock *samples);
+	void update(PCMForwardIterator begin, PCMForwardIterator end);
 
 	/**
 	 * Updates the instance with a new AudioSize.
@@ -1089,20 +987,15 @@ public:
 	Calculation& operator = (Calculation &&rhs) noexcept;
 
 
-protected:
+private:
 
 	/**
 	 * Request a checksum type or set of checksum types.
 	 *
-	 * A set of checksum types can be requested by choosing a disjunction of
-	 * checksum::type values.
-	 *
-	 * \param[in] type Type or type combination to request
+	 * \param[in] type Type to request
 	 */
 	void set_type(const checksum::type type);
 
-
-private:
 
 	// forward declaration for Calculation::Impl
 	class Impl;
@@ -1143,6 +1036,11 @@ public:
 /// @}
 
 } // namespace arcs
+
+
+//#ifndef __LIBARCS_CALCULATE_TPP__
+//#include "calculate.tpp"
+//#endif
 
 #endif
 
