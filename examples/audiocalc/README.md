@@ -4,6 +4,13 @@ This example application demonstrates how libarcs is used to calculate
 AccurateRip checksums for each track of an album. The album is provided as a
 single audio file accompanied by a CUESheet.
 
+## Requirements
+
+Dependencies for building and running:
+
+- libcue >= 2.0.0 (For parsing the CUESheet)
+- libsndfile >= 1.0.17 (For decoding the audio data)
+
 ## Build
 
 Build application with
