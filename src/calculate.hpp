@@ -11,9 +11,9 @@
  * A Calculation represents a (stateful) concrete checksum calculation that
  * must be configured with a CalcContext specific to the input audio file
  * and a checksum::type that specifies the calculation algorithm. The input
- * of the audio file must be represented as a sequence of <tt>SampleBlock</tt>s
- * and the Calculation is sequentially updated with each
- * <tt>SampleBlock</tt> in order. After the last update, the Calculation
+ * of the audio file must be represented as a succession of iterable uint32_t
+ * represented sample sequences and the Calculation is sequentially updated with
+ * these sequences in order. After the last update, the Calculation
  * returns the calculation result on request. The calculated Checksums
  * are represented as an iterable aggregate of <tt>ChecksumSet</tt>s.
  *
@@ -30,6 +30,9 @@
  *
  * AudioSize represents the size of the audio data in a file in frames,
  * samples and bytes.
+ *
+ * PCMForwardIterator wraps the concrete iterator of the sample sequence so any
+ * class with a compatible iterator can be used.
  *
  * InvalidAudioException is thrown if the audio input is insufficient or
  * invalid.
@@ -935,8 +938,7 @@ public:
 	/**
 	 * Updates the instance with a new AudioSize.
 	 *
-	 * This must be done before the last call of
-	 * update(const SampleBlock *samples).
+	 * This must be done before the last call of Calculation::update().
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */

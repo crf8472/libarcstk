@@ -2,7 +2,7 @@
 #define __LIBARCS_SAMPLES_HPP__
 
 /**
- * \file samplesequence.hpp Interface for a templated sample sequence
+ * \file samples.hpp Interface for a sample sequence template
  *
  */
 
@@ -121,160 +121,10 @@ public:
 	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
 };
 
-
-// forward declaration required by SampleBlock
-template<bool is_const>
-class SampleBlockIterator;
-
-
-/**
- * A block of samples to <tt>update()</tt> a Calculation.
- *
- * This block has its initial capacity fixed and is non-copyable.
- *
- * Samples can only be assigned in two ways: via iterator or via the
- * <tt>front()</tt> pointer. The latter method is useful when using
- * SampleBlock as a target for using the <tt>read()</tt> method of an
- * STL stream.
- */
-class SampleBlock final
-{
-
-public: /* types */
-
-	using iterator = SampleBlockIterator<false>;
-
-	using const_iterator = SampleBlockIterator<true>;
-
-public: /* methods */
-
-	/**
-	 * Constructor.
-	 *
-	 * Construct the instance with a fixed capacity.
-	 *
-	 * \param capacity Capacity of the container in number of PCM 32 bit samples
-	 */
-	explicit SampleBlock(const std::size_t capacity);
-
-	// Non-copyable class
-	SampleBlock(const SampleBlock &rhs) = delete;
-
-	/**
-	 * Move constructor
-	 *
-	 * \param[in] rhs The instance to move
-	 */
-	SampleBlock(SampleBlock&& rhs) noexcept;
-
-	/**
-	 * Default destructor
-	 */
-	~SampleBlock() noexcept;
-
-	/**
-	 * Return iterator pointing to the beginning
-	 *
-	 * \return iterator pointing to the beginning
-	 */
-	iterator begin();
-
-	/**
-	 * Return iterator pointing to the end
-	 *
-	 * \return iterator pointing to the end
-	 */
-	iterator end();
-
-	/**
-	 * Return const_iterator pointing to the beginning
-	 *
-	 * \return const_iterator pointing to the beginning
-	 */
-	const_iterator begin() const;
-
-	/**
-	 * Return const_iterator pointing to the end
-	 *
-	 * \return const_iterator pointing to the end
-	 */
-	const_iterator end() const;
-
-	/**
-	 * Return const_iterator pointing to the beginning
-	 *
-	 * \return const_iterator pointing to the beginning
-	 */
-	const_iterator cbegin() const;
-
-	/**
-	 * Return const_iterator pointing to the end
-	 *
-	 * \return const_iterator pointing to the end
-	 */
-	const_iterator cend() const;
-
-	/**
-	 * Actual number of elements in the instance.
-	 *
-	 * \return Actual number of elements in the container
-	 */
-	std::size_t size() const;
-
-	/**
-	 * Set the capacity to a new value.
-	 *
-	 * \param[in] num_samples Number of 32 bit PCM samples
-	 */
-	void set_size(std::size_t num_samples);
-
-	/**
-	 * Capacity of this instance.
-	 *
-	 * \return Capacity of this instance in number of 32 bit PCM samples
-	 */
-	std::size_t capacity() const;
-
-	/**
-	 * Returns TRUE if the instance holds no elements.
-	 *
-	 * \return TRUE if the instance holds no elements, otherwise FALSE
-	 */
-	bool empty() const;
-
-	/**
-	 * Pointer to the start of the samples.
-	 *
-	 * \return Raw pointer to the beginning of the buffer
-	 */
-	uint32_t* front();
-
-	// Non-copyable class
-	SampleBlock& operator = (const SampleBlock &rhs) = delete;
-
-	/**
-	 * Move assignment
-	 *
-	 * \param[in] rhs The instance to move
-	 */
-	SampleBlock& operator = (SampleBlock&& rhs) noexcept;
-
-
-private:
-
-	// forward declaration
-	class Impl;
-
-	/**
-	 * Private implementation of SampleBlock
-	 */
-	std::unique_ptr<SampleBlock::Impl> impl_;
-};
-
 } // namespace arcs
 /// @}
 
-#ifndef __LIBARCSREAD_SAMPLES_TPP__
+#ifndef __LIBARCS_SAMPLES_TPP__
 #include "details/samples.tpp"
 #endif
 

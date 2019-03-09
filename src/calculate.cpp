@@ -1920,7 +1920,7 @@ public:
 	checksum::type type() const;
 
 	/**
-	 * Implements Calculation::update(const SampleBlock &samples)
+	 * Implements Calculation::update()
 	 */
 	void update(PCMForwardIterator &begin, PCMForwardIterator &end);
 
@@ -2146,7 +2146,7 @@ void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
 bool Calculation::Impl::complete() const
 {
 	// Dangerous. smpl_offset_ will stop on the right value only iff
-	// the size of the last SampleBlock processed (which may have a smaller size
+	// the size of the last input processed (which may have a smaller size
 	// than its predecessors) was accurately set before passing it to update()
 
 	return this->smpl_offset_ == context().audio_size().sample_count();

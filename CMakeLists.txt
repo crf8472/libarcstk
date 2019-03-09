@@ -89,7 +89,6 @@ list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/match.cpp" )
 list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/identifier.cpp" )
 list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/logging.cpp" )
 list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/parse.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/samples.cpp" )
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
