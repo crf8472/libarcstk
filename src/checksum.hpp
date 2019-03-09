@@ -611,6 +611,15 @@ public:
 	uint32_t length() const;
 
 	/**
+	 * Return the \ref Checksum for the specified \c type
+	 *
+	 * \param[in] type The checksum::type to return the value
+	 *
+	 * \return The checksum for the specified type
+	 */
+	Checksum get(checksum::type type) const;
+
+	/**
 	 * Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment

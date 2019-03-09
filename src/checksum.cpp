@@ -178,6 +178,12 @@ uint32_t ChecksumSet::length() const
 }
 
 
+Checksum ChecksumSet::get(checksum::type type) const
+{
+	return *this->find(type);
+}
+
+
 ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
 {
 	ChecksumList<checksum::type>::operator=(rhs);

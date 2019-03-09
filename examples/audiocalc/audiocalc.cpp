@@ -257,14 +257,14 @@ int main(int argc, char* argv[])
 	using type = arcs::checksum::type;
 	for (const auto& values : checksums)
 	{
-		auto arcs1 = (*values.find(type::ARCS1)).value();
-		auto arcs2 = (*values.find(type::ARCS2)).value();
+		auto arcs1 = values.get(type::ARCS1);
+		auto arcs2 = values.get(type::ARCS2);
 
 		std::cout << std::dec << " " << std::setw(2) << std::setfill(' ')
 			<< trk_no << "   " << std::hex << std::uppercase
-			<< std::setw(8) << std::setfill('0') << arcs1
+			<< std::setw(8) << std::setfill('0') << arcs1.value()
 			<< "  "
-			<< std::setw(8) << std::setfill('0') << arcs2
+			<< std::setw(8) << std::setfill('0') << arcs2.value()
 			<< std::endl;
 		++trk_no;
 	}
