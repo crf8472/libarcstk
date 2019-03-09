@@ -557,8 +557,8 @@ private: // TODO Hide this!
 };
 
 
-#ifndef __LIBARCS_CHECKSUMLIST_TPP__
-#include "checksumlist.tpp"
+#ifndef __LIBARCS_CHECKSUM_TPP__
+#include "checksum.tpp"
 #endif
 
 } // namespace arcs::details

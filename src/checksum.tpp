@@ -3,8 +3,8 @@
 #error "Do not include checksum.tpp directly, include checksum.hpp instead"
 #endif
 
-#ifndef __LIBARCS_CHECKSUMLIST_TPP__
-#define __LIBARCS_CHECKSUMLIST_TPP__
+#ifndef __LIBARCS_CHECKSUM_TPP__
+#define __LIBARCS_CHECKSUM_TPP__
 
 
 // ChecksumListIterator
