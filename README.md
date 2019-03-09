@@ -1,6 +1,6 @@
 # A library to calculate and verify AccurateRip checksums and ids
 
-
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 ## What libarcs is
 
