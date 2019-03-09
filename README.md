@@ -5,6 +5,7 @@
 ## What libarcs is
 
 - Function library for AccurateRip checksums ("ARCS"s)
+- Builds on Linux (and presumably/untested on *BSD)
 - Calculates checksums and ids on CD images
 - Verifies checksums against reference sums from AccurateRip
 - Written in C++14
@@ -32,7 +33,7 @@ Checksums" or "ARCS"s for short.
 ## What libarcs does not
 
 - Libarcs does not offer to read, buffer or decode any audio data. You have to
-  provide the samples on your own. (Solution is underway.)
+  provide the samples on your own.
 - Libarcs offers no network facilities and is not supposed to do so. The actual
   HTTP request for fetching the reference values from AccurateRip is better
   performed by the HTTP networking client of your choice.
@@ -46,6 +47,7 @@ Checksums" or "ARCS"s for short.
   until then)
 - Supports only little endian plattforms. Release-build on big endian plattforms
   is therefore ruled out by cmake.
+- Never built, installed or tested on Windows or Mac OS X
 
 
 
