@@ -8,8 +8,26 @@
 
 
 /**
- * \file checksum_checksumlist.cpp Fixtures for class \ref ChecksumList
+ * \file checksum.cpp Fixtures for classes in submodule 'checksum'
  */
+
+
+// checksum::type
+
+
+TEST_CASE ( "checksum::type_name provides correct names",
+		"[checksum] [checksum::type_name]" )
+{
+	using type      = arcs::checksum::type;
+
+	REQUIRE ( arcs::checksum::type_name(type::ARCS1)   == "ARCSv1" );
+	REQUIRE ( arcs::checksum::type_name(type::ARCS2)   == "ARCSv2" );
+	//REQUIRE ( arcs::checksum::type_name(type::CRC32)   == "CRC32" );
+	//REQUIRE ( arcs::checksum::type_name(type::CRC32ns) == "CRC32ns" );
+}
+
+
+// ChecksumList
 
 
 TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )

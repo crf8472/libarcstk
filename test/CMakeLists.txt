@@ -15,14 +15,9 @@ set (TEST_SETS )
 
 list (APPEND TEST_SETS calculate)
 
-list (APPEND TEST_SETS calculate_calculation )
-list (APPEND TEST_SETS calculate_calccontext )
+list (APPEND TEST_SETS checksum )
 
-list (APPEND TEST_SETS checksum_types )
-list (APPEND TEST_SETS checksum_checksumlist )
-
-list (APPEND TEST_SETS identifier_arid )
-list (APPEND TEST_SETS identifier_toc )
+list (APPEND TEST_SETS identifier )
 
 list (APPEND TEST_SETS match )
 
