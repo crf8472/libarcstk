@@ -4,10 +4,10 @@
 
 ## Building libarcs on Linux and \*BSD
 
-Libarcs is written in C++14. It was developed on Linux with a strong focus on
-C++ standard compliance and has no runtime dependencies other than the C++
-standard library. It was not tested whether libarcs builds out-of-the-box on
-BSDs but don't expect major issues.
+Libarcs is written in C++14. It was developed mainly (but not exclusively) for
+Linux and has no runtime dependencies other than the C++ standard library. It
+was not tested whether libarcs builds out-of-the-box on BSDs but don't expect
+major issues.
 
 
 
@@ -26,6 +26,7 @@ BSDs but don't expect major issues.
   when running the unit tests. You also need git if you want to build the
   documentation with m.css (instead of stock doxygen).
 - Doxygen - for documentation: to build the API documentation in HTML or LaTeX
+- graphviz - for documentation: to build the API documentation in HTML or LaTeX
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
 - include-what-you-use - for development: to control ``include``-relationships
@@ -231,7 +232,7 @@ This will create the manual ``refman.pdf`` in folder ``build/doc/latex`` (while
 issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 
 
-## Libarcs code in my $EDITOR
+## Libarcs code in my ``$EDITOR``
 
 If you used to work with some features of what is called "deep language support"
 for C++, you may notice that libarcs comes with a top-level ``.clang`` file that
@@ -242,8 +243,8 @@ exist if you generate it. Generate it by:
 	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 	$ ln -s compile_commands.json ..  # May or may not be required
 
-This generated file is a compilation database. If your $EDITOR is configured
-accordingly, the compilation database may (or may not) help your $EDITOR to
+This generated file is a compilation database. If your ``$EDITOR`` is configured
+accordingly, the compilation database may (or may not) help your ``$EDITOR`` to
 provide some enhanced features for navigating the code (i.e.
 ``goto-definition``) or autocompletion. If this sounds odd for you, it is
 completely safe to skip this paragraph, ignore the ``.clang`` file and just feel

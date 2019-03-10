@@ -3,6 +3,8 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
 
+
+
 ## What libarcs is
 
 - Function library for AccurateRip checksums ("ARCS"s)
@@ -33,28 +35,12 @@ Checksums" or "ARCS"s for short.
 
 ## What libarcs does not
 
+- Libarcs does not rip CDs
 - Libarcs does not offer to read, buffer or decode any audio data. You have to
   provide the samples on your own.
 - Libarcs offers no network facilities and is not supposed to do so. The actual
   HTTP request for fetching the reference values from AccurateRip is better
   performed by the HTTP networking client of your choice.
-
-
-
-## Current Limitations
-
-- No production release yet - will be 1.0.0
-- API is not considered stable before 1.0.0 (may change any time in any way
-  until then)
-- Supports only little endian plattforms. Release-build on big endian plattforms
-  is therefore ruled out by cmake.
-- Never built, installed or tested on Windows or Mac OS X
-
-
-
-## Bugs
-
-- Never tested with CD images containing data tracks.
 
 
 
@@ -80,4 +66,21 @@ build switches.
 - Consult the example code in the examples folder.
 - As soon as I manage to write a quickstart tutorial, it will be found in the
   Wiki.
+
+
+
+## Current Limitations
+
+- No production release yet - will be 1.0.0
+- API is not considered stable before 1.0.0 (may change any time in any way
+  until then)
+- Supports only little endian plattforms. Release-build on big endian plattforms
+  is therefore ruled out by cmake.
+- Never built, installed or tested on Windows or Mac OS X
+
+
+
+## Bugs
+
+- Never tested with CD images containing data tracks.
 
