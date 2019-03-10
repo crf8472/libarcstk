@@ -54,7 +54,7 @@ else()
 		#GIT_TAG           "${MCSS_VERSION_TAG}"
 	)
 
-	if (${CMAKE_VERSION} VERSION_LESS "3.13.4" )
+	if (${CMAKE_VERSION} VERSION_LESS "3.14" )
 
 		#FetchContent_GetProperties (${MCSS_TARGET} )
 
@@ -65,8 +65,8 @@ else()
 		endif()
 	else()
 
-		# with 3.13.4 comes:
-		#FetchContent_MakeAvailable (${MCSS_TARGET} )
+		# with 3.14 comes:
+		FetchContent_MakeAvailable (${MCSS_TARGET} )
 
 	endif()
 
