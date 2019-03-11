@@ -4,28 +4,27 @@
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
 
 
-Although AccurateRip checksums are often referred to as "CRCs", they are not
-CRCs in a mathematical sense. Therefore, we call them just "AccurateRip
-Checksums" or "ARCS"s for short.
-
-
 
 ## What libarcs is
 
 Libarcs supports the following tasks:
 
-- Compute the ARCSs of a sequence of decoded samples
-  (from a CD TOC and the actual audio samples, may it be an album or a single
-  track)
-- Verify local ARCSs against the reference checksums provided by AccurateRip
+- Compute the AccurateRip checksums of a sequence of decoded samples
+- Verify local AccurateRip checksums against their reference values provided by
+  AccurateRip
 - Calculate the AccurateRip ID of a CD image from TOC information
 - Parse the response from AccurateRip database to plain text
 
-Libarcs provides
+Libarcs provides:
 
-- A C++14 function library for working with AccurateRip checksums ("ARCS"s)
-- Builds on Linux (and presumably/untested on *BSD)
+- An API for working with AccurateRip checksums
 - Conservative OO API (intended to be usable from other languages)
+- A C++14 function library
+- Builds on Linux (and presumably/untested on *BSD)
+
+Although AccurateRip checksums are often referred to as "CRCs", they are not
+CRCs in a mathematical sense. Therefore, we call them just "AccurateRip
+Checksums" or "ARCS"s for short.
 
 
 
