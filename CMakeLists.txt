@@ -231,7 +231,8 @@ if (CMAKE_COMPILER_IS_GNUCXX
 
 	## Activate Warnings
 
-	add_compile_options (-Wall -Wextra -Weffc++ -Wold-style-cast -Wpedantic )
+	target_compile_options (${PROJECT_NAME}
+		PUBLIC -Wall -Wextra -Wold-style-cast -Wpedantic -Weffc++ )
 
 	## Platform specific optimizations (default ON for Release, otherwise OFF)
 
@@ -246,7 +247,8 @@ if (CMAKE_COMPILER_IS_GNUCXX
 
 		message (STATUS "Build with platform specific optimization")
 
-		add_compile_options (-march=native -mtune=native )
+		target_compile_options (${PROJECT_NAME}
+			PUBLIC -march=native -mtune=generic )
 	else()
 
 		message (STATUS "Build without platform specific optimization")
@@ -301,6 +303,10 @@ endif()
 if (WITH_DOCS )
 
 	add_subdirectory(${PROJECT_DOC_DIR} )
+
+else (WITH_DOCS )
+
+	message (STATUS "Build without documentation")
 
 endif (WITH_DOCS )
 
