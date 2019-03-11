@@ -346,7 +346,7 @@ std::string BaseCalcContext::filename() const
 }
 
 
-uint32_t BaseCalcContext::first_relevant_sample(const TrackNo track) const
+uint32_t BaseCalcContext::first_relevant_sample(const TrackNo /* track */) const
 {
 	return 0; // no functionality, just to be overriden
 }
@@ -358,7 +358,7 @@ uint32_t BaseCalcContext::first_relevant_sample() const
 }
 
 
-uint32_t BaseCalcContext::last_relevant_sample(const TrackNo track) const
+uint32_t BaseCalcContext::last_relevant_sample(const TrackNo /* track */) const
 {
 	return 0; // no functionality, just to be overriden
 }
@@ -577,19 +577,19 @@ uint32_t SingletrackCalcContext::last_relevant_sample(
 }
 
 
-TrackNo SingletrackCalcContext::track(const uint32_t smpl) const
+TrackNo SingletrackCalcContext::track(const uint32_t /* smpl */) const
 {
 	return 1;
 }
 
 
-uint32_t SingletrackCalcContext::offset(const TrackNo track) const
+uint32_t SingletrackCalcContext::offset(const TrackNo /* track */) const
 {
 	return 0;
 }
 
 
-uint32_t SingletrackCalcContext::length(const TrackNo track) const
+uint32_t SingletrackCalcContext::length(const TrackNo /* track */) const
 {
 	return 0;
 }

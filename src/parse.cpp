@@ -820,6 +820,11 @@ class ARResponse::Impl final
 public:
 
 	/**
+	 * Default constructor
+	 */
+	Impl();
+
+	/**
 	 * Implements ARResponse::append(const ARBlock &block)
 	 */
 	void append(const ARBlock &block);
@@ -881,6 +886,13 @@ private:
 	 */
 	std::vector<ARBlock> blocks_;
 };
+
+
+ARResponse::Impl::Impl()
+	: blocks_()
+{
+	// empty
+}
 
 
 void ARResponse::Impl::append(const ARBlock &block)
@@ -1546,6 +1558,13 @@ class ARStreamParser::Impl final
 public:
 
 	/**
+	 * Copy constructor
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
+	Impl(const Impl &rhs);
+
+	/**
 	 * Size in bytes of the block header containing disc_id_1, disc_id_2 and
 	 * cddb_id.
 	 */
@@ -1605,6 +1624,13 @@ public:
 	 * \throw StreamReadException If reading of the stream fails
 	 */
 	uint32_t do_parse(std::istream &in_stream);
+
+	/**
+	 * Copy assignment
+	 *
+	 * \param[in] rhs The instance to assign
+	 */
+	Impl& operator = (const Impl &rhs);
 
 
 private:
@@ -1675,7 +1701,18 @@ private:
 
 
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
-	: parser_(parser)
+	: content_handler_(nullptr)
+	, error_handler_(nullptr)
+	, parser_(parser)
+{
+	// empty
+}
+
+
+ARStreamParser::Impl::Impl(const Impl &rhs)
+	: content_handler_(rhs.content_handler_->clone())
+	, error_handler_(rhs.error_handler_->clone())
+	, parser_(nullptr) // Do not copy the parent object of rhs!
 {
 	// empty
 }
@@ -1993,6 +2030,17 @@ uint32_t ARStreamParser::Impl::le_bytes_to_uint32(const char b1,
 }
 
 
+ARStreamParser::Impl& ARStreamParser::Impl::operator = (
+		const ARStreamParser::Impl &rhs)
+{
+	this->content_handler_ = rhs.content_handler_->clone();
+	this->error_handler_   = rhs.error_handler_->clone();
+	parser_ = nullptr;
+
+	return *this;
+}
+
+
 // ARStreamParser
 
 
@@ -2068,7 +2116,7 @@ uint32_t ARFileParser::parse(const std::string &filename)
 
 
 void ARFileParser::on_catched_exception(std::istream &istream,
-		const std::exception &e) const
+		const std::exception & /* e */) const
 {
 	auto *filestream = dynamic_cast<std::ifstream*>(&istream);
 	filestream->close();
@@ -2092,8 +2140,8 @@ uint32_t ARStdinParser::parse()
 }
 
 
-void ARStdinParser::on_catched_exception(std::istream &istream,
-			const std::exception &e) const
+void ARStdinParser::on_catched_exception(std::istream & /* istream */,
+			const std::exception &/* e */) const
 {
 	// empty
 }

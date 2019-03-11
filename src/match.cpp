@@ -72,9 +72,9 @@ public:
 
 	uint32_t difference(const uint32_t b, const bool v2) const override;
 
-	uint32_t total_blocks() const override;
+	int total_blocks() const override;
 
-	uint8_t tracks_per_block() const override;
+	int tracks_per_block() const override;
 
 	size_t size() const override;
 
@@ -163,7 +163,7 @@ protected:
 	 *
 	 * \throws Iff \c t is out of range
 	 */
-	void validate_track(uint32_t t) const;
+	void validate_track(int t) const;
 
 
 private:
@@ -176,7 +176,7 @@ private:
 	/**
 	 * Number of tracks in each ARBlock
 	 */
-	uint8_t tracks_per_block_;
+	int tracks_per_block_;
 
 	/**
 	 * Number of flags stored.
@@ -277,13 +277,13 @@ uint32_t DefaultMatch::difference(const uint32_t b, const bool v2) const
 }
 
 
-uint32_t DefaultMatch::total_blocks() const
+int DefaultMatch::total_blocks() const
 {
 	return blocks_;
 }
 
 
-uint8_t DefaultMatch::tracks_per_block() const
+int DefaultMatch::tracks_per_block() const
 {
 	return tracks_per_block_;
 }
@@ -364,7 +364,7 @@ void DefaultMatch::validate_block(uint32_t b) const
 }
 
 
-void DefaultMatch::validate_track(uint32_t t) const
+void DefaultMatch::validate_track(int t) const
 {
 	if (t > tracks_per_block_ - 1)
 	{
@@ -402,11 +402,6 @@ public:
 	 * \param[in] rhs Instance to move
 	 */
 	BaseMatcherImpl(BaseMatcherImpl &&rhs) noexcept;
-
-	/**
-	 * Default destructor
-	 */
-	~BaseMatcherImpl() noexcept;
 
 	/**
 	 * Initializes the match
@@ -465,6 +460,11 @@ public:
 
 
 protected:
+
+	/**
+	 * Default destructor
+	 */
+	~BaseMatcherImpl() noexcept;
 
 	/**
 	 * Performs the actual match.
@@ -681,7 +681,7 @@ int BaseMatcherImpl::mark_best_block()
 /**
  * Implementation of ListMatcher
  */
-class ListMatcher::Impl : public BaseMatcherImpl
+class ListMatcher::Impl final : public BaseMatcherImpl
 {
 
 protected:
@@ -699,12 +699,16 @@ std::unique_ptr<DefaultMatch> ListMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
-	if (actual_sums.size() != ref_sums.tracks_per_block())
+	uint64_t ref_tracks = ref_sums.tracks_per_block() < 0
+		? 0
+		: ref_sums.tracks_per_block(); // TODO Better way to compare
+
+	if (actual_sums.size() != ref_tracks)
 	{
 		ARCS_LOG_ERROR << "No match possible."
 			<< " Number of tracks in actual_sums (" << actual_sums.size()
 			<< ") is different from number of tracks in ref_sums ("
-			<< ref_sums.tracks_per_block() << ")";
+			<< ref_tracks << ")";
 
 		return nullptr;
 	}
@@ -889,12 +893,16 @@ std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId & /*id*/,
 		const ARResponse &ref_sums) const
 {
-	if (actual_sums.size() != ref_sums.tracks_per_block())
+	uint64_t ref_tracks = ref_sums.tracks_per_block() < 0
+		? 0
+		: ref_sums.tracks_per_block(); // TODO Better way to compare
+
+	if (actual_sums.size() != ref_tracks)
 	{
 		ARCS_LOG_ERROR << "No match possible."
 			<< " Number of tracks in actual_sums (" << actual_sums.size()
 			<< ") is different from number of tracks in ref_sums ("
-			<< ref_sums.tracks_per_block() << ")";
+			<< ref_tracks << ")";
 
 		return nullptr;
 	}
@@ -904,8 +912,8 @@ std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
 
 	int block_i { 0 };
 	int track_j { 0 };
-	uint32_t bitpos { 0 };
-	int start_track { 0 };
+	uint32_t bitpos      { 0 };
+	uint32_t start_track { 0 };
 
 	Checksum checksum;
 

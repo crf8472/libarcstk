@@ -897,7 +897,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc)
 	std::vector<uint32_t> offsets;
 	offsets.reserve(size);
 
-	for (int i = 1; i <= size; ++i)
+	for (unsigned int i = 1; i <= size; ++i)
 	{
 		offsets.emplace_back(toc.offset(i));
 	}
@@ -913,7 +913,7 @@ std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc)
 	std::vector<uint32_t> parsed_lengths;
 	parsed_lengths.reserve(size);
 
-	for (int i = 1; i <= size; ++i)
+	for (unsigned int i = 1; i <= size; ++i)
 	{
 		parsed_lengths.emplace_back(toc.parsed_length(i));
 	}
@@ -929,7 +929,7 @@ std::vector<std::string> get_filenames(const arcs::TOC &toc)
 	std::size_t file_count { toc.track_count() };
 	fnames.reserve(file_count);
 
-	for (int i = 1; i <= file_count; ++i)
+	for (unsigned int i = 1; i <= file_count; ++i)
 	{
 		fnames.emplace_back(toc.filename(i));
 	}
@@ -1058,8 +1058,8 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build_empty_id() const noexcept
 	return nullptr;
 }
 
-
-uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t track_count,
+// FIXME Is track_count required?
+uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t /* track_count */,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
@@ -1459,7 +1459,8 @@ void TOCValidator::validate(const uint16_t track_count,
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
-	if (leadout < offsets.back() + CDDA.MIN_TRACK_LEN_FRAMES)
+	if (static_cast<int64_t>(leadout)
+			< offsets.back() + CDDA.MIN_TRACK_LEN_FRAMES)
 	{
 		std::stringstream ss;
 		ss << "Leadout frame " << leadout
@@ -1548,20 +1549,20 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 	{
 		// Is offset in a CDDA-legal range?
 
-		if (offsets[i] > CDDA.MAX_OFFSET)
+		if (offsets[i] > static_cast<int64_t>(CDDA.MAX_OFFSET))
 		{
 			std::stringstream ss;
 			ss << "Offset " << std::to_string(offsets[i])
 				<< " for track " << std::to_string(i);
 
-			if (offsets[i] > MAX_OFFSET_99)
+			if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_99))
 			{
 				ss << " exceeds physical range of 99 min ("
 					<< std::to_string(MAX_OFFSET_99) << " frames)";
 
 				ARCS_LOG_WARNING << ss.str();
 
-			} else if (offsets[i] > MAX_OFFSET_90)
+			} else if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_90))
 			{
 				ss << " exceeds physical range of 90 min ("
 					<< std::to_string(MAX_OFFSET_90) << " frames)";
@@ -1671,7 +1672,7 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 {
 	// Greater than Minimum ?
 
-	if (leadout < CDDA.MIN_TRACK_OFFSET_DIST)
+	if (static_cast<int64_t>(leadout) < CDDA.MIN_TRACK_OFFSET_DIST)
 	{
 		std::stringstream ss;
 

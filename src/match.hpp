@@ -129,7 +129,7 @@ public:
 	 *
 	 * \return Total number of compared blocks.
 	 */
-	virtual uint32_t total_blocks() const
+	virtual int total_blocks() const
 	= 0;
 
 	/**
@@ -137,7 +137,7 @@ public:
 	 *
 	 * \return Total number of tracks per block.
 	 */
-	virtual uint8_t tracks_per_block() const
+	virtual int tracks_per_block() const
 	= 0;
 
 	/**
