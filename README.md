@@ -23,8 +23,7 @@ Checksums" or "ARCS"s for short.
 
 ### Libarcs provides
 
-- A function library for working with AccurateRip checksums ("ARCS"s)
-- Written in C++14
+- A C++14 function library for working with AccurateRip checksums ("ARCS"s)
 - Builds on Linux (and presumably/untested on *BSD)
 - Conservative OO API (intended to be usable from other languages)
 
