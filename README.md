@@ -12,7 +12,7 @@ Checksums" or "ARCS"s for short.
 
 ## What libarcs is
 
-### Libarcs supports the following tasks:
+Libarcs supports the following tasks:
 
 - Compute the ARCSs of a sequence of decoded samples
   (from a CD TOC and the actual audio samples, may it be an album or a single
@@ -21,7 +21,7 @@ Checksums" or "ARCS"s for short.
 - Calculate the AccurateRip ID of a CD image from TOC information
 - Parse the response from AccurateRip database to plain text
 
-### Libarcs provides
+Libarcs provides
 
 - A C++14 function library for working with AccurateRip checksums ("ARCS"s)
 - Builds on Linux (and presumably/untested on *BSD)
