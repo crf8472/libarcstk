@@ -4,32 +4,29 @@
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
 
 
-
-## What libarcs is
-
-- Function library for AccurateRip checksums ("ARCS"s)
-- Builds on Linux (and presumably/untested on *BSD)
-- Calculates checksums and ids on CD images
-- Verifies checksums against reference sums from AccurateRip
-- Written in C++14
-- Conservative OO API (intended to be usable from other languages)
-- Seems pretty fast
-
-
-
-## Features
-
-Libarcs supports the following tasks:
-
-- Compute the ARCSs of a sequence of uint32_t sample sequences
-  (from a CD TOC and the actual audio samples)
-- Verify local ARCSs against the checksums provided by AccurateRip
-- Calculate the AccurateRip ID of a CD image from TOC information
-- Parse the response from AccurateRip database to plain text
-
 Although AccurateRip checksums are often referred to as "CRCs", they are not
 CRCs in a mathematical sense. Therefore, we call them just "AccurateRip
 Checksums" or "ARCS"s for short.
+
+
+
+## What libarcs is
+
+### Libarcs supports the following tasks:
+
+- Compute the ARCSs of a sequence of decoded samples
+  (from a CD TOC and the actual audio samples, may it be an album or a single
+  track)
+- Verify local ARCSs against the reference checksums provided by AccurateRip
+- Calculate the AccurateRip ID of a CD image from TOC information
+- Parse the response from AccurateRip database to plain text
+
+### Libarcs provides
+
+- A function library for working with AccurateRip checksums ("ARCS"s)
+- Written in C++14
+- Builds on Linux (and presumably/untested on *BSD)
+- Conservative OO API (intended to be usable from other languages)
 
 
 
@@ -76,7 +73,8 @@ build switches.
   until then)
 - Supports only little endian plattforms. Release-build on big endian plattforms
   is therefore ruled out by cmake.
-- Never built, installed or tested on Windows or Mac OS X
+- Never built, installed or tested on Windows or Mac OS X, but it is intended to
+  support these platforms in the future
 
 
 
