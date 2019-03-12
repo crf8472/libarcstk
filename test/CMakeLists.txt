@@ -61,7 +61,7 @@ foreach (_testcase ${TEST_SETS} )
 		WORKING_DIRECTORY "${PROJECT_TEST_DIR}/data"
 	)
 
-	## Add the name of the test exe to lis
+	## Add the name of the test exe to list
 	list (APPEND TEST_EXE_NAMES ${_testcase}_test)
 
 endforeach()
