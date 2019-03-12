@@ -1095,10 +1095,5 @@ public:
 
 } // namespace arcs
 
-
-//#ifndef __LIBARCS_CALCULATE_TPP__
-//#include "calculate.tpp"
-//#endif
-
 #endif
 
