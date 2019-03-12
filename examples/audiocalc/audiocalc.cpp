@@ -14,18 +14,21 @@ extern "C" {
 #ifndef __LIBARCS_CALCULATE_HPP__ // libarcs: calculate ARCSs
 #include <arcs/calculate.hpp>
 #endif
+#ifndef __LIBARCS_SAMPLES_HPP__   // libarcs: normalize input samples
+#include <arcs/samples.hpp>
+#endif
 
 #ifndef __LIBARCS_LOGGING_HPP__   // libarcs: log what you do
 #include <arcs/logging.hpp>
 #endif
 
 
-// ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
+// ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
 // NOTE! THIS IS EXAMPLE CODE! IT IS INTENDED TO DEMONSTRATE HOW LIBARCS COULD
-// BE USED. IT IS NOT INTENDED TO BE USED IN REAL LIFE AND IN NO WAY SECURED NOR
-// TESTED FOR PRODUCTION. TAKE THIS AS A STARTING POINT TO YOUR OWN SOLUTION
-// NOT AS A TOOL.
-// ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
+// BE USED. IT IS NOT INTENDED TO BE USED IN REAL LIFE PRODUCTION. IT IS IN NO
+// WAY TESTED FOR PRODUCTION. TAKE THIS AS A STARTING POINT TO YOUR OWN
+// SOLUTION, NOT AS A TOOL.
+// ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
 
 
 /**
@@ -126,8 +129,10 @@ int main(int argc, char* argv[])
 	// handle:
 	arcs::AudioSize total_samples;
 	total_samples.set_sample_count(audiofile.frames());
-	// Remark: what libsndfile calls "frames" is what libarcs calls "samples".
-	// Our sample is 1x 32 bit (left/right), libsndfile's frame is 2x 16 bit.
+	// Remark: what libsndfile calls "frames" is what libarcs calls
+	// "PCM 32 samples". Our "sample" represents a single stereo sample as
+	// a single 32 bit unsigned int (left/right), libsndfile's frame encodes the
+	// same information as 2 signed 16 bit integers, one per channel.
 
 	// One completed, two to go. We derive track number and offsets from parsing
 	// the CUEsheet. We skip the details here. (Just consult the implementation
@@ -187,7 +192,8 @@ int main(int argc, char* argv[])
 	uint64_t sample_count  {0}; // Count total samples that were actually read
 
 	// Main loop: let libsndfile read the sample in its own format, normalize it
-	// and update the prepared Calculation with the normalized SampleBlock.
+	// and update the prepared Calculation with the samples read in the current
+	// loop run
 	while ((ints_in_block = audiofile.read(&buffer[0], buffer_len)))
 	{
 		// Check whether we have read the expected amount of samples in this run
