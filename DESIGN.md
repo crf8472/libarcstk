@@ -19,7 +19,7 @@ its patterns but avoids deep inheritance levels. Inheritance is good in case it
 helps to avoid repeating yourself, assists the intuition of the reader, helps
 decoupling and models a natural is-a relationship. However, genericity is
 considered as the bigger achievement, so when in doubt, I tried to prefer the
-generic solution over default ``OOPness``.
+generic solution over default "OOPness".
 
 For example: I tried not to bloat classes with members just to make something a
 member. Always consider whether it is better to make it a non-member non-friend.

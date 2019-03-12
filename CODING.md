@@ -29,6 +29,8 @@ libarcs.
 - Definitions of templates reside in a separate .tpp file that is included by
   the .hpp file
 - Avoid inline definitions in the class body
+- For templates, use ``typename`` for sites where base types are allowed and use
+  ``class`` for sites where own class definitions are required.
 
 
 # Formatting
