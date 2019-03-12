@@ -1,13 +1,14 @@
 # Coding Style
 
 
+I describe the coding style I used to use in the project. It's main purpose is a
+documentation for myself. It's not comprehensive but enumerates the points where
+I decided to reduce the wiggle room for stylistic creativity.
+
 Beware: the following contains my opinion. You might not like it. It does *not*
 claim to be the truth to obey for everybody, it is just the current setting for
 libarcs.
 
-I describe the coding style I used to use in the project. It's main purpose is a
-documentation for myself. It's not comprehensive but enumerates the points where
-I decided to reduce the wiggle room for stylistic creativity.
 
 
 # Names
@@ -21,10 +22,13 @@ I decided to reduce the wiggle room for stylistic creativity.
 - Macro names are upper case ASCII-letters and may have underscores (``[A-Z_]``)
 
 
-# Headers and Declarations
+# Headers, Declarations, Definitions
 
 - Header file names end with ``.hpp`` (not ``.h`` or anything else).
-- Headers do not contain definitions, except when ``inline``
+- Headers do not contain definitions, except for template (member) functions
+- Definitions of templates reside in a separate .tpp file that is included by
+  the .hpp file
+- Avoid inline definitions in the class body
 
 
 # Formatting
@@ -35,10 +39,10 @@ I decided to reduce the wiggle room for stylistic creativity.
 - There is no space after the opening parenthesis ``(`` and no space before the
   closing parenthesis ``)``.
 - There is a space before and after any operator.
+- Put the ``= 0;`` of a pure virtual method declaration on a separate line.
 - Constructor initialization lists are formatted with one assignment per line,
   with leading ``:`` or ``,`` and indented one step to the constructor name.
 - Prefer ``and``, ``or`` and ``not`` to ``||``, ``&&`` and ``~``.
-- Put the ``= 0;`` of a pure virtual method declaration on a separate line.
 
 
 # Compiler feedback
@@ -57,11 +61,12 @@ I decided to reduce the wiggle room for stylistic creativity.
 - Implementation classes (i.e. subclasses that are ``final`` and not declared in
   a header) and their members may or may not have documentation comments.
 - If something involves a value, make the unit of the value maximally clear
-  (bad: "size"; good: "number of samples", "size in bytes").
+  (bad: ``frame_size``, ``samples`` - good: ``bytes_per_frame``,
+  ``total_samples``).
 - If something involves an index, make maximally clear whether the index is
   1-based or 0-based or whatever its base may be.
-- Use doxygens ``\\todo`` tags only for issues that are about to change the API
-  or the behaviour (or both), not for mere implementation issues.
+- Use Doxygens ``\todo`` tags only for issues that are about to change API,
+  not for mere implementation issues.
 
 
 # Non-documentation Comments
@@ -86,7 +91,7 @@ I decided to reduce the wiggle room for stylistic creativity.
 
 - Libarcs project files have unix line endings (== line feed,``0x0A``). Whatever
   your git is configured to checkout, ensure that your git commits unix line
-  endings!
+  endings.
 - Ensure that every source file you modify has a unix line ending at the end of
   file. Every line ends with a unix line ending and the end of file must have
   a unix line ending too.

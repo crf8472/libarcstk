@@ -1,6 +1,15 @@
 # Design Principles
 
 
+I used the project to improve my C++ knowledge while achieving the solution of a
+real task.When it eventually grew to a certain point, I thought that I could
+share it. This decision motivated me to reflect my API design. I noted
+the following points mainly as a log for myself. Libarcs is at least intended to
+obey these requirements.
+
+Beware: the following contains decisions based on my opinion. You might not like
+it.
+
 Libarcs embraces "modern" C++, which means to choose the contemporary way of
 doing things, not the way things were done back in the Nineties. Currently,
 libarcs is compiled as C++14.
@@ -10,18 +19,13 @@ its patterns but avoids deep inheritance levels. Inheritance is good in case it
 helps to avoid repeating yourself, assists the intuition of the reader, helps
 decoupling and models a natural is-a relationship. However, genericity is
 considered as the bigger achievement, so when in doubt, I tried to prefer the
-generic solution over OOP.
+generic solution over default ``OOPness``.
 
 For example: I tried not to bloat classes with members just to make something a
 member. Always consider whether it is better to make it a non-member non-friend.
 
-The API is deliberately conservative to enable its use also by pre-C++11-code.
-
-I used the project to improve my C++ knowledge which also entailed that I tried
-to reflect my lib design. I noted the following points mainly as a log for
-myself.
-
-Beware: the following contains my opinion. You might not like it.
+The API is deliberately conservative to enable its use also by pre-C++11-code
+and perhaps by other languages at some point.
 
 
 ## Macros
@@ -60,24 +64,20 @@ Beware: the following contains my opinion. You might not like it.
 
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
 - Use STL data types whenever possible: std::string instead of foo::myStr.
-- Prefer smart pointers over raw pointers. Use C++14's std::make_unique except
-  when initialization is positively to be excluded.
-- Use non-owning raw pointers sparingly, except for very good reasons (e.g. when
-  protected accessors seem unavoidable).
+- Prefer smart pointers over raw pointers. Use C++14's ``std::make_unique``
+  (except when initialization is positively to be avoided).
+- Use non-owning raw pointers sparingly, except for very good reasons.
 - Prefer ``using A = foo::A`` over ``typedef foo::A A``.
-- Prefer choosing the minimal possible scope for a using declarative. Of course
-  any declarative of the form ``using namespace`` is totally forbidden.
+- Prefer choosing the minimal possible scope for a using declarative. Avoid
+  any declarative of the form ``using namespace``.
 
 
 ## Classes
 
 - Absolutely avoid class members that are ``public`` and non-const. Use
-  accessors and mutators instead.
-- Classes in exported header files do not have private members, except a single
-  pointer to an instance whose type is initially forward declared in the same
-  class. (In short: if it's declared in an exported header and happens to need
-  private members, hide them by making it a ``Pimpl``. Forward declarations in
-  Pimpls are private except for good reasons.)
+  accessors and mutators instead. Also trivial accessors and mutators are ok.
+- Classes in exported header files should be Pimpls. The forward declaration
+  and the opaque pointer in the Pimpl class are ``private``.
 - A class declaration contains only declaration of its members, but never their
   inline implementation. (Inlining is no reason, static is no reason.)
 - The definition ``= default`` has to be in the source file not in the header
@@ -94,8 +94,8 @@ Beware: the following contains my opinion. You might not like it.
 - When it is arcs-global, it should have ``extern`` linkage to avoid unnecessary
   instances.
 - What is declared and used only within a ``.cpp`` file must have internal
-  linkage, usually by putting it an unnamed namespace. See the static qualifier
-  only as a last resort.
+  linkage, usually by putting it an unnamed namespace. Avoid the ``static``
+  qualifier for defining linkage.
 
 
 ## Header files
@@ -103,24 +103,23 @@ Beware: the following contains my opinion. You might not like it.
 - Any header file only declares symbols that are intentionally part of its API.
   Symbols in a header may not exist "by accident" or for "technical reasons".
   If you absolutely must provide a symbol in a header that is not considered
-  part of the public API enclose it in a namespace ``details``. (I did this on
-  one site and I do not like it, I will refactor it away!)
+  part of the public API enclose it in a namespace ``details``.
 - Of course forward declared implementation pointers are ok.
+- Non-public files (such as .tpp files with template implementations) reside
+  in a directory ``details`` within the ``arcs`` directory.
 
 
 ## Dependencies
 
 - Do not introduce any new external dependencies. For runtime, prefer standard
   library whenever reasonably possible and for buildtime stick to the tools
-  already involved (CMake, Catch2, git).
+  already involved (CMake, Catch2).
 
 
 ## Tests
 
 - If it does anything non-trivial, add a unit test for it.
-- Test filenames are of the scheme: ``<compilation_unit>-<classname>`` where the
-  classname may be omitted if the test tests multiple entities of the
-  compilation unit.
+- Keep one testcase file per module, since compiling tests is expensive.
 - If it is not part of the public API but needs to be tested, move it to a
   separate header, that is included to a non-public namespace at its actual site
   and included "as-if-public" by the test class. Give it the same name as the
