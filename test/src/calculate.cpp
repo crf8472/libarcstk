@@ -315,7 +315,6 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 
 	// Initialize Buffer
 
-	//arcs::SampleBlock buffer(65536); // samples
 	std::vector<uint32_t> buffer(65536); // samples
 	// This forms 3 blocks with 65536 samples each
 

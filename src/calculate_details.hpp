@@ -30,7 +30,7 @@ inline namespace v_1_0_0
 class Partition;
 
 /**
- * Partitioning of a SampleBlock.
+ * Partitioning of a range of samples
  */
 using Partitioning = std::vector<Partition>;
 
@@ -58,7 +58,7 @@ public:
 	virtual ~Partitioner() noexcept;
 
 	/**
-	 * Generates partitioning of the SampleBlock in accordance to a
+	 * Generates partitioning of the range of samples in accordance to a
 	 * CalcContext.
 	 *
 	 * For multitrack contexts, a multitrack partition is provided, otherwise
