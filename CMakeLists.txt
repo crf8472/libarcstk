@@ -3,15 +3,20 @@
 cmake_minimum_required (VERSION 3.9.6 )
 
 ## Set variables corresponding to unspecified versions to the empty string
-## needed for specifying the project version along with the name in project()
+## Required for specifying the project version along with the name in project()
 cmake_policy (SET CMP0048 NEW)
 
 ## Support new IN_LIST if() operator
-## needed for FindDoxygen.cmake
+## Required for FindDoxygen.cmake
 cmake_policy (SET CMP0057 NEW)
 
 
 project (arcs VERSION 0.1.0 LANGUAGES CXX )
+
+set (PROJECT_BRIEF_DESC
+	"A library to calculate and verify AccurateRip checksums and ids" )
+
+set (PROJECT_URL "https://codeberg.org/tristero/libarcs/" )
 
 set (PROJECT_VERSION_SUFFIX "alpha.1" )
 

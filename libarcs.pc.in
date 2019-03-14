@@ -5,9 +5,9 @@ sharedlibdir=@INSTALL_LIBRARY_DIR@
 includedir=@INSTALL_INCLUDE_DIR@
 
 Name: libarcs
-Description: C++ library for computing AccurateRip ids and checksums
+Description: @PROJECT_BRIEF_DESC@
 Version: @PROJECT_VERSION_STRING_WITHOUT_SUFFIX@
-URL:
+URL: @PROJECT_URL@
 
 Libs: -L${libdir} -L${sharedlibdir} -larcs
 Cflags: -I${includedir}
