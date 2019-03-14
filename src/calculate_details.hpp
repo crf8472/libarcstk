@@ -6,7 +6,7 @@
 #define __LIBARCS_CALCULATE_DETAILS_HPP__
 
 /**
- * \file calculate_details.hpp Internal APIs and implementations for calculation
+ * \file calculate_details.hpp Internal APIs for module 'calculate'
  */
 
 
@@ -39,13 +39,12 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
- * Generates a partitioning over a block of samples using the track bound
- * information.
+ * Interface for generating a partitioning over a sequence of samples.size
  *
- * Partitioning provides a way to avoid checking for track bounds in every
- * run of the checksum calculation loop.
- *
- * There are separate partitioners for singletrack and multitrack partitioning.
+ * The partitioning is done along the track bounds according to the TOC such
+ * that every two partitions adjacent within the same sequence belong to
+ * different tracks. This way it is possible to entirely avoid checking for
+ * track bounds within the checksum calculation loop.
  */
 class Partitioner
 {
@@ -61,14 +60,11 @@ public:
 	 * Generates partitioning of the range of samples in accordance to a
 	 * CalcContext.
 	 *
-	 * For multitrack contexts, a multitrack partition is provided, otherwise
-	 * the partition will only contain a single chunk.
-	 *
-	 * \param[in] offset  Offset of the first sample
+	 * \param[in] offset            Offset of the first sample
 	 * \param[in] number_of_samples Number of samples in the block
-	 * \param[in] context The context to derive the partitioning from
+	 * \param[in] context           The context to derive the partitioning from
 	 *
-	 * \return Partitioning of \c samples as a sequence of sample chunks.
+	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
 			const uint32_t offset,
@@ -139,8 +135,8 @@ private:
  * Partitioner for multitrack partitions.
  *
  * The partition is an ordered list of chunks where a track bound lies between
- * every two adjacent chunks. The first sample of the first chunk and the last
- * sample of the last chunk may not lie on a track bound.
+ * every two adjacent partitions. The first sample of the first partition and
+ * the last sample of the last partition may not lie on a track bound.
  */
 class MultitrackPartitioner final : public Partitioner
 {
@@ -163,7 +159,8 @@ private:
 /**
  * Partitioner for singletrack partitions.
  *
- * The partition contains just one chunk representing the entire block.
+ * The partition contains just one partition representing the entire sample
+ * sequence.
  *
  * This supports the usecase where a single track is to be processed.
  */
@@ -189,14 +186,10 @@ private:
 
 
 /**
- * Represents a slice of a sequence of samples.
+ * A contigous subset of a sequence of samples.
  *
- * A Partition is a contigous subset of a block of samples. A chunk does not
- * hold any samples but provides access to a slice of the underlying block of
- * samples.
- *
- * This class remains opaque. It just represents the input to
- * CalcState::update().
+ * A chunk does not hold any samples but provides access to a slice of the
+ * underlying sequence of samples.
  */
 class Partition final
 {
@@ -209,60 +202,60 @@ class Partition final
 public: /* methods */
 
 	/**
-	 * Relative offset of the first sample in the chunk.
+	 * Relative offset of the first sample in the partition.
 	 *
-	 * \return Relative offset of the first sample in the chunk.
+	 * \return Relative offset of the first sample in the partition.
 	 */
 	uint32_t begin_offset() const;
 
 	/**
-	 * Relative offset of the last sample in the chunk + 1.
+	 * Relative offset of the last sample in the partition + 1.
 	 *
-	 * \return Relative offset of the last sample in the chunk + 1.
+	 * \return Relative offset of the last sample in the partition + 1.
 	 */
 	uint32_t end_offset() const;
 
 	/**
-	 * Returns global index of the first sample in the chunk.
+	 * Returns global index of the first sample in the partition.
 	 *
-	 * \return Global index of the first sample in this chunk
+	 * \return Global index of the first sample in this partition
 	 */
 	uint32_t first_sample_idx() const;
 
 	/**
-	 * Returns global index of the last sample in the chunk.
+	 * Returns global index of the last sample in the partition.
 	 *
-	 * \return Global index of the last sample in this chunk
+	 * \return Global index of the last sample in this partition
 	 */
 	uint32_t last_sample_idx() const;
 
 	/**
-	 * Returns TRUE iff the first sample of this chunk is also the first sample
-	 * of the track which the chunk is part of.
+	 * Returns TRUE iff the first sample of this partition is also the first
+	 * sample of the track which the partition is part of.
 	 *
-	 * \return TRUE iff this is chunk starts a track
+	 * \return TRUE iff this is partition starts a track
 	 */
 	bool starts_track() const;
 
 	/**
-	 * Returns TRUE if the last sample of this chunk is also the last sample
-	 * of the track which the chunk is part of.
+	 * Returns TRUE if the last sample of this partition is also the last sample
+	 * of the track which the partition is part of.
 	 *
-	 * \return TRUE iff this is chunk ends a track
+	 * \return TRUE iff this is partition ends a track
 	 */
 	bool ends_track() const;
 
 	/**
-	 * The track of which the samples in the chunk are part of.
+	 * The track of which the samples in the partition are part of.
 	 *
-	 * \return The track that contains this chunk
+	 * \return The track that contains this partition
 	 */
 	TrackNo track() const;
 
 	/**
-	 * Number of samples in this chunk.
+	 * Number of samples in this partition.
 	 *
-	 * \return Number of samples in this chunk
+	 * \return Number of samples in this partition
 	 */
 	uint32_t size() const;
 
@@ -276,11 +269,11 @@ private:
 	/**
 	 * Constructor.
 	 *
-	 * \param[in] first        Global index of the first sample in this chunk
-	 * \param[in] last         Global index of the last sample in this chunk
-	 * \param[in] starts_track TRUE iff this chunk starts its track
-	 * \param[in] ends_track   TRUE iff this chunk ends its track
-	 * \param[in] track        Number of the track that contains this chunk
+	 * \param[in] first        Global index of the first sample in the partition
+	 * \param[in] last         Global index of the last sample in the partition
+	 * \param[in] starts_track TRUE iff this partition starts its track
+	 * \param[in] ends_track   TRUE iff this partition ends its track
+	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
 			const uint32_t     &begin_offset,
@@ -292,43 +285,42 @@ private:
 			const TrackNo      &track);
 
 	/**
-	 * Relative offset of the first sample in this chunk
+	 * Relative offset of the first sample in this partition
 	 */
 	const uint32_t begin_offset_;
 
 	/**
-	 * Relative offset of the last sample in this chunk + 1
+	 * Relative offset of the last sample in this partition + 1
 	 */
 	const uint32_t end_offset_;
 
 	/**
-	 * Global (absolute) index of the first sample in this chunk
+	 * Global (absolute) index of the first sample in this partition
 	 */
 	const uint32_t first_sample_idx_;
 
 	/**
-	 * Global (absolute) index of the last sample in this chunk
+	 * Global (absolute) index of the last sample in this partition
 	 */
 	const uint32_t last_sample_idx_;
 
 	/**
-	 * TRUE iff the first sample in this chunk is also the first sample in the
-	 * track
+	 * TRUE iff the first sample in this partition is also the first sample in
+	 * the track
 	 */
 	const bool starts_track_;
 
 	/**
-	 * TRUE iff the last sample in this chunk is also the last sample in the
-	 * track
+	 * TRUE iff the last sample in this partition is also the last sample in
+	 * the track
 	 */
 	const bool ends_track_;
 
 	/**
-	 * 1-based number of the track of which the samples in the chunk are part
-	 * of
+	 * 1-based number of the track of which the samples in the partition are
+	 * part of
 	 */
-	const TrackNo track_;
-};
+	const TrackNo track_; };
 
 
 /**
@@ -342,8 +334,8 @@ public:
 	/**
 	 * Constructor for <tt>[a,b]</tt>.
 	 *
-	 * \param[in] a First number in interval
-	 * \param[in] b Last number in interval
+	 * \param[in] a First number in closed interval
+	 * \param[in] b Last number in closed interval
 	 */
 	Interval(const uint32_t a, const uint32_t b);
 
@@ -352,7 +344,7 @@ public:
 	 *
 	 * \param[in] i Number to test for containment in interval
 	 *
-	 * \return TRUE iff \c i is contained in the closed interval, otherwise FALSE
+	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
 	 */
 	bool contains(const uint32_t i) const;
 
@@ -477,9 +469,9 @@ Partitioning Partitioner::create_partitioning(
 		const CalcContext &context) const
 {
 	// If the sample block does not contain any relevant samples,
-	// just return an empty chunk list
+	// just return an empty partition list
 
-	auto const block_end = last_sample_idx(offset, number_of_samples);//samples.size());
+	auto const block_end = last_sample_idx(offset, number_of_samples);
 
 	if (block_end < context.first_relevant_sample(1)
 		or offset > context.last_relevant_sample())
@@ -528,7 +520,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count = number_of_samples;//samples.size();
+	const uint32_t sample_count = number_of_samples;
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -546,8 +538,8 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	}
 
 	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first chunk instead of the
-	// first physical sample
+	// sample, set this as the first sample of the first partition instead of
+	// the first physical sample
 
 	uint32_t chunk_first_smpl = offset;
 
@@ -557,7 +549,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	}
 
 	// Will be track_count+1 if 1st sample is beyond global last relevant sample
-	// This entails that the loop is not entered for irrelevant chunks
+	// This entails that the loop is not entered for irrelevant partitions
 	TrackNo   track             = context.track(chunk_first_smpl);
 
 	// If track > track_count this is global last sample
@@ -571,15 +563,15 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	const uint8_t last_track    = context.track_count();
 
 
-	// Now construct all chunks except the last (that needs clipping) in a loop
+	// Now construct all partitions except the last (that needs clipping) in a
+	// loop
 
 	Partitioning chunks{};
 	chunks.reserve(10);
 
 	while (chunk_last_smpl < block_last_smpl and track <= last_track)
 	{
-		ends_track  =
-			(chunk_last_smpl == context.last_relevant_sample(track));
+		ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
 
 		starts_track =
 			(chunk_first_smpl == context.first_relevant_sample(track));
@@ -610,11 +602,11 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	} // while
 
 
-	// If the loop has finished or was never entered, the last chunk has to be
-	// prepared
+	// If the loop has finished or was never entered, the last partition has to
+	// be prepared
 
 
-	// Clip last chunk to block end if necessary
+	// Clip last partition to block end if necessary
 
 	if (chunk_last_smpl > block_last_smpl)
 	{
@@ -625,13 +617,11 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 			<< ", clip last sample to: " << chunk_last_smpl;
 	}
 
-	// Prepare last chunk
+	// Prepare last partition
 
-	starts_track =
-			(chunk_first_smpl == context.first_relevant_sample(track));
+	starts_track = (chunk_first_smpl == context.first_relevant_sample(track));
 
-	ends_track  =
-			(chunk_last_smpl == context.last_relevant_sample(track));
+	ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
 
 	begin_offset = chunk_first_smpl - offset;
 
@@ -690,8 +680,8 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	}
 
 	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first chunk instead of the
-	// first physical sample
+	// sample, set this as the first sample of the first partition instead of
+	// the first physical sample
 
 	uint32_t chunk_first_smpl { offset };
 
@@ -700,26 +690,26 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 		chunk_first_smpl = context.first_relevant_sample(1);
 	}
 
-	// Create a single chunk spanning the entire sample block, but respect
+	// Create a single partition spanning the entire sample block, but respect
 	// skipping samples at front or back
 
-	// Is this the last chunk in the current track?
+	// Is this the last partition in the current track?
 
 	const bool ends_track {
 		chunk_last_smpl == context.last_relevant_sample()
 	};
 
-	// Is this the first chunk of the current track in the current block?
+	// Is this the first partition of the current track in the current block?
 
 	const bool starts_track {
 		chunk_first_smpl == context.first_relevant_sample(1)
 	};
 
-	// Determine first sample in chunk (easy for singletrack: 0)
+	// Determine first sample in partition (easy for singletrack: 0)
 
 	const uint32_t begin_offset { chunk_first_smpl - offset };
 
-	// Determine last sample in chunk (easy for singletrack: sample_count)
+	// Determine last sample in partition (easy for singletrack: sample_count)
 
 	const uint32_t end_offset { chunk_last_smpl - offset + 1 };
 
