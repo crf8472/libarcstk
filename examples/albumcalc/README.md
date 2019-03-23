@@ -33,5 +33,5 @@ libsndfile, e.g. RIFFWAV/PCM or FLAC/FLAC.
 
 	$ ./albumcalc <name_of_chuesheet.cue> <name_of_audio_file>
 
-For more information, read the comments in albumcalc.cpp.
+For more information, read the comments in [albumcalc.cpp](./albumcalc.cpp).
 
