@@ -241,8 +241,7 @@ std::string ARId::Impl::to_string() const
 		<< "-"
 		<< std::setw(8) << std::setfill('0') << this->disc_id_2()
 		<< "-"
-		<< std::setw(8) << std::setfill('0') << this->cddb_id()
-		<< std::endl;
+		<< std::setw(8) << std::setfill('0') << this->cddb_id();
 
 	return id.str();
 }
