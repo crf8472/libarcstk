@@ -48,6 +48,9 @@ inline namespace v_1_0_0
 {
 
 
+// Forward declaration for class ARId, used in the Interface
+class ARId;
+
 // Forward declaration for the private implementation
 class ARTripletImpl;
 
@@ -910,6 +913,14 @@ public:
 	 */
 	const ErrorHandler& error_handler() const;
 
+	/**
+	 * Parses the configured input stream.
+	 *
+	 * \return Number of bytes parsed from configured input stream
+	 */
+	virtual uint32_t parse()
+	= 0;
+
 
 protected:
 
@@ -971,6 +982,27 @@ public:
 	ARFileParser();
 
 	/**
+	 * Constructor for specific file.
+	 *
+	 * \param[in] filename Name of the file to parse
+	 */
+	explicit ARFileParser(const std::string &filename);
+
+	/**
+	 * Set the file to be parsed
+	 *
+	 * \param[in] filename Name of the file to parse
+	 */
+	void set_file(const std::string &filename);
+
+	/**
+	 * Name of the file to parse
+	 *
+	 * \return Name of the file that is parsed when <tt>parse()</tt> is called.
+	 */
+	std::string file() const;
+
+	/**
 	 * Parses a dBAR-\*.bin file received from AccurateRip.
 	 *
 	 * \param[in] filename The file to parse
@@ -980,10 +1012,20 @@ public:
 	uint32_t parse(const std::string &filename);
 
 
+	uint32_t parse() final;
+
+
 private:
 
 	void on_catched_exception(std::istream &istream,
-			const std::exception &e) const override;
+			const std::exception &e) const final;
+
+	/**
+	 * Internal filename representation
+	 */
+	std::string filename_;
+
+	// TODO Make this class a pimpl
 };
 
 
@@ -1005,13 +1047,13 @@ public:
 	 *
 	 * \return Number of bytes parsed from stdin
 	 */
-	uint32_t parse();
+	uint32_t parse() final;
 
 
 private:
 
 	void on_catched_exception(std::istream &istream,
-			const std::exception &e) const override;
+			const std::exception &e) const final;
 };
 
 

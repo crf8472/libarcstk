@@ -2089,7 +2089,36 @@ uint32_t ARStreamParser::do_parse(std::istream &in_stream)
 // ARFileParser
 
 
-ARFileParser::ARFileParser() = default;
+ARFileParser::ARFileParser()
+	: filename_()
+{
+	// empty
+}
+
+
+ARFileParser::ARFileParser(const std::string &filename)
+	: filename_(filename)
+{
+	// empty
+}
+
+
+void ARFileParser::set_file(const std::string &filename)
+{
+	this->filename_ = filename;
+}
+
+
+std::string ARFileParser::file() const
+{
+	return this->filename_;
+}
+
+
+uint32_t ARFileParser::parse()
+{
+	return this->parse(this->file());
+}
 
 
 uint32_t ARFileParser::parse(const std::string &filename)
