@@ -89,6 +89,11 @@ public:
 	bool empty() const;
 
 	/**
+	 * Implements ARId::to_string()
+	 */
+	std::string to_string() const;
+
+	/**
 	 * Implements ARId::operator == (const ARId &rhs) const
 	 */
 	bool operator == (const Impl &rhs) const;
@@ -221,6 +226,25 @@ uint32_t ARId::Impl::cddb_id() const
 bool ARId::Impl::empty() const
 {
 	return 0 == (this->disc_id_1() + this->disc_id_2() + this->cddb_id());
+}
+
+
+std::string ARId::Impl::to_string() const
+{
+	std::stringstream id;
+
+	id << std::dec
+		<< std::setw(2) << std::setfill('0') << this->track_count()
+		<< "-"
+		<< std::hex << std::nouppercase
+		<< std::setw(8) << std::setfill('0') << this->disc_id_1()
+		<< "-"
+		<< std::setw(8) << std::setfill('0') << this->disc_id_2()
+		<< "-"
+		<< std::setw(8) << std::setfill('0') << this->cddb_id()
+		<< std::endl;
+
+	return id.str();
 }
 
 
@@ -834,6 +858,12 @@ uint32_t ARId::cddb_id() const
 bool ARId::empty() const
 {
 	return impl_->empty();
+}
+
+
+std::string ARId::to_string() const
+{
+	return impl_->to_string();
 }
 
 

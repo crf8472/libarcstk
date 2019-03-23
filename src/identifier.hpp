@@ -229,6 +229,13 @@ public:
 	uint32_t cddb_id() const;
 
 	/**
+	 * Return a default string representation of this ARId
+	 *
+	 * \return Default string representation of this ARId
+	 */
+	std::string to_string() const;
+
+	/**
 	 * Return TRUE iff this ARId is empty (holding no information).
 	 *
 	 * \return TRUE iff this ARId is empty
