@@ -645,6 +645,9 @@ uint32_t SampleSequence<T, true>::operator [] (const uint32_t index) const
 {
 	return this->combine(buffer_[right_][index], buffer_[left_][index]);
 	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+	// Equivalent to, but seemingly not slower than:
+	//return (static_cast<uint32_t>(buffer_[right_][index]) << 16)
+	//	| static_cast<uint16_t>(buffer_[left_][index]);
 }
 
 
@@ -806,6 +809,9 @@ uint32_t SampleSequence<T, false>::operator [] (const uint32_t index) const
 	return this->combine(buffer_[2 * index + right_],
 			buffer_[2 * index + left_]);
 	// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+	// Equivalent to, but seemingly not slower than:
+	//return (static_cast<uint32_t>(buffer_[2 * index + right_]) << 16)
+	//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
 }
 
 
