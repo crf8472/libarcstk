@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Usage: audiocalc <cuesheet> <audiofile.wav>" << std::endl;
+		std::cout << "Usage: albumcalc <cuesheet> <audiofile.wav>" << std::endl;
 		return EXIT_SUCCESS;
 	}
 

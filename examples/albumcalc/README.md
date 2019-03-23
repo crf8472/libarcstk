@@ -1,4 +1,4 @@
-# Example application: audiocalc
+# Example application: albumcalc
 
 This example application demonstrates how libarcs is used to calculate
 AccurateRip checksums for each track of an album. The album is provided as a
@@ -25,10 +25,10 @@ to remove the binaries.
 
 ## Usage
 
-audiocalc expects two filenames as parameters, the first being a CUE sheet and
+albumcalc expects two filenames as parameters, the first being a CUE sheet and
 the second an audio file in a lossless audio format that can be read by
 libsndfile, e.g. WAV/PCM or FLAC.
 
-	$ ./audiocalc <name_of_chuesheet.cue> <name_of_audio_file>
+	$ ./albumcalc <name_of_chuesheet.cue> <name_of_audio_file>
 
 For more information, read the comments in audiofile.cpp.
