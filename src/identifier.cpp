@@ -234,7 +234,7 @@ std::string ARId::Impl::to_string() const
 	std::stringstream id;
 
 	id << std::dec
-		<< std::setw(2) << std::setfill('0') << this->track_count()
+		<< std::setw(3) << std::setfill('0') << this->track_count()
 		<< "-"
 		<< std::hex << std::nouppercase
 		<< std::setw(8) << std::setfill('0') << this->disc_id_1()
