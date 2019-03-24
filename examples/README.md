@@ -34,6 +34,8 @@ The aim of the examples is demonstration. If you are interested in using
 libarcs, the author feels you should have some code to start with. This may make
 the current lack of a tutorial less hurting.
 
-Disclaimer: Note that despite the example applications may provide some useful
+## Disclaimer
+
+Note that despite the example applications may provide some useful
 functions, they are _not_ hardened for production use. They should be considered
 as local demonstrations, _not_ as tools!
