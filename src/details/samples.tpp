@@ -18,6 +18,9 @@
 namespace arcs
 {
 
+namespace v_1_0_0
+{
+
 
 // forward declaration required by friend delcaration in SampleIterator
 template<typename T, bool is_planar>
@@ -173,7 +176,7 @@ private:
 };
 
 
-// SampleIterator (general)
+// SampleIterator
 
 
 template <typename T, bool is_planar, bool is_const>
@@ -835,6 +838,8 @@ const SampleSequence<T, false>* SampleSequence<T, false>::sequence() const
 {
 	return this;
 }
+
+} // namespace v_1_0_0
 
 } // namespace arcs
 

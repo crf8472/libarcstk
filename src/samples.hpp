@@ -3,19 +3,20 @@
 
 /**
  * \file samples.hpp Interface for a sample sequence template
- *
  */
-
 
 #include <cstdint>
 #include <iterator>
 #include <type_traits> // for conditional, is_same
 #include <memory>
 
+
 /// @{
 namespace arcs
 {
 
+namespace v_1_0_0
+{
 
 /**
  * A random access iterator for samples.
@@ -120,6 +121,8 @@ public:
 	 */
 	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
 };
+
+} // namespace v_1_0_0
 
 } // namespace arcs
 /// @}
