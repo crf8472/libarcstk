@@ -603,13 +603,11 @@ namespace details
 
 
 /**
- * Constructs ARIds from either a track count, a tuple of offsets and a leadout
- * frame or a TOC.
+ * Constructs <tt>ARId</tt>s either from a TOC or from the triplet of track
+ * count, list of offsets and leadout frame.
  *
- * It will refuse to construct invalid ARIds from any data. Hence, if an
- * ARId is returned, it is correct.
- *
- * ARIdBuilders are copyable and assignable.
+ * ARIdBuilder validates its input and will refuse to construct invalid ARIds
+ * from any data. Hence, if an ARId is returned, it is guaranteed to be correct.
  *
  * \internal
  */
