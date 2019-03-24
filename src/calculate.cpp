@@ -1015,9 +1015,10 @@ public:
 	= 0;
 
 	/**
-	 * Update the calculation state with the samples in the chunk.
+	 * Update the calculation state with a sequence of samples.
 	 *
-	 * \param[in] chunk The Partition to update the calculation state
+	 * \param[in] begin Iterator pointing to the beginning of the sequence
+	 * \param[in] end   Iterator pointing to the end of the sequence
 	 */
 	virtual void update(PCMForwardIterator &begin, PCMForwardIterator &end)
 	= 0;

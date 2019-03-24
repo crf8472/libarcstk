@@ -985,9 +985,10 @@ public:
 	checksum::type type() const;
 
 	/**
-	 * Process a block of 32 bit PCM samples.
+	 * Update the calculation with a sequence of samples.
 	 *
-	 * \param[in] samples Sample block to process
+	 * \param[in] begin Iterator pointing to the beginning of the sequence
+	 * \param[in] end   Iterator pointing to the end of the sequence
 	 */
 	void update(PCMForwardIterator begin, PCMForwardIterator end);
 

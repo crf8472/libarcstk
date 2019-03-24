@@ -100,11 +100,11 @@ protected:
 	 * This method is the exclusive way to create <tt>Partition</tt>s. It is
 	 * provided to all Partitioners.
 	 *
-	 * \param[in] first        Global index of the first sample in this chunk
-	 * \param[in] last         Global index of the last sample in this chunk
-	 * \param[in] starts_track TRUE iff this chunk starts its track
-	 * \param[in] ends_track   TRUE iff this chunk ends its track
-	 * \param[in] track        Number of the track that contains this chunk
+	 * \param[in] first        Global index of the first sample in the partition
+	 * \param[in] last         Global index of the last sample in the partition
+	 * \param[in] starts_track TRUE iff this partition starts its track
+	 * \param[in] ends_track   TRUE iff this partition ends its track
+	 * \param[in] track        Number of the track that contains the partition
 	 *
 	 * \return A Partition as specified
 	 */
@@ -134,9 +134,10 @@ private:
 /**
  * Partitioner for multitrack partitions.
  *
- * The partition is an ordered list of chunks where a track bound lies between
- * every two adjacent partitions. The first sample of the first partition and
- * the last sample of the last partition may not lie on a track bound.
+ * The partitioning is an ordered list of partitions where a track bound lies
+ * between every two adjacent partitions. The first sample of the first
+ * partition and the last sample of the last partition may not lie on a track
+ * bound.
  */
 class MultitrackPartitioner final : public Partitioner
 {
@@ -188,7 +189,7 @@ private:
 /**
  * A contigous subset of a sequence of samples.
  *
- * A chunk does not hold any samples but provides access to a slice of the
+ * A partition does not hold any samples but provides access to a slice of the
  * underlying sequence of samples.
  */
 class Partition final
