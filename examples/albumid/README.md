@@ -33,6 +33,5 @@ ignored.
 
 	$ ./albumid <name_of_chuesheet.cue> <name_of_audio_file>
 
-
 For more information, read the comments in [albumid.cpp](./albumid.cpp).
 
