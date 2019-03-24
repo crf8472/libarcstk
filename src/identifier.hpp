@@ -688,9 +688,8 @@ public:
 	 * for disc id 1, disc id 2 and cddb id. An empty ARId is not a valid
 	 * description of a CDDA medium.
 	 *
-	 * Building an empty ARId also provides the possibility to just
-	 * ``swallow'' any exceptions thrown or expected to be thrown and in fact
-	 * just provide an ARId instead if one is required.
+	 * Building an empty ARId also provides the possibility to just provide an
+	 * ARId on sites where an ARId is required without having to test for null.
 	 *
 	 * It may help provide an uniforming implementation of cases where
 	 * an ARId in fact is expected but cannot be provided due to missing
