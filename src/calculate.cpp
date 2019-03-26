@@ -25,6 +25,9 @@
 #include <utility>       // for pair, forward, make_index_sequence
 #include <vector>
 
+#ifndef __LIBARCS_IDENTIFIER_DETAILS_HPP__
+#include "identifier_details.hpp"
+#endif
 #ifndef __LIBARCS_LOGGING_HPP__
 #include "logging.hpp"
 #endif
