@@ -307,7 +307,7 @@ private:
 	 * This constructor is private since ChecksumMap<> instantiates
 	 * its iterators exclusively.
 	 *
-	 * \param[in] i iterator of the wrapped type
+	 * \param[in] it iterator of the wrapped type
 	 */
 	explicit ChecksumMapIterator(const WrappedIteratorType &it);
 

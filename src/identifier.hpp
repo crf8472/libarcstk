@@ -560,7 +560,7 @@ public:
 
 
 /**
- * Functions assissting the management of TOCs
+ * \brief Functions assissting the management of @link TOC TOCs @endlink.
  */
 namespace toc
 {

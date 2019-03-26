@@ -34,11 +34,8 @@ inline namespace v_1_0_0
  */
 const CDDA_t CDDA;
 
-/// \cond IMPL_ONLY
-/// \internal \defgroup idImpl Implementation of the AccurateRip ID
-/// \ingroup id
+/// \addtogroup idImpl
 /// @{
-
 
 /**
  * Private implementation of ARId

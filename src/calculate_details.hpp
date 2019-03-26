@@ -21,8 +21,11 @@
 
 namespace arcs
 {
-/// \internal \addtogroup calcImpl
+
+/// \internal \defgroup calcImpl Implementation of ARCSs, calculation and metadata
+/// \ingroup calc
 /// @{
+
 inline namespace v_1_0_0
 {
 
@@ -39,7 +42,9 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
- * Interface for generating a partitioning over a sequence of samples.size
+ * \internal
+ *
+ * \brief Interface for generating a partitioning over a sequence of samples.
  *
  * The partitioning is done along the track bounds according to the TOC such
  * that every two partitions adjacent within the same sequence belong to
@@ -100,6 +105,10 @@ protected:
 	 * This method is the exclusive way to create <tt>Partition</tt>s. It is
 	 * provided to all Partitioners.
 	 *
+	 * \todo begin_offset and last_offset seem redundant to first and last
+	 *
+	 * \param[in] begin_offset Local index of the first sample in the partition
+	 * \param[in] end_offset   Local index of the last sample in the partition
 	 * \param[in] first        Global index of the first sample in the partition
 	 * \param[in] last         Global index of the last sample in the partition
 	 * \param[in] starts_track TRUE iff this partition starts its track
@@ -132,7 +141,9 @@ private:
 
 
 /**
- * Partitioner for multitrack partitions.
+ * \internal
+ *
+ * \brief Partitioner for multitrack partitions.
  *
  * The partitioning is an ordered list of partitions where a track bound lies
  * between every two adjacent partitions. The first sample of the first
@@ -158,7 +169,9 @@ private:
 
 
 /**
- * Partitioner for singletrack partitions.
+ * \internal
+ *
+ * \brief Partitioner for singletrack partitions.
  *
  * The partition contains just one partition representing the entire sample
  * sequence.
@@ -187,7 +200,9 @@ private:
 
 
 /**
- * A contigous subset of a sequence of samples.
+ * \internal
+ *
+ * \brief A contigous part of a sequence of samples.
  *
  * A partition does not hold any samples but provides access to a slice of the
  * underlying sequence of samples.
@@ -270,6 +285,10 @@ private:
 	/**
 	 * Constructor.
 	 *
+	 * \todo begin_offset and last_offset seem redundant to first and last
+	 *
+	 * \param[in] begin_offset Local index of the first sample in the partition
+	 * \param[in] end_offset   Local index of the last sample in the partition
 	 * \param[in] first        Global index of the first sample in the partition
 	 * \param[in] last         Global index of the last sample in the partition
 	 * \param[in] starts_track TRUE iff this partition starts its track
@@ -325,7 +344,9 @@ private:
 
 
 /**
- * A closed interval of non-negative integers.
+ * \internal
+ *
+ * \brief A closed interval of non-negative integers.
  */
 class Interval final
 {

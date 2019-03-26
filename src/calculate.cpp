@@ -35,8 +35,7 @@
 
 namespace arcs
 {
-/// \internal \defgroup calcImpl Implementation of ARCSs, calculation and metadata
-/// \ingroup calc
+/// \internal \addtogroup calcImpl
 /// @{
 inline namespace v_1_0_0
 {
@@ -211,7 +210,9 @@ PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount) const
 
 
 /**
- * Non-abstract base class for CalcContext implementations.
+ * \internal
+ *
+ * \brief Non-abstract base class for CalcContext implementations.
  *
  * Provides the properties AudioSize and filename and implements
  * CalcContext::first_relevant_sample() as well as
@@ -396,6 +397,11 @@ void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
 }
 
 
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
+
+
 /**
  * CalcContext for singletrack mode.
  *
@@ -492,6 +498,10 @@ private:
 	 */
 	bool skip_back_;
 };
+
+/// @}
+/// \endcond
+// IMPL_ONLY
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
@@ -634,6 +644,11 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
 }
 
 
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
+
+
 /**
  * CalcContext for multitrack mode.
  *
@@ -719,6 +734,10 @@ private:
 	 */
 	TOC toc_;
 };
+
+/// @}
+/// \endcond
+// IMPL_ONLY
 
 
 // MultitrackCalcContext
@@ -964,7 +983,9 @@ std::unique_ptr<CalcContext> MultitrackCalcContext::clone() const
 
 
 /**
- * Interface to the Calculation state.
+ * \internal
+ *
+ * \brief Interface to the Calculation state.
  *
  * A calculation state is initialized with a multiplier. It is subsequently
  * updated with new samples. After a track is completed, the calculated
@@ -1137,7 +1158,9 @@ CalcState::~CalcState() noexcept = default;
 
 
 /**
- * Base CalcState for ARCS computation.
+ * \internal
+ *
+ * \brief Abstract base for ARCS calculating CalcStates.
  */
 class CalcStateARCS : public CalcState
 {
@@ -1278,6 +1301,10 @@ void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 }
 
 
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
+
 /**
  * CalcState for calculation of ARCSv1.
  */
@@ -1353,6 +1380,10 @@ private:
 	 */
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
+
+/// @}
+/// \endcond
+// IMPL_ONLY
 
 
 CalcStateV1::CalcStateV1()
@@ -1478,6 +1509,10 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 }
 
 
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
+
 /**
  * CalcState for calculation of ARCSv2 and ARCSv1.
  */
@@ -1548,6 +1583,10 @@ private:
 	 */
 	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
 };
+
+/// @}
+/// \endcond
+// IMPL_ONLY
 
 
 CalcStateV1andV2::CalcStateV1andV2()
@@ -1695,14 +1734,18 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const
 
 
 /**
- * CalcState related tools
+ * \internal
+ *
+ * \brief CalcState related tools.
  */
 namespace state
 {
 
 
 /**
- * An aggregate of all predefined CalcState implementations.
+ * \internal
+ *
+ * \brief An aggregate of all predefined CalcState implementations.
  */
 using state_types = std::tuple<
 	CalcStateV1,       // type::ARCS1
@@ -1710,8 +1753,13 @@ using state_types = std::tuple<
 	>;
 
 
+
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
+
 /**
- * Implementation details of namespace state
+ * \brief Implementation details of namespace state.
  */
 namespace details
 {
@@ -1837,6 +1885,10 @@ R instantiate(F&& func, std::size_t i)
 
 } // namespace state::details
 
+/// @}
+/// \endcond
+// IMPL_ONLY
+
 
 /**
  * Instantiate the CalcState for a checksum::type.
@@ -1863,6 +1915,10 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 
 } // namespace state
 
+
+/// \cond IMPL_ONLY
+/// \internal \addtogroup calcImpl
+/// @{
 
 /**
  * Private implementation of Calculation.
@@ -2046,6 +2102,10 @@ private:
 	 */
 	std::chrono::milliseconds proc_time_elapsed_;
 };
+
+/// @}
+/// \endcond
+// IMPL_ONLY
 
 
 Calculation::Impl::Impl(const checksum::type type,

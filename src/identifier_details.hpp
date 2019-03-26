@@ -12,7 +12,9 @@
 namespace arcs
 {
 
-/// \addtogroup calcImpl
+/// \cond IMPL_ONLY
+/// \internal \defgroup idImpl Implementation of the AccurateRip ID
+/// \ingroup id
 /// @{
 
 namespace v_1_0_0
@@ -422,6 +424,8 @@ protected:
 } // namespace v_1_0_0
 
 /// @}
+/// \endcond
+/// IMPL_ONLY
 
 } // namespace arcs
 
