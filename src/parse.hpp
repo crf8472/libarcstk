@@ -15,7 +15,7 @@
  *
  * An ARStreamParser can be registered two handlers, a ContentHandler
  * and an ErrorHandler both of which have default implementations as there
- * are DefaultHandler and DefaultErrorHandler.
+ * are DefaultContentHandler and DefaultErrorHandler.
  *
  * A StreamReadException is thrown by an ARStreamParser when the input
  * byte stream ends prematurely or is otherwise corrupted. It contains exact
@@ -37,13 +37,13 @@
 #include <string>
 #include <vector>
 
-namespace arcs { inline namespace v_1_0_0 { class ARId; } }
-
 
 namespace arcs
 {
+
 /// \defgroup parse AccurateRip Response Parser
 /// @{
+
 inline namespace v_1_0_0
 {
 
@@ -56,7 +56,7 @@ class ARTripletImpl;
 
 
 /**
- * A triplet of values from a block in a response of AccurateRip.
+ * \brief A triplet of values from a block in a response of AccurateRip.
  *
  * Syntactically, an ARTriplet is an element of some ARBlock.
  *
@@ -199,7 +199,7 @@ private:
 
 
 /**
- * A block of ARCSs as it occurrs in an AccurateRip response.
+ * \brief A block of ARCSs as it occurrs in an AccurateRip response.
  *
  * An AccurateRip response is in fact parsed as a sequence of ARBlocks.
  *
@@ -365,7 +365,7 @@ private:
 
 
 /**
- * A response from AccurateRip.
+ * \brief A response from AccurateRip.
  */
 class ARResponse final
 {
@@ -527,12 +527,12 @@ private:
 
 
 /**
- * Interface for content handlers.
+ * \brief Interface for ARParser content handlers.
  *
  * Add a content handler to an ARStreamParser to actually add behaviour for
  * parsing an ARResponse.
  *
- * \see DefaultHandler
+ * \see DefaultContentHandler
  */
 class ContentHandler
 {
@@ -629,10 +629,11 @@ public:
 
 
 /**
- * Default content handler: just returns an object representation of the
- * parsed ARResponse.
+ * \brief Constructs an ARResponse instance from the parsed content.
+ *
+ * \see ContentHandler
  */
-class DefaultHandler final : public ContentHandler
+class DefaultContentHandler final : public ContentHandler
 {
 
 public:
@@ -640,26 +641,26 @@ public:
 	/**
 	 * Default constructor
 	 */
-	DefaultHandler();
+	DefaultContentHandler();
 
 	/**
 	 * Copy constructor
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
-	DefaultHandler(const DefaultHandler &rhs);
+	DefaultContentHandler(const DefaultContentHandler &rhs);
 
 	/**
 	 * Move constructor
 	 *
 	 * \param[in] rhs Instance to move
 	 */
-	DefaultHandler(DefaultHandler &&rhs) noexcept;
+	DefaultContentHandler(DefaultContentHandler &&rhs) noexcept;
 
 	/**
 	 * Default destructor
 	 */
-	~DefaultHandler() noexcept override;
+	~DefaultContentHandler() noexcept override;
 
 	void start_input() override;
 
@@ -701,7 +702,7 @@ public:
 	 *
 	 * \return The resulting left hand side after the assigment
 	 */
-	DefaultHandler& operator = (const DefaultHandler &rhs);
+	DefaultContentHandler& operator = (const DefaultContentHandler &rhs);
 
 	/**
 	 * Move assignment operator.
@@ -710,7 +711,7 @@ public:
 	 *
 	 * \return The resulting left hand side after the assigment
 	 */
-	DefaultHandler& operator = (DefaultHandler &&rhs) noexcept;
+	DefaultContentHandler& operator = (DefaultContentHandler &&rhs) noexcept;
 
 
 private:
@@ -726,10 +727,12 @@ private:
 
 
 /**
- * Interface for error handlers.
+ * \brief Interface for ARParser error handlers.
  *
  * Defines the handler methods to react on parse errors of an
  * ARStreamParser.
+ *
+ * \see DefaultErrorHandler
  */
 class ErrorHandler
 {
@@ -766,7 +769,9 @@ public:
 
 
 /**
- * Error handler that just logs the error message to stdout.
+ * \brief Error handler that just logs the error message to stdout.
+ *
+ * \see ErrorHandler
  */
 class DefaultErrorHandler final : public ErrorHandler
 {
@@ -781,7 +786,7 @@ public:
 
 
 /**
- * Reports a read error during parsing a binary stream.
+ * \brief Reports a read error during parsing a binary stream.
  */
 class StreamReadException final : public std::runtime_error
 {
@@ -853,7 +858,7 @@ private:
 
 
 /**
- * Base class for parsing an AccurateRip response body.
+ * \brief Abstract base class for parsing an AccurateRip response body.
  *
  * ARStreamParser encapsulates the actual parsing process on an std::istream.
  *
@@ -869,6 +874,9 @@ private:
  * <tt>on_catched_exception</tt> is called before the actual exception is
  * rethrown, so the actual stream can be closed or other cleanup can be
  * performed.
+ *
+ * \see ARFileParser
+ * \see ARStdinParser
  */
 class ARStreamParser
 {
@@ -965,11 +973,13 @@ private:
 
 
 /**
- * Parser for AccurateRip response as a file.
+ * \brief Parser for AccurateRip response as a file.
  *
  * This class parses dBAR-\*.bin files saved by the actual ripper software
  * or achieved by an HTTP request to AccurateRip. Those files are just the byte
  * stream of the AccurateRip response persisted to the file system.
+ *
+ * \see ARStreamParser
  */
 class ARFileParser final : public ARStreamParser
 {
@@ -1030,7 +1040,9 @@ private:
 
 
 /**
- * Parser for AccurateRip response as a binary stream on stdin.
+ * \brief Parser for AccurateRip response as a binary stream on stdin.
+ *
+ * \see ARStreamParser
  */
 class ARStdinParser final : public ARStreamParser
 {
@@ -1058,7 +1070,9 @@ private:
 
 
 } // namespace v_1_0_0
+
 /// @}
+
 } // namespace arcs
 
 #endif

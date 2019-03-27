@@ -30,7 +30,7 @@ inline namespace v_1_0_0
 {
 
 /**
- * Global instance of the CDDA constants
+ * \brief Global instance of the CDDA constants
  */
 const CDDA_t CDDA;
 
@@ -38,7 +38,9 @@ const CDDA_t CDDA;
 /// @{
 
 /**
- * Private implementation of ARId
+ * \brief Private implementation of ARId
+ *
+ * \see ARId
  */
 class ARId::Impl final
 {
@@ -331,13 +333,15 @@ namespace details
 
 
 /**
- * Private implementation of TOCBuilder.
+ * \brief Private implementation of TOCBuilder.
  *
  * Note that TOCBuilder is a friend of TOC but TOCBuilder::Impl
  * is not. Hence, the actual creation of the TOC object is not
  * delegated to TOCBuilder::Impl. Instead, TOCBuilder::Impl constructs
  * the three parameters separately while TOCBuilder performs the actual
  * constructor call to TOC.
+ *
+ * \see TOCBuilder
  */
 class TOCBuilder::Impl final
 {
@@ -508,7 +512,9 @@ private:
 
 
 /**
- * Private implementation of TOC.
+ * \brief Private implementation of TOC.
+ *
+ * \see TOC
  */
 class TOC::Impl final
 {
@@ -973,7 +979,9 @@ namespace details
 {
 
 /**
- * Private implementation of ARIdBuilder
+ * \brief Private implementation of ARIdBuilder
+ *
+ * \see ARIdBuilder
  */
 class ARIdBuilder::Impl final
 {

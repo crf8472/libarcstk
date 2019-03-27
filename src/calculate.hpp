@@ -62,22 +62,24 @@
  */
 namespace arcs
 {
+
 /// \defgroup calc Checksum Calculation
 /// @{
+
 /**
- * libarcs API version 1.0.0
+ * API version 1.0.0
  */
 inline namespace v_1_0_0
 {
 
 /**
- * Type for internal representation of samples.
+ * \brief Type for internal representation of samples.
  */
 using sample_type = uint32_t;
 
 
 /**
- * Uniform access to the size of the input audio information.
+ * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, other the number of samples and
  * maybe in some situations just the number of bytes of the sample stream is
@@ -207,7 +209,7 @@ namespace details
 {
 
 /**
- * Get value_type of Iterator.
+ * \brief Get value_type of Iterator.
  */
 template<typename Iterator>
 using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
@@ -216,7 +218,7 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 
 
 /**
- * Check a given Iterator whether it iterates over type T
+ * \brief Check a given Iterator whether it iterates over type T
  */
 template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
@@ -225,7 +227,7 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 
 /**
- * ForwardIterator over PCM 32 Bit samples.
+ * \brief Type erasing interface for iterators over PCM 32 Bit samples.
  *
  * Type erasure class for iterators with the value_type uint32_t. It wraps the
  * concrete iterator to be passed for updating a \ref Calculation.
@@ -249,7 +251,7 @@ public:
 private:
 
 	/**
-	 * Internal object interface
+	 * \brief Internal object interface
 	 */
 	struct Concept
 	{
@@ -312,7 +314,7 @@ private:
 
 
 	/**
-	 * Internal object representation
+	 * \brief Internal object representation
 	 */
 	template<class Iter>
 	struct Model : Concept
@@ -448,7 +450,7 @@ private:
 
 
 /**
- * Information about the current audio input.
+ * \brief Interface for information about the current audio input.
  *
  * Computationally relevant data are TOC information as there is
  * track count, offsets, and leadout. Additionally, the filename is provided.
@@ -731,7 +733,7 @@ public:
 
 
 /**
- * Create a CalcContext from an audio filename and two skip flags.
+ * \brief Create a CalcContext from an audio filename and two skip flags.
  *
  * The file will not be read, the filename is just declared. It is allowed to be
  * empty.
@@ -739,26 +741,30 @@ public:
  * \param audiofilename The name of the audiofile
  * \param skip_front    Tell wether to skip the front samples
  * \param skip_back     Tell wether to skip the back samples
+ *
+ * \return CalcContext for the input
  */
 std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 		const bool &skip_front, const bool &skip_back);
 
 
 /**
- * Create a CalcContext from an audio filename and a TOC.
+ * \brief Create a CalcContext from an audio filename and a TOC.
  *
  * The file will not be read, the filename is just declared. It is allowed to be
  * empty.
  *
  * \param audiofilename The name of the audiofile
  * \param toc           The TOC to use
+ *
+ * \return CalcContext for the input
  */
 std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 		const TOC &toc);
 
 
 /**
- * Result of a Calculation
+ * \brief Result of a Calculation
  */
 class Checksums final
 {
@@ -898,7 +904,7 @@ private:
 
 
 /**
- * Checksum calculation for a requested checksum::type.
+ * \brief Checksum calculation for a requested checksum::type.
  *
  * To calculate the checksum for a given entirety of samples, an appropriate
  * CalcContext must be set and, optionally, a request for the checksum
@@ -1067,7 +1073,7 @@ private:
 
 
 /**
- * Reports insufficient or invalid audio data that prevents further processing.
+ * \brief Reports insufficient or invalid audio data.
  */
 class InvalidAudioException final : public std::logic_error
 {

@@ -30,9 +30,11 @@
 
 namespace arcs
 {
+
 /// \internal \defgroup matchImpl Implementation of ARCSs comparison
 /// \ingroup match
 /// @{
+
 inline namespace v_1_0_0
 {
 // unnamed namespace for declarations only used in .cpp-file
@@ -40,9 +42,8 @@ namespace {
 
 /// \cond IMPL_ONLY
 
-
 /**
- * Default implementation of a Match.
+ * \brief Default implementation of a Match.
  *
  * The result is encoded as a sequence of boolean flags, each representing the
  * result of a match operation between either two ARCSs or two <tt>ARId</tt>s in
@@ -199,10 +200,8 @@ private:
 	//f = field(total_bits - 1);
 };
 
-
 /// \endcond
 // IMPL_ONLY
-
 
 } // namespace
 
@@ -372,12 +371,10 @@ void DefaultMatch::validate_track(int t) const
 	}
 }
 
-
 /// \cond IMPL_ONLY
 
-
 /**
- * Base class for default matcher implementations.
+ * \brief Abstract base class for matcher implementations.
  */
 class BaseMatcherImpl
 {
@@ -679,7 +676,7 @@ int BaseMatcherImpl::mark_best_block()
 
 
 /**
- * Implementation of ListMatcher
+ * \brief Implementation of ListMatcher.
  */
 class ListMatcher::Impl final : public BaseMatcherImpl
 {
@@ -870,7 +867,7 @@ std::unique_ptr<Matcher> ListMatcher::clone() const
 
 
 /**
- * Implementation of AnyMatcher
+ * \brief Implementation of AnyMatcher.
  */
 class AnyMatcher::Impl final : public BaseMatcherImpl
 {

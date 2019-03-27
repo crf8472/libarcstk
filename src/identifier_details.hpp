@@ -22,13 +22,15 @@ namespace v_1_0_0
 
 
 /**
- * Implementation details of namespace arcs
+ * \brief Implementation details of namespace arcs
  */
 namespace details
 {
 
 
 /**
+ * \brief Constructs ARId instances from TOC data
+ *
  * Constructs <tt>ARId</tt>s either from a TOC or from the triplet of track
  * count, list of offsets and leadout frame.
  *
@@ -157,7 +159,9 @@ private:
 
 
 /**
- * Constructs a TOC from metadata of the compact disc.
+ * \internal
+ *
+ * \brief Constructs a TOC from metadata of the compact disc.
  *
  * TOCBuilder will refuse to construct invalid TOCs from any data and throw
  * an InvalidMetadataException insteed. Hence, if no exception was thrown
@@ -169,8 +173,6 @@ private:
  * length of the last track or the leadout cannot be deduced from certain
  * TOC file formats. However, it is required to construct TOC from
  * files in any TOC file format, e.g. CUEsheets.
- *
- * \internal
  */
 class TOCBuilder final
 {
@@ -277,15 +279,15 @@ private:
 
 
 /**
- * Validates offsets, leadout and track count of a compact disc toc.
+ * \internal
+ *
+ * \brief Validates offsets, leadout and track count of a compact disc toc.
  *
  * TOCBuilder and ARIdBuilder use TOCValidator to validate
  * the input for building their respective instances.
  *
  * This class is considered an implementation detail. Its declaration resides in
  * a header to ensure its testability.
- *
- * \internal
  */
 class TOCValidator final
 {

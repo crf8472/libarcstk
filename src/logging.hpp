@@ -25,11 +25,12 @@
 
 namespace arcs
 {
+
 /// \defgroup logging Logging API for use by clients
 /// @{
+
 inline namespace v_1_0_0
 {
-
 
 /**
  * Range of log levels
@@ -53,10 +54,10 @@ enum LOGLEVEL_t : uint8_t
 
 
 /**
- * A named logging output channel, either specified by some <tt>FILE</tt>* or by
- * a filename.
+ * \brief A named logging output channel.
  *
- * An Appender always has a name. If the Appender is
+ * An Appender can be constructed for either a <tt>FILE*</tt> or a std::string
+ * representing a filename. An always has a name. If the Appender is
  * constructed with just a filename, this string becomes its name. If it is
  * constructed with a <tt>FILE*</tt> and a name, the name is arbitrary.
  */
@@ -140,6 +141,8 @@ private:
 
 
 /**
+ * \brief Logs a message to its registered @link Appender Appenders @endlink.
+ *
  * A Logger has a configurable log level and logs messages to all of
  * its appenders.
  *
@@ -263,6 +266,8 @@ private:
 
 
 /**
+ * \brief Returns the current time in the format 'YYYY-MM-DD hh:mm:ss.lll'.
+ *
  * Returns the current time as a string containing year, month, day, hours,
  * minutes, seconds and milliseconds in the format 'YYYY-MM-DD hh:mm:ss.lll'.
  *
@@ -275,6 +280,8 @@ std::string now_time();
 
 
 /**
+ * \brief Logs a message using a Logger and a LOGLEVEL_t
+ *
  * (More or less) thread-safe, type-safe, portable logging interface for
  * concrete <tt>Logger</tt>s.
  */
@@ -362,6 +369,8 @@ private:
 
 
 /**
+ * \brief A singleton interface used by all Logger instances.
+ *
  * A singleton manager and thread safe interface class for all Logger
  * instances of the entire component.
  */

@@ -30,7 +30,7 @@ inline namespace v_1_0_0
 
 
 /**
- * Data type for track numbers.
+ * \brief Data type for track numbers.
  *
  * Note that track numbers are 1-based and \c 0 is not a valid TrackNo.
  */
@@ -38,7 +38,7 @@ using TrackNo = uint8_t;
 
 
 /**
- * Constants related to the CDDA format
+ * \brief Constants related to the CDDA format
  */
 struct CDDA_t {
 
@@ -136,15 +136,15 @@ extern const CDDA_t CDDA;
 
 /// @}
 
-
 /// \defgroup id AccurateRip IDs
 /// @{
+
 inline namespace v_1_0_0
 {
 
 
 /**
- * AccurateRip-Identifier of a compact disc.
+ * \brief AccurateRip-Identifier of a compact disc.
  *
  * The identifier determines the URL of the compact disc dataset as well as the
  * filename of the AccurateRip response.
@@ -296,7 +296,7 @@ private:
 
 
 /**
- * TOC of a compact disc.
+ * \brief Table of contents of a compact disc.
  *
  * A TOC contains the number of tracks, their offsets and optionally their
  * lengths, their filenames and the index of the leadout frame. Offsets and
@@ -453,7 +453,7 @@ private:
 
 
 /**
- * Create an ARId from a TOC.
+ * \brief Create an ARId from a TOC.
  *
  * Object \c toc must have a non-zero leadout, otherwise an
  * InvalidMetadataException is thrown.
@@ -468,7 +468,7 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
 
 
 /**
- * Create an ARId from a TOC and a separately specified leadout.
+ * \brief Create an ARId from a TOC and a separately specified leadout.
  *
  * If \c leadout is 0 , \c toc.leadout() is used. One of both values must be
  * non-zero, otherwise an InvalidMetadataException is thrown. If \c toc
@@ -486,7 +486,7 @@ std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
 
 /**
- * Creates an empty ARId
+ * \brief Creates an empty ARId
  *
  * \return An empty ARId
  */
@@ -494,7 +494,7 @@ std::unique_ptr<ARId> make_empty_arid();
 
 
 /**
- * Create a TOC object from the specified information.
+ * \brief Create a TOC object from the specified information.
  *
  * The returned TOC is guaranteed to be complete.
  *
@@ -512,7 +512,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 
 
 /**
- * Create a TOC object from the specified information.
+ * \brief Create a TOC object from the specified information.
  *
  * The returned TOC is not guaranteed to be complete since the length of
  * the last track is allowed to be 0 which entails that the leadout will be
@@ -534,7 +534,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 
 
 /**
- * Reports insufficient or invalid metadata for building a TOC.
+ * \brief Reports insufficient or invalid metadata for building a TOC.
  *
  * \todo For metadata files, position information about the error maybe useful
  */
@@ -566,7 +566,7 @@ namespace toc
 {
 
 /**
- * Extract the offsets from a TOC to an iterable container
+ * \brief Extract the offsets from a TOC to an iterable container
  *
  * \param[in] toc The TOC to get the offsets from
  *
@@ -575,7 +575,7 @@ namespace toc
 std::vector<uint32_t> get_offsets(const TOC &toc);
 
 /**
- * Extract parsed lengths from TOC in order.
+ * \brief Extract parsed lengths from TOC in order.
  *
  * \param[in] toc The TOC
  *
@@ -584,7 +584,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc);
 std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc);
 
 /**
- * Extract filenames from TOC in order.
+ * \brief Extract filenames from TOC in order.
  *
  * \param[in] toc The TOC
  *

@@ -25,18 +25,46 @@
 
 namespace arcs
 {
+
 /// \cond IMPL_ONLY
 /// \internal \defgroup parseImpl Implementation of an AccurateRip response parser
 /// \ingroup parse
 /// @{
+
 inline namespace v_1_0_0
 {
 
 namespace
 {
 
+
 /**
- * Represents limited access to stdin.
+ * \brief Wrap a vector in an istream.
+ *
+ * \see ARStdinParser
+ */
+template<typename CharT, typename TraitsT = std::char_traits<CharT> >
+class VectorIStream : public std::basic_streambuf<CharT, TraitsT>
+{
+
+public:
+
+	/**
+	 * Constructor
+	 *
+	 * \param[in] v The vector to wrap
+	 */
+    explicit VectorIStream(std::vector<CharT> &v)
+	{
+        this->setg(v.data(), v.data(), v.data() + v.size());
+    }
+};
+
+
+/**
+ * \brief Represents limited access to stdin.
+ *
+ * \see ARStdinParser
  */
 class StdIn final
 {
@@ -71,27 +99,6 @@ private:
 	 * Bytes per read
 	 */
 	const std::size_t buf_size_;
-};
-
-
-/**
- * Wrap a vector in an istream.
- */
-template<typename CharT, typename TraitsT = std::char_traits<CharT> >
-class VectorIStream : public std::basic_streambuf<CharT, TraitsT>
-{
-
-public:
-
-	/**
-	 * Constructor
-	 *
-	 * \param[in] v The vector to wrap
-	 */
-    explicit VectorIStream(std::vector<CharT> &v)
-	{
-        this->setg(v.data(), v.data(), v.data() + v.size());
-    }
 };
 
 
@@ -181,7 +188,9 @@ std::size_t StdIn::buf_size() const
 
 
 /**
- * Implementation of an ARTriplet.
+ * \brief Implementation of an ARTriplet.
+ *
+ * \see ARTriplet
  */
 class ARTripletImpl
 {
@@ -363,9 +372,12 @@ std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const
 
 
 /**
- * Implementation of an ARTriplet that is incompletely parsed.
+ * \brief Implementation of an incompletely parsed ARTriplet.
  *
  * It carries information about the validity of its parts.
+ *
+ * \see ARTripletImpl
+ * \see ARTriplet
  */
 class ARIncompleteTripletImpl : public ARTripletImpl
 {
@@ -540,7 +552,9 @@ ARTriplet& ARTriplet::operator = (ARTriplet &&rhs) noexcept = default;
 
 
 /**
- * Implements ARBlock.
+ * \brief Implements ARBlock.
+ *
+ * \see ARBlock
  */
 class ARBlock::Impl final
 {
@@ -812,7 +826,9 @@ ARBlock& ARBlock::operator = (ARBlock &&rhs) noexcept = default;
 
 
 /**
- * Represents a response from AccurateRip.
+ * \brief Represents a response from AccurateRip.
+ *
+ * \see ARResponse
  */
 class ARResponse::Impl final
 {
@@ -1070,9 +1086,11 @@ ARResponse& ARResponse::operator = (ARResponse &&rhs) noexcept = default;
 
 
 /**
- * Implementation of a DefaultHandler
+ * \brief Implementation of a DefaultContentHandler
+ *
+ * \see DefaultContentHandler
  */
-class DefaultHandler::Impl final
+class DefaultContentHandler::Impl final
 {
 
 public:
@@ -1102,17 +1120,17 @@ public:
 	~Impl() noexcept;
 
 	/**
-	 * Implements DefaultHandler::start_input()
+	 * Implements DefaultContentHandler::start_input()
 	 */
 	void start_input();
 
 	/**
-	 * Implements DefaultHandler::start_block()
+	 * Implements DefaultContentHandler::start_block()
 	 */
 	void start_block();
 
 	/**
-	 * Implements DefaultHandler::id()
+	 * Implements DefaultContentHandler::id()
 	 */
 	void id(const uint8_t track_count,
 			const uint32_t id1,
@@ -1120,14 +1138,14 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * Implements DefaultHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
+	 * Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
 	 */
 	void triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs);
 
 	/**
-	 * Implements DefaultHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
+	 * Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
 	 */
 	void triplet(const uint32_t arcs,
 			const uint8_t confidence,
@@ -1137,12 +1155,12 @@ public:
 			const bool frame450_arcs_valid);
 
 	/**
-	 * Implements DefaultHandler::end_block()
+	 * Implements DefaultContentHandler::end_block()
 	 */
 	void end_block();
 
 	/**
-	 * Implements DefaultHandler::end_input()
+	 * Implements DefaultContentHandler::end_input()
 	 */
 	void end_input();
 
@@ -1186,7 +1204,7 @@ private:
 };
 
 
-DefaultHandler::Impl::Impl()
+DefaultContentHandler::Impl::Impl()
 	: current_block_(nullptr)
 	, response_()
 {
@@ -1194,8 +1212,8 @@ DefaultHandler::Impl::Impl()
 }
 
 
-DefaultHandler::Impl::Impl(
-		const DefaultHandler::Impl &rhs)
+DefaultContentHandler::Impl::Impl(
+		const DefaultContentHandler::Impl &rhs)
 	: current_block_(rhs.current_block_
 		? std::make_unique<ARBlock>(*(rhs.current_block_.get()))
 		: nullptr
@@ -1206,22 +1224,22 @@ DefaultHandler::Impl::Impl(
 }
 
 
-DefaultHandler::Impl::~Impl() noexcept = default;
+DefaultContentHandler::Impl::~Impl() noexcept = default;
 
 
-void DefaultHandler::Impl::start_input()
+void DefaultContentHandler::Impl::start_input()
 {
 	// empty
 }
 
 
-void DefaultHandler::Impl::start_block()
+void DefaultContentHandler::Impl::start_block()
 {
 	// empty
 }
 
 
-void DefaultHandler::Impl::id(const uint8_t track_count,
+void DefaultContentHandler::Impl::id(const uint8_t track_count,
 		const uint32_t id1,
 		const uint32_t id2,
 		const uint32_t cddb_id)
@@ -1231,7 +1249,7 @@ void DefaultHandler::Impl::id(const uint8_t track_count,
 }
 
 
-void DefaultHandler::Impl::triplet(const uint32_t arcs,
+void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs)
 {
@@ -1239,7 +1257,7 @@ void DefaultHandler::Impl::triplet(const uint32_t arcs,
 }
 
 
-void DefaultHandler::Impl::triplet(const uint32_t arcs,
+void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs,
 		const bool arcs_valid,
@@ -1258,58 +1276,58 @@ void DefaultHandler::Impl::triplet(const uint32_t arcs,
 }
 
 
-void DefaultHandler::Impl::end_block()
+void DefaultContentHandler::Impl::end_block()
 {
 	response_.append(*current_block_);
 	current_block_.reset();
 }
 
 
-void DefaultHandler::Impl::end_input()
+void DefaultContentHandler::Impl::end_input()
 {
 	// empty
 }
 
 
-ARResponse DefaultHandler::Impl::result() const
+ARResponse DefaultContentHandler::Impl::result() const
 {
 	return response_;
 }
 
 
-// DefaultHandler
+// DefaultContentHandler
 
 
-DefaultHandler::DefaultHandler()
-	: impl_(std::make_unique<DefaultHandler::Impl>())
+DefaultContentHandler::DefaultContentHandler()
+	: impl_(std::make_unique<DefaultContentHandler::Impl>())
 {
 	// empty
 }
 
 
-DefaultHandler::DefaultHandler(const DefaultHandler &rhs)
-	: impl_(std::make_unique<DefaultHandler::Impl>(*rhs.impl_))
+DefaultContentHandler::DefaultContentHandler(const DefaultContentHandler &rhs)
+	: impl_(std::make_unique<DefaultContentHandler::Impl>(*rhs.impl_))
 {
 	// empty
 }
 
 
-DefaultHandler::~DefaultHandler() noexcept = default;
+DefaultContentHandler::~DefaultContentHandler() noexcept = default;
 
 
-void DefaultHandler::start_input()
+void DefaultContentHandler::start_input()
 {
 	impl_->start_input();
 }
 
 
-void DefaultHandler::start_block()
+void DefaultContentHandler::start_block()
 {
 	impl_->start_block();
 }
 
 
-void DefaultHandler::id(const uint8_t track_count,
+void DefaultContentHandler::id(const uint8_t track_count,
 		const uint32_t id1,
 		const uint32_t id2,
 		const uint32_t cddb_id)
@@ -1318,7 +1336,7 @@ void DefaultHandler::id(const uint8_t track_count,
 }
 
 
-void DefaultHandler::triplet(const uint32_t arcs,
+void DefaultContentHandler::triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs)
 {
@@ -1326,7 +1344,7 @@ void DefaultHandler::triplet(const uint32_t arcs,
 }
 
 
-void DefaultHandler::triplet(const uint32_t arcs,
+void DefaultContentHandler::triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs,
 		const bool arcs_valid,
@@ -1338,25 +1356,25 @@ void DefaultHandler::triplet(const uint32_t arcs,
 }
 
 
-void DefaultHandler::end_block()
+void DefaultContentHandler::end_block()
 {
 	impl_->end_block();
 }
 
 
-void DefaultHandler::end_input()
+void DefaultContentHandler::end_input()
 {
 	impl_->end_input();
 }
 
 
-std::unique_ptr<ContentHandler> DefaultHandler::clone() const
+std::unique_ptr<ContentHandler> DefaultContentHandler::clone() const
 {
-	return std::make_unique<DefaultHandler>(*this);
+	return std::make_unique<DefaultContentHandler>(*this);
 }
 
 
-ARResponse DefaultHandler::result() const
+ARResponse DefaultContentHandler::result() const
 {
 	return impl_->result();
 }
@@ -1550,7 +1568,9 @@ uint32_t StreamReadException::block_byte_position() const
 
 
 /**
- * Implements ARStreamParser.
+ * \brief Implements ARStreamParser.
+ *
+ * \see ARStreamParser
  */
 class ARStreamParser::Impl final
 {

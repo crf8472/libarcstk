@@ -35,16 +35,18 @@
 
 namespace arcs
 {
+
 /// \internal \addtogroup calcImpl
 /// @{
+
 inline namespace v_1_0_0
 {
 
-// Unnamed namespace for internal APIs and their implementations
 namespace {
 
 /**
- * Number of samples to be skipped before the end of the last track.
+ * \brief Number of samples to be skipped before the end of the last track.
+ *
  * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
  * = 2940 samples. We derive the number of samples to be skipped at the
  * start of the first track by just subtracting 1 from this constant.
@@ -52,7 +54,8 @@ namespace {
 constexpr uint32_t NUM_SKIP_SAMPLES_BACK  = 5/* frames */ * 588/* samples */;
 
 /**
- * Number of samples to be skipped after the start of the first track.
+ * \brief Number of samples to be skipped after the start of the first track.
+ *
  * There are 5 frames - 1 sample to be skipped, i.e.
  * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
  */
@@ -62,7 +65,9 @@ constexpr uint32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
 
 /**
- * Private implementation of AudioSize.
+ * \brief Private implementation of AudioSize.
+ *
+ * \see AudioSize
  */
 class AudioSize::Impl final
 {
@@ -217,6 +222,8 @@ PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount) const
  * Provides the properties AudioSize and filename and implements
  * CalcContext::first_relevant_sample() as well as
  * CalcContext::last_relevant_sample().
+ *
+ * \see CalcContext
  */
 class BaseCalcContext : virtual public CalcContext
 {
@@ -403,10 +410,12 @@ void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
 
 
 /**
- * CalcContext for singletrack mode.
+ * \brief CalcContext for singletrack mode.
  *
  * A SingletrackCalcContext is a CalcContext derived from an actual filename
  * representing a single track.
+ *
+ * \see CalcContext
  */
 class SingletrackCalcContext final : public BaseCalcContext
 {
@@ -650,10 +659,12 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
 
 
 /**
- * CalcContext for multitrack mode.
+ * \brief CalcContext for multitrack mode.
  *
  * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
  * actual filename. It always skips the front and back samples.
+ *
+ * \see CalcContext
  */
 class MultitrackCalcContext final : public BaseCalcContext
 {
@@ -1161,6 +1172,8 @@ CalcState::~CalcState() noexcept = default;
  * \internal
  *
  * \brief Abstract base for ARCS calculating CalcStates.
+ *
+ * \see CalcState
  */
 class CalcStateARCS : public CalcState
 {
@@ -1306,7 +1319,9 @@ void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 /// @{
 
 /**
- * CalcState for calculation of ARCSv1.
+ * \brief CalcState for calculation of ARCSv1.
+ *
+ * \see CalcState
  */
 class CalcStateV1 final : public CalcStateARCS
 {
@@ -1514,7 +1529,9 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 /// @{
 
 /**
- * CalcState for calculation of ARCSv2 and ARCSv1.
+ * \brief CalcState for calculation of ARCSv2 and ARCSv1.
+ *
+ * \see CalcState
  */
 class CalcStateV1andV2 final : public CalcStateARCS
 {
@@ -1891,7 +1908,7 @@ R instantiate(F&& func, std::size_t i)
 
 
 /**
- * Instantiate the CalcState for a checksum::type.
+ * \brief Instantiate the CalcState for a checksum::type.
  *
  * \param[in] state_type The state type to instantiate
  * \param[in] x Constructor arguments for constructing CalcState
@@ -1921,9 +1938,11 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 /// @{
 
 /**
- * Private implementation of Calculation.
+ * \brief Private implementation of Calculation.
  *
  * This class is not intended as a base class for inheritance.
+ *
+ * \see Calculation
  */
 class Calculation::Impl final
 {

@@ -36,14 +36,16 @@
 
 namespace arcs
 {
+
 /// \addtogroup calc
 /// @{
+
 inline namespace v_1_0_0
 {
 
 
 /**
- * Everything regarding operation with <tt>Checksum</tt>s.
+ * \brief Everything regarding operation with Checksums.
  */
 namespace checksum
 {
@@ -52,7 +54,7 @@ namespace checksum
 	// function 'type_name()' will fail.
 
 	/**
-	 * Type IDs of the pre-defined checksum types.
+	 * \brief Type IDs of the pre-defined checksum types.
 	 */
 	enum class type : uint32_t
 	{
@@ -95,7 +97,7 @@ namespace checksum
 
 
 /**
- * A 32-bit wide checksum for a single file or track.
+ * \brief A 32-bit wide checksum for a single file or track.
  */
 class Checksum final
 {
@@ -169,6 +171,9 @@ private:
 };
 
 
+/**
+ * Checksums related tools
+ */
 namespace checksum
 {
 
@@ -197,7 +202,7 @@ class ChecksumMap;
 
 
 /**
- * Iterator for <tt>ChecksumMap<></tt>s.
+ * \brief Iterator for @link ChecksumMap ChecksumMap<>s @endlink.
  */
 template <typename K, bool is_const = false>
 class ChecksumMapIterator
@@ -319,7 +324,7 @@ private:
 
 
 /**
- * Generic implementation of a ChecksumMap.
+ * \brief Generic implementation of a ChecksumMap.
  *
  * This is a generic container for ChecksumMaps adaptable to different
  * checksum types and different keys.
@@ -565,7 +570,7 @@ private: // TODO Hide this!
 
 
 /**
- * A set of <tt>Checksum</tt>s of different types for a single track.
+ * \brief A set of Checksum instances of different types for a single track.
  */
 class ChecksumSet final : public details::ChecksumMap<checksum::type>
 {

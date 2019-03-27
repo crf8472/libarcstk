@@ -19,7 +19,7 @@ inline namespace v_1_0_0
 {
 
 /**
- * A random access iterator for samples.
+ * \brief A random access iterator for samples.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
  * a single uint32_t integer.
@@ -29,8 +29,11 @@ class SampleIterator;
 
 
 /**
- * A SampleSequence for signed integral types that provides converting access to
- * the samples.
+ * \brief A sequence of samples represented by signed integral types.
+ *
+ * A SampleSequence is an adapter for passing sample sequences of virtually any
+ * signed integral format to Calculation::update(). SampleSequence instances
+ * provide converting access to the samples.
  *
  * The channel ordering can be either left/right or right/left.
  */

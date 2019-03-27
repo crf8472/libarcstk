@@ -10,9 +10,11 @@
 
 namespace arcs
 {
+
 /// \cond IMPL_ONLY
 /// \internal \addtogroup calcImpl
 /// @{
+
 inline namespace v_1_0_0
 {
 
@@ -70,7 +72,9 @@ bool Checksum::operator != (const Checksum &rhs) const
 
 
 /**
- * Private implementation of ChecksumSet.
+ * \brief Private implementation of ChecksumSet.
+ *
+ * \see ChecksumSet
  */
 class ChecksumSet::Impl final
 {
@@ -196,7 +200,7 @@ namespace checksum
 {
 
 /**
- * Implementation details of namespace checksum
+ * \brief Implementation details of namespace checksum
  */
 namespace details
 {

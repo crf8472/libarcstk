@@ -77,11 +77,11 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 }
 
 
-TEST_CASE ( "DefaultHandler", "[parse] [defaulthandler]" )
+TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 {
-	arcs::DefaultHandler c_handler;
+	arcs::DefaultContentHandler c_handler;
 
-	// The functionality of DefaultHandler is implicitly tested
+	// The functionality of DefaultContentHandler is implicitly tested
 	// by the testcases for ARParser and ARFileParser.
 
 	c_handler.start_input();
@@ -120,7 +120,7 @@ TEST_CASE ( "DefaultHandler", "[parse] [defaulthandler]" )
 
 	SECTION ( "Copy constructor" )
 	{
-		arcs::DefaultHandler c_handler_copy(c_handler);
+		arcs::DefaultContentHandler c_handler_copy(c_handler);
 
 		auto result_copy = c_handler_copy.result();
 
@@ -157,7 +157,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 	arcs::ARFileParser parser;
 
 	// content handler but no error handler
-	auto c_handler = std::make_unique<arcs::DefaultHandler>();
+	auto c_handler = std::make_unique<arcs::DefaultContentHandler>();
 	parser.set_content_handler(std::move(c_handler));
 
 
@@ -166,7 +166,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f.bin");
 
 		// we positively _know_ the derived type, so downcast is ok
-		auto result = dynamic_cast<const arcs::DefaultHandler &>
+		auto result = dynamic_cast<const arcs::DefaultContentHandler &>
 			(parser.content_handler()).result();
 
 

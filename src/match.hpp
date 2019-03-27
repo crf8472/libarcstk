@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <memory>
 
+// forward declarations
 namespace arcs { inline namespace v_1_0_0 { class ARId;       } }
 namespace arcs { inline namespace v_1_0_0 { class ARResponse; } }
 namespace arcs { inline namespace v_1_0_0 { class Checksums;  } }
@@ -32,14 +33,16 @@ namespace arcs { inline namespace v_1_0_0 { class Checksums;  } }
 
 namespace arcs
 {
+
 /// \defgroup match AccurateRip Checksum Matcher
 /// @{
+
 inline namespace v_1_0_0
 {
 
 
 /**
- * Result of a match of some <tt>Checksum</tt>s against an ARResponse.
+ * \brief Result of a match of some Checksums against an ARResponse.
  *
  * The Match provides access to each element for which a match was tried
  * in terms of block:track:version.
@@ -159,7 +162,7 @@ public:
 
 
 /**
- * Analyzes whether given <tt>Checksum</tt>s match a given ARResponse.
+ * \brief Analyzes whether given Checksums match a given ARResponse.
  *
  * The Matcher indicates whether a matching block was found, returns
  * the best difference value and the index position of the best matching block
@@ -234,7 +237,7 @@ public:
 
 
 /**
- * A Matcher for a list of track <tt>Checksum</tt>s.
+ * \brief Match an album track list against an ARResponse.
  *
  * Tries to match each position \c i in the actual <tt>Checksum</tt>s with
  * position \c i in the AccurateRip response.
@@ -317,7 +320,7 @@ private:
 
 
 /**
- * A Matcher for a set of file <tt>Checksum</tt>s.
+ * \brief Match an arbitrary set of tracks against an ARResponse.
  *
  * Find any match of any actual Checksum in the ARResponse.
  */
