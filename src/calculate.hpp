@@ -250,6 +250,8 @@ public:
 
 private:
 
+	/// \cond IMPL_ONLY
+
 	/**
 	 * \brief Internal object interface
 	 */
@@ -362,6 +364,9 @@ private:
 			 */
 			Iter iterator_;
 	};
+
+	/// \endcond
+	// IMPL_ONLY
 
 
 public:

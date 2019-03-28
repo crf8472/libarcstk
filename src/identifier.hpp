@@ -23,8 +23,10 @@
 
 namespace arcs
 {
+
 /// \addtogroup calc
 /// @{
+
 inline namespace v_1_0_0
 {
 
@@ -326,7 +328,7 @@ public:
 	 *
 	 * \param[in] impl The implementation of the TOC
 	 */
-	explicit TOC(std::unique_ptr<Impl> impl);
+	explicit TOC(std::unique_ptr<TOC::Impl> impl);
 
 	/**
 	 * Copy constructor

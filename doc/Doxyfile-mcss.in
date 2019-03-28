@@ -5,12 +5,12 @@
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
 
-GENERATE_HTML          = NO
+GENERATE_HTML          = NO  # Override libarcs Doxyfile
 
 # If the GENERATE_LATEX tag is set to YES, doxygen will generate LaTeX output.
 # The default value is: YES.
 
-GENERATE_LATEX         = NO
+GENERATE_LATEX         = NO  # Override libarcs Doxyfile
 
 # If the GENERATE_RTF tag is set to YES, doxygen will generate RTF output. The
 # RTF output is optimized for Word 97 and may not look too pretty with other RTF
@@ -67,7 +67,15 @@ XML_NS_MEMB_FILE_SCOPE = YES
 
 OUTPUT_DIRECTORY       = "@PROJECT_BUILD_DOC_DIR@-mcss"
 
+# It is currently not possible to link to private virtual methods.
 # This comes with: https://github.com/doxygen/doxygen/pull/6729
 # See: https://github.com/doxygen/doxygen/commit/7f40e488e27bcea4bb15045df05479dc5fbd9d6d
 #EXTRACT_PRIV_VIRTUAL   = YES
 
+## For m.css specific options see https://mcss.mosra.cz/doxygen/#configuration
+
+# If set and PROJECT_BRIEF is al­so set, then PROJECT_NAME in the top navbar
+# will link to this URL and PROJECT_BRIEF in­to the doc­u­men­ta­tion main page,
+# sim­i­lar­ly as shown here.
+#
+##! M_MAIN_PROJECT_URL   = "@PROJECT_URL@"

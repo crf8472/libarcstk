@@ -11,7 +11,6 @@
 #include <memory>
 
 
-/// @{
 namespace arcs
 {
 
@@ -128,7 +127,7 @@ public:
 } // namespace v_1_0_0
 
 } // namespace arcs
-/// @}
+
 
 #ifndef __LIBARCS_SAMPLES_TPP__
 #include "details/samples.tpp"

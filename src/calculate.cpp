@@ -42,7 +42,8 @@ namespace arcs
 inline namespace v_1_0_0
 {
 
-namespace {
+namespace
+{
 
 /**
  * \brief Number of samples to be skipped before the end of the last track.
@@ -405,7 +406,6 @@ void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 
@@ -654,7 +654,6 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 
@@ -1315,7 +1314,6 @@ void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 /**
@@ -1525,7 +1523,6 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 /**
@@ -1772,7 +1769,6 @@ using state_types = std::tuple<
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 /**
@@ -1934,7 +1930,6 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 
 
 /// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
 /// @{
 
 /**

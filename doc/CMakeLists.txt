@@ -7,6 +7,7 @@ find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
 
 set (PROJECT_BUILD_DOC_DIR "${PROJECT_BINARY_DIR}/doc" )
 
+set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.hpp.in *.md" )
 
 message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )
@@ -42,13 +43,18 @@ if (WITH_IMPLONLY_DOCS)
 
 	endif (NOT WITH_INTERNAL_DOCS)
 
-	set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
+	message (STATUS "Will build documentation also for implementations" )
 
 	set(DOC_COMMENT "${DOC_COMMENT} and implementations" )
 
-	message (STATUS "Will build documentation also for implementations" )
+	## Set replacement values for Doxyfile
+
+	set (PROJECT_DOXYGEN_INTERNAL_DOCS    "YES" )
 
 	set (PROJECT_DOXYGEN_ENABLED_SECTIONS "IMPL_ONLY" )
+
+	set (PROJECT_DOXYGEN_FILE_PATTERNS
+		"${PROJECT_DOXYGEN_FILE_PATTERNS} *.cpp *.tpp" )
 
 else ()
 

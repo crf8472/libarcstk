@@ -34,7 +34,8 @@ inline namespace v_1_0_0
  */
 const CDDA_t CDDA;
 
-/// \addtogroup idImpl
+/// \cond IMPL_ONLY
+/// \internal \addtogroup idImpl
 /// @{
 
 /**
