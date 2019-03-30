@@ -1,7 +1,9 @@
 \mainpage libarcs - A library to calculate and verify AccurateRip checksums and ids
 
 
-Home: https://codeberg.org/tristero/libarcs
+\section Home
+
+See the [project home on codeberg.org](https://codeberg.org/tristero/libarcs)
 
 
 \section features Features
