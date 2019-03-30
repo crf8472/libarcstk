@@ -18,7 +18,7 @@
 namespace arcs
 {
 
-namespace v_1_0_0
+inline namespace v_1_0_0
 {
 
 

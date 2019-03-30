@@ -17,7 +17,7 @@ namespace arcs
 /// \ingroup id
 /// @{
 
-namespace v_1_0_0
+inline namespace v_1_0_0
 {
 
 
