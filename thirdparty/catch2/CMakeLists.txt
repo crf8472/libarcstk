@@ -40,14 +40,14 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 	## --- Actually fetch Catch2 using the config created by ExternalProject_Add
 
 	execute_process(
-		COMMAND ${CMAKE_COMMAND} -P ${TMP_DIR}/catch2-gitclone.cmake
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMAND ${CMAKE_COMMAND} -P "${TMP_DIR}/catch2-gitclone.cmake"
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 	)
 
 
 	## --- Load Catch2 CMake config
 
-	add_subdirectory (${SOURCE_DIR} ${BINARY_DIR} )
+	add_subdirectory ("${SOURCE_DIR}" "${BINARY_DIR}" )
 
 	unset(SOURCE_DIR )
 	unset(BINARY_DIR )
@@ -73,7 +73,7 @@ else()
 
 		## --- Load Catch2 CMake config
 
-		add_subdirectory (${catch2_SOURCE_DIR} ${catch2_BINARY_DIR} )
+		add_subdirectory ("${catch2_SOURCE_DIR}" "${catch2_BINARY_DIR}" )
 
 	endif()
 
