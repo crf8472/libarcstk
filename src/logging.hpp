@@ -280,7 +280,7 @@ std::string now_time();
 
 
 /**
- * \brief Logs a message using a Logger and a LOGLEVEL_t
+ * \brief Logs a message using a Logger and a log level
  *
  * (More or less) thread-safe, type-safe, portable logging interface for
  * concrete <tt>Logger</tt>s.

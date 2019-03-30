@@ -527,7 +527,7 @@ private:
 
 
 /**
- * \brief Interface for ARParser content handlers.
+ * \brief Interface for ARStreamParser content handlers.
  *
  * Add a content handler to an ARStreamParser to actually add behaviour for
  * parsing an ARResponse.
@@ -629,7 +629,7 @@ public:
 
 
 /**
- * \brief Constructs an ARResponse instance from the parsed content.
+ * \brief Constructs an ARResponse instance from parsed content.
  *
  * \see ContentHandler
  */
@@ -769,7 +769,7 @@ public:
 
 
 /**
- * \brief Error handler that just logs the error message to stdout.
+ * \brief Logs error information to stdout.
  *
  * \see ErrorHandler
  */
