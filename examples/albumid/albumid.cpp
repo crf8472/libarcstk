@@ -1,3 +1,8 @@
+//
+// Example for calculating AccurateRip id and specific query URL of an album,
+// represented by a CUESheet and a single losslessly encoded audio file.
+//
+
 #include <cstdint>   // for uint32_t etc.
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
@@ -5,19 +10,18 @@
 #include <string>    // for string
 
 extern "C" {
-#include <libcue/libcue.h>  // libcue for parsing the CUEsheet
+#include <libcue/libcue.h>         // libcue for parsing the CUEsheet
 }
+#include <sndfile.hh>              // libsndfile for reading the audio file
 
-#include <sndfile.hh>       // libsndfile for reading the audio file
 
-#ifndef __LIBARCS_CALCULATE_HPP__ // libarcs: calculate ARCSs
+#ifndef __LIBARCS_CALCULATE_HPP__  // libarcs: calculate ARCSs
 #include <arcs/calculate.hpp>
 #endif
-#ifndef __LIBARCS_IDENTIFIER_HPP__ // libarcs: parse AccurateRip responses
+#ifndef __LIBARCS_IDENTIFIER_HPP__ // libarcs: calculate AccurateRip ids
 #include <arcs/identifier.hpp>
 #endif
-
-#ifndef __LIBARCS_LOGGING_HPP__   // libarcs: log what you do
+#ifndef __LIBARCS_LOGGING_HPP__    // libarcs: log what you do
 #include <arcs/logging.hpp>
 #endif
 
@@ -32,6 +36,9 @@ extern "C" {
 
 /**
  * Parse a CUEsheet and return offsets and implicitly the track count.
+ *
+ * This method is implemented without any use of libarcs. It just has to be
+ * available for parsing the CUESheet.
  *
  * @param[in] cuefilename Name of the CUEsheet file to parse
  *
@@ -88,6 +95,11 @@ auto parse_cuesheet(const std::string &cuefilename)
 /**
  * Analyze the audiofile and return the total number of samples (if decoded).
  *
+ * This method is implemented without any use of libarcs. It just has to be
+ * available for abstracting away how to get the amount of total samples. You
+ * _could_ use libarcs for this, but in this situation, libsndfile provides a
+ * very convenient way.
+ *
  * @param[in] audiofilename Name of the audio file to analyze
  *
  * @return Total number of samples
@@ -106,13 +118,13 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Usage: albumid <cuesheet> <audiofile.wav>" << std::endl;
+		std::cout << "Usage: albumid <cuesheet> <audiofile>" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	// Of course you would validate your input parameters in production code.
-	const std::string cuefilename   {argv[1]};
-	const std::string audiofilename {argv[2]};
+	const std::string cuefilename   { argv[1] };
+	const std::string audiofilename { argv[2] };
 
 	// If you like, you can activate the internal logging of libarcs to
 	// see what's going on behind the scenes. We provide an appender for stdout
@@ -122,31 +134,36 @@ int main(int argc, char* argv[])
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
 	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcs is
-	// doing with your input
+	// doing with your input.
 	arcs::Logging::instance().set_level(arcs::LOG_INFO);
 
-	// To calculate the AccurateRip id of the CD, we need its TOC, precisely:
+	// Calculation will have to distinguish the tracks in the audiofile. To
+	// identify the track bounds, we need the TOC, precisely:
 	// 1. the number of tracks
 	// 2. the track offset for each track
 	// 3. the leadout frame
 
-	// Since the CUEsheet usually does not know the length of the last track, we
-	// have to derive the leadout frame from the audio data. The leadout frame
-	// can easily be deduced from the total number of samples. Thanks to
-	// libsndfile, this information is conveniently provided by the audiofile
-	// handle:
-	arcs::AudioSize audio_size;
-	audio_size.set_sample_count(total_samples(audiofilename));
+	// Since the CUEsheet usually does not know the length of the last track,
+	// we may receive only 1. and 2. from the actual CUESheet. In this case, we
+	// have to derive the leadout frame from the audio data using libarcs'
+	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
+	// is not even necessary: the information is conveniently provided by the
+	// audiofile handle:
+	arcs::AudioSize total_samples;
+	total_samples.set_sample_count(total_samples(audiofilename));
 	// Remark: what libsndfile calls "frames" is what libarcs calls
-	// "PCM 32 samples". Our "sample" represents a single stereo sample as
-	// a single 32 bit unsigned int (left/right), libsndfile's frame encodes the
-	// same information as 2 signed 16 bit integers, one per channel.
+	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
+	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
+	// Libsndfile's frame encodes the same information as 2 signed 16 bit
+	// integers, one per channel.
 
 	// One completed, two to go. We derive track number and offsets from parsing
-	// the CUEsheet. We skip the details here. (Just consult the implementation
-	// of function parse_cuesheet if you are interested in the details.)
+	// the CUEsheet. We skip the details here for libarcs does not provide this
+	// functionality and the author just did a quick hack with libcue. (Just
+	// consult the implementation of function parse_cuesheet if you are
+	// interested in the details, but this is libcue, not libarcs.)
 	auto offsets { parse_cuesheet(cuefilename) };
-	// Skip santiy checks ...
+	// Skip santiy checks and everything you could do with try/catch ...
 
 	// We now have derived all relevant metadata from our input files.
 	// Let's print it one last time before starting with the real business:
@@ -157,16 +174,18 @@ int main(int argc, char* argv[])
 			<< std::setw(6)  << std::setfill(' ') << offsets[i-1]
 			<< std::endl;
 	}
-	std::cout << "Track count: " << offsets.size()             << std::endl;
-	std::cout << "Leadout: "     << audio_size.leadout_frame() << std::endl;
+	std::cout << "Track count: " << offsets.size()                << std::endl;
+	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
 
-	// Use libarcs to construct the TOC. This validates the parsed toc data
-	// and will fail if the parsed data is inconsistent.
+	// Step 1: Use libarcs to construct the TOC.
+	// This validates the parsed toc data and will throw if the parsed data is
+	// inconsistent. For providing a nice message, you could wrap this command
+	// in a try/catch block.
 	auto toc { arcs::make_toc(offsets.size(), offsets,
-			audio_size.leadout_frame()) };
+			total_samples.leadout_frame()) };
 
-	// Since the TOC is guaranteed to be complete, i.e. yield a non-zero
-	// leadout, we can now construct the ID directly from the TOC.
+	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
+	// leadout, we can now construct the AccurateRip ID directly from the TOC.
 	auto id { arcs::make_arid(*toc) };
 
 	std::cout << "ID: " << id->to_string() << std::endl;

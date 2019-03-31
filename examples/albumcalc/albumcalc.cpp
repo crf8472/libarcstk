@@ -1,3 +1,8 @@
+//
+// Example for calculating AccurateRip checksums from each track of an album,
+// represented by a CUESheet and a single losslessly encoded audio file.
+//
+
 #include <cstdint>   // for uint32_t etc.
 #include <cstdio>    // for fopen, fclose, FILE
 #include <iomanip>   // for setw, setfill, hex
@@ -6,10 +11,10 @@
 #include <string>    // for string
 
 extern "C" {
-#include <libcue/libcue.h>  // libcue for parsing the CUEsheet
+#include <libcue/libcue.h>        // libcue for parsing the CUEsheet
 }
+#include <sndfile.hh>             // libsndfile for reading the audio file
 
-#include <sndfile.hh>       // libsndfile for reading the audio file
 
 #ifndef __LIBARCS_CALCULATE_HPP__ // libarcs: calculate ARCSs
 #include <arcs/calculate.hpp>
@@ -17,7 +22,6 @@ extern "C" {
 #ifndef __LIBARCS_SAMPLES_HPP__   // libarcs: normalize input samples
 #include <arcs/samples.hpp>
 #endif
-
 #ifndef __LIBARCS_LOGGING_HPP__   // libarcs: log what you do
 #include <arcs/logging.hpp>
 #endif
@@ -33,6 +37,9 @@ extern "C" {
 
 /**
  * Parse a CUEsheet and return offsets and implicitly the track count.
+ *
+ * This method is implemented without any use of libarcs. It just has to be
+ * available for parsing the CUESheet.
  *
  * @param[in] cuefilename Name of the CUEsheet file to parse
  *
@@ -90,13 +97,13 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Usage: albumcalc <cuesheet> <audiofile.wav>" << std::endl;
+		std::cout << "Usage: albumcalc <cuesheet> <audiofile>" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	// Of course you would validate your input parameters in production code.
-	const std::string cuefilename   {argv[1]};
-	const std::string audiofilename {argv[2]};
+	const std::string cuefilename   { argv[1] };
+	const std::string audiofilename { argv[2] };
 
 	// If you like, you can activate the internal logging of libarcs to
 	// see what's going on behind the scenes. We provide an appender for stdout
@@ -106,39 +113,44 @@ int main(int argc, char* argv[])
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
 	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcs is
-	// doing with your input
+	// doing with your input.
 	arcs::Logging::instance().set_level(arcs::LOG_INFO);
 
-	// Define input block size (in number of samples)
+	// Define input block size (in number of samples, where 'sample' means a
+	// 32 bit unsigned integer holding a pair of CDDA 16 bit stereo samples)
 	const int samples_per_block { 16777216 }; // == 64 MB block size
 
-	// libsndfile provides file handle
+	// libsndfile API provides the file handlea for the audio file
 	SndfileHandle audiofile(audiofilename, SFM_READ);
-	// Skip any santiy checks you would do in production code...
+	// Skip any sanity checks you would do in production code...
 
-	// Calculation will have to distinguish the tracks in the audiofile, so we
-	// need the TOC, precisely:
+	// Calculation will have to distinguish the tracks in the audiofile. To
+	// identify the track bounds, we need the TOC, precisely:
 	// 1. the number of tracks
 	// 2. the track offset for each track
 	// 3. the leadout frame
 
-	// Since the CUEsheet usually does not know the length of the last track, we
-	// have to derive the leadout frame from the audio data. The leadout frame
-	// can easily be deduced from the total number of samples. Thanks to
-	// libsndfile, this information is conveniently provided by the audiofile
-	// handle:
+	// Since the CUEsheet usually does not know the length of the last track,
+	// we may receive only 1. and 2. from the actual CUESheet. In this case, we
+	// have to derive the leadout frame from the audio data using libarcs'
+	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
+	// is not even necessary: the information is conveniently provided by the
+	// audiofile handle:
 	arcs::AudioSize total_samples;
 	total_samples.set_sample_count(audiofile.frames());
 	// Remark: what libsndfile calls "frames" is what libarcs calls
-	// "PCM 32 samples". Our "sample" represents a single stereo sample as
-	// a single 32 bit unsigned int (left/right), libsndfile's frame encodes the
-	// same information as 2 signed 16 bit integers, one per channel.
+	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
+	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
+	// Libsndfile's frame encodes the same information as 2 signed 16 bit
+	// integers, one per channel.
 
 	// One completed, two to go. We derive track number and offsets from parsing
-	// the CUEsheet. We skip the details here. (Just consult the implementation
-	// of function parse_cuesheet if you are interested in the details.)
+	// the CUEsheet. We skip the details here for libarcs does not provide this
+	// functionality and the author just did a quick hack with libcue. (Just
+	// consult the implementation of function parse_cuesheet if you are
+	// interested in the details, but this is libcue, not libarcs.)
 	auto offsets { parse_cuesheet(cuefilename) };
-	// Skip santiy checks ...
+	// Skip santiy checks and everything you could do with try/catch ...
 
 	// We now have derived all relevant metadata from our input files.
 	// Let's print it one last time before starting with the real business:
@@ -152,29 +164,22 @@ int main(int argc, char* argv[])
 	std::cout << "Track count: " << offsets.size()                << std::endl;
 	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
 
-	// Use libarcs to construct the TOC. This validates the parsed toc data
-	// and will fail if the parsed data is inconsistent.
+	// Step 1: Use libarcs to construct the TOC.
+	// This validates the parsed toc data and will throw if the parsed data is
+	// inconsistent. For providing a nice message, you could wrap this command
+	// in a try/catch block.
 	auto toc { arcs::make_toc(offsets.size(), offsets,
 			total_samples.leadout_frame()) };
 
-	// Create a context from the TOC along with the name of the audiofile.
+	// Step 2: Create a context from the TOC and the name of the audiofile.
+	// The context represents the configuration of the calculation process along
+	// with the necessary metadata.
 	auto context { arcs::make_context(audiofilename, *toc) };
 
-	// From this context, create a Calculation.
-	// Since we did not specify a checksum type, the Calculation will provide
-	// ARCSv1 as well as ARCSv2 value.
+	// Step 3: Create a Calculation and give it the context.
+	// We do not specify a checksum type, thus the Calculation will provide
+	// ARCSv1 as well as ARCSv2 values as result.
 	arcs::Calculation calculation { std::move(context) };
-
-	// Since libsndfile has told us the sample count, our TOC object
-	// already contains the leadout frame number. If that were not the case we
-	// would have to provide our Calculation with this information manually
-	// by doing:
-	//
-	// calculation.update_audiosize(total_samples);
-	//
-	// This is absolutely essential since otherwise the Calculation will fail.
-	// It is sufficient to do this before the last block of samples is passed to
-	// Calculation.
 
 	// Let's enumerate the blocks in the output. This is just to give some
 	// informative logging.
@@ -190,6 +195,20 @@ int main(int argc, char* argv[])
 
 	uint32_t ints_in_block {0}; // Count integers read in single operation
 	uint64_t sample_count  {0}; // Count total samples that were actually read
+
+	// The input buffer 'buffer' holds each 16 bit sample in a single integer.
+	// Since we have stereo audio, there are two channels, which makes one
+	// 16 bit integer per sample for each channel in interleaved order,
+	// where the 16 bit sample for the left channel makes the start.
+	// Libarcs is not interested in those details, so we provide the samples
+	// via a SampleSequence that abstracts the concrete format away:
+	arcs::SampleSequence<int16_t, false> sequence;
+	// Each sample is a signed 16 bit integer, the sequence is interleaved
+	// (== not planar) and the channel ordering is left,right.
+	// NOTE: These prerequisites are just provided by libsndfile at this
+	// site in the code. In production code, you would of course verify
+	// things... If the channel order is switched, the sample format is
+	// changed or the sequence is planar, the example code will screw up!
 
 	// Main loop: let libsndfile read the sample in its own format, normalize it
 	// and update the prepared Calculation with the samples read in the current
@@ -221,27 +240,26 @@ int main(int argc, char* argv[])
 			<< "/" << total_blocks
 			<< " (" << (buffer.size() / 2) << " samples)" << std::endl;
 
-		// The input buffer holds each 16 bit sample in a single integer.
-		// Since we have stereo audio, there are two channels, which makes one
-		// 16 bit integer per sample for each channel in interleaved order,
-		// where the 16 bit sample for the left channel makes the start.
-		// Libarcs is not interested in those details, so we provide the samples
-		// via a SampleSequence that abstracts the concrete format away:
-		arcs::SampleSequence<int16_t, false> sequence;
-		// Each sample is a signed 16 bit integer, the sequence is interleaved
-		// and the channel ordering is left,right.
-		// NOTE: These prerequisites are just provided by libsndfile at this
-		// site in the code. In production code, you would of course verify
-		// things.. If the channel order is switched, the sample format is
-		// changed or the sequence is planar, the example code will screw up!
-
-		// Wrap buffer in SampleSequence
+		// Wrap buffer in a reusable SampleSequence
 		sequence.reset(&buffer[0], buffer.size());
 
-		// Update calculation with next portion of normalized samples
+		// Note: since libsndfile has told us the sample count, our TOC object
+		// was already complete when we configured the context. Otherwise, we
+		// would not yet know the leadout frame number. If that were the case we
+		// would have to provide our Calculation with this information manually
+		// by doing:
+		//
+		// calculation.update_audiosize(total_samples);
+		//
+		// _before_ we send the last block of samples to it. This is absolutely
+		// essential since otherwise the Calculation will not know when to stop
+		// and eventually fail. It is sufficient to update the audio size
+		// just before the last block of samples is passed to Calculation.
+
+		// Update calculation with next portion of normalized samples.
 		calculation.update(sequence.begin(), sequence.end());
 
-		// Count PCM stereo samples processed
+		// Count PCM 32 bit stereo samples processed.
 		sample_count += (buffer.size() / 2);
 	}
 
@@ -254,17 +272,17 @@ int main(int argc, char* argv[])
 		std::cerr << "Error, calculation incomplete" << std::endl;
 	}
 
-	// Let's finally get us the result
+	// Let's finally get us the result!
 	auto checksums { calculation.result() };
 
-	// And now, the time has come: print the checksums
+	// And now, the time has come: print the actual checksums.
 	std::cout << "Track  ARCSv1    ARCSv2" << std::endl;
 	int trk_no = 1;
-	using type = arcs::checksum::type;
-	for (const auto& values : checksums)
+
+	for (const auto& track_values : checksums)
 	{
-		auto arcs1 = values.get(type::ARCS1);
-		auto arcs2 = values.get(type::ARCS2);
+		auto arcs1 = track_values.get(arcs::checksum::type::ARCS1);
+		auto arcs2 = track_values.get(arcs::checksum::type::ARCS2);
 
 		std::cout << std::dec << " " << std::setw(2) << std::setfill(' ')
 			<< trk_no << "   " << std::hex << std::uppercase
@@ -272,6 +290,7 @@ int main(int argc, char* argv[])
 			<< "  "
 			<< std::setw(8) << std::setfill('0') << arcs2.value()
 			<< std::endl;
+
 		++trk_no;
 	}
 }

@@ -1,3 +1,8 @@
+//
+// Example for matching local AccurateRip checksums against the checksums
+// provided by AccurateRip.
+//
+
 #include <algorithm> // for count
 #include <cstdint>   // for uint32_t etc.
 #include <cstring>   // for strtok
@@ -6,17 +11,16 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCS_MATCH_HPP__ // libarcs: match Checksums and ARResponse
+#ifndef __LIBARCS_MATCH_HPP__      // libarcs: match Checksums and ARResponse
 #include <arcs/match.hpp>
 #endif
 #ifndef __LIBARCS_CALCULATE_HPP__
-#include <arcs/calculate.hpp> // for arcs::Checksums
+#include <arcs/calculate.hpp>      // for arcs::Checksums
 #endif
 #ifndef __LIBARCS_PARSE_HPP__
-#include <arcs/parse.hpp> // for arcs::ARResponse
+#include <arcs/parse.hpp>          // for arcs::ARResponse
 #endif
-
-#ifndef __LIBARCS_LOGGING_HPP__   // libarcs: log what you do
+#ifndef __LIBARCS_LOGGING_HPP__    // libarcs: log what you do
 #include <arcs/logging.hpp>
 #endif
 
@@ -39,23 +43,23 @@
 //
 // Providing all this input in a way acceptable in example code, some
 // boilerplate code is inevitably. Although the boilerplate does not carry any
-// didactic evidence for libarcs, I wanted to provide an example that you can
-// feed your own input in.
+// didactic evidence for libarcs, I wanted to provide an example that  at least
+// demonstrates the added value on your own input data.
 // In fact, the functions parse_arid(), parse_input_arcs() and
 // parse_match_arcs() are more or less quick and dirty boilerplate code for just
 // providing the required input values. In real life code, you would have to
 // invest (much) more effort to make the code robust but this is not related to
-// the libarcs API.
+// learning the libarcs API.
 // The actual example demonstrating the use of the ListMatcher class is
 // contained in main(). It's very simple to use. Have fun!
 
 
 /**
- * Parse the ARId from the command line
+ * Parse the ARId from the command line.
  *
- * \param[in] input_id A string representation of the ARId
+ * @param[in] input_id A string representation of the ARId
  *
- * \return Parsed ARId
+ * @return Parsed ARId
  */
 arcs::ARId parse_arid(const char* input_id)
 {
@@ -71,12 +75,12 @@ arcs::ARId parse_arid(const char* input_id)
 
 
 /**
- * Parse a comma-separated list of hexadecimal numbers
+ * Parse a comma-separated list of hexadecimal numbers.
  *
- * \param[in] list A string representation of the list
- * \param[in] t The checksum type to declare (either ARCS1 or ARCS2)
+ * @param[in] list A string representation of the list
+ * @param[in] t The checksum type to declare (either ARCS1 or ARCS2)
  *
- * \return Parsed Checksums
+ * @return Parsed Checksums
  */
 arcs::Checksums parse_input_arcs(const char* list, const arcs::checksum::type t)
 {
@@ -128,16 +132,16 @@ arcs::Checksums parse_input_arcs(const char* list, const arcs::checksum::type t)
 
 
 /**
- * Parse ARCSs from a non-empty response file or from stdin
+ * Parse ARCSs from a non-empty response file or from stdin.
  *
- * \param[in] filename Name of the response file (maybe empty, then stdin)
+ * @param[in] filename Name of the response file (maybe empty, then stdin)
  *
- * \return Parsed ARResponse
+ * @return Parsed ARResponse
  */
 arcs::ARResponse parse_match_arcs(const std::string &filename)
 {
 	std::unique_ptr<arcs::ContentHandler> content_hdlr =
-		std::make_unique<arcs::DefaultHandler>();
+		std::make_unique<arcs::DefaultContentHandler>();
 
 	auto error_hdlr = std::make_unique<arcs::DefaultErrorHandler>();
 
@@ -162,7 +166,7 @@ arcs::ARResponse parse_match_arcs(const std::string &filename)
 	// downcasting does not rise any risks. It is just not "nice". (The
 	// other method I could think of feels worse, so we stick to downcasting
 	// for now.)
-	return dynamic_cast<const arcs::DefaultHandler &>
+	return dynamic_cast<const arcs::DefaultContentHandler &>
 		(parser->content_handler()).result();
 }
 
