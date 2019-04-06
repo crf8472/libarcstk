@@ -7,8 +7,8 @@ find_package (Git REQUIRED )
 
 ## --- Catch2 identifiers
 
-set(CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
-set(CATCH2_VERSION_TAG "v2.4.1" )
+set (CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
+set (CATCH2_VERSION_TAG "v2.7.0" )
 
 
 ## --- Define Catch2 to be checked out/updated while configuring
@@ -49,9 +49,9 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 
 	add_subdirectory ("${SOURCE_DIR}" "${BINARY_DIR}" )
 
-	unset(SOURCE_DIR )
-	unset(BINARY_DIR )
-	unset(TMP_DIR )
+	unset (SOURCE_DIR )
+	unset (BINARY_DIR )
+	unset (TMP_DIR )
 
 else()
 
