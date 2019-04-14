@@ -66,6 +66,7 @@ build switches.
 
 ## Current Limitations
 
+- Pre-alpha state
 - No production release yet - will be 1.0.0
 - API is not considered stable before 1.0.0 (may change any time in any way
   until then)
