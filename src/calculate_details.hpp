@@ -340,7 +340,9 @@ private:
 	 * 1-based number of the track of which the samples in the partition are
 	 * part of
 	 */
-	const TrackNo track_; };
+	const TrackNo track_;
+
+};
 
 
 /**

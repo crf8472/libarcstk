@@ -232,7 +232,7 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
  * Type erasure class for iterators with the value_type uint32_t. It wraps the
  * concrete iterator to be passed for updating a \ref Calculation.
  */
-class PCMForwardIterator
+class PCMForwardIterator final
 {
 
 public:
@@ -262,6 +262,12 @@ private:
 		 */
 		virtual ~Concept() noexcept
 		= default;
+
+		/**
+		 * Preincrements the iterator.
+		 */
+		virtual void preincrement()
+		= 0;
 
 		/**
 		 * Advances iterator by \c n positions
@@ -321,38 +327,43 @@ private:
 	template<class Iter>
 	struct Model : Concept
 	{
-		Model(Iter iter)
+		explicit Model(Iter iter)
 			: iterator_(iter)
 		{
 			// empty
 		}
 
-		void advance(const int n) override
+		void preincrement() final
+		{
+			++iterator_;
+		}
+
+		void advance(const int n) final
 		{
 			std::advance(iterator_, n);
 		}
 
-		reference dereference() const override
+		reference dereference() const final
 		{
 			return *iterator_;
 		}
 
-		bool equals(const void* rhs) const override
+		bool equals(const void* rhs) const final
 		{
 			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
 		}
 
-		const std::type_info& type() const override
+		const std::type_info& type() const final
 		{
 			return typeid(iterator_);
 		}
 
-		const void* pointer() const override
+		const void* pointer() const final
 		{
 			return this;
 		}
 
-		std::unique_ptr<Concept> clone() const override
+		std::unique_ptr<Concept> clone() const final
 		{
 			return std::make_unique<Model>(*this);
 		}
@@ -393,6 +404,13 @@ public:
 	 * \param[in] rhs Instance to copy
 	 */
 	PCMForwardIterator(const PCMForwardIterator& rhs);
+
+	/**
+	 * Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	PCMForwardIterator(PCMForwardIterator&& rhs) noexcept;
 
 	/**
 	 * Dereferences the iterator

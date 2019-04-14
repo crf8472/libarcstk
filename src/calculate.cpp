@@ -173,6 +173,13 @@ PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
 }
 
 
+PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
+	: object_(std::move(rhs.object_))
+{
+	// empty
+}
+
+
 PCMForwardIterator::reference PCMForwardIterator::operator * () const
 {
 	return object_->dereference();
@@ -181,7 +188,7 @@ PCMForwardIterator::reference PCMForwardIterator::operator * () const
 
 PCMForwardIterator& PCMForwardIterator::operator ++ ()
 {
-	object_->advance(1);
+	object_->preincrement();
 	return *this;
 }
 
@@ -189,15 +196,14 @@ PCMForwardIterator& PCMForwardIterator::operator ++ ()
 PCMForwardIterator PCMForwardIterator::operator ++ (int)
 {
 	PCMForwardIterator prev_val(*this);
-	object_->advance(1);
+	object_->preincrement();
 	return prev_val;
 }
 
 
 bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs) const
 {
-	return object_->type() == rhs.object_->type()
-		and object_->equals(rhs.object_->pointer());
+	return object_->equals(rhs.object_->pointer());
 }
 
 
@@ -2258,7 +2264,7 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 	};
 
 
-	// Update the internal CalcState with each chunk in this block
+	// Update the internal CalcState with each partition in this partitioning
 
 	uint16_t partition_counter        { 0 };
 	uint32_t relevant_samples_counter { 0 };
