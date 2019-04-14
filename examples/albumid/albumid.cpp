@@ -149,8 +149,8 @@ int main(int argc, char* argv[])
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
 	// is not even necessary: the information is conveniently provided by the
 	// audiofile handle:
-	arcs::AudioSize total_samples;
-	total_samples.set_sample_count(total_samples(audiofilename));
+	arcs::AudioSize audiosize;
+	audiosize.set_sample_count(total_samples(audiofilename));
 	// Remark: what libsndfile calls "frames" is what libarcs calls
 	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
@@ -175,14 +175,14 @@ int main(int argc, char* argv[])
 			<< std::endl;
 	}
 	std::cout << "Track count: " << offsets.size()                << std::endl;
-	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
+	std::cout << "Leadout: "     << audiosize.leadout_frame() << std::endl;
 
 	// Step 1: Use libarcs to construct the TOC.
 	// This validates the parsed toc data and will throw if the parsed data is
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.
 	auto toc { arcs::make_toc(offsets.size(), offsets,
-			total_samples.leadout_frame()) };
+			audiosize.leadout_frame()) };
 
 	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.
