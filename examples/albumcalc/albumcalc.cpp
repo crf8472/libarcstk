@@ -16,13 +16,13 @@ extern "C" {
 #include <sndfile.hh>             // libsndfile for reading the audio file
 
 
-#ifndef __LIBARCS_CALCULATE_HPP__ // libarcstk: calculate ARCSs
+#ifndef __LIBARCSTK_CALCULATE_HPP__ // libarcstk: calculate ARCSs
 #include <arcs/calculate.hpp>
 #endif
-#ifndef __LIBARCS_SAMPLES_HPP__   // libarcstk: normalize input samples
+#ifndef __LIBARCSTK_SAMPLES_HPP__   // libarcstk: normalize input samples
 #include <arcs/samples.hpp>
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__   // libarcstk: log what you do
+#ifndef __LIBARCSTK_LOGGING_HPP__   // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 

@@ -1,10 +1,10 @@
 // vim:ft=cpp
-#ifndef __LIBARCS_CHECKSUM_HPP__
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
 #error "Do not include checksum.tpp directly, include checksum.hpp instead"
 #endif
 
-#ifndef __LIBARCS_CHECKSUM_TPP__
-#define __LIBARCS_CHECKSUM_TPP__
+#ifndef __LIBARCSTK_CHECKSUM_TPP__
+#define __LIBARCSTK_CHECKSUM_TPP__
 
 
 // ChecksumMapIterator

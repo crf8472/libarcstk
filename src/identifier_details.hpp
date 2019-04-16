@@ -1,9 +1,9 @@
-#ifndef __LIBARCS_IDENTIFIER_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #error "Do not include identifier_details.hpp, include identifier.hpp instead"
 #endif
 
-#ifndef __LIBARCS_IDENTIFIER_DETAILS_HPP__
-#define __LIBARCS_IDENTIFIER_DETAILS_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#define __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 
 /**
  * \file identifier_details.hpp Internal APIs for module 'identifier'

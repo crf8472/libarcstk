@@ -1,5 +1,5 @@
-#ifndef __LIBARCS_SAMPLES_HPP__
-#define __LIBARCS_SAMPLES_HPP__
+#ifndef __LIBARCSTK_SAMPLES_HPP__
+#define __LIBARCSTK_SAMPLES_HPP__
 
 /**
  * \file samples.hpp Interface for a sample sequence template
@@ -129,7 +129,7 @@ public:
 } // namespace arcs
 
 
-#ifndef __LIBARCS_SAMPLES_TPP__
+#ifndef __LIBARCSTK_SAMPLES_TPP__
 #include "details/samples.tpp"
 #endif
 

@@ -2,7 +2,7 @@
 
 #include <array>
 
-#ifndef __LIBARCS_CHECKSUM_HPP__
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
 

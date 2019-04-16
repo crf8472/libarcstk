@@ -1,5 +1,5 @@
-#ifndef __LIBARCS_CALCULATE_HPP__
-#define __LIBARCS_CALCULATE_HPP__
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#define __LIBARCSTK_CALCULATE_HPP__
 
 
 /**
@@ -49,10 +49,10 @@
 #include <utility>     // for declval
 
 
-#ifndef __LIBARCS_CHECKSUM_HPP__
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
-#ifndef __LIBARCS_IDENTIFIER_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
 

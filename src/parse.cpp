@@ -3,7 +3,7 @@
  */
 
 
-#ifndef __LIBARCS_PARSE_HPP__
+#ifndef __LIBARCSTK_PARSE_HPP__
 #include "parse.hpp"
 #endif
 
@@ -15,10 +15,10 @@
 #include <string>
 #include <vector>
 
-#ifndef __LIBARCS_IDENTIFIER_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__
+#ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 

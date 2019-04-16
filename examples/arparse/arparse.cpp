@@ -8,13 +8,13 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCS_PARSE_HPP__      // libarcstk: parse AccurateRip responses
+#ifndef __LIBARCSTK_PARSE_HPP__      // libarcstk: parse AccurateRip responses
 #include <arcs/parse.hpp>
 #endif
-#ifndef __LIBARCS_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
 #include <arcs/identifier.hpp>
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 

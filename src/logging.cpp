@@ -3,7 +3,7 @@
  */
 
 
-#ifndef __LIBARCS_LOGGING_HPP__
+#ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 

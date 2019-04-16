@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <memory>
 
-#ifndef __LIBARCS_IDENTIFIER_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCS_IDENTIFIER_DETAILS_HPP__
+#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #include "identifier_details.hpp"
 #endif
 

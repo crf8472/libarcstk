@@ -11,12 +11,12 @@ cmake_policy (SET CMP0048 NEW)
 cmake_policy (SET CMP0057 NEW)
 
 
-project (arcs VERSION 0.1.0 LANGUAGES CXX )
+project (arcstk VERSION 0.1.0 LANGUAGES CXX )
 
 set (PROJECT_BRIEF_DESC
 	"A library to calculate and verify AccurateRip checksums and ids" )
 
-set (PROJECT_URL "https://codeberg.org/tristero/libarcstk/" )
+set (PROJECT_URL "https://codeberg.org/tristero/lib${PROJECT_NAME}/" )
 
 set (PROJECT_VERSION_SUFFIX "alpha.1" )
 
@@ -202,17 +202,17 @@ if (NOT SKIP_INSTALL_ALL )
 
 		## install static library
 		install (TARGETS ${PROJECT_NAME}
-			LIBRARY        DESTINATION  "${INSTALL_LIBRARY_DIR}"
-			ARCHIVE        DESTINATION  "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs"
-			PRIVATE_HEADER DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs/details" )
+			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
+			ARCHIVE        DESTINATION "${INSTALL_LIBRARY_DIR}"
+			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
+			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk/details" )
 	else (AS_STATIC )
 
 		## install shared library
 		install (TARGETS ${PROJECT_NAME}
-			LIBRARY        DESTINATION  "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs"
-			PRIVATE_HEADER DESTINATION  "${INSTALL_INCLUDE_DIR}/arcs/details" )
+			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
+			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
+			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk/details" )
 	endif (AS_STATIC )
 
 	if (NOT SKIP_INSTALL_FILES )

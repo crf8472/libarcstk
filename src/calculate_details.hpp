@@ -1,9 +1,9 @@
-#ifndef __LIBARCS_CALCULATE_HPP__
+#ifndef __LIBARCSTK_CALCULATE_HPP__
 #error "Do not include calculate_details.hpp, include calculate.hpp instead"
 #endif
 
-#ifndef __LIBARCS_CALCULATE_DETAILS_HPP__
-#define __LIBARCS_CALCULATE_DETAILS_HPP__
+#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
+#define __LIBARCSTK_CALCULATE_DETAILS_HPP__
 
 /**
  * \file calculate_details.hpp Internal APIs for module 'calculate'
@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-#ifndef __LIBARCS_LOGGING_HPP__
+#ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef __LIBARCS_LOGGING_HPP__
-#define __LIBARCS_LOGGING_HPP__
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#define __LIBARCSTK_LOGGING_HPP__
 
 
 /**

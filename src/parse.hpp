@@ -1,5 +1,5 @@
-#ifndef __LIBARCS_PARSE_HPP__
-#define __LIBARCS_PARSE_HPP__
+#ifndef __LIBARCSTK_PARSE_HPP__
+#define __LIBARCSTK_PARSE_HPP__
 
 
 /**

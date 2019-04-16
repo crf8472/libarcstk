@@ -1,9 +1,9 @@
-#ifndef __LIBARCS_SAMPLES_HPP__
+#ifndef __LIBARCSTK_SAMPLES_HPP__
 #error "Do not include samples.tpp, include samples.hpp"
 #endif
 // vim: ft=cpp
-#ifndef __LIBARCS_SAMPLES_TPP__
-#define __LIBARCS_SAMPLES_TPP__
+#ifndef __LIBARCSTK_SAMPLES_TPP__
+#define __LIBARCSTK_SAMPLES_TPP__
 
 /**
  * \file samples.tpp Implementation of SampleSequence and SampleIterator

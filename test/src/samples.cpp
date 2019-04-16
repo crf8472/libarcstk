@@ -4,7 +4,7 @@
 #include <fstream>
 #include <memory>
 
-#ifndef __LIBARCS_SAMPLES_HPP__
+#ifndef __LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"
 #endif
 

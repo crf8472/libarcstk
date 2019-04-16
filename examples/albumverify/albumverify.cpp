@@ -11,16 +11,16 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCS_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
+#ifndef __LIBARCSTK_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
 #include <arcs/match.hpp>
 #endif
-#ifndef __LIBARCS_CALCULATE_HPP__
+#ifndef __LIBARCSTK_CALCULATE_HPP__
 #include <arcs/calculate.hpp>      // for arcs::Checksums
 #endif
-#ifndef __LIBARCS_PARSE_HPP__
+#ifndef __LIBARCSTK_PARSE_HPP__
 #include <arcs/parse.hpp>          // for arcs::ARResponse
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 
