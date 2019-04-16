@@ -1,11 +1,11 @@
 # Example application: albumid
 
-This example application demonstrates how libarcs is used to calculate the
+This example application demonstrates how libarcstk is used to calculate the
 AccurateRip request id of a already ripped album.
 
 ## Requirements
 
-- libarcs
+- libarcstk
 - libcue >= 2.0.0 (For parsing the CUESheet)
 - libsndfile >= 1.0.17 (For decoding the audio data)
 

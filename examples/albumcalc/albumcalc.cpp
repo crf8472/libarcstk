@@ -16,13 +16,13 @@ extern "C" {
 #include <sndfile.hh>             // libsndfile for reading the audio file
 
 
-#ifndef __LIBARCS_CALCULATE_HPP__ // libarcs: calculate ARCSs
+#ifndef __LIBARCS_CALCULATE_HPP__ // libarcstk: calculate ARCSs
 #include <arcs/calculate.hpp>
 #endif
-#ifndef __LIBARCS_SAMPLES_HPP__   // libarcs: normalize input samples
+#ifndef __LIBARCS_SAMPLES_HPP__   // libarcstk: normalize input samples
 #include <arcs/samples.hpp>
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__   // libarcs: log what you do
+#ifndef __LIBARCS_LOGGING_HPP__   // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 
@@ -38,7 +38,7 @@ extern "C" {
 /**
  * Parse a CUEsheet and return offsets and implicitly the track count.
  *
- * This method is implemented without any use of libarcs. It just has to be
+ * This method is implemented without any use of libarcstk. It just has to be
  * available for parsing the CUESheet.
  *
  * @param[in] cuefilename Name of the CUEsheet file to parse
@@ -105,14 +105,14 @@ int main(int argc, char* argv[])
 	const std::string cuefilename   { argv[1] };
 	const std::string audiofilename { argv[2] };
 
-	// If you like, you can activate the internal logging of libarcs to
+	// If you like, you can activate the internal logging of libarcstk to
 	// see what's going on behind the scenes. We provide an appender for stdout
 	// and set the loglevel to 'INFO', which means you should probably not see
-	// anything unless you give libarcs unexpected input.
+	// anything unless you give libarcstk unexpected input.
 	arcs::Logging::instance().add_appender(
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
-	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcs is
+	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcstk is
 	// doing with your input.
 	arcs::Logging::instance().set_level(arcs::LOG_INFO);
 
@@ -132,23 +132,23 @@ int main(int argc, char* argv[])
 
 	// Since the CUEsheet usually does not know the length of the last track,
 	// we may receive only 1. and 2. from the actual CUESheet. In this case, we
-	// have to derive the leadout frame from the audio data using libarcs'
+	// have to derive the leadout frame from the audio data using libarcstk'
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
 	// is not even necessary: the information is conveniently provided by the
 	// audiofile handle:
 	arcs::AudioSize total_samples;
 	total_samples.set_sample_count(audiofile.frames());
-	// Remark: what libsndfile calls "frames" is what libarcs calls
+	// Remark: what libsndfile calls "frames" is what libarcstk calls
 	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
 	// Libsndfile's frame encodes the same information as 2 signed 16 bit
 	// integers, one per channel.
 
 	// One completed, two to go. We derive track number and offsets from parsing
-	// the CUEsheet. We skip the details here for libarcs does not provide this
+	// the CUEsheet. We skip the details here for libarcstk does not provide this
 	// functionality and the author just did a quick hack with libcue. (Just
 	// consult the implementation of function parse_cuesheet if you are
-	// interested in the details, but this is libcue, not libarcs.)
+	// interested in the details, but this is libcue, not libarcstk.)
 	auto offsets { parse_cuesheet(cuefilename) };
 	// Skip santiy checks and everything you could do with try/catch ...
 
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 	std::cout << "Track count: " << offsets.size()                << std::endl;
 	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
 
-	// Step 1: Use libarcs to construct the TOC.
+	// Step 1: Use libarcstk to construct the TOC.
 	// This validates the parsed toc data and will throw if the parsed data is
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.

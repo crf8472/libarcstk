@@ -58,7 +58,7 @@
 
 
 /**
- * libarcs main namespace
+ * libarcstk main namespace
  */
 namespace arcs
 {

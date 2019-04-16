@@ -12,11 +12,11 @@ it.
 
 Libarcs embraces "modern" C++, which means to choose the contemporary way of
 doing things, not the way things were done back in the Nineties. Currently,
-libarcs is compiled as C++14.
+libarcstk is compiled as C++14.
 
-On the other hand, libarcs has a tendency to OOP-style design along with some of
-its patterns but avoids deep inheritance levels. Inheritance is good in case it
-helps to avoid repeating yourself, assists the intuition of the reader, helps
+On the other hand, libarcstk has a tendency to OOP-style design along with some
+of its patterns but avoids deep inheritance levels. Inheritance is good in case
+it helps to avoid repeating yourself, assists the intuition of the reader, helps
 decoupling and models a natural is-a relationship. However, genericity is
 considered as the bigger achievement, so when in doubt, I tried to prefer the
 generic solution over default "OOPness".
@@ -89,7 +89,7 @@ and perhaps by other languages at some point.
 ## Linkage
 
 - Libarcs does never ever put anything in the global namespace. Everything that
-  is part of libarcs *must* reside in the ``arcs`` namespace or one of its
+  is part of libarcstk *must* reside in the ``arcs`` namespace or one of its
   contained namespaces.
 - When it is arcs-global, it should have ``extern`` linkage to avoid unnecessary
   instances.

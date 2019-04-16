@@ -7,7 +7,7 @@ I decided to reduce the wiggle room for stylistic creativity.
 
 Beware: the following contains my opinion. You might not like it. It does *not*
 claim to be the truth to obey for everybody, it is just the current setting for
-libarcs.
+libarcstk.
 
 
 

@@ -1,9 +1,9 @@
-\mainpage libarcs - A library to calculate and verify AccurateRip checksums and ids
+\mainpage libarcstk - A library to calculate and verify AccurateRip checksums and ids
 
 
 \section Home
 
-See the [project home on codeberg.org](https://codeberg.org/tristero/libarcs)
+See the [project home on codeberg.org](https://codeberg.org/tristero/libarcstk)
 
 
 \section features Features
@@ -34,7 +34,7 @@ Libarcs supports the following tasks for working with AccurateRip checksums:
 
 Build and install to just use the API:
 
-	$ cd libarcs          # your libarcs root directory where README.md resides
+	$ cd libarcstk          # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .

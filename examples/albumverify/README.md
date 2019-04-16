@@ -1,6 +1,6 @@
 # Example application: albumverify
 
-This example application demonstrates how libarcs is used to match the checksums
+This example application demonstrates how libarcstk is used to match the checksums
 you have from your rip with the AccurateRip checksums. This example can only
 verify entire albums.
 
@@ -9,7 +9,7 @@ verify entire albums.
 
 Dependencies for building and running:
 
-- libarcs
+- libarcstk
 
 Install ``curl`` if you want to send actual queries to AccurateRip.
 

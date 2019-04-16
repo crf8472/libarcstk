@@ -2,11 +2,11 @@
 
 
 
-## Building libarcs on Linux and \*BSD
+## Building libarcstk on Linux and \*BSD
 
 Libarcs is written in C++14. It was developed mainly (but not exclusively) for
 Linux and has no runtime dependencies other than the C++ standard library. It
-was not tested whether libarcs builds out-of-the-box on BSDs but don't expect
+was not tested whether libarcstk builds out-of-the-box on BSDs but don't expect
 major issues.
 
 
@@ -34,28 +34,28 @@ major issues.
 
 ## Building the library
 
-We presuppose you have downloaded and unpacked or git-cloned libarcs to a
-folder named ``libarcs``. Then do:
+We presuppose you have downloaded and unpacked or git-cloned libarcstk to a
+folder named ``libarcstk``. Then do:
 
-	$ cd libarcs         # your libarcs root folder where README.md resides
+	$ cd libarcstk         # your libarcstk root folder where README.md resides
 	$ mkdir build && cd build  # create build folder for out-of-source-build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # configure build type
 	$ cmake --build .    # perform the actual build
 	$ sudo make install  # installs to /usr/local
 
-This will just install libarcs with all optimizations and without debug-symbols
+This will just install libarcstk with all optimizations and without debug-symbols
 and tests.
 
 We describe the build configuration for the following profiles:
-- User (read: a developer who uses libarcs in her project)
+- User (read: a developer who uses libarcstk in her project)
 - Contributing developer (who wants to debug and test)
-- Package maintainer (who intends to package libarcs for some target system).
+- Package maintainer (who intends to package libarcstk for some target system).
 
 
 ### Users
 
-You intend to install libarcs on your system, say, as a dependency for your own
-project. You just want libarcs to be available along with its headers and not
+You intend to install libarcstk on your system, say, as a dependency for your own
+project. You just want libarcstk to be available along with its headers and not
 getting in your way:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -64,12 +64,13 @@ getting in your way:
 
 This will install the following files to your system:
 
-- the shared object libarcs.so.x.y.z (along with a symbolic link ``libarcs.so``)
+- the shared object libarcstk.so.x.y.z (along with a symbolic link
+  ``libarcstk.so``)
   in the standard library location (e.g. /usr/local/lib)
 - the seven public header files calculate.hpp, checksum.hpp, identifier.hpp,
   logging.hpp, match.hpp, parse.hpp and samples.hpp in the standard include
   location (e.g. /usr/local/include).
-- the pkg-config configuration file libarcs.pc
+- the pkg-config configuration file libarcstk.pc
 
 You can change the install prefix by calling cmake with the
 ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` switch.
@@ -77,7 +78,7 @@ You can change the install prefix by calling cmake with the
 
 ### Contributors
 
-You want to debug into the libarcs code, hence you need to build libarcs
+You want to debug into the libarcstk code, hence you need to build libarcstk
 with debugging symbols and without aggressive optimization:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug ..
@@ -120,14 +121,14 @@ use your real compiler again, you have to reconfigure the project.
 
 ### Package maintainers
 
-You want to build libarcs with a release profile but without any architecture
+You want to build libarcstk with a release profile but without any architecture
 specific optimization (e.g. without ``-march=native`` and ``-mtune=generic`` for
 gcc or clang).
 
-Furthermore, you would like to adjust the install prefix path such that libarcs
-is configured for being installed in the real system prefix (such as ``/usr``)
-instead of some default prefix (such as ``/usr/local``). You will also choose a
-staging directory as an intermediate install target.
+Furthermore, you would like to adjust the install prefix path such that
+libarcstk is configured for being installed in the real system prefix (such as
+``/usr``) instead of some default prefix (such as ``/usr/local``). You will also
+choose a staging directory as an intermediate install target.
 
 When using clang or gcc, this can be achieved as follows:
 
@@ -142,9 +143,9 @@ specific modifications to the compiler default settings. Therefore, you have to
 carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
 
-Use ``-DAS_STATIC=ON`` if you like to compile libarcs as a static library.
+Use ``-DAS_STATIC=ON`` if you like to compile libarcstk as a static library.
 
-By default, the release-build of libarcsdec uses -O3. If you intend to change
+By default, the release-build of libarcstkdec uses -O3. If you intend to change
 that, locate [CMakeLists.txt](./CMakeLists.txt) in the root directory and adjust
 it to your needs.
 
@@ -239,9 +240,9 @@ issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 ## Libarcs code in my ``$EDITOR``
 
 If you used to work with some features of what is called "deep language support"
-for C++, you may notice that libarcs comes with a top-level ``.clang`` file that
-points to a file ``compile_commands.json`` in the same directory that will only
-exist if you generate it. Generate it by:
+for C++, you may notice that libarcstk comes with a top-level ``.clang`` file
+that points to a file ``compile_commands.json`` in the same directory that will
+only exist if you generate it. Generate it by:
 
 	$ cd build
 	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
@@ -263,11 +264,11 @@ not get in your way.
 
 No Windows port yet :-(
 
-In fact, as a lack of requirement, libarcs has not yet even been tried to be
+In fact, as a lack of requirement, libarcstk has not yet even been tried to be
 built on Windows.
 
-To avoid any show-stoppers for porting libarcs to Windows or other platforms,
-libarcs relies completely on pure C++14 and the C++ standard library. It
+To avoid any show-stoppers for porting libarcstk to Windows or other platforms,
+libarcstk relies completely on pure C++14 and the C++ standard library. It
 requires no other dependencies. In fact, it is intended to not use platform
 specific operations at all. Code that breaks platform independence will be
 considered being a bug). The porting is expected not to be difficult, but is

@@ -1,4 +1,4 @@
-## Root CMake file for libarcs
+## Root CMake file for libarcstk
 
 cmake_minimum_required (VERSION 3.9.6 )
 
@@ -16,7 +16,7 @@ project (arcs VERSION 0.1.0 LANGUAGES CXX )
 set (PROJECT_BRIEF_DESC
 	"A library to calculate and verify AccurateRip checksums and ids" )
 
-set (PROJECT_URL "https://codeberg.org/tristero/libarcs/" )
+set (PROJECT_URL "https://codeberg.org/tristero/libarcstk/" )
 
 set (PROJECT_VERSION_SUFFIX "alpha.1" )
 
@@ -143,8 +143,8 @@ endforeach()
 ## Configure .pc file for pkg-info
 
 configure_file (
-  "${CMAKE_CURRENT_SOURCE_DIR}/libarcs.pc.in"
-  "${PROJECT_BINARY_DIR}/libarcs.pc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
+  "${PROJECT_BINARY_DIR}/libarcstk.pc"
   @ONLY
 )
 
@@ -167,7 +167,7 @@ list (APPEND EXPORTED_TEMPLATES "${PROJECT_SOURCE_DIR}/details/samples.tpp" )
 
 ## --- Add and configure project target
 
-## Build libarcs library as project target (either shared or static)
+## Build libarcstk library as project target (either shared or static)
 
 option (AS_STATIC "Build as static library" OFF )
 set (LINKFLAG SHARED )
@@ -217,7 +217,7 @@ if (NOT SKIP_INSTALL_ALL )
 
 	if (NOT SKIP_INSTALL_FILES )
 
-		install (FILES "${PROJECT_BINARY_DIR}/libarcs.pc"
+		install (FILES "${PROJECT_BINARY_DIR}/libarcstk.pc"
 			DESTINATION "${INSTALL_PKGCONFIG_DIR}" )
 	endif ()
 

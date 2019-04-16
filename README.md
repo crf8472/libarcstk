@@ -5,7 +5,7 @@
 
 
 
-## What libarcs is
+## What libarcstk is
 
 Libarcs supports the following tasks:
 
@@ -28,7 +28,7 @@ Checksums" or "ARCS"s for short.
 
 
 
-## What libarcs does not
+## What libarcstk does not
 
 - Libarcs does not rip CDs
 - Libarcs does not offer to read, buffer or decode any audio data. You have to
@@ -41,9 +41,9 @@ Checksums" or "ARCS"s for short.
 
 ## How to Build
 
-Build and install to just use the libarcs API:
+Build and install to just use the libarcstk API:
 
-	$ cd libarcs         # your libarcs root directory where README.md resides
+	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .

@@ -5,12 +5,12 @@
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
 
-GENERATE_HTML          = NO  # Override libarcs Doxyfile
+GENERATE_HTML          = NO  # Override libarcstk Doxyfile
 
 # If the GENERATE_LATEX tag is set to YES, doxygen will generate LaTeX output.
 # The default value is: YES.
 
-GENERATE_LATEX         = NO  # Override libarcs Doxyfile
+GENERATE_LATEX         = NO  # Override libarcstk Doxyfile
 
 # If the GENERATE_RTF tag is set to YES, doxygen will generate RTF output. The
 # RTF output is optimized for Word 97 and may not look too pretty with other RTF

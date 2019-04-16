@@ -1,5 +1,5 @@
 /**
- * \file version.hpp.in Provide version and name information for libarcs.
+ * \file version.hpp.in Provide version and name information for libarcstk.
  *
  * This file is used as a blueprint for cmake to generate a header file
  * containing the cmake-controlled version and name information for the project.

@@ -1,11 +1,11 @@
 # Example applications
 
-libarcs comes with 4 mini examples for what can be done with libarcs and how
+libarcstk comes with 4 mini examples for what can be done with libarcstk and how
 this is to be done. Each of the examples refers to one of the main modules of
-libarcs.
+libarcstk.
 
 The aim of the examples is demonstration. If you are interested in using
-libarcs, the author feels you should have some code to start with.
+libarcstk, the author feels you should have some code to start with.
 
 Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
@@ -16,13 +16,13 @@ demonstrate how they complement each other.
 Note: The example applications do only target situations where an entire album
 as a single audio file along with its metadata (as a CUESheet) is to be
 processed. This restriction keeps the examples reasonably small. Of course,
-libarcs can also process single audio files representing specific tracks or a
+libarcstk can also process single audio files representing specific tracks or a
 set of audio files that represent an album or parts of an album. For this use
 cases, there is currently no example provided but it should not be that hard to
 figure out.
 
 - [albumid](./albumid/README.md) - Demonstrates how to derive the
-  AccurateRip-ID of a ripped album. With this id, libarcs also provides the
+  AccurateRip-ID of a ripped album. With this id, libarcstk also provides the
   Query-Request-URL specific to that album as well as the canonical filename for
   the response file. This part of the API can be used to send a query request to
   AccurateRip and receive the checksums for the actual album ripped locally.

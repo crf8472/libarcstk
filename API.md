@@ -1,8 +1,8 @@
 # API
 
-The public libarcs API is represented by the following seven public headers.
+The public libarcstk API is represented by the following seven public headers.
 
-Note that every symbol of libarcs resides in namespace ``arcs`` or one of its
+Note that every symbol of libarcstk resides in namespace ``arcs`` or one of its
 inner namespaces.
 
 Read [how to build the comprehensive reference documentation of the API]
@@ -47,8 +47,8 @@ define.
 
 ## [logging.hpp](./src/logging.hpp)
 
-Provides access to the libarcs logging facility, i.e. provides the
+Provides access to the libarcstk logging facility, i.e. provides the
 ``ARCS_LOG\*`` macros. You will not need this unless you intend to write a tool
-that uses the logging part of libarcs. However, this might be of some interest
+that uses the logging part of libarcstk. However, this might be of some interest
 if you intend to write some wrapper library or a tool.
 

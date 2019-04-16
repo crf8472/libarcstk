@@ -1,12 +1,12 @@
 # Example application: arparse
 
-This example application demonstrates how libarcs is used to parse a binary
+This example application demonstrates how libarcstk is used to parse a binary
 response to an AccurateRip database request into plaintext. The response is
 provided as a file or as piped command line input.
 
 ## Requirements
 
-- libarcs
+- libarcstk
 
 
 ## Build

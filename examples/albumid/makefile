@@ -1,4 +1,4 @@
-# Makefile for the example 'albumid', part of libarcs
+# Makefile for the example 'albumid', part of libarcstk
 
 CXX     := g++
 CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -lcue -lsndfile -larcs

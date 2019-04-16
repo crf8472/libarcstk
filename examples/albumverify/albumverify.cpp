@@ -11,7 +11,7 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCS_MATCH_HPP__      // libarcs: match Checksums and ARResponse
+#ifndef __LIBARCS_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
 #include <arcs/match.hpp>
 #endif
 #ifndef __LIBARCS_CALCULATE_HPP__
@@ -20,7 +20,7 @@
 #ifndef __LIBARCS_PARSE_HPP__
 #include <arcs/parse.hpp>          // for arcs::ARResponse
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__    // libarcs: log what you do
+#ifndef __LIBARCS_LOGGING_HPP__    // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 
@@ -43,13 +43,13 @@
 //
 // Providing all this input in a way acceptable in example code, some
 // boilerplate code is inevitably. Although the boilerplate does not carry any
-// didactic evidence for libarcs, I wanted to provide an example that  at least
+// didactic evidence for libarcstk, I wanted to provide an example that  at least
 // demonstrates the added value on your own input data.
 // In fact, the functions parse_arid(), parse_input_arcs() and
 // parse_match_arcs() are more or less quick and dirty boilerplate code for just
 // providing the required input values. In real life code, you would have to
 // invest (much) more effort to make the code robust but this is not related to
-// learning the libarcs API.
+// learning the libarcstk API.
 // The actual example demonstrating the use of the ListMatcher class is
 // contained in main(). It's very simple to use. Have fun!
 
@@ -183,14 +183,14 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	// If you like, you can activate the internal logging of libarcs to
+	// If you like, you can activate the internal logging of libarcstk to
 	// see what's going on behind the scenes. We provide an appender for stdout
 	// and set the loglevel to 'INFO', which means you should probably not see
-	// anything unless you give libarcs unexpected input.
+	// anything unless you give libarcstk unexpected input.
 	arcs::Logging::instance().add_appender(
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
-	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcs is
+	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcstk is
 	// doing with your input
 	arcs::Logging::instance().set_level(arcs::LOG_INFO);
 

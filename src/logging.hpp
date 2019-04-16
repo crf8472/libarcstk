@@ -513,7 +513,7 @@ private:
 #endif
 
 /**
- * Send error message to the logger libarcs uses internally
+ * Send error message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_ERROR \
     if (arcs::LOG_ERROR > CLIP_LOGGING_LEVEL) ; \
@@ -521,7 +521,7 @@ private:
     else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_ERROR).get()
 
 /**
- * Send warning message to the logger libarcs uses internally
+ * Send warning message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_WARNING \
     if (arcs::LOG_WARNING > CLIP_LOGGING_LEVEL) ; \
@@ -529,7 +529,7 @@ private:
     else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_WARNING).get()
 
 /**
- * Send info message to the logger libarcs uses internally
+ * Send info message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_INFO \
     if (arcs::LOG_INFO > CLIP_LOGGING_LEVEL) ; \
@@ -537,7 +537,7 @@ private:
     else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_INFO).get()
 
 /**
- * Send debug message to the logger libarcs uses internally
+ * Send debug message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_DEBUG \
     if (arcs::LOG_DEBUG > CLIP_LOGGING_LEVEL) ; \
@@ -545,7 +545,7 @@ private:
     else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_DEBUG).get()
 
 /**
- * Send log message with specified log level to the logger libarcs uses
+ * Send log message with specified log level to the logger libarcstk uses
  * internally.
  *
  * This is useful for custom log levels beyond LOG_DEBUG

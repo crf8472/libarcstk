@@ -8,13 +8,13 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCS_PARSE_HPP__      // libarcs: parse AccurateRip responses
+#ifndef __LIBARCS_PARSE_HPP__      // libarcstk: parse AccurateRip responses
 #include <arcs/parse.hpp>
 #endif
-#ifndef __LIBARCS_IDENTIFIER_HPP__ // libarcs: calculate AccurateRip ids
+#ifndef __LIBARCS_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
 #include <arcs/identifier.hpp>
 #endif
-#ifndef __LIBARCS_LOGGING_HPP__    // libarcs: log what you do
+#ifndef __LIBARCS_LOGGING_HPP__    // libarcstk: log what you do
 #include <arcs/logging.hpp>
 #endif
 
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	// ... normally you would also catch other possible exceptions, we just
-	// concentrate on libarcs.
+	// concentrate on libarcstk.
 
 	// We positively _know_ the type of the ContentHandler, so downcasting does
 	// not rise any risks. It is just not "nice". (The other method I could
