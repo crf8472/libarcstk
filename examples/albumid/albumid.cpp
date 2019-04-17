@@ -16,13 +16,13 @@ extern "C" {
 
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
-#include <arcs/calculate.hpp>
+#include <arcstk/calculate.hpp>
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
-#include <arcs/identifier.hpp>
+#include <arcstk/identifier.hpp>
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include <arcs/logging.hpp>
+#include <arcstk/logging.hpp>
 #endif
 
 
@@ -133,9 +133,9 @@ int main(int argc, char* argv[])
 	arcs::Logging::instance().add_appender(
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
-	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcstk is
+	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
 	// doing with your input.
-	arcs::Logging::instance().set_level(arcs::LOG_INFO);
+	arcs::Logging::instance().set_level(arcs::LOGLEVEL::INFO);
 
 	// Calculation will have to distinguish the tracks in the audiofile. To
 	// identify the track bounds, we need the TOC, precisely:

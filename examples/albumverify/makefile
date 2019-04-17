@@ -1,7 +1,7 @@
 # Makefile for the example 'albumverify', part of libarcstk
 
 CXX     := g++
-CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -larcs
+CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -larcstk
 
 PROJECT := albumverify
 

@@ -1,7 +1,7 @@
 # Makefile for the example 'albumcalc', part of libarcstk
 
 CXX     := g++
-CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -lsndfile -lcue -larcs
+CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -lsndfile -lcue -larcstk
 
 PROJECT := albumcalc
 

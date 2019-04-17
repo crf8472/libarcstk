@@ -12,16 +12,16 @@
 #include <string>    // for string
 
 #ifndef __LIBARCSTK_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
-#include <arcs/match.hpp>
+#include <arcstk/match.hpp>
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include <arcs/calculate.hpp>      // for arcs::Checksums
+#include <arcstk/calculate.hpp>      // for arcs::Checksums
 #endif
 #ifndef __LIBARCSTK_PARSE_HPP__
-#include <arcs/parse.hpp>          // for arcs::ARResponse
+#include <arcstk/parse.hpp>          // for arcs::ARResponse
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include <arcs/logging.hpp>
+#include <arcstk/logging.hpp>
 #endif
 
 
@@ -190,9 +190,9 @@ int main(int argc, char* argv[])
 	arcs::Logging::instance().add_appender(
 			std::make_unique<arcs::Appender>("stdout", stdout));
 
-	// Set this to LOG_DEBUG or LOG_DEBUG1 if you want to see what libarcstk is
+	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
 	// doing with your input
-	arcs::Logging::instance().set_level(arcs::LOG_INFO);
+	arcs::Logging::instance().set_level(arcs::LOGLEVEL::INFO);
 
 	// Parse the AccurateRip id of the album passed from the command line
 	const arcs::ARId arid = parse_arid( argv[1] + 5 );

@@ -16,11 +16,17 @@
 
 #include <cstdio>
 
+#include <chrono>
+#include <ctime>         // for localtime
+#include <iomanip>       // for put_time
 #include <memory>
-#include <mutex>         // for mutex
+#include <mutex>         // for lock_guard, mutex
 #include <sstream>
+#include <stdexcept>     // for runtime_error
 #include <string>
+#include <type_traits>   // for underlying_type
 #include <unordered_set>
+
 
 
 namespace arcs
@@ -35,18 +41,18 @@ inline namespace v_1_0_0
 /**
  * Range of log levels
  */
-enum LOGLEVEL_t : uint8_t
+enum class LOGLEVEL : int16_t
 {
-	LOG_NONE     = 0,
+	NONE     = 0,
 	//
-	LOG_ERROR    = 1,
-	LOG_WARNING  = 2,
-	LOG_INFO     = 3,
-	LOG_DEBUG    = 4,
-	LOG_DEBUG1   = 5,
-	LOG_DEBUG2   = 6,
-	LOG_DEBUG3   = 7,
-	LOG_DEBUG4   = 8
+	ERROR    = 1,
+	WARNING  = 2,
+	INFO     = 3,
+	DEBUG    = 4,
+	DEBUG1   = 5,
+	DEBUG2   = 6,
+	DEBUG3   = 7,
+	DEBUG4   = 8
 };
 
 
@@ -137,6 +143,70 @@ private:
 };
 
 
+inline Appender::Appender(const std::string &filename)
+	: name_(filename)
+	, stream_(std::fopen(name_.c_str(), "a"))
+{
+	if (!stream_)
+	{
+		std::stringstream ss;
+		ss << "File " << name_.c_str() << " could not be opened";
+		throw std::runtime_error(ss.str());
+	}
+}
+
+
+inline Appender::Appender(const std::string &name, FILE* stream)
+	: name_(name)
+	, stream_(stream)
+{
+	if (!stream)
+	{
+		std::stringstream ss;
+		ss << "Appender " << name_.c_str() << " has no stream to append to";
+		throw std::runtime_error(ss.str());
+	}
+}
+
+
+inline Appender::Appender(Appender&& appender) noexcept = default;
+
+
+inline Appender::~Appender() noexcept
+{
+	if (stream_)
+	{
+		std::fclose(stream_);
+	}
+}
+
+
+inline void Appender::append(const std::string& msg) const
+{
+	if (!stream_)
+	{
+		return;
+	}
+
+	std::fprintf(stream_, "%s", msg.c_str());
+	std::fflush(stream_);
+	// Note: According to
+	// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
+	// all stream operations are thread safe, ergo using fprintf buys us
+	// thread-safety in principle. This at least ensures that no lines are
+	// scrambled.
+}
+
+
+inline std::string Appender::name() const
+{
+	return name_;
+}
+
+
+inline Appender& Appender::operator = (Appender&& appender) noexcept = default;
+
+
 // Logger
 
 
@@ -178,14 +248,14 @@ public:
 	 *
 	 * \return The log level of this instance
 	 */
-	LOGLEVEL_t level() const;
+	LOGLEVEL level() const;
 
 	/**
 	 * Set the log level for this instance.
 	 *
 	 * \param[in] level The log level for this instance
 	 */
-	void set_level(LOGLEVEL_t level);
+	void set_level(LOGLEVEL level);
 
 	/**
 	 * Return TRUE iff the log level of this Logger is greater or equal
@@ -195,7 +265,7 @@ public:
 	 *
 	 * \return TRUE iff Logger has at least the level passed
 	 */
-	bool has_level(LOGLEVEL_t level);
+	bool has_level(LOGLEVEL level);
 
 	/**
 	 * Activates or deactivates the output of timestamps
@@ -253,13 +323,93 @@ private:
 	/**
 	 * Internal log level
 	 */
-	LOGLEVEL_t level_;
+	LOGLEVEL level_;
 
 	/**
 	 * Flag to activate/deactivate the logging of timestamps
 	 */
 	bool log_timestamps_;
 };
+
+
+inline Logger::Logger()
+	: appenders_()
+	, level_(LOGLEVEL::WARNING)
+	, log_timestamps_(true)
+{
+	// empty
+}
+
+
+inline Logger::Logger(Logger&& logger) noexcept = default;
+
+
+inline Logger::~Logger() noexcept = default;
+
+
+inline LOGLEVEL Logger::level() const
+{
+	return level_;
+}
+
+
+inline void Logger::set_level(LOGLEVEL level)
+{
+	level_ = level;
+}
+
+
+inline bool Logger::has_level(LOGLEVEL level)
+{
+	return level_ >= level;
+}
+
+
+inline void Logger::set_timestamps(const bool &on_or_off)
+{
+	log_timestamps_ = on_or_off;
+}
+
+
+inline bool Logger::has_timestamps()
+{
+	return log_timestamps_;
+}
+
+
+inline void Logger::add_appender(std::unique_ptr<Appender> appender)
+{
+	appenders_.emplace(std::move(appender));
+}
+
+
+inline void Logger::remove_appender(Appender *a)
+{
+	for (auto& app : appenders_)
+	{
+		if (app.get() == a)
+		{
+			appenders_.erase(app);
+		}
+	}
+}
+
+
+inline void Logger::log(const std::string &msg) const
+{
+	// NOTE We could require a log level and check this, but for
+	// performance reasons this is not done here. This entails that the
+	// Logger does not enforce logging to its log level, its a mere preference.
+	// Obeying the actual log level is enforced by the Log instance.
+
+	for (auto& appender : appenders_)
+	{
+		appender->append(msg);
+	}
+}
+
+
+inline Logger& Logger::operator = (Logger&& logger) noexcept = default;
 
 
 // now_time
@@ -274,6 +424,31 @@ private:
  * \return The current time as a string
  */
 std::string now_time();
+
+
+inline std::string now_time()
+{
+	auto now = std::chrono::system_clock::now();
+	std::stringstream ss;
+
+	// Print year, month, day, hour, minute, second
+
+	{
+		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
+	}
+
+	// Print milliseconds
+
+	{
+		auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
+		auto m = now - seconds;
+		auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(m);
+		ss << "." << millis.count();
+	}
+
+	return ss.str();
+}
 
 
 // Log
@@ -296,7 +471,7 @@ public:
 	 * \param[in] logger    Logger to use
 	 * \param[in] msg_level Loglevel of the message to log
 	 */
-	Log(Logger *logger, LOGLEVEL_t msg_level);
+	Log(Logger *logger, LOGLEVEL msg_level);
 
 	/**
 	 * Class is non-copyable
@@ -321,22 +496,22 @@ public:
 	std::ostringstream& get();
 
 	/**
-	 * Turns a LOGLEVEL_t instance into a string representation
+	 * Turns a LOGLEVEL instance into a string representation
 	 *
 	 * \param[in] level The log level to turn to a string
 	 *
 	 * \return A string representation of the log level
 	 */
-	static std::string to_string(LOGLEVEL_t level);
+	static std::string to_string(LOGLEVEL level);
 
 	/**
-	 * Turns a string representation of the log level to a LOGLEVEL_t instance
+	 * Turns a string representation of the log level to a LOGLEVEL instance
 	 *
 	 * \param[in] level The name of the log level to create
 	 *
 	 * \return The log level represented by the string or the default log level
 	 */
-	static LOGLEVEL_t from_string(const std::string& level);
+	static LOGLEVEL from_string(const std::string& level);
 
 	/**
 	 * Class is non-copyable
@@ -364,8 +539,111 @@ private:
 	/**
 	 * Loglevel of the message to log
 	 */
-	LOGLEVEL_t msg_level_;
+	LOGLEVEL msg_level_;
 };
+
+
+inline Log::Log(Logger *logger, LOGLEVEL msg_level)
+	: os_()
+	, logger_(logger)
+	, msg_level_(msg_level)
+{
+	// empty
+}
+
+
+inline Log::~Log() noexcept
+{
+	os_ << std::endl;
+
+	if (logger_)
+	{
+		logger_->log(os_.str());
+	}
+}
+
+
+inline std::ostringstream& Log::get()
+{
+	// Timestamp
+
+	if (logger_->has_timestamps())
+	{
+		os_ << "- " << now_time() << " ";
+	}
+
+	// Loglevel string
+
+	os_ << Log::to_string(msg_level_) << ": ";
+
+	// Indent messages with level DEBUG and higher
+
+	os_ << std::string(
+		msg_level_ > LOGLEVEL::DEBUG
+			? 2 * (static_cast<typename
+					std::underlying_type<LOGLEVEL>::type>(msg_level_)
+					-
+					static_cast<typename
+					std::underlying_type<LOGLEVEL>::type>(LOGLEVEL::DEBUG)
+				)
+			: 0, ' ');
+
+	return os_;
+}
+
+
+inline std::string Log::to_string(LOGLEVEL level)
+{
+	static const char* const buffer[] =
+	{
+		"NONE",
+		" ERROR",
+		"  WARN",
+		"  INFO",
+		" DEBUG",
+		"DEBUG1",
+		"DEBUG2",
+		"DEBUG3",
+		"DEBUG4"
+	};
+
+	return buffer[
+		static_cast<typename std::underlying_type<LOGLEVEL>::type>(level)
+	];
+}
+
+
+inline LOGLEVEL Log::from_string(const std::string& level)
+{
+	if (level == "NONE")
+		{ return LOGLEVEL::NONE; }
+
+	if (level == "ERROR")
+		{ return LOGLEVEL::ERROR; }
+
+	if (level == "WARNING")
+		{ return LOGLEVEL::WARNING; }
+
+	if (level == "INFO")
+		{ return LOGLEVEL::INFO; }
+
+	if (level == "DEBUG")
+		{ return LOGLEVEL::DEBUG; }
+
+	if (level == "DEBUG1")
+		{ return LOGLEVEL::DEBUG1; }
+
+	if (level == "DEBUG2")
+		{ return LOGLEVEL::DEBUG2; }
+
+	if (level == "DEBUG3")
+		{ return LOGLEVEL::DEBUG3; }
+
+	if (level == "DEBUG4")
+		{ return LOGLEVEL::DEBUG4; }
+
+	return LOGLEVEL::NONE;
+}
 
 
 /**
@@ -413,14 +691,14 @@ public:
 	 *
 	 * \return Current log level
 	 */
-	LOGLEVEL_t level() const;
+	LOGLEVEL level() const;
 
 	/**
 	 * Set the log level.
 	 *
 	 * \param[in] level Set the log level
 	 */
-	void set_level(LOGLEVEL_t level);
+	void set_level(LOGLEVEL level);
 
 	/**
 	 * Return TRUE iff the global log level is greater or equal than the level
@@ -430,7 +708,7 @@ public:
 	 *
 	 * \return TRUE iff Logger has at least the level passed
 	 */
-	bool has_level(LOGLEVEL_t level);
+	bool has_level(LOGLEVEL level);
 
 	/**
 	 * Activates or deactivates the output of timestamps.
@@ -489,6 +767,79 @@ private:
 	Logging();
 };
 
+
+inline Logging::Logging()
+	: mutex_()
+{
+	// empty
+}
+
+
+inline Logging::~Logging() noexcept = default;
+
+
+inline Logger* Logging::logger()
+{
+	return &logger_;
+}
+
+
+inline Logging& Logging::instance()
+{
+	// This should not introduce any memory leaks and is thread-safe when
+	// compiled with a C++11 conforming compiler
+
+	static Logging logging;
+
+	return logging;
+}
+
+
+inline LOGLEVEL Logging::level() const
+{
+	return logger_.level();
+}
+
+
+inline void Logging::set_level(LOGLEVEL level)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	logger_.set_level(level);
+}
+
+
+inline bool Logging::has_level(LOGLEVEL level)
+{
+	return logger_.has_level(level);
+}
+
+
+inline void Logging::set_timestamps(const bool &on_or_off)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	logger_.set_timestamps(on_or_off);
+}
+
+
+inline bool Logging::has_timestamps()
+{
+	return logger_.has_timestamps();
+}
+
+
+inline void Logging::add_appender(std::unique_ptr<Appender> appender)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	logger_.add_appender(std::move(appender));
+}
+
+
+inline void Logging::remove_appender(Appender *a)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	logger_.remove_appender(a);
+}
+
 } // namespace v_1_0_0
 
 /// @}
@@ -509,40 +860,40 @@ private:
 // entirely. (See the definition of the ARCS_LOG_* macros to inspect how the
 // clipping level is checked.)
 #ifndef CLIP_LOGGING_LEVEL
-#    define CLIP_LOGGING_LEVEL arcs::LOG_DEBUG4
+#    define CLIP_LOGGING_LEVEL arcs::LOGLEVEL::DEBUG4
 #endif
 
 /**
  * Send error message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_ERROR \
-    if (arcs::LOG_ERROR > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOG_ERROR > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_ERROR).get()
+    if (arcs::LOGLEVEL::ERROR > CLIP_LOGGING_LEVEL) ; \
+    else if (arcs::LOGLEVEL::ERROR > arcs::Logging::instance().level()) ; \
+    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::ERROR).get()
 
 /**
  * Send warning message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_WARNING \
-    if (arcs::LOG_WARNING > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOG_WARNING > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_WARNING).get()
+    if (arcs::LOGLEVEL::WARNING > CLIP_LOGGING_LEVEL) ; \
+    else if (arcs::LOGLEVEL::WARNING > arcs::Logging::instance().level()) ; \
+    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::WARNING).get()
 
 /**
  * Send info message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_INFO \
-    if (arcs::LOG_INFO > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOG_INFO > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_INFO).get()
+    if (arcs::LOGLEVEL::INFO > CLIP_LOGGING_LEVEL) ; \
+    else if (arcs::LOGLEVEL::INFO > arcs::Logging::instance().level()) ; \
+    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::INFO).get()
 
 /**
  * Send debug message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_DEBUG \
-    if (arcs::LOG_DEBUG > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOG_DEBUG > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOG_DEBUG).get()
+    if (arcs::LOGLEVEL::DEBUG > CLIP_LOGGING_LEVEL) ; \
+    else if (arcs::LOGLEVEL::DEBUG > arcs::Logging::instance().level()) ; \
+    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::DEBUG).get()
 
 /**
  * Send log message with specified log level to the logger libarcstk uses
@@ -551,9 +902,9 @@ private:
  * This is useful for custom log levels beyond LOG_DEBUG
  */
 #define ARCS_LOG(loglevel) \
-    if (loglevel > CLIP_LOGGING_LEVEL) ; \
-    else if (loglevel > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), loglevel).get()
+    if (arcs::LOGLEVEL::loglevel > CLIP_LOGGING_LEVEL) ; \
+    else if (arcs::LOGLEVEL::loglevel > arcs::Logging::instance().level()) ; \
+    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::loglevel).get()
 
 
 // The ARCS_LOG* macros ensure a reduction of logging costs as follows:

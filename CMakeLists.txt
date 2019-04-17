@@ -300,14 +300,14 @@ option (USE_MCSS           "Build documentation using m.css"              OFF )
 ## Auto-activate WITH_DOCS if settings for documentation are present
 if (WITH_INTERNAL_DOCS OR WITH_IMPLONLY_DOCS OR USE_MCSS )
 
-	set(WITH_DOCS ON )
+	set (WITH_DOCS ON )
 
 endif()
 
 ## Process configuration for building the documentation
 if (WITH_DOCS )
 
-	add_subdirectory(${PROJECT_DOC_DIR} )
+	add_subdirectory (${PROJECT_DOC_DIR} )
 
 else (WITH_DOCS )
 

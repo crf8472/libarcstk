@@ -2317,11 +2317,11 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 
 	if (is_last_relevant_block)
 	{
-		ARCS_LOG(LOG_DEBUG1) << "Calculation complete.";
-		ARCS_LOG(LOG_DEBUG1) << "Total samples counted:  " << smpl_offset_;
-		ARCS_LOG(LOG_DEBUG1) << "Total samples declared: " <<
+		ARCS_LOG(DEBUG1) << "Calculation complete.";
+		ARCS_LOG(DEBUG1) << "Total samples counted:  " << smpl_offset_;
+		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
 			context().audio_size().sample_count();
-		ARCS_LOG(LOG_DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
 			<< proc_time_elapsed_.count();
 	}
 }
@@ -2434,18 +2434,18 @@ void Calculation::Impl::sync_state_and_context()
 
 	if (context_->skips_front())
 	{
-		ARCS_LOG(LOG_DEBUG1) << "Init with skip";
+		ARCS_LOG(DEBUG1) << "Init with skip";
 
 		state_->init_with_skip();
 
-		ARCS_LOG(LOG_DEBUG1) << "State init front skip: "
+		ARCS_LOG(DEBUG1) << "State init front skip: "
 			<< state_->num_skip_front();
-		ARCS_LOG(LOG_DEBUG1) << "State init back skip: "
+		ARCS_LOG(DEBUG1) << "State init back skip: "
 			<< state_->num_skip_back();
 
 	} else
 	{
-		ARCS_LOG(LOG_DEBUG1) << "Init without skip";
+		ARCS_LOG(DEBUG1) << "Init without skip";
 
 		state_->init_without_skip();
 	}

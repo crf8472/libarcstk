@@ -9,13 +9,13 @@
 #include <string>    // for string
 
 #ifndef __LIBARCSTK_PARSE_HPP__      // libarcstk: parse AccurateRip responses
-#include <arcs/parse.hpp>
+#include <arcstk/parse.hpp>
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
-#include <arcs/identifier.hpp>
+#include <arcstk/identifier.hpp>
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include <arcs/logging.hpp>
+#include <arcstk/logging.hpp>
 #endif
 
 

@@ -500,7 +500,7 @@ Partitioning Partitioner::create_partitioning(
 	if (block_end < context.first_relevant_sample(1)
 		or offset > context.last_relevant_sample())
 	{
-		ARCS_LOG(LOG_DEBUG1) << "  No relevant samples in this block, skip";
+		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
 
 		return Partitioning();
 	}
@@ -616,7 +616,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 			)
 		);
 
-		ARCS_LOG(LOG_DEBUG1) << "  Create chunk: " << chunk_first_smpl
+		ARCS_LOG(DEBUG1) << "  Create chunk: " << chunk_first_smpl
 				<< " - " << chunk_last_smpl;
 
 		++track;
@@ -636,7 +636,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	{
 		chunk_last_smpl = block_last_smpl;
 
-		ARCS_LOG(LOG_DEBUG1) << "  Block ends within track "
+		ARCS_LOG(DEBUG1) << "  Block ends within track "
 			<< std::to_string(track)
 			<< ", clip last sample to: " << chunk_last_smpl;
 	}
@@ -651,7 +651,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 
 	end_offset   = chunk_last_smpl  - offset + 1;
 
-	ARCS_LOG(LOG_DEBUG1) << "  Create last chunk: " << chunk_first_smpl
+	ARCS_LOG(DEBUG1) << "  Create last chunk: " << chunk_first_smpl
 				<< " - " << chunk_last_smpl;
 
 	chunks.push_back(

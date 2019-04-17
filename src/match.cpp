@@ -663,8 +663,8 @@ int BaseMatcherImpl::mark_best_block()
 		best_block_ = block;
 		matches_v2_ = version;
 
-		ARCS_LOG(LOG_DEBUG1) << "Best block: " << best_block_;
-		ARCS_LOG(LOG_DEBUG1) << "Match:      "
+		ARCS_LOG(DEBUG1) << "Best block: " << best_block_;
+		ARCS_LOG(DEBUG1) << "Match:      "
 			<< (matches_v2_ ? std::string("v2") : std::string("v1"));
 	}
 
@@ -932,7 +932,7 @@ std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
 			{
 				checksum = *entry.find(checksum::type::ARCS2);
 
-				ARCS_LOG(LOG_DEBUG1) << "Check track " << (track_j + 1) << ": "
+				ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
 					<< std::hex
 					<< std::setw(8) << std::setfill('0') << std::uppercase
 					<< track->arcs()
@@ -958,7 +958,7 @@ std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
 
 				checksum = *entry.find(checksum::type::ARCS1);
 
-				ARCS_LOG(LOG_DEBUG1) << "Check track " << (track_j + 1) << ": "
+				ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
 					<< std::hex
 					<< std::setw(8) << std::setfill('0') << std::uppercase
 					<< track->arcs()
