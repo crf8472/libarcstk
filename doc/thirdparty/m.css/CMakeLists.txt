@@ -65,8 +65,6 @@ else()
 		endif()
 	else()
 
-		message (STATUS "FetchContent_MakeAvailable ${MCSS_TARGET}" )
-
 		# with 3.14 comes:
 		FetchContent_MakeAvailable (${MCSS_TARGET} )
 
