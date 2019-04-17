@@ -65,12 +65,19 @@ else()
 		endif()
 	else()
 
+		message (STATUS "FetchContent_MakeAvailable ${MCSS_TARGET}" )
+
 		# with 3.14 comes:
 		FetchContent_MakeAvailable (${MCSS_TARGET} )
 
 	endif()
 
-	set (MCSS_DOX2HTML5 "${${MCSS_TARGET}_SOURCE_DIR}/doxygen/dox2html5.py"
+	## Old m.css
+	##set (MCSS_DOX2HTML5 "${${MCSS_TARGET}_SOURCE_DIR}/doxygen/dox2html5.py"
+	##	PARENT_SCOPE )
+
+	## With 3f568563a8b70fc49a479250d51a2fdc71a66943, it is:
+	set (MCSS_DOX2HTML5 "${${MCSS_TARGET}_SOURCE_DIR}/documentation/doxygen.py"
 		PARENT_SCOPE )
 
 endif()
