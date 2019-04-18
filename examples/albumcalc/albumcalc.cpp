@@ -109,12 +109,12 @@ int main(int argc, char* argv[])
 	// see what's going on behind the scenes. We provide an appender for stdout
 	// and set the loglevel to 'INFO', which means you should probably not see
 	// anything unless you give libarcstk unexpected input.
-	arcs::Logging::instance().add_appender(
-			std::make_unique<arcs::Appender>("stdout", stdout));
+	arcstk::Logging::instance().add_appender(
+			std::make_unique<arcstk::Appender>("stdout", stdout));
 
 	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
 	// doing with your input.
-	arcs::Logging::instance().set_level(arcs::LOGLEVEL::INFO);
+	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
 	// Define input block size (in number of samples, where 'sample' means a
 	// 32 bit unsigned integer holding a pair of CDDA 16 bit stereo samples)
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
 	// is not even necessary: the information is conveniently provided by the
 	// audiofile handle:
-	arcs::AudioSize total_samples;
+	arcstk::AudioSize total_samples;
 	total_samples.set_sample_count(audiofile.frames());
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
 	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
@@ -168,18 +168,18 @@ int main(int argc, char* argv[])
 	// This validates the parsed toc data and will throw if the parsed data is
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.
-	auto toc { arcs::make_toc(offsets.size(), offsets,
+	auto toc { arcstk::make_toc(offsets.size(), offsets,
 			total_samples.leadout_frame()) };
 
 	// Step 2: Create a context from the TOC and the name of the audiofile.
 	// The context represents the configuration of the calculation process along
 	// with the necessary metadata.
-	auto context { arcs::make_context(audiofilename, *toc) };
+	auto context { arcstk::make_context(audiofilename, *toc) };
 
 	// Step 3: Create a Calculation and give it the context.
 	// We do not specify a checksum type, thus the Calculation will provide
 	// ARCSv1 as well as ARCSv2 values as result.
-	arcs::Calculation calculation { std::move(context) };
+	arcstk::Calculation calculation { std::move(context) };
 
 	// Let's enumerate the blocks in the output. This is just to give some
 	// informative logging.
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 	// where the 16 bit sample for the left channel makes the start.
 	// Libarcs is not interested in those details, so we provide the samples
 	// via a SampleSequence that abstracts the concrete format away:
-	arcs::SampleSequence<int16_t, false> sequence;
+	arcstk::SampleSequence<int16_t, false> sequence;
 	// Each sample is a signed 16 bit integer, the sequence is interleaved
 	// (== not planar) and the channel ordering is left,right.
 	// NOTE: These prerequisites are just provided by libsndfile at this
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
 			auto expected_total
 			{calculation.context().audio_size().sample_count() - sample_count};
 
-			if (ints_in_block / arcs::CDDA.NUMBER_OF_CHANNELS != expected_total)
+			if (ints_in_block / arcstk::CDDA.NUMBER_OF_CHANNELS != expected_total)
 			{
 				// Wrong number of samples
 				// This is an unrecoverable error, act accordingly here.
@@ -281,8 +281,8 @@ int main(int argc, char* argv[])
 
 	for (const auto& track_values : checksums)
 	{
-		auto arcs1 = track_values.get(arcs::checksum::type::ARCS1);
-		auto arcs2 = track_values.get(arcs::checksum::type::ARCS2);
+		auto arcs1 = track_values.get(arcstk::checksum::type::ARCS1);
+		auto arcs2 = track_values.get(arcstk::checksum::type::ARCS2);
 
 		std::cout << std::dec << " " << std::setw(2) << std::setfill(' ')
 			<< trk_no << "   " << std::hex << std::uppercase

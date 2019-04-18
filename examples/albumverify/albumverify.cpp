@@ -15,10 +15,10 @@
 #include <arcstk/match.hpp>
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include <arcstk/calculate.hpp>      // for arcs::Checksums
+#include <arcstk/calculate.hpp>      // for arcstk::Checksums
 #endif
 #ifndef __LIBARCSTK_PARSE_HPP__
-#include <arcstk/parse.hpp>          // for arcs::ARResponse
+#include <arcstk/parse.hpp>          // for arcstk::ARResponse
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
 #include <arcstk/logging.hpp>
@@ -61,7 +61,7 @@
  *
  * @return Parsed ARId
  */
-arcs::ARId parse_arid(const char* input_id)
+arcstk::ARId parse_arid(const char* input_id)
 {
 	const std::string id_str { input_id };
 
@@ -70,7 +70,7 @@ arcs::ARId parse_arid(const char* input_id)
 	uint32_t id_2 = std::stoul(id_str.substr(13, 8), nullptr, 16);
 	uint32_t cddb_id = std::stoul(id_str.substr(22, 8), nullptr, 16);
 
-	return arcs::ARId(track_count, id_1, id_2, cddb_id);
+	return arcstk::ARId(track_count, id_1, id_2, cddb_id);
 }
 
 
@@ -82,14 +82,14 @@ arcs::ARId parse_arid(const char* input_id)
  *
  * @return Parsed Checksums
  */
-arcs::Checksums parse_input_arcs(const char* list, const arcs::checksum::type t)
+arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::type t)
 {
 	const std::string checksum_list { list };
 
 	const size_t total_tracks =
 		1 + std::count(checksum_list.begin(), checksum_list.end(), ',');
 
-	arcs::Checksums checksums { total_tracks };
+	arcstk::Checksums checksums { total_tracks };
 
 	std::string token;
 	uint32_t arcs;
@@ -116,7 +116,7 @@ arcs::Checksums parse_input_arcs(const char* list, const arcs::checksum::type t)
 			<< " - " << std::setw(3) << std::setfill(' ') << token_end << ")"
 			<< '\n';
 
-		checksums[i].insert(t, arcs::Checksum(std::stoul(token, nullptr, 16)));
+		checksums[i].insert(t, arcstk::Checksum(std::stoul(token, nullptr, 16)));
 		token_start = token_end + 1;
 		token_end = checksum_list.find_first_of(',', token_start);
 
@@ -138,21 +138,21 @@ arcs::Checksums parse_input_arcs(const char* list, const arcs::checksum::type t)
  *
  * @return Parsed ARResponse
  */
-arcs::ARResponse parse_match_arcs(const std::string &filename)
+arcstk::ARResponse parse_match_arcs(const std::string &filename)
 {
-	std::unique_ptr<arcs::ContentHandler> content_hdlr =
-		std::make_unique<arcs::DefaultContentHandler>();
+	std::unique_ptr<arcstk::ContentHandler> content_hdlr =
+		std::make_unique<arcstk::DefaultContentHandler>();
 
-	auto error_hdlr = std::make_unique<arcs::DefaultErrorHandler>();
+	auto error_hdlr = std::make_unique<arcstk::DefaultErrorHandler>();
 
-	std::unique_ptr<arcs::ARStreamParser> parser;
+	std::unique_ptr<arcstk::ARStreamParser> parser;
 
 	if (filename.empty())
 	{
-		parser = std::make_unique<arcs::ARStdinParser>();
+		parser = std::make_unique<arcstk::ARStdinParser>();
 	} else
 	{
-		parser = std::make_unique<arcs::ARFileParser>(filename);
+		parser = std::make_unique<arcstk::ARFileParser>(filename);
 	}
 
 	// Register parser handlers
@@ -166,7 +166,7 @@ arcs::ARResponse parse_match_arcs(const std::string &filename)
 	// downcasting does not rise any risks. It is just not "nice". (The
 	// other method I could think of feels worse, so we stick to downcasting
 	// for now.)
-	return dynamic_cast<const arcs::DefaultContentHandler &>
+	return dynamic_cast<const arcstk::DefaultContentHandler &>
 		(parser->content_handler()).result();
 }
 
@@ -187,25 +187,25 @@ int main(int argc, char* argv[])
 	// see what's going on behind the scenes. We provide an appender for stdout
 	// and set the loglevel to 'INFO', which means you should probably not see
 	// anything unless you give libarcstk unexpected input.
-	arcs::Logging::instance().add_appender(
-			std::make_unique<arcs::Appender>("stdout", stdout));
+	arcstk::Logging::instance().add_appender(
+			std::make_unique<arcstk::Appender>("stdout", stdout));
 
 	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
 	// doing with your input
-	arcs::Logging::instance().set_level(arcs::LOGLEVEL::INFO);
+	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
 	// Parse the AccurateRip id of the album passed from the command line
-	const arcs::ARId arid = parse_arid( argv[1] + 5 );
+	const arcstk::ARId arid = parse_arid( argv[1] + 5 );
 
 	std::cout << "Album ID: " << arid.to_string() << '\n';
 
 	// Parse declared ARCS type (ARCSv1 or ARCSv2)
-	arcs::checksum::type type = argv[2][6] == '1'
-		? arcs::checksum::type::ARCS1
-		: arcs::checksum::type::ARCS2;
+	arcstk::checksum::type type = argv[2][6] == '1'
+		? arcstk::checksum::type::ARCS1
+		: arcstk::checksum::type::ARCS2;
 
 	// Parse the checksums of the album passed from the command line
-	const arcs::Checksums checksums = parse_input_arcs( argv[2] + 8, type );
+	const arcstk::Checksums checksums = parse_input_arcs( argv[2] + 8, type );
 
 	// Parse the checksums to be matched from file or stdin
 	std::string filename;
@@ -213,16 +213,16 @@ int main(int argc, char* argv[])
 	{
 		filename = std::string(argv[3]);
 	}
-	const arcs::ARResponse arcss = parse_match_arcs(filename);
+	const arcstk::ARResponse arcss = parse_match_arcs(filename);
 
 	// Now the interesting part: peform the match.
 	// The ListMatcher class targets situations in which you have a list of
 	// checksums and you _know_ in which order they form the album. Therefore
 	// ListMatcher is the device of choice here.
-	arcs::ListMatcher matcher(checksums, arid, arcss);
+	arcstk::ListMatcher matcher(checksums, arid, arcss);
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
-	// arcs::AnyMatcher.
+	// arcstk::AnyMatcher.
 
 	// Inform about the result
 	std::cout << "RESULT: ";
@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
 		// has performed. Thus, the result of the matching can be queried on the
 		// match object by just giving the coordinate block/track/version.
 		is_match =
-			match->track(block, trackno, type == arcs::checksum::type::ARCS2);
+			match->track(block, trackno, type == arcstk::checksum::type::ARCS2);
 
 		std::cout << " " << std::dec << std::setw(2) << std::setfill('0')
 			<< (trackno + 1) << ":  ";

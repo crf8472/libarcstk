@@ -130,12 +130,12 @@ int main(int argc, char* argv[])
 	// see what's going on behind the scenes. We provide an appender for stdout
 	// and set the loglevel to 'INFO', which means you should probably not see
 	// anything unless you give libarcstk unexpected input.
-	arcs::Logging::instance().add_appender(
-			std::make_unique<arcs::Appender>("stdout", stdout));
+	arcstk::Logging::instance().add_appender(
+			std::make_unique<arcstk::Appender>("stdout", stdout));
 
 	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
 	// doing with your input.
-	arcs::Logging::instance().set_level(arcs::LOGLEVEL::INFO);
+	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
 	// Calculation will have to distinguish the tracks in the audiofile. To
 	// identify the track bounds, we need the TOC, precisely:
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
 	// is not even necessary: the information is conveniently provided by the
 	// audiofile handle:
-	arcs::AudioSize audiosize;
+	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(total_samples(audiofilename));
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
 	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
@@ -181,12 +181,12 @@ int main(int argc, char* argv[])
 	// This validates the parsed toc data and will throw if the parsed data is
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.
-	auto toc { arcs::make_toc(offsets.size(), offsets,
+	auto toc { arcstk::make_toc(offsets.size(), offsets,
 			audiosize.leadout_frame()) };
 
 	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.
-	auto id { arcs::make_arid(*toc) };
+	auto id { arcstk::make_arid(*toc) };
 
 	std::cout << "ID: " << id->to_string() << std::endl;
 	std::cout << "Filename: " << id->filename() << std::endl;

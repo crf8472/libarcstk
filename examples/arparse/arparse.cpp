@@ -31,29 +31,29 @@ int main(int argc, char* argv[])
 {
 	// Use the default parser content handler that just returns the parsed
 	// content as an object
-	std::unique_ptr<arcs::ContentHandler> content_hdlr =
-		std::make_unique<arcs::DefaultContentHandler>();
+	std::unique_ptr<arcstk::ContentHandler> content_hdlr =
+		std::make_unique<arcstk::DefaultContentHandler>();
 	// Of course you could just write a content handler that prints every parsed
 	// entitity instead of constructing an object from it.
 
 	// Use the standard error handler that just throws an exception on invalid
 	// input.
-	auto error_hdlr = std::make_unique<arcs::DefaultErrorHandler>();
+	auto error_hdlr = std::make_unique<arcstk::DefaultErrorHandler>();
 
 	// Pointer to the parser object, concrete parser type is not yet known.
-	std::unique_ptr<arcs::ARStreamParser> parser;
+	std::unique_ptr<arcstk::ARStreamParser> parser;
 
 	if (argc == 2) // read from the file passed
 	{
 		const std::string infilename { argv[1] };
 
 		// Create parser for files
-		parser = std::make_unique<arcs::ARFileParser>(infilename);
+		parser = std::make_unique<arcstk::ARFileParser>(infilename);
 	}
 	else if (argc == 1) // read from stdin
 	{
 		// Create parser for input piped via stdin
-		parser = std::make_unique<arcs::ARStdinParser>();
+		parser = std::make_unique<arcstk::ARStdinParser>();
 	}
 	else
 	{
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	// Finally, run parser
 	try {
 		parser->parse();
-	} catch (const arcs::StreamReadException& e)
+	} catch (const arcstk::StreamReadException& e)
 	{
 		std::cerr << e.what();
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 	// We positively _know_ the type of the ContentHandler, so downcasting does
 	// not rise any risks. It is just not "nice". (The other method I could
 	// think of feels worse, so we stick to downcasting for now.)
-	auto response_data = dynamic_cast<const arcs::DefaultContentHandler &>
+	auto response_data = dynamic_cast<const arcstk::DefaultContentHandler &>
 		(parser->content_handler()).result();
 
 	std::cout << "  ARCS   Conf. Frame450" << std::endl;
