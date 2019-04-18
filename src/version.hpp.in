@@ -1,3 +1,7 @@
+#ifndef __LIBARCSTK_VERSION_HPP__
+#define __LIBARCSTK_VERSION_HPP__
+
+
 /**
  * \file version.hpp.in Provide version and name information for libarcstk.
  *
@@ -6,9 +10,6 @@
  * It is made accessible at build time for program scope.
  */
 
-
-#ifndef __LIBARCSTK_VERSION_HPP__
-#define __LIBARCSTK_VERSION_HPP__
 
 #include <string>
 
