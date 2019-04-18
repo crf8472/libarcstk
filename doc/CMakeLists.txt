@@ -16,7 +16,8 @@ message (STATUS
 set(DOC_COMMENT "Build documentation for APIs" )
 
 
-## Build internal docs if requested
+
+## --- Build internal docs if requested
 
 if (WITH_INTERNAL_DOCS)
 
@@ -32,7 +33,8 @@ else ()
 endif (WITH_INTERNAL_DOCS)
 
 
-## Build impl-only docs if requested (includes internal docs)
+
+## --- Build impl-only docs if requested (includes internal docs)
 
 if (WITH_IMPLONLY_DOCS)
 
@@ -99,7 +101,8 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		## Run dox2html5.py
 		add_custom_target ( doc
 			COMMAND ${PYTHON_CMD} ${MCSS_DOX2HTML5} "${DOXYFILE}"
-			DEPENDS "${ENV_TARGET}" "${DOXYFILE}" "${PROJECT_SOURCE_DIR}"
+			DEPENDS "${ENV_TARGET}" "${DOXYFILE}"
+				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
 			COMMENT "${DOC_COMMENT}"
 			VERBATIM
@@ -109,8 +112,12 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 
 else() ## Use standard doxygen
 
+	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
+
 	add_custom_target ( doc ## add 'ALL' if you wish to run doc on regular build
-		Doxygen::doxygen  "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+		Doxygen::doxygen  "${DOXYFILE}"
+		DEPENDS "${DOXYFILE}"
+				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
