@@ -163,64 +163,6 @@ uint64_t AudioSize::Impl::pcm_byte_count() const
 }
 
 
-// PCMForwardIterator
-
-
-PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
-	: object_(rhs.object_->clone())
-{
-	// empty
-}
-
-
-PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
-	: object_(std::move(rhs.object_))
-{
-	// empty
-}
-
-
-PCMForwardIterator::reference PCMForwardIterator::operator * () const
-{
-	return object_->dereference();
-}
-
-
-PCMForwardIterator& PCMForwardIterator::operator ++ ()
-{
-	object_->preincrement();
-	return *this;
-}
-
-
-PCMForwardIterator PCMForwardIterator::operator ++ (int)
-{
-	PCMForwardIterator prev_val(*this);
-	object_->preincrement();
-	return prev_val;
-}
-
-
-bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs) const
-{
-	return object_->equals(rhs.object_->pointer());
-}
-
-
-bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs) const
-{
-	return not (*this == rhs);
-}
-
-
-PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount) const
-{
-	PCMForwardIterator it(*this);
-	it.object_->advance(amount);
-	return it;
-}
-
-
 /**
  * \internal
  *

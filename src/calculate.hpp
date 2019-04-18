@@ -472,6 +472,64 @@ private:
 };
 
 
+inline PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
+	: object_(rhs.object_->clone())
+{
+	// empty
+}
+
+
+inline PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
+	: object_(std::move(rhs.object_))
+{
+	// empty
+}
+
+
+inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
+{
+	return object_->dereference();
+}
+
+
+inline PCMForwardIterator& PCMForwardIterator::operator ++ ()
+{
+	object_->preincrement();
+	return *this;
+}
+
+
+inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
+{
+	PCMForwardIterator prev_val(*this);
+	object_->preincrement();
+	return prev_val;
+}
+
+
+inline bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs)
+	const
+{
+	return object_->equals(rhs.object_->pointer());
+}
+
+
+inline bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs)
+	const
+{
+	return not (*this == rhs);
+}
+
+
+inline PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount)
+	const
+{
+	PCMForwardIterator it(*this);
+	it.object_->advance(amount);
+	return it;
+}
+
+
 /**
  * \brief Interface for information about the current audio input.
  *
