@@ -22,6 +22,8 @@ set (PROJECT_VERSION_SUFFIX "alpha.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
+set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
+
 
 ## --- Setup Version Information
 
