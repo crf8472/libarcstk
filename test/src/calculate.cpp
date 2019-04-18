@@ -14,9 +14,6 @@
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #include "identifier_details.hpp"
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 
 /**
