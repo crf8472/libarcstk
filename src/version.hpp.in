@@ -13,7 +13,7 @@
 #include <string>
 
 
-namespace arcs
+namespace arcstk
 {
 
 // Version info
@@ -67,7 +67,7 @@ constexpr auto LIBARCSTK_NAME = "@PROJECT_NAME@";
 constexpr std::string LIBARCSTK_NAME_STRING ( LIBARCSTK_NAME );
 
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

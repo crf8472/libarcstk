@@ -60,7 +60,7 @@
 /**
  * libarcstk main namespace
  */
-namespace arcs
+namespace arcstk
 {
 
 /// \defgroup calc Checksum Calculation
@@ -1181,7 +1181,7 @@ public:
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

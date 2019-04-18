@@ -8,7 +8,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 inline namespace v_1_0_0
@@ -21,5 +21,5 @@ thread_local Logger Logging::logger_;
 
 } // namespace v_1_0_0
 
-} // namespace arcs
+} // namespace arcstk
 

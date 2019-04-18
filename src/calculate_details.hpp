@@ -19,7 +19,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \internal \defgroup calcImpl Implementation of ARCSs, calculation and metadata
@@ -757,7 +757,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

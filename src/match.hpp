@@ -26,12 +26,12 @@
 #include <memory>
 
 // forward declarations
-namespace arcs { inline namespace v_1_0_0 { class ARId;       } }
-namespace arcs { inline namespace v_1_0_0 { class ARResponse; } }
-namespace arcs { inline namespace v_1_0_0 { class Checksums;  } }
+namespace arcstk { inline namespace v_1_0_0 { class ARId;       } }
+namespace arcstk { inline namespace v_1_0_0 { class ARResponse; } }
+namespace arcstk { inline namespace v_1_0_0 { class Checksums;  } }
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \defgroup match AccurateRip Checksum Matcher
@@ -403,7 +403,7 @@ private:
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

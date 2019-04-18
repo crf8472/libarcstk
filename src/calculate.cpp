@@ -33,7 +33,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \internal \addtogroup calcImpl
@@ -2780,5 +2780,5 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 

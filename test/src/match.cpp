@@ -29,67 +29,67 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
-	arcs::ChecksumSet track01( 5192);
-	track01.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0xB89992E5));
-	track01.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x98B10E0F));
+	arcstk::ChecksumSet track01( 5192);
+	track01.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xB89992E5));
+	track01.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x98B10E0F));
 
-	arcs::ChecksumSet track02( 2165);
-	track02.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x4F77EB03));
-	track02.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x475F57E9));
+	arcstk::ChecksumSet track02( 2165);
+	track02.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x4F77EB03));
+	track02.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x475F57E9));
 
-	arcs::ChecksumSet track03(15885);
-	track03.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x56582282));
-	track03.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x7304F1C4));
+	arcstk::ChecksumSet track03(15885);
+	track03.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x56582282));
+	track03.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x7304F1C4));
 
-	arcs::ChecksumSet track04(12228);
-	track04.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x9E2187F9));
-	track04.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0xF2472287));
+	arcstk::ChecksumSet track04(12228);
+	track04.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x9E2187F9));
+	track04.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF2472287));
 
-	arcs::ChecksumSet track05(13925);
-	track05.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x6BE71E50));
-	track05.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x881BC504));
+	arcstk::ChecksumSet track05(13925);
+	track05.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x6BE71E50));
+	track05.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x881BC504));
 
-	arcs::ChecksumSet track06(19513);
-	track06.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x01E7235F));
-	track06.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0xBB94BFD4));
+	arcstk::ChecksumSet track06(19513);
+	track06.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x01E7235F));
+	track06.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xBB94BFD4));
 
-	arcs::ChecksumSet track07(18155);
-	track07.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0xD8F7763C));
-	track07.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0xF9CAEE76));
+	arcstk::ChecksumSet track07(18155);
+	track07.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xD8F7763C));
+	track07.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF9CAEE76));
 
-	arcs::ChecksumSet track08(18325);
-	track08.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x8480223E));
-	track08.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0xF9F60BC1));
+	arcstk::ChecksumSet track08(18325);
+	track08.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x8480223E));
+	track08.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF9F60BC1));
 
-	arcs::ChecksumSet track09(33075);
-	track09.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x42C5061C));
-	track09.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x2C736302));
+	arcstk::ChecksumSet track09(33075);
+	track09.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x42C5061C));
+	track09.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x2C736302));
 
-	arcs::ChecksumSet track10(18368);
-	track10.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x47A70F02));
-	track10.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x1C955978));
+	arcstk::ChecksumSet track10(18368);
+	track10.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x47A70F02));
+	track10.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x1C955978));
 
-	arcs::ChecksumSet track11(40152);
-	track11.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0xBABF08CC));
-	track11.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0xFDA6D833));
+	arcstk::ChecksumSet track11(40152);
+	track11.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xBABF08CC));
+	track11.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xFDA6D833));
 
-	arcs::ChecksumSet track12(14798);
-	track12.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x563EDCCB));
-	track12.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x3A57E5D1));
+	arcstk::ChecksumSet track12(14798);
+	track12.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x563EDCCB));
+	track12.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x3A57E5D1));
 
-	arcs::ChecksumSet track13(11952);
-	track13.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0xAB123C7C));
-	track13.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x6ED5F3E7));
+	arcstk::ChecksumSet track13(11952);
+	track13.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xAB123C7C));
+	track13.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x6ED5F3E7));
 
-	arcs::ChecksumSet track14( 8463);
-	track14.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0xC65C20E4));
-	track14.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x4A5C3872));
+	arcstk::ChecksumSet track14( 8463);
+	track14.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xC65C20E4));
+	track14.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x4A5C3872));
 
-	arcs::ChecksumSet track15(18935);
-	track15.insert(arcs::checksum::type::ARCS2, arcs::Checksum(0x58FC3C3E));
-	track15.insert(arcs::checksum::type::ARCS1, arcs::Checksum(0x5FE8B032));
+	arcstk::ChecksumSet track15(18935);
+	track15.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x58FC3C3E));
+	track15.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x5FE8B032));
 
-	arcs::Checksums result1(15);
+	arcstk::Checksums result1(15);
 
 	result1[ 0] = track01;
 	result1[ 1] = track02;
@@ -112,10 +112,10 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 
 	// Construct ARResponse by hand
 
-	arcs::ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
+	arcstk::ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
 	// Define block: v1 values from the profile
-	arcs::ARBlock block0({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
+	arcstk::ARBlock block0({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
 	block0.append( { 0x98B10E0F, 24, 0 } );
 	block0.append( { 0x475F57E9, 24, 0 } );
 	block0.append( { 0x7304F1C4, 24, 0 } );
@@ -133,7 +133,7 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	block0.append( { 0x5FE8B032, 24, 0 } );
 
 	// Define block: v2 values from the profile, but different id
-	arcs::ARBlock block1({ 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
+	arcstk::ARBlock block1({ 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
 	block1.append( { 0xB89992E5, 24, 0 } );
 	block1.append( { 0x4F77EB03, 24, 0 } );
 	block1.append( { 0x56582282, 24, 0 } );
@@ -151,7 +151,7 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	block1.append( { 0x58FC3C3E, 24, 0 } );
 
 	// Define block: v2 values from the profile
-	arcs::ARBlock block2({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
+	arcstk::ARBlock block2({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
 	block2.append( { 0xB89992E5, 24, 0 } );
 	block2.append( { 0x4F77EB03, 24, 0 } );
 	block2.append( { 0x56582282, 24, 0 } );
@@ -168,7 +168,7 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	block2.append( { 0xC65C20E4, 24, 0 } );
 	block2.append( { 0x58FC3C3E, 24, 0 } );
 
-	arcs::ARResponse response;
+	arcstk::ARResponse response;
 	response.append(block0);   // 0: profile v1 matches
 	response.append(block1);   // 1: profile v2 matches, but ARId does not match
 	response.append(block2);   // 2: profile v2 matches
@@ -177,7 +177,7 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	REQUIRE ( response.size() == 3 );
 
 
-	arcs::ListMatcher diff(result1, id, response);
+	arcstk::ListMatcher diff(result1, id, response);
 
 	const bool v1 = false;
 	const bool v2 = true;
@@ -195,7 +195,7 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 
 	SECTION ( "Match loads as declared" )
 	{
-		const arcs::Match* match = diff.match();
+		const arcstk::Match* match = diff.match();
 
 		REQUIRE ( match->tracks_per_block() == 15 );
 

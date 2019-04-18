@@ -34,7 +34,7 @@
 #include <utility>     // for pair
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \addtogroup calc
@@ -566,7 +566,7 @@ private: // TODO Hide this!
 #include "details/checksum.tpp"
 #endif
 
-} // namespace arcs::details
+} // namespace arcstk::details
 
 
 /**
@@ -650,7 +650,7 @@ private:
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

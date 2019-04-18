@@ -29,7 +29,7 @@
 
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \defgroup logging Logging API for use by clients
@@ -844,7 +844,7 @@ inline void Logging::remove_appender(Appender *a)
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 
 /// \addtogroup logging
@@ -860,40 +860,40 @@ inline void Logging::remove_appender(Appender *a)
 // entirely. (See the definition of the ARCS_LOG_* macros to inspect how the
 // clipping level is checked.)
 #ifndef CLIP_LOGGING_LEVEL
-#    define CLIP_LOGGING_LEVEL arcs::LOGLEVEL::DEBUG4
+#    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
 #endif
 
 /**
  * Send error message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_ERROR \
-    if (arcs::LOGLEVEL::ERROR > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOGLEVEL::ERROR > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::ERROR).get()
+    if (arcstk::LOGLEVEL::ERROR > CLIP_LOGGING_LEVEL) ; \
+    else if (arcstk::LOGLEVEL::ERROR > arcstk::Logging::instance().level()) ; \
+    else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::ERROR).get()
 
 /**
  * Send warning message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_WARNING \
-    if (arcs::LOGLEVEL::WARNING > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOGLEVEL::WARNING > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::WARNING).get()
+    if (arcstk::LOGLEVEL::WARNING > CLIP_LOGGING_LEVEL) ; \
+    else if (arcstk::LOGLEVEL::WARNING > arcstk::Logging::instance().level()) ; \
+    else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::WARNING).get()
 
 /**
  * Send info message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_INFO \
-    if (arcs::LOGLEVEL::INFO > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOGLEVEL::INFO > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::INFO).get()
+    if (arcstk::LOGLEVEL::INFO > CLIP_LOGGING_LEVEL) ; \
+    else if (arcstk::LOGLEVEL::INFO > arcstk::Logging::instance().level()) ; \
+    else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::INFO).get()
 
 /**
  * Send debug message to the logger libarcstk uses internally
  */
 #define ARCS_LOG_DEBUG \
-    if (arcs::LOGLEVEL::DEBUG > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOGLEVEL::DEBUG > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::DEBUG).get()
+    if (arcstk::LOGLEVEL::DEBUG > CLIP_LOGGING_LEVEL) ; \
+    else if (arcstk::LOGLEVEL::DEBUG > arcstk::Logging::instance().level()) ; \
+    else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::DEBUG).get()
 
 /**
  * Send log message with specified log level to the logger libarcstk uses
@@ -902,9 +902,9 @@ inline void Logging::remove_appender(Appender *a)
  * This is useful for custom log levels beyond LOG_DEBUG
  */
 #define ARCS_LOG(loglevel) \
-    if (arcs::LOGLEVEL::loglevel > CLIP_LOGGING_LEVEL) ; \
-    else if (arcs::LOGLEVEL::loglevel > arcs::Logging::instance().level()) ; \
-    else arcs::Log(arcs::Logging::instance().logger(), arcs::LOGLEVEL::loglevel).get()
+    if (arcstk::LOGLEVEL::loglevel > CLIP_LOGGING_LEVEL) ; \
+    else if (arcstk::LOGLEVEL::loglevel > arcstk::Logging::instance().level()) ; \
+    else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::loglevel).get()
 
 
 // The ARCS_LOG* macros ensure a reduction of logging costs as follows:

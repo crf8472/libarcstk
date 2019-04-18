@@ -9,7 +9,7 @@
  * \file identifier_details.hpp Internal APIs for module 'identifier'
  */
 
-namespace arcs
+namespace arcstk
 {
 
 /// \cond IMPL_ONLY
@@ -22,7 +22,7 @@ inline namespace v_1_0_0
 
 
 /**
- * \brief Implementation details of namespace arcs
+ * \brief Implementation details of namespace arcstk
  */
 namespace details
 {
@@ -420,7 +420,7 @@ protected:
 };
 
 
-} // namespace arcs::details
+} // namespace arcstk::details
 
 
 } // namespace v_1_0_0
@@ -429,7 +429,7 @@ protected:
 /// \endcond
 /// IMPL_ONLY
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

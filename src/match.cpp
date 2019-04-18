@@ -28,7 +28,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \internal \defgroup matchImpl Implementation of ARCSs comparison
@@ -1085,5 +1085,5 @@ std::unique_ptr<Matcher> AnyMatcher::clone() const
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 

@@ -34,32 +34,32 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 //
 //	SECTION ( "Construct without arguments" )
 //	{
-//		arcs::Calculation calc; // equivalent to: singletrack + arcsv2
+//		arcstk::Calculation calc; // equivalent to: singletrack + arcsv2
 //
 //		REQUIRE ( not calc.context().is_multi_track() );
 //		REQUIRE ( not calc.context().skips_front() );
 //		REQUIRE ( not calc.context().skips_back() );
 //		REQUIRE ( 0 == calc.context().num_skip_front() );
 //		REQUIRE ( 0 == calc.context().num_skip_back() );
-//		REQUIRE ( calc.type() == arcs::checksum::type::ARCS2 );
+//		REQUIRE ( calc.type() == arcstk::checksum::type::ARCS2 );
 //	}
 //
 //	SECTION ( "Construct with type" )
 //	{
-//		arcs::Calculation calc1(arcs::checksum::type::ARCS1);
+//		arcstk::Calculation calc1(arcstk::checksum::type::ARCS1);
 //
 //		REQUIRE ( not calc1.context().is_multi_track() );
 //		REQUIRE ( not calc1.context().skips_front() );
 //		REQUIRE ( not calc1.context().skips_back() );
-//		REQUIRE ( calc1.type() == arcs::checksum::type::ARCS1 );
+//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS1 );
 //
 //
-//		arcs::Calculation calc2(arcs::checksum::type::ARCS2);
+//		arcstk::Calculation calc2(arcstk::checksum::type::ARCS2);
 //
 //		REQUIRE ( not calc2.context().is_multi_track() );
 //		REQUIRE ( not calc2.context().skips_front() );
 //		REQUIRE ( not calc2.context().skips_back() );
-//		REQUIRE ( calc2.type() == arcs::checksum::type::ARCS2 );
+//		REQUIRE ( calc2.type() == arcstk::checksum::type::ARCS2 );
 //	}
 
 	SECTION ( "Construct with only context (default type)" )
@@ -67,15 +67,15 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 		// Implicitly tested in section
 		// 'Calculation configuration/Changing the type...' below
 
-		arcs::details::TOCBuilder builder;
+		arcstk::details::TOCBuilder builder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcs::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */);
 
-		auto ctx = arcs::make_context(std::string(/* no filename */), *toc1);
+		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
 		REQUIRE ( ctx->track_count() == 3 );
 		REQUIRE ( ctx->offset(0) ==  12 );
@@ -92,7 +92,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 
 		// Construct Calculation
 
-		arcs::Calculation calc(arcs::checksum::type::ARCS1, std::move(ctx));
+		arcstk::Calculation calc(arcstk::checksum::type::ARCS1, std::move(ctx));
 
 		REQUIRE ( calc.context().audio_size().leadout_frame() == 1233 );
 		REQUIRE ( calc.context().audio_size().pcm_byte_count() == 2900016 );
@@ -104,7 +104,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 		REQUIRE ( 2939 == calc.context().num_skip_front() );
 		REQUIRE ( 2940 == calc.context().num_skip_back() );
 
-		REQUIRE ( calc.type() == arcs::checksum::type::ARCS1 );
+		REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
 		REQUIRE ( not calc.complete() );
 	}
 
@@ -112,15 +112,15 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 	{
 		// Create a context
 
-		arcs::details::TOCBuilder builder;
+		arcstk::details::TOCBuilder builder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcs::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */);
 
-		auto ctx = arcs::make_context(std::string(/* no filename */), *toc1);
+		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
 		REQUIRE ( ctx->track_count() == 3 );
 		REQUIRE ( ctx->offset(0) ==  12 );
@@ -137,7 +137,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 
 		// Construct Calculation
 
-		arcs::Calculation calc(arcs::checksum::type::ARCS1, std::move(ctx));
+		arcstk::Calculation calc(arcstk::checksum::type::ARCS1, std::move(ctx));
 
 		REQUIRE ( calc.context().audio_size().leadout_frame() == 1233 );
 		REQUIRE ( calc.context().audio_size().pcm_byte_count() == 2900016 );
@@ -149,7 +149,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 		REQUIRE ( 2939 == calc.context().num_skip_front() );
 		REQUIRE ( 2940 == calc.context().num_skip_back() );
 
-		REQUIRE ( calc.type() == arcs::checksum::type::ARCS1 );
+		REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
 		REQUIRE ( not calc.complete() );
 	}
 }
@@ -157,9 +157,9 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 
 TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 {
-	arcs::Calculation calc(arcs::make_context("foo", false, false));
+	arcstk::Calculation calc(arcstk::make_context("foo", false, false));
 
-	arcs::AudioSize audiosize;
+	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608); // fits calculation-test-01.bin
 	calc.update_audiosize(audiosize);
 
@@ -173,7 +173,7 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 	REQUIRE ( 0 == calc.context().num_skip_front() );
 	REQUIRE ( 0 == calc.context().num_skip_back() );
 
-	REQUIRE ( calc.type() == arcs::checksum::type::ARCS2 );
+	REQUIRE ( calc.type() == arcstk::checksum::type::ARCS2 );
 	REQUIRE ( not calc.complete() );
 
 
@@ -181,22 +181,22 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 	{
 		// Change the type to a non-default type
 
-		//calc.set_type(arcs::checksum::type::ARCS1);
+		//calc.set_type(arcstk::checksum::type::ARCS1);
 
-		//REQUIRE ( calc.type() == arcs::checksum::type::ARCS1 );
+		//REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
 
 
 		// Create a completely different context
 
-		arcs::details::TOCBuilder builder;
+		arcstk::details::TOCBuilder builder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcs::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */);
 
-		auto ctx = arcs::make_context(std::string(/* no filename */), *toc1);
+		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
 		REQUIRE ( ctx->track_count() == 3 );
 		REQUIRE ( ctx->offset(0) ==  12 );
@@ -228,21 +228,21 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 		REQUIRE ( not calc.complete() );
 
 		// type: unchanged
-		//REQUIRE ( calc.type() == arcs::checksum::type::ARCS1 );
+		//REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
 	}
 
 
 //	SECTION ( "Changing the type updates Calculation correctly" )
 //	{
-//		arcs::details::TOCBuilder builder;
+//		arcstk::details::TOCBuilder builder;
 //
 //		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-//		std::unique_ptr<arcs::TOC> toc1 = builder.build(
+//		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 //				3, /* track count */
 //				{ 12, 433, 924 }, /* offsets */
 //				1233 /* leadout */);
 //
-//		auto ctx = arcs::make_context(std::string(/* no filename */), *toc1);
+//		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 //
 //		REQUIRE ( ctx->track_count() == 3 );
 //		REQUIRE ( ctx->offset(0) ==  12 );
@@ -259,7 +259,7 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 //
 //		// Construct a Calculation with this context
 //
-//		arcs::Calculation calc1(std::move(ctx));
+//		arcstk::Calculation calc1(std::move(ctx));
 //
 //		REQUIRE ( calc1.context().audio_size().leadout_frame() == 1233 );
 //		REQUIRE ( calc1.context().audio_size().pcm_byte_count() == 2900016 );
@@ -271,12 +271,12 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 //		REQUIRE ( 2939 == calc1.context().num_skip_front() );
 //		REQUIRE ( 2940 == calc1.context().num_skip_back() );
 //
-//		REQUIRE ( calc1.type() == arcs::checksum::type::ARCS2 );
+//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS2 );
 //
 //
 //		// Now change the type
 //
-//		calc1.set_type(arcs::checksum::type::ARCS1);
+//		calc1.set_type(arcstk::checksum::type::ARCS1);
 //
 //		// Context must be equivalent, only type must have changed
 //
@@ -290,7 +290,7 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 //		REQUIRE ( 2939 == calc1.context().num_skip_front() );
 //		REQUIRE ( 2940 == calc1.context().num_skip_back() );
 //
-//		REQUIRE ( calc1.type() == arcs::checksum::type::ARCS1 );
+//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS1 );
 //	}
 }
 
@@ -300,9 +300,9 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 {
 	// Initialize Calculation
 
-	arcs::Calculation calc(arcs::make_context("foo", false, false));
+	arcstk::Calculation calc(arcstk::make_context("foo", false, false));
 
-	arcs::AudioSize audiosize;
+	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
 	calc.update_audiosize(audiosize);
 
@@ -313,7 +313,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 	REQUIRE ( not calc.context().is_multi_track() );
 	REQUIRE ( not calc.context().skips_front() );
 	REQUIRE ( not calc.context().skips_back() );
-	REQUIRE ( calc.type() == arcs::checksum::type::ARCS2 );
+	REQUIRE ( calc.type() == arcstk::checksum::type::ARCS2 );
 	REQUIRE ( not calc.complete() );
 
 	// Initialize Buffer
@@ -373,7 +373,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 	{
 		// Only track with correct ARCSs
 
-		using type = arcs::checksum::type;
+		using type = arcstk::checksum::type;
 
 		auto track0 = checksums[0];
 
@@ -389,9 +389,9 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 {
 	// Initialize Calculation
 
-	arcs::Calculation calc(arcs::make_context("bar", false, false));
+	arcstk::Calculation calc(arcstk::make_context("bar", false, false));
 
-	arcs::AudioSize audiosize;
+	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
 	calc.update_audiosize(audiosize);
 
@@ -473,7 +473,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 
 	SECTION ( "Calculation::update() calculates non-aligned blocks correctly" )
 	{
-		using type = arcs::checksum::type;
+		using type = arcstk::checksum::type;
 
 		// Only track with correct ARCSs
 
@@ -491,12 +491,12 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 {
 	// Initialize Buffer and Calculation
 
-	arcs::details::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	std::unique_ptr<arcs::TOC> toc1 = builder.build(3, { 12, 433, 924 }, 1233);
+	std::unique_ptr<arcstk::TOC> toc1 = builder.build(3, { 12, 433, 924 }, 1233);
 
-	auto ctx = arcs::make_context(std::string(), *toc1);
+	auto ctx = arcstk::make_context(std::string(), *toc1);
 
 	REQUIRE ( ctx->track_count() == 3 );
 	REQUIRE ( ctx->offset(0) ==  12 );
@@ -509,7 +509,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 	REQUIRE ( ctx->skips_back() );
 
 
-	arcs::Calculation calc(std::move(ctx));
+	arcstk::Calculation calc(std::move(ctx));
 
 	REQUIRE ( calc.context().audio_size().leadout_frame() == 1233 );
 	REQUIRE ( calc.context().audio_size().pcm_byte_count() == 2900016 );
@@ -520,7 +520,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 	REQUIRE ( calc.context().skips_back() );
 	REQUIRE ( 2939 == calc.context().num_skip_front() );
 	REQUIRE ( 2940 == calc.context().num_skip_back() );
-	REQUIRE ( arcs::checksum::type::ARCS2 == calc.type() );
+	REQUIRE ( arcstk::checksum::type::ARCS2 == calc.type() );
 	REQUIRE ( not calc.complete() );
 
 
@@ -579,7 +579,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 
 	SECTION ( "Calculation::update() calculates aligned blocks correctly" )
 	{
-		using type = arcs::checksum::type;
+		using type = arcstk::checksum::type;
 
 		auto track1 = checksums[0];
 
@@ -607,12 +607,12 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 {
 	// Initialize Calculation
 
-	arcs::details::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	std::unique_ptr<arcs::TOC> toc = builder.build(3, { 12, 433, 924 }, 1233);
+	std::unique_ptr<arcstk::TOC> toc = builder.build(3, { 12, 433, 924 }, 1233);
 
-	auto ctx = arcs::make_context(std::string(), *toc);
+	auto ctx = arcstk::make_context(std::string(), *toc);
 
 	REQUIRE ( ctx->track_count() == 3 );
 	REQUIRE ( ctx->offset(0) == 12 );
@@ -625,7 +625,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 	REQUIRE ( ctx->skips_back() );
 
 
-	arcs::Calculation calc(std::move(ctx));
+	arcstk::Calculation calc(std::move(ctx));
 
 	REQUIRE ( calc.context().audio_size().leadout_frame() == 1233 );
 	REQUIRE ( calc.context().audio_size().pcm_byte_count() == 2900016 );
@@ -636,7 +636,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 	REQUIRE ( calc.context().skips_back() );
 	REQUIRE ( 2939 == calc.context().num_skip_front() );
 	REQUIRE ( 2940 == calc.context().num_skip_back() );
-	REQUIRE ( arcs::checksum::type::ARCS2 == calc.type() );
+	REQUIRE ( arcstk::checksum::type::ARCS2 == calc.type() );
 	REQUIRE ( not calc.complete() );
 
 
@@ -708,7 +708,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 
 	SECTION ( "Calculation::update() calculates non-aligned blocks correctly" )
 	{
-		using type = arcs::checksum::type;
+		using type = arcstk::checksum::type;
 
 		auto track1 = checksums[0];
 
@@ -754,9 +754,9 @@ TEST_CASE ( "Calculation::update() accepts vector<uint32_t>", "" )
 
 	in.close();
 
-	arcs::Calculation calc(arcs::make_context("bar", false, false));
+	arcstk::Calculation calc(arcstk::make_context("bar", false, false));
 
-	arcs::AudioSize audiosize;
+	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
 	calc.update_audiosize(audiosize);
 
@@ -786,12 +786,12 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 {
 	// Construct a CalcContext without any parameters
 
-	auto sctx = arcs::make_context("", false, false);
+	auto sctx = arcstk::make_context("", false, false);
 
 
 	//SECTION ( "Construction without parameters is correct" )
 	//{
-		arcs::details::ARIdBuilder id_builder;
+		arcstk::details::ARIdBuilder id_builder;
 		auto empty_default_arid = id_builder.build_empty_id();
 
 		REQUIRE ( sctx->id() == *empty_default_arid );
@@ -837,11 +837,11 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 	"[calculate] [calccontext]" )
 {
-	arcs::details::TOCBuilder toc_builder;
+	arcstk::details::TOCBuilder toc_builder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcs::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
 		// track count
 		15,
 		// offsets
@@ -851,7 +851,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 		253038
 	);
 
-	auto mctx = arcs::make_context("", *toc);
+	auto mctx = arcstk::make_context("", *toc);
 
 
 	SECTION ("pcm_byte_count() and filename()")
@@ -915,7 +915,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
 	{
 		REQUIRE ( mctx->id() ==
-				arcs::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
+				arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
 
 		REQUIRE ( mctx->skips_front() );
 		REQUIRE ( mctx->skips_back() );
@@ -1047,11 +1047,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 	"[calculate] [calccontext]" )
 {
-	arcs::details::TOCBuilder  toc_builder;
+	arcstk::details::TOCBuilder  toc_builder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcs::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
 		// track count
 		15,
 		// offsets
@@ -1063,7 +1063,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 		std::vector<std::string>()
 	);
 
-	auto mctx = arcs::make_context(std::string(), *toc);
+	auto mctx = arcstk::make_context(std::string(), *toc);
 
 
 	// NOTE that this TOC and the TOC from the previous test case are
@@ -1132,7 +1132,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
 	{
 		REQUIRE ( mctx->id() ==
-				arcs::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
+				arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
 
 		REQUIRE ( mctx->skips_front() );
 		REQUIRE ( mctx->skips_back() );
@@ -1264,11 +1264,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 		"[calculate] [calccontext]" )
 {
-	arcs::details::TOCBuilder toc_builder;
+	arcstk::details::TOCBuilder toc_builder;
 
 	// Bent: Programmed to Love
 
-	std::unique_ptr<arcs::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
 		// track count
 		18,
 		// offsets
@@ -1300,7 +1300,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 	REQUIRE ( toc->offset(17) == 291720 );
 	REQUIRE ( toc->offset(18) == 319992 );
 
-	auto mctx = arcs::make_context(std::string(), *toc);
+	auto mctx = arcstk::make_context(std::string(), *toc);
 
 
 	SECTION ("pcm_byte_count() and filename()")
@@ -1392,11 +1392,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
 		"[calculate] [calccontext]" )
 {
-	arcs::details::TOCBuilder toc_builder;
+	arcstk::details::TOCBuilder toc_builder;
 
 	// Bent: Programmed to Love
 
-	std::unique_ptr<arcs::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
 		// track count
 		18,
 		// offsets
@@ -1414,11 +1414,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
 
 TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 {
-	arcs::details::TOCBuilder toc_builder;
+	arcstk::details::TOCBuilder toc_builder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcs::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
 		// track count
 		15,
 		// offsets
@@ -1428,7 +1428,7 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 		253038
 	);
 
-	auto mctx = arcs::make_context(std::string(), *toc);
+	auto mctx = arcstk::make_context(std::string(), *toc);
 
 	REQUIRE ( mctx->audio_size().pcm_byte_count() == 595145376 );
 	REQUIRE ( mctx->filename() == std::string() );
@@ -1527,7 +1527,7 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 
 		REQUIRE ( ctx_copy->filename() == std::string() );
 		REQUIRE ( ctx_copy->id() ==
-				arcs::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
+				arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
 
 		REQUIRE ( ctx_copy->skips_front() );
 		REQUIRE ( ctx_copy->skips_back() );
@@ -1652,7 +1652,7 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 
 TEST_CASE ( "Interval" "[calculate] [interval]" )
 {
-	arcs::Interval i(10, 20);
+	arcstk::Interval i(10, 20);
 
 	REQUIRE ( i.contains(10) );
 	REQUIRE ( i.contains(11) );

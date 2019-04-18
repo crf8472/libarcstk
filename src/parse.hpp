@@ -38,7 +38,7 @@
 #include <vector>
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \defgroup parse AccurateRip Response Parser
@@ -1073,7 +1073,7 @@ private:
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

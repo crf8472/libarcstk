@@ -11,7 +11,7 @@
 #include <memory>
 
 
-namespace arcs
+namespace arcstk
 {
 
 inline namespace v_1_0_0
@@ -126,7 +126,7 @@ public:
 
 } // namespace v_1_0_0
 
-} // namespace arcs
+} // namespace arcstk
 
 
 #ifndef __LIBARCSTK_SAMPLES_TPP__

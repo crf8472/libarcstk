@@ -21,7 +21,7 @@
 #include <vector>
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \addtogroup calc
@@ -583,7 +583,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc);
  *
  * \return List of parsed lengths from metafile
  */
-std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc);
+std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
 
 /**
  * \brief Extract filenames from TOC in order.
@@ -592,7 +592,7 @@ std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc);
  *
  * \return List of filenames
  */
-std::vector<std::string> get_filenames(const arcs::TOC &toc);
+std::vector<std::string> get_filenames(const TOC &toc);
 
 }
 
@@ -601,7 +601,7 @@ std::vector<std::string> get_filenames(const arcs::TOC &toc);
 
 /// @}
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 

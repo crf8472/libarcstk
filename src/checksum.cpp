@@ -8,7 +8,7 @@
 #include <sstream>        // for stringstream
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \cond IMPL_ONLY
@@ -246,5 +246,5 @@ std::string type_name(type t)
 /// \endcond
 // IMPL_ONLY
 
-} // namespace arcs
+} // namespace arcstk
 

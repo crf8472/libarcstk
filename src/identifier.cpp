@@ -23,7 +23,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 inline namespace v_1_0_0
@@ -942,7 +942,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc)
 }
 
 
-std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc)
+std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 {
 	std::size_t size = toc.track_count();
 
@@ -958,7 +958,7 @@ std::vector<uint32_t> get_parsed_lengths(const arcs::TOC &toc)
 }
 
 
-std::vector<std::string> get_filenames(const arcs::TOC &toc)
+std::vector<std::string> get_filenames(const TOC &toc)
 {
 	std::vector<std::string> fnames;
 
@@ -1779,7 +1779,7 @@ void TOCValidator::have_min_dist(const uint32_t prev_track,
 }
 
 
-} // namespace arcs::details
+} // namespace arcstk::details
 
 
 /// @}
@@ -1835,5 +1835,5 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 
 } // namespace v_1_0_0
 
-} // namespace arcs
+} // namespace arcstk
 

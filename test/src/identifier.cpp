@@ -21,7 +21,7 @@
 
 TEST_CASE ( "ARId", "[identifier] [arid]" )
 {
-	arcs::ARId id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
+	arcstk::ARId id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
 
 
 	SECTION ( "Constructor" )
@@ -42,7 +42,7 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 	SECTION ( "Equality and inequality operators" )
 	{
-		arcs::ARId same_id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
+		arcstk::ARId same_id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
 
 		REQUIRE ( id == id );
 		REQUIRE ( not (id != id) );
@@ -51,11 +51,11 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 		REQUIRE ( not (id != same_id) );
 
 
-		arcs::ARId id1(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
-		arcs::ARId id2(16, 0x001B9178, 0x014BE24E, 0xB40D2D0F); // different track
-		arcs::ARId id3(15, 0x001B9179, 0x014BE24E, 0xB40D2D0F); // different id 1
-		arcs::ARId id4(15, 0x001B9178, 0x014BE24D, 0xB40D2D0F); // different id 2
-		arcs::ARId id5(15, 0x001B9178, 0x014BE24E, 0xC40D2D0F); // different cddb id
+		arcstk::ARId id1(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
+		arcstk::ARId id2(16, 0x001B9178, 0x014BE24E, 0xB40D2D0F); // different track
+		arcstk::ARId id3(15, 0x001B9179, 0x014BE24E, 0xB40D2D0F); // different id 1
+		arcstk::ARId id4(15, 0x001B9178, 0x014BE24D, 0xB40D2D0F); // different id 2
+		arcstk::ARId id5(15, 0x001B9178, 0x014BE24E, 0xC40D2D0F); // different cddb id
 
 		REQUIRE ( id1 != id2 );
 		REQUIRE ( not (id1 == id2) );
@@ -91,7 +91,7 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 	SECTION ( "Copy constructor" )
 	{
-		arcs::ARId copied_id(id);
+		arcstk::ARId copied_id(id);
 
 
 		REQUIRE ( copied_id.track_count() == 10 );
@@ -110,7 +110,7 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 	SECTION ( "Copy assignment operator" )
 	{
-		arcs::ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
+		arcstk::ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
 		id = other_id;
 
 		REQUIRE ( id == other_id );
@@ -135,14 +135,14 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 {
-	arcs::details::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "Reference ARId 1" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		std::unique_ptr<arcs::ARId> id1 = builder.build(
+		std::unique_ptr<arcstk::ARId> id1 = builder.build(
 			// track count
 			15,
 			// offsets
@@ -171,7 +171,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto", Berliner
 		// Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		std::unique_ptr<arcs::ARId> id2 = builder.build(
+		std::unique_ptr<arcstk::ARId> id2 = builder.build(
 			// track count
 			3,
 			// offsets
@@ -199,7 +199,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		std::unique_ptr<arcs::ARId> id3 = builder.build(
+		std::unique_ptr<arcstk::ARId> id3 = builder.build(
 			// track count
 			9,
 			// offsets
@@ -227,7 +227,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// Bent: Programmed to Love
 
-		std::unique_ptr<arcs::ARId> id4 = builder.build(
+		std::unique_ptr<arcstk::ARId> id4 = builder.build(
 			// track count
 			18,
 			// offsets
@@ -257,7 +257,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		"[identifier] [aridbuilder]" )
 {
-	arcs::details::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "Build fails for inconsistent offsets" )
@@ -284,7 +284,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733,
 				106333, 139495, 157863, 198495, 213368, 225320,
-				static_cast<int32_t>(arcs::CDDA.MAX_OFFSET) + 1 /* BOOM */ },
+				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET) + 1 /* BOOM */ },
 			// leadout
 			253038
 		));
@@ -342,7 +342,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			arcs::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
+			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
 		));
 
 		// Leadout is smaller than biggest offset
@@ -378,7 +378,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			234103 + arcs::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
+			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
     }
 
@@ -444,7 +444,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		CHECK_THROWS ( builder.build(
 			// track count
-			arcs::CDDA.MAX_TRACKCOUNT+1, /* BOOM */
+			arcstk::CDDA.MAX_TRACKCOUNT+1, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
@@ -457,12 +457,12 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 {
-	arcs::details::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "Empty ARId" )
 	{
-		std::unique_ptr<arcs::ARId> empty_id = builder.build_empty_id();
+		std::unique_ptr<arcstk::ARId> empty_id = builder.build_empty_id();
 
 
 		REQUIRE ( empty_id->track_count() == 0 );
@@ -485,7 +485,7 @@ TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 
 TEST_CASE ( "TOCValidator", "[identifier]" )
 {
-	arcs::details::TOCValidator validator;
+	arcstk::details::TOCValidator validator;
 
 
     SECTION ( "Validation succeeds for correct offsets" )
@@ -530,7 +530,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		CHECK_THROWS ( validator.validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320,
-				static_cast<int32_t>(arcs::CDDA.MAX_OFFSET + 1) /* BOOM */ }
+				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ }
 		));
 
 		// offset[6] is greater than offset[7]
@@ -571,7 +571,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		// one length smaller than legal minimum
 		CHECK_THROWS ( validator.validate_lengths(
 			{ 5192, 2165, 15885,
-				static_cast<int32_t>(arcs::CDDA.MIN_TRACK_LEN_FRAMES - 1)
+				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
 				5766 }
 		));
@@ -590,7 +590,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		// last length smaller than legal minimum
 		CHECK_THROWS ( validator.validate_lengths(
 			{ 5192, 2165, 15885,
-				static_cast<int32_t>(arcs::CDDA.MIN_TRACK_LEN_FRAMES - 1)
+				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */ }
 		));
 
@@ -605,7 +605,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
     {
 		// legal minimum
 		CHECK_NOTHROW (
-		validator.validate_leadout(arcs::CDDA.MIN_TRACK_OFFSET_DIST)
+		validator.validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
 		);
 
 		// some legal value
@@ -615,7 +615,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// legal maximum
 		CHECK_NOTHROW (
-		validator.validate_leadout(arcs::CDDA.MAX_BLOCK_ADDRESS)
+		validator.validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
 		);
     }
 
@@ -627,12 +627,12 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// greater than 0, but smaller than legal minimum
 		CHECK_THROWS ( validator.validate_leadout(
-			arcs::CDDA.MIN_TRACK_OFFSET_DIST - 1
+			arcstk::CDDA.MIN_TRACK_OFFSET_DIST - 1
 		));
 
 		// bigger than legal maximum
 		CHECK_THROWS ( validator.validate_leadout(
-			arcs::CDDA.MAX_BLOCK_ADDRESS + 1
+			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1
 		));
     }
 
@@ -679,7 +679,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 TEST_CASE ( "details::TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 {
-	arcs::details::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
     SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
@@ -724,7 +724,7 @@ TEST_CASE ( "details::TOCBuilder: build with leadout", "[identifier] [tocbuilder
 TEST_CASE ( "details::TOCBuilder: build with lengths and files",
 	"[identifier] [tocbuilder]" )
 {
-	arcs::details::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
     SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
@@ -848,7 +848,7 @@ TEST_CASE ( "details::TOCBuilder: build with lengths and files",
 TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 	"[identifier] [tocbuilder]" )
 {
-	arcs::details::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
     SECTION ( "Build fails for incorrect offsets" )
@@ -887,7 +887,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 			// offsets (offset[14] exceeds maximal block address)
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320,
-				static_cast<int32_t>(arcs::CDDA.MAX_OFFSET + 1) /* BOOM */ },
+				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// leadout
 			253038
 			)
@@ -900,7 +900,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 			// offsets (offset[14] exceeds maximal block address)
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
 				139495, 157863, 198495, 213368, 225320,
-				static_cast<int32_t>(arcs::CDDA.MAX_OFFSET + 1) /* BOOM */ },
+				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
 				18368, 40152, 14798, 11952, 8463, 18935 },
@@ -1049,7 +1049,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 
 		CHECK_THROWS ( builder.build(
 			// track count
-			arcs::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
+			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -1059,7 +1059,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 
 		CHECK_THROWS ( builder.build(
 			// track count
-			arcs::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
+			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -1095,7 +1095,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			arcs::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
+			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
 		));
 
 		// Leadout has not minimal distance to last offset
@@ -1107,7 +1107,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			234103 + arcs::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
+			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
     }
 
@@ -1124,7 +1124,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228,
-				static_cast<int32_t>(arcs::CDDA.MIN_TRACK_LEN_FRAMES - 1)
+				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
 				19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
 				18935 },
@@ -1142,7 +1142,7 @@ TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228,
-				static_cast<int32_t>(arcs::CDDA.MAX_OFFSET) /* BOOM */, 19513,
+				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET) /* BOOM */, 19513,
 				18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463, 18935 },
 			// files
 			{ }

@@ -23,7 +23,7 @@
 #endif
 
 
-namespace arcs
+namespace arcstk
 {
 
 /// \cond IMPL_ONLY
@@ -2202,5 +2202,5 @@ void ARStdinParser::on_catched_exception(std::istream & /* istream */,
 /// \endcond
 // IMPL_ONLY
 
-} // namespace arcs
+} // namespace arcstk
 

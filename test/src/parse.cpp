@@ -21,7 +21,7 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 {
 	SECTION ( "Construct complete triplet" )
 	{
-		arcs::ARTriplet triplet(0xABCDEF00, 100, 0x0023BFCC);
+		arcstk::ARTriplet triplet(0xABCDEF00, 100, 0x0023BFCC);
 
 		REQUIRE ( triplet.arcs()          == 0xABCDEF00 );
 		REQUIRE ( triplet.confidence()    == 100 );
@@ -35,7 +35,7 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 
 //	SECTION ( "Construct incomplete triplet" )
 //	{
-//		arcs::ARIncompleteTriplet triplet(0xABCDEF00, 100, 0x0023BFCC,
+//		arcstk::ARIncompleteTriplet triplet(0xABCDEF00, 100, 0x0023BFCC,
 //				true, false, true);
 //
 //		REQUIRE ( triplet.arcs()          == 0xABCDEF00 );
@@ -52,7 +52,7 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 
 TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 {
-	arcs::ARBlock block( { 15, 0x001b9178, 0x014be24e, 0xb40d2d0f } );
+	arcstk::ARBlock block( { 15, 0x001b9178, 0x014be24e, 0xb40d2d0f } );
 
 	REQUIRE ( block.id().track_count() == 15 );
 	REQUIRE ( block.id().disc_id_1()   == 0x001b9178 );
@@ -62,7 +62,7 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 	SECTION ( "Append triplets" )
 	{
-		block.append(arcs::ARTriplet(0xABCDEF00, 100, 0x0023BFCC));
+		block.append(arcstk::ARTriplet(0xABCDEF00, 100, 0x0023BFCC));
 
 		REQUIRE ( block.size() == 1 );
 
@@ -79,7 +79,7 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 {
-	arcs::DefaultContentHandler c_handler;
+	arcstk::DefaultContentHandler c_handler;
 
 	// The functionality of DefaultContentHandler is implicitly tested
 	// by the testcases for ARParser and ARFileParser.
@@ -101,7 +101,7 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 
 	REQUIRE ( result.size()    == 1 );
 	REQUIRE ( result[0].size() == 5 );
-	REQUIRE ( result[0].id()   == arcs::ARId(5, 123, 456, 789) );
+	REQUIRE ( result[0].id()   == arcstk::ARId(5, 123, 456, 789) );
 	REQUIRE ( result[0][0].arcs()          == 12345 );
 	REQUIRE ( result[0][0].confidence()    ==    20 );
 	REQUIRE ( result[0][0].frame450_arcs() == 45551 );
@@ -120,13 +120,13 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 
 	SECTION ( "Copy constructor" )
 	{
-		arcs::DefaultContentHandler c_handler_copy(c_handler);
+		arcstk::DefaultContentHandler c_handler_copy(c_handler);
 
 		auto result_copy = c_handler_copy.result();
 
 		REQUIRE ( result_copy.size()    == 1 );
 		REQUIRE ( result_copy[0].size() == 5 );
-		REQUIRE ( result_copy[0].id()   == arcs::ARId(5, 123, 456, 789) );
+		REQUIRE ( result_copy[0].id()   == arcstk::ARId(5, 123, 456, 789) );
 		REQUIRE ( result_copy[0][0].arcs()          == 12345 );
 		REQUIRE ( result_copy[0][0].confidence()    ==    20 );
 		REQUIRE ( result_copy[0][0].frame450_arcs() == 45551 );
@@ -148,16 +148,16 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 
 TEST_CASE ( "DefaultErrorHandler", "[defaulterrorhandler]" )
 {
-	arcs::DefaultErrorHandler e_handler;
+	arcstk::DefaultErrorHandler e_handler;
 }
 
 
 TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 {
-	arcs::ARFileParser parser;
+	arcstk::ARFileParser parser;
 
 	// content handler but no error handler
-	auto c_handler = std::make_unique<arcs::DefaultContentHandler>();
+	auto c_handler = std::make_unique<arcstk::DefaultContentHandler>();
 	parser.set_content_handler(std::move(c_handler));
 
 
@@ -166,7 +166,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f.bin");
 
 		// we positively _know_ the derived type, so downcast is ok
-		auto result = dynamic_cast<const arcs::DefaultContentHandler &>
+		auto result = dynamic_cast<const arcstk::DefaultContentHandler &>
 			(parser.content_handler()).result();
 
 
@@ -175,7 +175,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		// Block 1
 
 		REQUIRE ( result[0].id() ==
-				arcs::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
+				arcstk::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
 
 		REQUIRE ( result[0].size() == 15 );
 
@@ -242,7 +242,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		// Block 2
 
 		REQUIRE ( result[1].id() ==
-				arcs::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
+				arcstk::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
 
 		REQUIRE ( result[1].size() == 15 );
 
@@ -399,7 +399,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 1 );
@@ -415,7 +415,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 2 );
@@ -427,7 +427,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 3 );
@@ -439,7 +439,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 4 );
@@ -455,7 +455,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 5 );
@@ -471,7 +471,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 6 );
@@ -483,7 +483,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 7 );
@@ -495,7 +495,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 8 );
@@ -511,7 +511,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 9 );
@@ -527,7 +527,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 10 );
@@ -539,7 +539,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 11 );
@@ -551,7 +551,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 12 );
@@ -567,7 +567,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 13 );
@@ -585,7 +585,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 139 );
@@ -604,7 +604,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 140 );
@@ -623,7 +623,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 141 );
@@ -635,7 +635,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 142 );
@@ -647,7 +647,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 143 );
@@ -666,7 +666,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 144 );
@@ -685,7 +685,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 145 );
@@ -697,7 +697,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 146 );
@@ -709,7 +709,7 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin");
 
 			FAIL ( "Expected StreamReadException was not thrown" );
-		} catch (const arcs::StreamReadException &e)
+		} catch (const arcstk::StreamReadException &e)
 		{
 			REQUIRE ( e.block()               == 2 );
 			REQUIRE ( e.block_byte_position() == 147 );

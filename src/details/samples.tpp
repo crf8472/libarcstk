@@ -15,7 +15,7 @@
 #include <sstream>
 #include <vector>
 
-namespace arcs
+namespace arcstk
 {
 
 inline namespace v_1_0_0
@@ -841,7 +841,7 @@ const SampleSequence<T, false>* SampleSequence<T, false>::sequence() const
 
 } // namespace v_1_0_0
 
-} // namespace arcs
+} // namespace arcstk
 
 #endif
 
