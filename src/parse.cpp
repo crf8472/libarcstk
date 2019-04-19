@@ -1165,11 +1165,9 @@ public:
 	void end_input();
 
 	/**
-	 * Returns the parse result
-	 *
-	 * \return The parse result
+	 * Implements DefaultContentHandler::set_object()
 	 */
-	ARResponse result() const;
+	void set_object(ARResponse &object);
 
 	/**
 	 * Copy assignment operator.
@@ -1200,13 +1198,13 @@ private:
 	/**
 	 * Aggregating of the blocks parsed
 	 */
-	ARResponse response_;
+	ARResponse *response_;
 };
 
 
 DefaultContentHandler::Impl::Impl()
 	: current_block_(nullptr)
-	, response_()
+	, response_(nullptr)
 {
 	// empty
 }
@@ -1278,7 +1276,7 @@ void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
 
 void DefaultContentHandler::Impl::end_block()
 {
-	response_.append(*current_block_);
+	response_->append(*current_block_);
 	current_block_.reset();
 }
 
@@ -1289,9 +1287,9 @@ void DefaultContentHandler::Impl::end_input()
 }
 
 
-ARResponse DefaultContentHandler::Impl::result() const
+void DefaultContentHandler::Impl::set_object(ARResponse &object)
 {
-	return response_;
+	response_ = &object;
 }
 
 
@@ -1374,9 +1372,9 @@ std::unique_ptr<ContentHandler> DefaultContentHandler::clone() const
 }
 
 
-ARResponse DefaultContentHandler::result() const
+void DefaultContentHandler::set_object(ARResponse &object)
 {
-	return impl_->result();
+	impl_->set_object(object);
 }
 
 
@@ -1643,7 +1641,7 @@ public:
 	 *
 	 * \throw StreamReadException If reading of the stream fails
 	 */
-	uint32_t do_parse(std::istream &in_stream);
+	uint32_t parse_stream(std::istream &in_stream);
 
 	/**
 	 * Copy assignment
@@ -1681,7 +1679,7 @@ private:
 	 *
 	 * \todo This implementation silently relies on a little endian plattform.
 	 */
-	uint32_t parse_stream(std::istream &in_stream);
+	uint32_t parse_stream_worker(std::istream &in_stream);
 
 	/**
 	 * Service method: Interpret 4 bytes as a 32 bit unsigned integer
@@ -1764,12 +1762,12 @@ const ErrorHandler& ARStreamParser::Impl::error_handler() const
 }
 
 
-uint32_t ARStreamParser::Impl::do_parse(std::istream &in_stream)
+uint32_t ARStreamParser::Impl::parse_stream(std::istream &in_stream)
 {
 	uint32_t bytes{0};
 	try
 	{
-		bytes = this->parse_stream(in_stream);
+		bytes = this->parse_stream_worker(in_stream);
 	}
 	catch (const StreamReadException& sre)
 	{
@@ -1808,7 +1806,7 @@ void ARStreamParser::Impl::on_error(const uint32_t byte_pos,
 }
 
 
-uint32_t ARStreamParser::Impl::parse_stream(std::istream &in)
+uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 {
 	if (not content_handler_)
 	{
@@ -2100,9 +2098,15 @@ const ErrorHandler& ARStreamParser::error_handler() const
 }
 
 
-uint32_t ARStreamParser::do_parse(std::istream &in_stream)
+uint32_t ARStreamParser::parse()
 {
-	return impl_->do_parse(in_stream);
+	return this->do_parse();
+}
+
+
+uint32_t ARStreamParser::parse_stream(std::istream &in_stream)
+{
+	return impl_->parse_stream(in_stream);
 }
 
 
@@ -2125,33 +2129,27 @@ ARFileParser::ARFileParser(const std::string &filename)
 
 void ARFileParser::set_file(const std::string &filename)
 {
-	this->filename_ = filename;
+	filename_ = filename;
 }
 
 
 std::string ARFileParser::file() const
 {
-	return this->filename_;
+	return filename_;
 }
 
 
-uint32_t ARFileParser::parse()
+uint32_t ARFileParser::do_parse()
 {
-	return this->parse(this->file());
-}
+	ARCS_LOG_DEBUG << "Open file: " << this->file();
 
+	std::ifstream file;
 
-uint32_t ARFileParser::parse(const std::string &filename)
-{
-	ARCS_LOG_DEBUG << "Open file: " << filename;
-
-	std::ifstream filestream;
-
-	filestream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 	try
 	{
-		filestream.open(filename, std::ifstream::in | std::ifstream::binary);
+		file.open(this->file(), std::ifstream::in | std::ifstream::binary);
 	}
 	catch (const std::ifstream::failure& f)
 	{
@@ -2160,7 +2158,7 @@ uint32_t ARFileParser::parse(const std::string &filename)
 		throw f;
 	}
 
-	return ARStreamParser::do_parse(filestream);
+	return ARStreamParser::parse_stream(file);
 }
 
 
@@ -2178,14 +2176,14 @@ void ARFileParser::on_catched_exception(std::istream &istream,
 ARStdinParser::ARStdinParser() = default;
 
 
-uint32_t ARStdinParser::parse()
+uint32_t ARStdinParser::do_parse()
 {
 	auto response_data = StdIn(1024).bytes();
 
 	VectorIStream<char> response_data_w(response_data);
 	std::istream stream(&response_data_w);
 
-	return ARStreamParser::do_parse(stream);
+	return ARStreamParser::parse_stream(stream);
 }
 
 

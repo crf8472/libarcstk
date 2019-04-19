@@ -81,6 +81,9 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 {
 	arcstk::DefaultContentHandler c_handler;
 
+	arcstk::ARResponse result;
+	c_handler.set_object(result);
+
 	// The functionality of DefaultContentHandler is implicitly tested
 	// by the testcases for ARParser and ARFileParser.
 
@@ -96,8 +99,6 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 
 	c_handler.end_block();
 	c_handler.end_input();
-
-	auto result = c_handler.result();
 
 	REQUIRE ( result.size()    == 1 );
 	REQUIRE ( result[0].size() == 5 );
@@ -117,57 +118,31 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 	REQUIRE ( result[0][4].arcs()          == 56789 );
 	REQUIRE ( result[0][4].confidence()    ==    21 );
 	REQUIRE ( result[0][4].frame450_arcs() == 45533 );
-
-	SECTION ( "Copy constructor" )
-	{
-		arcstk::DefaultContentHandler c_handler_copy(c_handler);
-
-		auto result_copy = c_handler_copy.result();
-
-		REQUIRE ( result_copy.size()    == 1 );
-		REQUIRE ( result_copy[0].size() == 5 );
-		REQUIRE ( result_copy[0].id()   == arcstk::ARId(5, 123, 456, 789) );
-		REQUIRE ( result_copy[0][0].arcs()          == 12345 );
-		REQUIRE ( result_copy[0][0].confidence()    ==    20 );
-		REQUIRE ( result_copy[0][0].frame450_arcs() == 45551 );
-		REQUIRE ( result_copy[0][1].arcs()          == 23456 );
-		REQUIRE ( result_copy[0][1].confidence()    ==    20 );
-		REQUIRE ( result_copy[0][1].frame450_arcs() == 56677 );
-		REQUIRE ( result_copy[0][2].arcs()          == 34567 );
-		REQUIRE ( result_copy[0][2].confidence()    ==    21 );
-		REQUIRE ( result_copy[0][2].frame450_arcs() == 65599 );
-		REQUIRE ( result_copy[0][3].arcs()          == 45678 );
-		REQUIRE ( result_copy[0][3].confidence()    ==    21 );
-		REQUIRE ( result_copy[0][3].frame450_arcs() == 43322 );
-		REQUIRE ( result_copy[0][4].arcs()          == 56789 );
-		REQUIRE ( result_copy[0][4].confidence()    ==    21 );
-		REQUIRE ( result_copy[0][4].frame450_arcs() == 45533 );
-	}
 }
 
 
-TEST_CASE ( "DefaultErrorHandler", "[defaulterrorhandler]" )
+TEST_CASE ( "DefaultErrorHandler can be instantiated", "[defaulterrorhandler]" )
 {
 	arcstk::DefaultErrorHandler e_handler;
 }
 
 
-TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
+TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 {
 	arcstk::ARFileParser parser;
+	arcstk::ARResponse result;
+
+	auto c_handler = std::make_unique<arcstk::DefaultContentHandler>();
+	c_handler->set_object(result);
 
 	// content handler but no error handler
-	auto c_handler = std::make_unique<arcstk::DefaultContentHandler>();
 	parser.set_content_handler(std::move(c_handler));
 
 
 	SECTION ( "Parse valid file" )
 	{
-		parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f.bin");
-
-		// we positively _know_ the derived type, so downcast is ok
-		auto result = dynamic_cast<const arcstk::DefaultContentHandler &>
-			(parser.content_handler()).result();
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f.bin");
+		parser.parse();
 
 
 		REQUIRE ( result.size() == 3 );
@@ -394,9 +369,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: no disc id1 (pos 1)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -410,9 +386,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: disc id1 (pos 2, 3 or 4)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -422,9 +399,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 150 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -434,9 +412,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 151 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -450,9 +429,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: no disc id2 (pos 5)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -466,9 +446,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: disc id2 (pos 6, 7 or 8)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -478,9 +459,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 154 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -490,9 +472,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 155 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -506,9 +489,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: no cddb id (pos 9)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -522,9 +506,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete header: cddb id (pos 10, 11 or 12)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -534,9 +519,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 158 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -546,9 +532,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 159 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -562,9 +549,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with incomplete block: only header" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -578,11 +566,12 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with triplet missing (triplet pos 0)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin");
 		try
 		{
 			// End of a triplet + 0 byte => one or more triplets missing
 
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -596,12 +585,13 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 
 	SECTION ( "Parse files with missing ARCS (triplet pos 1)" )
 	{
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin");
 		try
 		{
 			// End of last triplet + 1 byte =>
 			// triplet invalid, confidence ok, ARCS missing
 
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -618,9 +608,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		// End of last triplet + 2,3 or 4 bytes =>
 		// triplet invalid, confidence ok, ARCS incomplete
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -630,9 +621,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 289 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -642,9 +634,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 290 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -661,9 +654,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		// End of last triplet + 5 bytes =>
 		// triplet invalid, confidence + ARCS ok, frame450_arcs missing
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -680,9 +674,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 		// End of last triplet + 6,7 or 8 bytes =>
 		// triplet invalid, confidence + ARCS ok, frame450_arcs incomplete
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -692,9 +687,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 293 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
@@ -704,9 +700,10 @@ TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 			REQUIRE ( e.byte_position()       == 294 );
 		}
 
+		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin");
 		try
 		{
-			parser.parse("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin");
+			parser.parse();
 
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)

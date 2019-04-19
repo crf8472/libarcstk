@@ -3,7 +3,9 @@
 
 
 /**
- * \file parse.hpp AccurateRip response parser and syntactic entities
+ * \file
+ *
+ * \brief Public API for AccurateRip response parsing and syntactic entities.
  *
  * ARResponse represents the entire response data from AccurateRip. It is
  * composed of a sequence of <tt>ARBlock</tt>s of which each is composed of a
@@ -689,11 +691,11 @@ public:
 	std::unique_ptr<ContentHandler> clone() const override;
 
 	/**
-	 * Returns the parse result
+	 * Set the object constructed by the parsed content.
 	 *
-	 * \return The parse result
+	 * \param[in/out] object Object to construct from parsed content.
 	 */
-	ARResponse result() const;
+	void set_object(ARResponse &object);
 
 	/**
 	 * Copy assignment operator.
@@ -926,8 +928,7 @@ public:
 	 *
 	 * \return Number of bytes parsed from configured input stream
 	 */
-	virtual uint32_t parse()
-	= 0;
+	uint32_t parse();
 
 
 protected:
@@ -942,16 +943,24 @@ protected:
 	 *
 	 * \return Number of bytes parsed from \c in_stream
 	 */
-	uint32_t do_parse(std::istream &in_stream);
+	uint32_t parse_stream(std::istream &in_stream);
 
 
 private:
 
 	/**
-	 * This method is called in the catch clause of a StreamReadException
-	 * before the exception is rethrown.
+	 * Parses the configured input stream.
 	 *
-	 * It can be used to close the stream in case this is required or to
+	 * \return Number of bytes parsed from configured input stream
+	 */
+	virtual uint32_t do_parse()
+	= 0;
+
+	/**
+	 * Hook: Called by method parse_stream() when catching a
+	 * StreamReadException before the exception is rethrown.
+	 *
+	 * This hook can be used to close the stream in case this is required or to
 	 * perform other steps before rethrowing.
 	 *
 	 * \param[in] stream The opened stream in the state after the exception
@@ -1012,20 +1021,10 @@ public:
 	 */
 	std::string file() const;
 
-	/**
-	 * Parses a dBAR-\*.bin file received from AccurateRip.
-	 *
-	 * \param[in] filename The file to parse
-	 *
-	 * \return Number of bytes parsed from \c in_stream
-	 */
-	uint32_t parse(const std::string &filename);
-
-
-	uint32_t parse() final;
-
 
 private:
+
+	uint32_t do_parse() final;
 
 	void on_catched_exception(std::istream &istream,
 			const std::exception &e) const final;
@@ -1034,8 +1033,6 @@ private:
 	 * Internal filename representation
 	 */
 	std::string filename_;
-
-	// TODO Make this class a pimpl
 };
 
 
@@ -1054,15 +1051,10 @@ public:
 	 */
 	ARStdinParser();
 
-	/**
-	 * Parses the byte stream of an AccurateRip response from stdin.
-	 *
-	 * \return Number of bytes parsed from stdin
-	 */
-	uint32_t parse() final;
-
 
 private:
+
+	uint32_t do_parse() final;
 
 	void on_catched_exception(std::istream &istream,
 			const std::exception &e) const final;
