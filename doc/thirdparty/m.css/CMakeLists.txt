@@ -39,7 +39,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 
 	ExternalProject_Get_Property (${MCSS_TARGET} SOURCE_DIR )
 
-	set (MCSS_DOX2HTML5 "${SOURCE_DIR}/doxygen/dox2html5.py" PARENT_SCOPE )
+	set (MCSS_CMD "${SOURCE_DIR}/documentation/doxygen.py" PARENT_SCOPE )
 
 	unset(SOURCE_DIR )
 
@@ -71,11 +71,11 @@ else()
 	endif()
 
 	## Old m.css
-	##set (MCSS_DOX2HTML5 "${${MCSS_TARGET}_SOURCE_DIR}/doxygen/dox2html5.py"
+	##set (MCSS_CMD "${${MCSS_TARGET}_SOURCE_DIR}/doxygen/dox2html5.py"
 	##	PARENT_SCOPE )
 
 	## With 3f568563a8b70fc49a479250d51a2fdc71a66943, it is:
-	set (MCSS_DOX2HTML5 "${${MCSS_TARGET}_SOURCE_DIR}/documentation/doxygen.py"
+	set (MCSS_CMD "${${MCSS_TARGET}_SOURCE_DIR}/documentation/doxygen.py"
 		PARENT_SCOPE )
 
 endif()

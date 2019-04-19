@@ -92,15 +92,21 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 
 		set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss" )
 
+		if (MCSS_DEBUG )
+			set (MCSS_FLAGS "--debug" )
+		else (MCSS_DEBUG )
+			set (MCSS_FLAGS )
+		endif (MCSS_DEBUG )
+
 		## Provide Doxygen configuration for m.css
 		configure_file ("${PROJECT_DOC_DIR}/Doxyfile-mcss.in"
 			"${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss"
 			@ONLY
 		)
 
-		## Run dox2html5.py
+		## Run m.css executable
 		add_custom_target ( doc
-			COMMAND ${PYTHON_CMD} ${MCSS_DOX2HTML5} "${DOXYFILE}"
+			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
 			DEPENDS "${ENV_TARGET}" "${DOXYFILE}"
 				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
