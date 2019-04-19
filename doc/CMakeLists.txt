@@ -92,6 +92,7 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 
 		set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss" )
 
+		## Provide debug output from m.css if requested
 		if (MCSS_DEBUG )
 			set (MCSS_FLAGS "--debug" )
 		else (MCSS_DEBUG )
@@ -121,7 +122,7 @@ else() ## Use standard doxygen
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
 	add_custom_target ( doc ## add 'ALL' if you wish to run doc on regular build
-		Doxygen::doxygen  "${DOXYFILE}"
+		Doxygen::doxygen "${DOXYFILE}"
 		DEPENDS "${DOXYFILE}"
 				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"

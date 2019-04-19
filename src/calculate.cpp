@@ -1,5 +1,7 @@
 /**
- * \file calculate.cpp Implementation of the checksum calculation API
+ * \file
+ *
+ * \brief Implementation of the checksum calculation API
  */
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__

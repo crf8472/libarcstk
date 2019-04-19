@@ -3,7 +3,9 @@
 
 
 /**
- * \file checksum.hpp Construction and management of checksums
+ * \file
+ *
+ * \brief Public API for management of checksums.
  *
  * Represent metadata of a given compact disc image, the computed checksums of
  * an audio file and the Checksums calculating class along with its

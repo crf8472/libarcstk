@@ -72,10 +72,17 @@ OUTPUT_DIRECTORY       = "@PROJECT_BUILD_DOC_DIR@-mcss"
 # See: https://github.com/doxygen/doxygen/commit/7f40e488e27bcea4bb15045df05479dc5fbd9d6d
 #EXTRACT_PRIV_VIRTUAL   = YES
 
-## For m.css specific options see https://mcss.mosra.cz/doxygen/#configuration
+## For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
 
 # If set and PROJECT_BRIEF is al­so set, then PROJECT_NAME in the top navbar
-# will link to this URL and PROJECT_BRIEF in­to the doc­u­men­ta­tion main page,
-# sim­i­lar­ly as shown here.
+# will link to this URL and PROJECT_BRIEF in­to the documentation main page,
+# similarly as shown here.
 #
 ##! M_MAIN_PROJECT_URL   = "@PROJECT_URL@"
+
+## Left and right navbar links
+#
+##! M_LINKS_NAVBAR1 = pages modules
+#
+##! M_LINKS_NAVBAR2 = namespaces annotated files
+

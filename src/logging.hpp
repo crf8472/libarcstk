@@ -3,9 +3,12 @@
 
 
 /**
- * \file logging.hpp A thread-safe, type-safe and portable logging interface
+ * \file
  *
- * Provides the logging macros along with a global Logging instance
+ * \brief Public Logging API for clients.
+ *
+ * Provides a thread-safe, type-safe and portable logging interface in form
+ * of the logging macros along with a global Logging instance.
  *
  * The code in this file is based on ideas by Petru Marginean published in:
  * Marginean, P: "Logging in C++", http://www.ddj.com/cpp/201804215

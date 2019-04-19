@@ -1,9 +1,10 @@
 #ifndef __LIBARCSTK_VERSION_HPP__
 #define __LIBARCSTK_VERSION_HPP__
 
-
 /**
- * \file version.hpp.in Provide version and name information for libarcstk.
+ * \file version.hpp.information
+ *
+ * \brief Provide version and name information for libarcstk.
  *
  * This file is used as a blueprint for cmake to generate a header file
  * containing the cmake-controlled version and name information for the project.
@@ -20,12 +21,12 @@ namespace arcstk
 // Version info
 
 /**
- * Major version number
+ * Major version number.
  */
 constexpr int LIBARCSTK_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
 
 /**
- * Minor version number
+ * Minor version number.
  */
 constexpr int LIBARCSTK_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
 
@@ -35,22 +36,22 @@ constexpr int LIBARCSTK_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
 constexpr int LIBARCSTK_VERSION_PATCH = @PROJECT_VERSION_PATCH@;
 
 /**
- * Version suffix (e.g. 'alpha.1', 'beta.6', 'rc.3' etc.)
+ * Version suffix (e.g. 'alpha.1', 'beta.6', 'rc.3' etc.).
  */
 constexpr auto LIBARCSTK_VERSION_SUFFIX = "@PROJECT_VERSION_SUFFIX@";
 
 /**
- * Version suffix as std::string
+ * Version suffix as std::string.
  */
 const std::string LIBARCSTK_VERSION_SUFFIX_STRING ( LIBARCSTK_VERSION_SUFFIX );
 
 /**
- * Textual version info.
+ * Complete version number.
  */
 constexpr auto LIBARCSTK_VERSION_INFO = "@PROJECT_VERSION_STRING@";
 
 /**
- * Textual version info as std::string
+ * Complete version number as <tt>std::string</tt>.
  */
 const std::string LIBARCSTK_VERSION_INFO_STRING ( LIBARCSTK_VERSION_INFO );
 
@@ -58,12 +59,12 @@ const std::string LIBARCSTK_VERSION_INFO_STRING ( LIBARCSTK_VERSION_INFO );
 // Name info
 
 /**
- * Library name
+ * Library name.
  */
 constexpr auto LIBARCSTK_NAME = "@PROJECT_NAME@";
 
 /**
- * Library name as a std::string
+ * Library name as a <tt>std::string</tt>.
  */
 constexpr std::string LIBARCSTK_NAME_STRING ( LIBARCSTK_NAME );
 

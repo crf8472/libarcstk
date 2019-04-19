@@ -6,7 +6,11 @@
 #define __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 
 /**
- * \file identifier_details.hpp Internal APIs for module 'identifier'
+ * \internal
+ *
+ * \file
+ *
+ * \brief Internal APIs for AccurateRip id calculation
  */
 
 namespace arcstk

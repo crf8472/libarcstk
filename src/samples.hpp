@@ -2,7 +2,9 @@
 #define __LIBARCSTK_SAMPLES_HPP__
 
 /**
- * \file samples.hpp Interface for a sample sequence template
+ * \file
+ *
+ * \brief Public API for representing unconverted sequences of samples.
  */
 
 #include <cstdint>

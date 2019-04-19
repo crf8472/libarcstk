@@ -1,5 +1,7 @@
 /**
- * \file match.cpp Implementation of a low-level API to ARCSs comparison
+ * \file
+ *
+ * \brief Implementation of the AccurateRip checksum matching API.
  */
 
 
@@ -37,8 +39,9 @@ namespace arcstk
 
 inline namespace v_1_0_0
 {
-// unnamed namespace for declarations only used in .cpp-file
-namespace {
+
+namespace
+{
 
 /// \cond IMPL_ONLY
 

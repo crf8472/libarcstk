@@ -1,9 +1,16 @@
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #define __LIBARCSTK_CALCULATE_HPP__
 
+/**
+ * \dir src
+ *
+ * \brief All libarcstk source files
+ */
 
 /**
- * \file calculate.hpp Checksum calculation API
+ * \file
+ *
+ * \brief Public API for checksum calculation.
  *
  * An API to calculate different types of checksums for CDDA conforming audio
  * tracks.

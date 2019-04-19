@@ -1166,6 +1166,8 @@ public:
 
 	/**
 	 * Implements DefaultContentHandler::set_object()
+	 *
+	 * \param[in/out] object The object to construct from the parsed content
 	 */
 	void set_object(ARResponse &object);
 

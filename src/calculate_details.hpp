@@ -6,7 +6,11 @@
 #define __LIBARCSTK_CALCULATE_DETAILS_HPP__
 
 /**
- * \file calculate_details.hpp Internal APIs for module 'calculate'
+ * \internal
+ *
+ * \file
+ *
+ * \brief Internal APIs for checksum calculation
  */
 
 

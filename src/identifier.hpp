@@ -3,7 +3,9 @@
 
 
 /**
- * \file identifier.hpp API for constructing and representing AccurateRip ids
+ * \file
+ *
+ * \brief Public API for calculating AccurateRip ids
  *
  * ARId is an AccurateRip identifier. It can be constructed either from
  * three precomputed ids or from a TOC using function make_arid(). A

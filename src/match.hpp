@@ -3,7 +3,9 @@
 
 
 /**
- * \file match.hpp AccurateRip checksum matching
+ * \file
+ *
+ * \brief Public API for AccurateRip checksum matching.
  *
  * Matcher provides an interface to match the ARCSs of some audio input
  * against a response from AccurateRip. There are two implementations.
