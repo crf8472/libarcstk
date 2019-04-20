@@ -33,12 +33,73 @@
 namespace arcstk
 {
 
+inline namespace v_1_0_0
+{
+
 /// \internal \defgroup matchImpl Implementation of ARCSs comparison
 /// \ingroup match
 /// @{
 
-inline namespace v_1_0_0
+
+// Match
+
+
+Match::~Match() noexcept = default;
+
+
+uint32_t Match::verify_id(const uint32_t b)
 {
+	return this->do_verify_id(b);
+}
+
+
+bool Match::id(const uint32_t b) const
+{
+	return this->do_id(b);
+}
+
+
+uint32_t Match::verify_track(const uint32_t b, const uint8_t t, const bool v2)
+{
+	return this->do_verify_track(b, t, v2);
+}
+
+
+bool Match::track(const uint32_t b, const uint8_t t, const bool v2) const
+{
+	return this->do_track(b, t, v2);
+}
+
+
+uint32_t Match::difference(const uint32_t b, const bool v2) const
+{
+	return this->do_difference(b, v2);
+}
+
+
+int Match::total_blocks() const
+{
+	return this->do_total_blocks();
+}
+
+
+int Match::tracks_per_block() const
+{
+	return this->do_tracks_per_block();
+}
+
+
+size_t Match::size() const
+{
+	return this->do_size();
+}
+
+
+std::unique_ptr<Match> Match::clone() const
+{
+	return this->do_clone();
+}
+
 
 namespace
 {
@@ -46,43 +107,44 @@ namespace
 /// \cond IMPL_ONLY
 
 /**
- * \brief Default implementation of a Match.
- *
- * The result is encoded as a sequence of boolean flags, each representing the
- * result of a match operation between either two ARCSs or two <tt>ARId</tt>s in
- * the order of there occurrence in the ARResponse.
+ * \brief Base for DefaultMatcher.
  */
-class DefaultMatch final : public Match
+class DefaultMatchBase : public Match
 {
 
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 *
 	 * \param[in] blocks Number of <tt>ARBlock</tt>s to represent
 	 * \param[in] tracks Number of tracks per block
 	 */
-	DefaultMatch(const uint32_t blocks, const uint8_t tracks);
+	DefaultMatchBase(const uint32_t blocks, const uint8_t tracks);
 
-	uint32_t verify_id(const uint32_t b) override;
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~DefaultMatchBase() noexcept;
 
-	bool id(const uint32_t b) const override;
 
-	uint32_t verify_track(const uint32_t b, const uint8_t t, const bool v2)
+	uint32_t do_verify_id(const uint32_t b) override;
+
+	bool do_id(const uint32_t b) const override;
+
+	uint32_t do_verify_track(const uint32_t b, const uint8_t t, const bool v2)
 		override;
 
-	bool track(const uint32_t b, const uint8_t t, const bool v2) const override;
+	bool do_track(const uint32_t b, const uint8_t t, const bool v2) const
+		override;
 
-	uint32_t difference(const uint32_t b, const bool v2) const override;
+	uint32_t do_difference(const uint32_t b, const bool v2) const override;
 
-	int total_blocks() const override;
+	int do_total_blocks() const override;
 
-	int tracks_per_block() const override;
+	int do_tracks_per_block() const override;
 
-	size_t size() const override;
-
-	std::unique_ptr<Match> clone() const override;
+	size_t do_size() const override;
 
 
 protected:
@@ -209,7 +271,7 @@ private:
 } // namespace
 
 
-DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
+DefaultMatchBase::DefaultMatchBase(const uint32_t blocks, const uint8_t tracks)
 	: blocks_(blocks)
 	, tracks_per_block_(tracks)
 	, size_(blocks * (2 * tracks + 1))
@@ -219,13 +281,16 @@ DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
 }
 
 
-uint32_t DefaultMatch::verify_id(const uint32_t b)
+DefaultMatchBase::~DefaultMatchBase() noexcept = default;
+
+
+uint32_t DefaultMatchBase::do_verify_id(const uint32_t b)
 {
 	return this->set_id(b, true);
 }
 
 
-bool DefaultMatch::id(const uint32_t b) const
+bool DefaultMatchBase::do_id(const uint32_t b) const
 {
 	this->validate_block(b);
 
@@ -240,15 +305,15 @@ bool DefaultMatch::id(const uint32_t b) const
 }
 
 
-uint32_t DefaultMatch::verify_track(const uint32_t b, const uint8_t t,
+uint32_t DefaultMatchBase::do_verify_track(const uint32_t b, const uint8_t t,
 		const bool v2)
 {
 	return this->set_track(b, t, v2, true);
 }
 
 
-bool DefaultMatch::track(const uint32_t b, const uint8_t t, const bool v2)
-	const
+bool DefaultMatchBase::do_track(const uint32_t b, const uint8_t t,
+		const bool v2) const
 {
 	this->validate_block(b);
 	this->validate_track(t);
@@ -264,7 +329,7 @@ bool DefaultMatch::track(const uint32_t b, const uint8_t t, const bool v2)
 }
 
 
-uint32_t DefaultMatch::difference(const uint32_t b, const bool v2) const
+uint32_t DefaultMatchBase::do_difference(const uint32_t b, const bool v2) const
 {
 	this->validate_block(b);
 
@@ -279,43 +344,37 @@ uint32_t DefaultMatch::difference(const uint32_t b, const bool v2) const
 }
 
 
-int DefaultMatch::total_blocks() const
+int DefaultMatchBase::do_total_blocks() const
 {
 	return blocks_;
 }
 
 
-int DefaultMatch::tracks_per_block() const
+int DefaultMatchBase::do_tracks_per_block() const
 {
 	return tracks_per_block_;
 }
 
 
-size_t DefaultMatch::size() const
+size_t DefaultMatchBase::do_size() const
 {
 	return size_;
 }
 
 
-std::unique_ptr<Match> DefaultMatch::clone() const
-{
-	return std::make_unique<DefaultMatch>(*this);
-}
-
-
-uint32_t DefaultMatch::block_start(const uint32_t b) const
+uint32_t DefaultMatchBase::block_start(const uint32_t b) const
 {
 	return b * (2 * tracks_per_block_ + 1);
 }
 
 
-uint32_t DefaultMatch::track_offset(const uint8_t t, const bool v2) const
+uint32_t DefaultMatchBase::track_offset(const uint8_t t, const bool v2) const
 {
 	return t + 1 + (v2 ? tracks_per_block_ : 0);
 }
 
 
-uint32_t DefaultMatch::index(const uint32_t b, const int8_t t,
+uint32_t DefaultMatchBase::index(const uint32_t b, const int8_t t,
 		const bool v2) const
 {
 	// b and t are 0-based
@@ -323,7 +382,7 @@ uint32_t DefaultMatch::index(const uint32_t b, const int8_t t,
 }
 
 
-uint32_t DefaultMatch::set_id(const uint32_t b, bool value)
+uint32_t DefaultMatchBase::set_id(const uint32_t b, bool value)
 {
 	this->validate_block(b);
 
@@ -339,7 +398,7 @@ uint32_t DefaultMatch::set_id(const uint32_t b, bool value)
 }
 
 
-uint32_t DefaultMatch::set_track(const uint32_t b, const uint8_t t,
+uint32_t DefaultMatchBase::set_track(const uint32_t b, const uint8_t t,
 		const bool v2, const bool value)
 {
 	this->validate_block(b);
@@ -357,7 +416,7 @@ uint32_t DefaultMatch::set_track(const uint32_t b, const uint8_t t,
 }
 
 
-void DefaultMatch::validate_block(uint32_t b) const
+void DefaultMatchBase::validate_block(uint32_t b) const
 {
 	if (b > blocks_ - 1)
 	{
@@ -366,7 +425,7 @@ void DefaultMatch::validate_block(uint32_t b) const
 }
 
 
-void DefaultMatch::validate_track(int t) const
+void DefaultMatchBase::validate_track(int t) const
 {
 	if (t > tracks_per_block_ - 1)
 	{
@@ -374,12 +433,95 @@ void DefaultMatch::validate_track(int t) const
 	}
 }
 
+
+/**
+ * \brief Default implementation of a Match.
+ *
+ * The result is encoded as a sequence of boolean flags, each representing the
+ * result of a match operation between either two ARCSs or two <tt>ARId</tt>s in
+ * the order of there occurrence in the ARResponse.
+ */
+class DefaultMatch final : public DefaultMatchBase
+{
+public:
+
+	/**
+	 * \brief Default constructor.
+	 *
+	 * \param[in] blocks Number of <tt>ARBlock</tt>s to represent
+	 * \param[in] tracks Number of tracks per block
+	 */
+	DefaultMatch(const uint32_t blocks, const uint8_t tracks);
+
+
+private:
+
+	std::unique_ptr<Match> do_clone() const final;
+};
+
+
+DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
+	: DefaultMatchBase(blocks, tracks)
+{
+	// empty
+}
+
+
+std::unique_ptr<Match> DefaultMatch::do_clone() const
+{
+	return std::make_unique<DefaultMatch>(*this);
+}
+
+
+// Matcher
+
+
+Matcher::~Matcher() noexcept = default;
+
+
+bool Matcher::matches() const
+{
+	return this->do_matches();
+}
+
+
+uint32_t Matcher::best_match() const
+{
+	return this->do_best_match();
+}
+
+
+int Matcher::best_difference() const
+{
+	return this->do_best_difference();
+}
+
+
+bool Matcher::matches_v2() const
+{
+	return this->do_matches_v2();
+}
+
+
+const Match * Matcher::match() const
+{
+	return this->do_match();
+}
+
+
+std::unique_ptr<Matcher> Matcher::clone() const
+{
+	return this->do_clone();
+}
+
+
 /// \cond IMPL_ONLY
+
 
 /**
  * \brief Abstract base class for matcher implementations.
  */
-class BaseMatcherImpl
+class MatcherImplBase
 {
 
 public:
@@ -387,21 +529,21 @@ public:
 	/**
 	 * Default constructor
 	 */
-	BaseMatcherImpl();
+	MatcherImplBase();
 
 	/**
 	 * Copy constructor
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
-	BaseMatcherImpl(const BaseMatcherImpl &rhs);
+	MatcherImplBase(const MatcherImplBase &rhs);
 
 	/**
 	 * Move constructor
 	 *
 	 * \param[in] rhs Instance to move
 	 */
-	BaseMatcherImpl(BaseMatcherImpl &&rhs) noexcept;
+	MatcherImplBase(MatcherImplBase &&rhs) noexcept;
 
 	/**
 	 * Initializes the match
@@ -440,7 +582,7 @@ public:
 	 *
 	 * \return The right hand side of the assigment
 	 */
-	BaseMatcherImpl& operator = (const BaseMatcherImpl &rhs);
+	MatcherImplBase& operator = (const MatcherImplBase &rhs);
 
 	/**
 	 * Move assignment
@@ -449,7 +591,7 @@ public:
 	 *
 	 * \return The right hand side of the assigment
 	 */
-	BaseMatcherImpl& operator = (BaseMatcherImpl &&rhs) noexcept;
+	MatcherImplBase& operator = (MatcherImplBase &&rhs) noexcept;
 
 	/**
 	 * Returns the actual match result.
@@ -464,7 +606,7 @@ protected:
 	/**
 	 * Default destructor
 	 */
-	~BaseMatcherImpl() noexcept;
+	~MatcherImplBase() noexcept;
 
 	/**
 	 * Performs the actual match.
@@ -521,7 +663,7 @@ private:
 // IMPL_ONLY
 
 
-BaseMatcherImpl::BaseMatcherImpl()
+MatcherImplBase::MatcherImplBase()
 	: match_(nullptr)
 	, best_block_(0)
 	, matches_v2_(false)
@@ -530,7 +672,7 @@ BaseMatcherImpl::BaseMatcherImpl()
 }
 
 
-BaseMatcherImpl::BaseMatcherImpl(const BaseMatcherImpl &rhs)
+MatcherImplBase::MatcherImplBase(const MatcherImplBase &rhs)
 	: match_(std::make_unique<DefaultMatch>(*rhs.match_))  // deep copy
 	, best_block_(rhs.best_block_)
 	, matches_v2_(rhs.matches_v2_)
@@ -539,7 +681,7 @@ BaseMatcherImpl::BaseMatcherImpl(const BaseMatcherImpl &rhs)
 }
 
 
-BaseMatcherImpl::BaseMatcherImpl(BaseMatcherImpl &&rhs) noexcept
+MatcherImplBase::MatcherImplBase(MatcherImplBase &&rhs) noexcept
 	: match_(std::move(rhs.match_))
 	, best_block_(rhs.best_block_)
 	, matches_v2_(rhs.matches_v2_)
@@ -548,10 +690,10 @@ BaseMatcherImpl::BaseMatcherImpl(BaseMatcherImpl &&rhs) noexcept
 }
 
 
-BaseMatcherImpl::~BaseMatcherImpl() noexcept = default;
+MatcherImplBase::~MatcherImplBase() noexcept = default;
 
 
-void BaseMatcherImpl::init_match(const Checksums &checksums, const ARId &id,
+void MatcherImplBase::init_match(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 {
 	if (checksums.size() == 0)
@@ -570,31 +712,31 @@ void BaseMatcherImpl::init_match(const Checksums &checksums, const ARId &id,
 }
 
 
-bool BaseMatcherImpl::matches() const
+bool MatcherImplBase::matches() const
 {
 	return this->best_difference() == 0;
 }
 
 
-uint32_t BaseMatcherImpl::best_match() const
+uint32_t MatcherImplBase::best_match() const
 {
 	return best_block_;
 }
 
 
-int BaseMatcherImpl::best_difference() const
+int MatcherImplBase::best_difference() const
 {
 	return match_->difference(best_block_, matches_v2_);
 }
 
 
-bool BaseMatcherImpl::matches_v2() const
+bool MatcherImplBase::matches_v2() const
 {
 	return matches_v2_;
 }
 
 
-int BaseMatcherImpl::best_block(const DefaultMatch &m,
+int MatcherImplBase::best_block(const DefaultMatch &m,
 		uint32_t &block, bool &matches_v2)
 {
 	if (m.size() == 0)
@@ -631,8 +773,8 @@ int BaseMatcherImpl::best_block(const DefaultMatch &m,
 }
 
 
-BaseMatcherImpl& BaseMatcherImpl::operator = (
-		const BaseMatcherImpl &rhs)
+MatcherImplBase& MatcherImplBase::operator = (
+		const MatcherImplBase &rhs)
 {
 	if (this == &rhs)
 	{
@@ -644,17 +786,17 @@ BaseMatcherImpl& BaseMatcherImpl::operator = (
 }
 
 
-BaseMatcherImpl& BaseMatcherImpl::operator = (
-		BaseMatcherImpl &&rhs) noexcept = default;
+MatcherImplBase& MatcherImplBase::operator = (
+		MatcherImplBase &&rhs) noexcept = default;
 
 
-const DefaultMatch * BaseMatcherImpl::match() const
+const DefaultMatch * MatcherImplBase::match() const
 {
 	return match_.get();
 }
 
 
-int BaseMatcherImpl::mark_best_block()
+int MatcherImplBase::mark_best_block()
 {
 	uint32_t block   = 0;
 	bool     version = false;
@@ -681,7 +823,7 @@ int BaseMatcherImpl::mark_best_block()
 /**
  * \brief Implementation of ListMatcher.
  */
-class ListMatcher::Impl final : public BaseMatcherImpl
+class ListMatcher::Impl final : public MatcherImplBase
 {
 
 protected:
@@ -814,25 +956,25 @@ ListMatcher::ListMatcher(ListMatcher &&rhs) noexcept = default;
 ListMatcher::~ListMatcher() noexcept = default;
 
 
-bool ListMatcher::matches() const
+bool ListMatcher::do_matches() const
 {
 	return impl_->matches();
 }
 
 
-uint32_t ListMatcher::best_match() const
+uint32_t ListMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }
 
 
-int ListMatcher::best_difference() const
+int ListMatcher::do_best_difference() const
 {
 	return impl_->best_difference();
 }
 
 
-bool ListMatcher::matches_v2() const
+bool ListMatcher::do_matches_v2() const
 {
 	return impl_->matches_v2();
 }
@@ -854,13 +996,13 @@ ListMatcher& ListMatcher::operator = (ListMatcher &&rhs) noexcept
 	= default;
 
 
-const Match * ListMatcher::match() const
+const Match* ListMatcher::do_match() const
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> ListMatcher::clone() const
+std::unique_ptr<Matcher> ListMatcher::do_clone() const
 {
 	return std::make_unique<ListMatcher>(*this);
 }
@@ -872,7 +1014,7 @@ std::unique_ptr<Matcher> ListMatcher::clone() const
 /**
  * \brief Implementation of AnyMatcher.
  */
-class AnyMatcher::Impl final : public BaseMatcherImpl
+class AnyMatcher::Impl final : public MatcherImplBase
 {
 
 protected:
@@ -1033,25 +1175,25 @@ AnyMatcher::AnyMatcher(AnyMatcher &&rhs) noexcept = default;
 AnyMatcher::~AnyMatcher() noexcept = default;
 
 
-bool AnyMatcher::matches() const
+bool AnyMatcher::do_matches() const
 {
 	return impl_->matches();
 }
 
 
-uint32_t AnyMatcher::best_match() const
+uint32_t AnyMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }
 
 
-int AnyMatcher::best_difference() const
+int AnyMatcher::do_best_difference() const
 {
 	return impl_->best_difference();
 }
 
 
-bool AnyMatcher::matches_v2() const
+bool AnyMatcher::do_matches_v2() const
 {
 	return impl_->matches_v2();
 }
@@ -1073,20 +1215,20 @@ AnyMatcher& AnyMatcher::operator = (AnyMatcher &&rhs) noexcept
 	= default;
 
 
-const Match * AnyMatcher::match() const
+const Match * AnyMatcher::do_match() const
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> AnyMatcher::clone() const
+std::unique_ptr<Matcher> AnyMatcher::do_clone() const
 {
 	return std::make_unique<AnyMatcher>(*this);
 }
 
-} // namespace v_1_0_0
-
 /// @}
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 

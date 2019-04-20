@@ -36,15 +36,15 @@ namespace arcstk { inline namespace v_1_0_0 { class Checksums;  } }
 namespace arcstk
 {
 
-/// \defgroup match AccurateRip Checksum Matcher
-/// @{
-
 inline namespace v_1_0_0
 {
 
+/// \defgroup match AccurateRip Checksum Matcher
+/// @{
+
 
 /**
- * \brief Result of a match of some Checksums against an ARResponse.
+ * \brief Interface: Result of a match of Checksums against an ARResponse.
  *
  * The Match provides access to each element for which a match was tried
  * in terms of block:track:version.
@@ -57,7 +57,7 @@ public:
 	/**
 	 * Virtual default destructor
 	 */
-	virtual ~Match() noexcept = default;
+	virtual ~Match() noexcept;
 
 	/**
 	 * Marks the ARId of block \c b as verified.
@@ -66,7 +66,102 @@ public:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	virtual uint32_t verify_id(const uint32_t b)
+	uint32_t verify_id(const uint32_t b);
+
+	/**
+	 * TRUE iff the ARId of block \c b is equal to the ARId of
+	 * \c result, otherwise FALSE.
+	 *
+	 * \param[in] b 0-based index of the block to verify in \c response
+	 *
+	 * \throws Iff \c b is out of range
+	 *
+	 * \return TRUE iff the ARId of block \c b matches the ARId of \c
+	 * result
+	 */
+	bool id(const uint32_t b) const;
+
+	/**
+	 * Verifies a single ARCS of the specified track.
+	 *
+	 * \param[in] b  0-based index of the block to verify in \c response
+	 * \param[in] t  0-based index of the track to verify in \c response
+	 * \param[in] v2 Verifies the ARCSv2 iff TRUE, otherwise ARCSv1
+	 *
+	 * \throws Iff \c b or \c t are out of range
+	 *
+	 * \return Index position to store the verification flag
+	 */
+	uint32_t verify_track(const uint32_t b, const uint8_t t, const bool v2);
+
+	/**
+	 * Return the verification status of an ARCS of the specified track.
+	 *
+	 * \param[in] b  0-based index of the block to verify in \c response
+	 * \param[in] t  0-based index of the track to verify in \c response
+	 * \param[in] v2 Returns the ARCSv2 flag iff TRUE, otherwise ARCSv1
+	 *
+	 * \throws Iff \c b or \c t are out of range
+	 *
+	 * \return Flag for ARCS of track \c t in block \c b
+	 */
+	bool track(const uint32_t b, const uint8_t t, const bool v2) const;
+
+	/**
+	 * Returns the difference for block \c b .
+	 *
+	 * The difference is the number of ARCSs in \c b that do not match their
+	 * corresponsing positions in the original result<tt>+ 1</tt> iff the
+	 * ARId of \c b does not match the ARId of the result.
+	 *
+	 * \param[in] b  0-based index of the block to verify in \c response
+	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1
+	 *
+	 * \throws Iff \c b is out of range
+	 *
+	 * \return Difference of block \c b
+	 */
+	uint32_t difference(const uint32_t b, const bool v2) const;
+
+	/**
+	 * Returns the number of compared blocks.
+	 *
+	 * \return Total number of compared blocks.
+	 */
+	int total_blocks() const;
+
+	/**
+	 * Returns the number of compared tracks per block.
+	 *
+	 * \return Total number of tracks per block.
+	 */
+	int tracks_per_block() const;
+
+	/**
+	 * Returns the number of comparison flags stored.
+	 *
+	 * \return Number of flags stored
+	 */
+	size_t size() const;
+
+	/**
+	 * Clones this instance.
+	 *
+	 * \return Deep copy of this instance.
+	 */
+	std::unique_ptr<Match> clone() const;
+
+
+private:
+
+	/**
+	 * Marks the ARId of block \c b as verified.
+	 *
+	 * \param[in] b 0-based index of the block to verify in \c response
+	 *
+	 * \return Index position to store the verification flag
+	 */
+	virtual uint32_t do_verify_id(const uint32_t b)
 	= 0;
 
 	/**
@@ -80,7 +175,7 @@ public:
 	 * \return TRUE iff the ARId of block \c b matches the ARId of \c
 	 * result
 	 */
-	virtual bool id(const uint32_t b) const
+	virtual bool do_id(const uint32_t b) const
 	= 0;
 
 	/**
@@ -94,7 +189,7 @@ public:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	virtual uint32_t verify_track(const uint32_t b, const uint8_t t,
+	virtual uint32_t do_verify_track(const uint32_t b, const uint8_t t,
 			const bool v2)
 	= 0;
 
@@ -109,7 +204,8 @@ public:
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
-	virtual bool track(const uint32_t b, const uint8_t t, const bool v2) const
+	virtual bool do_track(const uint32_t b, const uint8_t t, const bool v2)
+		const
 	= 0;
 
 	/**
@@ -126,7 +222,7 @@ public:
 	 *
 	 * \return Difference of block \c b
 	 */
-	virtual uint32_t difference(const uint32_t b, const bool v2) const
+	virtual uint32_t do_difference(const uint32_t b, const bool v2) const
 	= 0;
 
 	/**
@@ -134,7 +230,7 @@ public:
 	 *
 	 * \return Total number of compared blocks.
 	 */
-	virtual int total_blocks() const
+	virtual int do_total_blocks() const
 	= 0;
 
 	/**
@@ -142,7 +238,7 @@ public:
 	 *
 	 * \return Total number of tracks per block.
 	 */
-	virtual int tracks_per_block() const
+	virtual int do_tracks_per_block() const
 	= 0;
 
 	/**
@@ -150,7 +246,7 @@ public:
 	 *
 	 * \return Number of flags stored
 	 */
-	virtual size_t size() const
+	virtual size_t do_size() const
 	= 0;
 
 	/**
@@ -158,13 +254,14 @@ public:
 	 *
 	 * \return Deep copy of this instance.
 	 */
-	virtual std::unique_ptr<Match> clone() const
+	virtual std::unique_ptr<Match> do_clone() const
 	= 0;
 };
 
 
 /**
- * \brief Analyzes whether given Checksums match a given ARResponse.
+ * \brief Interface: Try to match given Checksums against a specified
+ * ARResponse.
  *
  * The Matcher indicates whether a matching block was found, returns
  * the best difference value and the index position of the best matching block
@@ -178,7 +275,7 @@ public:
 	/**
 	 * Virtual default destructor
 	 */
-	virtual ~Matcher() noexcept = default;
+	virtual ~Matcher() noexcept;
 
 	/**
 	 * Returns TRUE iff at least one block in \c response is identical to either
@@ -186,7 +283,60 @@ public:
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
 	 */
-	virtual bool matches() const
+	bool matches() const;
+
+	/**
+	 * Returns the 0-based index of the best matching block in \c response.
+	 *
+	 * \return 0-based index of the best matching block in \c response
+	 */
+	uint32_t best_match() const;
+
+	/**
+	 * Returns the difference value of the ARBlock with index
+	 * \c best_match().
+	 *
+	 * The difference is the sum of the number of non-matching ARCSs and the
+	 * number of non-matching <tt>ARId</tt>s in a single block. A block whose
+	 * ARId does not match the ARId of the result has therefore at
+	 * least a difference of \c 1 to the result.
+	 *
+	 * \return Difference value of best block
+	 */
+	int best_difference() const;
+
+	/**
+	 * Returns TRUE iff the ARBlock with index \c best_match() matches
+	 * the ARCSsv2 of \c result, otherwise FALSE.
+	 *
+	 * \return TRUE if \c best_match() was a match to the ARCSsv2
+	 */
+	bool matches_v2() const;
+
+	/**
+	 * Returns the actual match information
+	 *
+	 * \return The actual match information.
+	 */
+	const Match * match() const;
+
+	/**
+	 * Clones this instance.
+	 *
+	 * \return Deep copy of this instance.
+	 */
+	std::unique_ptr<Matcher> clone() const;
+
+
+private:
+
+	/**
+	 * Returns TRUE iff at least one block in \c response is identical to either
+	 * the ARCSs v1 or the ARCSs v2 in \c result.
+	 *
+	 * \return TRUE if \c response contains a block matching \c result
+	 */
+	virtual bool do_matches() const
 	= 0;
 
 	/**
@@ -194,7 +344,7 @@ public:
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
-	virtual uint32_t best_match() const
+	virtual uint32_t do_best_match() const
 	= 0;
 
 	/**
@@ -208,7 +358,7 @@ public:
 	 *
 	 * \return Difference value of best block
 	 */
-	virtual int best_difference() const
+	virtual int do_best_difference() const
 	= 0;
 
 	/**
@@ -217,7 +367,7 @@ public:
 	 *
 	 * \return TRUE if \c best_match() was a match to the ARCSsv2
 	 */
-	virtual bool matches_v2() const
+	virtual bool do_matches_v2() const
 	= 0;
 
 	/**
@@ -225,7 +375,7 @@ public:
 	 *
 	 * \return The actual match information.
 	 */
-	virtual const Match * match() const
+	virtual const Match * do_match() const
 	= 0;
 
 	/**
@@ -233,7 +383,7 @@ public:
 	 *
 	 * \return Deep copy of this instance.
 	 */
-	virtual std::unique_ptr<Matcher> clone() const
+	virtual std::unique_ptr<Matcher> do_clone() const
 	= 0;
 };
 
@@ -276,17 +426,7 @@ public:
 	/**
 	 * Default destructor
 	 */
-	~ListMatcher() noexcept override;
-
-	bool matches() const override;
-
-	uint32_t best_match() const override;
-
-	int best_difference() const override;
-
-	bool matches_v2() const override;
-
-	const Match * match() const override;
+	~ListMatcher() noexcept final;
 
 	/**
 	 * Copy assignment
@@ -306,10 +446,20 @@ public:
 	 */
 	ListMatcher& operator = (ListMatcher &&rhs) noexcept;
 
-	std::unique_ptr<Matcher> clone() const override;
-
 
 private:
+
+	bool do_matches() const final;
+
+	uint32_t do_best_match() const final;
+
+	int do_best_difference() const final;
+
+	bool do_matches_v2() const final;
+
+	const Match* do_match() const final;
+
+	std::unique_ptr<Matcher> do_clone() const final;
 
 	// forward declaration
 	class Impl;
@@ -358,16 +508,6 @@ public:
 	 */
 	~AnyMatcher() noexcept override;
 
-	bool matches() const override;
-
-	uint32_t best_match() const override;
-
-	int best_difference() const override;
-
-	bool matches_v2() const override;
-
-	const Match * match() const override;
-
 	/**
 	 * Copy assignment
 	 *
@@ -386,10 +526,20 @@ public:
 	 */
 	AnyMatcher& operator = (AnyMatcher &&rhs) noexcept;
 
-	std::unique_ptr<Matcher> clone() const override;
-
 
 private:
+
+	bool do_matches() const final;
+
+	uint32_t do_best_match() const final;
+
+	int do_best_difference() const final;
+
+	bool do_matches_v2() const final;
+
+	const Match* do_match() const final;
+
+	std::unique_ptr<Matcher> do_clone() const final;
 
 	// forward declaration
 	class Impl;
@@ -401,9 +551,9 @@ private:
 };
 
 
-} // namespace v_1_0_0
-
 /// @}
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 
