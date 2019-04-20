@@ -26,13 +26,13 @@
 namespace arcstk
 {
 
+inline namespace v_1_0_0
+{
+
 /// \cond IMPL_ONLY
 /// \internal \defgroup parseImpl Implementation of an AccurateRip response parser
 /// \ingroup parse
 /// @{
-
-inline namespace v_1_0_0
-{
 
 namespace
 {
@@ -2195,12 +2195,11 @@ void ARStdinParser::on_catched_exception(std::istream & /* istream */,
 	// empty
 }
 
-
-} // namespace v_1_0_0
-
 /// @}
 /// \endcond
 // IMPL_ONLY
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 

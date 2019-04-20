@@ -42,10 +42,6 @@
 
 namespace arcstk
 {
-
-/// \defgroup parse AccurateRip Response Parser
-/// @{
-
 inline namespace v_1_0_0
 {
 
@@ -57,8 +53,12 @@ class ARId;
 class ARTripletImpl;
 
 
+/// \defgroup parse AccurateRip Response Parser
+/// @{
+
+
 /**
- * \brief A triplet of values from a block in a response of AccurateRip.
+ * \brief A triplet of values from a block in an AccurateRip response.
  *
  * Syntactically, an ARTriplet is an element of some ARBlock.
  *
@@ -367,7 +367,7 @@ private:
 
 
 /**
- * \brief A response from AccurateRip.
+ * \brief Response content from AccurateRip.
  */
 class ARResponse final
 {
@@ -729,7 +729,7 @@ private:
 
 
 /**
- * \brief Interface for ARParser error handlers.
+ * \brief Interface for ARStreamParser error handlers.
  *
  * Defines the handler methods to react on parse errors of an
  * ARStreamParser.
@@ -860,7 +860,7 @@ private:
 
 
 /**
- * \brief Abstract base class for parsing an AccurateRip response body.
+ * \brief Abstract base class for parsing an AccurateRip response.
  *
  * ARStreamParser encapsulates the actual parsing process on an std::istream.
  *
@@ -1060,10 +1060,9 @@ private:
 			const std::exception &e) const final;
 };
 
+/// @}
 
 } // namespace v_1_0_0
-
-/// @}
 
 } // namespace arcstk
 
