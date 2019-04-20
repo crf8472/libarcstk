@@ -26,11 +26,12 @@
 namespace arcstk
 {
 
-/// \addtogroup calc
-/// @{
-
 inline namespace v_1_0_0
 {
+
+
+/// \addtogroup calc
+/// @{
 
 
 /**
@@ -136,15 +137,16 @@ using CDDA_t = struct CDDA_t;
  */
 extern const CDDA_t CDDA;
 
-} // namespace v_1_0_0
-
 /// @}
 
-/// \defgroup id AccurateRip IDs
-/// @{
+} // namespace v_1_0_0
+
 
 inline namespace v_1_0_0
 {
+
+/// \defgroup id AccurateRip IDs
+/// @{
 
 
 /**
@@ -500,7 +502,7 @@ std::unique_ptr<ARId> make_empty_arid();
 /**
  * \brief Create a TOC object from the specified information.
  *
- * The returned TOC is guaranteed to be complete.
+ * The input data is validated and returned TOC is guaranteed to be complete.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
@@ -598,10 +600,9 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 }
 
+/// @}
 
 } // namespace v_1_0_0
-
-/// @}
 
 } // namespace arcstk
 

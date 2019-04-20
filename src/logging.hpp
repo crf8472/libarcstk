@@ -31,18 +31,17 @@
 #include <unordered_set>
 
 
-
 namespace arcstk
+{
+
+inline namespace v_1_0_0
 {
 
 /// \defgroup logging Logging API for use by clients
 /// @{
 
-inline namespace v_1_0_0
-{
-
 /**
- * Range of log levels
+ * \brief Range of log levels
  */
 enum class LOGLEVEL : int16_t
 {
@@ -59,9 +58,6 @@ enum class LOGLEVEL : int16_t
 };
 
 
-// Appender
-
-
 /**
  * \brief A named logging output channel.
  *
@@ -72,80 +68,83 @@ enum class LOGLEVEL : int16_t
  * filename, this filename becomes its name. If it is constructed with a
  * <tt>FILE*</tt> and a name, the name is arbitrary.
  */
-class Appender final {
+class Appender final
+{
 
 public:
 
 	/**
-	 * Constructs an Appender for appending to the given filename,
-	 * whereby the filename becomes the name of the Appender.
+	 * \brief Constructs an Appender for appending to the given file.
+	 *
+	 * The \c filename becomes the name of the Appender.
 	 *
 	 * \param[in] filename File to append to and name of the Appender
 	 */
-	explicit Appender(const std::string &filename);
+	inline explicit Appender(const std::string &filename);
 
 	/**
-	 * Constructs an Appender for appending to the given <tt>FILE</tt>
-	 * (may also be <tt>stdout</tt>, <tt>stderr</tt> etc.)
+	 * \brief Constructs an Appender for appending to the given <tt>FILE</tt>.
 	 *
-	 * \param[in] name Name of the Appender
+	 * The \c stream may also be <tt>stdout</tt>, <tt>stderr</tt> etc.
+	 *
+	 * \param[in] name   Name of the Appender
 	 * \param[in] stream The <tt>FILE</tt> to append to
 	 */
-	Appender(const std::string &name, FILE* stream);
+	inline Appender(const std::string &name, FILE* stream);
 
 	/**
-	 * Appender is non-copyable
+	 * \brief Appender is non-copyable
 	 */
-	Appender(const Appender&) = delete;
+	inline Appender(const Appender&) = delete;
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	Appender(Appender &&rhs) noexcept;
+	inline Appender(Appender &&rhs) noexcept;
 
 	/**
-	 * Destructor
+	 * \brief Destructor
 	 */
-	~Appender() noexcept;
+	inline ~Appender() noexcept;
 
 	/**
-	 * Append the specified message
+	 * \brief Append the specified message
 	 *
 	 * \param[in] msg The message to append
 	 */
-	void append(const std::string& msg) const;
+	inline void append(const std::string& msg) const;
 
 	/**
-	 * Name of the Appender
+	 * \brief Name of the Appender
 	 *
 	 * \return Name of the Appender
 	 */
-	std::string name() const;
+	inline std::string name() const;
 
 	/**
-	 * Appender is non-copyable
+	 * \brief Appender is non-copyable
 	 */
-	Appender& operator = (const Appender&) = delete;
+	inline Appender& operator = (const Appender&) = delete;
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	Appender& operator = (Appender &&rhs) noexcept;
+	inline Appender& operator = (Appender &&rhs) noexcept;
 
 
 private:
 
 	/**
-	 * Internal name of the Appender
+	 * \brief Internal name of the Appender
 	 */
 	std::string name_;
 
 	/**
-	 * Internal stream to append to
+	 * \brief Internal stream to append to
 	 */
 	FILE* stream_;
 };
@@ -215,9 +214,6 @@ inline std::string Appender::name() const
 inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
 
 
-// Logger
-
-
 /**
  * \brief Logs a message to its registered @link Appender Appenders @endlink.
  *
@@ -231,69 +227,69 @@ class Logger final
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 */
 	Logger();
 
 	/**
-	 * Logger is non-copyable
+	 * \brief Logger is non-copyable
 	 */
 	Logger(const Logger&) = delete;
 
 	/**
-	 * Default move constructor
+	 * \brief Default move constructor.
 	 *
 	 * \param[in] rhs The instance to move
 	 */
 	Logger(Logger&& rhs) noexcept;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor.
 	 */
 	~Logger() noexcept;
 
 	/**
-	 * Activates or deactivates the output of timestamps
+	 * \brief Activates or deactivates the output of timestamps.
 	 *
 	 * \param[in] onoff TRUE activates the logging of timestamps for this logger
 	 */
 	void set_timestamps(const bool &onoff);
 
 	/**
-	 * Returns TRUE iff this instance is configured to log timestamps.
+	 * \brief Returns TRUE iff this instance is configured to log timestamps.
 	 *
 	 * \return TRUE iff this instance will log timestamps.
 	 */
 	bool has_timestamps() const;
 
 	/**
-	 * Add an Appender to this Logger
+	 * \brief Add an Appender to this Logger
 	 *
 	 * \param[in] appender An Appender to use
 	 */
 	void add_appender(std::unique_ptr<Appender> appender);
 
 	/**
-	 * Remove the given Appender from this Logger
+	 * \brief Remove the given Appender from this Logger.
 	 *
 	 * \param[in] appender An Appender to remove
 	 */
 	void remove_appender(const Appender *appender);
 
 	/**
-	 * Log the given message to all @link Appender Appenders @endlink
+	 * \brief Log the given message to all @link Appender Appenders @endlink.
 	 *
 	 * \param[in] msg The message to log
 	 */
 	void log(const std::string &msg) const;
 
 	/**
-	 * Logger is non-copyable
+	 * \brief Logger is non-copyable.
 	 */
 	Logger& operator = (const Logger&) = delete;
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment.
 	 */
 	Logger& operator = (Logger&& logger) noexcept;
 
@@ -301,12 +297,12 @@ public:
 private:
 
 	/**
-	 * Internal set of @link Appender Appenders @endlink
+	 * \brief Internal set of @link Appender Appenders @endlink
 	 */
 	std::unordered_set<std::unique_ptr<Appender>> appenders_;
 
 	/**
-	 * Flag to activate/deactivate the logging of timestamps
+	 * \brief Flag to activate/deactivate the logging of timestamps
 	 */
 	bool log_timestamps_;
 };
@@ -314,7 +310,6 @@ private:
 
 inline Logger::Logger()
 	: appenders_()
-	//, level_(LOGLEVEL::WARNING)
 	, log_timestamps_(true)
 {
 	// empty
@@ -373,7 +368,8 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
 
 
 /**
- * \brief Returns the current time in the format <tt>'YYYY-MM-DD hh:mm:ss.lll'</tt>.
+ * \brief Returns the current time in the format
+ * <tt>'YYYY-MM-DD hh:mm:ss.lll'</tt>.
  *
  * Returns the current time as a string containing year, month, day, hours,
  * minutes, seconds and milliseconds in the format 'YYYY-MM-DD hh:mm:ss.lll'.
@@ -408,9 +404,6 @@ inline std::string now_time()
 }
 
 
-// Log
-
-
 /**
  * \brief A single logging operation of a Logger using a specified LOGLEVEL.
  *
@@ -423,7 +416,7 @@ class Log final
 public:
 
 	/**
-	 * Empty constructor
+	 * \brief Constructor.
 	 *
 	 * \param[in] logger    Logger to use
 	 * \param[in] msg_level Loglevel of the message to log
@@ -431,29 +424,29 @@ public:
 	Log(const Logger &logger, LOGLEVEL msg_level);
 
 	/**
-	 * Class is non-copyable
+	 * \brief Class is non-copyable
 	 */
 	Log(const Log&) = delete;
 
 	/**
-	 * Class is non-movable
+	 * \brief Class is non-movable
 	 */
 	Log(Log&&) = delete;
 
 	/**
-	 * Destructor
+	 * \brief Destructor.
 	 */
 	~Log() noexcept;
 
 	/**
-	 * Get the output stream to write to
+	 * \brief Get the output stream to write to.
 	 *
 	 * \return Get the output stream to write to
 	 */
 	std::ostringstream& get();
 
 	/**
-	 * Turns a LOGLEVEL instance into a string representation
+	 * \brief Turns a LOGLEVEL instance into a string representation.
 	 *
 	 * \param[in] level The log level to turn to a string
 	 *
@@ -462,7 +455,8 @@ public:
 	static std::string to_string(LOGLEVEL level);
 
 	/**
-	 * Turns a string representation of the log level to a LOGLEVEL instance
+	 * \brief Turns a string representation of the log level to a LOGLEVEL
+	 * instance.
 	 *
 	 * \param[in] level The name of the log level to create
 	 *
@@ -471,12 +465,12 @@ public:
 	static LOGLEVEL from_string(const std::string& level);
 
 	/**
-	 * Class is non-copyable
+	 * \brief Class is non-copyable.
 	 */
 	Log& operator = (const Log&) = delete;
 
 	/**
-	 * Class is non-movable
+	 * \brief Class is non-movable.
 	 */
 	Log& operator = (Log&&) noexcept = delete;
 
@@ -615,50 +609,51 @@ class Logging final
 public:
 
 	/**
-	 * Class is non-copyable
+	 * \brief Class is non-copyable.
 	 */
 	Logging(const Logging&) = delete;
 
 	/**
-	 * Class is non-movable
+	 * \brief Class is non-movable.
 	 */
 	Logging(Logging&&) noexcept = delete;
 
 	/**
-	 * Standard destructor
+	 * \brief Virtual default destructor.
 	 */
 	virtual ~Logging() noexcept;
 
 	/**
-	 * Handle for the singleton.
+	 * \brief Handle for the singleton.
 	 *
 	 * \return This instance
 	 */
 	static Logging& instance();
 
 	/**
-	 * Access the internal Logger.
+	 * \brief Access the internal Logger.
 	 *
 	 * \return The internal logger object
 	 */
 	const Logger& logger();
 
 	/**
-	 * Returns the current log level.
+	 * \brief Returns the current log level.
 	 *
 	 * \return Current log level
 	 */
 	LOGLEVEL level() const;
 
 	/**
-	 * Set the log level.
+	 * \brief Set the log level.
 	 *
 	 * \param[in] level Set the log level
 	 */
 	void set_level(LOGLEVEL level);
 
 	/**
-	 * Return TRUE iff the global log level is greater or equal than \c level.
+	 * \brief Return TRUE iff the global log level is greater or equal than
+	 * \c level.
 	 *
 	 * \param[in] level The level to check for
 	 *
@@ -667,40 +662,41 @@ public:
 	bool has_level(LOGLEVEL level);
 
 	/**
-	 * Activates or deactivates the output of timestamps.
+	 * \brief Activates or deactivates the output of timestamps.
 	 *
 	 * \param[in] activate TRUE activates logging of timestamps
 	 */
 	void set_timestamps(const bool &activate);
 
 	/**
-	 * Returns TRUE iff output of timestamps is activated, otherwise FALSE.
+	 * \brief Returns TRUE iff output of timestamps is activated, otherwise
+	 * FALSE.
 	 *
 	 * \return TRUE iff timestamps are logged, otherwise FALSE.
 	 */
 	bool has_timestamps();
 
 	/**
-	 * Add an appender to the internal Logger.
+	 * \brief Add an appender to the internal Logger.
 	 *
 	 * \param[in] appender The Appender to add
 	 */
 	void add_appender(std::unique_ptr<Appender> appender);
 
 	/**
-	 * Remove given appender from the internal Logger.
+	 * \brief Remove given appender from the internal Logger.
 	 *
 	 * \param[in] appender The Appender to remove
 	 */
 	void remove_appender(Appender *appender);
 
 	/**
-	 * Class is non-copyable
+	 * \brief Class is non-copyable.
 	 */
 	Logging& operator = (Logging& rhs) = delete;
 
 	/**
-	 * Class is non-movable
+	 * \brief Class is non-movable.
 	 */
 	Logging& operator = (Logging&& rhs) noexcept = delete;
 
@@ -708,22 +704,22 @@ public:
 private:
 
 	/**
-	 * Internal Logger instance
+	 * \brief Internal Logger instance.
 	 */
 	static thread_local Logger logger_;
 
 	/**
-	 * Mutex for thread-safe access to internal Logger instance
+	 * \brief Mutex for thread-safe access to internal Logger instance.
 	 */
 	std::mutex mutex_;
 
 	/**
-	 * Internal log level
+	 * \brief Internal log level.
 	 */
 	LOGLEVEL level_;
 
 	/**
-	 * Class is singleton
+	 * \brief Class is singleton.
 	 */
 	Logging();
 };
@@ -802,9 +798,9 @@ inline void Logging::remove_appender(Appender *a)
 	logger_.remove_appender(a);
 }
 
-} // namespace v_1_0_0
-
 /// @}
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 
@@ -815,18 +811,23 @@ inline void Logging::remove_appender(Appender *a)
 // Macros
 
 
-// Define a clipping for the log level: every message that has not at least the
-// clipping level is immediatly discarded.
-// Since this is a compile-time constant, the optimizer will recognize any
-// comparison loglevel == LOG_NONE and remove the statement in question
-// entirely. (See the definition of the ARCS_LOG_* macros to inspect how the
-// clipping level is checked.)
+/**
+ * \brief Clipping for the log level.
+ *
+ * Every message that has not at least the CLIP_LOGGING_LEVEL is immediatly
+ * discarded.
+ *
+ * Since this is a compile-time constant, the optimizer will recognize any
+ * comparison loglevel == LOG_NONE and remove the statement in question
+ * entirely. (See the definition of the ARCS_LOG_* macros to inspect how the
+ * clipping level is checked.)
+ */
 #ifndef CLIP_LOGGING_LEVEL
 #    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
 #endif
 
 /**
- * Send error message to the logger libarcstk uses internally
+ * \brief Send error message to log.
  */
 #define ARCS_LOG_ERROR \
     if (arcstk::LOGLEVEL::ERROR > CLIP_LOGGING_LEVEL) ; \
@@ -834,7 +835,7 @@ inline void Logging::remove_appender(Appender *a)
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::ERROR).get()
 
 /**
- * Send warning message to the logger libarcstk uses internally
+ * \brief Send warning message to log.
  */
 #define ARCS_LOG_WARNING \
     if (arcstk::LOGLEVEL::WARNING > CLIP_LOGGING_LEVEL) ; \
@@ -842,7 +843,7 @@ inline void Logging::remove_appender(Appender *a)
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::WARNING).get()
 
 /**
- * Send info message to the logger libarcstk uses internally
+ * \brief Send info message to log.
  */
 #define ARCS_LOG_INFO \
     if (arcstk::LOGLEVEL::INFO > CLIP_LOGGING_LEVEL) ; \
@@ -850,7 +851,7 @@ inline void Logging::remove_appender(Appender *a)
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::INFO).get()
 
 /**
- * Send debug message to the logger libarcstk uses internally
+ * \brief Send debug message to log.
  */
 #define ARCS_LOG_DEBUG \
     if (arcstk::LOGLEVEL::DEBUG > CLIP_LOGGING_LEVEL) ; \
@@ -858,12 +859,13 @@ inline void Logging::remove_appender(Appender *a)
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::DEBUG).get()
 
 /**
- * Send log message with specified log level to the logger libarcstk uses
- * internally.
+ * \brief Send log message with specified log level to log.
  *
- * Specify the loglevel without the prefix <tt>LOGLEVEL::</tt>.
+ * The loglevel must be specified without the prefix <tt>LOGLEVEL::</tt>.
  *
  * This is useful for custom log levels beyond DEBUG
+ *
+ * \param[in] loglevel The LOGLEVEL to use
  */
 #define ARCS_LOG(loglevel) \
     if (arcstk::LOGLEVEL::loglevel > CLIP_LOGGING_LEVEL) ; \
