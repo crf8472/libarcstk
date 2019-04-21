@@ -1,7 +1,8 @@
 /**
- * \file identifier.cpp Implementation of a low-level API for representing AccurateRip ids
+ * \file
+ *
+ * \brief Implementation of a low-level API for representing AccurateRip ids
  */
-
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -22,10 +23,8 @@
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
@@ -34,8 +33,8 @@ inline namespace v_1_0_0
  */
 const CDDA_t CDDA;
 
-/// \cond IMPL_ONLY
-/// \internal \addtogroup idImpl
+/// \internal \addtogroup idImpl Implementation
+/// \ingroup id
 /// @{
 
 /**
@@ -172,11 +171,7 @@ private:
 	uint32_t cddb_id_;
 };
 
-
-/// @}
-/// \endcond
-// IMPL_ONLY
-
+/// \cond NEVER_SHOW
 
 ARId::Impl::Impl(const uint16_t track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
@@ -323,11 +318,7 @@ std::string ARId::Impl::construct_url(const uint16_t track_count,
 	return ss.str();
 }
 
-
-/// \cond IMPL_ONLY
-/// \internal \addtogroup idImpl
-/// @{
-
+/// \endcond
 
 namespace details
 {
@@ -626,14 +617,7 @@ private:
 	std::vector<std::string> files_;
 };
 
-
-/// @}
-/// \endcond
-// IMPL_ONLY
-
-
-// TOC::Impl
-
+/// \cond NEVER_SHOW
 
 TOC::Impl::Impl(const uint32_t track_count,
 		const std::vector<uint32_t> &offsets,
@@ -918,11 +902,6 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 }
 
 
-/// \cond IMPL_ONLY
-/// \internal \addtogroup idImpl
-/// @{
-
-
 namespace toc
 {
 
@@ -975,6 +954,7 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 } // namespace toc
 
+/// \endcond
 
 namespace details
 {
@@ -1054,6 +1034,7 @@ protected:
 	static uint64_t sum_digits(const uint32_t number);
 };
 
+/// \cond NEVER_SHOW
 
 std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
 		const uint32_t leadout) const
@@ -1778,13 +1759,9 @@ void TOCValidator::have_min_dist(const uint32_t prev_track,
 	}
 }
 
+/// \endcond
 
 } // namespace arcstk::details
-
-
-/// @}
-/// \endcond
-// IMPL_ONLY
 
 
 // make_arid
@@ -1832,6 +1809,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 	return builder.build(track_count, offsets, lengths, files);
 }
 
+/// @}
 
 } // namespace v_1_0_0
 

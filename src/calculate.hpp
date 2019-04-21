@@ -45,7 +45,6 @@
  * invalid.
  */
 
-
 #include <cstdint>
 #include <cstddef>     // for size_t
 #include <iterator>    // for forward_iterator_tag
@@ -55,7 +54,6 @@
 #include <type_traits> // for is_same, decay_t
 #include <utility>     // for declval
 
-
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
@@ -63,21 +61,23 @@
 #include "identifier.hpp"
 #endif
 
-
 /**
- * libarcstk main namespace
+ * \brief libarcstk main namespace
  */
 namespace arcstk
 {
 
-/// \defgroup calc Checksum Calculation
-/// @{
-
 /**
- * API version 1.0.0
+ * \brief API version 1.0.0
  */
 inline namespace v_1_0_0
 {
+
+/**
+ * \defgroup calc Checksum Calculation
+ * @{
+ */
+
 
 /**
  * \brief Type for internal representation of samples.
@@ -212,6 +212,9 @@ private:
 };
 
 
+/**
+ * Implementation details of namespace arcstk
+ */
 namespace details
 {
 
@@ -257,7 +260,7 @@ public:
 
 private:
 
-	/// \cond IMPL_ONLY
+	/// \cond NEVER_SHOW
 
 	/**
 	 * \brief Internal object interface
@@ -384,7 +387,6 @@ private:
 	};
 
 	/// \endcond
-	// IMPL_ONLY
 
 
 public:
@@ -477,64 +479,6 @@ private:
 	 */
 	std::unique_ptr<Concept> object_;
 };
-
-
-inline PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
-	: object_(rhs.object_->clone())
-{
-	// empty
-}
-
-
-inline PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
-	: object_(std::move(rhs.object_))
-{
-	// empty
-}
-
-
-inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
-{
-	return object_->dereference();
-}
-
-
-inline PCMForwardIterator& PCMForwardIterator::operator ++ ()
-{
-	object_->preincrement();
-	return *this;
-}
-
-
-inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
-{
-	PCMForwardIterator prev_val(*this);
-	object_->preincrement();
-	return prev_val;
-}
-
-
-inline bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs)
-	const
-{
-	return object_->equals(rhs.object_->pointer());
-}
-
-
-inline bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs)
-	const
-{
-	return not (*this == rhs);
-}
-
-
-inline PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount)
-	const
-{
-	PCMForwardIterator it(*this);
-	it.object_->advance(amount);
-	return it;
-}
 
 
 /**
@@ -1183,10 +1127,67 @@ public:
 	explicit InvalidAudioException(const char *what_arg);
 };
 
+/** @} */
+
+
+inline PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
+	: object_(rhs.object_->clone())
+{
+	// empty
+}
+
+
+inline PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
+	: object_(std::move(rhs.object_))
+{
+	// empty
+}
+
+
+inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
+{
+	return object_->dereference();
+}
+
+
+inline PCMForwardIterator& PCMForwardIterator::operator ++ ()
+{
+	object_->preincrement();
+	return *this;
+}
+
+
+inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
+{
+	PCMForwardIterator prev_val(*this);
+	object_->preincrement();
+	return prev_val;
+}
+
+
+inline bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs)
+	const
+{
+	return object_->equals(rhs.object_->pointer());
+}
+
+
+inline bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs)
+	const
+{
+	return not (*this == rhs);
+}
+
+
+inline PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount)
+	const
+{
+	PCMForwardIterator it(*this);
+	it.object_->advance(amount);
+	return it;
+}
 
 } // namespace v_1_0_0
-
-/// @}
 
 } // namespace arcstk
 

@@ -36,7 +36,7 @@ endif (WITH_INTERNAL_DOCS)
 
 ## --- Build impl-only docs if requested (includes internal docs)
 
-if (WITH_IMPLONLY_DOCS)
+if (WITH_IMPL_DOCS)
 
 	if (NOT WITH_INTERNAL_DOCS)
 
@@ -51,18 +51,17 @@ if (WITH_IMPLONLY_DOCS)
 
 	## Set replacement values for Doxyfile
 
-	set (PROJECT_DOXYGEN_INTERNAL_DOCS    "YES" )
-
-	set (PROJECT_DOXYGEN_ENABLED_SECTIONS "IMPL_ONLY" )
+	set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
+	set (PROJECT_DOXYGEN_IMPL_DOCS     "YES" )
 
 	set (PROJECT_DOXYGEN_FILE_PATTERNS
 		"${PROJECT_DOXYGEN_FILE_PATTERNS} *.cpp *.tpp" )
 
 else ()
 
-	set (PROJECT_DOXYGEN_ENABLED_SECTIONS "" )
+	set (PROJECT_DOXYGEN_IMPL_DOCS "NO" )
 
-endif (WITH_IMPLONLY_DOCS)
+endif (WITH_IMPL_DOCS)
 
 
 ## Create Main Doxyfile
@@ -109,7 +108,7 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		add_custom_target ( doc
 			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
 			DEPENDS "${ENV_TARGET}" "${DOXYFILE}"
-				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
+				${EXPORTED_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES}
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
 			COMMENT "${DOC_COMMENT}"
 			VERBATIM
@@ -124,7 +123,7 @@ else() ## Use standard doxygen
 	add_custom_target ( doc ## add 'ALL' if you wish to run doc on regular build
 		Doxygen::doxygen "${DOXYFILE}"
 		DEPENDS "${DOXYFILE}"
-				"${EXPORTED_HEADERS}" "${EXPORTED_TEMPLATES}" "${SOURCES}"
+				${EXPORTED_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM

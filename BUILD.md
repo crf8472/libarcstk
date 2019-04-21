@@ -153,14 +153,15 @@ it to your needs.
 
 ## Buildtime switches
 
-|Switch         |Description                                     |Default|
-|---------------|------------------------------------------------|-------|
-|AS_STATIC      |Build static library instead of shared library  |OFF    |
-|IWYU           |Use include-what-you-use on compiling           |OFF    |
-|WITH_DOCS      |Configure documentation (but don't build it)    |OFF    |
-|WITH_NATIVE    |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
-|WITH_TESTS     |Compile tests (but don't run them)              |OFF    |
-|USE_MCSS       |Use [m.css][3] when building the documentation  |OFF    |
+|Switch             |Description                                     |Default|
+|-------------------|------------------------------------------------|-------|
+|AS_STATIC          |Build static library instead of shared library  |OFF    |
+|IWYU               |Use include-what-you-use on compiling           |OFF    |
+|WITH_DOCS          |Configure documentation (but don't build it)    |OFF    |
+|WITH_INTERNAL_DOCS |Configure documentation (but don't build it)    |OFF    |
+|WITH_NATIVE        |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
+|WITH_TESTS         |Compile tests (but don't run them)              |OFF    |
+|USE_MCSS           |Use [m.css][3] when building the documentation  |OFF    |
 
 
 

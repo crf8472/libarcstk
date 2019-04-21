@@ -1,20 +1,25 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #define __LIBARCSTK_IDENTIFIER_HPP__
 
-
 /**
  * \file
  *
  * \brief Public API for calculating AccurateRip ids
  *
- * ARId is an AccurateRip identifier. It can be constructed either from
- * three precomputed ids or from a TOC using function make_arid(). A
- * TOC is the verified table of content information from a compact disc.
- * <tt>TOC</tt>s are exclusively constructed by make_toc() that tries to
- * validate the information used to construct the TOC. If this information
- * cannot be verified, an InvalidMetadataException is thrown.
+ * ARId
+ *
+ * @link arcstk::v_1_0_0::ARId ARId @endlink is an AccurateRip identifier. It
+ * can be constructed either from
+ * three precomputed ids or from a @link arcstk::v_1_0_0::TOC TOC @endlink
+ * using function make_arid(). A @link arcstk::v_1_0_0::TOC TOC @endlink is the
+ * verified table of content information from a compact disc.
+ * @link arcstk::v_1_0_0::TOC TOCs @endlink are exclusively constructed by
+ * make_toc() that tries to validate the information used to construct the
+ * @link arcstk::v_1_0_0::TOC TOC @endlink. If this information
+ * cannot be verified, an
+ * @link arcstk::v_1_0_0::InvalidMetadataException InvalidMetadataException @endlink
+ * is thrown.
  */
-
 
 #include <cstdint>
 #include <memory>
@@ -22,10 +27,8 @@
 #include <string>
 #include <vector>
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
@@ -45,30 +48,31 @@ using TrackNo = uint8_t;
 /**
  * \brief Constants related to the CDDA format
  */
-struct CDDA_t {
+struct CDDA_t
+{
 
 	/**
-	 * CDDA: sampling rate of 44100 samples per second
+	 * \brief CDDA: sampling rate of 44100 samples per second.
 	 */
 	const uint32_t SAMPLES_PER_SECOND = 44100;
 
 	/**
-	 * CDDA: 16 bits per sample
+	 * \brief CDDA: 16 bits per sample.
 	 */
 	const uint32_t BITS_PER_SAMPLE    = 16;
 
 	/**
-	 * CDDA: stereo involves 2 channels
+	 * \brief CDDA: stereo involves 2 channels.
 	 */
 	const uint32_t NUMBER_OF_CHANNELS = 2;
 
 	/**
-	 * Number of frames per second is 75
+	 * \brief Number of frames per second is 75.
 	 */
 	const uint32_t FRAMES_PER_SEC     = 75;
 
 	/**
-	 * Number of 4 bytes per sample
+	 * \brief Number of 4 bytes per sample.
 	 *
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
@@ -76,32 +80,32 @@ struct CDDA_t {
 	const uint32_t BYTES_PER_SAMPLE   = 4;
 
 	/**
-	 * Number of 588 samples per frame
+	 * \brief Number of 588 samples per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 44100 samples/sec / 75 frames/sec
 	 */
 	const uint32_t SAMPLES_PER_FRAME  = 588;
 
 	/**
-	 * Number of 2352 bytes per frame
+	 * \brief Number of 2352 bytes per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 588 samples * 4 bytes/sample
 	 */
 	const uint32_t BYTES_PER_FRAME    = 2352;
 
 	/**
-	 * Maximal valid track count.
+	 * \brief Maximal valid track count.
 	 */
 	const uint16_t MAX_TRACKCOUNT     = 99;
 
 	/**
-	 * Redbook maximal valid block address is 99:59.74 (MSF) which is
+	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
 	 * equivalent to 449.999 frames.
 	 */
 	const uint32_t MAX_BLOCK_ADDRESS  = ( 99 * 60 + 59 ) * 75 + 74;
 
 	/**
-	 * Maximal valid offset value in cdda frames.
+	 * \brief Maximal valid offset value in cdda frames.
 	 *
 	 * Redbook defines 79:59.74 (MSF) (+leadin+leadout) as maximal play duration
 	 * which is equivalent to 360.000 frames, thus the maximal offset is frame
@@ -110,8 +114,8 @@ struct CDDA_t {
 	const uint32_t MAX_OFFSET         = ( 79 * 60 + 59 ) * 75 + 74;
 
 	/**
-	 * Two subsequenct offsets must have a distance of at least this number of
-	 * frames.
+	 * \brief Two subsequenct offsets must have a distance of at least this
+	 * number of frames.
 	 *
 	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
@@ -119,7 +123,7 @@ struct CDDA_t {
 	const int32_t MIN_TRACK_OFFSET_DIST = 300;
 
 	/**
-	 * Minimal number of frames a track contains.
+	 * \brief Minimal number of frames a track contains.
 	 *
 	 * The CDDA conforming minmal track length is 4 seconds including 2 seconds
 	 * pause but the pause does not contribute to the track lengths, thus
@@ -133,7 +137,7 @@ using CDDA_t = struct CDDA_t;
 
 
 /**
- * Global instance of the CDDA constants.
+ * \brief Global instance of the CDDA constants.
  */
 extern const CDDA_t CDDA;
 
@@ -152,8 +156,8 @@ inline namespace v_1_0_0
 /**
  * \brief AccurateRip-Identifier of a compact disc.
  *
- * The identifier determines the URL of the compact disc dataset as well as the
- * filename of the AccurateRip response.
+ * ARId determines the URL of the compact disc dataset as well as the
+ * standard filename of the AccurateRip response.
  */
 class ARId final
 {
@@ -161,7 +165,7 @@ class ARId final
 public:
 
 	/**
-	 * Construct ARId from \c track_count and the corresponding ids.
+	 * \brief Construct ARId.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] id_1        Id 1 of this medium
@@ -174,82 +178,82 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * Copy constructor.
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs The ARId to copy
 	 */
 	ARId(const ARId &rhs);
 
 	/**
-	 * Move constructor.
+	 * \brief Default move constructor.
 	 *
 	 * \param[in] rhs The ARId to move
 	 */
 	ARId(ARId &&rhs) noexcept;
 
 	/**
-	 * Default destructor.
+	 * \brief Default destructor.
 	 */
 	~ARId() noexcept;
 
 	/**
-	 * Return the AccurateRip request URL.
+	 * \brief Return the AccurateRip request URL.
 	 *
 	 * \return The AccurateRip request URL
 	 */
 	std::string url() const;
 
 	/**
-	 * Return the AccurateRip filename of the response file.
+	 * \brief Return the AccurateRip filename of the response file.
 	 *
 	 * \return AccurateRip filename of the response file
 	 */
 	std::string filename() const;
 
 	/**
-	 * Return the track count.
+	 * \brief Return the track count.
 	 *
 	 * \return Track count of this medium
 	 */
 	uint16_t track_count() const;
 
 	/**
-	 * Return the disc_id 1.
+	 * \brief Return the disc_id 1.
 	 *
 	 * \return Disc id 1 of this medium
 	 */
 	uint32_t disc_id_1() const;
 
 	/**
-	 * Return the disc_id 2.
+	 * \brief Return the disc_id 2.
 	 *
 	 * \return Disc id 2 of this medium
 	 */
 	uint32_t disc_id_2() const;
 
 	/**
-	 * Return the CDDB id.
+	 * \brief Return the CDDB id.
 	 *
 	 * \return CDDB id of this medium
 	 */
 	uint32_t cddb_id() const;
 
 	/**
-	 * Return a default string representation of this ARId
+	 * \brief Return a default string representation of this ARId.
 	 *
 	 * \return Default string representation of this ARId
 	 */
 	std::string to_string() const;
 
 	/**
-	 * Return TRUE iff this ARId is empty (holding no information).
+	 * \brief Return TRUE iff this ARId is empty (holding no information).
 	 *
 	 * \return TRUE iff this ARId is empty
 	 */
 	bool empty() const;
 
 	/**
-	 * Returns TRUE iff this ARId holds identical values as \c rhs,
+	 * \brief Returns TRUE iff this ARId holds identical values as \c rhs,
 	 * otherwise FALSE.
 	 *
 	 * \param[in] rhs The right hand side of the comparison
@@ -260,8 +264,8 @@ public:
 	bool operator == (const ARId& rhs) const;
 
 	/**
-	 * Returns TRUE if this ARId does not holds identical values as \c rhs,
-	 * otherwise FALSE.
+	 * \brief Returns TRUE if this ARId does not holds identical values as
+	 * \c rhs, otherwise FALSE.
 	 *
 	 * \param[in] rhs The right hand side of the comparison
 	 *
@@ -271,7 +275,7 @@ public:
 	bool operator != (const ARId& rhs) const;
 
 	/**
-	 * Copy assignment operator.
+	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -280,7 +284,7 @@ public:
 	ARId& operator = (const ARId &rhs);
 
 	/**
-	 * Move assignment operator.
+	 * \brief Move assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -295,7 +299,7 @@ private:
 	class Impl;
 
 	/**
-	 * Private implementation of ARId
+	 * \brief Private implementation of ARId.
 	 */
 	std::unique_ptr<Impl> impl_;
 };
@@ -308,11 +312,16 @@ private:
  * lengths, their filenames and the index of the leadout frame. Offsets and
  * lengths are represented in LBA frames.
  *
- * <tt>TOC</tt>s can exclusively be built by function <tt>make_toc()</tt>. This
- * function guarantees to provide either a valid TOC or to throw an
+ * @link TOC TOCs @endlink can exclusively be built by to two build functions.
+ * Both functions guarantee to provide either a valid TOC or to throw an
  * InvalidMetadataException. This entails that any concrete
- * <tt>TOC</tt>s makes strong guarantees regarding the consitency of its
- * content.
+ * TOC provides strong guarantees regarding the consitency of its content.
+ *
+ * In some cases it may be sensible to construct an incomplete TOC, i.e. a TOC
+ * without a leadout frame. Some toc formats (as for example CUESheet) may not
+ * provide the leadout but the parsed metadata is required. In this case, the
+ * leadout can be obtained from the actual audio data. However, also an
+ * incomplete TOC may never be inconsistent.
  */
 class TOC final
 {
@@ -323,45 +332,45 @@ public:
 	class Impl;
 
 	/**
-	 * Construct from private Implementation.
+	 * \brief Construct from private Implementation.
 	 *
-	 * Note that <tt>TOC</tt>s are supposed to be constructed by a call to
-	 * make_toc(). This function ensures the guarantees hold for
-	 * <tt>TOC</tt>s. The logic to enforce all the necessary invariants is not
-	 * to be placed in TOC.
+	 * Note that @link TOC TOCs @endlink are supposed to be constructed by a
+	 * call to a builder function. This function ensures the guarantees hold for
+	 * @link TOC TOCs @endlink. The logic to enforce all the necessary
+	 * invariants is not to be placed in TOC.
 	 *
 	 * \param[in] impl The implementation of the TOC
 	 */
 	explicit TOC(std::unique_ptr<TOC::Impl> impl);
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	TOC(const TOC &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	TOC(TOC &&rhs) noexcept;
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 */
 	~TOC() noexcept;
 
 	/**
-	 * Return the number of tracks.
+	 * \brief Return the number of tracks.
 	 *
 	 * \return Number of tracks
 	 */
 	uint16_t track_count() const;
 
 	/**
-	 * Return the offset of the 1-based specified track in frames, i.e.
+	 * \brief Return the offset of the 1-based specified track in frames, i.e.
 	 * <tt>offsets(i)</tt> is the offset for track \p i iff \p i is
 	 * a valid track number in this TOC, otherwise 0.
 	 *
@@ -372,7 +381,7 @@ public:
 	uint32_t offset(const TrackNo idx) const;
 
 	/**
-	 * Return the length of the 1-based specified track in frames as
+	 * \brief Return the length of the 1-based specified track in frames as
 	 * parsed from the toc metadata input.
 	 *
 	 * If the length for this track is not known, 0 is returned.
@@ -384,7 +393,7 @@ public:
 	uint32_t parsed_length(const TrackNo idx) const;
 
 	/**
-	 * Return the file of the 1-based specified track, i.e. <tt>file(i)</tt> is
+	 * \brief Return the file of the 1-based specified track, i.e. <tt>file(i)</tt> is
 	 * the offset for track \p i iff \p i is a valid track number in
 	 * this TOC.
 	 *
@@ -400,7 +409,7 @@ public:
 	std::string filename(const TrackNo idx) const;
 
 	/**
-	 * Return the leadout frame LBA address.
+	 * \brief Return the leadout frame LBA address.
 	 *
 	 * Should be either 0 if unknown, or, if known, equal to the sum of
 	 * <tt>offset(track_count())</tt> and <tt>length(track_count())</tt>.
@@ -412,7 +421,7 @@ public:
 	uint32_t leadout() const;
 
 	/**
-	 * Return TRUE iff TOC information is complete, otherwise FALSE.
+	 * \brief Return TRUE iff TOC information is complete, otherwise FALSE.
 	 *
 	 * A TOC \c t is complete, if <tt>t.leadout() != 0</tt>, otherwise it is
 	 * not complete.
@@ -422,7 +431,7 @@ public:
 	bool complete() const;
 
 	/**
-	 * Copy assignment
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -431,7 +440,7 @@ public:
 	TOC& operator = (const TOC &rhs);
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -452,16 +461,44 @@ public:
 private:
 
 	/**
-	 * Private implementation of TOC
+	 * \brief Private implementation of TOC.
 	 */
 	std::unique_ptr<TOC::Impl> impl_;
 };
 
 
 /**
+ * \brief Reports insufficient or invalid metadata for building a TOC.
+ *
+ * \todo For metadata files, position information about the error maybe useful
+ */
+class InvalidMetadataException final : public std::logic_error
+{
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InvalidMetadataException(const std::string &what_arg);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InvalidMetadataException(const char *what_arg);
+};
+
+
+/**
  * \brief Create an ARId from a TOC.
  *
- * Object \c toc must have a non-zero leadout, otherwise an
+ * The input is validated.
+ *
+ * Object \c toc must be complete, otherwise an
  * InvalidMetadataException is thrown.
  *
  * \param[in] toc TOC to use
@@ -469,6 +506,8 @@ private:
  * \return ARId
  *
  * \throw InvalidMetadataException If \c toc has <tt>toc.leadout() == 0</tt>
+ *
+ * \see make_arid(const TOC &toc, const uint32_t leadout)
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc);
 
@@ -476,10 +515,19 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
 /**
  * \brief Create an ARId from a TOC and a separately specified leadout.
  *
- * If \c leadout is 0 , \c toc.leadout() is used. One of both values must be
- * non-zero, otherwise an InvalidMetadataException is thrown. If \c toc
- * and \c leadout cannot be validated as consistent, an
- * InvalidMetadataException is thrown.
+ * The input is validated.
+ *
+ * Parameter \c toc is allowed to be incomplete. Parameter \c leadout is
+ * intended to provide the value possibly missing in \c toc.
+ *
+ * If \c leadout is 0, \c toc.leadout() is used and \c leadout is ignored. If
+ * \c leadout is not 0, \c toc.leadout() is ignored. If both values are 0
+ * an InvalidMetadataException is thrown.
+ *
+ * If \c leadout is 0 and \c toc cannot be validated, an
+ * InvalidMetadataException is thrown. If
+ * \c leadout is not 0 and \c leadout and \c toc cannot be validated as
+ * consistent with each other, an InvalidMetadataException is thrown.
  *
  * \param[in] toc     TOC to use
  * \param[in] leadout Leadout LBA frame
@@ -487,6 +535,8 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
  * \return ARId
  *
  * \throw InvalidMetadataException If \c toc and \c leadout are invalid
+ *
+ * \see make_arid(const TOC &toc)
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
@@ -502,7 +552,8 @@ std::unique_ptr<ARId> make_empty_arid();
 /**
  * \brief Create a TOC object from the specified information.
  *
- * The input data is validated and returned TOC is guaranteed to be complete.
+ * The input data is validated and the returned TOC is guaranteed to be
+ * complete.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
@@ -520,9 +571,9 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 /**
  * \brief Create a TOC object from the specified information.
  *
- * The returned TOC is not guaranteed to be complete since the length of
- * the last track is allowed to be 0 which entails that the leadout will be
- * missing.
+ * The input data is validated, but the length of the last track is allowed to
+ * be 0. The returned TOC is therefore <b>not</b> guaranteed to be
+ * complete.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) of each track
@@ -537,32 +588,6 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files);
-
-
-/**
- * \brief Reports insufficient or invalid metadata for building a TOC.
- *
- * \todo For metadata files, position information about the error maybe useful
- */
-class InvalidMetadataException final : public std::logic_error
-{
-
-public:
-
-	/**
-	 * Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InvalidMetadataException(const std::string &what_arg);
-
-	/**
-	 * Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InvalidMetadataException(const char *what_arg);
-};
 
 
 /**

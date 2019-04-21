@@ -13,18 +13,11 @@
 
 #include <algorithm>     // for copy
 #include <chrono>
-#include <cmath>         // for exp2
 #include <cstdint>
 #include <exception>     // for exception
 #include <fstream>
 #include <memory>
-#include <stdexcept>     // for logic_error, invalid_argument
-#include <tuple>         // for tuple_element_t, tuple_size
-                         // C++17: for tuple_size_v instead of tuple_size
-#include <type_traits>   // for enable_if_t, is_same, decay_t
-                         // C++17: for is_same_v instead of is_same
 #include <unordered_map>
-#include <utility>       // for pair, forward, make_index_sequence
 #include <vector>
 
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
@@ -34,15 +27,16 @@
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
-
-/// \internal \addtogroup calcImpl
-/// @{
-
 inline namespace v_1_0_0
 {
+
+/**
+ * \internal \defgroup calcImpl Implementation
+ * \ingroup calc
+ * @{
+ */
 
 namespace
 {
@@ -122,6 +116,8 @@ private:
 };
 
 
+/// \cond NEVER_SHOW
+
 AudioSize::Impl::Impl()
 	: total_pcm_bytes_(0)
 {
@@ -165,111 +161,10 @@ uint64_t AudioSize::Impl::pcm_byte_count() const
 }
 
 
-/**
- * \internal
- *
- * \brief Non-abstract base class for CalcContext implementations.
- *
- * Provides the properties AudioSize and filename and implements
- * CalcContext::first_relevant_sample() as well as
- * CalcContext::last_relevant_sample().
- *
- * \see CalcContext
- */
-class BaseCalcContext : virtual public CalcContext
-{
-
-public:
-
-	/**
-	 * Construct with skip configuration
-	 *
-	 * \param[in] filename       The audio file to process
-	 * \param[in] num_skip_front Amount of samples to skip at the beginning
-	 * \param[in] num_skip_back  Amount of samples to skip at the end
-	 */
-	BaseCalcContext(const std::string &filename, const uint32_t num_skip_front,
-			const uint32_t num_skip_back);
-
-	void set_audio_size(const AudioSize &audio_size) override;
-
-	const AudioSize& audio_size() const override;
-
-	// sample_count()
-
-	void set_filename(const std::string &filename) override;
-
-	std::string filename() const override;
-
-	// track_count()
-
-	// is_multi_track()
-
-	uint32_t first_relevant_sample(const TrackNo) const override;
-
-	uint32_t first_relevant_sample() const override;
-
-	uint32_t last_relevant_sample(const TrackNo track) const override;
-
-	uint32_t last_relevant_sample() const override;
-
-	// track(const uint32_t)
-
-	// offset(const TrackNo)
-
-	// length(const TrackNo)
-
-	// id()
-
-	// skips_front()
-
-	// skips_back()
-
-	uint32_t num_skip_front() const override;
-
-	uint32_t num_skip_back() const override;
-
-	void notify_skips(const uint32_t num_skip_front,
-			const uint32_t num_skip_back) override;
-
-	// clone()
+// CalcContextBase
 
 
-protected:
-
-	/**
-	 * Default destructor.
-	 *
-	 * This class is not intended to be used for polymorphical deletion.
-	 */
-	~BaseCalcContext() noexcept;
-
-
-private:
-
-	/**
-	 * Internal representation of the AudioSize of the current audiofile
-	 */
-	AudioSize audiosize_;
-
-	/**
-	 * Internal representation of the audiofilename
-	 */
-	std::string filename_;
-
-	/**
-	 * Number of samples to skip at beginning of first track if requested
-	 */
-	uint32_t num_skip_front_;
-
-	/**
-	 * Number of samples to skip at end of last track if requested
-	 */
-	uint32_t num_skip_back_;
-};
-
-
-BaseCalcContext::BaseCalcContext(const std::string &filename,
+CalcContextBase::CalcContextBase(const std::string &filename,
 		const uint32_t num_skip_front,
 		const uint32_t num_skip_back)
 	: audiosize_(AudioSize())
@@ -281,70 +176,70 @@ BaseCalcContext::BaseCalcContext(const std::string &filename,
 }
 
 
-BaseCalcContext::~BaseCalcContext() noexcept = default;
+CalcContextBase::~CalcContextBase() noexcept = default;
 
 
-void BaseCalcContext::set_audio_size(const AudioSize &audio_size)
+void CalcContextBase::set_audio_size(const AudioSize &audio_size)
 {
 	audiosize_ = audio_size;
 }
 
 
-const AudioSize& BaseCalcContext::audio_size() const
+const AudioSize& CalcContextBase::audio_size() const
 {
 	return audiosize_;
 }
 
 
-void BaseCalcContext::set_filename(const std::string &filename)
+void CalcContextBase::set_filename(const std::string &filename)
 {
 	filename_ = filename;
 }
 
 
-std::string BaseCalcContext::filename() const
+std::string CalcContextBase::filename() const
 {
 	return filename_;
 }
 
 
-uint32_t BaseCalcContext::first_relevant_sample(const TrackNo /* track */) const
+uint32_t CalcContextBase::first_relevant_sample(const TrackNo /* track */) const
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t BaseCalcContext::first_relevant_sample() const
+uint32_t CalcContextBase::first_relevant_sample() const
 {
 	return this->first_relevant_sample(1);
 }
 
 
-uint32_t BaseCalcContext::last_relevant_sample(const TrackNo /* track */) const
+uint32_t CalcContextBase::last_relevant_sample(const TrackNo /* track */) const
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t BaseCalcContext::last_relevant_sample() const
+uint32_t CalcContextBase::last_relevant_sample() const
 {
 	return this->last_relevant_sample(this->track_count());
 }
 
 
-uint32_t BaseCalcContext::num_skip_front() const
+uint32_t CalcContextBase::num_skip_front() const
 {
 	return num_skip_front_;
 }
 
 
-uint32_t BaseCalcContext::num_skip_back() const
+uint32_t CalcContextBase::num_skip_back() const
 {
 	return num_skip_back_;
 }
 
 
-void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
+void CalcContextBase::notify_skips(const uint32_t num_skip_front,
 		const uint32_t num_skip_back)
 {
 	num_skip_front_ = num_skip_front;
@@ -354,9 +249,7 @@ void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
 	ARCS_LOG_DEBUG << "Set context back skip:  " << num_skip_back_;
 }
 
-
-/// \cond IMPL_ONLY
-/// @{
+/// \endcond
 
 
 /**
@@ -364,10 +257,8 @@ void BaseCalcContext::notify_skips(const uint32_t num_skip_front,
  *
  * A SingletrackCalcContext is a CalcContext derived from an actual filename
  * representing a single track.
- *
- * \see CalcContext
  */
-class SingletrackCalcContext final : public BaseCalcContext
+class SingletrackCalcContext final : public CalcContextBase
 {
 
 public:
@@ -410,11 +301,11 @@ public:
 
 	uint32_t first_relevant_sample(const TrackNo track) const override;
 
-	// first_relevant_sample() is generic in BaseCalcContext
+	// first_relevant_sample() is generic in CalcContextBase
 
 	uint32_t last_relevant_sample(const TrackNo track) const override;
 
-	// last_relevant_sample() is generic in BaseCalcContext
+	// last_relevant_sample() is generic in CalcContextBase
 
 	TrackNo track(const uint32_t smpl) const override;
 
@@ -458,13 +349,11 @@ private:
 	bool skip_back_;
 };
 
-/// @}
-/// \endcond
-// IMPL_ONLY
+/// \cond NEVER_SHOW
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
-	: BaseCalcContext(filename, 0, 0)
+	: CalcContextBase(filename, 0, 0)
 	, skip_front_(false)
 	, skip_back_(false)
 {
@@ -474,7 +363,7 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 		const bool skip_front, const bool skip_back)
-	: BaseCalcContext(filename, 2939, 2940)
+	: CalcContextBase(filename, 2939, 2940)
 	, skip_front_(skip_front)
 	, skip_back_(skip_back)
 {
@@ -485,7 +374,7 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 		const bool skip_front, const uint32_t num_skip_front,
 		const bool skip_back,  const uint32_t num_skip_back)
-	: BaseCalcContext(filename, num_skip_front, num_skip_back)
+	: CalcContextBase(filename, num_skip_front, num_skip_back)
 	, skip_front_(skip_front)
 	, skip_back_(skip_back)
 {
@@ -602,9 +491,7 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
 	return std::make_unique<SingletrackCalcContext>(*this);
 }
 
-
-/// \cond IMPL_ONLY
-/// @{
+/// \endcond
 
 
 /**
@@ -612,10 +499,8 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
  *
  * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
  * actual filename. It always skips the front and back samples.
- *
- * \see CalcContext
  */
-class MultitrackCalcContext final : public BaseCalcContext
+class MultitrackCalcContext final : public CalcContextBase
 {
 
 public:
@@ -652,11 +537,11 @@ public:
 
 	uint32_t first_relevant_sample(const TrackNo track) const override;
 
-	// first_relevant_sample() is generic in BaseCalcContext
+	// first_relevant_sample() is generic in CalcContextBase
 
 	uint32_t last_relevant_sample(const TrackNo track) const override;
 
-	// last_relevant_sample() is generic in BaseCalcContext
+	// last_relevant_sample() is generic in CalcContextBase
 
 	TrackNo track(const uint32_t smpl) const override;
 
@@ -695,9 +580,7 @@ private:
 	TOC toc_;
 };
 
-/// @}
-/// \endcond
-// IMPL_ONLY
+/// \cond NEVER_SHOW
 
 
 // MultitrackCalcContext
@@ -705,7 +588,7 @@ private:
 
 MultitrackCalcContext::MultitrackCalcContext(const std::string &filename,
 		const TOC &toc)
-	: BaseCalcContext(filename, 0, 0)
+	: CalcContextBase(filename, 0, 0)
 	, toc_(toc)
 {
 	this->set_toc(toc_);
@@ -716,7 +599,7 @@ MultitrackCalcContext::MultitrackCalcContext(const std::string &filename,
 		const TOC &toc,
 		const uint32_t num_skip_front,
 		const uint32_t num_skip_back)
-	: BaseCalcContext(filename, num_skip_front, num_skip_back)
+	: CalcContextBase(filename, num_skip_front, num_skip_back)
 	, toc_(toc)
 {
 	this->set_toc(toc_);
@@ -725,7 +608,7 @@ MultitrackCalcContext::MultitrackCalcContext(const std::string &filename,
 
 void MultitrackCalcContext::set_audio_size(const AudioSize &audio_size)
 {
-	BaseCalcContext::set_audio_size(audio_size);
+	CalcContextBase::set_audio_size(audio_size);
 
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
@@ -942,276 +825,13 @@ std::unique_ptr<CalcContext> MultitrackCalcContext::clone() const
 }
 
 
-/**
- * \internal
- *
- * \brief Interface to the Calculation state.
- *
- * A calculation state is initialized with a multiplier. It is subsequently
- * updated with new samples. After a track is completed, the calculated
- * checksums for a specified track must be saved and can thereafter be accessed
- * via the appropriate accessors.
- *
- * The calculation state determines which checksums a Calculation actually
- * calculates.
- */
-class CalcState
-{
-
-public:
-
-	/**
-	 * Virtual default destructor.
-	 */
-	virtual ~CalcState() noexcept;
-
-	/**
-	 * Initializes the instance for calculating a new track and skip the
-	 * amount of samples specific for this state at the beginning.
-	 *
-	 * Initializing calles <tt>wipe()</tt> before doing anything.
-	 */
-	virtual void init_with_skip()
-	= 0;
-
-	/**
-	 * Initializes the instance for calculating a new track.
-	 *
-	 * Initializing calles <tt>wipe()</tt> before doing anything.
-	 */
-	virtual void init_without_skip()
-	= 0;
-
-	/**
-	 * Amount of samples to be skipped at the beginning.
-	 *
-	 * \return Amount of samples to be skipped at the beginning
-	 */
-	virtual uint32_t num_skip_front() const
-	= 0;
-
-	/**
-	 * Amount of samples to be skipped at the end.
-	 *
-	 * \return Amount of samples to be skipped at the end
-	 */
-	virtual uint32_t num_skip_back() const
-	= 0;
-
-	/**
-	 * Update the calculation state with a sequence of samples.
-	 *
-	 * \param[in] begin Iterator pointing to the beginning of the sequence
-	 * \param[in] end   Iterator pointing to the end of the sequence
-	 */
-	virtual void update(PCMForwardIterator &begin, PCMForwardIterator &end)
-	= 0;
-
-	/**
-	 * Saves the current subtotals as ARCSs for the specified track and resets
-	 * the instance.
-	 *
-	 * Saving the ARCSs is necessary whenever the calculation for a track is
-	 * finished.
-	 *
-	 * \param[in] track The 0-based track number to save the ARCSs for
-	 */
-	virtual void save(const TrackNo track)
-	= 0;
-
-	/**
-	 * Returns the number of currently saved tracks.
-	 *
-	 * \return Number of currently saved tracks
-	 */
-	virtual int track_count() const
-	= 0;
-
-	/**
-	 * Returns current type.
-	 *
-	 * \return A disjunction of all requested types.
-	 */
-	virtual checksum::type type() const
-	= 0;
-
-	/**
-	 * Returns the result for track \c track in a multitrack calculation.
-	 *
-	 * The result will be empty in singletrack calculation.
-	 *
-	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
-	 *
-	 * \param[in] track Track number to get the <tt>Checksum</tt>s for.
-	 *
-	 * \return The <tt>Checksum</tt>s calculated
-	 */
-	virtual ChecksumSet result(const TrackNo track) const
-	= 0;
-
-	/**
-	 * Returns the result of a singletrack calculation.
-	 *
-	 * The result will be empty for a multitrack calculation.
-	 *
-	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
-	 *
-	 * \return The <tt>Checksum</tt>s calculated
-	 */
-	virtual ChecksumSet result() const
-	= 0;
-
-	/**
-	 * Resets the internal subtotals and the multiplier.
-	 *
-	 * Computation results that have already been <tt>save()</tt>d are kept.
-	 * Calling <tt>reset()</tt> does therefore not change the output of
-	 * subsequent calls of <tt>arcs1()</tt> or <tt>arcs2()</tt>.
-	 *
-	 * Resetting the instance is necessary before starting the calculation for a
-	 * new track. However, it is not necessary to <tt>reset()</tt> an instance
-	 * that was already <tt>init()</tt>ed.
-	 */
-	virtual void reset()
-	= 0;
-
-	/**
-	 * Resets the internal subtotals and the multiplier and deletes all
-	 * previously saved computation results.
-	 */
-	virtual void wipe()
-	= 0;
-
-	/**
-	 * Returns the current multiplier.
-	 *
-	 * The current multiplier will be applied on the <i>next</i> multiplication
-	 * operation. The <i>last</i> multiplier that was actually applied is
-	 * <tt>mult() - 1</tt>.
-	 *
-	 * \return Multiplier for next multiplication operation
-	 */
-	virtual uint32_t mult() const
-	= 0;
-
-	/**
-	 * Clone this CalcState object.
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return A clone of this instance
-	 */
-	virtual std::unique_ptr<CalcState> clone() const
-	= 0;
-};
-
-
 // CalcState
 
 
 CalcState::~CalcState() noexcept = default;
 
 
-/**
- * \internal
- *
- * \brief Abstract base for ARCS calculating CalcStates.
- *
- * \see CalcState
- */
-class CalcStateARCS : public CalcState
-{
-	// Note: This could be a template, e.g. CalcStateARCS<bool both = true> and
-	// CalcStateARCS<true> computes v2 and v1 and CalcStateARCS<false> only v1.
-	// The annoying code duplication in CalcStateV1 and CalcStateV1andV2 is
-	// currently motivated by avoiding calls to virtual methods in update().
-	// (E.g. the multiplier_ would be in the base class, accessing it would
-	// require a method call. Of course this might come without real extra cost
-	// and may be optimized away but still feels not nice.)
-
-public:
-
-	/**
-	 * Constructor
-	 */
-	CalcStateARCS();
-
-	/**
-	 * Implements CalcState::init_with_skip()
-	 *
-	 * Initializes the multiplier with 2941.
-	 *
-	 * The initial value of the multiplier has to reflect the amount of leading
-	 * samples that have been skipped. The multiplier is 1-based, so
-	 * <tt>init(1)</tt> means that no samples are skipped at all, and
-	 * <tt>init(2941)</tt> means that the first <tt>2939</tt> samples are
-	 * skipped and the (0-based) sample <tt>2940</tt> will be the first sample
-	 * to actually use.
-	 *
-	 * Initializing calls <tt>wipe()</tt> before doing anything.
-	 */
-	void init_with_skip() override;
-
-	/**
-	 * Implements CalcState::init_without_skip()
-	 *
-	 * Initializes the multiplier with 1 for no samples are skipped.
-	 *
-	 * Initializing calls <tt>wipe()</tt> before doing anything.
-	 */
-	void init_without_skip() override;
-
-	uint32_t num_skip_front() const override;
-
-	uint32_t num_skip_back() const override;
-
-	void update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
-
-
-protected:
-
-	/**
-	 * Default destructor.
-	 *
-	 * This class is not intended to be used for polymorphical deletion.
-	 */
-	~CalcStateARCS() noexcept;
-
-	/**
-	 * Bitmask for getting the lower 32 bits of a 64 bit unsigned integer.
-	 */
-	static constexpr uint_fast32_t LOWER_32_BITS_ = 0xFFFFFFFF;
-
-
-private:
-
-	/**
-	 * Worker: initialize state with specified multiplier.
-	 */
-	virtual void init(const uint32_t mult)
-	= 0;
-
-	/**
-	 * Worker: implement update()
-	 */
-	virtual void do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
-	= 0;
-
-	/**
-	 * Actual amount of skipped samples at front
-	 */
-	uint32_t actual_skip_front_;
-
-	/**
-	 * Actual amount of skipped samples at back
-	 */
-	uint32_t actual_skip_back_;
-};
+// CalcStateARCS
 
 
 CalcStateARCS::CalcStateARCS()
@@ -1262,14 +882,11 @@ void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 	ARCS_LOG_DEBUG << "    Last multiplier was: " << (this->mult() - 1);
 }
 
+/// \endcond
 
-/// \cond IMPL_ONLY
-/// @{
 
 /**
  * \brief CalcState for calculation of ARCSv1.
- *
- * \see CalcState
  */
 class CalcStateV1 final : public CalcStateARCS
 {
@@ -1344,9 +961,7 @@ private:
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
 
-/// @}
-/// \endcond
-// IMPL_ONLY
+/// \cond NEVER_SHOW
 
 
 CalcStateV1::CalcStateV1()
@@ -1471,14 +1086,11 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 	return checksums;
 }
 
+/// \endcond
 
-/// \cond IMPL_ONLY
-/// @{
 
 /**
  * \brief CalcState for calculation of ARCSv2 and ARCSv1.
- *
- * \see CalcState
  */
 class CalcStateV1andV2 final : public CalcStateARCS
 {
@@ -1548,9 +1160,7 @@ private:
 	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
 };
 
-/// @}
-/// \endcond
-// IMPL_ONLY
+/// \cond NEVER_SHOW
 
 
 CalcStateV1andV2::CalcStateV1andV2()
@@ -1696,191 +1306,8 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const
 	return checksums;
 }
 
-
-/**
- * \internal
- *
- * \brief CalcState related tools.
- */
-namespace state
-{
-
-
-/**
- * \internal
- *
- * \brief An aggregate of all predefined CalcState implementations.
- */
-using state_types = std::tuple<
-	CalcStateV1,       // type::ARCS1
-	CalcStateV1andV2   // type::ARCS2
-	>;
-
-
-
-/// \cond IMPL_ONLY
-/// @{
-
-/**
- * \brief Implementation details of namespace state.
- */
-namespace details
-{
-
-
-// The set of the following five template functions along with state::make is
-// probably the most sophisticated solution in the entire lib. It enables
-// to load a concrete subclass of CalcState by just passing a checksum::type.
-// This behaviour could also have been implemented by a bare
-// switch-case-statement but this method is completely generic and so much
-// cooler!
-
-
-/**
- * Invoke F on T*, except for <tt>T == void</tt>
- *
- * \param[in] func The callable F to invoke on T*
- * \param[in] i    The size to pass to func
- */
-template<typename T, typename F>
-auto invoke(F&& func, std::size_t i)
-#if __cplusplus >= 201703L
-	-> std::enable_if_t<!std::is_same_v<T, void>>
-#else
-	-> std::enable_if_t<!std::is_same<T, void>::value>
-#endif
-{
-	func(static_cast<T*>(nullptr), i);
-}
-
-/**
- * In case <tt>T == void</tt> just do not invoke F on T*
- *
- * This version implements <tt>T == void</tt> and does nothing.
- */
-template<typename T, typename F>
-auto invoke(F&& /* func */, std::size_t /* i */)
-#if __cplusplus >= 201703L
-	-> std::enable_if_t<std::is_same_v<T, void>>
-#else
-	-> std::enable_if_t<std::is_same<T, void>::value>
-#endif
-{
-	// empty
-}
-
-/**
- * Implementation of for_all_types
- *
- * \param[in] func To be invoked on each combination of a type and a size
- */
-template <typename TUPLE, typename F, std::size_t... I>
-void for_all_types_impl(F&& func, std::index_sequence<I...>)
-{
-	int x[] = { 0, (invoke<std::tuple_element_t<I, TUPLE>>(func, I), 0)... };
-	static_cast<void>(x); // to avoid warning for unused x
-}
-
-/**
- * Invoke \c func on each type in tuple \c TUPLE
- *
- * \param[in] func To be invoked on each combination of a type and a size
- */
-template <typename TUPLE, typename F>
-void for_all_types(F&& func)
-{
-	for_all_types_impl<TUPLE>(func,
-#if __cplusplus >= 201703L
-			std::make_index_sequence<std::tuple_size_v<TUPLE>>()
-#else
-			std::make_index_sequence<std::tuple_size<TUPLE>::value>()
-#endif
-	);
-}
-
-/**
- * Instantiate one of the types in \c TUPLE as \c R by callable \c F .
- *
- * \c R corresponds to the type on index position \c i in \c TUPLE .
- *
- * Argument \c i is of type std::size_t since it is intended to use this
- * function to load a class by specifying an enum value.
- *
- * \param[in] func The callable to instantiate the corresponding type
- * \param[in] i    The size to compare
- *
- * \return An instance of type \c R
- */
-template <typename R, typename TUPLE, typename F>
-R instantiate(F&& func, std::size_t i)
-{
-	R instance;
-	bool found = false;
-
-	// find the enum value whose size corresponds to the index position of the
-	// type in TUPLE and invoke func on it
-	for_all_types<TUPLE>(
-		[&](auto p, std::size_t j) // this lambda becomes 'func' in invoke()
-		{
-			// This requires the enum to be defined in powers of 2, i.e.:
-			// 1, 2, 4, 16, 32 ...
-			const auto enum_val { std::exp2(j) };
-
-			if (i == enum_val)
-			{
-				instance = func(p);
-				found = true;
-			}
-		}
-	);
-
-	if (not found)
-	{
-		std::stringstream msg;
-		msg << "No CalcState type found with id " << i;
-
-		throw std::invalid_argument(msg.str());
-	}
-
-	return instance;
-}
-
-
-} // namespace state::details
-
-/// @}
 /// \endcond
-// IMPL_ONLY
 
-
-/**
- * \brief Instantiate the CalcState for a checksum::type.
- *
- * \param[in] state_type The state type to instantiate
- * \param[in] x Constructor arguments for constructing CalcState
- *
- * \return The CalcState for \c stateType
- */
-template<typename... X, typename T>
-auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
-{
-    return details::instantiate <std::unique_ptr<CalcState>, state_types> (
-		[&](auto p)
-		{
-			return std::make_unique<std::decay_t<decltype(*p)>>(
-					std::forward<X>(x)...
-			);
-		},
-		static_cast<std::size_t>(state_type)
-	);
-}
-
-
-} // namespace state
-
-
-/// \cond IMPL_ONLY
-/// @{
 
 /**
  * \brief Private implementation of Calculation.
@@ -2067,9 +1494,7 @@ private:
 	std::chrono::milliseconds proc_time_elapsed_;
 };
 
-/// @}
-/// \endcond
-// IMPL_ONLY
+/// \cond NEVER_SHOW
 
 
 Calculation::Impl::Impl(const checksum::type type,
@@ -2777,10 +2202,11 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 			NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK);
 }
 
+/// \endcond
+
+/** @} */
 
 } // namespace v_1_0_0
-
-/// @}
 
 } // namespace arcstk
 

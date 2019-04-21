@@ -15,15 +15,8 @@
 
 namespace arcstk
 {
-
-/// \cond IMPL_ONLY
-/// \internal \defgroup idImpl Implementation of the AccurateRip ID
-/// \ingroup id
-/// @{
-
 inline namespace v_1_0_0
 {
-
 
 /**
  * \brief Implementation details of namespace arcstk
@@ -31,17 +24,21 @@ inline namespace v_1_0_0
 namespace details
 {
 
+/// \internal \defgroup idInternal Internal APIs
+/// \ingroup id
+/// @{
+
 
 /**
+ * \internal
+ *
  * \brief Constructs ARId instances from TOC data
  *
- * Constructs <tt>ARId</tt>s either from a TOC or from the triplet of track
- * count, list of offsets and leadout frame.
+ * Constructs @link ARId ARIds @endlink either from a TOC or from the triplet of
+ * track count, list of offsets and leadout frame.
  *
  * ARIdBuilder validates its input and will refuse to construct invalid ARIds
  * from any data. Hence, if an ARId is returned, it is guaranteed to be correct.
- *
- * \internal
  */
 class ARIdBuilder final
 {
@@ -49,31 +46,31 @@ class ARIdBuilder final
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 */
 	ARIdBuilder();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	ARIdBuilder(const ARIdBuilder &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	ARIdBuilder(ARIdBuilder &&rhs) noexcept;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor.
 	 */
 	~ARIdBuilder() noexcept;
 
 	/**
-	 * Build an ARId object from the specified information.
+	 * \brief Build an ARId object from the specified information.
 	 *
 	 * This method is intended for easy testing the class.
 	 *
@@ -89,7 +86,7 @@ public:
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const;
 
 	/**
-	 * Build an ARId object from the specified TOC.
+	 * \brief Build an ARId object from the specified TOC.
 	 *
 	 * \param[in] toc TOC to build ARId from
 	 *
@@ -100,7 +97,7 @@ public:
 	std::unique_ptr<ARId> build(const TOC &toc) const;
 
 	/**
-	 * Build an ARId object from the specified TOC and leadout.
+	 * \brief Build an ARId object from the specified TOC and leadout.
 	 *
 	 * Actual parameters \c toc and \c leadout are validated against each other.
 	 *
@@ -114,7 +111,7 @@ public:
 	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
 
 	/**
-	 * Safely construct an empty ARId.
+	 * \brief Safely construct an empty ARId.
 	 *
 	 * An empty ARId has the invalid value 0 for the track count and also 0
 	 * for disc id 1, disc id 2 and cddb id. An empty ARId is not a valid
@@ -132,7 +129,7 @@ public:
 	std::unique_ptr<ARId> build_empty_id() noexcept;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -141,7 +138,7 @@ public:
 	ARIdBuilder& operator = (const ARIdBuilder &rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -156,7 +153,7 @@ private:
 	class Impl;
 
 	/**
-	 * Private implementation of ARIdBuilder
+	 * \brief Private implementation of ARIdBuilder.
 	 */
 	std::unique_ptr<ARIdBuilder::Impl> impl_;
 };
@@ -168,7 +165,7 @@ private:
  * \brief Constructs a TOC from metadata of the compact disc.
  *
  * TOCBuilder will refuse to construct invalid TOCs from any data and throw
- * an InvalidMetadataException insteed. Hence, if no exception was thrown
+ * an InvalidMetadataException instead. Hence, if no exception was thrown
  * and an actual TOC is returned, this TOC is guaranteed to be at
  * least minimally consistent.
  *
@@ -187,31 +184,31 @@ public:
 	class Impl;
 
 	/**
-	 * Constructor
+	 * \brief Constructor.
 	 */
 	TOCBuilder();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	TOCBuilder(const TOCBuilder &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	TOCBuilder(TOCBuilder &&rhs) noexcept;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor.
 	 */
 	~TOCBuilder() noexcept;
 
 	/**
-	 * Build a TOC object from the specified information.
+	 * \brief Build a TOC object from the specified information.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in LBA frames) for each track
@@ -226,7 +223,7 @@ public:
 			const uint32_t leadout);
 
 	/**
-	 * Build a TOC object from the specified information.
+	 * \brief Build a TOC object from the specified information.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in LBA frames) of each track
@@ -243,7 +240,7 @@ public:
 			const std::vector<std::string> &files);
 
 	/**
-	 * Update a non-complete TOC object with a missing leadout.
+	 * \brief Update a non-complete TOC object with a missing leadout.
 	 *
 	 * If \c toc is already complete, it will not be altered.
 	 *
@@ -255,7 +252,7 @@ public:
 	std::unique_ptr<TOC> merge(const TOC &toc, const uint32_t leadout) const;
 
 	/**
-	 * Copy assignment
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -264,7 +261,7 @@ public:
 	TOCBuilder& operator = (const TOCBuilder &rhs);
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -276,7 +273,7 @@ public:
 private:
 
 	/**
-	 * Private implementation of TOCBuilder
+	 * \brief Private implementation of TOCBuilder.
 	 */
 	std::unique_ptr<TOCBuilder::Impl> impl_;
 };
@@ -299,7 +296,7 @@ class TOCValidator final
 public:
 
 	/**
-	 * Validate TOC information.
+	 * \brief Validate TOC information.
 	 *
 	 * It is ensured that the number of offsets matches the track count, that
 	 * the offsets are consistent and the leadout frame is consistent with the
@@ -316,7 +313,7 @@ public:
 			const uint32_t leadout) const;
 
 	/**
-	 * Validate TOC information and leadout.
+	 * \brief Validate TOC information and leadout.
 	 *
 	 * It is ensured that the leadout frame is consistent with the offsets.
 	 *
@@ -328,7 +325,7 @@ public:
 	void validate(const TOC &toc, const uint32_t leadout) const;
 
 	/**
-	 * Validate offsets and track count.
+	 * \brief Validate offsets and track count.
 	 *
 	 * It is ensured that the number of offsets matches the track count and that
 	 * the offsets are consistent.
@@ -342,7 +339,7 @@ public:
 			const std::vector<int32_t> &offsets) const;
 
 	/**
-	 * Validate offsets.
+	 * \brief Validate offsets.
 	 *
 	 * It is ensured that the offsets are consistent, which means they all are
 	 * within a CDDA conforming range, ordered in ascending order with a legal
@@ -356,7 +353,7 @@ public:
 	void validate_offsets(const std::vector<int32_t> &offsets) const;
 
 	/**
-	 * Validate lengths.
+	 * \brief Validate lengths.
 	 *
 	 * It is ensured that the lengths are consistent, which means they all have
 	 * have a CDDA conforming minimal lengths, their sum is within a CDDA
@@ -370,7 +367,7 @@ public:
 	void validate_lengths(const std::vector<int32_t> &lengths) const;
 
 	/**
-	 * Validate leadout frame.
+	 * \brief Validate leadout frame.
 	 *
 	 * It is ensured that the leadout is within a CDDA conforming range. An
 	 * InvalidMetadataException is thrown if the validation fails.
@@ -382,7 +379,7 @@ public:
 	void validate_leadout(const uint32_t leadout) const;
 
 	/**
-	 * Validate track count.
+	 * \brief Validate track count.
 	 *
 	 * It is ensured that the track count is within a CDDA conforming range. An
 	 * InvalidMetadataException is thrown if the validation fails.
@@ -397,7 +394,7 @@ public:
 protected:
 
 	/**
-	 * Ensure that \c prev_track and \c next_track offsets have at least minimal
+	 * \brief Ensure that \c prev_track and \c next_track offsets have at least minimal
 	 * distance
 	 *
 	 * \param[in] prev_track Previous track offset
@@ -409,29 +406,25 @@ protected:
 		const;
 
 	/**
-	 * Maximal valid offset value for a non-redbook 90 min CD (in CDDA frames).
+	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in CDDA frames).
 	 *
 	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
 	 */
 	static constexpr uint32_t MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
 
 	/**
-	 * Maximal valid offset value for a non-redbook 99 min CD (in CDDA frames).
+	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in CDDA frames).
 	 *
 	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
 	 */
 	static constexpr uint32_t MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
 };
 
+/// @}
 
 } // namespace arcstk::details
 
-
 } // namespace v_1_0_0
-
-/// @}
-/// \endcond
-/// IMPL_ONLY
 
 } // namespace arcstk
 

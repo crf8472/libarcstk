@@ -4,7 +4,6 @@
  * \brief Implementation of the AccurateRip checksum matching API.
  */
 
-
 #ifndef __LIBARCSTK_MATCH_HPP__
 #include "match.hpp"
 #endif
@@ -29,20 +28,19 @@
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
-/// \internal \defgroup matchImpl Implementation of ARCSs comparison
+/// \internal \defgroup matchImpl Implementation
 /// \ingroup match
 /// @{
 
 
 // Match
 
+/// \cond NEVER_SHOW
 
 Match::~Match() noexcept = default;
 
@@ -100,14 +98,10 @@ std::unique_ptr<Match> Match::clone() const
 	return this->do_clone();
 }
 
-
-namespace
-{
-
-/// \cond IMPL_ONLY
+/// \endcond
 
 /**
- * \brief Base for DefaultMatcher.
+ * \brief Base for @link DefaultMatch DefaultMatches @endlink.
  */
 class DefaultMatchBase : public Match
 {
@@ -150,7 +144,8 @@ public:
 protected:
 
 	/**
-	 * Converts a logical block index to an absolute single flag position.
+	 * \brief Converts a logical block index to an absolute single flag
+	 * position.
 	 *
 	 * Note that the block start is also the position of the flag respresenting
 	 * the ARId comparison.
@@ -162,7 +157,8 @@ protected:
 	uint32_t block_start(const uint32_t b) const;
 
 	/**
-	 * Converts a 0-based track number to an offset position within a block.
+	 * \brief Converts a 0-based track number to an offset position within a
+	 * block.
 	 *
 	 * \param[in] t  0-based index of the track in \c response
 	 * \param[in] v2 Iff TRUE, the offset of the ARCSv2 is returned
@@ -172,8 +168,8 @@ protected:
 	uint32_t track_offset(const uint8_t t, const bool v2) const;
 
 	/**
-	 * Converts a logical ARCS position in \c response to an absolute single
-	 * flag position.
+	 * \brief Converts a logical ARCS position in ARResponse to an absolute
+	 * single flag position.
 	 *
 	 * The sum of \c block_start(b) and \c track_offset(t, v2).
 	 *
@@ -186,7 +182,7 @@ protected:
 	uint32_t index(const uint32_t b, const int8_t t, const bool v2) const;
 
 	/**
-	 * Set the verification flag for the ARId of block \b to \c value .
+	 * \brief Set the verification flag for the ARId of block \b to \c value.
 	 *
 	 * \param[in] b     0-based index of the block in \c response
 	 * \param[in] value New value for this flag
@@ -198,7 +194,7 @@ protected:
 	uint32_t set_id(const uint32_t b, bool value);
 
 	/**
-	 * Set the verification flag for the ARCS specified by \c b, \c t and
+	 * \brief Set the verification flag for the ARCS specified by \c b, \c t and
 	 * \c v2 .
 	 *
 	 * \param[in] b     0-based index of the block in \c response
@@ -214,7 +210,7 @@ protected:
 			bool value);
 
 	/**
-	 * Ensures that \c b is a legal block value.
+	 * \brief Ensures that \c b is a legal block value.
 	 *
 	 * \param[in] b 0-based index of the block in \c response
 	 *
@@ -223,7 +219,7 @@ protected:
 	void validate_block(uint32_t b) const;
 
 	/**
-	 * Ensures that \c t is a legal track value.
+	 * \brief Ensures that \c t is a legal track value.
 	 *
 	 * \param[in] t 0-based index of the track in \c response
 	 *
@@ -235,22 +231,22 @@ protected:
 private:
 
 	/**
-	 * Number of <tt>ARBlock</tt>s represented
+	 * \brief Number of @link ARBlock ARBlocks @endlink represented.
 	 */
 	uint32_t blocks_;
 
 	/**
-	 * Number of tracks in each ARBlock
+	 * \brief Number of tracks in each ARBlock.
 	 */
 	int tracks_per_block_;
 
 	/**
-	 * Number of flags stored.
+	 * \brief Number of flags stored.
 	 */
 	uint32_t size_;
 
 	/**
-	 * The result bits of the comparison.
+	 * \brief The result bits of the comparison.
 	 */
 	std::vector<bool> flag_;
 	// layout is:
@@ -265,11 +261,7 @@ private:
 	//f = field(total_bits - 1);
 };
 
-/// \endcond
-// IMPL_ONLY
-
-} // namespace
-
+/// \cond NEVER_SHOW
 
 DefaultMatchBase::DefaultMatchBase(const uint32_t blocks, const uint8_t tracks)
 	: blocks_(blocks)
@@ -433,15 +425,16 @@ void DefaultMatchBase::validate_track(int t) const
 	}
 }
 
+/// \endcond
 
 /**
  * \brief Default implementation of a Match.
  *
  * The result is encoded as a sequence of boolean flags, each representing the
- * result of a match operation between either two ARCSs or two <tt>ARId</tt>s in
- * the order of there occurrence in the ARResponse.
+ * result of a match operation between either two ARCSs or two
+ * @link ARId ARIds @endlinkin the order of their occurrence in the ARResponse.
  */
-class DefaultMatch final : public DefaultMatchBase
+class DefaultMatch final : virtual public DefaultMatchBase
 {
 public:
 
@@ -459,6 +452,7 @@ private:
 	std::unique_ptr<Match> do_clone() const final;
 };
 
+/// \cond NEVER_SHOW
 
 DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
 	: DefaultMatchBase(blocks, tracks)
@@ -514,9 +508,7 @@ std::unique_ptr<Matcher> Matcher::clone() const
 	return this->do_clone();
 }
 
-
-/// \cond IMPL_ONLY
-
+/// \endcond
 
 /**
  * \brief Abstract base class for matcher implementations.
@@ -527,26 +519,26 @@ class MatcherImplBase
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 */
 	MatcherImplBase();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	MatcherImplBase(const MatcherImplBase &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	MatcherImplBase(MatcherImplBase &&rhs) noexcept;
 
 	/**
-	 * Initializes the match
+	 * \brief Initializes the match.
 	 *
 	 * \param[in] checksums Checksums to be matched
 	 * \param[in] id        ARId to be matched
@@ -556,27 +548,27 @@ public:
 		const ARResponse &response);
 
 	/**
-	 * Implements Matcher::matches() const
+	 * \brief Implements Matcher::matches() const.
 	 */
 	bool matches() const;
 
 	/**
-	 * Implements Matcher::best_match() const
+	 * \brief Implements Matcher::best_match() const.
 	 */
 	uint32_t best_match() const;
 
 	/**
-	 * Implements Matcher::best_difference() const
+	 * \brief Implements Matcher::best_difference() const.
 	 */
 	int best_difference() const;
 
 	/**
-	 * Implements Matcher::matches_v2() const
+	 * \brief Implements Matcher::matches_v2() const.
 	 */
 	bool matches_v2() const;
 
 	/**
-	 * Copy assignment
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -585,7 +577,7 @@ public:
 	MatcherImplBase& operator = (const MatcherImplBase &rhs);
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -594,7 +586,7 @@ public:
 	MatcherImplBase& operator = (MatcherImplBase &&rhs) noexcept;
 
 	/**
-	 * Returns the actual match result.
+	 * \brief Returns the actual match result.
 	 *
 	 * \return Actual match result.
 	 */
@@ -604,12 +596,12 @@ public:
 protected:
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor.
 	 */
 	~MatcherImplBase() noexcept;
 
 	/**
-	 * Performs the actual match.
+	 * \brief Performs the actual match.
 	 *
 	 * \param[in] actual_sums The checksums to match
 	 * \param[in] id          The id to match
@@ -622,7 +614,7 @@ protected:
 	= 0;
 
 	/**
-	 * Derive best matching block from match result.
+	 * \brief Derive best matching block from match result.
 	 *
 	 * \param[in]  m          Match to analyze
 	 *
@@ -635,7 +627,9 @@ protected:
 			bool &matches_v2);
 
 	/**
-	 * Internal service method for constructor
+	 * \brief Internal service method for constructor.
+	 *
+	 * \return 0-based index of the best block
 	 */
 	int mark_best_block();
 
@@ -643,25 +637,22 @@ protected:
 private:
 
 	/**
-	 * State: representation of the comparison result
+	 * \brief State: representation of the comparison result.
 	 */
 	std::unique_ptr<DefaultMatch> match_;
 
 	/**
-	 * State: pointer to best block
+	 * \brief State: pointer to best block.
 	 */
 	uint32_t best_block_;
 
 	/**
-	 * State: stores information about best block
+	 * \brief State: stores information about best block.
 	 */
 	bool matches_v2_;
 };
 
-
-/// \endcond
-// IMPL_ONLY
-
+/// \cond NEVER_SHOW
 
 MatcherImplBase::MatcherImplBase()
 	: match_(nullptr)
@@ -816,14 +807,12 @@ int MatcherImplBase::mark_best_block()
 	return status;
 }
 
-
-/// \cond IMPL_ONLY
-
+/// \endcond
 
 /**
- * \brief Implementation of ListMatcher.
+ * \brief Implementation of AlbumMatcher.
  */
-class ListMatcher::Impl final : public MatcherImplBase
+class AlbumMatcher::Impl final : public MatcherImplBase
 {
 
 protected:
@@ -833,11 +822,7 @@ protected:
 };
 
 
-/// \endcond
-// IMPL_ONLY
-
-
-std::unique_ptr<DefaultMatch> ListMatcher::Impl::do_match(
+std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
@@ -932,89 +917,88 @@ std::unique_ptr<DefaultMatch> ListMatcher::Impl::do_match(
 }
 
 
-// ListMatcher
+// AlbumMatcher
 
+/// \cond NEVER_SHOW
 
-ListMatcher::ListMatcher(const Checksums &checksums, const ARId &id,
+AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: impl_(std::make_unique<ListMatcher::Impl>())
+	: impl_(std::make_unique<AlbumMatcher::Impl>())
 {
 	impl_->init_match(checksums, id, response);
 }
 
 
-ListMatcher::ListMatcher(const ListMatcher &rhs)
-	: impl_(std::make_unique<ListMatcher::Impl>(*rhs.impl_))
+AlbumMatcher::AlbumMatcher(const AlbumMatcher &rhs)
+	: impl_(std::make_unique<AlbumMatcher::Impl>(*rhs.impl_))
 {
 	// empty
 }
 
 
-ListMatcher::ListMatcher(ListMatcher &&rhs) noexcept = default;
+AlbumMatcher::AlbumMatcher(AlbumMatcher &&rhs) noexcept = default;
 
 
-ListMatcher::~ListMatcher() noexcept = default;
+AlbumMatcher::~AlbumMatcher() noexcept = default;
 
 
-bool ListMatcher::do_matches() const
+bool AlbumMatcher::do_matches() const
 {
 	return impl_->matches();
 }
 
 
-uint32_t ListMatcher::do_best_match() const
+uint32_t AlbumMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }
 
 
-int ListMatcher::do_best_difference() const
+int AlbumMatcher::do_best_difference() const
 {
 	return impl_->best_difference();
 }
 
 
-bool ListMatcher::do_matches_v2() const
+bool AlbumMatcher::do_matches_v2() const
 {
 	return impl_->matches_v2();
 }
 
 
-ListMatcher& ListMatcher::operator = (const ListMatcher &rhs)
+AlbumMatcher& AlbumMatcher::operator = (const AlbumMatcher &rhs)
 {
 	if (this == &rhs)
 	{
 		return *this;
 	}
 
-	impl_ = std::make_unique<ListMatcher::Impl>(*rhs.impl_);
+	impl_ = std::make_unique<AlbumMatcher::Impl>(*rhs.impl_);
 	return *this;
 }
 
 
-ListMatcher& ListMatcher::operator = (ListMatcher &&rhs) noexcept
+AlbumMatcher& AlbumMatcher::operator = (AlbumMatcher &&rhs) noexcept
 	= default;
 
 
-const Match* ListMatcher::do_match() const
+const Match* AlbumMatcher::do_match() const
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> ListMatcher::do_clone() const
+std::unique_ptr<Matcher> AlbumMatcher::do_clone() const
 {
-	return std::make_unique<ListMatcher>(*this);
+	return std::make_unique<AlbumMatcher>(*this);
 }
 
-
-/// \cond IMPL_ONLY
-
+/// \endcond
 
 /**
- * \brief Implementation of AnyMatcher.
+ * \brief Private implementation of TracksetMatcher.
  */
-class AnyMatcher::Impl final : public MatcherImplBase
+class TracksetMatcher::Impl final : public MatcherImplBase
 {
 
 protected:
@@ -1024,14 +1008,11 @@ protected:
 };
 
 
-/// \endcond
-// IMPL_ONLY
+// TracksetMatcher::Impl
 
+/// \cond NEVER_SHOW
 
-// AnyMatcher::Impl
-
-
-std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
+std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId & /*id*/,
 		const ARResponse &ref_sums) const
 {
@@ -1151,80 +1132,83 @@ std::unique_ptr<DefaultMatch> AnyMatcher::Impl::do_match(
 }
 
 
-// AnyMatcher
+// TracksetMatcher
 
 
-AnyMatcher::AnyMatcher(const Checksums &checksums, const ARResponse &response)
-	: impl_(std::make_unique<AnyMatcher::Impl>())
+TracksetMatcher::TracksetMatcher(const Checksums &checksums,
+		const ARResponse &response)
+	: impl_(std::make_unique<TracksetMatcher::Impl>())
 {
 	impl_->init_match(checksums, ARId(0, 0, 0, 0), response);
 	// ARId is skipped, so we spare the effort to standard-create an empty ARId
 }
 
 
-AnyMatcher::AnyMatcher(const AnyMatcher &rhs)
-	: impl_(std::make_unique<AnyMatcher::Impl>(*rhs.impl_))
+TracksetMatcher::TracksetMatcher(const TracksetMatcher &rhs)
+	: impl_(std::make_unique<TracksetMatcher::Impl>(*rhs.impl_))
 {
 	// empty
 }
 
 
-AnyMatcher::AnyMatcher(AnyMatcher &&rhs) noexcept = default;
+TracksetMatcher::TracksetMatcher(TracksetMatcher &&rhs) noexcept = default;
 
 
-AnyMatcher::~AnyMatcher() noexcept = default;
+TracksetMatcher::~TracksetMatcher() noexcept = default;
 
 
-bool AnyMatcher::do_matches() const
+bool TracksetMatcher::do_matches() const
 {
 	return impl_->matches();
 }
 
 
-uint32_t AnyMatcher::do_best_match() const
+uint32_t TracksetMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }
 
 
-int AnyMatcher::do_best_difference() const
+int TracksetMatcher::do_best_difference() const
 {
 	return impl_->best_difference();
 }
 
 
-bool AnyMatcher::do_matches_v2() const
+bool TracksetMatcher::do_matches_v2() const
 {
 	return impl_->matches_v2();
 }
 
 
-AnyMatcher& AnyMatcher::operator = (const AnyMatcher &rhs)
+TracksetMatcher& TracksetMatcher::operator = (const TracksetMatcher &rhs)
 {
 	if (this == &rhs)
 	{
 		return *this;
 	}
 
-	impl_ = std::make_unique<AnyMatcher::Impl>(*rhs.impl_);
+	impl_ = std::make_unique<TracksetMatcher::Impl>(*rhs.impl_);
 	return *this;
 }
 
 
-AnyMatcher& AnyMatcher::operator = (AnyMatcher &&rhs) noexcept
+TracksetMatcher& TracksetMatcher::operator = (TracksetMatcher &&rhs) noexcept
 	= default;
 
 
-const Match * AnyMatcher::do_match() const
+const Match * TracksetMatcher::do_match() const
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> AnyMatcher::do_clone() const
+std::unique_ptr<Matcher> TracksetMatcher::do_clone() const
 {
-	return std::make_unique<AnyMatcher>(*this);
+	return std::make_unique<TracksetMatcher>(*this);
 }
+
+/// \endcond
 
 /// @}
 

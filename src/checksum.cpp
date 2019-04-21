@@ -1,3 +1,9 @@
+/**
+ * \file
+ *
+ * \brief Implementation of the checksum calculation API
+ */
+
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
@@ -7,14 +13,8 @@
                           // showbase, noshowbase
 #include <sstream>        // for stringstream
 
-
 namespace arcstk
 {
-
-/// \cond IMPL_ONLY
-/// \internal \addtogroup calcImpl
-/// @{
-
 inline namespace v_1_0_0
 {
 
@@ -66,6 +66,10 @@ bool Checksum::operator != (const Checksum &rhs) const
 
 //Checksum& Checksum::operator = (Checksum &&rhs) noexcept
 //= default;
+
+
+/// \internal \addtogroup calcImpl
+/// @{
 
 
 // ChecksumSet::Impl
@@ -120,6 +124,7 @@ private:
 	uint32_t length_;
 };
 
+/// @}
 
 ChecksumSet::Impl::Impl(const uint32_t length)
 	: length_(length)
@@ -241,10 +246,6 @@ std::string type_name(type t)
 } // namespace checksum
 
 } // namespace v_1_0_0
-
-/// @}
-/// \endcond
-// IMPL_ONLY
 
 } // namespace arcstk
 

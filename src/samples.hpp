@@ -12,12 +12,15 @@
 #include <type_traits> // for conditional, is_same
 #include <memory>
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
+
+/**
+ * \addtogroup calc
+ * @{
+ */
 
 /**
  * \brief A random access iterator for samples.
@@ -49,35 +52,35 @@ public:
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
 	SampleIterator<T, is_planar, false> begin();
 
 	/**
-	 * Iterator pointing behind the end.
+	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
 	SampleIterator<T, is_planar, false> end();
 
 	/**
-	 * Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
 	SampleIterator<T, is_planar, true> begin() const;
 
 	/**
-	 * Iterator pointing behind the end.
+	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
 	SampleIterator<T, is_planar, true> end() const;
 
 	/**
-	 * Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -87,11 +90,12 @@ public:
 			const uint32_t &size);
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * \par Bits 31-24: Left Channel MSB
+	 * \par Bits 23-16: Left Channel LSB
+	 * \par Bits 15-09: Right Channel MSB
+	 * \par Bits 08-00: Right Channel LSB
 	 *
 	 * \param[in] index Index of a virtual 32 bit PCM sample
 	 *
@@ -100,11 +104,12 @@ public:
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 *
+	 * \par Bits 31-24: Left Channel MSB
+	 * \par Bits 23-16: Left Channel LSB
+	 * \par Bits 15-09: Right Channel MSB
+	 * \par Bits 08-00: Right Channel LSB
 	 *
 	 * Does bounds checking before accessing the sample.
 	 *
@@ -117,7 +122,7 @@ public:
 	uint32_t at(const uint32_t index) const;
 
 	/**
-	 * Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -125,6 +130,8 @@ public:
 	 */
 	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
 };
+
+/** @} */
 
 } // namespace v_1_0_0
 

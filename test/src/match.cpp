@@ -21,7 +21,7 @@
  */
 
 
-TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
+TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 {
 	// Construct the checksums by hand
 
@@ -177,13 +177,13 @@ TEST_CASE ( "ListMatcher", "[match] [listmatcher]" )
 	REQUIRE ( response.size() == 3 );
 
 
-	arcstk::ListMatcher diff(result1, id, response);
+	arcstk::AlbumMatcher diff(result1, id, response);
 
 	const bool v1 = false;
 	const bool v2 = true;
 
 
-	SECTION ( "ListMatcher finds best match" )
+	SECTION ( "AlbumMatcher finds best match" )
 	{
 		REQUIRE ( diff.matches() );
 

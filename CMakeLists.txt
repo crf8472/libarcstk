@@ -296,11 +296,11 @@ endif (WITH_TESTS)
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
-option (WITH_IMPLONLY_DOCS "Build documentation also for implementations" OFF )
+option (WITH_IMPL_DOCS     "Build documentation also for implementations" OFF )
 option (USE_MCSS           "Build documentation using m.css"              OFF )
 
 ## Auto-activate WITH_DOCS if settings for documentation are present
-if (WITH_INTERNAL_DOCS OR WITH_IMPLONLY_DOCS OR USE_MCSS )
+if (WITH_INTERNAL_DOCS OR WITH_IMPL_DOCS OR USE_MCSS )
 
 	set (WITH_DOCS ON )
 
@@ -328,7 +328,7 @@ unset (IWYU               CACHE)
 unset (WITH_TESTS         CACHE)
 unset (WITH_DOCS          CACHE)
 unset (WITH_INTERNAL_DOCS CACHE)
-unset (WITH_IMPLONLY_DOCS CACHE)
+unset (WITH_IMPL_DOCS     CACHE)
 unset (USE_MCSS           CACHE)
 unset (WITH_NATIVE        CACHE)
 

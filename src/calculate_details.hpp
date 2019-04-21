@@ -13,31 +13,37 @@
  * \brief Internal APIs for checksum calculation
  */
 
-
+#include <cmath>         // for exp2
 #include <cstdint>
 #include <memory>
+#include <stdexcept>     // for logic_error, invalid_argument
+#include <tuple>         // for tuple_element_t, tuple_size
+                         // C++17: for tuple_size_v instead of tuple_size
+#include <type_traits>   // for enable_if_t, is_same, decay_t
+                         // C++17: for is_same_v instead of is_same
+#include <utility>       // for pair, forward, make_index_sequence
 #include <vector>
 
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
-
-/// \internal \defgroup calcImpl Implementation of ARCSs, calculation and metadata
-/// \ingroup calc
-/// @{
-
 inline namespace v_1_0_0
 {
+
+/**
+ * \internal \defgroup calcInternal Internal APIs
+ * \ingroup calc
+ * @{
+ */
 
 // Forward Declaration Required for Partitioner
 class Partition;
 
 /**
- * Partitioning of a range of samples
+ * \brief Partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
 
@@ -46,8 +52,6 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
- * \internal
- *
  * \brief Interface for generating a partitioning over a sequence of samples.
  *
  * The partitioning is done along the track bounds according to the TOC such
@@ -61,12 +65,12 @@ class Partitioner
 public:
 
 	/**
-	 * Virtual default destructor.
+	 * \brief Virtual default destructor.
 	 */
 	virtual ~Partitioner() noexcept;
 
 	/**
-	 * Generates partitioning of the range of samples in accordance to a
+	 * \brief Generates partitioning of the range of samples in accordance to a
 	 * CalcContext.
 	 *
 	 * \param[in] offset            Offset of the first sample
@@ -81,7 +85,7 @@ public:
 			const CalcContext &context) const;
 
 	/**
-	 * Clone this Partitioner object.
+	 * \brief Clone this Partitioner object.
 	 *
 	 * A clone is a deep copy, i.e. the result of the cloning will be a
 	 * different object with the exact same state.
@@ -93,7 +97,7 @@ public:
 protected:
 
 	/**
-	 * Index of the last sample of the block.
+	 * \brief Index of the last sample of the block.
 	 *
 	 * \param[in] offset       Offset of the sample block
 	 * \param[in] sample_count Number of samples in the partition
@@ -104,7 +108,7 @@ protected:
 			const uint32_t sample_count) const;
 
 	/**
-	 * Creates a Partition.
+	 * \brief Creates a Partition.
 	 *
 	 * This method is the exclusive way to create <tt>Partition</tt>s. It is
 	 * provided to all Partitioners.
@@ -134,7 +138,7 @@ protected:
 private:
 
 	/**
-	 * Implements Partitioner::create_partitioning().
+	 * \brief Implements Partitioner::create_partitioning().
 	 */
 	virtual Partitioning do_create_partitioning(
 			const uint32_t offset,
@@ -145,8 +149,6 @@ private:
 
 
 /**
- * \internal
- *
  * \brief Partitioner for multitrack partitions.
  *
  * The partitioning is an ordered list of partitions where a track bound lies
@@ -173,8 +175,6 @@ private:
 
 
 /**
- * \internal
- *
  * \brief Partitioner for singletrack partitions.
  *
  * The partition contains just one partition representing the entire sample
@@ -200,12 +200,7 @@ private:
 };
 
 
-// Partition
-
-
 /**
- * \internal
- *
  * \brief A contigous part of a sequence of samples.
  *
  * A partition does not hold any samples but provides access to a slice of the
@@ -222,58 +217,58 @@ class Partition final
 public: /* methods */
 
 	/**
-	 * Relative offset of the first sample in the partition.
+	 * \brief Relative offset of the first sample in the partition.
 	 *
 	 * \return Relative offset of the first sample in the partition.
 	 */
 	uint32_t begin_offset() const;
 
 	/**
-	 * Relative offset of the last sample in the partition + 1.
+	 * \brief Relative offset of the last sample in the partition + 1.
 	 *
 	 * \return Relative offset of the last sample in the partition + 1.
 	 */
 	uint32_t end_offset() const;
 
 	/**
-	 * Returns global index of the first sample in the partition.
+	 * \brief Returns global index of the first sample in the partition.
 	 *
 	 * \return Global index of the first sample in this partition
 	 */
 	uint32_t first_sample_idx() const;
 
 	/**
-	 * Returns global index of the last sample in the partition.
+	 * \brief Returns global index of the last sample in the partition.
 	 *
 	 * \return Global index of the last sample in this partition
 	 */
 	uint32_t last_sample_idx() const;
 
 	/**
-	 * Returns TRUE iff the first sample of this partition is also the first
-	 * sample of the track which the partition is part of.
+	 * \brief Returns TRUE iff the first sample of this partition is also the 
+	 * first sample of the track which the partition is part of.
 	 *
 	 * \return TRUE iff this is partition starts a track
 	 */
 	bool starts_track() const;
 
 	/**
-	 * Returns TRUE if the last sample of this partition is also the last sample
-	 * of the track which the partition is part of.
+	 * \brief Returns TRUE if the last sample of this partition is also the last 
+	 * sample of the track which the partition is part of.
 	 *
 	 * \return TRUE iff this is partition ends a track
 	 */
 	bool ends_track() const;
 
 	/**
-	 * The track of which the samples in the partition are part of.
+	 * \brief The track of which the samples in the partition are part of.
 	 *
 	 * \return The track that contains this partition
 	 */
 	TrackNo track() const;
 
 	/**
-	 * Number of samples in this partition.
+	 * \brief Number of samples in this partition.
 	 *
 	 * \return Number of samples in this partition
 	 */
@@ -287,7 +282,7 @@ private:
 
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \todo begin_offset and last_offset seem redundant to first and last
 	 *
@@ -309,40 +304,40 @@ private:
 			const TrackNo      &track);
 
 	/**
-	 * Relative offset of the first sample in this partition
+	 * \brief Relative offset of the first sample in this partition
 	 */
 	const uint32_t begin_offset_;
 
 	/**
-	 * Relative offset of the last sample in this partition + 1
+	 * \brief Relative offset of the last sample in this partition + 1
 	 */
 	const uint32_t end_offset_;
 
 	/**
-	 * Global (absolute) index of the first sample in this partition
+	 * \brief Global (absolute) index of the first sample in this partition
 	 */
 	const uint32_t first_sample_idx_;
 
 	/**
-	 * Global (absolute) index of the last sample in this partition
+	 * \brief Global (absolute) index of the last sample in this partition
 	 */
 	const uint32_t last_sample_idx_;
 
 	/**
-	 * TRUE iff the first sample in this partition is also the first sample in
-	 * the track
+	 * \brief TRUE iff the first sample in this partition is also the first 
+	 * sample in the track
 	 */
 	const bool starts_track_;
 
 	/**
-	 * TRUE iff the last sample in this partition is also the last sample in
-	 * the track
+	 * \brief TRUE iff the last sample in this partition is also the last sample 
+	 * in the track
 	 */
 	const bool ends_track_;
 
 	/**
-	 * 1-based number of the track of which the samples in the partition are
-	 * part of
+	 * \brief 1-based number of the track of which the samples in the partition 
+	 * are part of
 	 */
 	const TrackNo track_;
 
@@ -350,8 +345,6 @@ private:
 
 
 /**
- * \internal
- *
  * \brief A closed interval of non-negative integers.
  */
 class Interval final
@@ -360,7 +353,7 @@ class Interval final
 public:
 
 	/**
-	 * Constructor for <tt>[a,b]</tt>.
+	 * \brief Constructor for <tt>[a,b]</tt>.
 	 *
 	 * \param[in] a First number in closed interval
 	 * \param[in] b Last number in closed interval
@@ -368,7 +361,8 @@ public:
 	Interval(const uint32_t a, const uint32_t b);
 
 	/**
-	 * Returns TRUE iff the closed interval contains \c i, otherwise FALSE.
+	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise 
+	 * FALSE.
 	 *
 	 * \param[in] i Number to test for containment in interval
 	 *
@@ -380,12 +374,12 @@ public:
 private:
 
 	/**
-	 * First number in interval
+	 * \brief First number in interval
 	 */
 	const uint32_t a_;
 
 	/**
-	 * Last number in interval
+	 * \brief Last number in interval
 	 */
 	const uint32_t b_;
 };
@@ -393,6 +387,7 @@ private:
 
 // Partition
 
+/// \cond NEVER_SHOW
 
 Partition::Partition(
 		const uint32_t &begin_offset,
@@ -756,10 +751,551 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	return chunks;
 }
 
+/// \endcond
+
+/**
+ * \brief Base class for CalcContext implementations.
+ *
+ * Provides the properties AudioSize and filename and implements
+ * CalcContext::first_relevant_sample() as well as
+ * CalcContext::last_relevant_sample().
+ *
+ * \see CalcContext
+ */
+class CalcContextBase : virtual public CalcContext
+{
+
+public:
+
+	/**
+	 * \brief Construct with skip configuration.
+	 *
+	 * \param[in] filename       The audio file to process
+	 * \param[in] num_skip_front Amount of samples to skip at the beginning
+	 * \param[in] num_skip_back  Amount of samples to skip at the end
+	 */
+	CalcContextBase(const std::string &filename, const uint32_t num_skip_front,
+			const uint32_t num_skip_back);
+
+	void set_audio_size(const AudioSize &audio_size) override;
+
+	const AudioSize& audio_size() const override;
+
+	// sample_count()
+
+	void set_filename(const std::string &filename) override;
+
+	std::string filename() const override;
+
+	// track_count()
+
+	// is_multi_track()
+
+	uint32_t first_relevant_sample(const TrackNo) const override;
+
+	uint32_t first_relevant_sample() const override;
+
+	uint32_t last_relevant_sample(const TrackNo track) const override;
+
+	uint32_t last_relevant_sample() const override;
+
+	// track(const uint32_t)
+
+	// offset(const TrackNo)
+
+	// length(const TrackNo)
+
+	// id()
+
+	// skips_front()
+
+	// skips_back()
+
+	uint32_t num_skip_front() const override;
+
+	uint32_t num_skip_back() const override;
+
+	void notify_skips(const uint32_t num_skip_front,
+			const uint32_t num_skip_back) override;
+
+	// clone()
+
+
+protected:
+
+	/**
+	 * \brief Default destructor.
+	 *
+	 * This class is not intended to be used for polymorphical deletion.
+	 */
+	~CalcContextBase() noexcept;
+
+
+private:
+
+	/**
+	 * \brief Internal representation of the AudioSize of the current audiofile
+	 */
+	AudioSize audiosize_;
+
+	/**
+	 * \brief Internal representation of the audiofilename
+	 */
+	std::string filename_;
+
+	/**
+	 * \brief Number of samples to skip at beginning of first track if requested
+	 */
+	uint32_t num_skip_front_;
+
+	/**
+	 * \brief Number of samples to skip at end of last track if requested
+	 */
+	uint32_t num_skip_back_;
+};
+
+
+/**
+ * \brief Interface to the Calculation state.
+ *
+ * A calculation state is initialized with a multiplier. It is subsequently
+ * updated with new samples. After a track is completed, the calculated
+ * checksums for a specified track must be saved and can thereafter be accessed
+ * via the appropriate accessors.
+ *
+ * The calculation state determines which checksums a Calculation actually
+ * calculates.
+ */
+class CalcState
+{
+
+public:
+
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~CalcState() noexcept;
+
+	/**
+	 * \brief Initializes the instance for calculating a new track and skip the
+	 * amount of samples specific for this state at the beginning.
+	 *
+	 * Initializing calles <tt>wipe()</tt> before doing anything.
+	 */
+	virtual void init_with_skip()
+	= 0;
+
+	/**
+	 * \brief Initializes the instance for calculating a new track.
+	 *
+	 * Initializing calles <tt>wipe()</tt> before doing anything.
+	 */
+	virtual void init_without_skip()
+	= 0;
+
+	/**
+	 * \brief Amount of samples to be skipped at the beginning.
+	 *
+	 * \return Amount of samples to be skipped at the beginning
+	 */
+	virtual uint32_t num_skip_front() const
+	= 0;
+
+	/**
+	 * \brief Amount of samples to be skipped at the end.
+	 *
+	 * \return Amount of samples to be skipped at the end
+	 */
+	virtual uint32_t num_skip_back() const
+	= 0;
+
+	/**
+	 * \brief Update the calculation state with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the beginning of the sequence
+	 * \param[in] end   Iterator pointing to the end of the sequence
+	 */
+	virtual void update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	= 0;
+
+	/**
+	 * \brief Saves the current subtotals as ARCSs for the specified track and 
+	 * resets the instance.
+	 *
+	 * Saving the ARCSs is necessary whenever the calculation for a track is
+	 * finished.
+	 *
+	 * \param[in] track The 0-based track number to save the ARCSs for
+	 */
+	virtual void save(const TrackNo track)
+	= 0;
+
+	/**
+	 * \brief Returns the number of currently saved tracks.
+	 *
+	 * \return Number of currently saved tracks
+	 */
+	virtual int track_count() const
+	= 0;
+
+	/**
+	 * \brief Returns current type.
+	 *
+	 * \return A disjunction of all requested types.
+	 */
+	virtual checksum::type type() const
+	= 0;
+
+	/**
+	 * \brief Returns the result for track \c track in a multitrack calculation.
+	 *
+	 * The result will be empty in singletrack calculation.
+	 *
+	 * Note that the state is allowed to return more than one type of
+	 * <tt>Checksum</tt>s, but the type requested from Calculation is
+	 * guaranteed to be included.
+	 *
+	 * \param[in] track Track number to get the <tt>Checksum</tt>s for.
+	 *
+	 * \return The <tt>Checksum</tt>s calculated
+	 */
+	virtual ChecksumSet result(const TrackNo track) const
+	= 0;
+
+	/**
+	 * \brief Returns the result of a singletrack calculation.
+	 *
+	 * The result will be empty for a multitrack calculation.
+	 *
+	 * Note that the state is allowed to return more than one type of
+	 * <tt>Checksum</tt>s, but the type requested from Calculation is
+	 * guaranteed to be included.
+	 *
+	 * \return The <tt>Checksum</tt>s calculated
+	 */
+	virtual ChecksumSet result() const
+	= 0;
+
+	/**
+	 * \brief Resets the internal subtotals and the multiplier.
+	 *
+	 * Computation results that have already been <tt>save()</tt>d are kept.
+	 * Calling <tt>reset()</tt> does therefore not change the output of
+	 * subsequent calls of <tt>arcs1()</tt> or <tt>arcs2()</tt>.
+	 *
+	 * Resetting the instance is necessary before starting the calculation for a
+	 * new track. However, it is not necessary to <tt>reset()</tt> an instance
+	 * that was already <tt>init()</tt>ed.
+	 */
+	virtual void reset()
+	= 0;
+
+	/**
+	 * \brief Resets the internal subtotals and the multiplier and deletes all
+	 * previously saved computation results.
+	 */
+	virtual void wipe()
+	= 0;
+
+	/**
+	 * \brief Returns the current multiplier.
+	 *
+	 * The current multiplier will be applied on the <i>next</i> multiplication
+	 * operation. The <i>last</i> multiplier that was actually applied is
+	 * <tt>mult() - 1</tt>.
+	 *
+	 * \return Multiplier for next multiplication operation
+	 */
+	virtual uint32_t mult() const
+	= 0;
+
+	/**
+	 * \brief Clone this CalcState object.
+	 *
+	 * A clone is a deep copy, i.e. the result of the cloning will be a
+	 * different object with the exact same state.
+	 *
+	 * \return A clone of this instance
+	 */
+	virtual std::unique_ptr<CalcState> clone() const
+	= 0;
+};
+
+
+/**
+ * \brief Abstract base for ARCS calculating CalcStates.
+ *
+ * \see CalcState
+ */
+class CalcStateARCS : public CalcState
+{
+	// Note: This could be a template, e.g. CalcStateARCS<bool both = true> and
+	// CalcStateARCS<true> computes v2 and v1 and CalcStateARCS<false> only v1.
+	// The annoying code duplication in CalcStateV1 and CalcStateV1andV2 is
+	// currently motivated by avoiding calls to virtual methods in update().
+	// (E.g. the multiplier_ would be in the base class, accessing it would
+	// require a method call. Of course this might come without real extra cost
+	// and may be optimized away but still feels not nice.)
+
+public:
+
+	/**
+	 * \brief Constructor
+	 */
+	CalcStateARCS();
+
+	/**
+	 * \brief Implements CalcState::init_with_skip()
+	 *
+	 * Initializes the multiplier with 2941.
+	 *
+	 * The initial value of the multiplier has to reflect the amount of leading
+	 * samples that have been skipped. The multiplier is 1-based, so
+	 * <tt>init(1)</tt> means that no samples are skipped at all, and
+	 * <tt>init(2941)</tt> means that the first <tt>2939</tt> samples are
+	 * skipped and the (0-based) sample <tt>2940</tt> will be the first sample
+	 * to actually use.
+	 *
+	 * Initializing calls <tt>wipe()</tt> before doing anything.
+	 */
+	void init_with_skip() override;
+
+	/**
+	 * \brief Implements CalcState::init_without_skip()
+	 *
+	 * Initializes the multiplier with 1 for no samples are skipped.
+	 *
+	 * Initializing calls <tt>wipe()</tt> before doing anything.
+	 */
+	void init_without_skip() override;
+
+	uint32_t num_skip_front() const override;
+
+	uint32_t num_skip_back() const override;
+
+	void update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
+
+
+protected:
+
+	/**
+	 * \brief Default destructor.
+	 *
+	 * This class is not intended to be used for polymorphical deletion.
+	 */
+	~CalcStateARCS() noexcept;
+
+	/**
+	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned 
+	 * integer.
+	 */
+	static constexpr uint_fast32_t LOWER_32_BITS_ = 0xFFFFFFFF;
+
+
+private:
+
+	/**
+	 * \brief Worker: initialize state with specified multiplier.
+	 */
+	virtual void init(const uint32_t mult)
+	= 0;
+
+	/**
+	 * \brief Worker: implement update()
+	 */
+	virtual void do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	= 0;
+
+	/**
+	 * \brief Actual amount of skipped samples at front
+	 */
+	uint32_t actual_skip_front_;
+
+	/**
+	 * \brief Actual amount of skipped samples at back
+	 */
+	uint32_t actual_skip_back_;
+};
+
+
+class CalcStateV1;
+class CalcStateV1andV2;
+
+
+/**
+ * \brief CalcState related tools.
+ */
+namespace state
+{
+
+
+/**
+ * \brief An aggregate of all predefined CalcState implementations.
+ */
+using state_types = std::tuple<
+	CalcStateV1,       // type::ARCS1
+	CalcStateV1andV2   // type::ARCS2
+	>;
+
+
+/**
+ * \brief Implementation details of namespace state.
+ */
+namespace details
+{
+
+
+// The set of the following five template functions along with state::make is
+// probably the most sophisticated solution in the entire lib. It enables
+// to load a concrete subclass of CalcState by just passing a checksum::type.
+// This behaviour could also have been implemented by a bare
+// switch-case-statement but this method is completely generic and so much
+// cooler!
+
+
+/**
+ * \brief Invoke F on T*, except for <tt>T == void</tt>
+ *
+ * \param[in] func The callable F to invoke on T*
+ * \param[in] i    The size to pass to func
+ */
+template<typename T, typename F>
+auto invoke(F&& func, std::size_t i)
+#if __cplusplus >= 201703L
+	-> std::enable_if_t<!std::is_same_v<T, void>>
+#else
+	-> std::enable_if_t<!std::is_same<T, void>::value>
+#endif
+{
+	func(static_cast<T*>(nullptr), i);
+}
+
+
+/**
+ * \brief In case <tt>T == void</tt> just do not invoke F on T*
+ *
+ * This version implements <tt>T == void</tt> and does nothing.
+ */
+template<typename T, typename F>
+auto invoke(F&& /* func */, std::size_t /* i */)
+#if __cplusplus >= 201703L
+	-> std::enable_if_t<std::is_same_v<T, void>>
+#else
+	-> std::enable_if_t<std::is_same<T, void>::value>
+#endif
+{
+	// empty
+}
+
+
+/**
+ * \brief Implementation of for_all_types
+ *
+ * \param[in] func To be invoked on each combination of a type and a size
+ */
+template <typename TUPLE, typename F, std::size_t... I>
+void for_all_types_impl(F&& func, std::index_sequence<I...>)
+{
+	int x[] = { 0, (invoke<std::tuple_element_t<I, TUPLE>>(func, I), 0)... };
+	static_cast<void>(x); // to avoid warning for unused x
+}
+
+
+/**
+ * \brief Invoke \c func on each type in tuple \c TUPLE
+ *
+ * \param[in] func To be invoked on each combination of a type and a size
+ */
+template <typename TUPLE, typename F>
+void for_all_types(F&& func)
+{
+	for_all_types_impl<TUPLE>(func,
+#if __cplusplus >= 201703L
+			std::make_index_sequence<std::tuple_size_v<TUPLE>>()
+#else
+			std::make_index_sequence<std::tuple_size<TUPLE>::value>()
+#endif
+	);
+}
+
+
+/**
+ * \brief Instantiate one of the types in \c TUPLE as \c R by callable \c F .
+ *
+ * \c R corresponds to the type on index position \c i in \c TUPLE .
+ *
+ * Argument \c i is of type std::size_t since it is intended to use this
+ * function to load a class by specifying an enum value.
+ *
+ * \param[in] func The callable to instantiate the corresponding type
+ * \param[in] i    The size to compare
+ *
+ * \return An instance of type \c R
+ */
+template <typename R, typename TUPLE, typename F>
+R instantiate(F&& func, std::size_t i)
+{
+	R instance;
+	bool found = false;
+
+	// find the enum value whose size corresponds to the index position of the
+	// type in TUPLE and invoke func on it
+	for_all_types<TUPLE>(
+		[&](auto p, std::size_t j) // this lambda becomes 'func' in invoke()
+		{
+			// This requires the enum to be defined in powers of 2, i.e.:
+			// 1, 2, 4, 16, 32 ...
+			const auto enum_val { std::exp2(j) };
+
+			if (i == enum_val)
+			{
+				instance = func(p);
+				found = true;
+			}
+		}
+	);
+
+	if (not found)
+	{
+		std::stringstream msg;
+		msg << "No CalcState type found with id " << i;
+
+		throw std::invalid_argument(msg.str());
+	}
+
+	return instance;
+}
+
+} // namespace state::details
+
+
+/**
+ * \brief Instantiate the CalcState for a checksum::type.
+ *
+ * \param[in] state_type The state type to instantiate
+ * \param[in] x Constructor arguments for constructing CalcState
+ *
+ * \return The CalcState for \c stateType
+ */
+template<typename... X, typename T>
+auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
+{
+    return details::instantiate <std::unique_ptr<CalcState>, state_types> (
+		[&](auto p)
+		{
+			return std::make_unique<std::decay_t<decltype(*p)>>(
+					std::forward<X>(x)...
+			);
+		},
+		static_cast<std::size_t>(state_type)
+	);
+}
+
+} // namespace state
+
+/** @} */
 
 } // namespace v_1_0_0
-
-/// @}
 
 } // namespace arcstk
 

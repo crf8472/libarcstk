@@ -17,7 +17,6 @@
 
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
@@ -28,7 +27,7 @@ class SampleSequenceImplBase;
 
 
 /**
- * Iterator of a SampleSequence
+ * \brief Iterator of a SampleSequence.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final
@@ -55,51 +54,51 @@ public:
 			const uint32_t&, uint32_t&>::type;
 
 	/**
-	 * Construct const_iterator from iterator
+	 * \brief Construct const_iterator from iterator.
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
 	SampleIterator(const SampleIterator<T, is_planar, false> &rhs);
 
 	/**
-	 * Dereference operator
+	 * \brief Dereference operator.
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
 	 */
 	value_type operator * () const;
 
 	/**
-	 * Prefix increment operator
+	 * \brief Prefix increment operator.
 	 */
 	SampleIterator& operator ++ ();
 
 	/**
-	 * Postfix increment operator
+	 * \brief Postfix increment operator.
 	 */
 	SampleIterator operator ++ (int);
 
 	/**
-	 * Prefix decrement operator
+	 * \brief Prefix decrement operator.
 	 */
 	SampleIterator& operator -- ();
 
 	/**
-	 * Postfix decrement operator
+	 * \brief Postfix decrement operator.
 	 */
 	SampleIterator operator -- (int);
 
 	/**
-	 * Add amount
+	 * \brief Add amount.
 	 */
 	SampleIterator operator + (const uint32_t value);
 
 	/**
-	 * Subtract amount
+	 * \brief Subtract amount.
 	 */
 	SampleIterator operator - (const uint32_t value);
 
 	/**
-	 * Subtract position
+	 * \brief Subtract position.
 	 */
 	friend difference_type operator - (const SampleIterator &lhs,
 			const SampleIterator &rhs)
@@ -108,22 +107,22 @@ public:
 	}
 
 	/**
-	 * Add-assign amount
+	 * \brief Add-assign amount.
 	 */
 	SampleIterator& operator += (const uint32_t value);
 
 	/**
-	 * Subtract-assign amount
+	 * \brief Subtract-assign amount.
 	 */
 	SampleIterator& operator -= (const uint32_t value);
 
 	/**
-	 * Subscript operator
+	 * \brief Subscript operator.
 	 */
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * Equality
+	 * \brief Equality.
 	 *
 	 * \param[in] lhs Left hand side of the operation
 	 * \param[in] rhs Right hand side of the operation
@@ -137,7 +136,7 @@ public:
 	}
 
 	/**
-	 * Inequality
+	 * \brief Inequality.
 	 *
 	 * \param[in] lhs Left hand side of the operation
 	 * \param[in] rhs Right hand side of the operation
@@ -154,7 +153,7 @@ public:
 private:
 
 	/**
-	 * Private Constructor.
+	 * \brief Private Constructor.
 	 *
 	 * Constructs a SampleIterator for the specified SampleSequence starting
 	 * at index \c pos.
@@ -165,12 +164,12 @@ private:
 	SampleIterator(const SampleSequence<T, is_planar> &seq, const uint32_t pos);
 
 	/**
-	 * The SampleSequence to iterate
+	 * \brief The SampleSequence to iterate
 	 */
 	const SampleSequence<T, is_planar> *seq_;
 
 	/**
-	 * Current index position
+	 * \brief Current index position
 	 */
 	uint32_t pos_;
 };
@@ -294,7 +293,7 @@ class SampleSequence;
 
 
 /**
- * Common code base for SampleSequence specializations.
+ * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
  */
@@ -317,35 +316,35 @@ public: /* types */
 public: /* methods */
 
 	/**
-	 * Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
 	iterator begin();
 
 	/**
-	 * Iterator pointing behind the end.
+	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
 	iterator end();
 
 	/**
-	 * Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * Iterator pointing behind the end.
+	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
 	const_iterator end() const;
 
 	/**
-	 * Return the number of 32 bit PCM samples represented by this sequence.
+	 * \brief Return the number of 32 bit PCM samples represented by this sequence.
 	 *
 	 * \return The number of 32 bit PCM samples represented by this sequence
 	 */
@@ -355,24 +354,24 @@ public: /* methods */
 protected:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor
 	 */
 	SampleSequenceImplBase();
 
 	/**
-	 * Protected non-virtual destructor to indicate non-polymorphic use only.
+	 * \brief Protected non-virtual destructor to indicate non-polymorphic use only.
 	 */
 	virtual ~SampleSequenceImplBase() noexcept;
 
 	/**
-	 * Set the number 32 bit PCM samples in this buffer
+	 * \brief Set the number 32 bit PCM samples in this buffer
 	 *
 	 * \param[in] size number of 32 bit PCM samples in the buffer
 	 */
 	void set_size(const uint32_t size);
 
 	/**
-	 * Convert two integers to a PCM 32 bit sample
+	 * \brief Convert two integers to a PCM 32 bit sample
 	 *
 	 * \param[in] higher The higher 16 bit
 	 * \param[in] lower  The lower 16 bit
@@ -382,7 +381,7 @@ protected:
 	uint32_t combine(const uint32_t higher, const uint16_t lower) const;
 
 	/**
-	 * Returns 0 if index is within access bounds, otherwise the amount that
+	 * \brief Returns 0 if index is within access bounds, otherwise the amount that
 	 * \c index exceeds <tt>size()</tt>.
 	 *
 	 * \param[in] index Index to check
@@ -392,7 +391,7 @@ protected:
 	int out_of_range(const uint32_t index) const;
 
 	/**
-	 * Performs bounds check.
+	 * \brief Performs bounds check.
 	 *
 	 * \param[in] index Index to check
 	 *
@@ -401,7 +400,7 @@ protected:
 	void bounds_check(const uint32_t index) const;
 
 	/**
-	 * Pointer to actual SampleSequence
+	 * \brief Pointer to actual SampleSequence
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
@@ -410,7 +409,7 @@ protected:
 private:
 
 	/**
-	 * State: Number of 16 bit samples in this sequence
+	 * \brief State: Number of 16 bit samples in this sequence
 	 */
 	uint32_t size_;
 };
@@ -511,7 +510,7 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(const uint32_t index)
 
 
 /**
- * SampleSequence specialization for planar sequences
+ * \brief SampleSequence specialization for planar sequences
  */
 template <typename T>
 class SampleSequence<T, true> : public SampleSequenceImplBase<T, true>
@@ -524,14 +523,14 @@ public:
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
 	SampleSequence(bool left0_right1 = true);
 
 	/**
-	 * Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -541,7 +540,8 @@ public:
 			const uint32_t &size);
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
 	 * Bits 15-09: Right Channel MSB
@@ -554,7 +554,8 @@ public:
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
 	 * Bits 15-09: Right Channel MSB
@@ -571,7 +572,7 @@ public:
 	uint32_t at(const uint32_t index) const;
 
 	/**
-	 * Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -580,7 +581,7 @@ public:
 	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
 
 	/**
-	 * Return the size of the template argument type in bytes.
+	 * \brief Return the size of the template argument type in bytes.
 	 *
 	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
 	 *
@@ -597,17 +598,17 @@ protected:
 private:
 
 	/**
-	 * Internal planar buffer of 16 bit samples for two channels.
+	 * \brief Internal planar buffer of 16 bit samples for two channels.
 	 */
 	std::array<const T*, 2> buffer_;
 
 	/**
-	 * Number of the left channel
+	 * \brief Number of the left channel
 	 */
 	const int left_;
 
 	/**
-	 * Number of the right channel
+	 * \brief Number of the right channel
 	 */
 	const int right_;
 };
@@ -680,7 +681,7 @@ const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
 
 
 /**
- * SampleSequence specialization for interleaved sequences
+ * \brief SampleSequence specialization for interleaved sequences
  */
 template <typename T>
 class SampleSequence<T, false> : public SampleSequenceImplBase<T, false>
@@ -693,14 +694,14 @@ public:
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
 	SampleSequence(bool left0_right1 = true);
 
 	/**
-	 * Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence
 	 *
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
@@ -708,7 +709,8 @@ public:
 	void wrap(const uint8_t *buffer, const uint32_t &size);
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
 	 * Bits 15-09: Right Channel MSB
@@ -721,7 +723,8 @@ public:
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
 	 * Bits 15-09: Right Channel MSB
@@ -738,7 +741,7 @@ public:
 	uint32_t at(const uint32_t index) const;
 
 	/**
-	 * Rewrap the specified buffer into this sample sequence
+	 * \brief Rewrap the specified buffer into this sample sequence
 	 *
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer
@@ -746,7 +749,7 @@ public:
 	void reset(const T* buffer, const uint32_t &size);
 
 	/**
-	 * Return the size of the template argument type in bytes.
+	 * \brief Return the size of the template argument type in bytes.
 	 *
 	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
 	 *
@@ -763,17 +766,17 @@ protected:
 private:
 
 	/**
-	 * Internal interleaved buffer of 16 bit samples for two channels.
+	 * \brief Internal interleaved buffer of 16 bit samples for two channels.
 	 */
 	const T * buffer_;
 
 	/**
-	 * Number of the left channel
+	 * \brief Number of the left channel
 	 */
 	const int left_;
 
 	/**
-	 * Number of the right channel
+	 * \brief Number of the right channel
 	 */
 	const int right_;
 };

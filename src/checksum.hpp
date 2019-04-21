@@ -1,7 +1,6 @@
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #define __LIBARCSTK_CHECKSUM_HPP__
 
-
 /**
  * \file
  *
@@ -24,7 +23,6 @@
  * Checksums is an aggregation of the <tt>Checksum</tt>s of an audio input.
  */
 
-
 #include <array>
 #include <cstdint>
 #include <cstddef>     // for size_t
@@ -35,16 +33,13 @@
 #include <type_traits> // for conditional
 #include <utility>     // for pair
 
-
 namespace arcstk
+{
+inline namespace v_1_0_0
 {
 
 /// \addtogroup calc
 /// @{
-
-inline namespace v_1_0_0
-{
-
 
 /**
  * \brief Everything regarding operation with Checksums.
@@ -648,9 +643,9 @@ private:
 };
 
 
-} // namespace v_1_0_0
-
 /// @}
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 

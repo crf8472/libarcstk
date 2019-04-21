@@ -1,7 +1,6 @@
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #define __LIBARCSTK_LOGGING_HPP__
 
-
 /**
  * \file
  *
@@ -16,7 +15,6 @@
  * Marginean, P: "Logging in C++: Part 2", http://www.ddj.com/cpp/221900468
  */
 
-
 #include <cstdio>
 
 #include <chrono>
@@ -30,10 +28,8 @@
 #include <type_traits>   // for underlying_type
 #include <unordered_set>
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
@@ -149,6 +145,7 @@ private:
 	FILE* stream_;
 };
 
+/// \cond NEVER_SHOW
 
 inline Appender::Appender(const std::string &filename)
 	: name_(filename)
@@ -212,6 +209,8 @@ inline std::string Appender::name() const
 
 
 inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
+
+/// \endcond
 
 
 /**
@@ -307,6 +306,7 @@ private:
 	bool log_timestamps_;
 };
 
+/// \cond NEVER_SHOW
 
 inline Logger::Logger()
 	: appenders_()
@@ -363,6 +363,7 @@ inline void Logger::log(const std::string &msg) const
 
 inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
 
+/// \endcond
 
 // now_time
 
@@ -376,9 +377,6 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
  *
  * \return The current time as a string
  */
-std::string now_time();
-
-
 inline std::string now_time()
 {
 	auto now = std::chrono::system_clock::now();
@@ -494,6 +492,8 @@ private:
 };
 
 
+/// \cond NEVER_SHOW
+
 inline Log::Log(const Logger &logger, LOGLEVEL msg_level)
 	: os_()
 	, logger_(&logger)
@@ -595,6 +595,8 @@ inline LOGLEVEL Log::from_string(const std::string& level)
 
 	return LOGLEVEL::NONE;
 }
+
+/// \endcond
 
 
 /**
@@ -725,6 +727,8 @@ private:
 };
 
 
+/// \cond NEVER_SHOW
+
 inline Logging::Logging()
 	: mutex_()
 	, level_(LOGLEVEL::WARNING)
@@ -797,6 +801,8 @@ inline void Logging::remove_appender(Appender *a)
 	std::lock_guard<std::mutex> lock(mutex_);
 	logger_.remove_appender(a);
 }
+
+/// \endcond
 
 /// @}
 

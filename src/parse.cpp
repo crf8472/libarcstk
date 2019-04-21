@@ -1,7 +1,8 @@
 /**
- * \file parse.cpp Implementing a low-level API for AccurateRip response parsers
+ * \file
+ *
+ * \brief Implementing a low-level API for AccurateRip response parsers
  */
-
 
 #ifndef __LIBARCSTK_PARSE_HPP__
 #include "parse.hpp"
@@ -22,15 +23,12 @@
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
 
-/// \cond IMPL_ONLY
-/// \internal \defgroup parseImpl Implementation of an AccurateRip response parser
+/// \internal \defgroup parseImpl Implementation
 /// \ingroup parse
 /// @{
 
@@ -101,6 +99,7 @@ private:
 	const std::size_t buf_size_;
 };
 
+/// \cond NEVER_SHOW
 
 StdIn::StdIn(const std::size_t buf_size)
 	: buf_size_(buf_size)
@@ -184,11 +183,13 @@ std::size_t StdIn::buf_size() const
 	return buf_size_;
 }
 
+/// \endcond
+
 } // namespace
 
 
 /**
- * \brief Implementation of an ARTriplet.
+ * \brief Implements ARTriplet.
  *
  * \see ARTriplet
  */
@@ -316,6 +317,7 @@ private:
 	uint32_t frame450_arcs_;
 };
 
+/// \cond NEVER_SHOW
 
 ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -370,9 +372,10 @@ std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const
 			this->frame450_arcs_);
 }
 
+/// \endcond
 
 /**
- * \brief Implementation of an incompletely parsed ARTriplet.
+ * \brief Implementats an incompletely parsed ARTriplet.
  *
  * It carries information about the validity of its parts.
  *
@@ -417,6 +420,7 @@ private:
 	uint8_t flags_;
 };
 
+/// \cond NEVER_SHOW
 
 ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -550,9 +554,10 @@ ARTriplet& ARTriplet::operator = (const ARTriplet &rhs)
 
 ARTriplet& ARTriplet::operator = (ARTriplet &&rhs) noexcept = default;
 
+/// \endcond
 
 /**
- * \brief Implements ARBlock.
+ * \brief Private implementation of ARBlock.
  *
  * \see ARBlock
  */
@@ -654,6 +659,7 @@ private:
 	std::vector<ARTriplet> triplets_;
 };
 
+/// \cond NEVER_SHOW
 
 ARBlock::Impl::Impl(const ARId &id)
 	: ar_id_(id)
@@ -824,9 +830,10 @@ ARBlock& ARBlock::operator = (const ARBlock &rhs)
 
 ARBlock& ARBlock::operator = (ARBlock &&rhs) noexcept = default;
 
+/// \endcond
 
 /**
- * \brief Represents a response from AccurateRip.
+ * \brief Private implementation of ARResponse.
  *
  * \see ARResponse
  */
@@ -903,6 +910,7 @@ private:
 	std::vector<ARBlock> blocks_;
 };
 
+/// \cond NEVER_SHOW
 
 ARResponse::Impl::Impl()
 	: blocks_()
@@ -1085,8 +1093,74 @@ ARResponse& ARResponse::operator = (const ARResponse &rhs)
 ARResponse& ARResponse::operator = (ARResponse &&rhs) noexcept = default;
 
 
+// ContentHandler
+
+
+ContentHandler::~ContentHandler() noexcept = default;
+
+
+void ContentHandler::start_input()
+{
+	this->do_start_input();
+}
+
+
+void ContentHandler::start_block()
+{
+	this->do_start_block();
+}
+
+
+void ContentHandler::id(const uint8_t track_count,
+		const uint32_t id1,
+		const uint32_t id2,
+		const uint32_t cddb_id)
+{
+	this->do_id(track_count, id1, id2, cddb_id);
+}
+
+
+void ContentHandler::triplet(const uint32_t arcs,
+		const uint8_t confidence,
+		const uint32_t frame450_arcs)
+{
+	this->do_triplet(arcs, confidence, frame450_arcs);
+}
+
+
+void ContentHandler::triplet(const uint32_t arcs,
+		const uint8_t confidence,
+		const uint32_t frame450_arcs,
+		const bool arcs_valid,
+		const bool confidence_valid,
+		const bool frame450_arcs_valid)
+{
+	this->do_triplet(arcs, confidence, frame450_arcs, arcs_valid,
+			confidence_valid, frame450_arcs_valid);
+}
+
+
+void ContentHandler::end_block()
+{
+	this->do_end_block();
+}
+
+
+void ContentHandler::end_input()
+{
+	this->do_end_input();
+}
+
+
+std::unique_ptr<ContentHandler> ContentHandler::clone() const
+{
+	return this->do_clone();
+}
+
+/// \endcond
+
 /**
- * \brief Implementation of a DefaultContentHandler
+ * \brief Private implementation of DefaultContentHandler.
  *
  * \see DefaultContentHandler
  */
@@ -1096,41 +1170,48 @@ class DefaultContentHandler::Impl final
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 */
 	Impl();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	Impl(const Impl &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	Impl(Impl &&rhs) noexcept;
 
 	/**
-	 * default destructor
+	 * \brief Default destructor
 	 */
 	~Impl() noexcept;
 
 	/**
-	 * Implements DefaultContentHandler::start_input()
+	 * \brief Implements DefaultContentHandler::set_object()
+	 *
+	 * \param[in,out] object The object to construct from the parsed content
+	 */
+	void set_object(ARResponse &object);
+
+	/**
+	 * \brief Implements DefaultContentHandler::start_input()
 	 */
 	void start_input();
 
 	/**
-	 * Implements DefaultContentHandler::start_block()
+	 * \brief Implements DefaultContentHandler::start_block()
 	 */
 	void start_block();
 
 	/**
-	 * Implements DefaultContentHandler::id()
+	 * \brief Implements DefaultContentHandler::id()
 	 */
 	void id(const uint8_t track_count,
 			const uint32_t id1,
@@ -1138,14 +1219,14 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
+	 * \brief Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
 	 */
 	void triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs);
 
 	/**
-	 * Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
+	 * \brief Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
 	 */
 	void triplet(const uint32_t arcs,
 			const uint8_t confidence,
@@ -1155,24 +1236,17 @@ public:
 			const bool frame450_arcs_valid);
 
 	/**
-	 * Implements DefaultContentHandler::end_block()
+	 * \brief Implements DefaultContentHandler::end_block()
 	 */
 	void end_block();
 
 	/**
-	 * Implements DefaultContentHandler::end_input()
+	 * \brief Implements DefaultContentHandler::end_input().
 	 */
 	void end_input();
 
 	/**
-	 * Implements DefaultContentHandler::set_object()
-	 *
-	 * \param[in/out] object The object to construct from the parsed content
-	 */
-	void set_object(ARResponse &object);
-
-	/**
-	 * Copy assignment operator.
+	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -1181,7 +1255,7 @@ public:
 	Impl& operator = (const Impl &rhs);
 
 	/**
-	 * Move assignment operator.
+	 * \brief Move assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -1193,16 +1267,17 @@ public:
 private:
 
 	/**
-	 * Internal representation of the current_block_
+	 * \brief Internal representation of the current_block_
 	 */
 	std::unique_ptr<ARBlock> current_block_;
 
 	/**
-	 * Aggregating of the blocks parsed
+	 * \brief Aggregating of the blocks parsed
 	 */
 	ARResponse *response_;
 };
 
+/// \cond NEVER_SHOW
 
 DefaultContentHandler::Impl::Impl()
 	: current_block_(nullptr)
@@ -1225,6 +1300,12 @@ DefaultContentHandler::Impl::Impl(
 
 
 DefaultContentHandler::Impl::~Impl() noexcept = default;
+
+
+void DefaultContentHandler::Impl::set_object(ARResponse &object)
+{
+	response_ = &object;
+}
 
 
 void DefaultContentHandler::Impl::start_input()
@@ -1289,12 +1370,6 @@ void DefaultContentHandler::Impl::end_input()
 }
 
 
-void DefaultContentHandler::Impl::set_object(ARResponse &object)
-{
-	response_ = &object;
-}
-
-
 // DefaultContentHandler
 
 
@@ -1315,19 +1390,25 @@ DefaultContentHandler::DefaultContentHandler(const DefaultContentHandler &rhs)
 DefaultContentHandler::~DefaultContentHandler() noexcept = default;
 
 
-void DefaultContentHandler::start_input()
+void DefaultContentHandler::set_object(ARResponse &object)
+{
+	impl_->set_object(object);
+}
+
+
+void DefaultContentHandler::do_start_input()
 {
 	impl_->start_input();
 }
 
 
-void DefaultContentHandler::start_block()
+void DefaultContentHandler::do_start_block()
 {
 	impl_->start_block();
 }
 
 
-void DefaultContentHandler::id(const uint8_t track_count,
+void DefaultContentHandler::do_id(const uint8_t track_count,
 		const uint32_t id1,
 		const uint32_t id2,
 		const uint32_t cddb_id)
@@ -1336,7 +1417,7 @@ void DefaultContentHandler::id(const uint8_t track_count,
 }
 
 
-void DefaultContentHandler::triplet(const uint32_t arcs,
+void DefaultContentHandler::do_triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs)
 {
@@ -1344,7 +1425,7 @@ void DefaultContentHandler::triplet(const uint32_t arcs,
 }
 
 
-void DefaultContentHandler::triplet(const uint32_t arcs,
+void DefaultContentHandler::do_triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs,
 		const bool arcs_valid,
@@ -1356,34 +1437,47 @@ void DefaultContentHandler::triplet(const uint32_t arcs,
 }
 
 
-void DefaultContentHandler::end_block()
+void DefaultContentHandler::do_end_block()
 {
 	impl_->end_block();
 }
 
 
-void DefaultContentHandler::end_input()
+void DefaultContentHandler::do_end_input()
 {
 	impl_->end_input();
 }
 
 
-std::unique_ptr<ContentHandler> DefaultContentHandler::clone() const
+std::unique_ptr<ContentHandler> DefaultContentHandler::do_clone() const
 {
 	return std::make_unique<DefaultContentHandler>(*this);
 }
 
 
-void DefaultContentHandler::set_object(ARResponse &object)
+// ErrorHandler
+
+
+ErrorHandler::~ErrorHandler() noexcept = default;
+
+
+void ErrorHandler::error(const uint32_t byte_pos, const uint32_t block,
+			const uint32_t block_byte_pos)
 {
-	impl_->set_object(object);
+	this->do_error(byte_pos, block, block_byte_pos);
+}
+
+
+std::unique_ptr<ErrorHandler> ErrorHandler::clone() const
+{
+	return this->do_clone();
 }
 
 
 // DefaultErrorHandler
 
 
-void DefaultErrorHandler::error(const uint32_t byte_pos,
+void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		const uint32_t block, const uint32_t block_byte_pos)
 {
 	constexpr int BHB = 13; // number of block header bytes
@@ -1513,7 +1607,7 @@ void DefaultErrorHandler::error(const uint32_t byte_pos,
 }
 
 
-std::unique_ptr<ErrorHandler> DefaultErrorHandler::clone()
+std::unique_ptr<ErrorHandler> DefaultErrorHandler::do_clone()
 	const
 {
 	return std::make_unique<DefaultErrorHandler>(*this);
@@ -1566,9 +1660,10 @@ uint32_t StreamReadException::block_byte_position() const
 	return block_byte_pos_;
 }
 
+/// \endcond
 
 /**
- * \brief Implements ARStreamParser.
+ * \brief Private implementation of ARStreamParser.
  *
  * \see ARStreamParser
  */
@@ -1719,6 +1814,7 @@ private:
 
 // ARStreamParser::Impl
 
+/// \cond NEVER_SHOW
 
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
 	: content_handler_(nullptr)
@@ -2195,9 +2291,9 @@ void ARStdinParser::on_catched_exception(std::istream & /* istream */,
 	// empty
 }
 
-/// @}
 /// \endcond
-// IMPL_ONLY
+
+/// @}
 
 } // namespace v_1_0_0
 
