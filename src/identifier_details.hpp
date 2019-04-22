@@ -19,20 +19,15 @@ inline namespace v_1_0_0
 {
 
 /**
- * \brief Implementation details of namespace arcstk
+ * \internal \defgroup idInternal Internal APIs
+ * \ingroup id
+ * @{
  */
-namespace details
-{
-
-/// \internal \defgroup idInternal Internal APIs
-/// \ingroup id
-/// @{
-
 
 /**
  * \internal
  *
- * \brief Constructs ARId instances from TOC data
+ * \brief Constructs ARId instances from TOC data.
  *
  * Constructs @link ARId ARIds @endlink either from a TOC or from the triplet of
  * track count, list of offsets and leadout frame.
@@ -420,9 +415,7 @@ protected:
 	static constexpr uint32_t MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
 };
 
-/// @}
-
-} // namespace arcstk::details
+/** @} */
 
 } // namespace v_1_0_0
 

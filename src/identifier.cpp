@@ -33,9 +33,11 @@ inline namespace v_1_0_0
  */
 const CDDA_t CDDA;
 
-/// \internal \addtogroup idImpl Implementation
-/// \ingroup id
-/// @{
+/**
+ * \internal \addtogroup idImpl Implementation
+ * \ingroup id
+ * @{
+ */
 
 /**
  * \brief Private implementation of ARId
@@ -48,7 +50,7 @@ class ARId::Impl final
 public:
 
 	/**
-	 * Implements ARId::ARId().
+	 * \brief Implements ARId::ARId().
 	 */
 	Impl(const uint16_t track_count,
 			const uint32_t id_1,
@@ -56,52 +58,52 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * Implements ARId::url()
+	 * \brief Implements ARId::url()
 	 */
 	std::string url() const;
 
 	/**
-	 * Implements ARId::filename()
+	 * \brief Implements ARId::filename()
 	 */
 	std::string filename() const;
 
 	/**
-	 * Implements ARId::track_count()
+	 * \brief Implements ARId::track_count()
 	 */
 	uint16_t track_count() const;
 
 	/**
-	 * Implements ARId::disc_id_1()
+	 * \brief Implements ARId::disc_id_1()
 	 */
 	uint32_t disc_id_1() const;
 
 	/**
-	 * Implements ARId::disc_id_2()
+	 * \brief Implements ARId::disc_id_2()
 	 */
 	uint32_t disc_id_2() const;
 
 	/**
-	 * Implements ARId::cddb_id()
+	 * \brief Implements ARId::cddb_id()
 	 */
 	uint32_t cddb_id() const;
 
 	/**
-	 * Implements ARId::empty()
+	 * \brief Implements ARId::empty()
 	 */
 	bool empty() const;
 
 	/**
-	 * Implements ARId::to_string()
+	 * \brief Implements ARId::to_string()
 	 */
 	std::string to_string() const;
 
 	/**
-	 * Implements ARId::operator == (const ARId &rhs) const
+	 * \brief Implements ARId::operator == (const ARId &rhs) const
 	 */
 	bool operator == (const Impl &rhs) const;
 
 	/**
-	 * Implements ARId::operator != (const ARId &rhs) const
+	 * \brief Implements ARId::operator != (const ARId &rhs) const
 	 */
 	bool operator != (const Impl &rhs) const;
 
@@ -109,7 +111,7 @@ public:
 protected:
 
 	/**
-	 * Service method: Compute the AccurateRip response filename
+	 * \brief Service method: Compute the AccurateRip response filename
 	 *
 	 * Used by ARId::Impl::filename().
 	 *
@@ -126,7 +128,7 @@ protected:
 			const uint32_t cddb_id) const;
 
 	/**
-	 * Service method: Compute the AccurateRip request URL
+	 * \brief Service method: Compute the AccurateRip request URL
 	 *
 	 * Used by ARId::Impl::url().
 	 *
@@ -146,27 +148,27 @@ protected:
 private:
 
 	/**
-	 * URL prefix for accessing AccurateRip
+	 * \brief URL prefix for accessing AccurateRip
 	 */
 	const std::string AR_URL_PREFIX = "http://www.accuraterip.com/accuraterip/";
 
 	/**
-	 * Number of tracks
+	 * \brief Number of tracks
 	 */
 	uint16_t track_count_;
 
 	/**
-	 * Disc id no. 1
+	 * \brief Disc id no. 1
 	 */
 	uint32_t disc_id1_;
 
 	/**
-	 * Disc id no. 2
+	 * \brief Disc id no. 2
 	 */
 	uint32_t disc_id2_;
 
 	/**
-	 * CDDB disc id
+	 * \brief CDDB disc id
 	 */
 	uint32_t cddb_id_;
 };
@@ -320,9 +322,6 @@ std::string ARId::Impl::construct_url(const uint16_t track_count,
 
 /// \endcond
 
-namespace details
-{
-
 
 /**
  * \brief Private implementation of TOCBuilder.
@@ -341,38 +340,38 @@ class TOCBuilder::Impl final
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor
 	 */
 	Impl();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	Impl(const Impl &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	Impl(Impl &&rhs) noexcept = default;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor
 	 */
 	~Impl() noexcept = default;
 
 	/**
-	 * Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const uint32_t leadout);
+	 * \brief Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const uint32_t leadout).
 	 */
 	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
 	/**
-	 * Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
+	 * \brief Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
 	 */
 	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
 			const std::vector<int32_t> &offsets,
@@ -383,7 +382,7 @@ public:
 		const;
 
 	/**
-	 * Copy assignment
+	 * \brief Copy assignment
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -392,7 +391,7 @@ public:
 	TOCBuilder::Impl& operator = (const TOCBuilder::Impl &rhs);
 
 	/**
-	 * Move assignment
+	 * \brief Move assignment
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -404,7 +403,7 @@ public:
 protected:
 
 	/**
-	 * Service method: Builds a track count for a TOC object.
+	 * \brief Service method: Builds a track count for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -417,7 +416,7 @@ protected:
 	uint16_t build_track_count(const uint16_t track_count) const;
 
 	/**
-	 * Service method: Builds validated offsets for a TOC object.
+	 * \brief Service method: Builds validated offsets for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -433,7 +432,7 @@ protected:
 			const uint16_t track_count, const uint32_t leadout) const;
 
 	/**
-	 * Service method: Builds validated offsets for a TOC object.
+	 * \brief Service method: Builds validated offsets for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -450,7 +449,7 @@ protected:
 			const std::vector<int32_t> &lengths) const;
 
 	/**
-	 * Service method: Builds validated lengths for a TOC object.
+	 * \brief Service method: Builds validated lengths for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -465,7 +464,7 @@ protected:
 			const uint16_t track_count) const;
 
 	/**
-	 * Service method: Builds validated leadout for a TOC object.
+	 * \brief Service method: Builds validated leadout for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -478,7 +477,7 @@ protected:
 	uint32_t build_leadout(const uint32_t leadout) const;
 
 	/**
-	 * Service method: Builds validated audio file list for a TOC object.
+	 * \brief Service method: Builds validated audio file list for a TOC object.
 	 *
 	 * Used by TOCBuilder::build().
 	 *
@@ -494,13 +493,10 @@ protected:
 private:
 
 	/**
-	 * Validator instance
+	 * \brief Validator instance
 	 */
-	std::unique_ptr<details::TOCValidator> validator_;
+	std::unique_ptr<TOCValidator> validator_;
 };
-
-
-} // namespace details
 
 
 /**
@@ -513,54 +509,54 @@ class TOC::Impl final
 	// TOCBuilder::Impl::build() methods are friends of TOC::Impl
 	// since they construct TOC::Impls exclusively
 
-	friend std::unique_ptr<TOC::Impl> details::TOCBuilder::Impl::build(
+	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
 			const uint32_t track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
 			const std::vector<std::string> &files);
 
-	friend std::unique_ptr<TOC::Impl> details::TOCBuilder::Impl::build(
+	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
 			const uint32_t track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
-	friend std::unique_ptr<TOC::Impl> details::TOCBuilder::Impl::merge(
+	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::merge(
 			const TOC &toc, const uint32_t leadout) const;
 
 public:
 
 	/**
-	 * Implements TOC::track_count()
+	 * \brief Implements TOC::track_count()
 	 */
 	uint16_t track_count() const;
 
 	/**
-	 * Implements TOC::offset(const uint8_t) const
+	 * \brief Implements TOC::offset(const uint8_t) const
 	 */
 	uint32_t offset(const TrackNo idx) const;
 
 	/**
-	 * Implements TOC::parsed_length(const uint8_t) const
+	 * \brief Implements TOC::parsed_length(const uint8_t) const
 	 */
 	uint32_t parsed_length(const TrackNo idx) const;
 
 	/**
-	 * Implements TOC::filename(const TrackNo idx) const
+	 * \brief Implements TOC::filename(const TrackNo idx) const
 	 */
 	std::string filename(const TrackNo idx) const;
 
 	/**
-	 * Implements TOC::leadout()
+	 * \brief Implements TOC::leadout()
 	 */
 	uint32_t leadout() const;
 
 	/**
-	 * Implements TOC::complete()
+	 * \brief Implements TOC::complete()
 	 */
 	bool complete() const;
 
 	/**
-	 * Implements TOC::operator==()
+	 * \brief Implements TOC::operator==()
 	 */
 	bool operator == (const TOC::Impl &rhs) const;
 
@@ -568,7 +564,7 @@ public:
 private:
 
 	/**
-	 * Implements private constructor of TOC.
+	 * \brief Implements private constructor of TOC.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
@@ -579,7 +575,7 @@ private:
 			const uint32_t leadout);
 
 	/**
-	 * Implements private constructor of TOC.
+	 * \brief Implements private constructor of TOC.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
@@ -592,27 +588,27 @@ private:
 			const std::vector<std::string> &files);
 
 	/**
-	 * Number of tracks
+	 * \brief Number of tracks
 	 */
 	uint16_t track_count_;
 
 	/**
-	 * Track offsets (in frames)
+	 * \brief Track offsets (in frames)
 	 */
 	std::vector<uint32_t> offsets_;
 
 	/**
-	 * Track lengths (in frames)
+	 * \brief Track lengths (in frames)
 	 */
 	std::vector<uint32_t> lengths_;
 
 	/**
-	 * Leadout frame
+	 * \brief Leadout frame
 	 */
 	uint32_t leadout_;
 
 	/**
-	 * Audio file names
+	 * \brief Audio file names
 	 */
 	std::vector<std::string> files_;
 };
@@ -956,8 +952,6 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 /// \endcond
 
-namespace details
-{
 
 /**
  * \brief Private implementation of ARIdBuilder
@@ -970,12 +964,12 @@ class ARIdBuilder::Impl final
 public:
 
 	/**
-	 * Implements ARIdBuilder::build(const TOC &toc, const uint32_t leadout) const
+	 * \brief Implements ARIdBuilder::build(const TOC &toc, const uint32_t leadout) const
 	 */
 	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
 
 	/**
-	 * Implements ARIdBuilder::build_empty_id()
+	 * \brief Implements ARIdBuilder::build_empty_id()
 	 */
 	std::unique_ptr<ARId> build_empty_id() const noexcept;
 
@@ -983,7 +977,7 @@ public:
 protected:
 
 	/**
-	 * Service method: Compute the disc id 1 from a vector of offsets.
+	 * \brief Service method: Compute the disc id 1 from a vector of offsets.
 	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
 	 * with the leadout frame added as an additional element on the back
 	 * position.
@@ -997,7 +991,7 @@ protected:
 			const uint32_t leadout) const;
 
 	/**
-	 * Service method: Compute the disc id 2 from a vector of offsets.
+	 * \brief Service method: Compute the disc id 2 from a vector of offsets.
 	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
 	 * with the leadout frame added as an additional element on the back
 	 * position.
@@ -1011,7 +1005,7 @@ protected:
 			const uint32_t leadout) const;
 
 	/**
-	 * Service method: Compute the CDDB disc id from a vector of offsets.
+	 * \brief Service method: Compute the CDDB disc id from a vector of offsets.
 	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
 	 * with the leadout frame added as an additional element on the back
 	 * position.
@@ -1025,7 +1019,7 @@ protected:
 			const uint32_t leadout) const;
 
 	/**
-	 * Service method: sum up the digits of the number passed
+	 * \brief Service method: sum up the digits of the number passed
 	 *
 	 * \param[in] number An unsigned integer number
 	 *
@@ -1045,7 +1039,7 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
 
 	if (leadout_val > 0)
 	{
-		details::TOCValidator validator;
+		TOCValidator validator;
 		validator.validate(toc, leadout_val);
 	} else
 	{
@@ -1761,29 +1755,27 @@ void TOCValidator::have_min_dist(const uint32_t prev_track,
 
 /// \endcond
 
-} // namespace arcstk::details
-
 
 // make_arid
 
 
 std::unique_ptr<ARId> make_arid(const TOC &toc)
 {
-	details::ARIdBuilder builder;
+	ARIdBuilder builder;
 	return builder.build(toc);
 }
 
 
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout)
 {
-	details::ARIdBuilder builder;
+	ARIdBuilder builder;
 	return builder.build(toc, leadout);
 }
 
 
 std::unique_ptr<ARId> make_empty_arid()
 {
-	details::ARIdBuilder builder;
+	ARIdBuilder builder;
 	return builder.build_empty_id();
 }
 
@@ -1795,7 +1787,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout)
 {
-	details::TOCBuilder builder;
+	TOCBuilder builder;
 	return builder.build(track_count, offsets, leadout);
 }
 
@@ -1805,11 +1797,11 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
 {
-	details::TOCBuilder builder;
+	TOCBuilder builder;
 	return builder.build(track_count, offsets, lengths, files);
 }
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

@@ -6,7 +6,15 @@
 #define __LIBARCSTK_SAMPLES_TPP__
 
 /**
- * \file samples.tpp Implementation of SampleSequence and SampleIterator
+ * \dir details
+ *
+ * \brief Implementation details
+ */
+
+/**
+ * \file
+ *
+ * \brief Implementation of SampleSequence and SampleIterator
  */
 
 #include <array>
@@ -164,12 +172,12 @@ private:
 	SampleIterator(const SampleSequence<T, is_planar> &seq, const uint32_t pos);
 
 	/**
-	 * \brief The SampleSequence to iterate
+	 * \brief The SampleSequence to iterate.
 	 */
 	const SampleSequence<T, is_planar> *seq_;
 
 	/**
-	 * \brief Current index position
+	 * \brief Current index position.
 	 */
 	uint32_t pos_;
 };
@@ -344,7 +352,8 @@ public: /* methods */
 	const_iterator end() const;
 
 	/**
-	 * \brief Return the number of 32 bit PCM samples represented by this sequence.
+	 * \brief Return the number of 32 bit PCM samples represented by this
+	 * sequence.
 	 *
 	 * \return The number of 32 bit PCM samples represented by this sequence
 	 */
@@ -354,24 +363,25 @@ public: /* methods */
 protected:
 
 	/**
-	 * \brief Default constructor
+	 * \brief Default constructor.
 	 */
 	SampleSequenceImplBase();
 
 	/**
-	 * \brief Protected non-virtual destructor to indicate non-polymorphic use only.
+	 * \brief Protected non-virtual destructor to indicate non-polymorphic use
+	 * only.
 	 */
 	virtual ~SampleSequenceImplBase() noexcept;
 
 	/**
-	 * \brief Set the number 32 bit PCM samples in this buffer
+	 * \brief Set the number 32 bit PCM samples in this buffer.
 	 *
 	 * \param[in] size number of 32 bit PCM samples in the buffer
 	 */
 	void set_size(const uint32_t size);
 
 	/**
-	 * \brief Convert two integers to a PCM 32 bit sample
+	 * \brief Convert two integers to a PCM 32 bit sample.
 	 *
 	 * \param[in] higher The higher 16 bit
 	 * \param[in] lower  The lower 16 bit
@@ -381,7 +391,8 @@ protected:
 	uint32_t combine(const uint32_t higher, const uint16_t lower) const;
 
 	/**
-	 * \brief Returns 0 if index is within access bounds, otherwise the amount that
+	 * \brief Returns 0 if index is within access bounds, otherwise the amount
+	 * that.
 	 * \c index exceeds <tt>size()</tt>.
 	 *
 	 * \param[in] index Index to check
@@ -400,7 +411,7 @@ protected:
 	void bounds_check(const uint32_t index) const;
 
 	/**
-	 * \brief Pointer to actual SampleSequence
+	 * \brief Pointer to actual SampleSequence.
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
@@ -409,7 +420,7 @@ protected:
 private:
 
 	/**
-	 * \brief State: Number of 16 bit samples in this sequence
+	 * \brief State: Number of 16 bit samples in this sequence.
 	 */
 	uint32_t size_;
 };
@@ -510,7 +521,7 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(const uint32_t index)
 
 
 /**
- * \brief SampleSequence specialization for planar sequences
+ * \brief SampleSequence specialization for planar sequences.
  */
 template <typename T>
 class SampleSequence<T, true> : public SampleSequenceImplBase<T, true>
@@ -523,14 +534,14 @@ public:
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * \brief Constructor
+	 * \brief Constructor.
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
 	SampleSequence(bool left0_right1 = true);
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence.
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -540,7 +551,7 @@ public:
 			const uint32_t &size);
 
 	/**
-	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
@@ -554,7 +565,7 @@ public:
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
@@ -572,7 +583,7 @@ public:
 	uint32_t at(const uint32_t index) const;
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence.
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
@@ -681,7 +692,7 @@ const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
 
 
 /**
- * \brief SampleSequence specialization for interleaved sequences
+ * \brief SampleSequence specialization for interleaved sequences.
  */
 template <typename T>
 class SampleSequence<T, false> : public SampleSequenceImplBase<T, false>
@@ -694,14 +705,14 @@ public:
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * \brief Constructor
+	 * \brief Constructor.
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
 	SampleSequence(bool left0_right1 = true);
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence
+	 * \brief Rewrap the specified buffers into this sample sequence.
 	 *
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
@@ -709,7 +720,7 @@ public:
 	void wrap(const uint8_t *buffer, const uint32_t &size);
 
 	/**
-	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
@@ -723,7 +734,7 @@ public:
 	uint32_t operator [] (const uint32_t index) const;
 
 	/**
-	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
 	 * Bits 31-24: Left Channel MSB
 	 * Bits 23-16: Left Channel LSB
@@ -741,7 +752,7 @@ public:
 	uint32_t at(const uint32_t index) const;
 
 	/**
-	 * \brief Rewrap the specified buffer into this sample sequence
+	 * \brief Rewrap the specified buffer into this sample sequence.
 	 *
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer

@@ -779,7 +779,7 @@ WARN_IF_DOC_ERROR      = YES
 # EXTRACT_ALL is set to YES then this flag will automatically be disabled.
 # The default value is: NO.
 
-WARN_NO_PARAMDOC       = NO
+WARN_NO_PARAMDOC       = YES
 
 # If the WARN_AS_ERROR tag is set to YES then doxygen will immediately stop when
 # a warning is encountered.
@@ -813,8 +813,8 @@ WARN_LOGFILE           = @PROJECT_BINARY_DIR@/Doxygen_WARNINGS.log
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @PROJECT_SOURCE_DIR@                 \
-                         @PROJECT_DOC_DIR@
+INPUT                  = @PROJECT_SOURCE_DIR@    \
+                         @PROJECT_DOC_TEXTS_DIR@
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -845,7 +845,7 @@ FILE_PATTERNS           = @PROJECT_DOXYGEN_FILE_PATTERNS@
 # be searched for input files as well.
 # The default value is: NO.
 
-RECURSIVE              = NO
+RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be
 # excluded from the INPUT source files. This way you can easily exclude a
@@ -963,7 +963,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = @CMAKE_CURRENT_SOURCE_DIR@/doc/MAINPAGE.md
+USE_MDFILE_AS_MAINPAGE = @PROJECT_DOC_TEXTS_DIR@/MAINPAGE.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing

@@ -28,9 +28,11 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/// \internal \defgroup parseImpl Implementation
-/// \ingroup parse
-/// @{
+/**
+ * \internal \defgroup parseImpl Implementation
+ * \ingroup parse
+ * @{
+ */
 
 namespace
 {
@@ -48,7 +50,7 @@ class VectorIStream : public std::basic_streambuf<CharT, TraitsT>
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] v The vector to wrap
 	 */
@@ -70,21 +72,21 @@ class StdIn final
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor.
 	 *
 	 * \param[in] buf_size Buffer size in bytes
 	 */
 	explicit StdIn(const std::size_t buf_size);
 
 	/**
-	 * Reads stdin bytes in binary mode to a vector<char>
+	 * \brief Reads stdin bytes in binary mode to a vector<char>.
 	 *
 	 * \return Bytes from stdin
 	 */
 	std::vector<char> bytes();
 
 	/**
-	 * Size of read buffer in bytes.
+	 * \brief Size of read buffer in bytes.
 	 *
 	 * \return Buffer size in bytes
 	 */
@@ -94,7 +96,7 @@ public:
 private:
 
 	/**
-	 * Bytes per read
+	 * \brief Bytes per read
 	 */
 	const std::size_t buf_size_;
 };
@@ -199,7 +201,7 @@ class ARTripletImpl
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] arcs          The ARCS value of this triplet
 	 * \param[in] confidence    The confidence value of this triplet
@@ -209,26 +211,26 @@ public:
 			const uint32_t frame450_arcs);
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	ARTripletImpl(const ARTripletImpl &rhs) = delete;
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	ARTripletImpl(ARTripletImpl &&rhs) noexcept = delete;
 
 	/**
-	 * Virtual default destructor.
+	 * \brief Virtual default destructor.
 	 */
 	virtual ~ARTripletImpl() noexcept = default;
 
 	/**
-	 * The track ARCS in this ARTripletImpl.
+	 * \brief The track ARCS in this ARTripletImpl.
 	 *
 	 * The ARCS may be v1 as well as v2.
 	 *
@@ -237,21 +239,21 @@ public:
 	uint32_t arcs() const;
 
 	/**
-	 * The confidence value in this ARTripletImpl.
+	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
 	uint32_t confidence() const;
 
 	/**
-	 * The ARCS of frame 450 of the particular track in this ARTripletImpl.
+	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
 	uint32_t frame450_arcs() const;
 
 	/**
-	 * The track ARCS in this ARTripletImpl.
+	 * \brief The track ARCS in this ARTripletImpl.
 	 *
 	 * The ARCS may be v1 as well as v2.
 	 *
@@ -260,28 +262,28 @@ public:
 	virtual bool arcs_valid() const;
 
 	/**
-	 * The confidence value in this ARTripletImpl.
+	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
 	virtual bool confidence_valid() const;
 
 	/**
-	 * The ARCS of frame 450 of the particular track in this ARTripletImpl.
+	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
 	virtual bool frame450_arcs_valid() const;
 
 	/**
-	 * Clone this instance, i.e. create a deep copy
+	 * \brief Clone this instance, i.e. create a deep copy
 	 *
 	 * \return A clone of this instance
 	 */
 	virtual std::unique_ptr<ARTripletImpl> clone() const;
 
 	/**
-	 * Copy assignment operator.
+	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -290,7 +292,7 @@ public:
 	ARTripletImpl& operator = (const ARTripletImpl &rhs) = delete;
 
 	/**
-	 * Move assignment operator.
+	 * \brief Move assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -302,17 +304,17 @@ public:
 private:
 
 	/**
-	 * ARCS v1 or v2 of this track
+	 * \brief ARCS v1 or v2 of this track
 	 */
 	uint32_t arcs_;
 
 	/**
-	 * Confidence of arcs_
+	 * \brief Confidence of arcs_
 	 */
 	uint32_t confidence_;
 
 	/**
-	 * ARCS of frame 450
+	 * \brief ARCS of frame 450
 	 */
 	uint32_t frame450_arcs_;
 };
@@ -375,7 +377,7 @@ std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const
 /// \endcond
 
 /**
- * \brief Implementats an incompletely parsed ARTriplet.
+ * \brief Implements an incompletely parsed ARTriplet.
  *
  * It carries information about the validity of its parts.
  *
@@ -388,7 +390,7 @@ class ARIncompleteTripletImpl : public ARTripletImpl
 public:
 
 	/**
-	 * Constructor for incomplete ARTriplets.
+	 * \brief Constructor for incomplete ARTriplets.
 	 *
 	 * Each value can be flagged as invalid by passing FALSE.
 	 *
@@ -415,7 +417,7 @@ public:
 private:
 
 	/**
-	 * Validity flags
+	 * \brief Validity flags
 	 */
 	uint8_t flags_;
 };
@@ -574,28 +576,28 @@ public: /* types */
 public: /* methods */
 
 	/**
-	 * Default constructor.
+	 * \brief Default constructor.
 	 *
 	 * \param[in] id ARId of the cd this block describes
 	 */
 	explicit Impl(const ARId &id);
 
 	/**
-	 * Returns the AccurateRip Id (i.e. the header) of the block.
+	 * \brief Returns the AccurateRip Id (i.e. the header) of the block.
 	 *
 	 * \return ARId of this block
 	 */
 	const ARId& id() const;
 
 	/**
-	 * Append a triplet to this block.
+	 * \brief Append a triplet to this block.
 	 *
 	 * \param[in] triplet Append a new triplet to this block
 	 */
 	void append(const ARTriplet &triplet);
 
 	/**
-	 * Returns the size of this ARBlock, i.e. the number of triplets it
+	 * \brief Returns the size of this ARBlock, i.e. the number of triplets it
 	 * contains.
 	 *
 	 * \return The number of triplets in this block.
@@ -603,42 +605,42 @@ public: /* methods */
 	uint32_t size() const;
 
 	/**
-	 * Const iterator pointing to the first triplet.
+	 * \brief Const iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
 	iterator begin();
 
 	/**
-	 * Const iterator pointing to the last triplet.
+	 * \brief Const iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
 	iterator end();
 
 	/**
-	 * Const iterator pointing to the first triplet.
+	 * \brief Const iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * Const iterator pointing to the last triplet.
+	 * \brief Const iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * Return the ARTriplet with the specified index
+	 * \brief Return the ARTriplet with the specified index
 	 *
 	 * \return ARTriplet at index
 	 */
 	const ARTriplet& operator [](const int index) const;
 
 	/**
-	 * Return the ARTriplet with the specified index
+	 * \brief Return the ARTriplet with the specified index
 	 *
 	 * \return ARTriplet at index
 	 */
@@ -648,13 +650,13 @@ public: /* methods */
 private:
 
 	/**
-	 * The AccurateRip identifier representing the header information of the
+	 * \brief The AccurateRip identifier representing the header information of the
 	 * block
 	 */
 	ARId ar_id_;
 
 	/**
-	 * Triplets in the order of their occurrence in the block.
+	 * \brief Triplets in the order of their occurrence in the block.
 	 */
 	std::vector<ARTriplet> triplets_;
 };
@@ -843,59 +845,59 @@ class ARResponse::Impl final
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor
 	 */
 	Impl();
 
 	/**
-	 * Implements ARResponse::append(const ARBlock &block)
+	 * \brief Implements ARResponse::append(const ARBlock &block)
 	 */
 	void append(const ARBlock &block);
 
 	/**
-	 * Implements ARResponse::block(const int i) const
+	 * \brief Implements ARResponse::block(const int i) const
 	 */
 	const ARBlock& block(const int i) const;
 
 	/**
-	 * Implements ARResponse::size() const
+	 * \brief Implements ARResponse::size() const
 	 */
 	std::size_t size() const;
 
 	/**
-	 * Implements ARResponse::tracks_per_block() const
+	 * \brief Implements ARResponse::tracks_per_block() const
 	 */
 	int tracks_per_block() const;
 
 	/**
-	 * Implements ARResponse::begin()
+	 * \brief Implements ARResponse::begin()
 	 */
 	ARResponse::iterator begin();
 
 	/**
-	 * Implements ARResponse::end()
+	 * \brief Implements ARResponse::end()
 	 */
 	ARResponse::iterator end();
 
 	/**
-	 * Implements ARResponse::cbegin() const
+	 * \brief Implements ARResponse::cbegin() const
 	 */
 	ARResponse::const_iterator cbegin() const;
 
 	/**
-	 * Implements ARResponse::cend() const
+	 * \brief Implements ARResponse::cend() const
 	 */
 	ARResponse::const_iterator cend() const;
 
 	/**
-	 * Return the ARBlock with the specified index
+	 * \brief Return the ARBlock with the specified index
 	 *
 	 * \return ARBlock at index
 	 */
 	const ARBlock& operator [](const int index) const;
 
 	/**
-	 * Return the ARBlock with the specified index
+	 * \brief Return the ARBlock with the specified index
 	 *
 	 * \return ARBlock at index
 	 */
@@ -905,7 +907,7 @@ public:
 private:
 
 	/**
-	 * Internal representation of the response data.
+	 * \brief Internal representation of the response data.
 	 */
 	std::vector<ARBlock> blocks_;
 };
@@ -1673,64 +1675,64 @@ class ARStreamParser::Impl final
 public:
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
 	Impl(const Impl &rhs);
 
 	/**
-	 * Size in bytes of the block header containing disc_id_1, disc_id_2 and
+	 * \brief Size in bytes of the block header containing disc_id_1, disc_id_2 and
 	 * cddb_id.
 	 */
 	static constexpr int BLOCK_HEADER_BYTES = 13;
 
 	/**
-	 * Size in bytes of a triplet containing the ARCS for a single track,
+	 * \brief Size in bytes of a triplet containing the ARCS for a single track,
 	 * the confidence of this ARCS, and the ARCS of frame 450 of this track.
 	 */
 	static constexpr int TRIPLET_BYTES      =  9;
 
 	/**
-	 * Default constructor.
+	 * \brief Default constructor.
 	 */
 	explicit Impl(const ARStreamParser *parser);
 
 	/**
-	 * Default destructor.
+	 * \brief Default destructor.
 	 */
 	~Impl() noexcept = default;
 
 	/**
-	 * Set the content handler for this parser instance.
+	 * \brief Set the content handler for this parser instance.
 	 *
 	 * \param[in] handler The content handler for this instance
 	 */
 	void set_content_handler(std::unique_ptr<ContentHandler> handler);
 
 	/**
-	 * Return the content handler of this parser instance.
+	 * \brief Return the content handler of this parser instance.
 	 *
 	 * \return Content handler of this instance
 	 */
 	const ContentHandler& content_handler() const;
 
 	/**
-	 * Set the error handler for this parser instance.
+	 * \brief Set the error handler for this parser instance.
 	 *
 	 * \param[in] handler The error handler for this instance
 	 */
 	void set_error_handler(std::unique_ptr<ErrorHandler> handler);
 
 	/**
-	 * Return the error handler of this parser instance.
+	 * \brief Return the error handler of this parser instance.
 	 *
 	 * \return Error handler of this instance
 	 */
 	const ErrorHandler& error_handler() const;
 
 	/**
-	 * Parses the byte stream of an AccurateRip response.
+	 * \brief Parses the byte stream of an AccurateRip response.
 	 *
 	 * \param[in] in_stream The stream to be parsed
 	 *
@@ -1741,7 +1743,7 @@ public:
 	uint32_t parse_stream(std::istream &in_stream);
 
 	/**
-	 * Copy assignment
+	 * \brief Copy assignment
 	 *
 	 * \param[in] rhs The instance to assign
 	 */
@@ -1751,7 +1753,7 @@ public:
 private:
 
 	/**
-	 * React on parse errors.
+	 * \brief React on parse errors.
 	 *
 	 * If an error handler is present, the error data is passed to the handler,
 	 * otherwise a StreamReadException is thrown.
@@ -1766,7 +1768,7 @@ private:
 			const uint32_t block_byte_pos);
 
 	/**
-	 * Worker method for parsing an input stream.
+	 * \brief Worker method for parsing an input stream.
 	 *
 	 * \param[in] in_stream The stream to be parsed
 	 *
@@ -1779,7 +1781,7 @@ private:
 	uint32_t parse_stream_worker(std::istream &in_stream);
 
 	/**
-	 * Service method: Interpret 4 bytes as a 32 bit unsigned integer
+	 * \brief Service method: Interpret 4 bytes as a 32 bit unsigned integer
 	 * with little endian storage, which means that the bits of b4 become the
 	 * most significant bits of the result.
 	 *
@@ -1796,17 +1798,17 @@ private:
 		const char b4) const;
 
 	/**
-	 * Internal event handler instance.
+	 * \brief Internal event handler instance.
 	 */
 	std::unique_ptr<ContentHandler> content_handler_;
 
 	/**
-	 * Internal error handler instance.
+	 * \brief Internal error handler instance.
 	 */
 	std::unique_ptr<ErrorHandler> error_handler_;
 
 	/**
-	 * Back pointer to ARStreamParser instance.
+	 * \brief Back pointer to ARStreamParser instance.
 	 */
 	const ARStreamParser *parser_;
 };
@@ -2293,7 +2295,7 @@ void ARStdinParser::on_catched_exception(std::istream & /* istream */,
 
 /// \endcond
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

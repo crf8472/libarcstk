@@ -333,6 +333,8 @@ private:
 
 	/**
 	 * \brief Internal object representation
+	 *
+	 * \tparam Iter The iterator type to wrap
 	 */
 	template<class Iter>
 	struct Model : Concept
@@ -393,6 +395,8 @@ public:
 
 	/**
 	 * Converting constructor
+	 *
+	 * \tparam Iterator The iterator type to wrap
 	 *
 	 * \param[in] i Instance of an iterator over sample_type
 	 */
@@ -770,9 +774,9 @@ public:
  * The file will not be read, the filename is just declared. It is allowed to be
  * empty.
  *
- * \param audiofilename The name of the audiofile
- * \param skip_front    Tell wether to skip the front samples
- * \param skip_back     Tell wether to skip the back samples
+ * \param[in] audiofilename The name of the audiofile
+ * \param[in] skip_front    Tell wether to skip the front samples
+ * \param[in] skip_back     Tell wether to skip the back samples
  *
  * \return CalcContext for the input
  */
@@ -786,8 +790,8 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
  * The file will not be read, the filename is just declared. It is allowed to be
  * empty.
  *
- * \param audiofilename The name of the audiofile
- * \param toc           The TOC to use
+ * \param[in] audiofilename The name of the audiofile
+ * \param[in] toc           The TOC to use
  *
  * \return CalcContext for the input
  */

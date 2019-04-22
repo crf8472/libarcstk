@@ -42,9 +42,10 @@ class ARId;
 class ARResponse;
 class Checksums;
 
-/// \defgroup match AccurateRip Checksum Matcher
-/// @{
-
+/**
+ * \defgroup match AccurateRip Checksum Matcher
+ * @{
+ */
 
 /**
  * \brief Interface: Result of a match of Checksums against an ARResponse.
@@ -543,7 +544,7 @@ private:
 	std::unique_ptr<TracksetMatcher::Impl> impl_;
 };
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

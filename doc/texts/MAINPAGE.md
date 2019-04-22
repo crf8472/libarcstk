@@ -3,12 +3,12 @@
 
 \section Home
 
-See the [project home on codeberg.org](https://codeberg.org/tristero/libarcstk)
+See the project home [on codeberg.org](https://codeberg.org/tristero/libarcstk)
 
 
 \section features Features
 
-Libarcs supports the following tasks for working with AccurateRip checksums:
+Libarcstk supports the following tasks for working with AccurateRip checksums:
 
 - Calculate the AccurateRip checksums of a succession of audio samples, may it
   be a single track or an album
@@ -21,12 +21,12 @@ Libarcs supports the following tasks for working with AccurateRip checksums:
 
 \section nonfeatures Non-features
 
-- Libarcs does not rip CDs
-- Libarcs does not read, decode or buffer audio data
-- Libarcs will not send any requests to AccurateRip. Libarcs has no network
+- Libarcstk does not rip CDs
+- Libarcstk does not read, decode or buffer audio data
+- Libarcstk will not send any requests to AccurateRip. Libarcstk has no network
   facilities and is not supposed to get any. The actual HTTP request for
-  fetching the reference values is better performed by the HTTP networking
-  client of your choice.
+  fetching the reference values is better performed by the HTTP client of your
+  choice.
 
 
 
@@ -34,9 +34,9 @@ Libarcs supports the following tasks for working with AccurateRip checksums:
 
 Build and install to just use the API:
 
-	$ cd libarcstk          # your libarcstk root directory where README.md resides
+	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
-	$ sudo make install   # installs to /usr/local
+	$ sudo make install  # installs to /usr/local
 

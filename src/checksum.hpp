@@ -38,8 +38,10 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/// \addtogroup calc
-/// @{
+/**
+ * \addtogroup calc
+ * @{
+ */
 
 /**
  * \brief Everything regarding operation with Checksums.
@@ -62,7 +64,7 @@ namespace checksum
 	};
 
 	/**
-	 * Checksum type names.
+	 * \brief Checksum type names.
 	 */
 	static const std::array<std::string,4> names {
 		"ARCSv1",
@@ -72,7 +74,7 @@ namespace checksum
 	};
 
 	/**
-	 * Iterable sequence of all predefined checksum types.
+	 * \brief Iterable sequence of all predefined checksum types.
 	 */
 	static const type types[] = {
 		type::ARCS1,
@@ -82,7 +84,7 @@ namespace checksum
 	};
 
 	/**
-	 * Return the name of a checksum::type
+	 * \brief Return the name of a checksum::type.
 	 *
 	 * \param[in] t Type to get name of
 	 *
@@ -102,14 +104,14 @@ class Checksum final
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * Creates an empty Checksum.
 	 */
 	Checksum();
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] value Actual checksum value
 	 */
@@ -122,14 +124,14 @@ public:
 	//virtual ~Checksum() noexcept = default;
 
 	/**
-	 * Numeric value of the checksum.
+	 * \brief Numeric value of the checksum.
 	 *
 	 * \return Numeric value of the checksum
 	 */
 	uint32_t value() const;
 
 	/**
-	 * Return TRUE iff this Checksum is empty, otherwise FALSE.
+	 * \brief Return TRUE iff this Checksum is empty, otherwise FALSE.
 	 *
 	 * A Checksum is empty if it contains no valid value. Note that this
 	 * does not entail <tt>value() == 0</tt> in all cases. Nonetheless, for most
@@ -141,14 +143,14 @@ public:
 	bool empty() const;
 
 	/**
-	 * Equality.
+	 * \brief Equality.
 	 *
 	 * \param[in] rhs The instance to check for equality
 	 */
 	bool operator == (const Checksum &rhs) const;
 
 	/**
-	 * Inequality.
+	 * \brief Inequality.
 	 *
 	 * \param[in] rhs The instance to check for inequality
 	 */
@@ -162,38 +164,41 @@ public:
 private:
 
 	/**
-	 * Actual checksum value;
+	 * \brief Actual checksum value;
 	 */
 	uint32_t value_;
 };
 
 
 /**
- * Checksums related tools
+ * \brief Checksums related tools
  */
 namespace checksum
 {
 
 	/**
-	 * Creates a hexadecimal representation of a 32bit checksum as a std::string
+	 * \internal
+	 *
+	 * \brief Creates a hexadecimal string representation of a 32bit checksum.
 	 *
 	 * \param[in] checksum The Checksum to represent
 	 * \param[in] upper    TRUE indicates to print digits A-F in uppercase
 	 * \param[in] base     TRUE indicates to print base '0x'
 	 *
 	 * \return A hexadecimal representation of the \c checksum as a string
-	 *
-	 * \internal
 	 */
 	std::string to_hex_str(const Checksum &checksum, bool upper, bool base);
 
 } // namespace checksum
 
 
+/**
+ * \brief Implementation details of namespace arcstk
+ */
 namespace details
 {
 
-// ChecksumMapIterator needs this
+// forward declaration: ChecksumMapIterator needs this
 template <typename K>
 class ChecksumMap;
 
@@ -246,31 +251,31 @@ public: /* types */
 public: /* methods */
 
 	/**
-	 * Construct const_iterator from iterator
+	 * \brief Construct const_iterator from iterator
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
 	ChecksumMapIterator(const ChecksumMapIterator<K, false> &rhs);
 
 	/**
-	 * Dereference operator
+	 * \brief Dereference operator
 	 *
 	 * \return A Checksum
 	 */
 	reference operator * ();
 
 	/**
-	 * Increment operator
+	 * \brief Preincrement operator
 	 */
 	ChecksumMapIterator& operator ++ ();
 
 	/**
-	 * Decrement operator
+	 * \brief Decrement operator
 	 */
 	ChecksumMapIterator& operator -- ();
 
 	/**
-	 * Equality
+	 * \brief Equality
 	 *
 	 * \param[in] lhs Left hand side of the operation
 	 * \param[in] rhs Right hand side of the operation
@@ -284,7 +289,7 @@ public: /* methods */
 	}
 
 	/**
-	 * Inequality
+	 * \brief Inequality
 	 *
 	 * \param[in] lhs Left hand side of the operation
 	 * \param[in] rhs Right hand side of the operation
@@ -301,7 +306,7 @@ public: /* methods */
 private:
 
 	/**
-	 * Private Constructor.
+	 * \brief Private Constructor.
 	 *
 	 * Constructs a ChecksumMapIterator from the iterator of the
 	 * wrapped type.
@@ -314,7 +319,7 @@ private:
 	explicit ChecksumMapIterator(const WrappedIteratorType &it);
 
 	/**
-	 * Wrapped iterator of the class implementing ChecksumMap
+	 * \brief Wrapped iterator of the class implementing ChecksumMap
 	 */
 	WrappedIteratorType it_;
 };
@@ -341,26 +346,26 @@ public: /* types */
 public: /* methods */
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 */
 	ChecksumMap();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
 	ChecksumMap(const ChecksumMap &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs The instance to move
 	 */
 	ChecksumMap(ChecksumMap &&rhs) noexcept;
 
 	/**
-	 * Virtual default destructor
+	 * \brief Virtual default destructor
 	 */
 	~ChecksumMap() noexcept;
 
@@ -369,35 +374,35 @@ public: /* methods */
 
 
 	/**
-	 * Returns a ChecksumMap::const_iterator to the beginning
+	 * \brief Returns a ChecksumMap::const_iterator to the beginning
 	 *
 	 * \return ChecksumMap::const_iterator to the beginning
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * Returns a ChecksumMap::const_iterator to the beginning
+	 * \brief Returns a ChecksumMap::const_iterator to the beginning
 	 *
 	 * \return ChecksumMap::const_iterator to the beginning
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * Returns a ChecksumMap::const_iterator to the end
+	 * \brief Returns a ChecksumMap::const_iterator to the end
 	 *
 	 * \return ChecksumMap::const_iterator to the end
 	 */
 	const_iterator end() const;
 
 	/**
-	 * Returns a ChecksumMap::const_iterator to the end
+	 * \brief Returns a ChecksumMap::const_iterator to the end
 	 *
 	 * \return ChecksumMap::const_iterator to the end
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * Finds an element in the instance by its key.
+	 * \brief Finds an element in the instance by its key.
 	 *
 	 * If there is no element for the given key, the returned iterator will be
 	 * equal to end().
@@ -411,7 +416,7 @@ public: /* methods */
 	const_iterator find(const K &key) const;
 
 	/**
-	 * Returns TRUE iff the instance contains the key \c key .
+	 * \brief Returns TRUE iff the instance contains the key \c key .
 	 *
 	 * \param[in] key The key to lookup
 	 *
@@ -420,14 +425,14 @@ public: /* methods */
 	bool contains(const K &key) const;
 
 	/**
-	 * Returns the number of elements contained in the instance.
+	 * \brief Returns the number of elements contained in the instance.
 	 *
 	 * \return Number of elements contained in the instance.
 	 */
 	std::size_t size() const;
 
 	/**
-	 * Returns TRUE iff the instance contains no elements, i.e. iff
+	 * \brief Returns TRUE iff the instance contains no elements, i.e. iff
 	 * <tt>size() == 0</tt>, otherwise FALSE.
 	 *
 	 * \return TRUE iff <tt>size() == 0</tt>, otherwise FALSE
@@ -435,21 +440,21 @@ public: /* methods */
 	bool empty() const;
 
 	/**
-	 * Returns the set of all keys contained in the instance.
+	 * \brief Returns the set of all keys contained in the instance.
 	 *
 	 * \return Set of keys used in this instance
 	 */
 	std::set<K> keys() const;
 
 	/**
-	 * Equality.
+	 * \brief Equality.
 	 *
 	 * \param[in] rhs The instance to check for equality
 	 */
 	bool operator == (const ChecksumMap<K> &rhs) const;
 
 	/**
-	 * Inequality.
+	 * \brief Inequality.
 	 *
 	 * \param[in] rhs The instance to check for inequality
 	 */
@@ -460,21 +465,21 @@ public: /* methods */
 
 
 	/**
-	 * Returns a ChecksumMap::iterator to the beginning
+	 * \brief Returns a ChecksumMap::iterator to the beginning
 	 *
 	 * \return ChecksumMap::iterator to the beginning
 	 */
 	iterator begin();
 
 	/**
-	 * Returns a ChecksumMap::iterator to the end
+	 * \brief Returns a ChecksumMap::iterator to the end
 	 *
 	 * \return ChecksumMap::iterator to the end
 	 */
 	iterator end();
 
 	/**
-	 * Finds an element in the instance by its key.
+	 * \brief Finds an element in the instance by its key.
 	 *
 	 * If there is no element for the given key, the returned iterator will be
 	 * equal to end().
@@ -486,7 +491,7 @@ public: /* methods */
 	iterator find(const K &key);
 
 	/**
-	 * Inserts a new key-value-pair to the instance.
+	 * \brief Inserts a new key-value-pair to the instance.
 	 *
 	 * If the key is already present in the instance, the existing checksum will
 	 * be overwritten with \c checksum.
@@ -504,7 +509,7 @@ public: /* methods */
 	std::pair<iterator, bool> insert(const K &key, const Checksum &checksum);
 
 	/**
-	 * Merge the elements of another instance into this instance.
+	 * \brief Merge the elements of another instance into this instance.
 	 *
 	 * If a key in the other instance is already present in this instance, the
 	 * corresponding element will be left unmodified.
@@ -514,7 +519,7 @@ public: /* methods */
 	void merge(const ChecksumMap<K> &rhs);
 
 	/**
-	 * Erases the element with the given key.
+	 * \brief Erases the element with the given key.
 	 *
 	 * Does nothing if the given key is not contained in the instance.
 	 *
@@ -523,14 +528,14 @@ public: /* methods */
 	void erase(const K &key);
 
 	/**
-	 * Erases all elements contained in the instance.
+	 * \brief Erases all elements contained in the instance.
 	 *
 	 * After clear() the size of the container will be \c 0 .
 	 */
 	void clear();
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -539,7 +544,7 @@ public: /* methods */
 	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
@@ -551,7 +556,7 @@ public: /* methods */
 private: // TODO Hide this!
 
 	/**
-	 * Internal representation.
+	 * \brief Internal representation.
 	 *
 	 * This is not intended as part of the interface and should be ignored.
 	 */
@@ -575,45 +580,45 @@ class ChecksumSet final : public details::ChecksumMap<checksum::type>
 public:
 
 	/**
-	 * Constructor for a track with unknown length (will be 0)
+	 * \brief Constructor for a track with unknown length (will be 0)
 	 */
 	ChecksumSet();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
 	ChecksumSet(const ChecksumSet &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs The instance to move
 	 */
 	ChecksumSet(ChecksumSet &&rhs) noexcept;
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
 	explicit ChecksumSet(const uint32_t length);
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor
 	 */
 	~ChecksumSet() noexcept;
 
 	/**
-	 * Length (in LBA frames) of this track.
+	 * \brief Length (in LBA frames) of this track.
 	 *
 	 * \return Length of this track in LBA frames
 	 */
 	uint32_t length() const;
 
 	/**
-	 * Return the \ref Checksum for the specified \c type
+	 * \brief Return the \ref Checksum for the specified \c type
 	 *
 	 * \param[in] type The checksum::type to return the value
 	 *
@@ -622,7 +627,7 @@ public:
 	Checksum get(checksum::type type) const;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -637,13 +642,12 @@ private:
 	class Impl;
 
 	/**
-	 * Private implementation of ChecksumSet
+	 * \brief Private implementation of ChecksumSet
 	 */
 	std::unique_ptr<Impl> impl_;
 };
 
-
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

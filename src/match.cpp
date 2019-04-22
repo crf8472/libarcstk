@@ -33,10 +33,11 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/// \internal \defgroup matchImpl Implementation
-/// \ingroup match
-/// @{
-
+/**
+ * \internal \defgroup matchImpl Implementation
+ * \ingroup match
+ * @{
+ */
 
 // Match
 
@@ -1210,7 +1211,7 @@ std::unique_ptr<Matcher> TracksetMatcher::do_clone() const
 
 /// \endcond
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

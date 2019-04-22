@@ -151,7 +151,14 @@ configure_file (
 )
 
 
-## --- Specify Exported headers
+## --- Specify Private Headers
+
+set (NONPUBLIC_HEADERS )
+list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/calculate_details.hpp" )
+list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/identifier_details.hpp" )
+
+
+## --- Specify Exported Headers
 
 set (EXPORTED_HEADERS )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/calculate.hpp" )
@@ -161,6 +168,7 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/identifier.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/logging.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/parse.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/samples.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_BINARY_DIR}/version.hpp" )
 
 set (EXPORTED_TEMPLATES )
 list (APPEND EXPORTED_TEMPLATES "${PROJECT_SOURCE_DIR}/details/checksum.tpp" )

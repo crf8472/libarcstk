@@ -21,7 +21,7 @@
 #include <vector>
 
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp"
+#include "identifier_details.hpp" // for TOCBuilder
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -72,37 +72,37 @@ class AudioSize::Impl final
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 */
 	Impl();
 
 	/**
-	 * Implements AudioSize::set_leadout_frame(const uint32_t leadout)
+	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
 	 */
 	void set_leadout_frame(const uint32_t leadout);
 
 	/**
-	 * Implements AudioSize::leadout_frame() const
+	 * \brief Implements AudioSize::leadout_frame() const
 	 */
 	uint32_t leadout_frame() const;
 
 	/**
-	 * Implements AudioSize::set_sample_count(const uint32_t smpl_count)
+	 * \brief Implements AudioSize::set_sample_count(const uint32_t smpl_count)
 	 */
 	void set_sample_count(const uint32_t smpl_count);
 
 	/**
-	 * Implements AudioSize::sample_count() const
+	 * \brief Implements AudioSize::sample_count() const
 	 */
 	uint32_t sample_count() const;
 
 	/**
-	 * Implements AudioSize::set_pcm_byte_count(const uint64_t byte_count)
+	 * \brief Implements AudioSize::set_pcm_byte_count(const uint64_t byte_count)
 	 */
 	void set_pcm_byte_count(const uint64_t byte_count);
 
 	/**
-	 * Implements AudioSize::pcm_byte_count() const
+	 * \brief Implements AudioSize::pcm_byte_count() const
 	 */
 	uint64_t pcm_byte_count() const;
 
@@ -110,7 +110,7 @@ public:
 private:
 
 	/**
-	 * Data: Number of pcm sample bytes in the audio file.
+	 * \brief Data: Number of pcm sample bytes in the audio file.
 	 */
 	uint64_t total_pcm_bytes_;
 };
@@ -264,7 +264,7 @@ class SingletrackCalcContext final : public CalcContextBase
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * No samples are skipped.
 	 *
@@ -273,7 +273,7 @@ public:
 	explicit SingletrackCalcContext(const std::string &filename);
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] filename   Name of the audio file
 	 * \param[in] skip_front Indicate whether to skip samples at the beginning
@@ -283,7 +283,7 @@ public:
 			const bool skip_front, const bool skip_back);
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] filename   Name of the audio file
 	 * \param[in] skip_front Indicate whether to skip samples at the beginning
@@ -318,7 +318,7 @@ public:
 	bool skips_front() const override;
 
 	/**
-	 * Activate skipping of the first 2939 samples of the first track.
+	 * \brief Activate skipping of the first 2939 samples of the first track.
 	 *
 	 * \param[in] skip TRUE skips the first 2939 samples of the first track
 	 */
@@ -327,7 +327,7 @@ public:
 	bool skips_back() const override;
 
 	/**
-	 * Activate skipping of the last 2940 samples of the last track.
+	 * \brief Activate skipping of the last 2940 samples of the last track.
 	 *
 	 * \param[in] skip TRUE skips the last 2940 samples of the last track
 	 */
@@ -339,12 +339,12 @@ public:
 private:
 
 	/**
-	 * State: indicates whether to skip the front samples
+	 * \brief State: indicates whether to skip the front samples
 	 */
 	bool skip_front_;
 
 	/**
-	 * State: indicates whether to skip the back samples
+	 * \brief State: indicates whether to skip the back samples
 	 */
 	bool skip_back_;
 };
@@ -506,7 +506,7 @@ class MultitrackCalcContext final : public CalcContextBase
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * The filenames in \c toc are ignored in favour of \c filename . No samples
 	 * are skipped.
@@ -517,7 +517,7 @@ public:
 	MultitrackCalcContext(const std::string &filename, const TOC &toc);
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * The filenames in \c toc are ignored in favour of \c filename .
 	 *
@@ -556,7 +556,7 @@ public:
 	bool skips_back() const override;
 
 	/**
-	 * The TOC of the audio input file.
+	 * \brief The TOC of the audio input file.
 	 *
 	 * \return The TOC information to use for the audio input
 	 */
@@ -568,14 +568,14 @@ public:
 private:
 
 	/**
-	 * Set the TOC for the audio input.
+	 * \brief Set the TOC for the audio input.
 	 *
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
 	void set_toc(const TOC &toc);
 
 	/**
-	 * TOC representation
+	 * \brief TOC representation
 	 */
 	TOC toc_;
 };
@@ -612,7 +612,7 @@ void MultitrackCalcContext::set_audio_size(const AudioSize &audio_size)
 
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
-		details::TOCBuilder builder;
+		TOCBuilder builder;
 		auto toc { builder.merge(toc_, audio_size.leadout_frame()) };
 		toc_ = *toc;
 	}
@@ -894,7 +894,7 @@ class CalcStateV1 final : public CalcStateARCS
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor.
 	 */
 	CalcStateV1();
 
@@ -920,7 +920,7 @@ public:
 protected:
 
 	/**
-	 * Worker: find Checksum for specified track or 0
+	 * \brief Worker: find Checksum for specified track or 0
 	 *
 	 * \param[in] track Track number or 0
 	 *
@@ -929,7 +929,7 @@ protected:
 	Checksum find(const uint8_t track) const;
 
 	/**
-	 * Worker: compose a ChecksumSet from a single Checksum
+	 * \brief Worker: compose a ChecksumSet from a single Checksum
 	 *
 	 * \param[in] checksum The Checksum
 	 *
@@ -945,18 +945,18 @@ private:
 	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
 
 	/**
-	 * The multiplier to compute the ARCS values v1 and v2. Starts with 1
+	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
 	 * on the first sample after the pregap of the first track.
 	 */
 	uint_fast64_t multiplier_;
 
 	/**
-	 * State: subtotal of ARCS v1 (accumulates lower bits of each product).
+	 * \brief State: subtotal of ARCS v1 (accumulates lower bits of each product).
 	 */
 	uint_fast32_t subtotal_v1_;
 
 	/**
-	 * Internal representation of the calculated ARCS values
+	 * \brief Internal representation of the calculated ARCS values
 	 */
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
@@ -1098,7 +1098,7 @@ class CalcStateV1andV2 final : public CalcStateARCS
 public:
 
 	/**
-	 * Default constructor
+	 * \brief Default constructor
 	 */
 	CalcStateV1andV2();
 
@@ -1133,29 +1133,29 @@ private:
 	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
 
 	/**
-	 * The multiplier to compute the ARCS values v1 and v2. Starts with 1
+	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
 	 * on the first sample after the pregap of the first track.
 	 */
 	uint_fast64_t multiplier_;
 
 	/**
-	 * State: subtotal of ARCS v1 (accumulates lower bits of each product).
+	 * \brief State: subtotal of ARCS v1 (accumulates lower bits of each product).
 	 */
 	uint_fast32_t subtotal_v1_;
 
 	/**
-	 * State: subtotal of ARCS v2 (accumulates higher bits of each product).
+	 * \brief State: subtotal of ARCS v2 (accumulates higher bits of each product).
 	 * The ARCS v2 is the sum of subtotal_v1_ and subtotal_v2_.
 	 */
 	uint_fast32_t subtotal_v2_;
 
 	/**
-	 * State: product of sample and index multiplier
+	 * \brief State: product of sample and index multiplier
 	 */
 	uint_fast64_t update64_;
 
 	/**
-	 * Internal representation of the calculated ARCS values
+	 * \brief Internal representation of the calculated ARCS values
 	 */
 	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
 };
@@ -1322,7 +1322,7 @@ class Calculation::Impl final
 public:
 
 	/**
-	 * Constructor with type and context
+	 * \brief Constructor with type and context.
 	 *
 	 * \param[in] type Checksum Type
 	 * \param[in] ctx  Context
@@ -1330,99 +1330,99 @@ public:
 	Impl(const checksum::type type, std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Constructor with context and checksum::type::ARCS2
+	 * \brief Constructor with context and checksum::type::ARCS2.
 	 *
 	 * \param[in] ctx Context
 	 */
 	explicit Impl(std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Copy constructor.
+	 * \brief Copy constructor.
 	 *
 	 * \param rhs The Calculation::Impl to copy
 	 */
 	Impl(const Impl &rhs);
 
 	/**
-	 * Move constructor.
+	 * \brief Move constructor.
 	 *
 	 * \param rhs The Calculation::Impl to move
 	 */
 	Impl(Impl &&rhs) noexcept = default;
 
 	/**
-	 * Default destructor.
+	 * \brief Default destructor.
 	 */
 	~Impl() noexcept = default;
 
 	/**
-	 * Implements Calculation::set_context().
+	 * \brief Implements Calculation::set_context().
 	 */
 	void set_context(std::unique_ptr<CalcContext> context);
 
 	/**
-	 * Implements Calculation::context().
+	 * \brief Implements Calculation::context().
 	 */
 	const CalcContext& context() const;
 
 	/**
-	 * Implements Calculation::type()
+	 * \brief Implements Calculation::type()
 	 */
 	checksum::type type() const;
 
 	/**
-	 * Implements Calculation::update()
+	 * \brief Implements Calculation::update()
 	 */
 	void update(PCMForwardIterator &begin, PCMForwardIterator &end);
 
 	/**
-	 * Implements Calculation::update_audiosize(const AudioSize &audiosize).
+	 * \brief Implements Calculation::update_audiosize(const AudioSize &audiosize).
 	 */
 	void update_audiosize(const AudioSize &audiosize);
 
 	/**
-	 * Implements Calculation::complete().
+	 * \brief Implements Calculation::complete().
 	 */
 	bool complete() const;
 
 	/**
-	 * Implements Calculation::sample_counter().
+	 * \brief Implements Calculation::sample_counter().
 	 */
 	uint32_t sample_counter() const;
 
 	/**
-	 * Implements Calculation::result().
+	 * \brief Implements Calculation::result().
 	 */
 	Checksums result() const;
 
 	/**
-	 * Set the Partitioner for this instance.
+	 * \brief Set the Partitioner for this instance.
 	 *
 	 * \param[in] partitioner The Partitioner for this instance
 	 */
 	void set_partitioner(std::unique_ptr<Partitioner> partitioner);
 
 	/**
-	 * Read the Partitioner of this instance.
+	 * \brief Read the Partitioner of this instance.
 	 *
 	 * \return The Partitioner of this instance
 	 */
 	const Partitioner& partitioner() const;
 
 	/**
-	 * Read the state of this instance.
+	 * \brief Read the state of this instance.
 	 *
 	 * \return the CalcState of this instance to read
 	 */
 	const CalcState& state() const;
 
 	/**
-	 * Implements Calculation::set_type()
+	 * \brief Implements Calculation::set_type()
 	 */
 	void set_type(const checksum::type type);
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -1431,7 +1431,7 @@ public:
 	Impl& operator = (const Impl &rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -1443,20 +1443,20 @@ public:
 protected:
 
 	/**
-	 * Initializes state according to context (multi- or singletrack) and
+	 * \brief Initializes state according to context (multi- or singletrack) and
 	 * transfers the skipping amounts back to the context.
 	 */
 	void sync_state_and_context();
 
 	/**
-	 * Set \c context as new context or, if nullptr, the default context.
+	 * \brief Set \c context as new context or, if nullptr, the default context.
 	 *
 	 * \param[in] ctx The new context, if non-empty
 	 */
 	void set_context_or_default(std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Log statistics about a Partition.
+	 * \brief Log statistics about a Partition.
 	 *
 	 * \param[in] i     Chunk counter
 	 * \param[in] n     Number of chunks in block
@@ -1469,27 +1469,27 @@ protected:
 private:
 
 	/**
-	 * State: 1-based global index of the sample to be processed as next.
+	 * \brief State: 1-based global index of the sample to be processed as next.
 	 */
 	uint32_t smpl_offset_;
 
 	/**
-	 * Internal stream context.
-     */
+	 * \brief Internal stream context.
+	 */
 	std::unique_ptr<CalcContext> context_;
 
 	/**
-	 * Internal computation state.
+	 * \brief Internal computation state.
 	 */
 	std::unique_ptr<CalcState> state_;
 
 	/**
-	 * Internal partitioner
+	 * \brief Internal partitioner
 	 */
 	std::unique_ptr<Partitioner> partitioner_;
 
 	/**
-	 * Accumulated time elapsed by processing blocks
+	 * \brief Accumulated time elapsed by processing blocks
 	 */
 	std::chrono::milliseconds proc_time_elapsed_;
 };

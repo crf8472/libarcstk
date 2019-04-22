@@ -141,7 +141,7 @@ using CDDA_t = struct CDDA_t;
  */
 extern const CDDA_t CDDA;
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 
@@ -625,7 +625,7 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 }
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

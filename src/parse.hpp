@@ -13,7 +13,7 @@
  * which have default implementations as there are
  * @link arcstk::v_1_0_0::DefaultContentHandler DefaultContentHandler @endlink
  * and
- * @link arcstk::v_1_0_0::DefaultErrorHandler. DefaultErrorHandler. @endlink
+ * @link arcstk::v_1_0_0::DefaultErrorHandler DefaultErrorHandler @endlink.
  * @link arcstk::v_1_0_0::DefaultContentHandler DefaultContentHandler @endlink
  * just constructs an
  * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink
@@ -71,8 +71,10 @@ class ARId;
 class ARTripletImpl;
 
 
-/// \defgroup parse AccurateRip Response Parser
-/// @{
+/**
+ * \defgroup parse AccurateRip Response Parser
+ * @{
+ */
 
 
 /**
@@ -1186,7 +1188,7 @@ private:
 			const std::exception &e) const final;
 };
 
-/// @}
+/** @} */
 
 } // namespace v_1_0_0
 

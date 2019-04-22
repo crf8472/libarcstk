@@ -6,6 +6,12 @@
 #ifndef __LIBARCSTK_CHECKSUM_TPP__
 #define __LIBARCSTK_CHECKSUM_TPP__
 
+/**
+ * \file
+ *
+ * Implementation of ChecksumMapIterator and ChecksumMap
+ */
+
 
 // ChecksumMapIterator
 

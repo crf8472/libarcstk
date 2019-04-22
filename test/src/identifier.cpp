@@ -135,7 +135,7 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
+	arcstk::ARIdBuilder builder;
 
 
 	SECTION ( "Reference ARId 1" )
@@ -257,7 +257,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		"[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
+	arcstk::ARIdBuilder builder;
 
 
 	SECTION ( "Build fails for inconsistent offsets" )
@@ -457,7 +457,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
+	arcstk::ARIdBuilder builder;
 
 
 	SECTION ( "Empty ARId" )
@@ -485,7 +485,7 @@ TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 
 TEST_CASE ( "TOCValidator", "[identifier]" )
 {
-	arcstk::details::TOCValidator validator;
+	arcstk::TOCValidator validator;
 
 
     SECTION ( "Validation succeeds for correct offsets" )
@@ -677,9 +677,9 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 // TOCBuilder
 
 
-TEST_CASE ( "details::TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
+TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
+	arcstk::TOCBuilder builder;
 
 
     SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
@@ -721,10 +721,10 @@ TEST_CASE ( "details::TOCBuilder: build with leadout", "[identifier] [tocbuilder
 }
 
 
-TEST_CASE ( "details::TOCBuilder: build with lengths and files",
+TEST_CASE ( "TOCBuilder: build with lengths and files",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
+	arcstk::TOCBuilder builder;
 
 
     SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
@@ -845,10 +845,10 @@ TEST_CASE ( "details::TOCBuilder: build with lengths and files",
 }
 
 
-TEST_CASE ( "details::TOCBuilder: build fails with illegal values",
+TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
+	arcstk::TOCBuilder builder;
 
 
     SECTION ( "Build fails for incorrect offsets" )

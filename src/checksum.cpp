@@ -86,28 +86,28 @@ class ChecksumSet::Impl final
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
 	explicit Impl(const uint32_t length);
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
 	Impl(const Impl &rhs);
 
 	/**
-	 * Length (in LBA frames) of this track.
+	 * \brief Length (in LBA frames) of this track.
 	 *
 	 * \return Length of this track in LBA frames
 	 */
 	uint32_t length() const;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -119,12 +119,12 @@ public:
 private:
 
 	/**
-	 * Internal representation of the length (in frames)
+	 * \brief Internal representation of the length (in frames)
 	 */
 	uint32_t length_;
 };
 
-/// @}
+/** @} */
 
 ChecksumSet::Impl::Impl(const uint32_t length)
 	: length_(length)
@@ -211,7 +211,7 @@ namespace details
 {
 
 	/**
-	 * Return the numeric value of a >=C++11 enum class value
+	 * \brief Return the numeric value of a >=C++11 enum class value
 	 *
 	 * \return The numeric constant of an enum class value
 	 */

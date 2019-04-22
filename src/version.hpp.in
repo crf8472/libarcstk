@@ -2,72 +2,97 @@
 #define __LIBARCSTK_VERSION_HPP__
 
 /**
- * \file version.hpp.information
+ * \file version.hpp
  *
  * \brief Provide version and name information for libarcstk.
- *
- * This file is used as a blueprint for cmake to generate a header file
- * containing the cmake-controlled version and name information for the project.
- * It is made accessible at build time for program scope.
  */
 
-
 #include <string>
-
 
 namespace arcstk
 {
 
-// Version info
+/**
+ * \addtogroup logging
+ * @{
+ */
 
 /**
- * Major version number.
+ * \brief Major version number.
  */
 constexpr int LIBARCSTK_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
 
 /**
- * Minor version number.
+ * \brief Minor version number.
  */
 constexpr int LIBARCSTK_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
 
 /**
- * Patch level.
+ * \brief Patch level.
  */
 constexpr int LIBARCSTK_VERSION_PATCH = @PROJECT_VERSION_PATCH@;
 
 /**
- * Version suffix (e.g. 'alpha.1', 'beta.6', 'rc.3' etc.).
+ * \brief Version suffix (e.g. 'alpha.1', 'beta.6', 'rc.3' etc.).
  */
 constexpr auto LIBARCSTK_VERSION_SUFFIX = "@PROJECT_VERSION_SUFFIX@";
 
 /**
- * Version suffix as std::string.
+ * \brief Version suffix as <tt>std::string</tt>.
  */
-const std::string LIBARCSTK_VERSION_SUFFIX_STRING ( LIBARCSTK_VERSION_SUFFIX );
+const std::string LIBARCSTK_VERSION_SUFFIX_STRING { LIBARCSTK_VERSION_SUFFIX };
 
 /**
- * Complete version number.
+ * \brief Complete version number.
  */
 constexpr auto LIBARCSTK_VERSION_INFO = "@PROJECT_VERSION_STRING@";
 
 /**
- * Complete version number as <tt>std::string</tt>.
+ * \brief Complete version number as <tt>std::string</tt>.
  */
-const std::string LIBARCSTK_VERSION_INFO_STRING ( LIBARCSTK_VERSION_INFO );
-
-
-// Name info
+const std::string LIBARCSTK_VERSION_INFO_STRING { LIBARCSTK_VERSION_INFO };
 
 /**
- * Library name.
+ * \brief Library name.
  */
 constexpr auto LIBARCSTK_NAME = "@PROJECT_NAME@";
 
 /**
- * Library name as a <tt>std::string</tt>.
+ * \brief Library name as a <tt>std::string</tt>.
  */
-constexpr std::string LIBARCSTK_NAME_STRING ( LIBARCSTK_NAME );
+const std::string LIBARCSTK_NAME_STRING { LIBARCSTK_NAME };
 
+/**
+ * \brief Compares specified version to actual version
+ *
+ * \param[in] major Major version number to test
+ * \param[in] minor Minor version number to test
+ * \param[in] patch Patch level number to test
+ *
+ * \return TRUE if actual version is at least specified version
+ */
+inline bool api_version_is_at_least(const int major, const int minor,
+		const int patch)
+{
+	if (major < LIBARCSTK_VERSION_MAJOR)
+	{
+		return false;
+	}
+
+	if (minor < LIBARCSTK_VERSION_MINOR)
+	{
+		return major > LIBARCSTK_VERSION_MAJOR;
+	}
+
+	if (patch < LIBARCSTK_VERSION_PATCH)
+	{
+		return minor > LIBARCSTK_VERSION_MINOR;
+	}
+
+	return true;
+}
+
+/** @} */
 
 } // namespace arcstk
 

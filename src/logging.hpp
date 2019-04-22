@@ -28,13 +28,19 @@
 #include <type_traits>   // for underlying_type
 #include <unordered_set>
 
+#ifndef __LIBARCSTK_VERSION_HPP__
+#include "version.hpp"
+#endif
+
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
 
-/// \defgroup logging Logging API for use by clients
-/// @{
+/**
+ * \defgroup logging Logging API for use by clients
+ * @{
+ */
 
 /**
  * \brief Range of log levels
@@ -145,73 +151,6 @@ private:
 	FILE* stream_;
 };
 
-/// \cond NEVER_SHOW
-
-inline Appender::Appender(const std::string &filename)
-	: name_(filename)
-	, stream_(std::fopen(name_.c_str(), "a"))
-{
-	if (!stream_)
-	{
-		std::stringstream ss;
-		ss << "File " << name_.c_str() << " could not be opened";
-		throw std::runtime_error(ss.str());
-	}
-}
-
-
-inline Appender::Appender(const std::string &name, FILE* stream)
-	: name_(name)
-	, stream_(stream)
-{
-	if (!stream)
-	{
-		std::stringstream ss;
-		ss << "Appender " << name_.c_str() << " has no stream to append to";
-		throw std::runtime_error(ss.str());
-	}
-}
-
-
-inline Appender::Appender(Appender&& rhs) noexcept = default;
-
-
-inline Appender::~Appender() noexcept
-{
-	if (stream_)
-	{
-		std::fclose(stream_);
-	}
-}
-
-
-inline void Appender::append(const std::string& msg) const
-{
-	if (!stream_)
-	{
-		return;
-	}
-
-	std::fprintf(stream_, "%s", msg.c_str());
-	std::fflush(stream_);
-	// Note: According to
-	// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
-	// all stream operations are thread safe, ergo using fprintf buys us
-	// thread-safety in principle. This at least ensures that no lines are
-	// scrambled.
-}
-
-
-inline std::string Appender::name() const
-{
-	return name_;
-}
-
-
-inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
-
-/// \endcond
-
 
 /**
  * \brief Logs a message to its registered @link Appender Appenders @endlink.
@@ -306,64 +245,6 @@ private:
 	bool log_timestamps_;
 };
 
-/// \cond NEVER_SHOW
-
-inline Logger::Logger()
-	: appenders_()
-	, log_timestamps_(true)
-{
-	// empty
-}
-
-
-inline Logger::Logger(Logger&& logger) noexcept = default;
-
-
-inline Logger::~Logger() noexcept = default;
-
-
-inline void Logger::set_timestamps(const bool &on_or_off)
-{
-	log_timestamps_ = on_or_off;
-}
-
-
-inline bool Logger::has_timestamps() const
-{
-	return log_timestamps_;
-}
-
-
-inline void Logger::add_appender(std::unique_ptr<Appender> appender)
-{
-	appenders_.emplace(std::move(appender));
-}
-
-
-inline void Logger::remove_appender(const Appender *appender)
-{
-	for (auto& app : appenders_)
-	{
-		if (app.get() == appender)
-		{
-			appenders_.erase(app);
-		}
-	}
-}
-
-
-inline void Logger::log(const std::string &msg) const
-{
-	for (auto& appender : appenders_)
-	{
-		appender->append(msg);
-	}
-}
-
-
-inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
-
-/// \endcond
 
 // now_time
 
@@ -377,29 +258,7 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
  *
  * \return The current time as a string
  */
-inline std::string now_time()
-{
-	auto now = std::chrono::system_clock::now();
-	std::stringstream ss;
-
-	// Print year, month, day, hour, minute, second
-
-	{
-		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
-	}
-
-	// Print milliseconds
-
-	{
-		auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
-		auto m = now - seconds;
-		auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(m);
-		ss << "." << millis.count();
-	}
-
-	return ss.str();
-}
+std::string now_time();
 
 
 /**
@@ -490,113 +349,6 @@ private:
 	 */
 	LOGLEVEL msg_level_;
 };
-
-
-/// \cond NEVER_SHOW
-
-inline Log::Log(const Logger &logger, LOGLEVEL msg_level)
-	: os_()
-	, logger_(&logger)
-	, msg_level_(msg_level)
-{
-	// empty
-}
-
-
-inline Log::~Log() noexcept
-{
-	os_ << std::endl;
-
-	if (logger_)
-	{
-		logger_->log(os_.str());
-	}
-}
-
-
-inline std::ostringstream& Log::get()
-{
-	// Timestamp
-
-	if (logger_->has_timestamps())
-	{
-		os_ << "- " << now_time() << " ";
-	}
-
-	// Loglevel string
-
-	os_ << Log::to_string(msg_level_) << ": ";
-
-	// Indent messages with level DEBUG and higher
-
-	os_ << std::string(
-		msg_level_ > LOGLEVEL::DEBUG
-			? 2 * (static_cast<typename
-					std::underlying_type<LOGLEVEL>::type>(msg_level_)
-					-
-					static_cast<typename
-					std::underlying_type<LOGLEVEL>::type>(LOGLEVEL::DEBUG)
-				)
-			: 0, ' ');
-
-	return os_;
-}
-
-
-inline std::string Log::to_string(LOGLEVEL level)
-{
-	static const char* const buffer[] =
-	{
-		"NONE",
-		" ERROR",
-		"  WARN",
-		"  INFO",
-		" DEBUG",
-		"DEBUG1",
-		"DEBUG2",
-		"DEBUG3",
-		"DEBUG4"
-	};
-
-	return buffer[
-		static_cast<typename std::underlying_type<LOGLEVEL>::type>(level)
-	];
-}
-
-
-inline LOGLEVEL Log::from_string(const std::string& level)
-{
-	if (level == "NONE")
-		{ return LOGLEVEL::NONE; }
-
-	if (level == "ERROR")
-		{ return LOGLEVEL::ERROR; }
-
-	if (level == "WARNING")
-		{ return LOGLEVEL::WARNING; }
-
-	if (level == "INFO")
-		{ return LOGLEVEL::INFO; }
-
-	if (level == "DEBUG")
-		{ return LOGLEVEL::DEBUG; }
-
-	if (level == "DEBUG1")
-		{ return LOGLEVEL::DEBUG1; }
-
-	if (level == "DEBUG2")
-		{ return LOGLEVEL::DEBUG2; }
-
-	if (level == "DEBUG3")
-		{ return LOGLEVEL::DEBUG3; }
-
-	if (level == "DEBUG4")
-		{ return LOGLEVEL::DEBUG4; }
-
-	return LOGLEVEL::NONE;
-}
-
-/// \endcond
 
 
 /**
@@ -726,8 +478,271 @@ private:
 	Logging();
 };
 
+/** @} */
 
 /// \cond NEVER_SHOW
+
+// Appender
+
+inline Appender::Appender(const std::string &filename)
+	: name_(filename)
+	, stream_(std::fopen(name_.c_str(), "a"))
+{
+	if (!stream_)
+	{
+		std::stringstream ss;
+		ss << "File " << name_.c_str() << " could not be opened";
+		throw std::runtime_error(ss.str());
+	}
+}
+
+
+inline Appender::Appender(const std::string &name, FILE* stream)
+	: name_(name)
+	, stream_(stream)
+{
+	if (!stream)
+	{
+		std::stringstream ss;
+		ss << "Appender " << name_.c_str() << " has no stream to append to";
+		throw std::runtime_error(ss.str());
+	}
+}
+
+
+inline Appender::Appender(Appender&& rhs) noexcept = default;
+
+
+inline Appender::~Appender() noexcept
+{
+	if (stream_)
+	{
+		std::fclose(stream_);
+	}
+}
+
+
+inline void Appender::append(const std::string& msg) const
+{
+	if (!stream_)
+	{
+		return;
+	}
+
+	std::fprintf(stream_, "%s", msg.c_str());
+	std::fflush(stream_);
+	// Note: According to
+	// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
+	// all stream operations are thread safe, ergo using fprintf buys us
+	// thread-safety in principle. This at least ensures that no lines are
+	// scrambled.
+}
+
+
+inline std::string Appender::name() const
+{
+	return name_;
+}
+
+
+inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
+
+
+// Logger
+
+
+inline Logger::Logger()
+	: appenders_()
+	, log_timestamps_(true)
+{
+	// empty
+}
+
+
+inline Logger::Logger(Logger&& logger) noexcept = default;
+
+
+inline Logger::~Logger() noexcept = default;
+
+
+inline void Logger::set_timestamps(const bool &on_or_off)
+{
+	log_timestamps_ = on_or_off;
+}
+
+
+inline bool Logger::has_timestamps() const
+{
+	return log_timestamps_;
+}
+
+
+inline void Logger::add_appender(std::unique_ptr<Appender> appender)
+{
+	appenders_.emplace(std::move(appender));
+}
+
+
+inline void Logger::remove_appender(const Appender *appender)
+{
+	for (auto& app : appenders_)
+	{
+		if (app.get() == appender)
+		{
+			appenders_.erase(app);
+		}
+	}
+}
+
+
+inline void Logger::log(const std::string &msg) const
+{
+	for (auto& appender : appenders_)
+	{
+		appender->append(msg);
+	}
+}
+
+
+inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
+
+
+// now_time()
+
+
+inline std::string now_time()
+{
+	auto now = std::chrono::system_clock::now();
+	std::stringstream ss;
+
+	// Print year, month, day, hour, minute, second
+
+	{
+		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
+	}
+
+	// Print milliseconds
+
+	{
+		auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
+		auto m = now - seconds;
+		auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(m);
+		ss << "." << millis.count();
+	}
+
+	return ss.str();
+}
+
+
+// Log
+
+
+inline Log::Log(const Logger &logger, LOGLEVEL msg_level)
+	: os_()
+	, logger_(&logger)
+	, msg_level_(msg_level)
+{
+	// empty
+}
+
+
+inline Log::~Log() noexcept
+{
+	os_ << std::endl;
+
+	if (logger_)
+	{
+		logger_->log(os_.str());
+	}
+}
+
+
+inline std::ostringstream& Log::get()
+{
+	// Timestamp
+
+	if (logger_->has_timestamps())
+	{
+		os_ << "- " << now_time() << " ";
+	}
+
+	// Loglevel string
+
+	os_ << Log::to_string(msg_level_) << ": ";
+
+	// Indent messages with level DEBUG and higher
+
+	os_ << std::string(
+		msg_level_ > LOGLEVEL::DEBUG
+			? 2 * (static_cast<typename
+					std::underlying_type<LOGLEVEL>::type>(msg_level_)
+					-
+					static_cast<typename
+					std::underlying_type<LOGLEVEL>::type>(LOGLEVEL::DEBUG)
+				)
+			: 0, ' ');
+
+	return os_;
+}
+
+
+inline std::string Log::to_string(LOGLEVEL level)
+{
+	static const char* const buffer[] =
+	{
+		"NONE",
+		" ERROR",
+		"  WARN",
+		"  INFO",
+		" DEBUG",
+		"DEBUG1",
+		"DEBUG2",
+		"DEBUG3",
+		"DEBUG4"
+	};
+
+	return buffer[
+		static_cast<typename std::underlying_type<LOGLEVEL>::type>(level)
+	];
+}
+
+
+inline LOGLEVEL Log::from_string(const std::string& level)
+{
+	if (level == "NONE")
+		{ return LOGLEVEL::NONE; }
+
+	if (level == "ERROR")
+		{ return LOGLEVEL::ERROR; }
+
+	if (level == "WARNING")
+		{ return LOGLEVEL::WARNING; }
+
+	if (level == "INFO")
+		{ return LOGLEVEL::INFO; }
+
+	if (level == "DEBUG")
+		{ return LOGLEVEL::DEBUG; }
+
+	if (level == "DEBUG1")
+		{ return LOGLEVEL::DEBUG1; }
+
+	if (level == "DEBUG2")
+		{ return LOGLEVEL::DEBUG2; }
+
+	if (level == "DEBUG3")
+		{ return LOGLEVEL::DEBUG3; }
+
+	if (level == "DEBUG4")
+		{ return LOGLEVEL::DEBUG4; }
+
+	return LOGLEVEL::NONE;
+}
+
+
+// Logging
+
 
 inline Logging::Logging()
 	: mutex_()
@@ -804,18 +819,16 @@ inline void Logging::remove_appender(Appender *a)
 
 /// \endcond
 
-/// @}
-
 } // namespace v_1_0_0
 
 } // namespace arcstk
 
 
-/// \addtogroup logging
-/// @{
-
 // Macros
 
+
+/// \addtogroup logging
+/// @{
 
 /**
  * \brief Clipping for the log level.
@@ -892,7 +905,7 @@ inline void Logging::remove_appender(Appender *a)
 // operations. It thereby avoids a lot of string manipulation for operations
 // that may be in fact discarded due to a wrong log level.
 
-/// @}
+/** @} */
 
 #endif
 

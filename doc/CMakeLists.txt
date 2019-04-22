@@ -13,8 +13,13 @@ message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )
 
 ## Construct comment for doc target
-set(DOC_COMMENT "Build documentation for APIs" )
+set (DOC_COMMENT "Build documentation for APIs" )
 
+## Define sources for documentation
+set (DOC_SOURCES ${EXPORTED_HEADERS} ${PROJECT_SOURCE_DIR}/*.hpp.in )
+
+## Path to import texts
+set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
 
 
 ## --- Build internal docs if requested
@@ -25,6 +30,8 @@ if (WITH_INTERNAL_DOCS)
 	set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
 
 	set(DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
+
+	set (DOC_SOURCES ${DOC_SOURCES} ${NONPUBLIC_HEADERS} )
 
 else ()
 
@@ -48,6 +55,9 @@ if (WITH_IMPL_DOCS)
 	message (STATUS "Will build documentation also for implementations" )
 
 	set(DOC_COMMENT "${DOC_COMMENT} and implementations" )
+
+	set (DOC_SOURCES ${DOC_SOURCES}
+		${NONPUBLIC_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES} )
 
 	## Set replacement values for Doxyfile
 
@@ -107,8 +117,7 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		## Run m.css executable
 		add_custom_target ( doc
 			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
-			DEPENDS "${ENV_TARGET}" "${DOXYFILE}"
-				${EXPORTED_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES}
+			DEPENDS "${ENV_TARGET}" "${DOXYFILE}" ${DOC_SOURCES}
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
 			COMMENT "${DOC_COMMENT}"
 			VERBATIM
@@ -122,8 +131,7 @@ else() ## Use standard doxygen
 
 	add_custom_target ( doc ## add 'ALL' if you wish to run doc on regular build
 		Doxygen::doxygen "${DOXYFILE}"
-		DEPENDS "${DOXYFILE}"
-				${EXPORTED_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES}
+		DEPENDS "${DOXYFILE}" ${DOC_SOURCES}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
