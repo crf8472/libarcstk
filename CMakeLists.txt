@@ -75,10 +75,28 @@ endif()
 
 ## --- Project Directory Layout
 
-set (PROJECT_BINARY_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/build" )
-set (PROJECT_SOURCE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src" )
-set (PROJECT_TEST_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/test" )
-set (PROJECT_DOC_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/doc" )
+## Root directory for build
+set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
+
+## Root directory for sources
+set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+
+## Root directory for testcases and testdata
+set (PROJECT_TEST_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/test" )
+
+## Root directory for documentation sources and configuration
+set (PROJECT_DOC_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/doc" )
+
+## Target directory for logs
+set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
+
+## Target directory for generated sources (i.e. cmake configured files)
+set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
+
+## Target directory for generated documentation sources (i.e. doxygen output)
+set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/doc" )
+
+## Install directories
 
 set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 	CACHE PATH "Installation directory for library (.so) files" )
@@ -126,27 +144,26 @@ if (IWYU)
 endif (IWYU)
 
 
-## --- Configure files by CMake
+## --- Create Log directory
 
-## Configure all .in files producing C++ headers files
+file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 
-set (CONFIGURED_HEADERS
-	version.hpp )
 
-foreach (_header IN LISTS CONFIGURED_HEADERS )
+## --- Configure CMake controlled files
 
-	configure_file (
-	  "${PROJECT_SOURCE_DIR}/${_header}.in"
-	  "${PROJECT_BINARY_DIR}/${_header}"
-	  @ONLY
-	)
-endforeach()
+## Version header
 
-## Configure .pc file for pkg-info
+configure_file (
+  "${PROJECT_SOURCE_DIR}/version.hpp_in"
+  "${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
+  @ONLY
+)
+
+## pkg-info file
 
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-  "${PROJECT_BINARY_DIR}/libarcstk.pc"
+  "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
   @ONLY
 )
 
@@ -168,7 +185,7 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/identifier.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/logging.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/parse.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/samples.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_BINARY_DIR}/version.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
 set (EXPORTED_TEMPLATES )
 list (APPEND EXPORTED_TEMPLATES "${PROJECT_SOURCE_DIR}/details/checksum.tpp" )
@@ -192,16 +209,16 @@ message (STATUS "Build library as: ${LINKFLAG}" )
 add_library (${PROJECT_NAME} ${LINKFLAG} ${SOURCES} )
 
 ## Include generated sources
-## (required to find version.hpp and the other configured headers)
-target_include_directories (${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR} )
+target_include_directories (${PROJECT_NAME}
+	PRIVATE ${PROJECT_BUILD_SOURCE_DIR} )
 
 ## Configure properties for project target
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD  14
-	PUBLIC_HEADER "${EXPORTED_HEADERS}"
-	PRIVATE_HEADER "${EXPORTED_TEMPLATES}"
-	VERSION       "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
-	SOVERSION     "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
+	PUBLIC_HEADER  ${EXPORTED_HEADERS}
+	PRIVATE_HEADER ${NONPUBLIC_HEADERS} ${EXPORTED_TEMPLATES}
+	VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
+	SOVERSION      ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX} )
 
 
 ## --- Install binary and exported header files
@@ -227,7 +244,7 @@ if (NOT SKIP_INSTALL_ALL )
 
 	if (NOT SKIP_INSTALL_FILES )
 
-		install (FILES "${PROJECT_BINARY_DIR}/libarcstk.pc"
+		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
 			DESTINATION "${INSTALL_PKGCONFIG_DIR}" )
 	endif ()
 

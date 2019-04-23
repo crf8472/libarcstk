@@ -5,9 +5,6 @@ cmake_minimum_required (VERSION 3.7 )
 
 find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
 
-set (PROJECT_BUILD_DOC_DIR "${PROJECT_BINARY_DIR}/doc" )
-
-set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.hpp.in *.md" )
 
 message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )
@@ -16,10 +13,13 @@ message (STATUS
 set (DOC_COMMENT "Build documentation for APIs" )
 
 ## Define sources for documentation
-set (DOC_SOURCES ${EXPORTED_HEADERS} ${PROJECT_SOURCE_DIR}/*.hpp.in )
+set (DOC_SOURCES ${EXPORTED_HEADERS} )
 
 ## Path to import texts
 set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
+
+set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
+
 
 
 ## --- Build internal docs if requested
@@ -99,7 +99,13 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		add_subdirectory (thirdparty/m.css )
 		add_subdirectory (thirdparty/python-virtualenv )
 
-		set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-mcss" )
+		set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss" )
+
+		## Provide Doxygen configuration for m.css
+		configure_file ("${PROJECT_DOC_DIR}/Doxyfile-mcss.in"
+			"${DOXYFILE}"
+			@ONLY
+		)
 
 		## Provide debug output from m.css if requested
 		if (MCSS_DEBUG )
@@ -107,12 +113,6 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		else (MCSS_DEBUG )
 			set (MCSS_FLAGS )
 		endif (MCSS_DEBUG )
-
-		## Provide Doxygen configuration for m.css
-		configure_file ("${PROJECT_DOC_DIR}/Doxyfile-mcss.in"
-			"${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss"
-			@ONLY
-		)
 
 		## Run m.css executable
 		add_custom_target ( doc

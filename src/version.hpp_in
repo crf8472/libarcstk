@@ -1,8 +1,15 @@
+// vim:ft=cpp
 #ifndef __LIBARCSTK_VERSION_HPP__
 #define __LIBARCSTK_VERSION_HPP__
 
 /**
- * \file version.hpp
+ * \dir generated-sources
+ *
+ * \brief Generated source of libarcstk
+ */
+
+/**
+ * \file
  *
  * \brief Provide version and name information for libarcstk.
  */
