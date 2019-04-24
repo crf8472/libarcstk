@@ -41,7 +41,7 @@ inline namespace v_1_0_0
 
 // Match
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 Match::~Match() noexcept = default;
 
@@ -262,7 +262,7 @@ private:
 	//f = field(total_bits - 1);
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 DefaultMatchBase::DefaultMatchBase(const uint32_t blocks, const uint8_t tracks)
 	: blocks_(blocks)
@@ -453,7 +453,7 @@ private:
 	std::unique_ptr<Match> do_clone() const final;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
 	: DefaultMatchBase(blocks, tracks)
@@ -653,7 +653,7 @@ private:
 	bool matches_v2_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 MatcherImplBase::MatcherImplBase()
 	: match_(nullptr)
@@ -920,7 +920,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 // AlbumMatcher
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
@@ -1011,7 +1011,7 @@ protected:
 
 // TracksetMatcher::Impl
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId & /*id*/,

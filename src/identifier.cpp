@@ -173,7 +173,7 @@ private:
 	uint32_t cddb_id_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARId::Impl::Impl(const uint16_t track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
@@ -613,7 +613,7 @@ private:
 	std::vector<std::string> files_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 TOC::Impl::Impl(const uint32_t track_count,
 		const std::vector<uint32_t> &offsets,
@@ -1028,7 +1028,7 @@ protected:
 	static uint64_t sum_digits(const uint32_t number);
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
 		const uint32_t leadout) const

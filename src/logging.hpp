@@ -480,7 +480,7 @@ private:
 
 /** @} */
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 // Appender
 

@@ -116,7 +116,7 @@ private:
 };
 
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 AudioSize::Impl::Impl()
 	: total_pcm_bytes_(0)
@@ -349,7 +349,7 @@ private:
 	bool skip_back_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
@@ -580,7 +580,7 @@ private:
 	TOC toc_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 // MultitrackCalcContext
@@ -961,7 +961,7 @@ private:
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 CalcStateV1::CalcStateV1()
@@ -1160,7 +1160,7 @@ private:
 	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 CalcStateV1andV2::CalcStateV1andV2()
@@ -1494,7 +1494,7 @@ private:
 	std::chrono::milliseconds proc_time_elapsed_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 Calculation::Impl::Impl(const checksum::type type,

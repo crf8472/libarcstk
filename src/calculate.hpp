@@ -260,7 +260,7 @@ public:
 
 private:
 
-	/// \cond NEVER_SHOW
+	/// \cond UNDOC_FUNCTION_BODIES
 
 	/**
 	 * \brief Internal object interface

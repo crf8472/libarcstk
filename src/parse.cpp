@@ -101,7 +101,7 @@ private:
 	const std::size_t buf_size_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 StdIn::StdIn(const std::size_t buf_size)
 	: buf_size_(buf_size)
@@ -319,7 +319,7 @@ private:
 	uint32_t frame450_arcs_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -422,7 +422,7 @@ private:
 	uint8_t flags_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -661,7 +661,7 @@ private:
 	std::vector<ARTriplet> triplets_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARBlock::Impl::Impl(const ARId &id)
 	: ar_id_(id)
@@ -912,7 +912,7 @@ private:
 	std::vector<ARBlock> blocks_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARResponse::Impl::Impl()
 	: blocks_()
@@ -1279,7 +1279,7 @@ private:
 	ARResponse *response_;
 };
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 DefaultContentHandler::Impl::Impl()
 	: current_block_(nullptr)
@@ -1816,7 +1816,7 @@ private:
 
 // ARStreamParser::Impl
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
 	: content_handler_(nullptr)

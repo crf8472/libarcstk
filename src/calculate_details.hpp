@@ -387,7 +387,7 @@ private:
 
 // Partition
 
-/// \cond NEVER_SHOW
+/// \cond UNDOC_FUNCTION_BODIES
 
 Partition::Partition(
 		const uint32_t &begin_offset,
