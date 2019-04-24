@@ -39,8 +39,8 @@ foreach (_testcase ${TEST_SETS} )
 	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 14 )
 
 	target_include_directories (${_testcase}_test
-		PRIVATE ${PROJECT_SOURCE_DIR}   ## project headers
-		PRIVATE ${PROJECT_BINARY_DIR} ) ## version.hpp + CMake controlled stuff
+		PRIVATE ${PROJECT_SOURCE_DIR}         ## project headers
+		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ) ## generated sources
 
 	target_link_libraries (${_testcase}_test
 		Catch2::Catch2    ## Catch2

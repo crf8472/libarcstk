@@ -75,25 +75,25 @@ endif()
 
 ## --- Project Directory Layout
 
-## Root directory for build
+## "Root directory for out-of-source build"
 set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 
-## Root directory for sources
+## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
-## Root directory for testcases and testdata
+## "Root directory for testcases and testdata"
 set (PROJECT_TEST_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/test" )
 
-## Root directory for documentation sources and configuration
+## "Root directory for documentation config and sources" )
 set (PROJECT_DOC_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/doc" )
 
-## Target directory for logs
+## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 
-## Target directory for generated sources (i.e. cmake configured files)
+## "Target directory for generated sources and configuration"
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
-## Target directory for generated documentation sources (i.e. doxygen output)
+## "Target directory for generated documentation"
 set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
 
 ## Install directories
