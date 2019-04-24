@@ -112,7 +112,7 @@ public:
 	/**
 	 * \brief Default constructor.
 	 *
-	 * \param[in] blocks Number of <tt>ARBlock</tt>s to represent
+	 * \param[in] blocks Number of @link ARBlock ARBlocks @endlink to represent
 	 * \param[in] tracks Number of tracks per block
 	 */
 	DefaultMatchBase(const uint32_t blocks, const uint8_t tracks);
@@ -151,9 +151,9 @@ protected:
 	 * Note that the block start is also the position of the flag respresenting
 	 * the ARId comparison.
 	 *
-	 * \param[in] b  0-based index of the block in \c response
+	 * \param[in] b  0-based index of the block in the ARResponse
 	 *
-	 * \return Flag index for the logical block \c b
+	 * \return Index of the start for the logical block \c b
 	 */
 	uint32_t block_start(const uint32_t b) const;
 
@@ -433,7 +433,7 @@ void DefaultMatchBase::validate_track(int t) const
  *
  * The result is encoded as a sequence of boolean flags, each representing the
  * result of a match operation between either two ARCSs or two
- * @link ARId ARIds @endlinkin the order of their occurrence in the ARResponse.
+ * @link ARId ARIds @endlink in the order of their occurrence in the ARResponse.
  */
 class DefaultMatch final : virtual public DefaultMatchBase
 {
