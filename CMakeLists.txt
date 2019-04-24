@@ -94,7 +94,7 @@ set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
 ## Target directory for generated documentation sources (i.e. doxygen output)
-set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/doc" )
+set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
 
 ## Install directories
 
