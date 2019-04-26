@@ -442,7 +442,7 @@ public:
 	/**
 	 * \brief Default constructor.
 	 *
-	 * \param[in] blocks Number of <tt>ARBlock</tt>s to represent
+	 * \param[in] blocks Number of @link ARBlock ARBlocks @endlink to represent
 	 * \param[in] tracks Number of tracks per block
 	 */
 	DefaultMatch(const uint32_t blocks, const uint8_t tracks);

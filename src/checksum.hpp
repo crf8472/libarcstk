@@ -14,13 +14,14 @@
  * ChecksumSet.
  *
  * TOC represents the toc information of a compact disc along with a
- * function <tt>make_toc()</tt> that guarantees to provide only valid
- * <tt>TOC</tt>s or to throw an exception.
+ * function make_toc() that guarantees to provide only valid
+ * @link arcstk::v_1_0_0::TOC TOCs @endlink or to throw an exception.
  *
  * Checksum represents a single checksum and a ChecksumSet the
- * <tt>Checksum</tt>s for a single track.
+ * @link arcstk::v_1_0_0::Checksum Checksums @endlink for a single track.
  *
- * Checksums is an aggregation of the <tt>Checksum</tt>s of an audio input.
+ * Checksums is an aggregation of the
+ * @link arcstk::v_1_0_0::Checksum Checksums @endlink of an audio input.
  */
 
 #include <array>
@@ -146,6 +147,8 @@ public:
 	 * \brief Equality.
 	 *
 	 * \param[in] rhs The instance to check for equality
+	 *
+	 * \return TRUE if \c rhs is equal to this instance, otherwise FALSE
 	 */
 	bool operator == (const Checksum &rhs) const;
 
@@ -153,6 +156,8 @@ public:
 	 * \brief Inequality.
 	 *
 	 * \param[in] rhs The instance to check for inequality
+	 *
+	 * \return TRUE if \c rhs is not equal to this instance, otherwise FALSE
 	 */
 	bool operator != (const Checksum &rhs) const;
 
@@ -204,7 +209,10 @@ class ChecksumMap;
 
 
 /**
- * \brief Iterator for @link ChecksumMap ChecksumMap<>s @endlink.
+ * \brief Iterator for @link ChecksumMap ChecksumMaps @endlink.
+ *
+ * \tparam K        The key type of the iterated ChecksumMap
+ * \tparam is_const TRUE indicates a const_iterator
  */
 template <typename K, bool is_const = false>
 class ChecksumMapIterator
@@ -233,10 +241,14 @@ public: /* types */
 
 private: /* types */
 
-	// Type of the container to iterate
+	/**
+	 * \brief Type of the container to iterate
+	 */
 	using IteratedContainerType = typename std::map<K, value_type>;
 
-	// Type of the container's iterator to wrap
+	/**
+	 * \brief Type of the container's iterator to wrap
+	 */
 	using WrappedIteratorType = typename std::conditional<is_const,
 			typename IteratedContainerType::const_iterator,
 			typename IteratedContainerType::iterator
@@ -266,11 +278,15 @@ public: /* methods */
 
 	/**
 	 * \brief Preincrement operator
+	 *
+	 * \return The incremented instance
 	 */
 	ChecksumMapIterator& operator ++ ();
 
 	/**
 	 * \brief Decrement operator
+	 *
+	 * \return The decremented instance
 	 */
 	ChecksumMapIterator& operator -- ();
 
@@ -330,6 +346,8 @@ private:
  *
  * This is a generic container for ChecksumMaps adaptable to different
  * checksum types and different keys.
+ *
+ * \tparam K The key type of this instance
  */
 template <typename K>
 class ChecksumMap
@@ -450,6 +468,8 @@ public: /* methods */
 	 * \brief Equality.
 	 *
 	 * \param[in] rhs The instance to check for equality
+	 *
+	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 	 */
 	bool operator == (const ChecksumMap<K> &rhs) const;
 
@@ -457,6 +477,8 @@ public: /* methods */
 	 * \brief Inequality.
 	 *
 	 * \param[in] rhs The instance to check for inequality
+	 *
+	 * \return TRUE if \c rhs is not equal to the instance, otherwise FALSE
 	 */
 	bool operator != (const ChecksumMap<K> &rhs) const;
 
@@ -541,7 +563,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs);
+	ChecksumMap<K>& operator= (const ChecksumMap<K> &rhs);
 
 	/**
 	 * \brief Move assignment.
@@ -550,7 +572,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept;
+	ChecksumMap<K>& operator= (ChecksumMap<K> &&rhs) noexcept;
 
 
 private: // TODO Hide this!

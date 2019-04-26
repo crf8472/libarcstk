@@ -134,6 +134,8 @@ public:
 	 * \brief Move assignment
 	 *
 	 * \param[in] rhs The instance to move
+	 *
+	 * \return The instance after assignment
 	 */
 	inline Appender& operator = (Appender &&rhs) noexcept;
 
@@ -228,8 +230,12 @@ public:
 
 	/**
 	 * \brief Move assignment.
+	 *
+	 * \param[in] rhs The instance to assign
+	 *
+	 * \return The instance after assignment
 	 */
-	Logger& operator = (Logger&& logger) noexcept;
+	Logger& operator = (Logger&& rhs) noexcept;
 
 
 private:

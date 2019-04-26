@@ -1,7 +1,8 @@
 /**
  * \file
  *
- * \brief Implementing a low-level API for AccurateRip response parsers
+ * \brief Implementing the API for AccurateRip response parsing and syntactic
+ * entities.
  */
 
 #ifndef __LIBARCSTK_PARSE_HPP__

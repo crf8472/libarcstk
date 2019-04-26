@@ -354,14 +354,18 @@ public: /* methods */
 	/**
 	 * \brief Return the ARTriplet with the specified \c index.
 	 *
-	 * \return ARTriplet at index
+	 * \param[in] index The 0-based index of the ARTriplet to return
+	 *
+	 * \return ARTriplet at the specified index
 	 */
 	const ARTriplet& operator [](const int index) const;
 
 	/**
 	 * \brief Return the ARTriplet with the specified \c index.
 	 *
-	 * \return ARTriplet at index
+	 * \param[in] index The 0-based index of the ARTriplet to return
+	 *
+	 * \return ARTriplet at the specified index
 	 */
 	ARTriplet& operator [](const int index);
 

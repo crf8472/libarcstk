@@ -1,4 +1,7 @@
-@INCLUDE           = Doxyfile
+## Include the main Doxyfile also used for Doxygen's stock HTML output
+
+@INCLUDE = Doxyfile
+
 
 ## Override the following values from included Doxyfile
 
@@ -43,7 +46,7 @@ GENERATE_LATEX         = NO  # Override libarcstk Doxyfile
 # captures the structure of the code including all documentation.
 # The default value is: NO.
 
-GENERATE_XML           = YES
+GENERATE_XML           = YES  # Override libarcstk Doxyfile
 
 # If the XML_PROGRAMLISTING tag is set to YES, doxygen will dump the program
 # listings (including syntax highlighting and cross-referencing information) to
@@ -52,7 +55,7 @@ GENERATE_XML           = YES
 # The default value is: YES.
 # This tag requires that the tag GENERATE_XML is set to YES.
 
-XML_PROGRAMLISTING     = NO
+XML_PROGRAMLISTING     = NO   # m.css default
 
 # If the XML_NS_MEMB_FILE_SCOPE tag is set to YES, doxygen will include
 # namespace members in file scope as well, matching the HTML output.

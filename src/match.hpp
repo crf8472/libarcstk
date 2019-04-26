@@ -299,8 +299,8 @@ public:
 	 * \c best_match().
 	 *
 	 * The difference is the sum of the number of non-matching ARCSs and the
-	 * number of non-matching <tt>ARId</tt>s in a single block. A block whose
-	 * ARId does not match the ARId of the result has therefore at
+	 * number of non-matching @link ARId ARIds @endlink in a single block. A
+	 * block whose ARId does not match the ARId of the result has therefore at
 	 * least a difference of \c 1 to the result.
 	 *
 	 * \return Difference value of best block
@@ -385,8 +385,9 @@ private:
 /**
  * \brief Match an album track list against an ARResponse.
  *
- * Tries to match each position \c i in the actual <tt>Checksum</tt>s with
- * position \c i in the AccurateRip response.
+ * Tries to match each position \c i in the actual
+ * @link Checksum Checksums @endlink with position \c i in the AccurateRip
+ * response.
  */
 class AlbumMatcher final : public Matcher
 {

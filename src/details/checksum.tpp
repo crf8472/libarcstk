@@ -9,7 +9,7 @@
 /**
  * \file
  *
- * Implementation of ChecksumMapIterator and ChecksumMap
+ * \brief Implementation of ChecksumMapIterator and ChecksumMap
  */
 
 
@@ -74,6 +74,9 @@ template <typename K>
 = default;
 
 
+// This @relates-statement silences a doxygen 1.8.15 warning that reads
+// "no uniquely matching class member found"
+/// \relates arcstk::v_1_0_0::details::ChecksumMap(ChecksumMap &&rhs) noexcept
 template <typename K>
 	ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept
 = default;
@@ -252,17 +255,17 @@ void ChecksumMap<K>::clear()
 
 
 template <typename K>
-ChecksumMap<K>& ChecksumMap<K>::operator =
-	(const ChecksumMap<K> &rhs)
+ChecksumMap<K>& ChecksumMap<K>::operator = (const ChecksumMap<K> &rhs)
 {
 	this->map_ = rhs.map_;
 	return *this;
 }
 
-
+// The full path silences a doxygen 1.8.15 warning that reads
+// "no uniquely matching class member found"
 template <typename K>
-ChecksumMap<K>& ChecksumMap<K>::operator =
-	(ChecksumMap<K> &&rhs) noexcept = default;
+ChecksumMap<K>& arcstk::v_1_0_0::details::ChecksumMap<K>::operator = (
+		ChecksumMap<K> &&rhs) noexcept = default;
 
 #endif
 

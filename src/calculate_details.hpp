@@ -89,6 +89,8 @@ public:
 	 *
 	 * A clone is a deep copy, i.e. the result of the cloning will be a
 	 * different object with the exact same state.
+	 *
+	 * \return A deep copy of the instance
 	 */
 	virtual std::unique_ptr<Partitioner> clone() const
 	= 0;
@@ -110,8 +112,8 @@ protected:
 	/**
 	 * \brief Creates a Partition.
 	 *
-	 * This method is the exclusive way to create <tt>Partition</tt>s. It is
-	 * provided to all Partitioners.
+	 * This method is the exclusive way to create
+	 * @link Partition Partitions @endlink. It is provided to all Partitioners.
 	 *
 	 * \todo begin_offset and last_offset seem redundant to first and last
 	 *
@@ -245,7 +247,7 @@ public: /* methods */
 	uint32_t last_sample_idx() const;
 
 	/**
-	 * \brief Returns TRUE iff the first sample of this partition is also the 
+	 * \brief Returns TRUE iff the first sample of this partition is also the
 	 * first sample of the track which the partition is part of.
 	 *
 	 * \return TRUE iff this is partition starts a track
@@ -253,7 +255,7 @@ public: /* methods */
 	bool starts_track() const;
 
 	/**
-	 * \brief Returns TRUE if the last sample of this partition is also the last 
+	 * \brief Returns TRUE if the last sample of this partition is also the last
 	 * sample of the track which the partition is part of.
 	 *
 	 * \return TRUE iff this is partition ends a track
@@ -324,19 +326,19 @@ private:
 	const uint32_t last_sample_idx_;
 
 	/**
-	 * \brief TRUE iff the first sample in this partition is also the first 
+	 * \brief TRUE iff the first sample in this partition is also the first
 	 * sample in the track
 	 */
 	const bool starts_track_;
 
 	/**
-	 * \brief TRUE iff the last sample in this partition is also the last sample 
+	 * \brief TRUE iff the last sample in this partition is also the last sample
 	 * in the track
 	 */
 	const bool ends_track_;
 
 	/**
-	 * \brief 1-based number of the track of which the samples in the partition 
+	 * \brief 1-based number of the track of which the samples in the partition
 	 * are part of
 	 */
 	const TrackNo track_;
@@ -361,7 +363,7 @@ public:
 	Interval(const uint32_t a, const uint32_t b);
 
 	/**
-	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise 
+	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise
 	 * FALSE.
 	 *
 	 * \param[in] i Number to test for containment in interval
@@ -759,8 +761,6 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
  * Provides the properties AudioSize and filename and implements
  * CalcContext::first_relevant_sample() as well as
  * CalcContext::last_relevant_sample().
- *
- * \see CalcContext
  */
 class CalcContextBase : virtual public CalcContext
 {
@@ -919,7 +919,7 @@ public:
 	= 0;
 
 	/**
-	 * \brief Saves the current subtotals as ARCSs for the specified track and 
+	 * \brief Saves the current subtotals as ARCSs for the specified track and
 	 * resets the instance.
 	 *
 	 * Saving the ARCSs is necessary whenever the calculation for a track is
@@ -952,12 +952,12 @@ public:
 	 * The result will be empty in singletrack calculation.
 	 *
 	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
+	 * @link Checksum Checksums @endlink, but the type requested from
+	 * Calculation is guaranteed to be included.
 	 *
-	 * \param[in] track Track number to get the <tt>Checksum</tt>s for.
+	 * \param[in] track Track number to get the @link Checksum Checksums @endlink for.
 	 *
-	 * \return The <tt>Checksum</tt>s calculated
+	 * \return The @link Checksum Checksums @endlink calculated
 	 */
 	virtual ChecksumSet result(const TrackNo track) const
 	= 0;
@@ -968,10 +968,10 @@ public:
 	 * The result will be empty for a multitrack calculation.
 	 *
 	 * Note that the state is allowed to return more than one type of
-	 * <tt>Checksum</tt>s, but the type requested from Calculation is
-	 * guaranteed to be included.
+	 * @link Checksum Checksums @endlink, but the type requested from
+	 * Calculation is guaranteed to be included.
 	 *
-	 * \return The <tt>Checksum</tt>s calculated
+	 * \return The @link Checksum Checksums @endlink calculated
 	 */
 	virtual ChecksumSet result() const
 	= 0;
@@ -1086,7 +1086,7 @@ protected:
 	~CalcStateARCS() noexcept;
 
 	/**
-	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned 
+	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned
 	 * integer.
 	 */
 	static constexpr uint_fast32_t LOWER_32_BITS_ = 0xFFFFFFFF;

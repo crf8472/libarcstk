@@ -2,12 +2,6 @@
 #define __LIBARCSTK_CALCULATE_HPP__
 
 /**
- * \dir src
- *
- * \brief All libarcstk source files
- */
-
-/**
  * \file
  *
  * \brief Public API for checksum calculation.
@@ -22,7 +16,8 @@
  * represented sample sequences and the Calculation is sequentially updated with
  * these sequences in order. After the last update, the Calculation
  * returns the calculation result on request. The calculated Checksums
- * are represented as an iterable aggregate of <tt>ChecksumSet</tt>s.
+ * are represented as an iterable aggregate of
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
  *
  * CalcContext represents the per-file metadata information that is used
  * during calculation. Calculation computes checksums from a sequence of
@@ -31,9 +26,10 @@
  * Checksums represent a calculation result for all requested checksum
  * types and all tracks of the audio input.
  *
- * ChecksumSet is a set of <tt>Checksum</tt>s of different
- * <tt>checksum::type</tt>s. It represents the calculation result for a
- * particular track.
+ * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
+ * of different
+ * @link arcstk::v_1_0_0::checksum::type checksum::types @endlink. It represents
+ * the calculation result for a particular track.
  *
  * AudioSize represents the size of the audio data in a file in frames,
  * samples and bytes.
@@ -86,6 +82,8 @@ using sample_type = uint32_t;
 
 
 /**
+ * \headerfile calculate.hpp <arcstk/calculate.hpp>
+ *
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, other the number of samples and
@@ -101,31 +99,31 @@ class AudioSize final
 public:
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 */
 	AudioSize();
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The AudioSize to copy
 	 */
 	AudioSize(const AudioSize &rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs The AudioSize to move
 	 */
 	AudioSize(AudioSize &&rhs) noexcept;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor
 	 */
 	~AudioSize() noexcept;
 
 	/**
-	 * Set the 1-based index of the LBA leadout frame.
+	 * \brief Set the 1-based index of the LBA leadout frame.
 	 *
 	 * This also determines the number of PCM samples and the number of
 	 * PCM bytes.
@@ -135,14 +133,14 @@ public:
 	void set_leadout_frame(const uint32_t leadout);
 
 	/**
-	 * Return the LBA leadout frame.
+	 * \brief Return the LBA leadout frame.
 	 *
 	 * \return LBA leadout frame
 	 */
 	uint32_t leadout_frame() const;
 
 	/**
-	 * Set the total number of 32 bit PCM samples.
+	 * \brief Set the total number of 32 bit PCM samples.
 	 *
 	 * This also determines the leadout frame and the number of PCM bytes.
 	 *
@@ -151,14 +149,14 @@ public:
 	void set_sample_count(const uint32_t smpl_count);
 
 	/**
-	 * Return the total number of 32 bit PCM samples.
+	 * \brief Return the total number of 32 bit PCM samples.
 	 *
 	 * \return The total number of 32 bit PCM samples
 	 */
 	uint32_t sample_count() const;
 
 	/**
-	 * Set the total number of bytes holding 32 bit PCM samples (if decoded).
+	 * \brief Set the total number of bytes holding 32 bit PCM samples (if decoded).
 	 *
 	 * This also determines the leadout frame and the number of 32 bit PCM
 	 * samples.
@@ -168,21 +166,21 @@ public:
 	void set_pcm_byte_count(const uint64_t byte_count);
 
 	/**
-	 * Return the number of bytes holding 32 bit PCM samples.
+	 * \brief Return the number of bytes holding 32 bit PCM samples.
 	 *
 	 * \return The total number of bytes holding 32 bit PCM samples
 	 */
 	uint64_t pcm_byte_count() const;
 
 	/**
-	 * Return TRUE if the AudioSize is 0.
+	 * \brief Return TRUE if the AudioSize is 0.
 	 *
 	 * \return TRUE if the AudioSize is 0
 	 */
 	bool null() const;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -191,7 +189,7 @@ public:
 	AudioSize& operator = (AudioSize rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -206,14 +204,14 @@ private:
 	class Impl;
 
 	/**
-	 * Private implementation of AudioSize
+	 * \brief Private implementation of AudioSize
 	 */
 	std::unique_ptr<AudioSize::Impl> impl_;
 };
 
 
 /**
- * Implementation details of namespace arcstk
+ * \brief Implementation details of namespace arcstk
  */
 namespace details
 {
@@ -268,19 +266,19 @@ private:
 	struct Concept
 	{
 		/**
-		 * Virtual default destructor
+		 * \brief Virtual default destructor
 		 */
 		virtual ~Concept() noexcept
 		= default;
 
 		/**
-		 * Preincrements the iterator.
+		 * \brief Preincrements the iterator.
 		 */
 		virtual void preincrement()
 		= 0;
 
 		/**
-		 * Advances iterator by \c n positions
+		 * \brief Advances iterator by \c n positions
 		 *
 		 * \param[in] n Number of positions to advance
 		 */
@@ -288,7 +286,7 @@ private:
 		= 0;
 
 		/**
-		 * Reference to the actual value under the iterator.
+		 * \brief Reference to the actual value under the iterator.
 		 *
 		 * \return Reference to actual value
 		 */
@@ -296,7 +294,7 @@ private:
 		= 0;
 
 		/**
-		 * Returns TRUE if \c rhs is equal to the instance
+		 * \brief Returns TRUE if \c rhs is equal to the instance
 		 *
 		 * \param[in] rhs The instance to test for equality
 		 *
@@ -306,7 +304,7 @@ private:
 		= 0;
 
 		/**
-		 * Returns RTTI
+		 * \brief Returns RTTI
 		 *
 		 * \return Runtime type information of this instance
 		 */
@@ -314,7 +312,7 @@ private:
 		= 0;
 
 		/**
-		 * Returns the address of the instance
+		 * \brief Returns the address of the instance
 		 *
 		 * \return Address of the instance
 		 */
@@ -322,7 +320,7 @@ private:
 		= 0;
 
 		/**
-		 * Returns a deep copy of the instance
+		 * \brief Returns a deep copy of the instance
 		 *
 		 * \return A deep copy of the instance
 		 */
@@ -383,7 +381,7 @@ private:
 		private:
 
 			/**
-			 * Type erased iterator
+			 * \brief Type erased iterator
 			 */
 			Iter iterator_;
 	};
@@ -394,7 +392,7 @@ private:
 public:
 
 	/**
-	 * Converting constructor
+	 * \brief Converting constructor
 	 *
 	 * \tparam Iterator The iterator type to wrap
 	 *
@@ -412,42 +410,42 @@ public:
 	}
 
 	/**
-	 * Copy constructor
+	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	PCMForwardIterator(const PCMForwardIterator& rhs);
 
 	/**
-	 * Move constructor
+	 * \brief Move constructor
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	PCMForwardIterator(PCMForwardIterator&& rhs) noexcept;
 
 	/**
-	 * Dereferences the iterator
+	 * \brief Dereferences the iterator
 	 *
 	 * \return A uint32_t sample, returned by value
 	 */
 	reference operator * () const; // required by ForwardIterator
 
 	/**
-	 * Pre-increment iterator
+	 * \brief Pre-increment iterator.
 	 *
 	 * \return Incremented iterator
 	 */
 	PCMForwardIterator& operator ++ (); // required by ForwardIterator
 
 	/**
-	 * Post-increment iterator
+	 * \brief Post-increment iterator.
 	 *
 	 * \return Iterator representing the state befor the increment
 	 */
 	PCMForwardIterator operator ++ (int); // required by ForwardIterator
 
 	/**
-	 * Returns TRUE if \c rhs is equal to the instance
+	 * \brief Returns TRUE if \c rhs is equal to the instance.
 	 *
 	 * \param[in] rhs The instance to test for equality
 	 *
@@ -457,7 +455,7 @@ public:
 	// required by ForwardIterator
 
 	/**
-	 * Returns TRUE if \c rhs is not equal to the instance
+	 * \brief Returns TRUE if \c rhs is not equal to the instance.
 	 *
 	 * \param[in] rhs The instance to test for inequality
 	 *
@@ -467,7 +465,7 @@ public:
 	// required by ForwardIterator
 
 	/**
-	 * Advance the iterator by a non-negative amount.
+	 * \brief Advance the iterator by a non-negative amount.
 	 *
 	 * \param[in] amount A non-negative amount to advance the iterator
 	 *
@@ -479,7 +477,7 @@ public:
 private:
 
 	/**
-	 * Internal representation of wrapped object
+	 * \brief Internal representation of wrapped object
 	 */
 	std::unique_ptr<Concept> object_;
 };
@@ -505,13 +503,13 @@ class CalcContext
 public:
 
 	/**
-	 * Virtual default destructor
+	 * \brief Virtual default destructor
 	 */
 	virtual ~CalcContext() noexcept
 	= 0;
 
 	/**
-	 * Inform about the AudioSize of the current file
+	 * \brief Inform about the AudioSize of the current file
 	 *
 	 * This contains the information about the leadout frame. This information
 	 * must be known before Calculation::update is called on the last
@@ -523,7 +521,7 @@ public:
 	= 0;
 
 	/**
-	 * Return the number of bytes of the PCM samples.
+	 * \brief Return the number of bytes of the PCM samples.
 	 *
 	 * \return The total number of bytes of the PCM samples
 	 */
@@ -531,7 +529,7 @@ public:
 	= 0;
 
 	/**
-	 * Set the name of the current audio file.
+	 * \brief Set the name of the current audio file.
 	 *
 	 * \param[in] filename Name of the audio file that is to be processed
 	 */
@@ -539,7 +537,7 @@ public:
 	= 0;
 
 	/**
-	 * Name of current audio file.
+	 * \brief Name of current audio file.
 	 *
 	 * \return Name of the audio file that is currently processed
 	 */
@@ -547,7 +545,7 @@ public:
 	= 0;
 
 	/**
-	 * Convenience method: Total number of tracks.
+	 * \brief Convenience method: Total number of tracks.
 	 *
 	 * This number will aways be a non-negative integer up to \c 99 .
 	 *
@@ -566,9 +564,11 @@ public:
 	= 0;
 
 	/**
-	 * Returns TRUE if this instances indicates a processing for multiple
-	 * tracks on a single input file. If this is FALSE, no chunks will be
-	 * available. Multitrack mode is activated by setting a TOC.
+	 * \brief Returns TRUE if this instances indicates a processing for multiple
+	 * tracks on a single input file.
+	 *
+	 * If this is FALSE, no chunks will be available. Multitrack mode is
+	 * activated by setting a TOC.
 	 *
 	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
 	 */
@@ -576,7 +576,7 @@ public:
 	= 0;
 
 	/**
-	 * Service method: Get 0-based index of the first relevant sample of the
+	 * \brief Service method: Get 0-based index of the first relevant sample of the
 	 * specified 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
@@ -591,7 +591,7 @@ public:
 	= 0;
 
 	/**
-	 * Get 0-based index of the first sample to be counted in computation.
+	 * \brief Get 0-based index of the first sample to be counted in computation.
 	 *
 	 * Which sample is actualley the first relevant one depends on the offset
 	 * of the first track and whether samples in the beginning of the first
@@ -605,7 +605,7 @@ public:
 	= 0;
 
 	/**
-	 * Service method: Get 0-based index of the last relevant sample of the
+	 * \brief Service method: Get 0-based index of the last relevant sample of the
 	 * specified 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
@@ -626,7 +626,7 @@ public:
 	= 0;
 
 	/**
-	 * Get 0-based index of the last sample to be counted in computation.
+	 * \brief Get 0-based index of the last sample to be counted in computation.
 	 *
 	 * Which sample is actualley the last relevant one depends on whether
 	 * samples in the end of the last track are to be skipped.
@@ -640,7 +640,7 @@ public:
 	= 0;
 
 	/**
-	 * Returns 1-based track number of the track containing the specified
+	 * \brief Returns 1-based track number of the track containing the specified
 	 * 0-based sample.
 	 *
 	 * If <tt>sample_count()</tt> is 0, the method will return 0 regardless of
@@ -660,7 +660,7 @@ public:
 	= 0;
 
 	/**
-	 * Return the offset of the specified 0-based track from the TOC.
+	 * \brief Return the offset of the specified 0-based track from the TOC.
 	 *
 	 * Note that <tt>offset(i) == toc().offset(i+1)</tt> for all
 	 * <tt>i: 0 <= i < toc().track_count()</tt>.
@@ -673,7 +673,7 @@ public:
 	= 0;
 
 	/**
-	 * Return the normalized length of the specified 0-based track.
+	 * \brief Return the normalized length of the specified 0-based track.
 	 *
 	 * Note that <tt>length(i) == offset(i+2) - offset(i+1)</tt> for all
 	 * <tt>i: 0 <= i < toc().track_count() - 1</tt>.
@@ -691,7 +691,7 @@ public:
 	= 0;
 
 	/**
-	 * Return the ARId of the current medium, if known.
+	 * \brief Return the ARId of the current medium, if known.
 	 *
 	 * The value returned will only be significant iff non-empty offsets and
 	 * non-zero total PCM byte count are available. Otherwise the ARId
@@ -703,7 +703,7 @@ public:
 	= 0;
 
 	/**
-	 * Returns TRUE iff this context will skip the first 2939 samples of the
+	 * \brief Returns TRUE iff this context will skip the first 2939 samples of the
 	 * first track.
 	 *
 	 * \return TRUE iff context will signal to skip the first samples.
@@ -712,7 +712,7 @@ public:
 	= 0;
 
 	/**
-	 * Returns TRUE iff this context will skip the last 2940 samples (5 frames)
+	 * \brief Returns TRUE iff this context will skip the last 2940 samples (5 frames)
 	 * of the last track.
 	 *
 	 * \return TRUE iff context will signal to skip the last samples.
@@ -721,7 +721,7 @@ public:
 	= 0;
 
 	/**
-	 * Returns the amount of samples to skip at the beginning of the first track
+	 * \brief Returns the amount of samples to skip at the beginning of the first track
 	 * - or, in a single track scenario, once at the beginning.
 	 *
 	 * The skipping is already active if this instance skips_front()
@@ -732,7 +732,7 @@ public:
 	= 0;
 
 	/**
-	 * Returns the amount of samples to skip at the end of the last track
+	 * \brief Returns the amount of samples to skip at the end of the last track
 	 * - or, in a single track scenario, once at the end.
 	 *
 	 * The skipping is already active if this instance skips_back()
@@ -743,7 +743,7 @@ public:
 	= 0;
 
 	/**
-	 * Notifies the instance about configured skipping amounts at the beginning
+	 * \brief Notifies the instance about configured skipping amounts at the beginning
 	 * of the first track and the end of the last track.
 	 *
 	 * Whether actual skipping takes place can be determined by
@@ -756,7 +756,7 @@ public:
 		num_skip_back) = 0;
 
 	/**
-	 * Clone this CalcContext object.
+	 * \brief Clone this CalcContext object.
 	 *
 	 * A clone is a deep copy, i.e. the result of the cloning will be a
 	 * different object with the exact same state.
@@ -815,70 +815,70 @@ public: /* types */
 public: /* methods */
 
 	/**
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * \param[in] size Number of elements
 	 */
 	explicit Checksums(const std::size_t size);
 
 	/**
-	 * Copy constructor.
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs The Checksums to copy
 	 */
 	Checksums(const Checksums &rhs);
 
 	/**
-	 * Move constructor.
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The Checksums to move
 	 */
 	Checksums(Checksums &&rhs) noexcept;
 
 	/**
-	 * Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element
 	 *
 	 * \return Pointer to the first element
 	 */
 	iterator begin();
 
 	/**
-	 * Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element
 	 *
 	 * \return Pointer after the last element
 	 */
 	iterator end();
 
 	/**
-	 * Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element
 	 *
 	 * \return Pointer to the first element
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element
 	 *
 	 * \return Pointer after the last element
 	 */
 	const_iterator end() const;
 
 	/**
-	 * Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element
 	 *
 	 * \return Pointer to the first element
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element
 	 *
 	 * \return Pointer after the last element
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * Access element by its 0-based \c index .
+	 * \brief Access element by its 0-based \c index .
 	 *
 	 * Legal range is from <tt>0</tt> to <tt>size - 1</tt>.
 	 *
@@ -889,7 +889,7 @@ public: /* methods */
 	ChecksumSet& operator [] (const uint32_t index);
 
 	/**
-	 * Access element by its 0-based \c index .
+	 * \brief Access element by its 0-based \c index .
 	 *
 	 * Legal range is from <tt>0</tt> to <tt>size - 1</tt>.
 	 *
@@ -900,14 +900,14 @@ public: /* methods */
 	const ChecksumSet& operator [] (const uint32_t index) const;
 
 	/**
-	 * Return the number of elements
+	 * \brief Return the number of elements
 	 *
 	 * \return Number of elements
 	 */
 	std::size_t size() const;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -916,7 +916,7 @@ public: /* methods */
 	Checksums& operator = (const Checksums &rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -928,12 +928,12 @@ public: /* methods */
 private:
 
 	/**
-	 * Implementation of the set
+	 * \brief Implementation of the set
 	 */
 	std::unique_ptr<ChecksumSet[]> sets_;
 
 	/**
-	 * Number of elements
+	 * \brief Number of elements
 	 */
 	std::size_t size_;
 };
@@ -972,7 +972,7 @@ class Calculation final
 public:
 
 	/**
-	 * Construct calculation for specified checksum type and context
+	 * \brief Construct calculation for specified checksum type and context
 	 *
 	 * \param[in] type The checksum type to calculate
 	 * \param[in] ctx The context for this calculation
@@ -980,54 +980,54 @@ public:
 	Calculation(const checksum::type type, std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Construct calculation for specified context with checksum::type::ARCS2
+	 * \brief Construct calculation for specified context with checksum::type::ARCS2
 	 *
 	 * \param[in] ctx The context for this calculation
 	 */
 	explicit Calculation(std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * Copy constructor.
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs The Calculation to copy
 	 */
 	Calculation(const Calculation& rhs);
 
 	/**
-	 * Move constructor.
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The Calculation to move
 	 */
 	Calculation(Calculation &&rhs) noexcept;
 
 	/**
-	 * Default destructor
+	 * \brief Default destructor
 	 */
 	~Calculation() noexcept;
 
 	/**
-	 * Set the stream context for the current stream of samples.
+	 * \brief Set the stream context for the current stream of samples.
 	 *
 	 * \param[in] context The CalcContext for this instance
 	 */
 	void set_context(std::unique_ptr<CalcContext> context);
 
 	/**
-	 * Read the CalcContext of this instance.
+	 * \brief Read the CalcContext of this instance.
 	 *
 	 * \return The CalcContext of this instance
 	 */
 	const CalcContext& context() const;
 
 	/**
-	 * Returns current type.
+	 * \brief Returns current type.
 	 *
 	 * \return A disjunction of all requested types.
 	 */
 	checksum::type type() const;
 
 	/**
-	 * Update the calculation with a sequence of samples.
+	 * \brief Update the calculation with a sequence of samples.
 	 *
 	 * \param[in] begin Iterator pointing to the beginning of the sequence
 	 * \param[in] end   Iterator pointing to the end of the sequence
@@ -1035,7 +1035,7 @@ public:
 	void update(PCMForwardIterator begin, PCMForwardIterator end);
 
 	/**
-	 * Updates the instance with a new AudioSize.
+	 * \brief Updates the instance with a new AudioSize.
 	 *
 	 * This must be done before the last call of Calculation::update().
 	 *
@@ -1044,7 +1044,7 @@ public:
 	void update_audiosize(const AudioSize &audiosize);
 
 	/**
-	 * Returns TRUE iff this Calculation is completed, otherwise FALSE.
+	 * \brief Returns TRUE iff this Calculation is completed, otherwise FALSE.
 	 *
 	 * FALSE indicates that the instance expects more updates. If the instance
 	 * returns TRUE it is safe to call result().
@@ -1054,7 +1054,7 @@ public:
 	bool complete() const;
 
 	/**
-	 * Returns the counter for PCM 32 bit samples.
+	 * \brief Returns the counter for PCM 32 bit samples.
 	 *
 	 * This is just for debugging.
 	 *
@@ -1063,14 +1063,14 @@ public:
 	uint32_t sample_counter() const;
 
 	/**
-	 * Acquire the resulting Checksums
+	 * \brief Acquire the resulting Checksums
 	 *
 	 * \return The computed Checksums
 	 */
 	Checksums result() const;
 
 	/**
-	 * Copy assignment.
+	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -1079,7 +1079,7 @@ public:
 	Calculation& operator = (Calculation rhs);
 
 	/**
-	 * Move assignment.
+	 * \brief Move assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 *
@@ -1091,7 +1091,7 @@ public:
 private:
 
 	/**
-	 * Request a checksum type or set of checksum types.
+	 * \brief Request a checksum type or set of checksum types.
 	 *
 	 * \param[in] type Type to request
 	 */
@@ -1102,7 +1102,7 @@ private:
 	class Impl;
 
 	/**
-	 * Private implementation of Calculation
+	 * \brief Private implementation of Calculation
 	 */
 	std::unique_ptr<Calculation::Impl> impl_;
 };
@@ -1117,14 +1117,14 @@ class InvalidAudioException final : public std::logic_error
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] what_arg What argument
 	 */
 	explicit InvalidAudioException(const std::string &what_arg);
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] what_arg What argument
 	 */

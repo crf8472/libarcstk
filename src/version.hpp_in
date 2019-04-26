@@ -3,12 +3,6 @@
 #define __LIBARCSTK_VERSION_HPP__
 
 /**
- * \dir generated-sources
- *
- * \brief Generated source of libarcstk
- */
-
-/**
  * \file
  *
  * \brief Provide version and name information for libarcstk.
@@ -81,22 +75,24 @@ const std::string LIBARCSTK_NAME_STRING { LIBARCSTK_NAME };
 inline bool api_version_is_at_least(const int major, const int minor,
 		const int patch)
 {
-	if (major < LIBARCSTK_VERSION_MAJOR)
+	if (LIBARCSTK_VERSION_MAJOR > major)
 	{
-		return false;
+		return true;
 	}
 
-	if (minor < LIBARCSTK_VERSION_MINOR)
+	if (LIBARCSTK_VERSION_MINOR > minor)
 	{
-		return major > LIBARCSTK_VERSION_MAJOR;
+		return LIBARCSTK_VERSION_MAJOR == major;
 	}
 
-	if (patch < LIBARCSTK_VERSION_PATCH)
+	if (LIBARCSTK_VERSION_PATCH > patch)
 	{
-		return minor > LIBARCSTK_VERSION_MINOR;
+		return LIBARCSTK_VERSION_MINOR == minor;
 	}
 
-	return true;
+	return  LIBARCSTK_VERSION_MAJOR == major
+		and LIBARCSTK_VERSION_MINOR == minor
+		and LIBARCSTK_VERSION_PATCH == patch;
 }
 
 /** @} */
