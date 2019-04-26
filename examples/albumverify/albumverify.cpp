@@ -50,7 +50,7 @@
 // providing the required input values. In real life code, you would have to
 // invest (much) more effort to make the code robust but this is not related to
 // learning the libarcstk API.
-// The actual example demonstrating the use of the ListMatcher class is
+// The actual example demonstrating the use of the AlbumMatcher class is
 // contained in main(). It's very simple to use. Have fun!
 
 
@@ -140,8 +140,10 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
  */
 arcstk::ARResponse parse_match_arcs(const std::string &filename)
 {
-	std::unique_ptr<arcstk::ContentHandler> content_hdlr =
-		std::make_unique<arcstk::DefaultContentHandler>();
+	auto content_hdlr = std::make_unique<arcstk::DefaultContentHandler>();
+
+	arcstk::ARResponse response_data;
+	content_hdlr->set_object(response_data);
 
 	auto error_hdlr = std::make_unique<arcstk::DefaultErrorHandler>();
 
@@ -162,12 +164,7 @@ arcstk::ARResponse parse_match_arcs(const std::string &filename)
 	// Run parser (this may throw!)
 	parser->parse();
 
-	// We positively _know_ that the ContentHandler is a DefaultHandler, so
-	// downcasting does not rise any risks. It is just not "nice". (The
-	// other method I could think of feels worse, so we stick to downcasting
-	// for now.)
-	return dynamic_cast<const arcstk::DefaultContentHandler &>
-		(parser->content_handler()).result();
+	return response_data;
 }
 
 
@@ -216,10 +213,10 @@ int main(int argc, char* argv[])
 	const arcstk::ARResponse arcss = parse_match_arcs(filename);
 
 	// Now the interesting part: peform the match.
-	// The ListMatcher class targets situations in which you have a list of
+	// The AlbumMatcher class targets situations in which you have a list of
 	// checksums and you _know_ in which order they form the album. Therefore
-	// ListMatcher is the device of choice here.
-	arcstk::ListMatcher matcher(checksums, arid, arcss);
+	// AlbumMatcher is the device of choice here.
+	arcstk::AlbumMatcher matcher(checksums, arid, arcss);
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
 	// arcstk::AnyMatcher.

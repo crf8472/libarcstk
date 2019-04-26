@@ -31,10 +31,12 @@ int main(int argc, char* argv[])
 {
 	// Use the default parser content handler that just returns the parsed
 	// content as an object
-	std::unique_ptr<arcstk::ContentHandler> content_hdlr =
-		std::make_unique<arcstk::DefaultContentHandler>();
+	auto content_hdlr = std::make_unique<arcstk::DefaultContentHandler>();
 	// Of course you could just write a content handler that prints every parsed
 	// entitity instead of constructing an object from it.
+
+	arcstk::ARResponse response_data;
+	content_hdlr->set_object(response_data);
 
 	// Use the standard error handler that just throws an exception on invalid
 	// input.
@@ -77,12 +79,6 @@ int main(int argc, char* argv[])
 	}
 	// ... normally you would also catch other possible exceptions, we just
 	// concentrate on libarcstk.
-
-	// We positively _know_ the type of the ContentHandler, so downcasting does
-	// not rise any risks. It is just not "nice". (The other method I could
-	// think of feels worse, so we stick to downcasting for now.)
-	auto response_data = dynamic_cast<const arcstk::DefaultContentHandler &>
-		(parser->content_handler()).result();
 
 	std::cout << "  ARCS   Conf. Frame450" << std::endl;
 	std::cout << "-----------------------" << std::endl;
