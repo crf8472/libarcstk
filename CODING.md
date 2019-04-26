@@ -25,10 +25,13 @@ libarcstk.
 # Headers, Declarations, Definitions
 
 - Header file names end with ``.hpp`` (not ``.h`` or anything else).
-- Headers do not contain definitions, except for template (member) functions
+- Headers do not contain definitions, except for template (member) functions or
+  for functions the compiler must be able to inline (as PCMForwardIterator and
+  the methods in the logging API).
 - Definitions of templates reside in a separate .tpp file that is included by
   the .hpp file
-- Avoid inline definitions in the class body
+- Avoid inline definitions in the class body (maybe ok for trivial inner
+  classes)
 - For templates, use ``typename`` for sites where base types are allowed and use
   ``class`` for sites where own class definitions are required.
 
@@ -91,12 +94,12 @@ libarcstk.
 
 # Character encoding and newlines
 
-- Libarcs project files have unix line endings (== line feed,``0x0A``). Whatever
-  your git is configured to checkout, ensure that your git commits unix line
-  endings.
+- Libarcstk project files have unix line endings (== line feed,``0x0A``).
+  Whatever your git is configured to checkout, ensure that your git commits unix
+  line endings.
 - Ensure that every source file you modify has a unix line ending at the end of
   file. Every line ends with a unix line ending and the end of file must have
   a unix line ending too.
-- Libarcs project files are encoded UTF-8. Whatever your git is configured to
+- Libarcstk project files are encoded UTF-8. Whatever your git is configured to
   checkout, ensure that your git commits UTF-8 encoded characters.
 

@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 	// Since we have stereo audio, there are two channels, which makes one
 	// 16 bit integer per sample for each channel in interleaved order,
 	// where the 16 bit sample for the left channel makes the start.
-	// Libarcs is not interested in those details, so we provide the samples
+	// Libarcstk is not interested in those details, so we provide the samples
 	// via a SampleSequence that abstracts the concrete format away:
 	arcstk::SampleSequence<int16_t, false> sequence;
 	// Each sample is a signed 16 bit integer, the sequence is interleaved

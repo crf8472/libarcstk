@@ -3,7 +3,7 @@
 
 ## Semantic versioning
 
-Libarcs release versions consist of three non-negative numbers and an optional
+Libarcstk release versions consist of three non-negative numbers and an optional
 suffix.
 
 This versioning policy intends to obey the requirements of
@@ -45,7 +45,7 @@ This versioning policy intends to obey the requirements of
 
 ## Current stage
 
-Libarcs is in an early alpha development stage with version 0.1.0-alpha.1 being
+Libarcstk is in an early alpha development stage with version 0.1.0-alpha.1 being
 the first development release of its history.
 
 Well, it should actually be considered ``pre-alpha`` since it may in fact be
@@ -55,7 +55,7 @@ tag like ``-pre-alpha``. Any filemanager would list such a tag between the
 ``beta`` and ``rc`` releases, messing up the historical order of development
 releases.
 
-Libarcs will reach beta stage as soon as all features currently planned are
+Libarcstk will reach beta stage as soon as all features currently planned are
 implemented and test coverage is ... well, good ... enough ... sort of.
 
 [1]: https://semver.org

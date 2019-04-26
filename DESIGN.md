@@ -3,14 +3,14 @@
 
 I used the project to improve my C++ knowledge while achieving the solution of a
 real task.When it eventually grew to a certain point, I thought that I could
-share it. This decision motivated me to reflect my API design. I noted
-the following points mainly as a log for myself. Libarcs is at least intended to
+share it. This decision motivated me to reflect my API design. I noted the
+following points mainly as a log for myself. Libarcstk is at least intended to
 obey these requirements.
 
 Beware: the following contains decisions based on my opinion. You might not like
 it.
 
-Libarcs embraces "modern" C++, which means to choose the contemporary way of
+Libarcstk embraces "modern" C++, which means to choose the contemporary way of
 doing things, not the way things were done back in the Nineties. Currently,
 libarcstk is compiled as C++14.
 
@@ -88,9 +88,9 @@ and perhaps by other languages at some point.
 
 ## Linkage
 
-- Libarcs does never ever put anything in the global namespace. Everything that
-  is part of libarcstk *must* reside in the ``arcs`` namespace or one of its
-  contained namespaces.
+- Libarcstk does never ever put anything in the global namespace. Everything
+  that is part of libarcstk *must* reside in the ``arcs`` namespace or one of
+  its contained namespaces.
 - When it is arcs-global, it should have ``extern`` linkage to avoid unnecessary
   instances.
 - What is declared and used only within a ``.cpp`` file must have internal

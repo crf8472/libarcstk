@@ -7,7 +7,7 @@
 
 ## What libarcstk is
 
-Libarcs supports the following tasks:
+Libarcstk supports the following tasks:
 
 - Compute the AccurateRip checksums of a sequence of decoded samples
 - Verify local AccurateRip checksums against their reference values provided by
@@ -15,7 +15,7 @@ Libarcs supports the following tasks:
 - Calculate the AccurateRip ID of a CD image from TOC information
 - Parse the response from AccurateRip database to plain text
 
-Libarcs provides:
+Libarcstk provides:
 
 - An API for working with AccurateRip checksums
 - Conservative OO API (intended to be usable from other languages)
@@ -30,12 +30,12 @@ Checksums" or "ARCS"s for short.
 
 ## What libarcstk does not
 
-- Libarcs does not rip CDs
-- Libarcs does not offer to read, buffer or decode any audio data. You have to
+- Libarcstk does not rip CDs
+- Libarcstk does not offer to read, buffer or decode any audio data. You have to
   provide the samples on your own.
-- Libarcs offers no network facilities and is not supposed to do so. The actual
-  HTTP request for fetching the reference values from AccurateRip is better
-  performed by the HTTP networking client of your choice.
+- Libarcstk offers no network facilities and is not supposed to do so. The
+  actual HTTP request for fetching the reference values from AccurateRip is
+  better performed by the HTTP networking client of your choice.
 
 
 

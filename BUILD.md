@@ -4,7 +4,7 @@
 
 ## Building libarcstk on Linux and \*BSD
 
-Libarcs is written in C++14. It was developed mainly (but not exclusively) for
+Libarcstk is written in C++14. It was developed mainly (but not exclusively) for
 Linux and has no runtime dependencies other than the C++ standard library. It
 was not tested whether libarcstk builds out-of-the-box on BSDs but don't expect
 major issues.
@@ -158,7 +158,7 @@ it to your needs.
 |AS_STATIC          |Build static library instead of shared library  |OFF    |
 |IWYU               |Use include-what-you-use on compiling           |OFF    |
 |WITH_DOCS          |Configure documentation (but don't build it)    |OFF    |
-|WITH_INTERNAL_DOCS |Configure documentation (but don't build it)    |OFF    |
+|WITH_INTERNAL_DOCS |Configure documentation also for internal APIs (but don't build it)    |OFF    |
 |WITH_NATIVE        |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
 |WITH_TESTS         |Compile tests (but don't run them)              |OFF    |
 |USE_MCSS           |Use [m.css][3] when building the documentation  |OFF    |
@@ -218,7 +218,7 @@ welcome.
 
 ### Manual: PDF by LaTeX
 
-Libarcs provides also support for a PDF manual using LaTeX. An actual LaTeX
+Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
 installation (along with ``pdflatex``) is required for creating the manual.
 
 Building the PDF manual is only available without ``-DUSE_MCSS=ON``. Using
@@ -238,7 +238,7 @@ This will create the manual ``refman.pdf`` in folder ``build/doc/latex`` (while
 issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
 
 
-## Libarcs code in my ``$EDITOR``
+## Libarcstk code in my ``$EDITOR``
 
 If you used to work with some features of what is called "deep language support"
 for C++, you may notice that libarcstk comes with a top-level ``.clang`` file
