@@ -1029,7 +1029,7 @@ public:
  *
  * \see CalcState
  */
-class CalcStateARCS : public CalcState
+class CalcStateARCSBase : public CalcState
 {
 	// Note: This could be a template, e.g. CalcStateARCS<bool both = true> and
 	// CalcStateARCS<true> computes v2 and v1 and CalcStateARCS<false> only v1.
@@ -1044,7 +1044,7 @@ public:
 	/**
 	 * \brief Constructor
 	 */
-	CalcStateARCS();
+	CalcStateARCSBase();
 
 	/**
 	 * \brief Implements CalcState::init_with_skip()
@@ -1085,7 +1085,7 @@ protected:
 	 *
 	 * This class is not intended to be used for polymorphical deletion.
 	 */
-	~CalcStateARCS() noexcept;
+	~CalcStateARCSBase() noexcept;
 
 	/**
 	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned

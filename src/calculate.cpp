@@ -964,10 +964,10 @@ std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const
 CalcState::~CalcState() noexcept = default;
 
 
-// CalcStateARCS
+// CalcStateARCSBase
 
 
-CalcStateARCS::CalcStateARCS()
+CalcStateARCSBase::CalcStateARCSBase()
 	: actual_skip_front_(0)
 	, actual_skip_back_(0)
 {
@@ -975,10 +975,10 @@ CalcStateARCS::CalcStateARCS()
 }
 
 
-CalcStateARCS::~CalcStateARCS() noexcept = default;
+CalcStateARCSBase::~CalcStateARCSBase() noexcept = default;
 
 
-void CalcStateARCS::init_with_skip()
+void CalcStateARCSBase::init_with_skip()
 {
 	actual_skip_front_ = NUM_SKIP_SAMPLES_FRONT;
 	actual_skip_back_  = NUM_SKIP_SAMPLES_BACK;
@@ -987,7 +987,7 @@ void CalcStateARCS::init_with_skip()
 }
 
 
-void CalcStateARCS::init_without_skip()
+void CalcStateARCSBase::init_without_skip()
 {
 	actual_skip_front_ = 0;
 	actual_skip_back_  = 0;
@@ -996,19 +996,19 @@ void CalcStateARCS::init_without_skip()
 }
 
 
-uint32_t CalcStateARCS::num_skip_front() const
+uint32_t CalcStateARCSBase::num_skip_front() const
 {
 	return actual_skip_front_;
 }
 
 
-uint32_t CalcStateARCS::num_skip_back() const
+uint32_t CalcStateARCSBase::num_skip_back() const
 {
 	return actual_skip_back_;
 }
 
 
-void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
+void CalcStateARCSBase::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 {
 	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
 	this->do_update(begin, end);
@@ -1021,7 +1021,7 @@ void CalcStateARCS::update(PCMForwardIterator &begin, PCMForwardIterator &end)
 /**
  * \brief CalcState for calculation of ARCSv1.
  */
-class CalcStateV1 final : public CalcStateARCS
+class CalcStateV1 final : public CalcStateARCSBase
 {
 
 public:
@@ -1226,7 +1226,7 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 /**
  * \brief CalcState for calculation of ARCSv2 and ARCSv1.
  */
-class CalcStateV1andV2 final : public CalcStateARCS
+class CalcStateV1andV2 final : public CalcStateARCSBase
 {
 
 public:
