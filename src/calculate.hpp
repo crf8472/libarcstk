@@ -99,26 +99,26 @@ class AudioSize final
 public:
 
 	/**
-	 * \brief Constructor
+	 * \brief Constructor.
 	 */
 	AudioSize();
 
 	/**
-	 * \brief Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs The AudioSize to copy
 	 */
 	AudioSize(const AudioSize &rhs);
 
 	/**
-	 * \brief Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The AudioSize to move
 	 */
 	AudioSize(AudioSize &&rhs) noexcept;
 
 	/**
-	 * \brief Default destructor
+	 * \brief Default destructor.
 	 */
 	~AudioSize() noexcept;
 
@@ -156,7 +156,7 @@ public:
 	uint32_t sample_count() const;
 
 	/**
-	 * \brief Set the total number of bytes holding 32 bit PCM samples (if decoded).
+	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
 	 *
 	 * This also determines the leadout frame and the number of 32 bit PCM
 	 * samples.
@@ -204,29 +204,36 @@ private:
 	class Impl;
 
 	/**
-	 * \brief Private implementation of AudioSize
+	 * \brief Private implementation of AudioSize.
 	 */
 	std::unique_ptr<AudioSize::Impl> impl_;
 };
 
 
 /**
- * \brief Implementation details of namespace arcstk
+ * \brief Implementation details of namespace arcstk.
  */
 namespace details
 {
 
 /**
  * \brief Get value_type of Iterator.
+ *
+ * \tparam Iterator Iterator type to test
  */
 template<typename Iterator>
 using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 // This is SFINAE compatible and respects bare pointers, which would not
-// have been respected when using std::iterator_traits<Iterator>::value_type
+// have been respected when using std::iterator_traits<Iterator>::value_type.
+// Nonetheless I am not quite sure whether bare pointers indeed should be used
+// in this context.
 
 
 /**
- * \brief Check a given Iterator whether it iterates over type T
+ * \brief Check a given Iterator whether it iterates over type T.
+ *
+ * \tparam Iterator Iterator type to test
+ * \tparam T        Type to test for
  */
 template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
@@ -245,14 +252,29 @@ class PCMForwardIterator final
 
 public:
 
+	/**
+	 * \brief Iterator category is ForwardIterator.
+	 */
 	using iterator_category = std::forward_iterator_tag;
 
+	/**
+	 * \brief The type this iterator enumerates.
+	 */
 	using value_type        = uint32_t;
 
-	using reference         = uint32_t; // Note that this is NOT a reference
+	/**
+	 * \brief Same as value_type, *not* a reference type.
+	 */
+	using reference         = uint32_t;
 
+	/**
+	 * \brief Const pointer to the value_type.
+	 */
 	using pointer           = const uint32_t*;
 
+	/**
+	 * \brief Pointer difference type.
+	 */
 	using difference_type   = std::ptrdiff_t;
 
 
@@ -261,12 +283,12 @@ private:
 	/// \cond UNDOC_FUNCTION_BODIES
 
 	/**
-	 * \brief Internal object interface
+	 * \brief Internal interface to the type-erased object.
 	 */
 	struct Concept
 	{
 		/**
-		 * \brief Virtual default destructor
+		 * \brief Virtual default destructor.
 		 */
 		virtual ~Concept() noexcept
 		= default;
@@ -288,35 +310,39 @@ private:
 		/**
 		 * \brief Reference to the actual value under the iterator.
 		 *
-		 * \return Reference to actual value
+		 * \return Reference to actual value.
 		 */
 		virtual reference dereference() const
 		= 0;
 
 		/**
-		 * \brief Returns TRUE if \c rhs is equal to the instance
+		 * \brief Returns TRUE if \c rhs is equal to the instance.
+		 *
+		 * Required by the equality operator.
 		 *
 		 * \param[in] rhs The instance to test for equality
 		 *
 		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 		 */
-		virtual bool equals(const void* rhs) const // required by ==
+		virtual bool equals(const void* rhs) const
 		= 0;
 
 		/**
-		 * \brief Returns RTTI
+		 * \brief Returns RTTI.
 		 *
 		 * \return Runtime type information of this instance
 		 */
-		virtual const std::type_info& type() const // required by ==
+		virtual const std::type_info& type() const
 		= 0;
 
 		/**
 		 * \brief Returns the address of the instance
 		 *
+		 * Required by the equality operator.
+		 *
 		 * \return Address of the instance
 		 */
-		virtual const void* pointer() const // required by ==
+		virtual const void* pointer() const
 		= 0;
 
 		/**
@@ -332,13 +358,13 @@ private:
 	/**
 	 * \brief Internal object representation
 	 *
-	 * \tparam Iter The iterator type to wrap
+	 * \tparam Iterator The iterator type to wrap
 	 */
-	template<class Iter>
+	template<class Iterator>
 	struct Model : Concept
 	{
-		explicit Model(Iter iter)
-			: iterator_(iter)
+		explicit Model(Iterator iterator)
+			: iterator_(iterator)
 		{
 			// empty
 		}
@@ -381,9 +407,9 @@ private:
 		private:
 
 			/**
-			 * \brief Type erased iterator
+			 * \brief The type-erased iterator instance.
 			 */
-			Iter iterator_;
+			Iterator iterator_;
 	};
 
 	/// \endcond
@@ -392,7 +418,7 @@ private:
 public:
 
 	/**
-	 * \brief Converting constructor
+	 * \brief Converting constructor.
 	 *
 	 * \tparam Iterator The iterator type to wrap
 	 *
@@ -410,21 +436,21 @@ public:
 	}
 
 	/**
-	 * \brief Copy constructor
+	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
 	PCMForwardIterator(const PCMForwardIterator& rhs);
 
 	/**
-	 * \brief Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	PCMForwardIterator(PCMForwardIterator&& rhs) noexcept;
 
 	/**
-	 * \brief Dereferences the iterator
+	 * \brief Dereferences the iterator.
 	 *
 	 * \return A uint32_t sample, returned by value
 	 */
@@ -503,13 +529,13 @@ class CalcContext
 public:
 
 	/**
-	 * \brief Virtual default destructor
+	 * \brief Virtual default destructor.
 	 */
 	virtual ~CalcContext() noexcept
 	= 0;
 
 	/**
-	 * \brief Inform about the AudioSize of the current file
+	 * \brief Inform about the AudioSize of the current file.
 	 *
 	 * This contains the information about the leadout frame. This information
 	 * must be known before Calculation::update is called on the last
@@ -517,32 +543,28 @@ public:
 	 *
 	 * \param[in] audio_size AudioSize
 	 */
-	virtual void set_audio_size(const AudioSize &audio_size)
-	= 0;
+	void set_audio_size(const AudioSize &audio_size);
 
 	/**
 	 * \brief Return the number of bytes of the PCM samples.
 	 *
 	 * \return The total number of bytes of the PCM samples
 	 */
-	virtual const AudioSize& audio_size() const
-	= 0;
+	const AudioSize& audio_size() const;
 
 	/**
 	 * \brief Set the name of the current audio file.
 	 *
 	 * \param[in] filename Name of the audio file that is to be processed
 	 */
-	virtual void set_filename(const std::string &filename)
-	= 0;
+	void set_filename(const std::string &filename);
 
 	/**
 	 * \brief Name of current audio file.
 	 *
 	 * \return Name of the audio file that is currently processed
 	 */
-	virtual std::string filename() const
-	= 0;
+	std::string filename() const;
 
 	/**
 	 * \brief Convenience method: Total number of tracks.
@@ -560,8 +582,7 @@ public:
 	 *
 	 * \return The number of tracks represented in this file
 	 */
-	virtual uint8_t track_count() const
-	= 0;
+	uint8_t track_count() const;
 
 	/**
 	 * \brief Returns TRUE if this instances indicates a processing for multiple
@@ -572,48 +593,47 @@ public:
 	 *
 	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
 	 */
-	virtual bool is_multi_track() const
-	= 0;
+	bool is_multi_track() const;
 
 	/**
-	 * \brief Service method: Get 0-based index of the first relevant sample of the
-	 * specified 1-based track.
+	 * \brief Service method: Get 0-based index of the first relevant sample of
+	 * the specified 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
-	 * <tt>first_relevant_sample(2)</tt> returns the last 0-based sample of
-	 * track 2 (and not track 3).
+	 * first_relevant_sample(2) returns the last 0-based sample of track 2
+	 * (and not track 3).
 	 *
 	 * \param[in] track The 1-based track number
 	 *
 	 * \return Index of the first sample contributing to the track's ARCS
 	 */
-	virtual uint32_t first_relevant_sample(const TrackNo track) const
-	= 0;
+	uint32_t first_relevant_sample(const TrackNo track) const;
 
 	/**
-	 * \brief Get 0-based index of the first sample to be counted in computation.
+	 * \brief Get 0-based index of the first sample to be counted in
+	 * computation.
 	 *
 	 * Which sample is actualley the first relevant one depends on the offset
 	 * of the first track and whether samples in the beginning of the first
 	 * track are to be skipped.
 	 *
-	 * Always equivalent with <tt>CalcContext::first_relevant_sample(1)</tt>.
+	 * Always equivalent with
+	 * @link CalcContext::first_relevant_sample(1) first_relevant_sample(1) @endlink.
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	virtual uint32_t first_relevant_sample() const
-	= 0;
+	uint32_t first_relevant_sample() const;
 
 	/**
-	 * \brief Service method: Get 0-based index of the last relevant sample of the
-	 * specified 1-based track.
+	 * \brief Service method: Get 0-based index of the last relevant sample of
+	 * the specified 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
-	 * <tt>last_relevant_sample(2)</tt> returns the last 0-based sample of track
-	 * 2 (and not track 3).
+	 * last_relevant_sample(2) returns the last 0-based sample of track 2
+	 * (and not track 3).
 	 *
 	 * If no offsets are set, the output will always be identical to
-	 * CalcContext::last_relevant_sample().
+	 * @link CalcContext::last_relevant_sample() last_relevant_sample() @endlink.
 	 *
 	 * For <tt>track == 0</tt>, the last sample of the offset before track 1 is
 	 * returned. This may of course be 0 iff the offset of track 1 is 0.
@@ -622,8 +642,7 @@ public:
 	 *
 	 * \return Index of last sample contributing to the specified track's ARCS
 	 */
-	virtual uint32_t last_relevant_sample(const TrackNo track) const
-	= 0;
+	uint32_t last_relevant_sample(const TrackNo track) const;
 
 	/**
 	 * \brief Get 0-based index of the last sample to be counted in computation.
@@ -632,18 +651,17 @@ public:
 	 * samples in the end of the last track are to be skipped.
 	 *
 	 * Always equivalent with
-	 * CalcContext::last_relevant_sample(this->track_count()).
+	 * @link CalcContext::last_relevant_sample(this->track_count()) last_relevant_sample(this->track_count()) @endlink.
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	virtual uint32_t last_relevant_sample() const
-	= 0;
+	uint32_t last_relevant_sample() const;
 
 	/**
 	 * \brief Returns 1-based track number of the track containing the specified
 	 * 0-based sample.
 	 *
-	 * If <tt>sample_count()</tt> is 0, the method will return 0 regardless of
+	 * If sample_count() is 0, the method will return 0 regardless of
 	 * the actual value of \c smpl.
 	 *
 	 * If \c smpl is bigger than <tt>sample_count() - 1</tt>, the method will
@@ -656,8 +674,7 @@ public:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	virtual TrackNo track(const uint32_t smpl) const
-	= 0;
+	TrackNo track(const uint32_t smpl) const;
 
 	/**
 	 * \brief Return the offset of the specified 0-based track from the TOC.
@@ -669,8 +686,7 @@ public:
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	virtual uint32_t offset(const uint8_t track) const
-	= 0;
+	uint32_t offset(const uint8_t track) const;
 
 	/**
 	 * \brief Return the normalized length of the specified 0-based track.
@@ -687,8 +703,7 @@ public:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	virtual uint32_t length(const uint8_t track) const
-	= 0;
+	uint32_t length(const uint8_t track) const;
 
 	/**
 	 * \brief Return the ARId of the current medium, if known.
@@ -699,37 +714,33 @@ public:
 	 *
 	 * \return The ARId of the current medium
 	 */
-	virtual ARId id() const
-	= 0;
+	ARId id() const;
 
 	/**
-	 * \brief Returns TRUE iff this context will skip the first 2939 samples of the
-	 * first track.
+	 * \brief Returns TRUE iff this context will skip the first 2939 samples of
+	 * the first track.
 	 *
 	 * \return TRUE iff context will signal to skip the first samples.
 	 */
-	virtual bool skips_front() const
-	= 0;
+	bool skips_front() const;
 
 	/**
-	 * \brief Returns TRUE iff this context will skip the last 2940 samples (5 frames)
-	 * of the last track.
+	 * \brief Returns TRUE iff this context will skip the last 2940 samples
+	 * (5 LBA frames) of the last track.
 	 *
 	 * \return TRUE iff context will signal to skip the last samples.
 	 */
-	virtual bool skips_back() const
-	= 0;
+	bool skips_back() const;
 
 	/**
-	 * \brief Returns the amount of samples to skip at the beginning of the first track
-	 * - or, in a single track scenario, once at the beginning.
+	 * \brief Returns the amount of samples to skip at the beginning of the
+	 * first track - or, in a single track scenario, once at the beginning.
 	 *
-	 * The skipping is already active if this instance skips_front()
+	 * The skipping is already active if this instance skips_front().
 	 *
 	 * \return The number of samples to skip at the beginning of the first track
 	 */
-	virtual uint32_t num_skip_front() const
-	= 0;
+	uint32_t num_skip_front() const;
 
 	/**
 	 * \brief Returns the amount of samples to skip at the end of the last track
@@ -739,12 +750,11 @@ public:
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
-	virtual uint32_t num_skip_back() const
-	= 0;
+	uint32_t num_skip_back() const;
 
 	/**
-	 * \brief Notifies the instance about configured skipping amounts at the beginning
-	 * of the first track and the end of the last track.
+	 * \brief Notifies the instance about configured skipping amounts at the
+	 * beginning of the first track and the end of the last track.
 	 *
 	 * Whether actual skipping takes place can be determined by
 	 * skips_front() and skips_back().
@@ -752,8 +762,8 @@ public:
 	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
-	virtual void notify_skips(const uint32_t num_skip_front, const uint32_t
-		num_skip_back) = 0;
+	void notify_skips(const uint32_t num_skip_front,
+			const uint32_t num_skip_back);
 
 	/**
 	 * \brief Clone this CalcContext object.
@@ -763,7 +773,180 @@ public:
 	 *
 	 * \return A clone of this instance
 	 */
-	virtual std::unique_ptr<CalcContext> clone() const
+	std::unique_ptr<CalcContext> clone() const;
+
+
+private:
+
+	/**
+	 * \brief Implements set_audio_size(const AudioSize &audio_size).
+	 *
+	 * \param[in] audio_size AudioSize
+	 */
+	virtual void do_set_audio_size(const AudioSize &audio_size)
+	= 0;
+
+	/**
+	 * \brief Implements audio_size() const.
+	 *
+	 * \return The total number of bytes of the PCM samples
+	 */
+	virtual const AudioSize& do_audio_size() const
+	= 0;
+
+	/**
+	 * \brief Implements set_filename(const std::string &filename).
+	 *
+	 * \param[in] filename Name of the audio file that is to be processed
+	 */
+	virtual void do_set_filename(const std::string &filename)
+	= 0;
+
+	/**
+	 * \brief Implements filename() const.
+	 *
+	 * \return Name of the audio file that is currently processed
+	 */
+	virtual std::string do_filename() const
+	= 0;
+
+	/**
+	 * \brief Implements track_count() const.
+	 *
+	 * \return The number of tracks represented in this file
+	 */
+	virtual uint8_t do_track_count() const
+	= 0;
+
+	/**
+	 * \brief Implements is_multi_track() const.
+	 *
+	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
+	 */
+	virtual bool do_is_multi_track() const
+	= 0;
+
+	/**
+	 * \brief Implements first_relevant_sample(const TrackNo track) const.
+	 *
+	 * \param[in] track The 1-based track number
+	 *
+	 * \return Index of the first sample contributing to the track's ARCS
+	 */
+	virtual uint32_t do_first_relevant_sample(const TrackNo track) const
+	= 0;
+
+	/**
+	 * \brief Implements first_relevant_sample() const.
+	 *
+	 * \return Index of the first sample contributing to the first track's ARCS
+	 */
+	virtual uint32_t do_first_relevant_sample() const
+	= 0;
+
+	/**
+	 * \brief Implements last_relevant_sample(const TrackNo track) const.
+	 *
+	 * \param[in] track 1-based track number, accepts 0 as offset of track 1
+	 *
+	 * \return Index of last sample contributing to the specified track's ARCS
+	 */
+	virtual uint32_t do_last_relevant_sample(const TrackNo track) const
+	= 0;
+
+	/**
+	 * \brief Implements last_relevant_sample() const.
+	 *
+	 * \return Index of the last sample contributing to the last track's ARCS
+	 */
+	virtual uint32_t do_last_relevant_sample() const
+	= 0;
+
+	/**
+	 * \brief Implements track(const uint32_t smpl) const.
+	 *
+	 * \param[in] smpl The sample to get the track for
+	 *
+	 * \return Track number of the track containing sample \c smpl
+	 */
+	virtual TrackNo do_track(const uint32_t smpl) const
+	= 0;
+
+	/**
+	 * \brief Implements offset(const uint8_t track) const.
+	 *
+	 * \param[in] track The 0-based track to get the offset for
+	 *
+	 * \return The offset for the specified 0-based track
+	 */
+	virtual uint32_t do_offset(const uint8_t track) const
+	= 0;
+
+	/**
+	 * \brief Implements length(const uint8_t track) const.
+	 *
+	 * \param[in] track The 0-based track to get the length for
+	 *
+	 * \return The length for the specified 0-based track
+	 */
+	virtual uint32_t do_length(const uint8_t track) const
+	= 0;
+
+	/**
+	 * \brief Implements id() const.
+	 *
+	 * \return The ARId of the current medium
+	 */
+	virtual ARId do_id() const
+	= 0;
+
+	/**
+	 * \brief Implements skips_front() const.
+	 *
+	 * \return TRUE iff context will signal to skip the first samples.
+	 */
+	virtual bool do_skips_front() const
+	= 0;
+
+	/**
+	 * \brief Implements skips_back() const.
+	 *
+	 * \return TRUE iff context will signal to skip the last samples.
+	 */
+	virtual bool do_skips_back() const
+	= 0;
+
+	/**
+	 * \brief Implements num_skip_front() const.
+	 *
+	 * \return The number of samples to skip at the beginning of the first track
+	 */
+	virtual uint32_t do_num_skip_front() const
+	= 0;
+
+	/**
+	 * \brief Implements num_skip_back() const.
+	 *
+	 * \return The number of samples to skip at the end of the last track
+	 */
+	virtual uint32_t do_num_skip_back() const
+	= 0;
+
+	/**
+	 * \brief Implements notify_skips(const uint32_t num_skip_front, const uint32_t num_skip_back).
+	 *
+	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
+	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
+	 */
+	virtual void do_notify_skips(const uint32_t num_skip_front, const uint32_t
+		num_skip_back) = 0;
+
+	/**
+	 * \brief Implements clone() const.
+	 *
+	 * \return A clone of this instance
+	 */
+	virtual std::unique_ptr<CalcContext> do_clone() const
 	= 0;
 };
 
@@ -807,15 +990,21 @@ class Checksums final
 
 public: /* types */
 
+	/**
+	 * \brief Iterator for Checksums.
+	 */
 	using iterator = ChecksumSet*;
 
+	/**
+	 * \brief Const_iterator for Checksums.
+	 */
 	using const_iterator = const ChecksumSet*;
 
 
 public: /* methods */
 
 	/**
-	 * \brief Constructor
+	 * \brief Constructor.
 	 *
 	 * \param[in] size Number of elements
 	 */
@@ -836,42 +1025,42 @@ public: /* methods */
 	Checksums(Checksums &&rhs) noexcept;
 
 	/**
-	 * \brief Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element.
 	 *
 	 * \return Pointer to the first element
 	 */
 	iterator begin();
 
 	/**
-	 * \brief Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
 	iterator end();
 
 	/**
-	 * \brief Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element.
 	 *
 	 * \return Pointer to the first element
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief Returns a pointer to the first element
+	 * \brief Returns a pointer to the first element.
 	 *
 	 * \return Pointer to the first element
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief Returns a pointer after the last element
+	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
@@ -900,7 +1089,7 @@ public: /* methods */
 	const ChecksumSet& operator [] (const uint32_t index) const;
 
 	/**
-	 * \brief Return the number of elements
+	 * \brief Return the number of elements.
 	 *
 	 * \return Number of elements
 	 */
@@ -928,12 +1117,12 @@ public: /* methods */
 private:
 
 	/**
-	 * \brief Implementation of the set
+	 * \brief Implementation of the set.
 	 */
 	std::unique_ptr<ChecksumSet[]> sets_;
 
 	/**
-	 * \brief Number of elements
+	 * \brief Number of elements.
 	 */
 	std::size_t size_;
 };
@@ -972,7 +1161,7 @@ class Calculation final
 public:
 
 	/**
-	 * \brief Construct calculation for specified checksum type and context
+	 * \brief Construct calculation for specified checksum type and context.
 	 *
 	 * \param[in] type The checksum type to calculate
 	 * \param[in] ctx The context for this calculation
@@ -980,7 +1169,8 @@ public:
 	Calculation(const checksum::type type, std::unique_ptr<CalcContext> ctx);
 
 	/**
-	 * \brief Construct calculation for specified context with checksum::type::ARCS2
+	 * \brief Construct calculation for specified context with
+	 * checksum::type::ARCS2.
 	 *
 	 * \param[in] ctx The context for this calculation
 	 */
@@ -1001,7 +1191,7 @@ public:
 	Calculation(Calculation &&rhs) noexcept;
 
 	/**
-	 * \brief Default destructor
+	 * \brief Default destructor.
 	 */
 	~Calculation() noexcept;
 
@@ -1063,7 +1253,7 @@ public:
 	uint32_t sample_counter() const;
 
 	/**
-	 * \brief Acquire the resulting Checksums
+	 * \brief Acquire the resulting Checksums.
 	 *
 	 * \return The computed Checksums
 	 */
@@ -1102,7 +1292,7 @@ private:
 	class Impl;
 
 	/**
-	 * \brief Private implementation of Calculation
+	 * \brief Private implementation of Calculation.
 	 */
 	std::unique_ptr<Calculation::Impl> impl_;
 };

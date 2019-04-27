@@ -777,48 +777,50 @@ public:
 	CalcContextBase(const std::string &filename, const uint32_t num_skip_front,
 			const uint32_t num_skip_back);
 
-	void set_audio_size(const AudioSize &audio_size) override;
 
-	const AudioSize& audio_size() const override;
+private:
 
-	// sample_count()
+	void do_set_audio_size(const AudioSize &audio_size) override;
 
-	void set_filename(const std::string &filename) override;
+	const AudioSize& do_audio_size() const override;
 
-	std::string filename() const override;
+	// do_sample_count()
 
-	// track_count()
+	void do_set_filename(const std::string &filename) override;
 
-	// is_multi_track()
+	std::string do_filename() const override;
 
-	uint32_t first_relevant_sample(const TrackNo) const override;
+	// do_track_count()
+	// do_is_multi_track()
 
-	uint32_t first_relevant_sample() const override;
+	uint32_t do_first_relevant_sample(const TrackNo) const override;
 
-	uint32_t last_relevant_sample(const TrackNo track) const override;
+	uint32_t do_first_relevant_sample() const override;
 
-	uint32_t last_relevant_sample() const override;
+	uint32_t do_last_relevant_sample(const TrackNo track) const override;
 
-	// track(const uint32_t)
+	uint32_t do_last_relevant_sample() const override;
 
-	// offset(const TrackNo)
+	// do_track(const uint32_t)
+	// do_offset(const TrackNo)
+	// do_length(const TrackNo)
+	// do_id()
+	// do_skips_front()
+	// do_skips_back()
 
-	// length(const TrackNo)
+	uint32_t do_num_skip_front() const override;
 
-	// id()
+	uint32_t do_num_skip_back() const override;
 
-	// skips_front()
-
-	// skips_back()
-
-	uint32_t num_skip_front() const override;
-
-	uint32_t num_skip_back() const override;
-
-	void notify_skips(const uint32_t num_skip_front,
+	void do_notify_skips(const uint32_t num_skip_front,
 			const uint32_t num_skip_back) override;
 
-	// clone()
+	// do_clone()
+
+	/**
+	 * \brief Hook called after set_audio_size() is finished.
+	 */
+	virtual void do_hook_post_set_audio_size();
 
 
 protected:

@@ -26,39 +26,6 @@
 
 TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 {
-
-// Commented out: constructors will be removed from public API
-//
-//	SECTION ( "Construct without arguments" )
-//	{
-//		arcstk::Calculation calc; // equivalent to: singletrack + arcsv2
-//
-//		REQUIRE ( not calc.context().is_multi_track() );
-//		REQUIRE ( not calc.context().skips_front() );
-//		REQUIRE ( not calc.context().skips_back() );
-//		REQUIRE ( 0 == calc.context().num_skip_front() );
-//		REQUIRE ( 0 == calc.context().num_skip_back() );
-//		REQUIRE ( calc.type() == arcstk::checksum::type::ARCS2 );
-//	}
-//
-//	SECTION ( "Construct with type" )
-//	{
-//		arcstk::Calculation calc1(arcstk::checksum::type::ARCS1);
-//
-//		REQUIRE ( not calc1.context().is_multi_track() );
-//		REQUIRE ( not calc1.context().skips_front() );
-//		REQUIRE ( not calc1.context().skips_back() );
-//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS1 );
-//
-//
-//		arcstk::Calculation calc2(arcstk::checksum::type::ARCS2);
-//
-//		REQUIRE ( not calc2.context().is_multi_track() );
-//		REQUIRE ( not calc2.context().skips_front() );
-//		REQUIRE ( not calc2.context().skips_back() );
-//		REQUIRE ( calc2.type() == arcstk::checksum::type::ARCS2 );
-//	}
-
 	SECTION ( "Construct with only context (default type)" )
 	{
 		// Implicitly tested in section
@@ -176,15 +143,6 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 
 	SECTION ( "Changing the context updates Calculation correctly" )
 	{
-		// Change the type to a non-default type
-
-		//calc.set_type(arcstk::checksum::type::ARCS1);
-
-		//REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
-
-
-		// Create a completely different context
-
 		arcstk::TOCBuilder builder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
@@ -223,72 +181,7 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 		REQUIRE ( 2939 == calc.context().num_skip_front() );
 		REQUIRE ( 2940 == calc.context().num_skip_back() );
 		REQUIRE ( not calc.complete() );
-
-		// type: unchanged
-		//REQUIRE ( calc.type() == arcstk::checksum::type::ARCS1 );
 	}
-
-
-//	SECTION ( "Changing the type updates Calculation correctly" )
-//	{
-//		arcstk::TOCBuilder builder;
-//
-//		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-//		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
-//				3, /* track count */
-//				{ 12, 433, 924 }, /* offsets */
-//				1233 /* leadout */);
-//
-//		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
-//
-//		REQUIRE ( ctx->track_count() == 3 );
-//		REQUIRE ( ctx->offset(0) ==  12 );
-//		REQUIRE ( ctx->offset(1) == 433 );
-//		REQUIRE ( ctx->offset(2) == 924 );
-//		REQUIRE ( ctx->audio_size().leadout_frame() == 1233 );
-//
-//		REQUIRE ( ctx->is_multi_track() );
-//		REQUIRE ( ctx->skips_front() );
-//		REQUIRE ( ctx->skips_back() );
-//		REQUIRE ( 2939 == ctx->num_skip_front() );
-//		REQUIRE ( 2940 == ctx->num_skip_back() );
-//
-//
-//		// Construct a Calculation with this context
-//
-//		arcstk::Calculation calc1(std::move(ctx));
-//
-//		REQUIRE ( calc1.context().audio_size().leadout_frame() == 1233 );
-//		REQUIRE ( calc1.context().audio_size().pcm_byte_count() == 2900016 );
-//		REQUIRE ( calc1.context().audio_size().sample_count() == 725004 );
-//
-//		REQUIRE ( calc1.context().is_multi_track() );
-//		REQUIRE ( calc1.context().skips_front() );
-//		REQUIRE ( calc1.context().skips_back() );
-//		REQUIRE ( 2939 == calc1.context().num_skip_front() );
-//		REQUIRE ( 2940 == calc1.context().num_skip_back() );
-//
-//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS2 );
-//
-//
-//		// Now change the type
-//
-//		calc1.set_type(arcstk::checksum::type::ARCS1);
-//
-//		// Context must be equivalent, only type must have changed
-//
-//		REQUIRE ( calc1.context().audio_size().leadout_frame() == 1233 );
-//		REQUIRE ( calc1.context().audio_size().pcm_byte_count() == 2900016 );
-//		REQUIRE ( calc1.context().audio_size().sample_count() == 725004 );
-//
-//		REQUIRE ( calc1.context().is_multi_track() );
-//		REQUIRE ( calc1.context().skips_front() );
-//		REQUIRE ( calc1.context().skips_back() );
-//		REQUIRE ( 2939 == calc1.context().num_skip_front() );
-//		REQUIRE ( 2940 == calc1.context().num_skip_back() );
-//
-//		REQUIRE ( calc1.type() == arcstk::checksum::type::ARCS1 );
-//	}
 }
 
 

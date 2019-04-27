@@ -161,6 +161,130 @@ uint64_t AudioSize::Impl::pcm_byte_count() const
 }
 
 
+// CalcContext
+
+
+void CalcContext::set_audio_size(const AudioSize &audio_size)
+{
+	this->do_set_audio_size(audio_size);
+}
+
+
+const AudioSize& CalcContext::audio_size() const
+{
+	return this->do_audio_size();
+}
+
+
+void CalcContext::set_filename(const std::string &filename)
+{
+	this->do_set_filename(filename);
+}
+
+
+std::string CalcContext::filename() const
+{
+	return this->do_filename();
+}
+
+
+uint8_t CalcContext::track_count() const
+{
+	return this->do_track_count();
+}
+
+
+bool CalcContext::is_multi_track() const
+{
+	return this->do_is_multi_track();
+}
+
+
+uint32_t CalcContext::first_relevant_sample(const TrackNo track) const
+{
+	return this->do_first_relevant_sample(track);
+}
+
+
+uint32_t CalcContext::first_relevant_sample() const
+{
+	return this->do_first_relevant_sample();
+}
+
+
+uint32_t CalcContext::last_relevant_sample(const TrackNo track) const
+{
+	return this->do_last_relevant_sample(track);
+}
+
+
+uint32_t CalcContext::last_relevant_sample() const
+{
+	return this->do_last_relevant_sample();
+}
+
+
+TrackNo CalcContext::track(const uint32_t smpl) const
+{
+	return this->do_track(smpl);
+}
+
+
+uint32_t CalcContext::offset(const uint8_t track) const
+{
+	return this->do_offset(track);
+}
+
+
+uint32_t CalcContext::length(const uint8_t track) const
+{
+	return this->do_length(track);
+}
+
+
+ARId CalcContext::id() const
+{
+	return this->do_id();
+}
+
+
+bool CalcContext::skips_front() const
+{
+	return this->do_skips_front();
+}
+
+
+bool CalcContext::skips_back() const
+{
+	return this->do_skips_back();
+}
+
+
+uint32_t CalcContext::num_skip_front() const
+{
+	return this->do_num_skip_front();
+}
+
+
+uint32_t CalcContext::num_skip_back() const
+{
+	return this->do_num_skip_back();
+}
+
+
+void CalcContext::notify_skips(const uint32_t num_skip_front,
+		const uint32_t num_skip_back)
+{
+	this->do_notify_skips(num_skip_front, num_skip_back);
+}
+
+
+std::unique_ptr<CalcContext> CalcContext::clone() const
+{
+	return this->do_clone();
+}
+
+
 // CalcContextBase
 
 
@@ -179,67 +303,77 @@ CalcContextBase::CalcContextBase(const std::string &filename,
 CalcContextBase::~CalcContextBase() noexcept = default;
 
 
-void CalcContextBase::set_audio_size(const AudioSize &audio_size)
+void CalcContextBase::do_set_audio_size(const AudioSize &audio_size)
 {
 	audiosize_ = audio_size;
+
+	this->do_hook_post_set_audio_size();
 }
 
 
-const AudioSize& CalcContextBase::audio_size() const
+void CalcContextBase::do_hook_post_set_audio_size()
+{
+	// empty
+}
+
+
+const AudioSize& CalcContextBase::do_audio_size() const
 {
 	return audiosize_;
 }
 
 
-void CalcContextBase::set_filename(const std::string &filename)
+void CalcContextBase::do_set_filename(const std::string &filename)
 {
 	filename_ = filename;
 }
 
 
-std::string CalcContextBase::filename() const
+std::string CalcContextBase::do_filename() const
 {
 	return filename_;
 }
 
 
-uint32_t CalcContextBase::first_relevant_sample(const TrackNo /* track */) const
+uint32_t CalcContextBase::do_first_relevant_sample(const TrackNo /* track */)
+	const
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t CalcContextBase::first_relevant_sample() const
+uint32_t CalcContextBase::do_first_relevant_sample() const
 {
 	return this->first_relevant_sample(1);
 }
 
 
-uint32_t CalcContextBase::last_relevant_sample(const TrackNo /* track */) const
+uint32_t CalcContextBase::do_last_relevant_sample(const TrackNo /* track */)
+	const
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t CalcContextBase::last_relevant_sample() const
+uint32_t CalcContextBase::do_last_relevant_sample() const
 {
 	return this->last_relevant_sample(this->track_count());
 }
 
 
-uint32_t CalcContextBase::num_skip_front() const
+uint32_t CalcContextBase::do_num_skip_front() const
 {
 	return num_skip_front_;
 }
 
 
-uint32_t CalcContextBase::num_skip_back() const
+uint32_t CalcContextBase::do_num_skip_back() const
 {
 	return num_skip_back_;
 }
 
 
-void CalcContextBase::notify_skips(const uint32_t num_skip_front,
+void CalcContextBase::do_notify_skips(const uint32_t num_skip_front,
 		const uint32_t num_skip_back)
 {
 	num_skip_front_ = num_skip_front;
@@ -295,36 +429,12 @@ public:
 			const bool skip_front, const uint32_t num_skip_front,
 			const bool skip_back,  const uint32_t num_skip_back);
 
-	uint8_t track_count() const override;
-
-	bool is_multi_track() const override;
-
-	uint32_t first_relevant_sample(const TrackNo track) const override;
-
-	// first_relevant_sample() is generic in CalcContextBase
-
-	uint32_t last_relevant_sample(const TrackNo track) const override;
-
-	// last_relevant_sample() is generic in CalcContextBase
-
-	TrackNo track(const uint32_t smpl) const override;
-
-	uint32_t offset(const TrackNo track) const override;
-
-	uint32_t length(const TrackNo track) const override;
-
-	ARId id() const override;
-
-	bool skips_front() const override;
-
 	/**
 	 * \brief Activate skipping of the first 2939 samples of the first track.
 	 *
 	 * \param[in] skip TRUE skips the first 2939 samples of the first track
 	 */
 	void set_skip_front(const bool skip);
-
-	bool skips_back() const override;
 
 	/**
 	 * \brief Activate skipping of the last 2940 samples of the last track.
@@ -333,10 +443,33 @@ public:
 	 */
 	void set_skip_back(const bool skip);
 
-	std::unique_ptr<CalcContext> clone() const override;
-
-
 private:
+
+	uint8_t do_track_count() const final;
+
+	bool do_is_multi_track() const final;
+
+	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+
+	// do_first_relevant_sample() is generic in CalcContextBase
+
+	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+
+	// do_last_relevant_sample() is generic in CalcContextBase
+
+	TrackNo do_track(const uint32_t smpl) const final;
+
+	uint32_t do_offset(const TrackNo track) const final;
+
+	uint32_t do_length(const TrackNo track) const final;
+
+	ARId do_id() const final;
+
+	bool do_skips_front() const final;
+
+	bool do_skips_back() const final;
+
+	std::unique_ptr<CalcContext> do_clone() const final;
 
 	/**
 	 * \brief State: indicates whether to skip the front samples
@@ -382,19 +515,19 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 }
 
 
-uint8_t SingletrackCalcContext::track_count() const
+uint8_t SingletrackCalcContext::do_track_count() const
 {
 	return 1;
 }
 
 
-bool SingletrackCalcContext::is_multi_track() const
+bool SingletrackCalcContext::do_is_multi_track() const
 {
 	return false;
 }
 
 
-uint32_t SingletrackCalcContext::first_relevant_sample(
+uint32_t SingletrackCalcContext::do_first_relevant_sample(
 		const TrackNo track) const
 {
 	// Illegal track request?
@@ -417,7 +550,7 @@ uint32_t SingletrackCalcContext::first_relevant_sample(
 }
 
 
-uint32_t SingletrackCalcContext::last_relevant_sample(
+uint32_t SingletrackCalcContext::do_last_relevant_sample(
 		const TrackNo track) const
 {
 	// Illegal track request?
@@ -438,31 +571,31 @@ uint32_t SingletrackCalcContext::last_relevant_sample(
 }
 
 
-TrackNo SingletrackCalcContext::track(const uint32_t /* smpl */) const
+TrackNo SingletrackCalcContext::do_track(const uint32_t /* smpl */) const
 {
 	return 1;
 }
 
 
-uint32_t SingletrackCalcContext::offset(const TrackNo /* track */) const
+uint32_t SingletrackCalcContext::do_offset(const TrackNo /* track */) const
 {
 	return 0;
 }
 
 
-uint32_t SingletrackCalcContext::length(const TrackNo /* track */) const
+uint32_t SingletrackCalcContext::do_length(const TrackNo /* track */) const
 {
 	return 0;
 }
 
 
-ARId SingletrackCalcContext::id() const
+ARId SingletrackCalcContext::do_id() const
 {
 	return *(make_empty_arid());
 }
 
 
-bool SingletrackCalcContext::skips_front() const
+bool SingletrackCalcContext::do_skips_front() const
 {
 	return skip_front_;
 }
@@ -474,7 +607,7 @@ void SingletrackCalcContext::set_skip_front(const bool skip)
 }
 
 
-bool SingletrackCalcContext::skips_back() const
+bool SingletrackCalcContext::do_skips_back() const
 {
 	return skip_back_;
 }
@@ -486,7 +619,7 @@ void SingletrackCalcContext::set_skip_back(const bool skip)
 }
 
 
-std::unique_ptr<CalcContext> SingletrackCalcContext::clone() const
+std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const
 {
 	return std::make_unique<SingletrackCalcContext>(*this);
 }
@@ -529,32 +662,6 @@ public:
 	MultitrackCalcContext(const std::string &filename, const TOC &toc,
 			const uint32_t skip_front, const uint32_t skip_back);
 
-	void set_audio_size(const AudioSize &audio_size) override;
-
-	uint8_t track_count() const override;
-
-	bool is_multi_track() const override;
-
-	uint32_t first_relevant_sample(const TrackNo track) const override;
-
-	// first_relevant_sample() is generic in CalcContextBase
-
-	uint32_t last_relevant_sample(const TrackNo track) const override;
-
-	// last_relevant_sample() is generic in CalcContextBase
-
-	TrackNo track(const uint32_t smpl) const override;
-
-	uint32_t offset(const TrackNo track) const override;
-
-	uint32_t length(const TrackNo track) const override;
-
-	ARId id() const override;
-
-	bool skips_front() const override;
-
-	bool skips_back() const override;
-
 	/**
 	 * \brief The TOC of the audio input file.
 	 *
@@ -562,17 +669,43 @@ public:
 	 */
 	const TOC& toc() const;
 
-	std::unique_ptr<CalcContext> clone() const override;
-
-
-private:
-
 	/**
 	 * \brief Set the TOC for the audio input.
 	 *
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
 	void set_toc(const TOC &toc);
+
+
+private:
+
+	void do_hook_post_set_audio_size() final;
+
+	uint8_t do_track_count() const final;
+
+	bool do_is_multi_track() const final;
+
+	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+
+	// do_first_relevant_sample() is generic in CalcContextBase
+
+	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+
+	// do_last_relevant_sample() is generic in CalcContextBase
+
+	TrackNo do_track(const uint32_t smpl) const final;
+
+	uint32_t do_offset(const TrackNo track) const final;
+
+	uint32_t do_length(const TrackNo track) const final;
+
+	ARId do_id() const final;
+
+	bool do_skips_front() const final;
+
+	bool do_skips_back() const final;
+
+	std::unique_ptr<CalcContext> do_clone() const final;
 
 	/**
 	 * \brief TOC representation
@@ -606,32 +739,31 @@ MultitrackCalcContext::MultitrackCalcContext(const std::string &filename,
 }
 
 
-void MultitrackCalcContext::set_audio_size(const AudioSize &audio_size)
+void MultitrackCalcContext::do_hook_post_set_audio_size()
 {
-	CalcContextBase::set_audio_size(audio_size);
-
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
 		TOCBuilder builder;
-		auto toc { builder.merge(toc_, audio_size.leadout_frame()) };
+		auto toc { builder.merge(toc_, this->audio_size().leadout_frame()) };
 		toc_ = *toc;
 	}
 }
 
 
-uint8_t MultitrackCalcContext::track_count() const
+uint8_t MultitrackCalcContext::do_track_count() const
 {
 	return toc().track_count();
 }
 
 
-bool MultitrackCalcContext::is_multi_track() const
+bool MultitrackCalcContext::do_is_multi_track() const
 {
 	return true;
 }
 
 
-uint32_t MultitrackCalcContext::first_relevant_sample(const TrackNo track) const
+uint32_t MultitrackCalcContext::do_first_relevant_sample(const TrackNo track)
+	const
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -665,7 +797,8 @@ uint32_t MultitrackCalcContext::first_relevant_sample(const TrackNo track) const
 }
 
 
-uint32_t MultitrackCalcContext::last_relevant_sample(const TrackNo track) const
+uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
+	const
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -695,7 +828,7 @@ uint32_t MultitrackCalcContext::last_relevant_sample(const TrackNo track) const
 }
 
 
-TrackNo MultitrackCalcContext::track(const uint32_t smpl) const
+TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
 {
 	if (this->audio_size().sample_count() == 0)
 	{
@@ -722,13 +855,13 @@ TrackNo MultitrackCalcContext::track(const uint32_t smpl) const
 }
 
 
-uint32_t MultitrackCalcContext::offset(const uint8_t track) const
+uint32_t MultitrackCalcContext::do_offset(const uint8_t track) const
 {
 	return track < this->track_count() ? toc().offset(track + 1) : 0;
 }
 
 
-uint32_t MultitrackCalcContext::length(const uint8_t track) const
+uint32_t MultitrackCalcContext::do_length(const uint8_t track) const
 {
 	// We define track i as the sample sequence whose first frame is LBA
 	// offset[i] and whose last frame is LBA offset[i+1] - 1.
@@ -769,7 +902,7 @@ uint32_t MultitrackCalcContext::length(const uint8_t track) const
 }
 
 
-ARId MultitrackCalcContext::id() const
+ARId MultitrackCalcContext::do_id() const
 {
 	std::unique_ptr<ARId> id;
 
@@ -789,13 +922,13 @@ ARId MultitrackCalcContext::id() const
 }
 
 
-bool MultitrackCalcContext::skips_front() const
+bool MultitrackCalcContext::do_skips_front() const
 {
 	return true;
 }
 
 
-bool MultitrackCalcContext::skips_back() const
+bool MultitrackCalcContext::do_skips_back() const
 {
 	return true;
 }
@@ -819,7 +952,7 @@ const TOC& MultitrackCalcContext::toc() const
 }
 
 
-std::unique_ptr<CalcContext> MultitrackCalcContext::clone() const
+std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const
 {
 	return std::make_unique<MultitrackCalcContext>(*this);
 }
@@ -960,6 +1093,7 @@ private:
 	 */
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
+
 
 /// \cond UNDOC_FUNCTION_BODIES
 
