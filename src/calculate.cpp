@@ -1031,23 +1031,23 @@ public:
 	 */
 	CalcStateV1();
 
-	void save(const TrackNo track) override;
+	void save(const TrackNo track) final;
 
-	int track_count() const override;
+	int track_count() const final;
 
-	checksum::type type() const override;
+	checksum::type type() const final;
 
-	ChecksumSet result(const TrackNo track) const override;
+	ChecksumSet result(const TrackNo track) const final;
 
-	ChecksumSet result() const override;
+	ChecksumSet result() const final;
 
-	void reset() override;
+	void reset() final;
 
-	void wipe() override;
+	void wipe() final;
 
-	uint32_t mult() const override;
+	uint32_t mult() const final;
 
-	std::unique_ptr<CalcState> clone() const override;
+	std::unique_ptr<CalcState> clone() const final;
 
 
 protected:
@@ -1073,9 +1073,9 @@ protected:
 
 private:
 
-	void init(const uint32_t mult) override;
+	void init(const uint32_t mult) final;
 
-	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
+	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
 
 	/**
 	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
@@ -1211,7 +1211,7 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 
 	if (not rc.second)
 	{
-		ARCS_LOG_WARNING << "No value found for type "
+		ARCS_LOG_WARNING << "Could not insert value for type "
 			<< checksum::type_name(checksum::type::ARCS1);
 
 		return ChecksumSet{};
@@ -1236,23 +1236,23 @@ public:
 	 */
 	CalcStateV1andV2();
 
-	void save(const TrackNo track) override;
+	void save(const TrackNo track) final;
 
-	int track_count() const override;
+	int track_count() const final;
 
-	checksum::type type() const override;
+	checksum::type type() const final;
 
-	ChecksumSet result(const TrackNo track) const override;
+	ChecksumSet result(const TrackNo track) const final;
 
-	ChecksumSet result() const override;
+	ChecksumSet result() const final;
 
-	void reset() override;
+	void reset() final;
 
-	void wipe() override;
+	void wipe() final;
 
-	uint32_t mult() const override;
+	uint32_t mult() const final;
 
-	std::unique_ptr<CalcState> clone() const override;
+	std::unique_ptr<CalcState> clone() const final;
 
 
 protected:
@@ -1262,9 +1262,9 @@ protected:
 
 private:
 
-	void init(const uint32_t mult) override;
+	void init(const uint32_t mult) final;
 
-	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) override;
+	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
 
 	/**
 	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
