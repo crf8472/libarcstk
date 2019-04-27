@@ -82,8 +82,6 @@ using sample_type = uint32_t;
 
 
 /**
- * \headerfile calculate.hpp <arcstk/calculate.hpp>
- *
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, other the number of samples and
