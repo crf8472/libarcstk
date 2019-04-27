@@ -58,15 +58,19 @@ build switches.
 
 - [Build the API documentation](BUILD.md#building-the-api-documentation) and
   view it in a browser.
-- Consult the example code in the examples folder.
+- Consult the example applications in the examples folder. They illustrate the
+  supported usecases.
 - As soon as I manage to write a quickstart tutorial, it will be found in the
   Wiki.
+- For local ARCS calculation, also check whether
+  [libarcsdec](https://codeberg.org/tristero/libarcsdec) is helpful. Its
+  target is to read virtually any lossless audio format by a uniform
+  API. (It's yet pre-alpha, so be warned.)
 
 
 
 ## Current Limitations
 
-- Pre-alpha state
 - No production release yet - will be 1.0.0
 - API is not considered stable before 1.0.0 (may change any time in any way
   until then)
