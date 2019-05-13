@@ -698,10 +698,10 @@ inline std::string Log::to_string(LOGLEVEL level)
 	static const char* const buffer[] =
 	{
 		"NONE",
-		" ERROR",
-		"  WARN",
-		"  INFO",
-		" DEBUG",
+		"ERROR",
+		"WARN",
+		"INFO",
+		"DEBUG",
 		"DEBUG1",
 		"DEBUG2",
 		"DEBUG3",
