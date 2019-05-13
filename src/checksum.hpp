@@ -649,6 +649,15 @@ public:
 	Checksum get(checksum::type type) const;
 
 	/**
+	 * \brief Return the checksum types present in this ChecksumSet
+	 *
+	 * Just an alias to ChecksumMap::keys().
+	 *
+	 * \return The checksum types in this ChecksumSet
+	 */
+	std::set<checksum::type> types() const;
+
+	/**
 	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs Right hand side of the assignment

@@ -193,6 +193,12 @@ Checksum ChecksumSet::get(checksum::type type) const
 }
 
 
+std::set<checksum::type> ChecksumSet::types() const
+{
+	return this->keys();
+}
+
+
 ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
 {
 	ChecksumMap<checksum::type>::operator=(rhs);
