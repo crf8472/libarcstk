@@ -918,9 +918,11 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 }
 
 
+/// \cond UNDOC_FUNCTION_BODIES
+
+
 // AlbumMatcher
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
