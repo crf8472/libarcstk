@@ -18,6 +18,9 @@ set (DOC_SOURCES ${EXPORTED_HEADERS} )
 ## Path to import texts
 set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
 
+## We consider file index.html as main doxygen output and dependency
+set (DOXYGEN_OUTPUT_MAINPAGE "${PROJECT_BUILD_DOC_DIR}/html/index.html" )
+
 set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
 
 
@@ -96,7 +99,12 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 
 		set(DOC_COMMENT "${DOC_COMMENT}, using m.css" )
 
-		add_subdirectory (thirdparty/m.css )
+		add_subdirectory (thirdparty/m.css EXCLUDE_FROM_ALL )
+
+		if (TARGET mcss ) ## Only for cmake <3.11 with ExternalProject_Add
+			add_dependencies (doc mcss )
+		endif()
+
 		add_subdirectory (thirdparty/python-virtualenv )
 
 		set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss" )
@@ -110,14 +118,13 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		## Provide debug output from m.css if requested
 		if (MCSS_DEBUG )
 			set (MCSS_FLAGS "--debug" )
-		else (MCSS_DEBUG )
-			set (MCSS_FLAGS )
 		endif (MCSS_DEBUG )
 
 		## Run m.css executable
 		add_custom_target ( doc
 			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
-			DEPENDS "${ENV_TARGET}" "${DOXYFILE}" ${DOC_SOURCES}
+			DEPENDS "${ENV_TARGET}" "${DOXYFILE}" # "${DOXYGEN_OUTPUT_MAINPAGE}"
+					${DOC_SOURCES}
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
 			COMMENT "${DOC_COMMENT}"
 			VERBATIM
@@ -129,9 +136,10 @@ else() ## Use standard doxygen
 
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_custom_target ( doc ## add 'ALL' if you wish to run doc on regular build
+	add_custom_target ( doc
 		Doxygen::doxygen "${DOXYFILE}"
-		DEPENDS "${DOXYFILE}" ${DOC_SOURCES}
+		DEPENDS "${DOXYFILE}" # "${DOXYGEN_OUTPUT_MAINPAGE}"
+				${DOC_SOURCES}
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM

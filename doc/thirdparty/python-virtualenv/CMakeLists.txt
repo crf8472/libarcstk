@@ -3,21 +3,24 @@ cmake_minimum_required (VERSION 3.6 )
 project (CMakeVirtualenv )
 
 
-find_package (Python3 COMPONENTS Interpreter Development )
+## Find python 3
 
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12" ) ## FindPython available
 
-if (NOT Python3_FOUND )
+	find_package (Python3 COMPONENTS Interpreter Development REQUIRED )
 
-	## Find Python2
-	find_package (PythonInterp 2.7 REQUIRED )
-
-	set(CALL_PYTHON ${PYTHON_EXECUTABLE} )
+	set(CALL_PYTHON ${Python3_EXECUTABLE} )
 
 else()
 
-	set(CALL_PYTHON ${Python3_EXECUTABLE} )
+	find_package (PythonInterp 3.0 REQUIRED )
+
+	set(CALL_PYTHON ${PYTHON_EXECUTABLE} )
+
 endif()
 
+
+## Find virtualenv
 
 find_program (VIRTUALENV virtualenv )
 
@@ -28,9 +31,6 @@ else()
 
 	message (STATUS "Found 'virtualenv': ${VIRTUALENV}" )
 endif()
-
-
-set (VIRTUALENV ${VIRTUALENV} -p ${CALL_PYTHON} )
 
 
 ## Create and setup an up-to-date virtual python environment
@@ -45,11 +45,19 @@ set (STAMP_FILE "update.stamp" )
 ## Setup ENV_DIR as virtual environment directory
 add_custom_command(
 	OUTPUT  "${ENV_DIR}"
-	COMMAND ${CALL_PYTHON}
-	ARGS    -m virtualenv "${ENV_DIR}"
+	COMMAND ${VIRTUALENV}
+	ARGS    -p ${CALL_PYTHON} "${ENV_DIR}"
 	VERBATIM
 	COMMENT "Create virtual python environment for m.css"
 )
+## Note:
+## One could also do this by specifying the following:
+##	COMMAND ${CALL_PYTHON}
+##	ARGS    -m virtualenv "${ENV_DIR}"
+## But it can fail on systems with python 2 present. When loaded, virualenv is
+## allowed to change the python interpreter. At least on Bionic Beaver, it
+## fell back to python 2.7 which caused the m.css run to fail on some enconding
+## issue.
 
 
 ## Update and Install requirements file in ENV_DIR

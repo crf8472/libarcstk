@@ -22,7 +22,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 	include (ExternalProject )
 
 	ExternalProject_Add (${MCSS_TARGET}
-		GIT_REPOSITORY    "${MCSS_REPO_URL}"
+		GIT_REPOSITORY    ${MCSS_REPO_URL}
 		#GIT_TAG           ${MCSS_VERSION_TAG}
 		GIT_SHALLOW       true
 		GIT_PROGRESS      true
