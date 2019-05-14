@@ -24,7 +24,15 @@ list (APPEND TEST_SETS samples )
 
 add_library (catch2_main OBJECT "${MAIN_TEST_CPP}" )
 set_property (TARGET catch2_main PROPERTY CXX_STANDARD 14 )
-target_link_libraries (catch2_main Catch2::Catch2 )
+
+if (${CMAKE_VERSION} VERSION_LESS "3.13.0" )
+
+	target_include_directories (catch2_main PUBLIC
+	"${CMAKE_BINARY_DIR}/thirdparty/catch2/catch2-prefix/src/catch2/single_include/" )
+else ()
+
+	target_link_libraries (catch2_main Catch2::Catch2 )
+endif ()
 
 
 ## Add common configuration for all testsuites (catch2 + project dependencies)
