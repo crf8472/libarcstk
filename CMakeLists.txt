@@ -18,7 +18,7 @@ set (PROJECT_BRIEF_DESC
 
 set (PROJECT_URL "https://codeberg.org/tristero/lib${PROJECT_NAME}/" )
 
-set (PROJECT_VERSION_SUFFIX "alpha.1" )
+set (PROJECT_VERSION_SUFFIX "alpha.2" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
