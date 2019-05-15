@@ -3,7 +3,7 @@
 
 \section Home
 
-See the project home [on codeberg.org](https://codeberg.org/tristero/libarcstk)
+See the project home [on codeberg.org](https://codeberg.org/tristero/libarcstk).
 
 
 \section features Features
