@@ -19,10 +19,17 @@ set (DOC_SOURCES ${EXPORTED_HEADERS} )
 set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
 
 ## We consider file index.html as main doxygen output and dependency
-set (DOXYGEN_OUTPUT_MAINPAGE "${PROJECT_BUILD_DOC_DIR}/html/index.html" )
+set (DOC_OUTPUT_MAINPAGE "${PROJECT_BUILD_DOC_DIR}/html/index.html" )
 
 set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
 
+
+## A doc target makes it possible to just remove the folder 'html' in the
+## output directory to force a rebuild of the documentation.
+add_custom_target ( doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+## Note: it would be nice to just have dependencies on the Doxyfile. Since this
+## file is build in the configure phase, it can not simply be added as a
+## dependency to a command.
 
 
 ## --- Build internal docs if requested
@@ -77,7 +84,7 @@ else ()
 endif (WITH_IMPL_DOCS)
 
 
-## Create Main Doxyfile
+## Provide main Doxyfile
 
 configure_file ("${PROJECT_DOC_DIR}/Doxyfile.in"
 	"${PROJECT_BUILD_DOC_DIR}/Doxyfile"
@@ -100,16 +107,11 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		set(DOC_COMMENT "${DOC_COMMENT}, using m.css" )
 
 		add_subdirectory (thirdparty/m.css EXCLUDE_FROM_ALL )
-
-		if (TARGET mcss ) ## Only for cmake <3.11 with ExternalProject_Add
-			add_dependencies (doc mcss )
-		endif()
-
 		add_subdirectory (thirdparty/python-virtualenv )
 
 		set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss" )
 
-		## Provide Doxygen configuration for m.css
+		## Provide Doxyfile for m.css
 		configure_file ("${PROJECT_DOC_DIR}/Doxyfile-mcss.in"
 			"${DOXYFILE}"
 			@ONLY
@@ -121,10 +123,10 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		endif (MCSS_DEBUG )
 
 		## Run m.css executable
-		add_custom_target ( doc
+		add_custom_command (
+			OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
 			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
-			DEPENDS "${ENV_TARGET}" "${DOXYFILE}" # "${DOXYGEN_OUTPUT_MAINPAGE}"
-					${DOC_SOURCES}
+			DEPENDS "${ENV_TARGET}" ${DOC_SOURCES} ## TODO: "${DOXYFILE}"
 			WORKING_DIRECTORY "${ENV_DIRECTORY}"
 			COMMENT "${DOC_COMMENT}"
 			VERBATIM
@@ -134,12 +136,12 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 
 else() ## Use standard doxygen
 
-	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
+	set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile" )
 
-	add_custom_target ( doc
-		Doxygen::doxygen "${DOXYFILE}"
-		DEPENDS "${DOXYFILE}" # "${DOXYGEN_OUTPUT_MAINPAGE}"
-				${DOC_SOURCES}
+	add_custom_command (
+		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
+		COMMAND Doxygen::doxygen "${DOXYFILE}"
+		DEPENDS ${DOC_SOURCES} ## TODO "${DOXYFILE}"
 		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
