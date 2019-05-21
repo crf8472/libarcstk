@@ -344,18 +344,3 @@ else (WITH_DOCS )
 
 endif (WITH_DOCS )
 
-
-## --- Cleanup
-
-## Unset all cached option values to have their default values active
-## on the next invokation of CMake
-
-unset (AS_STATIC          CACHE)
-unset (IWYU               CACHE)
-unset (WITH_TESTS         CACHE)
-unset (WITH_DOCS          CACHE)
-unset (WITH_INTERNAL_DOCS CACHE)
-unset (WITH_IMPL_DOCS     CACHE)
-unset (USE_MCSS           CACHE)
-unset (WITH_NATIVE        CACHE)
-
