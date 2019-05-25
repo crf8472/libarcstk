@@ -106,7 +106,7 @@ set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include"
 	CACHE PATH "Installation directory for include (.hpp) files" )
 
-set (INSTALL_CMAKECONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake"
+set (INSTALL_CMAKECONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
 	CACHE PATH "Installation directory for cmake package files" )
 
 set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
