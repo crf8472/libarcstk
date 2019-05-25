@@ -106,6 +106,9 @@ set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include"
 	CACHE PATH "Installation directory for include (.hpp) files" )
 
+set (INSTALL_CMAKECONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake"
+	CACHE PATH "Installation directory for cmake package files" )
+
 set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
 	CACHE PATH "Installation directory for pkgconfig (.pc) files" )
 
@@ -158,14 +161,6 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 configure_file (
   "${PROJECT_SOURCE_DIR}/version.hpp_in"
   "${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
-  @ONLY
-)
-
-## pkg-info file
-
-configure_file (
-  "${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-  "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
   @ONLY
 )
 
@@ -227,10 +222,13 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 
 if (NOT SKIP_INSTALL_ALL )
 
+	set (EXPORT_SET_NAME "lib${PROJECT_NAME}-targets" )
+
 	if (AS_STATIC )
 
 		## install static library
 		install (TARGETS ${PROJECT_NAME}
+			EXPORT "${EXPORT_SET_NAME}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			ARCHIVE        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
@@ -239,15 +237,62 @@ if (NOT SKIP_INSTALL_ALL )
 
 		## install shared library
 		install (TARGETS ${PROJECT_NAME}
+			EXPORT "${EXPORT_SET_NAME}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
 			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk/details" )
 	endif (AS_STATIC )
 
+	install (EXPORT ${EXPORT_SET_NAME}
+		NAMESPACE libarcstk::
+		DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
+	)
+
 	if (NOT SKIP_INSTALL_FILES )
+
+		# Support pkgconfig
+
+		configure_file (
+			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
+			"${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
+			@ONLY
+		)
 
 		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
 			DESTINATION "${INSTALL_PKGCONFIG_DIR}" )
+
+
+		# Support CMake Packaging
+
+		include (CMakePackageConfigHelpers )
+
+		set (PROJECT_CONFIG_FILE
+			"lib${PROJECT_NAME}-config.cmake"
+		)
+
+		set (PROJECT_CONFIG_VERSION_FILE
+			"lib${PROJECT_NAME}-config-version.cmake"
+		)
+
+		configure_package_config_file (
+			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
+			"${PROJECT_CONFIG_FILE}"
+			PATH_VARS INSTALL_INCLUDE_DIR
+			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
+		)
+
+		write_basic_package_version_file (
+			"${PROJECT_CONFIG_VERSION_FILE}"
+			VERSION			${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
+			COMPATIBILITY	SameMajorVersion
+		)
+
+		install (FILES
+			"${PROJECT_BINARY_DIR}/${PROJECT_CONFIG_FILE}"
+			"${PROJECT_BINARY_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
+			DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
+		)
+
 	endif ()
 
 endif (NOT SKIP_INSTALL_ALL)
