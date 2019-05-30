@@ -11,12 +11,12 @@ cmake_policy (SET CMP0048 NEW)
 cmake_policy (SET CMP0057 NEW)
 
 
-project (arcstk VERSION 0.1.0 LANGUAGES CXX )
+project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 
 set (PROJECT_BRIEF_DESC
 	"A library to calculate and verify AccurateRip checksums and ids" )
 
-set (PROJECT_URL "https://codeberg.org/tristero/lib${PROJECT_NAME}/" )
+set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}/" )
 
 set (PROJECT_VERSION_SUFFIX "alpha.2" )
 
@@ -38,7 +38,7 @@ if (PROJECT_VERSION_SUFFIX )
 		"${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}-${PROJECT_VERSION_SUFFIX}" )
 endif (PROJECT_VERSION_SUFFIX )
 
-message (STATUS "Building lib${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
+message (STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
 
 
 ## --- Setup Default Build Type
@@ -103,11 +103,11 @@ set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
 set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 	CACHE PATH "Installation directory for library (.so) files" )
 
-set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include"
+set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include/arcstk"
 	CACHE PATH "Installation directory for include (.hpp) files" )
 
 set (INSTALL_CMAKECONFIG_DIR
-	"${CMAKE_INSTALL_PREFIX}/lib/cmake/lib${PROJECT_NAME}"
+	"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
 	CACHE PATH "Installation directory for cmake package files" )
 
 set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
@@ -215,6 +215,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
 	PUBLIC_HEADER  "${EXPORTED_HEADERS}"
 	PRIVATE_HEADER "${EXPORTED_TEMPLATES}"
+	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
@@ -223,7 +224,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 
 if (NOT SKIP_INSTALL_ALL )
 
-	set (EXPORT_SET_NAME "lib${PROJECT_NAME}-targets" )
+	set (EXPORT_SET_NAME "${PROJECT_NAME}-targets" )
 
 	if (AS_STATIC )
 
@@ -232,16 +233,16 @@ if (NOT SKIP_INSTALL_ALL )
 			EXPORT "${EXPORT_SET_NAME}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			ARCHIVE        DESTINATION "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
-			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk/details" )
+			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
+			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/details" )
 	else (AS_STATIC )
 
 		## install shared library
 		install (TARGETS ${PROJECT_NAME}
 			EXPORT "${EXPORT_SET_NAME}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk"
-			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/arcstk/details" )
+			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
+			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/details" )
 	endif (AS_STATIC )
 
 	install (EXPORT ${EXPORT_SET_NAME}
@@ -268,17 +269,17 @@ if (NOT SKIP_INSTALL_ALL )
 		include (CMakePackageConfigHelpers )
 
 		set (PROJECT_CONFIG_FILE
-			"lib${PROJECT_NAME}-config.cmake"
+			"${PROJECT_NAME}-config.cmake"
 		)
 
 		set (PROJECT_CONFIG_VERSION_FILE
-			"lib${PROJECT_NAME}-config-version.cmake"
+			"${PROJECT_NAME}-config-version.cmake"
 		)
 
 		configure_package_config_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
 			"${PROJECT_CONFIG_FILE}"
-			PATH_VARS INSTALL_INCLUDE_DIR
+			#PATH_VARS INSTALL_INCLUDE_DIR INSTALL_LIBRARY_DIR ## TODO Required?
 			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 		)
 
