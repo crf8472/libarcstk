@@ -838,6 +838,8 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 			<< ") is different from number of tracks in ref_sums ("
 			<< ref_tracks << ")";
 
+		// TODO exception
+
 		return nullptr;
 	}
 
@@ -1029,6 +1031,8 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 			<< " Number of tracks in actual_sums (" << actual_sums.size()
 			<< ") is different from number of tracks in ref_sums ("
 			<< ref_tracks << ")";
+
+		// TODO exception
 
 		return nullptr;
 	}

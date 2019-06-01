@@ -1481,7 +1481,7 @@ void TOCValidator::validate(const uint16_t track_count,
 			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1511,7 +1511,7 @@ void TOCValidator::validate_offsets(const uint16_t track_count,
 		std::stringstream ss;
 		ss << "Track count does not match offset count." << " Bail out.";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1529,7 +1529,7 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		std::stringstream ss;
 		ss << "No offsets were given. Bail out.";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1540,7 +1540,7 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		ss << "Offsets are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1573,20 +1573,20 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 				ss << " exceeds physical range of 99 min ("
 					<< std::to_string(MAX_OFFSET_99) << " frames)";
 
-				ARCS_LOG_WARNING << ss.str();
+				//ARCS_LOG_WARNING << ss.str();
 
 			} else if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_90))
 			{
 				ss << " exceeds physical range of 90 min ("
 					<< std::to_string(MAX_OFFSET_90) << " frames)";
 
-				ARCS_LOG_ERROR << ss.str();
+				//ARCS_LOG_ERROR << ss.str();
 			} else
 			{
 				ss << " exceeds redbook maximum duration of "
 					<< std::to_string(CDDA.MAX_OFFSET);
 
-				ARCS_LOG_INFO << ss.str();
+				//ARCS_LOG_INFO << ss.str();
 			}
 
 			throw InvalidMetadataException(ss.str());
@@ -1609,7 +1609,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 		std::stringstream ss;
 		ss << "No lengths were given. Bail out.";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1620,7 +1620,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 		ss << "Lengths are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1659,7 +1659,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			ss << " exceeds physical range of 99 min ("
 				<< std::to_string(MAX_OFFSET_99) << " frames)";
 
-			ARCS_LOG_ERROR << ss.str();
+			//ARCS_LOG_ERROR << ss.str();
 
 			throw InvalidMetadataException(ss.str());
 
@@ -1668,14 +1668,14 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
 
-			ARCS_LOG_WARNING << ss.str();
+			//ARCS_LOG_WARNING << ss.str();
 
 		} else // more than redbook originally defines? => info
 		{
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(CDDA.MAX_OFFSET);
 
-			ARCS_LOG_INFO << ss.str();
+			//ARCS_LOG_INFO << ss.str();
 		}
 	}
 }
@@ -1698,7 +1698,7 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 				<< " is smaller than minimum track length";
 		}
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1710,7 +1710,7 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 		std::stringstream ss;
 		ss << "Leadout " << leadout << " exceeds physical maximum";
 
-		ARCS_LOG_ERROR << ss.str();
+		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}

@@ -1874,17 +1874,17 @@ uint32_t ARStreamParser::Impl::parse_stream(std::istream &in_stream)
 	{
 		parser_->on_catched_exception(in_stream, sre);
 
-		ARCS_LOG_ERROR << "Unexcpected end of input stream: " << sre.what();
-
-		throw sre;
+		throw std::runtime_error(
+			std::string("Unexcpected end of input stream, got ") +
+			typeid(sre).name() + std::string(", message: ") + sre.what());
 	}
 	catch (const std::exception& e)
 	{
 		parser_->on_catched_exception(in_stream, e);
 
-		ARCS_LOG_ERROR << "Failed to parse input stream: " << e.what();
-
-		throw e;
+		throw std::runtime_error(
+			std::string("Failed to parse input stream, got ") +
+			typeid(e).name() + std::string(", message: ") + e.what());
 	}
 
 	return bytes;
@@ -2254,9 +2254,10 @@ uint32_t ARFileParser::do_parse()
 	}
 	catch (const std::ifstream::failure& f)
 	{
-		ARCS_LOG_ERROR << "Failed to open file: " << f.what();
-
-		throw f;
+		throw std::runtime_error(
+			std::string("Failed to open file '") + this->file() +
+			std::string("', got: ") + typeid(f).name() +
+			std::string(", message: ") + f.what());
 	}
 
 	return ARStreamParser::parse_stream(file);
