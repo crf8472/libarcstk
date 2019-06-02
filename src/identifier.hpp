@@ -239,11 +239,11 @@ public:
 	uint32_t cddb_id() const;
 
 	/**
-	 * \brief Return a default string representation of this ARId.
+	 * \brief Return the standard URL prefix for AccurateRip request urls.
 	 *
-	 * \return Default string representation of this ARId
+	 * \return URL prefix for AccurateRip request URLs.
 	 */
-	std::string to_string() const;
+	std::string prefix() const;
 
 	/**
 	 * \brief Return TRUE iff this ARId is empty (holding no information).
@@ -251,6 +251,13 @@ public:
 	 * \return TRUE iff this ARId is empty
 	 */
 	bool empty() const;
+
+	/**
+	 * \brief Return a default string representation of this ARId.
+	 *
+	 * \return Default string representation of this ARId
+	 */
+	std::string to_string() const;
 
 	/**
 	 * \brief Returns TRUE iff this ARId holds identical values as \c rhs,

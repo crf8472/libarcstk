@@ -50,6 +50,11 @@ class ARId::Impl final
 public:
 
 	/**
+	 * \brief URL prefix for accessing AccurateRip
+	 */
+	const std::string AR_URL_PREFIX = "http://www.accuraterip.com/accuraterip/";
+
+	/**
 	 * \brief Implements ARId::ARId().
 	 */
 	Impl(const uint16_t track_count,
@@ -146,11 +151,6 @@ protected:
 
 
 private:
-
-	/**
-	 * \brief URL prefix for accessing AccurateRip
-	 */
-	const std::string AR_URL_PREFIX = "http://www.accuraterip.com/accuraterip/";
 
 	/**
 	 * \brief Number of tracks
@@ -838,6 +838,12 @@ uint32_t ARId::disc_id_2() const
 uint32_t ARId::cddb_id() const
 {
 	return impl_->cddb_id();
+}
+
+
+std::string ARId::prefix() const
+{
+	return impl_->AR_URL_PREFIX;
 }
 
 
