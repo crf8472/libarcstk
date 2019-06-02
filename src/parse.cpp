@@ -1874,9 +1874,7 @@ uint32_t ARStreamParser::Impl::parse_stream(std::istream &in_stream)
 	{
 		parser_->on_catched_exception(in_stream, sre);
 
-		throw std::runtime_error(
-			std::string("Unexcpected end of input stream, got ") +
-			typeid(sre).name() + std::string(", message: ") + sre.what());
+		throw;
 	}
 	catch (const std::exception& e)
 	{
