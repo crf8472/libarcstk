@@ -26,17 +26,17 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 	SECTION ( "Constructor" )
 	{
-		REQUIRE ( id.track_count() == 10 );
-		REQUIRE ( id.disc_id_1()   == 0x02c34fd0 );
-		REQUIRE ( id.disc_id_2()   == 0x01f880cc );
-		REQUIRE ( id.cddb_id()     == 0xbc55023f );
+		CHECK ( id.track_count() == 10 );
+		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
+		CHECK ( id.disc_id_2()   == 0x01f880cc );
+		CHECK ( id.cddb_id()     == 0xbc55023f );
 
-		REQUIRE ( id.url()         ==
+		CHECK ( id.url()         ==
 				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-		REQUIRE ( id.filename()    ==
+		CHECK ( id.filename()    ==
 				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
 
-		REQUIRE ( not id.empty() );
+		CHECK ( not id.empty() );
 	}
 
 
@@ -44,11 +44,11 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 	{
 		arcstk::ARId same_id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
 
-		REQUIRE ( id == id );
-		REQUIRE ( not (id != id) );
+		CHECK ( id == id );
+		CHECK ( not (id != id) );
 
-		REQUIRE ( id == same_id );
-		REQUIRE ( not (id != same_id) );
+		CHECK ( id == same_id );
+		CHECK ( not (id != same_id) );
 
 
 		arcstk::ARId id1(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
@@ -57,35 +57,35 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 		arcstk::ARId id4(15, 0x001B9178, 0x014BE24D, 0xB40D2D0F); // different id 2
 		arcstk::ARId id5(15, 0x001B9178, 0x014BE24E, 0xC40D2D0F); // different cddb id
 
-		REQUIRE ( id1 != id2 );
-		REQUIRE ( not (id1 == id2) );
+		CHECK ( id1 != id2 );
+		CHECK ( not (id1 == id2) );
 
-		REQUIRE ( id1 != id3 );
-		REQUIRE ( not (id1 == id3) );
+		CHECK ( id1 != id3 );
+		CHECK ( not (id1 == id3) );
 
-		REQUIRE ( id1 != id4 );
-		REQUIRE ( not (id1 == id4) );
+		CHECK ( id1 != id4 );
+		CHECK ( not (id1 == id4) );
 
-		REQUIRE ( id1 != id5 );
-		REQUIRE ( not (id1 == id5) );
+		CHECK ( id1 != id5 );
+		CHECK ( not (id1 == id5) );
 
-		REQUIRE ( id2 != id3 );
-		REQUIRE ( not (id2 == id3) );
+		CHECK ( id2 != id3 );
+		CHECK ( not (id2 == id3) );
 
-		REQUIRE ( id2 != id4 );
-		REQUIRE ( not (id2 == id4) );
+		CHECK ( id2 != id4 );
+		CHECK ( not (id2 == id4) );
 
-		REQUIRE ( id2 != id5 );
-		REQUIRE ( not (id2 == id5) );
+		CHECK ( id2 != id5 );
+		CHECK ( not (id2 == id5) );
 
-		REQUIRE ( id3 != id4 );
-		REQUIRE ( not (id3 == id4) );
+		CHECK ( id3 != id4 );
+		CHECK ( not (id3 == id4) );
 
-		REQUIRE ( id3 != id5 );
-		REQUIRE ( not (id3 == id5) );
+		CHECK ( id3 != id5 );
+		CHECK ( not (id3 == id5) );
 
-		REQUIRE ( id4 != id5 );
-		REQUIRE ( not (id4 == id5) );
+		CHECK ( id4 != id5 );
+		CHECK ( not (id4 == id5) );
 	}
 
 
@@ -94,17 +94,17 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 		arcstk::ARId copied_id(id);
 
 
-		REQUIRE ( copied_id.track_count() == 10 );
-		REQUIRE ( copied_id.disc_id_1()   == 0x02c34fd0 );
-		REQUIRE ( copied_id.disc_id_2()   == 0x01f880cc );
-		REQUIRE ( copied_id.cddb_id()     == 0xbc55023f );
+		CHECK ( copied_id.track_count() == 10 );
+		CHECK ( copied_id.disc_id_1()   == 0x02c34fd0 );
+		CHECK ( copied_id.disc_id_2()   == 0x01f880cc );
+		CHECK ( copied_id.cddb_id()     == 0xbc55023f );
 
-		REQUIRE ( copied_id.url()         ==
+		CHECK ( copied_id.url()         ==
 				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-		REQUIRE ( copied_id.filename()    ==
+		CHECK ( copied_id.filename()    ==
 				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
 
-		REQUIRE ( not copied_id.empty() );
+		CHECK ( not copied_id.empty() );
 	}
 
 
@@ -113,19 +113,19 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 		arcstk::ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
 		id = other_id;
 
-		REQUIRE ( id == other_id );
+		CHECK ( id == other_id );
 
-		REQUIRE ( id.track_count() == 11 );
-		REQUIRE ( id.disc_id_1()   == 0x02c34fd0 );
-		REQUIRE ( id.disc_id_2()   == 0x04e880bb );
-		REQUIRE ( id.cddb_id()     == 0xbc55023f );
+		CHECK ( id.track_count() == 11 );
+		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
+		CHECK ( id.disc_id_2()   == 0x04e880bb );
+		CHECK ( id.cddb_id()     == 0xbc55023f );
 
-		REQUIRE ( id.url()         ==
+		CHECK ( id.url()         ==
 				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
-		REQUIRE ( id.filename()    ==
+		CHECK ( id.filename()    ==
 				"dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
 
-		REQUIRE ( not id.empty() );
+		CHECK ( not id.empty() );
 	}
 }
 
@@ -152,17 +152,17 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 			253038
 		);
 
-		REQUIRE ( id1->track_count() == 15 );
-		REQUIRE ( id1->disc_id_1()   == 0x001b9178 );
-		REQUIRE ( id1->disc_id_2()   == 0x014be24e );
-		REQUIRE ( id1->cddb_id()     == 0xb40d2d0f );
+		CHECK ( id1->track_count() == 15 );
+		CHECK ( id1->disc_id_1()   == 0x001b9178 );
+		CHECK ( id1->disc_id_2()   == 0x014be24e );
+		CHECK ( id1->cddb_id()     == 0xb40d2d0f );
 
-		REQUIRE ( id1->url()         ==
+		CHECK ( id1->url()         ==
 				"http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
-		REQUIRE ( id1->filename()    ==
+		CHECK ( id1->filename()    ==
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
-		REQUIRE ( not id1->empty() );
+		CHECK ( not id1->empty() );
 	}
 
 
@@ -180,17 +180,17 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 			264957
 		);
 
-		REQUIRE ( id2->track_count() == 3 );
-		REQUIRE ( id2->disc_id_1()   == 0x0008100c );
-		REQUIRE ( id2->disc_id_2()   == 0x001ac008 );
-		REQUIRE ( id2->cddb_id()     == 0x190dcc03 );
+		CHECK ( id2->track_count() == 3 );
+		CHECK ( id2->disc_id_1()   == 0x0008100c );
+		CHECK ( id2->disc_id_2()   == 0x001ac008 );
+		CHECK ( id2->cddb_id()     == 0x190dcc03 );
 
-		REQUIRE ( id2->url()         ==
+		CHECK ( id2->url()         ==
 				"http://www.accuraterip.com/accuraterip/c/0/0/dBAR-003-0008100c-001ac008-190dcc03.bin" );
-		REQUIRE ( id2->filename()    ==
+		CHECK ( id2->filename()    ==
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
-		REQUIRE ( not id2->empty() );
+		CHECK ( not id2->empty() );
 	}
 
 
@@ -209,17 +209,17 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		);
 
 
-		REQUIRE ( id3->track_count() == 9 );
-		REQUIRE ( id3->disc_id_1()   == 0x001008a6 );
-		REQUIRE ( id3->disc_id_2()   == 0x007469b8 );
-		REQUIRE ( id3->cddb_id()     == 0x870af109 );
+		CHECK ( id3->track_count() == 9 );
+		CHECK ( id3->disc_id_1()   == 0x001008a6 );
+		CHECK ( id3->disc_id_2()   == 0x007469b8 );
+		CHECK ( id3->cddb_id()     == 0x870af109 );
 
-		REQUIRE ( id3->url()         ==
+		CHECK ( id3->url()         ==
 				"http://www.accuraterip.com/accuraterip/6/a/8/dBAR-009-001008a6-007469b8-870af109.bin" );
-		REQUIRE ( id3->filename()    ==
+		CHECK ( id3->filename()    ==
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
-		REQUIRE ( not id3->empty() );
+		CHECK ( not id3->empty() );
 	}
 
 
@@ -239,17 +239,17 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		);
 
 
-		REQUIRE ( id4->track_count() == 18 );
-		REQUIRE ( id4->disc_id_1()   == 0x00307c78 );
-		REQUIRE ( id4->disc_id_2()   == 0x0281351d );
-		REQUIRE ( id4->cddb_id()     == 0x27114b12 );
+		CHECK ( id4->track_count() == 18 );
+		CHECK ( id4->disc_id_1()   == 0x00307c78 );
+		CHECK ( id4->disc_id_2()   == 0x0281351d );
+		CHECK ( id4->cddb_id()     == 0x27114b12 );
 
-		REQUIRE ( id4->url()         ==
+		CHECK ( id4->url()         ==
 				"http://www.accuraterip.com/accuraterip/8/7/c/dBAR-018-00307c78-0281351d-27114b12.bin" );
-		REQUIRE ( id4->filename()    ==
+		CHECK ( id4->filename()    ==
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
-		REQUIRE ( not id4->empty() );
+		CHECK ( not id4->empty() );
 	}
 }
 
@@ -465,17 +465,17 @@ TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 		std::unique_ptr<arcstk::ARId> empty_id = builder.build_empty_id();
 
 
-		REQUIRE ( empty_id->track_count() == 0 );
-		REQUIRE ( empty_id->disc_id_1()   == 0x00000000 );
-		REQUIRE ( empty_id->disc_id_2()   == 0x00000000 );
-		REQUIRE ( empty_id->cddb_id()     == 0x00000000 );
+		CHECK ( empty_id->track_count() == 0 );
+		CHECK ( empty_id->disc_id_1()   == 0x00000000 );
+		CHECK ( empty_id->disc_id_2()   == 0x00000000 );
+		CHECK ( empty_id->cddb_id()     == 0x00000000 );
 
-		REQUIRE ( empty_id->url()         ==
+		CHECK ( empty_id->url()         ==
 				"http://www.accuraterip.com/accuraterip/0/0/0/dBAR-000-00000000-00000000-00000000.bin" );
-		REQUIRE ( empty_id->filename()    ==
+		CHECK ( empty_id->filename()    ==
 				"dBAR-000-00000000-00000000-00000000.bin" );
 
-		REQUIRE ( empty_id->empty() );
+		CHECK ( empty_id->empty() );
 	}
 }
 
@@ -696,27 +696,27 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		);
 
 
-		REQUIRE ( toc0->track_count() == 15 );
-		REQUIRE ( toc0->leadout()     == 253038 );
+		CHECK ( toc0->track_count() == 15 );
+		CHECK ( toc0->leadout()     == 253038 );
 
-		REQUIRE ( toc0->offset(0)  ==      0 );
-		REQUIRE ( toc0->offset(1)  ==     33 );
-		REQUIRE ( toc0->offset(2)  ==   5225 );
-		REQUIRE ( toc0->offset(3)  ==   7390 );
-		REQUIRE ( toc0->offset(4)  ==  23380 );
-		REQUIRE ( toc0->offset(5)  ==  35608 );
-		REQUIRE ( toc0->offset(6)  ==  49820 );
-		REQUIRE ( toc0->offset(7)  ==  69508 );
-		REQUIRE ( toc0->offset(8)  ==  87733 );
-		REQUIRE ( toc0->offset(9)  == 106333 );
-		REQUIRE ( toc0->offset(10) == 139495 );
-		REQUIRE ( toc0->offset(11) == 157863 );
-		REQUIRE ( toc0->offset(12) == 198495 );
-		REQUIRE ( toc0->offset(13) == 213368 );
-		REQUIRE ( toc0->offset(14) == 225320 );
-		REQUIRE ( toc0->offset(15) == 234103 );
+		CHECK ( toc0->offset(0)  ==      0 );
+		CHECK ( toc0->offset(1)  ==     33 );
+		CHECK ( toc0->offset(2)  ==   5225 );
+		CHECK ( toc0->offset(3)  ==   7390 );
+		CHECK ( toc0->offset(4)  ==  23380 );
+		CHECK ( toc0->offset(5)  ==  35608 );
+		CHECK ( toc0->offset(6)  ==  49820 );
+		CHECK ( toc0->offset(7)  ==  69508 );
+		CHECK ( toc0->offset(8)  ==  87733 );
+		CHECK ( toc0->offset(9)  == 106333 );
+		CHECK ( toc0->offset(10) == 139495 );
+		CHECK ( toc0->offset(11) == 157863 );
+		CHECK ( toc0->offset(12) == 198495 );
+		CHECK ( toc0->offset(13) == 213368 );
+		CHECK ( toc0->offset(14) == 225320 );
+		CHECK ( toc0->offset(15) == 234103 );
 
-		REQUIRE ( toc0->offset(16) == 0 );
+		CHECK ( toc0->offset(16) == 0 );
     }
 }
 
@@ -743,45 +743,45 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 			{ }
 		);
 
-		REQUIRE ( toc1->track_count() == 15 );
-		REQUIRE ( toc1->leadout()     == 253038 );
+		CHECK ( toc1->track_count() == 15 );
+		CHECK ( toc1->leadout()     == 253038 );
 
-		REQUIRE ( toc1->offset(0)  ==      0 );
-		REQUIRE ( toc1->offset(1)  ==     33 );
-		REQUIRE ( toc1->offset(2)  ==   5225 );
-		REQUIRE ( toc1->offset(3)  ==   7390 );
-		REQUIRE ( toc1->offset(4)  ==  23380 );
-		REQUIRE ( toc1->offset(5)  ==  35608 );
-		REQUIRE ( toc1->offset(6)  ==  49820 );
-		REQUIRE ( toc1->offset(7)  ==  69508 );
-		REQUIRE ( toc1->offset(8)  ==  87733 );
-		REQUIRE ( toc1->offset(9)  == 106333 );
-		REQUIRE ( toc1->offset(10) == 139495 );
-		REQUIRE ( toc1->offset(11) == 157863 );
-		REQUIRE ( toc1->offset(12) == 198495 );
-		REQUIRE ( toc1->offset(13) == 213368 );
-		REQUIRE ( toc1->offset(14) == 225320 );
-		REQUIRE ( toc1->offset(15) == 234103 );
+		CHECK ( toc1->offset(0)  ==      0 );
+		CHECK ( toc1->offset(1)  ==     33 );
+		CHECK ( toc1->offset(2)  ==   5225 );
+		CHECK ( toc1->offset(3)  ==   7390 );
+		CHECK ( toc1->offset(4)  ==  23380 );
+		CHECK ( toc1->offset(5)  ==  35608 );
+		CHECK ( toc1->offset(6)  ==  49820 );
+		CHECK ( toc1->offset(7)  ==  69508 );
+		CHECK ( toc1->offset(8)  ==  87733 );
+		CHECK ( toc1->offset(9)  == 106333 );
+		CHECK ( toc1->offset(10) == 139495 );
+		CHECK ( toc1->offset(11) == 157863 );
+		CHECK ( toc1->offset(12) == 198495 );
+		CHECK ( toc1->offset(13) == 213368 );
+		CHECK ( toc1->offset(14) == 225320 );
+		CHECK ( toc1->offset(15) == 234103 );
 
-		REQUIRE ( toc1->offset(16) == 0 );
+		CHECK ( toc1->offset(16) == 0 );
 
-		REQUIRE ( toc1->parsed_length(1)  ==  5192 );
-		REQUIRE ( toc1->parsed_length(2)  ==  2165 );
-		REQUIRE ( toc1->parsed_length(3)  == 15885 );
-		REQUIRE ( toc1->parsed_length(4)  == 12228 );
-		REQUIRE ( toc1->parsed_length(5)  == 13925 );
-		REQUIRE ( toc1->parsed_length(6)  == 19513 );
-		REQUIRE ( toc1->parsed_length(7)  == 18155 );
-		REQUIRE ( toc1->parsed_length(8)  == 18325 );
-		REQUIRE ( toc1->parsed_length(9)  == 33075 );
-		REQUIRE ( toc1->parsed_length(10) == 18368 );
-		REQUIRE ( toc1->parsed_length(11) == 40152 );
-		REQUIRE ( toc1->parsed_length(12) == 14798 );
-		REQUIRE ( toc1->parsed_length(13) == 11952 );
-		REQUIRE ( toc1->parsed_length(14) ==  8463 );
-		REQUIRE ( toc1->parsed_length(15) == 18935 );
+		CHECK ( toc1->parsed_length(1)  ==  5192 );
+		CHECK ( toc1->parsed_length(2)  ==  2165 );
+		CHECK ( toc1->parsed_length(3)  == 15885 );
+		CHECK ( toc1->parsed_length(4)  == 12228 );
+		CHECK ( toc1->parsed_length(5)  == 13925 );
+		CHECK ( toc1->parsed_length(6)  == 19513 );
+		CHECK ( toc1->parsed_length(7)  == 18155 );
+		CHECK ( toc1->parsed_length(8)  == 18325 );
+		CHECK ( toc1->parsed_length(9)  == 33075 );
+		CHECK ( toc1->parsed_length(10) == 18368 );
+		CHECK ( toc1->parsed_length(11) == 40152 );
+		CHECK ( toc1->parsed_length(12) == 14798 );
+		CHECK ( toc1->parsed_length(13) == 11952 );
+		CHECK ( toc1->parsed_length(14) ==  8463 );
+		CHECK ( toc1->parsed_length(15) == 18935 );
 
-		REQUIRE ( toc1->parsed_length(16) == 0 );
+		CHECK ( toc1->parsed_length(16) == 0 );
     }
 
 
@@ -801,46 +801,46 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		);
 
 
-		REQUIRE ( toc2->track_count() == 15 );
-		REQUIRE ( toc2->leadout()     == 0 ); // missing !
+		CHECK ( toc2->track_count() == 15 );
+		CHECK ( toc2->leadout()     == 0 ); // missing !
 
-		REQUIRE ( toc2->offset(0)  ==      0 );
-		REQUIRE ( toc2->offset(1)  ==     33 );
-		REQUIRE ( toc2->offset(2)  ==   5225 );
-		REQUIRE ( toc2->offset(3)  ==   7390 );
-		REQUIRE ( toc2->offset(4)  ==  23380 );
-		REQUIRE ( toc2->offset(5)  ==  35608 );
-		REQUIRE ( toc2->offset(6)  ==  49820 );
-		REQUIRE ( toc2->offset(7)  ==  69508 );
-		REQUIRE ( toc2->offset(8)  ==  87733 );
-		REQUIRE ( toc2->offset(9)  == 106333 );
-		REQUIRE ( toc2->offset(10) == 139495 );
-		REQUIRE ( toc2->offset(11) == 157863 );
-		REQUIRE ( toc2->offset(12) == 198495 );
-		REQUIRE ( toc2->offset(13) == 213368 );
-		REQUIRE ( toc2->offset(14) == 225320 );
-		REQUIRE ( toc2->offset(15) == 234103 );
+		CHECK ( toc2->offset(0)  ==      0 );
+		CHECK ( toc2->offset(1)  ==     33 );
+		CHECK ( toc2->offset(2)  ==   5225 );
+		CHECK ( toc2->offset(3)  ==   7390 );
+		CHECK ( toc2->offset(4)  ==  23380 );
+		CHECK ( toc2->offset(5)  ==  35608 );
+		CHECK ( toc2->offset(6)  ==  49820 );
+		CHECK ( toc2->offset(7)  ==  69508 );
+		CHECK ( toc2->offset(8)  ==  87733 );
+		CHECK ( toc2->offset(9)  == 106333 );
+		CHECK ( toc2->offset(10) == 139495 );
+		CHECK ( toc2->offset(11) == 157863 );
+		CHECK ( toc2->offset(12) == 198495 );
+		CHECK ( toc2->offset(13) == 213368 );
+		CHECK ( toc2->offset(14) == 225320 );
+		CHECK ( toc2->offset(15) == 234103 );
 
-		REQUIRE ( toc2->offset(16) == 0 );
+		CHECK ( toc2->offset(16) == 0 );
 
-		REQUIRE ( toc2->parsed_length(0)  ==     0 ); // as defined!
-		REQUIRE ( toc2->parsed_length(1)  ==  5192 );
-		REQUIRE ( toc2->parsed_length(2)  ==  2165 );
-		REQUIRE ( toc2->parsed_length(3)  == 15885 );
-		REQUIRE ( toc2->parsed_length(4)  == 12228 );
-		REQUIRE ( toc2->parsed_length(5)  == 13925 );
-		REQUIRE ( toc2->parsed_length(6)  == 19513 );
-		REQUIRE ( toc2->parsed_length(7)  == 18155 );
-		REQUIRE ( toc2->parsed_length(8)  == 18325 );
-		REQUIRE ( toc2->parsed_length(9)  == 33075 );
-		REQUIRE ( toc2->parsed_length(10) == 18368 );
-		REQUIRE ( toc2->parsed_length(11) == 40152 );
-		REQUIRE ( toc2->parsed_length(12) == 14798 );
-		REQUIRE ( toc2->parsed_length(13) == 11952 );
-		REQUIRE ( toc2->parsed_length(14) ==  8463 );
-		REQUIRE ( toc2->parsed_length(15) ==     0 );  // missing !
+		CHECK ( toc2->parsed_length(0)  ==     0 ); // as defined!
+		CHECK ( toc2->parsed_length(1)  ==  5192 );
+		CHECK ( toc2->parsed_length(2)  ==  2165 );
+		CHECK ( toc2->parsed_length(3)  == 15885 );
+		CHECK ( toc2->parsed_length(4)  == 12228 );
+		CHECK ( toc2->parsed_length(5)  == 13925 );
+		CHECK ( toc2->parsed_length(6)  == 19513 );
+		CHECK ( toc2->parsed_length(7)  == 18155 );
+		CHECK ( toc2->parsed_length(8)  == 18325 );
+		CHECK ( toc2->parsed_length(9)  == 33075 );
+		CHECK ( toc2->parsed_length(10) == 18368 );
+		CHECK ( toc2->parsed_length(11) == 40152 );
+		CHECK ( toc2->parsed_length(12) == 14798 );
+		CHECK ( toc2->parsed_length(13) == 11952 );
+		CHECK ( toc2->parsed_length(14) ==  8463 );
+		CHECK ( toc2->parsed_length(15) ==     0 );  // missing !
 
-		REQUIRE ( toc2->parsed_length(16) == 0 );
+		CHECK ( toc2->parsed_length(16) == 0 );
     }
 }
 

@@ -20,10 +20,10 @@ TEST_CASE ( "checksum::type_name provides correct names",
 {
 	using type      = arcstk::checksum::type;
 
-	REQUIRE ( arcstk::checksum::type_name(type::ARCS1)   == "ARCSv1" );
-	REQUIRE ( arcstk::checksum::type_name(type::ARCS2)   == "ARCSv2" );
-	//REQUIRE ( arcstk::checksum::type_name(type::CRC32)   == "CRC32" );
-	//REQUIRE ( arcstk::checksum::type_name(type::CRC32ns) == "CRC32ns" );
+	CHECK ( arcstk::checksum::type_name(type::ARCS1)   == "ARCSv1" );
+	CHECK ( arcstk::checksum::type_name(type::ARCS2)   == "ARCSv2" );
+	//CHECK ( arcstk::checksum::type_name(type::CRC32)   == "CRC32" );
+	//CHECK ( arcstk::checksum::type_name(type::CRC32ns) == "CRC32ns" );
 }
 
 
@@ -36,16 +36,16 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 
 	arcstk::ChecksumSet track01(0);
 
-	REQUIRE ( track01.empty() );
-	REQUIRE ( 0 == track01.size() );
-	REQUIRE ( track01.begin()  == track01.end() );
-	REQUIRE ( track01.cbegin() == track01.cend() );
+	CHECK ( track01.empty() );
+	CHECK ( 0 == track01.size() );
+	CHECK ( track01.begin()  == track01.end() );
+	CHECK ( track01.cbegin() == track01.cend() );
 
 	track01.insert(type::ARCS2, arcstk::Checksum(0xB89992E5));
 	track01.insert(type::ARCS1, arcstk::Checksum(0x98B10E0F));
 
-	REQUIRE ( not track01.empty() );
-	REQUIRE ( 2 == track01.size() );
+	CHECK ( not track01.empty() );
+	CHECK ( 2 == track01.size() );
 
 // Commented out: just constructed all 15 tracks
 
@@ -112,10 +112,10 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 		track02.insert(type::ARCS2, arcstk::Checksum(0xB89992E5));
 		track02.insert(type::ARCS1, arcstk::Checksum(0x98B10E0F));
 
-		REQUIRE ( track02 == track01 );
-		REQUIRE ( track01 == track02 );
-		REQUIRE ( not (track02 != track01) );
-		REQUIRE ( not (track01 != track02) );
+		CHECK ( track02 == track01 );
+		CHECK ( track01 == track02 );
+		CHECK ( not (track02 != track01) );
+		CHECK ( not (track01 != track02) );
 	}
 
 
@@ -123,8 +123,8 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	{
 		auto track02 = track01;
 
-		REQUIRE ( track02 == track01 );
-		REQUIRE ( track01 == track02 );
+		CHECK ( track02 == track01 );
+		CHECK ( track01 == track02 );
 	}
 
 
@@ -132,22 +132,22 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	{
 		auto track02(track01);
 
-		REQUIRE ( track02 == track01 );
-		REQUIRE ( track01 == track02 );
+		CHECK ( track02 == track01 );
+		CHECK ( track01 == track02 );
 	}
 
 
 	SECTION ( "contains()" )
 	{
-		REQUIRE ( track01.contains(type::ARCS2) );
-		REQUIRE ( track01.contains(type::ARCS1) );
+		CHECK ( track01.contains(type::ARCS2) );
+		CHECK ( track01.contains(type::ARCS1) );
 	}
 
 
 	SECTION ( "find()" ) /* find() of each position is tested with insert() */
 	{
-		REQUIRE ( *track01.find(type::ARCS2) == arcstk::Checksum(0xB89992E5) );
-		REQUIRE ( *track01.find(type::ARCS1) == arcstk::Checksum(0x98B10E0F) );
+		CHECK ( *track01.find(type::ARCS2) == arcstk::Checksum(0xB89992E5) );
+		CHECK ( *track01.find(type::ARCS1) == arcstk::Checksum(0x98B10E0F) );
 	}
 
 
@@ -155,9 +155,9 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	{
 		track01.erase(type::ARCS1);
 
-		REQUIRE ( 1 == track01.size() );
-		REQUIRE ( not track01.contains(type::ARCS1) );
-		REQUIRE ( track01.contains(type::ARCS2) );
+		CHECK ( 1 == track01.size() );
+		CHECK ( not track01.contains(type::ARCS1) );
+		CHECK ( track01.contains(type::ARCS2) );
 	}
 
 
@@ -165,11 +165,11 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	{
 		track01.clear();
 
-		REQUIRE ( 0 == track01.size() );
-		REQUIRE ( track01.empty() );
+		CHECK ( 0 == track01.size() );
+		CHECK ( track01.empty() );
 
-		REQUIRE ( not track01.contains(type::ARCS2) );
-		REQUIRE ( not track01.contains(type::ARCS1) );
+		CHECK ( not track01.contains(type::ARCS2) );
+		CHECK ( not track01.contains(type::ARCS1) );
 	}
 }
 
@@ -194,31 +194,31 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 //	track_list1.insert(14, arcstk::Checksum(0xC65C20E4));
 //	track_list1.insert(15, arcstk::Checksum(0x58FC3C3E));
 //
-//	REQUIRE ( 15 == track_list1.size() );
-//	REQUIRE ( not track_list1.empty() );
+//	CHECK ( 15 == track_list1.size() );
+//	CHECK ( not track_list1.empty() );
 //
 //
 //	SECTION ( "contains()" )
 //	{
-//		REQUIRE ( track_list1.contains( 1) );
-//		REQUIRE ( track_list1.contains( 2) );
-//		REQUIRE ( track_list1.contains( 3) );
-//		REQUIRE ( track_list1.contains( 4) );
-//		REQUIRE ( track_list1.contains( 5) );
-//		REQUIRE ( track_list1.contains( 6) );
-//		REQUIRE ( track_list1.contains( 7) );
-//		REQUIRE ( track_list1.contains( 8) );
-//		REQUIRE ( track_list1.contains( 9) );
-//		REQUIRE ( track_list1.contains(10) );
-//		REQUIRE ( track_list1.contains(11) );
-//		REQUIRE ( track_list1.contains(12) );
-//		REQUIRE ( track_list1.contains(13) );
-//		REQUIRE ( track_list1.contains(14) );
-//		REQUIRE ( track_list1.contains(15) );
+//		CHECK ( track_list1.contains( 1) );
+//		CHECK ( track_list1.contains( 2) );
+//		CHECK ( track_list1.contains( 3) );
+//		CHECK ( track_list1.contains( 4) );
+//		CHECK ( track_list1.contains( 5) );
+//		CHECK ( track_list1.contains( 6) );
+//		CHECK ( track_list1.contains( 7) );
+//		CHECK ( track_list1.contains( 8) );
+//		CHECK ( track_list1.contains( 9) );
+//		CHECK ( track_list1.contains(10) );
+//		CHECK ( track_list1.contains(11) );
+//		CHECK ( track_list1.contains(12) );
+//		CHECK ( track_list1.contains(13) );
+//		CHECK ( track_list1.contains(14) );
+//		CHECK ( track_list1.contains(15) );
 //
-//		REQUIRE ( not track_list1.contains( 0) );
-//		REQUIRE ( not track_list1.contains(16) );
-//		REQUIRE ( not track_list1.contains(255) );
+//		CHECK ( not track_list1.contains( 0) );
+//		CHECK ( not track_list1.contains(16) );
+//		CHECK ( not track_list1.contains(255) );
 //	}
 //
 //
@@ -226,8 +226,8 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 //	{
 //		auto track_list2 = track_list1;
 //
-//		REQUIRE ( track_list2 == track_list1 );
-//		REQUIRE ( track_list1 == track_list2 );
+//		CHECK ( track_list2 == track_list1 );
+//		CHECK ( track_list1 == track_list2 );
 //	}
 //
 //
@@ -235,57 +235,57 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 //	{
 //		auto track_list2(track_list1);
 //
-//		REQUIRE ( track_list2 == track_list1 );
-//		REQUIRE ( track_list1 == track_list2 );
+//		CHECK ( track_list2 == track_list1 );
+//		CHECK ( track_list1 == track_list2 );
 //	}
 //
 //
 //	SECTION ( "iterators point to end() after last entry" )
 //	{
-//		REQUIRE ( not track_list1.empty() );
-//		REQUIRE ( 15 == track_list1.size() );
+//		CHECK ( not track_list1.empty() );
+//		CHECK ( 15 == track_list1.size() );
 //
 //		auto it  = track_list1.begin();
 //
 //		// it + 15
 //		for (auto i = track_list1.size(); i > 0; --i) { ++it; }
 //
-//		REQUIRE ( it == track_list1.end() );
-//		// TODO: REQUIRE ( it == track_list1.cend() );
+//		CHECK ( it == track_list1.end() );
+//		// TODO: CHECK ( it == track_list1.cend() );
 //
 //		auto cit = track_list1.cbegin();
 //
 //		// cit + 15
 //		for (auto i = track_list1.size(); i > 0; --i) { ++cit; }
 //
-//		REQUIRE ( cit == track_list1.cend() );
-//		// TODO: REQUIRE ( cit == track_list1.end() );
+//		CHECK ( cit == track_list1.cend() );
+//		// TODO: CHECK ( cit == track_list1.end() );
 //	}
 //
 //
 //	SECTION ( "find()" )
 //	{
-//		REQUIRE ( *track_list1.find( 1) == arcstk::Checksum(0xB89992E5) );
-//		REQUIRE ( *track_list1.find( 2) == arcstk::Checksum(0x4F77EB03) );
-//		REQUIRE ( *track_list1.find( 3) == arcstk::Checksum(0x56582282) );
-//		REQUIRE ( *track_list1.find( 4) == arcstk::Checksum(0x9E2187F9) );
-//		REQUIRE ( *track_list1.find( 5) == arcstk::Checksum(0x6BE71E50) );
-//		REQUIRE ( *track_list1.find( 6) == arcstk::Checksum(0x01E7235F) );
-//		REQUIRE ( *track_list1.find( 7) == arcstk::Checksum(0xD8F7763C) );
-//		REQUIRE ( *track_list1.find( 8) == arcstk::Checksum(0x8480223E) );
-//		REQUIRE ( *track_list1.find( 9) == arcstk::Checksum(0x42C5061C) );
-//		REQUIRE ( *track_list1.find(10) == arcstk::Checksum(0x47A70F02) );
-//		REQUIRE ( *track_list1.find(11) == arcstk::Checksum(0xBABF08CC) );
-//		REQUIRE ( *track_list1.find(12) == arcstk::Checksum(0x563EDCCB) );
-//		REQUIRE ( *track_list1.find(13) == arcstk::Checksum(0xAB123C7C) );
-//		REQUIRE ( *track_list1.find(14) == arcstk::Checksum(0xC65C20E4) );
-//		REQUIRE ( *track_list1.find(15) == arcstk::Checksum(0x58FC3C3E) );
+//		CHECK ( *track_list1.find( 1) == arcstk::Checksum(0xB89992E5) );
+//		CHECK ( *track_list1.find( 2) == arcstk::Checksum(0x4F77EB03) );
+//		CHECK ( *track_list1.find( 3) == arcstk::Checksum(0x56582282) );
+//		CHECK ( *track_list1.find( 4) == arcstk::Checksum(0x9E2187F9) );
+//		CHECK ( *track_list1.find( 5) == arcstk::Checksum(0x6BE71E50) );
+//		CHECK ( *track_list1.find( 6) == arcstk::Checksum(0x01E7235F) );
+//		CHECK ( *track_list1.find( 7) == arcstk::Checksum(0xD8F7763C) );
+//		CHECK ( *track_list1.find( 8) == arcstk::Checksum(0x8480223E) );
+//		CHECK ( *track_list1.find( 9) == arcstk::Checksum(0x42C5061C) );
+//		CHECK ( *track_list1.find(10) == arcstk::Checksum(0x47A70F02) );
+//		CHECK ( *track_list1.find(11) == arcstk::Checksum(0xBABF08CC) );
+//		CHECK ( *track_list1.find(12) == arcstk::Checksum(0x563EDCCB) );
+//		CHECK ( *track_list1.find(13) == arcstk::Checksum(0xAB123C7C) );
+//		CHECK ( *track_list1.find(14) == arcstk::Checksum(0xC65C20E4) );
+//		CHECK ( *track_list1.find(15) == arcstk::Checksum(0x58FC3C3E) );
 //
-//		REQUIRE ( track_list1.find(0) == track_list1.end() );
-//		REQUIRE ( track_list1.end()   == track_list1.find(0));
+//		CHECK ( track_list1.find(0) == track_list1.end() );
+//		CHECK ( track_list1.end()   == track_list1.find(0));
 //
-//		REQUIRE ( track_list1.find(16) == track_list1.end() );
-//		REQUIRE ( track_list1.end()    == track_list1.find(16));
+//		CHECK ( track_list1.find(16) == track_list1.end() );
+//		CHECK ( track_list1.end()    == track_list1.find(16));
 //	}
 //
 //
@@ -293,8 +293,8 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 //	{
 //		track_list1.erase(7);
 //
-//		REQUIRE ( 14 == track_list1.size() );
-//		REQUIRE ( not track_list1.contains(7) );
+//		CHECK ( 14 == track_list1.size() );
+//		CHECK ( not track_list1.contains(7) );
 //	}
 //
 //
@@ -302,24 +302,24 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 //	{
 //		track_list1.clear();
 //
-//		REQUIRE ( 0 == track_list1.size() );
-//		REQUIRE ( track_list1.empty() );
+//		CHECK ( 0 == track_list1.size() );
+//		CHECK ( track_list1.empty() );
 //
-//		REQUIRE ( not track_list1.contains( 1) );
-//		REQUIRE ( not track_list1.contains( 2) );
-//		REQUIRE ( not track_list1.contains( 3) );
-//		REQUIRE ( not track_list1.contains( 4) );
-//		REQUIRE ( not track_list1.contains( 5) );
-//		REQUIRE ( not track_list1.contains( 6) );
-//		REQUIRE ( not track_list1.contains( 7) );
-//		REQUIRE ( not track_list1.contains( 8) );
-//		REQUIRE ( not track_list1.contains( 9) );
-//		REQUIRE ( not track_list1.contains(10) );
-//		REQUIRE ( not track_list1.contains(11) );
-//		REQUIRE ( not track_list1.contains(12) );
-//		REQUIRE ( not track_list1.contains(13) );
-//		REQUIRE ( not track_list1.contains(14) );
-//		REQUIRE ( not track_list1.contains(15) );
+//		CHECK ( not track_list1.contains( 1) );
+//		CHECK ( not track_list1.contains( 2) );
+//		CHECK ( not track_list1.contains( 3) );
+//		CHECK ( not track_list1.contains( 4) );
+//		CHECK ( not track_list1.contains( 5) );
+//		CHECK ( not track_list1.contains( 6) );
+//		CHECK ( not track_list1.contains( 7) );
+//		CHECK ( not track_list1.contains( 8) );
+//		CHECK ( not track_list1.contains( 9) );
+//		CHECK ( not track_list1.contains(10) );
+//		CHECK ( not track_list1.contains(11) );
+//		CHECK ( not track_list1.contains(12) );
+//		CHECK ( not track_list1.contains(13) );
+//		CHECK ( not track_list1.contains(14) );
+//		CHECK ( not track_list1.contains(15) );
 //	}
 //}
 

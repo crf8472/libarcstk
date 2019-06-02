@@ -107,7 +107,7 @@ TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 	result1[13] = track14;
 	result1[14] = track15;
 
-	REQUIRE ( result1.size() == 15 );
+	CHECK ( result1.size() == 15 );
 
 
 	// Construct ARResponse by hand
@@ -174,7 +174,7 @@ TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 	response.append(block2);   // 2: profile v2 matches
 
 
-	REQUIRE ( response.size() == 3 );
+	CHECK ( response.size() == 3 );
 
 
 	arcstk::AlbumMatcher diff(result1, id, response);
@@ -185,11 +185,11 @@ TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 
 	SECTION ( "AlbumMatcher finds best match" )
 	{
-		REQUIRE ( diff.matches() );
+		CHECK ( diff.matches() );
 
-		REQUIRE ( diff.best_match() == 2 );
-		REQUIRE ( diff.best_difference() == 0 );
-		REQUIRE ( diff.matches_v2() );
+		CHECK ( diff.best_match() == 2 );
+		CHECK ( diff.best_difference() == 0 );
+		CHECK ( diff.matches_v2() );
 	}
 
 
@@ -197,114 +197,114 @@ TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 	{
 		const arcstk::Match* match = diff.match();
 
-		REQUIRE ( match->tracks_per_block() == 15 );
+		CHECK ( match->tracks_per_block() == 15 );
 
-		REQUIRE ( match->size() == 93 );
+		CHECK ( match->size() == 93 );
 
 		// 0
-		REQUIRE ( match->id(0) );
+		CHECK ( match->id(0) );
 
-		REQUIRE ( match->track(0,  0, v1) );
-		REQUIRE ( match->track(0,  1, v1) );
-		REQUIRE ( match->track(0,  2, v1) );
-		REQUIRE ( match->track(0,  3, v1) );
-		REQUIRE ( match->track(0,  4, v1) );
-		REQUIRE ( match->track(0,  5, v1) );
-		REQUIRE ( match->track(0,  6, v1) );
-		REQUIRE ( match->track(0,  7, v1) );
-		REQUIRE ( match->track(0,  8, v1) );
-		REQUIRE ( match->track(0,  9, v1) );
-		REQUIRE ( match->track(0, 10, v1) );
-		REQUIRE ( match->track(0, 11, v1) );
-		REQUIRE ( match->track(0, 12, v1) );
-		REQUIRE ( match->track(0, 13, v1) );
-		REQUIRE ( match->track(0, 14, v1) );
+		CHECK ( match->track(0,  0, v1) );
+		CHECK ( match->track(0,  1, v1) );
+		CHECK ( match->track(0,  2, v1) );
+		CHECK ( match->track(0,  3, v1) );
+		CHECK ( match->track(0,  4, v1) );
+		CHECK ( match->track(0,  5, v1) );
+		CHECK ( match->track(0,  6, v1) );
+		CHECK ( match->track(0,  7, v1) );
+		CHECK ( match->track(0,  8, v1) );
+		CHECK ( match->track(0,  9, v1) );
+		CHECK ( match->track(0, 10, v1) );
+		CHECK ( match->track(0, 11, v1) );
+		CHECK ( match->track(0, 12, v1) );
+		CHECK ( match->track(0, 13, v1) );
+		CHECK ( match->track(0, 14, v1) );
 
-		REQUIRE ( not match->track(0,  0, v2) );
-		REQUIRE ( not match->track(0,  1, v2) );
-		REQUIRE ( not match->track(0,  2, v2) );
-		REQUIRE ( not match->track(0,  3, v2) );
-		REQUIRE ( not match->track(0,  4, v2) );
-		REQUIRE ( not match->track(0,  5, v2) );
-		REQUIRE ( not match->track(0,  6, v2) );
-		REQUIRE ( not match->track(0,  7, v2) );
-		REQUIRE ( not match->track(0,  8, v2) );
-		REQUIRE ( not match->track(0,  9, v2) );
-		REQUIRE ( not match->track(0, 10, v2) );
-		REQUIRE ( not match->track(0, 11, v2) );
-		REQUIRE ( not match->track(0, 12, v2) );
-		REQUIRE ( not match->track(0, 13, v2) );
-		REQUIRE ( not match->track(0, 14, v2) );
+		CHECK ( not match->track(0,  0, v2) );
+		CHECK ( not match->track(0,  1, v2) );
+		CHECK ( not match->track(0,  2, v2) );
+		CHECK ( not match->track(0,  3, v2) );
+		CHECK ( not match->track(0,  4, v2) );
+		CHECK ( not match->track(0,  5, v2) );
+		CHECK ( not match->track(0,  6, v2) );
+		CHECK ( not match->track(0,  7, v2) );
+		CHECK ( not match->track(0,  8, v2) );
+		CHECK ( not match->track(0,  9, v2) );
+		CHECK ( not match->track(0, 10, v2) );
+		CHECK ( not match->track(0, 11, v2) );
+		CHECK ( not match->track(0, 12, v2) );
+		CHECK ( not match->track(0, 13, v2) );
+		CHECK ( not match->track(0, 14, v2) );
 
 		// 1
-		REQUIRE ( not match->id(1) );
+		CHECK ( not match->id(1) );
 
-		REQUIRE ( not match->track(1,  0, v1) );
-		REQUIRE ( not match->track(1,  1, v1) );
-		REQUIRE ( not match->track(1,  2, v1) );
-		REQUIRE ( not match->track(1,  3, v1) );
-		REQUIRE ( not match->track(1,  4, v1) );
-		REQUIRE ( not match->track(1,  5, v1) );
-		REQUIRE ( not match->track(1,  6, v1) );
-		REQUIRE ( not match->track(1,  7, v1) );
-		REQUIRE ( not match->track(1,  8, v1) );
-		REQUIRE ( not match->track(1,  9, v1) );
-		REQUIRE ( not match->track(1, 10, v1) );
-		REQUIRE ( not match->track(1, 11, v1) );
-		REQUIRE ( not match->track(1, 12, v1) );
-		REQUIRE ( not match->track(1, 13, v1) );
-		REQUIRE ( not match->track(1, 14, v1) );
+		CHECK ( not match->track(1,  0, v1) );
+		CHECK ( not match->track(1,  1, v1) );
+		CHECK ( not match->track(1,  2, v1) );
+		CHECK ( not match->track(1,  3, v1) );
+		CHECK ( not match->track(1,  4, v1) );
+		CHECK ( not match->track(1,  5, v1) );
+		CHECK ( not match->track(1,  6, v1) );
+		CHECK ( not match->track(1,  7, v1) );
+		CHECK ( not match->track(1,  8, v1) );
+		CHECK ( not match->track(1,  9, v1) );
+		CHECK ( not match->track(1, 10, v1) );
+		CHECK ( not match->track(1, 11, v1) );
+		CHECK ( not match->track(1, 12, v1) );
+		CHECK ( not match->track(1, 13, v1) );
+		CHECK ( not match->track(1, 14, v1) );
 
-		REQUIRE ( match->track(1,  0, v2) );
-		REQUIRE ( match->track(1,  1, v2) );
-		REQUIRE ( match->track(1,  2, v2) );
-		REQUIRE ( match->track(1,  3, v2) );
-		REQUIRE ( match->track(1,  4, v2) );
-		REQUIRE ( match->track(1,  5, v2) );
-		REQUIRE ( match->track(1,  6, v2) );
-		REQUIRE ( match->track(1,  7, v2) );
-		REQUIRE ( match->track(1,  8, v2) );
-		REQUIRE ( match->track(1,  9, v2) );
-		REQUIRE ( match->track(1, 10, v2) );
-		REQUIRE ( match->track(1, 11, v2) );
-		REQUIRE ( match->track(1, 12, v2) );
-		REQUIRE ( match->track(1, 13, v2) );
-		REQUIRE ( match->track(1, 14, v2) );
+		CHECK ( match->track(1,  0, v2) );
+		CHECK ( match->track(1,  1, v2) );
+		CHECK ( match->track(1,  2, v2) );
+		CHECK ( match->track(1,  3, v2) );
+		CHECK ( match->track(1,  4, v2) );
+		CHECK ( match->track(1,  5, v2) );
+		CHECK ( match->track(1,  6, v2) );
+		CHECK ( match->track(1,  7, v2) );
+		CHECK ( match->track(1,  8, v2) );
+		CHECK ( match->track(1,  9, v2) );
+		CHECK ( match->track(1, 10, v2) );
+		CHECK ( match->track(1, 11, v2) );
+		CHECK ( match->track(1, 12, v2) );
+		CHECK ( match->track(1, 13, v2) );
+		CHECK ( match->track(1, 14, v2) );
 
 		// 2
-		REQUIRE ( match->id(2) );
+		CHECK ( match->id(2) );
 
-		REQUIRE ( not match->track(2,  0, v1) );
-		REQUIRE ( not match->track(2,  1, v1) );
-		REQUIRE ( not match->track(2,  2, v1) );
-		REQUIRE ( not match->track(2,  3, v1) );
-		REQUIRE ( not match->track(2,  4, v1) );
-		REQUIRE ( not match->track(2,  5, v1) );
-		REQUIRE ( not match->track(2,  6, v1) );
-		REQUIRE ( not match->track(2,  7, v1) );
-		REQUIRE ( not match->track(2,  8, v1) );
-		REQUIRE ( not match->track(2,  9, v1) );
-		REQUIRE ( not match->track(2, 10, v1) );
-		REQUIRE ( not match->track(2, 11, v1) );
-		REQUIRE ( not match->track(2, 12, v1) );
-		REQUIRE ( not match->track(2, 13, v1) );
-		REQUIRE ( not match->track(2, 14, v1) );
+		CHECK ( not match->track(2,  0, v1) );
+		CHECK ( not match->track(2,  1, v1) );
+		CHECK ( not match->track(2,  2, v1) );
+		CHECK ( not match->track(2,  3, v1) );
+		CHECK ( not match->track(2,  4, v1) );
+		CHECK ( not match->track(2,  5, v1) );
+		CHECK ( not match->track(2,  6, v1) );
+		CHECK ( not match->track(2,  7, v1) );
+		CHECK ( not match->track(2,  8, v1) );
+		CHECK ( not match->track(2,  9, v1) );
+		CHECK ( not match->track(2, 10, v1) );
+		CHECK ( not match->track(2, 11, v1) );
+		CHECK ( not match->track(2, 12, v1) );
+		CHECK ( not match->track(2, 13, v1) );
+		CHECK ( not match->track(2, 14, v1) );
 
-		REQUIRE ( match->track(2,  0, v2) );
-		REQUIRE ( match->track(2,  1, v2) );
-		REQUIRE ( match->track(2,  2, v2) );
-		REQUIRE ( match->track(2,  3, v2) );
-		REQUIRE ( match->track(2,  4, v2) );
-		REQUIRE ( match->track(2,  5, v2) );
-		REQUIRE ( match->track(2,  6, v2) );
-		REQUIRE ( match->track(2,  7, v2) );
-		REQUIRE ( match->track(2,  8, v2) );
-		REQUIRE ( match->track(2,  9, v2) );
-		REQUIRE ( match->track(2, 10, v2) );
-		REQUIRE ( match->track(2, 11, v2) );
-		REQUIRE ( match->track(2, 12, v2) );
-		REQUIRE ( match->track(2, 13, v2) );
-		REQUIRE ( match->track(2, 14, v2) );
+		CHECK ( match->track(2,  0, v2) );
+		CHECK ( match->track(2,  1, v2) );
+		CHECK ( match->track(2,  2, v2) );
+		CHECK ( match->track(2,  3, v2) );
+		CHECK ( match->track(2,  4, v2) );
+		CHECK ( match->track(2,  5, v2) );
+		CHECK ( match->track(2,  6, v2) );
+		CHECK ( match->track(2,  7, v2) );
+		CHECK ( match->track(2,  8, v2) );
+		CHECK ( match->track(2,  9, v2) );
+		CHECK ( match->track(2, 10, v2) );
+		CHECK ( match->track(2, 11, v2) );
+		CHECK ( match->track(2, 12, v2) );
+		CHECK ( match->track(2, 13, v2) );
+		CHECK ( match->track(2, 14, v2) );
 
 
 		CHECK_THROWS ( match->id(3) );            // illegal block
@@ -312,14 +312,14 @@ TEST_CASE ( "AlbumMatcher", "[match] [listmatcher]" )
 		CHECK_THROWS ( match->track(2, 15, v2) ); //         track
 
 
-		REQUIRE ( match->difference(0, v1) == 0 );
-		REQUIRE ( match->difference(0, v2) == 15 );
+		CHECK ( match->difference(0, v1) == 0 );
+		CHECK ( match->difference(0, v2) == 15 );
 
-		REQUIRE ( match->difference(1, v1) == 16 );
-		REQUIRE ( match->difference(1, v2) == 1 );
+		CHECK ( match->difference(1, v1) == 16 );
+		CHECK ( match->difference(1, v2) == 1 );
 
-		REQUIRE ( match->difference(2, v1) == 15 );
-		REQUIRE ( match->difference(2, v2) == 0 );
+		CHECK ( match->difference(2, v1) == 15 );
+		CHECK ( match->difference(2, v2) == 0 );
 
 		CHECK_THROWS ( match->difference(3, v1) == 0 );
 		CHECK_THROWS ( match->difference(3, v2) == 0 );
