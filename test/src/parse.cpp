@@ -23,13 +23,13 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 	{
 		arcstk::ARTriplet triplet(0xABCDEF00, 100, 0x0023BFCC);
 
-		REQUIRE ( triplet.arcs()          == 0xABCDEF00 );
-		REQUIRE ( triplet.confidence()    == 100 );
-		REQUIRE ( triplet.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet.confidence()    == 100 );
+		CHECK ( triplet.frame450_arcs() == 0x0023BFCC );
 
-		REQUIRE ( triplet.arcs_valid() );
-		REQUIRE ( triplet.confidence_valid() );
-		REQUIRE ( triplet.frame450_arcs_valid() );
+		CHECK ( triplet.arcs_valid() );
+		CHECK ( triplet.confidence_valid() );
+		CHECK ( triplet.frame450_arcs_valid() );
 	}
 
 
@@ -38,13 +38,13 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 //		arcstk::ARIncompleteTriplet triplet(0xABCDEF00, 100, 0x0023BFCC,
 //				true, false, true);
 //
-//		REQUIRE ( triplet.arcs()          == 0xABCDEF00 );
-//		REQUIRE ( triplet.confidence()    == 100 );
-//		REQUIRE ( triplet.frame450_arcs() == 0x0023BFCC );
+//		CHECK ( triplet.arcs()          == 0xABCDEF00 );
+//		CHECK ( triplet.confidence()    == 100 );
+//		CHECK ( triplet.frame450_arcs() == 0x0023BFCC );
 //
-//		REQUIRE ( triplet.arcs_valid() );
-//		REQUIRE ( not triplet.confidence_valid() );
-//		REQUIRE ( triplet.frame450_arcs_valid() );
+//		CHECK ( triplet.arcs_valid() );
+//		CHECK ( not triplet.confidence_valid() );
+//		CHECK ( triplet.frame450_arcs_valid() );
 //	}
 
 }
@@ -54,25 +54,25 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 {
 	arcstk::ARBlock block( { 15, 0x001b9178, 0x014be24e, 0xb40d2d0f } );
 
-	REQUIRE ( block.id().track_count() == 15 );
-	REQUIRE ( block.id().disc_id_1()   == 0x001b9178 );
-	REQUIRE ( block.id().disc_id_2()   == 0x014be24e );
-	REQUIRE ( block.id().cddb_id()     == 0xb40d2d0f );
+	CHECK ( block.id().track_count() == 15 );
+	CHECK ( block.id().disc_id_1()   == 0x001b9178 );
+	CHECK ( block.id().disc_id_2()   == 0x014be24e );
+	CHECK ( block.id().cddb_id()     == 0xb40d2d0f );
 
 
 	SECTION ( "Append triplets" )
 	{
 		block.append(arcstk::ARTriplet(0xABCDEF00, 100, 0x0023BFCC));
 
-		REQUIRE ( block.size() == 1 );
+		CHECK ( block.size() == 1 );
 
-		REQUIRE ( block.begin()->arcs()          == 0xABCDEF00 );
-		REQUIRE ( block.begin()->confidence()    == 100 );
-		REQUIRE ( block.begin()->frame450_arcs() == 0x0023BFCC );
+		CHECK ( block.begin()->arcs()          == 0xABCDEF00 );
+		CHECK ( block.begin()->confidence()    == 100 );
+		CHECK ( block.begin()->frame450_arcs() == 0x0023BFCC );
 
-		REQUIRE ( block.begin()->arcs_valid() );
-		REQUIRE ( block.begin()->confidence_valid() );
-		REQUIRE ( block.begin()->frame450_arcs_valid() );
+		CHECK ( block.begin()->arcs_valid() );
+		CHECK ( block.begin()->confidence_valid() );
+		CHECK ( block.begin()->frame450_arcs_valid() );
 	}
 }
 
@@ -100,24 +100,24 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 	c_handler.end_block();
 	c_handler.end_input();
 
-	REQUIRE ( result.size()    == 1 );
-	REQUIRE ( result[0].size() == 5 );
-	REQUIRE ( result[0].id()   == arcstk::ARId(5, 123, 456, 789) );
-	REQUIRE ( result[0][0].arcs()          == 12345 );
-	REQUIRE ( result[0][0].confidence()    ==    20 );
-	REQUIRE ( result[0][0].frame450_arcs() == 45551 );
-	REQUIRE ( result[0][1].arcs()          == 23456 );
-	REQUIRE ( result[0][1].confidence()    ==    20 );
-	REQUIRE ( result[0][1].frame450_arcs() == 56677 );
-	REQUIRE ( result[0][2].arcs()          == 34567 );
-	REQUIRE ( result[0][2].confidence()    ==    21 );
-	REQUIRE ( result[0][2].frame450_arcs() == 65599 );
-	REQUIRE ( result[0][3].arcs()          == 45678 );
-	REQUIRE ( result[0][3].confidence()    ==    21 );
-	REQUIRE ( result[0][3].frame450_arcs() == 43322 );
-	REQUIRE ( result[0][4].arcs()          == 56789 );
-	REQUIRE ( result[0][4].confidence()    ==    21 );
-	REQUIRE ( result[0][4].frame450_arcs() == 45533 );
+	CHECK ( result.size()    == 1 );
+	CHECK ( result[0].size() == 5 );
+	CHECK ( result[0].id()   == arcstk::ARId(5, 123, 456, 789) );
+	CHECK ( result[0][0].arcs()          == 12345 );
+	CHECK ( result[0][0].confidence()    ==    20 );
+	CHECK ( result[0][0].frame450_arcs() == 45551 );
+	CHECK ( result[0][1].arcs()          == 23456 );
+	CHECK ( result[0][1].confidence()    ==    20 );
+	CHECK ( result[0][1].frame450_arcs() == 56677 );
+	CHECK ( result[0][2].arcs()          == 34567 );
+	CHECK ( result[0][2].confidence()    ==    21 );
+	CHECK ( result[0][2].frame450_arcs() == 65599 );
+	CHECK ( result[0][3].arcs()          == 45678 );
+	CHECK ( result[0][3].confidence()    ==    21 );
+	CHECK ( result[0][3].frame450_arcs() == 43322 );
+	CHECK ( result[0][4].arcs()          == 56789 );
+	CHECK ( result[0][4].confidence()    ==    21 );
+	CHECK ( result[0][4].frame450_arcs() == 45533 );
 }
 
 
@@ -145,203 +145,203 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 		parser.parse();
 
 
-		REQUIRE ( result.size() == 3 );
+		CHECK ( result.size() == 3 );
 
 		// Block 1
 
-		REQUIRE ( result[0].id() ==
+		CHECK ( result[0].id() ==
 				arcstk::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
 
-		REQUIRE ( result[0].size() == 15 );
+		CHECK ( result[0].size() == 15 );
 
-		REQUIRE ( result[0][0].arcs()           == 0xB89992E5 );
-		REQUIRE ( result[0][0].confidence()     == 24 );
-		REQUIRE ( result[0][0].frame450_arcs()  == 0x126D875E );
+		CHECK ( result[0][0].arcs()           == 0xB89992E5 );
+		CHECK ( result[0][0].confidence()     == 24 );
+		CHECK ( result[0][0].frame450_arcs()  == 0x126D875E );
 
-		REQUIRE ( result[0][1].arcs()           == 0x4F77EB03  );
-		REQUIRE ( result[0][1].confidence()     == 24 );
-		REQUIRE ( result[0][1].frame450_arcs()  == 0xABF770DA );
+		CHECK ( result[0][1].arcs()           == 0x4F77EB03  );
+		CHECK ( result[0][1].confidence()     == 24 );
+		CHECK ( result[0][1].frame450_arcs()  == 0xABF770DA );
 
-		REQUIRE ( result[0][2].arcs()           == 0x56582282 );
-		REQUIRE ( result[0][2].confidence()     == 24 );
-		REQUIRE ( result[0][2].frame450_arcs()  == 0x80ACAF3C );
+		CHECK ( result[0][2].arcs()           == 0x56582282 );
+		CHECK ( result[0][2].confidence()     == 24 );
+		CHECK ( result[0][2].frame450_arcs()  == 0x80ACAF3C );
 
-		REQUIRE ( result[0][3].arcs()           == 0x9E2187F9  );
-		REQUIRE ( result[0][3].confidence()     == 24 );
-		REQUIRE ( result[0][3].frame450_arcs()  == 0x8EB77C86 );
+		CHECK ( result[0][3].arcs()           == 0x9E2187F9  );
+		CHECK ( result[0][3].confidence()     == 24 );
+		CHECK ( result[0][3].frame450_arcs()  == 0x8EB77C86 );
 
-		REQUIRE ( result[0][4].arcs()           == 0x6BE71E50  );
-		REQUIRE ( result[0][4].confidence()     == 24 );
-		REQUIRE ( result[0][4].frame450_arcs()  == 0xF62D90FC );
+		CHECK ( result[0][4].arcs()           == 0x6BE71E50  );
+		CHECK ( result[0][4].confidence()     == 24 );
+		CHECK ( result[0][4].frame450_arcs()  == 0xF62D90FC );
 
-		REQUIRE ( result[0][5].arcs()           == 0x01E7235F  );
-		REQUIRE ( result[0][5].confidence()     == 24 );
-		REQUIRE ( result[0][5].frame450_arcs()  == 0x56C6AF06 );
+		CHECK ( result[0][5].arcs()           == 0x01E7235F  );
+		CHECK ( result[0][5].confidence()     == 24 );
+		CHECK ( result[0][5].frame450_arcs()  == 0x56C6AF06 );
 
-		REQUIRE ( result[0][6].arcs()           == 0xD8F7763C );
-		REQUIRE ( result[0][6].confidence()     == 24 ) ;
-		REQUIRE ( result[0][6].frame450_arcs()  == 0x76274140 );
+		CHECK ( result[0][6].arcs()           == 0xD8F7763C );
+		CHECK ( result[0][6].confidence()     == 24 ) ;
+		CHECK ( result[0][6].frame450_arcs()  == 0x76274140 );
 
-		REQUIRE ( result[0][7].arcs()           == 0x8480223E );
-		REQUIRE ( result[0][7].confidence()     == 24 ) ;
-		REQUIRE ( result[0][7].frame450_arcs()  == 0x73A608D0 );
+		CHECK ( result[0][7].arcs()           == 0x8480223E );
+		CHECK ( result[0][7].confidence()     == 24 ) ;
+		CHECK ( result[0][7].frame450_arcs()  == 0x73A608D0 );
 
-		REQUIRE ( result[0][8].arcs()           == 0x42C5061C );
-		REQUIRE ( result[0][8].confidence()     == 24 ) ;
-		REQUIRE ( result[0][8].frame450_arcs()  == 0x9D7A1F4B );
+		CHECK ( result[0][8].arcs()           == 0x42C5061C );
+		CHECK ( result[0][8].confidence()     == 24 ) ;
+		CHECK ( result[0][8].frame450_arcs()  == 0x9D7A1F4B );
 
-		REQUIRE ( result[0][9].arcs()           == 0x47A70F02 );
-		REQUIRE ( result[0][9].confidence()     == 23 ) ;
-		REQUIRE ( result[0][9].frame450_arcs()  == 0x37871A8C );
+		CHECK ( result[0][9].arcs()           == 0x47A70F02 );
+		CHECK ( result[0][9].confidence()     == 23 ) ;
+		CHECK ( result[0][9].frame450_arcs()  == 0x37871A8C );
 
-		REQUIRE ( result[0][10].arcs()          == 0xBABF08CC );
-		REQUIRE ( result[0][10].confidence()    == 23 ) ;
-		REQUIRE ( result[0][10].frame450_arcs() == 0xF6360C0B );
+		CHECK ( result[0][10].arcs()          == 0xBABF08CC );
+		CHECK ( result[0][10].confidence()    == 23 ) ;
+		CHECK ( result[0][10].frame450_arcs() == 0xF6360C0B );
 
-		REQUIRE ( result[0][11].arcs()          == 0x563EDCCB );
-		REQUIRE ( result[0][11].confidence()    == 23 ) ;
-		REQUIRE ( result[0][11].frame450_arcs() == 0xCB1FE45D );
+		CHECK ( result[0][11].arcs()          == 0x563EDCCB );
+		CHECK ( result[0][11].confidence()    == 23 ) ;
+		CHECK ( result[0][11].frame450_arcs() == 0xCB1FE45D );
 
-		REQUIRE ( result[0][12].arcs()          == 0xAB123C7C );
-		REQUIRE ( result[0][12].confidence()    == 23 ) ;
-		REQUIRE ( result[0][12].frame450_arcs() == 0xBCC08EDA );
+		CHECK ( result[0][12].arcs()          == 0xAB123C7C );
+		CHECK ( result[0][12].confidence()    == 23 ) ;
+		CHECK ( result[0][12].frame450_arcs() == 0xBCC08EDA );
 
-		REQUIRE ( result[0][13].arcs()          == 0xC65C20E4 );
-		REQUIRE ( result[0][13].confidence()    == 22 ) ;
-		REQUIRE ( result[0][13].frame450_arcs() == 0xE467DE8E );
+		CHECK ( result[0][13].arcs()          == 0xC65C20E4 );
+		CHECK ( result[0][13].confidence()    == 22 ) ;
+		CHECK ( result[0][13].frame450_arcs() == 0xE467DE8E );
 
-		REQUIRE ( result[0][14].arcs()          == 0x58FC3C3E );
-		REQUIRE ( result[0][14].confidence()    == 22 ) ;
-		REQUIRE ( result[0][14].frame450_arcs() == 0x9537953F );
+		CHECK ( result[0][14].arcs()          == 0x58FC3C3E );
+		CHECK ( result[0][14].confidence()    == 22 ) ;
+		CHECK ( result[0][14].frame450_arcs() == 0x9537953F );
 
 		// Block 2
 
-		REQUIRE ( result[1].id() ==
+		CHECK ( result[1].id() ==
 				arcstk::ARId(15, 0x001b9178, 0x014be24e, 0xb40d2d0f) );
 
-		REQUIRE ( result[1].size() == 15 );
+		CHECK ( result[1].size() == 15 );
 
-		REQUIRE ( result[1][0].arcs()           == 0x98B10E0F );
-		REQUIRE ( result[1][0].confidence()     == 20 );
-		REQUIRE ( result[1][0].frame450_arcs()  == 0x35DC25F3 );
+		CHECK ( result[1][0].arcs()           == 0x98B10E0F );
+		CHECK ( result[1][0].confidence()     == 20 );
+		CHECK ( result[1][0].frame450_arcs()  == 0x35DC25F3 );
 
-		REQUIRE ( result[1][1].arcs()           == 0x475F57E9 );
-		REQUIRE ( result[1][1].confidence()     == 20 );
-		REQUIRE ( result[1][1].frame450_arcs()  == 0xDCCF2356 );
+		CHECK ( result[1][1].arcs()           == 0x475F57E9 );
+		CHECK ( result[1][1].confidence()     == 20 );
+		CHECK ( result[1][1].frame450_arcs()  == 0xDCCF2356 );
 
-		REQUIRE ( result[1][2].arcs()           == 0x7304F1C4 );
-		REQUIRE ( result[1][2].confidence()     == 20 );
-		REQUIRE ( result[1][2].frame450_arcs()  == 0x5FA89D66 );
+		CHECK ( result[1][2].arcs()           == 0x7304F1C4 );
+		CHECK ( result[1][2].confidence()     == 20 );
+		CHECK ( result[1][2].frame450_arcs()  == 0x5FA89D66 );
 
-		REQUIRE ( result[1][3].arcs()           == 0xF2472287 );
-		REQUIRE ( result[1][3].confidence()     == 20 );
-		REQUIRE ( result[1][3].frame450_arcs()  == 0xB0330387 );
+		CHECK ( result[1][3].arcs()           == 0xF2472287 );
+		CHECK ( result[1][3].confidence()     == 20 );
+		CHECK ( result[1][3].frame450_arcs()  == 0xB0330387 );
 
-		REQUIRE ( result[1][4].arcs()           == 0x881BC504 );
-		REQUIRE ( result[1][4].confidence()     == 20 );
-		REQUIRE ( result[1][4].frame450_arcs()  == 0x8442806E );
+		CHECK ( result[1][4].arcs()           == 0x881BC504 );
+		CHECK ( result[1][4].confidence()     == 20 );
+		CHECK ( result[1][4].frame450_arcs()  == 0x8442806E );
 
-		REQUIRE ( result[1][5].arcs()           == 0xBB94BFD4 );
-		REQUIRE ( result[1][5].confidence()     == 20 );
-		REQUIRE ( result[1][5].frame450_arcs()  == 0xF13BC09B );
+		CHECK ( result[1][5].arcs()           == 0xBB94BFD4 );
+		CHECK ( result[1][5].confidence()     == 20 );
+		CHECK ( result[1][5].frame450_arcs()  == 0xF13BC09B );
 
-		REQUIRE ( result[1][6].arcs()           == 0xF9CAEE76 );
-		REQUIRE ( result[1][6].confidence()     == 20 );
-		REQUIRE ( result[1][6].frame450_arcs()  == 0xC0AB9412 );
+		CHECK ( result[1][6].arcs()           == 0xF9CAEE76 );
+		CHECK ( result[1][6].confidence()     == 20 );
+		CHECK ( result[1][6].frame450_arcs()  == 0xC0AB9412 );
 
-		REQUIRE ( result[1][7].arcs()           == 0xF9F60BC1 );
-		REQUIRE ( result[1][7].confidence()     == 20 );
-		REQUIRE ( result[1][7].frame450_arcs()  == 0xC7836441 );
+		CHECK ( result[1][7].arcs()           == 0xF9F60BC1 );
+		CHECK ( result[1][7].confidence()     == 20 );
+		CHECK ( result[1][7].frame450_arcs()  == 0xC7836441 );
 
-		REQUIRE ( result[1][8].arcs()           == 0x2C736302 );
-		REQUIRE ( result[1][8].confidence()     == 19 );
-		REQUIRE ( result[1][8].frame450_arcs()  == 0xF1FD38D3 );
+		CHECK ( result[1][8].arcs()           == 0x2C736302 );
+		CHECK ( result[1][8].confidence()     == 19 );
+		CHECK ( result[1][8].frame450_arcs()  == 0xF1FD38D3 );
 
-		REQUIRE ( result[1][9].arcs()           == 0x1C955978 );
-		REQUIRE ( result[1][9].confidence()     == 20 );
-		REQUIRE ( result[1][9].frame450_arcs()  == 0x0860E08B );
+		CHECK ( result[1][9].arcs()           == 0x1C955978 );
+		CHECK ( result[1][9].confidence()     == 20 );
+		CHECK ( result[1][9].frame450_arcs()  == 0x0860E08B );
 
-		REQUIRE ( result[1][10].arcs()          == 0xFDA6D833 );
-		REQUIRE ( result[1][10].confidence()    == 19 );
-		REQUIRE ( result[1][10].frame450_arcs() == 0x9C8202BE );
+		CHECK ( result[1][10].arcs()          == 0xFDA6D833 );
+		CHECK ( result[1][10].confidence()    == 19 );
+		CHECK ( result[1][10].frame450_arcs() == 0x9C8202BE );
 
-		REQUIRE ( result[1][11].arcs()          == 0x3A57E5D1 );
-		REQUIRE ( result[1][11].confidence()    == 21 );
-		REQUIRE ( result[1][11].frame450_arcs() == 0xC6FF01AE );
+		CHECK ( result[1][11].arcs()          == 0x3A57E5D1 );
+		CHECK ( result[1][11].confidence()    == 21 );
+		CHECK ( result[1][11].frame450_arcs() == 0xC6FF01AE );
 
-		REQUIRE ( result[1][12].arcs()          == 0x6ED5F3E7 );
-		REQUIRE ( result[1][12].confidence()    == 19 );
-		REQUIRE ( result[1][12].frame450_arcs() == 0x4C92FCBE );
+		CHECK ( result[1][12].arcs()          == 0x6ED5F3E7 );
+		CHECK ( result[1][12].confidence()    == 19 );
+		CHECK ( result[1][12].frame450_arcs() == 0x4C92FCBE );
 
-		REQUIRE ( result[1][13].arcs()          == 0x4A5C3872 );
-		REQUIRE ( result[1][13].confidence()    == 20 );
-		REQUIRE ( result[1][13].frame450_arcs() == 0x8FB684A7 );
+		CHECK ( result[1][13].arcs()          == 0x4A5C3872 );
+		CHECK ( result[1][13].confidence()    == 20 );
+		CHECK ( result[1][13].frame450_arcs() == 0x8FB684A7 );
 
-		REQUIRE ( result[1][14].arcs()          == 0x5FE8B032 );
-		REQUIRE ( result[1][14].confidence()    == 19 );
-		REQUIRE ( result[1][14].frame450_arcs() == 0x405711AA );
+		CHECK ( result[1][14].arcs()          == 0x5FE8B032 );
+		CHECK ( result[1][14].confidence()    == 19 );
+		CHECK ( result[1][14].frame450_arcs() == 0x405711AA );
 
 		// Block 3
 
-		REQUIRE ( result[2][0].arcs()           == 0x54FE0533 );
-		REQUIRE ( result[2][0].confidence()     == 2 );
-		REQUIRE ( result[2][0].frame450_arcs()  == 0 );
+		CHECK ( result[2][0].arcs()           == 0x54FE0533 );
+		CHECK ( result[2][0].confidence()     == 2 );
+		CHECK ( result[2][0].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][1].arcs()           == 0xAFEC147E );
-		REQUIRE ( result[2][1].confidence()     == 2 );
-		REQUIRE ( result[2][1].frame450_arcs()  == 0 );
+		CHECK ( result[2][1].arcs()           == 0xAFEC147E );
+		CHECK ( result[2][1].confidence()     == 2 );
+		CHECK ( result[2][1].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][2].arcs()           == 0x2BFB5AEC );
-		REQUIRE ( result[2][2].confidence()     == 2 );
-		REQUIRE ( result[2][2].frame450_arcs()  == 0 );
+		CHECK ( result[2][2].arcs()           == 0x2BFB5AEC );
+		CHECK ( result[2][2].confidence()     == 2 );
+		CHECK ( result[2][2].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][3].arcs()           == 0xED6E7215 );
-		REQUIRE ( result[2][3].confidence()     == 2 );
-		REQUIRE ( result[2][3].frame450_arcs()  == 0 );
+		CHECK ( result[2][3].arcs()           == 0xED6E7215 );
+		CHECK ( result[2][3].confidence()     == 2 );
+		CHECK ( result[2][3].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][4].arcs()           == 0xA0847CEF );
-		REQUIRE ( result[2][4].confidence()     == 2 );
-		REQUIRE ( result[2][4].frame450_arcs()  == 0 );
+		CHECK ( result[2][4].arcs()           == 0xA0847CEF );
+		CHECK ( result[2][4].confidence()     == 2 );
+		CHECK ( result[2][4].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][5].arcs()           == 0xAE066CD1 );
-		REQUIRE ( result[2][5].confidence()     == 2 );
-		REQUIRE ( result[2][5].frame450_arcs()  == 0 );
+		CHECK ( result[2][5].arcs()           == 0xAE066CD1 );
+		CHECK ( result[2][5].confidence()     == 2 );
+		CHECK ( result[2][5].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][6].arcs()           == 0xE1AB3B46 );
-		REQUIRE ( result[2][6].confidence()     == 2 );
-		REQUIRE ( result[2][6].frame450_arcs()  == 0 );
+		CHECK ( result[2][6].arcs()           == 0xE1AB3B46 );
+		CHECK ( result[2][6].confidence()     == 2 );
+		CHECK ( result[2][6].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][7].arcs()           == 0xE75E70BA );
-		REQUIRE ( result[2][7].confidence()     == 2 );
-		REQUIRE ( result[2][7].frame450_arcs()  == 0 );
+		CHECK ( result[2][7].arcs()           == 0xE75E70BA );
+		CHECK ( result[2][7].confidence()     == 2 );
+		CHECK ( result[2][7].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][8].arcs()           == 0x6D72D1AC );
-		REQUIRE ( result[2][8].confidence()     == 2 );
-		REQUIRE ( result[2][8].frame450_arcs()  == 0 );
+		CHECK ( result[2][8].arcs()           == 0x6D72D1AC );
+		CHECK ( result[2][8].confidence()     == 2 );
+		CHECK ( result[2][8].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][9].arcs()           == 0x89C19A02 );
-		REQUIRE ( result[2][9].confidence()     == 2 );
-		REQUIRE ( result[2][9].frame450_arcs()  == 0 );
+		CHECK ( result[2][9].arcs()           == 0x89C19A02 );
+		CHECK ( result[2][9].confidence()     == 2 );
+		CHECK ( result[2][9].frame450_arcs()  == 0 );
 
-		REQUIRE ( result[2][10].arcs()          == 0x4A5CE2AB );
-		REQUIRE ( result[2][10].confidence()    == 2 );
-		REQUIRE ( result[2][10].frame450_arcs() == 0 );
+		CHECK ( result[2][10].arcs()          == 0x4A5CE2AB );
+		CHECK ( result[2][10].confidence()    == 2 );
+		CHECK ( result[2][10].frame450_arcs() == 0 );
 
-		REQUIRE ( result[2][11].arcs()          == 0x4D23C1D4 );
-		REQUIRE ( result[2][11].confidence()    == 2 );
-		REQUIRE ( result[2][11].frame450_arcs() == 0 );
+		CHECK ( result[2][11].arcs()          == 0x4D23C1D4 );
+		CHECK ( result[2][11].confidence()    == 2 );
+		CHECK ( result[2][11].frame450_arcs() == 0 );
 
-		REQUIRE ( result[2][12].arcs()          == 0x80AA0FB6 );
-		REQUIRE ( result[2][12].confidence()    == 2 );
-		REQUIRE ( result[2][12].frame450_arcs() == 0 );
+		CHECK ( result[2][12].arcs()          == 0x80AA0FB6 );
+		CHECK ( result[2][12].confidence()    == 2 );
+		CHECK ( result[2][12].frame450_arcs() == 0 );
 
-		REQUIRE ( result[2][13].arcs()          == 0x9378FD52 );
-		REQUIRE ( result[2][13].confidence()    == 2 );
-		REQUIRE ( result[2][13].frame450_arcs() == 0 );
+		CHECK ( result[2][13].arcs()          == 0x9378FD52 );
+		CHECK ( result[2][13].confidence()    == 2 );
+		CHECK ( result[2][13].frame450_arcs() == 0 );
 
-		REQUIRE ( result[2][14].arcs()          == 0x6A8A614C );
-		REQUIRE ( result[2][14].confidence()    == 2 );
-		REQUIRE ( result[2][14].frame450_arcs() == 0 );
+		CHECK ( result[2][14].arcs()          == 0x6A8A614C );
+		CHECK ( result[2][14].confidence()    == 2 );
+		CHECK ( result[2][14].frame450_arcs() == 0 );
 	}
 
 	// A parse error can only occurr if the input ends prematurely, e.g. if
@@ -359,7 +359,7 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 
 	// There is no easy or comfortable way in Catch2 to access the
 	// exception object thrown via its genuine interface. (However, you can
-	// access the "what" message via REQUIRE_THROWS_WITH).
+	// access the "what" message via CHECK_THROWS_WITH).
 	//
 	// The following workaround addresses this by requiring an exception
 	// manually and catching the exception object.
@@ -377,9 +377,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 1 );
-			REQUIRE ( e.byte_position()       == 149 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 1 );
+			CHECK ( e.byte_position()       == 149 );
 		}
 	}
 
@@ -394,9 +394,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 2 );
-			REQUIRE ( e.byte_position()       == 150 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 2 );
+			CHECK ( e.byte_position()       == 150 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin");
@@ -407,9 +407,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 3 );
-			REQUIRE ( e.byte_position()       == 151 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 3 );
+			CHECK ( e.byte_position()       == 151 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin");
@@ -420,9 +420,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 4 );
-			REQUIRE ( e.byte_position()       == 152 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 4 );
+			CHECK ( e.byte_position()       == 152 );
 		}
 	}
 
@@ -437,9 +437,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 5 );
-			REQUIRE ( e.byte_position()       == 153 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 5 );
+			CHECK ( e.byte_position()       == 153 );
 		}
 	}
 
@@ -454,9 +454,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 6 );
-			REQUIRE ( e.byte_position()       == 154 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 6 );
+			CHECK ( e.byte_position()       == 154 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin");
@@ -467,9 +467,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 7 );
-			REQUIRE ( e.byte_position()       == 155 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 7 );
+			CHECK ( e.byte_position()       == 155 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin");
@@ -480,9 +480,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 8 );
-			REQUIRE ( e.byte_position()       == 156 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 8 );
+			CHECK ( e.byte_position()       == 156 );
 		}
 	}
 
@@ -497,9 +497,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 9 );
-			REQUIRE ( e.byte_position()       == 157 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 9 );
+			CHECK ( e.byte_position()       == 157 );
 		}
 	}
 
@@ -514,9 +514,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 10 );
-			REQUIRE ( e.byte_position()       == 158 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 10 );
+			CHECK ( e.byte_position()       == 158 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin");
@@ -527,9 +527,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 11 );
-			REQUIRE ( e.byte_position()       == 159 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 11 );
+			CHECK ( e.byte_position()       == 159 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin");
@@ -540,9 +540,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 12 );
-			REQUIRE ( e.byte_position()       == 160 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 12 );
+			CHECK ( e.byte_position()       == 160 );
 		}
 	}
 
@@ -557,9 +557,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 13 );
-			REQUIRE ( e.byte_position()       == 161 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 13 );
+			CHECK ( e.byte_position()       == 161 );
 		}
 	}
 
@@ -576,9 +576,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 139 );
-			REQUIRE ( e.byte_position()       == 287 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 139 );
+			CHECK ( e.byte_position()       == 287 );
 		}
 	}
 
@@ -596,9 +596,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 140 );
-			REQUIRE ( e.byte_position()       == 288 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 140 );
+			CHECK ( e.byte_position()       == 288 );
 		}
 	}
 
@@ -616,9 +616,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 141 );
-			REQUIRE ( e.byte_position()       == 289 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 141 );
+			CHECK ( e.byte_position()       == 289 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin");
@@ -629,9 +629,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 142 );
-			REQUIRE ( e.byte_position()       == 290 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 142 );
+			CHECK ( e.byte_position()       == 290 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin");
@@ -642,9 +642,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 143 );
-			REQUIRE ( e.byte_position()       == 291 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 143 );
+			CHECK ( e.byte_position()       == 291 );
 		}
 	}
 
@@ -662,9 +662,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 144 );
-			REQUIRE ( e.byte_position()       == 292 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 144 );
+			CHECK ( e.byte_position()       == 292 );
 		}
 	}
 
@@ -682,9 +682,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 145 );
-			REQUIRE ( e.byte_position()       == 293 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 145 );
+			CHECK ( e.byte_position()       == 293 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin");
@@ -695,9 +695,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 146 );
-			REQUIRE ( e.byte_position()       == 294 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 146 );
+			CHECK ( e.byte_position()       == 294 );
 		}
 
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin");
@@ -708,9 +708,9 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			FAIL ( "Expected StreamReadException was not thrown" );
 		} catch (const arcstk::StreamReadException &e)
 		{
-			REQUIRE ( e.block()               == 2 );
-			REQUIRE ( e.block_byte_position() == 147 );
-			REQUIRE ( e.byte_position()       == 295 );
+			CHECK ( e.block()               == 2 );
+			CHECK ( e.block_byte_position() == 147 );
+			CHECK ( e.byte_position()       == 295 );
 		}
 	}
 }
