@@ -2,7 +2,7 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
-
+[![Latest](https://img.shields.io/badge/dynamic/json.svg?url=https://codeberg.org/api/v1/repos/tristero/libarcstk/releases&label=latest&query=$.0.name&color=yellowgreen)](https://codeberg.org//tristero/libarcstk/releases)
 
 
 ## What libarcstk is
@@ -17,10 +17,10 @@ Libarcstk supports the following tasks:
 
 Libarcstk provides:
 
-- An API for working with AccurateRip checksums
+- An API for working with AccurateRip checksums and ids
 - Conservative OO API (intended to be usable from other languages)
-- A C++14 function library
 - Builds on Linux (and presumably/untested on *BSD)
+- Reasonably fast
 
 Although AccurateRip checksums are often referred to as "CRCs", they are not
 CRCs in a mathematical sense. Therefore, we call them just "AccurateRip
@@ -56,16 +56,16 @@ build switches.
 
 ## How to Use
 
+- Consult the [example applications](./examples/README.md) in the examples
+  folder. They illustrate the supported usecases.
 - [Build the API documentation](BUILD.md#building-the-api-documentation) and
   view it in a browser.
-- Consult the example applications in the examples folder. They illustrate the
-  supported usecases.
-- As soon as I manage to write a quickstart tutorial, it will be found in the
-  Wiki.
 - For local ARCS calculation, also check whether
   [libarcsdec](https://codeberg.org/tristero/libarcsdec) is helpful. Its
   target is to read virtually any lossless audio format by a uniform
-  API. (It's yet pre-alpha, so be warned.)
+  API that is really simple to use.
+- As soon as I manage to write a quickstart tutorial, it will be found in the
+  Wiki.
 
 
 
