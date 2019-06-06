@@ -2,7 +2,7 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
-[![Latest](https://img.shields.io/badge/dynamic/json.svg?url=https://codeberg.org/api/v1/repos/tristero/libarcstk/releases&label=latest&query=$.0.name&color=yellowgreen)](https://codeberg.org//tristero/libarcstk/releases)
+[![Latest](https://img.shields.io/badge/dynamic/json.svg?url=https://codeberg.org/api/v1/repos/tristero/libarcstk/releases&label=latest&query=$.0.name&color=yellowgreen)](https://codeberg.org/tristero/libarcstk/releases)
 
 
 ## What libarcstk is
