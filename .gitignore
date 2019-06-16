@@ -43,7 +43,7 @@ compile_commands.json
 *.swp
 *.swo
 # kdevelop metafiles
-libarcs.kdev4
+libarcstk.kdev4
 kdev4/*
 
 # valgrind report files
