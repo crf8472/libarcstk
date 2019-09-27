@@ -35,21 +35,19 @@
 
 // NOTE 2: This example is rather long, much longer than I would prefer it to
 // be. The reason for this longishness is that for using the match interface,
-// you have to prepare a lot of input:
+// you have to add code that prepares and provides the following input:
 //
 // - your own sums, i.e. the sums you have from your rip
 // - the reference sums from AccurateRip and
 // - the AccurateRip id of the album.
 //
-// Providing all this input in a way acceptable in example code, some
-// boilerplate code is inevitably. Although the boilerplate does not carry any
-// didactic evidence for libarcstk, I wanted to provide an example that  at least
-// demonstrates the added value on your own input data.
+// This requires some boilerplate code. Although that boilerplate does not carry
+// any didactic evidence concerning libarcstk, I wanted to provide an example
+// that at least demonstrates the added value on your own input data.
 // In fact, the functions parse_arid(), parse_input_arcs() and
-// parse_match_arcs() are more or less quick and dirty boilerplate code for just
-// providing the required input values. In real life code, you would have to
-// invest (much) more effort to make the code robust but this is not related to
-// learning the libarcstk API.
+// parse_match_arcs() are more or less quick and dirty dummies for just
+// providing the required input values. This is not related to getting
+// acquainted to the libarcstk API.
 // The actual example demonstrating the use of the AlbumMatcher class is
 // contained in main(). It's very simple to use. Have fun!
 
@@ -157,12 +155,10 @@ arcstk::ARResponse parse_match_arcs(const std::string &filename)
 		parser = std::make_unique<arcstk::ARFileParser>(filename);
 	}
 
-	// Register parser handlers
 	parser->set_content_handler(std::move(content_hdlr));
 	parser->set_error_handler(std::move(error_hdlr));
 
-	// Run parser (this may throw!)
-	parser->parse();
+	parser->parse(); // This may throw!
 
 	return response_data;
 }
@@ -219,7 +215,7 @@ int main(int argc, char* argv[])
 	arcstk::AlbumMatcher matcher(checksums, arid, arcss);
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
-	// arcstk::AnyMatcher.
+	// arcstk::TracksetMatcher.
 
 	// Inform about the result
 	std::cout << "RESULT: ";

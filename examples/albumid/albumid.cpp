@@ -145,22 +145,22 @@ int main(int argc, char* argv[])
 
 	// Since the CUEsheet usually does not know the length of the last track,
 	// we may receive only 1. and 2. from the actual CUESheet. In this case, we
-	// have to derive the leadout frame from the audio data using libarcstk'
+	// have to derive the leadout frame from the audio data using libarcstk's
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
 	// is not even necessary: the information is conveniently provided by the
 	// audiofile handle:
 	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(total_samples(audiofilename));
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
-	// "PCM 32 samples" or just "sample". Our "sample" represents a pair of
+	// "PCM 32 samples" or just "samples". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
 	// Libsndfile's frame encodes the same information as 2 signed 16 bit
 	// integers, one per channel.
 
 	// One completed, two to go. We derive track number and offsets from parsing
-	// the CUEsheet. We skip the details here for libarcstk does not provide this
-	// functionality and the author just did a quick hack with libcue. (Just
-	// consult the implementation of function parse_cuesheet if you are
+	// the CUEsheet. We skip the details here for libarcstk does not provide
+	// this functionality and the author just did a quick hack with libcue.
+	// (Just consult the implementation of function parse_cuesheet if you are
 	// interested in the details, but this is libcue, not libarcstk.)
 	auto offsets { parse_cuesheet(cuefilename) };
 	// Skip santiy checks and everything you could do with try/catch ...
