@@ -43,8 +43,8 @@ folder named ``libarcstk``. Then do:
 	$ cmake --build .    # perform the actual build
 	$ sudo make install  # installs to /usr/local
 
-This will just install libarcstk with all optimizations and without debug-symbols
-and tests.
+This will just install libarcstk with all optimizations and without
+debug-symbols and tests.
 
 We describe the build configuration for the following profiles:
 - User (read: a developer who uses libarcstk in her project)
@@ -54,9 +54,9 @@ We describe the build configuration for the following profiles:
 
 ### Users
 
-You intend to install libarcstk on your system, say, as a dependency for your own
-project. You just want libarcstk to be available along with its headers and not
-getting in your way:
+You intend to install libarcstk on your system, say, as a dependency for your
+own project. You just want libarcstk to be available along with its headers and
+not getting in your way:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
 	$ cmake --build .
@@ -187,8 +187,8 @@ doxygen and graphviz.
 	$ cmake --build . --target doc
 
 This will build the documentation sources for HTML as well as LaTeX in
-subdirectories of ``build/doc/``. Open the file ``build/doc/html/index.html`` in
-your browser to see the entry page.
+subdirectories of ``build/generated-docs/``. Open the file
+``build/generated-docs/html/index.html`` in your browser to see the entry page.
 
 
 ### Doxygen with HTML5 and CSS3 (experimental)
@@ -206,8 +206,8 @@ Build the m.css based documentation by the following steps:
 	$ cmake -DUSE_MCSS=ON ..   # Implies -DWITH_DOCS=ON
 	$ cmake --build . --target doc
 
-This generates the documentation in ``build/doc-mcss/`` and you can load
-``build/doc-mcss/html/index.html`` in your browser.
+This generates the documentation in ``build/generated-docs`` and you can load
+``build/generated-docs/html/index.html`` in your browser.
 
 CMake builds a local python sandbox with ``virtualenv``, installs jinja2 and
 Pygments in it, then clones m.css, and then runs doxygen by m.css's
@@ -234,8 +234,9 @@ document. If you intend to build the PDF manual, do:
 	$ cd doc/latex
 	$ make
 
-This will create the manual ``refman.pdf`` in folder ``build/doc/latex`` (while
-issueing loads of ``Underfull \hbox`` warnings, which is perfectly normal).
+This will create the manual ``refman.pdf`` in folder
+``build/generated-docs/latex`` (while issueing loads of ``Underfull \hbox``
+warnings, which is perfectly normal).
 
 
 ## Libarcstk code in my ``$EDITOR``
