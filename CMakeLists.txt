@@ -114,6 +114,7 @@ set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
 	CACHE PATH "Installation directory for pkgconfig (.pc) files" )
 
 
+
 ## --- Add Sources
 
 list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/calculate.cpp" )
@@ -302,6 +303,53 @@ endif (NOT SKIP_INSTALL_ALL)
 
 ## --- Compiler Specific Settings
 
+## g++: Warnings
+set (PROJECT_CXX_GNU_FLAGS_WARNINGS
+	-Wall -Wextra -Wpedantic -Weffc++
+	-Wold-style-cast
+	-Wsuggest-override
+	-Wcast-align
+	-Wcast-qual
+	-Wctor-dtor-privacy
+	-Wdisabled-optimization
+	-Wformat=2
+	-Wlogical-op
+	-Wmissing-declarations
+	-Wmissing-include-dirs
+	-Wnoexcept
+	-Woverloaded-virtual
+	-Wredundant-decls
+	-Wshadow
+	-Wsign-conversion
+	-Wsign-promo
+	-Wstrict-null-sentinel
+	-Wstrict-overflow=5
+	-Wswitch-default
+	-Wundef
+	-Wuseless-cast
+	-Wzero-as-null-pointer-constant
+	)
+
+## clang++: Warnings
+set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
+	-Wall -Wextra -Wpedantic -Weffc++
+	-Wold-style-cast
+	-Wcast-align
+	-Wcast-qual
+	-Wformat=2
+	-Wshadow
+	-Wsign-conversion
+	-Wundef
+	-Wunused
+	-Wzero-as-null-pointer-constant
+	# -- clang specific --
+	-Winconsistent-missing-destructor-override
+	#-Wimplicit-exception-spec-mismatch
+	)
+
+## G++/Clang++: Optimize flags
+set (PROJECT_CXX_FLAGS_OPTIMIZE -march=native -mtune=generic )
+
 option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
 
 ## Settings for g++ and clang
@@ -312,8 +360,21 @@ if (CMAKE_COMPILER_IS_GNUCXX
 
 	## Activate Warnings
 
+	if (CMAKE_COMPILER_IS_GNUCXX )
+
+		message (STATUS "Select compile flags for g++" )
+
+		set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
+	else ()
+
+		message (STATUS "Select compile flags for clang++" )
+
+		set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_CLANG_FLAGS_WARNINGS} )
+	endif (CMAKE_COMPILER_IS_GNUCXX )
+
 	target_compile_options (${PROJECT_NAME}
-		PUBLIC -Wall -Wextra -Wold-style-cast -Wpedantic -Weffc++ )
+		PUBLIC ${PROJECT_CXX_FLAGS_WARNINGS} )
+	message (STATUS "Flags: ${PROJECT_CXX_FLAGS_WARNINGS}" )
 
 	## Platform specific optimizations (default ON for Release, otherwise OFF)
 
