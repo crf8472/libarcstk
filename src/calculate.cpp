@@ -459,9 +459,9 @@ private:
 
 	TrackNo do_track(const uint32_t smpl) const final;
 
-	uint32_t do_offset(const TrackNo track) const final;
+	uint32_t do_offset(const uint8_t track) const final;
 
-	uint32_t do_length(const TrackNo track) const final;
+	uint32_t do_length(const uint8_t track) const final;
 
 	ARId do_id() const final;
 
@@ -577,13 +577,13 @@ TrackNo SingletrackCalcContext::do_track(const uint32_t /* smpl */) const
 }
 
 
-uint32_t SingletrackCalcContext::do_offset(const TrackNo /* track */) const
+uint32_t SingletrackCalcContext::do_offset(const uint8_t /* track */) const
 {
 	return 0;
 }
 
 
-uint32_t SingletrackCalcContext::do_length(const TrackNo /* track */) const
+uint32_t SingletrackCalcContext::do_length(const uint8_t /* track */) const
 {
 	return 0;
 }
@@ -695,9 +695,9 @@ private:
 
 	TrackNo do_track(const uint32_t smpl) const final;
 
-	uint32_t do_offset(const TrackNo track) const final;
+	uint32_t do_offset(const uint8_t track) const final;
 
-	uint32_t do_length(const TrackNo track) const final;
+	uint32_t do_length(const uint8_t track) const final;
 
 	ARId do_id() const final;
 

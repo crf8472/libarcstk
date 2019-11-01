@@ -802,8 +802,8 @@ private:
 	uint32_t do_last_relevant_sample_0() const override;
 
 	// do_track(const uint32_t)
-	// do_offset(const TrackNo)
-	// do_length(const TrackNo)
+	// do_offset(const uint8_t)
+	// do_length(const uint8_t)
 	// do_id()
 	// do_skips_front()
 	// do_skips_back()
