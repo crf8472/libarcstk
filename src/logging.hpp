@@ -680,14 +680,14 @@ inline std::ostringstream& Log::get()
 	// Indent messages with level DEBUG and higher
 
 	os_ << std::string(
-		msg_level_ > LOGLEVEL::DEBUG
+		static_cast<std::string::size_type>(msg_level_ > LOGLEVEL::DEBUG
 			? 2 * (static_cast<typename
 					std::underlying_type<LOGLEVEL>::type>(msg_level_)
 					-
 					static_cast<typename
 					std::underlying_type<LOGLEVEL>::type>(LOGLEVEL::DEBUG)
 				)
-			: 0, ' ');
+			: 0), ' ');
 
 	return os_;
 }
