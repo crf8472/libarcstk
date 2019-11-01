@@ -46,31 +46,31 @@ inline namespace v_1_0_0
 Match::~Match() noexcept = default;
 
 
-uint32_t Match::verify_id(const uint32_t b)
+int Match::verify_id(int b)
 {
 	return this->do_verify_id(b);
 }
 
 
-bool Match::id(const uint32_t b) const
+bool Match::id(int b) const
 {
 	return this->do_id(b);
 }
 
 
-uint32_t Match::verify_track(const uint32_t b, const uint8_t t, const bool v2)
+int Match::verify_track(int b, int t, bool v2)
 {
 	return this->do_verify_track(b, t, v2);
 }
 
 
-bool Match::track(const uint32_t b, const uint8_t t, const bool v2) const
+bool Match::track(int b, int t, bool v2) const
 {
 	return this->do_track(b, t, v2);
 }
 
 
-uint32_t Match::difference(const uint32_t b, const bool v2) const
+int64_t Match::difference(int b, bool v2) const
 {
 	return this->do_difference(b, v2);
 }
@@ -106,6 +106,9 @@ std::unique_ptr<Match> Match::clone() const
  */
 class DefaultMatchBase : public Match
 {
+public:
+
+	using size_type = std::size_t;
 
 public:
 
@@ -115,7 +118,7 @@ public:
 	 * \param[in] blocks Number of @link ARBlock ARBlocks @endlink to represent
 	 * \param[in] tracks Number of tracks per block
 	 */
-	DefaultMatchBase(const uint32_t blocks, const uint8_t tracks);
+	DefaultMatchBase(int blocks, int tracks);
 
 	/**
 	 * \brief Virtual default destructor.
@@ -123,17 +126,15 @@ public:
 	virtual ~DefaultMatchBase() noexcept;
 
 
-	uint32_t do_verify_id(const uint32_t b) override;
+	int do_verify_id(int b) override;
 
-	bool do_id(const uint32_t b) const override;
+	bool do_id(int b) const override;
 
-	uint32_t do_verify_track(const uint32_t b, const uint8_t t, const bool v2)
-		override;
+	int do_verify_track(int b, int t, bool v2) override;
 
-	bool do_track(const uint32_t b, const uint8_t t, const bool v2) const
-		override;
+	bool do_track(int b, int t, bool v2) const override;
 
-	uint32_t do_difference(const uint32_t b, const bool v2) const override;
+	int64_t do_difference(int b, bool v2) const override;
 
 	int do_total_blocks() const override;
 
@@ -155,7 +156,7 @@ protected:
 	 *
 	 * \return Index of the start for the logical block \c b
 	 */
-	uint32_t block_start(const uint32_t b) const;
+	int block_start(int b) const;
 
 	/**
 	 * \brief Converts a 0-based track number to an offset position within a
@@ -166,7 +167,7 @@ protected:
 	 *
 	 * \return Offset for the flag index to be added to the start of the block
 	 */
-	uint32_t track_offset(const uint8_t t, const bool v2) const;
+	int track_offset(int t, bool v2) const;
 
 	/**
 	 * \brief Converts a logical ARCS position in ARResponse to an absolute
@@ -180,7 +181,7 @@ protected:
 	 *
 	 * \return Flag index for a single ARCS
 	 */
-	uint32_t index(const uint32_t b, const int8_t t, const bool v2) const;
+	int index(int b, int t, bool v2) const;
 
 	/**
 	 * \brief Set the verification flag for the ARId of block \b to \c value.
@@ -192,7 +193,7 @@ protected:
 	 *
 	 * \throws Iff \c b is out of range
 	 */
-	uint32_t set_id(const uint32_t b, bool value);
+	int set_id(int b, bool value);
 
 	/**
 	 * \brief Set the verification flag for the ARCS specified by \c b, \c t and
@@ -207,8 +208,7 @@ protected:
 	 *
 	 * \throws Iff \c b or \c t are out of range
 	 */
-	uint32_t set_track(const uint32_t b, const uint8_t t, const bool v2,
-			bool value);
+	int set_track(int b, int t, bool v2, bool value);
 
 	/**
 	 * \brief Ensures that \c b is a legal block value.
@@ -217,7 +217,7 @@ protected:
 	 *
 	 * \throws Iff \c b is out of range
 	 */
-	void validate_block(uint32_t b) const;
+	void validate_block(int b) const;
 
 	/**
 	 * \brief Ensures that \c t is a legal track value.
@@ -234,7 +234,7 @@ private:
 	/**
 	 * \brief Number of @link ARBlock ARBlocks @endlink represented.
 	 */
-	uint32_t blocks_;
+	int blocks_;
 
 	/**
 	 * \brief Number of tracks in each ARBlock.
@@ -244,7 +244,7 @@ private:
 	/**
 	 * \brief Number of flags stored.
 	 */
-	uint32_t size_;
+	std::size_t size_;
 
 	/**
 	 * \brief The result bits of the comparison.
@@ -264,54 +264,58 @@ private:
 
 /// \cond UNDOC_FUNCTION_BODIES
 
-DefaultMatchBase::DefaultMatchBase(const uint32_t blocks, const uint8_t tracks)
+DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 	: blocks_(blocks)
 	, tracks_per_block_(tracks)
-	, size_(blocks * (2 * tracks + 1))
+	, size_(static_cast<unsigned int>(blocks) *
+			(2u * static_cast<unsigned int>(tracks) + 1u))
 	, flag_(size_, false)
 {
-	// empty
+	// TODO Validate block and track numbers
+	//if (blocks < 0 or tracks < 0)
+	//{
+	//	throw ...
+	//}
 }
 
 
 DefaultMatchBase::~DefaultMatchBase() noexcept = default;
 
 
-uint32_t DefaultMatchBase::do_verify_id(const uint32_t b)
+int DefaultMatchBase::do_verify_id(int b)
 {
 	return this->set_id(b, true);
 }
 
 
-bool DefaultMatchBase::do_id(const uint32_t b) const
+bool DefaultMatchBase::do_id(int b) const
 {
 	this->validate_block(b);
 
-	const uint32_t i = block_start(b);
+	const auto offset =
+		static_cast<DefaultMatchBase::size_type>(block_start(b));
 
-	if (i > this->size() - 1)
+	if (offset > this->size() - 1)
 	{
 		throw std::runtime_error("Block index too big");
 	}
 
-	return flag_[i];
+	return flag_[offset];
 }
 
 
-uint32_t DefaultMatchBase::do_verify_track(const uint32_t b, const uint8_t t,
-		const bool v2)
+int DefaultMatchBase::do_verify_track(int b, int t, bool v2)
 {
 	return this->set_track(b, t, v2, true);
 }
 
 
-bool DefaultMatchBase::do_track(const uint32_t b, const uint8_t t,
-		const bool v2) const
+bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 {
 	this->validate_block(b);
 	this->validate_track(t);
 
-	const uint32_t i = index(b, t, v2);
+	const auto i = static_cast<DefaultMatchBase::size_type>(index(b, t, v2));
 
 	if ( i > this->size() - 1)
 	{
@@ -322,7 +326,7 @@ bool DefaultMatchBase::do_track(const uint32_t b, const uint8_t t,
 }
 
 
-uint32_t DefaultMatchBase::do_difference(const uint32_t b, const bool v2) const
+int64_t DefaultMatchBase::do_difference(int b, bool v2) const
 {
 	this->validate_block(b);
 
@@ -330,7 +334,7 @@ uint32_t DefaultMatchBase::do_difference(const uint32_t b, const bool v2) const
 
 	for (int trk = 0; trk < tracks_per_block_; ++trk)
 	{
-		difference += ( track(b, trk, v2) ? 0 : 1 );
+		difference += ( track(b, trk, v2) ? 0u : 1u );
 	}
 
 	return difference;
@@ -355,33 +359,32 @@ size_t DefaultMatchBase::do_size() const
 }
 
 
-uint32_t DefaultMatchBase::block_start(const uint32_t b) const
+int DefaultMatchBase::block_start(int b) const
 {
 	return b * (2 * tracks_per_block_ + 1);
 }
 
 
-uint32_t DefaultMatchBase::track_offset(const uint8_t t, const bool v2) const
+int DefaultMatchBase::track_offset(int t, bool v2) const
 {
 	return t + 1 + (v2 ? tracks_per_block_ : 0);
 }
 
 
-uint32_t DefaultMatchBase::index(const uint32_t b, const int8_t t,
-		const bool v2) const
+int DefaultMatchBase::index(int b, int t, bool v2) const
 {
 	// b and t are 0-based
 	return block_start(b) + track_offset(t, v2);
 }
 
 
-uint32_t DefaultMatchBase::set_id(const uint32_t b, bool value)
+int DefaultMatchBase::set_id(int b, bool value)
 {
 	this->validate_block(b);
 
 	const auto offset = block_start(b);
 
-	if (offset > this->size() - 1)
+	if (static_cast<DefaultMatchBase::size_type>(offset) > this->size() - 1)
 	{
 		throw std::runtime_error("Block index too big");
 	}
@@ -391,15 +394,14 @@ uint32_t DefaultMatchBase::set_id(const uint32_t b, bool value)
 }
 
 
-uint32_t DefaultMatchBase::set_track(const uint32_t b, const uint8_t t,
-		const bool v2, const bool value)
+int DefaultMatchBase::set_track(int b, int t, bool v2, bool value)
 {
 	this->validate_block(b);
 	this->validate_track(t);
 
-	const uint32_t i = index(b, t, v2);
+	const auto i = index(b, t, v2);
 
-	if (i > this->size() - 1)
+	if (static_cast<DefaultMatchBase::size_type>(i) > this->size() - 1)
 	{
 		throw std::runtime_error("Accessor too big");
 	}
@@ -409,20 +411,28 @@ uint32_t DefaultMatchBase::set_track(const uint32_t b, const uint8_t t,
 }
 
 
-void DefaultMatchBase::validate_block(uint32_t b) const
+void DefaultMatchBase::validate_block(int b) const
 {
-	if (b > blocks_ - 1)
+	if (blocks_ - b < 1)
 	{
-		throw std::runtime_error("Block index too big");
+		std::stringstream msg;
+		msg << "Block index " << b << " too big, only " << blocks_
+			<< " blocks in response";
+
+		throw std::runtime_error(msg.str());
 	}
 }
 
 
 void DefaultMatchBase::validate_track(int t) const
 {
-	if (t > tracks_per_block_ - 1)
+	if (tracks_per_block_ - t < 1)
 	{
-		throw std::runtime_error("Track index too big");
+		std::stringstream msg;
+		msg << "Track index " << t << " too big, only " << tracks_per_block_
+			<< " tracks in album";
+
+		throw std::runtime_error(msg.str());
 	}
 }
 
@@ -445,7 +455,7 @@ public:
 	 * \param[in] blocks Number of @link ARBlock ARBlocks @endlink to represent
 	 * \param[in] tracks Number of tracks per block
 	 */
-	DefaultMatch(const uint32_t blocks, const uint8_t tracks);
+	DefaultMatch(int blocks, int tracks);
 
 
 private:
@@ -455,7 +465,7 @@ private:
 
 /// \cond UNDOC_FUNCTION_BODIES
 
-DefaultMatch::DefaultMatch(const uint32_t blocks, const uint8_t tracks)
+DefaultMatch::DefaultMatch(int blocks, int tracks)
 	: DefaultMatchBase(blocks, tracks)
 {
 	// empty
@@ -480,7 +490,7 @@ bool Matcher::matches() const
 }
 
 
-uint32_t Matcher::best_match() const
+int Matcher::best_match() const
 {
 	return this->do_best_match();
 }
@@ -556,7 +566,7 @@ public:
 	/**
 	 * \brief Implements Matcher::best_match() const.
 	 */
-	uint32_t best_match() const;
+	int best_match() const;
 
 	/**
 	 * \brief Implements Matcher::best_difference() const.
@@ -624,8 +634,7 @@ protected:
 	 *
 	 * \return Status value, 0 indicates success
 	 */
-	int best_block(const DefaultMatch &m, uint32_t &block,
-			bool &matches_v2);
+	int best_block(const DefaultMatch &m, int &block, bool &matches_v2);
 
 	/**
 	 * \brief Internal service method for constructor.
@@ -643,9 +652,9 @@ private:
 	std::unique_ptr<DefaultMatch> match_;
 
 	/**
-	 * \brief State: pointer to best block.
+	 * \brief State: index as pointer to best block.
 	 */
-	uint32_t best_block_;
+	int best_block_;
 
 	/**
 	 * \brief State: stores information about best block.
@@ -710,7 +719,7 @@ bool MatcherImplBase::matches() const
 }
 
 
-uint32_t MatcherImplBase::best_match() const
+int MatcherImplBase::best_match() const
 {
 	return best_block_;
 }
@@ -729,7 +738,7 @@ bool MatcherImplBase::matches_v2() const
 
 
 int MatcherImplBase::best_block(const DefaultMatch &m,
-		uint32_t &block, bool &matches_v2)
+		int &block, bool &matches_v2)
 {
 	if (m.size() == 0)
 	{
@@ -790,8 +799,8 @@ const DefaultMatch * MatcherImplBase::match() const
 
 int MatcherImplBase::mark_best_block()
 {
-	uint32_t block   = 0;
-	bool     version = false;
+	int  block   = 0;
+	bool version = false;
 
 	auto status = this->best_block(*match_, block, version);
 
@@ -827,11 +836,11 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
-	uint64_t ref_tracks = ref_sums.tracks_per_block() < 0
+	auto ref_tracks = ref_sums.tracks_per_block() < 0
 		? 0
 		: ref_sums.tracks_per_block(); // TODO Better way to compare
 
-	if (actual_sums.size() != ref_tracks)
+	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
 	{
 		ARCS_LOG_ERROR << "No match possible."
 			<< " Number of tracks in actual_sums (" << actual_sums.size()
@@ -846,10 +855,10 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 	auto match = std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size());
 
-	int block_i { 0 };
-	int track_j { 0 };
-	uint32_t bitpos = 0;
 	Checksum checksum;
+	Checksums::size_type track_j { 0 };
+	int block_i { 0 };
+	int bitpos = 0;
 
 	for (auto block = ref_sums.begin(); block != ref_sums.end(); ++block)
 	{
@@ -953,7 +962,7 @@ bool AlbumMatcher::do_matches() const
 }
 
 
-uint32_t AlbumMatcher::do_best_match() const
+int AlbumMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }
@@ -1021,11 +1030,11 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId & /*id*/,
 		const ARResponse &ref_sums) const
 {
-	uint64_t ref_tracks = ref_sums.tracks_per_block() < 0
+	auto ref_tracks = ref_sums.tracks_per_block() < 0
 		? 0
 		: ref_sums.tracks_per_block(); // TODO Better way to compare
 
-	if (actual_sums.size() != ref_tracks)
+	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
 	{
 		ARCS_LOG_ERROR << "No match possible."
 			<< " Number of tracks in actual_sums (" << actual_sums.size()
@@ -1042,8 +1051,8 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 	int block_i { 0 };
 	int track_j { 0 };
-	uint32_t bitpos      { 0 };
-	uint32_t start_track { 0 };
+	int bitpos      { 0 };
+	Checksums::size_type start_track { 0 };
 
 	Checksum checksum;
 
@@ -1056,7 +1065,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		start_track = 0;
 
 		for (auto track = block->begin();
-				track != block->end() and start_track < actual_sums.size();
+				track != block->end() && start_track < actual_sums.size();
 				++track)
 		{
 			ARCS_LOG_DEBUG << "Track " << (track_j + 1);
@@ -1170,7 +1179,7 @@ bool TracksetMatcher::do_matches() const
 }
 
 
-uint32_t TracksetMatcher::do_best_match() const
+int TracksetMatcher::do_best_match() const
 {
 	return impl_->best_match();
 }

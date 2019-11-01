@@ -998,6 +998,11 @@ public: /* types */
 	 */
 	using const_iterator = const ChecksumSet*;
 
+	/**
+	 * \brief Size type for Checksums.
+	 */
+	using size_type = std::size_t;
+
 
 public: /* methods */
 
@@ -1006,7 +1011,7 @@ public: /* methods */
 	 *
 	 * \param[in] size Number of elements
 	 */
-	explicit Checksums(const std::size_t size);
+	explicit Checksums(const size_type size);
 
 	/**
 	 * \brief Copy constructor.
@@ -1073,7 +1078,7 @@ public: /* methods */
 	 *
 	 * \return The element with index \c index
 	 */
-	ChecksumSet& operator [] (const uint32_t index);
+	ChecksumSet& operator [] (const size_type index);
 
 	/**
 	 * \brief Access element by its 0-based \c index .
@@ -1084,7 +1089,7 @@ public: /* methods */
 	 *
 	 * \return The element with index \c index
 	 */
-	const ChecksumSet& operator [] (const uint32_t index) const;
+	const ChecksumSet& operator [] (const size_type index) const;
 
 	/**
 	 * \brief Return the number of elements.

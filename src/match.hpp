@@ -78,7 +78,7 @@ public:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	uint32_t verify_id(const uint32_t block);
+	int verify_id(int block);
 
 	/**
 	 * \brief TRUE iff the ARId of the specified block is matches the ARId of
@@ -90,7 +90,7 @@ public:
 	 *
 	 * \return TRUE iff the ARId of block \c b matches the ARId of the request
 	 */
-	bool id(const uint32_t b) const;
+	bool id(int b) const;
 
 	/**
 	 * \brief Verifies a single ARCS of the specified track.
@@ -103,7 +103,7 @@ public:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	uint32_t verify_track(const uint32_t b, const uint8_t t, const bool v2);
+	int verify_track(int b, int t, bool v2);
 
 	/**
 	 * \brief Return the verification status of an ARCS of the specified track.
@@ -116,7 +116,7 @@ public:
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
-	bool track(const uint32_t b, const uint8_t t, const bool v2) const;
+	bool track(int b, int t, bool v2) const;
 
 	/**
 	 * \brief Returns the difference for block \c b .
@@ -132,7 +132,7 @@ public:
 	 *
 	 * \return Difference of block \c b
 	 */
-	uint32_t difference(const uint32_t b, const bool v2) const;
+	int64_t difference(int b, bool v2) const;
 
 	/**
 	 * \brief Returns the number of compared blocks.
@@ -172,7 +172,7 @@ private:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	virtual uint32_t do_verify_id(const uint32_t b)
+	virtual int do_verify_id(const int b)
 	= 0;
 
 	/**
@@ -185,7 +185,7 @@ private:
 	 * \return TRUE iff the ARId of block \c b matches the ARId of \c
 	 * result
 	 */
-	virtual bool do_id(const uint32_t b) const
+	virtual bool do_id(const int b) const
 	= 0;
 
 	/**
@@ -199,8 +199,7 @@ private:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	virtual uint32_t do_verify_track(const uint32_t b, const uint8_t t,
-			const bool v2)
+	virtual int do_verify_track(const int b, const int t, const bool v2)
 	= 0;
 
 	/**
@@ -214,8 +213,7 @@ private:
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
-	virtual bool do_track(const uint32_t b, const uint8_t t, const bool v2)
-		const
+	virtual bool do_track(const int b, const int t, const bool v2) const
 	= 0;
 
 	/**
@@ -228,7 +226,7 @@ private:
 	 *
 	 * \return Difference of block \c b
 	 */
-	virtual uint32_t do_difference(const uint32_t b, const bool v2) const
+	virtual int64_t do_difference(const int b, const bool v2) const
 	= 0;
 
 	/**
@@ -292,7 +290,7 @@ public:
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
-	uint32_t best_match() const;
+	int best_match() const;
 
 	/**
 	 * \brief Returns the difference value of the ARBlock with index
@@ -345,7 +343,7 @@ private:
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
-	virtual uint32_t do_best_match() const
+	virtual int do_best_match() const
 	= 0;
 
 	/**
@@ -446,7 +444,7 @@ private:
 
 	bool do_matches() const final;
 
-	uint32_t do_best_match() const final;
+	int do_best_match() const final;
 
 	int do_best_difference() const final;
 
@@ -526,7 +524,7 @@ private:
 
 	bool do_matches() const final;
 
-	uint32_t do_best_match() const final;
+	int do_best_match() const final;
 
 	int do_best_difference() const final;
 

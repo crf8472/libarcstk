@@ -2206,7 +2206,7 @@ Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
 // Checksums
 
 
-Checksums::Checksums(const std::size_t size)
+Checksums::Checksums(const size_type size)
 	: sets_( std::make_unique<ChecksumSet[]>(size) )
 	, size_( size )
 {
@@ -2261,7 +2261,7 @@ Checksums::const_iterator Checksums::cend() const
 }
 
 
-ChecksumSet& Checksums::operator [] (const uint32_t index)
+ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
 {
 	// Confer Meyers, Scott: Effective C++, 3rd ed.,
 	// Item 3, Section "Avoiding Duplication in const and Non-const member
@@ -2271,13 +2271,14 @@ ChecksumSet& Checksums::operator [] (const uint32_t index)
 }
 
 
-const ChecksumSet& Checksums::operator [] (const uint32_t index) const
+const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
+	const
 {
 	return (sets_.get())[index];
 }
 
 
-std::size_t Checksums::size() const
+Checksums::size_type Checksums::size() const
 {
 	return size_;
 }
