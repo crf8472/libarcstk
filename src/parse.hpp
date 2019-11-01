@@ -256,6 +256,11 @@ public: /* types */
 	 */
 	using const_iterator = std::vector<ARTriplet>::const_iterator;
 
+	/**
+	 * \brief Size type for ARBlock.
+	 */
+	using size_type = std::vector<ARTriplet>::size_type;
+
 
 public: /* methods */
 
@@ -358,7 +363,7 @@ public: /* methods */
 	 *
 	 * \return ARTriplet at the specified index
 	 */
-	const ARTriplet& operator [](const int index) const;
+	const ARTriplet& operator [](const size_type index) const;
 
 	/**
 	 * \brief Return the ARTriplet with the specified \c index.
@@ -367,7 +372,7 @@ public: /* methods */
 	 *
 	 * \return ARTriplet at the specified index
 	 */
-	ARTriplet& operator [](const int index);
+	ARTriplet& operator [](const size_type index);
 
 	/**
 	 * \brief Copy assignment operator.
@@ -420,6 +425,11 @@ public: /* types */
 	 */
 	using const_iterator = std::vector<ARBlock>::const_iterator;
 
+	/**
+	 * \brief Size type for ARResponse.
+	 */
+	using size_type = std::vector<ARBlock>::size_type;
+
 
 public: /* methods */
 
@@ -461,14 +471,14 @@ public: /* methods */
 	 *
 	 * \return Block \c i .
 	 */
-	const ARBlock& block(const int i) const;
+	const ARBlock& block(const ARResponse::size_type i) const;
 
 	/**
 	 * \brief Returns the number of blocks in this response.
 	 *
 	 * \return Number of blocks in this response
 	 */
-	std::size_t size() const;
+	size_type size() const;
 
 	/**
 	 * \brief Number of tracks per block.
@@ -528,7 +538,7 @@ public: /* methods */
 	 *
 	 * \return ARBlock at index
 	 */
-	const ARBlock& operator [](const int index) const;
+	const ARBlock& operator [](const size_type index) const;
 
 	/**
 	 * \brief Return the ARBlock with the specified \c index.
@@ -537,7 +547,7 @@ public: /* methods */
 	 *
 	 * \return ARBlock at index
 	 */
-	ARBlock& operator [](const int index);
+	ARBlock& operator [](const size_type index);
 
 	/**
 	 * \brief Copy assignment operator.

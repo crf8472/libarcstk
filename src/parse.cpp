@@ -567,13 +567,6 @@ ARTriplet& ARTriplet::operator = (ARTriplet &&rhs) noexcept = default;
 class ARBlock::Impl final
 {
 
-public: /* types */
-
-	using iterator = std::vector<ARTriplet>::iterator;
-
-	using const_iterator = std::vector<ARTriplet>::const_iterator;
-
-
 public: /* methods */
 
 	/**
@@ -603,49 +596,49 @@ public: /* methods */
 	 *
 	 * \return The number of triplets in this block.
 	 */
-	uint32_t size() const;
+	ARBlock::size_type size() const;
 
 	/**
 	 * \brief Const iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
-	iterator begin();
+	ARBlock::iterator begin();
 
 	/**
 	 * \brief Const iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
-	iterator end();
+	ARBlock::iterator end();
 
 	/**
 	 * \brief Const iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
-	const_iterator cbegin() const;
+	ARBlock::const_iterator cbegin() const;
 
 	/**
 	 * \brief Const iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
-	const_iterator cend() const;
+	ARBlock::const_iterator cend() const;
 
 	/**
 	 * \brief Return the ARTriplet with the specified index
 	 *
 	 * \return ARTriplet at index
 	 */
-	const ARTriplet& operator [](const int index) const;
+	const ARTriplet& operator [](const ARBlock::size_type index) const;
 
 	/**
 	 * \brief Return the ARTriplet with the specified index
 	 *
 	 * \return ARTriplet at index
 	 */
-	ARTriplet& operator [](const int index);
+	ARTriplet& operator [](const ARBlock::size_type index);
 
 
 private:
@@ -708,19 +701,21 @@ ARBlock::const_iterator ARBlock::Impl::cend() const
 }
 
 
-uint32_t ARBlock::Impl::size() const
+ARBlock::size_type ARBlock::Impl::size() const
 {
 	return triplets_.size();
 }
 
 
-const ARTriplet& ARBlock::Impl::operator [](const int index) const
+const ARTriplet&
+	ARBlock::Impl::operator [](const ARBlock::size_type index) const
 {
 	return triplets_[index];
 }
 
 
-ARTriplet& ARBlock::Impl::operator [](const int index)
+ARTriplet&
+	ARBlock::Impl::operator [](const ARBlock::size_type index)
 {
 	// Confer Meyers, Scott: Effective C++, 3rd ed.,
 	// Item 3, Section "Avoiding Duplication in const and Non-const member
@@ -807,13 +802,13 @@ ARBlock::const_iterator ARBlock::cend() const
 }
 
 
-const ARTriplet& ARBlock::operator [](const int index) const
+const ARTriplet& ARBlock::operator [](const ARBlock::size_type index) const
 {
 	return (*impl_)[index];
 }
 
 
-ARTriplet& ARBlock::operator [](const int index)
+ARTriplet& ARBlock::operator [](const ARBlock::size_type index)
 {
 	return (*impl_)[index];
 }
@@ -843,7 +838,7 @@ ARBlock& ARBlock::operator = (ARBlock &&rhs) noexcept = default;
 class ARResponse::Impl final
 {
 
-public:
+public: /* methods */
 
 	/**
 	 * \brief Default constructor
@@ -858,12 +853,12 @@ public:
 	/**
 	 * \brief Implements ARResponse::block(const int i) const
 	 */
-	const ARBlock& block(const int i) const;
+	const ARBlock& block(const ARResponse::size_type i) const;
 
 	/**
 	 * \brief Implements ARResponse::size() const
 	 */
-	std::size_t size() const;
+	ARResponse::size_type size() const;
 
 	/**
 	 * \brief Implements ARResponse::tracks_per_block() const
@@ -895,14 +890,14 @@ public:
 	 *
 	 * \return ARBlock at index
 	 */
-	const ARBlock& operator [](const int index) const;
+	const ARBlock& operator [](const ARResponse::size_type index) const;
 
 	/**
 	 * \brief Return the ARBlock with the specified index
 	 *
 	 * \return ARBlock at index
 	 */
-	ARBlock& operator [](const int index);
+	ARBlock& operator [](const ARResponse::size_type index);
 
 
 private:
@@ -928,13 +923,14 @@ void ARResponse::Impl::append(const ARBlock &block)
 }
 
 
-const ARBlock& ARResponse::Impl::block(const int i) const
+const ARBlock& ARResponse::Impl::block(
+		const ARResponse::size_type i) const
 {
 	return blocks_.at(i);
 }
 
 
-std::size_t ARResponse::Impl::size() const
+ARResponse::size_type ARResponse::Impl::size() const
 {
 	return blocks_.size();
 }
@@ -942,7 +938,7 @@ std::size_t ARResponse::Impl::size() const
 
 int ARResponse::Impl::tracks_per_block() const
 {
-	return blocks_.empty() ? 0 : blocks_[0].size();
+	return static_cast<int>(blocks_.empty() ? 0 : blocks_[0].size());
 }
 
 
@@ -970,13 +966,15 @@ ARResponse::const_iterator ARResponse::Impl::cend() const
 }
 
 
-const ARBlock& ARResponse::Impl::operator [](const int index) const
+const ARBlock&
+	ARResponse::Impl::operator [](const ARResponse::size_type index) const
 {
 	return blocks_[index];
 }
 
 
-ARBlock& ARResponse::Impl::operator [](const int index)
+ARBlock&
+	ARResponse::Impl::operator [](const ARResponse::size_type index)
 {
 	// Confer Meyers, Scott: Effective C++, 3rd ed.,
 	// Item 3, Section "Avoiding Duplication in const and Non-const member
@@ -1015,7 +1013,7 @@ void ARResponse::append(const ARBlock &block)
 }
 
 
-const ARBlock& ARResponse::block(const int i) const
+const ARBlock& ARResponse::block(const ARResponse::size_type i) const
 {
 	return impl_->block(i);
 }
@@ -1069,13 +1067,13 @@ ARResponse::const_iterator ARResponse::cend() const
 }
 
 
-const ARBlock& ARResponse::operator [](const int index) const
+const ARBlock& ARResponse::operator [](const ARResponse::size_type index) const
 {
 	return (*impl_)[index];
 }
 
 
-ARBlock& ARResponse::operator [](const int index)
+ARBlock& ARResponse::operator [](const ARResponse::size_type index)
 {
 	return (*impl_)[index];
 }
