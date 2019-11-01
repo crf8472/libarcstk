@@ -839,7 +839,7 @@ private:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	virtual uint32_t do_first_relevant_sample() const
+	virtual uint32_t do_first_relevant_sample_0() const
 	= 0;
 
 	/**
@@ -857,7 +857,7 @@ private:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	virtual uint32_t do_last_relevant_sample() const
+	virtual uint32_t do_last_relevant_sample_0() const
 	= 0;
 
 	/**
@@ -1011,7 +1011,7 @@ public: /* methods */
 	 *
 	 * \param[in] size Number of elements
 	 */
-	explicit Checksums(const size_type size);
+	explicit Checksums(size_type size);
 
 	/**
 	 * \brief Copy constructor.

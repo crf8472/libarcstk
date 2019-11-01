@@ -795,11 +795,11 @@ private:
 
 	uint32_t do_first_relevant_sample(const TrackNo) const override;
 
-	uint32_t do_first_relevant_sample() const override;
+	uint32_t do_first_relevant_sample_0() const override;
 
 	uint32_t do_last_relevant_sample(const TrackNo track) const override;
 
-	uint32_t do_last_relevant_sample() const override;
+	uint32_t do_last_relevant_sample_0() const override;
 
 	// do_track(const uint32_t)
 	// do_offset(const TrackNo)

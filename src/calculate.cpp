@@ -208,7 +208,7 @@ uint32_t CalcContext::first_relevant_sample(const TrackNo track) const
 
 uint32_t CalcContext::first_relevant_sample() const
 {
-	return this->do_first_relevant_sample();
+	return this->do_first_relevant_sample_0();
 }
 
 
@@ -220,7 +220,7 @@ uint32_t CalcContext::last_relevant_sample(const TrackNo track) const
 
 uint32_t CalcContext::last_relevant_sample() const
 {
-	return this->do_last_relevant_sample();
+	return this->do_last_relevant_sample_0();
 }
 
 
@@ -342,7 +342,7 @@ uint32_t CalcContextBase::do_first_relevant_sample(const TrackNo /* track */)
 }
 
 
-uint32_t CalcContextBase::do_first_relevant_sample() const
+uint32_t CalcContextBase::do_first_relevant_sample_0() const
 {
 	return this->first_relevant_sample(1);
 }
@@ -355,7 +355,7 @@ uint32_t CalcContextBase::do_last_relevant_sample(const TrackNo /* track */)
 }
 
 
-uint32_t CalcContextBase::do_last_relevant_sample() const
+uint32_t CalcContextBase::do_last_relevant_sample_0() const
 {
 	return this->last_relevant_sample(this->track_count());
 }
@@ -1844,7 +1844,14 @@ Checksums Calculation::Impl::result() const
 	}
 
 	auto track_count { state_->track_count()  };
-	auto result      { Checksums(track_count) };
+
+	if (track_count < 0)
+	{
+		track_count = 0;
+		// TODO throw something
+	}
+
+	auto result { Checksums(static_cast<Checksums::size_type>(track_count)) };
 
 	// FIXME Does not make sense, a loop from 0 to track_count should be correct
 	// for both cases
@@ -2206,7 +2213,7 @@ Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
 // Checksums
 
 
-Checksums::Checksums(const size_type size)
+Checksums::Checksums(size_type size)
 	: sets_( std::make_unique<ChecksumSet[]>(size) )
 	, size_( size )
 {
@@ -2233,7 +2240,8 @@ Checksums::iterator Checksums::begin()
 
 Checksums::iterator Checksums::end()
 {
-	return std::next(sets_.get(), size_);
+	return std::next(sets_.get(), static_cast<long>(size_));
+	// TODO type long is additional knowledge, size_type would be generic
 }
 
 
@@ -2245,7 +2253,8 @@ Checksums::const_iterator Checksums::begin() const
 
 Checksums::const_iterator Checksums::end() const
 {
-	return std::next(sets_.get(), size_);
+	return std::next(sets_.get(), static_cast<long>(size_));
+	// TODO type long is additional knowledge, size_type would be generic
 }
 
 
