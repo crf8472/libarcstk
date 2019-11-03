@@ -1105,7 +1105,7 @@ uint32_t ARIdBuilder::Impl::disc_id_2(const TrackNo track_count,
 
 	uint32_t sum_offsets = 0;
 
-	for (unsigned int i = 0; i < static_cast<unsigned int>(track_count); ++i)
+	for (std::size_t i = 0; i < static_cast<std::size_t>(track_count); ++i)
 	{
 		// This will throw if offsets.size() < track_count
 		sum_offsets += (offsets[i] > 0 ? offsets[i] : 1) * (i + 1);
@@ -1130,7 +1130,7 @@ uint32_t ARIdBuilder::Impl::cddb_id(const TrackNo track_count,
 	uint32_t checksum = 0;
 	auto frames_per_sec = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
 
-	for (unsigned int i = 0; i < static_cast<unsigned int>(track_count); ++i)
+	for (std::size_t i = 0; i < static_cast<std::size_t>(track_count); ++i)
 	{
 		// This will throw if offsets.size() < track_count
 		checksum += ARIdBuilder::Impl::sum_digits(
@@ -1291,7 +1291,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 {
 	// Valid number of lengths ?
 
-	if (offsets.size() != static_cast<unsigned int>(track_count))
+	if (offsets.size() != static_cast<std::size_t>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
@@ -1324,7 +1324,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
 {
 	// Valid number of lengths ?
 
-	if (lengths.size() != static_cast<unsigned int>(track_count))
+	if (lengths.size() != static_cast<std::size_t>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
@@ -1518,7 +1518,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 
 	// Validation: Track count Consistent with Number of Offsets?
 
-	if (offsets.size() != static_cast<unsigned int>(track_count))
+	if (offsets.size() != static_cast<std::size_t>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Track count does not match offset count." << " Bail out.";
@@ -1570,7 +1570,7 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 
 	// Check whether all subsequent Offsets have minimum distance
 
-	for (unsigned int i = 1; i < offsets.size(); ++i)
+	for (std::size_t i = 1; i < offsets.size(); ++i)
 	{
 		// Is offset in a CDDA-legal range?
 
@@ -1646,7 +1646,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 	// Skip last length, if it is not known (e.g. 0 or -1)
 	int tracks = (lengths.back() < 1) ? lengths.size() - 1 : lengths.size();
 
-	for (unsigned int i = 0; i < static_cast<unsigned int>(tracks); ++i)
+	for (std::size_t i = 0; i < static_cast<std::size_t>(tracks); ++i)
 	{
 		if (lengths[i] < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 		{
