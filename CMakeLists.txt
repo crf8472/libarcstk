@@ -301,11 +301,22 @@ if (NOT SKIP_INSTALL_ALL )
 endif (NOT SKIP_INSTALL_ALL)
 
 
+## --- BUILD_TYPE specific settings
+
+option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+
+	set (WITH_NATIVE ON CACHE BOOL
+			"Release: Force platform specific optimization" FORCE )
+endif ()
+
+
 ## --- Compiler Specific Settings
 
 ## g++: Warnings
 set (PROJECT_CXX_GNU_FLAGS_WARNINGS
-	-Wall -Wextra -Wpedantic -Weffc++
+	-Wpedantic -Wall -Wextra -Weffc++
 	-Wold-style-cast
 	-Wsuggest-override
 	-Wcast-align
@@ -331,8 +342,12 @@ set (PROJECT_CXX_GNU_FLAGS_WARNINGS
 	)
 
 ## clang++: Warnings
+## Clang warnings are quite aggressive by default. Some of the g++ warnings are
+## either compatibility flags that do nothing or are activated by other meta
+## flags. Some are just on by default. The following list is intended to contain
+## only those flags that are off by default and no compatibility flags.
 set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
-	-Wall -Wextra -Wpedantic -Weffc++
+	-Wpedantic -Wall -Wextra -Weffc++
 	-Wold-style-cast
 	-Wcast-align
 	-Wcast-qual
@@ -344,65 +359,65 @@ set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
 	-Wzero-as-null-pointer-constant
 	# -- clang specific --
 	-Winconsistent-missing-destructor-override
-	#-Wimplicit-exception-spec-mismatch
 	)
 
-## G++/Clang++: Optimize flags
-set (PROJECT_CXX_FLAGS_OPTIMIZE -march=native -mtune=generic )
+## g++/clang++: Optimize flags
+set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE   -march=native -mtune=generic )
+set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
 
-option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
 
-## Settings for g++ and clang
+## Select compiler specific settings
 
-if (CMAKE_COMPILER_IS_GNUCXX
-		OR CMAKE_CXX_COMPILER MATCHES ".*clang"
+## GNU g++
+
+if (CMAKE_COMPILER_IS_GNUCXX )
+
+	message (STATUS "Select compile flags for g++" )
+
+	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
+	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
+
+## clang
+
+elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"
 		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
-	## Activate Warnings
+	message (STATUS "Select compile flags for clang++" )
 
-	if (CMAKE_COMPILER_IS_GNUCXX )
-
-		message (STATUS "Select compile flags for g++" )
-
-		set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
-	else ()
-
-		message (STATUS "Select compile flags for clang++" )
-
-		set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_CLANG_FLAGS_WARNINGS} )
-	endif (CMAKE_COMPILER_IS_GNUCXX )
-
-	target_compile_options (${PROJECT_NAME}
-		PUBLIC ${PROJECT_CXX_FLAGS_WARNINGS} )
-	message (STATUS "Flags: ${PROJECT_CXX_FLAGS_WARNINGS}" )
-
-	## Platform specific optimizations (default ON for Release, otherwise OFF)
-
-	if (CMAKE_BUILD_TYPE STREQUAL "Release")
-
-		set (WITH_NATIVE ON CACHE BOOL
-			"Build with platform specific optimization" FORCE )
-
-	endif (CMAKE_BUILD_TYPE STREQUAL "Release" )
-
-	if (WITH_NATIVE )
-
-		message (STATUS "Build with platform specific optimization")
-
-		target_compile_options (${PROJECT_NAME}
-			PUBLIC -march=native -mtune=generic )
-	else()
-
-		message (STATUS "Build without platform specific optimization")
-
-	endif (WITH_NATIVE )
+	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_CLANG_FLAGS_WARNINGS} )
+	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_CLANG_FLAGS_OPTIMIZE} )
 
 else()
 
-	message (WARNING "No compile flags specified for the actual C++ compiler")
-	message (WARNING "Try a generic compile without project specific flags")
+	message (WARNING "C++ Compiler seems to be neither g++ nor clang++" )
+	message (WARNING "No compile flags specified for the actual C++ compiler" )
+	message (WARNING "Try a generic compile without project specific flags" )
 
 endif()
+
+
+## Compiler: Warnings
+
+target_compile_options (${PROJECT_NAME} PUBLIC ${PROJECT_CXX_FLAGS_WARNINGS} )
+
+message (STATUS "Warning Flags: ${PROJECT_CXX_FLAGS_WARNINGS}" )
+
+
+## Compiler: Optimizations (default ON for Release, otherwise OFF)
+
+if (WITH_NATIVE )
+
+	message (STATUS "Build with platform specific optimization")
+
+	target_compile_options (${PROJECT_NAME}
+		PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+else()
+
+	message (STATUS "Build without platform specific optimization")
+
+endif (WITH_NATIVE )
+
+message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
