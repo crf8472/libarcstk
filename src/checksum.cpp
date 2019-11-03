@@ -245,7 +245,7 @@ std::string to_hex_str(const Checksum &checksum, bool upper, bool base)
 
 std::string type_name(type t)
 {
-	return names.at(static_cast<int>(std::log2(details::as_integral_value(t))));
+	return names.at(std::log2(details::as_integral_value(t)));
 }
 
 

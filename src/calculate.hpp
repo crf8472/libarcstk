@@ -302,7 +302,7 @@ private:
 		 *
 		 * \param[in] n Number of positions to advance
 		 */
-		virtual void advance(const int n)
+		virtual void advance(const uint32_t n)
 		= 0;
 
 		/**
@@ -372,7 +372,7 @@ private:
 			++iterator_;
 		}
 
-		void advance(const int n) final
+		void advance(const uint32_t n) final
 		{
 			std::advance(iterator_, n);
 		}

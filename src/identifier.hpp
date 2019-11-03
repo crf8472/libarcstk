@@ -40,9 +40,16 @@ inline namespace v_1_0_0
 /**
  * \brief Data type for track numbers.
  *
- * Note that track numbers are 1-based and \c 0 is not a valid TrackNo.
+ * Note that track numbers are 1-based. Hence, a TrackNo can also be used to
+ * represent a track count. A track count has a legal maximum of 99.
+ * Note that \c 0 is not a valid TrackNo.
  */
-using TrackNo = uint8_t;
+using TrackNo = int;
+
+/**
+ * \brief Unsigned type for a 32 bit wide PCM stereo sample (2 channels x 16 bit).
+ */
+using Sample32 = uint32_t;
 
 
 /**
@@ -54,22 +61,22 @@ struct CDDA_t
 	/**
 	 * \brief CDDA: sampling rate of 44100 samples per second.
 	 */
-	const uint32_t SAMPLES_PER_SECOND = 44100;
+	const int SAMPLES_PER_SECOND = 44100;
 
 	/**
 	 * \brief CDDA: 16 bits per sample.
 	 */
-	const uint32_t BITS_PER_SAMPLE    = 16;
+	const int BITS_PER_SAMPLE    = 16;
 
 	/**
 	 * \brief CDDA: stereo involves 2 channels.
 	 */
-	const uint32_t NUMBER_OF_CHANNELS = 2;
+	const int NUMBER_OF_CHANNELS = 2;
 
 	/**
 	 * \brief Number of frames per second is 75.
 	 */
-	const uint32_t FRAMES_PER_SEC     = 75;
+	const int FRAMES_PER_SEC     = 75;
 
 	/**
 	 * \brief Number of 4 bytes per sample.
@@ -77,26 +84,26 @@ struct CDDA_t
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
 	 */
-	const uint32_t BYTES_PER_SAMPLE   = 4;
+	const int BYTES_PER_SAMPLE   = 4;
 
 	/**
 	 * \brief Number of 588 samples per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 44100 samples/sec / 75 frames/sec
 	 */
-	const uint32_t SAMPLES_PER_FRAME  = 588;
+	const int SAMPLES_PER_FRAME  = 588;
 
 	/**
 	 * \brief Number of 2352 bytes per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 588 samples * 4 bytes/sample
 	 */
-	const uint32_t BYTES_PER_FRAME    = 2352;
+	const int BYTES_PER_FRAME    = 2352;
 
 	/**
 	 * \brief Maximal valid track count.
 	 */
-	const uint16_t MAX_TRACKCOUNT     = 99;
+	const TrackNo MAX_TRACKCOUNT      = 99;
 
 	/**
 	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
@@ -120,7 +127,7 @@ struct CDDA_t
 	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
-	const int32_t MIN_TRACK_OFFSET_DIST = 300;
+	const uint32_t MIN_TRACK_OFFSET_DIST = 300;
 
 	/**
 	 * \brief Minimal number of frames a track contains.
@@ -129,7 +136,7 @@ struct CDDA_t
 	 * pause but the pause does not contribute to the track lengths, thus
 	 * 2 sec * 75 frames/sec == 150 frames.
 	 */
-	const int32_t MIN_TRACK_LEN_FRAMES = 150;
+	const uint32_t MIN_TRACK_LEN_FRAMES = 150;
 
 };
 
@@ -172,7 +179,7 @@ public:
 	 * \param[in] id_2        Id 2 of this medium
 	 * \param[in] cddb_id     CDDB id of this medium
 	 */
-	ARId(const uint16_t track_count,
+	ARId(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -215,7 +222,7 @@ public:
 	 *
 	 * \return Track count of this medium
 	 */
-	uint16_t track_count() const;
+	TrackNo track_count() const;
 
 	/**
 	 * \brief Return the disc_id 1.
@@ -374,7 +381,7 @@ public:
 	 *
 	 * \return Number of tracks
 	 */
-	uint16_t track_count() const;
+	TrackNo track_count() const;
 
 	/**
 	 * \brief Return the offset of the 1-based specified track in frames, i.e.
@@ -570,7 +577,7 @@ std::unique_ptr<ARId> make_empty_arid();
  *
  * \throw InvalidMetadataException If the input data forms no valid TOC
  */
-std::unique_ptr<TOC> make_toc(const uint32_t track_count,
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout);
 
@@ -591,7 +598,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
  *
  * \throw InvalidMetadataException If the input data forms no valid TOC
  */
-std::unique_ptr<TOC> make_toc(const uint32_t track_count,
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files);

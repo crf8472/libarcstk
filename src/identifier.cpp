@@ -57,7 +57,7 @@ public:
 	/**
 	 * \brief Implements ARId::ARId().
 	 */
-	Impl(const uint16_t track_count,
+	Impl(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -75,7 +75,7 @@ public:
 	/**
 	 * \brief Implements ARId::track_count()
 	 */
-	uint16_t track_count() const;
+	TrackNo track_count() const;
 
 	/**
 	 * \brief Implements ARId::disc_id_1()
@@ -127,7 +127,7 @@ protected:
 	 *
 	 * \return AccurateRip response filename
 	 */
-	std::string construct_filename(const uint16_t track_count,
+	std::string construct_filename(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id) const;
@@ -144,7 +144,7 @@ protected:
 	 *
 	 * \return AccurateRip request URL
 	 */
-	std::string construct_url(const uint16_t track_count,
+	std::string construct_url(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id) const;
@@ -155,7 +155,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	uint16_t track_count_;
+	TrackNo track_count_;
 
 	/**
 	 * \brief Disc id no. 1
@@ -175,7 +175,7 @@ private:
 
 /// \cond UNDOC_FUNCTION_BODIES
 
-ARId::Impl::Impl(const uint16_t track_count, const uint32_t id_1,
+ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
 	: track_count_(track_count)
 	, disc_id1_   (id_1)
@@ -199,7 +199,7 @@ std::string ARId::Impl::filename() const
 }
 
 
-uint16_t ARId::Impl::track_count() const
+TrackNo ARId::Impl::track_count() const
 {
 	return track_count_;
 }
@@ -262,7 +262,7 @@ bool ARId::Impl::operator != (const ARId::Impl& rhs) const
 }
 
 
-std::string ARId::Impl::construct_filename(const uint16_t track_count,
+std::string ARId::Impl::construct_filename(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) const
@@ -282,9 +282,7 @@ std::string ARId::Impl::construct_filename(const uint16_t track_count,
 	hex_flags |= ss.hex;
 
 	ss.flags(dec_flags);
-	ss << "dBAR"
-	   << '-' << std::setw(3) << std::setfill('0')
-			<< static_cast<uint32_t>(track_count);
+	ss << "dBAR" << '-' << std::setw(3) << std::setfill('0') << track_count;
 
 	ss.flags(hex_flags);
 	ss << std::nouppercase
@@ -297,7 +295,7 @@ std::string ARId::Impl::construct_filename(const uint16_t track_count,
 }
 
 
-std::string ARId::Impl::construct_url(const uint16_t track_count,
+std::string ARId::Impl::construct_url(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) const
@@ -364,16 +362,16 @@ public:
 	~Impl() noexcept = default;
 
 	/**
-	 * \brief Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const uint32_t leadout).
+	 * \brief Implements TOCBuilder::build(const TrackNo track_count, const std::vector<int32_t> &offsets, const uint32_t leadout).
 	 */
-	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
+	std::unique_ptr<TOC::Impl> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
 	/**
-	 * \brief Implements TOCBuilder::build(const uint32_t track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
+	 * \brief Implements TOCBuilder::build(const TrackNo track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
 	 */
-	std::unique_ptr<TOC::Impl> build(const uint32_t track_count,
+	std::unique_ptr<TOC::Impl> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
 			const std::vector<std::string> &files);
@@ -413,7 +411,7 @@ protected:
 	 *
 	 * \throw InvalidMetadataException If the track count is not valid
 	 */
-	uint16_t build_track_count(const uint16_t track_count) const;
+	TrackNo build_track_count(const TrackNo track_count) const;
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -429,7 +427,7 @@ protected:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
-			const uint16_t track_count, const uint32_t leadout) const;
+			const TrackNo track_count, const uint32_t leadout) const;
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -445,7 +443,7 @@ protected:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
-			const uint16_t track_count,
+			const TrackNo track_count,
 			const std::vector<int32_t> &lengths) const;
 
 	/**
@@ -461,7 +459,7 @@ protected:
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
 	std::vector<uint32_t> build_lengths(const std::vector<int32_t> &sv,
-			const uint16_t track_count) const;
+			const TrackNo track_count) const;
 
 	/**
 	 * \brief Service method: Builds validated leadout for a TOC object.
@@ -510,13 +508,13 @@ class TOC::Impl final
 	// since they construct TOC::Impls exclusively
 
 	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
-			const uint32_t track_count,
+			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
 			const std::vector<std::string> &files);
 
 	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
-			const uint32_t track_count,
+			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
@@ -528,7 +526,7 @@ public:
 	/**
 	 * \brief Implements TOC::track_count()
 	 */
-	uint16_t track_count() const;
+	TrackNo track_count() const;
 
 	/**
 	 * \brief Implements TOC::offset(const uint8_t) const
@@ -570,7 +568,7 @@ private:
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
 	 * \param[in] leadout     Leadout frame
 	 */
-	Impl(const uint32_t track_count,
+	Impl(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
 			const uint32_t leadout);
 
@@ -582,7 +580,7 @@ private:
 	 * \param[in] lengths     Lengths (in CDDA frames) of each track
 	 * \param[in] files       File name of each track
 	 */
-	Impl(const uint32_t track_count,
+	Impl(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
 			const std::vector<uint32_t> &lengths,
 			const std::vector<std::string> &files);
@@ -590,7 +588,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	uint16_t track_count_;
+	TrackNo track_count_;
 
 	/**
 	 * \brief Track offsets (in frames)
@@ -615,7 +613,7 @@ private:
 
 /// \cond UNDOC_FUNCTION_BODIES
 
-TOC::Impl::Impl(const uint32_t track_count,
+TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets,
 		const uint32_t leadout)
 	: track_count_(track_count)
@@ -628,24 +626,21 @@ TOC::Impl::Impl(const uint32_t track_count,
 }
 
 
-TOC::Impl::Impl(const uint32_t track_count,
+TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets,
 		const std::vector<uint32_t> &lengths,
 		const std::vector<std::string> &files)
 	: track_count_(track_count)
 	, offsets_(offsets)
 	, lengths_(lengths)
-	, leadout_( // compute leadout, if length of last track is known
-			(lengths_.at(track_count - 1) > 0)
-				? offsets_.at(track_count - 1) + lengths_.at(track_count - 1)
-				: 0)
+	, leadout_(calculate_leadout(track_count, offsets, lengths))
 	, files_(files)
 {
 	// empty
 }
 
 
-uint16_t TOC::Impl::track_count() const
+TrackNo TOC::Impl::track_count() const
 {
 	return track_count_;
 }
@@ -653,19 +648,25 @@ uint16_t TOC::Impl::track_count() const
 
 uint32_t TOC::Impl::offset(const TrackNo idx) const
 {
-	return idx < 1 || idx > offsets_.size() ? 0 : offsets_[idx - 1];
+	return idx < 1 || idx > static_cast<int>(offsets_.size())
+		? 0
+		: offsets_[static_cast<std::vector<uint32_t>::size_type>(idx - 1)];
 }
 
 
 uint32_t TOC::Impl::parsed_length(const TrackNo idx) const
 {
-	return idx < 1 || idx > lengths_.size() ? 0 : lengths_[idx - 1];
+	return idx < 1 || idx > static_cast<int>(lengths_.size())
+		? 0
+		: lengths_[static_cast<std::vector<uint32_t>::size_type>(idx - 1)];
 }
 
 
 std::string TOC::Impl::filename(const TrackNo idx) const
 {
-	return idx < 1 || idx > files_.size() ? std::string() : files_[idx - 1];
+	return idx < 1 || idx > static_cast<int>(files_.size())
+		? std::string()
+		: files_[static_cast<std::vector<std::string>::size_type>(idx - 1)];
 }
 
 
@@ -719,7 +720,7 @@ TOC::TOC(TOC &&rhs) noexcept = default;
 TOC::~TOC() noexcept = default;
 
 
-uint16_t TOC::track_count() const
+TrackNo TOC::track_count() const
 {
 	return impl_->track_count();
 }
@@ -782,7 +783,7 @@ TOC& TOC::operator = (TOC &&rhs) noexcept = default;
 // ARId
 
 
-ARId::ARId(const uint16_t track_count,
+ARId::ARId(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id)
@@ -817,7 +818,7 @@ std::string ARId::filename() const
 }
 
 
-uint16_t ARId::track_count() const
+TrackNo ARId::track_count() const
 {
 	return impl_->track_count();
 }
@@ -907,16 +908,19 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 namespace toc
 {
 
+// TODO Template solution would avoid redundancy of 3 implementatsions
+
 std::vector<uint32_t> get_offsets(const TOC &toc)
 {
-	std::size_t size = toc.track_count();
+	auto size =
+		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
 
 	std::vector<uint32_t> offsets;
 	offsets.reserve(size);
 
-	for (unsigned int i = 1; i <= size; ++i)
+	for (TrackNo t = 1; t <= toc.track_count(); ++t)
 	{
-		offsets.emplace_back(toc.offset(i));
+		offsets.emplace_back(toc.offset(t));
 	}
 
 	return offsets;
@@ -925,14 +929,15 @@ std::vector<uint32_t> get_offsets(const TOC &toc)
 
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 {
-	std::size_t size = toc.track_count();
+	auto size =
+		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
 
 	std::vector<uint32_t> parsed_lengths;
 	parsed_lengths.reserve(size);
 
-	for (unsigned int i = 1; i <= size; ++i)
+	for (TrackNo t = 1; t <= toc.track_count(); ++t)
 	{
-		parsed_lengths.emplace_back(toc.parsed_length(i));
+		parsed_lengths.emplace_back(toc.parsed_length(t));
 	}
 
 	return parsed_lengths;
@@ -941,14 +946,15 @@ std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 
 std::vector<std::string> get_filenames(const TOC &toc)
 {
+	auto size =
+		static_cast<std::vector<std::string>::size_type>(toc.track_count());
+
 	std::vector<std::string> fnames;
+	fnames.reserve(size);
 
-	std::size_t file_count { toc.track_count() };
-	fnames.reserve(file_count);
-
-	for (unsigned int i = 1; i <= file_count; ++i)
+	for (TrackNo t = 1; t <= toc.track_count(); ++t)
 	{
-		fnames.emplace_back(toc.filename(i));
+		fnames.emplace_back(toc.filename(t));
 	}
 
 	return fnames;
@@ -992,7 +998,7 @@ protected:
 	 * \param[in] offsets       Offsets (in CDDA frames) of each track
 	 * \param[in] leadout Leadout CDDA frame
 	 */
-	uint32_t disc_id_1(const uint16_t track_count,
+	uint32_t disc_id_1(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
 			const uint32_t leadout) const;
 
@@ -1006,7 +1012,7 @@ protected:
 	 * \param[in] offsets       Offsets (in CDDA frames) of each track
 	 * \param[in] leadout Leadout CDDA frame
 	 */
-	uint32_t disc_id_2(const uint16_t track_count,
+	uint32_t disc_id_2(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
 			const uint32_t leadout) const;
 
@@ -1020,7 +1026,7 @@ protected:
 	 * \param[in] offsets       Offsets (in CDDA frames) of each track
 	 * \param[in] leadout Leadout CDDA frame
 	 */
-	uint32_t cddb_id(const uint16_t track_count,
+	uint32_t cddb_id(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
 			const uint32_t leadout) const;
 
@@ -1078,7 +1084,7 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build_empty_id() const noexcept
 }
 
 // FIXME Is track_count required?
-uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t /* track_count */,
+uint32_t ARIdBuilder::Impl::disc_id_1(const TrackNo /* track_count */,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
@@ -1091,7 +1097,7 @@ uint32_t ARIdBuilder::Impl::disc_id_1(const uint16_t /* track_count */,
 }
 
 
-uint32_t ARIdBuilder::Impl::disc_id_2(const uint16_t track_count,
+uint32_t ARIdBuilder::Impl::disc_id_2(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
@@ -1099,17 +1105,18 @@ uint32_t ARIdBuilder::Impl::disc_id_2(const uint16_t track_count,
 
 	uint32_t sum_offsets = 0;
 
-	for (uint32_t i = 0; i < track_count; ++i)
+	for (unsigned int i = 0; i < static_cast<unsigned int>(track_count); ++i)
 	{
 		// This will throw if offsets.size() < track_count
 		sum_offsets += (offsets[i] > 0 ? offsets[i] : 1) * (i + 1);
 	}
 
-	return sum_offsets + leadout * (track_count + 1);
+	return sum_offsets + leadout *
+		(static_cast<unsigned int>(track_count) + 1u);
 }
 
 
-uint32_t ARIdBuilder::Impl::cddb_id(const uint16_t track_count,
+uint32_t ARIdBuilder::Impl::cddb_id(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// The CDDB id is a 32bit unsigned integer, formed of a concatenation of
@@ -1121,21 +1128,23 @@ uint32_t ARIdBuilder::Impl::cddb_id(const uint16_t track_count,
 	// Calculate first part: checksum
 
 	uint32_t checksum = 0;
+	auto frames_per_sec = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
 
-	for (uint32_t i = 0; i < track_count; ++i)
+	for (unsigned int i = 0; i < static_cast<unsigned int>(track_count); ++i)
 	{
 		// This will throw if offsets.size() < track_count
 		checksum += ARIdBuilder::Impl::sum_digits(
-				offsets[i] / CDDA.FRAMES_PER_SEC + 2);
+				offsets[i] / frames_per_sec + 2u);
 	}
 	checksum %= 255; // normalize to 1 byte
 
 	// Calculate second part: seconds count
 
-	const uint32_t seconds_count = leadout / CDDA.FRAMES_PER_SEC
-		- offsets[0] / CDDA.FRAMES_PER_SEC;
+	const uint32_t seconds_count = leadout / frames_per_sec
+		- offsets[0] / frames_per_sec;
 
-	return (checksum << 24u) | (seconds_count << 8u) | track_count;
+	return (checksum << 24u) | (seconds_count << 8u) |
+		static_cast<unsigned int>(track_count);
 }
 
 
@@ -1168,7 +1177,7 @@ ARIdBuilder::ARIdBuilder(ARIdBuilder &&builder) noexcept = default;
 ARIdBuilder::~ARIdBuilder() noexcept = default;
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const uint32_t &track_count,
+std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	TOCBuilder builder;
@@ -1230,7 +1239,7 @@ TOCBuilder::Impl::Impl(const TOCBuilder::Impl &rhs)
 }
 
 
-std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const uint32_t track_count,
+std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout)
 {
@@ -1242,7 +1251,7 @@ std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const uint32_t track_count,
 }
 
 
-std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const uint32_t track_count,
+std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
@@ -1256,7 +1265,7 @@ std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const uint32_t track_count,
 }
 
 
-uint16_t TOCBuilder::Impl::build_track_count(const uint16_t track_count) const
+TrackNo TOCBuilder::Impl::build_track_count(const TrackNo track_count) const
 {
 	validator_->validate_trackcount(track_count);
 
@@ -1265,27 +1274,24 @@ uint16_t TOCBuilder::Impl::build_track_count(const uint16_t track_count) const
 
 
 std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
-		const std::vector<int32_t> &offsets, const uint16_t track_count,
+		const std::vector<int32_t> &offsets, const TrackNo track_count,
 		const uint32_t leadout) const
 {
 	validator_->validate(track_count, offsets, leadout);
 
 	// Convert offsets to uints
 
-	std::vector<uint32_t> uv(offsets.size());
-	uv.assign(offsets.begin(), offsets.end());
-
-	return uv;
+	return std::vector<uint32_t>(offsets.begin(), offsets.end());
 }
 
 
 std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
-		const std::vector<int32_t> &offsets, const uint16_t track_count,
+		const std::vector<int32_t> &offsets, const TrackNo track_count,
 		const std::vector<int32_t> &lengths) const
 {
 	// Valid number of lengths ?
 
-	if (lengths.size() != track_count)
+	if (offsets.size() != static_cast<unsigned int>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
@@ -1294,7 +1300,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (lengths.size() != offsets.size())
+	if (offsets.size() != lengths.size())
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
@@ -1309,19 +1315,16 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 
 	// Convert offsets to uints
 
-	std::vector<uint32_t> uv(offsets.size());
-	uv.assign(offsets.begin(), offsets.end());
-
-	return uv;
+	return std::vector<uint32_t>(offsets.begin(), offsets.end());
 }
 
 
 std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
-		const std::vector<int32_t> &lengths, const uint16_t track_count) const
+		const std::vector<int32_t> &lengths, const TrackNo track_count) const
 {
 	// Valid number of lengths ?
 
-	if (lengths.size() != track_count) // number of lenghts invalid
+	if (lengths.size() != static_cast<unsigned int>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
@@ -1336,9 +1339,10 @@ std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
 
 	// Convert ints to uints while normalizing the last length to 0
 
-	std::vector<uint32_t> uv(lengths.size());
-	uv.assign(lengths.begin(), lengths.end() - 1);
-	uv.push_back(lengths.back() < 0 ? 0 : lengths.back());
+	std::vector<uint32_t> uv(lengths.begin(), lengths.end() - 1);
+
+	auto last_length = lengths.back() < 0 ? 0 : lengths.back();
+	uv.push_back(static_cast<uint32_t>(last_length));
 
 	return uv;
 }
@@ -1368,7 +1372,9 @@ std::unique_ptr<TOC::Impl> TOCBuilder::Impl::merge(const TOC &toc,
 
 	// add length of last track
 	std::vector<uint32_t> merged_lengths;
-	merged_lengths.reserve(toc.track_count());
+	auto size =
+		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
+	merged_lengths.reserve(size);
 	merged_lengths = toc::get_parsed_lengths(toc);
 	merged_lengths.push_back(leadout - toc.offset(toc.track_count()));
 
@@ -1421,7 +1427,7 @@ TOCBuilder::TOCBuilder(TOCBuilder &&rhs) noexcept = default;
 TOCBuilder::~TOCBuilder() noexcept = default;
 
 
-std::unique_ptr<TOC> TOCBuilder::build(const uint32_t track_count,
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout)
 {
@@ -1430,7 +1436,7 @@ std::unique_ptr<TOC> TOCBuilder::build(const uint32_t track_count,
 }
 
 
-std::unique_ptr<TOC> TOCBuilder::build(const uint32_t track_count,
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
@@ -1471,15 +1477,15 @@ TOCBuilder& TOCBuilder::operator = (TOCBuilder &&rhs) noexcept = default;
 // TOCValidator
 
 
-void TOCValidator::validate(const uint16_t track_count,
+void TOCValidator::validate(const TrackNo track_count,
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	this->validate_leadout(leadout);
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
-	if (static_cast<int64_t>(leadout)
-			< offsets.back() + CDDA.MIN_TRACK_LEN_FRAMES)
+	if (leadout <
+			offsets.back() + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 	{
 		std::stringstream ss;
 		ss << "Leadout frame " << leadout
@@ -1505,14 +1511,14 @@ void TOCValidator::validate(const TOC &toc, const uint32_t leadout) const
 }
 
 
-void TOCValidator::validate_offsets(const uint16_t track_count,
+void TOCValidator::validate_offsets(const TrackNo track_count,
 		const std::vector<int32_t> &offsets) const
 {
 	this->validate_trackcount(track_count);
 
 	// Validation: Track count Consistent with Number of Offsets?
 
-	if (track_count != offsets.size())
+	if (offsets.size() != static_cast<unsigned int>(track_count))
 	{
 		std::stringstream ss;
 		ss << "Track count does not match offset count." << " Bail out.";
@@ -1540,7 +1546,7 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (offsets.size() > CDDA.MAX_TRACKCOUNT)
+	if (static_cast<TrackNo>(offsets.size()) > CDDA.MAX_TRACKCOUNT)
 	{
 		std::stringstream ss;
 		ss << "Offsets are only possible for at most "
@@ -1564,7 +1570,7 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 
 	// Check whether all subsequent Offsets have minimum distance
 
-	for (uint8_t i = 1; i < offsets.size(); ++i)
+	for (unsigned int i = 1; i < offsets.size(); ++i)
 	{
 		// Is offset in a CDDA-legal range?
 
@@ -1601,7 +1607,9 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		// Has offset for current track at least minimum distance after
 		// offset for last track?
 
-		this->have_min_dist(offsets[i-1], offsets[i]);
+		this->have_min_dist(
+				static_cast<uint32_t>(offsets[i-1]),
+				static_cast<uint32_t>(offsets[i]));
 	} // for
 }
 
@@ -1620,7 +1628,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (lengths.size() > CDDA.MAX_TRACKCOUNT)
+	if (static_cast<TrackNo>(lengths.size()) > CDDA.MAX_TRACKCOUNT)
 	{
 		std::stringstream ss;
 		ss << "Lengths are only possible for at most "
@@ -1638,9 +1646,9 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 	// Skip last length, if it is not known (e.g. 0 or -1)
 	int tracks = (lengths.back() < 1) ? lengths.size() - 1 : lengths.size();
 
-	for (int i = 0; i < tracks; ++i)
+	for (unsigned int i = 0; i < static_cast<unsigned int>(tracks); ++i)
 	{
-		if (lengths[i] < CDDA.MIN_TRACK_LEN_FRAMES)
+		if (lengths[i] < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 		{
 			std::stringstream ss;
 			ss << "Cannot construct TOC with illegal length "
@@ -1650,7 +1658,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			throw InvalidMetadataException(ss.str());
 		}
 
-		sum_lengths += lengths[i];
+		sum_lengths += static_cast<uint32_t>(lengths[i]);
 	}
 
 	// Sum of all lengths in legal range ?
@@ -1731,7 +1739,7 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 }
 
 
-void TOCValidator::validate_trackcount(const uint16_t track_count) const
+void TOCValidator::validate_trackcount(const TrackNo track_count) const
 {
 	if (track_count < 1 or track_count > 99)
 	{
@@ -1789,7 +1797,7 @@ std::unique_ptr<ARId> make_empty_arid()
 // make_toc
 
 
-std::unique_ptr<TOC> make_toc(const uint32_t track_count,
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout)
 {
@@ -1798,7 +1806,7 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 }
 
 
-std::unique_ptr<TOC> make_toc(const uint32_t track_count,
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
@@ -1806,6 +1814,23 @@ std::unique_ptr<TOC> make_toc(const uint32_t track_count,
 	TOCBuilder builder;
 	return builder.build(track_count, offsets, lengths, files);
 }
+
+
+// unpublished worker functions
+
+
+uint32_t calculate_leadout(const TrackNo track_count,
+		const std::vector<uint32_t> &offsets,
+		const std::vector<uint32_t> &lengths)
+{
+	if (track_count < 1 or track_count > CDDA.MAX_TRACKCOUNT)
+	{
+		return 0;
+	}
+	auto tc = static_cast<std::vector<uint32_t>::size_type>(track_count) - 1u;
+	return (lengths.at(tc) > 0) ? offsets.at(tc) + lengths.at(tc) : 0;
+}
+
 
 /** @} */
 

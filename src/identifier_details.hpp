@@ -77,7 +77,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
-	std::unique_ptr<ARId> build(const uint32_t &track_count,
+	std::unique_ptr<ARId> build(const TrackNo &track_count,
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const;
 
 	/**
@@ -213,7 +213,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	std::unique_ptr<TOC> build(const uint32_t track_count,
+	std::unique_ptr<TOC> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout);
 
@@ -229,7 +229,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	std::unique_ptr<TOC> build(const uint32_t track_count,
+	std::unique_ptr<TOC> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
 			const std::vector<std::string> &files);
@@ -303,7 +303,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	void validate(const uint16_t track_count,
+	void validate(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout) const;
 
@@ -330,7 +330,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	void validate_offsets(const uint16_t track_count,
+	void validate_offsets(const TrackNo track_count,
 			const std::vector<int32_t> &offsets) const;
 
 	/**
@@ -383,7 +383,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	void validate_trackcount(const uint16_t track_count) const;
+	void validate_trackcount(const TrackNo track_count) const;
 
 
 protected:
@@ -414,6 +414,19 @@ protected:
 	 */
 	static constexpr uint32_t MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
 };
+
+
+/**
+ * \brief Worker to calculate the leadout
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in CDDA frames) of each track
+ * \param[in] lengths     Lengths (in CDDA frames) of each track
+ */
+uint32_t calculate_leadout(const TrackNo track_count,
+	const std::vector<uint32_t> &offsets,
+	const std::vector<uint32_t> &lengths);
+
 
 /** @} */
 

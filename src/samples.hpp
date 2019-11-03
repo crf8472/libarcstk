@@ -47,12 +47,14 @@ class SampleSequence final
 
 public:
 
+	SampleSequence() = default;
+
 	SampleSequence(const SampleSequence &) = delete;
 
 	SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
-	 * \brief Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
@@ -66,7 +68,7 @@ public:
 	SampleIterator<T, is_planar, false> end();
 
 	/**
-	 * \brief Iterator pointing behind to the beginning.
+	 * \brief Iterator pointing to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */

@@ -272,7 +272,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		int index = 0;
+		arcstk::SampleSequence<int16_t, false>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -285,7 +285,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		int index2 = 0;
+		arcstk::SampleSequence<int16_t, false>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -394,7 +394,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		int index = 0;
+		arcstk::SampleSequence<int32_t, false>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -407,7 +407,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		int index2 = 0;
+		arcstk::SampleSequence<int32_t, false>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -492,7 +492,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		int index = 0;
+		arcstk::SampleSequence<int16_t, true>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -507,7 +507,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		int index2 = 0;
+		arcstk::SampleSequence<int16_t, true>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -618,7 +618,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		int index = 0;
+		arcstk::SampleSequence<int32_t, true>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -633,7 +633,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		int index2 = 0;
+		arcstk::SampleSequence<int32_t, true>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );

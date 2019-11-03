@@ -123,7 +123,7 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~DefaultMatchBase() noexcept;
+	virtual ~DefaultMatchBase() noexcept override;
 
 
 	int do_verify_id(int b) override;

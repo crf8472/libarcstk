@@ -127,25 +127,29 @@ AudioSize::Impl::Impl()
 
 void AudioSize::Impl::set_leadout_frame(const uint32_t leadout)
 {
-	this->set_pcm_byte_count(leadout * CDDA.BYTES_PER_FRAME);
+	this->set_pcm_byte_count(leadout *
+			static_cast<unsigned int>(CDDA.BYTES_PER_FRAME));
 }
 
 
 uint32_t AudioSize::Impl::leadout_frame() const
 {
-	return this->pcm_byte_count() / CDDA.BYTES_PER_FRAME;
+	return this->pcm_byte_count() /
+		static_cast<unsigned int>(CDDA.BYTES_PER_FRAME);
 }
 
 
 void AudioSize::Impl::set_sample_count(const uint32_t sample_count)
 {
-	this->set_pcm_byte_count(sample_count * CDDA.BYTES_PER_SAMPLE);
+	this->set_pcm_byte_count(sample_count *
+			static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE));
 }
 
 
 uint32_t AudioSize::Impl::sample_count() const
 {
-	return this->pcm_byte_count() / CDDA.BYTES_PER_SAMPLE;
+	return this->pcm_byte_count() /
+		static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE);
 }
 
 
@@ -788,12 +792,14 @@ uint32_t MultitrackCalcContext::do_first_relevant_sample(const TrackNo track)
 	// Skipping applies at most for track 1, so we add the appropriate constant.
 	if (this->skips_front() and track == 1)
 	{
-		return toc().offset(1) * CDDA.SAMPLES_PER_FRAME
-			+ this->num_skip_front();
+		return toc().offset(1) *
+			static_cast<unsigned int>(CDDA.SAMPLES_PER_FRAME) +
+				this->num_skip_front();
 	}
 
 	// Standard multi track case: just the first sample of the track
-	return toc().offset(track) * CDDA.SAMPLES_PER_FRAME;
+	return toc().offset(track) *
+		static_cast<unsigned int>(CDDA.SAMPLES_PER_FRAME);
 }
 
 
@@ -823,7 +829,8 @@ uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 
 	// Ensure result 0 for previous track's offset 0
 	return toc().offset(track+1)
-		? toc().offset(track+1) * CDDA.SAMPLES_PER_FRAME - 1
+		? toc().offset(track+1) *
+			static_cast<unsigned int>(CDDA.SAMPLES_PER_FRAME) - 1u
 		: 0;
 }
 

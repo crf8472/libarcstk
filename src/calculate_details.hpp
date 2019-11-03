@@ -830,7 +830,7 @@ protected:
 	 *
 	 * This class is not intended to be used for polymorphical deletion.
 	 */
-	~CalcContextBase() noexcept;
+	~CalcContextBase() noexcept override;
 
 
 private:
@@ -1085,7 +1085,7 @@ protected:
 	 *
 	 * This class is not intended to be used for polymorphical deletion.
 	 */
-	~CalcStateARCSBase() noexcept;
+	~CalcStateARCSBase() noexcept override;
 
 	/**
 	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned

@@ -320,6 +320,8 @@ public: /* types */
 
 	using const_iterator = SampleIterator<T, is_planar, true>;
 
+	using size_type = std::size_t;
+
 
 public: /* methods */
 
@@ -357,7 +359,7 @@ public: /* methods */
 	 *
 	 * \return The number of 32 bit PCM samples represented by this sequence
 	 */
-	uint32_t size() const;
+	size_type size() const;
 
 
 protected:
@@ -378,7 +380,7 @@ protected:
 	 *
 	 * \param[in] size number of 32 bit PCM samples in the buffer
 	 */
-	void set_size(const uint32_t size);
+	void set_size(const size_type size);
 
 	/**
 	 * \brief Convert two integers to a PCM 32 bit sample.
@@ -388,18 +390,18 @@ protected:
 	 *
 	 * \return A PCM 32 bit sample with the higher and lower bits as passed
 	 */
-	uint32_t combine(const uint32_t higher, const uint16_t lower) const;
+	uint32_t combine(const T higher, const T lower) const;
 
 	/**
-	 * \brief Returns 0 if index is within access bounds, otherwise the amount
-	 * that.
-	 * \c index exceeds <tt>size()</tt>.
+	 * \brief Returns amount that \c index exceeds <tt>size() - 1</tt>.
+	 *
+	 * 0 means that \c index is within legal access bounds.
 	 *
 	 * \param[in] index Index to check
 	 *
 	 * \return 0 if not out of bounds, otherwise <tt>index - 1 - size()</tt>.
 	 */
-	int out_of_range(const uint32_t index) const;
+	int out_of_range(const size_type index) const;
 
 	/**
 	 * \brief Performs bounds check.
@@ -408,7 +410,7 @@ protected:
 	 *
 	 * \throws std::out_of_range if \c index is out of legal range
 	 */
-	void bounds_check(const uint32_t index) const;
+	void bounds_check(const size_type index) const;
 
 	/**
 	 * \brief Pointer to actual SampleSequence.
@@ -422,7 +424,7 @@ private:
 	/**
 	 * \brief State: Number of 16 bit samples in this sequence.
 	 */
-	uint32_t size_;
+	size_type size_;
 };
 
 
@@ -475,29 +477,35 @@ auto SampleSequenceImplBase<T, is_planar>::end() const
 
 
 template<typename T, bool is_planar>
-uint32_t SampleSequenceImplBase<T, is_planar>::size() const
+auto SampleSequenceImplBase<T, is_planar>::size() const
+		-> SampleSequenceImplBase<T, is_planar>::size_type
 {
 	return size_;
 }
 
 
 template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::set_size(const uint32_t size)
+void SampleSequenceImplBase<T, is_planar>::set_size(const SampleSequenceImplBase<T, is_planar>::size_type size)
 {
 	size_ = size;
 }
 
 
 template<typename T, bool is_planar>
-uint32_t SampleSequenceImplBase<T, is_planar>::combine(const uint32_t higher,
-		const uint16_t lower) const
+uint32_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
+		const T lower) const
 {
-	return (higher << 16) | lower;
+	return (static_cast<uint32_t>(higher) << 16) |
+		(static_cast<uint32_t>(lower) & 0x0000FFFF);
+
+	// NOTE: This works because T cannot be anything but only signed or
+	// unsigned integers of either 32 or 64 bit length. Those variants can
+	// all be handled correctly by just casting them to uint32_t.
 }
 
 
 template<typename T, bool is_planar>
-int SampleSequenceImplBase<T, is_planar>::out_of_range(const uint32_t index)
+int SampleSequenceImplBase<T, is_planar>::out_of_range(const SampleSequenceImplBase<T, is_planar>::size_type index)
 	const
 {
 	return index > this->size() ? this->size() - 1 - index : 0;
@@ -505,7 +513,7 @@ int SampleSequenceImplBase<T, is_planar>::out_of_range(const uint32_t index)
 
 
 template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::bounds_check(const uint32_t index)
+void SampleSequenceImplBase<T, is_planar>::bounds_check(const SampleSequenceImplBase<T, is_planar>::size_type index)
 	const
 {
 	if (this->out_of_range(index))
@@ -526,8 +534,12 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(const uint32_t index)
 template <typename T>
 class SampleSequence<T, true> : public SampleSequenceImplBase<T, true>
 {
+public: /* types */
 
-public:
+	using typename SampleSequenceImplBase<T, true>::size_type;
+
+
+public: /* methods */
 
 	SampleSequence(const SampleSequence &) = delete;
 
@@ -548,7 +560,7 @@ public:
 	 * \param[in] size    Number of bytes per buffer
 	 */
 	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
-			const uint32_t &size);
+			const size_type &size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -562,7 +574,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const uint32_t index) const;
+	uint32_t operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -580,7 +592,7 @@ public:
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const uint32_t index) const;
+	uint32_t at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -589,7 +601,7 @@ public:
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
+	void reset(const T* buffer0, const T* buffer1, const size_type &size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -616,12 +628,12 @@ private:
 	/**
 	 * \brief Number of the left channel
 	 */
-	const int left_;
+	const size_type left_;
 
 	/**
 	 * \brief Number of the right channel
 	 */
-	const int right_;
+	const size_type right_;
 };
 
 
@@ -637,7 +649,8 @@ SampleSequence<T, true>::SampleSequence(bool left0_right1)
 
 template <typename T>
 void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
-		const uint8_t * buffer1, const uint32_t &size)
+		const uint8_t * buffer1,
+		const typename SampleSequence<T, true>::size_type &size)
 {
 	buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
 	buffer_[right_] = reinterpret_cast<const T *>(buffer1),
@@ -647,7 +660,7 @@ void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
 
 template <typename T>
 void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
-		const uint32_t &size)
+		const typename SampleSequence<T, true>::size_type &size)
 {
 	buffer_[left_ ] = buffer0;
 	buffer_[right_] = buffer1;
@@ -656,7 +669,8 @@ void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
 
 
 template <typename T>
-uint32_t SampleSequence<T, true>::operator [] (const uint32_t index) const
+uint32_t SampleSequence<T, true>::operator [] (
+		const typename SampleSequence<T, true>::size_type index) const
 {
 	return this->combine(buffer_[right_][index], buffer_[left_][index]);
 	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
@@ -667,7 +681,8 @@ uint32_t SampleSequence<T, true>::operator [] (const uint32_t index) const
 
 
 template <typename T>
-uint32_t SampleSequence<T, true>::at(const uint32_t index) const
+uint32_t SampleSequence<T, true>::at(
+		const  typename SampleSequence<T, true>::size_type index) const
 {
 	this->bounds_check(index);
 	return this->operator[](index);
@@ -697,6 +712,10 @@ const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
 template <typename T>
 class SampleSequence<T, false> : public SampleSequenceImplBase<T, false>
 {
+public: /* types */
+
+	using typename SampleSequenceImplBase<T, false>::size_type;
+
 
 public:
 
@@ -717,7 +736,7 @@ public:
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
 	 */
-	void wrap(const uint8_t *buffer, const uint32_t &size);
+	void wrap(const uint8_t *buffer, const size_type &size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -731,7 +750,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const uint32_t index) const;
+	uint32_t operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -749,7 +768,7 @@ public:
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const uint32_t index) const;
+	uint32_t at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffer into this sample sequence.
@@ -757,7 +776,7 @@ public:
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer
 	 */
-	void reset(const T* buffer, const uint32_t &size);
+	void reset(const T* buffer, const size_type &size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -784,12 +803,12 @@ private:
 	/**
 	 * \brief Number of the left channel
 	 */
-	const int left_;
+	const size_type left_;
 
 	/**
 	 * \brief Number of the right channel
 	 */
-	const int right_;
+	const size_type right_;
 };
 
 
@@ -805,7 +824,7 @@ SampleSequence<T, false>::SampleSequence(bool left0_right1)
 
 template <typename T>
 void SampleSequence<T, false>::wrap(const uint8_t * buffer,
-		const uint32_t &size)
+		const typename SampleSequence<T, false>::size_type &size)
 {
 	buffer_ = reinterpret_cast<const T*>(buffer),
 	this->set_size((size * sizeof(uint8_t) / 2 /* channels */ ) / sizeof(T));
@@ -813,7 +832,8 @@ void SampleSequence<T, false>::wrap(const uint8_t * buffer,
 
 
 template <typename T>
-void SampleSequence<T, false>::reset(const T* buffer0, const uint32_t &size)
+void SampleSequence<T, false>::reset(const T* buffer0,
+		const typename SampleSequence<T, false>::size_type &size)
 {
 	buffer_ = buffer0;
 	this->set_size(size / 2 /* channels */);
@@ -821,7 +841,8 @@ void SampleSequence<T, false>::reset(const T* buffer0, const uint32_t &size)
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::operator [] (const uint32_t index) const
+uint32_t SampleSequence<T, false>::operator [] (
+		const typename SampleSequence<T, false>::size_type index) const
 {
 	return this->combine(buffer_[2 * index + right_],
 			buffer_[2 * index + left_]);
@@ -833,7 +854,8 @@ uint32_t SampleSequence<T, false>::operator [] (const uint32_t index) const
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::at(const uint32_t index) const
+uint32_t SampleSequence<T, false>::at(
+		const typename SampleSequence<T, false>::size_type index) const
 {
 	this->bounds_check(index);
 	return this->operator[](index);
