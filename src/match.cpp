@@ -267,8 +267,8 @@ private:
 DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 	: blocks_(blocks)
 	, tracks_per_block_(tracks)
-	, size_(static_cast<unsigned int>(blocks) *
-			(2u * static_cast<unsigned int>(tracks) + 1u))
+	, size_(static_cast<std::size_t>(blocks) *
+			(2u * static_cast<std::size_t>(tracks) + 1u))
 	, flag_(size_, false)
 {
 	// TODO Validate block and track numbers
