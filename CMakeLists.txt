@@ -341,6 +341,10 @@ set (PROJECT_CXX_GNU_FLAGS_WARNINGS
 	-Wzero-as-null-pointer-constant
 	)
 
+## g++: Optimize flags
+set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE   -march=native -mtune=generic )
+
+
 ## clang++: Warnings
 ## Clang warnings are quite aggressive by default. Some of the g++ warnings are
 ## either compatibility flags that do nothing or are activated by other meta
@@ -361,25 +365,20 @@ set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
 	-Winconsistent-missing-destructor-override
 	)
 
-## g++/clang++: Optimize flags
-set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE   -march=native -mtune=generic )
-set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
+## clang++: Optimize flags
+set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE -march=native -mtune=generic )
 
 
 ## Select compiler specific settings
 
-## GNU g++
-
-if (CMAKE_COMPILER_IS_GNUCXX )
+if (CMAKE_COMPILER_IS_GNUCXX ) ## for g++
 
 	message (STATUS "Select compile flags for g++" )
 
 	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
 	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
 
-## clang
-
-elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"
+elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"       ## for clang
 		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 	message (STATUS "Select compile flags for clang++" )
@@ -396,14 +395,14 @@ else()
 endif()
 
 
-## Compiler: Warnings
+## Compiler: Activate Warnings
 
 target_compile_options (${PROJECT_NAME} PUBLIC ${PROJECT_CXX_FLAGS_WARNINGS} )
 
 message (STATUS "Warning Flags: ${PROJECT_CXX_FLAGS_WARNINGS}" )
 
 
-## Compiler: Optimizations (default ON for Release, otherwise OFF)
+## Compiler: Activate Optimizations (default ON for Release, otherwise OFF)
 
 if (WITH_NATIVE )
 
