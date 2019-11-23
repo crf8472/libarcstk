@@ -1247,13 +1247,33 @@ public:
 	bool complete() const;
 
 	/**
+	 * \brief Returns the total number of expected PCM 32 bit samples.
+	 *
+	 * This is just for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples expected.
+	 */
+	int64_t samples_expected() const;
+
+	/**
 	 * \brief Returns the counter for PCM 32 bit samples.
 	 *
 	 * This is just for debugging.
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	uint32_t sample_counter() const;
+	int64_t samples_processed() const;
+
+	/**
+	 * \brief Returns the number of PCM 32 bit samples that is yet to process.
+	 *
+	 * This value is equivalent to samples_expected() - samples_processed().
+	 *
+	 * This is just for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples yet to process.
+	 */
+	int64_t samples_todo() const;
 
 	/**
 	 * \brief Acquire the resulting Checksums.

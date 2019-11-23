@@ -1527,9 +1527,19 @@ public:
 	bool complete() const;
 
 	/**
-	 * \brief Implements Calculation::sample_counter().
+	 * \brief Implements Calculation::samples_expected().
 	 */
-	uint32_t sample_counter() const;
+	int64_t samples_expected() const;
+
+	/**
+	 * \brief Implements Calculation::samples_processed().
+	 */
+	int64_t samples_processed() const;
+
+	/**
+	 * \brief Implements Calculation::samples_todo().
+	 */
+	int64_t samples_todo() const;
 
 	/**
 	 * \brief Implements Calculation::result().
@@ -1739,11 +1749,17 @@ void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
 
 bool Calculation::Impl::complete() const
 {
-	// Dangerous. smpl_offset_ will stop on the right value only iff
-	// the size of the last input processed (which may have a smaller size
-	// than its predecessors) was accurately set before passing it to update()
+	return (this->samples_expected() - this->samples_processed()) < 1;
 
-	return this->smpl_offset_ == context().audio_size().sample_count();
+	// smpl_offset_ will "stop" on the correct value only iff
+	// the size of the last input block processed (which may have a smaller size
+	// than its predecessors) was accurately set before passing it to update().
+	// One could do:
+	// return this->smpl_offset_ == context().audio_size().sample_count();
+	// but this would mean that the calculation is not complete when more
+	// samples were processed than expected. (Nonetheless, this may or may not
+	// indicate an actual error.) But in a sense, the calculation is completed
+	// as soon as the number of estimated samples is processed.
 }
 
 
@@ -1828,18 +1844,31 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 	if (is_last_relevant_block)
 	{
 		ARCS_LOG(DEBUG1) << "Calculation complete.";
-		ARCS_LOG(DEBUG1) << "Total samples counted:  " << smpl_offset_;
+		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
+			this->samples_processed();
 		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
-			context().audio_size().sample_count();
+			this->samples_expected();
 		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
 			<< proc_time_elapsed_.count();
 	}
 }
 
 
-uint32_t Calculation::Impl::sample_counter() const
+int64_t Calculation::Impl::samples_expected() const
+{
+	return context().audio_size().sample_count();
+}
+
+
+int64_t Calculation::Impl::samples_processed() const
 {
 	return smpl_offset_;
+}
+
+
+int64_t Calculation::Impl::samples_todo() const
+{
+	return this->samples_expected() - this->samples_processed();
 }
 
 
@@ -2190,9 +2219,21 @@ bool Calculation::complete() const
 }
 
 
-uint32_t Calculation::sample_counter() const
+int64_t Calculation::samples_expected() const
 {
-	return impl_->sample_counter();
+	return impl_->samples_expected();
+}
+
+
+int64_t Calculation::samples_processed() const
+{
+	return impl_->samples_processed();
+}
+
+
+int64_t Calculation::samples_todo() const
+{
+	return impl_->samples_todo();
 }
 
 
