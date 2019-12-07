@@ -61,7 +61,7 @@ XML_PROGRAMLISTING     = NO   # m.css default
 # namespace members in file scope as well, matching the HTML output.
 # The default value is: NO.
 
-XML_NS_MEMB_FILE_SCOPE = YES
+XML_NS_MEMB_FILE_SCOPE = NO
 
 # It is currently not possible to link to private virtual methods.
 # This comes with: https://github.com/doxygen/doxygen/pull/6729

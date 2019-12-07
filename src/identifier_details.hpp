@@ -18,14 +18,10 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/**
- * \internal \defgroup idInternal Internal APIs
- * \ingroup id
- * @{
- */
 
 /**
  * \internal
+ * \ingroup id
  *
  * \brief Constructs ARId instances from TOC data.
  *
@@ -156,6 +152,7 @@ private:
 
 /**
  * \internal
+ * \ingroup id
  *
  * \brief Constructs a TOC from metadata of the compact disc.
  *
@@ -276,6 +273,7 @@ private:
 
 /**
  * \internal
+ * \ingroup id
  *
  * \brief Validates offsets, leadout and track count of a compact disc toc.
  *
@@ -417,6 +415,9 @@ protected:
 
 
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Worker to calculate the leadout
  *
  * \param[in] track_count Number of tracks in this medium
@@ -427,8 +428,6 @@ uint32_t calculate_leadout(const TrackNo track_count,
 	const std::vector<uint32_t> &offsets,
 	const std::vector<uint32_t> &lengths);
 
-
-/** @} */
 
 } // namespace v_1_0_0
 

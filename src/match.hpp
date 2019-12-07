@@ -166,7 +166,7 @@ public:
 private:
 
 	/**
-	 * \brief Implements @link Match::verify_id(const uint32_t b) verify_id() @endlink.
+	 * \brief Implements @link Match::verify_id(int b) verify_id(int) @endlink.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
@@ -176,7 +176,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::id(const uint32_t b) const id() @endlink.
+	 * \brief Implements @link Match::id(int b) const id(int) @endlink.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
@@ -189,7 +189,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::verify_track(const uint32_t b, const uint8_t t, const bool v2) verify_track() @endlink.
+	 * \brief Implements @link Match::verify_track(int b, int t, bool v2) verify_track(b, t, v2) @endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
@@ -203,7 +203,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::track(const uint32_t b, const uint8_t t, const bool v2) const track() @endlink.
+	 * \brief Implements @link Match::track(int b, int t, bool v2) const track(int, int, bool) @endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
@@ -217,7 +217,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::difference(const uint32_t b, const bool v2) const difference() @endlink.
+	 * \brief Implements @link Match::difference(int b, bool v2) const difference(int, bool) @endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1

@@ -51,39 +51,6 @@ endif (WITH_INTERNAL_DOCS)
 
 
 
-## --- Build impl-only docs if requested (includes internal docs)
-
-if (WITH_IMPL_DOCS)
-
-	if (NOT WITH_INTERNAL_DOCS)
-
-		## print message that has not been printed so far
-		message (STATUS "Will build documentation also for internal APIs" )
-
-	endif (NOT WITH_INTERNAL_DOCS)
-
-	message (STATUS "Will build documentation also for implementations" )
-
-	set(DOC_COMMENT "${DOC_COMMENT} and implementations" )
-
-	set (DOC_SOURCES ${DOC_SOURCES}
-		${NONPUBLIC_HEADERS} ${EXPORTED_TEMPLATES} ${SOURCES} )
-
-	## Set replacement values for Doxyfile
-
-	set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
-	set (PROJECT_DOXYGEN_IMPL_DOCS     "YES" )
-
-	set (PROJECT_DOXYGEN_FILE_PATTERNS
-		"${PROJECT_DOXYGEN_FILE_PATTERNS} *.cpp *.tpp" )
-
-else ()
-
-	set (PROJECT_DOXYGEN_IMPL_DOCS "NO" )
-
-endif (WITH_IMPL_DOCS)
-
-
 ## Provide main Doxyfile
 
 configure_file ("${PROJECT_DOC_DIR}/Doxyfile.in"

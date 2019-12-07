@@ -5,6 +5,11 @@
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #define __LIBARCSTK_CALCULATE_DETAILS_HPP__
 
+// Just for switching off LSP warnings about unresolvable names
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
+
 /**
  * \internal
  *
@@ -33,11 +38,6 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/**
- * \internal \defgroup calcInternal Internal APIs
- * \ingroup calc
- * @{
- */
 
 // Forward Declaration Required for Partitioner
 class Partition;
@@ -52,6 +52,9 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Interface for generating a partitioning over a sequence of samples.
  *
  * The partitioning is done along the track bounds according to the TOC such
@@ -151,6 +154,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Partitioner for multitrack partitions.
  *
  * The partitioning is an ordered list of partitions where a track bound lies
@@ -177,6 +183,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Partitioner for singletrack partitions.
  *
  * The partition contains just one partition representing the entire sample
@@ -203,6 +212,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief A contigous part of a sequence of samples.
  *
  * A partition does not hold any samples but provides access to a slice of the
@@ -347,6 +359,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief A closed interval of non-negative integers.
  */
 class Interval final
@@ -756,6 +771,9 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 /// \endcond
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Base class for CalcContext implementations.
  *
  * Provides the properties AudioSize and filename and implements
@@ -858,6 +876,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Interface to the Calculation state.
  *
  * A calculation state is initialized with a multiplier. It is subsequently
@@ -1025,6 +1046,9 @@ public:
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Abstract base for ARCS calculating CalcStates.
  *
  * \see CalcState
@@ -1294,8 +1318,6 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 }
 
 } // namespace state
-
-/** @} */
 
 } // namespace v_1_0_0
 

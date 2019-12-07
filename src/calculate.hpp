@@ -598,7 +598,7 @@ public:
 	 * the specified 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
-	 * first_relevant_sample(2) returns the last 0-based sample of track 2
+	 * \c first_relevant_sample(2) returns the last 0-based sample of track 2
 	 * (and not track 3).
 	 *
 	 * \param[in] track The 1-based track number
@@ -611,12 +611,12 @@ public:
 	 * \brief Get 0-based index of the first sample to be counted in
 	 * computation.
 	 *
-	 * Which sample is actualley the first relevant one depends on the offset
+	 * Which sample is actually the first relevant one depends on the offset
 	 * of the first track and whether samples in the beginning of the first
 	 * track are to be skipped.
 	 *
 	 * Always equivalent with
-	 * @link CalcContext::first_relevant_sample(1) first_relevant_sample(1) @endlink.
+	 * @link CalcContext::first_relevant_sample() first_relevant_sample(1) @endlink.
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
@@ -649,7 +649,7 @@ public:
 	 * samples in the end of the last track are to be skipped.
 	 *
 	 * Always equivalent with
-	 * @link CalcContext::last_relevant_sample(this->track_count()) last_relevant_sample(this->track_count()) @endlink.
+	 * @link CalcContext::last_relevant_sample(const TrackNo track) const last_relevant_sample(this->track_count()) @endlink.
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */

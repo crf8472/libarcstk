@@ -28,18 +28,20 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Global instance of the CDDA constants
  */
 const CDDA_t CDDA;
 
-/**
- * \internal \addtogroup idImpl Implementation
- * \ingroup id
- * @{
- */
 
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Private implementation of ARId
  *
  * \see ARId
@@ -322,6 +324,9 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 
 
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Private implementation of TOCBuilder.
  *
  * Note that TOCBuilder is a friend of TOC but TOCBuilder::Impl
@@ -498,6 +503,9 @@ private:
 
 
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Private implementation of TOC.
  *
  * \see TOC
@@ -966,6 +974,9 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 
 /**
+ * \internal
+ * \ingroup id
+ *
  * \brief Private implementation of ARIdBuilder
  *
  * \see ARIdBuilder
@@ -1831,8 +1842,6 @@ uint32_t calculate_leadout(const TrackNo track_count,
 	return (lengths.at(tc) > 0) ? offsets.at(tc) + lengths.at(tc) : 0;
 }
 
-
-/** @} */
 
 } // namespace v_1_0_0
 

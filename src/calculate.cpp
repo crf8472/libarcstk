@@ -32,12 +32,6 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/**
- * \internal \defgroup calcImpl Implementation
- * \ingroup calc
- * @{
- */
-
 namespace
 {
 
@@ -62,6 +56,9 @@ constexpr uint32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Private implementation of AudioSize.
  *
  * \see AudioSize
@@ -391,6 +388,9 @@ void CalcContextBase::do_notify_skips(const uint32_t num_skip_front,
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief CalcContext for singletrack mode.
  *
  * A SingletrackCalcContext is a CalcContext derived from an actual filename
@@ -632,6 +632,9 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief CalcContext for multitrack mode.
  *
  * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
@@ -1026,6 +1029,9 @@ void CalcStateARCSBase::update(PCMForwardIterator &begin, PCMForwardIterator &en
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief CalcState for calculation of ARCSv1.
  */
 class CalcStateV1 final : public CalcStateARCSBase
@@ -1231,6 +1237,9 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief CalcState for calculation of ARCSv2 and ARCSv1.
  */
 class CalcStateV1andV2 final : public CalcStateARCSBase
@@ -1451,6 +1460,9 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const
 
 
 /**
+ * \internal
+ * \ingroup calc
+ *
  * \brief Private implementation of Calculation.
  *
  * This class is not intended as a base class for inheritance.
@@ -2398,8 +2410,6 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 }
 
 /// \endcond
-
-/** @} */
 
 } // namespace v_1_0_0
 
