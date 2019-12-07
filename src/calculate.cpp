@@ -1751,9 +1751,13 @@ bool Calculation::Impl::complete() const
 {
 	return (this->samples_expected() - this->samples_processed()) < 1;
 
+	// Calculation is not complete only while there are less samples processed
+	// than expected.
+
 	// smpl_offset_ will "stop" on the correct value only iff
 	// the size of the last input block processed (which may have a smaller size
-	// than its predecessors) was accurately set before passing it to update().
+	// than its predecessors) was accurately set before passing the block to
+	// update().
 	// One could do:
 	// return this->smpl_offset_ == context().audio_size().sample_count();
 	// but this would mean that the calculation is not complete when more
@@ -1773,7 +1777,6 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block << " samples";
 	ARCS_LOG_DEBUG << "  Indices: " <<
 		smpl_offset_ << " - " << last_sample_in_block;
-
 
 	// Create a partitioning following the track bounds in this block
 
@@ -1803,12 +1806,23 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 
 		this->log_partition(partition_counter, partitioning.size(), partition);
 
-		// Update the calculation state with the current chunk
+		// Update the calculation state with the current partition/chunk
 
-		PCMForwardIterator chunk_begin { begin + partition.begin_offset() };
-		PCMForwardIterator chunk_end   { begin + partition.end_offset()   };
+		PCMForwardIterator part_begin { begin + partition.begin_offset() };
+		PCMForwardIterator part_end   { begin + partition.end_offset()   };
 
-		state_->update(chunk_begin, chunk_end);
+		// debug beginning of first block
+		int i = 0;
+		if (smpl_offset_ < 50 or smpl_offset_ > this->samples_expected() - 50)
+		{
+			while (i < 50)
+			{
+				ARCS_LOG_DEBUG << "Sample "
+					<< i << ": " << *(part_begin + i++);
+			}
+		}
+
+		state_->update(part_begin, part_end);
 
 		// If the current partition ends a track, save the ARCSs for this track
 
