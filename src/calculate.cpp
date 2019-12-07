@@ -1811,17 +1811,6 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 		PCMForwardIterator part_begin { begin + partition.begin_offset() };
 		PCMForwardIterator part_end   { begin + partition.end_offset()   };
 
-		// debug beginning of first block
-		int i = 0;
-		if (smpl_offset_ < 50 or smpl_offset_ > this->samples_expected() - 50)
-		{
-			while (i < 50)
-			{
-				ARCS_LOG_DEBUG << "Sample "
-					<< i << ": " << *(part_begin + i++);
-			}
-		}
-
 		state_->update(part_begin, part_end);
 
 		// If the current partition ends a track, save the ARCSs for this track
