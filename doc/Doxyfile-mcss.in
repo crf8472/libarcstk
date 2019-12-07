@@ -74,7 +74,7 @@ XML_NS_MEMB_FILE_SCOPE = YES
 
 ## For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
 
-# If set and PROJECT_BRIEF is al­so set, then PROJECT_NAME in the top navbar
+# If set and PROJECT_BRIEF is also set, then PROJECT_NAME in the top navbar
 # will link to this URL and PROJECT_BRIEF in­to the documentation main page,
 # similarly as shown here.
 #
