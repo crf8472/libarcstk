@@ -1051,7 +1051,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 	int block_i { 0 };
 	int track_j { 0 };
-	int bitpos      { 0 };
+	int bitpos  { 0 };
 	Checksums::size_type start_track { 0 };
 
 	Checksum checksum;

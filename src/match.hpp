@@ -9,22 +9,35 @@
  * match the ARCSs of some audio input against a response from AccurateRip.
  *
  * A @link arcstk::v_1_0_0::Matcher Matcher @endlink returns a
- * @link arcstk::v_1_0_0::Match Match @endlink that encodes a complete matrix of
- * numeric comparisons. Every single comparison is accessible by its block,
- * track and checksum algorithm version.
+ * @link arcstk::v_1_0_0::Match Match @endlink that represents a matrix of
+ * numeric comparisons: the @link arcstk::v_1_0_0::Checksums Checksums @endlink
+ * are compared to each @link arcstk::v_1_0_0::ARBlock ARBlock @endlink in the
+ * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink.
+ *
+ * @link arcstk::v_1_0_0::Match::track(int, int, bool) const Match::track(block, track, isV2) @endlink
+ * provides access to any single comparison by its block index, track index and
+ * ARCS algorithm version
  *
  * Provided are two @link arcstk::v_1_0_0::Matcher Matcher @endlink
  * implementations.
  *
- * @link arcstk::v_1_0_0::AlbumMatcher AlbumMatcher @endlink matches a list of
- * track-based @link arcstk::v_1_0_0::Checksums Checksums @endlink against an
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink. It can be used for
- * matching the @link arcstk::v_1_0_0::Checksums Checksums @endlink of a
- * complete disc image.
+ * @link arcstk::v_1_0_0::AlbumMatcher AlbumMatcher @endlink matches each
+ * checksum in a list of track-based
+ * @link arcstk::v_1_0_0::Checksums Checksums @endlink against the value of the
+ * corresponding track in each
+ * @link arcstk::v_1_0_0::ARBlock ARBlock @endlink of the
+ * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink. This
+ * @link arcstk::v_1_0_0::Matcher Matcher @endlink
+ * can be used for matching the
+ * @link arcstk::v_1_0_0::Checksums Checksums @endlink of a complete disc image.
  *
  * The @link arcstk::v_1_0_0::TracksetMatcher TracksetMatcher @endlink matches
- * a set of file-based Checksums against an
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink. It is used for
+ * a set of file-based
+ * @link arcstk::v_1_0_0::Checksums Checksums @endlink against an
+ * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink by trying to match each
+ * of the
+ * @link arcstk::v_1_0_0::Checksums Checksums @endlink against each of the sums
+ * in each @link arcstk::v_1_0_0::ARBlock ARBlock @endlink. It is used for
  * matching a set of track files in arbitrary order.
  */
 
@@ -72,7 +85,7 @@ public:
 	virtual ~Match() noexcept;
 
 	/**
-	 * \brief Marks the ARId of the specified block as verified.
+	 * \brief Marks the ARId of the specified block as 'verified'.
 	 *
 	 * \param[in] block 0-based index of the block to verify
 	 *
@@ -81,7 +94,7 @@ public:
 	int verify_id(int block);
 
 	/**
-	 * \brief TRUE iff the ARId of the specified block is matches the ARId of
+	 * \brief TRUE iff the ARId of the specified block matches the ARId of
 	 * the original request, otherwise FALSE.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
@@ -93,7 +106,7 @@ public:
 	bool id(int b) const;
 
 	/**
-	 * \brief Verifies a single ARCS of the specified track.
+	 * \brief Marks a single ARCS of the specified track as 'verified'.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
@@ -107,6 +120,13 @@ public:
 
 	/**
 	 * \brief Return the verification status of an ARCS of the specified track.
+	 *
+	 * @m_class{m-block m-success}
+	 *
+	 * @par Example:
+	 * The call <tt>myMatch.value(0,17,true)</tt> refers to the ARCSv2 of track
+	 * 18 in the first block. If this call returns \c true, the first ARBlock in
+	 * the ARResponse has a match on this track.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
@@ -150,6 +170,11 @@ public:
 
 	/**
 	 * \brief Returns the number of comparison flags stored.
+	 *
+	 * The size of a Match is @f$b * (2 * t + 1)@f$ with @f$b@f$ being
+	 * \c total_blocks() and @f$t@f$ being \c tracks_per_block(). The @f$+1@f$
+	 * is added since for each block ARId also contributes a
+	 * verification flag to the Match.
 	 *
 	 * \return Number of flags stored
 	 */
@@ -277,7 +302,7 @@ public:
 	virtual ~Matcher() noexcept;
 
 	/**
-	 * \brief Returns TRUE iff at least one block in the ARRresponse is
+	 * \brief Returns TRUE iff at least one block in the ARResponse is
 	 * identical to either the ARCSs v1 or the ARCSs v2 in the request.
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
@@ -384,8 +409,8 @@ private:
  * \brief Match an album track list against an ARResponse.
  *
  * Tries to match each position \c i in the actual
- * @link Checksum Checksums @endlink with position \c i in the AccurateRip
- * response.
+ * @link Checksum Checksums @endlink with position \c i in each block of the
+ * AccurateRip response. This is how an entire album can be matched.
  */
 class AlbumMatcher final : public Matcher
 {
@@ -467,7 +492,15 @@ private:
 /**
  * \brief Match an arbitrary set of tracks against an ARResponse.
  *
- * Find any match of any actual Checksum in the ARResponse.
+ * Find any match of any actual Checksum in the ARResponse. This targets the
+ * situation where a subset of tracks from the same album are tried to be
+ * matched, but the subset may be incomplete.
+ *
+ * @m_class{m-block m-success}
+ *
+ * @par Example:
+ * You have some or all tracks but you do not know their order. You can use the
+ * TracksetMatcher to find out the order of the tracks.
  */
 class TracksetMatcher final : public Matcher
 {
