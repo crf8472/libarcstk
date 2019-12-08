@@ -39,6 +39,34 @@ inline namespace v_1_0_0
  * @{
  */
 
+
+/**
+ * \brief Log a Match.
+ *
+ * For debugging only.
+ */
+void log(const Match &match);
+
+
+void log(const Match &match)
+{
+	for (int b = 0; b < match.total_blocks(); ++b)
+	{
+		ARCS_LOG_DEBUG << "Block " << b;
+
+		for (int t = 0; t < match.tracks_per_block(); ++t)
+		{
+			ARCS_LOG_DEBUG << "  Track " << (t+1);
+
+			for (int v = 0; v < 2; ++v)
+			{
+				ARCS_LOG_DEBUG << "v" << (v+1) << ": " << match.track(b, t, v);
+			}
+		}
+	}
+}
+
+
 // Match
 
 /// \cond UNDOC_FUNCTION_BODIES
@@ -124,23 +152,6 @@ public:
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~DefaultMatchBase() noexcept override;
-
-
-	int do_verify_id(int b) override;
-
-	bool do_id(int b) const override;
-
-	int do_verify_track(int b, int t, bool v2) override;
-
-	bool do_track(int b, int t, bool v2) const override;
-
-	int64_t do_difference(int b, bool v2) const override;
-
-	int do_total_blocks() const override;
-
-	int do_tracks_per_block() const override;
-
-	size_t do_size() const override;
 
 
 protected:
@@ -230,6 +241,22 @@ protected:
 
 
 private:
+
+	int do_verify_id(int b) override;
+
+	bool do_id(int b) const override;
+
+	int do_verify_track(int b, int t, bool v2) override;
+
+	bool do_track(int b, int t, bool v2) const override;
+
+	int64_t do_difference(int b, bool v2) const override;
+
+	int do_total_blocks() const override;
+
+	int do_tracks_per_block() const override;
+
+	size_t do_size() const override;
 
 	/**
 	 * \brief Number of @link ARBlock ARBlocks @endlink represented.
@@ -612,19 +639,6 @@ protected:
 	~MatcherImplBase() noexcept;
 
 	/**
-	 * \brief Performs the actual match.
-	 *
-	 * \param[in] actual_sums The checksums to match
-	 * \param[in] id          The id to match
-	 * \param[in] ref_sums    The reference checksums to be matched
-	 *
-	 * \return Match information
-	 */
-	virtual std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const
-	= 0;
-
-	/**
 	 * \brief Derive best matching block from match result.
 	 *
 	 * \param[in]  m          Match to analyze
@@ -645,6 +659,19 @@ protected:
 
 
 private:
+
+	/**
+	 * \brief Performs the actual match.
+	 *
+	 * \param[in] actual_sums The checksums to match
+	 * \param[in] id          The id to match
+	 * \param[in] ref_sums    The reference checksums to be matched
+	 *
+	 * \return Match information
+	 */
+	virtual std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
+			const ARId &id, const ARResponse &ref_sums) const
+	= 0;
 
 	/**
 	 * \brief State: representation of the comparison result.
@@ -1052,7 +1079,6 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 	int track_j { 0 };
 	int bitpos  { 0 };
 	Checksums::size_type start_track { 0 };
-	//std::string version_tag = "2";
 	bool is_v2 { false };
 
 	Checksum checksum;
@@ -1115,20 +1141,6 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 		++block_i;
 	}
-
-// Commented out: Print the match is just for debugging
-//
-//	for (int b = 0; b < response.size(); ++b)
-//	{
-//		for (int t = 0; t < response.tracks_per_block(); ++t)
-//		{
-//			for (int v = 0; v < 2; ++v)
-//			{
-//				ARCS_LOG_DEBUG << "B " << b << " T " << (t+1) << " v" << (v+1)
-//					<< ": " << match->track(b, t, v);
-//			}
-//		}
-//	}
 
 	return match;
 }
