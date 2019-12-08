@@ -1100,7 +1100,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 						ARCS_LOG_DEBUG << "  >Track "
 							<< std::setw(2) << (track_j + 1)
 							<< " v" << (is_v2 ? "2" : "1") << " verified: "
-							<< match->track(block_i, track_j, true)
+							<< match->track(block_i, track_j, is_v2)
 							<< " (bit " << bitpos << ")"
 							<< " matches tracklist pos " << track_j;
 
