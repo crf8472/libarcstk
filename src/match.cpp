@@ -852,13 +852,20 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		return nullptr;
 	}
 
+	std::array<checksum::type, 2> types = {
+		checksum::type::ARCS1,
+		checksum::type::ARCS2
+	};
+
 	auto match = std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size());
 
-	Checksum checksum;
-	Checksums::size_type track_j { 0 };
 	int block_i { 0 };
-	int bitpos = 0;
+	int bitpos  { 0 };
+	Checksums::size_type track_j { 0 };
+	bool is_v2 { false };
+
+	Checksum checksum;
 
 	for (auto block = ref_sums.begin(); block != ref_sums.end(); ++block)
 	{
@@ -881,42 +888,29 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 		for (auto track = block->begin(); track != block->end(); ++track)
 		{
-			checksum = *actual_sums[track_j].find(checksum::type::ARCS1);
-
-			if (track->arcs() == checksum.value())
+			for (const auto& type : types)
 			{
-				bitpos = match->verify_track(block_i, track_j, false);
+				checksum = *actual_sums[track_j].find(type);
 
-				ARCS_LOG_DEBUG << "Track "
-					<< std::setw(2) << std::setfill('0') << track_j + 1
-					<< " v1 verified: " << match->track(block_i, track_j, false)
-					<< " (bit " << bitpos << ")";
-			}
-			else
-			{
-				ARCS_LOG_DEBUG << "Track "
-					<< std::setw(2) << std::setfill('0') << track_j + 1
-					<< " v1 not verified: "
-					<< match->track(block_i, track_j, false);
-			}
+				is_v2 = (type == checksum::type::ARCS2);
 
-			checksum = *actual_sums[track_j].find(checksum::type::ARCS2);
+				if (track->arcs() == checksum.value())
+				{
+					bitpos = match->verify_track(block_i, track_j, is_v2);
 
-			if (track->arcs() == checksum.value())
-			{
-				bitpos = match->verify_track(block_i, track_j, true);
-
-				ARCS_LOG_DEBUG << "Track "
-				<< std::setw(2) << std::setfill('0') << track_j + 1
-				<< " v2 verified: " << match->track(block_i, track_j, true)
-				<< " (bit " << bitpos << ")";
-			}
-			else
-			{
-				ARCS_LOG_DEBUG << "Track "
-					<< std::setw(2) << std::setfill('0') << track_j + 1
-					<< " v2 not verified: "
-					<< match->track(block_i, track_j, true);
+					ARCS_LOG_DEBUG << "Track "
+						<< std::setw(2) << std::setfill('0') << (track_j + 1)
+						<< " v" << (is_v2 ? "2" : "1") << " verified: "
+						<< match->track(block_i, track_j, is_v2)
+						<< " (bit " << bitpos << ")";
+				}
+				else
+				{
+					ARCS_LOG_DEBUG << "Track "
+						<< std::setw(2) << std::setfill('0') << (track_j + 1)
+						<< " v" << (is_v2 ? "2" : "1") << " not verified: "
+						<< match->track(block_i, track_j, is_v2);
+				}
 			}
 
 			++track_j;
@@ -1046,6 +1040,11 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		return nullptr;
 	}
 
+	std::array<checksum::type, 2> types = {
+		checksum::type::ARCS1,
+		checksum::type::ARCS2
+	};
+
 	auto match = std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size());
 
@@ -1053,6 +1052,8 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 	int track_j { 0 };
 	int bitpos  { 0 };
 	Checksums::size_type start_track { 0 };
+	//std::string version_tag = "2";
+	bool is_v2 { false };
 
 	Checksum checksum;
 
@@ -1060,6 +1061,9 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 	{
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
+
+		// There is no ARId, hence every ARId is a match
+		bitpos = match->verify_id(block_i);
 
 		track_j = 0;
 		start_track = 0;
@@ -1072,55 +1076,37 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 			for (const auto& entry : actual_sums)
 			{
-				checksum = *entry.find(checksum::type::ARCS2);
-
-				ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
-					<< std::hex
-					<< std::setw(8) << std::setfill('0') << std::uppercase
-					<< track->arcs()
-					<< " to (v2) "
-					<< std::hex
-					<< std::setw(8) << std::setfill('0') << std::uppercase
-					<< checksum.value();
-
-				if (track->arcs() == checksum.value())
+				for (const auto& type : types)
 				{
-					bitpos = match->verify_track(block_i, track_j, true);
+					checksum = *entry.find(type);
 
-					ARCS_LOG_DEBUG << "  >Track "
-						<< std::setw(2) << (track_j + 1)
-						<< " v2 verified: "
-						<< match->track(block_i, track_j, true)
-						<< " (bit " << bitpos << ")"
-						<< " matches tracklist pos " << track_j;
+					is_v2 = (type == checksum::type::ARCS2);
 
-					++start_track;
-					break;
-				}
+					ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
+						<< std::hex
+						<< std::setw(8) << std::setfill('0') << std::uppercase
+						<< track->arcs()
+						<< " to (v"
+						<< (is_v2 ? "2" : "1")
+						<< ") "
+						<< std::hex
+						<< std::setw(8) << std::setfill('0') << std::uppercase
+						<< checksum.value();
 
-				checksum = *entry.find(checksum::type::ARCS1);
+					if (track->arcs() == checksum.value())
+					{
+						bitpos = match->verify_track(block_i, track_j, is_v2);
 
-				ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
-					<< std::hex
-					<< std::setw(8) << std::setfill('0') << std::uppercase
-					<< track->arcs()
-					<< " to (v1) "
-					<< std::hex
-					<< std::setw(8) << std::setfill('0') << std::uppercase
-					<< checksum.value();
+						ARCS_LOG_DEBUG << "  >Track "
+							<< std::setw(2) << (track_j + 1)
+							<< " v" << (is_v2 ? "2" : "1") << " verified: "
+							<< match->track(block_i, track_j, true)
+							<< " (bit " << bitpos << ")"
+							<< " matches tracklist pos " << track_j;
 
-				if (track->arcs() == checksum.value())
-				{
-					bitpos = match->verify_track(block_i, track_j, false);
-
-					ARCS_LOG_DEBUG << "  >Track "
-						<< std::setw(2) << (track_j + 1)
-						<< " v1 verified: "
-						<< match->track(block_i, track_j, false)
-						<< " (bit " << bitpos << ")"
-						<< " matches tracklist pos " << track_j;
-
-					++start_track;
+						++start_track;
+						break;
+					}
 				}
 			}
 
@@ -1130,7 +1116,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		++block_i;
 	}
 
-// Print match: Just for debugging
+// Commented out: Print the match is just for debugging
 //
 //	for (int b = 0; b < response.size(); ++b)
 //	{
