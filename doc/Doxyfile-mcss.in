@@ -5,6 +5,39 @@
 
 ## Override the following values from included Doxyfile
 
+# This tag can be used to specify a number of aliases that act as commands in
+# the documentation. An alias has the form:
+# name=value
+# For example adding
+# "sideeffect=@par Side Effects:\n"
+# will allow you to put the command \sideeffect (or @sideeffect) in the
+# documentation, which will result in a user-defined paragraph with heading
+# "Side Effects:". You can put \n's in the value part of an alias to insert
+# newlines (in the resulting output). You can put ^^ in the value part of an
+# alias to insert a newline as if a physical newline was in the original file.
+# When you need a literal { or } or , in the value part of an alias you have to
+# escape them by means of a backslash (\), this can lead to conflicts with the
+# commands \{ and \} for these it is advised to use the version @{ and @} or use
+# a double escape (\\{ and \\})
+
+ALIASES += \
+    "m_div{1}=@xmlonly<mcss:div xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:class=\"\1\">@endxmlonly" \
+    "m_enddiv=@xmlonly</mcss:div>@endxmlonly" \
+    "m_span{1}=@xmlonly<mcss:span xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:class=\"\1\">@endxmlonly" \
+    "m_endspan=@xmlonly</mcss:span>@endxmlonly" \
+    "m_class{1}=@xmlonly<mcss:class xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:class=\"\1\" />@endxmlonly" \
+    "m_footernavigation=@xmlonly<mcss:footernavigation xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" />@endxmlonly" \
+    "m_examplenavigation{2}=@xmlonly<mcss:examplenavigation xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:page=\"\1\" mcss:prefix=\"\2\" />@endxmlonly" \
+    "m_keywords{1}=@xmlonly<mcss:search xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:keywords=\"\1\" />@endxmlonly" \
+    "m_keyword{3}=@xmlonly<mcss:search xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:keyword=\"\1\" mcss:title=\"\2\" mcss:suffix-length=\"\3\" />@endxmlonly" \
+    "m_enum_values_as_keywords=@xmlonly<mcss:search xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:enum-values-as-keywords=\"true\" />@endxmlonly"
+
+# If the EXTRACT_PRIV_VIRTUAL tag is set to YES, documented private virtual
+# methods of a class will be included in the documentation.
+# The default value is: NO.
+
+EXTRACT_PRIV_VIRTUAL   = NO  # m.css default (since 1.8.16)
+
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
 
@@ -61,15 +94,11 @@ XML_PROGRAMLISTING     = NO   # m.css default
 # namespace members in file scope as well, matching the HTML output.
 # The default value is: NO.
 
-XML_NS_MEMB_FILE_SCOPE = NO
-
-# It is currently not possible to link to private virtual methods.
-# This comes with: https://github.com/doxygen/doxygen/pull/6729
-# See: https://github.com/doxygen/doxygen/commit/7f40e488e27bcea4bb15045df05479dc5fbd9d6d
-#EXTRACT_PRIV_VIRTUAL   = YES
+XML_NS_MEMB_FILE_SCOPE = NO   # m.css default (since 1.8.15)
 
 
-## M.CSS Specific
+
+## M.CSS Specific Options
 
 
 ## For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
