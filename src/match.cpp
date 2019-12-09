@@ -67,9 +67,11 @@ void log(const Match &match)
 }
 
 
+/// \cond UNDOC_FUNCTION_BODIES
+
+
 // Match
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 Match::~Match() noexcept = default;
 
@@ -127,18 +129,22 @@ std::unique_ptr<Match> Match::clone() const
 	return this->do_clone();
 }
 
+
 /// \endcond
+
 
 /**
  * \brief Base for @link DefaultMatch DefaultMatches @endlink.
  */
 class DefaultMatchBase : public Match
 {
-public:
+
+public: /* types */
 
 	using size_type = std::size_t;
 
-public:
+
+public: /* functions */
 
 	/**
 	 * \brief Default constructor.
@@ -289,7 +295,9 @@ private:
 	//f = field(total_bits - 1);
 };
 
+
 /// \cond UNDOC_FUNCTION_BODIES
+
 
 DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 	: blocks_(blocks)
@@ -319,15 +327,15 @@ bool DefaultMatchBase::do_id(int b) const
 {
 	this->validate_block(b);
 
-	const auto offset =
-		static_cast<DefaultMatchBase::size_type>(block_start(b));
+	const auto i = static_cast<DefaultMatchBase::size_type>(block_start(b));
 
-	if (offset > this->size() - 1)
-	{
-		throw std::runtime_error("Block index too big");
-	}
+	// Commented out: exception from stdlib is sufficient
+	//if (i > this->size() - 1)
+	//{
+	//	throw std::runtime_error("Block index too big");
+	//}
 
-	return flag_[offset];
+	return flag_[i];
 }
 
 
@@ -344,10 +352,11 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 
 	const auto i = static_cast<DefaultMatchBase::size_type>(index(b, t, v2));
 
-	if ( i > this->size() - 1)
-	{
-		throw std::runtime_error("Accessor too big");
-	}
+	// Commented out: exception from stdlib is sufficient
+	//if (i > this->size() - 1)
+	//{
+	//	throw std::runtime_error("Accessor too big");
+	//}
 
 	return flag_[i];
 }
@@ -355,9 +364,7 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 
 int64_t DefaultMatchBase::do_difference(int b, bool v2) const
 {
-	this->validate_block(b);
-
-	uint32_t difference = (id(b) ? 0 : 1u);
+	uint32_t difference = (id(b) ? 0 : 1u); // also calls validate_block()
 
 	for (int trk = 0; trk < tracks_per_block_; ++trk)
 	{
@@ -411,10 +418,11 @@ int DefaultMatchBase::set_id(int b, bool value)
 
 	const auto offset = block_start(b);
 
-	if (static_cast<DefaultMatchBase::size_type>(offset) > this->size() - 1)
-	{
-		throw std::runtime_error("Block index too big");
-	}
+	// Commented out: not necessary
+	//if (static_cast<DefaultMatchBase::size_type>(offset) > this->size() - 1)
+	//{
+	//	throw std::runtime_error("Block index too big");
+	//}
 
 	flag_.emplace(flag_.begin() + offset, value);
 	return block_start(b);
@@ -428,10 +436,11 @@ int DefaultMatchBase::set_track(int b, int t, bool v2, bool value)
 
 	const auto i = index(b, t, v2);
 
-	if (static_cast<DefaultMatchBase::size_type>(i) > this->size() - 1)
-	{
-		throw std::runtime_error("Accessor too big");
-	}
+	// Commented out: not necessary
+	//if (static_cast<DefaultMatchBase::size_type>(i) > this->size() - 1)
+	//{
+	//	throw std::runtime_error("Accessor too big");
+	//}
 
 	flag_.emplace(flag_.begin() + i, value);
 	return i;
@@ -463,7 +472,9 @@ void DefaultMatchBase::validate_track(int t) const
 	}
 }
 
+
 /// \endcond
+
 
 /**
  * \brief Default implementation of a Match.
@@ -474,10 +485,11 @@ void DefaultMatchBase::validate_track(int t) const
  */
 class DefaultMatch final : virtual public DefaultMatchBase
 {
+
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] blocks Number of @link ARBlock ARBlocks @endlink to represent
 	 * \param[in] tracks Number of tracks per block
@@ -490,7 +502,9 @@ private:
 	std::unique_ptr<Match> do_clone() const final;
 };
 
+
 /// \cond UNDOC_FUNCTION_BODIES
+
 
 DefaultMatch::DefaultMatch(int blocks, int tracks)
 	: DefaultMatchBase(blocks, tracks)
@@ -546,7 +560,9 @@ std::unique_ptr<Matcher> Matcher::clone() const
 	return this->do_clone();
 }
 
+
 /// \endcond
+
 
 /**
  * \brief Abstract base class for matcher implementations.
@@ -689,7 +705,9 @@ private:
 	bool matches_v2_;
 };
 
+
 /// \cond UNDOC_FUNCTION_BODIES
+
 
 MatcherImplBase::MatcherImplBase()
 	: match_(nullptr)
@@ -844,7 +862,9 @@ int MatcherImplBase::mark_best_block()
 	return status;
 }
 
+
 /// \endcond
+
 
 /**
  * \brief Implementation of AlbumMatcher.
@@ -1028,7 +1048,9 @@ std::unique_ptr<Matcher> AlbumMatcher::do_clone() const
 	return std::make_unique<AlbumMatcher>(*this);
 }
 
+
 /// \endcond
+
 
 /**
  * \brief Private implementation of TracksetMatcher.
@@ -1043,9 +1065,11 @@ protected:
 };
 
 
+/// \cond UNDOC_FUNCTION_BODIES
+
+
 // TracksetMatcher::Impl
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId & /*id*/,
@@ -1221,6 +1245,7 @@ std::unique_ptr<Matcher> TracksetMatcher::do_clone() const
 {
 	return std::make_unique<TracksetMatcher>(*this);
 }
+
 
 /// \endcond
 

@@ -5,39 +5,40 @@
  *
  * \brief Public API for AccurateRip checksum matching.
  *
- * @link arcstk::v_1_0_0::Matcher Matcher @endlink provides an interface to
+ * \link arcstk::v_1_0_0::Matcher Matcher \endlink provides an interface to
  * match the ARCSs of some audio input against a response from AccurateRip.
  *
- * A @link arcstk::v_1_0_0::Matcher Matcher @endlink returns a
- * @link arcstk::v_1_0_0::Match Match @endlink that represents a matrix of
- * numeric comparisons: the @link arcstk::v_1_0_0::Checksums Checksums @endlink
- * are compared to each @link arcstk::v_1_0_0::ARBlock ARBlock @endlink in the
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink.
+ * A \link arcstk::v_1_0_0::Matcher Matcher \endlink returns a
+ * \link arcstk::v_1_0_0::Match Match \endlink that represents a matrix of
+ * numeric comparisons: the \link arcstk::v_1_0_0::Checksums Checksums \endlink
+ * are compared to each \link arcstk::v_1_0_0::ARBlock ARBlock \endlink in the
+ * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink.
  *
- * @link arcstk::v_1_0_0::Match::track(int, int, bool) const Match::track(block, track, isV2) @endlink
+ * \link arcstk::v_1_0_0::Match::track(int, int, bool) const
+ * Match::track(block, track, isV2) \endlink
  * provides access to any single comparison by its block index, track index and
  * ARCS algorithm version
  *
- * Provided are two @link arcstk::v_1_0_0::Matcher Matcher @endlink
+ * Provided are two \link arcstk::v_1_0_0::Matcher Matcher \endlink
  * implementations.
  *
- * @link arcstk::v_1_0_0::AlbumMatcher AlbumMatcher @endlink matches each
+ * \link arcstk::v_1_0_0::AlbumMatcher AlbumMatcher \endlink matches each
  * checksum in a list of track-based
- * @link arcstk::v_1_0_0::Checksums Checksums @endlink against the value of the
+ * \link arcstk::v_1_0_0::Checksums Checksums \endlink against the value of the
  * corresponding track in each
- * @link arcstk::v_1_0_0::ARBlock ARBlock @endlink of the
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink. This
- * @link arcstk::v_1_0_0::Matcher Matcher @endlink
+ * \link arcstk::v_1_0_0::ARBlock ARBlock \endlink of the
+ * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink. This
+ * \link arcstk::v_1_0_0::Matcher Matcher \endlink
  * can be used for matching the
- * @link arcstk::v_1_0_0::Checksums Checksums @endlink of a complete disc image.
+ * \link arcstk::v_1_0_0::Checksums Checksums \endlink of a complete disc image.
  *
- * The @link arcstk::v_1_0_0::TracksetMatcher TracksetMatcher @endlink matches
+ * The \link arcstk::v_1_0_0::TracksetMatcher TracksetMatcher \endlink matches
  * a set of file-based
- * @link arcstk::v_1_0_0::Checksums Checksums @endlink against an
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink by trying to match each
+ * \link arcstk::v_1_0_0::Checksums Checksums \endlink against an
+ * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink by trying to match each
  * of the
- * @link arcstk::v_1_0_0::Checksums Checksums @endlink against each of the sums
- * in each @link arcstk::v_1_0_0::ARBlock ARBlock @endlink. It is used for
+ * \link arcstk::v_1_0_0::Checksums Checksums \endlink against each of the sums
+ * in each \link arcstk::v_1_0_0::ARBlock ARBlock \endlink. It is used for
  * matching a set of track files in arbitrary order.
  */
 
@@ -57,18 +58,23 @@ class Checksums;
 
 /**
  * \defgroup match AccurateRip Checksum Matcher
+ *
+ * \brief For matching local Checksums with checksums from an \link ARResponse
+ * AccurateRip response \endlink.
+ *
  * @{
  */
 
 /**
- * \brief Interface: Result of a match of Checksums against an ARResponse.
+ * \brief Interface: Result of matching Checksums against an ARResponse.
  *
- * The Match is the result produced by a Matcher. It reports any matching
- * operation the Matcher has performed. Access to each of these results is
- * provided in terms of <tt>block:track:version</tt>. The <tt>block</tt> and
- * <tt>track</tt> address components are integers, while <tt>version</tt> is a
- * boolean that indicates whether the match is for ARCSv2 (TRUE) or for ARCSv1
- * (FALSE).
+ * A Match is the result of checking given Checksums against an ARResponse.
+ * A Match is produced by instantiating a Matcher. It holds the
+ * result of any matching operation the Matcher has performed. Access to each of
+ * these results is provided in terms of <tt>block:track:version</tt>. The
+ * <tt>block</tt> and <tt>track</tt> address components are integers, while
+ * <tt>version</tt> is a boolean that indicates whether the match is for ARCSv2
+ * (TRUE) or for ARCSv1 (FALSE).
  *
  * Match indicates whether a matching block was found, returns the best
  * difference value, the index position of the best matching block in the
@@ -85,9 +91,11 @@ public:
 	virtual ~Match() noexcept;
 
 	/**
-	 * \brief Marks the ARId of the specified block as 'verified'.
+	 * \brief Mark the ARId of the specified block as 'matched'.
 	 *
 	 * \param[in] block 0-based index of the block to verify
+	 *
+	 * \throws std::runtime_error Iff \c b is out of range
 	 *
 	 * \return Index position to store the verification flag
 	 */
@@ -99,40 +107,48 @@ public:
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
-	 * \throws Iff \c b is out of range
+	 * \throws std::runtime_error Iff \c b is out of range
 	 *
 	 * \return TRUE iff the ARId of block \c b matches the ARId of the request
 	 */
 	bool id(int b) const;
 
 	/**
-	 * \brief Marks a single ARCS of the specified track as 'verified'.
+	 * \brief Mark the checksum of a specified track in a specified block as
+	 * 'matched'.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
 	 * \param[in] v2 Verifies the ARCSv2 iff TRUE, otherwise ARCSv1
 	 *
-	 * \throws Iff \c b or \c t are out of range
+	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Index position to store the verification flag
 	 */
 	int verify_track(int b, int t, bool v2);
 
 	/**
-	 * \brief Return the verification status of an ARCS of the specified track.
+	 * \brief Return the verification status of an ARCS of the specified track
+	 * in the specified block.
 	 *
-	 * @m_class{m-block m-success}
+	 * @m_class{m-block m-note}
 	 *
-	 * @par Example:
+	 * \par Note:
+	 * What a concrete match means is dependent from the logic the Matcher used.
 	 * The call <tt>myMatch.value(0,17,true)</tt> refers to the ARCSv2 of track
-	 * 18 in the first block. If this call returns \c true, the first ARBlock in
-	 * the ARResponse has a match on this track.
+	 * 18 in the first block. If this call returns \c true, track 18 in the
+	 * first ARBlock in the ARResponse was matched by the Matcher. Whether this
+	 * indicates that track 18 of the current Checksums caused the match is
+	 * implementation defined. If the Match was calculated by an AlbumMatcher,
+	 * track 18 of the input Checksums will only be matched against track 18 in
+	 * each block. A TracksetMatcher will just indicate that \i one of the input
+	 * checksums matched track 18.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
 	 * \param[in] v2 Returns the ARCSv2 flag iff TRUE, otherwise ARCSv1
 	 *
-	 * \throws Iff \c b or \c t are out of range
+	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
@@ -145,24 +161,39 @@ public:
 	 * corresponsing positions in the request. The difference is only of
 	 * relevance iff the ARId of \c b matchs the ARId of the request.
 	 *
+	 * @m_class{m-block m-note}
+	 *
+	 * \par Note:
+	 * The concrete difference value may depend on the Matcher implementation.
+	 * For example, consider an album with 15 tracks. An ARBlock with no track
+	 * matching and a different ARId will be a difference of 16 assigned if the
+	 * Match is produced by an AlbumMatcher. A TracksetMatcher ignores the ARId
+	 * and hence it does not contribute to the difference. But therefore, the
+	 * exact same ARBlock will have a difference of only 15.
+	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1
 	 *
-	 * \throws Iff \c b is out of range
+	 * \throws std::runtime_error Iff \c b is out of range
 	 *
 	 * \return Difference of block \c b
 	 */
 	int64_t difference(int b, bool v2) const;
 
 	/**
-	 * \brief Returns the number of compared blocks.
+	 * \brief Returns the number of analyzed blocks.
 	 *
-	 * \return Total number of compared blocks.
+	 * This is identical with the total number of blocks in the ARResponse.
+	 *
+	 * \return Total number of analyzed blocks.
 	 */
 	int total_blocks() const;
 
 	/**
 	 * \brief Returns the number of compared tracks per block.
+	 *
+	 * This is identical with the total number of tracks in each block in the
+	 * ARResponse.
 	 *
 	 * \return Total number of tracks per block.
 	 */
@@ -171,10 +202,13 @@ public:
 	/**
 	 * \brief Returns the number of comparison flags stored.
 	 *
-	 * The size of a Match is @f$b * (2 * t + 1)@f$ with @f$b@f$ being
-	 * \c total_blocks() and @f$t@f$ being \c tracks_per_block(). The @f$+1@f$
-	 * is added since for each block ARId also contributes a
-	 * verification flag to the Match.
+	 * @m_class{m-block m-note}
+	 *
+	 * \par Note:
+	 * The size of a Match with a number \f$b\f$ of \c total_blocks() and
+	 * \f$t\f$ \c tracks_per_block() is \f$b * (2 * t + 1)\f$.
+	 * The \f$+1\f$ is required since the ARId of each block contributes an
+	 * additional verification flag to the Match.
 	 *
 	 * \return Number of flags stored
 	 */
@@ -191,7 +225,7 @@ public:
 private:
 
 	/**
-	 * \brief Implements @link Match::verify_id(int b) verify_id(int) @endlink.
+	 * \brief Implements \link Match::verify_id(int b) verify_id(int) \endlink.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
@@ -201,7 +235,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::id(int b) const id(int) @endlink.
+	 * \brief Implements \link Match::id(int b) const id(int) \endlink.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
@@ -214,7 +248,10 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::verify_track(int b, int t, bool v2) verify_track(b, t, v2) @endlink.
+	 * \brief Implements
+	 * \link Match::verify_track(int b, int t, bool v2)
+	 * verify_track(b, t, v2)
+	 * \endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
@@ -228,7 +265,10 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::track(int b, int t, bool v2) const track(int, int, bool) @endlink.
+	 * \brief Implements
+	 * \link Match::track(int b, int t, bool v2) const
+	 * track(int, int, bool)
+	 * \endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
@@ -242,7 +282,10 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::difference(int b, bool v2) const difference(int, bool) @endlink.
+	 * \brief Implements
+	 * \link Match::difference(int b, bool v2) const
+	 * difference(int, bool)
+	 * \endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1
@@ -255,7 +298,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::total_blocks() const total_blocks() @endlink.
+	 * \brief Implements \link Match::total_blocks() const
+	 * total_blocks()
+	 * \endlink.
 	 *
 	 * \return Total number of compared blocks.
 	 */
@@ -263,7 +308,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::tracks_per_block() const tracks_per_block() @endlink.
+	 * \brief Implements \link Match::tracks_per_block() const
+	 * tracks_per_block()
+	 * \endlink.
 	 *
 	 * \return Total number of tracks per block.
 	 */
@@ -271,7 +318,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implement @link Match::size() const size() @endlink.
+	 * \brief Implement \link Match::size() const size() \endlink.
 	 *
 	 * \return Number of flags stored
 	 */
@@ -279,7 +326,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Match::clone() clone() @endlink.
+	 * \brief Implements \link Match::clone() clone() \endlink.
 	 *
 	 * \return Deep copy of this instance.
 	 */
@@ -290,6 +337,13 @@ private:
 
 /**
  * \brief Interface: Try to Match Checksums against a specified ARResponse.
+ *
+ * A Matcher implements a concrete logic of matching Checksums against a
+ * specified ARResponse. This logic may be completely different in regard of
+ * which actual comparisons are performed, in which order and which input
+ * information is actually considered. Different \link Matcher Matchers \endlink
+ * may therefore produce different \link Match Matches \endlink on the identical
+ * input.
  */
 class Matcher
 {
@@ -322,7 +376,7 @@ public:
 	 * \c best_match().
 	 *
 	 * The difference is the sum of the number of non-matching ARCSs and the
-	 * number of non-matching @link ARId ARIds @endlink in a single block. A
+	 * number of non-matching \link ARId ARIds \endlink in a single block. A
 	 * block whose ARId does not match the ARId of the result has therefore at
 	 * least a difference of \c 1 to the result.
 	 *
@@ -334,7 +388,7 @@ public:
 	 * \brief Returns TRUE iff the ARBlock with index \c best_match() matches
 	 * the ARCSsv2 of the request, otherwise FALSE.
 	 *
-	 * \return TRUE if \c best_match() was a match to the ARCSsv2 in the ARResponse
+	 * \return TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
 	 */
 	bool matches_v2() const;
 
@@ -356,7 +410,7 @@ public:
 private:
 
 	/**
-	 * \brief Implements @link Matcher::matches() const matches() @endlink.
+	 * \brief Implements \link Matcher::matches() const matches() \endlink.
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
 	 */
@@ -364,7 +418,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Matcher::best_match() const best_match() @endlink.
+	 * \brief Implements \link Matcher::best_match() const
+	 * best_match()
+	 * \endlink.
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
@@ -372,7 +428,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Matcher::best_difference() const best_difference() @endlink.
+	 * \brief Implements \link Matcher::best_difference() const
+	 * best_difference()
+	 * \endlink.
 	 *
 	 * \return Difference value of best block
 	 */
@@ -380,7 +438,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Matcher::matches_v2() const matches_v2() @endlink.
+	 * \brief Implements \link Matcher::matches_v2() const
+	 * matches_v2()
+	 * \endlink.
 	 *
 	 * \return TRUE if \c best_match() was a match to the ARCSsv2
 	 */
@@ -388,7 +448,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Matcher::match() const match() @endlink.
+	 * \brief Implements \link Matcher::match() const match() \endlink.
 	 *
 	 * \return The actual match information.
 	 */
@@ -396,7 +456,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link Matcher::clone() const clone() @endlink.
+	 * \brief Implements \link Matcher::clone() const clone() \endlink.
 	 *
 	 * \return Deep copy of this instance.
 	 */
@@ -409,7 +469,7 @@ private:
  * \brief Match an album track list against an ARResponse.
  *
  * Tries to match each position \c i in the actual
- * @link Checksum Checksums @endlink with position \c i in each block of the
+ * \link Checksum Checksums \endlink with position \c i in each block of the
  * AccurateRip response. This is how an entire album can be matched.
  */
 class AlbumMatcher final : public Matcher
