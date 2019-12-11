@@ -3,43 +3,7 @@
 
 /** \file
  *
- * \brief Public API for AccurateRip checksum matching.
- *
- * \link arcstk::v_1_0_0::Matcher Matcher \endlink provides an interface to
- * match the ARCSs of some audio input against a response from AccurateRip.
- *
- * A \link arcstk::v_1_0_0::Matcher Matcher \endlink returns a
- * \link arcstk::v_1_0_0::Match Match \endlink that represents a matrix of
- * numeric comparisons: the \link arcstk::v_1_0_0::Checksums Checksums \endlink
- * are compared to each \link arcstk::v_1_0_0::ARBlock ARBlock \endlink in the
- * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink.
- *
- * \link arcstk::v_1_0_0::Match::track(int, int, bool) const
- * Match::track(block, track, isV2) \endlink
- * provides access to any single comparison by its block index, track index and
- * ARCS algorithm version
- *
- * Provided are two \link arcstk::v_1_0_0::Matcher Matcher \endlink
- * implementations.
- *
- * \link arcstk::v_1_0_0::AlbumMatcher AlbumMatcher \endlink matches each
- * checksum in a list of track-based
- * \link arcstk::v_1_0_0::Checksums Checksums \endlink against the value of the
- * corresponding track in each
- * \link arcstk::v_1_0_0::ARBlock ARBlock \endlink of the
- * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink. This
- * \link arcstk::v_1_0_0::Matcher Matcher \endlink
- * can be used for matching the
- * \link arcstk::v_1_0_0::Checksums Checksums \endlink of a complete disc image.
- *
- * The \link arcstk::v_1_0_0::TracksetMatcher TracksetMatcher \endlink matches
- * a set of file-based
- * \link arcstk::v_1_0_0::Checksums Checksums \endlink against an
- * \link arcstk::v_1_0_0::ARResponse ARResponse \endlink by trying to match each
- * of the
- * \link arcstk::v_1_0_0::Checksums Checksums \endlink against each of the sums
- * in each \link arcstk::v_1_0_0::ARBlock ARBlock \endlink. It is used for
- * matching a set of track files in arbitrary order.
+ * \brief Public API for \link match AccurateRip checksum matching \endlink.
  */
 
 #include <cstdint>
@@ -59,8 +23,36 @@ class Checksums;
 /**
  * \defgroup match AccurateRip Checksum Matcher
  *
- * \brief For matching local Checksums with checksums from an \link ARResponse
+ * \brief Match local Checksums against an \link ARResponse
  * AccurateRip response \endlink.
+ *
+ * \details
+ *
+ * Matcher provides an interface to match the ARCSs of some audio input against
+ * a response from AccurateRip.
+ *
+ * A Matcher returns a Match that represents a matrix of numeric comparisons:
+ * the result of matching the Checksums to each ARBlock in the ARResponse.
+ *
+ * While Matcher implements the comparison strategy, the Match implements
+ * the result of the comparison.
+ *
+ * \link arcstk::v_1_0_0::Match::track(int, int, bool) const
+ * Match::track(block, track, isV2) \endlink
+ * provides access to any single comparison by its block index, track index and
+ * ARCS algorithm version.
+ *
+ * Provided are two Matcher implementations.
+ *
+ * AlbumMatcher matches each checksum in a list of track-based Checksums against
+ * the value of the corresponding track in each ARBlock of the ARResponse. This
+ * implements the verification process of a complete disc image. AlbumMatcher
+ * requires an ARId and respects it in the match against the ARBlock.
+ *
+ * TracksetMatcher matches a set of file-based Checksums against an ARResponse
+ * by trying to match each of the Checksums against \em each of the sums
+ * in each ARBlock. It is used for matching a set of track files in arbitrary
+ * order. An ARId is optional.
  *
  * @{
  */
@@ -141,8 +133,8 @@ public:
 	 * indicates that track 18 of the current Checksums caused the match is
 	 * implementation defined. If the Match was calculated by an AlbumMatcher,
 	 * track 18 of the input Checksums will only be matched against track 18 in
-	 * each block. A TracksetMatcher will just indicate that \i one of the input
-	 * checksums matched track 18.
+	 * each block. A TracksetMatcher will just indicate that \em one of the
+	 * input checksums matched track 18.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
@@ -566,6 +558,16 @@ class TracksetMatcher final : public Matcher
 {
 
 public:
+
+	/**
+	 * \brief Default constructor.
+	 *
+	 * \param[in] checksums The checksums to match
+	 * \param[in] id        The ARId to match
+	 * \param[in] response  The AccurateRip response to be matched
+	 */
+	TracksetMatcher(const Checksums &checksums, const ARId &id,
+			const ARResponse &response);
 
 	/**
 	 * \brief Default constructor.

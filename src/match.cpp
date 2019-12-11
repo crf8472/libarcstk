@@ -1072,7 +1072,7 @@ protected:
 
 
 std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
-		const Checksums &actual_sums, const ARId & /*id*/,
+		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
 	auto ref_tracks = ref_sums.tracks_per_block() < 0
@@ -1112,8 +1112,17 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
 
-		// There is no ARId, hence every ARId is a match
-		bitpos = match->verify_id(block_i);
+		if (id.empty() or block->id() == id)
+		{
+			bitpos = match->verify_id(block_i);
+			ARCS_LOG_DEBUG << "Id verified: " << match->id(block_i)
+				<< " (bit " << bitpos << ")";
+		}
+		else
+		{
+			ARCS_LOG_DEBUG << "Id: " << match->id(block_i)
+				<< " not verified";
+		}
 
 		track_j = 0;
 		start_track = 0;
@@ -1173,12 +1182,19 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 // TracksetMatcher
 
 
+TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
+		const ARResponse &response)
+	: impl_(std::make_unique<TracksetMatcher::Impl>())
+{
+	impl_->init_match(checksums, id, response);
+}
+
+
 TracksetMatcher::TracksetMatcher(const Checksums &checksums,
 		const ARResponse &response)
 	: impl_(std::make_unique<TracksetMatcher::Impl>())
 {
-	impl_->init_match(checksums, ARId(0, 0, 0, 0), response);
-	// ARId is skipped, so we spare the effort to standard-create an empty ARId
+	impl_->init_match(checksums, *make_empty_arid(), response);
 }
 
 
