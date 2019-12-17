@@ -197,8 +197,8 @@ public:
 	 * @m_class{m-block m-note}
 	 *
 	 * \par Note:
-	 * The size of a Match with a number \f$b\f$ of \c total_blocks() and
-	 * \f$t\f$ \c tracks_per_block() is \f$b * (2 * t + 1)\f$.
+	 * The size of a Match with a number \f$b\f$ of total_blocks() and
+	 * \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$.
 	 * The \f$+1\f$ is required since the ARId of each block contributes an
 	 * additional verification flag to the Match.
 	 *
@@ -331,11 +331,10 @@ private:
  * \brief Interface: Try to Match Checksums against a specified ARResponse.
  *
  * A Matcher implements a concrete logic of matching Checksums against a
- * specified ARResponse. This logic may be completely different in regard of
- * which actual comparisons are performed, in which order and which input
- * information is actually considered. Different \link Matcher Matchers \endlink
- * may therefore produce different \link Match Matches \endlink on the identical
- * input.
+ * specified ARResponse. This logic defines which comparisons are actually
+ * performed, in which order and which input information is actually considered.
+ * Different \link Matcher Matchers \endlink may therefore produce
+ * \link Match Matches \endlink with different content on identical input.
  */
 class Matcher
 {
@@ -349,7 +348,8 @@ public:
 
 	/**
 	 * \brief Returns TRUE iff at least one block in the ARResponse is
-	 * identical to either the ARCSs v1 or the ARCSs v2 in the request.
+	 * has a \link Match::difference() difference() \endlink of \c 0 to either
+	 * the ARCSs v1 or the ARCSs v2 in the request.
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
 	 */
@@ -365,7 +365,7 @@ public:
 
 	/**
 	 * \brief Returns the difference value of the ARBlock with index
-	 * \c best_match().
+	 * best_match().
 	 *
 	 * The difference is the sum of the number of non-matching ARCSs and the
 	 * number of non-matching \link ARId ARIds \endlink in a single block. A
@@ -377,7 +377,7 @@ public:
 	int best_difference() const;
 
 	/**
-	 * \brief Returns TRUE iff the ARBlock with index \c best_match() matches
+	 * \brief Returns TRUE iff the ARBlock with index best_match() matches
 	 * the ARCSsv2 of the request, otherwise FALSE.
 	 *
 	 * \return TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
@@ -385,16 +385,16 @@ public:
 	bool matches_v2() const;
 
 	/**
-	 * \brief Returns the actual match information.
+	 * \brief Returns the actual Match.
 	 *
-	 * \return The actual match information.
+	 * \return The actual Match
 	 */
 	const Match* match() const;
 
 	/**
 	 * \brief Clones this instance.
 	 *
-	 * \return Deep copy of this instance.
+	 * \return Deep copy of this instance
 	 */
 	std::unique_ptr<Matcher> clone() const;
 
@@ -470,7 +470,7 @@ class AlbumMatcher final : public Matcher
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] checksums The checksums to match
 	 * \param[in] id        The ARId to match
@@ -560,7 +560,7 @@ class TracksetMatcher final : public Matcher
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] checksums The checksums to match
 	 * \param[in] id        The ARId to match
@@ -570,7 +570,7 @@ public:
 			const ARResponse &response);
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] checksums The checksums to match
 	 * \param[in] response  The AccurateRip response to be matched

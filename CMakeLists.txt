@@ -80,6 +80,9 @@ endif()
 ## "Root directory for out-of-source build"
 set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 
+## "Root directory for public/exported headers"
+set (PROJECT_INCLUDE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+
 ## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
@@ -161,9 +164,9 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 ## Version header
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/version.hpp_in"
-  "${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
-  @ONLY
+	"${PROJECT_INCLUDE_DIR}/version.hpp_in"
+	"${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
+	@ONLY
 )
 
 
@@ -177,18 +180,18 @@ list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/identifier_details.hpp" )
 ## --- Specify Exported Headers
 
 set (EXPORTED_HEADERS )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/calculate.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/checksum.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/match.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/identifier.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/logging.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/parse.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_SOURCE_DIR}/samples.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/checksum.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/match.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/parse.hpp" )
+list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
-set (EXPORTED_TEMPLATES )
-list (APPEND EXPORTED_TEMPLATES "${PROJECT_SOURCE_DIR}/details/checksum.tpp" )
-list (APPEND EXPORTED_TEMPLATES "${PROJECT_SOURCE_DIR}/details/samples.tpp" )
+set (TEMPLATE_HEADERS )
+list (APPEND TEMPLATE_HEADERS "${PROJECT_SOURCE_DIR}/details/checksum.tpp" )
+list (APPEND TEMPLATE_HEADERS "${PROJECT_SOURCE_DIR}/details/samples.tpp" )
 
 
 ## --- Add and configure project target
@@ -209,13 +212,14 @@ add_library (${PROJECT_NAME} ${LINKFLAG} ${SOURCES} )
 
 ## Include generated sources
 target_include_directories (${PROJECT_NAME}
+	PRIVATE ${PROJECT_INCLUDE_DIR}
 	PRIVATE ${PROJECT_BUILD_SOURCE_DIR} )
 
 ## Configure properties for project target
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
 	PUBLIC_HEADER  "${EXPORTED_HEADERS}"
-	PRIVATE_HEADER "${EXPORTED_TEMPLATES}"
+	PRIVATE_HEADER "${TEMPLATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
