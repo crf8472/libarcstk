@@ -15,13 +15,26 @@ set (DOC_COMMENT "Build documentation for APIs" )
 ## Define sources for documentation
 set (DOC_SOURCES ${EXPORTED_HEADERS} )
 
+## Define list of sources for replacement in Doxyfile
+string (REPLACE ";" " " DOC_SOURCE_FILES "${DOC_SOURCES}" )
+
 ## Path to import texts
 set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
 
 ## We consider file index.html as main doxygen output and dependency
 set (DOC_OUTPUT_MAINPAGE "${PROJECT_BUILD_DOC_DIR}/html/index.html" )
 
+## Define the target name and location of the base Doxyfile
+set (DOXYFILE_BASE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-base" )
+
+## Define Doxyfile to explicitly use when generating the documentation
+set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile" )
+
+## The following variables are CMAKE controlled options in the Doxyfile template
 set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
+#set (PROJECT_DOXYGEN_INPUT "" )
+#set (PROJECT_DOXYGEN_STRIP_FROM_PATH "" )
+#set (PROJECT_DOXYGEN_STRIP_FROM_INC_PATH "" )
 
 
 ## A doc target makes it possible to just remove the folder 'html' in the
@@ -51,12 +64,9 @@ endif (WITH_INTERNAL_DOCS)
 
 
 
-## Provide main Doxyfile
+## Provide base Doxyfile
 
-configure_file ("${PROJECT_DOC_DIR}/Doxyfile.in"
-	"${PROJECT_BUILD_DOC_DIR}/Doxyfile"
-	@ONLY
-)
+configure_file ("${PROJECT_DOC_DIR}/Doxyfile.in"  "${DOXYFILE_BASE}"  @ONLY )
 
 
 ## Configure documentation target
@@ -76,13 +86,7 @@ if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
 		add_subdirectory (thirdparty/m.css EXCLUDE_FROM_ALL )
 		add_subdirectory (thirdparty/python-virtualenv )
 
-		set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-mcss" )
-
-		## Provide Doxyfile for m.css
-		configure_file ("${PROJECT_DOC_DIR}/Doxyfile-mcss.in"
-			"${DOXYFILE}"
-			@ONLY
-		)
+		configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 
 		## Provide debug output from m.css if requested
 		if (MCSS_DEBUG )
@@ -109,7 +113,7 @@ else() ## Use standard doxygen
 		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
 		COMMAND Doxygen::doxygen "${DOXYFILE}"
 		DEPENDS ${DOC_SOURCES} ## TODO "${DOXYFILE}"
-		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+		WORKING_DIRECTORY "${PROJECT_BUILD_DOC_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
 	)

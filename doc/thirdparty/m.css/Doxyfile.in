@@ -1,6 +1,6 @@
 ## Include the main Doxyfile also used for Doxygen's stock HTML output
 
-@INCLUDE = Doxyfile
+@INCLUDE = Doxyfile-base
 
 
 ## Override the following values from included Doxyfile

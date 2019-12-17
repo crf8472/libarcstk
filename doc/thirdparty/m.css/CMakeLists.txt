@@ -81,3 +81,9 @@ else()
 
 endif()
 
+set (DOXYFILE_TEMPLATE
+	"${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" PARENT_SCOPE )
+
+set (PYTHON_REQUIREMENTS
+	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt" PARENT_SCOPE )
+

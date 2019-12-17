@@ -38,8 +38,9 @@ endif()
 set (ENV_NAME   python-sandbox )
 set (ENV_DIR    "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
 set (ENV_TGT    python-virtualenv )
-set (REQ_FILE   "requirements.txt" )
+set (REQ_FILE   "${PYTHON_REQUIREMENTS}" ) ## Set in parent !
 set (STAMP_FILE "update.stamp" )
+set (ENV_REQ    "${ENV_DIR}/requirements.txt" )
 
 
 ## Setup ENV_DIR as virtual environment directory
@@ -48,7 +49,7 @@ add_custom_command(
 	COMMAND ${VIRTUALENV}
 	ARGS    -p ${CALL_PYTHON} "${ENV_DIR}"
 	VERBATIM
-	COMMENT "Create virtual python environment for m.css"
+	COMMENT "Create virtual python environment"
 )
 ## Note:
 ## One could also do this by specifying the following:
@@ -62,12 +63,10 @@ add_custom_command(
 
 ## Update and Install requirements file in ENV_DIR
 add_custom_command(
-	OUTPUT  "${ENV_DIR}/${REQ_FILE}"
-	DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${REQ_FILE}"
+	OUTPUT  "${ENV_REQ}"
+	DEPENDS "${REQ_FILE}"
 	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E copy
-		"${CMAKE_CURRENT_SOURCE_DIR}/${REQ_FILE}"
-		"${ENV_DIR}/${REQ_FILE}"
+	ARGS    -E copy "${REQ_FILE}" "${ENV_REQ}"
 	VERBATIM
 	COMMENT "Specify python requirements in virtual environment"
 )
@@ -76,11 +75,11 @@ add_custom_command(
 ## Update and Install requirements dependencies in ENV_DIR
 add_custom_command(
 	OUTPUT  "${ENV_DIR}/${STAMP_FILE}"
-	DEPENDS "${ENV_DIR}/${REQ_FILE}"
+	DEPENDS "${ENV_REQ}"
 	COMMAND ./bin/pip install
-	ARGS    -r "${ENV_DIR}/${REQ_FILE}" --upgrade
+	ARGS    -r "${ENV_REQ}" --upgrade
 	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E copy "${ENV_DIR}/${REQ_FILE}" "${ENV_DIR}/${STAMP_FILE}"
+	ARGS    -E copy "${ENV_REQ}" "${ENV_DIR}/${STAMP_FILE}"
 	WORKING_DIRECTORY "${ENV_DIR}"
 	VERBATIM
 	COMMENT "Update python requirements in virtual environment"

@@ -170,7 +170,9 @@ FULL_PATH_NAMES        = YES
 # will be relative from the directory where doxygen is started.
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
-STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@/ @PROJECT_BUILD_SOURCE_DIR@/
+STRIP_FROM_PATH        = @PROJECT_INCLUDE_DIR@/ @PROJECT_BUILD_SOURCE_DIR@/
+# For some reason, m.css will screw up links when using STRIP_FROM_PATH = ..
+# Therefore we enumerate paths that occurr as include paths. Not nice.
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
 # path mentioned in the documentation of a class, which tells the reader which
@@ -179,7 +181,9 @@ STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@/ @PROJECT_BUILD_SOURCE_DIR@/
 # specify the list of include paths that are normally passed to the compiler
 # using the -I flag.
 
-STRIP_FROM_INC_PATH    = @PROJECT_SOURCE_DIR@/ @PROJECT_BUILD_SOURCE_DIR@/
+STRIP_FROM_INC_PATH    = @PROJECT_INCLUDE_DIR@/ @PROJECT_BUILD_SOURCE_DIR@/
+# For some reason, m.css will screw up links when using STRIP_FROM_INC_PATH = ..
+# Therefore we enumerate paths that occurr as include paths. Not nice.
 
 # If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter (but
 # less readable) file names. This can be useful is your file systems doesn't
@@ -842,7 +846,7 @@ WARN_LOGFILE           = @PROJECT_LOG_DIR@/Doxygen_Warnings.log
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @PROJECT_SOURCE_DIR@       \
+INPUT                  = @PROJECT_INCLUDE_DIR@      \
                          @PROJECT_BUILD_SOURCE_DIR@ \
                          @PROJECT_DOC_TEXTS_DIR@
 
