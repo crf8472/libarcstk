@@ -34,6 +34,7 @@ Libarcstk supports the following tasks for working with AccurateRip checksums:
 
 Build and install to just use the API:
 
+	$ git clone https://codeberg.org/tristero/libarcstk
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -43,7 +44,7 @@ Build and install to just use the API:
 
 \section Version
 
-This API documentation was generated from commit
+This documentation was generated from commit
 [@PROJECT_GIT_DESCRIBE@]
 (https://codeberg.org/tristero/libarcstk/commit/@PROJECT_GIT_COMMIT@).
 
