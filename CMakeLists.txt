@@ -75,6 +75,33 @@ if (IS_BIG_ENDIAN )
 endif()
 
 
+## --- Ensure version info + current commit is available
+
+find_package (Git QUIET REQUIRED )
+
+execute_process(
+	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	RESULT_VARIABLE res
+	OUTPUT_VARIABLE PROJECT_GIT_DESCRIBE
+	ERROR_QUIET
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(
+	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	RESULT_VARIABLE res
+	OUTPUT_VARIABLE PROJECT_GIT_COMMIT
+	ERROR_QUIET
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set_property(GLOBAL APPEND
+	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
+)
+
+
 ## --- Project Directory Layout
 
 ## "Root directory for out-of-source build"
@@ -98,8 +125,6 @@ set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 ## "Target directory for generated sources and configuration"
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
-## "Target directory for generated documentation"
-set (PROJECT_BUILD_DOC_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
 
 ## Install directories
 

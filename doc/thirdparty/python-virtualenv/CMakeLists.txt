@@ -37,8 +37,7 @@ endif()
 
 set (ENV_NAME   python-sandbox )
 set (ENV_DIR    "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
-set (ENV_TGT    python-virtualenv )
-set (REQ_FILE   "${PYTHON_REQUIREMENTS}" ) ## Set in parent !
+set (REQ_FILE   "${PYTHON_REQUIREMENTS}" ) ## Must be set by parent !
 set (STAMP_FILE "update.stamp" )
 set (ENV_REQ    "${ENV_DIR}/requirements.txt" )
 
@@ -55,7 +54,7 @@ add_custom_command(
 ## One could also do this by specifying the following:
 ##	COMMAND ${CALL_PYTHON}
 ##	ARGS    -m virtualenv "${ENV_DIR}"
-## But it can fail on systems with python 2 present. When loaded, virualenv is
+## But it can fail on systems with python 2 present. When loaded, virtualenv is
 ## allowed to change the python interpreter. At least on Bionic Beaver, it
 ## fell back to python 2.7 which caused the m.css run to fail on some enconding
 ## issue.
@@ -68,7 +67,7 @@ add_custom_command(
 	COMMAND ${CMAKE_COMMAND}
 	ARGS    -E copy "${REQ_FILE}" "${ENV_REQ}"
 	VERBATIM
-	COMMENT "Specify python requirements in virtual environment"
+	COMMENT "Copy requirements.txt to virtual environment"
 )
 
 
@@ -87,11 +86,11 @@ add_custom_command(
 
 
 ## Export target depending on virtual environment
-add_custom_target (${ENV_TGT} DEPENDS "${ENV_DIR}" "${ENV_DIR}/${STAMP_FILE}" )
+add_custom_target (python-virtualenv
+	DEPENDS "${ENV_DIR}" "${ENV_DIR}/${STAMP_FILE}" )
 
 
 ## Export variables used in parent CMakeLists.txt
 set (ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
-set (ENV_TARGET    "${ENV_TGT}"            PARENT_SCOPE )
 set (PYTHON_CMD    "${ENV_DIR}/bin/python" PARENT_SCOPE )
 

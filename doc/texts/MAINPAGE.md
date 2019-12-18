@@ -40,3 +40,10 @@ Build and install to just use the API:
 	$ cmake --build .
 	$ sudo make install  # installs to /usr/local
 
+
+\section Version
+
+This API documentation was generated from commit
+[@PROJECT_GIT_DESCRIBE@]
+(https://codeberg.org/tristero/libarcstk/@PROJECT_GIT_COMMIT@).
+

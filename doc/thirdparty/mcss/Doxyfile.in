@@ -1,9 +1,18 @@
 ## Include the main Doxyfile also used for Doxygen's stock HTML output
 
-@INCLUDE = Doxyfile-base
+@INCLUDE = @DOC_DOXYFILE_BASE@
 
 
 ## Override the following values from included Doxyfile
+
+# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
+# into which the generated documentation will be written. If a relative path is
+# entered, it will be relative to the location where doxygen was started. If
+# left blank the current directory will be used.
+
+OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
+# Has to be repeated: base gets the value from root CMakeLists.txt, this
+# has to get the value from m.css/CMakeListst.txt.
 
 # This tag can be used to specify a number of aliases that act as commands in
 # the documentation. An alias has the form:
@@ -36,7 +45,7 @@ ALIASES += \
 # methods of a class will be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PRIV_VIRTUAL   = NO  # m.css default (since 1.8.16)
+#EXTRACT_PRIV_VIRTUAL   = NO  # m.css default (since 1.8.16)
 
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.

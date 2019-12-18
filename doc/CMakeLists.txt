@@ -9,40 +9,53 @@ find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
 message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )
 
+
+## --- Organize subdirectories and build directories
+
+## "Target directory for generated documentation"
+set (DOC_BINARY_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
+
+## "Target directory for configured documentation texts"
+set (DOC_TEXTS_BINARY_DIR "${DOC_BINARY_DIR}/texts" )
+
+## Path to import documentation texts
+set (DOC_TEXTS_SOURCE_DIR "${PROJECT_DOC_DIR}/texts" )
+
+
+## --- Organize documentation sources
+
 ## Construct comment for doc target
 set (DOC_COMMENT "Build documentation for APIs" )
 
-## Define sources for documentation
-set (DOC_SOURCES ${EXPORTED_HEADERS} )
+## Deployed mainpage file
+set (DOC_MAINPAGE "${DOC_TEXTS_BINARY_DIR}/MAINPAGE.md" )
 
-## Define list of sources for replacement in Doxyfile
-string (REPLACE ";" " " DOC_SOURCE_FILES "${DOC_SOURCES}" )
+## Define input for documentation
+set (DOC_SOURCES ${EXPORTED_HEADERS} ${DOC_MAINPAGE} )
 
-## Path to import texts
-set (PROJECT_DOC_TEXTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/texts" )
+## Define the target name and location of the base Doxyfile to be included
+set (DOC_DOXYFILE_BASE "${DOC_BINARY_DIR}/Doxyfile-base" )
 
-## We consider file index.html as main doxygen output and dependency
-set (DOC_OUTPUT_MAINPAGE "${PROJECT_BUILD_DOC_DIR}/html/index.html" )
+## Define the target name and location of the base Doxyfile to be included
+set (DOC_DOXYFILE_BASE_TEMPLATE "${PROJECT_DOC_DIR}/Doxyfile.in" )
 
-## Define the target name and location of the base Doxyfile
-set (DOXYFILE_BASE "${PROJECT_BUILD_DOC_DIR}/Doxyfile-base" )
+## CMake controlled values in the Doxyfile base template
+set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_BINARY_DIR}" )
+string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH
+	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
+string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
+	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
+string (REPLACE ";" " " DOXYGEN_INPUT
+	"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_BINARY_DIR}" )
+set (DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
+set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 
-## Define Doxyfile to explicitly use when generating the documentation
-set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile" )
+## Define list of sources for replacement in Doxyfile (TODO: Move to RTD)
+#string (REPLACE ";" " " DOXYGEN_INPUT "${DOC_SOURCES}" )
 
-## The following variables are CMAKE controlled options in the Doxyfile template
-set (PROJECT_DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
-#set (PROJECT_DOXYGEN_INPUT "" )
-#set (PROJECT_DOXYGEN_STRIP_FROM_PATH "" )
-#set (PROJECT_DOXYGEN_STRIP_FROM_INC_PATH "" )
+## Configure documentation texts
+configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 
-
-## A doc target makes it possible to just remove the folder 'html' in the
-## output directory to force a rebuild of the documentation.
-add_custom_target ( doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
-## Note: it would be nice to just have dependencies on the Doxyfile. Since this
-## file is build in the configure phase, it can not simply be added as a
-## dependency to a command.
 
 
 ## --- Build internal docs if requested
@@ -50,7 +63,7 @@ add_custom_target ( doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
 if (WITH_INTERNAL_DOCS)
 
 	message (STATUS "Will build documentation also for internal APIs" )
-	set (PROJECT_DOXYGEN_INTERNAL_DOCS "YES" )
+	set (DOXYGEN_INTERNAL_DOCS "YES" )
 
 	set(DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
 
@@ -58,65 +71,70 @@ if (WITH_INTERNAL_DOCS)
 
 else ()
 
-	set (PROJECT_DOXYGEN_INTERNAL_DOCS "NO" )
+	set (DOXYGEN_INTERNAL_DOCS "NO" )
 
 endif (WITH_INTERNAL_DOCS)
 
 
 
-## Provide base Doxyfile
+## --- Provide base Doxyfile
 
-configure_file ("${PROJECT_DOC_DIR}/Doxyfile.in"  "${DOXYFILE_BASE}"  @ONLY )
+configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 
 
-## Configure documentation target
 
-if (USE_MCSS ) ## Use HTML5/CSS3 doxygen design from m.css
+## --- Activate requested documentation targets
 
-	if (WIN32 )
+## Add default doc target.
+## Each documentation config in thirdparty/ may add its own concrete dependency
+## target to 'doc' and do the concrete work.
+## As a fallback, we provide target 'doc_plain' that generates doxygen's stock
+## HTML output that gives as this nice, cosy feeling of the Nineties.
 
-		message (WARNING "USE_MCSS is currently not available for Windows" )
+add_custom_target (doc )
 
-	else () ## Everything except WIN32
 
-		message (STATUS "Will build documentation with m.css" )
 
-		set(DOC_COMMENT "${DOC_COMMENT}, using m.css" )
+## --- If some thirdparty documentation tool was requested, use it
 
-		add_subdirectory (thirdparty/m.css EXCLUDE_FROM_ALL )
-		add_subdirectory (thirdparty/python-virtualenv )
+set (VARIANTS MCSS )
 
-		configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
+foreach (VARIANT IN ITEMS ${VARIANTS} )
 
-		## Provide debug output from m.css if requested
-		if (MCSS_DEBUG )
-			set (MCSS_FLAGS "--debug" )
-		endif (MCSS_DEBUG )
+	if (USE_${VARIANT} )
 
-		## Run m.css executable
-		add_custom_command (
-			OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-			COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOXYFILE}"
-			DEPENDS "${ENV_TARGET}" ${DOC_SOURCES} ## TODO: "${DOXYFILE}"
-			WORKING_DIRECTORY "${ENV_DIRECTORY}"
-			COMMENT "${DOC_COMMENT}"
-			VERBATIM
-		)
+		string(TOLOWER ${VARIANT} DOC_DIR )
 
-	endif ()
+		add_subdirectory ("thirdparty/${DOC_DIR}" EXCLUDE_FROM_ALL )
 
-else() ## Use standard doxygen
+		set (SKIP_DOXYGEN_HTML TRUE )
+	endif()
 
-	set (DOXYFILE "${PROJECT_BUILD_DOC_DIR}/Doxyfile" )
+endforeach()
+
+
+## --- If no variant is requested, use standard doxygen for target 'doc'
+
+if (NOT SKIP_DOXYGEN_HTML )
+
+	message (STATUS "Will build documentation with pure doxygen (HTML)" )
+
+	## We consider file index.html as main doxygen output and dependency
+	##   Used in Doxyfile.in in subdirectories
+	set (DOC_OUTPUT_MAINPAGE "${DOC_BINARY_DIR}/html/index.html" )
 
 	add_custom_command (
 		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-		COMMAND Doxygen::doxygen "${DOXYFILE}"
-		DEPENDS ${DOC_SOURCES} ## TODO "${DOXYFILE}"
-		WORKING_DIRECTORY "${PROJECT_BUILD_DOC_DIR}"
+		COMMAND Doxygen::doxygen "${DOC_DOXYFILE_BASE}"
+		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}" ${DOC_SOURCES}
+		WORKING_DIRECTORY "${DOC_BINARY_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
 	)
 
-endif (USE_MCSS )
+	add_custom_target (doc_plain DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+
+	add_dependencies (doc doc_plain )
+
+endif()
 
