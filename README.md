@@ -59,7 +59,8 @@ build switches.
 - Consult the [example applications](./examples/README.md) in the examples
   folder. They illustrate the supported usecases.
 - [Build the API documentation](BUILD.md#building-the-api-documentation) and
-  view it in a browser.
+  view it in a browser or [read it online]
+  (https://pages.codeberg.org/tristero/libarcstk).
 - For local ARCS calculation, also check whether
   [libarcsdec](https://codeberg.org/tristero/libarcsdec) is helpful. Its
   target is to read virtually any lossless audio format by a uniform
