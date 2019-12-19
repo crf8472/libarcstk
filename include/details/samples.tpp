@@ -8,11 +8,15 @@
 /**
  * \dir details
  *
+ * \internal
+ *
  * \brief Implementation details
  */
 
 /**
  * \file
+ *
+ * \internal
  *
  * \brief Implementation of SampleSequence and SampleIterator
  */
@@ -35,6 +39,8 @@ class SampleSequenceImplBase;
 
 
 /**
+ * \internal
+ *
  * \brief Iterator of a SampleSequence.
  */
 template <typename T, bool is_planar, bool is_const>
@@ -301,6 +307,8 @@ class SampleSequence;
 
 
 /**
+ * \internal
+ *
  * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
@@ -529,6 +537,8 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(const SampleSequenceImpl
 
 
 /**
+ * \internal
+ *
  * \brief SampleSequence specialization for planar sequences.
  */
 template <typename T>
@@ -707,6 +717,8 @@ const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
 
 
 /**
+ * \internal
+ *
  * \brief SampleSequence specialization for interleaved sequences.
  */
 template <typename T>

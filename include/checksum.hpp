@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Public API for management of checksums.
+ * \brief Public API for \link calc checksum management\endlink.
  *
  * Represent metadata of a given compact disc image, the computed checksums of
  * an audio file and the Checksums calculating class along with its
@@ -41,6 +41,9 @@ inline namespace v_1_0_0
 
 /**
  * \addtogroup calc
+ *
+ * \brief Public API for management of checksums.
+ *
  * @{
  */
 
@@ -198,6 +201,8 @@ namespace checksum
 
 
 /**
+ * \internal
+ *
  * \brief Implementation details of namespace arcstk
  */
 namespace details
@@ -209,6 +214,8 @@ class ChecksumMap;
 
 
 /**
+ * \internal
+ *
  * \brief Iterator for @link ChecksumMap ChecksumMaps @endlink.
  *
  * \tparam K        The key type of the iterated ChecksumMap
@@ -342,6 +349,8 @@ private:
 
 
 /**
+ * \internal
+ *
  * \brief Generic implementation of a ChecksumMap.
  *
  * This is a generic container for ChecksumMaps adaptable to different
@@ -590,7 +599,7 @@ private: // TODO Hide this!
 #include "details/checksum.tpp"
 #endif
 
-} // namespace arcstk::details
+} // namespace details
 
 
 /**

@@ -9,6 +9,8 @@
 /**
  * \file
  *
+ * \internal
+ *
  * \brief Implementation of ChecksumMapIterator and ChecksumMap
  */
 

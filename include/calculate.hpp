@@ -76,7 +76,7 @@ inline namespace v_1_0_0
 
 
 /**
- * \brief Type for internal representation of samples.
+ * \brief Type for internal representation of 32-bit PCM samples.
  */
 using sample_type = uint32_t;
 
@@ -208,13 +208,12 @@ private:
 };
 
 
-/**
- * \brief Implementation details of namespace arcstk.
- */
 namespace details
 {
 
 /**
+ * \internal
+ *
  * \brief Get value_type of Iterator.
  *
  * \tparam Iterator Iterator type to test
@@ -228,6 +227,8 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 
 
 /**
+ * \internal
+ *
  * \brief Check a given Iterator whether it iterates over type T.
  *
  * \tparam Iterator Iterator type to test
@@ -1096,7 +1097,7 @@ public: /* methods */
 	 *
 	 * \return Number of elements
 	 */
-	std::size_t size() const;
+	size_type size() const;
 
 	/**
 	 * \brief Copy assignment.
@@ -1127,7 +1128,7 @@ private:
 	/**
 	 * \brief Number of elements.
 	 */
-	std::size_t size_;
+	size_type size_;
 };
 
 
