@@ -634,7 +634,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(const uint32_t length);
+	explicit ChecksumSet(uint32_t length);
 
 	/**
 	 * \brief Default destructor

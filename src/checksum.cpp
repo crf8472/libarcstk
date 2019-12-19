@@ -90,7 +90,7 @@ public:
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
-	explicit Impl(const uint32_t length);
+	explicit Impl(uint32_t length);
 
 	/**
 	 * \brief Copy constructor
@@ -126,7 +126,7 @@ private:
 
 /** @} */
 
-ChecksumSet::Impl::Impl(const uint32_t length)
+ChecksumSet::Impl::Impl(uint32_t length)
 	: length_(length)
 {
 	// empty
@@ -160,7 +160,7 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(const uint32_t length)
+ChecksumSet::ChecksumSet(uint32_t length)
 	: impl_(std::make_unique<ChecksumSet::Impl>(length))
 {
 	// empty
