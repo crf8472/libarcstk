@@ -119,7 +119,7 @@ public:
 	 *
 	 * \param[in] value Actual checksum value
 	 */
-	explicit Checksum(const uint32_t &value);
+	explicit Checksum(uint32_t value);
 
 	//Checksum(const Checksum &rhs);
 

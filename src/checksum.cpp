@@ -29,7 +29,7 @@ Checksum::Checksum()
 }
 
 
-Checksum::Checksum(const uint32_t &value)
+Checksum::Checksum(uint32_t value)
 	: value_(value)
 {
 	// empty
