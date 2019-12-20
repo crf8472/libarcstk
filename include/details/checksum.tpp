@@ -158,7 +158,7 @@ std::set<K> ChecksumMap<K>::keys() const
 
 
 template <typename K>
-std::size_t ChecksumMap<K>::size() const
+typename ChecksumMap<K>::size_type ChecksumMap<K>::size() const
 {
 	return this->map_.size();
 }

@@ -29,7 +29,7 @@ Checksum::Checksum()
 }
 
 
-Checksum::Checksum(uint32_t value)
+Checksum::Checksum(const uint32_t value)
 	: value_(value)
 {
 	// empty
@@ -90,7 +90,7 @@ public:
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
-	explicit Impl(uint32_t length);
+	explicit Impl(const uint32_t length);
 
 	/**
 	 * \brief Copy constructor
@@ -126,7 +126,7 @@ private:
 
 /** @} */
 
-ChecksumSet::Impl::Impl(uint32_t length)
+ChecksumSet::Impl::Impl(const uint32_t length)
 	: length_(length)
 {
 	// empty
@@ -160,7 +160,7 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(uint32_t length)
+ChecksumSet::ChecksumSet(const uint32_t length)
 	: impl_(std::make_unique<ChecksumSet::Impl>(length))
 {
 	// empty
@@ -187,7 +187,7 @@ uint32_t ChecksumSet::length() const
 }
 
 
-Checksum ChecksumSet::get(checksum::type type) const
+Checksum ChecksumSet::get(const checksum::type type) const
 {
 	return *this->find(type);
 }
@@ -211,12 +211,16 @@ namespace checksum
 {
 
 /**
+ * \internal
+ *
  * \brief Implementation details of namespace checksum
  */
 namespace details
 {
 
 	/**
+	 * \internal
+	 *
 	 * \brief Return the numeric value of a >=C++11 enum class value
 	 *
 	 * \return The numeric constant of an enum class value
@@ -231,7 +235,8 @@ namespace details
 } // namespace checksum::details
 
 
-std::string to_hex_str(const Checksum &checksum, bool upper, bool base)
+std::string to_hex_str(const Checksum &checksum, const bool upper,
+		const bool base)
 {
 	std::stringstream ss;
 	ss << std::hex

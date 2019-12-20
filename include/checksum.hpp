@@ -119,7 +119,7 @@ public:
 	 *
 	 * \param[in] value Actual checksum value
 	 */
-	explicit Checksum(uint32_t value);
+	explicit Checksum(const uint32_t value);
 
 	//Checksum(const Checksum &rhs);
 
@@ -195,7 +195,8 @@ namespace checksum
 	 *
 	 * \return A hexadecimal representation of the \c checksum as a string
 	 */
-	std::string to_hex_str(const Checksum &checksum, bool upper, bool base);
+	std::string to_hex_str(const Checksum &checksum, const bool upper,
+			const bool base);
 
 } // namespace checksum
 
@@ -369,6 +370,8 @@ public: /* types */
 
 	using const_iterator = ChecksumMapIterator<K, true>;
 
+	using size_type = std::size_t;
+
 
 public: /* methods */
 
@@ -456,7 +459,7 @@ public: /* methods */
 	 *
 	 * \return Number of elements contained in the instance.
 	 */
-	std::size_t size() const;
+	size_type size() const;
 
 	/**
 	 * \brief Returns TRUE iff the instance contains no elements, i.e. iff
@@ -634,7 +637,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(uint32_t length);
+	explicit ChecksumSet(const uint32_t length);
 
 	/**
 	 * \brief Default destructor
@@ -655,7 +658,7 @@ public:
 	 *
 	 * \return The checksum for the specified type
 	 */
-	Checksum get(checksum::type type) const;
+	Checksum get(const checksum::type type) const;
 
 	/**
 	 * \brief Return the checksum types present in this ChecksumSet
