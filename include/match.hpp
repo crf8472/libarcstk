@@ -4,6 +4,13 @@
 /** \file
  *
  * \brief Public API for \link match AccurateRip checksum matching \endlink.
+ *
+ * \details
+ *
+ * Includes the module for \link matching AccurateRip checksums and ids\endlink.
+ *
+ * Fine-granular comparison between an AccurateRip response and locally computed
+ * checksums.
  */
 
 #include <cstdint>
@@ -21,7 +28,7 @@ class ARResponse;
 class Checksums;
 
 /**
- * \defgroup match AccurateRip Checksum Matcher
+ * \defgroup match AccurateRip Checksum Matching
  *
  * \brief Match local Checksums against an \link ARResponse
  * AccurateRip response \endlink.
