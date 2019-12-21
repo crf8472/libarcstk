@@ -14,53 +14,6 @@
  * ARResponse object.
  */
 
-/*
- * An @link arcstk::v_1_0_0::ARStreamParser ARStreamParser @endlink parses the
- * binary content of a response of AccurateRip
- * to an id request. It can be registered two handlers, a
- * @link arcstk::v_1_0_0::ContentHandler ContentHandler @endlink
- * and an @link arcstk::v_1_0_0::ErrorHandler ErrorHandler @endlink both of
- * which have default implementations as there are
- * @link arcstk::v_1_0_0::DefaultContentHandler DefaultContentHandler @endlink
- * and
- * @link arcstk::v_1_0_0::DefaultErrorHandler DefaultErrorHandler @endlink.
- * @link arcstk::v_1_0_0::DefaultContentHandler DefaultContentHandler @endlink
- * just constructs an
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink
- * that represents the parsed information.
- * @link arcstk::v_1_0_0::DefaultErrorHandler DefaultErrorHandler @endlink
- * just logs the error information.
- *
- * @link arcstk::v_1_0_0::ARResponse ARResponse @endlink
- * represents the entire response data from AccurateRip. It is
- * composed of a sequence of
- * @link arcstk::v_1_0_0::ARBlock ARBlocks @endlink of which each is
- * composed of a header containing the
- * @link arcstk::v_1_0_0::ARId ARId @endlink and a sequence of
- * @link arcstk::v_1_0_0::ARTriplet ARTriplets @endlink, one for each track.
- *
- * An @link arcstk::v_1_0_0::ARBlock ARBlock @endlink represents thus a single
- * checksum profile for a compact disc
- * while an @link arcstk::v_1_0_0::ARTriplet ARTriplet @endlink represents the
- * information for a single track.
- *
- * There are two standard implementations of
- * @link arcstk::v_1_0_0::ARStreamParser ARStreamParser @endlink provided,
- * @link arcstk::v_1_0_0::ARFileParser ARFileParser @endlink and
- * @link arcstk::v_1_0_0::ARStdinParser ARStdinParser @endlink.
- * @link arcstk::v_1_0_0::ARFileParser ARFileParser @endlink (suprisingly)
- * parses files obtained by just saving the payload of the AccurateRip response
- * to a file. @link arcstk::v_1_0_0::ARStdinParser ARStdinParser @endlink parses
- * stdin for this payload instead of a file. It can be used for parsing piped
- * input.
- *
- * A @link arcstk::v_1_0_0::StreamReadException StreamReadException @endlink is
- * thrown by an @link arcstk::v_1_0_0::ARStreamParser ARStreamParser @endlink
- * when the input byte stream ends prematurely or is otherwise corrupted. It
- * contains exact information about the stream-relative as well as the
- * block-relative error position.
- */
-
 #include <cstdint>
 #include <istream>
 #include <memory>
