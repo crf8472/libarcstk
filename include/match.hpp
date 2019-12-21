@@ -130,9 +130,7 @@ public:
 	 * \brief Return the verification status of an ARCS of the specified track
 	 * in the specified block.
 	 *
-	 * @m_class{m-block m-note}
-	 *
-	 * \par Note:
+	 * \note
 	 * What a concrete match means is dependent from the logic the Matcher used.
 	 * The call <tt>myMatch.value(0,17,true)</tt> refers to the ARCSv2 of track
 	 * 18 in the first block. If this call returns \c true, track 18 in the
@@ -140,8 +138,8 @@ public:
 	 * indicates that track 18 of the current Checksums caused the match is
 	 * implementation defined. If the Match was calculated by an AlbumMatcher,
 	 * track 18 of the input Checksums will only be matched against track 18 in
-	 * each block. A TracksetMatcher will just indicate that \em one of the
-	 * input checksums matched track 18.
+	 * each block. A TracksetMatcher on the other hand will just indicate that
+	 * \em one of the input checksums matched track 18.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
@@ -160,9 +158,7 @@ public:
 	 * corresponsing positions in the request. The difference is only of
 	 * relevance iff the ARId of \c b matchs the ARId of the request.
 	 *
-	 * @m_class{m-block m-note}
-	 *
-	 * \par Note:
+	 * \note
 	 * The concrete difference value may depend on the Matcher implementation.
 	 * For example, consider an album with 15 tracks. An ARBlock with no track
 	 * matching and a different ARId will be a difference of 16 assigned if the
@@ -201,9 +197,7 @@ public:
 	/**
 	 * \brief Returns the number of comparison flags stored.
 	 *
-	 * @m_class{m-block m-note}
-	 *
-	 * \par Note:
+	 * \note
 	 * The size of a Match with a number \f$b\f$ of total_blocks() and
 	 * \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$.
 	 * The \f$+1\f$ is required since the ARId of each block contributes an
@@ -467,9 +461,11 @@ private:
 /**
  * \brief Match an album track list against an ARResponse.
  *
- * Tries to match each position \c i in the actual
- * \link Checksum Checksums \endlink with position \c i in each block of the
- * AccurateRip response. This is how an entire album can be matched.
+ * \details
+ *
+ * Tries to match each position \c i in the actual Checksums with position \c i
+ * in each ARBlock of the ARResponse. This is how an entire album can be
+ * matched.
  */
 class AlbumMatcher final : public Matcher
 {
@@ -551,15 +547,11 @@ private:
 /**
  * \brief Match an arbitrary set of tracks against an ARResponse.
  *
+ * \details
+ *
  * Find any match of any actual Checksum in the ARResponse. This targets the
  * situation where a subset of tracks from the same album are tried to be
  * matched, but the subset may be incomplete.
- *
- * @m_class{m-block m-success}
- *
- * @par Example:
- * You have some or all tracks but you do not know their order. You can use the
- * TracksetMatcher to find out the order of the tracks.
  */
 class TracksetMatcher final : public Matcher
 {

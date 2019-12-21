@@ -3,8 +3,18 @@
 
 /** \file
  *
- * \brief Public API for AccurateRip response parsing and syntactic entities.
+ * \brief Public API for \link parse AccurateRip response parsing and syntactic
+ * entities\endlink.
  *
+ * \details
+ *
+ * Includes the module for \link parsing AccurateRip responses\endlink.
+ *
+ * Parse and represent the content of an HTTP-response of AccurateRip as an
+ * ARResponse object.
+ */
+
+/*
  * An @link arcstk::v_1_0_0::ARStreamParser ARStreamParser @endlink parses the
  * binary content of a response of AccurateRip
  * to an id request. It can be registered two handlers, a
@@ -67,37 +77,87 @@ inline namespace v_1_0_0
 // Forward declaration for class ARId, used in the Interface
 class ARId;
 
-// Forward declaration for the private implementation
+// Forward declaration for the base class for a private implementation
 class ARTripletImpl;
 
 
 /**
  * \defgroup parse AccurateRip Response Parser
+ *
+ * \brief Parse an AccurateRip HTTP-response to an object representation
+ *
+ * \details
+ *
+ * An ARStreamParser push-parses the binary content of a HTTP-response from
+ * AccurateRip and emits a series of events. There are two default
+ * implementations of ARStreamParser provided, ARFileParser and ARStdinParser.
+ *
+ * ARFileParser parses files obtained by just saving the payload of the
+ * AccurateRip response to a (binary) file. ARStdinParser parses stdin for this
+ * payload instead of a file. It can be used for parsing piped input.
+ *
+ * For handling the emitted events, an ARStreamParser can be registered two
+ * types of handlers to, a ContentHandler and an ErrorHandler.
+ * Both have default implementations as there are DefaultContentHandler and
+ * DefaultErrorHandler. DefaultContentHandler just populates an ARResponse
+ * object that represents the parsed information. DefaultErrorHandler just logs
+ * the error position along with an error message and throws a
+ * StreamReadException.
+ *
+ * A StreamReadException is also thrown by an ARStreamParser when the input byte
+ * stream ends prematurely or is corrupted in a way the parser can recognize.
+ * It contains exact information about the stream-relative as well as the
+ * block-relative error position and a human-readable error message.
+ *
+ * If no exceptional situation occurrs, the DefaultContentHandler populates an
+ * ARResponse with the parsed information. An ARResponse represents the entire
+ * content data from an AccurateRip HTTP-response. It is composed of a sequence
+ * of \link ARBlock ARBlocks \endlink of which each is composed of a leading
+ * ARId followed by a sequence of ARTriplets, one for each track.
+ *
+ * While an ARBlock represents thus a single checksum profile for a compact disc
+ * pressing an ARTriplet represents the AccurateRip information for a single
+ * track in this pressing. Each ARTriplet contains an ARCSv1 or ARCSv2 checksum
+ * value, a confidence value and a check value to identify the pressing.
+ *
+ * \note
+ * There is no way to inform the client whether the ARCS is v1 or v2.
+ * The AccurateRip response does not distinguish blocks of ARCSv1 from
+ * blocks of ARCSv2 and provides no information about the concrete checksum
+ * algorithm. A block of ARCSv1 is considered just an information about
+ * another pressing of an album.
+ *
  * @{
  */
 
 
 /**
- * \brief A track-related triplet of values from a block in an AccurateRip
+ * \brief A triplet of values describing a particular track in an AccurateRip
  * response.
+ *
+ * \details
  *
  * Syntactically, an ARTriplet is an element of some ARBlock.
  *
  * Semantically, an ARTriplet carries information about a single track in
- * an AccurateRip, while the data block describes the entire disc. An ARTriplet
- * contains the ARCS of the track as first element, a non-negative integer that
- * represents the confidence value of the ARCS and, as a third value, the ARCS
- * of frame 450 of the track. (The latter represents a check value for the
- * pressing offset.)
+ * an AccurateRip response, while the ARBlock describes the entire disc. A
+ * triplet contains the ARCS of the track as its first element, a non-negative
+ * integer that represents the confidence value of the ARCS and, as a third
+ * element, the ARCS of frame 450 of the track. (The latter represents a
+ * reference value for the pressing offset.)
  *
  * Which track the ARTriplet describes can be derived from its actual
- * position in the AccurateRip response. (The first ARTriplet in the
- * ARBlock describes track 1, the second ARTriplet track 2 and so
- * forth.)
+ * position in the ARBlock. The first ARTriplet in the ARBlock describes track
+ * 1, the second ARTriplet track 2 and so forth.
  *
  * An ARTriplet carries no information whether its ARCS are v1 or v2. It
  * contains only parsed data and metadata flags indicating whether the content
  * is valid, i.e. was correctly parsed.
+ *
+ * An ARTriplet represents parsed information. If some error occurrs during the
+ * parsing process, the resulting ARTriplet may contain incomplete information.
+ * Therefore, the ARTriplet carries a validity flag for each of its values to
+ * indicate whether the corresponding value was parsed without errors.
  */
 class ARTriplet final
 {
@@ -106,6 +166,9 @@ public:
 
 	/**
 	 * \brief Constructor.
+	 *
+	 * \details
+	 * All validity flags are set to \c TRUE.
 	 *
 	 * \param[in] arcs          The ARCS value of this triplet
 	 * \param[in] confidence    The confidence value of this triplet
@@ -150,8 +213,6 @@ public:
 	/**
 	 * \brief The track ARCS in this triplet.
 	 *
-	 * The ARCS may be v1 as well as v2.
-	 *
 	 * \return ARCS value in this triplet
 	 */
 	uint32_t arcs() const;
@@ -171,25 +232,24 @@ public:
 	uint32_t frame450_arcs() const;
 
 	/**
-	 * \brief The track ARCS in this triplet.
+	 * \brief Validity flag for the track ARCS in this triplet.
 	 *
-	 * The ARCS may be v1 as well as v2.
-	 *
-	 * \return ARCS value in this triplet
+	 * \return Validity flag for the ARCS value in this triplet
 	 */
 	bool arcs_valid() const;
 
 	/**
-	 * \brief The confidence value in this triplet.
+	 * \brief Validity flag for the confidence value in this triplet.
 	 *
-	 * \return Confidence in this triplet
+	 * \return Validity flag for the confidence in this triplet
 	 */
 	bool confidence_valid() const;
 
 	/**
-	 * \brief The ARCS of frame 450 of the particular track in this triplet.
+	 * \brief Validity flag for the ARCS of frame 450 of the particular track in
+	 * this triplet.
 	 *
-	 * \return Frame450 ARCS in this triplet
+	 * \return Validity flag for the frame450 ARCS value in this triplet
 	 */
 	bool frame450_arcs_valid() const;
 
@@ -228,46 +288,52 @@ private:
  * An AccurateRip response is in fact parsed as a sequence of ARBlocks.
  *
  * Syntactically each ARBlock is an ordered pair of a header and a sequence
- * of @link ARTriplet ARTriplets @endlink.
+ * of \link ARTriplet ARTriplets \endlink.
  *
  * Semantically, an ARBlock contains exactly one ARTriplet for each
  * track of the original disc. This makes the ARBlock in fact an ARCS set
  * of the tracks on the disc along with their confidences and pressing offsets
  * for a disc. The header contains the AccurateRip Id of the disc.
  *
- * An AccurateRip response may contain different @link ARBlock ARBlocks @endlink
+ * An AccurateRip response may contain different \link ARBlock ARBlocks \endlink
  * for a single disc id and the ARBlocks may differ in the ARCSs they contain
  * for the tracks.
+ *
+ * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
 class ARBlock final
 {
 
-public: /* types */
+public: /* member types */
 
 	/**
-	 * \brief An iterator over the @link ARTriplet ARTriplets @endlink of an
+	 * \brief An iterator over the \link ARTriplet ARTriplets \endlink of an
 	 * ARBlock.
 	 */
 	using iterator = std::vector<ARTriplet>::iterator;
+	// TODO Presupposes/leaks implementation knowledge
 
 	/**
-	 * \brief A const-iterator over the @link ARTriplet ARTriplets @endlink of
+	 * \brief A const-iterator over the \link ARTriplet ARTriplets \endlink of
 	 * an ARBlock.
 	 */
 	using const_iterator = std::vector<ARTriplet>::const_iterator;
+	// TODO Presupposes/leaks implementation knowledge
 
 	/**
 	 * \brief Size type for ARBlock.
 	 */
 	using size_type = std::vector<ARTriplet>::size_type;
+	// TODO Presupposes/leaks implementation knowledge
 
 
-public: /* methods */
+public: /* member functions */
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
-	 * \param[in] id ARId of the cd this block describes
+	 * \param[in] id \link ARId AccurateRip id\endlink of the CD this ARBlock
+	 * describes
 	 */
 	explicit ARBlock(const ARId &id);
 
@@ -291,73 +357,110 @@ public: /* methods */
 	~ARBlock() noexcept;
 
 	/**
-	 * \brief Returns the AccurateRip Id (i.e. the header) of the block.
+	 * \brief The \link ARId AccurateRip Id\endlink of this ARBlock.
 	 *
 	 * \return ARId of this block
 	 */
 	const ARId& id() const;
 
 	/**
-	 * \brief Append a triplet to this block.
+	 * \brief Append an ARTriplet as last element to this ARBlock.
 	 *
-	 * \param[in] triplet Append a new triplet to this block
+	 * \param[in] triplet Append a new entry to this ARBlock
 	 */
 	void append(const ARTriplet &triplet);
 
 	/**
-	 * \brief Returns the size of this ARBlock, i.e. the number of triplets it
-	 * contains.
+	 * \brief The ARTriplet with 0-based index \c index.
 	 *
-	 * \return The number of triplets in this block.
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARBlock::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARTriplet to read
+	 *
+	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
+	 *
+	 * \return ARTriplet at index \c index.
+	 */
+	const ARTriplet& triplet(const size_type index) const;
+
+	/**
+	 * \copybrief triplet(const size_type index) const
+	 *
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARBlock::operator [](const size_type index)
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARTriplet to get
+	 *
+	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
+	 *
+	 * \return ARTriplet at index \c index.
+	 */
+	ARTriplet& triplet(const size_type index);
+
+	/**
+	 * \brief Number of \link ARTriplet ARTriplets\endlink in this ARBlock.
+	 *
+	 * \return The number of \link ARTriplet ARTriplets\endlink in this block.
 	 */
 	uint32_t size() const;
 
 	/**
-	 * \brief Return iterator pointing to first block.
+	 * \brief iterator pointing to first ARTriplet.
 	 *
-	 * \return iterator pointing to first block
+	 * \return iterator pointing to first ARTriplet
 	 */
 	iterator begin();
 
 	/**
-	 * \brief Return iterator pointing behind last block.
+	 * \brief iterator pointing behind last ARTriplet.
 	 *
-	 * \return iterator pointing behind last block
+	 * \return iterator pointing behind last ARTriplet
 	 */
 	iterator end();
 
 	/**
-	 * \brief Return const_iterator pointing to first block.
+	 * \brief const_iterator pointing to first ARTriplet.
 	 *
-	 * \return const_iterator pointing to first block
+	 * \return const_iterator pointing to first ARTriplet
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief Return const_iterator pointing behind last block.
+	 * \brief const_iterator pointing behind last ARTriplet.
 	 *
-	 * \return const_iterator pointing behind last block
+	 * \return const_iterator pointing behind last ARTriplet
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief Return const_iterator pointing to first block.
+	 * \brief const_iterator pointing to first ARTriplet.
 	 *
-	 * \return const_iterator pointing to first block
+	 * \return const_iterator pointing to first ARTriplet
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief Return const_iterator pointing behind last block.
+	 * \brief const_iterator pointing behind last ARTriplet.
 	 *
-	 * \return const_iterator pointing behind last block
+	 * \return const_iterator pointing behind last ARTriplet
 	 */
 	const_iterator cend() const;
 
-	// TODO rbegin,rend + crbegin,crend
-
 	/**
-	 * \brief Return the ARTriplet with the specified \c index.
+	 * \brief The ARTriplet with the specified \c index.
+	 *
+	 * \see \link triplet(const size_type index) const triplet()\endlink
 	 *
 	 * \param[in] index The 0-based index of the ARTriplet to return
 	 *
@@ -366,7 +469,9 @@ public: /* methods */
 	const ARTriplet& operator [](const size_type index) const;
 
 	/**
-	 * \brief Return the ARTriplet with the specified \c index.
+	 * \brief The ARTriplet with the specified \c index.
+	 *
+	 * \see \link triplet(const size_type index) triplet()\endlink
 	 *
 	 * \param[in] index The 0-based index of the ARTriplet to return
 	 *
@@ -406,35 +511,53 @@ private:
 
 
 /**
- * \brief Response content from AccurateRip.
+ * \brief Response content from AccurateRip when responding to an request for an
+ * ARId.
+ *
+ * \details
+ *
+ * An ARResponse represents the HTTP-response of AccurateRip to an request for
+ * some ARId.
+ *
+ * Technically, an ARResponse is essentially an iterable sequence of
+ * \link ARBlock ARBlocks\endlink.
+ *
+ * Although an ARResponse represents content that is usually not created by the
+ * client, the client may nonetheless create an ARResponse on its own or modify
+ * an existing instance. This allows for easy testing ARResponse objects.
+ *
+ * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
 class ARResponse final
 {
 
-public: /* types */
+public: /* member types */
 
 	/**
-	 * \brief An iterator over the @link ARBlock ARBlocks @endlink of an
+	 * \brief An iterator over the \link ARBlock ARBlocks \endlink of an
 	 * ARResponse.
 	 */
 	using iterator = std::vector<ARBlock>::iterator;
+	// TODO Presupposes/leaks implementation knowledge
 
 	/**
-	 * \brief A const_iterator over the @link ARBlock ARBlocks @endlink of an
+	 * \brief A const_iterator over the \link ARBlock ARBlocks \endlink of an
 	 * ARResponse.
 	 */
 	using const_iterator = std::vector<ARBlock>::const_iterator;
+	// TODO Presupposes/leaks implementation knowledge
 
 	/**
-	 * \brief Size type for ARResponse.
+	 * \brief Size type of ARResponse.
 	 */
 	using size_type = std::vector<ARBlock>::size_type;
+	// TODO Presupposes/leaks implementation knowledge
 
 
-public: /* methods */
+public: /* member functions */
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 */
 	ARResponse();
 
@@ -446,7 +569,7 @@ public: /* methods */
 	ARResponse(const ARResponse &rhs);
 
 	/**
-	 * \brief Move constructor.
+	 * \brief Default move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
@@ -465,74 +588,109 @@ public: /* methods */
 	void append(const ARBlock &block);
 
 	/**
-	 * \brief Return block with 0-based index \c i.
+	 * \brief The ARBlock with 0-based index \c index.
 	 *
-	 * \param[in] i Index of the ARBlock to get
+	 * \details
 	 *
-	 * \return Block \c i .
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARResponse::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARBlock to read
+	 *
+	 * \throws std::out_of_range Iff \c index > ARResponse::size() - 1.
+	 *
+	 * \return ARBlock at index \c index.
 	 */
-	const ARBlock& block(const ARResponse::size_type i) const;
+	const ARBlock& block(const size_type index) const;
 
 	/**
-	 * \brief Returns the number of blocks in this response.
+	 * \copybrief block(const size_type index) const
 	 *
-	 * \return Number of blocks in this response
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARResponse::operator [](const size_type index)
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARBlock to get
+	 *
+	 * \throws std::out_of_range Iff \c index > ARResponse::size() - 1.
+	 *
+	 * \return ARBlock at index \c index.
+	 */
+	ARBlock& block(const size_type index);
+
+	/**
+	 * \brief Number of \link ARBlock ARBlocks\endlink in this
+	 * instance.
+	 *
+	 * \return Number of \link ARBlock ARBlocks\endlink in this response
 	 */
 	size_type size() const;
 
 	/**
-	 * \brief Number of tracks per block.
+	 * \brief Number of tracks per ARBlock.
 	 *
-	 * \return Number of tracks per block
+	 * \return Number of tracks per \link ARBlock ARBlocks\endlink
 	 */
 	int tracks_per_block() const;
 
 	/**
-	 * \brief Return iterator pointing to first block.
+	 * \brief iterator pointing to the first ARBlock.
 	 *
-	 * \return iterator pointing to first block
+	 * \return iterator pointing to the first ARBlock
 	 */
 	iterator begin();
 
 	/**
-	 * \brief Return iterator pointing behind last block.
+	 * \brief iterator pointing behind the last ARBlock.
 	 *
-	 * \return iterator pointing behind last block
+	 * \return iterator pointing behind the last ARBlock
 	 */
 	iterator end();
 
 	/**
-	 * \brief Return const_iterator pointing to first block.
+	 * \brief const_iterator pointing to the first ARBlock.
 	 *
-	 * \return const_iterator pointing to first block
+	 * \return const_iterator pointing to the first ARBlock
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief Return const_iterator pointing behind last block.
+	 * \brief const_iterator pointing behind the last ARBlock.
 	 *
-	 * \return const_iterator pointing behind last block
+	 * \return const_iterator pointing behind the last ARBlock
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief Return const_iterator pointing to first block.
+	 * \brief const_iterator pointing to the first ARBlock.
 	 *
-	 * \return const_iterator pointing to first block
+	 * \return const_iterator pointing to the first ARBlock
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief Return const_iterator pointing behind last block.
+	 * \brief const_iterator pointing behind the last ARBlock.
 	 *
-	 * \return const_iterator pointing behind last block
+	 * \return const_iterator pointing behind the last ARBlock
 	 */
 	const_iterator cend() const;
 
-	// TODO rbegin,rend + crbegin,crend
-
 	/**
-	 * \brief Return the ARBlock with the specified \c index.
+	 * \brief The ARBlock with the specified 0-based \c index.
+	 *
+	 * \details
+	 * No bounds checking is performed. For index based access with bounds
+	 * checking, see
+	 * \link ARResponse::block(const size_type index) const block()\endlink.
+	 *
+	 * \see \link ARResponse::block(const size_type index) const block()\endlink
 	 *
 	 * \param[in] index The index of the ARBlock to get
 	 *
@@ -541,7 +699,14 @@ public: /* methods */
 	const ARBlock& operator [](const size_type index) const;
 
 	/**
-	 * \brief Return the ARBlock with the specified \c index.
+	 * \brief Return the ARBlock with the specified 0-based \c index.
+	 *
+	 * \details
+	 * No bounds checking is performed. For index based access with bounds
+	 * checking, see
+	 * \link ARResponse::block(const size_type index) block() \endlink.
+	 *
+	 * \see \link ARResponse::block(const size_type index) block()\endlink
 	 *
 	 * \param[in] index The index of the ARBlock to get
 	 *
@@ -583,8 +748,15 @@ private:
 /**
  * \brief Interface for ARStreamParser content handlers.
  *
- * Add a content handler to an ARStreamParser to actually add behaviour for
- * parsing an ARResponse.
+ * \details
+ *
+ * Add actual behaviour to an ARStreamParser. A concrete subclass of
+ * ContentHandler implements the handling of each syntactic entity the
+ * ARStreamParser emits.
+ *
+ * Behaviour can be added at the start and end of the response content, at the
+ * start and end of each block, at the id at the start of each block and on each
+ * triplet.
  */
 class ContentHandler
 {
@@ -607,10 +779,12 @@ public:
 	void start_block();
 
 	/**
-	 * \brief React on an id.
+	 * \brief React on an ARId.
+	 *
+	 * \details
 	 *
 	 * Each ARBlock starts with the id of the disc it describes, so this
-	 * method is always called directly after <tt>start_block()</tt>.
+	 * method is always called directly after start_block().
 	 *
 	 * \param[in] track_count Track count in this id
 	 * \param[in] id1         Disc id 1 in this id
@@ -674,22 +848,26 @@ public:
 private:
 
 	/**
-	 * \brief Implements @link ContentHandler::start_input() start_input() @endlink
+	 * \brief Implements start_input()
 	 */
 	virtual void do_start_input()
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::start_block() start_block() @endlink
+	 * \brief Implements start_block()
 	 */
 	virtual void do_start_block()
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::id(const uint8_t track_count, const uint32_t id1, const uint32_t id2, const uint32_t cddb_id) id() @endlink
+	 * \brief Implements \link ContentHandler::id(const uint8_t track_count, const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+	 * id()
+	 * \endlink
+	 *
+	 * \details
 	 *
 	 * Each ARBlock starts with the id of the disc it describes, so this
-	 * method is always called directly after <tt>start_block()</tt>.
+	 * method is always called directly after start_block().
 	 *
 	 * \param[in] track_count Track count in this id
 	 * \param[in] id1         Disc id 1 in this id
@@ -703,7 +881,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs) triplet() @endlink
+	 * \brief Implements \link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
+	 * triplet()
+	 * \endlink
 	 *
 	 * \param[in] arcs          ARCS in this triplet
 	 * \param[in] confidence    Confidence in this triplet
@@ -715,7 +895,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid) triplet() @endlink
+	 * \brief Implements \link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid) triplet() \endlink
 	 *
 	 * \param[in] arcs                The ARCS value of this triplet
 	 * \param[in] confidence          The confidence value of this triplet
@@ -733,19 +913,19 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::end_block() end_block() @endlink
+	 * \brief Implements \link ContentHandler::end_block() end_block() \endlink
 	 */
 	virtual void do_end_block()
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::end_input() end_input() @endlink
+	 * \brief Implements \link ContentHandler::end_input() end_input() \endlink
 	 */
 	virtual void do_end_input()
 	= 0;
 
 	/**
-	 * \brief Implements @link ContentHandler::clone() const clone() @endlink
+	 * \brief Implements \link ContentHandler::clone() const clone() \endlink
 	 *
 	 * A clone is a deep copy, i.e. the result of the cloning will be a
 	 * different object with the exact same state.
@@ -758,11 +938,18 @@ private:
 
 
 /**
- * \brief Constructs an ARResponse instance from parsed content.
+ * \brief Populates an existing ARResponse instance by parsed content.
  *
- * Create an ARResponse and use set_object() to inform the handler about that
- * object. The handler instance will then use this object for construction.
- * After parse() is finished, the object contains the parsed content.
+ * \details
+ *
+ * Create an ARResponse instance and use set_object() to inform the handler
+ * about that object. The handler instance will then populate this object with
+ * the parsed content.
+ *
+ * \attention
+ * The client is responsible for the lifetime management: the ARResponse object
+ * must exist at least until \link ARStreamParser::parse() parse() \endlink is
+ * finished.
  */
 class DefaultContentHandler final : public ContentHandler
 {
@@ -770,7 +957,7 @@ class DefaultContentHandler final : public ContentHandler
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 */
 	DefaultContentHandler();
 
@@ -794,11 +981,13 @@ public:
 	~DefaultContentHandler() noexcept final;
 
 	/**
-	 * \brief Set the object constructed by the parsed content.
+	 * \brief Set the object to be constructed by the parsed content.
 	 *
 	 * \param[in,out] object Object to construct from parsed content.
 	 */
 	void set_object(ARResponse &object);
+
+	ARResponse& object();
 
 	/**
 	 * \brief Copy assignment operator.
@@ -860,7 +1049,19 @@ private:
 /**
  * \brief Interface for ARStreamParser error handlers.
  *
- * Defines the handler methods to react on parse errors of an ARStreamParser.
+ * \details
+ *
+ * Add actual behaviour to an ARStreamParser. A concrete subclass of
+ * ErrorHandler implements the handling of parse errors the ARStreamParser
+ * signals.
+ *
+ * \note
+ * The AccurateRip reference data is binary data without any meta information
+ * for consistency. Hence there is no perspective to sanitize the stream or
+ * proceed the parsing process after an exception occurred. An ErrorHandler
+ * is a mere interceptor for a StreamReadException before it is rethrown anyway.
+ * This provides the convenience to get informative log messages by intercepting
+ * the exceptions like DefaultErrorHandler does.
  */
 class ErrorHandler
 {
@@ -873,9 +1074,12 @@ public:
 	virtual ~ErrorHandler() noexcept;
 
 	/**
-	 * \brief Error notification.
+	 * \brief Error notification with global and block-relative position.
 	 *
-	 * \param[in] byte_pos       Last 1-based byte pos read before error
+	 * \attention
+	 * The byte positions are all interpreted as 1-based.
+	 *
+	 * \param[in] byte_pos       Last 1-based global byte pos read before error
 	 * \param[in] block          1-based block number
 	 * \param[in] block_byte_pos Last 1-based block byte pos read before error
 	 */
@@ -896,9 +1100,11 @@ public:
 private:
 
 	/**
-	 * \brief Error notification.
+	 * \brief Implements \link error(const uint32_t byte_pos, const uint32_t block, const uint32_t block_byte_pos)
+	 * error()
+	 * \endlink
 	 *
-	 * \param[in] byte_pos       Last 1-based byte pos read before error
+	 * \param[in] byte_pos       Last 1-based global byte pos read before error
 	 * \param[in] block          1-based block number
 	 * \param[in] block_byte_pos Last 1-based block byte pos read before error
 	 */
@@ -920,7 +1126,7 @@ private:
 
 
 /**
- * \brief Logs error information to stdout.
+ * \brief Logs error information and throws a StreamReadException on errors.
  */
 class DefaultErrorHandler final : public ErrorHandler
 {
@@ -936,6 +1142,9 @@ public:
 
 /**
  * \brief Reports a read error during parsing a binary stream.
+ *
+ * \attention
+ * The byte positions are all interpreted as 1-based.
  */
 class StreamReadException final : public std::runtime_error
 {
@@ -943,43 +1152,44 @@ class StreamReadException final : public std::runtime_error
 public:
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
-	 * \param[in] byte_pos       Last 1-based byte pos read before error
+	 * \param[in] byte_pos       Last 1-based global byte pos read before exception
 	 * \param[in] block          1-based block number
-	 * \param[in] block_byte_pos Last 1-based block byte pos read before error
+	 * \param[in] block_byte_pos Last 1-based block byte pos read before exception
 	 * \param[in] what_arg       Error message
 	 */
 	StreamReadException(const uint32_t byte_pos, const uint32_t block,
 			const uint32_t block_byte_pos, const std::string &what_arg);
 
 	/**
-	 * Constructor.
+	 * \brief Constructor.
 	 *
-	 * \param[in] byte_pos       Last 1-based byte pos read before error
+	 * \param[in] byte_pos       Last 1-based global byte pos read before exception
 	 * \param[in] block          1-based block number
-	 * \param[in] block_byte_pos Last 1-based block byte pos read before error
+	 * \param[in] block_byte_pos Last 1-based block byte pos read before exception
 	 * \param[in] what_arg       Error message
 	 */
 	StreamReadException(const uint32_t byte_pos, const uint32_t block,
 			const uint32_t block_byte_pos, const char *what_arg);
 
 	/**
-	 * Return last 1-based byte position before the exception occurred.
+	 * \brief Last 1-based global byte position before the exception occurred.
 	 *
-	 * \return Last 1-based byte position before the exception occurred
+	 * \return Last 1-based global byte position before the exception occurred
 	 */
 	uint32_t byte_position() const;
 
 	/**
-	 * Return the 1-based block number of the block.
+	 * \brief The 1-based block number of the block in which the exception
+	 * occurred.
 	 *
 	 * \return The 1-based block number of the block
 	 */
 	uint32_t block() const;
 
 	/**
-	 * Return last 1-based byte position relative to the start of the current
+	 * \brief Last 1-based byte position relative to the start of the current
 	 * block before the exception occurred.
 	 *
 	 * \return Last 1-based block byte position read before the exception
@@ -990,39 +1200,52 @@ public:
 private:
 
 	/**
-	 * Last 1-based byte position before the exception occurred
+	 * \brief Last 1-based global byte position before the exception occurred.
 	 */
 	const uint32_t byte_pos_;
 
 	/**
-	 * The 1-based block number of the block
+	 * \brief The 1-based block number of the block in which the exception
+	 * occurred.
 	 */
 	const uint32_t block_;
 
 	/**
-	 * Last 1-based block byte position read before the exception
+	 * \brief Last 1-based block-relative byte position read before the
+	 * exception.
 	 */
 	const uint32_t block_byte_pos_;
 };
 
 
 /**
- * \brief Abstract base class for parsing an AccurateRip response.
+ * \brief Abstract base class for parsing the content of an AccurateRip
+ * HTTP-response.
  *
- * ARStreamParser encapsulates the actual parsing process on an std::istream.
+ * \details
  *
- * A ContentHandler is required to actually process the parsed content. An
- * ErrorHandler can optionally be set to perform some processing of the
- * error information before a StreamReadException is thrown. Since the
- * AccurateRip reference data is binary data, there is no perspective to
- * sanitize the stream or proceed parsing after an exception. An ErrorHandler
- * is therefore mere convenience to get informative log messages.
+ * ARStreamParser parses a std::istream as an AccurateRip response.
  *
- * Concrete subclasses are responsible for implementing
- * do_parse() method. Method parse_stream() is provided as a building block for
- * this implementation. Hook method on_catched_exception() is called before the
- * exception is rethrown, so the actual stream can be closed or other cleanup
- * can be performed.
+ * A ContentHandler is required to actually process the parsed content.
+ *
+ * An ErrorHandler can optionally be set to perform some processing of the
+ * error information before a StreamReadException is thrown. If no
+ * ErrorHandler is set, a StreamReadException or std::runtime_error is thrown
+ * on a parse error.
+ *
+ * Concrete subclasses are responsible for implementing function
+ * do_parse(). Protected service function parse_stream() is provided as a
+ * building block for subclasses to implement the parsing. Hook method
+ * on_catched_exception() is called before the exception is rethrown,
+ * so the subclass has the chance to perform some cleanup as closing the
+ * stream if this required.
+ *
+ * \todo
+ * It should be possible to parse without exceptions. If intercepting is
+ * preferred, the ErrorHandler should rethrow the exception instead of the
+ * parser.
+ *
+ * \todo Specify/ensure all possible exceptions parse_stream() can throw
  */
 class ARStreamParser
 {
@@ -1080,8 +1303,10 @@ protected:
 	/**
 	 * \brief Parses the (opened) byte stream of an AccurateRip response.
 	 *
-	 * The stream is required to be appropriately opened. It is further
-	 * required that failbit and badbit are set and exceptions are activated.
+	 * \attention
+	 * It is in the responsibility of the client that the stream is opened
+	 * before passing. Exceptions must be activated and failbit as well as
+	 * badbit must be set.
 	 *
 	 * \param[in] in_stream The stream to be parsed
 	 *
@@ -1093,7 +1318,7 @@ protected:
 private:
 
 	/**
-	 * \brief Implements @link ARStreamParser::parse() parse() @endlink.
+	 * \brief Implements parse().
 	 *
 	 * \return Number of bytes parsed from configured input stream
 	 */
@@ -1101,12 +1326,13 @@ private:
 	= 0;
 
 	/**
-	 * \brief Hook: Called by
-	 * @link ARStreamParser::parse_stream() parse_stream() @endlink on a
-	 * StreamReadException before the exception is rethrown.
+	 * \brief Hook: Called by parse_stream() on a StreamReadException before
+	 * the exception is rethrown.
 	 *
-	 * This hook can be used to close the stream in case this is required or to
-	 * perform other steps before rethrowing.
+	 * \details
+	 *
+	 * This hook can be used to do cleanup before rethrowing. The implementing
+	 * class can close the stream or perform other required steps.
 	 *
 	 * \param[in] stream The opened stream in the state after the exception
 	 * \param[in] e      The std::exception thrown
@@ -1127,7 +1353,9 @@ private:
 
 
 /**
- * \brief Parser for AccurateRip response as a file.
+ * \brief Parser for dBAR-\*.bin files.
+ *
+ * \details
  *
  * This class parses dBAR-\*.bin files saved by the actual ripper software
  * or achieved by an HTTP request to AccurateRip. Those files are just the byte
@@ -1161,7 +1389,7 @@ public:
 	 * \brief Name of the file to parse.
 	 *
 	 * \return Name of the file that is parsed when
-	 * @link ARStreamParser::parse() parse() @endlink is called.
+	 * \link ARStreamParser::parse() parse() \endlink is called.
 	 */
 	std::string file() const;
 
@@ -1174,7 +1402,7 @@ private:
 			const std::exception &e) const final;
 
 	/**
-	 * Internal filename representation
+	 * \brief Internal filename representation
 	 */
 	std::string filename_;
 };

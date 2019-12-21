@@ -567,7 +567,7 @@ ARTriplet& ARTriplet::operator = (ARTriplet &&rhs) noexcept = default;
 class ARBlock::Impl final
 {
 
-public: /* methods */
+public: /* member functions */
 
 	/**
 	 * \brief Default constructor.
@@ -591,6 +591,16 @@ public: /* methods */
 	void append(const ARTriplet &triplet);
 
 	/**
+	 * \brief Implements ARBlock::triplet(const size_type index) const
+	 */
+	const ARTriplet& triplet(const ARBlock::size_type index) const;
+
+	/**
+	 * \brief Implements ARBlock::triplet(const size_type index)
+	 */
+	ARTriplet& triplet(const ARBlock::size_type index);
+
+	/**
 	 * \brief Returns the size of this ARBlock, i.e. the number of triplets it
 	 * contains.
 	 *
@@ -599,28 +609,28 @@ public: /* methods */
 	ARBlock::size_type size() const;
 
 	/**
-	 * \brief Const iterator pointing to the first triplet.
+	 * \brief const_iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
 	ARBlock::iterator begin();
 
 	/**
-	 * \brief Const iterator pointing to the last triplet.
+	 * \brief const_iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
 	ARBlock::iterator end();
 
 	/**
-	 * \brief Const iterator pointing to the first triplet.
+	 * \brief const_iterator pointing to the first triplet.
 	 *
 	 * \return Const iterator pointing to the first triplet
 	 */
 	ARBlock::const_iterator cbegin() const;
 
 	/**
-	 * \brief Const iterator pointing to the last triplet.
+	 * \brief const_iterator pointing to the last triplet.
 	 *
 	 * \return Const iterator pointing behind the last triplet
 	 */
@@ -677,6 +687,24 @@ void ARBlock::Impl::append(const ARTriplet &triplet)
 }
 
 
+const ARTriplet& ARBlock::Impl::triplet(const ARBlock::size_type index) const
+{
+	return triplets_.at(index);
+}
+
+
+ARTriplet& ARBlock::Impl::triplet(const ARBlock::size_type index)
+{
+	return triplets_.at(index);
+}
+
+
+ARBlock::size_type ARBlock::Impl::size() const
+{
+	return triplets_.size();
+}
+
+
 ARBlock::iterator ARBlock::Impl::begin()
 {
 	return triplets_.begin();
@@ -698,12 +726,6 @@ ARBlock::const_iterator ARBlock::Impl::cbegin() const
 ARBlock::const_iterator ARBlock::Impl::cend() const
 {
 	return triplets_.cend();
-}
-
-
-ARBlock::size_type ARBlock::Impl::size() const
-{
-	return triplets_.size();
 }
 
 
@@ -757,6 +779,18 @@ const ARId& ARBlock::id() const
 void ARBlock::append(const ARTriplet &triplet)
 {
 	impl_->append(triplet);
+}
+
+
+const ARTriplet& ARBlock::triplet(const ARBlock::size_type index) const
+{
+	return impl_->triplet(index);
+}
+
+
+ARTriplet& ARBlock::triplet(const ARBlock::size_type index)
+{
+	return impl_->triplet(index);
 }
 
 
@@ -838,10 +872,10 @@ ARBlock& ARBlock::operator = (ARBlock &&rhs) noexcept = default;
 class ARResponse::Impl final
 {
 
-public: /* methods */
+public: /* member functions */
 
 	/**
-	 * \brief Default constructor
+	 * \brief Empty constructor
 	 */
 	Impl();
 
@@ -851,9 +885,14 @@ public: /* methods */
 	void append(const ARBlock &block);
 
 	/**
-	 * \brief Implements ARResponse::block(const int i) const
+	 * \brief Implements ARResponse::block(const int index) const
 	 */
-	const ARBlock& block(const ARResponse::size_type i) const;
+	const ARBlock& block(const ARResponse::size_type index) const;
+
+	/**
+	 * \brief Implements ARResponse::block(const int index) const
+	 */
+	ARBlock& block(const ARResponse::size_type index);
 
 	/**
 	 * \brief Implements ARResponse::size() const
@@ -924,9 +963,15 @@ void ARResponse::Impl::append(const ARBlock &block)
 
 
 const ARBlock& ARResponse::Impl::block(
-		const ARResponse::size_type i) const
+		const ARResponse::size_type index) const
 {
-	return blocks_.at(i);
+	return blocks_.at(index);
+}
+
+
+ARBlock& ARResponse::Impl::block(const ARResponse::size_type index)
+{
+	return blocks_.at(index);
 }
 
 
@@ -1013,9 +1058,15 @@ void ARResponse::append(const ARBlock &block)
 }
 
 
-const ARBlock& ARResponse::block(const ARResponse::size_type i) const
+const ARBlock& ARResponse::block(const ARResponse::size_type index) const
 {
-	return impl_->block(i);
+	return impl_->block(index);
+}
+
+
+ARBlock& ARResponse::block(const ARResponse::size_type index)
+{
+	return impl_->block(index);
 }
 
 
