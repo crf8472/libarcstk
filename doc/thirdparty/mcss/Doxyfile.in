@@ -14,6 +14,12 @@ OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
 # Has to be repeated: base gets the value from root CMakeLists.txt, this
 # has to get the value from m.css/CMakeListst.txt.
 
+# If the INHERIT_DOCS tag is set to YES then an undocumented member inherits the
+# documentation from any documented member that it re-implements.
+# The default value is: YES.
+
+INHERIT_DOCS           = NO  # Override libarcstk Doxyfile
+
 # This tag can be used to specify a number of aliases that act as commands in
 # the documentation. An alias has the form:
 # name=value
@@ -45,7 +51,7 @@ ALIASES += \
 # methods of a class will be included in the documentation.
 # The default value is: NO.
 
-#EXTRACT_PRIV_VIRTUAL   = NO  # m.css default (since 1.8.16)
+EXTRACT_PRIV_VIRTUAL   = YES # Override libarcstk Doxyfile (since 1.8.16)
 
 # If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
 # The default value is: YES.
