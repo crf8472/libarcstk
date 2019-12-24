@@ -4,21 +4,7 @@
 /**
  * \file
  *
- * \brief Public API for calculating AccurateRip ids
- *
- * ARId
- *
- * @link arcstk::v_1_0_0::ARId ARId @endlink is an AccurateRip identifier. It
- * can be constructed either from
- * three precomputed ids or from a @link arcstk::v_1_0_0::TOC TOC @endlink
- * using function make_arid(). A @link arcstk::v_1_0_0::TOC TOC @endlink is the
- * verified table of content information from a compact disc.
- * @link arcstk::v_1_0_0::TOC TOCs @endlink are exclusively constructed by
- * make_toc() that tries to validate the information used to construct the
- * @link arcstk::v_1_0_0::TOC TOC @endlink. If this information
- * cannot be verified, an
- * @link arcstk::v_1_0_0::InvalidMetadataException InvalidMetadataException @endlink
- * is thrown.
+ * \brief Public API for \link id calculating AccurateRip ids\endlink
  */
 
 #include <cstdint>
@@ -46,10 +32,11 @@ inline namespace v_1_0_0
  */
 using TrackNo = int;
 
+
 /**
- * \brief Unsigned type for a 32 bit wide PCM stereo sample (2 channels x 16 bit).
+ * \brief Type to represent a PCM 32 bit sample (2 channels x 16 bit).
  */
-using Sample32 = uint32_t;
+using sample_type = uint32_t;
 
 
 /**
@@ -156,15 +143,39 @@ extern const CDDA_t CDDA;
 inline namespace v_1_0_0
 {
 
-/// \defgroup id AccurateRip IDs
-/// @{
+/** \defgroup id AccurateRip IDs
+ *
+ * \brief Calculate and manage \link ARId AccurateRip identifier\endlink
+ *
+ * ARId is an AccurateRip identifier. It determines the request URL for an
+ * album and as well its canonical savefile name. \link ARId ARIds\endlink are
+ * constructed by other IDs and metadata like offsets and track count. As a
+ * convenience, functions make_arid() construct the ARId of an album by its
+ * TOC.
+ *
+ * A TOC is the verified table of content information from a compact disc.
+ * \link TOC TOCs\endlink are exclusively constructed by functions make_toc()
+ * that try to validate the information used to construct the TOC. The
+ * verification recognizes inconsistent input data that cannot form
+ * a valid TOC. If the verification fails, an InvalidMetadataException is
+ * thrown.
+ *
+ * @{
+ */
 
 
 /**
  * \brief AccurateRip-Identifier of a compact disc.
  *
- * ARId determines the URL of the compact disc dataset as well as the
- * standard filename of the AccurateRip response.
+ * The AccurateRip identifier determines the URL of the compact disc dataset as
+ * well as the standard filename of the AccurateRip response.
+ *
+ * \link ARId ARIds\endlink can be constructed either from three
+ * precomputed ids or from a TOC using function make_arid().
+ *
+ * In some cases, an ARId is syntactically required, but semantically
+ * superflous. An ARId can be empty() to indicate that it carries no identifier.
+ * An ARId that qualifies as empty() can be constructed by make_empty_arid().
  */
 class ARId final
 {
@@ -326,10 +337,17 @@ private:
  * lengths, their filenames and the index of the leadout frame. Offsets and
  * lengths are represented in LBA frames.
  *
- * @link TOC TOCs @endlink can exclusively be built by to two build functions.
+ * A TOC is an object constructed from parsed data. It is therefore not
+ * modifiable.
+ *
+ * \link TOC TOCs\endlink can exclusively be built by to two build functions
+ * called make_toc().
  * Both functions guarantee to provide either a valid TOC or to throw an
  * InvalidMetadataException. This entails that any concrete
- * TOC provides strong guarantees regarding the consitency of its content.
+ * TOC provides strong guarantees regarding the consistency of its content.
+ *
+ * Although an existing TOC is therefore always valid it might \em not be
+ * complete().
  *
  * In some cases it may be sensible to construct an incomplete TOC, i.e. a TOC
  * without a leadout frame. Some toc formats (as for example CUESheet) may not
@@ -348,9 +366,9 @@ public:
 	/**
 	 * \brief Construct from private Implementation.
 	 *
-	 * Note that @link TOC TOCs @endlink are supposed to be constructed by a
+	 * Note that \link TOC TOCs\endlink are supposed to be constructed by a
 	 * call to a builder function. This function ensures the guarantees hold for
-	 * @link TOC TOCs @endlink. The logic to enforce all the necessary
+	 * @link TOC TOCs\endlink. The logic to enforce all the necessary
 	 * invariants is not to be placed in TOC.
 	 *
 	 * \param[in] impl The implementation of the TOC
@@ -400,6 +418,11 @@ public:
 	 *
 	 * If the length for this track is not known, 0 is returned.
 	 *
+	 * \attention
+	 * These lengths are the lengths as they were passed to the build function.
+	 * They are not normalized or sanitized. They might be inconsistent with the
+	 * offsets.
+	 *
 	 * \param[in] idx 1-based track number
 	 *
 	 * \return Length of specified track
@@ -407,9 +430,9 @@ public:
 	uint32_t parsed_length(const TrackNo idx) const;
 
 	/**
-	 * \brief Return the file of the 1-based specified track, i.e. <tt>file(i)</tt> is
-	 * the offset for track \p i iff \p i is a valid track number in
-	 * this TOC.
+	 * \brief Return the file of the 1-based specified track, i.e.
+	 * <tt>file(i)</tt> is the offset for track \p i iff \p i is a valid track
+	 * number in this TOC.
 	 *
 	 * If all tracks are part of the same file, a call of <tt>file(i)</tt>
 	 * will yield a string with identical content for any \p i.
@@ -484,7 +507,8 @@ private:
 /**
  * \brief Reports insufficient or invalid metadata for building a TOC.
  *
- * \todo For metadata files, position information about the error maybe useful
+ * \todo Metadata files are usually parsed text files, hence position
+ * information about the error may be useful.
  */
 class InvalidMetadataException final : public std::logic_error
 {
@@ -508,31 +532,33 @@ public:
 
 
 /**
- * \brief Create an ARId from a TOC.
+ * \brief Create an ARId from a \link TOC::complete() complete()\endlink TOC.
+ *
+ * \details
  *
  * The input is validated.
- *
- * Object \c toc must be complete, otherwise an
- * InvalidMetadataException is thrown.
  *
  * \param[in] toc TOC to use
  *
  * \return ARId
  *
- * \throw InvalidMetadataException If \c toc has <tt>toc.leadout() == 0</tt>
+ * \throws InvalidMetadataException
+ * If \c toc is not \link TOC::complete() complete()\endlink.
  *
  * \see make_arid(const TOC &toc, const uint32_t leadout)
+ * \see make_empty_arid()
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc);
 
 
 /**
- * \brief Create an ARId from a TOC and a separately specified leadout.
+ * \brief Create an ARId from a TOC and a specified leadout.
  *
  * The input is validated.
  *
- * Parameter \c toc is allowed to be incomplete. Parameter \c leadout is
- * intended to provide the value possibly missing in \c toc.
+ * Parameter \c toc is allowed to be non-\link TOC::complete()
+ * complete()\endlink. Parameter \c leadout is intended to provide the value
+ * possibly missing in \c toc.
  *
  * If \c leadout is 0, \c toc.leadout() is used and \c leadout is ignored. If
  * \c leadout is not 0, \c toc.leadout() is ignored. If both values are 0
@@ -548,9 +574,10 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
  *
  * \return ARId
  *
- * \throw InvalidMetadataException If \c toc and \c leadout are invalid
+ * \throws InvalidMetadataException If \c toc and \c leadout are invalid
  *
  * \see make_arid(const TOC &toc)
+ * \see make_empty_arid()
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
@@ -558,36 +585,57 @@ std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 /**
  * \brief Creates an empty ARId
  *
- * \return An empty ARId
+ * \return An \link ARId::empty() empty()\endlink ARId
+ *
+ * \see make_arid(const TOC &toc, const uint32_t leadout)
+ * \see make_arid(const TOC &toc)
  */
 std::unique_ptr<ARId> make_empty_arid();
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
+ * specified information.
  *
  * The input data is validated and the returned TOC is guaranteed to be
- * complete.
+ * complete().
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
  * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
  *
- * \return A TOC object representing the specified information
+ * \return A complete() TOC object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid TOC
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
+ *
+ * \see \link make_toc(const TrackNo, const std::vector<int32_t>&, const std::vector<int32_t>&, const std::vector<std::string>&)
+ * make_toc() with lengths instead of leadout
+ * \endlink
+ *
+ * \todo
+ * The make_toc() function requiring a leadout does not accept a leadout of 0.
+ * This behaviour is different from make_toc() with lengths, where the
+ * last length is allowed to be 0. It is sensible to not enforce completeness
+ * if no leadout is known. But it is inconsistent insofar as the client may
+ * never create an incomplete TOC by using leadout 0, only by using a length of
+ * 0 for the last track. It's reasonable but inconsistent.
  */
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
-		const uint32_t leadout);
+		const uint32_t leadout,
+		const std::vector<std::string> &files);
 
 
 /**
  * \brief Create a TOC object from the specified information.
  *
- * The input data is validated, but the length of the last track is allowed to
- * be 0. The returned TOC is therefore <b>not</b> guaranteed to be
- * complete.
+ * \note
+ * The input data is validated but the length of the last track is allowed to
+ * be 0. The returned TOC is therefore \em not guaranteed to be
+ * \link TOC::complete() complete()\endlink. If the length of the last track is
+ * a valid value, the resulting TOC will be complete() though.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) of each track
@@ -597,6 +645,8 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input data forms no valid TOC
+ *
+ * \see make_toc(const TrackNo, const std::vector<int32_t>&, const uint32_t, const std::vector<std::string>&) make_toc with leadout instead of lengths \endlink
  */
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
@@ -605,7 +655,11 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 
 
 /**
- * \brief Functions assissting the management of @link TOC TOCs @endlink.
+ * \brief Functions assisting the management of @link TOC TOCs @endlink.
+ *
+ * \todo Avoid redundancy of 3 implementations. A template solution could do
+ * that - or just use copy possibilities offered by \c std. Anyway, solution
+ * should be generic for all 3 cases.
  */
 namespace toc
 {
@@ -619,6 +673,7 @@ namespace toc
  */
 std::vector<uint32_t> get_offsets(const TOC &toc);
 
+
 /**
  * \brief Extract parsed lengths from TOC in order.
  *
@@ -627,6 +682,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc);
  * \return List of parsed lengths from metafile
  */
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
+
 
 /**
  * \brief Extract filenames from TOC in order.

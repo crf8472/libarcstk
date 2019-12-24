@@ -7,7 +7,8 @@
  *
  * \details
  *
- * Includes the module for \link matching AccurateRip checksums and ids\endlink.
+ * Includes the module for \link match matching AccurateRip checksums and
+ * ids\endlink.
  *
  * Fine-granular comparison between an AccurateRip response and locally computed
  * checksums.
@@ -552,6 +553,11 @@ private:
  * Find any match of any actual Checksum in the ARResponse. This targets the
  * situation where a subset of tracks from the same album are tried to be
  * matched, but the subset may be incomplete.
+ *
+ * \note
+ * The TracksetMatcher is a generalization of the AlbumMatcher. The AlbumMatcher
+ * adds the restriction that the order of tracks in the ARResponse must be
+ * matched too.
  */
 class TracksetMatcher final : public Matcher
 {

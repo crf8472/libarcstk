@@ -37,7 +37,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */);
+				1233 /* leadout */, {} /* no filenames */);
 
 		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
@@ -82,7 +82,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */);
+				1233 /* leadout */, {} /* no filenames */);
 
 		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
@@ -149,7 +149,7 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */);
+				1233 /* leadout */, {} /* no filenames */);
 
 		auto ctx = arcstk::make_context(std::string(/* no filename */), *toc1);
 
@@ -384,7 +384,8 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 	arcstk::TOCBuilder builder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	std::unique_ptr<arcstk::TOC> toc1 = builder.build(3, { 12, 433, 924 }, 1233);
+	std::unique_ptr<arcstk::TOC> toc1 =
+		builder.build(3, { 12, 433, 924 }, 1233, {});
 
 	auto ctx = arcstk::make_context(std::string(), *toc1);
 
@@ -500,7 +501,8 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 	arcstk::TOCBuilder builder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	std::unique_ptr<arcstk::TOC> toc = builder.build(3, { 12, 433, 924 }, 1233);
+	std::unique_ptr<arcstk::TOC> toc =
+		builder.build(3, { 12, 433, 924 }, 1233, {});
 
 	auto ctx = arcstk::make_context(std::string(), *toc);
 
@@ -738,7 +740,9 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 		// leadout
-		253038
+		253038,
+		// no filenames
+		{}
 	);
 
 	auto mctx = arcstk::make_context("", *toc);
@@ -1166,7 +1170,9 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 		{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500, 148267,
 			174602, 208125, 212705, 239890, 268705, 272055, 291720, 319992 },
 		// leadout
-		332075
+		332075,
+		// no filenames
+		{}
 	);
 
 
@@ -1317,7 +1323,9 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 		// leadout
-		253038
+		253038,
+		// no filenames
+		{}
 	);
 
 	auto mctx = arcstk::make_context(std::string(), *toc);

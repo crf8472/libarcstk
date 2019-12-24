@@ -205,6 +205,7 @@ public:
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in LBA frames) for each track
 	 * \param[in] leadout     Leadout frame
+	 * \param[in] files       File name of each track
 	 *
 	 * \return A TOC object representing the specified information
 	 *
@@ -212,7 +213,8 @@ public:
 	 */
 	std::unique_ptr<TOC> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
-			const uint32_t leadout);
+			const uint32_t leadout,
+			const std::vector<std::string> &files);
 
 	/**
 	 * \brief Build a TOC object from the specified information.
@@ -424,10 +426,31 @@ protected:
  * \param[in] offsets     Offsets (in CDDA frames) of each track
  * \param[in] lengths     Lengths (in CDDA frames) of each track
  */
-uint32_t calculate_leadout(const TrackNo track_count,
-	const std::vector<uint32_t> &offsets,
-	const std::vector<uint32_t> &lengths);
+//uint32_t calculate_leadout(const TrackNo track_count,
+//	const std::vector<uint32_t> &offsets,
+//	const std::vector<uint32_t> &lengths);
 
+/**
+ * \internal
+ * \ingroup id
+ *
+ * \brief Worker to calculate the leadout
+ *
+ * \param[in] offsets Offsets (in CDDA frames) of each track
+ * \param[in] lengths Lengths (in CDDA frames) of each track
+ */
+uint32_t leadout(const std::vector<uint32_t> &offsets,
+		const std::vector<uint32_t> &lengths);
+
+/**
+ * \internal
+ * \ingroup id
+ *
+ * \brief Worker to calculate the leadout
+ *
+ * \param[in] lengths Lengths (in CDDA frames) of each track
+ */
+uint32_t leadout(const std::vector<uint32_t> &lengths);
 
 } // namespace v_1_0_0
 

@@ -8,7 +8,7 @@
  *
  * \details
  *
- * Includes the module for \link parsing AccurateRip responses\endlink.
+ * Includes the module for \link parse parsing AccurateRip responses\endlink.
  *
  * Parse and represent the content of an HTTP-response of AccurateRip as an
  * ARResponse object.

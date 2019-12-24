@@ -4,6 +4,7 @@
  * \brief Implementation of a low-level API for representing AccurateRip ids
  */
 
+#include <limits>
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
@@ -12,11 +13,15 @@
 #endif
 
 #include <cstdint>
+#include <functional>// for function
 #include <iomanip>   // for setw, setfill
 #include <memory>
+#include <numeric>   // for accumulate
 #include <sstream>   // for stringstream
 #include <stdexcept> // for logic_error
 #include <string>
+#include <type_traits>
+#include <utility>   // for forward
 #include <vector>
 
 #ifndef __LIBARCSTK_LOGGING_HPP__
@@ -36,6 +41,41 @@ inline namespace v_1_0_0
  * \brief Global instance of the CDDA constants
  */
 const CDDA_t CDDA;
+
+
+/**
+ * \brief Uniform access to a container by track
+ *
+ * Instead of using at() that uses a 0-based index, we need a uniform method
+ * to access a container by using a 1-based index and we want to range check it.
+ *
+ * Type Container is required to yield its number of elements by member function
+ * size() and to allow access via operator[].
+ *
+ * \tparam Container Container type with size() and []
+ * \param c Actual container
+ * \param t Number of the track to access
+ *
+ * \return The value for track \c t in the container \c
+ */
+template <typename Container>
+decltype(auto) get_track(Container&& c, const TrackNo t)
+{
+	auto container_size = std::forward<Container>(c).size();
+
+	// Do the range check
+	if (t < 1 or static_cast<decltype(container_size)>(t) > container_size)
+	{
+		std::stringstream message;
+		message << "Track " << t << " is out of range (yields index "
+			<< (t - 1) << " but size is " << container_size << ")";
+
+		throw std::out_of_range("No such track");
+	}
+
+	return std::forward<Container>(c)[
+		static_cast<decltype(container_size)>(t - 1)];
+}
 
 
 /**
@@ -371,7 +411,8 @@ public:
 	 */
 	std::unique_ptr<TOC::Impl> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
-			const uint32_t leadout);
+			const uint32_t leadout,
+			const std::vector<std::string> &files);
 
 	/**
 	 * \brief Implements TOCBuilder::build(const TrackNo track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
@@ -518,13 +559,14 @@ class TOC::Impl final
 	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
 			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
+			const uint32_t leadout,
 			const std::vector<std::string> &files);
 
 	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
 			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
-			const uint32_t leadout);
+			const std::vector<int32_t> &lengths,
+			const std::vector<std::string> &files);
 
 	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::merge(
 			const TOC &toc, const uint32_t leadout) const;
@@ -575,10 +617,12 @@ private:
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
 	 * \param[in] leadout     Leadout frame
+	 * \param[in] files       File name of each track
 	 */
 	Impl(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
-			const uint32_t leadout);
+			const uint32_t leadout,
+			const std::vector<std::string> &files);
 
 	/**
 	 * \brief Implements private constructor of TOC.
@@ -623,12 +667,13 @@ private:
 
 TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets,
-		const uint32_t leadout)
+		const uint32_t leadout,
+		const std::vector<std::string> &files)
 	: track_count_(track_count)
 	, offsets_(offsets)
 	, lengths_()
 	, leadout_(leadout)
-	, files_()
+	, files_(files)
 {
 	// empty
 }
@@ -641,7 +686,7 @@ TOC::Impl::Impl(const TrackNo track_count,
 	: track_count_(track_count)
 	, offsets_(offsets)
 	, lengths_(lengths)
-	, leadout_(calculate_leadout(track_count, offsets, lengths))
+	, leadout_(arcstk::leadout(offsets, lengths))
 	, files_(files)
 {
 	// empty
@@ -654,27 +699,21 @@ TrackNo TOC::Impl::track_count() const
 }
 
 
-uint32_t TOC::Impl::offset(const TrackNo idx) const
+uint32_t TOC::Impl::offset(const TrackNo track) const
 {
-	return idx < 1 || idx > static_cast<int>(offsets_.size())
-		? 0
-		: offsets_[static_cast<std::vector<uint32_t>::size_type>(idx - 1)];
+	return get_track(offsets_, track);
 }
 
 
-uint32_t TOC::Impl::parsed_length(const TrackNo idx) const
+uint32_t TOC::Impl::parsed_length(const TrackNo track) const
 {
-	return idx < 1 || idx > static_cast<int>(lengths_.size())
-		? 0
-		: lengths_[static_cast<std::vector<uint32_t>::size_type>(idx - 1)];
+	return get_track(lengths_, track);
 }
 
 
-std::string TOC::Impl::filename(const TrackNo idx) const
+std::string TOC::Impl::filename(const TrackNo track) const
 {
-	return idx < 1 || idx > static_cast<int>(files_.size())
-		? std::string()
-		: files_[static_cast<std::vector<std::string>::size_type>(idx - 1)];
+	return get_track(files_, track);
 }
 
 
@@ -916,56 +955,70 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 namespace toc
 {
 
-// TODO Template solution would avoid redundancy of 3 implementatsions
+/**
+ * \internal
+ *
+ * \brief Implementation details of namespace toc
+ */
+namespace details
+{
+
+/**
+ * \brief Uniform access to a container by track
+ *
+ * Instead of using at() that uses a 0-based index, we need a uniform method
+ * to access a container by using a 1-based index and we want to range check it.
+ *
+ * Type Container is required to yield its number of elements by member function
+ * size() and to allow access via operator[].
+ *
+ * \tparam Container Container type with size() and []&
+ * \param  c         Actual container
+ * \param  toc       Number of the track to access
+ *
+ * \return The value for track \c t in the container \c
+ */
+template <typename Container, typename InType>
+decltype(auto) toc_get(Container&& c,
+		const TOC &toc,
+		InType (TOC::*accessor)(const TrackNo) const)
+{
+	auto container_size = std::forward<Container>(c).size();
+
+	auto tracks = static_cast<decltype(container_size)>(toc.track_count());
+	for (decltype(container_size) t = 1; t <= tracks; ++t)
+	{
+		c[t - 1] = (toc.*accessor)(t);
+		// FIXME Uniform container insertion? std::inserter?
+	}
+
+	return c;
+}
+
+} // namespace details
+
 
 std::vector<uint32_t> get_offsets(const TOC &toc)
 {
-	auto size =
-		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
-
-	std::vector<uint32_t> offsets;
-	offsets.reserve(size);
-
-	for (TrackNo t = 1; t <= toc.track_count(); ++t)
-	{
-		offsets.emplace_back(toc.offset(t));
-	}
-
-	return offsets;
+	std::vector<uint32_t> target;
+	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	return details::toc_get(target, toc, &TOC::offset);
 }
 
 
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 {
-	auto size =
-		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
-
-	std::vector<uint32_t> parsed_lengths;
-	parsed_lengths.reserve(size);
-
-	for (TrackNo t = 1; t <= toc.track_count(); ++t)
-	{
-		parsed_lengths.emplace_back(toc.parsed_length(t));
-	}
-
-	return parsed_lengths;
+	std::vector<uint32_t> target;
+	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	return details::toc_get(target, toc, &TOC::parsed_length);
 }
 
 
 std::vector<std::string> get_filenames(const TOC &toc)
 {
-	auto size =
-		static_cast<std::vector<std::string>::size_type>(toc.track_count());
-
-	std::vector<std::string> fnames;
-	fnames.reserve(size);
-
-	for (TrackNo t = 1; t <= toc.track_count(); ++t)
-	{
-		fnames.emplace_back(toc.filename(t));
-	}
-
-	return fnames;
+	std::vector<std::string> target;
+	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	return details::toc_get(target, toc, &TOC::filename);
 }
 
 } // namespace toc
@@ -1192,7 +1245,7 @@ std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	TOCBuilder builder;
-	auto toc = builder.build(track_count, offsets, leadout);
+	auto toc = builder.build(track_count, offsets, leadout, {});
 
 	return impl_->build(*toc, 0);
 }
@@ -1252,12 +1305,14 @@ TOCBuilder::Impl::Impl(const TOCBuilder::Impl &rhs)
 
 std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
-		const uint32_t leadout)
+		const uint32_t leadout,
+		const std::vector<std::string> &files)
 {
 	return std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(offsets, track_count, leadout),
-		build_leadout(leadout))
+		build_leadout(leadout),
+		build_files(files))
 	);
 }
 
@@ -1440,10 +1495,11 @@ TOCBuilder::~TOCBuilder() noexcept = default;
 
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
-		const uint32_t leadout)
+		const uint32_t leadout,
+		const std::vector<std::string> &files)
 {
 	return std::make_unique<TOC>(
-			impl_->build(track_count, offsets, leadout));
+			impl_->build(track_count, offsets, leadout, files));
 }
 
 
@@ -1810,10 +1866,11 @@ std::unique_ptr<ARId> make_empty_arid()
 
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
-		const uint32_t leadout)
+		const uint32_t leadout,
+		const std::vector<std::string> &files)
 {
 	TOCBuilder builder;
-	return builder.build(track_count, offsets, leadout);
+	return builder.build(track_count, offsets, leadout, files);
 }
 
 
@@ -1830,20 +1887,46 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 // unpublished worker functions
 
 
-uint32_t calculate_leadout(const TrackNo track_count,
-		const std::vector<uint32_t> &offsets,
+//uint32_t calculate_leadout(const TrackNo track_count,
+//		const std::vector<uint32_t> &offsets,
+//		const std::vector<uint32_t> &lengths)
+//{
+//	if (track_count < 1 or track_count > CDDA.MAX_TRACKCOUNT)
+//	{
+//		return 0;
+//	}
+//	auto tc = static_cast<std::vector<uint32_t>::size_type>(track_count) - 1u;
+//	return (lengths.at(tc) > 0) ? offsets.at(tc) + lengths.at(tc) : 0;
+//}
+
+
+uint32_t leadout(const std::vector<uint32_t> &offsets,
 		const std::vector<uint32_t> &lengths)
 {
-	if (track_count < 1 or track_count > CDDA.MAX_TRACKCOUNT)
+	return lengths.back() == 0 ? 0 : offsets.back() + lengths.back();
+}
+
+
+uint32_t leadout(const std::vector<uint32_t> &lengths)
+{
+	if (lengths.back() == 0)
 	{
 		return 0;
 	}
-	auto tc = static_cast<std::vector<uint32_t>::size_type>(track_count) - 1u;
-	return (lengths.at(tc) > 0) ? offsets.at(tc) + lengths.at(tc) : 0;
+
+	auto sum { std::accumulate(lengths.begin(), lengths.end(), 0) };
+	auto max {
+		static_cast<decltype(sum)>(std::numeric_limits<uint32_t>::max()) };
+
+	if (sum > max)
+	{
+		return 0; // TODO
+	}
+
+	return static_cast<uint32_t>(sum);
 }
 
 
 } // namespace v_1_0_0
 
 } // namespace arcstk
-

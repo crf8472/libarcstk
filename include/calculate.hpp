@@ -76,12 +76,6 @@ inline namespace v_1_0_0
 
 
 /**
- * \brief Type for internal representation of 32-bit PCM samples.
- */
-using sample_type = uint32_t;
-
-
-/**
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, other the number of samples and
