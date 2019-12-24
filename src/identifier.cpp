@@ -70,7 +70,7 @@ decltype(auto) get_track(Container&& c, const TrackNo t)
 		message << "Track " << t << " is out of range (yields index "
 			<< (t - 1) << " but size is " << container_size << ")";
 
-		throw std::out_of_range("No such track");
+		throw std::out_of_range(message.str());
 	}
 
 	return std::forward<Container>(c)[
