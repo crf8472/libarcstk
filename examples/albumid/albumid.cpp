@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.
 	auto toc { arcstk::make_toc(offsets.size(), offsets,
-			audiosize.leadout_frame()) };
+			audiosize.leadout_frame(), { /* ignore filenames */ }) };
 
 	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.

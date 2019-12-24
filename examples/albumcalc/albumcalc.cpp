@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 	// inconsistent. For providing a nice message, you could wrap this command
 	// in a try/catch block.
 	auto toc { arcstk::make_toc(offsets.size(), offsets,
-			total_samples.leadout_frame()) };
+			total_samples.leadout_frame(), { /* ignore filenames */ }) };
 
 	// Step 2: Create a context from the TOC and the name of the audiofile.
 	// The context represents the configuration of the calculation process along
