@@ -600,7 +600,6 @@ std::unique_ptr<ARId> make_empty_arid();
  * The input data is validated and the returned TOC is guaranteed to be
  * complete().
  *
- * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
  * \param[in] leadout     Leadout frame
  * \param[in] files       File name of each track
@@ -610,9 +609,36 @@ std::unique_ptr<ARId> make_empty_arid();
  * \throw InvalidMetadataException If the input data forms no valid and
  * complete() TOC
  *
- * \see \link make_toc(const TrackNo, const std::vector<int32_t>&, const std::vector<int32_t>&, const std::vector<std::string>&)
- * make_toc() with lengths instead of leadout
- * \endlink
+ * \todo
+ * The make_toc() function requiring a leadout does not accept a leadout of 0.
+ * This behaviour is different from make_toc() with lengths, where the
+ * last length is allowed to be 0. It is sensible to not enforce completeness
+ * if no leadout is known. But it is inconsistent insofar as the client may
+ * never create an incomplete TOC by using leadout 0, only by using a length of
+ * 0 for the last track. It's reasonable but inconsistent.
+ */
+std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+		const uint32_t leadout,
+		const std::vector<std::string> &files = {});
+
+
+/**
+ * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
+ * specified information.
+ *
+ * The input data is validated and the returned TOC is guaranteed to be
+ * complete(). The value of \c track_count must be equal to \c offsets().size
+ * and is just used for additional validation.
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in LBA frames) for each track
+ * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
+ *
+ * \return A complete() TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
  *
  * \todo
  * The make_toc() function requiring a leadout does not accept a leadout of 0.
@@ -625,11 +651,36 @@ std::unique_ptr<ARId> make_empty_arid();
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout,
-		const std::vector<std::string> &files);
+		const std::vector<std::string> &files = {});
 
 
 /**
  * \brief Create a TOC object from the specified information.
+ *
+ * \note
+ * The input data is validated but the length of the last track is allowed to
+ * be 0. The returned TOC is therefore \em not guaranteed to be
+ * \link TOC::complete() complete()\endlink. If the length of the last track is
+ * a valid value, the resulting TOC will be complete() though.
+ *
+ * \param[in] offsets     Offsets (in LBA frames) of each track
+ * \param[in] lengths     Lengths (in LBA frames) of each track
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid TOC
+ */
+std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+		const std::vector<int32_t> &lengths,
+		const std::vector<std::string> &files = {});
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
  *
  * \note
  * The input data is validated but the length of the last track is allowed to
@@ -645,13 +696,11 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input data forms no valid TOC
- *
- * \see make_toc(const TrackNo, const std::vector<int32_t>&, const uint32_t, const std::vector<std::string>&) make_toc with leadout instead of lengths \endlink
  */
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files);
+		const std::vector<std::string> &files = {});
 
 
 /**

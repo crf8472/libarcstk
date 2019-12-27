@@ -374,6 +374,18 @@ public:
 	void validate_leadout(const uint32_t leadout) const;
 
 	/**
+	 * \brief Validate leadout frame.
+	 *
+	 * Equivalent to validate_leadout(), but furthermore ensures that \c leadout
+	 * is not 0.
+	 *
+	 * \param[in] leadout Leadout frame of the medium
+	 *
+	 * \throw InvalidMetadataException If the validation fails
+	 */
+	void validate_nonzero_leadout(const uint32_t leadout) const;
+
+	/**
 	 * \brief Validate track count.
 	 *
 	 * It is ensured that the track count is within a CDDA conforming range. An

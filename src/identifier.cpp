@@ -1560,8 +1560,6 @@ void TOCValidator::validate(const TrackNo track_count,
 			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
-		//ARCS_LOG_ERROR << ss.str();
-
 		throw InvalidMetadataException(ss.str());
 	}
 
@@ -1590,8 +1588,6 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 		std::stringstream ss;
 		ss << "Track count does not match offset count." << " Bail out.";
 
-		//ARCS_LOG_ERROR << ss.str();
-
 		throw InvalidMetadataException(ss.str());
 	}
 
@@ -1608,8 +1604,6 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		std::stringstream ss;
 		ss << "No offsets were given. Bail out.";
 
-		//ARCS_LOG_ERROR << ss.str();
-
 		throw InvalidMetadataException(ss.str());
 	}
 
@@ -1618,8 +1612,6 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 		std::stringstream ss;
 		ss << "Offsets are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
-
-		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1651,21 +1643,14 @@ void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
 			{
 				ss << " exceeds physical range of 99 min ("
 					<< std::to_string(MAX_OFFSET_99) << " frames)";
-
-				//ARCS_LOG_WARNING << ss.str();
-
 			} else if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_90))
 			{
 				ss << " exceeds physical range of 90 min ("
 					<< std::to_string(MAX_OFFSET_90) << " frames)";
-
-				//ARCS_LOG_ERROR << ss.str();
 			} else
 			{
 				ss << " exceeds redbook maximum duration of "
 					<< std::to_string(CDDA.MAX_OFFSET);
-
-				//ARCS_LOG_INFO << ss.str();
 			}
 
 			throw InvalidMetadataException(ss.str());
@@ -1690,8 +1675,6 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 		std::stringstream ss;
 		ss << "No lengths were given. Bail out.";
 
-		//ARCS_LOG_ERROR << ss.str();
-
 		throw InvalidMetadataException(ss.str());
 	}
 
@@ -1700,8 +1683,6 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 		std::stringstream ss;
 		ss << "Lengths are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
-
-		//ARCS_LOG_ERROR << ss.str();
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1740,8 +1721,6 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			ss << " exceeds physical range of 99 min ("
 				<< std::to_string(MAX_OFFSET_99) << " frames)";
 
-			//ARCS_LOG_ERROR << ss.str();
-
 			throw InvalidMetadataException(ss.str());
 
 		} else if (sum_lengths > MAX_OFFSET_90) // more than 90 min? => warn
@@ -1749,14 +1728,10 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
 
-			//ARCS_LOG_WARNING << ss.str();
-
 		} else // more than redbook originally defines? => info
 		{
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(CDDA.MAX_OFFSET);
-
-			//ARCS_LOG_INFO << ss.str();
 		}
 	}
 }
@@ -1769,17 +1744,8 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 	if (static_cast<int64_t>(leadout) < CDDA.MIN_TRACK_OFFSET_DIST)
 	{
 		std::stringstream ss;
-
-		if (leadout == 0)
-		{
-			ss << "Leadout must not be 0";
-		} else
-		{
-			ss << "Leadout " << leadout
-				<< " is smaller than minimum track length";
-		}
-
-		//ARCS_LOG_ERROR << ss.str();
+		ss << "Leadout " << leadout
+			<< " is smaller than minimum track length";
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -1791,8 +1757,6 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 		std::stringstream ss;
 		ss << "Leadout " << leadout << " exceeds physical maximum";
 
-		//ARCS_LOG_ERROR << ss.str();
-
 		throw InvalidMetadataException(ss.str());
 	}
 
@@ -1803,6 +1767,22 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 		ARCS_LOG_WARNING << "Leadout " << leadout
 			<< " exceeds redbook maximum";
 	}
+}
+
+
+void TOCValidator::validate_nonzero_leadout(const uint32_t leadout) const
+{
+	// Not zero ?
+
+	if (leadout == 0)
+	{
+		std::stringstream ss;
+		ss << "Leadout must not be 0";
+
+		throw InvalidMetadataException(ss.str());
+	}
+
+	this->validate_leadout(leadout);
 }
 
 
@@ -1864,6 +1844,15 @@ std::unique_ptr<ARId> make_empty_arid()
 // make_toc
 
 
+std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+		const uint32_t leadout,
+		const std::vector<std::string> &files)
+{
+	TOCBuilder builder;
+	return builder.build(offsets.size(), offsets, leadout, files);
+}
+
+
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout,
@@ -1871,6 +1860,15 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 {
 	TOCBuilder builder;
 	return builder.build(track_count, offsets, leadout, files);
+}
+
+
+std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+		const std::vector<int32_t> &lengths,
+		const std::vector<std::string> &files)
+{
+	TOCBuilder builder;
+	return builder.build(offsets.size(), offsets, lengths, files);
 }
 
 
