@@ -46,7 +46,7 @@ private:
 	// choose to return "yes" in case const_iterator is defined
 	template<typename S> static yes & test(
 		typename std::enable_if<
-			std::is_integral<typename S::value_type*>::value, void>::type*
+			std::is_integral<typename S::value_type>::value, void>::type*
 	);
 
 	// "no" otherwise

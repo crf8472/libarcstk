@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <memory>
 
+#include <list>
+
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
@@ -14,6 +16,73 @@
 /**
  * \file identifier.cpp Fixtures for classes in module 'identifier'
  */
+
+
+TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
+{
+	using arcstk::details::has_integral_value_type;
+	using arcstk::details::has_const_iterator;
+	using arcstk::details::has_begin_end;
+	using arcstk::details::is_lba_container;
+
+	SECTION ( "has_integral_value_type" )
+	{
+		CHECK ( has_integral_value_type<std::vector<char>>::value     );
+		CHECK ( has_integral_value_type<std::vector<int32_t>>::value  );
+		CHECK ( has_integral_value_type<std::vector<uint32_t>>::value );
+		CHECK ( has_integral_value_type<std::list<int32_t>>::value    );
+		CHECK ( has_integral_value_type<std::list<uint32_t>>::value   );
+
+		//CHECK ( ! has_integral_value_type<std::vector<float>>::value  );
+		//CHECK ( ! has_integral_value_type<std::vector<double>>::value );
+	}
+
+	SECTION ( "has_const_iterator" )
+	{
+		CHECK ( has_const_iterator<std::vector<char>>::value     );
+		CHECK ( has_const_iterator<std::vector<int32_t>>::value  );
+		CHECK ( has_const_iterator<std::vector<uint32_t>>::value );
+		CHECK ( has_const_iterator<std::list<int32_t>>::value    );
+		CHECK ( has_const_iterator<std::list<uint32_t>>::value   );
+		//CHECK ( has_const_iterator<std::vector<float>>::value    );
+		//CHECK ( has_const_iterator<std::vector<double>>::value   );
+
+		//CHECK ( ! has_const_iterator<arcstk::TOC>::value );
+	}
+
+	SECTION ( "has_begin_end" )
+	{
+		CHECK ( has_begin_end<std::vector<char>>::begin_value     );
+		CHECK ( has_begin_end<std::vector<char>>::end_value       );
+
+		CHECK ( has_begin_end<std::vector<int32_t>>::begin_value  );
+		CHECK ( has_begin_end<std::vector<int32_t>>::end_value    );
+
+		CHECK ( has_begin_end<std::vector<uint32_t>>::begin_value );
+		CHECK ( has_begin_end<std::vector<uint32_t>>::end_value   );
+
+		CHECK ( has_begin_end<std::list<int32_t>>::begin_value    );
+		CHECK ( has_begin_end<std::list<int32_t>>::end_value      );
+
+		CHECK ( has_begin_end<std::list<uint32_t>>::begin_value   );
+		CHECK ( has_begin_end<std::list<uint32_t>>::end_value     );
+	}
+
+	SECTION ( "is_lba_container" )
+	{
+		CHECK ( is_lba_container<std::vector<char>>::value        );
+		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
+		CHECK ( is_lba_container<std::vector<uint32_t>>::value    );
+		CHECK ( is_lba_container<std::list<int32_t>>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+		CHECK ( is_lba_container<std::array<int32_t,   1>>::value );
+		CHECK ( is_lba_container<std::array<int32_t,  99>>::value );
+		CHECK ( is_lba_container<std::array<uint32_t,  1>>::value );
+		CHECK ( is_lba_container<std::array<uint32_t, 99>>::value );
+		CHECK ( is_lba_container<std::list<int32_t>>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+	}
+}
 
 
 // ARId
