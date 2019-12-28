@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 
+#include <array>
 #include <list>
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
@@ -32,9 +33,6 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_integral_value_type<std::vector<uint32_t>>::value );
 		CHECK ( has_integral_value_type<std::list<int32_t>>::value    );
 		CHECK ( has_integral_value_type<std::list<uint32_t>>::value   );
-
-		//CHECK ( ! has_integral_value_type<std::vector<float>>::value  );
-		//CHECK ( ! has_integral_value_type<std::vector<double>>::value );
 	}
 
 	SECTION ( "has_const_iterator" )
@@ -44,10 +42,6 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_const_iterator<std::vector<uint32_t>>::value );
 		CHECK ( has_const_iterator<std::list<int32_t>>::value    );
 		CHECK ( has_const_iterator<std::list<uint32_t>>::value   );
-		//CHECK ( has_const_iterator<std::vector<float>>::value    );
-		//CHECK ( has_const_iterator<std::vector<double>>::value   );
-
-		//CHECK ( ! has_const_iterator<arcstk::TOC>::value );
 	}
 
 	SECTION ( "has_begin_end" )
