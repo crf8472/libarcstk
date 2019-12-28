@@ -205,6 +205,9 @@ private:
 namespace details
 {
 
+inline namespace V_1_0_0
+{
+
 /**
  * \internal
  *
@@ -230,6 +233,8 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
  */
 template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
+
+} // namespace v_1_0_0
 
 } // namespace details
 

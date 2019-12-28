@@ -15,6 +15,190 @@
 
 namespace arcstk
 {
+
+namespace details
+{
+
+inline namespace V_1_0_0
+{
+
+
+/**
+ * \brief Abstracted YES/NO values for SFINAE
+ */
+struct sfinae_values
+{
+	using yes = char;
+	using no  = yes[2];
+};
+
+
+/**
+ * \brief Helper: check for the presence of an integral value_type
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_integral_value_type : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case const_iterator is defined
+	template<typename S> static yes & test(
+		typename std::enable_if<
+			std::is_integral<typename S::value_type*>::value, void>::type*
+	);
+
+	// "no" otherwise
+	template<typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with an integral value_type, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of a const_iterator
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_const_iterator : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case const_iterator is defined
+	template <typename S> static yes & test(typename S::const_iterator*);
+
+	// "no" otherwise
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with a const_iterator, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of begin() and end()
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_begin_end : private sfinae_values
+{
+private:
+
+	// begin(): choose to return "yes" in case begin() is defined
+	template <typename S> static yes & b(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::const_iterator (S::*)() const>
+				(&S::begin)),
+			typename S::const_iterator(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no  & b(...);
+
+	// end(): choose to return "yes" in case end() is defined
+	template <typename S> static yes & e(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::const_iterator (S::*)() const>
+				(&S::end)),
+			typename S::const_iterator(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no  & e(...);
+
+
+public:
+
+	/**
+	 * \brief Result value for begin()
+	 *
+	 * Will be TRUE for types with begin(), otherwise false.
+	 */
+	static bool const begin_value = sizeof(b<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Result value for end()
+	 *
+	 * Will be TRUE for types with end(), otherwise false.
+	 */
+	static bool const end_value   = sizeof(e<T>(nullptr)) == sizeof(yes);
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: defined for container types that define const_iterator as well
+ * as value_type and have begin() const and end() const.
+ */
+template <typename T>
+struct is_lba_container : public std::integral_constant<bool,
+	has_integral_value_type<T>::value &&
+	has_const_iterator<T>::value      &&
+	has_begin_end<T>::begin_value     &&
+	has_begin_end<T>::end_value >
+{
+	// empty
+};
+
+
+// Example usage:
+//
+//template<typename Container>
+//static typename std::enable_if<details::is_lba_container<Container>::value,
+//	void>::type
+//append(Container& to, const Container& from)
+//{
+//    using std::begin;
+//    using std::end;
+//    to.insert(end(to), begin(from), end(from));
+//}
+
+} // namespace details::v_1_0_0
+
+} // namespace details
+
+
 inline namespace v_1_0_0
 {
 
@@ -597,25 +781,18 @@ std::unique_ptr<ARId> make_empty_arid();
  * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
  * specified information.
  *
- * The input data is validated and the returned TOC is guaranteed to be
- * complete().
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
  *
  * \param[in] offsets     Offsets (in LBA frames) for each track
  * \param[in] leadout     Leadout frame
  * \param[in] files       File name of each track
  *
- * \return A complete() TOC object representing the specified information
+ * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input data forms no valid and
  * complete() TOC
- *
- * \todo
- * The make_toc() function requiring a leadout does not accept a leadout of 0.
- * This behaviour is different from make_toc() with lengths, where the
- * last length is allowed to be 0. It is sensible to not enforce completeness
- * if no leadout is known. But it is inconsistent insofar as the client may
- * never create an incomplete TOC by using leadout 0, only by using a length of
- * 0 for the last track. It's reasonable but inconsistent.
  */
 std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
 		const uint32_t leadout,
@@ -626,27 +803,21 @@ std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
  * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
  * specified information.
  *
- * The input data is validated and the returned TOC is guaranteed to be
- * complete(). The value of \c track_count must be equal to \c offsets().size
- * and is just used for additional validation.
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
  * \param[in] leadout     Leadout frame
  * \param[in] files       File name of each track
  *
- * \return A complete() TOC object representing the specified information
+ * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input data forms no valid and
  * complete() TOC
- *
- * \todo
- * The make_toc() function requiring a leadout does not accept a leadout of 0.
- * This behaviour is different from make_toc() with lengths, where the
- * last length is allowed to be 0. It is sensible to not enforce completeness
- * if no leadout is known. But it is inconsistent insofar as the client may
- * never create an incomplete TOC by using leadout 0, only by using a length of
- * 0 for the last track. It's reasonable but inconsistent.
  */
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
@@ -657,11 +828,9 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 /**
  * \brief Create a TOC object from the specified information.
  *
- * \note
  * The input data is validated but the length of the last track is allowed to
- * be 0. The returned TOC is therefore \em not guaranteed to be
- * \link TOC::complete() complete()\endlink. If the length of the last track is
- * a valid value, the resulting TOC will be complete() though.
+ * be 0. The returned TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
  *
  * \param[in] offsets     Offsets (in LBA frames) of each track
  * \param[in] lengths     Lengths (in LBA frames) of each track
@@ -681,12 +850,6 @@ std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
  *
  * The value of \c track_count must be equal to \c offsets().size and is just
  * used for additional validation.
- *
- * \note
- * The input data is validated but the length of the last track is allowed to
- * be 0. The returned TOC is therefore \em not guaranteed to be
- * \link TOC::complete() complete()\endlink. If the length of the last track is
- * a valid value, the resulting TOC will be complete() though.
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) of each track

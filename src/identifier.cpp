@@ -976,7 +976,7 @@ namespace details
  * \param  c         Actual container
  * \param  toc       Number of the track to access
  *
- * \return The value for track \c t in the container \c
+ * \return The value for track \c t in the container \c c
  */
 template <typename Container, typename InType>
 decltype(auto) toc_get(Container&& c,
@@ -985,8 +985,8 @@ decltype(auto) toc_get(Container&& c,
 {
 	auto container_size = std::forward<Container>(c).size();
 
-	auto tracks = static_cast<decltype(container_size)>(toc.track_count());
-	for (decltype(container_size) t = 1; t <= tracks; ++t)
+	auto track_count = static_cast<decltype(container_size)>(toc.track_count());
+	for (decltype(container_size) t = 1; t <= track_count; ++t)
 	{
 		c[t - 1] = (toc.*accessor)(t);
 		// FIXME Uniform container insertion? std::inserter?
@@ -1002,6 +1002,7 @@ std::vector<uint32_t> get_offsets(const TOC &toc)
 {
 	std::vector<uint32_t> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+
 	return details::toc_get(target, toc, &TOC::offset);
 }
 
@@ -1010,6 +1011,7 @@ std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 {
 	std::vector<uint32_t> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+
 	return details::toc_get(target, toc, &TOC::parsed_length);
 }
 
@@ -1018,6 +1020,7 @@ std::vector<std::string> get_filenames(const TOC &toc)
 {
 	std::vector<std::string> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+
 	return details::toc_get(target, toc, &TOC::filename);
 }
 
@@ -1031,8 +1034,6 @@ std::vector<std::string> get_filenames(const TOC &toc)
  * \ingroup id
  *
  * \brief Private implementation of ARIdBuilder
- *
- * \see ARIdBuilder
  */
 class ARIdBuilder::Impl final
 {
@@ -1050,27 +1051,45 @@ public:
 	std::unique_ptr<ARId> build_empty_id() const noexcept;
 
 
-protected:
+private:
 
 	/**
-	 * \brief Service method: Compute the disc id 1 from a vector of offsets.
-	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
-	 * with the leadout frame added as an additional element on the back
-	 * position.
+	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
 	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] offsets       Offsets (in CDDA frames) of each track
-	 * \param[in] leadout Leadout CDDA frame
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
 	 */
-	uint32_t disc_id_1(const TrackNo track_count,
-			const std::vector<uint32_t> &offsets,
+	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
 			const uint32_t leadout) const;
 
 	/**
-	 * \brief Service method: Compute the disc id 2 from a vector of offsets.
-	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
-	 * with the leadout frame added as an additional element on the back
-	 * position.
+	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
+	 */
+	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Compute the CDDB id from offsets and leadout.
+	 *
+	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+	 * the following 3 numbers:
+	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+	 * second chunk (16 bits): total seconds count
+	 * third chunk (8 bits):   number of tracks
+	 *
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] leadout     Leadout LBA frame
+	 */
+	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \deprecated
+	 *
+	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
 	 *
 	 * \param[in] track_count   Number of tracks in this medium
 	 * \param[in] offsets       Offsets (in CDDA frames) of each track
@@ -1081,14 +1100,23 @@ protected:
 			const uint32_t leadout) const;
 
 	/**
-	 * \brief Service method: Compute the CDDB disc id from a vector of offsets.
+	 * \deprecated
+	 *
+	 * \brief Service method: Compute the CDDB disc id from offsets and leadout.
+	 *
 	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
 	 * with the leadout frame added as an additional element on the back
 	 * position.
 	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] offsets       Offsets (in CDDA frames) of each track
-	 * \param[in] leadout Leadout CDDA frame
+	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+	 * the following 3 numbers:
+	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+	 * second chunk (16 bits): total seconds count
+	 * third chunk (8 bits):   number of tracks
+	 *
+	 * \param[in] track_count Number of tracks in this medium
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] leadout     Leadout LBA frame
 	 */
 	uint32_t cddb_id(const TrackNo track_count,
 			const std::vector<uint32_t> &offsets,
@@ -1126,9 +1154,9 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
 
 	return std::make_unique<ARId>(
 			toc.track_count(),
-			this->disc_id_1(toc.track_count(), offsets, leadout_val),
-			this->disc_id_2(toc.track_count(), offsets, leadout_val),
-			this->cddb_id  (toc.track_count(), offsets, leadout_val)
+			this->disc_id_1(offsets, leadout_val),
+			this->disc_id_2(offsets, leadout_val),
+			this->cddb_id  (offsets, leadout_val)
 	);
 }
 
@@ -1147,9 +1175,9 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build_empty_id() const noexcept
 	return nullptr;
 }
 
-// FIXME Is track_count required?
-uint32_t ARIdBuilder::Impl::disc_id_1(const TrackNo /* track_count */,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
+
+uint32_t ARIdBuilder::Impl::disc_id_1(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
@@ -1158,6 +1186,40 @@ uint32_t ARIdBuilder::Impl::disc_id_1(const TrackNo /* track_count */,
 	for (const auto &o : offsets) { sum_offsets += o; }
 
 	return sum_offsets + leadout;
+}
+
+
+uint32_t ARIdBuilder::Impl::disc_id_2(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
+{
+	// disc id 2 is the sum of the products of offsets and the corresponding
+	// 1-based track number while normalizing offsets to be >= 1
+
+	uint32_t accum = 0;
+
+	uint16_t track = 1;
+	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
+
+	return accum + leadout /* must be > 0*/ * track;
+}
+
+
+uint32_t ARIdBuilder::Impl::cddb_id(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
+{
+	const auto fps = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
+	uint32_t accum = 0;
+
+	for (const auto &o : offsets)
+	{
+		accum += sum_digits(o / fps + 2u);
+	}
+	accum %= 255; // normalize to 1 byte
+
+	const uint32_t     total_seconds = leadout / fps - offsets[0] / fps;
+	const unsigned int track_count   = offsets.size();
+
+	return (accum << 24u) | (total_seconds << 8u) | track_count;
 }
 
 
@@ -1245,7 +1307,7 @@ std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
 	TOCBuilder builder;
-	auto toc = builder.build(track_count, offsets, leadout, {});
+	auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
 
 	return impl_->build(*toc, 0);
 }

@@ -138,7 +138,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	arcstk::ARIdBuilder builder;
 
 
-	SECTION ( "Reference ARId 1" )
+	SECTION ( "ARId from track_count, offsets, leadout, example 1" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
@@ -166,10 +166,10 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	}
 
 
-	SECTION ( "Reference ARId 2" )
+	SECTION ( "ARId from track_count, offsets, leadout, example 2" )
 	{
-		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto", Berliner
-		// Sinfonie-Orchester, C.-P. Flor, ETERNA
+		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
+		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
 		std::unique_ptr<arcstk::ARId> id2 = builder.build(
 			// track count
@@ -194,7 +194,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	}
 
 
-	SECTION ( "Reference ARId 3" )
+	SECTION ( "ARId from track_count, offsets, leadout, example 3" )
 	{
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
@@ -223,9 +223,9 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	}
 
 
-	SECTION ( "Reference ARId 4" )
+	SECTION ( "ARId from track_count, offsets, leadout, example 4" )
 	{
-		// Bent: Programmed to Love
+		// Bent: "Programmed to Love"
 
 		std::unique_ptr<arcstk::ARId> id4 = builder.build(
 			// track count
@@ -250,6 +250,34 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
 		CHECK ( not id4->empty() );
+	}
+
+
+	SECTION ( "ARId from track_count, offsets, leadout, example 5" )
+	{
+		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
+
+		std::unique_ptr<arcstk::ARId> id5 = builder.build(
+			// track count
+			1,
+			// offsets
+			{ 33 },
+			// leadout
+			233484
+		);
+
+
+		CHECK ( id5->track_count() == 1 );
+		CHECK ( id5->disc_id_1()   == 0x0003902d );
+		CHECK ( id5->disc_id_2()   == 0x00072039 );
+		CHECK ( id5->cddb_id()     == 0x020c2901 );
+
+		CHECK ( id5->url()         ==
+				"http://www.accuraterip.com/accuraterip/d/2/0/dBAR-001-0003902d-00072039-020c2901.bin" );
+		CHECK ( id5->filename()    ==
+				"dBAR-001-0003902d-00072039-020c2901.bin" );
+
+		CHECK ( not id5->empty() );
 	}
 }
 
