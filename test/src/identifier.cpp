@@ -582,7 +582,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
     SECTION ( "Validation succeeds for correct offsets" )
     {
 		// some legal values
-		CHECK_NOTHROW ( validator.validate_offsets( { 33, 5225, 7390, 23380,
+		CHECK_NOTHROW ( validator.validate_offsets({ 33, 5225, 7390, 23380,
 				35608, 49820, 69508, 87733, 106333, 139495, 157863, 198495,
 				213368, 225320, 234103 })
 		);

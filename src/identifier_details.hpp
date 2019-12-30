@@ -1,9 +1,10 @@
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#error "Do not include identifier_details.hpp, include identifier.hpp instead"
-#endif
+#include "identifier.hpp"
 
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #define __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+
+#include <initializer_list>
+#include <type_traits>
 
 /**
  * \internal
@@ -277,161 +278,6 @@ private:
  * \internal
  * \ingroup id
  *
- * \brief Validates offsets, leadout and track count of a compact disc toc.
- *
- * TOCBuilder and ARIdBuilder use TOCValidator to validate
- * the input for building their respective instances.
- *
- * This class is considered an implementation detail. Its declaration resides in
- * a header to ensure its testability.
- */
-class TOCValidator final
-{
-
-public:
-
-	/**
-	 * \brief Validate TOC information.
-	 *
-	 * It is ensured that the number of offsets matches the track count, that
-	 * the offsets are consistent and the leadout frame is consistent with the
-	 * offsets.
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
-	 * \param[in] leadout     Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate TOC information and leadout.
-	 *
-	 * It is ensured that the leadout frame is consistent with the offsets.
-	 *
-	 * \param[in] toc     TOC information
-	 * \param[in] leadout Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate(const TOC &toc, const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate offsets and track count.
-	 *
-	 * It is ensured that the number of offsets matches the track count and that
-	 * the offsets are consistent.
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_offsets(const TrackNo track_count,
-			const std::vector<int32_t> &offsets) const;
-
-	/**
-	 * \brief Validate offsets.
-	 *
-	 * It is ensured that the offsets are consistent, which means they all are
-	 * within a CDDA conforming range, ordered in ascending order with a legal
-	 * distance between any two subsequent offsets and their number is a valid
-	 * track count.
-	 *
-	 * \param[in] offsets Offsets (in CDDA frames) of each track
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_offsets(const std::vector<int32_t> &offsets) const;
-
-	/**
-	 * \brief Validate lengths.
-	 *
-	 * It is ensured that the lengths are consistent, which means they all have
-	 * have a CDDA conforming minimal lengths, their sum is within a CDDA
-	 * conforming range and their number is a valid track count. An
-	 * InvalidMetadataException is thrown if the validation fails.
-	 *
-	 * \param[in] lengths Lengths (in CDDA frames) of each track
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_lengths(const std::vector<int32_t> &lengths) const;
-
-	/**
-	 * \brief Validate leadout frame.
-	 *
-	 * It is ensured that the leadout is within a CDDA conforming range. An
-	 * InvalidMetadataException is thrown if the validation fails.
-	 *
-	 * \param[in] leadout Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_leadout(const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate leadout frame.
-	 *
-	 * Equivalent to validate_leadout(), but furthermore ensures that \c leadout
-	 * is not 0.
-	 *
-	 * \param[in] leadout Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_nonzero_leadout(const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate track count.
-	 *
-	 * It is ensured that the track count is within a CDDA conforming range. An
-	 * InvalidMetadataException is thrown if the validation fails.
-	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void validate_trackcount(const TrackNo track_count) const;
-
-
-protected:
-
-	/**
-	 * \brief Ensure that \c prev_track and \c next_track offsets have at least minimal
-	 * distance
-	 *
-	 * \param[in] prev_track Previous track offset
-	 * \param[in] next_track Next track offset
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	void have_min_dist(const uint32_t prev_track, const uint32_t next_track)
-		const;
-
-	/**
-	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in CDDA frames).
-	 *
-	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
-	 */
-	static constexpr uint32_t MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
-
-	/**
-	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in CDDA frames).
-	 *
-	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
-	 */
-	static constexpr uint32_t MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
-};
-
-
-/**
- * \internal
- * \ingroup id
- *
  * \brief Worker to calculate the leadout
  *
  * \param[in] track_count Number of tracks in this medium
@@ -469,4 +315,3 @@ uint32_t leadout(const std::vector<uint32_t> &lengths);
 } // namespace arcstk
 
 #endif
-

@@ -216,6 +216,7 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
 set (TEMPLATE_HEADERS )
 list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
+list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
 list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 
 

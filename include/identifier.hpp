@@ -9,9 +9,14 @@
 
 #include <cstdint>
 #include <memory>
+#include <sstream>    // used by TOCValidator
 #include <stdexcept>  // for logic_error
 #include <string>
 #include <vector>
+
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
 
 namespace arcstk
 {
@@ -310,9 +315,7 @@ struct CDDA_t
 	const uint32_t MIN_TRACK_LEN_FRAMES = 150;
 
 };
-
-using CDDA_t = struct CDDA_t;
-
+//using CDDA_t = struct CDDA_t;
 
 /**
  * \brief Global instance of the CDDA constants.
@@ -321,11 +324,6 @@ extern const CDDA_t CDDA;
 
 /** @} */
 
-} // namespace v_1_0_0
-
-
-inline namespace v_1_0_0
-{
 
 /** \defgroup id AccurateRip IDs
  *
@@ -715,6 +713,11 @@ public:
 };
 
 
+#ifndef __LIBARCSTK_VALIDATE_TPP__
+#include "details/validate.tpp"
+#endif
+
+
 /**
  * \brief Create an ARId from a \link TOC::complete() complete()\endlink TOC.
  *
@@ -775,6 +778,31 @@ std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
  * \see make_arid(const TOC &toc)
  */
 std::unique_ptr<ARId> make_empty_arid();
+
+
+/**
+ * \brief make_toc for any container
+ */
+template <typename Container1, typename Container2,
+	typename =
+	typename std::enable_if<details::is_lba_container<Container1>::value,
+		Container1>::type,
+	typename =
+	typename std::enable_if<details::is_lba_container<Container2>::value,
+		Container2>::type
+	>
+std::unique_ptr<TOC> make_toc(const Container1 &&offsets,
+		const uint32_t leadout,
+		const Container2 &&files = {});
+
+// Impl
+template <typename Container1, typename Container2>
+std::unique_ptr<TOC> make_toc(const Container1 &&offsets,
+		const uint32_t leadout,
+		const Container2 &&files)
+{
+	// TODO
+}
 
 
 /**
@@ -905,7 +933,7 @@ std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
  */
 std::vector<std::string> get_filenames(const TOC &toc);
 
-}
+} // namespace toc
 
 /** @} */
 
