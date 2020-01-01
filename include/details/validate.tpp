@@ -522,7 +522,9 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 
 	// Explicitly allow the offset of the first track to be 0
 
-	if (offsets[0] < 0)
+	auto track { std::begin(offsets) };
+
+	if (*track < 0)
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC with negative offset for first track: "
@@ -533,21 +535,25 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 
 	// Check whether all subsequent Offsets have minimum distance
 
-	for (std::size_t i = 1; i < offsets.size(); ++i)
+	auto previous_track { std::begin(offsets) };
+	auto last_track { std::end(offsets) };
+
+	auto t = 2;
+	for (++track; track != last_track; ++previous_track, ++track)
 	{
 		// Is offset in a CDDA-legal range?
 
-		if (offsets[i] > static_cast<int64_t>(CDDA.MAX_OFFSET))
+		if (*track > static_cast<int64_t>(CDDA.MAX_OFFSET))
 		{
 			std::stringstream ss;
-			ss << "Offset " << std::to_string(offsets[i])
-				<< " for track " << std::to_string(i);
+			ss << "Offset " << std::to_string(*track)
+				<< " for track " << std::to_string(t);
 
-			if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_99))
+			if (*track > static_cast<int64_t>(MAX_OFFSET_99))
 			{
 				ss << " exceeds physical range of 99 min ("
 					<< std::to_string(MAX_OFFSET_99) << " frames)";
-			} else if (offsets[i] > static_cast<int64_t>(MAX_OFFSET_90))
+			} else if (*track > static_cast<int64_t>(MAX_OFFSET_90))
 			{
 				ss << " exceeds physical range of 90 min ("
 					<< std::to_string(MAX_OFFSET_90) << " frames)";
@@ -564,8 +570,10 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		// offset for last track?
 
 		this->have_min_dist(
-				static_cast<lba_count>(offsets[i-1]),
-				static_cast<lba_count>(offsets[i]));
+				static_cast<lba_count>(*previous_track),
+				static_cast<lba_count>(*track));
+
+		++t;
 	} // for
 }
 
