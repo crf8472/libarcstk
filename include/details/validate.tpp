@@ -28,8 +28,275 @@
 
 namespace arcstk
 {
+namespace details
+{
+
+inline namespace V_1_0_0
+{
+
+
+/**
+ * \brief Abstracted YES/NO values for SFINAE
+ */
+struct sfinae_values
+{
+	using yes = char;
+	using no  = yes[2];
+};
+
+
+/**
+ * \brief Helper: check for an integral value_type
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_integral_value_type : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case value_type is defined + integral
+	template<typename S> static yes & test(
+		typename std::enable_if<
+			std::is_integral<typename S::value_type>::value, void>::type*
+	);
+
+	// "no" otherwise
+	template<typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with an integral value_type, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of a const_iterator
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_const_iterator : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case const_iterator is defined
+	template <typename S> static yes & test(typename S::const_iterator*);
+
+	// "no" otherwise
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with a const_iterator, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of a size
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_size : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case size is defined
+	template <typename S> static yes & test(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::size_type (S::*)() const>
+				(&S::size)),
+			typename S::size_type(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with a size, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of begin() const
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_begin : private sfinae_values
+{
+private:
+
+	// begin(): choose to return "yes" in case begin() const is defined
+	template <typename S> static yes & test(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::const_iterator (S::*)() const>
+				(&S::begin)),
+			typename S::const_iterator(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with begin() const, otherwise false.
+	 */
+	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of end() const
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_end : private sfinae_values
+{
+private:
+
+	// end(): choose to return "yes" in case end() const is defined
+	template <typename S> static yes & test(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::const_iterator (S::*)() const>
+				(&S::end)),
+			typename S::const_iterator(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with end() const, otherwise false.
+	 */
+	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: Check whether a container holds LBA frames.
+ *
+ * Defined for container types that define const_iterator as well
+ * as an integral value_type, a size and have begin() const and end() const.
+ *
+ * \tparam The type to inspect
+ */
+template <typename T, typename T_noref = std::remove_reference_t<T>>
+struct is_lba_container : public std::integral_constant<bool,
+	has_integral_value_type<T_noref>::value &&
+	has_const_iterator     <T_noref>::value &&
+	has_size               <T_noref>::value &&
+	has_begin              <T_noref>::value &&
+	has_end                <T_noref>::value >
+{
+	// empty
+};
+
+
+// Example usage:
+//
+//template<typename Container>
+//static typename std::enable_if<details::is_lba_container<Container>::value,
+//	void>::type
+//append(Container& to, const Container& from)
+//{
+//    using std::begin;
+//    using std::end;
+//    to.insert(end(to), begin(from), end(from));
+//}
+
+} // namespace details::v_1_0_0
+
+} // namespace details
+
+
 inline namespace v_1_0_0
 {
+
+
+/**
+ * \brief Type for representing amounts of LBA frames
+ */
+using lba_count = uint32_t;
+
 
 /**
  * \internal
@@ -45,73 +312,6 @@ class TOCValidator final
 {
 
 public:
-
-	/**
-	 * \brief Validate TOC information.
-	 *
-	 * It is ensured that the number of offsets matches the track count, that
-	 * the offsets are consistent and the leadout frame is consistent with the
-	 * offsets.
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
-	 * \param[in] leadout     Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	inline void validate(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate TOC information and leadout.
-	 *
-	 * It is ensured that the leadout frame is consistent with the offsets.
-	 *
-	 * \param[in] toc     TOC information
-	 * \param[in] leadout Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	inline void validate(const TOC &toc, const uint32_t leadout) const;
-
-	/**
-	 * \brief Validate offsets and track count.
-	 *
-	 * It is ensured that the number of offsets matches the track count and that
-	 * the offsets are consistent.
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	inline void validate_offsets(const TrackNo track_count,
-			const std::vector<int32_t> &offsets) const;
-
-
-	//template <typename T, typename ... Args>
-	//void validate_offsets(std::initializer_list<T> ilist, Args&&... args);
-	//template <typename T, typename ... Args>
-	//void TOCValidator::validate_offsets(std::initializer_list<T> ilist, Args&&... args)
-	//{
-	//}
-
-	/**
-	 * \brief Validate offsets.
-	 *
-	 * It is ensured that the offsets are consistent, which means they all are
-	 * within a CDDA conforming range, ordered in ascending order with a legal
-	 * distance between any two subsequent offsets and their number is a valid
-	 * track count.
-	 *
-	 * \param[in] offsets Offsets (in LBA frames) of each track
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
-	inline void validate_offsets(std::initializer_list<T> offsets) const;
 
 	/**
 	 * \brief Validate offsets.
@@ -131,20 +331,65 @@ public:
 	inline void validate_offsets(Container&& offsets) const;
 
 	/**
-	 * \brief Validate lengths.
+	 * \copydoc validate_offsets(Container&&) const
+	 */
+	template <typename T,
+		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	inline void validate_offsets(std::initializer_list<T> offsets) const;
+
+	/**
+	 * \brief Validate offsets and track count.
 	 *
-	 * It is ensured that the lengths are consistent, which means they all have
-	 * have a CDDA conforming minimal lengths, their sum is within a CDDA
-	 * conforming range and their number is a valid track count. An
-	 * InvalidMetadataException is thrown if the validation fails.
+	 * It is ensured that the number of offsets matches the track count and that
+	 * the offsets are consistent.
 	 *
-	 * \param[in] lengths Lengths (in LBA frames) of each track
+	 * \param[in] track_count Number of tracks in this medium
+	 * \param[in] offsets     Offsets (in CDDA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	//template <typename T,
-	//	typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
-	//inline void validate_lengths(std::initializer_list<T> lengths) const;
+	template <typename Container,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
+	>
+	inline void validate_offsets(const TrackNo track_count,
+			Container&& offsets) const;
+
+	/**
+	 * \copydoc validate_offsets(TrackNo, Container&&) const
+	 */
+	template <typename T,
+		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	inline void validate_offsets(TrackNo track_count,
+			std::initializer_list<T> offsets) const;
+
+	/**
+	 * \brief Validate TOC information.
+	 *
+	 * It is ensured that the number of offsets matches the track count, that
+	 * the offsets are consistent and the leadout frame is consistent with the
+	 * offsets.
+	 *
+	 * \param[in] track_count Number of tracks in this medium
+	 * \param[in] offsets     Offsets (in CDDA frames) of each track
+	 * \param[in] leadout     Leadout frame of the medium
+	 *
+	 * \throw InvalidMetadataException If the validation fails
+	 */
+	template <typename Container,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
+	>
+	inline void validate(const TrackNo track_count,
+			Container&& offsets,
+			const lba_count leadout) const;
+
+	/**
+	 * \copydoc validate_offsets(TrackNo, Container&&, const lba_count) const
+	 */
+	template <typename T,
+		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	inline void validate(TrackNo track_count,
+			std::initializer_list<T> offsets,
+			const lba_count leadout) const;
 
 	/**
 	 * \brief Validate lengths.
@@ -158,11 +403,17 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	//template <typename Container,
-	//	typename = typename std::enable_if <
-	//			details::is_lba_container<Container>::value, Container>::type
-	//>
-	inline void validate_lengths(const std::vector<int32_t> &lenghts) const;
+	template <typename Container,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
+	>
+	inline void validate_lengths(Container&& lengths) const;
+
+	/**
+	 * \copydoc validate_lengths(Container&&) const
+	 */
+	template <typename T,
+		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	inline void validate_lengths(std::initializer_list<T> lengths) const;
 
 	/**
 	 * \brief Validate leadout frame.
@@ -174,7 +425,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_leadout(const uint32_t leadout) const;
+	inline void validate_leadout(const lba_count leadout) const;
 
 	/**
 	 * \brief Validate leadout frame.
@@ -186,7 +437,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_nonzero_leadout(const uint32_t leadout) const;
+	inline void validate_nonzero_leadout(const lba_count leadout) const;
 
 	/**
 	 * \brief Validate track count.
@@ -194,11 +445,23 @@ public:
 	 * It is ensured that the track count is within a CDDA conforming range. An
 	 * InvalidMetadataException is thrown if the validation fails.
 	 *
-	 * \param[in] track_count   Number of tracks in this medium
+	 * \param[in] track_count Number of tracks in this medium
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	inline void validate_trackcount(const TrackNo track_count) const;
+
+	/**
+	 * \brief Validate TOC information and leadout.
+	 *
+	 * It is ensured that the leadout frame is consistent with the offsets.
+	 *
+	 * \param[in] toc     TOC information
+	 * \param[in] leadout Leadout frame of the medium
+	 *
+	 * \throw InvalidMetadataException If the validation fails
+	 */
+	inline void validate(const TOC &toc, const lba_count leadout) const;
 
 
 protected:
@@ -212,85 +475,26 @@ protected:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void have_min_dist(const uint32_t prev_track, const uint32_t next_track)
-		const;
+	inline void have_min_dist(const lba_count prev_track,
+			const lba_count next_track) const;
 
 	/**
 	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in CDDA frames).
 	 *
 	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
 	 */
-	static constexpr uint32_t MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
+	static constexpr lba_count MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
 
 	/**
 	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in CDDA frames).
 	 *
 	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
 	 */
-	static constexpr uint32_t MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
+	static constexpr lba_count MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
 };
 
 
 // TOCValidator
-
-
-void TOCValidator::validate(const TrackNo track_count,
-		const std::vector<int32_t> &offsets, const uint32_t leadout) const
-{
-	this->validate_leadout(leadout);
-
-	// Validation: Leadout in Valid Distance after Last Offset?
-
-	if (leadout <
-			offsets.back() + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
-	{
-		std::stringstream ss;
-		ss << "Leadout frame " << leadout
-			<< " is too near to last offset " << offsets.back()
-			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
-			<< " frames." << " Bail out.";
-
-		throw InvalidMetadataException(ss.str());
-	}
-
-	this->validate_offsets(track_count, offsets);
-}
-
-
-void TOCValidator::validate(const TOC &toc, const uint32_t leadout) const
-{
-	this->validate_leadout(leadout);
-
-	auto last_offset { toc.offset(toc.track_count()) };
-	this->have_min_dist(last_offset, leadout);
-}
-
-
-void TOCValidator::validate_offsets(const TrackNo track_count,
-		const std::vector<int32_t> &offsets) const
-{
-	this->validate_trackcount(track_count);
-
-	// Validation: Track count consistent with Number of Offsets?
-
-	if (offsets.size() != static_cast<std::size_t>(track_count))
-	{
-		std::stringstream ss;
-		ss << "Track count does not match offset count." << " Bail out.";
-
-		throw InvalidMetadataException(ss.str());
-	}
-
-	this->validate_offsets(offsets);
-}
-
-
-template <typename T, typename>
-void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
-{
-	// TODO works, but performance hurts
-	this->validate_offsets(std::vector<T>{offsets});
-}
 
 
 template <typename Container, typename>
@@ -298,7 +502,7 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 {
 	// Number of offsets in legal range?
 
-	if (offsets.empty())
+	if (offsets.size() == 0)
 	{
 		std::stringstream ss;
 		ss << "No offsets were given. Bail out.";
@@ -360,26 +564,90 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		// offset for last track?
 
 		this->have_min_dist(
-				static_cast<uint32_t>(offsets[i-1]),
-				static_cast<uint32_t>(offsets[i]));
+				static_cast<lba_count>(offsets[i-1]),
+				static_cast<lba_count>(offsets[i]));
 	} // for
 }
 
 
-//template <typename T, typename>
-//void TOCValidator::validate_lengths(std::initializer_list<T> lengths) const
-//{
-//	this->validate_lengths(std::vector<T>{lengths});
-//}
+template <typename T, typename>
+void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
+{
+	// TODO works, but performance hurts
+	this->validate_offsets(std::vector<T>{offsets});
+}
 
 
-//template <typename Container, typename>
-//void TOCValidator::validate_lengths(Container&& lengths) const
-void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
+template <typename Container, typename>
+void TOCValidator::validate_offsets(const TrackNo track_count,
+		Container&& offsets) const
+{
+	this->validate_trackcount(track_count);
+
+	// Validation: Track count consistent with Number of Offsets?
+
+	auto offsets_count = offsets.size();
+
+	if (offsets_count != static_cast<decltype(offsets_count)>(track_count))
+	{
+		std::stringstream ss;
+		ss << "Track count does not match offset count." << " Bail out.";
+
+		throw InvalidMetadataException(ss.str());
+	}
+
+	this->validate_offsets(offsets);
+}
+
+
+template <typename T, typename>
+void TOCValidator::validate_offsets(const TrackNo track_count,
+		std::initializer_list<T> offsets) const
+{
+	// TODO works, but performance hurts
+	this->validate_offsets(track_count, std::vector<T>{offsets});
+}
+
+
+template <typename Container, typename>
+void TOCValidator::validate(const TrackNo track_count,
+		Container&& offsets, const lba_count leadout) const
+{
+	this->validate_leadout(leadout);
+
+	// Validation: Leadout in Valid Distance after Last Offset?
+
+	if (leadout <
+			offsets.back() + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
+	{
+		std::stringstream ss;
+		ss << "Leadout frame " << leadout
+			<< " is too near to last offset " << offsets.back()
+			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
+			<< " frames." << " Bail out.";
+
+		throw InvalidMetadataException(ss.str());
+	}
+
+	this->validate_offsets(track_count, offsets);
+}
+
+
+template <typename T, typename>
+void TOCValidator::validate(const TrackNo track_count,
+		std::initializer_list<T> offsets, const lba_count leadout) const
+{
+	// TODO works, but performance hurts
+	this->validate(track_count, std::vector<T>{offsets}, leadout);
+}
+
+
+template <typename Container, typename>
+void TOCValidator::validate_lengths(Container&& lengths) const
 {
 	// Number of lengths in legal range?
 
-	if (lengths.empty())
+	if (lengths.size() == 0)
 	{
 		std::stringstream ss;
 		ss << "No lengths were given. Bail out.";
@@ -398,7 +666,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 
 	// Length values are valid?
 
-	uint32_t sum_lengths = 0;
+	lba_count sum_lengths = 0;
 
 	// Skip last length, if it is not known (e.g. 0 or -1)
 	int tracks = (lengths.back() < 1) ? lengths.size() - 1 : lengths.size();
@@ -415,7 +683,7 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			throw InvalidMetadataException(ss.str());
 		}
 
-		sum_lengths += static_cast<uint32_t>(lengths[i]);
+		sum_lengths += static_cast<lba_count>(lengths[i]);
 	}
 
 	// Sum of all lengths in legal range ?
@@ -437,16 +705,29 @@ void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
 
+			ARCS_LOG_WARNING << ss.str();
+			// TODO NonstandardMetadataException
+
 		} else // more than redbook originally defines? => info
 		{
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(CDDA.MAX_OFFSET);
+
+			ARCS_LOG_INFO << ss.str();
+			// TODO NonstandardMetadataException
 		}
 	}
 }
 
 
-void TOCValidator::validate_leadout(const uint32_t leadout) const
+template <typename T, typename>
+void TOCValidator::validate_lengths(std::initializer_list<T> lengths) const
+{
+	this->validate_lengths(std::vector<T>{lengths});
+}
+
+
+void TOCValidator::validate_leadout(const lba_count leadout) const
 {
 	// Greater than Minimum ?
 
@@ -475,11 +756,13 @@ void TOCValidator::validate_leadout(const uint32_t leadout) const
 	{
 		ARCS_LOG_WARNING << "Leadout " << leadout
 			<< " exceeds redbook maximum";
+
+		// TODO NonstandardMetadataException
 	}
 }
 
 
-void TOCValidator::validate_nonzero_leadout(const uint32_t leadout) const
+void TOCValidator::validate_nonzero_leadout(const lba_count leadout) const
 {
 	// Not zero ?
 
@@ -501,15 +784,24 @@ void TOCValidator::validate_trackcount(const TrackNo track_count) const
 	{
 		std::stringstream ss;
 		ss << "Cannot construct TOC from invalid track count: "
-		   << std::to_string(track_count);
+			<< std::to_string(track_count);
 
 		throw InvalidMetadataException(ss.str());
 	}
 }
 
 
-void TOCValidator::have_min_dist(const uint32_t prev_track,
-		const uint32_t next_track) const
+void TOCValidator::validate(const TOC &toc, const lba_count leadout) const
+{
+	this->validate_leadout(leadout);
+
+	auto last_offset { toc.offset(toc.track_count()) };
+	this->have_min_dist(last_offset, leadout);
+}
+
+
+void TOCValidator::have_min_dist(const lba_count prev_track,
+		const lba_count next_track) const
 {
 	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
 	{
