@@ -533,13 +533,22 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		throw InvalidMetadataException(ss.str());
 	}
 
+	// FIXME Check for max offset exceed before the first track?
+
+	++track;
+
+	if (std::end(offsets) == track) // size == 1
+	{
+		return;
+	}
+
 	// Check whether all subsequent Offsets have minimum distance
 
 	auto previous_track { std::begin(offsets) };
-	auto last_track { std::end(offsets) };
+	auto finished       { std::end(offsets)   };
 
 	auto t = 2;
-	for (++track; track != last_track; ++previous_track, ++track)
+	for (; track != finished; ++previous_track, ++track)
 	{
 		// Is offset in a CDDA-legal range?
 
@@ -569,9 +578,7 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		// Has offset for current track at least minimum distance after
 		// offset for last track?
 
-		this->have_min_dist(
-				static_cast<lba_count>(*previous_track),
-				static_cast<lba_count>(*track));
+		this->have_min_dist(*previous_track, *track);
 
 		++t;
 	} // for
@@ -625,12 +632,13 @@ void TOCValidator::validate(const TrackNo track_count,
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
-	if (leadout <
-			offsets.back() + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
+	auto last_track { std::end(offsets) - 1 };
+
+	if (leadout < *last_track + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 	{
 		std::stringstream ss;
 		ss << "Leadout frame " << leadout
-			<< " is too near to last offset " << offsets.back()
+			<< " is too near to last offset " << *last_track
 			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
@@ -663,7 +671,9 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (static_cast<TrackNo>(lengths.size()) > CDDA.MAX_TRACKCOUNT)
+	if (lengths.size() >
+			static_cast<decltype(lengths.size())>(CDDA.MAX_TRACKCOUNT))
+	//if (static_cast<TrackNo>(lengths.size()) > CDDA.MAX_TRACKCOUNT)
 	{
 		std::stringstream ss;
 		ss << "Lengths are only possible for at most "
@@ -676,22 +686,23 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 
 	lba_count sum_lengths = 0;
 
-	// Skip last length, if it is not known (e.g. 0 or -1)
-	int tracks = (lengths.back() < 1) ? lengths.size() - 1 : lengths.size();
+	auto last { std::end(lengths) - 1 };
+	if (*last > 0) { ++last; } // if last length is known, validate it
 
-	for (std::size_t i = 0; i < static_cast<std::size_t>(tracks); ++i)
+	auto t = 1;
+	for (auto track { std::begin(lengths) }; track != last; ++track)
 	{
-		if (lengths[i] < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
+		if (*track < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 		{
 			std::stringstream ss;
 			ss << "Cannot construct TOC with illegal length "
-				<< std::to_string(lengths[i]) << " for track "
-				<< std::to_string(i+1);
+				<< std::to_string(*track) << " for track "
+				<< std::to_string(t);
 
 			throw InvalidMetadataException(ss.str());
 		}
 
-		sum_lengths += static_cast<lba_count>(lengths[i]);
+		sum_lengths += static_cast<lba_count>(*track);
 	}
 
 	// Sum of all lengths in legal range ?
@@ -814,9 +825,9 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
 	{
 		std::stringstream ss;
-		ss << "Track " << next_track
-			<< " is too near to last track offset " << prev_track
-			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
+		ss << "Track with offset " << prev_track
+			<< " is too short. Next track starts at " << next_track
+			<< " but minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
 		throw InvalidMetadataException(ss.str());
