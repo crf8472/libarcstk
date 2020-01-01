@@ -9,14 +9,9 @@
 
 #include <cstdint>
 #include <memory>
-#include <sstream>    // used by TOCValidator
 #include <stdexcept>  // for logic_error
 #include <string>
 #include <vector>
-
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 namespace arcstk
 {
@@ -48,7 +43,7 @@ struct has_integral_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case const_iterator is defined
+	// choose to return "yes" in case value_type is defined + integral
 	template<typename S> static yes & test(
 		typename std::enable_if<
 			std::is_integral<typename S::value_type>::value, void>::type*
@@ -125,7 +120,7 @@ struct has_begin_end : private sfinae_values
 {
 private:
 
-	// begin(): choose to return "yes" in case begin() is defined
+	// begin(): choose to return "yes" in case begin() const is defined
 	template <typename S> static yes & b(
 		typename std::enable_if<std::is_same<
 			decltype(static_cast<typename S::const_iterator (S::*)() const>
@@ -137,7 +132,7 @@ private:
 	// "no" otherwise
 	template <typename S> static no  & b(...);
 
-	// end(): choose to return "yes" in case end() is defined
+	// end(): choose to return "yes" in case end() const is defined
 	template <typename S> static yes & e(
 		typename std::enable_if<std::is_same<
 			decltype(static_cast<typename S::const_iterator (S::*)() const>
@@ -155,14 +150,14 @@ public:
 	/**
 	 * \brief Result value for begin()
 	 *
-	 * Will be TRUE for types with begin(), otherwise false.
+	 * Will be TRUE for types with begin() const, otherwise false.
 	 */
 	static bool const begin_value = sizeof(b<T>(nullptr)) == sizeof(yes);
 
 	/**
 	 * \brief Result value for end()
 	 *
-	 * Will be TRUE for types with end(), otherwise false.
+	 * Will be TRUE for types with end() const, otherwise false.
 	 */
 	static bool const end_value   = sizeof(e<T>(nullptr)) == sizeof(yes);
 
@@ -174,14 +169,16 @@ public:
 
 /**
  * \brief Helper: defined for container types that define const_iterator as well
- * as value_type and have begin() const and end() const.
+ * as an integral value_type and have begin() const and end() const.
+ *
+ * \tparam The type to inspect
  */
-template <typename T>
+template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_lba_container : public std::integral_constant<bool,
-	has_integral_value_type<T>::value &&
-	has_const_iterator<T>::value      &&
-	has_begin_end<T>::begin_value     &&
-	has_begin_end<T>::end_value >
+	has_integral_value_type<T_noref>::value       &&
+	has_const_iterator     <T_noref>::value       &&
+	has_begin_end          <T_noref>::begin_value &&
+	has_begin_end          <T_noref>::end_value >
 {
 	// empty
 };
@@ -279,7 +276,7 @@ struct CDDA_t
 	/**
 	 * \brief Maximal valid track count.
 	 */
-	const TrackNo MAX_TRACKCOUNT      = 99;
+	const TrackNo MAX_TRACKCOUNT = 99;
 
 	/**
 	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
@@ -712,10 +709,19 @@ public:
 	explicit InvalidMetadataException(const char *what_arg);
 };
 
+} // namespace v_1_0_0
+} // namespace arcstk
+
 
 #ifndef __LIBARCSTK_VALIDATE_TPP__
 #include "details/validate.tpp"
 #endif
+
+
+namespace arcstk
+{
+inline namespace v_1_0_0
+{
 
 
 /**

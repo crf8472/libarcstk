@@ -11,18 +11,25 @@
  *
  * \internal
  *
- * \brief Implementation of TOC validation
+ * \brief TOC data validation
  */
 
 
-//#include <cstdint>
-//#include <sstream>
-//#include <vector>
+#include <cstdint>
+#include <sstream>
+#include <vector>
 
-//namespace arcstk
-//{
-//inline namespace v_1_0_0
-//{
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
+
+namespace arcstk
+{
+inline namespace v_1_0_0
+{
 
 /**
  * \internal
@@ -83,10 +90,6 @@ public:
 			const std::vector<int32_t> &offsets) const;
 
 
-	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
-	inline void validate_offsets(std::initializer_list<T> offsets) const;
-
 	//template <typename T, typename ... Args>
 	//void validate_offsets(std::initializer_list<T> ilist, Args&&... args);
 	//template <typename T, typename ... Args>
@@ -102,16 +105,30 @@ public:
 	 * distance between any two subsequent offsets and their number is a valid
 	 * track count.
 	 *
-	 * \param[in] offsets Offsets (in CDDA frames) of each track
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 *
+	 * \throw InvalidMetadataException If the validation fails
+	 */
+	template <typename T,
+		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	inline void validate_offsets(std::initializer_list<T> offsets) const;
+
+	/**
+	 * \brief Validate offsets.
+	 *
+	 * It is ensured that the offsets are consistent, which means they all are
+	 * within a CDDA conforming range, ordered in ascending order with a legal
+	 * distance between any two subsequent offsets and their number is a valid
+	 * track count.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	template <typename Container,
-		typename = typename std::enable_if <
-				details::is_lba_container<Container>::value, Container>::type
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
 	>
-	inline void validate_offsets(const Container &offsets) const;
-	//void validate_offsets(const std::vector<int32_t> &offsets) const;
+	inline void validate_offsets(Container&& offsets) const;
 
 	/**
 	 * \brief Validate lengths.
@@ -121,11 +138,31 @@ public:
 	 * conforming range and their number is a valid track count. An
 	 * InvalidMetadataException is thrown if the validation fails.
 	 *
-	 * \param[in] lengths Lengths (in CDDA frames) of each track
+	 * \param[in] lengths Lengths (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_lengths(const std::vector<int32_t> &lengths) const;
+	//template <typename T,
+	//	typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	//inline void validate_lengths(std::initializer_list<T> lengths) const;
+
+	/**
+	 * \brief Validate lengths.
+	 *
+	 * It is ensured that the lengths are consistent, which means they all have
+	 * have a CDDA conforming minimal lengths, their sum is within a CDDA
+	 * conforming range and their number is a valid track count. An
+	 * InvalidMetadataException is thrown if the validation fails.
+	 *
+	 * \param[in] lengths Lengths (in LBA frames) of each track
+	 *
+	 * \throw InvalidMetadataException If the validation fails
+	 */
+	//template <typename Container,
+	//	typename = typename std::enable_if <
+	//			details::is_lba_container<Container>::value, Container>::type
+	//>
+	inline void validate_lengths(const std::vector<int32_t> &lenghts) const;
 
 	/**
 	 * \brief Validate leadout frame.
@@ -234,7 +271,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 {
 	this->validate_trackcount(track_count);
 
-	// Validation: Track count Consistent with Number of Offsets?
+	// Validation: Track count consistent with Number of Offsets?
 
 	if (offsets.size() != static_cast<std::size_t>(track_count))
 	{
@@ -251,13 +288,13 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 template <typename T, typename>
 void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
 {
-	// TODO
+	// TODO works, but performance hurts
+	this->validate_offsets(std::vector<T>{offsets});
 }
 
 
 template <typename Container, typename>
-void TOCValidator::validate_offsets(const Container &offsets) const
-//void TOCValidator::validate_offsets(const std::vector<int32_t> &offsets) const
+void TOCValidator::validate_offsets(Container&& offsets) const
 {
 	// Number of offsets in legal range?
 
@@ -269,7 +306,8 @@ void TOCValidator::validate_offsets(const Container &offsets) const
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (static_cast<TrackNo>(offsets.size()) > CDDA.MAX_TRACKCOUNT)
+	if (offsets.size() >
+			static_cast<decltype(offsets.size())>(CDDA.MAX_TRACKCOUNT))
 	{
 		std::stringstream ss;
 		ss << "Offsets are only possible for at most "
@@ -328,6 +366,15 @@ void TOCValidator::validate_offsets(const Container &offsets) const
 }
 
 
+//template <typename T, typename>
+//void TOCValidator::validate_lengths(std::initializer_list<T> lengths) const
+//{
+//	this->validate_lengths(std::vector<T>{lengths});
+//}
+
+
+//template <typename Container, typename>
+//void TOCValidator::validate_lengths(Container&& lengths) const
 void TOCValidator::validate_lengths(const std::vector<int32_t> &lengths) const
 {
 	// Number of lengths in legal range?
@@ -476,9 +523,9 @@ void TOCValidator::have_min_dist(const uint32_t prev_track,
 	}
 }
 
-//} // namespace v_1_0_0
+} // namespace v_1_0_0
 
-//} // namespace arcstk
+} // namespace arcstk
 
 #endif
 

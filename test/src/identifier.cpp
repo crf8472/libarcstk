@@ -42,6 +42,8 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_const_iterator<std::vector<uint32_t>>::value );
 		CHECK ( has_const_iterator<std::list<int32_t>>::value    );
 		CHECK ( has_const_iterator<std::list<uint32_t>>::value   );
+
+		CHECK ( has_const_iterator<const std::vector<int32_t>>::value  );
 	}
 
 	SECTION ( "has_begin_end" )
@@ -62,7 +64,7 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_begin_end<std::list<uint32_t>>::end_value     );
 	}
 
-	SECTION ( "is_lba_container" )
+	SECTION ( "is_lba_container for non-refeference types" )
 	{
 		CHECK ( is_lba_container<std::vector<char>>::value        );
 		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
@@ -75,6 +77,21 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( is_lba_container<std::array<uint32_t, 99>>::value );
 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
 		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+	}
+
+	SECTION ( "is_lba_container for references" )
+	{
+		CHECK ( is_lba_container<std::vector<char> &>::value        );
+		CHECK ( is_lba_container<std::vector<int32_t> &>::value     );
+		CHECK ( is_lba_container<std::vector<uint32_t> &>::value    );
+		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+		CHECK ( is_lba_container<std::array<int32_t,   1> &>::value );
+		CHECK ( is_lba_container<std::array<int32_t,  99> &>::value );
+		CHECK ( is_lba_container<std::array<uint32_t,  1> &>::value );
+		CHECK ( is_lba_container<std::array<uint32_t, 99> &>::value );
+		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
 	}
 }
 
