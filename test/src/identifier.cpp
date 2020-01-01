@@ -24,10 +24,11 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 	using arcstk::details::has_integral_value_type;
 	using arcstk::details::has_const_iterator;
 	using arcstk::details::has_size;
-	using arcstk::details::has_begin_end;
+	using arcstk::details::has_begin;
+	using arcstk::details::has_end;
 	using arcstk::details::is_lba_container;
 
-	SECTION ( "has_integral_value_type" )
+	SECTION ( "has_integral_value_type for some std containers" )
 	{
 		CHECK ( has_integral_value_type<std::vector<char>>::value     );
 		CHECK ( has_integral_value_type<std::vector<int32_t>>::value  );
@@ -36,7 +37,7 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_integral_value_type<std::list<uint32_t>>::value   );
 	}
 
-	SECTION ( "has_const_iterator" )
+	SECTION ( "has_const_iterator for some std containers" )
 	{
 		CHECK ( has_const_iterator<std::vector<char>>::value     );
 		CHECK ( has_const_iterator<std::vector<int32_t>>::value  );
@@ -47,7 +48,7 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_const_iterator<const std::vector<int32_t>>::value  );
 	}
 
-	SECTION ( "has_size" )
+	SECTION ( "has_size for some std containers" )
 	{
 		CHECK ( has_size<std::vector<char>>::value     );
 		CHECK ( has_size<std::vector<int32_t>>::value  );
@@ -58,22 +59,22 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_size<const std::vector<int32_t>>::value  );
 	}
 
-	SECTION ( "has_begin_end" )
+	SECTION ( "has_begin for some std containers" )
 	{
-		CHECK ( has_begin_end<std::vector<char>>::begin_value     );
-		CHECK ( has_begin_end<std::vector<char>>::end_value       );
+		CHECK ( has_begin<std::vector<char>>::value     );
+		CHECK ( has_begin<std::vector<int32_t>>::value  );
+		CHECK ( has_begin<std::vector<uint32_t>>::value );
+		CHECK ( has_begin<std::list<int32_t>>::value    );
+		CHECK ( has_begin<std::list<uint32_t>>::value   );
+	}
 
-		CHECK ( has_begin_end<std::vector<int32_t>>::begin_value  );
-		CHECK ( has_begin_end<std::vector<int32_t>>::end_value    );
-
-		CHECK ( has_begin_end<std::vector<uint32_t>>::begin_value );
-		CHECK ( has_begin_end<std::vector<uint32_t>>::end_value   );
-
-		CHECK ( has_begin_end<std::list<int32_t>>::begin_value    );
-		CHECK ( has_begin_end<std::list<int32_t>>::end_value      );
-
-		CHECK ( has_begin_end<std::list<uint32_t>>::begin_value   );
-		CHECK ( has_begin_end<std::list<uint32_t>>::end_value     );
+	SECTION ( "has_end for some std containers" )
+	{
+		CHECK ( has_end<std::vector<char>>::value     );
+		CHECK ( has_end<std::vector<int32_t>>::value  );
+		CHECK ( has_end<std::vector<uint32_t>>::value );
+		CHECK ( has_end<std::list<int32_t>>::value    );
+		CHECK ( has_end<std::list<uint32_t>>::value   );
 	}
 
 	SECTION ( "is_lba_container for non-refererence types" )

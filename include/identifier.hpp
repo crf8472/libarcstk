@@ -34,7 +34,7 @@ struct sfinae_values
 
 
 /**
- * \brief Helper: check for the presence of an integral value_type
+ * \brief Helper: check for an integral value_type
  *
  * \tparam T Input type to inspect
  */
@@ -154,17 +154,17 @@ public:
 
 
 /**
- * \brief Helper: check for the presence of begin() and end()
+ * \brief Helper: check for the presence of begin() const
  *
  * \tparam T Input type to inspect
  */
 template <typename T>
-struct has_begin_end : private sfinae_values
+struct has_begin : private sfinae_values
 {
 private:
 
 	// begin(): choose to return "yes" in case begin() const is defined
-	template <typename S> static yes & b(
+	template <typename S> static yes & test(
 		typename std::enable_if<std::is_same<
 			decltype(static_cast<typename S::const_iterator (S::*)() const>
 				(&S::begin)),
@@ -173,10 +173,41 @@ private:
 	);
 
 	// "no" otherwise
-	template <typename S> static no  & b(...);
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with begin() const, otherwise false.
+	 */
+	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Helper: check for the presence of end() const
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_end : private sfinae_values
+{
+private:
 
 	// end(): choose to return "yes" in case end() const is defined
-	template <typename S> static yes & e(
+	template <typename S> static yes & test(
 		typename std::enable_if<std::is_same<
 			decltype(static_cast<typename S::const_iterator (S::*)() const>
 				(&S::end)),
@@ -185,24 +216,22 @@ private:
 	);
 
 	// "no" otherwise
-	template <typename S> static no  & e(...);
+	template <typename S> static no & test(...);
 
 
 public:
 
 	/**
-	 * \brief Result value for begin()
-	 *
-	 * Will be TRUE for types with begin() const, otherwise false.
-	 */
-	static bool const begin_value = sizeof(b<T>(nullptr)) == sizeof(yes);
-
-	/**
-	 * \brief Result value for end()
+	 * \brief Result value
 	 *
 	 * Will be TRUE for types with end() const, otherwise false.
 	 */
-	static bool const end_value   = sizeof(e<T>(nullptr)) == sizeof(yes);
+	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
 
 
 	// ignore
@@ -220,11 +249,11 @@ public:
  */
 template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_lba_container : public std::integral_constant<bool,
-	has_integral_value_type<T_noref>::value       &&
-	has_const_iterator     <T_noref>::value       &&
-	has_size               <T_noref>::value       &&
-	has_begin_end          <T_noref>::begin_value &&
-	has_begin_end          <T_noref>::end_value >
+	has_integral_value_type<T_noref>::value &&
+	has_const_iterator     <T_noref>::value &&
+	has_size               <T_noref>::value &&
+	has_begin              <T_noref>::value &&
+	has_end                <T_noref>::value >
 {
 	// empty
 };
