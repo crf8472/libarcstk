@@ -111,6 +111,49 @@ public:
 
 
 /**
+ * \brief Helper: check for the presence of a size
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_size : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case size is defined
+	template <typename S> static yes & test(
+		typename std::enable_if<std::is_same<
+			decltype(static_cast<typename S::size_type (S::*)() const>
+				(&S::size)),
+			typename S::size_type(S::*)() const>::value,
+			void>::type*
+	);
+
+	// "no" otherwise
+	template <typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with a size, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
  * \brief Helper: check for the presence of begin() and end()
  *
  * \tparam T Input type to inspect
@@ -168,8 +211,10 @@ public:
 
 
 /**
- * \brief Helper: defined for container types that define const_iterator as well
- * as an integral value_type and have begin() const and end() const.
+ * \brief Helper: Check whether a container holds LBA frames.
+ *
+ * Defined for container types that define const_iterator as well
+ * as an integral value_type, a size and have begin() const and end() const.
  *
  * \tparam The type to inspect
  */
@@ -177,6 +222,7 @@ template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_lba_container : public std::integral_constant<bool,
 	has_integral_value_type<T_noref>::value       &&
 	has_const_iterator     <T_noref>::value       &&
+	has_size               <T_noref>::value       &&
 	has_begin_end          <T_noref>::begin_value &&
 	has_begin_end          <T_noref>::end_value >
 {

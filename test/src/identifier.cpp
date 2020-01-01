@@ -23,6 +23,7 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 {
 	using arcstk::details::has_integral_value_type;
 	using arcstk::details::has_const_iterator;
+	using arcstk::details::has_size;
 	using arcstk::details::has_begin_end;
 	using arcstk::details::is_lba_container;
 
@@ -46,6 +47,17 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_const_iterator<const std::vector<int32_t>>::value  );
 	}
 
+	SECTION ( "has_size" )
+	{
+		CHECK ( has_size<std::vector<char>>::value     );
+		CHECK ( has_size<std::vector<int32_t>>::value  );
+		CHECK ( has_size<std::vector<uint32_t>>::value );
+		CHECK ( has_size<std::list<int32_t>>::value    );
+		CHECK ( has_size<std::list<uint32_t>>::value   );
+
+		CHECK ( has_size<const std::vector<int32_t>>::value  );
+	}
+
 	SECTION ( "has_begin_end" )
 	{
 		CHECK ( has_begin_end<std::vector<char>>::begin_value     );
@@ -64,7 +76,7 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( has_begin_end<std::list<uint32_t>>::end_value     );
 	}
 
-	SECTION ( "is_lba_container for non-refeference types" )
+	SECTION ( "is_lba_container for non-refererence types" )
 	{
 		CHECK ( is_lba_container<std::vector<char>>::value        );
 		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
