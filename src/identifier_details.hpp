@@ -215,33 +215,6 @@ class TOCBuilder final
 
 public:
 
-	// Forward declaration for TOCBuilder::Impl
-	class Impl;
-
-	/**
-	 * \brief Constructor.
-	 */
-	TOCBuilder();
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
-	TOCBuilder(const TOCBuilder &rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	TOCBuilder(TOCBuilder &&rhs) noexcept;
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~TOCBuilder() noexcept;
-
 	/**
 	 * \brief Build a TOC object from the specified information.
 	 *
@@ -257,7 +230,7 @@ public:
 	std::unique_ptr<TOC> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout,
-			const std::vector<std::string> &files);
+			const std::vector<std::string> &files) const;
 
 	/**
 	 * \brief Build a TOC object from the specified information.
@@ -274,7 +247,7 @@ public:
 	std::unique_ptr<TOC> build(const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
-			const std::vector<std::string> &files);
+			const std::vector<std::string> &files) const;
 
 	/**
 	 * \brief Update a non-complete TOC object with a missing leadout.
@@ -288,31 +261,100 @@ public:
 	 */
 	std::unique_ptr<TOC> merge(const TOC &toc, const uint32_t leadout) const;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	TOCBuilder& operator = (const TOCBuilder &rhs);
-
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	TOCBuilder& operator = (TOCBuilder &&rhs) noexcept;
-
 
 private:
 
 	/**
-	 * \brief Private implementation of TOCBuilder.
+	 * \brief Service method: Builds a track count for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] track_count Number of tracks
+	 *
+	 * \return The intercepted track_count
+	 *
+	 * \throw InvalidMetadataException If the track count is not valid
 	 */
-	std::unique_ptr<TOCBuilder::Impl> impl_;
+	TrackNo build_track_count(const TrackNo track_count) const;
+
+	/**
+	 * \brief Service method: Builds validated offsets for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] offsets     Offsets to be validated
+	 * \param[in] track_count Number of tracks
+	 * \param[in] leadout     Leadout frame
+	 *
+	 * \return A representation of the validated offsets as unsigned integers
+	 *
+	 * \throw InvalidMetadataException If the offsets are not valid
+	 */
+	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
+			const TrackNo track_count, const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Builds validated offsets for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] offsets     Offsets to be validated
+	 * \param[in] track_count Number of tracks
+	 * \param[in] lengths     Lengths to be validated
+	 *
+	 * \return A representation of the validated offsets as unsigned integers
+	 *
+	 * \throw InvalidMetadataException If the offsets are not valid
+	 */
+	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
+			const TrackNo track_count,
+			const std::vector<int32_t> &lengths) const;
+
+	/**
+	 * \brief Service method: Builds validated lengths for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] sv Vector of lengths as signed integers to be validated
+	 * \param[in] track_count Number of tracks
+	 *
+	 * \return A representation of the validated lengths as unsigned integers
+	 *
+	 * \throw InvalidMetadataException If the lengths are not valid
+	 */
+	std::vector<uint32_t> build_lengths(const std::vector<int32_t> &sv,
+			const TrackNo track_count) const;
+
+	/**
+	 * \brief Service method: Builds validated leadout for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] leadout Leadout to be validated
+	 *
+	 * \return A representation of the validated leadout
+	 *
+	 * \throw InvalidMetadataException If the leadout is not valid
+	 */
+	uint32_t build_leadout(const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Builds validated audio file list for a TOC object.
+	 *
+	 * Used by TOCBuilder::build().
+	 *
+	 * \param[in] files File list to be validated
+	 *
+	 * \return A representation of the validated file list
+	 *
+	 * \throw InvalidMetadataException If the file list is not valid
+	 */
+	std::vector<std::string> build_files(std::vector<std::string> files) const;
+
+	/**
+	 * \brief Validator instance
+	 */
+	TOCValidator validator_;
 };
 
 

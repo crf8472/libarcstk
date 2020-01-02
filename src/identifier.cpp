@@ -367,208 +367,28 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
  * \internal
  * \ingroup id
  *
- * \brief Private implementation of TOCBuilder.
- *
- * Note that TOCBuilder is a friend of TOC but TOCBuilder::Impl
- * is not. Hence, the actual creation of the TOC object is not
- * delegated to TOCBuilder::Impl. Instead, TOCBuilder::Impl constructs
- * the three parameters separately while TOCBuilder performs the actual
- * constructor call to TOC.
- *
- * \see TOCBuilder
- */
-class TOCBuilder::Impl final
-{
-
-public:
-
-	/**
-	 * \brief Default constructor
-	 */
-	Impl();
-
-	/**
-	 * \brief Copy constructor
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
-	Impl(const Impl &rhs);
-
-	/**
-	 * \brief Move constructor
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	Impl(Impl &&rhs) noexcept = default;
-
-	/**
-	 * \brief Default destructor
-	 */
-	~Impl() noexcept = default;
-
-	/**
-	 * \brief Implements TOCBuilder::build(const TrackNo track_count, const std::vector<int32_t> &offsets, const uint32_t leadout).
-	 */
-	std::unique_ptr<TOC::Impl> build(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const uint32_t leadout,
-			const std::vector<std::string> &files);
-
-	/**
-	 * \brief Implements TOCBuilder::build(const TrackNo track_count, const std::vector<int32_t> &offsets, const std::vector<int32_t> &lengths, const std::vector<std::string> &files)
-	 */
-	std::unique_ptr<TOC::Impl> build(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
-			const std::vector<std::string> &files);
-
-	std::unique_ptr<TOC::Impl> merge(const TOC &toc, const uint32_t leadout)
-		const;
-
-	/**
-	 * \brief Copy assignment
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	TOCBuilder::Impl& operator = (const TOCBuilder::Impl &rhs);
-
-	/**
-	 * \brief Move assignment
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	TOCBuilder::Impl& operator = (TOCBuilder::Impl &&rhs) noexcept = default;
-
-
-protected:
-
-	/**
-	 * \brief Service method: Builds a track count for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] track_count Number of tracks
-	 *
-	 * \return The intercepted track_count
-	 *
-	 * \throw InvalidMetadataException If the track count is not valid
-	 */
-	TrackNo build_track_count(const TrackNo track_count) const;
-
-	/**
-	 * \brief Service method: Builds validated offsets for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] offsets     Offsets to be validated
-	 * \param[in] track_count Number of tracks
-	 * \param[in] leadout     Leadout frame
-	 *
-	 * \return A representation of the validated offsets as unsigned integers
-	 *
-	 * \throw InvalidMetadataException If the offsets are not valid
-	 */
-	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
-			const TrackNo track_count, const uint32_t leadout) const;
-
-	/**
-	 * \brief Service method: Builds validated offsets for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] offsets     Offsets to be validated
-	 * \param[in] track_count Number of tracks
-	 * \param[in] lengths     Lengths to be validated
-	 *
-	 * \return A representation of the validated offsets as unsigned integers
-	 *
-	 * \throw InvalidMetadataException If the offsets are not valid
-	 */
-	std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
-			const TrackNo track_count,
-			const std::vector<int32_t> &lengths) const;
-
-	/**
-	 * \brief Service method: Builds validated lengths for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] sv Vector of lengths as signed integers to be validated
-	 * \param[in] track_count Number of tracks
-	 *
-	 * \return A representation of the validated lengths as unsigned integers
-	 *
-	 * \throw InvalidMetadataException If the lengths are not valid
-	 */
-	std::vector<uint32_t> build_lengths(const std::vector<int32_t> &sv,
-			const TrackNo track_count) const;
-
-	/**
-	 * \brief Service method: Builds validated leadout for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] leadout Leadout to be validated
-	 *
-	 * \return A representation of the validated leadout
-	 *
-	 * \throw InvalidMetadataException If the leadout is not valid
-	 */
-	uint32_t build_leadout(const uint32_t leadout) const;
-
-	/**
-	 * \brief Service method: Builds validated audio file list for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
-	 *
-	 * \param[in] files File list to be validated
-	 *
-	 * \return A representation of the validated file list
-	 *
-	 * \throw InvalidMetadataException If the file list is not valid
-	 */
-	std::vector<std::string> build_files(std::vector<std::string> files) const;
-
-
-private:
-
-	/**
-	 * \brief Validator instance
-	 */
-	std::unique_ptr<TOCValidator> validator_;
-};
-
-
-/**
- * \internal
- * \ingroup id
- *
  * \brief Private implementation of TOC.
  *
  * \see TOC
  */
 class TOC::Impl final
 {
-	// TOCBuilder::Impl::build() methods are friends of TOC::Impl
+	// TOCBuilder::build() methods are friends of TOC::Impl
 	// since they construct TOC::Impls exclusively
 
-	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
+	friend std::unique_ptr<TOC> TOCBuilder::build(
 			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const uint32_t leadout,
-			const std::vector<std::string> &files);
+			const std::vector<std::string> &files) const;
 
-	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(
+	friend std::unique_ptr<TOC> TOCBuilder::build(
 			const TrackNo track_count,
 			const std::vector<int32_t> &offsets,
 			const std::vector<int32_t> &lengths,
-			const std::vector<std::string> &files);
+			const std::vector<std::string> &files) const;
 
-	friend std::unique_ptr<TOC::Impl> TOCBuilder::Impl::merge(
+	friend std::unique_ptr<TOC> TOCBuilder::merge(
 			const TOC &toc, const uint32_t leadout) const;
 
 public:
@@ -1228,64 +1048,86 @@ uint64_t ARIdBuilder::sum_digits(const uint32_t number)
 }
 
 
-// TOCBuilder::Impl
+// TOCBuilder
 
 
-TOCBuilder::Impl::Impl()
-	: validator_(std::make_unique<TOCValidator>())
-{
-	// empty
-}
-
-
-TOCBuilder::Impl::Impl(const TOCBuilder::Impl &rhs)
-	: validator_(std::make_unique<TOCValidator>(*rhs.validator_)) // deep copy
-{
-	// empty
-}
-
-
-std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const TrackNo track_count,
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const uint32_t leadout,
-		const std::vector<std::string> &files)
+		const std::vector<std::string> &files) const
 {
-	return std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(offsets, track_count, leadout),
 		build_leadout(leadout),
 		build_files(files))
 	);
+
+	return std::make_unique<TOC>(std::move(impl));
 }
 
 
-std::unique_ptr<TOC::Impl> TOCBuilder::Impl::build(const TrackNo track_count,
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files)
+		const std::vector<std::string> &files) const
 {
-	return std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(offsets, track_count, lengths),
 		build_lengths(lengths, track_count),
 		build_files(files))
 	);
+
+	return std::make_unique<TOC>(std::move(impl));
 }
 
 
-TrackNo TOCBuilder::Impl::build_track_count(const TrackNo track_count) const
+std::unique_ptr<TOC> TOCBuilder::merge(const TOC &toc, const uint32_t leadout)
+	const
 {
-	validator_->validate_trackcount(track_count);
+	if (toc.complete())
+	{
+		return std::make_unique<TOC>(toc);
+	}
+
+	validator_.validate(toc, leadout);
+
+	// add length of last track
+	// TODO Erh....
+	std::vector<uint32_t> merged_lengths;
+	auto size =
+		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
+	merged_lengths.reserve(size);
+	merged_lengths = toc::get_parsed_lengths(toc);
+	merged_lengths.push_back(leadout - toc.offset(toc.track_count()));
+
+	std::unique_ptr<TOC::Impl> impl = std::make_unique<TOC::Impl>(TOC::Impl(
+		toc.track_count(),
+		toc::get_offsets(toc),
+		merged_lengths,
+		toc::get_filenames(toc)
+	));
+
+	impl->leadout_ = leadout;
+
+	return std::make_unique<TOC>(std::move(impl));
+}
+
+
+TrackNo TOCBuilder::build_track_count(const TrackNo track_count) const
+{
+	validator_.validate_trackcount(track_count);
 
 	return track_count;
 }
 
 
-std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
+std::vector<uint32_t> TOCBuilder::build_offsets(
 		const std::vector<int32_t> &offsets, const TrackNo track_count,
 		const uint32_t leadout) const
 {
-	validator_->validate(track_count, offsets, leadout);
+	validator_.validate(track_count, offsets, leadout);
 
 	// Convert offsets to uints
 
@@ -1293,7 +1135,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 }
 
 
-std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
+std::vector<uint32_t> TOCBuilder::build_offsets(
 		const std::vector<int32_t> &offsets, const TrackNo track_count,
 		const std::vector<int32_t> &lengths) const
 {
@@ -1317,9 +1159,9 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 		throw InvalidMetadataException(ss.str());
 	}
 
-	validator_->validate_lengths(lengths);
+	validator_.validate_lengths(lengths);
 
-	validator_->validate_offsets(track_count, offsets);
+	validator_.validate_offsets(track_count, offsets);
 
 	// Convert offsets to uints
 
@@ -1327,7 +1169,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_offsets(
 }
 
 
-std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
+std::vector<uint32_t> TOCBuilder::build_lengths(
 		const std::vector<int32_t> &lengths, const TrackNo track_count) const
 {
 	// Valid number of lengths ?
@@ -1343,7 +1185,7 @@ std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
 
 	// If params make sense, use TOCValidator
 
-	validator_->validate_lengths(lengths);
+	validator_.validate_lengths(lengths);
 
 	// Convert ints to uints while normalizing the last length to 0
 
@@ -1356,131 +1198,21 @@ std::vector<uint32_t> TOCBuilder::Impl::build_lengths(
 }
 
 
-uint32_t TOCBuilder::Impl::build_leadout(const uint32_t leadout) const
+uint32_t TOCBuilder::build_leadout(const uint32_t leadout) const
 {
-	validator_->validate_leadout(leadout);
+	validator_.validate_leadout(leadout);
 
 	return leadout;
 }
 
 
-std::vector<std::string> TOCBuilder::Impl::build_files(std::vector<std::string>
-		files) const
+std::vector<std::string> TOCBuilder::build_files(std::vector<std::string> files)
+	const
 {
-	// do nothing for now
+	// no validation for now
 
 	return files;
 }
-
-
-std::unique_ptr<TOC::Impl> TOCBuilder::Impl::merge(const TOC &toc,
-		const uint32_t leadout) const
-{
-	validator_->validate(toc, leadout);
-
-	// add length of last track
-	std::vector<uint32_t> merged_lengths;
-	auto size =
-		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
-	merged_lengths.reserve(size);
-	merged_lengths = toc::get_parsed_lengths(toc);
-	merged_lengths.push_back(leadout - toc.offset(toc.track_count()));
-
-	std::unique_ptr<TOC::Impl> impl = std::make_unique<TOC::Impl>(TOC::Impl(
-		toc.track_count(),
-		toc::get_offsets(toc),
-		merged_lengths,
-		toc::get_filenames(toc)
-	));
-
-	impl->leadout_ = leadout;
-
-	return impl;
-}
-
-
-TOCBuilder::Impl& TOCBuilder::Impl::operator = (const TOCBuilder::Impl &rhs)
-{
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	// deep copy
-	validator_ = std::make_unique<TOCValidator>(*rhs.validator_);
-	return *this;
-}
-
-
-// TOCBuilder
-
-
-TOCBuilder::TOCBuilder()
-	: impl_(std::make_unique<TOCBuilder::Impl>())
-{
-	// empty
-}
-
-
-TOCBuilder::TOCBuilder(const TOCBuilder &rhs)
-	: impl_(std::make_unique<TOCBuilder::Impl>(*rhs.impl_)) // deep copy
-{
-	// empty
-}
-
-
-TOCBuilder::TOCBuilder(TOCBuilder &&rhs) noexcept = default;
-
-
-TOCBuilder::~TOCBuilder() noexcept = default;
-
-
-std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout,
-		const std::vector<std::string> &files)
-{
-	return std::make_unique<TOC>(
-			impl_->build(track_count, offsets, leadout, files));
-}
-
-
-std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files)
-{
-	return std::make_unique<TOC>(
-			impl_->build(track_count, offsets, lengths, files));
-}
-
-
-std::unique_ptr<TOC> TOCBuilder::merge(const TOC &toc,
-		const uint32_t leadout) const
-{
-	if (toc.complete())
-	{
-		return std::make_unique<TOC>(toc);
-	}
-
-	return std::make_unique<TOC>(impl_->merge(toc, leadout));
-}
-
-
-TOCBuilder& TOCBuilder::operator = (const TOCBuilder &rhs)
-{
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	// deep copy
-	this->impl_ = std::make_unique<TOCBuilder::Impl>(*rhs.impl_);
-	return *this;
-}
-
-
-TOCBuilder& TOCBuilder::operator = (TOCBuilder &&rhs) noexcept = default;
 
 
 /// \endcond
