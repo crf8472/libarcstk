@@ -21,7 +21,7 @@
 #include <vector>
 
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp" // for TOCBuilder
+#include "identifier_details.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"

@@ -16,8 +16,11 @@
 
 
 #include <cstdint>
+#include <initializer_list>
 #include <sstream>
+#include <type_traits>
 #include <vector>
+
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -25,6 +28,7 @@
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+
 
 namespace arcstk
 {

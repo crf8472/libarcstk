@@ -556,6 +556,7 @@ public:
 };
 
 } // namespace v_1_0_0
+
 } // namespace arcstk
 
 
@@ -792,6 +793,10 @@ std::vector<std::string> get_filenames(const TOC &toc);
 } // namespace v_1_0_0
 
 } // namespace arcstk
+
+#ifndef __LIBARCSTK_BUILDERS_TPP__
+#include "details/builders.tpp"
+#endif
 
 #endif
 

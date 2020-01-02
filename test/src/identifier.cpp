@@ -822,7 +822,7 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		CHECK ( toc0->track_count() == 15 );
 		CHECK ( toc0->leadout()     == 253038 );
 
-		CHECK_THROWS ( toc0->offset(0)  ==      0 );
+		CHECK_THROWS ( toc0->offset(0)  == 0 );
 
 		CHECK ( toc0->offset(1)  ==     33 );
 		CHECK ( toc0->offset(2)  ==   5225 );
@@ -841,26 +841,6 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		CHECK ( toc0->offset(15) == 234103 );
 
 		CHECK_THROWS ( toc0->offset(16) == 0 );
-
-//		CHECK_THROWS ( toc0->parsed_length(0) == 0 );
-//
-//		CHECK ( toc0->parsed_length(1)  == 0 );
-//		CHECK ( toc0->parsed_length(2)  == 0 );
-//		CHECK ( toc0->parsed_length(3)  == 0 );
-//		CHECK ( toc0->parsed_length(4)  == 0 );
-//		CHECK ( toc0->parsed_length(5)  == 0 );
-//		CHECK ( toc0->parsed_length(6)  == 0 );
-//		CHECK ( toc0->parsed_length(7)  == 0 );
-//		CHECK ( toc0->parsed_length(8)  == 0 );
-//		CHECK ( toc0->parsed_length(9)  == 0 );
-//		CHECK ( toc0->parsed_length(10) == 0 );
-//		CHECK ( toc0->parsed_length(11) == 0 );
-//		CHECK ( toc0->parsed_length(12) == 0 );
-//		CHECK ( toc0->parsed_length(13) == 0 );
-//		CHECK ( toc0->parsed_length(14) == 0 );
-//		CHECK ( toc0->parsed_length(15) == 0 );
-//
-//		CHECK_THROWS ( toc0->parsed_length(16) == 0 );
     }
 }
 
