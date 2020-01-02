@@ -38,30 +38,6 @@ class ARIdBuilder final
 public:
 
 	/**
-	 * \brief Default constructor.
-	 */
-	ARIdBuilder();
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
-	ARIdBuilder(const ARIdBuilder &rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	ARIdBuilder(ARIdBuilder &&rhs) noexcept;
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~ARIdBuilder() noexcept;
-
-	/**
 	 * \brief Build an ARId object from the specified information.
 	 *
 	 * This method is intended for easy testing the class.
@@ -78,17 +54,6 @@ public:
 		const std::vector<int32_t> &offsets, const uint32_t leadout) const;
 
 	/**
-	 * \brief Build an ARId object from the specified TOC.
-	 *
-	 * \param[in] toc TOC to build ARId from
-	 *
-	 * \return An ARId object representing the specified information
-	 *
-	 * \throw InvalidMetadataException If the TOC forms no valid ARId
-	 */
-	std::unique_ptr<ARId> build(const TOC &toc) const;
-
-	/**
 	 * \brief Build an ARId object from the specified TOC and leadout.
 	 *
 	 * Actual parameters \c toc and \c leadout are validated against each other.
@@ -101,6 +66,17 @@ public:
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
 	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
+
+	/**
+	 * \brief Build an ARId object from the specified TOC.
+	 *
+	 * \param[in] toc TOC to build ARId from
+	 *
+	 * \return An ARId object representing the specified information
+	 *
+	 * \throw InvalidMetadataException If the TOC forms no valid ARId
+	 */
+	std::unique_ptr<ARId> build(const TOC &toc) const;
 
 	/**
 	 * \brief Safely construct an empty ARId.
@@ -118,36 +94,102 @@ public:
 	 *
 	 * \return An empty ARId
 	 */
-	std::unique_ptr<ARId> build_empty_id() noexcept;
-
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	ARIdBuilder& operator = (const ARIdBuilder &rhs);
-
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	ARIdBuilder& operator = (ARIdBuilder &&rhs) noexcept;
+	std::unique_ptr<ARId> build_empty_id() const noexcept;
 
 
 private:
 
-	// Forward declaration for private implementation
-	class Impl;
+	/**
+	 * \brief Perform the actual build process.
+	 *
+	 * \param[in] track_count Track count
+	 * \param[in] offsets     Offsets
+	 * \param[in] leadout     Leadout frame
+	 *
+	 * \return An ARId object representing the specified information
+	 *
+	 * \throw InvalidMetadataException If the parameters form no valid ARId
+	 */
+	std::unique_ptr<ARId> build_worker(const TOC &toc, const uint32_t leadout)
+		const;
 
 	/**
-	 * \brief Private implementation of ARIdBuilder.
+	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
 	 */
-	std::unique_ptr<ARIdBuilder::Impl> impl_;
+	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
+	 */
+	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Compute the CDDB id from offsets and leadout.
+	 *
+	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+	 * the following 3 numbers:
+	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+	 * second chunk (16 bits): total seconds count
+	 * third chunk (8 bits):   number of tracks
+	 *
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] leadout     Leadout LBA frame
+	 */
+	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \deprecated
+	 *
+	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
+	 *
+	 * \param[in] track_count   Number of tracks in this medium
+	 * \param[in] offsets       Offsets (in CDDA frames) of each track
+	 * \param[in] leadout Leadout CDDA frame
+	 */
+	uint32_t disc_id_2(const TrackNo track_count,
+			const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \deprecated
+	 *
+	 * \brief Service method: Compute the CDDB disc id from offsets and leadout.
+	 *
+	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
+	 * with the leadout frame added as an additional element on the back
+	 * position.
+	 *
+	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+	 * the following 3 numbers:
+	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+	 * second chunk (16 bits): total seconds count
+	 * third chunk (8 bits):   number of tracks
+	 *
+	 * \param[in] track_count Number of tracks in this medium
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] leadout     Leadout LBA frame
+	 */
+	uint32_t cddb_id(const TrackNo track_count,
+			const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: sum up the digits of the number passed
+	 *
+	 * \param[in] number An unsigned integer number
+	 *
+	 * \return The sum of the digits of the number
+	 */
+	static uint64_t sum_digits(const uint32_t number);
 };
 
 

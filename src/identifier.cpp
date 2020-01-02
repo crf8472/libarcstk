@@ -955,7 +955,8 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 // NonstandardMetadataException
 
 
-NonstandardMetadataException::NonstandardMetadataException(const std::string &what_arg)
+NonstandardMetadataException::NonstandardMetadataException(
+		const std::string &what_arg)
 	: std::logic_error(what_arg)
 {
 	// empty
@@ -1000,7 +1001,7 @@ decltype(auto) toc_get(Container&& c,
 		const TOC &toc,
 		InType (TOC::*accessor)(const TrackNo) const)
 {
-	auto container_size = std::forward<Container>(c).size();
+	auto container_size = c.size();
 
 	auto track_count = static_cast<decltype(container_size)>(toc.track_count());
 	for (decltype(container_size) t = 1; t <= track_count; ++t)
@@ -1011,6 +1012,18 @@ decltype(auto) toc_get(Container&& c,
 
 	return c;
 }
+
+// Example usage:
+//
+//template<typename Container>
+//static typename std::enable_if<details::is_lba_container<Container>::value,
+//	void>::type
+//append(Container& to, const Container& from)
+//{
+//    using std::begin;
+//    using std::end;
+//    to.insert(end(to), begin(from), end(from));
+//}
 
 } // namespace details
 
@@ -1043,115 +1056,49 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 } // namespace toc
 
-/// \endcond
+
+// ARIdBuilder
 
 
-/**
- * \internal
- * \ingroup id
- *
- * \brief Private implementation of ARIdBuilder
- */
-class ARIdBuilder::Impl final
+std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
+		const std::vector<int32_t> &offsets, const uint32_t leadout) const
 {
+	TOCBuilder builder;
+	auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
 
-public:
-
-	/**
-	 * \brief Implements ARIdBuilder::build(const TOC &toc, const uint32_t leadout) const
-	 */
-	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
-
-	/**
-	 * \brief Implements ARIdBuilder::build_empty_id()
-	 */
-	std::unique_ptr<ARId> build_empty_id() const noexcept;
+	return build_worker(*toc, 0);
+}
 
 
-private:
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
+	const
+{
+	return build_worker(toc, leadout);
+}
 
-	/**
-	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
-	 *
-	 * \param[in] offsets Offsets (in LBA frames) of each track
-	 * \param[in] leadout Leadout LBA frame
-	 */
-	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
 
-	/**
-	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
-	 *
-	 * \param[in] offsets Offsets (in LBA frames) of each track
-	 * \param[in] leadout Leadout LBA frame
-	 */
-	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc) const
+{
+	return build_worker(toc, 0);
+}
 
-	/**
-	 * \brief Service method: Compute the CDDB id from offsets and leadout.
-	 *
-	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
-	 * the following 3 numbers:
-	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
-	 * second chunk (16 bits): total seconds count
-	 * third chunk (8 bits):   number of tracks
-	 *
-	 * \param[in] offsets     Offsets (in LBA frames) of each track
-	 * \param[in] leadout     Leadout LBA frame
-	 */
-	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
 
-	/**
-	 * \deprecated
-	 *
-	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
-	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] offsets       Offsets (in CDDA frames) of each track
-	 * \param[in] leadout Leadout CDDA frame
-	 */
-	uint32_t disc_id_2(const TrackNo track_count,
-			const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+std::unique_ptr<ARId> ARIdBuilder::build_empty_id() const noexcept
+{
+	try
+	{
+		return std::make_unique<ARId>(0, 0, 0, 0);
 
-	/**
-	 * \deprecated
-	 *
-	 * \brief Service method: Compute the CDDB disc id from offsets and leadout.
-	 *
-	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
-	 * with the leadout frame added as an additional element on the back
-	 * position.
-	 *
-	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
-	 * the following 3 numbers:
-	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
-	 * second chunk (16 bits): total seconds count
-	 * third chunk (8 bits):   number of tracks
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in LBA frames) of each track
-	 * \param[in] leadout     Leadout LBA frame
-	 */
-	uint32_t cddb_id(const TrackNo track_count,
-			const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+	} catch (const std::exception& e)
+	{
+		ARCS_LOG_ERROR << "Exception while creating empty ARId: " << e.what();
+	}
 
-	/**
-	 * \brief Service method: sum up the digits of the number passed
-	 *
-	 * \param[in] number An unsigned integer number
-	 *
-	 * \return The sum of the digits of the number
-	 */
-	static uint64_t sum_digits(const uint32_t number);
-};
+	return nullptr;
+}
 
-/// \cond UNDOC_FUNCTION_BODIES
 
-std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
+std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 		const uint32_t leadout) const
 {
 	// Override TOC leadout with optional non-null extra leadout
@@ -1178,22 +1125,7 @@ std::unique_ptr<ARId> ARIdBuilder::Impl::build(const TOC &toc,
 }
 
 
-std::unique_ptr<ARId> ARIdBuilder::Impl::build_empty_id() const noexcept
-{
-	try
-	{
-		return std::make_unique<ARId>(0, 0, 0, 0);
-
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_ERROR << "Exception while creating empty ARId: " << e.what();
-	}
-
-	return nullptr;
-}
-
-
-uint32_t ARIdBuilder::Impl::disc_id_1(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
 		const uint32_t leadout) const
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
@@ -1206,7 +1138,7 @@ uint32_t ARIdBuilder::Impl::disc_id_1(const std::vector<uint32_t> &offsets,
 }
 
 
-uint32_t ARIdBuilder::Impl::disc_id_2(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
 		const uint32_t leadout) const
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
@@ -1221,7 +1153,7 @@ uint32_t ARIdBuilder::Impl::disc_id_2(const std::vector<uint32_t> &offsets,
 }
 
 
-uint32_t ARIdBuilder::Impl::cddb_id(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 		const uint32_t leadout) const
 {
 	const auto fps = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
@@ -1240,7 +1172,7 @@ uint32_t ARIdBuilder::Impl::cddb_id(const std::vector<uint32_t> &offsets,
 }
 
 
-uint32_t ARIdBuilder::Impl::disc_id_2(const TrackNo track_count,
+uint32_t ARIdBuilder::disc_id_2(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
@@ -1259,7 +1191,7 @@ uint32_t ARIdBuilder::Impl::disc_id_2(const TrackNo track_count,
 }
 
 
-uint32_t ARIdBuilder::Impl::cddb_id(const TrackNo track_count,
+uint32_t ARIdBuilder::cddb_id(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
 {
 	// The CDDB id is a 32bit unsigned integer, formed of a concatenation of
@@ -1276,8 +1208,7 @@ uint32_t ARIdBuilder::Impl::cddb_id(const TrackNo track_count,
 	for (std::size_t i = 0; i < static_cast<std::size_t>(track_count); ++i)
 	{
 		// This will throw if offsets.size() < track_count
-		checksum += ARIdBuilder::Impl::sum_digits(
-				offsets[i] / frames_per_sec + 2u);
+		checksum += sum_digits(offsets[i] / frames_per_sec + 2u);
 	}
 	checksum %= 255; // normalize to 1 byte
 
@@ -1291,78 +1222,10 @@ uint32_t ARIdBuilder::Impl::cddb_id(const TrackNo track_count,
 }
 
 
-uint64_t ARIdBuilder::Impl::sum_digits(const uint32_t number)
+uint64_t ARIdBuilder::sum_digits(const uint32_t number)
 {
 	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
 }
-
-
-// ARIdBuilder
-
-
-ARIdBuilder::ARIdBuilder()
-	: impl_(std::make_unique<ARIdBuilder::Impl>())
-{
-	// empty
-}
-
-
-ARIdBuilder::ARIdBuilder(const ARIdBuilder &builder)
-	: impl_(std::make_unique<ARIdBuilder::Impl>(*builder.impl_)) // deep copy
-{
-	// empty
-}
-
-
-ARIdBuilder::ARIdBuilder(ARIdBuilder &&builder) noexcept = default;
-
-
-ARIdBuilder::~ARIdBuilder() noexcept = default;
-
-
-std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
-		const std::vector<int32_t> &offsets, const uint32_t leadout) const
-{
-	TOCBuilder builder;
-	auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
-
-	return impl_->build(*toc, 0);
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc) const
-{
-	return impl_->build(toc, 0);
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
-	const
-{
-	return impl_->build(toc, leadout);
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
-{
-	return impl_->build_empty_id();
-}
-
-
-ARIdBuilder& ARIdBuilder::operator = (const ARIdBuilder &rhs)
-{
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	// deep copy
-	impl_= std::make_unique<ARIdBuilder::Impl>(*rhs.impl_);
-	return *this;
-}
-
-
-ARIdBuilder& ARIdBuilder::operator = (ARIdBuilder &&rhs) noexcept = default;
 
 
 // TOCBuilder::Impl

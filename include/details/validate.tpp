@@ -270,19 +270,6 @@ struct is_lba_container : public std::integral_constant<bool,
 	// empty
 };
 
-
-// Example usage:
-//
-//template<typename Container>
-//static typename std::enable_if<details::is_lba_container<Container>::value,
-//	void>::type
-//append(Container& to, const Container& from)
-//{
-//    using std::begin;
-//    using std::end;
-//    to.insert(end(to), begin(from), end(from));
-//}
-
 } // namespace details::v_1_0_0
 
 } // namespace details
