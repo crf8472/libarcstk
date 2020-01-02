@@ -20,8 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
-#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp"
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"

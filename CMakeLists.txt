@@ -199,7 +199,6 @@ configure_file (
 
 set (NONPUBLIC_HEADERS )
 list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/calculate_details.hpp" )
-list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/identifier_details.hpp" )
 
 
 ## --- Specify Exported Headers

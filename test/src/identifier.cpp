@@ -9,9 +9,6 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp"
-#endif
 
 
 /**
