@@ -383,7 +383,7 @@ public:
 			const lba_count leadout) const;
 
 	/**
-	 * \copydoc validate_offsets(TrackNo, Container&&, const lba_count) const
+	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
 	 */
 	template <typename T,
 		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
@@ -673,7 +673,6 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 
 	if (lengths.size() >
 			static_cast<decltype(lengths.size())>(CDDA.MAX_TRACKCOUNT))
-	//if (static_cast<TrackNo>(lengths.size()) > CDDA.MAX_TRACKCOUNT)
 	{
 		std::stringstream ss;
 		ss << "Lengths are only possible for at most "
@@ -687,9 +686,9 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 	lba_count sum_lengths = 0;
 
 	auto last { std::end(lengths) - 1 };
-	if (*last > 0) { ++last; } // if last length is known, validate it
+	auto t { 1 };
 
-	auto t = 1;
+	if (*last > 0) { ++last; } // If last length is actually known, validate it
 	for (auto track { std::begin(lengths) }; track != last; ++track)
 	{
 		if (*track < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
@@ -724,16 +723,14 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
 
-			ARCS_LOG_WARNING << ss.str();
-			// TODO NonstandardMetadataException
+			throw NonstandardMetadataException(ss.str());
 
 		} else // more than redbook originally defines? => info
 		{
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(CDDA.MAX_OFFSET);
 
-			ARCS_LOG_INFO << ss.str();
-			// TODO NonstandardMetadataException
+			throw NonstandardMetadataException(ss.str());
 		}
 	}
 }

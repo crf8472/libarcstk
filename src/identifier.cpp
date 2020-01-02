@@ -952,6 +952,23 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 }
 
 
+// NonstandardMetadataException
+
+
+NonstandardMetadataException::NonstandardMetadataException(const std::string &what_arg)
+	: std::logic_error(what_arg)
+{
+	// empty
+}
+
+
+NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
+	: std::logic_error(what_arg)
+{
+	// empty
+}
+
+
 namespace toc
 {
 

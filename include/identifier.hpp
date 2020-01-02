@@ -524,6 +524,37 @@ public:
 	explicit InvalidMetadataException(const char *what_arg);
 };
 
+
+/**
+ * \brief Reports metadata violating the redbook standard.
+ *
+ * Violating the redbook standard is usually not a problem for calculating
+ * checksums. A common case are unusual lengths, as for example up to 99
+ * minutes.
+ *
+ * \todo Metadata files are usually parsed text files, hence position
+ * information about the error may be useful.
+ */
+class NonstandardMetadataException final : public std::logic_error
+{
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit NonstandardMetadataException(const std::string &what_arg);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit NonstandardMetadataException(const char *what_arg);
+};
+
 } // namespace v_1_0_0
 } // namespace arcstk
 
