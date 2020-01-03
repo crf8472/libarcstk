@@ -454,16 +454,19 @@ uint32_t leadout(const std::vector<uint32_t> &lengths)
  * \return The value for track \c t in the container \c
  */
 template <typename Container>
+decltype(auto) get_track(Container&& c, const TrackNo t);
+
+template <typename Container>
 decltype(auto) get_track(Container&& c, const TrackNo t)
 {
-	auto container_size = std::forward<Container>(c).size();
+	auto container_size = c.size();
 
 	// Do the range check
 	if (t < 1 or static_cast<decltype(container_size)>(t) > container_size)
 	{
 		std::stringstream message;
 		message << "Track " << t << " is out of range (yields index "
-			<< (t - 1) << " but size is " << container_size << ")";
+			<< (t - 1) << " but max index is " << (container_size - 1) << ")";
 
 		throw std::out_of_range(message.str());
 	}
