@@ -453,10 +453,15 @@ uint32_t leadout(const std::vector<uint32_t> &lengths)
  *
  * \return The value for track \c t in the container \c
  */
-template <typename Container>
+template <typename Container,
+		typename = std::enable_if_t<
+			details::has_size <std::remove_reference_t<Container>>::value &&
+			details::has_begin<std::remove_reference_t<Container>>::value
+		>
+>
 decltype(auto) get_track(Container&& c, const TrackNo t);
 
-template <typename Container>
+template <typename Container, typename>
 decltype(auto) get_track(Container&& c, const TrackNo t)
 {
 	auto container_size = c.size();
@@ -471,8 +476,7 @@ decltype(auto) get_track(Container&& c, const TrackNo t)
 		throw std::out_of_range(message.str());
 	}
 
-	return std::forward<Container>(c)[
-		static_cast<decltype(container_size)>(t - 1)];
+	return *(std::begin(c) + (t - 1));
 }
 
 
