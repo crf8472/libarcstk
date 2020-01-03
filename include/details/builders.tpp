@@ -441,13 +441,14 @@ uint32_t leadout(const std::vector<uint32_t> &lengths)
 /**
  * \brief Uniform access to a container by track
  *
- * Instead of using at() that uses a 0-based index, we need a uniform method
- * to access a container by using a 1-based index and we want to range check it.
+ * Uniform range-checked method to access a container by using the track number,
+ * which is a 1-based index.
  *
- * Type Container is required to yield its number of elements by member function
- * size() and to allow access via operator[].
+ * The Container is required to yield its number of elements by member function
+ * size() and to provide begin() const.
  *
- * \tparam Container Container type with size() and []
+ * \tparam Container Container type with size() and begin() const
+ *
  * \param c Actual container
  * \param t Number of the track to access
  *
@@ -461,6 +462,7 @@ template <typename Container,
 >
 decltype(auto) get_track(Container&& c, const TrackNo t);
 
+// Implementation
 template <typename Container, typename>
 decltype(auto) get_track(Container&& c, const TrackNo t)
 {
