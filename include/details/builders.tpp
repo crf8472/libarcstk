@@ -325,10 +325,13 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
+	template <typename Container1, typename Container2,
+		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
+		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
 	inline std::vector<uint32_t> build_offsets(
-			const std::vector<int32_t> &offsets,
+			Container1&& offsets,
 			const TrackNo track_count,
-			const std::vector<int32_t> &lengths) const;
+			Container2&& lengths) const;
 
 	/**
 	 * \brief Service method: Builds validated lengths for a TOC object.
@@ -1010,9 +1013,10 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 }
 
 
+template <typename Container1, typename Container2, typename, typename>
 std::vector<uint32_t> TOCBuilder::build_offsets(
-		const std::vector<int32_t> &offsets, const TrackNo track_count,
-		const std::vector<int32_t> &lengths) const
+		Container1&& offsets, const TrackNo track_count,
+		Container2&& lengths) const
 {
 	validator_.validate_offsets(track_count, offsets);
 
@@ -1058,8 +1062,7 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	std::vector<uint32_t> uv(lengths.begin(), lengths.end());
 
-	auto last_length { std::end(lengths) - 1 };
-	if (*last_length < 0)
+	if (*(std::end(lengths) - 1) < 0) // normalize last length to 0
 	{
 		uv.back() = 0;
 	}
