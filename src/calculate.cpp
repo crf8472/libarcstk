@@ -751,8 +751,7 @@ void MultitrackCalcContext::do_hook_post_set_audio_size()
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
 		TOCBuilder builder;
-		auto toc { builder.merge(toc_, this->audio_size().leadout_frame()) };
-		toc_ = *toc;
+		builder.update(toc_, this->audio_size().leadout_frame());
 	}
 }
 

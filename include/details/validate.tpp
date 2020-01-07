@@ -569,7 +569,9 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		// Has offset for current track at least minimum distance after
 		// offset for last track?
 
-		this->have_min_dist(*previous_track, *track);
+		this->have_min_dist(
+				static_cast<lba_count>(*previous_track),
+				static_cast<lba_count>(*track));
 
 		++t;
 	} // for
@@ -761,10 +763,10 @@ void TOCValidator::validate_leadout(const lba_count leadout) const
 
 	if (leadout > CDDA.MAX_OFFSET)
 	{
-		ARCS_LOG_WARNING << "Leadout " << leadout
-			<< " exceeds redbook maximum";
+		std::stringstream ss;
+		ss << "Leadout " << leadout << " exceeds redbook maximum";
 
-		// TODO NonstandardMetadataException
+		throw NonstandardMetadataException(ss.str());
 	}
 }
 

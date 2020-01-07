@@ -266,16 +266,14 @@ public:
 			const std::vector<std::string> &files) const;
 
 	/**
-	 * \brief Update a non-complete TOC object with a missing leadout.
-	 *
-	 * If \c toc is already complete, it will not be altered.
+	 * \brief Update a TOC object with a leadout.
 	 *
 	 * \param[in] toc     The TOC to make complete
 	 * \param[in] leadout The leadout to update the TOC with
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	inline std::unique_ptr<TOC> merge(const TOC &toc, const uint32_t leadout) const;
+	inline void update(TOC &toc, const uint32_t leadout) const;
 
 
 private:
@@ -435,6 +433,62 @@ uint32_t leadout(const std::vector<uint32_t> &lengths)
 	}
 
 	return static_cast<uint32_t>(sum);
+}
+
+
+/**
+ * \brief Calculate leadout from lengths or optionally lengths and offsets
+ *
+ * No validation is peformed
+ *
+ * Calculation is faster with offsets available.
+ *
+ * \tparam Container1 Type of the lengths container
+ * \tparam Container2 Type of the offsets container
+ *
+ * \param[in] lengths The lengths
+ * \param[in] offsets The offsets (default is {})
+ */
+template <typename Container1, typename Container2>
+inline uint32_t calculate_leadout(Container1&& lengths,
+		Container2&& offsets = {});
+
+template <typename Container1, typename Container2>
+inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
+{
+	// from last offset and last length
+
+	if (offsets.size() > 0)
+	{
+		if (lengths.size() != offsets.size())
+		{
+			throw InvalidMetadataException(
+					"Requested leadout from inconsistent offsets and lengths");
+		}
+
+		auto last_length { std::end(lengths) - 1 };
+
+		return *last_length == 0 ? 0 : *(std::end(offsets) - 1) + *last_length;
+	}
+
+	auto leadout { std::accumulate(lengths.begin(), lengths.end(), 0) };
+
+	auto numeric_max {
+		static_cast<decltype(leadout)>(std::numeric_limits<uint32_t>::max()) };
+
+	if (leadout > numeric_max)
+	{
+		throw std::out_of_range(
+				"Calculated leadout is too big for uint32_t");
+	}
+
+	if (leadout > CDDA.MAX_BLOCK_ADDRESS)
+	{
+		throw InvalidMetadataException(
+			"Calculated leadout is bigger than maximal legal block address");
+	}
+
+	return static_cast<uint32_t>(leadout);
 }
 
 
@@ -678,10 +732,23 @@ class TOC::Impl final
 			const std::vector<int32_t> &lengths,
 			const std::vector<std::string> &files) const;
 
-	friend std::unique_ptr<TOC> TOCBuilder::merge(
-			const TOC &toc, const uint32_t leadout) const;
+	friend void TOCBuilder::update(TOC &toc, const uint32_t leadout) const;
 
 public:
+
+	/**
+	 * \brief Copy constructor
+	 *
+	 * \param[in] rhs Object to move
+	 */
+	inline Impl(const TOC::Impl &rhs);
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Object to move
+	 */
+	inline Impl(TOC::Impl &&rhs) noexcept;
 
 	/**
 	 * \brief Implements TOC::track_count()
@@ -725,7 +792,7 @@ private:
 	 * \brief Implements private constructor of TOC.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 * \param[in] leadout     Leadout frame
 	 * \param[in] files       File name of each track
 	 */
@@ -738,8 +805,8 @@ private:
 	 * \brief Implements private constructor of TOC.
 	 *
 	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
-	 * \param[in] lengths     Lengths (in CDDA frames) of each track
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] lengths     Lengths (in LBA frames) of each track
 	 * \param[in] files       File name of each track
 	 */
 	inline Impl(const TrackNo track_count,
@@ -774,6 +841,13 @@ private:
 };
 
 /// \cond UNDOC_FUNCTION_BODIES
+
+
+TOC::Impl::Impl(const TOC::Impl &rhs) = default;
+
+
+TOC::Impl::Impl(TOC::Impl &&rhs) noexcept = default;
+
 
 TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<uint32_t> &offsets,
@@ -889,35 +963,21 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 }
 
 
-std::unique_ptr<TOC> TOCBuilder::merge(const TOC &toc, const uint32_t leadout)
-	const
+void TOCBuilder::update(TOC &toc, const uint32_t leadout) const
 {
-	if (toc.complete())
-	{
-		return std::make_unique<TOC>(toc);
-	}
-
 	validator_.validate(toc, leadout);
 
-	// add length of last track
-	// TODO Erh....
-	std::vector<uint32_t> merged_lengths;
-	auto size =
-		static_cast<std::vector<uint32_t>::size_type>(toc.track_count());
-	merged_lengths.reserve(size);
-	merged_lengths = toc::get_parsed_lengths(toc);
-	merged_lengths.push_back(leadout - toc.offset(toc.track_count()));
-
-	std::unique_ptr<TOC::Impl> impl = std::make_unique<TOC::Impl>(TOC::Impl(
-		toc.track_count(),
-		toc::get_offsets(toc),
-		merged_lengths,
-		toc::get_filenames(toc)
-	));
+	// FIXME Copying TOC::Impl manually is inefficient
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+			toc.track_count(),
+			toc::get_offsets(toc),
+			toc::get_parsed_lengths(toc),
+			toc::get_filenames(toc))
+	);
 
 	impl->leadout_ = leadout;
 
-	return std::make_unique<TOC>(std::move(impl));
+	toc.update(std::move(impl));
 }
 
 

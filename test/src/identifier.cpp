@@ -498,7 +498,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			// leadout
 			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
-    }
+	}
 
 
 	SECTION ( "Build fails for offsets and trackcount inconsistent" )
@@ -606,8 +606,8 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	arcstk::TOCValidator validator;
 
 
-    SECTION ( "Validation succeeds for correct offsets" )
-    {
+	SECTION ( "Validation succeeds for correct offsets" )
+	{
 		// some legal values
 		CHECK_NOTHROW ( validator.validate_offsets({ 33, 5225, 7390, 23380,
 				35608, 49820, 69508, 87733, 106333, 139495, 157863, 198495,
@@ -633,11 +633,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 			// leadout
 			253038)
 		);
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect offsets" )
-    {
+	SECTION ( "Validation fails for incorrect offsets" )
+	{
 		// offset[1] has less than minimal legal distance to offset[0]
 		CHECK_THROWS ( validator.validate_offsets(
 			{ 33, 34 /* BOOM */, 7390, 23380, 35608, 49820, 69508, 87733,
@@ -668,11 +668,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// track count smaller than legal minimum
 		CHECK_THROWS ( validator.validate_offsets(std::vector<int32_t>()) );
-    }
+	}
 
 
-    SECTION ( "Validation succeeds for correct lengths" )
-    {
+	SECTION ( "Validation succeeds for correct lengths" )
+	{
 		// complete correct lengths
 		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, 12228,
 			13925, 19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
@@ -681,11 +681,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// incomplete correct lengths
 		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, -1 }) );
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect lengths" )
-    {
+	SECTION ( "Validation fails for incorrect lengths" )
+	{
 		// one length smaller than legal minimum
 		CHECK_THROWS ( validator.validate_lengths(
 			{ 5192, 2165, 15885,
@@ -716,11 +716,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		CHECK_THROWS (
 		validator.validate_lengths(std::vector<int32_t>())
 		);
-    }
+	}
 
 
-    SECTION ( "Validation succeeds for correct leadouts" )
-    {
+	SECTION ( "Validation succeeds for correct leadouts" )
+	{
 		// legal minimum
 		CHECK_NOTHROW (
 		validator.validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
@@ -729,17 +729,25 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		// some legal value
 		CHECK_NOTHROW ( validator.validate_leadout(253038) );
 
-		// TODO more values
-
 		// legal maximum
-		CHECK_NOTHROW (
+		CHECK_NOTHROW ( validator.validate_leadout(arcstk::CDDA.MAX_OFFSET) );
+		CHECK_THROWS ( validator.validate_leadout(arcstk::CDDA.MAX_OFFSET+1) );
+
+		// TODO more values
+	}
+
+
+	SECTION ( "Validation fails for non-standard leadouts" )
+	{
+		// legal maximum
+		CHECK_THROWS (
 		validator.validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
 		);
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect leadouts" )
-    {
+	SECTION ( "Validation fails for incorrect leadouts" )
+	{
 		// 0 (smaller than legal minimum)
 		CHECK_THROWS ( validator.validate_leadout(0) );
 
@@ -752,11 +760,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		CHECK_THROWS ( validator.validate_leadout(
 			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1
 		));
-    }
+	}
 
 
-    SECTION ( "Validation succeeds for correct trackcounts" )
-    {
+	SECTION ( "Validation succeeds for correct trackcounts" )
+	{
 		// legal minimum
 		CHECK_NOTHROW ( validator.validate_trackcount(1) );
 
@@ -769,11 +777,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// legal maximum
 		CHECK_NOTHROW ( validator.validate_trackcount(99) );
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect trackcounts" )
-    {
+	SECTION ( "Validation fails for incorrect trackcounts" )
+	{
 		// smaller than legal minimum
 		CHECK_THROWS ( validator.validate_trackcount(0) );
 
@@ -788,7 +796,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// bigger than legal maximum
 		CHECK_THROWS ( validator.validate_trackcount(65535) );
-    }
+	}
 }
 
 
@@ -800,8 +808,8 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 	arcstk::TOCBuilder builder;
 
 
-    SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
-    {
+	SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
+	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 		auto toc0 = builder.build(
 			// track count
@@ -838,7 +846,7 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		CHECK ( toc0->offset(15) == 234103 );
 
 		CHECK_THROWS ( toc0->offset(16) == 0 );
-    }
+	}
 }
 
 
@@ -848,8 +856,8 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 	arcstk::TOCBuilder builder;
 
 
-    SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
-    {
+	SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
+	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 		auto toc1 = builder.build(
 			// track count
@@ -906,11 +914,11 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		CHECK ( toc1->parsed_length(15) == 18935 );
 
 		CHECK_THROWS ( toc1->parsed_length(16) == 0 );
-    }
+	}
 
 
-    SECTION ( "Build succeeds for trackcount, offsets and incomplete lengths" )
-    {
+	SECTION ( "Build succeeds for trackcount, offsets and incomplete lengths" )
+	{
 		auto toc2 = builder.build(
 			// track count
 			15,
@@ -967,7 +975,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		CHECK ( toc2->parsed_length(15) ==     0 );  // missing !
 
 		CHECK_THROWS ( toc2->parsed_length(16) == 0 );
-    }
+	}
 }
 
 
@@ -977,8 +985,8 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	arcstk::TOCBuilder builder;
 
 
-    SECTION ( "Build fails for incorrect offsets" )
-    {
+	SECTION ( "Build fails for incorrect offsets" )
+	{
 		// no minimal distance: with leadout
 		CHECK_THROWS ( builder.build(
 			// track count
@@ -1096,11 +1104,11 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{}
 			)
 		);
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent trackcount and offsets" )
-    {
+	SECTION ( "Build fails for inconsistent trackcount and offsets" )
+	{
 		// Track count 0 is illegal
 
 		CHECK_THROWS ( builder.build(
@@ -1211,11 +1219,11 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			// no filenames
 			{}
 		));
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent leadout and offsets" )
-    {
+	SECTION ( "Build fails for inconsistent leadout and offsets" )
+	{
 		// Leadout 0 is illegal
 
 		CHECK_THROWS ( builder.build(
@@ -1257,11 +1265,11 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			// no filenames
 			{}
 		));
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent lengths" )
-    {
+	SECTION ( "Build fails for inconsistent lengths" )
+	{
 		// length[4] is smaller than legal minimum
 
 		CHECK_THROWS ( builder.build(
@@ -1323,5 +1331,5 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			// no filenames
 			{}
 		));
-    }
+	}
 }

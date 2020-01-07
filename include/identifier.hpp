@@ -358,6 +358,7 @@ public:
 	class Impl;
 
 	/**
+	 * \internal
 	 * \brief Construct from private Implementation.
 	 *
 	 * Note that \link TOC TOCs\endlink are supposed to be constructed by a
@@ -460,6 +461,14 @@ public:
 	 * \return TRUE iff TOC information is complete, otherwise FALSE.
 	 */
 	bool complete() const;
+
+	/**
+	 * \internal
+	 * \brief Update this TOC with new information
+	 *
+	 * \param[in] impl The TOC::Impl to update
+	 */
+	void update(std::unique_ptr<TOC::Impl> impl);
 
 	/**
 	 * \brief Copy assignment.

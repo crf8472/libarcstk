@@ -383,6 +383,12 @@ bool TOC::complete() const
 }
 
 
+void TOC::update(std::unique_ptr<TOC::Impl> impl)
+{
+	impl_ = std::move(impl);
+}
+
+
 bool TOC::operator == (const TOC &rhs) const
 {
 	return this == &rhs
