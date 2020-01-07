@@ -21,7 +21,7 @@
 #include <vector>
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
+#include "identifier.hpp" // requires validate.tpp
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -243,8 +243,9 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
+	template <typename Container, typename = typename std::enable_if_t<details::is_lba_container<Container>::value>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
+			Container&& offsets,
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
@@ -296,6 +297,8 @@ private:
 	 *
 	 * Used by TOCBuilder::build().
 	 *
+	 * \tparam Container An LBA container type
+	 *
 	 * \param[in] offsets     Offsets to be validated
 	 * \param[in] track_count Number of tracks
 	 * \param[in] leadout     Leadout frame
@@ -304,7 +307,9 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
-	inline std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
+	template <typename Container, typename =
+		typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	inline std::vector<uint32_t> build_offsets(Container&& offsets,
 			const TrackNo track_count, const uint32_t leadout) const;
 
 	/**
@@ -320,7 +325,8 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
-	inline std::vector<uint32_t> build_offsets(const std::vector<int32_t> &offsets,
+	inline std::vector<uint32_t> build_offsets(
+			const std::vector<int32_t> &offsets,
 			const TrackNo track_count,
 			const std::vector<int32_t> &lengths) const;
 
@@ -329,14 +335,18 @@ private:
 	 *
 	 * Used by TOCBuilder::build().
 	 *
-	 * \param[in] sv Vector of lengths as signed integers to be validated
+	 * \tparam Container An LBA container type
+	 *
+	 * \param[in] lengths Vector of lengths as signed integers to be validated
 	 * \param[in] track_count Number of tracks
 	 *
 	 * \return A representation of the validated lengths as unsigned integers
 	 *
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
-	inline std::vector<uint32_t> build_lengths(const std::vector<int32_t> &sv,
+	template <typename Container, typename =
+		typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	inline std::vector<uint32_t> build_lengths(Container&& lengths,
 			const TrackNo track_count) const;
 
 	/**
@@ -471,16 +481,9 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 		return *last_length == 0 ? 0 : *(std::end(offsets) - 1) + *last_length;
 	}
 
+	// from lengths
+
 	auto leadout { std::accumulate(lengths.begin(), lengths.end(), 0) };
-
-	auto numeric_max {
-		static_cast<decltype(leadout)>(std::numeric_limits<uint32_t>::max()) };
-
-	if (leadout > numeric_max)
-	{
-		throw std::out_of_range(
-				"Calculated leadout is too big for uint32_t");
-	}
 
 	if (leadout > CDDA.MAX_BLOCK_ADDRESS)
 	{
@@ -488,6 +491,7 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 			"Calculated leadout is bigger than maximal legal block address");
 	}
 
+	// We suppose std::numeric_limits<uint32_t>::max() > CDDA.MAX_BLOCK_ADDRESS
 	return static_cast<uint32_t>(leadout);
 }
 
@@ -720,9 +724,11 @@ class TOC::Impl final
 	// TOCBuilder::build() methods are friends of TOC::Impl
 	// since they construct TOC::Impls exclusively
 
-	friend std::unique_ptr<TOC> TOCBuilder::build(
+	template <typename Container, typename = typename
+		std::enable_if_t<details::is_lba_container<Container>::value>>
+	friend inline std::unique_ptr<TOC> TOCBuilder::build(
 			const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
+			Container&& offsets,
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
@@ -931,8 +937,9 @@ bool TOC::Impl::operator == (const TOC::Impl &rhs) const
 // TOCBuilder
 
 
+template <typename Container, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
+		Container&& offsets,
 		const uint32_t leadout,
 		const std::vector<std::string> &files) const
 {
@@ -989,8 +996,10 @@ TrackNo TOCBuilder::build_track_count(const TrackNo track_count) const
 }
 
 
+template <typename Container, typename>
 std::vector<uint32_t> TOCBuilder::build_offsets(
-		const std::vector<int32_t> &offsets, const TrackNo track_count,
+		Container&& offsets,
+		const TrackNo track_count,
 		const uint32_t leadout) const
 {
 	validator_.validate(track_count, offsets, leadout);
@@ -1005,16 +1014,9 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 		const std::vector<int32_t> &offsets, const TrackNo track_count,
 		const std::vector<int32_t> &lengths) const
 {
+	validator_.validate_offsets(track_count, offsets);
+
 	// Valid number of lengths ?
-
-	if (offsets.size() != static_cast<std::size_t>(track_count))
-	{
-		std::stringstream ss;
-		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
-			<< " lengths for " << std::to_string(track_count) << " tracks";
-
-		throw InvalidMetadataException(ss.str());
-	}
 
 	if (offsets.size() != lengths.size())
 	{
@@ -1027,16 +1029,15 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 
 	validator_.validate_lengths(lengths);
 
-	validator_.validate_offsets(track_count, offsets);
-
 	// Convert offsets to uints
 
 	return std::vector<uint32_t>(offsets.begin(), offsets.end());
 }
 
 
-std::vector<uint32_t> TOCBuilder::build_lengths(
-		const std::vector<int32_t> &lengths, const TrackNo track_count) const
+template <typename Container, typename>
+std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
+		const TrackNo track_count) const
 {
 	// Valid number of lengths ?
 
@@ -1055,10 +1056,16 @@ std::vector<uint32_t> TOCBuilder::build_lengths(
 
 	// Convert ints to uints while normalizing the last length to 0
 
-	std::vector<uint32_t> uv(lengths.begin(), lengths.end() - 1);
+	std::vector<uint32_t> uv(lengths.begin(), lengths.end());
 
-	auto last_length = lengths.back() < 0 ? 0 : lengths.back();
-	uv.push_back(static_cast<uint32_t>(last_length));
+	auto last_length { std::end(lengths) - 1 };
+	if (*last_length < 0)
+	{
+		uv.back() = 0;
+	}
+
+	//auto last_length = lengths.back() < 0 ? 0 : lengths.back();
+	//uv.push_back(static_cast<uint32_t>(last_length));
 
 	return uv;
 }
