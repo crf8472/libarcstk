@@ -261,9 +261,12 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
+	template <typename Container1, typename Container2,
+		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
+		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
+			Container1&& offsets,
+			Container2&& lengths,
 			const std::vector<std::string> &files) const;
 
 	/**
@@ -484,11 +487,11 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 		return *last_length == 0 ? 0 : *(std::end(offsets) - 1) + *last_length;
 	}
 
-	// from lengths
+	// from lengths only
 
 	auto leadout { std::accumulate(lengths.begin(), lengths.end(), 0) };
 
-	if (leadout > CDDA.MAX_BLOCK_ADDRESS)
+	if (static_cast<unsigned int>(leadout) > CDDA.MAX_BLOCK_ADDRESS)
 	{
 		throw InvalidMetadataException(
 			"Calculated leadout is bigger than maximal legal block address");
@@ -735,10 +738,13 @@ class TOC::Impl final
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
+	template <typename Container1, typename Container2,
+		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
+		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
 	friend std::unique_ptr<TOC> TOCBuilder::build(
 			const TrackNo track_count,
-			const std::vector<int32_t> &offsets,
-			const std::vector<int32_t> &lengths,
+			Container1&& offsets,
+			Container2&& lengths,
 			const std::vector<std::string> &files) const;
 
 	friend void TOCBuilder::update(TOC &toc, const uint32_t leadout) const;
@@ -879,7 +885,7 @@ TOC::Impl::Impl(const TrackNo track_count,
 	: track_count_(track_count)
 	, offsets_(offsets)
 	, lengths_(lengths)
-	, leadout_(arcstk::leadout(offsets, lengths))
+	, leadout_(arcstk::calculate_leadout(lengths, offsets))
 	, files_(files)
 {
 	// empty
@@ -957,9 +963,10 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 }
 
 
+template <typename Container1, typename Container2, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
+		Container1&& offsets,
+		Container2&& lengths,
 		const std::vector<std::string> &files) const
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
@@ -1018,8 +1025,6 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 		Container1&& offsets, const TrackNo track_count,
 		Container2&& lengths) const
 {
-	validator_.validate_offsets(track_count, offsets);
-
 	// Valid number of lengths ?
 
 	if (offsets.size() != lengths.size())
@@ -1031,6 +1036,7 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 		throw InvalidMetadataException(ss.str());
 	}
 
+	validator_.validate_offsets(track_count, offsets);
 	validator_.validate_lengths(lengths);
 
 	// Convert offsets to uints
@@ -1066,9 +1072,6 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 	{
 		uv.back() = 0;
 	}
-
-	//auto last_length = lengths.back() < 0 ? 0 : lengths.back();
-	//uv.push_back(static_cast<uint32_t>(last_length));
 
 	return uv;
 }
