@@ -39,6 +39,11 @@ inline namespace V_1_0_0
 {
 
 
+template <typename T>
+using IsIntType = std::enable_if_t<std::is_integral<T>::value>;
+// TODO C++17: use is_integral_v
+
+
 /**
  * \brief Abstracted YES/NO values for SFINAE
  */

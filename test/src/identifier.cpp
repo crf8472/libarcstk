@@ -225,7 +225,7 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 
 TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "ARId from track_count, offsets, leadout, example 1" )
@@ -375,7 +375,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		"[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "Build fails for inconsistent offsets" )
@@ -575,7 +575,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
+	arcstk::details::ARIdBuilder builder;
 
 
 	SECTION ( "Empty ARId" )
@@ -805,7 +805,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
 	SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
@@ -853,7 +853,7 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 TEST_CASE ( "TOCBuilder: build with lengths and files",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
 	SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
@@ -982,7 +982,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	arcstk::details::TOCBuilder builder;
 
 
 	SECTION ( "Build fails for incorrect offsets" )

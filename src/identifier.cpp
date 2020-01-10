@@ -651,21 +651,21 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 std::unique_ptr<ARId> make_arid(const TOC &toc)
 {
-	ARIdBuilder builder;
+	details::ARIdBuilder builder;
 	return builder.build(toc);
 }
 
 
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout)
 {
-	ARIdBuilder builder;
+	details::ARIdBuilder builder;
 	return builder.build(toc, leadout);
 }
 
 
 std::unique_ptr<ARId> make_empty_arid()
 {
-	ARIdBuilder builder;
+	details::ARIdBuilder builder;
 	return builder.build_empty_id();
 }
 
@@ -677,7 +677,7 @@ std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
 		const uint32_t leadout,
 		const std::vector<std::string> &files)
 {
-	TOCBuilder builder;
+	details::TOCBuilder builder;
 	return builder.build(offsets.size(), offsets, leadout, files);
 }
 
@@ -687,7 +687,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const uint32_t leadout,
 		const std::vector<std::string> &files)
 {
-	TOCBuilder builder;
+	details::TOCBuilder builder;
 	return builder.build(track_count, offsets, leadout, files);
 }
 
@@ -696,7 +696,7 @@ std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
 {
-	TOCBuilder builder;
+	details::TOCBuilder builder;
 	return builder.build(offsets.size(), offsets, lengths, files);
 }
 
@@ -706,7 +706,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		const std::vector<int32_t> &lengths,
 		const std::vector<std::string> &files)
 {
-	TOCBuilder builder;
+	details::TOCBuilder builder;
 	return builder.build(track_count, offsets, lengths, files);
 }
 
