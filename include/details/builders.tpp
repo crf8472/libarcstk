@@ -126,8 +126,8 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
-	inline std::unique_ptr<ARId> build_worker(const TOC &toc, const uint32_t leadout)
-		const;
+	inline std::unique_ptr<ARId> build_worker(const TOC &toc,
+			const uint32_t leadout) const;
 
 	/**
 	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
@@ -249,6 +249,12 @@ public:
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
+	template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
+	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+			std::initializer_list<T> offsets,
+			const uint32_t leadout,
+			const std::vector<std::string> &files) const;
+
 	/**
 	 * \brief Build a TOC object from the specified information.
 	 *
@@ -268,6 +274,30 @@ public:
 			Container1&& offsets,
 			Container2&& lengths,
 			const std::vector<std::string> &files) const;
+
+	template <typename T1, typename T2,
+		typename = typename std::enable_if_t<std::is_integral<T1>::value>,
+		typename = typename std::enable_if_t<std::is_integral<T2>::value>>
+	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+			std::initializer_list<T1> offsets,
+			std::initializer_list<T2> lengths,
+			const std::vector<std::string> &files) const;
+
+	template <typename T, typename Container,
+		typename = typename std::enable_if_t<std::is_integral<T>::value>,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+		std::initializer_list<T> offsets,
+		Container&& lengths,
+		const std::vector<std::string> &files) const;
+
+	template <typename Container, typename T,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>,
+		typename = typename std::enable_if_t<std::is_integral<T>::value>>
+	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+		Container&& offsets,
+		std::initializer_list<T> lengths,
+		const std::vector<std::string> &files) const;
 
 	/**
 	 * \brief Update a TOC object with a leadout.
@@ -730,6 +760,7 @@ class TOC::Impl final
 	// TOCBuilder::build() methods are friends of TOC::Impl
 	// since they construct TOC::Impls exclusively
 
+/*
 	template <typename Container, typename = typename
 		std::enable_if_t<details::is_lba_container<Container>::value>>
 	friend inline std::unique_ptr<TOC> TOCBuilder::build(
@@ -748,6 +779,8 @@ class TOC::Impl final
 			const std::vector<std::string> &files) const;
 
 	friend void TOCBuilder::update(TOC &toc, const uint32_t leadout) const;
+*/
+	friend TOCBuilder;
 
 public:
 
@@ -954,7 +987,24 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
-		build_offsets(offsets, track_count, leadout),
+		build_offsets(std::forward<Container>(offsets), track_count, leadout),
+		build_leadout(leadout),
+		build_files(files))
+	);
+
+	return std::make_unique<TOC>(std::move(impl));
+}
+
+
+template <typename T, typename>
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
+		std::initializer_list<T> offsets,
+		const uint32_t leadout,
+		const std::vector<std::string> &files) const
+{
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+		build_track_count(track_count),
+		build_offsets(std::vector<T>{offsets}, track_count, leadout),
 		build_leadout(leadout),
 		build_files(files))
 	);
@@ -971,8 +1021,63 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
-		build_offsets(offsets, track_count, lengths),
-		build_lengths(lengths, track_count),
+		build_offsets(std::forward<Container1>(offsets), track_count, lengths),
+		build_lengths(std::forward<Container2>(lengths), track_count),
+		build_files(files))
+	);
+
+	return std::make_unique<TOC>(std::move(impl));
+}
+
+
+template <typename T, typename Container, typename, typename>
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
+		std::initializer_list<T> offsets,
+		Container&& lengths,
+		const std::vector<std::string> &files) const
+{
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+		build_track_count(track_count),
+		build_offsets(std::vector<T>{offsets}, track_count,
+			std::forward<Container>(lengths)),
+		build_lengths(std::forward<Container>(lengths), track_count),
+		build_files(files))
+	);
+
+	return std::make_unique<TOC>(std::move(impl));
+}
+
+
+template <typename Container, typename T,
+		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>,
+		typename = typename std::enable_if_t<std::is_integral<T>::value>>
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
+		Container&& offsets,
+		std::initializer_list<T> lengths,
+		const std::vector<std::string> &files) const
+{
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+		build_track_count(track_count),
+		build_offsets(std::forward<Container>(offsets), track_count,
+			std::vector<T>{lengths}),
+		build_lengths(std::vector<T>{lengths}, track_count),
+		build_files(files))
+	);
+
+	return std::make_unique<TOC>(std::move(impl));
+}
+
+
+template <typename T1, typename T2, typename, typename>
+std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
+		std::initializer_list<T1> offsets,
+		std::initializer_list<T2> lengths,
+		const std::vector<std::string> &files) const
+{
+	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+		build_track_count(track_count),
+		build_offsets(std::vector<T1>(offsets), track_count, lengths),
+		build_lengths(std::vector<T2>(lengths), track_count),
 		build_files(files))
 	);
 
