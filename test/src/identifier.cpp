@@ -220,19 +220,16 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 }
 
 
-// ARIdBuilder
+// make_arid
 
 
-TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
+TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
-
-
 	SECTION ( "ARId from track_count, offsets, leadout, example 1" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		std::unique_ptr<arcstk::ARId> id1 = builder.build(
+		std::unique_ptr<arcstk::ARId> id1 = arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -261,7 +258,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		std::unique_ptr<arcstk::ARId> id2 = builder.build(
+		std::unique_ptr<arcstk::ARId> id2 = arcstk::make_arid(
 			// track count
 			3,
 			// offsets
@@ -289,7 +286,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		std::unique_ptr<arcstk::ARId> id3 = builder.build(
+		std::unique_ptr<arcstk::ARId> id3 = arcstk::make_arid(
 			// track count
 			9,
 			// offsets
@@ -317,7 +314,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// Bent: "Programmed to Love"
 
-		std::unique_ptr<arcstk::ARId> id4 = builder.build(
+		std::unique_ptr<arcstk::ARId> id4 = arcstk::make_arid(
 			// track count
 			18,
 			// offsets
@@ -347,7 +344,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		std::unique_ptr<arcstk::ARId> id5 = builder.build(
+		std::unique_ptr<arcstk::ARId> id5 = arcstk::make_arid(
 			// track count
 			1,
 			// offsets
@@ -372,18 +369,15 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 }
 
 
-TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
+TEST_CASE ( "make_arid refuses to build invalid ARIds",
 		"[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
-
-
 	SECTION ( "Build fails for inconsistent offsets" )
 	{
 		// one track too short (no minimal distance)
 		// offset[1] has not minimal distance to offset[0]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -396,7 +390,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// one offset exceeds legal maximum
 		// offset[14] exceeds maximal block address
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -410,7 +404,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// not ascending order
 		// offsets[9] is smaller than offsets[8]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -424,7 +418,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// two offsets equal
 		// offsets[9] is equal to offsets[8]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -441,7 +435,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 	{
 		// Leadout 0 is illegal (smaller than minimum)
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -453,7 +447,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout exceeds maximal legal value
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -465,7 +459,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout is smaller than biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -477,7 +471,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout is equal to biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -489,7 +483,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout has not minimal distance to biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -505,7 +499,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 	{
 		// illegal track count: smaller than offsets count
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			14, /* BOOM */
 			// offsets
@@ -515,7 +509,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			8, /* BOOM */
 			// offsets
@@ -526,7 +520,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: bigger than offsets count
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			16, /* BOOM */
 			// offsets
@@ -536,7 +530,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			9, /* BOOM */
 			// offsets
@@ -548,7 +542,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: smaller than minimum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			0, /* BOOM */
 			// offsets
@@ -560,7 +554,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: bigger than maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT+1, /* BOOM */
 			// offsets
@@ -573,14 +567,11 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 }
 
 
-TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
+TEST_CASE ( "make_arid builds empty ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::details::ARIdBuilder builder;
-
-
 	SECTION ( "Empty ARId" )
 	{
-		std::unique_ptr<arcstk::ARId> empty_id = builder.build_empty_id();
+		std::unique_ptr<arcstk::ARId> empty_id = arcstk::make_empty_arid();
 
 
 		CHECK ( empty_id->track_count() == 0 );

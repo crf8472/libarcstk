@@ -743,28 +743,6 @@ std::unique_ptr<TOC> make_toc(const Container1&& offsets,
 
 
 /**
- * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
- * specified information.
- *
- * The input data is validated but the leadout is allowed to be 0. The returned
- * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
- *
- * \param[in] offsets     Offsets (in LBA frames) for each track
- * \param[in] leadout     Leadout frame
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
- */
-//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-//		const uint32_t leadout,
-//		const std::vector<std::string> &files = {});
-
-
-/**
  * \brief Create a TOC object from the specified information.
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
@@ -810,32 +788,6 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 			leadout,
 			std::forward<Container2>(files));
 }
-
-
-/**
- * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
- * specified information.
- *
- * The input data is validated but the leadout is allowed to be 0. The returned
- * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
- *
- * \param[in] track_count Number of tracks in this medium
- * \param[in] offsets     Offsets (in LBA frames) for each track
- * \param[in] leadout     Leadout frame
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
- */
-//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-//		const std::vector<int32_t> &offsets,
-//		const uint32_t leadout,
-//		const std::vector<std::string> &files = {});
 
 
 /**
@@ -885,10 +837,6 @@ std::unique_ptr<TOC> make_toc(Container1&& offsets,
 			std::forward<Container3>(files));
 }
 
-//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-//		const std::vector<int32_t> &lengths,
-//		const std::vector<std::string> &files = {});
-
 
 /**
  * \brief Create a TOC object from the specified information.
@@ -924,6 +872,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		Container2&& lengths,
 		Container3&& files = {});
 
+// Implementation
 template <typename Container1, typename Container2, typename Container3,
 		typename, typename, typename>
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
@@ -942,24 +891,51 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Build an ARId object from the specified information.
  *
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
+ * This method is intended for easy testing the class.
  *
- * \param[in] track_count Number of tracks in this medium
- * \param[in] offsets     Offsets (in LBA frames) of each track
- * \param[in] lengths     Lengths (in LBA frames) of each track
- * \param[in] files       File name of each track
+ * \param[in] track_count Track count
+ * \param[in] offsets     Offsets
+ * \param[in] leadout     Leadout frame
  *
- * \return A TOC object representing the specified information
+ * \return An ARId object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid TOC
+ * \throw InvalidMetadataException If the parameters form no valid ARId
  */
-//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-//		const std::vector<int32_t> &offsets,
-//		const std::vector<int32_t> &lengths,
-//		const std::vector<std::string> &files = {});
+template <typename Container, typename = details::IsLBAContainer<Container> >
+inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
+	Container&& offsets, const uint32_t leadout);
+
+// Implementation
+template <typename Container, typename>
+std::unique_ptr<ARId> make_arid(const TrackNo track_count,
+		Container&& offsets, const uint32_t leadout)
+{
+	using TOCBuilder  = details::TOCBuilder;
+	using ARIdBuilder = details::ARIdBuilder;
+
+	auto toc = TOCBuilder::build(track_count, offsets, leadout, {/*no files*/});
+
+	ARIdBuilder builder;
+	return builder.build(*toc);
+}
+
+
+/**
+ * \copydoc build(const TrackNo, Container&&, const uint32_t) const
+ */
+template <typename T, typename = details::IsLBAType<T> >
+inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
+	std::initializer_list<T> offsets, const uint32_t leadout);
+
+// Implementation
+template <typename T, typename>
+std::unique_ptr<ARId> make_arid(const TrackNo track_count,
+		std::initializer_list<T> offsets, const uint32_t leadout)
+{
+	return make_arid(track_count, std::vector<T>{offsets}, leadout);
+}
 
 /** @} */
 

@@ -382,30 +382,6 @@ class ARIdBuilder final
 public:
 
 	/**
-	 * \brief Build an ARId object from the specified information.
-	 *
-	 * This method is intended for easy testing the class.
-	 *
-	 * \param[in] track_count Track count
-	 * \param[in] offsets     Offsets
-	 * \param[in] leadout     Leadout frame
-	 *
-	 * \return An ARId object representing the specified information
-	 *
-	 * \throw InvalidMetadataException If the parameters form no valid ARId
-	 */
-	template <typename Container, typename = IsLBAContainer<Container> >
-	inline std::unique_ptr<ARId> build(const TrackNo track_count,
-		Container&& offsets, const uint32_t leadout) const;
-
-	/**
-	 * \copydoc build(const TrackNo, Container&&, const uint32_t) const
-	 */
-	template <typename T, typename = IsLBAType<T> >
-	inline std::unique_ptr<ARId> build(const TrackNo track_count,
-		std::initializer_list<T> offsets, const uint32_t leadout) const;
-
-	/**
 	 * \brief Build an ARId object from the specified TOC and leadout.
 	 *
 	 * Actual parameters \c toc and \c leadout are validated against each other.
@@ -726,24 +702,6 @@ private:
 
 
 // ARIdBuilder
-
-
-template <typename Container, typename>
-std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
-		Container&& offsets, const uint32_t leadout) const
-{
-	auto toc = TOCBuilder::build(track_count, offsets, leadout, {/*no files*/});
-
-	return build_worker(*toc, 0);
-}
-
-
-template <typename T, typename>
-std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
-		std::initializer_list<T> offsets, const uint32_t leadout) const
-{
-	return this->build(track_count, std::vector<T>{offsets}, leadout);
-}
 
 
 std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
