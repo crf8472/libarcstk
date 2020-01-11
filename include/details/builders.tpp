@@ -415,8 +415,16 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
-	inline std::unique_ptr<ARId> build(const TrackNo &track_count,
-		const std::vector<int32_t> &offsets, const uint32_t leadout) const;
+	template <typename Container, typename = IsLBAContainer<Container> >
+	inline std::unique_ptr<ARId> build(const TrackNo track_count,
+		Container&& offsets, const uint32_t leadout) const;
+
+	/**
+	 * \copydoc build(const TrackNo, Container&&, const uint32_t) const
+	 */
+	template <typename T, typename = IsLBAType<T> >
+	inline std::unique_ptr<ARId> build(const TrackNo track_count,
+		std::initializer_list<T> offsets, const uint32_t leadout) const;
 
 	/**
 	 * \brief Build an ARId object from the specified TOC and leadout.
@@ -747,13 +755,23 @@ private:
 // ARIdBuilder
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo &track_count,
-		const std::vector<int32_t> &offsets, const uint32_t leadout) const
+template <typename Container, typename>
+std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
+		Container&& offsets, const uint32_t leadout) const
 {
 	TOCBuilder builder;
 	auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
+	//auto toc = TOCBuilder::build(track_count, offsets, leadout);
 
 	return build_worker(*toc, 0);
+}
+
+
+template <typename T, typename>
+std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
+		std::initializer_list<T> offsets, const uint32_t leadout) const
+{
+	return this->build(track_count, std::vector<T>{offsets}, leadout);
 }
 
 
