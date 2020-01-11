@@ -48,7 +48,7 @@ class TOCBuilder;
  * The Container is required to yield its number of elements by member function
  * size() and to provide begin() const.
  *
- * \tparam Container Container type with size() and begin() const
+ * \tparam Container Container type with \c size() and <tt>begin() const</tt>
  *
  * \param c Actual container
  * \param t Number of the track to access
@@ -56,15 +56,11 @@ class TOCBuilder;
  * \return The value for track \c t in the container \c
  */
 template <typename Container,
-		typename = std::enable_if_t<
-			details::has_size <std::remove_reference_t<Container>>::value &&
-			details::has_begin<std::remove_reference_t<Container>>::value
-		>
->
+		typename = HasSize<Container>, typename = HasBegin<Container> >
 decltype(auto) get_track(Container&& c, const TrackNo t);
 
 // Implementation
-template <typename Container, typename>
+template <typename Container, typename, typename>
 decltype(auto) get_track(Container&& c, const TrackNo t)
 {
 	auto container_size = c.size();
@@ -196,6 +192,7 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 }
 
 } // namespace v_1_0_0
+
 } // namespace details
 
 
@@ -651,7 +648,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	template <typename Container, typename = typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	template <typename Container, typename = IsLBAContainer<Container> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container&& offsets,
 			const uint32_t leadout,
@@ -676,31 +673,40 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	template <typename Container1, typename Container2,
-		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
-		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
+		typename = IsLBAContainer<Container1>,
+		typename = IsLBAContainer<Container2> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container1&& offsets,
 			Container2&& lengths,
 			const std::vector<std::string> &files) const;
 
+	/**
+	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
+	 */
 	template <typename T1, typename T2,
 		typename = IsIntType<T1>,
-		typename = IsIntType<T2>>
+		typename = IsIntType<T2> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T1> offsets,
 			std::initializer_list<T2> lengths,
 			const std::vector<std::string> &files) const;
 
+	/**
+	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
+	 */
 	template <typename T, typename Container,
 		typename = IsIntType<T>,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>>
+		typename = IsLBAContainer<Container> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		Container&& lengths,
 		const std::vector<std::string> &files) const;
 
+	/**
+	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
+	 */
 	template <typename Container, typename T,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>,
+		typename = IsLBAContainer<Container>,
 		typename = IsIntType<T>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 		Container&& offsets,
@@ -723,8 +729,6 @@ private:
 	/**
 	 * \brief Service method: Builds a track count for a TOC object.
 	 *
-	 * Used by TOCBuilder::build().
-	 *
 	 * \param[in] track_count Number of tracks
 	 *
 	 * \return The intercepted track_count
@@ -736,8 +740,6 @@ private:
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
 	 *
-	 * Used by TOCBuilder::build().
-	 *
 	 * \tparam Container An LBA container type
 	 *
 	 * \param[in] offsets     Offsets to be validated
@@ -748,15 +750,12 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
-	template <typename Container, typename =
-		typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	template <typename Container, typename = IsLBAContainer<Container> >
 	inline std::vector<uint32_t> build_offsets(Container&& offsets,
 			const TrackNo track_count, const uint32_t leadout) const;
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
 	 *
 	 * \param[in] offsets     Offsets to be validated
 	 * \param[in] track_count Number of tracks
@@ -767,8 +766,8 @@ private:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	template <typename Container1, typename Container2,
-		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
-		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
+		typename = IsLBAContainer<Container1>,
+		typename = IsLBAContainer<Container2> >
 	inline std::vector<uint32_t> build_offsets(
 			Container1&& offsets,
 			const TrackNo track_count,
@@ -776,8 +775,6 @@ private:
 
 	/**
 	 * \brief Service method: Builds validated lengths for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
 	 *
 	 * \tparam Container An LBA container type
 	 *
@@ -788,15 +785,12 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
-	template <typename Container, typename =
-		typename std::enable_if_t<details::is_lba_container<Container>::value>>
+	template <typename Container, typename = IsLBAContainer<Container> >
 	inline std::vector<uint32_t> build_lengths(Container&& lengths,
 			const TrackNo track_count) const;
 
 	/**
 	 * \brief Service method: Builds validated leadout for a TOC object.
-	 *
-	 * Used by TOCBuilder::build().
 	 *
 	 * \param[in] leadout Leadout to be validated
 	 *
@@ -809,15 +803,14 @@ private:
 	/**
 	 * \brief Service method: Builds validated audio file list for a TOC object.
 	 *
-	 * Used by TOCBuilder::build().
-	 *
 	 * \param[in] files File list to be validated
 	 *
 	 * \return A representation of the validated file list
 	 *
 	 * \throw InvalidMetadataException If the file list is not valid
 	 */
-	inline std::vector<std::string> build_files(std::vector<std::string> files) const;
+	inline std::vector<std::string> build_files(std::vector<std::string> files)
+		const;
 
 	/**
 	 * \brief Validator instance
@@ -1071,9 +1064,7 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 }
 
 
-template <typename Container, typename T,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>,
-		typename = IsIntType<T>>
+template <typename Container, typename T, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths,
