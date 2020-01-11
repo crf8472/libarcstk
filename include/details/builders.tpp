@@ -741,8 +741,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 
 	if (leadout_val > 0)
 	{
-		TOCValidator validator;
-		validator.validate(toc, leadout_val);
+		TOCValidator::validate(toc, leadout_val);
 	} else
 	{
 		leadout_val = toc.leadout();
