@@ -601,6 +601,9 @@ public:
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
+	/**
+	 * \copydoc build(const TrackNo, Container&&, const uint32_t, const std::vector<std::string> &) const
+	 */
 	template <typename T, typename = IsLBAType<T>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T> offsets,
@@ -704,6 +707,9 @@ private:
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
 	 *
+	 * \tparam Container1 An LBA container type
+	 * \tparam Container2 An LBA container type
+	 *
 	 * \param[in] offsets     Offsets to be validated
 	 * \param[in] track_count Number of tracks
 	 * \param[in] lengths     Lengths to be validated
@@ -750,13 +756,19 @@ private:
 	/**
 	 * \brief Service method: Builds validated audio file list for a TOC object.
 	 *
+	 * The standard implementation of this function does nothing.
+	 * Specialize for intended use.
+	 *
+	 * \tparam Container Container with filenames
+	 *
 	 * \param[in] files File list to be validated
 	 *
 	 * \return A representation of the validated file list
 	 *
 	 * \throw InvalidMetadataException If the file list is not valid
 	 */
-	inline std::vector<std::string> build_files(std::vector<std::string> files)
+	template <typename Container, typename = IsFilenameContainer<Container> >
+	inline std::vector<std::string> build_files(Container&& files)
 		const;
 
 	/**
@@ -1151,7 +1163,8 @@ uint32_t TOCBuilder::build_leadout(const uint32_t leadout) const
 }
 
 
-std::vector<std::string> TOCBuilder::build_files(std::vector<std::string> files)
+template <typename Container, typename>
+std::vector<std::string> TOCBuilder::build_files(Container&& files)
 	const
 {
 	// no validation for now
