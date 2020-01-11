@@ -39,6 +39,9 @@ inline namespace v_1_0_0
 {
 
 
+/**
+ * \brief Require T being either int, short or long, either signed or unsigned
+ */
 template <typename T>
 using IsIntType = std::enable_if_t<std::is_integral<T>::value>;
 // TODO C++17: use is_integral_v
@@ -94,6 +97,9 @@ public:
 };
 
 
+/**
+ * \brief Require T having a signed or unsigned value_type of int, short or long
+ */
 template <typename T>
 using HasIntValueType = std::enable_if_t<
 	has_integral_value_type<std::remove_reference_t<T>>::value>;
@@ -136,6 +142,9 @@ public:
 };
 
 
+/**
+ * \brief Require a const_iterator for T
+ */
 template <typename T>
 using HasConstInterator =
 	std::enable_if_t<has_const_iterator<std::remove_reference_t<T>>::value>;
@@ -231,6 +240,9 @@ public:
 };
 
 
+/**
+ * \brief Require T to have <tt>begin() const</tt>
+ */
 template <typename T>
 using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
 
@@ -278,6 +290,9 @@ public:
 };
 
 
+/**
+ * \brief Require T to have <tt>end() const</tt>
+ */
 template <typename T>
 using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
 
@@ -303,6 +318,16 @@ struct is_lba_container : public std::integral_constant<bool,
 
 
 /**
+ * \brief Require T being a const-iterable integral-numeric container of frames
+ *
+ * This is intended to require a container type holding offsets or lengths.
+ */
+template <typename T>
+using IsLBAContainer =
+	std::enable_if_t<is_lba_container<std::remove_reference_t<T>>::value>;
+
+
+/**
  * \internal
  *
  * \brief Validates offsets, leadout and track count of a compact disc toc.
@@ -325,22 +350,22 @@ public:
 	 * distance between any two subsequent offsets and their number is a valid
 	 * track count.
 	 *
+	 * \tparam Container The container holding offset values
+	 *
 	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
-	>
+	template <typename Container, typename = IsLBAContainer<Container>>
 	inline void validate_offsets(Container&& offsets) const;
 
 	/**
 	 * \copydoc validate_offsets(Container&&) const
 	 */
-	template <typename T,
-		typename = typename std::enable_if_t<std::is_integral<T>::value, T>>
+	template <typename T, typename = IsIntType<T>>
 	inline void validate_offsets(std::initializer_list<T> offsets) const;
 
+	// Commented out: alternative to initializer_lists: C-style arrays
 	//template <typename T, std::size_t S>
 	//inline void validate_offsets(T const (&list)[S]) const;
 
@@ -350,22 +375,21 @@ public:
 	 * It is ensured that the number of offsets matches the track count and that
 	 * the offsets are consistent.
 	 *
+	 * \tparam Container The container holding offset values
+	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
-	>
+	template <typename Container, typename = IsLBAContainer<Container>>
 	inline void validate_offsets(const TrackNo track_count,
 			Container&& offsets) const;
 
 	/**
 	 * \copydoc validate_offsets(TrackNo, Container&&) const
 	 */
-	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	template <typename T, typename = IsIntType<T>>
 	inline void validate_offsets(TrackNo track_count,
 			std::initializer_list<T> offsets) const;
 
@@ -376,15 +400,15 @@ public:
 	 * the offsets are consistent and the leadout frame is consistent with the
 	 * offsets.
 	 *
+	 * \tparam Container The container holding offset values
+	 *
 	 * \param[in] track_count Number of tracks in this medium
 	 * \param[in] offsets     Offsets (in CDDA frames) of each track
 	 * \param[in] leadout     Leadout frame of the medium
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
-	>
+	template <typename Container, typename = IsLBAContainer<Container>>
 	inline void validate(const TrackNo track_count,
 			Container&& offsets,
 			const lba_count leadout) const;
@@ -392,8 +416,7 @@ public:
 	/**
 	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
 	 */
-	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	template <typename T, typename = IsIntType<T>>
 	inline void validate(TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const lba_count leadout) const;
@@ -406,20 +429,19 @@ public:
 	 * conforming range and their number is a valid track count. An
 	 * InvalidMetadataException is thrown if the validation fails.
 	 *
+	 * \tparam Container The container holding offset values
+	 *
 	 * \param[in] lengths Lengths (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container,
-		typename = typename std::enable_if_t<details::is_lba_container<Container>::value>
-	>
+	template <typename Container, typename = IsLBAContainer<Container>>
 	inline void validate_lengths(Container&& lengths) const;
 
 	/**
 	 * \copydoc validate_lengths(Container&&) const
 	 */
-	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+	template <typename T, typename = IsIntType<T>>
 	inline void validate_lengths(std::initializer_list<T> lengths) const;
 
 	/**
@@ -601,10 +623,12 @@ void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
 	this->validate_offsets(std::vector<T>{offsets});
 }
 
+
+// Commented out: alternative to initializer_lists: C-style arrays
 //template <typename T, std::size_t S>
 //inline void TOCValidator::validate_offsets(T const (&list)[S]) const
 //{
-//	this->validate_offsets<T[S]>(list); // Fails  std::has_integral_value_type in 347
+//	this->validate_offsets<T[S]>(list); // FIXME: Size??
 //}
 
 

@@ -208,6 +208,8 @@ inline namespace v_1_0_0
  *
  * \brief Private implementation of TOC.
  *
+ * This class is considered an implementation detail.
+ *
  * \see TOC
  */
 class TOC::Impl final
@@ -448,6 +450,8 @@ inline namespace v_1_0_0
  *
  * ARIdBuilder validates its input and will refuse to construct invalid ARIds
  * from any data. Hence, if an ARId is returned, it is guaranteed to be correct.
+ *
+ * This class is considered an implementation detail.
  */
 class ARIdBuilder final
 {
@@ -627,6 +631,8 @@ private:
  * length of the last track or the leadout cannot be deduced from certain
  * TOC file formats. However, it is required to construct TOC from
  * files in any TOC file format, e.g. CUEsheets.
+ *
+ * This class is considered an implementation detail.
  */
 class TOCBuilder final
 {
