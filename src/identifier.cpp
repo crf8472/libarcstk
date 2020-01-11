@@ -568,26 +568,29 @@ namespace details
 {
 
 /**
+ * \internal
  * \brief Uniform access to a container by track
  *
  * Instead of using at() that uses a 0-based index, we need a uniform method
  * to access a container by using a 1-based index and we want to range check it.
  *
  * Type Container is required to yield its number of elements by member function
- * size() and to allow access via operator[].
+ * size() and to allow assignment via operator[].
  *
- * \tparam Container Container type with size() and []&
- * \param  c         Actual container
- * \param  toc       Number of the track to access
+ * \tparam Container Container type with \c size() and \c []&
  *
- * \return The value for track \c t in the container \c c
+ * \param[in,out] c         Actual container
+ * \param[in]     toc       Number of the track to access
+ * \param[in]     accessor  TOC member function to iterate
+ *
+ * \return The values \c accessor yields in the order the occurr in \c toc
  */
-template <typename Container, typename InType>
+template <typename Container, typename InType> // FIXME requirements
 decltype(auto) toc_get(Container&& c,
 		const TOC &toc,
 		InType (TOC::*accessor)(const TrackNo) const)
 {
-	auto container_size = c.size();
+	auto container_size { c.size() };
 
 	auto track_count = static_cast<decltype(container_size)>(toc.track_count());
 	for (decltype(container_size) t = 1; t <= track_count; ++t)
