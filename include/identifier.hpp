@@ -676,6 +676,138 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 } // namespace v_1_0_0
 
+
+namespace details
+{
+inline namespace v_1_0_0
+{
+
+/**
+ * \internal
+ * \ingroup id
+ *
+ * \brief Constructs ARId instances from TOC data.
+ *
+ * Constructs @link ARId ARIds @endlink either from a TOC or from the triplet of
+ * track count, list of offsets and leadout frame.
+ *
+ * ARIdBuilder validates its input and will refuse to construct invalid ARIds
+ * from any data. Hence, if an ARId is returned, it is guaranteed to be correct.
+ *
+ * This class is considered an implementation detail.
+ */
+class ARIdBuilder final
+{
+
+public:
+
+	/**
+	 * \brief Build an ARId object from the specified TOC and leadout.
+	 *
+	 * Actual parameters \c toc and \c leadout are validated against each other.
+	 *
+	 * \param[in] toc     TOC to build ARId from
+	 * \param[in] leadout Leadout frame
+	 *
+	 * \return An ARId object representing the specified information
+	 *
+	 * \throw InvalidMetadataException If the TOC forms no valid ARId
+	 */
+	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
+
+	/**
+	 * \brief Build an ARId object from the specified TOC.
+	 *
+	 * \param[in] toc TOC to build ARId from
+	 *
+	 * \return An ARId object representing the specified information
+	 *
+	 * \throw InvalidMetadataException If the TOC forms no valid ARId
+	 */
+	std::unique_ptr<ARId> build(const TOC &toc) const;
+
+	/**
+	 * \brief Safely construct an empty ARId.
+	 *
+	 * An empty ARId has the invalid value 0 for the track count and also 0
+	 * for disc id 1, disc id 2 and cddb id. An empty ARId is not a valid
+	 * description of a CDDA medium.
+	 *
+	 * Building an empty ARId also provides the possibility to just provide an
+	 * ARId on sites where an ARId is required without having to test for null.
+	 *
+	 * It may help provide an uniforming implementation of cases where
+	 * an ARId in fact is expected but cannot be provided due to missing
+	 * data, e.g. when processing single tracks without knowing the offset.
+	 *
+	 * \return An empty ARId
+	 */
+	std::unique_ptr<ARId> build_empty_id() const noexcept;
+
+
+private:
+
+	/**
+	 * \brief Perform the actual build process.
+	 *
+	 * \param[in] track_count Track count
+	 * \param[in] offsets     Offsets
+	 * \param[in] leadout     Leadout frame
+	 *
+	 * \return An ARId object representing the specified information
+	 *
+	 * \throw InvalidMetadataException If the parameters form no valid ARId
+	 */
+	std::unique_ptr<ARId> build_worker(const TOC &toc, const uint32_t leadout)
+		const;
+
+	/**
+	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
+	 */
+	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
+	 *
+	 * \param[in] offsets Offsets (in LBA frames) of each track
+	 * \param[in] leadout Leadout LBA frame
+	 */
+	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: Compute the CDDB id from offsets and leadout.
+	 *
+	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+	 * the following 3 numbers:
+	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+	 * second chunk (16 bits): total seconds count
+	 * third chunk (8 bits):   number of tracks
+	 *
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
+	 * \param[in] leadout     Leadout LBA frame
+	 */
+	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) const;
+
+	/**
+	 * \brief Service method: sum up the digits of the number passed
+	 *
+	 * \param[in] number An unsigned integer number
+	 *
+	 * \return The sum of the digits of the number
+	 */
+	static uint64_t sum_digits(const uint32_t number);
+};
+
+} //namespace v_1_0_0
+
+} //namespace details
+
 } // namespace arcstk
 
 
@@ -710,9 +842,9 @@ inline namespace v_1_0_0
  * \tparam Container1 LBAContainer type of the offsets container
  * \tparam Container2 FilenameContainer type of the optional filename container
  *
- * \param[in] offsets     Offsets (in LBA frames) for each track
- * \param[in] leadout     Leadout frame
- * \param[in] files       File name of each track
+ * \param[in] offsets Offsets (in LBA frames) for each track
+ * \param[in] leadout Leadout frame
+ * \param[in] files   File name of each track
  *
  * \return A TOC object representing the specified information
  *
@@ -805,9 +937,9 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \tparam Container2 LBAContainer type of the lengths container
  * \tparam Container3 FilenameContainer type of the optional filename container
  *
- * \param[in] offsets     Offsets (in LBA frames) of each track
- * \param[in] lengths     Lengths (in LBA frames) of each track
- * \param[in] files       File name of each track
+ * \param[in] offsets Offsets (in LBA frames) of each track
+ * \param[in] lengths Lengths (in LBA frames) of each track
+ * \param[in] files   File name of each track
  *
  * \return A TOC object representing the specified information
  *

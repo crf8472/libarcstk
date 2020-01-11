@@ -683,8 +683,7 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 
 	//SECTION ( "Construction without parameters is correct" )
 	//{
-		arcstk::details::ARIdBuilder id_builder;
-		auto empty_default_arid = id_builder.build_empty_id();
+		auto empty_default_arid = arcstk::make_empty_arid();
 
 		CHECK ( sctx->id() == *empty_default_arid );
 

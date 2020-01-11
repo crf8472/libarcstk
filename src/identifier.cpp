@@ -26,6 +26,126 @@
 
 namespace arcstk
 {
+
+namespace details
+{
+inline namespace v_1_0_0
+{
+
+// ARIdBuilder
+
+
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
+	const
+{
+	return build_worker(toc, leadout);
+}
+
+
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc) const
+{
+	return build_worker(toc, 0);
+}
+
+
+std::unique_ptr<ARId> ARIdBuilder::build_empty_id() const noexcept
+{
+	try
+	{
+		return std::make_unique<ARId>(0, 0, 0, 0);
+
+	} catch (const std::exception& e)
+	{
+		ARCS_LOG_ERROR << "Exception while creating empty ARId: " << e.what();
+	}
+
+	return nullptr;
+}
+
+
+std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
+		const uint32_t leadout) const
+{
+	// Override TOC leadout with optional non-null extra leadout
+
+	uint32_t leadout_val { leadout };
+
+	if (leadout_val > 0)
+	{
+		TOCValidator::validate(toc, leadout_val);
+	} else
+	{
+		leadout_val = toc.leadout();
+	}
+
+	auto offsets = toc::get_offsets(toc);
+
+	return std::make_unique<ARId>(
+			toc.track_count(),
+			this->disc_id_1(offsets, leadout_val),
+			this->disc_id_2(offsets, leadout_val),
+			this->cddb_id  (offsets, leadout_val)
+	);
+}
+
+
+uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
+{
+	// disc id 1 is just the sum off all offsets + the leadout frame
+
+	uint32_t sum_offsets = 0;
+
+	for (const auto &o : offsets) { sum_offsets += o; }
+
+	return sum_offsets + leadout;
+}
+
+
+uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
+{
+	// disc id 2 is the sum of the products of offsets and the corresponding
+	// 1-based track number while normalizing offsets to be >= 1
+
+	uint32_t accum = 0;
+
+	uint16_t track = 1;
+	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
+
+	return accum + leadout /* must be > 0*/ * track;
+}
+
+
+uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
+		const uint32_t leadout) const
+{
+	const auto fps = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
+	uint32_t accum = 0;
+
+	for (const auto &o : offsets)
+	{
+		accum += sum_digits(o / fps + 2u);
+	}
+	accum %= 255; // normalize to 1 byte
+
+	const uint32_t     total_seconds = leadout / fps - offsets[0] / fps;
+	const unsigned int track_count   = offsets.size();
+
+	return (accum << 24u) | (total_seconds << 8u) | track_count;
+}
+
+
+uint64_t ARIdBuilder::sum_digits(const uint32_t number)
+{
+	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
+}
+
+} // namespace v_1_0_0
+
+} // namespace details
+
+
 inline namespace v_1_0_0
 {
 
