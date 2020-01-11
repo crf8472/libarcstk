@@ -461,13 +461,13 @@ public:
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	template <typename Container, typename = IsLBAContainer<Container>>
-	inline void validate_offsets(Container&& offsets) const;
+	inline static void validate_offsets(Container&& offsets);
 
 	/**
 	 * \copydoc validate_offsets(Container&&) const
 	 */
 	template <typename T, typename = IsLBAType<T>>
-	inline void validate_offsets(std::initializer_list<T> offsets) const;
+	inline static void validate_offsets(std::initializer_list<T> offsets);
 
 	// Commented out: alternative to initializer_lists: C-style arrays
 	//template <typename T, std::size_t S>
@@ -482,20 +482,20 @@ public:
 	 * \tparam Container The container holding offset values
 	 *
 	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	template <typename Container, typename = IsLBAContainer<Container>>
-	inline void validate_offsets(const TrackNo track_count,
-			Container&& offsets) const;
+	inline static void validate_offsets(const TrackNo track_count,
+			Container&& offsets);
 
 	/**
 	 * \copydoc validate_offsets(TrackNo, Container&&) const
 	 */
 	template <typename T, typename = IsLBAType<T>>
-	inline void validate_offsets(TrackNo track_count,
-			std::initializer_list<T> offsets) const;
+	inline static void validate_offsets(TrackNo track_count,
+			std::initializer_list<T> offsets);
 
 	/**
 	 * \brief Validate TOC information.
@@ -507,23 +507,23 @@ public:
 	 * \tparam Container The container holding offset values
 	 *
 	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in CDDA frames) of each track
+	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 * \param[in] leadout     Leadout frame of the medium
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	template <typename Container, typename = IsLBAContainer<Container>>
-	inline void validate(const TrackNo track_count,
+	inline static void validate(const TrackNo track_count,
 			Container&& offsets,
-			const lba_count leadout) const;
+			const lba_count leadout);
 
 	/**
 	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
 	 */
 	template <typename T, typename = IsLBAType<T>>
-	inline void validate(TrackNo track_count,
+	inline static void validate(TrackNo track_count,
 			std::initializer_list<T> offsets,
-			const lba_count leadout) const;
+			const lba_count leadout);
 
 	/**
 	 * \brief Validate lengths.
@@ -540,13 +540,13 @@ public:
 	 * \throw InvalidMetadataException If the validation fails
 	 */
 	template <typename Container, typename = IsLBAContainer<Container>>
-	inline void validate_lengths(Container&& lengths) const;
+	inline static void validate_lengths(Container&& lengths);
 
 	/**
 	 * \copydoc validate_lengths(Container&&) const
 	 */
 	template <typename T, typename = IsLBAType<T>>
-	inline void validate_lengths(std::initializer_list<T> lengths) const;
+	inline static void validate_lengths(std::initializer_list<T> lengths);
 
 	/**
 	 * \brief Validate leadout frame.
@@ -558,7 +558,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_leadout(const lba_count leadout) const;
+	inline static void validate_leadout(const lba_count leadout);
 
 	/**
 	 * \brief Validate leadout frame.
@@ -570,7 +570,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_nonzero_leadout(const lba_count leadout) const;
+	//inline static void validate_nonzero_leadout(const lba_count leadout);
 
 	/**
 	 * \brief Validate track count.
@@ -582,7 +582,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate_trackcount(const TrackNo track_count) const;
+	inline static void validate_trackcount(const TrackNo track_count);
 
 	/**
 	 * \brief Validate TOC information and leadout.
@@ -594,7 +594,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void validate(const TOC &toc, const lba_count leadout) const;
+	inline static void validate(const TOC &toc, const lba_count leadout);
 
 
 protected:
@@ -608,18 +608,20 @@ protected:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline void have_min_dist(const lba_count prev_track,
-			const lba_count next_track) const;
+	inline static void have_min_dist(const lba_count prev_track,
+			const lba_count next_track);
 
 	/**
-	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in CDDA frames).
+	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
+	 * frames).
 	 *
 	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
 	 */
 	static constexpr lba_count MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
 
 	/**
-	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in CDDA frames).
+	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
+	 * frames).
 	 *
 	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
 	 */
@@ -633,7 +635,7 @@ protected:
 
 
 template <typename Container, typename>
-void TOCValidator::validate_offsets(Container&& offsets) const
+void TOCValidator::validate_offsets(Container&& offsets)
 {
 	// Number of offsets in legal range?
 
@@ -713,7 +715,7 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 		// Has offset for current track at least minimum distance after
 		// offset for last track?
 
-		this->have_min_dist(
+		TOCValidator::have_min_dist(
 				static_cast<lba_count>(*previous_track),
 				static_cast<lba_count>(*track));
 
@@ -723,26 +725,26 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 
 
 template <typename T, typename>
-void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
+void TOCValidator::validate_offsets(std::initializer_list<T> offsets)
 {
 	// FIXME Works, but performance hurts. Just pass list?
-	this->validate_offsets(std::vector<T>{offsets});
+	TOCValidator::validate_offsets(std::vector<T>{offsets});
 }
 
 
 // Commented out: alternative to initializer_lists: C-style arrays
 //template <typename T, std::size_t S>
-//inline void TOCValidator::validate_offsets(T const (&list)[S]) const
+//inline void TOCValidator::validate_offsets(T const (&list)[S])
 //{
-//	this->validate_offsets<T[S]>(list); // FIXME: Size??
+//	TOCValidator::validate_offsets<T[S]>(list); // FIXME: Size??
 //}
 
 
 template <typename Container, typename>
 void TOCValidator::validate_offsets(const TrackNo track_count,
-		Container&& offsets) const
+		Container&& offsets)
 {
-	this->validate_trackcount(track_count);
+	TOCValidator::validate_trackcount(track_count);
 
 	// Validation: Track count consistent with Number of Offsets?
 
@@ -756,24 +758,24 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 		throw InvalidMetadataException(ss.str());
 	}
 
-	this->validate_offsets(std::forward<Container>(offsets));
+	TOCValidator::validate_offsets(std::forward<Container>(offsets));
 }
 
 
 template <typename T, typename>
 void TOCValidator::validate_offsets(const TrackNo track_count,
-		std::initializer_list<T> offsets) const
+		std::initializer_list<T> offsets)
 {
 	// FIXME Works, but performance hurts. Just pass list?
-	this->validate_offsets(track_count, std::vector<T>{offsets});
+	TOCValidator::validate_offsets(track_count, std::vector<T>{offsets});
 }
 
 
 template <typename Container, typename>
 void TOCValidator::validate(const TrackNo track_count,
-		Container&& offsets, const lba_count leadout) const
+		Container&& offsets, const lba_count leadout)
 {
-	this->validate_leadout(leadout);
+	TOCValidator::validate_leadout(leadout);
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
@@ -790,21 +792,21 @@ void TOCValidator::validate(const TrackNo track_count,
 		throw InvalidMetadataException(ss.str());
 	}
 
-	this->validate_offsets(track_count, offsets);
+	TOCValidator::validate_offsets(track_count, offsets);
 }
 
 
 template <typename T, typename>
 void TOCValidator::validate(const TrackNo track_count,
-		std::initializer_list<T> offsets, const lba_count leadout) const
+		std::initializer_list<T> offsets, const lba_count leadout)
 {
 	// FIXME Works, but performance hurts. Just pass list?
-	this->validate(track_count, std::vector<T>{offsets}, leadout);
+	TOCValidator::validate(track_count, std::vector<T>{offsets}, leadout);
 }
 
 
 template <typename Container, typename>
-void TOCValidator::validate_lengths(Container&& lengths) const
+void TOCValidator::validate_lengths(Container&& lengths)
 {
 	// Number of lengths in legal range?
 
@@ -882,13 +884,13 @@ void TOCValidator::validate_lengths(Container&& lengths) const
 
 
 template <typename T, typename>
-void TOCValidator::validate_lengths(std::initializer_list<T> lengths) const
+void TOCValidator::validate_lengths(std::initializer_list<T> lengths)
 {
-	this->validate_lengths(std::vector<T>{lengths});
+	TOCValidator::validate_lengths(std::vector<T>{lengths});
 }
 
 
-void TOCValidator::validate_leadout(const lba_count leadout) const
+void TOCValidator::validate_leadout(const lba_count leadout)
 {
 	// Greater than Minimum ?
 
@@ -923,23 +925,23 @@ void TOCValidator::validate_leadout(const lba_count leadout) const
 }
 
 
-void TOCValidator::validate_nonzero_leadout(const lba_count leadout) const
-{
-	// Not zero ?
+//void TOCValidator::validate_nonzero_leadout(const lba_count leadout)
+//{
+//	// Not zero ?
+//
+//	if (leadout == 0)
+//	{
+//		std::stringstream ss;
+//		ss << "Leadout must not be 0";
+//
+//		throw InvalidMetadataException(ss.str());
+//	}
+//
+//	TOCValidator::validate_leadout(leadout);
+//}
 
-	if (leadout == 0)
-	{
-		std::stringstream ss;
-		ss << "Leadout must not be 0";
 
-		throw InvalidMetadataException(ss.str());
-	}
-
-	this->validate_leadout(leadout);
-}
-
-
-void TOCValidator::validate_trackcount(const TrackNo track_count) const
+void TOCValidator::validate_trackcount(const TrackNo track_count)
 {
 	if (track_count < 1 or track_count > 99)
 	{
@@ -952,17 +954,17 @@ void TOCValidator::validate_trackcount(const TrackNo track_count) const
 }
 
 
-void TOCValidator::validate(const TOC &toc, const lba_count leadout) const
+void TOCValidator::validate(const TOC &toc, const lba_count leadout)
 {
-	this->validate_leadout(leadout);
+	TOCValidator::validate_leadout(leadout);
 
 	auto last_offset { toc.offset(toc.track_count()) };
-	this->have_min_dist(last_offset, leadout);
+	TOCValidator::have_min_dist(last_offset, leadout);
 }
 
 
 void TOCValidator::have_min_dist(const lba_count prev_track,
-		const lba_count next_track) const
+		const lba_count next_track)
 {
 	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
 	{

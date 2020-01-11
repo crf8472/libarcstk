@@ -547,19 +547,19 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	template <typename Container, typename = IsLBAContainer<Container> >
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container&& offsets,
 			const uint32_t leadout,
-			const std::vector<std::string> &files) const;
+			const std::vector<std::string> &files);
 
 	/**
 	 * \copydoc build(const TrackNo, Container&&, const uint32_t, const std::vector<std::string> &) const
 	 */
 	template <typename T, typename = IsLBAType<T>>
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const uint32_t leadout,
-			const std::vector<std::string> &files) const;
+			const std::vector<std::string> &files);
 
 	/**
 	 * \brief Build a TOC object from the specified information.
@@ -576,10 +576,10 @@ public:
 	template <typename Container1, typename Container2,
 		typename = IsLBAContainer<Container1>,
 		typename = IsLBAContainer<Container2> >
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container1&& offsets,
 			Container2&& lengths,
-			const std::vector<std::string> &files) const;
+			const std::vector<std::string> &files);
 
 	/**
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
@@ -587,10 +587,10 @@ public:
 	template <typename T1, typename T2,
 		typename = IsLBAType<T1>,
 		typename = IsLBAType<T2> >
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T1> offsets,
 			std::initializer_list<T2> lengths,
-			const std::vector<std::string> &files) const;
+			const std::vector<std::string> &files);
 
 	/**
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
@@ -598,10 +598,10 @@ public:
 	template <typename T, typename Container,
 		typename = IsLBAType<T>,
 		typename = IsLBAContainer<Container> >
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		Container&& lengths,
-		const std::vector<std::string> &files) const;
+		const std::vector<std::string> &files);
 
 	/**
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
@@ -609,10 +609,10 @@ public:
 	template <typename Container, typename T,
 		typename = IsLBAContainer<Container>,
 		typename = IsLBAType<T>>
-	inline std::unique_ptr<TOC> build(const TrackNo track_count,
+	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths,
-		const std::vector<std::string> &files) const;
+		const std::vector<std::string> &files);
 
 	/**
 	 * \brief Update a TOC object with a leadout.
@@ -622,7 +622,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	inline void update(TOC &toc, const uint32_t leadout) const;
+	inline static void update(TOC &toc, const uint32_t leadout);
 
 
 private:
@@ -636,7 +636,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the track count is not valid
 	 */
-	inline TrackNo build_track_count(const TrackNo track_count) const;
+	inline static TrackNo build_track_count(const TrackNo track_count);
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -652,8 +652,8 @@ private:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	template <typename Container, typename = IsLBAContainer<Container> >
-	inline std::vector<uint32_t> build_offsets(Container&& offsets,
-			const TrackNo track_count, const uint32_t leadout) const;
+	inline static std::vector<uint32_t> build_offsets(Container&& offsets,
+			const TrackNo track_count, const uint32_t leadout);
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -672,10 +672,10 @@ private:
 	template <typename Container1, typename Container2,
 		typename = IsLBAContainer<Container1>,
 		typename = IsLBAContainer<Container2> >
-	inline std::vector<uint32_t> build_offsets(
+	inline static std::vector<uint32_t> build_offsets(
 			Container1&& offsets,
 			const TrackNo track_count,
-			Container2&& lengths) const;
+			Container2&& lengths);
 
 	/**
 	 * \brief Service method: Builds validated lengths for a TOC object.
@@ -690,8 +690,8 @@ private:
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
 	template <typename Container, typename = IsLBAContainer<Container> >
-	inline std::vector<uint32_t> build_lengths(Container&& lengths,
-			const TrackNo track_count) const;
+	inline static std::vector<uint32_t> build_lengths(Container&& lengths,
+			const TrackNo track_count);
 
 	/**
 	 * \brief Service method: Builds validated leadout for a TOC object.
@@ -702,7 +702,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the leadout is not valid
 	 */
-	inline uint32_t build_leadout(const uint32_t leadout) const;
+	inline static uint32_t build_leadout(const uint32_t leadout);
 
 	/**
 	 * \brief Service method: Builds validated audio file list for a TOC object.
@@ -719,13 +719,7 @@ private:
 	 * \throw InvalidMetadataException If the file list is not valid
 	 */
 	template <typename Container, typename = IsFilenameContainer<Container> >
-	inline std::vector<std::string> build_files(Container&& files)
-		const;
-
-	/**
-	 * \brief Validator instance
-	 */
-	TOCValidator validator_;
+	inline static std::vector<std::string> build_files(Container&& files);
 };
 
 /// \cond UNDOC_FUNCTION_BODIES
@@ -738,9 +732,9 @@ template <typename Container, typename>
 std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
 		Container&& offsets, const uint32_t leadout) const
 {
-	TOCBuilder builder;
-	auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
-	//auto toc = TOCBuilder::build(track_count, offsets, leadout);
+	//TOCBuilder builder;
+	//auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
+	auto toc = TOCBuilder::build(track_count, offsets, leadout, {/*no files*/});
 
 	return build_worker(*toc, 0);
 }
@@ -869,7 +863,7 @@ template <typename Container, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container&& offsets,
 		const uint32_t leadout,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -886,7 +880,7 @@ template <typename T, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		const uint32_t leadout,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -903,7 +897,7 @@ template <typename Container1, typename Container2, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container1&& offsets,
 		Container2&& lengths,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -920,7 +914,7 @@ template <typename T, typename Container, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		Container&& lengths,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -938,7 +932,7 @@ template <typename Container, typename T, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -956,7 +950,7 @@ template <typename T1, typename T2, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T1> offsets,
 		std::initializer_list<T2> lengths,
-		const std::vector<std::string> &files) const
+		const std::vector<std::string> &files)
 {
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -969,9 +963,9 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 }
 
 
-void TOCBuilder::update(TOC &toc, const uint32_t leadout) const
+void TOCBuilder::update(TOC &toc, const uint32_t leadout)
 {
-	validator_.validate(toc, leadout);
+	TOCValidator::validate(toc, leadout);
 
 	// FIXME Copying TOC::Impl manually is inefficient
 	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
@@ -987,9 +981,9 @@ void TOCBuilder::update(TOC &toc, const uint32_t leadout) const
 }
 
 
-TrackNo TOCBuilder::build_track_count(const TrackNo track_count) const
+TrackNo TOCBuilder::build_track_count(const TrackNo track_count)
 {
-	validator_.validate_trackcount(track_count);
+	TOCValidator::validate_trackcount(track_count);
 
 	return track_count;
 }
@@ -999,9 +993,9 @@ template <typename Container, typename>
 std::vector<uint32_t> TOCBuilder::build_offsets(
 		Container&& offsets,
 		const TrackNo track_count,
-		const uint32_t leadout) const
+		const uint32_t leadout)
 {
-	validator_.validate(track_count, offsets, leadout);
+	TOCValidator::validate(track_count, offsets, leadout);
 
 	// Convert offsets to uints
 
@@ -1012,7 +1006,7 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 template <typename Container1, typename Container2, typename, typename>
 std::vector<uint32_t> TOCBuilder::build_offsets(
 		Container1&& offsets, const TrackNo track_count,
-		Container2&& lengths) const
+		Container2&& lengths)
 {
 	// Valid number of lengths ?
 
@@ -1025,8 +1019,8 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 		throw InvalidMetadataException(ss.str());
 	}
 
-	validator_.validate_offsets(track_count, offsets);
-	validator_.validate_lengths(lengths);
+	TOCValidator::validate_offsets(track_count, offsets);
+	TOCValidator::validate_lengths(lengths);
 
 	// Convert offsets to uints
 
@@ -1036,7 +1030,7 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 
 template <typename Container, typename>
 std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
-		const TrackNo track_count) const
+		const TrackNo track_count)
 {
 	// Valid number of lengths ?
 
@@ -1051,7 +1045,7 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	// If params make sense, use TOCValidator
 
-	validator_.validate_lengths(lengths);
+	TOCValidator::validate_lengths(lengths);
 
 	// Convert ints to uints while normalizing the last length to 0
 
@@ -1066,9 +1060,9 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 }
 
 
-uint32_t TOCBuilder::build_leadout(const uint32_t leadout) const
+uint32_t TOCBuilder::build_leadout(const uint32_t leadout)
 {
-	validator_.validate_leadout(leadout);
+	TOCValidator::validate_leadout(leadout);
 
 	return leadout;
 }
@@ -1076,7 +1070,6 @@ uint32_t TOCBuilder::build_leadout(const uint32_t leadout) const
 
 template <typename Container, typename>
 std::vector<std::string> TOCBuilder::build_files(Container&& files)
-	const
 {
 	// no validation for now
 
