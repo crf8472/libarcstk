@@ -513,42 +513,6 @@ private:
 			const uint32_t leadout) const;
 
 	/**
-	 * \deprecated
-	 *
-	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
-	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] offsets       Offsets (in CDDA frames) of each track
-	 * \param[in] leadout Leadout CDDA frame
-	 */
-	inline uint32_t disc_id_2(const TrackNo track_count,
-			const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
-
-	/**
-	 * \deprecated
-	 *
-	 * \brief Service method: Compute the CDDB disc id from offsets and leadout.
-	 *
-	 * Vector offsets contains the frame offsets as parsed from the CUE sheet
-	 * with the leadout frame added as an additional element on the back
-	 * position.
-	 *
-	 * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
-	 * the following 3 numbers:
-	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
-	 * second chunk (16 bits): total seconds count
-	 * third chunk (8 bits):   number of tracks
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] offsets     Offsets (in LBA frames) of each track
-	 * \param[in] leadout     Leadout LBA frame
-	 */
-	inline uint32_t cddb_id(const TrackNo track_count,
-			const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
-
-	/**
 	 * \brief Service method: sum up the digits of the number passed
 	 *
 	 * \param[in] number An unsigned integer number
@@ -892,56 +856,6 @@ uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 	const unsigned int track_count   = offsets.size();
 
 	return (accum << 24u) | (total_seconds << 8u) | track_count;
-}
-
-
-uint32_t ARIdBuilder::disc_id_2(const TrackNo track_count,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
-{
-	// disc id 2 is the sum of the products of offsets and the corresponding
-	// 1-based track number while normalizing offsets to be >= 1
-
-	uint32_t sum_offsets = 0;
-
-	for (std::size_t i = 0; i < static_cast<std::size_t>(track_count); ++i)
-	{
-		// This will throw if offsets.size() < track_count
-		sum_offsets += (offsets[i] > 0 ? offsets[i] : 1) * (i + 1);
-	}
-
-	return sum_offsets + leadout *
-		(static_cast<unsigned int>(track_count) + 1u);
-}
-
-
-uint32_t ARIdBuilder::cddb_id(const TrackNo track_count,
-		const std::vector<uint32_t> &offsets, const uint32_t leadout) const
-{
-	// The CDDB id is a 32bit unsigned integer, formed of a concatenation of
-	// the following 3 numbers:
-	// first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
-	// second chunk (16 bits): total seconds count
-	// third chunk (8 bits):   number of tracks
-
-	// Calculate first part: checksum
-
-	uint32_t checksum = 0;
-	auto frames_per_sec = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
-
-	for (std::size_t i = 0; i < static_cast<std::size_t>(track_count); ++i)
-	{
-		// This will throw if offsets.size() < track_count
-		checksum += sum_digits(offsets[i] / frames_per_sec + 2u);
-	}
-	checksum %= 255; // normalize to 1 byte
-
-	// Calculate second part: seconds count
-
-	const uint32_t seconds_count = leadout / frames_per_sec
-		- offsets[0] / frames_per_sec;
-
-	return (checksum << 24u) | (seconds_count << 8u) |
-		static_cast<unsigned int>(track_count);
 }
 
 

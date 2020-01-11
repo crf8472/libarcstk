@@ -117,8 +117,8 @@ public:
  * \brief Require T having a signed or unsigned value_type of int, short or long
  */
 template <typename T>
-using HasLBAValueType = std::enable_if_t<
-	has_lba_value_type<std::remove_reference_t<T>>::value>;
+using HasLBAValueType =
+	std::enable_if_t<has_lba_value_type<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -336,10 +336,7 @@ struct is_container : public std::integral_constant<bool,
  * \tparam The type to inspect
  */
 template <typename T, typename = HasLBAValueType<T> >
-struct is_lba_container : public is_container<T>
-{
-	// empty
-};
+struct is_lba_container : public is_container<T> { /* empty */ };
 
 
 /**
@@ -352,18 +349,35 @@ using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 
 
 /**
+ * \brief Indicate whether T is a type for representing filenames.
+ *
+ * Currently is_filename_type<T> is of std::true_type for T = std::string and
+ * of std::false_type for every other type T.
+ *
+ * Intended to be specialized by client.
+ *
+ * \tparam T Type to be classified as representing a filename
+ */
+template <typename T>
+struct is_filename_type : std::false_type { /* empty */ };
+
+// TRUE for std::string
+template <>
+struct is_filename_type<std::string> : std::true_type { /* empty */ };
+
+
+/**
  * \brief Helper: check for \c value_type  std::string.
  *
  * \tparam T Input type to inspect
  */
 template <typename T>
-struct has_string_value_type : private sfinae_values
+struct has_filename_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case value_type is std::string
-	template<typename S,
-		typename = std::is_same<typename S::value_type, std::string>>
+	// choose to return "yes" in case value_type can represent filenames
+	template<typename S, typename = is_filename_type<typename S::value_type>>
 	static yes & test(typename S::value_type*);
 
 	// "no" otherwise
@@ -394,18 +408,15 @@ public:
  * \brief Requires T to have a \c value_type of std::string
  */
 template <typename T>
-using HasStringValueType =
-	std::enable_if_t<has_string_value_type<std::remove_reference_t<T>>::value>;
+using HasFilenameValueType =
+std::enable_if_t<has_filename_value_type<std::remove_reference_t<T>>::value>;
 
 
 /**
  * \brief Requires T to be a filename container
  */
-template <typename T, typename = HasStringValueType<T> >
-struct is_filename_container : public is_container<T>
-{
-	// empty
-};
+template <typename T, typename = HasFilenameValueType<T> >
+struct is_filename_container : public is_container<T> { /* empty */ };
 
 
 /**

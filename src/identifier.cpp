@@ -178,6 +178,7 @@ private:
 
 /// \cond UNDOC_FUNCTION_BODIES
 
+
 ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
 	: track_count_(track_count)
@@ -320,8 +321,6 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 
 	return ss.str();
 }
-
-/// \endcond
 
 
 // TOC
@@ -646,9 +645,6 @@ std::vector<std::string> get_filenames(const TOC &toc)
 } // namespace toc
 
 
-/// \endcond
-
-
 // make_arid
 
 
@@ -672,47 +668,7 @@ std::unique_ptr<ARId> make_empty_arid()
 	return builder.build_empty_id();
 }
 
-
-// make_toc
-
-
-//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-//		const uint32_t leadout,
-//		const std::vector<std::string> &files)
-//{
-//	details::TOCBuilder builder;
-//	return builder.build(offsets.size(), offsets, leadout, files);
-//}
-
-
-//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-//		const std::vector<int32_t> &offsets,
-//		const uint32_t leadout,
-//		const std::vector<std::string> &files)
-//{
-//	details::TOCBuilder builder;
-//	return builder.build(track_count, offsets, leadout, files);
-//}
-
-
-//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-//		const std::vector<int32_t> &lengths,
-//		const std::vector<std::string> &files)
-//{
-//	details::TOCBuilder builder;
-//	return builder.build(offsets.size(), offsets, lengths, files);
-//}
-
-
-//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-//		const std::vector<int32_t> &offsets,
-//		const std::vector<int32_t> &lengths,
-//		const std::vector<std::string> &files)
-//{
-//	details::TOCBuilder builder;
-//	return builder.build(track_count, offsets, lengths, files);
-//}
-
+/// \endcond
 
 } // namespace v_1_0_0
 
