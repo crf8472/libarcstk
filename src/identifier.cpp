@@ -673,42 +673,42 @@ std::unique_ptr<ARId> make_empty_arid()
 // make_toc
 
 
-std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-		const uint32_t leadout,
-		const std::vector<std::string> &files)
-{
-	details::TOCBuilder builder;
-	return builder.build(offsets.size(), offsets, leadout, files);
-}
+//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+//		const uint32_t leadout,
+//		const std::vector<std::string> &files)
+//{
+//	details::TOCBuilder builder;
+//	return builder.build(offsets.size(), offsets, leadout, files);
+//}
 
 
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout,
-		const std::vector<std::string> &files)
-{
-	details::TOCBuilder builder;
-	return builder.build(track_count, offsets, leadout, files);
-}
+//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+//		const std::vector<int32_t> &offsets,
+//		const uint32_t leadout,
+//		const std::vector<std::string> &files)
+//{
+//	details::TOCBuilder builder;
+//	return builder.build(track_count, offsets, leadout, files);
+//}
 
 
-std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files)
-{
-	details::TOCBuilder builder;
-	return builder.build(offsets.size(), offsets, lengths, files);
-}
+//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+//		const std::vector<int32_t> &lengths,
+//		const std::vector<std::string> &files)
+//{
+//	details::TOCBuilder builder;
+//	return builder.build(offsets.size(), offsets, lengths, files);
+//}
 
 
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files)
-{
-	details::TOCBuilder builder;
-	return builder.build(track_count, offsets, lengths, files);
-}
+//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+//		const std::vector<int32_t> &offsets,
+//		const std::vector<int32_t> &lengths,
+//		const std::vector<std::string> &files)
+//{
+//	details::TOCBuilder builder;
+//	return builder.build(track_count, offsets, lengths, files);
+//}
 
 
 } // namespace v_1_0_0

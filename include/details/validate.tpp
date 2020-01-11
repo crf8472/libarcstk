@@ -115,7 +115,7 @@ public:
  * \brief Require T having a signed or unsigned value_type of int, short or long
  */
 template <typename T>
-using HasIntValueType = std::enable_if_t<
+using HasLBAValueType = std::enable_if_t<
 	has_lba_value_type<std::remove_reference_t<T>>::value>;
 
 
@@ -312,6 +312,20 @@ using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
 
 
 /**
+ * \brief Require T to be a const-iterable container type with a size
+ */
+template <typename T, typename T_noref = std::remove_reference_t<T>>
+struct is_container : public std::integral_constant<bool,
+	has_const_iterator <T_noref>::value &&
+	has_size           <T_noref>::value &&
+	has_begin          <T_noref>::value &&
+	has_end            <T_noref>::value >
+{
+	// empty
+};
+
+
+/**
  * \brief Helper: Check whether a container holds LBA frames.
  *
  * Defined for container types that define const_iterator as well
@@ -319,13 +333,8 @@ using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
  *
  * \tparam The type to inspect
  */
-template <typename T, typename T_noref = std::remove_reference_t<T>>
-struct is_lba_container : public std::integral_constant<bool,
-	has_lba_value_type <T_noref>::value &&
-	has_const_iterator <T_noref>::value &&
-	has_size           <T_noref>::value &&
-	has_begin          <T_noref>::value &&
-	has_end            <T_noref>::value >
+template <typename T, typename = HasLBAValueType<T> >
+struct is_lba_container : public is_container<T>
 {
 	// empty
 };
@@ -337,8 +346,74 @@ struct is_lba_container : public std::integral_constant<bool,
  * This is intended to require a container type holding offsets or lengths.
  */
 template <typename T>
-using IsLBAContainer =
-	std::enable_if_t<is_lba_container<std::remove_reference_t<T>>::value>;
+using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
+
+
+/**
+ * \brief Helper: check for a \c value_type that is std::string.
+ *
+ * \tparam T Input type to inspect
+ */
+template <typename T>
+struct has_string_value_type : private sfinae_values
+{
+private:
+
+	// choose to return "yes" in case value_type is defined, integral,
+	// arithmetic and at least 32 bit wide
+	template<typename S,
+		typename = std::is_same<typename S::value_type, std::string>>
+	static yes & test(typename S::value_type*);
+
+	// "no" otherwise
+	template<typename S> static no  & test(...);
+
+
+public:
+
+	/**
+	 * \brief Result value
+	 *
+	 * Will be TRUE for types with an integral value_type, otherwise false.
+	 */
+	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+
+	/**
+	 * \brief Input type
+	 */
+	using type = T;
+
+
+	// ignore
+	void gcc_suppress_warning_wctor_dtor_privacy();
+};
+
+
+/**
+ * \brief Requires T to have a \c value_type of std::string
+ */
+template <typename T>
+using HasStringValueType =
+	std::enable_if_t<has_string_value_type<std::remove_reference_t<T>>::value>;
+
+
+/**
+ * \brief Requires T to be a filename container
+ */
+template <typename T, typename = HasStringValueType<T> >
+struct is_filename_container : public is_container<T>
+{
+	// empty
+};
+
+
+/**
+ * \brief Require T being a const-iterable integral-numeric container of frames
+ *
+ * This is intended to require a container type holding offsets or lengths.
+ */
+template <typename T>
+using IsFilenameContainer = std::enable_if_t<is_filename_container<T>::value>;
 
 
 /**

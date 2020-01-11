@@ -15,10 +15,8 @@
 
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
-
 
 /// \addtogroup calc
 /// @{
@@ -570,21 +568,6 @@ public:
 	explicit NonstandardMetadataException(const char *what_arg);
 };
 
-} // namespace v_1_0_0
-
-} // namespace arcstk
-
-
-#ifndef __LIBARCSTK_VALIDATE_TPP__
-#include "details/validate.tpp"
-#endif
-
-
-namespace arcstk
-{
-inline namespace v_1_0_0
-{
-
 
 /**
  * \brief Create an ARId from a \link TOC::complete() complete()\endlink TOC.
@@ -649,120 +632,6 @@ std::unique_ptr<ARId> make_empty_arid();
 
 
 /**
- * \brief make_toc for any container
- */
-template <typename Container1, typename Container2,
-	typename =
-	typename std::enable_if<details::is_lba_container<Container1>::value,
-		Container1>::type,
-	typename =
-	typename std::enable_if<details::is_lba_container<Container2>::value,
-		Container2>::type
-	>
-std::unique_ptr<TOC> make_toc(const Container1 &&offsets,
-		const uint32_t leadout,
-		const Container2 &&files = {});
-
-// Impl
-template <typename Container1, typename Container2>
-std::unique_ptr<TOC> make_toc(const Container1 &&offsets,
-		const uint32_t leadout,
-		const Container2 &&files)
-{
-	// TODO
-}
-
-
-/**
- * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
- * specified information.
- *
- * The input data is validated but the leadout is allowed to be 0. The returned
- * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
- *
- * \param[in] offsets     Offsets (in LBA frames) for each track
- * \param[in] leadout     Leadout frame
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
- */
-std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-		const uint32_t leadout,
-		const std::vector<std::string> &files = {});
-
-
-/**
- * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
- * specified information.
- *
- * The input data is validated but the leadout is allowed to be 0. The returned
- * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
- *
- * \param[in] track_count Number of tracks in this medium
- * \param[in] offsets     Offsets (in LBA frames) for each track
- * \param[in] leadout     Leadout frame
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
- */
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const uint32_t leadout,
-		const std::vector<std::string> &files = {});
-
-
-/**
- * \brief Create a TOC object from the specified information.
- *
- * The input data is validated but the length of the last track is allowed to
- * be 0. The returned TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
- *
- * \param[in] offsets     Offsets (in LBA frames) of each track
- * \param[in] lengths     Lengths (in LBA frames) of each track
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid TOC
- */
-std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files = {});
-
-
-/**
- * \brief Create a TOC object from the specified information.
- *
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
- *
- * \param[in] track_count Number of tracks in this medium
- * \param[in] offsets     Offsets (in LBA frames) of each track
- * \param[in] lengths     Lengths (in LBA frames) of each track
- * \param[in] files       File name of each track
- *
- * \return A TOC object representing the specified information
- *
- * \throw InvalidMetadataException If the input data forms no valid TOC
- */
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const std::vector<int32_t> &offsets,
-		const std::vector<int32_t> &lengths,
-		const std::vector<std::string> &files = {});
-
-
-/**
  * \brief Functions assisting the management of @link TOC TOCs @endlink.
  *
  * \todo Avoid redundancy of 3 implementations. A template solution could do
@@ -809,9 +678,294 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 } // namespace arcstk
 
+
+#ifndef __LIBARCSTK_VALIDATE_TPP__
+#include "details/validate.tpp"
+#endif
+
+
 #ifndef __LIBARCSTK_BUILDERS_TPP__
 #include "details/builders.tpp"
 #endif
+
+
+namespace arcstk
+{
+inline namespace v_1_0_0
+{
+
+/// \addtogroup id
+/// @{
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ *
+ * Value \c offsets.size() is assumed to be the number of total tracks.
+ *
+ * \tparam Container1 LBAContainer type of the offsets container
+ * \tparam Container2 FilenameContainer type of the optional filename container
+ *
+ * \param[in] offsets     Offsets (in LBA frames) for each track
+ * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
+ */
+template <typename Container1, typename Container2,
+	typename = details::IsLBAContainer<Container1>,
+	typename = details::IsFilenameContainer<Container2> >
+inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
+		const uint32_t leadout,
+		const Container2&& files = {});
+
+// Implementation
+template <typename Container1, typename Container2>
+std::unique_ptr<TOC> make_toc(const Container1&& offsets,
+		const uint32_t leadout,
+		const Container2&& files)
+{
+	::arcstk::details::TOCBuilder builder;
+
+	return builder.build(
+			offsets.size(),
+			std::forward<Container1>(offsets),
+			leadout,
+			std::forward<Container2>(files));
+}
+
+
+/**
+ * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
+ * specified information.
+ *
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ *
+ * \param[in] offsets     Offsets (in LBA frames) for each track
+ * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
+ */
+//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+//		const uint32_t leadout,
+//		const std::vector<std::string> &files = {});
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ *
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
+ *
+ * \tparam Container1 LBAContainer type of the offsets container
+ * \tparam Container2 FilenameContainer type of the optional filename container
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in LBA frames) for each track
+ * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
+ */
+template <typename Container1, typename Container2,
+	typename = details::IsLBAContainer<Container1>,
+	typename = details::IsFilenameContainer<Container2> >
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+		const Container1&& offsets,
+		const uint32_t leadout,
+		const Container2&& files = {});
+
+// Implementation
+template <typename Container1, typename Container2>
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+		const Container1&& offsets,
+		const uint32_t leadout,
+		const Container2&& files)
+{
+	::arcstk::details::TOCBuilder builder;
+
+	return builder.build(
+			track_count,
+			std::forward<Container1>(offsets),
+			leadout,
+			std::forward<Container2>(files));
+}
+
+
+/**
+ * \brief Create a \link TOC::complete() complete()\endlink TOC object from the
+ * specified information.
+ *
+ * The input data is validated but the leadout is allowed to be 0. The returned
+ * TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in LBA frames) for each track
+ * \param[in] leadout     Leadout frame
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid and
+ * complete() TOC
+ */
+//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+//		const std::vector<int32_t> &offsets,
+//		const uint32_t leadout,
+//		const std::vector<std::string> &files = {});
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The input data is validated but the length of the last track is allowed to
+ * be 0. The returned TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ *
+ * Value \c offsets.size() is assumed to be the number of total tracks.
+ *
+ * Value \c offsets.size() and \c lengths.size() must be equal.
+ *
+ * \tparam Container1 LBAContainer type of the offsets container
+ * \tparam Container2 LBAContainer type of the lengths container
+ * \tparam Container3 FilenameContainer type of the optional filename container
+ *
+ * \param[in] offsets     Offsets (in LBA frames) of each track
+ * \param[in] lengths     Lengths (in LBA frames) of each track
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid TOC
+ */
+template <typename Container1, typename Container2, typename Container3,
+	typename = details::IsLBAContainer<Container1>,
+	typename = details::IsLBAContainer<Container2>,
+	typename = details::IsFilenameContainer<Container3> >
+std::unique_ptr<TOC> make_toc(Container1&& offsets,
+		Container2&& lengths,
+		Container3&& files = {});
+
+// Implementation
+template <typename Container1, typename Container2, typename Container3,
+		typename, typename, typename>
+std::unique_ptr<TOC> make_toc(Container1&& offsets,
+		Container2&& lengths,
+		Container3&& files)
+{
+	::arcstk::details::TOCBuilder builder;
+
+	return builder.build(
+			offsets.size(),
+			std::forward<Container1>(offsets),
+			std::forward<Container2>(lengths),
+			std::forward<Container3>(files));
+}
+
+//std::unique_ptr<TOC> make_toc(const std::vector<int32_t> &offsets,
+//		const std::vector<int32_t> &lengths,
+//		const std::vector<std::string> &files = {});
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The input data is validated but the length of the last track is allowed to
+ * be 0. The returned TOC is therefore not guaranteed to be
+ * \link TOC::complete() complete()\endlink.
+ *
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
+ *
+ * Value \c offsets.size() and \c lengths.size() must be equal.
+ *
+ * \tparam Container1 LBAContainer type of the offsets container
+ * \tparam Container2 LBAContainer type of the lengths container
+ * \tparam Container3 FilenameContainer type of the optional filename container
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in LBA frames) of each track
+ * \param[in] lengths     Lengths (in LBA frames) of each track
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid TOC
+ */
+template <typename Container1, typename Container2, typename Container3,
+	typename = details::IsLBAContainer<Container1>,
+	typename = details::IsLBAContainer<Container2>,
+	typename = details::IsFilenameContainer<Container3> >
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+		Container1&& offsets,
+		Container2&& lengths,
+		Container3&& files = {});
+
+template <typename Container1, typename Container2, typename Container3,
+		typename, typename, typename>
+std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+		Container1&& offsets,
+		Container2&& lengths,
+		Container3&& files)
+{
+	::arcstk::details::TOCBuilder builder;
+
+	return builder.build(
+			track_count,
+			std::forward<Container1>(offsets),
+			std::forward<Container2>(lengths),
+			std::forward<Container3>(files));
+}
+
+
+/**
+ * \brief Create a TOC object from the specified information.
+ *
+ * The value of \c track_count must be equal to \c offsets().size and is just
+ * used for additional validation.
+ *
+ * \param[in] track_count Number of tracks in this medium
+ * \param[in] offsets     Offsets (in LBA frames) of each track
+ * \param[in] lengths     Lengths (in LBA frames) of each track
+ * \param[in] files       File name of each track
+ *
+ * \return A TOC object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input data forms no valid TOC
+ */
+//std::unique_ptr<TOC> make_toc(const TrackNo track_count,
+//		const std::vector<int32_t> &offsets,
+//		const std::vector<int32_t> &lengths,
+//		const std::vector<std::string> &files = {});
+
+/** @} */
+
+} // namespace v_1_0_0
+
+} // namespace arcstk
 
 #endif
 
