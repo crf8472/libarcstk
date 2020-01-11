@@ -561,18 +561,6 @@ public:
 	inline static void validate_leadout(const lba_count leadout);
 
 	/**
-	 * \brief Validate leadout frame.
-	 *
-	 * Equivalent to validate_leadout(), but furthermore ensures that \c leadout
-	 * is not 0.
-	 *
-	 * \param[in] leadout Leadout frame of the medium
-	 *
-	 * \throw InvalidMetadataException If the validation fails
-	 */
-	//inline static void validate_nonzero_leadout(const lba_count leadout);
-
-	/**
 	 * \brief Validate track count.
 	 *
 	 * It is ensured that the track count is within a CDDA conforming range. An
@@ -600,8 +588,8 @@ public:
 protected:
 
 	/**
-	 * \brief Ensure that \c prev_track and \c next_track offsets have at least minimal
-	 * distance
+	 * \brief Ensure that \c prev_track and \c next_track offsets have at least
+	 * minimal distance
 	 *
 	 * \param[in] prev_track Previous track offset
 	 * \param[in] next_track Next track offset
@@ -923,22 +911,6 @@ void TOCValidator::validate_leadout(const lba_count leadout)
 		throw NonstandardMetadataException(ss.str());
 	}
 }
-
-
-//void TOCValidator::validate_nonzero_leadout(const lba_count leadout)
-//{
-//	// Not zero ?
-//
-//	if (leadout == 0)
-//	{
-//		std::stringstream ss;
-//		ss << "Leadout must not be 0";
-//
-//		throw InvalidMetadataException(ss.str());
-//	}
-//
-//	TOCValidator::validate_leadout(leadout);
-//}
 
 
 void TOCValidator::validate_trackcount(const TrackNo track_count)
