@@ -32,10 +32,10 @@
 
 namespace arcstk
 {
+
 namespace details
 {
-
-inline namespace V_1_0_0
+inline namespace v_1_0_0
 {
 
 
@@ -94,6 +94,11 @@ public:
 };
 
 
+template <typename T>
+using HasIntValueType = std::enable_if_t<
+	has_integral_value_type<std::remove_reference_t<T>>::value>;
+
+
 /**
  * \brief Helper: check for the presence of a const_iterator
  *
@@ -129,6 +134,11 @@ public:
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
 };
+
+
+template <typename T>
+using HasConstInterator =
+	std::enable_if_t<has_const_iterator<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -174,6 +184,10 @@ public:
 };
 
 
+template <typename T>
+using HasSize = std::enable_if_t<has_size <std::remove_reference_t<T>>::value>;
+
+
 /**
  * \brief Helper: check for the presence of begin() const
  *
@@ -215,6 +229,10 @@ public:
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
 };
+
+
+template <typename T>
+using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -260,6 +278,10 @@ public:
 };
 
 
+template <typename T>
+using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
+
+
 /**
  * \brief Helper: Check whether a container holds LBA frames.
  *
@@ -278,20 +300,6 @@ struct is_lba_container : public std::integral_constant<bool,
 {
 	// empty
 };
-
-} // namespace details::v_1_0_0
-
-} // namespace details
-
-
-inline namespace v_1_0_0
-{
-
-
-/**
- * \brief Type for representing amounts of LBA frames
- */
-using lba_count = uint32_t;
 
 
 /**
@@ -330,8 +338,11 @@ public:
 	 * \copydoc validate_offsets(Container&&) const
 	 */
 	template <typename T,
-		typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+		typename = typename std::enable_if_t<std::is_integral<T>::value, T>>
 	inline void validate_offsets(std::initializer_list<T> offsets) const;
+
+	//template <typename T, std::size_t S>
+	//inline void validate_offsets(T const (&list)[S]) const;
 
 	/**
 	 * \brief Validate offsets and track count.
@@ -586,9 +597,15 @@ void TOCValidator::validate_offsets(Container&& offsets) const
 template <typename T, typename>
 void TOCValidator::validate_offsets(std::initializer_list<T> offsets) const
 {
-	// TODO works, but performance hurts
+	// FIXME Works, but performance hurts. Just pass list?
 	this->validate_offsets(std::vector<T>{offsets});
 }
+
+//template <typename T, std::size_t S>
+//inline void TOCValidator::validate_offsets(T const (&list)[S]) const
+//{
+//	this->validate_offsets<T[S]>(list); // Fails  std::has_integral_value_type in 347
+//}
 
 
 template <typename Container, typename>
@@ -609,7 +626,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 		throw InvalidMetadataException(ss.str());
 	}
 
-	this->validate_offsets(offsets);
+	this->validate_offsets(std::forward<Container>(offsets));
 }
 
 
@@ -617,7 +634,7 @@ template <typename T, typename>
 void TOCValidator::validate_offsets(const TrackNo track_count,
 		std::initializer_list<T> offsets) const
 {
-	// TODO works, but performance hurts
+	// FIXME Works, but performance hurts. Just pass list?
 	this->validate_offsets(track_count, std::vector<T>{offsets});
 }
 
@@ -651,7 +668,7 @@ template <typename T, typename>
 void TOCValidator::validate(const TrackNo track_count,
 		std::initializer_list<T> offsets, const lba_count leadout) const
 {
-	// TODO works, but performance hurts
+	// FIXME Works, but performance hurts. Just pass list?
 	this->validate(track_count, std::vector<T>{offsets}, leadout);
 }
 
@@ -830,6 +847,8 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 }
 
 } // namespace v_1_0_0
+
+} // namespace details
 
 } // namespace arcstk
 

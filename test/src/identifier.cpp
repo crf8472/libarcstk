@@ -603,7 +603,7 @@ TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 
 TEST_CASE ( "TOCValidator", "[identifier]" )
 {
-	arcstk::TOCValidator validator;
+	arcstk::details::TOCValidator validator;
 
 
 	SECTION ( "Validation succeeds for correct offsets" )

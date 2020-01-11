@@ -35,7 +35,7 @@ namespace details
 inline namespace v_1_0_0
 {
 
-// forwad declaration
+// forward declaration
 class TOCBuilder;
 
 
@@ -429,6 +429,7 @@ bool TOC::Impl::operator == (const TOC::Impl &rhs) const
 }
 
 } // namespace v_1_0_0
+
 
 namespace details
 {

@@ -41,6 +41,12 @@ using sample_type = uint32_t;
 
 
 /**
+ * \brief Type to represent amounts of LBA frames
+ */
+using lba_count = uint32_t;
+
+
+/**
  * \brief Constants related to the CDDA format
  */
 struct CDDA_t
