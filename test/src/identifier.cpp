@@ -16,22 +16,22 @@
  */
 
 
-TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
+TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
 {
-	using arcstk::details::has_integral_value_type;
+	using arcstk::details::has_lba_value_type;
 	using arcstk::details::has_const_iterator;
 	using arcstk::details::has_size;
 	using arcstk::details::has_begin;
 	using arcstk::details::has_end;
 	using arcstk::details::is_lba_container;
 
-	SECTION ( "has_integral_value_type for some std containers" )
+	SECTION ( "has_lba_value_type for some std containers" )
 	{
-		//CHECK ( has_integral_value_type<std::vector<char>>::value     );
-		CHECK ( has_integral_value_type<std::vector<int32_t>>::value  );
-		CHECK ( has_integral_value_type<std::vector<uint32_t>>::value );
-		CHECK ( has_integral_value_type<std::list<int32_t>>::value    );
-		CHECK ( has_integral_value_type<std::list<uint32_t>>::value   );
+		//CHECK ( has_lba_value_type<std::vector<char>>::value     );
+		CHECK ( has_lba_value_type<std::vector<int32_t>>::value  );
+		CHECK ( has_lba_value_type<std::vector<uint32_t>>::value );
+		CHECK ( has_lba_value_type<std::list<int32_t>>::value    );
+		CHECK ( has_lba_value_type<std::list<uint32_t>>::value   );
 	}
 
 	SECTION ( "has_const_iterator for some std containers" )

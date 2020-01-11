@@ -40,8 +40,18 @@ inline namespace v_1_0_0
 
 
 /**
- * \brief Require T being either int, short or long, either signed or unsigned
- * with at least 32 bit width
+ * \brief Require T being either signed or unsigned integral "arithmetic"
+ * (non-ref, non-pointer) type with at least 32 bit width.
+ *
+ * An "LBA type" holds amounts of LBA frames, that means it must be able to
+ * express CDDA.MAX_OFFSET which excludes types with less than 32 bits width.
+ *
+ * Furthermore, it should be possible to perform at least addition of the types.
+ * (Ref-types and pointer types would have to be dereferenced for that. This
+ * may be added in the future.)
+ *
+ * The intention is to include exactly the non-ref, non-pointer variants of
+ * short, int, long and long long.
  */
 template <typename T>
 using IsLBAType = std::enable_if_t<
@@ -68,19 +78,14 @@ struct sfinae_values
  * \tparam T Input type to inspect
  */
 template <typename T>
-struct has_integral_value_type : private sfinae_values
+struct has_lba_value_type : private sfinae_values
 {
 private:
 
 	// choose to return "yes" in case value_type is defined, integral,
 	// arithmetic and at least 32 bit wide
-	template<typename S, typename V = typename S::value_type> static yes & test(
-		typename std::enable_if<
-			std::is_integral  <V>::value  &&
-			std::is_arithmetic<V>::value  &&
-			sizeof(V) >= 4
-			, void>::type*
-	);
+	template<typename S, typename = IsLBAType<typename S::value_type>>
+	static yes & test(typename S::value_type*);
 
 	// "no" otherwise
 	template<typename S> static no  & test(...);
@@ -111,7 +116,7 @@ public:
  */
 template <typename T>
 using HasIntValueType = std::enable_if_t<
-	has_integral_value_type<std::remove_reference_t<T>>::value>;
+	has_lba_value_type<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -316,11 +321,11 @@ using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
  */
 template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_lba_container : public std::integral_constant<bool,
-	has_integral_value_type<T_noref>::value &&
-	has_const_iterator     <T_noref>::value &&
-	has_size               <T_noref>::value &&
-	has_begin              <T_noref>::value &&
-	has_end                <T_noref>::value >
+	has_lba_value_type <T_noref>::value &&
+	has_const_iterator <T_noref>::value &&
+	has_size           <T_noref>::value &&
+	has_begin          <T_noref>::value &&
+	has_end            <T_noref>::value >
 {
 	// empty
 };
@@ -338,6 +343,7 @@ using IsLBAContainer =
 
 /**
  * \internal
+ * \ingroup id
  *
  * \brief Validates offsets, leadout and track count of a compact disc toc.
  *
