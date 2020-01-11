@@ -732,8 +732,6 @@ template <typename Container, typename>
 std::unique_ptr<ARId> ARIdBuilder::build(const TrackNo track_count,
 		Container&& offsets, const uint32_t leadout) const
 {
-	//TOCBuilder builder;
-	//auto toc = builder.build(track_count, offsets, leadout, {/* no files */});
 	auto toc = TOCBuilder::build(track_count, offsets, leadout, {/*no files*/});
 
 	return build_worker(*toc, 0);
