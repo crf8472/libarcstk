@@ -654,7 +654,7 @@ public:
 			const uint32_t leadout,
 			const std::vector<std::string> &files) const;
 
-	template <typename T, typename = IsIntType<T>>
+	template <typename T, typename = IsLBAType<T>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const uint32_t leadout,
@@ -684,8 +684,8 @@ public:
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
 	 */
 	template <typename T1, typename T2,
-		typename = IsIntType<T1>,
-		typename = IsIntType<T2> >
+		typename = IsLBAType<T1>,
+		typename = IsLBAType<T2> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T1> offsets,
 			std::initializer_list<T2> lengths,
@@ -695,7 +695,7 @@ public:
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&, const std::vector<std::string> &) const
 	 */
 	template <typename T, typename Container,
-		typename = IsIntType<T>,
+		typename = IsLBAType<T>,
 		typename = IsLBAContainer<Container> >
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
@@ -707,7 +707,7 @@ public:
 	 */
 	template <typename Container, typename T,
 		typename = IsLBAContainer<Container>,
-		typename = IsIntType<T>>
+		typename = IsLBAType<T>>
 	inline std::unique_ptr<TOC> build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths,

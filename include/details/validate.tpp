@@ -41,10 +41,14 @@ inline namespace v_1_0_0
 
 /**
  * \brief Require T being either int, short or long, either signed or unsigned
+ * with at least 32 bit width
  */
 template <typename T>
-using IsIntType = std::enable_if_t<std::is_integral<T>::value>;
-// TODO C++17: use is_integral_v
+using IsLBAType = std::enable_if_t<
+	std::is_integral<T>::value   && // TODO C++17: is_integral_v
+	std::is_arithmetic<T>::value && // TODO C++17: is_arithmetic_v
+	sizeof(T) >= 4,
+void>;
 
 
 /**
@@ -58,7 +62,8 @@ struct sfinae_values
 
 
 /**
- * \brief Helper: check for an integral value_type
+ * \brief Helper: check for a \c value_type with at least 32 bit width that is
+ * of integer type and as well arithmetic.
  *
  * \tparam T Input type to inspect
  */
@@ -67,10 +72,14 @@ struct has_integral_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case value_type is defined + integral
-	template<typename S> static yes & test(
+	// choose to return "yes" in case value_type is defined, integral,
+	// arithmetic and at least 32 bit wide
+	template<typename S, typename V = typename S::value_type> static yes & test(
 		typename std::enable_if<
-			std::is_integral<typename S::value_type>::value, void>::type*
+			std::is_integral  <V>::value  &&
+			std::is_arithmetic<V>::value  &&
+			sizeof(V) >= 4
+			, void>::type*
 	);
 
 	// "no" otherwise
@@ -362,7 +371,7 @@ public:
 	/**
 	 * \copydoc validate_offsets(Container&&) const
 	 */
-	template <typename T, typename = IsIntType<T>>
+	template <typename T, typename = IsLBAType<T>>
 	inline void validate_offsets(std::initializer_list<T> offsets) const;
 
 	// Commented out: alternative to initializer_lists: C-style arrays
@@ -389,7 +398,7 @@ public:
 	/**
 	 * \copydoc validate_offsets(TrackNo, Container&&) const
 	 */
-	template <typename T, typename = IsIntType<T>>
+	template <typename T, typename = IsLBAType<T>>
 	inline void validate_offsets(TrackNo track_count,
 			std::initializer_list<T> offsets) const;
 
@@ -416,7 +425,7 @@ public:
 	/**
 	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
 	 */
-	template <typename T, typename = IsIntType<T>>
+	template <typename T, typename = IsLBAType<T>>
 	inline void validate(TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const lba_count leadout) const;
@@ -441,7 +450,7 @@ public:
 	/**
 	 * \copydoc validate_lengths(Container&&) const
 	 */
-	template <typename T, typename = IsIntType<T>>
+	template <typename T, typename = IsLBAType<T>>
 	inline void validate_lengths(std::initializer_list<T> lengths) const;
 
 	/**
