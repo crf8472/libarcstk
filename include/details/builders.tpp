@@ -154,29 +154,8 @@ inline namespace v_1_0_0
  */
 class TOC::Impl final
 {
-	// TOCBuilder::build() methods are friends of TOC::Impl
-	// since they construct TOC::Impls exclusively
+	// TOCBuilder constructs TOC::Impls exclusively
 
-/*
-	template <typename Container, typename = typename
-		std::enable_if_t<details::is_lba_container<Container>::value>>
-	friend inline std::unique_ptr<TOC> TOCBuilder::build(
-			const TrackNo track_count,
-			Container&& offsets,
-			const uint32_t leadout,
-			const std::vector<std::string> &files) const;
-
-	template <typename Container1, typename Container2,
-		typename = typename std::enable_if_t<details::is_lba_container<Container1>::value>,
-		typename = typename std::enable_if_t<details::is_lba_container<Container2>::value>>
-	friend std::unique_ptr<TOC> TOCBuilder::build(
-			const TrackNo track_count,
-			Container1&& offsets,
-			Container2&& lengths,
-			const std::vector<std::string> &files) const;
-
-	friend void TOCBuilder::update(TOC &toc, const uint32_t leadout) const;
-*/
 	friend details::TOCBuilder;
 
 public:
