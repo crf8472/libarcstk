@@ -38,6 +38,8 @@ namespace details
 inline namespace v_1_0_0
 {
 
+/// \internal \addtogroup id
+/// @{
 
 /**
  * \brief Require T being either signed or unsigned integral "arithmetic"
@@ -350,7 +352,7 @@ using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 
 
 /**
- * \brief Helper: check for a \c value_type that is std::string.
+ * \brief Helper: check for \c value_type  std::string.
  *
  * \tparam T Input type to inspect
  */
@@ -359,8 +361,7 @@ struct has_string_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case value_type is defined, integral,
-	// arithmetic and at least 32 bit wide
+	// choose to return "yes" in case value_type is std::string
 	template<typename S,
 		typename = std::is_same<typename S::value_type, std::string>>
 	static yes & test(typename S::value_type*);
@@ -374,7 +375,7 @@ public:
 	/**
 	 * \brief Result value
 	 *
-	 * Will be TRUE for types with an integral value_type, otherwise false.
+	 * Will be TRUE for types whose value_type is std::string, otherwise false.
 	 */
 	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
 
@@ -414,6 +415,8 @@ struct is_filename_container : public is_container<T>
  */
 template <typename T>
 using IsFilenameContainer = std::enable_if_t<is_filename_container<T>::value>;
+
+/** @} */
 
 
 /**
@@ -611,6 +614,8 @@ protected:
 	 */
 	static constexpr lba_count MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
 };
+
+/// \cond UNDOC_FUNCTION_BODIES
 
 
 // TOCValidator
@@ -959,6 +964,8 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 		throw InvalidMetadataException(ss.str());
 	}
 }
+
+/// \endcond
 
 } // namespace v_1_0_0
 

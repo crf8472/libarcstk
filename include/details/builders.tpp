@@ -57,9 +57,30 @@ class TOCBuilder;
  */
 template <typename Container,
 		typename = HasSize<Container>, typename = HasBegin<Container> >
-decltype(auto) get_track(Container&& c, const TrackNo t);
+inline decltype(auto) get_track(Container&& c, const TrackNo t);
 
-// Implementation
+
+/**
+ * \brief Calculate leadout from lengths or optionally lengths and offsets
+ *
+ * No validation is peformed
+ *
+ * Calculation is faster with offsets available.
+ *
+ * \tparam Container1 Type of the lengths container
+ * \tparam Container2 Type of the optional offsets container
+ *
+ * \param[in] lengths The lengths
+ * \param[in] offsets The offsets (default is {})
+ */
+template <typename Container1, typename Container2>
+inline uint32_t calculate_leadout(Container1&& lengths,
+		Container2&& offsets = {});
+
+
+/// \cond UNDOC_FUNCTION_BODIES
+
+
 template <typename Container, typename, typename>
 decltype(auto) get_track(Container&& c, const TrackNo t)
 {
@@ -79,88 +100,8 @@ decltype(auto) get_track(Container&& c, const TrackNo t)
 }
 
 
-//uint32_t calculate_leadout(const TrackNo track_count,
-//		const std::vector<uint32_t> &offsets,
-//		const std::vector<uint32_t> &lengths)
-//{
-//	if (track_count < 1 or track_count > CDDA.MAX_TRACKCOUNT)
-//	{
-//		return 0;
-//	}
-//	auto tc = static_cast<std::vector<uint32_t>::size_type>(track_count) - 1u;
-//	return (lengths.at(tc) > 0) ? offsets.at(tc) + lengths.at(tc) : 0;
-//}
-
-
-/**
- * \internal
- * \ingroup id
- *
- * \brief Worker to calculate the leadout
- *
- * \param[in] offsets Offsets (in LBA frames) of each track
- * \param[in] lengths Lengths (in LBA frames) of each track
- */
-inline uint32_t leadout(const std::vector<uint32_t> &offsets,
-		const std::vector<uint32_t> &lengths);
-
-// Implementation
-uint32_t leadout(const std::vector<uint32_t> &offsets,
-		const std::vector<uint32_t> &lengths)
-{
-	return lengths.back() == 0 ? 0 : offsets.back() + lengths.back();
-}
-
-/**
- * \internal
- * \ingroup id
- *
- * \brief Worker to calculate the leadout
- *
- * \param[in] lengths Lengths (in LBA frames) of each track
- */
-inline uint32_t leadout(const std::vector<uint32_t> &lengths);
-
-// Implementation
-uint32_t leadout(const std::vector<uint32_t> &lengths)
-{
-	if (lengths.back() == 0)
-	{
-		return 0;
-	}
-
-	auto sum { std::accumulate(lengths.begin(), lengths.end(), 0) };
-	auto max {
-		static_cast<decltype(sum)>(std::numeric_limits<uint32_t>::max()) };
-
-	if (sum > max)
-	{
-		return 0; // TODO
-	}
-
-	return static_cast<uint32_t>(sum);
-}
-
-
-/**
- * \brief Calculate leadout from lengths or optionally lengths and offsets
- *
- * No validation is peformed
- *
- * Calculation is faster with offsets available.
- *
- * \tparam Container1 Type of the lengths container
- * \tparam Container2 Type of the offsets container
- *
- * \param[in] lengths The lengths
- * \param[in] offsets The offsets (default is {})
- */
 template <typename Container1, typename Container2>
-inline uint32_t calculate_leadout(Container1&& lengths,
-		Container2&& offsets = {});
-
-template <typename Container1, typename Container2>
-inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
+uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 {
 	// from last offset and last length
 
@@ -190,6 +131,8 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 	// We suppose std::numeric_limits<uint32_t>::max() > CDDA.MAX_BLOCK_ADDRESS
 	return static_cast<uint32_t>(leadout);
 }
+
+/// \endcond
 
 } // namespace v_1_0_0
 
@@ -342,6 +285,8 @@ private:
 	std::vector<std::string> files_;
 };
 
+/// \cond UNDOC_FUNCTION_BODIES
+
 
 TOC::Impl::Impl(const TOC::Impl &rhs) = default;
 
@@ -426,6 +371,8 @@ bool TOC::Impl::operator == (const TOC::Impl &rhs) const
 		and leadout_    == rhs.leadout_
 		and files_      == rhs.files_;
 }
+
+/// \endcond
 
 } // namespace v_1_0_0
 
@@ -818,6 +765,8 @@ private:
 	TOCValidator validator_;
 };
 
+/// \cond UNDOC_FUNCTION_BODIES
+
 
 // ARIdBuilder
 
@@ -988,8 +937,6 @@ uint64_t ARIdBuilder::sum_digits(const uint32_t number)
 {
 	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
 }
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 // TOCBuilder
@@ -1212,8 +1159,7 @@ std::vector<std::string> TOCBuilder::build_files(std::vector<std::string> files)
 	return files;
 }
 
-
-/// endcond
+/// \endcond
 
 } // namespace v_1_0_0
 
