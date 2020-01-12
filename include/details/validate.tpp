@@ -361,16 +361,16 @@ using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 template <typename T>
 struct is_filename_type : public std::false_type { /* empty */ };
 
-// TRUE for std::string
+// std::string: TRUE
 template <>
 struct is_filename_type<std::string> : public std::true_type { /* empty */ };
+
 
 /**
  * \brief Require T being a filename representing type
  */
 template <typename T>
-using IsFilenameType =
-std::enable_if_t<is_filename_type<std::remove_reference_t<T>>::value>;
+using RequireFilenameType = std::enable_if_t<is_filename_type<T>::value, int>;
 
 
 /**
@@ -383,9 +383,8 @@ struct has_filename_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case value_type can represent filenames
-	template<typename S, typename = IsFilenameType<typename S::value_type> >
-			//std::enable_if_t<is_filename_type<typename S::value_type>, int> = 0>
+	// choose to return "yes" in case S::value_type can represent filenames
+	template<typename S, RequireFilenameType<typename S::value_type> = 0>
 	static yes & test(typename S::value_type*);
 
 	// "no" otherwise
@@ -416,14 +415,15 @@ public:
  * \brief Requires T to have a \c value_type of std::string
  */
 template <typename T>
-using HasFilenameValueType =
-std::enable_if_t<has_filename_value_type<std::remove_reference_t<T>>::value>;
+using RequireFilenameValueType =
+	std::enable_if_t<has_filename_value_type<std::remove_reference_t<T>>::value,
+	int>;
 
 
 /**
  * \brief Requires T to be a filename container
  */
-template <typename T, typename = HasFilenameValueType<T> >
+template <typename T, RequireFilenameValueType<T> = 0>
 struct is_filename_container : public is_container<T> { /* empty */ };
 
 
