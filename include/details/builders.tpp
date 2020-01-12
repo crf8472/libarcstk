@@ -63,7 +63,7 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t);
 /**
  * \brief Calculate leadout from lengths or optionally lengths and offsets
  *
- * No validation is peformed
+ * No validation is performed.
  *
  * Calculation is faster with offsets available.
  *
