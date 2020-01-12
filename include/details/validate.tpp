@@ -335,13 +335,6 @@ struct is_filename_type<std::string> : public std::true_type { /* empty */ };
 
 
 /**
- * \brief Require T being a filename representing type
- */
-template <typename T>
-using RequireFilenameType = std::enable_if_t<is_filename_type<T>::value, int>;
-
-
-/**
  * \brief Helper: check for \c value_type  std::string.
  *
  * \tparam T Input type to inspect
@@ -352,7 +345,9 @@ struct has_filename_value_type : private sfinae_values
 private:
 
 	// choose to return "yes" in case S::value_type can represent filenames
-	template<typename S, RequireFilenameType<typename S::value_type> = 0>
+	template<typename S,
+		std::enable_if_t<is_filename_type<typename S::value_type>::value, int>
+			= 0>
 	static yes & test(typename S::value_type*);
 
 	// "no" otherwise
@@ -413,7 +408,7 @@ template <typename T>
 using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
 
 /**
- * \brief Defined iff T is a lba container
+ * \brief Defined iff T is an lba container
  */
 template <typename T>
 using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
