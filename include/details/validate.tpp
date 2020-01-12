@@ -316,19 +316,6 @@ struct is_lba_container : public std::integral_constant<bool,
 };
 
 
-template <typename T>
-using HasSize = std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
-
-template <typename T>
-using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
-
-template <typename T>
-using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
-
-template <typename T>
-using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
-
-
 /**
  * \brief Indicate whether T is a type for representing filenames.
  *
@@ -393,25 +380,46 @@ public:
 
 
 /**
- * \brief Requires T to have a \c value_type of std::string
+ * \brief std::true_type iff is_container<T> and T::value_type can represent
+ * filenames, otherwise std::false_type.
+ *
+ * \tparam The type to inspect
  */
 template <typename T>
-using RequireFilenameValueType =
-	std::enable_if_t<has_filename_value_type<std::remove_reference_t<T>>::value,
-	int>;
+struct is_filename_container : public std::integral_constant<bool,
+	is_container<T>::value &&
+	has_filename_value_type<std::remove_reference_t<T>>::value >
+{
+	/* empty */
+};
 
 
 /**
- * \brief Requires T to be a filename container
+ * \brief Defined iff T has <tt>size const()</tt>
  */
-template <typename T, RequireFilenameValueType<T> = 0>
-struct is_filename_container : public is_container<T> { /* empty */ };
-
+template <typename T>
+using HasSize = std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
 
 /**
- * \brief Require T being a const-iterable integral-numeric container of frames
- *
- * This is intended to require a container type holding offsets or lengths.
+ * \brief Defined iff T has <tt>begin const()</tt>
+ */
+template <typename T>
+using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
+
+/**
+ * \brief Defined iff T is an lba type
+ */
+template <typename T>
+using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
+
+/**
+ * \brief Defined iff T is a lba container
+ */
+template <typename T>
+using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
+
+/**
+ * \brief Defined iff T is a const-iterable container of filenames
  */
 template <typename T>
 using IsFilenameContainer = std::enable_if_t<is_filename_container<T>::value>;

@@ -73,7 +73,9 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t);
  * \param[in] lengths The lengths
  * \param[in] offsets The offsets (default is {})
  */
-template <typename Container1, typename Container2>
+template <typename Container1, typename Container2,
+		typename = IsLBAContainer<Container1>,
+		typename = IsLBAContainer<Container2>>
 inline uint32_t calculate_leadout(Container1&& lengths,
 		Container2&& offsets = {});
 
@@ -100,7 +102,7 @@ decltype(auto) get_track(Container&& c, const TrackNo t)
 }
 
 
-template <typename Container1, typename Container2>
+template <typename Container1, typename Container2, typename, typename>
 uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 {
 	// from last offset and last length
