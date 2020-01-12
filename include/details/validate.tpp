@@ -317,12 +317,10 @@ struct is_lba_container : public std::integral_constant<bool,
 
 
 template <typename T>
-using RequireSizeAccessor =
-	std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
+using HasSize = std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
 
 template <typename T>
-using RequireBegin =
-	std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
+using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
 
 template <typename T>
 using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;

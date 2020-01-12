@@ -56,8 +56,7 @@ class TOCBuilder;
  * \return The value for track \c t in the container \c
  */
 template <typename Container,
-		typename = RequireSizeAccessor<Container>,
-		typename = RequireBegin<Container> >
+		typename = HasSize<Container>, typename = HasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t);
 
 
