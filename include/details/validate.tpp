@@ -333,6 +333,10 @@ struct is_filename_type : public std::false_type { /* empty */ };
 template <>
 struct is_filename_type<std::string> : public std::true_type { /* empty */ };
 
+// std::wstring: TRUE
+template <>
+struct is_filename_type<std::wstring> : public std::true_type { /* empty */ };
+
 
 /**
  * \brief Helper: check for \c value_type  std::string.
@@ -412,6 +416,12 @@ using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
  */
 template <typename T>
 using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
+
+/**
+ * \brief Defined iff T is a filename type
+ */
+template <typename T>
+using IsFilenameType = std::enable_if_t<is_filename_type<T>::value>;
 
 /**
  * \brief Defined iff T is a const-iterable container of filenames

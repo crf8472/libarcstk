@@ -1047,7 +1047,8 @@ std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 	using TOCBuilder  = details::TOCBuilder;
 	using ARIdBuilder = details::ARIdBuilder;
 
-	auto toc = TOCBuilder::build(track_count, offsets, leadout, {/*no files*/});
+	auto toc = TOCBuilder::build(track_count, std::forward<Container>(offsets),
+			leadout, std::vector<std::string>(/* no filenames */));
 
 	ARIdBuilder builder;
 	return builder.build(*toc);

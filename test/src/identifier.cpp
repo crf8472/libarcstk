@@ -842,9 +842,7 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		);
 
 
@@ -891,9 +889,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075, 18368,
-				40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				40152, 14798, 11952, 8463, 18935 }
 		);
 
 		CHECK ( toc1->track_count() == 15 );
@@ -951,9 +947,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		);
 
 
@@ -1019,9 +1013,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 34 /* BOOM */, 7390, 23380, 35608, 49820, 69508, 87733,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
@@ -1034,9 +1026,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
@@ -1049,9 +1039,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
@@ -1065,9 +1053,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
@@ -1079,9 +1065,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
 				106000 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
@@ -1094,9 +1078,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106000 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
@@ -1108,9 +1090,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
 				106333 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
@@ -1123,9 +1103,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106333 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 	}
@@ -1142,9 +1120,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
 		CHECK_THROWS ( builder.build(
@@ -1155,9 +1131,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
@@ -1170,9 +1144,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
 		CHECK_THROWS ( builder.build(
@@ -1183,9 +1155,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
@@ -1198,9 +1168,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
 		CHECK_THROWS ( builder.build(
@@ -1211,9 +1179,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
@@ -1226,9 +1192,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
 		CHECK_THROWS ( builder.build(
@@ -1239,9 +1203,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 	}
 
@@ -1257,9 +1219,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			0, /* BOOM */
-			// no filenames
-			{}
+			0 /* BOOM */
 		));
 
 		// Leadout exceeds maximal legal value
@@ -1271,9 +1231,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1, /* BOOM */
-			// no filenames
-			{}
+			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
 		));
 
 		// Leadout has not minimal distance to last offset
@@ -1285,9 +1243,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1, /* BOOM */
-			// no filenames
-			{}
+			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
 	}
 
@@ -1307,9 +1263,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
 				19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
-				18935 },
-			// no filenames
-			{}
+				18935 }
 		));
 
 		// sum of lengths exceeds legal maximum
@@ -1323,9 +1277,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			// lengths
 			{ 5192, 2165, 15885, 12228,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET) /* BOOM */, 19513,
-				18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463, 18935 }
 		));
 
 		// more than 99 tracks + more lengths than offsets
@@ -1337,9 +1289,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
-			std::vector<int32_t>(100), /* BOOM */
-			// no filenames
-			{}
+			std::vector<int32_t>(100) /* BOOM */
 		));
 
 		// no lengths
@@ -1351,9 +1301,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
-			{ }, /* BOOM */
-			// no filenames
-			{}
+			{ } /* BOOM */
 		));
 	}
 }
