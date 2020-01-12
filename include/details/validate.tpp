@@ -351,19 +351,26 @@ using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 /**
  * \brief Indicate whether T is a type for representing filenames.
  *
- * Currently is_filename_type<T> is of std::true_type for T = std::string and
- * of std::false_type for every other type T.
+ * Currently \c is_filename_type<T> is of \c std::true_type only for
+ * <tt>T = std::string</tt> and of \c std::false_type for every other type T.
  *
  * Intended to be specialized by client.
  *
  * \tparam T Type to be classified as representing a filename
  */
 template <typename T>
-struct is_filename_type : std::false_type { /* empty */ };
+struct is_filename_type : public std::false_type { /* empty */ };
 
 // TRUE for std::string
 template <>
-struct is_filename_type<std::string> : std::true_type { /* empty */ };
+struct is_filename_type<std::string> : public std::true_type { /* empty */ };
+
+/**
+ * \brief Require T being a filename representing type
+ */
+template <typename T>
+using IsFilenameType =
+std::enable_if_t<is_filename_type<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -377,7 +384,8 @@ struct has_filename_value_type : private sfinae_values
 private:
 
 	// choose to return "yes" in case value_type can represent filenames
-	template<typename S, typename = is_filename_type<typename S::value_type>>
+	template<typename S, typename = IsFilenameType<typename S::value_type> >
+			//std::enable_if_t<is_filename_type<typename S::value_type>, int> = 0>
 	static yes & test(typename S::value_type*);
 
 	// "no" otherwise

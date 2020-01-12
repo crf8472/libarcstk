@@ -15,8 +15,10 @@
  * \file identifier.cpp Fixtures for classes in module 'identifier'
  */
 
+// TODO Test get_track
+// TODO calculate_leadout
 
-TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
+TEST_CASE ( "is_lba_container", "[identifier] [make_toc]" )
 {
 	using arcstk::details::has_lba_value_type;
 	using arcstk::details::has_const_iterator;
@@ -27,11 +29,12 @@ TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
 
 	SECTION ( "has_lba_value_type for some std containers" )
 	{
-		//CHECK ( has_lba_value_type<std::vector<char>>::value     );
 		CHECK ( has_lba_value_type<std::vector<int32_t>>::value  );
 		CHECK ( has_lba_value_type<std::vector<uint32_t>>::value );
 		CHECK ( has_lba_value_type<std::list<int32_t>>::value    );
 		CHECK ( has_lba_value_type<std::list<uint32_t>>::value   );
+
+		//CHECK ( has_lba_value_type<std::vector<char>>::value     );
 	}
 
 	SECTION ( "has_const_iterator for some std containers" )
@@ -76,7 +79,6 @@ TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
 
 	SECTION ( "is_lba_container for non-refererence types" )
 	{
-		//CHECK ( is_lba_container<std::vector<char>>::value        );
 		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
 		CHECK ( is_lba_container<std::vector<uint32_t>>::value    );
 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
@@ -87,11 +89,12 @@ TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
 		CHECK ( is_lba_container<std::array<uint32_t, 99>>::value );
 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
 		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+
+		//CHECK ( is_lba_container<std::vector<char>>::value        );
 	}
 
 	SECTION ( "is_lba_container for references" )
 	{
-		//CHECK ( is_lba_container<std::vector<char> &>::value        );
 		CHECK ( is_lba_container<std::vector<int32_t> &>::value     );
 		CHECK ( is_lba_container<std::vector<uint32_t> &>::value    );
 		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
@@ -102,6 +105,36 @@ TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
 		CHECK ( is_lba_container<std::array<uint32_t, 99> &>::value );
 		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
 		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+
+		//CHECK ( is_lba_container<std::vector<char> &>::value        );
+	}
+}
+
+
+TEST_CASE ("is_filename_container", "[identifier] [make_toc]")
+{
+	using arcstk::details::is_filename_container;
+
+	SECTION ( "is_filename_container for non-reference types" )
+	{
+		CHECK ( is_filename_container<std::vector<std::string>>::value     );
+		CHECK ( is_filename_container<std::list<std::string>>::value       );
+		CHECK ( is_filename_container<std::array<std::string,   1>>::value );
+		CHECK ( is_filename_container<std::array<std::string,  99>>::value );
+		CHECK ( is_filename_container<std::list<std::string>>::value       );
+
+		CHECK ( is_filename_container<std::vector<char>>::value        );
+	}
+
+	SECTION ( "is_filename_container for reference types" )
+	{
+		CHECK ( is_filename_container<std::vector<std::string> &>::value     );
+		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+		CHECK ( is_filename_container<std::array<std::string,   1> &>::value );
+		CHECK ( is_filename_container<std::array<std::string,  99> &>::value );
+		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+
+		//CHECK ( is_filename_container<std::vector<char> &>::value        );
 	}
 }
 
