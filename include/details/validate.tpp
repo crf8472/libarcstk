@@ -41,9 +41,10 @@ inline namespace v_1_0_0
 /// \internal \addtogroup id
 /// @{
 
+
 /**
- * \brief Require T being either signed or unsigned integral "arithmetic"
- * (non-ref, non-pointer) type with at least 32 bit width.
+ * \brief std::true_type iff T can represent LBA frame amounts, otherwise
+ * std::false_type.
  *
  * An "LBA type" holds amounts of LBA frames, that means it must be able to
  * express CDDA.MAX_OFFSET which excludes types with less than 32 bits width.
@@ -54,13 +55,17 @@ inline namespace v_1_0_0
  *
  * The intention is to include exactly the non-ref, non-pointer variants of
  * short, int, long and long long.
+ *
+ * \tparam T Type to inspect for LBA facility
  */
 template <typename T>
-using IsLBAType = std::enable_if_t<
+struct is_lba_type : public std::integral_constant<bool,
 	std::is_integral<T>::value   && // TODO C++17: is_integral_v
 	std::is_arithmetic<T>::value && // TODO C++17: is_arithmetic_v
-	sizeof(T) >= 4,
-void>;
+	sizeof(T) >= 4>
+{
+	// empty
+};
 
 
 /**
@@ -84,9 +89,9 @@ struct has_lba_value_type : private sfinae_values
 {
 private:
 
-	// choose to return "yes" in case value_type is defined, integral,
-	// arithmetic and at least 32 bit wide
-	template<typename S, typename = IsLBAType<typename S::value_type>>
+	// choose to return "yes" in case value_type is an lba type
+	template<typename S,
+		std::enable_if_t<is_lba_type<typename S::value_type>::value, int> = 0>
 	static yes & test(typename S::value_type*);
 
 	// "no" otherwise
@@ -111,14 +116,6 @@ public:
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
 };
-
-
-/**
- * \brief Require T having a signed or unsigned value_type of int, short or long
- */
-template <typename T>
-using HasLBAValueType =
-	std::enable_if_t<has_lba_value_type<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -156,14 +153,6 @@ public:
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
 };
-
-
-/**
- * \brief Require a const_iterator for T
- */
-template <typename T>
-using HasConstInterator =
-	std::enable_if_t<has_const_iterator<std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -207,10 +196,6 @@ public:
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
 };
-
-
-template <typename T>
-using HasSize = std::enable_if_t<has_size <std::remove_reference_t<T>>::value>;
 
 
 /**
@@ -257,13 +242,6 @@ public:
 
 
 /**
- * \brief Require T to have <tt>begin() const</tt>
- */
-template <typename T>
-using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
-
-
-/**
  * \brief Helper: check for the presence of end() const
  *
  * \tparam T Input type to inspect
@@ -307,14 +285,10 @@ public:
 
 
 /**
- * \brief Require T to have <tt>end() const</tt>
- */
-template <typename T>
-using HasEnd = std::enable_if_t<has_end<std::remove_reference_t<T>>::value>;
-
-
-/**
- * \brief Require T to be a const-iterable container type with a size
+ * \brief std::true_type iff T is a const-iterable container type with a size
+ * otherwise std::false_type.
+ *
+ * \tparam T The type to inspect
  */
 template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_container : public std::integral_constant<bool,
@@ -328,22 +302,31 @@ struct is_container : public std::integral_constant<bool,
 
 
 /**
- * \brief Helper: Check whether a container holds LBA frames.
- *
- * Defined for container types that define const_iterator as well
- * as an integral value_type, a size and have begin() const and end() const.
+ * \brief std::true_type iff is_container<T> and T::value_type is an lba type,
+ * otherwise std::false_type.
  *
  * \tparam The type to inspect
  */
-template <typename T, typename = HasLBAValueType<T> >
-struct is_lba_container : public is_container<T> { /* empty */ };
+template <typename T>
+struct is_lba_container : public std::integral_constant<bool,
+	is_container<T>::value &&
+	has_lba_value_type<std::remove_reference_t<T>>::value >
+{
+	/* empty */
+};
 
 
-/**
- * \brief Require T being a const-iterable integral-numeric container of frames
- *
- * This is intended to require a container type holding offsets or lengths.
- */
+template <typename T>
+using RequireSizeAccessor =
+	std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
+
+template <typename T>
+using RequireBegin =
+	std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
+
+template <typename T>
+using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
+
 template <typename T>
 using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 
