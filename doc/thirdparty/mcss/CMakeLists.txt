@@ -25,10 +25,13 @@ message (STATUS "Will build documentation with m.css" )
 
 set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_BINARY_DIR}/mcss" )
 set (DOC_OUTPUT_MAINPAGE      "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
+set (DOC_OUTPUT_INDEX         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOC_DOXYFILE             "${DOXYGEN_OUTPUT_DIRECTORY}/Doxyfile" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
-set (PYTHON_REQUIREMENTS      "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt" )
 
+set (PYTHON_REQUIREMENTS      "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt" )
+set (PYTHON_SANITIZE_SCRIPT   "dedup_index.py" )  ## sanitize doxygen >= 1.8.16
+set (PYTHON_SANITIZE_SHEET    "dedup_index.xsl" )
 
 
 ## --- m.css identifiers
@@ -113,9 +116,13 @@ endif()
 ## Note: PYTHON_REQUIREMENTS must have been set before this point
 add_subdirectory ("${PROJECT_DOC_DIR}/thirdparty/python-virtualenv"
 	"${PROJECT_BINARY_DIR}/doc/thirdparty/python-virtualenv" )
-## Note: The binary dir is unused, so CMAKE_CURRENT_SOURCE_DIR is ok
 
 configure_file ("${MCSS_DOXYFILE_TEMPLATE}" "${DOC_DOXYFILE}" @ONLY )
+
+configure_file (
+	"${PROJECT_DOC_DIR}/thirdparty/doxygen/${PYTHON_SANITIZE_SCRIPT}"
+	"${DOC_BINARY_DIR}/${PYTHON_SANITIZE_SCRIPT}"
+	@ONLY )
 
 
 
@@ -130,11 +137,22 @@ endif (MCSS_DEBUG )
 
 ## --- Generate DOC_OUTPUT_MAINPAGE by running m.css command
 
+# Run doxygen to generate XML output
+add_custom_command (
+	OUTPUT  "${DOC_OUTPUT_INDEX}"
+	COMMAND Doxygen::doxygen "${DOC_DOXYFILE}"
+	COMMAND "${PYTHON_CMD}" "${DOC_BINARY_DIR}/${PYTHON_SANITIZE_SCRIPT}"
+	DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}" "${MCSS_DOXYFILE_TEMPLATE}" ${DOC_SOURCES}
+	WORKING_DIRECTORY "${ENV_DIRECTORY}"
+	COMMENT "Run doxygen to generate XML"
+	VERBATIM
+)
+
 # Run m.css command to generate documentation
 add_custom_command (
 	OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" ${MCSS_FLAGS} "${DOC_DOXYFILE}"
-	DEPENDS "${DOC_DOXYFILE_BASE}" "${MCSS_DOXYFILE_TEMPLATE}" ${DOC_SOURCES}
+	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen ${MCSS_FLAGS} "${DOC_DOXYFILE}"
+	DEPENDS "${DOC_OUTPUT_INDEX}" "${DOC_DOXYFILE_BASE}" "${MCSS_DOXYFILE_TEMPLATE}" ${DOC_SOURCES}
 	WORKING_DIRECTORY "${ENV_DIRECTORY}"
 	COMMENT "${DOC_COMMENT}"
 	VERBATIM

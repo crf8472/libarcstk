@@ -50,9 +50,6 @@ string (REPLACE ";" " " DOXYGEN_INPUT
 set (DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 
-## Define list of sources for replacement in Doxyfile (TODO: Move to RTD)
-#string (REPLACE ";" " " DOXYGEN_INPUT "${DOC_SOURCES}" )
-
 ## Configure documentation texts
 configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 
