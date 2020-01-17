@@ -1,41 +1,17 @@
-## Include the main Doxyfile also used for Doxygen's stock HTML output
+## Doxygen configuration file for m.css based API documentation
 
 @INCLUDE = @DOC_DOXYFILE_BASE@
 
 
 ## Override the following values from included Doxyfile
 
-# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
-# into which the generated documentation will be written. If a relative path is
-# entered, it will be relative to the location where doxygen was started. If
-# left blank the current directory will be used.
-
 OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
-# Has to be repeated: base gets the value from root CMakeLists.txt, this
-# has to get the value from m.css/CMakeListst.txt.
+# Has to be repeated: Doxfile-base gets the value from root CMakeLists.txt,
+# Doxyfile-mcss has to get the value from m.css/CMakeListst.txt.
 
-# If the INHERIT_DOCS tag is set to YES then an undocumented member inherits the
-# documentation from any documented member that it re-implements.
-# The default value is: YES.
+INHERIT_DOCS           = NO
 
-INHERIT_DOCS           = NO  # Override libarcstk Doxyfile
-
-# This tag can be used to specify a number of aliases that act as commands in
-# the documentation. An alias has the form:
-# name=value
-# For example adding
-# "sideeffect=@par Side Effects:\n"
-# will allow you to put the command \sideeffect (or @sideeffect) in the
-# documentation, which will result in a user-defined paragraph with heading
-# "Side Effects:". You can put \n's in the value part of an alias to insert
-# newlines (in the resulting output). You can put ^^ in the value part of an
-# alias to insert a newline as if a physical newline was in the original file.
-# When you need a literal { or } or , in the value part of an alias you have to
-# escape them by means of a backslash (\), this can lead to conflicts with the
-# commands \{ and \} for these it is advised to use the version @{ and @} or use
-# a double escape (\\{ and \\})
-
-ALIASES += \
+ALIASES               += \
     "m_div{1}=@xmlonly<mcss:div xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:class=\"\1\">@endxmlonly" \
     "m_enddiv=@xmlonly</mcss:div>@endxmlonly" \
     "m_span{1}=@xmlonly<mcss:span xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:class=\"\1\">@endxmlonly" \
@@ -47,86 +23,22 @@ ALIASES += \
     "m_keyword{3}=@xmlonly<mcss:search xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:keyword=\"\1\" mcss:title=\"\2\" mcss:suffix-length=\"\3\" />@endxmlonly" \
     "m_enum_values_as_keywords=@xmlonly<mcss:search xmlns:mcss=\"http://mcss.mosra.cz/doxygen/\" mcss:enum-values-as-keywords=\"true\" />@endxmlonly"
 
-# If the EXTRACT_PRIV_VIRTUAL tag is set to YES, documented private virtual
-# methods of a class will be included in the documentation.
-# The default value is: NO.
+EXTRACT_PRIV_VIRTUAL   = YES # 1.8.16
 
-EXTRACT_PRIV_VIRTUAL   = YES # Override libarcstk Doxyfile (since 1.8.16)
+GENERATE_HTML          = NO
+GENERATE_LATEX         = NO
 
-# If the GENERATE_HTML tag is set to YES, doxygen will generate HTML output
-# The default value is: YES.
-
-GENERATE_HTML          = NO  # Override libarcstk Doxyfile
-
-# If the GENERATE_LATEX tag is set to YES, doxygen will generate LaTeX output.
-# The default value is: YES.
-
-GENERATE_LATEX         = NO  # Override libarcstk Doxyfile
-
-# If the GENERATE_RTF tag is set to YES, doxygen will generate RTF output. The
-# RTF output is optimized for Word 97 and may not look too pretty with other RTF
-# readers/editors.
-# The default value is: NO.
-
-# GENERATE_RTF           = NO
-
-# If the GENERATE_MAN tag is set to YES, doxygen will generate man pages for
-# classes and files.
-# The default value is: NO.
-
-# GENERATE_MAN           = NO
-
-# If the GENERATE_DOCBOOK tag is set to YES, doxygen will generate Docbook files
-# that can be used to generate PDF.
-# The default value is: NO.
-
-# GENERATE_DOCBOOK       = NO
-
-# If the GENERATE_PERLMOD tag is set to YES, doxygen will generate a Perl module
-# file that captures the structure of the code including all documentation.
-#
-# Note that this feature is still experimental and incomplete at the moment.
-# The default value is: NO.
-
-# GENERATE_PERLMOD       = NO
-
-# If the GENERATE_XML tag is set to YES, doxygen will generate an XML file that
-# captures the structure of the code including all documentation.
-# The default value is: NO.
-
-GENERATE_XML           = YES  # Override libarcstk Doxyfile
-
-# If the XML_PROGRAMLISTING tag is set to YES, doxygen will dump the program
-# listings (including syntax highlighting and cross-referencing information) to
-# the XML output. Note that enabling this will significantly increase the size
-# of the XML output.
-# The default value is: YES.
-# This tag requires that the tag GENERATE_XML is set to YES.
-
-XML_PROGRAMLISTING     = NO   # m.css default
-
-# If the XML_NS_MEMB_FILE_SCOPE tag is set to YES, doxygen will include
-# namespace members in file scope as well, matching the HTML output.
-# The default value is: NO.
-
-XML_NS_MEMB_FILE_SCOPE = NO   # m.css default (since 1.8.15)
+GENERATE_XML           = YES
+XML_PROGRAMLISTING     = NO
+XML_NS_MEMB_FILE_SCOPE = YES
 
 
 
 ## M.CSS Specific Options
 
+# For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
 
-## For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
-
-# If set and PROJECT_BRIEF is also set, then PROJECT_NAME in the top navbar
-# will link to this URL and PROJECT_BRIEF in­to the documentation main page,
-# similarly as shown here.
-#
-##! M_MAIN_PROJECT_URL   = "@PROJECT_URL@"
-
-## Left and right navbar links
-#
-##! M_LINKS_NAVBAR1 = pages modules
-#
-##! M_LINKS_NAVBAR2 = namespaces annotated files
+##! M_MAIN_PROJECT_URL = "@PROJECT_URL@"
+##! M_LINKS_NAVBAR1    = pages modules
+##! M_LINKS_NAVBAR2    = namespaces annotated files
 
