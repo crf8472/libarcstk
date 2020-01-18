@@ -11,6 +11,7 @@
 #include <memory>
 #include <stdexcept>  // for logic_error
 #include <string>
+#include <utility>    // for forward
 #include <vector>
 
 namespace arcstk
@@ -856,13 +857,7 @@ template <typename Container1, typename Container2,
 	typename = details::IsFilenameContainer<Container2> >
 inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
 		const uint32_t leadout,
-		const Container2&& files = {});
-
-// Implementation
-template <typename Container1, typename Container2>
-std::unique_ptr<TOC> make_toc(const Container1&& offsets,
-		const uint32_t leadout,
-		const Container2&& files)
+		Container2&& files = {})
 {
 	::arcstk::details::TOCBuilder builder;
 
@@ -901,16 +896,9 @@ template <typename Container1, typename Container2,
 	typename = details::IsLBAContainer<Container1>,
 	typename = details::IsFilenameContainer<Container2> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const Container1&& offsets,
+		Container1&& offsets,
 		const uint32_t leadout,
-		const Container2&& files = {});
-
-// Implementation
-template <typename Container1, typename Container2>
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		const Container1&& offsets,
-		const uint32_t leadout,
-		const Container2&& files)
+		Container2&& files = {})
 {
 	::arcstk::details::TOCBuilder builder;
 
@@ -951,14 +939,7 @@ template <typename Container1, typename Container2, typename Container3,
 	typename = details::IsFilenameContainer<Container3> >
 std::unique_ptr<TOC> make_toc(Container1&& offsets,
 		Container2&& lengths,
-		Container3&& files = {});
-
-// Implementation
-template <typename Container1, typename Container2, typename Container3,
-		typename, typename, typename>
-std::unique_ptr<TOC> make_toc(Container1&& offsets,
-		Container2&& lengths,
-		Container3&& files)
+		Container3&& files = {})
 {
 	::arcstk::details::TOCBuilder builder;
 
@@ -1002,15 +983,7 @@ template <typename Container1, typename Container2, typename Container3,
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		Container1&& offsets,
 		Container2&& lengths,
-		Container3&& files = {});
-
-// Implementation
-template <typename Container1, typename Container2, typename Container3,
-		typename, typename, typename>
-std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		Container1&& offsets,
-		Container2&& lengths,
-		Container3&& files)
+		Container3&& files = {})
 {
 	::arcstk::details::TOCBuilder builder;
 
@@ -1037,18 +1010,12 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  */
 template <typename Container, typename = details::IsLBAContainer<Container> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	Container&& offsets, const uint32_t leadout);
-
-// Implementation
-template <typename Container, typename>
-std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-		Container&& offsets, const uint32_t leadout)
+	Container&& offsets, const uint32_t leadout)
 {
-	using TOCBuilder  = details::TOCBuilder;
-	using ARIdBuilder = details::ARIdBuilder;
-
-	auto toc = TOCBuilder::build(track_count, std::forward<Container>(offsets),
+	auto toc = make_toc(track_count, std::forward<Container>(offsets),
 			leadout, std::vector<std::string>(/* no filenames */));
+
+	using ARIdBuilder = details::ARIdBuilder;
 
 	ARIdBuilder builder;
 	return builder.build(*toc);
@@ -1060,12 +1027,7 @@ std::unique_ptr<ARId> make_arid(const TrackNo track_count,
  */
 template <typename T, typename = details::IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	std::initializer_list<T> offsets, const uint32_t leadout);
-
-// Implementation
-template <typename T, typename>
-std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-		std::initializer_list<T> offsets, const uint32_t leadout)
+	std::initializer_list<T> offsets, const uint32_t leadout)
 {
 	return make_arid(track_count, std::vector<T>{offsets}, leadout);
 }
