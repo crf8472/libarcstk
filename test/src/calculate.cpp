@@ -26,15 +26,16 @@
 
 TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 {
+	using arcstk::details::TOCBuilder;
+
+
 	SECTION ( "Construct with only context (default type)" )
 	{
 		// Implicitly tested in section
 		// 'Calculation configuration/Changing the type...' below
 
-		arcstk::details::TOCBuilder builder;
-
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = TOCBuilder::build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */
@@ -77,10 +78,10 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 	{
 		// Create a context
 
-		arcstk::details::TOCBuilder builder;
+		using arcstk::details::TOCBuilder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = TOCBuilder::build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */
@@ -145,10 +146,10 @@ TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 
 	SECTION ( "Changing the context updates Calculation correctly" )
 	{
-		arcstk::details::TOCBuilder builder;
+		using arcstk::details::TOCBuilder;
 
 		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		std::unique_ptr<arcstk::TOC> toc1 = builder.build(
+		std::unique_ptr<arcstk::TOC> toc1 = TOCBuilder::build(
 				3, /* track count */
 				{ 12, 433, 924 }, /* offsets */
 				1233 /* leadout */
@@ -384,11 +385,11 @@ TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
 {
 	// Initialize Buffer and Calculation
 
-	arcstk::details::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
 	std::unique_ptr<arcstk::TOC> toc1 =
-		builder.build(3, { 12, 433, 924 }, 1233);
+		TOCBuilder::build(3, { 12, 433, 924 }, 1233);
 
 	auto ctx = arcstk::make_context(std::string(), *toc1);
 
@@ -501,10 +502,10 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 {
 	// Initialize Calculation
 
-	arcstk::details::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	std::unique_ptr<arcstk::TOC> toc = builder.build(3, { 12, 433, 924 }, 1233);
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(3, { 12, 433, 924 }, 1233);
 
 	auto ctx = arcstk::make_context(std::string(), *toc);
 
@@ -730,11 +731,11 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 	"[calculate] [calccontext]" )
 {
-	arcstk::details::TOCBuilder toc_builder;
+	using arcstk::details::TOCBuilder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(
 		// track count
 		15,
 		// offsets
@@ -940,11 +941,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 	"[calculate] [calccontext]" )
 {
-	arcstk::details::TOCBuilder toc_builder;
+	using arcstk::details::TOCBuilder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(
 		// track count
 		15,
 		// offsets
@@ -1156,11 +1157,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 		"[calculate] [calccontext]" )
 {
-	arcstk::details::TOCBuilder toc_builder;
+	using arcstk::details::TOCBuilder;
 
 	// Bent: Programmed to Love
 
-	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(
 		// track count
 		18,
 		// offsets
@@ -1284,11 +1285,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
 		"[calculate] [calccontext]" )
 {
-	arcstk::details::TOCBuilder toc_builder;
+	using arcstk::details::TOCBuilder;
 
 	// Bent: Programmed to Love
 
-	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(
 		// track count
 		18,
 		// offsets
@@ -1305,11 +1306,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
 
 TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 {
-	arcstk::details::TOCBuilder toc_builder;
+	using arcstk::details::TOCBuilder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	std::unique_ptr<arcstk::TOC> toc = toc_builder.build(
+	std::unique_ptr<arcstk::TOC> toc = TOCBuilder::build(
 		// track count
 		15,
 		// offsets

@@ -627,19 +627,19 @@ TEST_CASE ( "make_arid builds empty ARIds", "[identifier] [aridbuilder]" )
 
 TEST_CASE ( "TOCValidator", "[identifier]" )
 {
-	arcstk::details::TOCValidator validator;
+	using arcstk::details::TOCValidator;
 
 
 	SECTION ( "Validation succeeds for correct offsets" )
 	{
 		// some legal values
-		CHECK_NOTHROW ( validator.validate_offsets({ 33, 5225, 7390, 23380,
+		CHECK_NOTHROW ( TOCValidator::validate_offsets({ 33, 5225, 7390, 23380,
 				35608, 49820, 69508, 87733, 106333, 139495, 157863, 198495,
 				213368, 225320, 234103 })
 		);
 
 		// some legal values
-		CHECK_NOTHROW ( validator.validate_offsets(
+		CHECK_NOTHROW ( TOCValidator::validate_offsets(
 			// track count
 			15,
 			// offsets
@@ -648,7 +648,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		);
 
 		// some legal values
-		CHECK_NOTHROW ( validator.validate(
+		CHECK_NOTHROW ( TOCValidator::validate(
 			// track count
 			15,
 			// offsets
@@ -663,55 +663,55 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	SECTION ( "Validation fails for incorrect offsets" )
 	{
 		// offset[1] has less than minimal legal distance to offset[0]
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 34 /* BOOM */, 7390, 23380, 35608, 49820, 69508, 87733,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// offset[14] bigger than legal maximum
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ }
 		));
 
 		// offset[6] is greater than offset[7]
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 69507 /* BOOM */,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// offset[7] and offset[8] are equal
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 69508 /* BOOM */,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// track count bigger than legal maximum
-		CHECK_THROWS ( validator.validate_offsets(std::vector<int32_t>(100)) );
+		CHECK_THROWS ( TOCValidator::validate_offsets(std::vector<int32_t>(100)) );
 
 		// track count smaller than legal minimum
-		CHECK_THROWS ( validator.validate_offsets(std::vector<int32_t>()) );
+		CHECK_THROWS ( TOCValidator::validate_offsets(std::vector<int32_t>()) );
 	}
 
 
 	SECTION ( "Validation succeeds for correct lengths" )
 	{
 		// complete correct lengths
-		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, 12228,
+		CHECK_NOTHROW ( TOCValidator::validate_lengths({ 5192, 2165, 15885, 12228,
 			13925, 19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
 			18935 })
 		);
 
 		// incomplete correct lengths
-		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, -1 }) );
+		CHECK_NOTHROW ( TOCValidator::validate_lengths({ 5192, 2165, 15885, -1 }) );
 	}
 
 
 	SECTION ( "Validation fails for incorrect lengths" )
 	{
 		// one length smaller than legal minimum
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
@@ -719,7 +719,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		));
 
 		// sum of lengths greater than legal maximum of 99 min
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				360000 /* Redbook maximum */,
 				100000 /* Exceeds maximum of 99 min */,
@@ -727,10 +727,10 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		));
 
 		// track count bigger than legal maximum
-		CHECK_THROWS ( validator.validate_lengths(std::vector<int32_t>(100)) );
+		CHECK_THROWS ( TOCValidator::validate_lengths(std::vector<int32_t>(100)) );
 
 		// last length smaller than legal minimum
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */ }
@@ -738,7 +738,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// track count smaller than legal minimum
 		CHECK_THROWS (
-		validator.validate_lengths(std::vector<int32_t>())
+		TOCValidator::validate_lengths(std::vector<int32_t>())
 		);
 	}
 
@@ -747,15 +747,15 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	{
 		// legal minimum
 		CHECK_NOTHROW (
-		validator.validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
+		TOCValidator::validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
 		);
 
 		// some legal value
-		CHECK_NOTHROW ( validator.validate_leadout(253038) );
+		CHECK_NOTHROW ( TOCValidator::validate_leadout(253038) );
 
 		// legal maximum
-		CHECK_NOTHROW ( validator.validate_leadout(arcstk::CDDA.MAX_OFFSET) );
-		CHECK_THROWS ( validator.validate_leadout(arcstk::CDDA.MAX_OFFSET+1) );
+		CHECK_NOTHROW ( TOCValidator::validate_leadout(arcstk::CDDA.MAX_OFFSET) );
+		CHECK_THROWS ( TOCValidator::validate_leadout(arcstk::CDDA.MAX_OFFSET+1) );
 
 		// TODO more values
 	}
@@ -765,7 +765,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	{
 		// legal maximum
 		CHECK_THROWS (
-		validator.validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
+		TOCValidator::validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
 		);
 	}
 
@@ -773,15 +773,15 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	SECTION ( "Validation fails for incorrect leadouts" )
 	{
 		// 0 (smaller than legal minimum)
-		CHECK_THROWS ( validator.validate_leadout(0) );
+		CHECK_THROWS ( TOCValidator::validate_leadout(0) );
 
 		// greater than 0, but smaller than legal minimum
-		CHECK_THROWS ( validator.validate_leadout(
+		CHECK_THROWS ( TOCValidator::validate_leadout(
 			arcstk::CDDA.MIN_TRACK_OFFSET_DIST - 1
 		));
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_leadout(
+		CHECK_THROWS ( TOCValidator::validate_leadout(
 			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1
 		));
 	}
@@ -790,36 +790,36 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 	SECTION ( "Validation succeeds for correct trackcounts" )
 	{
 		// legal minimum
-		CHECK_NOTHROW ( validator.validate_trackcount(1) );
+		CHECK_NOTHROW ( TOCValidator::validate_trackcount(1) );
 
 		// legal values greater than minimum and smaller than maximum
 		for (int i = 2; i < 99; ++i)
 		{
 			// 2 - 98
-			CHECK_NOTHROW ( validator.validate_trackcount(i) );
+			CHECK_NOTHROW ( TOCValidator::validate_trackcount(i) );
 		}
 
 		// legal maximum
-		CHECK_NOTHROW ( validator.validate_trackcount(99) );
+		CHECK_NOTHROW ( TOCValidator::validate_trackcount(99) );
 	}
 
 
 	SECTION ( "Validation fails for incorrect trackcounts" )
 	{
 		// smaller than legal minimum
-		CHECK_THROWS ( validator.validate_trackcount(0) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(0) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(100) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(100) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(500) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(500) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(999) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(999) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(65535) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(65535) );
 	}
 }
 
@@ -829,13 +829,13 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 
 	SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
-		auto toc0 = builder.build(
+		auto toc0 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -875,13 +875,13 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 TEST_CASE ( "TOCBuilder: build with lengths and files",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 
 	SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
-		auto toc1 = builder.build(
+		auto toc1 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -939,7 +939,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 
 	SECTION ( "Build succeeds for trackcount, offsets and incomplete lengths" )
 	{
-		auto toc2 = builder.build(
+		auto toc2 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1000,13 +1000,12 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::details::TOCBuilder builder;
-
+	using arcstk::details::TOCBuilder;
 
 	SECTION ( "Build fails for incorrect offsets" )
 	{
 		// no minimal distance: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[1] has not minimal distance to offset[0])
@@ -1018,7 +1017,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// no minimal distance: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[1] has not minimal distance to offset[0])
@@ -1031,7 +1030,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// exeeds maximum: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[14] exceeds maximal block address)
@@ -1044,7 +1043,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// exeeds maximum: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[14] exceeds maximal block address)
@@ -1058,7 +1057,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// not ascending order: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is smaller than offsets[8])
@@ -1070,7 +1069,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// not ascending order: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is smaller than offsets[8])
@@ -1083,7 +1082,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// not ascending order: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is equal to offsets[8])
@@ -1095,7 +1094,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 		);
 
 		// not ascending order: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is equal to offsets[8])
@@ -1113,7 +1112,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	{
 		// Track count 0 is illegal
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			0, /* BOOM */
 			// offsets
@@ -1123,7 +1122,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			0, /* BOOM */
 			// offsets
@@ -1137,7 +1136,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// Track count is smaller than number of offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			5, /* BOOM */
 			// offsets
@@ -1147,7 +1146,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			5, /* BOOM */
 			// offsets
@@ -1161,7 +1160,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// Track count is bigger than number of offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			18, /* BOOM */
 			// offsets
@@ -1171,7 +1170,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			18, /* BOOM */
 			// offsets
@@ -1185,7 +1184,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// Track count is bigger than legal maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
@@ -1195,7 +1194,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
@@ -1212,7 +1211,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	{
 		// Leadout 0 is illegal
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1224,7 +1223,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// Leadout exceeds maximal legal value
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1236,7 +1235,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// Leadout has not minimal distance to last offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1252,7 +1251,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	{
 		// length[4] is smaller than legal minimum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1268,7 +1267,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// sum of lengths exceeds legal maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1282,7 +1281,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// more than 99 tracks + more lengths than offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1294,7 +1293,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 
 		// no lengths
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
