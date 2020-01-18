@@ -126,15 +126,6 @@ configure_file (
 
 
 
-## --- Provide debug output from m.css if requested
-
-if (MCSS_DEBUG )
-
-	set (MCSS_FLAGS "--debug" )
-endif (MCSS_DEBUG )
-
-
-
 ## --- Generate DOC_OUTPUT_MAINPAGE by running m.css command
 
 # Run doxygen to generate XML output
@@ -142,7 +133,11 @@ add_custom_command (
 	OUTPUT  "${DOC_OUTPUT_INDEX}"
 	COMMAND Doxygen::doxygen "${DOC_DOXYFILE}"
 	COMMAND "${PYTHON_CMD}" "${DOC_BINARY_DIR}/${PYTHON_SANITIZE_SCRIPT}"
-	DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}" "${MCSS_DOXYFILE_TEMPLATE}" ${DOC_SOURCES}
+	DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+			"${DOC_DOXYFILE_BASE}"
+			"${MCSS_DOXYFILE_TEMPLATE}"
+			"${DOC_DOXYFILE}"
+			${DOC_SOURCES}
 	WORKING_DIRECTORY "${ENV_DIRECTORY}"
 	COMMENT "Run doxygen to generate XML"
 	VERBATIM
@@ -151,8 +146,8 @@ add_custom_command (
 # Run m.css command to generate documentation
 add_custom_command (
 	OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen ${MCSS_FLAGS} "${DOC_DOXYFILE}"
-	DEPENDS "${DOC_OUTPUT_INDEX}" "${DOC_DOXYFILE_BASE}" "${MCSS_DOXYFILE_TEMPLATE}" ${DOC_SOURCES}
+	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOC_DOXYFILE}"
+	DEPENDS "${DOC_OUTPUT_INDEX}"
 	WORKING_DIRECTORY "${ENV_DIRECTORY}"
 	COMMENT "${DOC_COMMENT}"
 	VERBATIM
