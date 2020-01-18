@@ -20,8 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
-#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp" // for TOCBuilder
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -750,9 +750,8 @@ void MultitrackCalcContext::do_hook_post_set_audio_size()
 {
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
-		TOCBuilder builder;
-		auto toc { builder.merge(toc_, this->audio_size().leadout_frame()) };
-		toc_ = *toc;
+		details::TOCBuilder builder;
+		builder.update(toc_, this->audio_size().leadout_frame());
 	}
 }
 

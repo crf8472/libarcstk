@@ -199,7 +199,6 @@ configure_file (
 
 set (NONPUBLIC_HEADERS )
 list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/calculate_details.hpp" )
-list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/identifier_details.hpp" )
 
 
 ## --- Specify Exported Headers
@@ -215,7 +214,9 @@ list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
 list (APPEND EXPORTED_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
 set (TEMPLATE_HEADERS )
+list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
 list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
+list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
 list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 
 

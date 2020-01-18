@@ -9,62 +9,76 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp"
-#endif
 
 
 /**
  * \file identifier.cpp Fixtures for classes in module 'identifier'
  */
 
+// TODO Test get_track
+// TODO calculate_leadout
 
-TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
+TEST_CASE ( "is_lba_container", "[identifier] [make_toc]" )
 {
-	using arcstk::details::has_integral_value_type;
+	using arcstk::details::has_lba_value_type;
 	using arcstk::details::has_const_iterator;
-	using arcstk::details::has_begin_end;
+	using arcstk::details::has_size;
+	using arcstk::details::has_begin;
+	using arcstk::details::has_end;
 	using arcstk::details::is_lba_container;
 
-	SECTION ( "has_integral_value_type" )
+	SECTION ( "has_lba_value_type for some std containers" )
 	{
-		CHECK ( has_integral_value_type<std::vector<char>>::value     );
-		CHECK ( has_integral_value_type<std::vector<int32_t>>::value  );
-		CHECK ( has_integral_value_type<std::vector<uint32_t>>::value );
-		CHECK ( has_integral_value_type<std::list<int32_t>>::value    );
-		CHECK ( has_integral_value_type<std::list<uint32_t>>::value   );
+		CHECK ( has_lba_value_type<std::vector<int32_t>>::value  );
+		CHECK ( has_lba_value_type<std::vector<uint32_t>>::value );
+		CHECK ( has_lba_value_type<std::list<int32_t>>::value    );
+		CHECK ( has_lba_value_type<std::list<uint32_t>>::value   );
+
+		//CHECK ( has_lba_value_type<std::vector<char>>::value     );
 	}
 
-	SECTION ( "has_const_iterator" )
+	SECTION ( "has_const_iterator for some std containers" )
 	{
 		CHECK ( has_const_iterator<std::vector<char>>::value     );
 		CHECK ( has_const_iterator<std::vector<int32_t>>::value  );
 		CHECK ( has_const_iterator<std::vector<uint32_t>>::value );
 		CHECK ( has_const_iterator<std::list<int32_t>>::value    );
 		CHECK ( has_const_iterator<std::list<uint32_t>>::value   );
+
+		CHECK ( has_const_iterator<const std::vector<int32_t>>::value  );
 	}
 
-	SECTION ( "has_begin_end" )
+	SECTION ( "has_size for some std containers" )
 	{
-		CHECK ( has_begin_end<std::vector<char>>::begin_value     );
-		CHECK ( has_begin_end<std::vector<char>>::end_value       );
+		CHECK ( has_size<std::vector<char>>::value     );
+		CHECK ( has_size<std::vector<int32_t>>::value  );
+		CHECK ( has_size<std::vector<uint32_t>>::value );
+		CHECK ( has_size<std::list<int32_t>>::value    );
+		CHECK ( has_size<std::list<uint32_t>>::value   );
 
-		CHECK ( has_begin_end<std::vector<int32_t>>::begin_value  );
-		CHECK ( has_begin_end<std::vector<int32_t>>::end_value    );
-
-		CHECK ( has_begin_end<std::vector<uint32_t>>::begin_value );
-		CHECK ( has_begin_end<std::vector<uint32_t>>::end_value   );
-
-		CHECK ( has_begin_end<std::list<int32_t>>::begin_value    );
-		CHECK ( has_begin_end<std::list<int32_t>>::end_value      );
-
-		CHECK ( has_begin_end<std::list<uint32_t>>::begin_value   );
-		CHECK ( has_begin_end<std::list<uint32_t>>::end_value     );
+		CHECK ( has_size<const std::vector<int32_t>>::value  );
 	}
 
-	SECTION ( "is_lba_container" )
+	SECTION ( "has_begin for some std containers" )
 	{
-		CHECK ( is_lba_container<std::vector<char>>::value        );
+		CHECK ( has_begin<std::vector<char>>::value     );
+		CHECK ( has_begin<std::vector<int32_t>>::value  );
+		CHECK ( has_begin<std::vector<uint32_t>>::value );
+		CHECK ( has_begin<std::list<int32_t>>::value    );
+		CHECK ( has_begin<std::list<uint32_t>>::value   );
+	}
+
+	SECTION ( "has_end for some std containers" )
+	{
+		CHECK ( has_end<std::vector<char>>::value     );
+		CHECK ( has_end<std::vector<int32_t>>::value  );
+		CHECK ( has_end<std::vector<uint32_t>>::value );
+		CHECK ( has_end<std::list<int32_t>>::value    );
+		CHECK ( has_end<std::list<uint32_t>>::value   );
+	}
+
+	SECTION ( "is_lba_container for non-refererence types" )
+	{
 		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
 		CHECK ( is_lba_container<std::vector<uint32_t>>::value    );
 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
@@ -75,6 +89,52 @@ TEST_CASE ( "has_integral_value_type", "[identifier] [make_toc]" )
 		CHECK ( is_lba_container<std::array<uint32_t, 99>>::value );
 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
 		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+
+		//CHECK ( is_lba_container<std::vector<char>>::value        );
+	}
+
+	SECTION ( "is_lba_container for references" )
+	{
+		CHECK ( is_lba_container<std::vector<int32_t> &>::value     );
+		CHECK ( is_lba_container<std::vector<uint32_t> &>::value    );
+		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+		CHECK ( is_lba_container<std::array<int32_t,   1> &>::value );
+		CHECK ( is_lba_container<std::array<int32_t,  99> &>::value );
+		CHECK ( is_lba_container<std::array<uint32_t,  1> &>::value );
+		CHECK ( is_lba_container<std::array<uint32_t, 99> &>::value );
+		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+
+		//CHECK ( is_lba_container<std::vector<char> &>::value        );
+	}
+}
+
+
+TEST_CASE ("is_filename_container", "[identifier] [make_toc]")
+{
+	using arcstk::details::is_filename_container;
+
+	SECTION ( "is_filename_container for non-reference types" )
+	{
+		CHECK ( is_filename_container<std::vector<std::string>>::value     );
+		CHECK ( is_filename_container<std::list<std::string>>::value       );
+		CHECK ( is_filename_container<std::array<std::string,   1>>::value );
+		CHECK ( is_filename_container<std::array<std::string,  99>>::value );
+		CHECK ( is_filename_container<std::list<std::string>>::value       );
+
+		//CHECK ( is_filename_container<std::vector<char>>::value        );
+	}
+
+	SECTION ( "is_filename_container for reference types" )
+	{
+		CHECK ( is_filename_container<std::vector<std::string> &>::value     );
+		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+		CHECK ( is_filename_container<std::array<std::string,   1> &>::value );
+		CHECK ( is_filename_container<std::array<std::string,  99> &>::value );
+		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+
+		//CHECK ( is_filename_container<std::vector<char> &>::value        );
 	}
 }
 
@@ -193,19 +253,16 @@ TEST_CASE ( "ARId", "[identifier] [arid]" )
 }
 
 
-// ARIdBuilder
+// make_arid
 
 
-TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
+TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
-
-
 	SECTION ( "ARId from track_count, offsets, leadout, example 1" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		std::unique_ptr<arcstk::ARId> id1 = builder.build(
+		std::unique_ptr<arcstk::ARId> id1 = arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -234,7 +291,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		std::unique_ptr<arcstk::ARId> id2 = builder.build(
+		std::unique_ptr<arcstk::ARId> id2 = arcstk::make_arid(
 			// track count
 			3,
 			// offsets
@@ -262,7 +319,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		std::unique_ptr<arcstk::ARId> id3 = builder.build(
+		std::unique_ptr<arcstk::ARId> id3 = arcstk::make_arid(
 			// track count
 			9,
 			// offsets
@@ -290,7 +347,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// Bent: "Programmed to Love"
 
-		std::unique_ptr<arcstk::ARId> id4 = builder.build(
+		std::unique_ptr<arcstk::ARId> id4 = arcstk::make_arid(
 			// track count
 			18,
 			// offsets
@@ -320,7 +377,7 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		std::unique_ptr<arcstk::ARId> id5 = builder.build(
+		std::unique_ptr<arcstk::ARId> id5 = arcstk::make_arid(
 			// track count
 			1,
 			// offsets
@@ -345,18 +402,15 @@ TEST_CASE ( "ARIdBuilder builds valid ARIds", "[identifier] [aridbuilder]" )
 }
 
 
-TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
+TEST_CASE ( "make_arid refuses to build invalid ARIds",
 		"[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
-
-
 	SECTION ( "Build fails for inconsistent offsets" )
 	{
 		// one track too short (no minimal distance)
 		// offset[1] has not minimal distance to offset[0]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -369,7 +423,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// one offset exceeds legal maximum
 		// offset[14] exceeds maximal block address
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -383,7 +437,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// not ascending order
 		// offsets[9] is smaller than offsets[8]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -397,7 +451,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 		// two offsets equal
 		// offsets[9] is equal to offsets[8]
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -414,7 +468,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 	{
 		// Leadout 0 is illegal (smaller than minimum)
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -426,7 +480,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout exceeds maximal legal value
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -438,7 +492,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout is smaller than biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -450,7 +504,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout is equal to biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -462,7 +516,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// Leadout has not minimal distance to biggest offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			15,
 			// offsets
@@ -471,14 +525,14 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			// leadout
 			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
-    }
+	}
 
 
 	SECTION ( "Build fails for offsets and trackcount inconsistent" )
 	{
 		// illegal track count: smaller than offsets count
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			14, /* BOOM */
 			// offsets
@@ -488,7 +542,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			8, /* BOOM */
 			// offsets
@@ -499,7 +553,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: bigger than offsets count
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			16, /* BOOM */
 			// offsets
@@ -509,7 +563,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			9, /* BOOM */
 			// offsets
@@ -521,7 +575,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: smaller than minimum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			0, /* BOOM */
 			// offsets
@@ -533,7 +587,7 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 
 		// illegal track count: bigger than maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( arcstk::make_arid(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT+1, /* BOOM */
 			// offsets
@@ -546,14 +600,11 @@ TEST_CASE ( "ARIdBuilder refuses to build invalid ARIds",
 }
 
 
-TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
+TEST_CASE ( "make_arid builds empty ARIds", "[identifier] [aridbuilder]" )
 {
-	arcstk::ARIdBuilder builder;
-
-
 	SECTION ( "Empty ARId" )
 	{
-		std::unique_ptr<arcstk::ARId> empty_id = builder.build_empty_id();
+		std::unique_ptr<arcstk::ARId> empty_id = arcstk::make_empty_arid();
 
 
 		CHECK ( empty_id->track_count() == 0 );
@@ -576,19 +627,19 @@ TEST_CASE ( "ARIdBuilder builds empty ARIds", "[identifier] [aridbuilder]" )
 
 TEST_CASE ( "TOCValidator", "[identifier]" )
 {
-	arcstk::TOCValidator validator;
+	using arcstk::details::TOCValidator;
 
 
-    SECTION ( "Validation succeeds for correct offsets" )
-    {
+	SECTION ( "Validation succeeds for correct offsets" )
+	{
 		// some legal values
-		CHECK_NOTHROW ( validator.validate_offsets( { 33, 5225, 7390, 23380,
+		CHECK_NOTHROW ( TOCValidator::validate_offsets({ 33, 5225, 7390, 23380,
 				35608, 49820, 69508, 87733, 106333, 139495, 157863, 198495,
 				213368, 225320, 234103 })
 		);
 
 		// some legal values
-		CHECK_NOTHROW ( validator.validate_offsets(
+		CHECK_NOTHROW ( TOCValidator::validate_offsets(
 			// track count
 			15,
 			// offsets
@@ -597,7 +648,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		);
 
 		// some legal values
-		CHECK_NOTHROW ( validator.validate(
+		CHECK_NOTHROW ( TOCValidator::validate(
 			// track count
 			15,
 			// offsets
@@ -606,61 +657,61 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 			// leadout
 			253038)
 		);
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect offsets" )
-    {
+	SECTION ( "Validation fails for incorrect offsets" )
+	{
 		// offset[1] has less than minimal legal distance to offset[0]
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 34 /* BOOM */, 7390, 23380, 35608, 49820, 69508, 87733,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// offset[14] bigger than legal maximum
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ }
 		));
 
 		// offset[6] is greater than offset[7]
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 69507 /* BOOM */,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// offset[7] and offset[8] are equal
-		CHECK_THROWS ( validator.validate_offsets(
+		CHECK_THROWS ( TOCValidator::validate_offsets(
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 69508 /* BOOM */,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		));
 
 		// track count bigger than legal maximum
-		CHECK_THROWS ( validator.validate_offsets(std::vector<int32_t>(100)) );
+		CHECK_THROWS ( TOCValidator::validate_offsets(std::vector<int32_t>(100)) );
 
 		// track count smaller than legal minimum
-		CHECK_THROWS ( validator.validate_offsets(std::vector<int32_t>()) );
-    }
+		CHECK_THROWS ( TOCValidator::validate_offsets(std::vector<int32_t>()) );
+	}
 
 
-    SECTION ( "Validation succeeds for correct lengths" )
-    {
+	SECTION ( "Validation succeeds for correct lengths" )
+	{
 		// complete correct lengths
-		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, 12228,
+		CHECK_NOTHROW ( TOCValidator::validate_lengths({ 5192, 2165, 15885, 12228,
 			13925, 19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
 			18935 })
 		);
 
 		// incomplete correct lengths
-		CHECK_NOTHROW ( validator.validate_lengths({ 5192, 2165, 15885, -1 }) );
-    }
+		CHECK_NOTHROW ( TOCValidator::validate_lengths({ 5192, 2165, 15885, -1 }) );
+	}
 
 
-    SECTION ( "Validation fails for incorrect lengths" )
-    {
+	SECTION ( "Validation fails for incorrect lengths" )
+	{
 		// one length smaller than legal minimum
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
@@ -668,7 +719,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		));
 
 		// sum of lengths greater than legal maximum of 99 min
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				360000 /* Redbook maximum */,
 				100000 /* Exceeds maximum of 99 min */,
@@ -676,10 +727,10 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		));
 
 		// track count bigger than legal maximum
-		CHECK_THROWS ( validator.validate_lengths(std::vector<int32_t>(100)) );
+		CHECK_THROWS ( TOCValidator::validate_lengths(std::vector<int32_t>(100)) );
 
 		// last length smaller than legal minimum
-		CHECK_THROWS ( validator.validate_lengths(
+		CHECK_THROWS ( TOCValidator::validate_lengths(
 			{ 5192, 2165, 15885,
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */ }
@@ -687,81 +738,89 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// track count smaller than legal minimum
 		CHECK_THROWS (
-		validator.validate_lengths(std::vector<int32_t>())
+		TOCValidator::validate_lengths(std::vector<int32_t>())
 		);
-    }
+	}
 
 
-    SECTION ( "Validation succeeds for correct leadouts" )
-    {
+	SECTION ( "Validation succeeds for correct leadouts" )
+	{
 		// legal minimum
 		CHECK_NOTHROW (
-		validator.validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
+		TOCValidator::validate_leadout(arcstk::CDDA.MIN_TRACK_OFFSET_DIST)
 		);
 
 		// some legal value
-		CHECK_NOTHROW ( validator.validate_leadout(253038) );
-
-		// TODO more values
+		CHECK_NOTHROW ( TOCValidator::validate_leadout(253038) );
 
 		// legal maximum
-		CHECK_NOTHROW (
-		validator.validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
+		CHECK_NOTHROW ( TOCValidator::validate_leadout(arcstk::CDDA.MAX_OFFSET) );
+		CHECK_THROWS ( TOCValidator::validate_leadout(arcstk::CDDA.MAX_OFFSET+1) );
+
+		// TODO more values
+	}
+
+
+	SECTION ( "Validation fails for non-standard leadouts" )
+	{
+		// legal maximum
+		CHECK_THROWS (
+		TOCValidator::validate_leadout(arcstk::CDDA.MAX_BLOCK_ADDRESS)
 		);
-    }
+	}
 
 
-    SECTION ( "Validation fails for incorrect leadouts" )
-    {
+	SECTION ( "Validation fails for incorrect leadouts" )
+	{
 		// 0 (smaller than legal minimum)
-		CHECK_THROWS ( validator.validate_leadout(0) );
+		CHECK_THROWS ( TOCValidator::validate_leadout(0) );
 
 		// greater than 0, but smaller than legal minimum
-		CHECK_THROWS ( validator.validate_leadout(
+		CHECK_THROWS ( TOCValidator::validate_leadout(
 			arcstk::CDDA.MIN_TRACK_OFFSET_DIST - 1
 		));
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_leadout(
+		CHECK_THROWS ( TOCValidator::validate_leadout(
 			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1
 		));
-    }
+	}
 
 
-    SECTION ( "Validation succeeds for correct trackcounts" )
-    {
+	SECTION ( "Validation succeeds for correct trackcounts" )
+	{
 		// legal minimum
-		CHECK_NOTHROW ( validator.validate_trackcount(1) );
+		CHECK_NOTHROW ( TOCValidator::validate_trackcount(1) );
 
 		// legal values greater than minimum and smaller than maximum
 		for (int i = 2; i < 99; ++i)
 		{
 			// 2 - 98
-			CHECK_NOTHROW ( validator.validate_trackcount(i) );
+			CHECK_NOTHROW ( TOCValidator::validate_trackcount(i) );
 		}
 
 		// legal maximum
-		CHECK_NOTHROW ( validator.validate_trackcount(99) );
-    }
+		CHECK_NOTHROW ( TOCValidator::validate_trackcount(99) );
+	}
 
 
-    SECTION ( "Validation fails for incorrect trackcounts" )
-    {
+	SECTION ( "Validation fails for incorrect trackcounts" )
+	{
 		// smaller than legal minimum
-		CHECK_THROWS ( validator.validate_trackcount(0) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(0) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(100) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(100) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(500) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(500) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(999) );
+		CHECK_THROWS ( TOCValidator::validate_trackcount(999) );
 
 		// bigger than legal maximum
-		CHECK_THROWS ( validator.validate_trackcount(65535) );
-    }
+		CHECK_THROWS ( TOCValidator::validate_trackcount(65535) );
+	}
 }
 
 
@@ -770,29 +829,27 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 
-    SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
-    {
+	SECTION ( "Build succeeds for correct trackcount, offsets, leadout" )
+	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
-		auto toc0 = builder.build(
+		auto toc0 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		);
 
 
 		CHECK ( toc0->track_count() == 15 );
 		CHECK ( toc0->leadout()     == 253038 );
 
-		CHECK_THROWS ( toc0->offset(0)  ==      0 );
+		CHECK_THROWS ( toc0->offset(0)  == 0 );
 
 		CHECK ( toc0->offset(1)  ==     33 );
 		CHECK ( toc0->offset(2)  ==   5225 );
@@ -811,40 +868,20 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		CHECK ( toc0->offset(15) == 234103 );
 
 		CHECK_THROWS ( toc0->offset(16) == 0 );
-
-//		CHECK_THROWS ( toc0->parsed_length(0) == 0 );
-//
-//		CHECK ( toc0->parsed_length(1)  == 0 );
-//		CHECK ( toc0->parsed_length(2)  == 0 );
-//		CHECK ( toc0->parsed_length(3)  == 0 );
-//		CHECK ( toc0->parsed_length(4)  == 0 );
-//		CHECK ( toc0->parsed_length(5)  == 0 );
-//		CHECK ( toc0->parsed_length(6)  == 0 );
-//		CHECK ( toc0->parsed_length(7)  == 0 );
-//		CHECK ( toc0->parsed_length(8)  == 0 );
-//		CHECK ( toc0->parsed_length(9)  == 0 );
-//		CHECK ( toc0->parsed_length(10) == 0 );
-//		CHECK ( toc0->parsed_length(11) == 0 );
-//		CHECK ( toc0->parsed_length(12) == 0 );
-//		CHECK ( toc0->parsed_length(13) == 0 );
-//		CHECK ( toc0->parsed_length(14) == 0 );
-//		CHECK ( toc0->parsed_length(15) == 0 );
-//
-//		CHECK_THROWS ( toc0->parsed_length(16) == 0 );
-    }
+	}
 }
 
 
 TEST_CASE ( "TOCBuilder: build with lengths and files",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
 
-    SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
-    {
+	SECTION ( "Build succeeds for correct trackcount, offsets, lengths" )
+	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
-		auto toc1 = builder.build(
+		auto toc1 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -852,9 +889,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075, 18368,
-				40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				40152, 14798, 11952, 8463, 18935 }
 		);
 
 		CHECK ( toc1->track_count() == 15 );
@@ -899,12 +934,12 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		CHECK ( toc1->parsed_length(15) == 18935 );
 
 		CHECK_THROWS ( toc1->parsed_length(16) == 0 );
-    }
+	}
 
 
-    SECTION ( "Build succeeds for trackcount, offsets and incomplete lengths" )
-    {
-		auto toc2 = builder.build(
+	SECTION ( "Build succeeds for trackcount, offsets and incomplete lengths" )
+	{
+		auto toc2 = TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -912,9 +947,7 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		);
 
 
@@ -960,34 +993,31 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		CHECK ( toc2->parsed_length(15) ==     0 );  // missing !
 
 		CHECK_THROWS ( toc2->parsed_length(16) == 0 );
-    }
+	}
 }
 
 
 TEST_CASE ( "TOCBuilder: build fails with illegal values",
 	"[identifier] [tocbuilder]" )
 {
-	arcstk::TOCBuilder builder;
+	using arcstk::details::TOCBuilder;
 
-
-    SECTION ( "Build fails for incorrect offsets" )
-    {
+	SECTION ( "Build fails for incorrect offsets" )
+	{
 		// no minimal distance: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[1] has not minimal distance to offset[0])
 			{ 33, 34 /* BOOM */, 7390, 23380, 35608, 49820, 69508, 87733,
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
 		// no minimal distance: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[1] has not minimal distance to offset[0])
@@ -995,14 +1025,12 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106333, 139495, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
 		// exeeds maximum: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[14] exceeds maximal block address)
@@ -1010,14 +1038,12 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
 		// exeeds maximum: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offset[14] exceeds maximal block address)
@@ -1026,28 +1052,24 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET + 1) /* BOOM */ },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
 		// not ascending order: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is smaller than offsets[8])
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
 				106000 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
 		// not ascending order: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is smaller than offsets[8])
@@ -1055,28 +1077,24 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106000 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
 
 		// not ascending order: with leadout
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is equal to offsets[8])
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
 				106333 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 			)
 		);
 
 		// not ascending order: with lengths + files
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets (offsets[9] is equal to offsets[8])
@@ -1084,31 +1102,27 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				106333 /* BOOM */, 157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, 18935 }
 			)
 		);
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent trackcount and offsets" )
-    {
+	SECTION ( "Build fails for inconsistent trackcount and offsets" )
+	{
 		// Track count 0 is illegal
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			0, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			0, /* BOOM */
 			// offsets
@@ -1116,27 +1130,23 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
 		// Track count is smaller than number of offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			5, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			5, /* BOOM */
 			// offsets
@@ -1144,27 +1154,23 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
 		// Track count is bigger than number of offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			18, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			18, /* BOOM */
 			// offsets
@@ -1172,27 +1178,23 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
 
 
 		// Track count is bigger than legal maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			253038,
-			// no filenames
-			{}
+			253038
 		));
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			arcstk::CDDA.MAX_TRACKCOUNT + 1, /* BOOM */
 			// offsets
@@ -1200,64 +1202,56 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
 			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ },
-			// no filenames
-			{}
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		));
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent leadout and offsets" )
-    {
+	SECTION ( "Build fails for inconsistent leadout and offsets" )
+	{
 		// Leadout 0 is illegal
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			0, /* BOOM */
-			// no filenames
-			{}
+			0 /* BOOM */
 		));
 
 		// Leadout exceeds maximal legal value
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1, /* BOOM */
-			// no filenames
-			{}
+			arcstk::CDDA.MAX_BLOCK_ADDRESS + 1 /* BOOM */
 		));
 
 		// Leadout has not minimal distance to last offset
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 			// leadout
-			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1, /* BOOM */
-			// no filenames
-			{}
+			234103 + arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1 /* BOOM */
 		));
-    }
+	}
 
 
-    SECTION ( "Build fails for inconsistent lengths" )
-    {
+	SECTION ( "Build fails for inconsistent lengths" )
+	{
 		// length[4] is smaller than legal minimum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1268,14 +1262,12 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 				static_cast<int32_t>(arcstk::CDDA.MIN_TRACK_LEN_FRAMES - 1)
 				/* BOOM */,
 				19513, 18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463,
-				18935 },
-			// no filenames
-			{}
+				18935 }
 		));
 
 		// sum of lengths exceeds legal maximum
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
@@ -1284,37 +1276,31 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			// lengths
 			{ 5192, 2165, 15885, 12228,
 				static_cast<int32_t>(arcstk::CDDA.MAX_OFFSET) /* BOOM */, 19513,
-				18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463, 18935 },
-			// no filenames
-			{}
+				18155, 18325, 33075, 18368, 40152, 14798, 11952, 8463, 18935 }
 		));
 
 		// more than 99 tracks + more lengths than offsets
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
-			std::vector<int32_t>(100), /* BOOM */
-			// no filenames
-			{}
+			std::vector<int32_t>(100) /* BOOM */
 		));
 
 		// no lengths
 
-		CHECK_THROWS ( builder.build(
+		CHECK_THROWS ( TOCBuilder::build(
 			// track count
 			15,
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
-			{ }, /* BOOM */
-			// no filenames
-			{}
+			{ } /* BOOM */
 		));
-    }
+	}
 }
