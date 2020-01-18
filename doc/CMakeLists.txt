@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 3.7 )
 
 
-find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
+find_package (Doxygen 1.8.0 ) #COMPONENTS REQUIRED dot )
 
 
 message (STATUS
@@ -116,8 +116,6 @@ if (NOT SKIP_DOXYGEN_HTML )
 
 	message (STATUS "Will build documentation with pure doxygen (HTML)" )
 
-	## We consider file index.html as main doxygen output and dependency
-	##   Used in Doxyfile.in in subdirectories
 	set (DOC_OUTPUT_MAINPAGE "${DOC_BINARY_DIR}/html/index.html" )
 
 	add_custom_command (
