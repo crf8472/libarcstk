@@ -714,7 +714,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
-	std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout) const;
+	static std::unique_ptr<ARId> build(const TOC &toc, const uint32_t leadout);
 
 	/**
 	 * \brief Build an ARId object from the specified TOC.
@@ -725,7 +725,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
-	std::unique_ptr<ARId> build(const TOC &toc) const;
+	static std::unique_ptr<ARId> build(const TOC &toc);
 
 	/**
 	 * \brief Safely construct an empty ARId.
@@ -743,7 +743,7 @@ public:
 	 *
 	 * \return An empty ARId
 	 */
-	std::unique_ptr<ARId> build_empty_id() const noexcept;
+	static std::unique_ptr<ARId> build_empty_id() noexcept;
 
 
 private:
@@ -751,16 +751,15 @@ private:
 	/**
 	 * \brief Perform the actual build process.
 	 *
-	 * \param[in] track_count Track count
-	 * \param[in] offsets     Offsets
+	 * \param[in] toc         The TOC to use
 	 * \param[in] leadout     Leadout frame
 	 *
 	 * \return An ARId object representing the specified information
 	 *
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
-	std::unique_ptr<ARId> build_worker(const TOC &toc, const uint32_t leadout)
-		const;
+	static std::unique_ptr<ARId> build_worker(const TOC &toc,
+			const uint32_t leadout);
 
 	/**
 	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
@@ -768,8 +767,8 @@ private:
 	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 * \param[in] leadout Leadout LBA frame
 	 */
-	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const noexcept;
+	static uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
@@ -777,8 +776,8 @@ private:
 	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 * \param[in] leadout Leadout LBA frame
 	 */
-	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const noexcept;
+	static uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: Compute the CDDB id from offsets and leadout.
@@ -792,8 +791,8 @@ private:
 	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 * \param[in] leadout     Leadout LBA frame
 	 */
-	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const noexcept;
+	static uint32_t cddb_id(const std::vector<uint32_t> &offsets,
+			const uint32_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: sum up the digits of the number passed
@@ -1015,10 +1014,7 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 	auto toc = make_toc(track_count, std::forward<Container>(offsets),
 			leadout, std::vector<std::string>(/* no filenames */));
 
-	using ARIdBuilder = details::ARIdBuilder;
-
-	ARIdBuilder builder;
-	return builder.build(*toc);
+	return details::ARIdBuilder::build(*toc);
 }
 
 

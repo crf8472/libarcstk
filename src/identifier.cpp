@@ -36,19 +36,18 @@ inline namespace v_1_0_0
 
 
 std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
-	const
 {
 	return build_worker(toc, leadout);
 }
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc) const
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc)
 {
 	return build_worker(toc, 0);
 }
 
 
-std::unique_ptr<ARId> ARIdBuilder::build_empty_id() const noexcept
+std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
 {
 	try
 	{
@@ -64,7 +63,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_empty_id() const noexcept
 
 
 std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
-		const uint32_t leadout) const
+		const uint32_t leadout)
 {
 	// Override TOC leadout with optional non-null extra leadout
 
@@ -82,15 +81,15 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 
 	return std::make_unique<ARId>(
 			toc.track_count(),
-			this->disc_id_1(offsets, leadout_val),
-			this->disc_id_2(offsets, leadout_val),
-			this->cddb_id  (offsets, leadout_val)
+			disc_id_1(offsets, leadout_val),
+			disc_id_2(offsets, leadout_val),
+			cddb_id  (offsets, leadout_val)
 	);
 }
 
 
 uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) const noexcept
+		const uint32_t leadout) noexcept
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
@@ -103,7 +102,7 @@ uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
 
 
 uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) const noexcept
+		const uint32_t leadout) noexcept
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
@@ -118,7 +117,7 @@ uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
 
 
 uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) const noexcept
+		const uint32_t leadout) noexcept
 {
 	const auto fps = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
 	uint32_t accum = 0;
