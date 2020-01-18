@@ -1322,7 +1322,7 @@ private:
 
 
 /**
- * \brief Reports insufficient or invalid audio data.
+ * \brief Reports invalid audio data.
  */
 class InvalidAudioException final : public std::logic_error
 {

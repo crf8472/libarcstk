@@ -40,6 +40,28 @@ class TOCBuilder;
 
 
 /**
+ * \brief Defined iff T has <tt>size const()</tt>
+ */
+template <typename T>
+using hasSize =
+	std::enable_if_t<details::has_size<std::remove_reference_t<T>>::value>;
+
+/**
+ * \brief Defined iff T has <tt>begin const()</tt>
+ */
+template <typename T>
+using hasBegin =
+	std::enable_if_t<details::has_begin<std::remove_reference_t<T>>::value>;
+
+/**
+ * \brief Defined iff T is a const-iterable container of filenames
+ */
+template <typename T>
+using FilenameContainer =
+	std::enable_if_t<details::is_filename_container<T>::value>;
+
+
+/**
  * \brief Uniform access to a container by track
  *
  * Uniform range-checked method to access a container by using the track number,
@@ -56,7 +78,7 @@ class TOCBuilder;
  * \return The value for track \c t in the container \c
  */
 template <typename Container,
-		typename = HasSize<Container>, typename = HasBegin<Container> >
+		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t);
 
 
@@ -74,8 +96,8 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t);
  * \param[in] offsets The offsets (default is {})
  */
 template <typename Container1, typename Container2,
-		typename = IsLBAContainer<Container1>,
-		typename = IsLBAContainer<Container2>>
+		typename = LBAContainer<Container1>,
+		typename = LBAContainer<Container2>>
 inline uint32_t calculate_leadout(Container1&& lengths,
 		Container2&& offsets = {});
 
@@ -401,8 +423,8 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	template <typename Container, typename Files,
-			typename = IsLBAContainer<Container>,
-			typename = IsFilenameContainer<Files> >
+			typename = LBAContainer<Container>,
+			typename = FilenameContainer<Files> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container&& offsets,
 			const uint32_t leadout,
@@ -421,7 +443,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	template <typename T, typename = IsLBAType<T> >
+	template <typename T, typename = LBAType<T> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const uint32_t leadout);
@@ -439,9 +461,9 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	template <typename Container1, typename Container2, typename Files,
-		typename = IsLBAContainer<Container1>,
-		typename = IsLBAContainer<Container2>,
-		typename = IsFilenameContainer<Files> >
+		typename = LBAContainer<Container1>,
+		typename = LBAContainer<Container2>,
+		typename = FilenameContainer<Files> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container1&& offsets,
 			Container2&& lengths,
@@ -461,8 +483,8 @@ public:
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
 	template <typename T1, typename T2,
-		typename = IsLBAType<T1>,
-		typename = IsLBAType<T2> >
+		typename = LBAType<T1>,
+		typename = LBAType<T2> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T1> offsets,
 			std::initializer_list<T2> lengths);
@@ -471,8 +493,8 @@ public:
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&) const
 	 */
 	template <typename T, typename Container,
-		typename = IsLBAType<T>,
-		typename = IsLBAContainer<Container> >
+		typename = LBAType<T>,
+		typename = LBAContainer<Container> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		Container&& lengths);
@@ -481,8 +503,8 @@ public:
 	 * \copydoc build(const TrackNo, Container1&&, Container2&&) const
 	 */
 	template <typename Container, typename T,
-		typename = IsLBAContainer<Container>,
-		typename = IsLBAType<T> >
+		typename = LBAContainer<Container>,
+		typename = LBAType<T> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths);
@@ -524,7 +546,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
-	template <typename Container, typename = IsLBAContainer<Container> >
+	template <typename Container, typename = LBAContainer<Container> >
 	inline static std::vector<uint32_t> build_offsets(Container&& offsets,
 			const TrackNo track_count, const uint32_t leadout);
 
@@ -543,8 +565,8 @@ private:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	template <typename Container1, typename Container2,
-		typename = IsLBAContainer<Container1>,
-		typename = IsLBAContainer<Container2> >
+		typename = LBAContainer<Container1>,
+		typename = LBAContainer<Container2> >
 	inline static std::vector<uint32_t> build_offsets(
 			Container1&& offsets,
 			const TrackNo track_count,
@@ -562,7 +584,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
-	template <typename Container, typename = IsLBAContainer<Container> >
+	template <typename Container, typename = LBAContainer<Container> >
 	inline static std::vector<uint32_t> build_lengths(Container&& lengths,
 			const TrackNo track_count);
 
@@ -591,7 +613,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the file list is not valid
 	 */
-	template <typename Container, typename = IsFilenameContainer<Container> >
+	template <typename Container, typename = FilenameContainer<Container> >
 	inline static std::vector<std::string> build_files(Container&& files);
 };
 

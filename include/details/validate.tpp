@@ -392,42 +392,17 @@ struct is_filename_container : public std::integral_constant<bool,
 	/* empty */
 };
 
-
-/**
- * \brief Defined iff T has <tt>size const()</tt>
- */
-template <typename T>
-using HasSize = std::enable_if_t<has_size<std::remove_reference_t<T>>::value>;
-
-/**
- * \brief Defined iff T has <tt>begin const()</tt>
- */
-template <typename T>
-using HasBegin = std::enable_if_t<has_begin<std::remove_reference_t<T>>::value>;
-
 /**
  * \brief Defined iff T is an lba type
  */
 template <typename T>
-using IsLBAType = std::enable_if_t<is_lba_type<T>::value>;
+using LBAType = std::enable_if_t<is_lba_type<T>::value>;
 
 /**
  * \brief Defined iff T is an lba container
  */
 template <typename T>
-using IsLBAContainer = std::enable_if_t<is_lba_container<T>::value>;
-
-/**
- * \brief Defined iff T is a filename type
- */
-template <typename T>
-using IsFilenameType = std::enable_if_t<is_filename_type<T>::value>;
-
-/**
- * \brief Defined iff T is a const-iterable container of filenames
- */
-template <typename T>
-using IsFilenameContainer = std::enable_if_t<is_filename_container<T>::value>;
+using LBAContainer = std::enable_if_t<is_lba_container<T>::value>;
 
 /** @} */
 
@@ -462,13 +437,13 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container, typename = IsLBAContainer<Container>>
+	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate_offsets(Container&& offsets);
 
 	/**
 	 * \copydoc validate_offsets(Container&&) const
 	 */
-	template <typename T, typename = IsLBAType<T>>
+	template <typename T, typename = LBAType<T>>
 	inline static void validate_offsets(std::initializer_list<T> offsets);
 
 	// Commented out: alternative to initializer_lists: C-style arrays
@@ -488,14 +463,14 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container, typename = IsLBAContainer<Container>>
+	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate_offsets(const TrackNo track_count,
 			Container&& offsets);
 
 	/**
 	 * \copydoc validate_offsets(TrackNo, Container&&) const
 	 */
-	template <typename T, typename = IsLBAType<T>>
+	template <typename T, typename = LBAType<T>>
 	inline static void validate_offsets(TrackNo track_count,
 			std::initializer_list<T> offsets);
 
@@ -514,7 +489,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container, typename = IsLBAContainer<Container>>
+	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate(const TrackNo track_count,
 			Container&& offsets,
 			const lba_count leadout);
@@ -522,7 +497,7 @@ public:
 	/**
 	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
 	 */
-	template <typename T, typename = IsLBAType<T>>
+	template <typename T, typename = LBAType<T>>
 	inline static void validate(TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const lba_count leadout);
@@ -541,13 +516,13 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	template <typename Container, typename = IsLBAContainer<Container>>
+	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate_lengths(Container&& lengths);
 
 	/**
 	 * \copydoc validate_lengths(Container&&) const
 	 */
-	template <typename T, typename = IsLBAType<T>>
+	template <typename T, typename = LBAType<T>>
 	inline static void validate_lengths(std::initializer_list<T> lengths);
 
 	/**

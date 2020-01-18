@@ -464,8 +464,7 @@ private:
 
 
 /**
- * \brief Response content from AccurateRip when responding to an request for an
- * ARId.
+ * \brief Response content from AccurateRip when responding to an request
  *
  * \details
  *
@@ -891,7 +890,7 @@ private:
 
 
 /**
- * \brief Populates an existing ARResponse instance by parsed content.
+ * \brief Populates an existing ARResponse instance.
  *
  * \details
  *
@@ -1079,7 +1078,7 @@ private:
 
 
 /**
- * \brief Logs error information and throws a StreamReadException on errors.
+ * \brief Logs every error and throws StreamReadException afterwards
  */
 class DefaultErrorHandler final : public ErrorHandler
 {
@@ -1172,8 +1171,7 @@ private:
 
 
 /**
- * \brief Abstract base class for parsing the content of an AccurateRip
- * HTTP-response.
+ * \brief Abstract base for parsing the content of an AccurateRip HTTP-response.
  *
  * \details
  *

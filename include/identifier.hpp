@@ -513,7 +513,7 @@ private:
 
 
 /**
- * \brief Reports insufficient or invalid metadata for building a TOC.
+ * \brief Reports invalid metadata for building a TOC.
  *
  * \todo Metadata files are usually parsed text files, hence position
  * information about the error may be useful.
@@ -831,6 +831,43 @@ inline namespace v_1_0_0
 
 
 /**
+ * \brief Defined iff T has <tt>size const()</tt>
+ */
+template <typename T>
+using HasSize = std::enable_if_t<details::has_size<std::remove_reference_t<T>>::value>;
+
+/**
+ * \brief Defined iff T has <tt>begin const()</tt>
+ */
+template <typename T>
+using HasBegin = std::enable_if_t<details::has_begin<std::remove_reference_t<T>>::value>;
+
+/**
+ * \brief Defined iff T is an lba type
+ */
+template <typename T>
+using IsLBAType = std::enable_if_t<details::is_lba_type<T>::value>;
+
+/**
+ * \brief Defined iff T is an lba container
+ */
+template <typename T>
+using IsLBAContainer = std::enable_if_t<details::is_lba_container<T>::value>;
+
+/**
+ * \brief Defined iff T is a filename type
+ */
+template <typename T>
+using IsFilenameType = std::enable_if_t<details::is_filename_type<T>::value>;
+
+/**
+ * \brief Defined iff T is a const-iterable container of filenames
+ */
+template <typename T>
+using IsFilenameContainer = std::enable_if_t<details::is_filename_container<T>::value>;
+
+
+/**
  * \brief Create a TOC object from the specified information.
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
@@ -852,8 +889,8 @@ inline namespace v_1_0_0
  * complete() TOC
  */
 template <typename Container1, typename Container2,
-	typename = details::IsLBAContainer<Container1>,
-	typename = details::IsFilenameContainer<Container2> >
+	typename = IsLBAContainer<Container1>,
+	typename = IsFilenameContainer<Container2> >
 inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
 		const uint32_t leadout,
 		Container2&& files = {})
@@ -892,8 +929,8 @@ inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
  * complete() TOC
  */
 template <typename Container1, typename Container2,
-	typename = details::IsLBAContainer<Container1>,
-	typename = details::IsFilenameContainer<Container2> >
+	typename = IsLBAContainer<Container1>,
+	typename = IsFilenameContainer<Container2> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		Container1&& offsets,
 		const uint32_t leadout,
@@ -933,9 +970,9 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \throw InvalidMetadataException If the input data forms no valid TOC
  */
 template <typename Container1, typename Container2, typename Container3,
-	typename = details::IsLBAContainer<Container1>,
-	typename = details::IsLBAContainer<Container2>,
-	typename = details::IsFilenameContainer<Container3> >
+	typename = IsLBAContainer<Container1>,
+	typename = IsLBAContainer<Container2>,
+	typename = IsFilenameContainer<Container3> >
 std::unique_ptr<TOC> make_toc(Container1&& offsets,
 		Container2&& lengths,
 		Container3&& files = {})
@@ -976,9 +1013,9 @@ std::unique_ptr<TOC> make_toc(Container1&& offsets,
  * \throw InvalidMetadataException If the input data forms no valid TOC
  */
 template <typename Container1, typename Container2, typename Container3,
-	typename = details::IsLBAContainer<Container1>,
-	typename = details::IsLBAContainer<Container2>,
-	typename = details::IsFilenameContainer<Container3> >
+	typename = IsLBAContainer<Container1>,
+	typename = IsLBAContainer<Container2>,
+	typename = IsFilenameContainer<Container3> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		Container1&& offsets,
 		Container2&& lengths,
@@ -1007,7 +1044,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  *
  * \throw InvalidMetadataException If the parameters form no valid ARId
  */
-template <typename Container, typename = details::IsLBAContainer<Container> >
+template <typename Container, typename = IsLBAContainer<Container> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 	Container&& offsets, const uint32_t leadout)
 {
@@ -1021,7 +1058,7 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 /**
  * \copydoc build(const TrackNo, Container&&, const uint32_t) const
  */
-template <typename T, typename = details::IsLBAType<T> >
+template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 	std::initializer_list<T> offsets, const uint32_t leadout)
 {
