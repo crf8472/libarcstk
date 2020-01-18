@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 3.7 )
 
 
-find_package (Doxygen 1.8.0 COMPONENTS REQUIRED dot )
+find_package (Doxygen 1.8.0 ) #COMPONENTS REQUIRED dot )
 
 
 message (STATUS
@@ -49,9 +49,6 @@ string (REPLACE ";" " " DOXYGEN_INPUT
 	"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_BINARY_DIR}" )
 set (DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
-
-## Define list of sources for replacement in Doxyfile (TODO: Move to RTD)
-#string (REPLACE ";" " " DOXYGEN_INPUT "${DOC_SOURCES}" )
 
 ## Configure documentation texts
 configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
@@ -119,14 +116,14 @@ if (NOT SKIP_DOXYGEN_HTML )
 
 	message (STATUS "Will build documentation with pure doxygen (HTML)" )
 
-	## We consider file index.html as main doxygen output and dependency
-	##   Used in Doxyfile.in in subdirectories
 	set (DOC_OUTPUT_MAINPAGE "${DOC_BINARY_DIR}/html/index.html" )
 
 	add_custom_command (
 		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
 		COMMAND Doxygen::doxygen "${DOC_DOXYFILE_BASE}"
-		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}" ${DOC_SOURCES}
+		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+				"${DOC_DOXYFILE_BASE}"
+				${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_BINARY_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
