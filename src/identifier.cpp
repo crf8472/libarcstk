@@ -769,15 +769,28 @@ std::vector<std::string> get_filenames(const TOC &toc)
 
 std::unique_ptr<ARId> make_arid(const TOC &toc)
 {
-	details::ARIdBuilder builder;
-	return builder.build(toc);
+	using details::ARIdBuilder;
+	return ARIdBuilder::build(toc);
+}
+
+
+std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc)
+{
+	return make_arid(*toc);
 }
 
 
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout)
 {
-	details::ARIdBuilder builder;
-	return builder.build(toc, leadout);
+	using details::ARIdBuilder;
+	return ARIdBuilder::build(toc, leadout);
+}
+
+
+std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
+		const uint32_t leadout)
+{
+	return make_arid(*toc, leadout);
 }
 
 

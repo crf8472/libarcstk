@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
 
 	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.
-	auto id { arcstk::make_arid(*toc) };
+	auto id { arcstk::make_arid(toc) };
 
 	std::cout << "ID: " << id->to_string() << std::endl;
 	std::cout << "Filename: " << id->filename() << std::endl;

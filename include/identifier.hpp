@@ -152,12 +152,13 @@ extern const CDDA_t CDDA;
  * convenience, functions make_arid() construct the ARId of an album by its
  * TOC.
  *
- * A TOC is the verified table of content information from a compact disc.
+ * A TOC is the validated table of content information from a compact disc.
  * \link TOC TOCs\endlink are exclusively constructed by functions make_toc()
  * that try to validate the information used to construct the TOC. The
- * verification recognizes inconsistent input data that cannot form
- * a valid TOC. If the verification fails, an InvalidMetadataException is
- * thrown.
+ * validation recognizes inconsistent input data that cannot form
+ * a valid TOC. If the validation fails, an InvalidMetadataException is
+ * thrown. A NonstandardMetadataException indicates that the TOC is not
+ * conforming to the redbook standard.
  *
  * @{
  */
@@ -583,11 +584,14 @@ public:
  *
  * \throws InvalidMetadataException
  * If \c toc is not \link TOC::complete() complete()\endlink.
- *
- * \see make_arid(const TOC &toc, const uint32_t leadout)
- * \see make_empty_arid()
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc);
+
+
+/**
+ * \copydoc make_arid(const &TOC)
+ */
+std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
 
 
 /**
@@ -614,20 +618,21 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
  * \return ARId
  *
  * \throws InvalidMetadataException If \c toc and \c leadout are invalid
- *
- * \see make_arid(const TOC &toc)
- * \see make_empty_arid()
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
 
 /**
- * \brief Creates an empty ARId
+ * \copydoc make_arid(const &TOC, const uint32_t)
+ */
+std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
+		const uint32_t leadout);
+
+
+/**
+ * \brief Create an \link ARId::empty() empty()\endlink ARId
  *
  * \return An \link ARId::empty() empty()\endlink ARId
- *
- * \see make_arid(const TOC &toc, const uint32_t leadout)
- * \see make_arid(const TOC &toc)
  */
 std::unique_ptr<ARId> make_empty_arid();
 
@@ -829,19 +834,6 @@ inline namespace v_1_0_0
 /// \addtogroup id
 /// @{
 
-
-/**
- * \brief Defined iff T has <tt>size const()</tt>
- */
-template <typename T>
-using HasSize = std::enable_if_t<details::has_size<std::remove_reference_t<T>>::value>;
-
-/**
- * \brief Defined iff T has <tt>begin const()</tt>
- */
-template <typename T>
-using HasBegin = std::enable_if_t<details::has_begin<std::remove_reference_t<T>>::value>;
-
 /**
  * \brief Defined iff T is an lba type
  */
@@ -864,7 +856,8 @@ using IsFilenameType = std::enable_if_t<details::is_filename_type<T>::value>;
  * \brief Defined iff T is a const-iterable container of filenames
  */
 template <typename T>
-using IsFilenameContainer = std::enable_if_t<details::is_filename_container<T>::value>;
+using IsFilenameContainer =
+	std::enable_if_t<details::is_filename_container<T>::value>;
 
 
 /**
@@ -876,8 +869,8 @@ using IsFilenameContainer = std::enable_if_t<details::is_filename_container<T>::
  *
  * Value \c offsets.size() is assumed to be the number of total tracks.
  *
- * \tparam Container1 LBAContainer type of the offsets container
- * \tparam Container2 FilenameContainer type of the optional filename container
+ * \tparam LBAContainer      Container type of the offsets container
+ * \tparam FilenameContainer Container type of the optional filename container
  *
  * \param[in] offsets Offsets (in LBA frames) for each track
  * \param[in] leadout Leadout frame
@@ -885,23 +878,24 @@ using IsFilenameContainer = std::enable_if_t<details::is_filename_container<T>::
  *
  * \return A TOC object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
+ * \throw InvalidMetadataException If the input forms no valid TOC
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
-template <typename Container1, typename Container2,
-	typename = IsLBAContainer<Container1>,
-	typename = IsFilenameContainer<Container2> >
-inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
+template <typename LBAContainer,
+	typename FilenameContainer = std::vector<std::string>,
+	typename = IsLBAContainer<LBAContainer>,
+	typename = IsFilenameContainer<FilenameContainer> >
+inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
 		const uint32_t leadout,
-		Container2&& files = {})
+		FilenameContainer&& files = {})
 {
-	::arcstk::details::TOCBuilder builder;
+	using ::arcstk::details::TOCBuilder;
 
-	return builder.build(
+	return TOCBuilder::build(
 			offsets.size(),
-			std::forward<Container1>(offsets),
+			std::forward<LBAContainer>(offsets),
 			leadout,
-			std::forward<Container2>(files));
+			std::forward<FilenameContainer>(files));
 }
 
 
@@ -915,8 +909,8 @@ inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
  * The value of \c track_count must be equal to \c offsets().size and is just
  * used for additional validation.
  *
- * \tparam Container1 LBAContainer type of the offsets container
- * \tparam Container2 FilenameContainer type of the optional filename container
+ * \tparam LBAContainer      Container type of the offsets container
+ * \tparam FilenameContainer Container type of the optional filename container
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) for each track
@@ -925,24 +919,25 @@ inline std::unique_ptr<TOC> make_toc(const Container1&& offsets,
  *
  * \return A TOC object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid and
- * complete() TOC
+ * \throw InvalidMetadataException If the input forms no valid TOC
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
-template <typename Container1, typename Container2,
-	typename = IsLBAContainer<Container1>,
-	typename = IsFilenameContainer<Container2> >
+template <typename LBAContainer,
+	typename FilenameContainer = std::vector<std::string>,
+	typename = IsLBAContainer<LBAContainer>,
+	typename = IsFilenameContainer<FilenameContainer> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		Container1&& offsets,
+		LBAContainer&& offsets,
 		const uint32_t leadout,
-		Container2&& files = {})
+		FilenameContainer&& files = {})
 {
-	::arcstk::details::TOCBuilder builder;
+	using ::arcstk::details::TOCBuilder;
 
-	return builder.build(
+	return TOCBuilder::build(
 			track_count,
-			std::forward<Container1>(offsets),
+			std::forward<LBAContainer>(offsets),
 			leadout,
-			std::forward<Container2>(files));
+			std::forward<FilenameContainer>(files));
 }
 
 
@@ -957,9 +952,9 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  *
  * Value \c offsets.size() and \c lengths.size() must be equal.
  *
- * \tparam Container1 LBAContainer type of the offsets container
- * \tparam Container2 LBAContainer type of the lengths container
- * \tparam Container3 FilenameContainer type of the optional filename container
+ * \tparam LBAContainer1     Container type of the offsets container
+ * \tparam LBAContainer2     Container type of the lengths container
+ * \tparam FilenameContainer Container type of the optional filename container
  *
  * \param[in] offsets Offsets (in LBA frames) of each track
  * \param[in] lengths Lengths (in LBA frames) of each track
@@ -967,23 +962,25 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  *
  * \return A TOC object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid TOC
+ * \throw InvalidMetadataException If the input forms no valid TOC
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
-template <typename Container1, typename Container2, typename Container3,
-	typename = IsLBAContainer<Container1>,
-	typename = IsLBAContainer<Container2>,
-	typename = IsFilenameContainer<Container3> >
-std::unique_ptr<TOC> make_toc(Container1&& offsets,
-		Container2&& lengths,
-		Container3&& files = {})
+template <typename LBAContainer1, typename LBAContainer2,
+	typename FilenameContainer = std::vector<std::string>,
+	typename = IsLBAContainer<LBAContainer1>,
+	typename = IsLBAContainer<LBAContainer2>,
+	typename = IsFilenameContainer<FilenameContainer> >
+std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
+		LBAContainer2&& lengths,
+		FilenameContainer&& files = {})
 {
-	::arcstk::details::TOCBuilder builder;
+	using ::arcstk::details::TOCBuilder;
 
-	return builder.build(
+	return TOCBuilder::build(
 			offsets.size(),
-			std::forward<Container1>(offsets),
-			std::forward<Container2>(lengths),
-			std::forward<Container3>(files));
+			std::forward<LBAContainer1>(offsets),
+			std::forward<LBAContainer2>(lengths),
+			std::forward<FilenameContainer>(files));
 }
 
 
@@ -999,9 +996,9 @@ std::unique_ptr<TOC> make_toc(Container1&& offsets,
  *
  * Value \c offsets.size() and \c lengths.size() must be equal.
  *
- * \tparam Container1 LBAContainer type of the offsets container
- * \tparam Container2 LBAContainer type of the lengths container
- * \tparam Container3 FilenameContainer type of the optional filename container
+ * \tparam LBAContainer1     Container type of the offsets container
+ * \tparam LBAContainer2     Container type of the lengths container
+ * \tparam FilenameContainer Container type of the optional filename container
  *
  * \param[in] track_count Number of tracks in this medium
  * \param[in] offsets     Offsets (in LBA frames) of each track
@@ -1010,24 +1007,26 @@ std::unique_ptr<TOC> make_toc(Container1&& offsets,
  *
  * \return A TOC object representing the specified information
  *
- * \throw InvalidMetadataException If the input data forms no valid TOC
+ * \throw InvalidMetadataException If the input forms no valid TOC
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
-template <typename Container1, typename Container2, typename Container3,
-	typename = IsLBAContainer<Container1>,
-	typename = IsLBAContainer<Container2>,
-	typename = IsFilenameContainer<Container3> >
+template <typename LBAContainer1, typename LBAContainer2,
+	typename FilenameContainer = std::vector<std::string>,
+	typename = IsLBAContainer<LBAContainer1>,
+	typename = IsLBAContainer<LBAContainer2>,
+	typename = IsFilenameContainer<FilenameContainer> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
-		Container1&& offsets,
-		Container2&& lengths,
-		Container3&& files = {})
+		LBAContainer1&& offsets,
+		LBAContainer2&& lengths,
+		FilenameContainer&& files = {})
 {
-	::arcstk::details::TOCBuilder builder;
+	using ::arcstk::details::TOCBuilder;
 
-	return builder.build(
+	return TOCBuilder::build(
 			track_count,
-			std::forward<Container1>(offsets),
-			std::forward<Container2>(lengths),
-			std::forward<Container3>(files));
+			std::forward<LBAContainer1>(offsets),
+			std::forward<LBAContainer2>(lengths),
+			std::forward<FilenameContainer>(files));
 }
 
 
@@ -1036,27 +1035,44 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  *
  * This method is intended for easy testing the class.
  *
+ * \tparam LBAContainer  Container type of the offsets container
+ *
  * \param[in] track_count Track count
  * \param[in] offsets     Offsets
  * \param[in] leadout     Leadout frame
  *
  * \return An ARId object representing the specified information
  *
- * \throw InvalidMetadataException If the parameters form no valid ARId
+ * \throw InvalidMetadataException If the input forms no valid ARId
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
-template <typename Container, typename = IsLBAContainer<Container> >
+template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	Container&& offsets, const uint32_t leadout)
+	LBAContainer&& offsets, const uint32_t leadout)
 {
-	auto toc = make_toc(track_count, std::forward<Container>(offsets),
-			leadout, std::vector<std::string>(/* no filenames */));
+	auto toc = make_toc(track_count,
+			std::forward<LBAContainer>(offsets),
+			leadout);
 
 	return details::ARIdBuilder::build(*toc);
 }
 
 
 /**
- * \copydoc build(const TrackNo, Container&&, const uint32_t) const
+ * \brief Build an ARId object from the specified information.
+ *
+ * This method is intended for easy testing the class.
+ *
+ * \tparam T Type of the offsets
+ *
+ * \param[in] track_count Track count
+ * \param[in] offsets     Offsets
+ * \param[in] leadout     Leadout frame
+ *
+ * \return An ARId object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input forms no valid ARId
+ * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,

@@ -25,9 +25,6 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 
 namespace arcstk
@@ -514,7 +511,8 @@ public:
 	 *
 	 * \param[in] lengths Lengths (in LBA frames) of each track
 	 *
-	 * \throw InvalidMetadataException If the validation fails
+	 * \throw InvalidMetadataException If total length exceeds physical maximum
+	 * \throw NonstandardMetadataException If total length exceeds CDDA.MAX_OFFSET
 	 */
 	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate_lengths(Container&& lengths);
@@ -533,7 +531,8 @@ public:
 	 *
 	 * \param[in] leadout Leadout frame of the medium
 	 *
-	 * \throw InvalidMetadataException If the validation fails
+	 * \throw InvalidMetadataException If leadout exceeds physical maximum
+	 * \throw NonstandardMetadataException If leadout exceeds CDDA.MAX_OFFSET
 	 */
 	inline static void validate_leadout(const lba_count leadout);
 
@@ -823,21 +822,21 @@ void TOCValidator::validate_lengths(Container&& lengths)
 		std::stringstream ss;
 		ss << "Total length " << std::to_string(sum_lengths);
 
-		if (sum_lengths > MAX_OFFSET_99) // more than 99 min? => throw
+		if (sum_lengths > MAX_OFFSET_99)
 		{
 			ss << " exceeds physical range of 99 min ("
 				<< std::to_string(MAX_OFFSET_99) << " frames)";
 
 			throw InvalidMetadataException(ss.str());
 
-		} else if (sum_lengths > MAX_OFFSET_90) // more than 90 min? => warn
+		} else if (sum_lengths > MAX_OFFSET_90)
 		{
-			ss << " exceeds redbook maximum of "
+			ss << " exceeds "
 				<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
 
 			throw NonstandardMetadataException(ss.str());
 
-		} else // more than redbook originally defines? => info
+		} else // More than redbook originally defines?
 		{
 			ss << " exceeds redbook maximum of "
 				<< std::to_string(CDDA.MAX_OFFSET);

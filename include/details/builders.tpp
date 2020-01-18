@@ -23,9 +23,6 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp" // requires validate.tpp
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 namespace arcstk
 {
@@ -781,7 +778,14 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 	}
 
 	TOCValidator::validate_offsets(track_count, offsets);
-	TOCValidator::validate_lengths(lengths);
+	try {
+
+		TOCValidator::validate_lengths(lengths);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Just swallow it
+	}
 
 	// Convert offsets to uints
 
@@ -806,7 +810,14 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	// If params make sense, use TOCValidator
 
-	TOCValidator::validate_lengths(lengths);
+	try {
+
+		TOCValidator::validate_lengths(lengths);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Just swallow it
+	}
 
 	// Convert ints to uints while normalizing the last length to 0
 
@@ -823,7 +834,14 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 uint32_t TOCBuilder::build_leadout(const uint32_t leadout)
 {
-	TOCValidator::validate_leadout(leadout);
+	try {
+
+		TOCValidator::validate_leadout(leadout);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Just swallow it
+	}
 
 	return leadout;
 }
