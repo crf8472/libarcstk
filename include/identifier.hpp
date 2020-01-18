@@ -768,7 +768,7 @@ private:
 	 * \param[in] leadout Leadout LBA frame
 	 */
 	uint32_t disc_id_1(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+			const uint32_t leadout) const noexcept;
 
 	/**
 	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
@@ -777,7 +777,7 @@ private:
 	 * \param[in] leadout Leadout LBA frame
 	 */
 	uint32_t disc_id_2(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+			const uint32_t leadout) const noexcept;
 
 	/**
 	 * \brief Service method: Compute the CDDB id from offsets and leadout.
@@ -792,7 +792,7 @@ private:
 	 * \param[in] leadout     Leadout LBA frame
 	 */
 	uint32_t cddb_id(const std::vector<uint32_t> &offsets,
-			const uint32_t leadout) const;
+			const uint32_t leadout) const noexcept;
 
 	/**
 	 * \brief Service method: sum up the digits of the number passed
@@ -801,7 +801,7 @@ private:
 	 *
 	 * \return The sum of the digits of the number
 	 */
-	static uint64_t sum_digits(const uint32_t number);
+	static uint64_t sum_digits(const uint32_t number) noexcept;
 };
 
 } //namespace v_1_0_0
