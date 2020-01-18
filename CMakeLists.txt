@@ -496,3 +496,6 @@ else (WITH_DOCS )
 
 endif (WITH_DOCS )
 
+unset (PROJECT_GIT_DESCRIBE )
+unset (PROJECT_GIT_COMMIT )
+
