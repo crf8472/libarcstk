@@ -94,7 +94,7 @@ add_custom_target (doc )
 
 ## --- If some thirdparty documentation tool was requested, use it
 
-set (VARIANTS MCSS )
+set (VARIANTS MCSS RTD )
 
 foreach (VARIANT IN ITEMS ${VARIANTS} )
 
