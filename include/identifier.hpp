@@ -835,25 +835,40 @@ inline namespace v_1_0_0
 /// @{
 
 /**
- * \brief Defined iff T is an lba type
+ * \brief Defined iff T is a numerical integer type of at least 32 bit size.
  */
 template <typename T>
 using IsLBAType = std::enable_if_t<details::is_lba_type<T>::value>;
 
 /**
- * \brief Defined iff T is an lba container
+ * \brief Defined iff T is a container whose value_type IsLBAType.
+ *
+ * To qualify as an LBAContainer, the class must have const versions of begin()
+ * and end(), a const_iterator, a size() and a value_type that IsLBAType.
  */
 template <typename T>
 using IsLBAContainer = std::enable_if_t<details::is_lba_container<T>::value>;
 
 /**
- * \brief Defined iff T is a filename type
+ * \brief Defined iff T is a filename type, i.e. std::string or std::wstring.
+ *
+ * \note
+ * You may define your own string type to qualify as FilenameType by adding a
+ * specialization of the internal is_filename_type template for your type.
+ * \code{.cpp}
+ * template <>
+ * struct arcstk::details::is_filename_type<MyType> : public std::true_type { };
+ * \endcode
  */
 template <typename T>
 using IsFilenameType = std::enable_if_t<details::is_filename_type<T>::value>;
 
 /**
- * \brief Defined iff T is a const-iterable container of filenames
+ * \brief Defined iff T is a container whose value_type IsFilenameType.
+ *
+ * To qualify as a FilenameContainer, the class must have const versions of
+ * begin() and end(), a const_iterator, a size() and a value_type that
+ * IsFilenameType.
  */
 template <typename T>
 using IsFilenameContainer =
