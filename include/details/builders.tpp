@@ -2,6 +2,9 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #error "Do not include builders.tpp directly, include identifier.hpp instead"
 #endif
+#ifndef __LIBARCSTK_VALIDATE_TPP__
+#error "builders.tpp requires validate.tpp and must be included after it"
+#endif
 
 #ifndef __LIBARCSTK_BUILDERS_TPP__
 #define __LIBARCSTK_BUILDERS_TPP__
@@ -11,18 +14,26 @@
  *
  * \internal
  *
- * \brief Builders for ARIds and TOCs.
+ * \brief Builder for TOCs.
  */
 
 
 #include <cstdint>
-#include <numeric>   // for accumulate
+#include <initializer_list>
+#include <iterator>         // for begin, end
+#include <memory>           // for make_unique, unique_ptr
+#include <numeric>          // for accumulate
 #include <sstream>
+#include <stdexcept>        // for out_of_range
+#include <string>
+#include <type_traits>      // for enable_if, remove_reference_t
+#include <utility>          // for move, forward
 #include <vector>
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp" // requires validate.tpp
-#endif
+// requires InvalidMetadataException, NonstandardMetadataException and TrackNo
+// from identifier.hpp
+
+// requires LBAType, LBAContainer from validate.tpp
 
 namespace arcstk
 {
@@ -76,34 +87,7 @@ using FilenameContainer =
  */
 template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
-inline decltype(auto) get_track(Container&& c, const TrackNo t);
-
-
-/**
- * \brief Calculate leadout from lengths or optionally lengths and offsets
- *
- * No validation is performed.
- *
- * Calculation is faster with offsets available.
- *
- * \tparam Container1 Type of the lengths container
- * \tparam Container2 Type of the optional offsets container
- *
- * \param[in] lengths The lengths
- * \param[in] offsets The offsets (default is {})
- */
-template <typename Container1, typename Container2,
-		typename = LBAContainer<Container1>,
-		typename = LBAContainer<Container2>>
-inline uint32_t calculate_leadout(Container1&& lengths,
-		Container2&& offsets = {});
-
-
-/// \cond UNDOC_FUNCTION_BODIES
-
-
-template <typename Container, typename, typename>
-decltype(auto) get_track(Container&& c, const TrackNo t)
+inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
 	auto container_size = c.size();
 
@@ -121,8 +105,24 @@ decltype(auto) get_track(Container&& c, const TrackNo t)
 }
 
 
-template <typename Container1, typename Container2, typename, typename>
-uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
+/**
+ * \brief Calculate leadout from lengths or optionally lengths and offsets
+ *
+ * No validation is performed.
+ *
+ * Calculation is faster with offsets available.
+ *
+ * \tparam Container1 Type of the lengths container
+ * \tparam Container2 Type of the optional offsets container
+ *
+ * \param[in] lengths The lengths
+ * \param[in] offsets The offsets (default is {})
+ */
+template <typename Container1, typename Container2 = std::vector<uint32_t>,
+		typename = LBAContainer<Container1>,
+		typename = LBAContainer<Container2>>
+inline uint32_t calculate_leadout(Container1&& lengths,
+		Container2&& offsets = {})
 {
 	// from last offset and last length
 
@@ -152,8 +152,6 @@ uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 	// We suppose std::numeric_limits<uint32_t>::max() > CDDA.MAX_BLOCK_ADDRESS
 	return static_cast<uint32_t>(leadout);
 }
-
-/// \endcond
 
 } // namespace v_1_0_0
 
@@ -777,14 +775,22 @@ std::vector<uint32_t> TOCBuilder::build_offsets(
 		throw InvalidMetadataException(ss.str());
 	}
 
-	TOCValidator::validate_offsets(track_count, offsets);
+	try {
+
+		TOCValidator::validate_offsets(track_count, offsets);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Just swallow it for now
+	}
+
 	try {
 
 		TOCValidator::validate_lengths(lengths);
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it
+		// Just swallow it for now
 	}
 
 	// Convert offsets to uints
@@ -816,7 +822,7 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it
+		// Just swallow it for now
 	}
 
 	// Convert ints to uints while normalizing the last length to 0
@@ -840,7 +846,7 @@ uint32_t TOCBuilder::build_leadout(const uint32_t leadout)
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it
+		// Just swallow it for now
 	}
 
 	return leadout;

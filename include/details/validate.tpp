@@ -15,16 +15,16 @@
  */
 
 
-#include <cstdint>
 #include <initializer_list>
+#include <iterator>         // for begin, end
 #include <sstream>
-#include <type_traits>
+#include <string>
+#include <type_traits>      // is_integral, is_arithmetic, integral_constant,
+                            // enable_if, remove_reference_t, is_same, true_type
 #include <vector>
 
-
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
+// requires InvalidMetadataException, NonstandardMetadataException, TrackNo,
+// TOC and CDDA from identifier.hpp
 
 
 namespace arcstk
@@ -663,10 +663,14 @@ void TOCValidator::validate_offsets(Container&& offsets)
 			{
 				ss << " exceeds physical range of 99 min ("
 					<< std::to_string(MAX_OFFSET_99) << " frames)";
+
+				throw NonstandardMetadataException(ss.str());
 			} else if (*track > static_cast<int64_t>(MAX_OFFSET_90))
 			{
 				ss << " exceeds physical range of 90 min ("
 					<< std::to_string(MAX_OFFSET_90) << " frames)";
+
+				throw NonstandardMetadataException(ss.str());
 			} else
 			{
 				ss << " exceeds redbook maximum duration of "

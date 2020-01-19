@@ -157,8 +157,11 @@ extern const CDDA_t CDDA;
  * that try to validate the information used to construct the TOC. The
  * validation recognizes inconsistent input data that cannot form
  * a valid TOC. If the validation fails, an InvalidMetadataException is
- * thrown. A NonstandardMetadataException indicates that the TOC is not
- * conforming to the redbook standard.
+ * thrown.
+ *
+ * A NonstandardMetadataException indicates that the input is not conforming to
+ * the redbook standard. This exception can occurr in tthe internal validation
+ * mechanism but is currently not used in the public API.
  *
  * @{
  */
@@ -582,7 +585,7 @@ public:
  *
  * \return ARId
  *
- * \throws InvalidMetadataException
+ * \throw InvalidMetadataException
  * If \c toc is not \link TOC::complete() complete()\endlink.
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc);
@@ -617,7 +620,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
  *
  * \return ARId
  *
- * \throws InvalidMetadataException If \c toc and \c leadout are invalid
+ * \throw InvalidMetadataException If \c toc and \c leadout are invalid
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
@@ -894,7 +897,6 @@ using IsFilenameContainer =
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer,
 	typename FilenameContainer = std::vector<std::string>,
@@ -935,7 +937,6 @@ inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer,
 	typename FilenameContainer = std::vector<std::string>,
@@ -978,7 +979,6 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer1, typename LBAContainer2,
 	typename FilenameContainer = std::vector<std::string>,
@@ -1023,7 +1023,6 @@ std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
  * \return A TOC object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer1, typename LBAContainer2,
 	typename FilenameContainer = std::vector<std::string>,
@@ -1057,7 +1056,6 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \return An ARId object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
@@ -1082,7 +1080,6 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
  * \return An ARId object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
 inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
@@ -1106,7 +1103,6 @@ inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
  * \return An ARId object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
@@ -1127,7 +1123,6 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
  * \return An ARId object representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
- * \throw NonstandardMetadataException If the input does not conform to redbook
  */
 template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(std::initializer_list<T> offsets,
