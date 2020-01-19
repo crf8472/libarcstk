@@ -1048,8 +1048,6 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 /**
  * \brief Build an ARId object from the specified information.
  *
- * This method is intended for easy testing the class.
- *
  * \tparam LBAContainer  Container type of the offsets container
  *
  * \param[in] track_count Track count
@@ -1076,7 +1074,28 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 /**
  * \brief Build an ARId object from the specified information.
  *
- * This method is intended for easy testing the class.
+ * \tparam LBAContainer  Container type of the offsets container
+ *
+ * \param[in] offsets     Offsets
+ * \param[in] leadout     Leadout frame
+ *
+ * \return An ARId object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input forms no valid ARId
+ * \throw NonstandardMetadataException If the input does not conform to redbook
+ */
+template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
+inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
+		const uint32_t leadout)
+{
+	auto toc = make_toc(std::forward<LBAContainer>(offsets), leadout);
+
+	return details::ARIdBuilder::build(*toc);
+}
+
+
+/**
+ * \brief Build an ARId object from the specified information.
  *
  * \tparam T Type of the offsets
  *
@@ -1094,6 +1113,27 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 	std::initializer_list<T> offsets, const uint32_t leadout)
 {
 	return make_arid(track_count, std::vector<T>{offsets}, leadout);
+}
+
+
+/**
+ * \brief Build an ARId object from the specified information.
+ *
+ * \tparam T Type of the offsets
+ *
+ * \param[in] offsets     Offsets
+ * \param[in] leadout     Leadout frame
+ *
+ * \return An ARId object representing the specified information
+ *
+ * \throw InvalidMetadataException If the input forms no valid ARId
+ * \throw NonstandardMetadataException If the input does not conform to redbook
+ */
+template <typename T, typename = IsLBAType<T> >
+inline std::unique_ptr<ARId> make_arid(std::initializer_list<T> offsets,
+		const uint32_t leadout)
+{
+	return make_arid(std::vector<T>{offsets}, leadout);
 }
 
 /** @} */
