@@ -202,6 +202,10 @@ private:
 };
 
 
+/**
+ * \internal
+ * \brief Implementation details of API version 1.0.0
+ */
 namespace details
 {
 

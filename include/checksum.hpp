@@ -201,11 +201,6 @@ namespace checksum
 } // namespace checksum
 
 
-/**
- * \internal
- *
- * \brief Implementation details of namespace arcstk
- */
 namespace details
 {
 
