@@ -27,9 +27,9 @@
 namespace arcstk
 {
 
-namespace details
-{
 inline namespace v_1_0_0
+{
+namespace details
 {
 
 // ARIdBuilder
@@ -140,13 +140,7 @@ uint64_t ARIdBuilder::sum_digits(const uint32_t number) noexcept
 	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
 }
 
-} // namespace v_1_0_0
-
 } // namespace details
-
-
-inline namespace v_1_0_0
-{
 
 
 /**

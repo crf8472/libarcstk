@@ -209,14 +209,6 @@ namespace checksum
 namespace details
 {
 
-/**
- * \internal
- *
- * \brief Implementation details of namespace arcstk::V_1_0_0
- */
-inline namespace V_1_0_0
-{
-
 // forward declaration: ChecksumMapIterator needs this
 template <typename K>
 class ChecksumMap;
@@ -609,8 +601,6 @@ private: // TODO Hide this!
 #ifndef __LIBARCSTK_CHECKSUM_TPP__
 #include "details/checksum.tpp"
 #endif
-
-} // namespace details::V_1_0_0
 
 } // namespace details
 

@@ -684,12 +684,8 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 /** @} */
 
-} // namespace v_1_0_0
-
 
 namespace details
-{
-inline namespace v_1_0_0
 {
 
 /**
@@ -814,9 +810,9 @@ private:
 	static uint64_t sum_digits(const uint32_t number) noexcept;
 };
 
-} //namespace v_1_0_0
-
 } //namespace details
+
+} //namespace v_1_0_0
 
 } // namespace arcstk
 
