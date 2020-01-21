@@ -78,7 +78,8 @@ add_custom_command(
 	COMMAND ./bin/pip install
 	ARGS    -r "${ENV_REQ}" --upgrade
 	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E copy "${ENV_REQ}" "${ENV_DIR}/${STAMP_FILE}"
+	#ARGS    -E copy "${ENV_REQ}" "${ENV_DIR}/${STAMP_FILE}"
+	ARGS    -E touch "${ENV_DIR}/${STAMP_FILE}"
 	WORKING_DIRECTORY "${ENV_DIR}"
 	VERBATIM
 	COMMENT "Update python requirements in virtual environment"
@@ -91,6 +92,6 @@ add_custom_target (python-virtualenv
 
 
 ## Export variables used in parent CMakeLists.txt
-set (ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
-set (PYTHON_CMD    "${ENV_DIR}/bin/python" PARENT_SCOPE )
+#set (PYTHON_ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
+set (PYTHON_CMD           "${ENV_DIR}/bin/python" PARENT_SCOPE )
 

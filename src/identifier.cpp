@@ -27,9 +27,9 @@
 namespace arcstk
 {
 
-namespace details
-{
 inline namespace v_1_0_0
+{
+namespace details
 {
 
 // ARIdBuilder
@@ -140,13 +140,7 @@ uint64_t ARIdBuilder::sum_digits(const uint32_t number) noexcept
 	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
 }
 
-} // namespace v_1_0_0
-
 } // namespace details
-
-
-inline namespace v_1_0_0
-{
 
 
 /**
@@ -695,7 +689,8 @@ namespace details
  * Type Container is required to yield its number of elements by member function
  * size() and to allow assignment via operator[].
  *
- * \tparam Container Container type with \c size() and \c []&
+ * \tparam Container Container type with size() and operator []&
+ * \tparam InType    The type \c accessor returns
  *
  * \param[in,out] c         Actual container
  * \param[in]     toc       Number of the track to access
@@ -719,18 +714,6 @@ decltype(auto) toc_get(Container&& c,
 
 	return c;
 }
-
-// Example usage:
-//
-//template<typename Container>
-//static typename std::enable_if<details::is_lba_container<Container>::value,
-//	void>::type
-//append(Container& to, const Container& from)
-//{
-//    using std::begin;
-//    using std::end;
-//    to.insert(end(to), begin(from), end(from));
-//}
 
 } // namespace details
 

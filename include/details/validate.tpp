@@ -30,9 +30,9 @@
 namespace arcstk
 {
 
-namespace details
-{
 inline namespace v_1_0_0
+{
+namespace details
 {
 
 /// \internal \addtogroup id
@@ -932,9 +932,9 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 
 /// \endcond
 
-} // namespace v_1_0_0
-
 } // namespace details
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 

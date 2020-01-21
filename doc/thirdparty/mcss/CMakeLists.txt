@@ -4,7 +4,7 @@
 
 ## Prerequisites from parent:
 ## - 'doc' target must exist
-## - Variables: DOC_BINARY_DIR, DOC_DOXYFILE_BASE
+## - Variables: DOC_GEN_DIR, DOC_BINARY_DIR, DOC_DOXYFILE_BASE
 
 if (WIN32 )
 
@@ -23,10 +23,10 @@ message (STATUS "Will build documentation with m.css" )
 
 ## --- Overwrite default values from parent
 
-set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_BINARY_DIR}/mcss" )
+set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}/mcss" )
 set (DOC_OUTPUT_MAINPAGE      "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (DOC_OUTPUT_INDEX         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
-set (DOC_DOXYFILE             "${DOXYGEN_OUTPUT_DIRECTORY}/Doxyfile" )
+set (DOC_DOXYFILE             "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
 set (PYTHON_REQUIREMENTS      "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt" )
@@ -115,7 +115,7 @@ endif()
 
 ## Note: PYTHON_REQUIREMENTS must have been set before this point
 add_subdirectory ("${PROJECT_DOC_DIR}/thirdparty/python-virtualenv"
-	"${PROJECT_BINARY_DIR}/doc/thirdparty/python-virtualenv" )
+	"${DOC_BINARY_DIR}/thirdparty/python-virtualenv" )
 
 configure_file ("${MCSS_DOXYFILE_TEMPLATE}" "${DOC_DOXYFILE}" @ONLY )
 
@@ -138,23 +138,24 @@ add_custom_command (
 			"${MCSS_DOXYFILE_TEMPLATE}"
 			"${DOC_DOXYFILE}"
 			${DOC_SOURCES}
-	WORKING_DIRECTORY "${ENV_DIRECTORY}"
+	WORKING_DIRECTORY "${DOC_GEN_DIR}"
 	COMMENT "Run doxygen to generate XML"
 	VERBATIM
 )
 
-# Run m.css command to generate documentation
+# Run m.css command (skipping doxygen) to generate documentation
 add_custom_command (
 	OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
 	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOC_DOXYFILE}"
+			2> "${PROJECT_LOG_DIR}/MCSS.log"
 	DEPENDS "${DOC_OUTPUT_INDEX}"
-	WORKING_DIRECTORY "${ENV_DIRECTORY}"
+	WORKING_DIRECTORY "${DOC_GEN_DIR}"
 	COMMENT "${DOC_COMMENT}"
 	VERBATIM
 )
 
 add_custom_target (doc_mcss DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
-add_dependencies(doc_mcss python-virtualenv )
+add_dependencies  (doc_mcss python-virtualenv )
 
-add_dependencies(doc doc_mcss )
+add_dependencies  (doc doc_mcss )
 

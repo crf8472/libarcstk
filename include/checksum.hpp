@@ -201,20 +201,7 @@ namespace checksum
 } // namespace checksum
 
 
-/**
- * \internal
- *
- * \brief Implementation details of namespace arcstk
- */
 namespace details
-{
-
-/**
- * \internal
- *
- * \brief Implementation details of namespace arcstk::V_1_0_0
- */
-inline namespace V_1_0_0
 {
 
 // forward declaration: ChecksumMapIterator needs this
@@ -609,8 +596,6 @@ private: // TODO Hide this!
 #ifndef __LIBARCSTK_CHECKSUM_TPP__
 #include "details/checksum.tpp"
 #endif
-
-} // namespace details::V_1_0_0
 
 } // namespace details
 

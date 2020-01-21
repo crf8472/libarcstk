@@ -2,8 +2,6 @@
 
 import lxml.etree as ET
 
-## from: https://stackoverflow.com/questions/16698935/how-to-transform-an-xml-file-using-xslt-in-python
-
 def xsl_transform(inDoc, xslFile, outDoc):
     doc = ET.parse(inDoc)
     xslt = ET.parse(xslFile)

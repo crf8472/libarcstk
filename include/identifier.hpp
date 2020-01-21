@@ -575,7 +575,8 @@ public:
 
 
 /**
- * \brief Create an ARId from a \link TOC::complete() complete()\endlink TOC.
+ * \brief Create an ARId from a
+ * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink TOC.
  *
  * \details
  *
@@ -586,13 +587,13 @@ public:
  * \return ARId
  *
  * \throw InvalidMetadataException
- * If \c toc is not \link TOC::complete() complete()\endlink.
+ * If \c toc is not \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc);
 
 
 /**
- * \copydoc make_arid(const &TOC)
+ * \copydoc make_arid(const TOC &toc)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
 
@@ -602,7 +603,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
  *
  * The input is validated.
  *
- * Parameter \c toc is allowed to be non-\link TOC::complete()
+ * Parameter \c toc is allowed to be non-\link arcstk::v_1_0_0::TOC::complete()
  * complete()\endlink. Parameter \c leadout is intended to provide the value
  * possibly missing in \c toc.
  *
@@ -626,16 +627,16 @@ std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout);
 
 
 /**
- * \copydoc make_arid(const &TOC, const uint32_t)
+ * \copydoc make_arid(const TOC &toc, const uint32_t leadout)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 		const uint32_t leadout);
 
 
 /**
- * \brief Create an \link ARId::empty() empty()\endlink ARId
+ * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  *
- * \return An \link ARId::empty() empty()\endlink ARId
+ * \return An \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  */
 std::unique_ptr<ARId> make_empty_arid();
 
@@ -683,22 +684,19 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 /** @} */
 
-} // namespace v_1_0_0
-
 
 namespace details
-{
-inline namespace v_1_0_0
 {
 
 /**
  * \internal
  * \ingroup id
  *
- * \brief Constructs ARId instances from TOC data.
+ * \brief Constructs \link arcstk::v_1_0_0::ARId ARIds \endlink from
+ * \link arcstk::v_1_0_0::TOC TOC \endlink data.
  *
- * Constructs @link ARId ARIds @endlink either from a TOC or from the triplet of
- * track count, list of offsets and leadout frame.
+ * Constructs ARIds either from a TOC or from the triplet of track count, list
+ * of offsets and leadout frame.
  *
  * ARIdBuilder validates its input and will refuse to construct invalid ARIds
  * from any data. Hence, if an ARId is returned, it is guaranteed to be correct.
@@ -812,9 +810,9 @@ private:
 	static uint64_t sum_digits(const uint32_t number) noexcept;
 };
 
-} //namespace v_1_0_0
-
 } //namespace details
+
+} //namespace v_1_0_0
 
 } // namespace arcstk
 
@@ -883,7 +881,7 @@ using IsFilenameContainer =
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
  * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
+ * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
  * Value \c offsets.size() is assumed to be the number of total tracks.
  *
@@ -921,7 +919,7 @@ inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
  * TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
+ * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
  * The value of \c track_count must be equal to \c offsets().size and is just
  * used for additional validation.
@@ -962,7 +960,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  *
  * The input data is validated but the length of the last track is allowed to
  * be 0. The returned TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
+ * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
  * Value \c offsets.size() is assumed to be the number of total tracks.
  *
@@ -1004,7 +1002,7 @@ std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
  *
  * The input data is validated but the length of the last track is allowed to
  * be 0. The returned TOC is therefore not guaranteed to be
- * \link TOC::complete() complete()\endlink.
+ * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
  * The value of \c track_count must be equal to \c offsets().size and is just
  * used for additional validation.

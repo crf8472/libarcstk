@@ -37,10 +37,9 @@
 
 namespace arcstk
 {
-
-namespace details
-{
 inline namespace v_1_0_0
+{
+namespace details
 {
 
 // forward declaration
@@ -153,13 +152,8 @@ inline uint32_t calculate_leadout(Container1&& lengths,
 	return static_cast<uint32_t>(leadout);
 }
 
-} // namespace v_1_0_0
-
 } // namespace details
 
-
-inline namespace v_1_0_0
-{
 
 /**
  * \internal
@@ -372,12 +366,8 @@ bool TOC::Impl::operator == (const TOC::Impl &rhs) const
 
 /// \endcond
 
-} // namespace v_1_0_0
-
 
 namespace details
-{
-inline namespace v_1_0_0
 {
 
 
@@ -868,9 +858,9 @@ std::vector<std::string> TOCBuilder::build_files(Container&& files)
 
 /// \endcond
 
-} // namespace v_1_0_0
-
 } // namespace details
+
+} // namespace v_1_0_0
 
 } // namespace arcstk
 
