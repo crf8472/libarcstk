@@ -113,8 +113,6 @@ highlight_language = 'cpp'
 
 # -- Custom functionality ----------------------------------------------------
 
-## from: https://stackoverflow.com/questions/16698935/how-to-transform-an-xml-file-using-xslt-in-python
-
 def xsl_transform(inDoc, xslFile, outDoc):
     doc = ET.parse(inDoc)
     xslt = ET.parse(xslFile)
@@ -127,22 +125,13 @@ def xsl_transform(inDoc, xslFile, outDoc):
 
 def doxy_deduplicate_index():
     xsl_transform(
-            "@DOC_OUTPUT_INDEX@",
+            "@OUTPUT_INDEX@",
             "@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl",
-            "@DOC_OUTPUT_INDEX@")
+            "@OUTPUT_INDEX@")
     print('Removed duplicated <compound> elements in index.xml')
 
 
-def doxy_deduplicate_namespace():
-    xsl_transform(
-            "@SPHINX_BINARY_DIR@/xml/namespacearcstk_1_1v__1__0__0.xml",
-            "@PROJECT_DOC_DIR@/doxy_fix_inline_ns.xsl",
-            "@SPHINX_BINARY_DIR@/xml/namespacearcstk_1_1v__1__0__0.xml")
-    print('Removed all namespace elements from arcstk:v_1_0_0')
-
-
 def setup(app):
-    doxy_deduplicate_index()
-    #doxy_deduplicate_namespace()
+    #doxy_deduplicate_index()
     return
 

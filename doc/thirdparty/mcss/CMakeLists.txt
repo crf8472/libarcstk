@@ -106,7 +106,7 @@ endif()
 
 
 
-## --- Set up python environment and doxygen settings
+## --- Set up python environment
 
 add_requirements_target (mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
