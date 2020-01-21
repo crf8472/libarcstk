@@ -76,7 +76,7 @@ if (WITH_INTERNAL_DOCS)
 	message (STATUS "Will build documentation also for internal APIs" )
 	set (DOXYGEN_INTERNAL_DOCS "YES" )
 
-	set(DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
+	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
 
 	set (DOC_SOURCES ${DOC_SOURCES} ${NONPUBLIC_HEADERS} )
 
@@ -138,8 +138,7 @@ if (NOT SKIP_DOXYGEN_HTML )
 	)
 
 	add_custom_target (doc_plain DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
-
-	add_dependencies (doc doc_plain )
+	add_dependencies  (doc doc_plain )
 
 endif()
 

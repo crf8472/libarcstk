@@ -126,7 +126,7 @@ set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
 
-## Install directories
+## --- Install directories
 
 set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
 	CACHE PATH "Installation directory for library (.so) files" )
