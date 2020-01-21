@@ -24,17 +24,17 @@ message (STATUS "Will build documentation with m.css" )
 ## --- Overwrite default values from parent
 
 set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}/mcss" )
-set (DOC_OUTPUT_MAINPAGE      "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
-set (DOC_OUTPUT_INDEX         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
-set (DOC_DOXYFILE             "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
+## --- Some variables
 
-## --- m.css identifiers
+set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
+set (OUTPUT_INDEX      "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
+set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
+set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-set (MCSS_DOXYFILE_TEMPLATE   "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
-set (MCSS_REPO_URL            "https://github.com/mosra/m.css.git" )
-set (MCSS_SCRIPT_RELPATH      "documentation/doxygen.py" )
+set (MCSS_REPO_URL       "https://github.com/mosra/m.css.git" )
+set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## Commented out:
 ## Before commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
@@ -115,27 +115,26 @@ add_requirements_target (mcss_requirements
 
 ## --- Run doxygen to generate XML
 
-configure_file ("${MCSS_DOXYFILE_TEMPLATE}" "${DOC_DOXYFILE}" @ONLY )
+configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 
-add_doxygen_target (mcss_doxygen "${DOC_DOXYFILE}"
-	"${MCSS_DOXYFILE_TEMPLATE}"
-	"${DOC_OUTPUT_INDEX}"
+add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
+	"${OUTPUT_INDEX}"
 )
 
 
-# --- Run m.css command (skipping doxygen) to generate documentation
+# --- Run m.css to generate documentation from doxygen's output
 
 add_custom_command (
-	OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOC_DOXYFILE}"
+	OUTPUT  "${OUTPUT_MAINPAGE}"
+	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOXYFILE}"
 			2> "${PROJECT_LOG_DIR}/MCSS.log"
-	DEPENDS "${DOC_OUTPUT_INDEX}"
+	DEPENDS "${OUTPUT_INDEX}"
 	WORKING_DIRECTORY "${DOC_GEN_DIR}"
 	COMMENT "${DOC_COMMENT}"
 	VERBATIM
 )
 
-add_custom_target (mcss_doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
 add_dependencies  (mcss_doc mcss_requirements mcss_doxygen )
 
 add_dependencies  (doc mcss_doc )
