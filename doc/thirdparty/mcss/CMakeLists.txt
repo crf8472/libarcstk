@@ -4,7 +4,7 @@
 
 ## Prerequisites from parent:
 ## - 'doc' target must exist
-## - Variables: DOC_GEN_DIR, DOC_BINARY_DIR, DOC_DOXYFILE_BASE
+## - Variables: DOC_GEN_DIR, DOC_COMMENT
 
 if (WIN32 )
 
@@ -29,20 +29,15 @@ set (DOC_OUTPUT_INDEX         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOC_DOXYFILE             "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
-set (PYTHON_REQUIREMENTS      "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt" )
-set (PYTHON_SANITIZE_SCRIPT   "dedup_index.py" )  ## sanitize doxygen >= 1.8.16
-set (PYTHON_SANITIZE_SHEET    "dedup_index.xsl" )
-
 
 ## --- m.css identifiers
 
 set (MCSS_DOXYFILE_TEMPLATE   "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
-set (MCSS_REPO_URL "https://github.com/mosra/m.css.git" )
-set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
+set (MCSS_REPO_URL            "https://github.com/mosra/m.css.git" )
+set (MCSS_SCRIPT_RELPATH      "documentation/doxygen.py" )
 ## Commented out:
 ## Before commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
-set (MCSS_TARGET provide_mcss ) ## just an initial dummy value
 
 
 
@@ -54,7 +49,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 
 	include (ExternalProject )
 
-	ExternalProject_Add (${MCSS_TARGET}
+	ExternalProject_Add (mcss_provide
 		GIT_REPOSITORY    ${MCSS_REPO_URL}
 		#GIT_TAG          ... use always HEAD of master
 		GIT_SHALLOW       true
@@ -70,9 +65,9 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 		LOG_DOWNLOAD      ON
 	)
 
-	add_dependencies (doc provide_mcss ) ## 'doc' target must already exist!
+	add_dependencies (doc mcss_provide ) ## 'doc' target must already exist!
 
-	ExternalProject_Get_Property (${MCSS_TARGET} SOURCE_DIR )
+	ExternalProject_Get_Property (mcss_provide SOURCE_DIR )
 
 	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
@@ -84,28 +79,28 @@ else()
 
 	include (FetchContent )
 
-	FetchContent_Declare (${MCSS_TARGET}
+	FetchContent_Declare (mcss_provide
 		GIT_REPOSITORY    "${MCSS_REPO_URL}"
 		#GIT_TAG          ... use always HEAD of master
 	)
 
 	if (${CMAKE_VERSION} VERSION_LESS "3.14" )
 
-		#FetchContent_GetProperties (${MCSS_TARGET} )
+		#FetchContent_GetProperties (mcss_provide )
 
-		if (NOT ${MCSS_TARGET}_POPULATED )
+		if (NOT mcss_provide_POPULATED )
 
-			FetchContent_Populate (${MCSS_TARGET} )
+			FetchContent_Populate (mcss_provide )
 
 		endif()
 	else()
 
 		# with 3.14 comes:
-		FetchContent_MakeAvailable (${MCSS_TARGET} )
+		FetchContent_MakeAvailable (mcss_provide )
 
 	endif()
 
-	set (MCSS_CMD "${${MCSS_TARGET}_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+	set (MCSS_CMD "${mcss_provide_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 endif()
 
@@ -113,37 +108,23 @@ endif()
 
 ## --- Set up python environment and doxygen settings
 
-## Note: PYTHON_REQUIREMENTS must have been set before this point
-add_subdirectory ("${PROJECT_DOC_DIR}/thirdparty/python-virtualenv"
-	"${DOC_BINARY_DIR}/thirdparty/python-virtualenv" )
+add_requirements_target (mcss_requirements
+	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
+)
+
+
+## --- Run doxygen to generate XML
 
 configure_file ("${MCSS_DOXYFILE_TEMPLATE}" "${DOC_DOXYFILE}" @ONLY )
 
-configure_file (
-	"${PROJECT_DOC_DIR}/thirdparty/doxygen/${PYTHON_SANITIZE_SCRIPT}"
-	"${DOC_BINARY_DIR}/${PYTHON_SANITIZE_SCRIPT}"
-	@ONLY )
-
-
-
-## --- Generate DOC_OUTPUT_MAINPAGE by running m.css command
-
-# Run doxygen to generate XML output
-add_custom_command (
-	OUTPUT  "${DOC_OUTPUT_INDEX}"
-	COMMAND Doxygen::doxygen "${DOC_DOXYFILE}"
-	COMMAND "${PYTHON_CMD}" "${DOC_BINARY_DIR}/${PYTHON_SANITIZE_SCRIPT}"
-	DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
-			"${DOC_DOXYFILE_BASE}"
-			"${MCSS_DOXYFILE_TEMPLATE}"
-			"${DOC_DOXYFILE}"
-			${DOC_SOURCES}
-	WORKING_DIRECTORY "${DOC_GEN_DIR}"
-	COMMENT "Run doxygen to generate XML"
-	VERBATIM
+add_doxygen_target (mcss_doxygen "${DOC_DOXYFILE}"
+	"${MCSS_DOXYFILE_TEMPLATE}"
+	"${DOC_OUTPUT_INDEX}"
 )
 
-# Run m.css command (skipping doxygen) to generate documentation
+
+# --- Run m.css command (skipping doxygen) to generate documentation
+
 add_custom_command (
 	OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
 	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOC_DOXYFILE}"
@@ -154,8 +135,8 @@ add_custom_command (
 	VERBATIM
 )
 
-add_custom_target (doc_mcss DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
-add_dependencies  (doc_mcss python-virtualenv )
+add_custom_target (mcss_doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+add_dependencies  (mcss_doc mcss_requirements mcss_doxygen )
 
-add_dependencies  (doc doc_mcss )
+add_dependencies  (doc mcss_doc )
 

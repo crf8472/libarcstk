@@ -99,7 +99,6 @@ endif (WITH_INTERNAL_DOCS)
 add_custom_target (doc )
 
 
-
 ## --- If some thirdparty documentation tool was requested, use it
 
 set (VARIANTS MCSS RTD )
@@ -108,14 +107,93 @@ foreach (VARIANT IN ITEMS ${VARIANTS} )
 
 	if (USE_${VARIANT} )
 
-		string(TOLOWER ${VARIANT} DOC_DIR )
+		string (TOLOWER ${VARIANT} VARIANT_DIR )
 
-		add_subdirectory ("thirdparty/${DOC_DIR}" EXCLUDE_FROM_ALL )
-
-		set (SKIP_DOXYGEN_HTML TRUE )
+		list (APPEND LOAD_VARIANTS "${VARIANT_DIR}" )
 	endif()
 
 endforeach()
+unset (VARIANT )
+unset (VARIANT_DIR )
+
+
+if (LOAD_VARIANTS )
+
+	## Deactivate stock Doxygen HTML
+	set (SKIP_DOXYGEN_HTML TRUE )
+
+	## Configure virtual Python Sandbox
+	add_subdirectory ("thirdparty/python-virtualenv" EXCLUDE_FROM_ALL )
+endif()
+
+
+## --- Configure the specified template and run doxygen with it
+## Subdir CMakes can use add_doxygenxml_target
+
+if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 AND PYTHON_ENV_AVAILABLE )
+
+	set (DEDUP_INDEX_SCRIPT "${DOC_BINARY_DIR}/dedup_index.py" )
+
+	configure_file (
+		"${PROJECT_DOC_DIR}/thirdparty/doxygen/dedup_index.py"
+		"${DEDUP_INDEX_SCRIPT}"
+		@ONLY
+	)
+
+	macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
+
+		add_custom_command (
+			OUTPUT  "${INDEXFILE}"
+			COMMAND Doxygen::doxygen "${DOXYFILE}"
+			COMMAND "${PYTHON_CMD}" "${DEDUP_INDEX_SCRIPT}" "${INDEXFILE}"
+			DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+					"${DOC_DOXYFILE_BASE}"
+					"${DOXYTEMPLATE}"
+					"${DOXYFILE}"
+					${DOC_SOURCES}
+			WORKING_DIRECTORY "${DOC_GEN_DIR}"
+			COMMENT "Run doxygen for target ${DOXY_TARGET}"
+			VERBATIM
+		)
+
+		add_custom_target (${DOXY_TARGET} DEPENDS "${INDEXFILE}" )
+		add_dependencies  (${DOXY_TARGET} python-virtualenv )
+	endmacro()
+
+else()
+
+	if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 )
+
+		message (WARNING
+			"Doxygen ${DOXYGEN_VERSION} produces duplicates in index.xml" )
+	endif()
+
+	macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
+
+		add_custom_command (
+			OUTPUT  "${INDEXFILE}"
+			COMMAND Doxygen::doxygen "${DOXYFILE}"
+			DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+					"${DOC_DOXYFILE_BASE}"
+					"${DOXYTEMPLATE}"
+					"${DOXYFILE}"
+					${DOC_SOURCES}
+			WORKING_DIRECTORY "${DOC_GEN_DIR}"
+			COMMENT "Run doxygen for target ${DOXY_TARGET}"
+			VERBATIM
+		)
+
+		add_custom_target (${DOXY_TARGET} DEPENDS "${INDEXFILE}" )
+	endmacro()
+endif()
+
+
+foreach (VARIANT IN ITEMS ${LOAD_VARIANTS} )
+
+	## Subdir CMake can attach target "python-virtualenv" as requirement
+	add_subdirectory ("thirdparty/${VARIANT}" EXCLUDE_FROM_ALL )
+endforeach()
+
 
 
 ## --- If no variant is requested, use standard doxygen for target 'doc'
@@ -126,19 +204,15 @@ if (NOT SKIP_DOXYGEN_HTML )
 
 	set (DOC_OUTPUT_MAINPAGE "${DOC_GEN_DIR}/html/index.html" )
 
-	add_custom_command (
-		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
-		COMMAND Doxygen::doxygen "${DOC_DOXYFILE_BASE}"
-		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
-				"${DOC_DOXYFILE_BASE}"
-				${DOC_SOURCES}
-		WORKING_DIRECTORY "${DOC_GEN_DIR}"
-		COMMENT "${DOC_COMMENT}"
-		VERBATIM
-	)
+	add_doxygen_target (plain_doxygen "${DOC_DOXYFILE_BASE}"
+		"${DOC_DOXYFILE_BASE_TEMPLATE}"
+		"${DOC_OUTPUT_MAINPAGE}"
+	) ## This will produce HTML but call deduplication needlessly
 
-	add_custom_target (doc_plain DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
-	add_dependencies  (doc doc_plain )
+	add_custom_target (plain_doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+	add_dependencies  (plain_doc plain_doxygen )
+
+	add_dependencies  (doc plain_doc )
 
 endif()
 

@@ -37,9 +37,6 @@ endif()
 
 set (ENV_NAME   python-sandbox )
 set (ENV_DIR    "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
-set (REQ_FILE   "${PYTHON_REQUIREMENTS}" ) ## Must be set by parent !
-set (STAMP_FILE "update.stamp" )
-set (ENV_REQ    "${ENV_DIR}/requirements.txt" )
 
 
 ## Setup ENV_DIR as virtual environment directory
@@ -48,7 +45,7 @@ add_custom_command(
 	COMMAND ${VIRTUALENV}
 	ARGS    -p ${CALL_PYTHON} "${ENV_DIR}"
 	VERBATIM
-	COMMENT "Create virtual python environment"
+	COMMENT "Create python sandbox"
 )
 ## Note:
 ## One could also do this by specifying the following:
@@ -59,39 +56,35 @@ add_custom_command(
 ## fell back to python 2.7 which caused the m.css run to fail on some enconding
 ## issue.
 
-
-## Update and Install requirements file in ENV_DIR
-add_custom_command(
-	OUTPUT  "${ENV_REQ}"
-	DEPENDS "${REQ_FILE}"
-	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E copy "${REQ_FILE}" "${ENV_REQ}"
-	VERBATIM
-	COMMENT "Copy requirements.txt to virtual environment"
-)
-
-
-## Update and Install requirements dependencies in ENV_DIR
-add_custom_command(
-	OUTPUT  "${ENV_DIR}/${STAMP_FILE}"
-	DEPENDS "${ENV_REQ}"
-	COMMAND ./bin/pip install
-	ARGS    -r "${ENV_REQ}" --upgrade
-	COMMAND ${CMAKE_COMMAND}
-	#ARGS    -E copy "${ENV_REQ}" "${ENV_DIR}/${STAMP_FILE}"
-	ARGS    -E touch "${ENV_DIR}/${STAMP_FILE}"
-	WORKING_DIRECTORY "${ENV_DIR}"
-	VERBATIM
-	COMMENT "Update python requirements in virtual environment"
-)
-
-
-## Export target depending on virtual environment
-add_custom_target (python-virtualenv
-	DEPENDS "${ENV_DIR}" "${ENV_DIR}/${STAMP_FILE}" )
-
+add_custom_target (python-virtualenv DEPENDS "${ENV_DIR}" )
 
 ## Export variables used in parent CMakeLists.txt
-#set (PYTHON_ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
+set (PYTHON_ENV_AVAILABLE "YES"                   PARENT_SCOPE )
+set (PYTHON_ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
 set (PYTHON_CMD           "${ENV_DIR}/bin/python" PARENT_SCOPE )
+
+
+## Macro to Install and Update requirements dependencies in ENV_DIR
+## This can be used in other CMakeLists.txt
+macro (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
+
+	set (STAMP_FILE "${PYTHON_ENV_DIRECTORY}/${UPDATE_TARGET}.update.stamp" )
+
+	add_custom_command(
+		OUTPUT  "${STAMP_FILE}"
+		DEPENDS "${REQUIREMENTS_FILE}"
+		COMMAND ${PYTHON_ENV_DIRECTORY}/bin/pip install
+		ARGS    -r "${REQUIREMENTS_FILE}" --upgrade
+		COMMAND ${CMAKE_COMMAND}
+		ARGS    -E touch "${STAMP_FILE}"
+		WORKING_DIRECTORY "${PYTHON_ENV_DIRECTORY}"
+		VERBATIM
+		COMMENT "Update requirements in python sandbox for ${UPDATE_TARGET}"
+	)
+
+	add_custom_target (${UPDATE_TARGET} DEPENDS "${STAMP_FILE}" )
+	unset (STAMP_FILE )
+
+	add_dependencies (${UPDATE_TARGET} python-virtualenv )
+endmacro()
 
