@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import lxml.etree as ET
 
 def xsl_transform(inDoc, xslFile, outDoc):
@@ -11,12 +12,10 @@ def xsl_transform(inDoc, xslFile, outDoc):
         print(transformed_doc, file=f)
     return
 
-def doxy_deduplicate_index():
-    xsl_transform(
-            "@DOXYGEN_OUTPUT_DIRECTORY@/xml/index.xml",
-            "@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl",
-            "@DOXYGEN_OUTPUT_DIRECTORY@/xml/index.xml")
+def doxy_deduplicate_index(filename):
+    xsl_transform(filename,
+            "@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl", filename)
     print('Removed duplicated <compound> elements in index.xml')
 
-doxy_deduplicate_index()
+doxy_deduplicate_index(sys.argv[1])
 
