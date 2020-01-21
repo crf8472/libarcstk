@@ -82,6 +82,9 @@ add_doxygen_target (rtd_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
 	"${OUTPUT_INDEX}"
 )
 
+## FIXME This is only the case if deduplication takes place
+add_dependencies (rtd_doxygen rtd_requirements )
+
 
 
 # --- Run sphinx to generate Read-the-docs documentation from doxygen's output
@@ -96,7 +99,7 @@ add_custom_command (
 )
 
 add_custom_target (rtd_doc DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (rtd_doc rtd_requirements rtd_doxygen )
+add_dependencies  (rtd_doc rtd_doxygen )
 
 add_dependencies  (doc rtd_doc )
 

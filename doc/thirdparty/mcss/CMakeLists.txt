@@ -121,6 +121,9 @@ add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
 	"${OUTPUT_INDEX}"
 )
 
+## FIXME This is only the case if deduplication takes place
+add_dependencies (mcss_doxygen mcss_requirements )
+
 
 # --- Run m.css to generate documentation from doxygen's output
 
@@ -135,7 +138,7 @@ add_custom_command (
 )
 
 add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (mcss_doc mcss_requirements mcss_doxygen )
+add_dependencies  (mcss_doc mcss_doxygen )
 
 add_dependencies  (doc mcss_doc )
 
