@@ -13,10 +13,13 @@ message (STATUS
 ## --- Organize subdirectories and build directories
 
 ## "Target directory for generated documentation"
-set (DOC_BINARY_DIR    "${PROJECT_BINARY_DIR}/generated-docs" )
+set (DOC_GEN_DIR          "${PROJECT_BINARY_DIR}/generated-docs" )
+
+## Target directory for 'doc' target (to be provided to subdirectory scripts)
+set (DOC_BINARY_DIR       "${CMAKE_CURRENT_BINARY_DIR}" )
 
 ## "Target directory for configured documentation texts"
-set (DOC_TEXTS_BINARY_DIR "${DOC_BINARY_DIR}/texts" )
+set (DOC_TEXTS_GEN_DIR    "${DOC_BINARY_DIR}/texts" )
 
 ## Path to import documentation texts
 set (DOC_TEXTS_SOURCE_DIR "${PROJECT_DOC_DIR}/texts" )
@@ -28,7 +31,7 @@ set (DOC_TEXTS_SOURCE_DIR "${PROJECT_DOC_DIR}/texts" )
 set (DOC_COMMENT "Build documentation for APIs" )
 
 ## Deployed mainpage file
-set (DOC_MAINPAGE "${DOC_TEXTS_BINARY_DIR}/MAINPAGE.md" )
+set (DOC_MAINPAGE "${DOC_TEXTS_GEN_DIR}/MAINPAGE.md" )
 
 ## Define input for documentation
 set (DOC_SOURCES ${EXPORTED_HEADERS} ${DOC_MAINPAGE} )
@@ -40,17 +43,28 @@ set (DOC_DOXYFILE_BASE "${DOC_BINARY_DIR}/Doxyfile-base" )
 set (DOC_DOXYFILE_BASE_TEMPLATE "${PROJECT_DOC_DIR}/Doxyfile.in" )
 
 ## CMake controlled values in the Doxyfile base template
-set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_BINARY_DIR}" )
+set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}" )
 string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH
 	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
 string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
 	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
 string (REPLACE ";" " " DOXYGEN_INPUT
-	"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_BINARY_DIR}" )
+	"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_GEN_DIR}" )
 set (DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 
-## Configure documentation texts
+
+
+## --- Generate documentation output directory
+
+file (MAKE_DIRECTORY "${DOC_GEN_DIR}" )
+
+
+
+## --- Configure doxyfile and static texts
+
+configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
+
 configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 
 
@@ -71,12 +85,6 @@ else ()
 	set (DOXYGEN_INTERNAL_DOCS "NO" )
 
 endif (WITH_INTERNAL_DOCS)
-
-
-
-## --- Provide base Doxyfile
-
-configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 
 
 
@@ -116,7 +124,7 @@ if (NOT SKIP_DOXYGEN_HTML )
 
 	message (STATUS "Will build documentation with pure doxygen (HTML)" )
 
-	set (DOC_OUTPUT_MAINPAGE "${DOC_BINARY_DIR}/html/index.html" )
+	set (DOC_OUTPUT_MAINPAGE "${DOC_GEN_DIR}/html/index.html" )
 
 	add_custom_command (
 		OUTPUT  "${DOC_OUTPUT_MAINPAGE}"
@@ -124,7 +132,7 @@ if (NOT SKIP_DOXYGEN_HTML )
 		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
 				"${DOC_DOXYFILE_BASE}"
 				${DOC_SOURCES}
-		WORKING_DIRECTORY "${DOC_BINARY_DIR}"
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
 	)

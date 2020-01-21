@@ -108,7 +108,7 @@ set_property(GLOBAL APPEND
 set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 
 ## "Root directory for public/exported headers"
-set (PROJECT_INCLUDE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+set (PROJECT_INCLUDE_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 ## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
