@@ -7,7 +7,7 @@
 
 OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
 # Has to be repeated: Doxfile-base gets the value from root CMakeLists.txt,
-# Doxyfile-mcss has to get the value from m.css/CMakeListst.txt.
+# Doxyfile has to get the value from m.css/CMakeListst.txt.
 
 INHERIT_DOCS           = NO
 
@@ -30,7 +30,7 @@ GENERATE_LATEX         = NO
 
 GENERATE_XML           = YES
 XML_PROGRAMLISTING     = NO
-XML_NS_MEMB_FILE_SCOPE = YES
+XML_NS_MEMB_FILE_SCOPE = YES # 1.8.15
 
 
 

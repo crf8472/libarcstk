@@ -40,10 +40,40 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
 
+add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
+
 
 ## --- Define m.css to be checked out/updated while configuring
 
-if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
+
+	## --- Use FetchContent if possible
+
+	include (FetchContent )
+
+	FetchContent_Declare (mcss_provide
+		GIT_REPOSITORY    "${MCSS_REPO_URL}"
+		#GIT_TAG          ... use always HEAD of master
+	)
+
+	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14" )
+
+		FetchContent_MakeAvailable (mcss_provide )
+
+	else()
+
+		#FetchContent_GetProperties (mcss_provide )
+
+		if (NOT mcss_provide_POPULATED )
+
+			FetchContent_Populate (mcss_provide )
+
+		endif (NOT mcss_provide_POPULATED )
+	endif()
+
+	set (MCSS_CMD "${mcss_provide_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+
+else() ## No FetchContent module available
 
 	## --- Define m.css as target
 
@@ -65,44 +95,15 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 		LOG_DOWNLOAD      ON
 	)
 
-	add_dependencies (doc mcss_provide ) ## 'doc' target must already exist!
-
 	ExternalProject_Get_Property (mcss_provide SOURCE_DIR )
 
 	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 	unset(SOURCE_DIR )
 
-else()
-
-	## --- Fetch m.css
-
-	include (FetchContent )
-
-	FetchContent_Declare (mcss_provide
-		GIT_REPOSITORY    "${MCSS_REPO_URL}"
-		#GIT_TAG          ... use always HEAD of master
-	)
-
-	if (${CMAKE_VERSION} VERSION_LESS "3.14" )
-
-		#FetchContent_GetProperties (mcss_provide )
-
-		if (NOT mcss_provide_POPULATED )
-
-			FetchContent_Populate (mcss_provide )
-
-		endif()
-	else()
-
-		# with 3.14 comes:
-		FetchContent_MakeAvailable (mcss_provide )
-
-	endif()
-
-	set (MCSS_CMD "${mcss_provide_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
-
 endif()
+
+add_dependencies (mcss_doc mcss_provide )
 
 
 
@@ -113,32 +114,51 @@ add_requirements_target (mcss_requirements
 )
 
 
-## --- Run doxygen to generate XML
+## --- Prepare Doxygen XML generation
 
 configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 
-add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
-	"${OUTPUT_INDEX}"
-)
+if (DOXYGEN_NEEDS_PYTHON )
 
-## FIXME This is only the case if deduplication takes place
-add_dependencies (mcss_doxygen mcss_requirements )
+	## Doxygen needs to run separately from m.css since we want to intercept
+	## its XML output.
 
+	add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
+		"${OUTPUT_INDEX}"
+	)
 
-# --- Run m.css to generate documentation from doxygen's output
+	add_dependencies (mcss_doxygen mcss_requirements )
+	add_dependencies (mcss_doc     mcss_doxygen )
 
-add_custom_command (
-	OUTPUT  "${OUTPUT_MAINPAGE}"
-	COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOXYFILE}"
-			2> "${PROJECT_LOG_DIR}/MCSS.log"
-	DEPENDS "${OUTPUT_INDEX}"
-	WORKING_DIRECTORY "${DOC_GEN_DIR}"
-	COMMENT "${DOC_COMMENT}"
-	VERBATIM
-)
+	add_custom_command (
+		OUTPUT  "${OUTPUT_MAINPAGE}"
+		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOXYFILE}"
+				2> "${PROJECT_LOG_DIR}/MCSS.log"
+		DEPENDS "${OUTPUT_INDEX}"
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
+		COMMENT "${DOC_COMMENT}"
+		VERBATIM
+	)
+else()
 
-add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (mcss_doc mcss_doxygen )
+	## Doxygen is called by m.css.
+
+	add_dependencies (mcss_doc mcss_requirements mcss_provide )
+
+	add_custom_command (
+		OUTPUT  "${OUTPUT_MAINPAGE}"
+		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${DOXYFILE}"
+				2> "${PROJECT_LOG_DIR}/MCSS.log"
+		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+				"${DOC_DOXYFILE_BASE}"
+				"${DOXYFILE_TEMPLATE}"
+				"${DOXYFILE}"
+				${DOC_SOURCES}
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
+		COMMENT "${DOC_COMMENT}"
+		VERBATIM
+	)
+endif()
 
 add_dependencies  (doc mcss_doc )
 

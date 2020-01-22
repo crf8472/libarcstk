@@ -64,8 +64,9 @@ set (PYTHON_ENV_DIRECTORY "${ENV_DIR}"            PARENT_SCOPE )
 set (PYTHON_CMD           "${ENV_DIR}/bin/python" PARENT_SCOPE )
 
 
-## Macro to Install and Update requirements dependencies in ENV_DIR
-## This can be used in other CMakeLists.txt
+## Macro to Install and Update custom requirements in the sandbox.
+##
+## This is provided for use in other CMakeLists.txt.
 macro (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
 
 	set (STAMP_FILE "${PYTHON_ENV_DIRECTORY}/${UPDATE_TARGET}.update.stamp" )

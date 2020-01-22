@@ -132,6 +132,8 @@ endif()
 
 if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 AND PYTHON_ENV_AVAILABLE )
 
+	set (DOXYGEN_NEEDS_PYTHON "YES" )
+
 	set (DEDUP_INDEX_SCRIPT "${DOC_BINARY_DIR}/dedup_index.py" )
 
 	configure_file (

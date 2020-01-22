@@ -123,15 +123,14 @@ def xsl_transform(inDoc, xslFile, outDoc):
     return
 
 
-def doxy_deduplicate_index():
-    xsl_transform(
-            "@OUTPUT_INDEX@",
-            "@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl",
-            "@OUTPUT_INDEX@")
-    print('Removed duplicated <compound> elements in index.xml')
+def doxy_deduplicate_index(filename):
+    xsl_transform(filename,
+            '@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl', filename)
+    print('Deduplicate <compound> elements in index.xml')
 
 
 def setup(app):
-    #doxy_deduplicate_index()
+    if not exhale_args['exhaleExecutesDoxygen']:
+        doxy_deduplicate_index('@OUTPUT_INDEX@')
     return
 
