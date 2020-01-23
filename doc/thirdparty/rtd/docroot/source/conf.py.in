@@ -95,7 +95,7 @@ exhale_args = {
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": @EXHALE_EXECUTES_DOXYGEN@,
-    "exhaleUseDoxyfile":     True
+    "exhaleUseDoxyfile":     @EXHALE_EXECUTES_DOXYGEN@
     #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_DIR@"
 }
 
