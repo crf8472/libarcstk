@@ -124,15 +124,25 @@ if (LOAD_VARIANTS )
 
 	## Configure virtual Python Sandbox
 	add_subdirectory ("thirdparty/python-virtualenv" EXCLUDE_FROM_ALL )
+	## Now, PYTHON_ENV_AVAILABLE is "YES"
 endif()
 
 
-## --- Configure the specified template and run doxygen with it
-## Subdir CMakes can use add_doxygenxml_target
 
-if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 AND PYTHON_ENV_AVAILABLE )
+## --- Detect Doxygen version with duplication bug and setup deduplication
 
-	set (DOXYGEN_NEEDS_PYTHON "YES" )
+if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
+
+	set (DOXYGEN_XML_NEEDS_DEDUP  "YES" )
+endif()
+
+
+if (DOXYGEN_XML_NEEDS_DEDUP )
+
+	if (NOT PYTHON_ENV_AVAILABLE )
+
+		message (ERROR "Doxygen needs python for deduplication script" )
+	endif()
 
 	set (DEDUP_INDEX_SCRIPT "${DOC_BINARY_DIR}/dedup_index.py" )
 
@@ -142,52 +152,82 @@ if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 AND PYTHON_ENV_AVAILABLE )
 		@ONLY
 	)
 
-	macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
-
-		add_custom_command (
-			OUTPUT  "${INDEXFILE}"
-			COMMAND Doxygen::doxygen "${DOXYFILE}"
-			COMMAND "${PYTHON_CMD}" "${DEDUP_INDEX_SCRIPT}" "${INDEXFILE}"
-			DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
-					"${DOC_DOXYFILE_BASE}"
-					"${DOXYTEMPLATE}"
-					"${DOXYFILE}"
-					${DOC_SOURCES}
-			WORKING_DIRECTORY "${DOC_GEN_DIR}"
-			COMMENT "Run doxygen for target ${DOXY_TARGET}"
-			VERBATIM
-		)
-
-		add_custom_target (${DOXY_TARGET} DEPENDS "${INDEXFILE}" )
-		add_dependencies  (${DOXY_TARGET} python-virtualenv )
-	endmacro()
-
-else()
-
-	if (DOXYGEN_VERSION VERSION_GREATER 1.8.15 )
-
-		message (WARNING
-			"Doxygen ${DOXYGEN_VERSION} produces duplicates in index.xml" )
-	endif()
-
-	macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
-
-		add_custom_command (
-			OUTPUT  "${INDEXFILE}"
-			COMMAND Doxygen::doxygen "${DOXYFILE}"
-			DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
-					"${DOC_DOXYFILE_BASE}"
-					"${DOXYTEMPLATE}"
-					"${DOXYFILE}"
-					${DOC_SOURCES}
-			WORKING_DIRECTORY "${DOC_GEN_DIR}"
-			COMMENT "Run doxygen for target ${DOXY_TARGET}"
-			VERBATIM
-		)
-
-		add_custom_target (${DOXY_TARGET} DEPENDS "${INDEXFILE}" )
-	endmacro()
+	add_requirements_target (doxygen_requirements
+		"${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/doxygen/requirements.txt"
+	)
 endif()
+
+
+macro (add_doxygen_dedup DOXY_PRIMARY_TARGET XMLFILE )
+
+	set (STAMP_FILE "${XMLFILE}.deduplicated" )
+
+	add_custom_command (
+		OUTPUT  "${STAMP_FILE}"
+		COMMAND "${PYTHON_CMD}" "${DEDUP_INDEX_SCRIPT}" "${XMLFILE}"
+		DEPENDS "${XMLFILE}"
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
+		COMMENT "Eliminate duplicate compounds in doxygen XML for target ${DOXY_PRIMARY_TARGET}"
+		VERBATIM
+	)
+
+	set (DEDUP_TARGET "${DOXY_PRIMARY_TARGET}_dedup" )
+
+	message (STATUS "Add doxygen dedup target ${DEDUP_TARGET}" )
+
+	add_custom_target (${DEDUP_TARGET} DEPENDS "${STAMP_FILE}" )
+
+	add_dependencies  (${DEDUP_TARGET} doxygen_requirements )
+
+	add_dependencies  (${DEDUP_TARGET} ${DOXY_PRIMARY_TARGET} )
+
+	unset (DOXY_PRIMARY_TARGET )
+	unset (DEDUP_TARGET )
+	unset (XMLFILE )
+endmacro()
+
+
+
+## --- Provide indication for configurable tools whether doxygen prefers
+##     to run in a separate step or can safely be called by the tool.
+
+if (DOXYGEN_XML_NEEDS_DEDUP )
+
+	set (DOXYGEN_PREFERS_SEPARATE "YES" ) ## To be checked in subdir cmakes
+endif()
+
+
+## --- Provide macro for subdir CMake configs to request doxygen runs
+
+macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
+
+	add_custom_command (
+		OUTPUT  "${INDEXFILE}"
+		COMMAND Doxygen::doxygen "${DOXYFILE}"
+		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+				"${DOC_DOXYFILE_BASE}"
+				"${DOXYTEMPLATE}"
+				"${DOXYFILE}"
+				${DOC_SOURCES}
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
+		COMMENT "Run doxygen for target ${DOXY_TARGET}"
+		VERBATIM
+	)
+
+	add_custom_target (${DOXY_TARGET} )
+
+	## Handle possible deduplication requirement
+	if (DOXYGEN_XML_NEEDS_DEDUP )
+
+		set (DOXY_RUN_TARGET "${DOXY_TARGET}_run" )
+
+		add_custom_target (${DOXY_RUN_TARGET} DEPENDS "${INDEXFILE}" )
+
+		add_doxygen_dedup (${DOXY_RUN_TARGET} "${INDEXFILE}" )
+
+		add_dependencies  (${DOXY_TARGET}     "${DOXY_RUN_TARGET}_dedup" )
+	endif()
+endmacro()
 
 
 foreach (VARIANT IN ITEMS ${LOAD_VARIANTS} )

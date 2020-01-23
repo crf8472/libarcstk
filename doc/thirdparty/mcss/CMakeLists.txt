@@ -49,33 +49,34 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 
 	## --- Use FetchContent if possible
 
+	## This will NOT update the cloned m.css on build!
+
 	include (FetchContent )
 
-	FetchContent_Declare (mcss_provide
+	FetchContent_Declare (m_css
 		GIT_REPOSITORY    "${MCSS_REPO_URL}"
 		#GIT_TAG          ... use always HEAD of master
+		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
 	)
 
 	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14" )
 
-		FetchContent_MakeAvailable (mcss_provide )
+		FetchContent_MakeAvailable (m_css )
 
 	else()
 
-		#FetchContent_GetProperties (mcss_provide )
+		if (NOT m_css_POPULATED )
 
-		if (NOT mcss_provide_POPULATED )
+			FetchContent_Populate (m_css )
 
-			FetchContent_Populate (mcss_provide )
-
-		endif (NOT mcss_provide_POPULATED )
+		endif (NOT m_css_POPULATED )
 	endif()
 
-	set (MCSS_CMD "${mcss_provide_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+	set (MCSS_CMD "${m_css_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 else() ## No FetchContent module available
 
-	## --- Define m.css as target
+	## --- Define m.css as target (will be updated on build)
 
 	include (ExternalProject )
 
@@ -99,12 +100,10 @@ else() ## No FetchContent module available
 
 	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
+	add_dependencies (mcss_doc mcss_provide )
+
 	unset(SOURCE_DIR )
-
 endif()
-
-add_dependencies (mcss_doc mcss_provide )
-
 
 
 ## --- Set up python environment
@@ -113,22 +112,23 @@ add_requirements_target (mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
+add_dependencies (mcss_doc mcss_requirements )
+
 
 ## --- Prepare Doxygen XML generation
 
 configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 
-if (DOXYGEN_NEEDS_PYTHON )
+if (DOXYGEN_PREFERS_SEPARATE )
 
-	## Doxygen needs to run separately from m.css since we want to intercept
+	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
 	add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
 		"${OUTPUT_INDEX}"
 	)
 
-	add_dependencies (mcss_doxygen mcss_requirements )
-	add_dependencies (mcss_doc     mcss_doxygen )
+	add_dependencies (mcss_doc mcss_doxygen )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
@@ -142,8 +142,6 @@ if (DOXYGEN_NEEDS_PYTHON )
 else()
 
 	## Doxygen is called by m.css.
-
-	add_dependencies (mcss_doc mcss_requirements mcss_provide )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"

@@ -94,8 +94,8 @@ exhale_args = {
     "createTreeView":        True,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": False, ## We want to intercept doxygen output
-    #"exhaleUseDoxyfile":     True
+    "exhaleExecutesDoxygen": @EXHALE_EXECUTES_DOXYGEN@,
+    "exhaleUseDoxyfile":     True
     #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_DIR@"
 }
 
@@ -130,7 +130,7 @@ def doxy_deduplicate_index(filename):
 
 
 def setup(app):
-    if not exhale_args['exhaleExecutesDoxygen']:
+    if not exhale_args['exhaleExecutesDoxygen'] and '@DOXYGEN_XML_NEEDS_DEDUP@' == 'YES':
         doxy_deduplicate_index('@OUTPUT_INDEX@')
     return
 
