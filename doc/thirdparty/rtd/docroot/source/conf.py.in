@@ -27,7 +27,7 @@ import lxml.etree as ET
 # -- Project information -----------------------------------------------------
 
 project = '@PROJECT_NAME@'
-copyright = '2019, tristero'
+copyright = '2019-2020 tristero'
 author = 'tristero'
 
 # The full version, including alpha/beta/rc tags
@@ -116,24 +116,7 @@ highlight_language = 'cpp'
 
 # -- Custom functionality ----------------------------------------------------
 
-def xsl_transform(inDoc, xslFile, outDoc):
-    doc = ET.parse(inDoc)
-    xslt = ET.parse(xslFile)
-    transform = ET.XSLT(xslt)
-    transformed_doc = transform(doc)
-    with open(outDoc, 'w') as f:
-        print(transformed_doc, file=f)
-    return
-
-
-def doxy_deduplicate_index(filename):
-    xsl_transform(filename,
-            '@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl', filename)
-    print('Deduplicate <compound> elements in index.xml')
-
-
-def setup(app):
-    if not exhale_args['exhaleExecutesDoxygen'] and '@DOXYGEN_XML_NEEDS_DEDUP@' == 'YES':
-        doxy_deduplicate_index('@OUTPUT_INDEX@')
-    return
+#def setup(app):
+#    # Functionality placed here will be called when exhale is loaded
+#    return
 

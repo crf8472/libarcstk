@@ -170,6 +170,8 @@ macro (add_doxygen_dedup DOXY_PRIMARY_TARGET XMLFILE )
 	add_custom_command (
 		OUTPUT  "${STAMP_FILE}"
 		COMMAND "${PYTHON_CMD}" "${DEDUP_INDEX_SCRIPT}" "${XMLFILE}"
+		COMMAND ${CMAKE_COMMAND}
+		ARGS    -E touch "${STAMP_FILE}"
 		DEPENDS "${XMLFILE}"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "Eliminate duplicate compounds in doxygen XML for target ${DOXY_PRIMARY_TARGET}"

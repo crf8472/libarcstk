@@ -18,6 +18,7 @@ cmake_minimum_required (VERSION 3.0.2 )
 ## Doxygen is already required in parent
 
 message (STATUS "Will build documentation with sphinx" )
+message (WARNING "Sphinx support for Read-the-docs is experimental and broken" )
 
 
 
@@ -80,7 +81,7 @@ set (EXHALE_EXECUTES_DOXYGEN "True" )
 
 if (DOXYGEN_XML_NEEDS_DEDUP )
 
-	# --- Run doxygen in a separate target and make sphinx depend on its output
+	# --- Run doxygen in a separate target and make exhale depend on its output
 
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
@@ -109,7 +110,7 @@ if (DOXYGEN_XML_NEEDS_DEDUP )
 	)
 else()
 
-	# --- Let sphinx/exhale run doxygen
+	# --- Let exhale run doxygen
 
 	set (DOXYFILE "${SPHINX_BINARY_DIR}/source/Doxyfile" )
 
