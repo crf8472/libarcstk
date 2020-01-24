@@ -74,7 +74,9 @@ html_static_path = ['_static']
 
 # -- Breathe -----------------------------------------------------------------
 
-breathe_projects = { "@PROJECT_NAME@": "@DOXYGEN_OUTPUT_DIRECTORY@/xml" }
+breathe_projects = {
+    "@PROJECT_NAME@": "@DOXYGEN_OUTPUT_DIRECTORY@/xml"
+}
 
 breathe_default_project = "@PROJECT_NAME@"
 
@@ -84,19 +86,20 @@ breathe_default_project = "@PROJECT_NAME@"
 
 # Setup the exhale extension
 exhale_args = {
-    # These arguments are required
+    # mandatory
     "containmentFolder":     "./api",
     "rootFileName":          "library_root.rst",
     "rootFileTitle":         "@PROJECT_NAME@ API",
-    "doxygenStripFromPath":  "@PROJECT_INCLUDE_DIR@",
-    #"doxygenStripFromPath":  "../../../include", ## MUST match Doxyfile's STRIP_FROM_PATH
-    # Suggested optional arguments
-    "createTreeView":        True,
-    # TIP: if using the sphinx-bootstrap-theme, you need
-    # "treeViewIsBootstrap": True,
+    #"doxygenStripFromPath":  "@PROJECT_INCLUDE_DIR@",
+    "doxygenStripFromPath":  "../../../../",
+    # optional
+    "createTreeView":        True, # TIP: if using the sphinx-bootstrap-theme,
+                                   # you need
+                                   # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": @EXHALE_EXECUTES_DOXYGEN@,
     "exhaleUseDoxyfile":     @EXHALE_EXECUTES_DOXYGEN@
     #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_DIR@"
+    #"listingExclude":        [ r".*::v_1_0_0" ]
 }
 
 
