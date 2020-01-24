@@ -101,7 +101,7 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 	}
 
 	auto it = std::begin(c);
-	for (int i = static_cast<int>(t); i > 1; --i) { ++it; }
+	for (auto i = static_cast<int>(t); i > 1; --i, ++it);
 
 	return *it;
 }
@@ -117,12 +117,14 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
  * \tparam Container2 Type of the offsets container
  *
  * \param[in] lengths The lengths
- * \param[in] offsets The offsets (default is {})
+ * \param[in] offsets The offsets
+ *
+ * \return The leadout corresponding to the offsets and lengths
  */
 template <typename Container1, typename Container2,
 		typename = LBAContainer<Container1>,
 		typename = LBAContainer<Container2>>
-inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
+inline lba_count calculate_leadout(Container1&& lengths, Container2&& offsets)
 {
 	// from last offset and last length
 
@@ -134,21 +136,21 @@ inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 	if (lengths.size() != offsets.size())
 	{
 		throw InvalidMetadataException(
-				"Requested leadout from inconsistent offsets and lengths");
+			"Requested leadout from inconsistent offsets and lengths");
 	}
 
-	auto last_length { --std::end(lengths) };
+	auto last_length { *--std::end(lengths) };
+	auto leadout     { last_length ? *--std::end(offsets) + last_length : 0 };
 
-	auto val = *last_length == 0 ? 0 : *(--std::end(offsets)) + *last_length;
-
-	if (static_cast<unsigned int>(val) > CDDA.MAX_BLOCK_ADDRESS)
+	if (CDDA.MAX_BLOCK_ADDRESS <
+			static_cast<decltype(CDDA.MAX_BLOCK_ADDRESS)>(leadout))
 	{
 		throw InvalidMetadataException(
 			"Calculated leadout is bigger than maximal legal block address");
 	}
 
 	// We suppose std::numeric_limits<uint32_t>::max() > CDDA.MAX_BLOCK_ADDRESS
-	return static_cast<uint32_t>(val);
+	return static_cast<lba_count>(leadout);
 }
 
 } // namespace details
