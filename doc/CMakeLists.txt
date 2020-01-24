@@ -101,23 +101,23 @@ add_custom_target (doc )
 
 ## --- If some thirdparty documentation tool was requested, use it
 
-set (VARIANTS MCSS RTD )
+list (APPEND GENERATORS MCSS RTD )
 
-foreach (VARIANT IN ITEMS ${VARIANTS} )
+foreach (GENERATOR IN ITEMS ${GENERATORS} )
 
-	if (USE_${VARIANT} )
+	if (USE_${GENERATOR} )
 
-		string (TOLOWER ${VARIANT} VARIANT_DIR )
+		string (TOLOWER ${GENERATOR} GENERATOR_DIR )
 
-		list (APPEND LOAD_VARIANTS "${VARIANT_DIR}" )
+		list (APPEND LOAD_GENERATORS "${GENERATOR_DIR}" )
 	endif()
 
 endforeach()
-unset (VARIANT )
-unset (VARIANT_DIR )
+unset (GENERATOR )
+unset (GENERATOR_DIR )
 
 
-if (LOAD_VARIANTS )
+if (LOAD_GENERATORS )
 
 	## Deactivate stock Doxygen HTML
 	set (SKIP_DOXYGEN_HTML TRUE )
@@ -137,11 +137,14 @@ if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 endif()
 
 
-if (DOXYGEN_XML_NEEDS_DEDUP )
+if (DOXYGEN_XML_NEEDS_DEDUP AND LOAD_GENERATORS )
+
+	# If no generators are to be used, we fall back to doxygen's stock html.
+	# In this case, no deduplication is required!
 
 	if (NOT PYTHON_ENV_AVAILABLE )
 
-		message (ERROR "Doxygen needs python for deduplication script" )
+		message (WARNING "Doxygen needs python for deduplication script" )
 	endif()
 
 	set (DEDUP_INDEX_SCRIPT "${DOC_BINARY_DIR}/dedup_index.py" )
@@ -155,6 +158,8 @@ if (DOXYGEN_XML_NEEDS_DEDUP )
 	add_requirements_target (doxygen_requirements
 		"${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/doxygen/requirements.txt"
 	)
+
+	set (DOXYGEN_PREFERS_SEPARATE "YES" ) ## To be checked in subdir cmakes
 endif()
 
 
@@ -188,15 +193,6 @@ endmacro()
 
 
 
-## --- Provide indication for configurable tools whether doxygen prefers
-##     to run in a separate step or can safely be called by the tool.
-
-if (DOXYGEN_XML_NEEDS_DEDUP )
-
-	set (DOXYGEN_PREFERS_SEPARATE "YES" ) ## To be checked in subdir cmakes
-endif()
-
-
 ## --- Provide macro for subdir CMake configs to request doxygen runs
 
 macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
@@ -217,7 +213,7 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
 	add_custom_target (${DOXY_TARGET} )
 
 	## Handle possible deduplication requirement
-	if (DOXYGEN_XML_NEEDS_DEDUP )
+	if (DOXYGEN_XML_NEEDS_DEDUP AND LOAD_GENERATORS )
 
 		set (DOXY_RUN_TARGET "${DOXY_TARGET}_run" )
 
@@ -230,10 +226,10 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
 endmacro()
 
 
-foreach (VARIANT IN ITEMS ${LOAD_VARIANTS} )
+foreach (GENERATOR IN ITEMS ${LOAD_GENERATORS} )
 
 	## Subdir CMake can attach target "python-virtualenv" as requirement
-	add_subdirectory ("thirdparty/${VARIANT}" EXCLUDE_FROM_ALL )
+	add_subdirectory ("thirdparty/${GENERATOR}" EXCLUDE_FROM_ALL )
 endforeach()
 
 
