@@ -15,8 +15,71 @@
  * \file identifier.cpp Fixtures for classes in module 'identifier'
  */
 
-// TODO Test get_track
-// TODO calculate_leadout
+
+TEST_CASE ( "get_track", "[identifier] [make_toc]" )
+{
+	using arcstk::details::get_track;
+
+	auto container1 = std::vector<uint32_t>{ 0, 1, 2, 3, 4, 5 };
+	auto container2 = std::list<uint32_t>  { 0, 1, 2, 3, 4, 5 };
+	auto container3 = std::list<int32_t>   { 0, 1, 2, 3, 4, 5 };
+
+	CHECK_THROWS ( get_track(container1, 0) );
+	CHECK_THROWS ( get_track(container1, 7) );
+
+	CHECK ( get_track(container1, 1) == 0 );
+	CHECK ( get_track(container1, 2) == 1 );
+	CHECK ( get_track(container1, 3) == 2 );
+	CHECK ( get_track(container1, 4) == 3 );
+	CHECK ( get_track(container1, 5) == 4 );
+	CHECK ( get_track(container1, 6) == 5 );
+
+	CHECK_THROWS ( get_track(container2, 0) );
+	CHECK_THROWS ( get_track(container2, 7) );
+
+	CHECK ( get_track(container2, 1) == 0 );
+	CHECK ( get_track(container2, 2) == 1 );
+	CHECK ( get_track(container2, 3) == 2 );
+	CHECK ( get_track(container2, 4) == 3 );
+	CHECK ( get_track(container2, 5) == 4 );
+	CHECK ( get_track(container2, 6) == 5 );
+
+	CHECK_THROWS ( get_track(container3, 0) );
+	CHECK_THROWS ( get_track(container3, 7) );
+
+	CHECK ( get_track(container3, 1) == 0 );
+	CHECK ( get_track(container3, 2) == 1 );
+	CHECK ( get_track(container3, 3) == 2 );
+	CHECK ( get_track(container3, 4) == 3 );
+	CHECK ( get_track(container3, 5) == 4 );
+	CHECK ( get_track(container3, 6) == 5 );
+}
+
+
+TEST_CASE ( "calculate_leadout", "[identifier] [make_toc]" )
+{
+	using arcstk::details::calculate_leadout;
+
+	auto offsets1 = std::vector<uint32_t>{ 33, 69163, 87321 };
+	auto lengths1 = std::vector<uint32_t>{ 69130, 18158, 49123 };
+
+	// identical to 1 except offset[0] is 0
+	auto offsets2 = std::vector<uint32_t>{ 0, 69163, 87321 };
+	auto lengths2 = std::vector<uint32_t>{ 69163, 18158, 49123 };
+
+	// identical to 2 except length[2] is different
+	auto offsets3 = std::list<uint32_t>{ 0, 69163, 87321 };
+	auto lengths3 = std::list<uint32_t>{ 69163, 18158, 21002 };
+
+	auto leadout1 = calculate_leadout(lengths1, offsets1);
+	auto leadout2 = calculate_leadout(lengths2, offsets2);
+	auto leadout3 = calculate_leadout(lengths3, offsets3);
+
+	CHECK ( leadout1 == 136444 );
+	CHECK ( leadout2 == 136444 );
+	CHECK ( leadout3 == 108323 );
+}
+
 
 TEST_CASE ( "is_lba_container", "[identifier] [make_toc]" )
 {

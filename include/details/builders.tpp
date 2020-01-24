@@ -100,56 +100,55 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 		throw std::out_of_range(message.str());
 	}
 
-	return *(std::begin(c) + (t - 1));
+	auto it = std::begin(c);
+	for (int i = static_cast<int>(t); i > 1; --i) { ++it; }
+
+	return *it;
 }
 
 
 /**
- * \brief Calculate leadout from lengths or optionally lengths and offsets
+ * \brief Calculate leadout from lengths and offsets.
  *
- * No validation is performed.
- *
- * Calculation is faster with offsets available.
+ * No validation is performed except check for non-emptyness, equal size and
+ * not exceeding CDDA.MAX_BLOCK_ADDRESS.
  *
  * \tparam Container1 Type of the lengths container
- * \tparam Container2 Type of the optional offsets container
+ * \tparam Container2 Type of the offsets container
  *
  * \param[in] lengths The lengths
  * \param[in] offsets The offsets (default is {})
  */
-template <typename Container1, typename Container2 = std::vector<uint32_t>,
+template <typename Container1, typename Container2,
 		typename = LBAContainer<Container1>,
 		typename = LBAContainer<Container2>>
-inline uint32_t calculate_leadout(Container1&& lengths,
-		Container2&& offsets = {})
+inline uint32_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 {
 	// from last offset and last length
 
-	if (offsets.size() > 0)
+	if (offsets.size() == 0)
 	{
-		if (lengths.size() != offsets.size())
-		{
-			throw InvalidMetadataException(
-					"Requested leadout from inconsistent offsets and lengths");
-		}
-
-		auto last_length { std::end(lengths) - 1 };
-
-		return *last_length == 0 ? 0 : *(std::end(offsets) - 1) + *last_length;
+		throw InvalidMetadataException("Need offsets to calculate leadout");
 	}
 
-	// from lengths only
+	if (lengths.size() != offsets.size())
+	{
+		throw InvalidMetadataException(
+				"Requested leadout from inconsistent offsets and lengths");
+	}
 
-	auto leadout { std::accumulate(lengths.begin(), lengths.end(), 0) };
+	auto last_length { --std::end(lengths) };
 
-	if (static_cast<unsigned int>(leadout) > CDDA.MAX_BLOCK_ADDRESS)
+	auto val = *last_length == 0 ? 0 : *(--std::end(offsets)) + *last_length;
+
+	if (static_cast<unsigned int>(val) > CDDA.MAX_BLOCK_ADDRESS)
 	{
 		throw InvalidMetadataException(
 			"Calculated leadout is bigger than maximal legal block address");
 	}
 
 	// We suppose std::numeric_limits<uint32_t>::max() > CDDA.MAX_BLOCK_ADDRESS
-	return static_cast<uint32_t>(leadout);
+	return static_cast<uint32_t>(val);
 }
 
 } // namespace details
