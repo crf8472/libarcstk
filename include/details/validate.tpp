@@ -747,7 +747,7 @@ void TOCValidator::validate(const TrackNo track_count,
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
-	auto last_track { std::end(offsets) - 1 };
+	auto last_track { --std::end(offsets) };
 
 	if (leadout < *last_track + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 	{
@@ -800,7 +800,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	lba_count sum_lengths = 0;
 
-	auto last { std::end(lengths) - 1 };
+	auto last { --std::end(lengths) };
 	auto t { 1 };
 
 	if (*last > 0) { ++last; } // If last length is actually known, validate it

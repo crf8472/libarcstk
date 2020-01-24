@@ -820,7 +820,7 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	std::vector<uint32_t> uv(lengths.begin(), lengths.end());
 
-	if (*(std::end(lengths) - 1) < 0) // normalize last length to 0
+	if (*--std::end(lengths) < 0) // normalize last length to 0
 	{
 		uv.back() = 0;
 	}
