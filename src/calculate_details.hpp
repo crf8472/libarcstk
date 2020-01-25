@@ -40,7 +40,6 @@ inline namespace v_1_0_0
 namespace details
 {
 
-
 // Forward Declaration Required for Partitioner
 class Partition;
 
@@ -146,6 +145,12 @@ private:
 
 	/**
 	 * \brief Implements Partitioner::create_partitioning().
+	 *
+	 * \param[in] offset            Offset of the first sample
+	 * \param[in] number_of_samples Number of samples in the block
+	 * \param[in] context           The context to derive the partitioning from
+	 *
+	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
 			const uint32_t offset,
@@ -155,17 +160,6 @@ private:
 };
 
 
-/**
- * \internal
- * \ingroup calc
- *
- * \brief Partitioner for multitrack partitions.
- *
- * The partitioning is an ordered list of partitions where a track bound lies
- * between every two adjacent partitions. The first sample of the first
- * partition and the last sample of the last partition may not lie on a track
- * bound.
- */
 class MultitrackPartitioner final : public Partitioner
 {
 
@@ -176,6 +170,20 @@ public:
 
 private:
 
+	/**
+	 * \brief Create partitioning for multitrack partitions.
+	 *
+	 * The partitioning is an ordered list of partitions where a track bound
+	 * lies between every two adjacent partitions. The first sample of the first
+	 * partition and the last sample of the last partition may not lie on
+	 * a track bound.
+	 *
+	 * \param[in] offset            Offset of the first sample
+	 * \param[in] number_of_samples Number of samples in the block
+	 * \param[in] context           The context to derive the partitioning from
+	 *
+	 * \return Partitioning of \c samples as a sequence of partitions.
+	 */
 	Partitioning do_create_partitioning(
 			const uint32_t offset,
 			const uint32_t number_of_samples,
@@ -184,17 +192,6 @@ private:
 };
 
 
-/**
- * \internal
- * \ingroup calc
- *
- * \brief Partitioner for singletrack partitions.
- *
- * The partition contains just one partition representing the entire sample
- * sequence.
- *
- * This supports the usecase where a single track is to be processed.
- */
 class SingletrackPartitioner final : public Partitioner
 {
 
@@ -205,6 +202,20 @@ public:
 
 private:
 
+	/**
+	 * \brief Create partitioning for singletrack partitions.
+	 *
+	 * The partition contains just one partition representing the entire sample
+	 * sequence.
+	 *
+	 * This supports the usecase where a single track is to be processed.
+	 *
+	 * \param[in] offset            Offset of the first sample
+	 * \param[in] number_of_samples Number of samples in the block
+	 * \param[in] context           The context to derive the partitioning from
+	 *
+	 * \return Partitioning of \c samples as a sequence of partitions.
+	 */
 	Partitioning do_create_partitioning(
 			const uint32_t offset,
 			const uint32_t number_of_samples,

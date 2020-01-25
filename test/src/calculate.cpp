@@ -1544,7 +1544,7 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 
 TEST_CASE ( "Interval" "[calculate] [interval]" )
 {
-	arcstk::Interval i(10, 20);
+	arcstk::v_1_0_0::details::Interval i(10, 20);
 
 	CHECK ( i.contains(10) );
 	CHECK ( i.contains(11) );
