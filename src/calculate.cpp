@@ -32,6 +32,18 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+using arcstk::v_1_0_0::details::Interval;
+using arcstk::v_1_0_0::details::Partition;
+using arcstk::v_1_0_0::details::Partitioner;
+using arcstk::v_1_0_0::details::MultitrackPartitioner;
+using arcstk::v_1_0_0::details::SingletrackPartitioner;
+//using arcstk::v_1_0_0::details::CalcContextBase;
+using arcstk::v_1_0_0::details::CalcState;
+//using arcstk::v_1_0_0::details::CalcStateARCSBase;
+using arcstk::v_1_0_0::details::CalcStateV1;
+using arcstk::v_1_0_0::details::CalcStateV1andV2;
+
+
 namespace
 {
 
@@ -285,6 +297,9 @@ std::unique_ptr<CalcContext> CalcContext::clone() const
 	return this->do_clone();
 }
 
+
+namespace details
+{
 
 // CalcContextBase
 
@@ -1338,10 +1353,8 @@ void CalcStateV1andV2::do_update(PCMForwardIterator &begin,
 void CalcStateV1andV2::save(const TrackNo track)
 {
 	const auto rc = arcss_.insert(
-		//std::pair<TrackNo, std::pair<uint_fast32_t, uint_fast32_t> >(
 		std::make_pair(
 			track,
-			//std::pair<uint_fast32_t, uint_fast32_t>(
 			std::make_pair(
 				subtotal_v1_,
 				subtotal_v1_ + subtotal_v2_
@@ -1454,6 +1467,8 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const
 
 	return checksums;
 }
+
+} // namespace details
 
 /// \endcond
 
@@ -1728,7 +1743,7 @@ void Calculation::Impl::set_type(const checksum::type type)
 {
 	try
 	{
-		state_ = state::make(type);
+		state_ = details::state::make(type);
 
 	} catch (const std::exception& e)
 	{
@@ -2023,7 +2038,7 @@ void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
 	if (not context_)
 	{
 		this->set_context(
-				std::make_unique<SingletrackCalcContext>(std::string()));
+			std::make_unique<details::SingletrackCalcContext>(std::string()));
 	}
 }
 
@@ -2391,7 +2406,7 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 		const bool &skip_front, const bool &skip_back)
 {
 	// Note: ARCS specific values, since ARCS2 is default checksum type
-	return std::make_unique<SingletrackCalcContext>(audiofilename,
+	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
 			skip_front, NUM_SKIP_SAMPLES_FRONT,
 			skip_back,  NUM_SKIP_SAMPLES_BACK);
 }
@@ -2404,7 +2419,7 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 		const TOC &toc)
 {
 	// Note: ARCS specific values, since ARCS2 is default checksum type
-	return std::make_unique<MultitrackCalcContext>(audiofilename, toc,
+	return std::make_unique<details::MultitrackCalcContext>(audiofilename, toc,
 			NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK);
 }
 

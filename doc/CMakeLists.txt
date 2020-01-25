@@ -61,23 +61,21 @@ file (MAKE_DIRECTORY "${DOC_GEN_DIR}" )
 
 
 
-## --- Configure doxyfile and static texts
-
-configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
-
-configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
-
-
-
 ## --- Build internal docs if requested
 
 if (WITH_INTERNAL_DOCS)
 
 	message (STATUS "Will build documentation also for internal APIs" )
+
 	set (DOXYGEN_INTERNAL_DOCS "YES" )
+	set (DOXYGEN_INPUT
+		"${DOXYGEN_INPUT} ${PROJECT_SOURCE_DIR}" )
+	set (DOXYGEN_STRIP_FROM_PATH
+		"${DOXYGEN_STRIP_FROM_PATH} ${PROJECT_SOURCE_DIR}/" )
+	set (DOXYGEN_STRIP_FROM_INC_PATH
+		"${DOXYGEN_STRIP_FROM_INC_PATH} ${PROJECT_SOURCE_DIR}/" )
 
 	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
-
 	set (DOC_SOURCES ${DOC_SOURCES} ${NONPUBLIC_HEADERS} )
 
 else ()
@@ -85,6 +83,14 @@ else ()
 	set (DOXYGEN_INTERNAL_DOCS "NO" )
 
 endif (WITH_INTERNAL_DOCS)
+
+
+
+## --- Configure doxyfile and static texts
+
+configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
+
+configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 
 
 

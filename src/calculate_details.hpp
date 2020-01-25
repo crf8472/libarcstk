@@ -37,6 +37,8 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+namespace details
+{
 
 
 // Forward Declaration Required for Partitioner
@@ -780,7 +782,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
  * CalcContext::first_relevant_sample() as well as
  * CalcContext::last_relevant_sample().
  */
-class CalcContextBase : virtual public CalcContext
+class CalcContextBase : virtual public arcstk::v_1_0_0::CalcContext
 {
 
 public:
@@ -1318,6 +1320,8 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 }
 
 } // namespace state
+
+} // namespace details
 
 } // namespace v_1_0_0
 

@@ -475,25 +475,21 @@ endif (WITH_TESTS)
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
-option (WITH_IMPL_DOCS     "Build documentation also for implementations" OFF )
 option (USE_MCSS           "Build documentation using m.css"              OFF )
 
 ## Auto-activate WITH_DOCS if settings for documentation are present
-if (WITH_INTERNAL_DOCS OR WITH_IMPL_DOCS OR USE_MCSS )
+if (WITH_INTERNAL_DOCS OR USE_MCSS )
 
 	set (WITH_DOCS ON )
-
 endif()
 
 ## Process configuration for building the documentation
 if (WITH_DOCS )
 
 	add_subdirectory (${PROJECT_DOC_DIR} )
-
 else (WITH_DOCS )
 
 	message (STATUS "Build without documentation")
-
 endif (WITH_DOCS )
 
 unset (PROJECT_GIT_DESCRIBE )
