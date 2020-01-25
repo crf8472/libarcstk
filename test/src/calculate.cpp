@@ -1154,7 +1154,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 }
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
+TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout",
 		"[calculate] [calccontext]" )
 {
 	using arcstk::details::TOCBuilder;
@@ -1170,9 +1170,6 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 		// leadout
 		332075
 	);
-
-
-	CHECK ( toc->track_count() == 18 );
 
 	CHECK ( toc->offset( 1) ==      0 );
 	CHECK ( toc->offset( 2) ==  29042 );
@@ -1193,31 +1190,86 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 	CHECK ( toc->offset(17) == 291720 );
 	CHECK ( toc->offset(18) == 319992 );
 
+	//CHECK ( toc->filename( 1) == "" );
+	//CHECK ( toc->filename(18) == "" );
+
+	CHECK ( toc->leadout() == 332075 );
+	CHECK ( toc->track_count() == 18 );
+
+
 	auto mctx = arcstk::make_context(std::string(), *toc);
+	auto audiosize = mctx->audio_size();
+	auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
 
 
-	SECTION ("pcm_byte_count() and filename()")
-	{
-		// TODO
-	}
-
-	SECTION ("leadout_frame() and sample_count()")
-	{
-		// TODO
-	}
-
-	SECTION ("track_count(), offset(), length()" )
-	{
-		CHECK ( mctx->track_count() == 18 );
-
-		// TODO
-	}
-
-	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
+	SECTION ("skips_front(), skips_back() and is_multi_track()")
 	{
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
+	}
+
+	SECTION ("id(), filename()")
+	{
+		CHECK ( mctx->filename() == "" );
+		CHECK ( mctx->id() == arid );
+	}
+
+	SECTION ("AudioSize")
+	{
+		CHECK ( audiosize.leadout_frame()  ==    332075 );
+		CHECK ( audiosize.sample_count()   == 195260100 );
+		CHECK ( audiosize.pcm_byte_count() == 781040400 );
+	}
+
+	SECTION ("track_count()")
+	{
+		CHECK ( toc->track_count()  == 18 );
+		CHECK ( mctx->track_count() == 18 );
+	}
+
+	SECTION ("offset()")
+	{
+		CHECK ( mctx->offset( 0) ==      0 );
+		CHECK ( mctx->offset( 1) ==  29042 );
+		CHECK ( mctx->offset( 2) ==  53880 );
+		CHECK ( mctx->offset( 3) ==  58227 );
+		CHECK ( mctx->offset( 4) ==  84420 );
+		CHECK ( mctx->offset( 5) ==  94192 );
+		CHECK ( mctx->offset( 6) == 119165 );
+		CHECK ( mctx->offset( 7) == 123030 );
+		CHECK ( mctx->offset( 8) == 147500 );
+		CHECK ( mctx->offset( 9) == 148267 );
+		CHECK ( mctx->offset(10) == 174602 );
+		CHECK ( mctx->offset(11) == 208125 );
+		CHECK ( mctx->offset(12) == 212705 );
+		CHECK ( mctx->offset(13) == 239890 );
+		CHECK ( mctx->offset(14) == 268705 );
+		CHECK ( mctx->offset(15) == 272055 );
+		CHECK ( mctx->offset(16) == 291720 );
+		CHECK ( mctx->offset(17) == 319992 );
+	}
+
+	SECTION ("length()")
+	{
+		CHECK ( mctx->length( 0) == 29042 );
+		CHECK ( mctx->length( 1) == 24838 );
+		CHECK ( mctx->length( 2) ==  4347 );
+		CHECK ( mctx->length( 3) == 26193 );
+		CHECK ( mctx->length( 4) ==  9772 );
+		CHECK ( mctx->length( 5) == 24973 );
+		CHECK ( mctx->length( 6) ==  3865 );
+		CHECK ( mctx->length( 7) == 24470 );
+		CHECK ( mctx->length( 8) ==   767 );
+		CHECK ( mctx->length( 9) == 26335 );
+		CHECK ( mctx->length(10) == 33523 );
+		CHECK ( mctx->length(11) ==  4580 );
+		CHECK ( mctx->length(12) == 27185 );
+		CHECK ( mctx->length(13) == 28815 );
+		CHECK ( mctx->length(14) ==  3350 );
+		CHECK ( mctx->length(15) == 19665 );
+		CHECK ( mctx->length(16) == 28272 );
+		CHECK ( mctx->length(17) == 12083 );
 	}
 
 	SECTION ("first_relevant_sample()")
@@ -1248,7 +1300,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 
 	SECTION ("last_relevant_sample()")
 	{
-		CHECK ( mctx->last_relevant_sample() == 195257159 );
+		CHECK ( mctx->last_relevant_sample()   == 195257159 );
 
 		CHECK ( mctx->last_relevant_sample(0)  ==         0 ); // not a track
 
@@ -1282,7 +1334,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with leadout",
 }
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
+TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lenghts",
 		"[calculate] [calccontext]" )
 {
 	using arcstk::details::TOCBuilder;
@@ -1299,6 +1351,50 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, TOC with lenghts",
 		{ 29042, 24673, 4347, 26035, 9772, 24973, 3865, 24325, 767, 26335,
 			33523, 4580, 27185, 28737, 3350, 19665, 28272, -1}
 	);
+
+	CHECK ( toc->track_count() == 18 );
+
+	CHECK ( toc->offset( 1) ==      0 );
+	CHECK ( toc->offset( 2) ==  29042 );
+	CHECK ( toc->offset( 3) ==  53880 );
+	CHECK ( toc->offset( 4) ==  58227 );
+	CHECK ( toc->offset( 5) ==  84420 );
+	CHECK ( toc->offset( 6) ==  94192 );
+	CHECK ( toc->offset( 7) == 119165 );
+	CHECK ( toc->offset( 8) == 123030 );
+	CHECK ( toc->offset( 9) == 147500 );
+	CHECK ( toc->offset(10) == 148267 );
+	CHECK ( toc->offset(11) == 174602 );
+	CHECK ( toc->offset(12) == 208125 );
+	CHECK ( toc->offset(13) == 212705 );
+	CHECK ( toc->offset(14) == 239890 );
+	CHECK ( toc->offset(15) == 268705 );
+	CHECK ( toc->offset(16) == 272055 );
+	CHECK ( toc->offset(17) == 291720 );
+	CHECK ( toc->offset(18) == 319992 );
+
+	CHECK ( toc->parsed_length( 1) == 29042 );
+	CHECK ( toc->parsed_length( 2) == 24673 );
+	CHECK ( toc->parsed_length( 3) ==  4347 );
+	CHECK ( toc->parsed_length( 4) == 26035 );
+	CHECK ( toc->parsed_length( 5) ==  9772 );
+	CHECK ( toc->parsed_length( 6) == 24973 );
+	CHECK ( toc->parsed_length( 7) ==  3865 );
+	CHECK ( toc->parsed_length( 8) == 24325 );
+	CHECK ( toc->parsed_length( 9) ==   767 );
+	CHECK ( toc->parsed_length(10) == 26335 );
+	CHECK ( toc->parsed_length(11) == 33523 );
+	CHECK ( toc->parsed_length(12) ==  4580 );
+	CHECK ( toc->parsed_length(13) == 27185 );
+	CHECK ( toc->parsed_length(14) == 28737 );
+	CHECK ( toc->parsed_length(15) ==  3350 );
+	CHECK ( toc->parsed_length(16) == 19665 );
+	CHECK ( toc->parsed_length(17) == 28272 );
+	CHECK ( toc->parsed_length(18) ==     0 ); //normalized
+
+	CHECK ( toc->leadout() == 0 ); // unknown due to last length unknown
+
+	auto mctx = arcstk::make_context(std::string(), *toc);
 
 	// TODO
 }
@@ -1550,5 +1646,8 @@ TEST_CASE ( "Interval" "[calculate] [interval]" )
 	CHECK ( i.contains(11) );
 	CHECK ( i.contains(19) );
 	CHECK ( i.contains(20) );
+
+	CHECK ( not i.contains(9) );
+	CHECK ( not i.contains(21) );
 }
 
