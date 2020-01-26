@@ -968,15 +968,22 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
  * \brief Create a CalcContext from an audio filename and a TOC.
  *
  * The file will not be read, the filename is just declared. It is allowed to be
- * empty.
+ * omitted and defaults to an empty std::string in this case.
  *
- * \param[in] audiofilename The name of the audiofile
  * \param[in] toc           The TOC to use
+ * \param[in] audiofilename The name of the audiofile, empty be default
  *
  * \return CalcContext for the input
  */
-std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
-		const TOC &toc);
+std::unique_ptr<CalcContext> make_context(const TOC &toc,
+		const std::string &audiofilename = std::string());
+
+
+/**
+ * \copydoc make_context(const TOC&, const std::string &)
+ */
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
+		const std::string &audiofilename = std::string());
 
 
 /**

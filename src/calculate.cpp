@@ -2415,12 +2415,18 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 // make_context (audiofile, TOC)
 
 
-std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
-		const TOC &toc)
+std::unique_ptr<CalcContext> make_context(const TOC &toc,
+		const std::string &audiofilename)
 {
 	// Note: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::MultitrackCalcContext>(audiofilename, toc,
 			NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK);
+}
+
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
+		const std::string &audiofilename)
+{
+	return make_context(*toc, audiofilename);
 }
 
 /// \endcond
