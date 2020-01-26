@@ -727,6 +727,12 @@ std::vector<uint32_t> get_offsets(const TOC &toc)
 }
 
 
+std::vector<uint32_t> get_offsets(const std::unique_ptr<TOC> &toc)
+{
+	return get_offsets(*toc);
+}
+
+
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 {
 	std::vector<uint32_t> target;
@@ -736,12 +742,24 @@ std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
 }
 
 
+std::vector<uint32_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc)
+{
+	return get_parsed_lengths(*toc);
+}
+
+
 std::vector<std::string> get_filenames(const TOC &toc)
 {
 	std::vector<std::string> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
 
 	return details::toc_get(target, toc, &TOC::filename);
+}
+
+
+std::vector<std::string> get_filenames(const std::unique_ptr<TOC> &toc)
+{
+	return get_filenames(*toc);
 }
 
 } // namespace toc

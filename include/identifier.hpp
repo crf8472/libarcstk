@@ -660,6 +660,11 @@ namespace toc
  */
 std::vector<uint32_t> get_offsets(const TOC &toc);
 
+/**
+ * \brief get_offsets(const TOC&)
+ */
+std::vector<uint32_t> get_offsets(const std::unique_ptr<TOC> &toc);
+
 
 /**
  * \brief Extract parsed lengths from TOC in order.
@@ -670,6 +675,11 @@ std::vector<uint32_t> get_offsets(const TOC &toc);
  */
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
 
+/**
+ * \brief get_parsed_lengths(const TOC&)
+ */
+std::vector<uint32_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc);
+
 
 /**
  * \brief Extract filenames from TOC in order.
@@ -679,6 +689,11 @@ std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
  * \return List of filenames
  */
 std::vector<std::string> get_filenames(const TOC &toc);
+
+/**
+ * \brief get_filenames(const TOC&)
+ */
+std::vector<std::string> get_filenames(const std::unique_ptr<TOC> &toc);
 
 } // namespace toc
 
