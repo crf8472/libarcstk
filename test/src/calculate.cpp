@@ -24,585 +24,508 @@
 // Calculation
 
 
-TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
+TEST_CASE ( "Calculation Constructors", "[calculate] [calculation]" )
 {
+	using arcstk::Calculation;
+	using arcstk::checksum::type;
 	using arcstk::details::TOCBuilder;
 
-
-	SECTION ( "Construct with only context (default type)" )
-	{
-		// Implicitly tested in section
-		// 'Calculation configuration/Changing the type...' below
-
-		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		auto toc1 = TOCBuilder::build(
-				3, /* track count */
-				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */
-		);
-
-		auto ctx = arcstk::make_context(toc1);
-
-		CHECK ( ctx->track_count() == 3 );
-		CHECK ( ctx->offset(0) ==  12 );
-		CHECK ( ctx->offset(1) == 433 );
-		CHECK ( ctx->offset(2) == 924 );
-		CHECK ( ctx->audio_size().leadout_frame() == 1233 );
-
-		CHECK ( ctx->is_multi_track() );
-		CHECK ( ctx->skips_front() );
-		CHECK ( ctx->skips_back() );
-		CHECK ( 2939 == ctx->num_skip_front() );
-		CHECK ( 2940 == ctx->num_skip_back() );
-
-
-		// Construct Calculation
-
-		arcstk::Calculation calc(arcstk::checksum::type::ARCS1, std::move(ctx));
-
-		CHECK ( calc.context().audio_size().leadout_frame() == 1233 );
-		CHECK ( calc.context().audio_size().pcm_byte_count() == 2900016 );
-		CHECK ( calc.context().audio_size().sample_count() == 725004 );
-
-		CHECK ( calc.context().is_multi_track() );
-		CHECK ( calc.context().skips_front() );
-		CHECK ( calc.context().skips_back() );
-		CHECK ( 2939 == calc.context().num_skip_front() );
-		CHECK ( 2940 == calc.context().num_skip_back() );
-
-		CHECK ( calc.type() == arcstk::checksum::type::ARCS1 );
-		CHECK ( not calc.complete() );
-	}
-
-	SECTION ( "Construct with type and context" )
-	{
-		// Create a context
-
-		using arcstk::details::TOCBuilder;
-
-		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		auto toc1 = TOCBuilder::build(
-				3, /* track count */
-				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */
-		);
-
-		auto ctx = arcstk::make_context(toc1);
-
-		CHECK ( ctx->track_count() == 3 );
-		CHECK ( ctx->offset(0) ==  12 );
-		CHECK ( ctx->offset(1) == 433 );
-		CHECK ( ctx->offset(2) == 924 );
-		CHECK ( ctx->audio_size().leadout_frame() == 1233 );
-
-		CHECK ( ctx->is_multi_track() );
-		CHECK ( ctx->skips_front() );
-		CHECK ( ctx->skips_back() );
-		CHECK ( 2939 == ctx->num_skip_front() );
-		CHECK ( 2940 == ctx->num_skip_back() );
-
-
-		// Construct Calculation
-
-		arcstk::Calculation calc(arcstk::checksum::type::ARCS1, std::move(ctx));
-
-		CHECK ( calc.context().audio_size().leadout_frame() == 1233 );
-		CHECK ( calc.context().audio_size().pcm_byte_count() == 2900016 );
-		CHECK ( calc.context().audio_size().sample_count() == 725004 );
-
-		CHECK ( calc.context().is_multi_track() );
-		CHECK ( calc.context().skips_front() );
-		CHECK ( calc.context().skips_back() );
-		CHECK ( 2939 == calc.context().num_skip_front() );
-		CHECK ( 2940 == calc.context().num_skip_back() );
-
-		CHECK ( calc.type() == arcstk::checksum::type::ARCS1 );
-		CHECK ( not calc.complete() );
-	}
-}
-
-
-TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
-{
-	arcstk::Calculation calc(arcstk::make_context(false, false, "foo"));
-
-	arcstk::AudioSize audiosize;
-	audiosize.set_sample_count(196608); // fits calculation-test-01.bin
-	calc.update_audiosize(audiosize);
-
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 786432 );
-	CHECK ( calc.context().audio_size().sample_count() == 196608 );
-	CHECK ( calc.context().audio_size().leadout_frame() == 334 );
-	CHECK ( calc.context().filename() == "foo" );
-	CHECK ( not calc.context().is_multi_track() );
-	CHECK ( not calc.context().skips_front() );
-	CHECK ( not calc.context().skips_back() );
-	CHECK ( 0 == calc.context().num_skip_front() );
-	CHECK ( 0 == calc.context().num_skip_back() );
-
-	CHECK ( calc.type() == arcstk::checksum::type::ARCS2 );
-	CHECK ( not calc.complete() );
-
-
-	SECTION ( "Changing the context updates Calculation correctly" )
-	{
-		using arcstk::details::TOCBuilder;
-
-		// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-		auto toc1 = TOCBuilder::build(
-				3, /* track count */
-				{ 12, 433, 924 }, /* offsets */
-				1233 /* leadout */
-		);
-
-		auto ctx = arcstk::make_context(toc1);
-
-		CHECK ( ctx->track_count() == 3 );
-		CHECK ( ctx->offset(0) ==  12 );
-		CHECK ( ctx->offset(1) == 433 );
-		CHECK ( ctx->offset(2) == 924 );
-		CHECK ( ctx->audio_size().leadout_frame() == 1233 );
-
-		CHECK ( ctx->is_multi_track() );
-		CHECK ( ctx->skips_front() );
-		CHECK ( ctx->skips_back() );
-		CHECK ( 2939 == ctx->num_skip_front() );
-		CHECK ( 2940 == ctx->num_skip_back() );
-
-
-		// Set the different context as the new context at check values again
-
-		calc.set_context(std::move(ctx));
-
-		CHECK ( calc.context().audio_size().leadout_frame() == 1233 );
-		CHECK ( calc.context().audio_size().pcm_byte_count() == 2900016 );
-		CHECK ( calc.context().audio_size().sample_count() == 725004 );
-
-		// changed: multi_track + skipping
-		CHECK ( calc.context().is_multi_track() );
-		CHECK ( calc.context().skips_front() );
-		CHECK ( calc.context().skips_back() );
-		CHECK ( 2939 == calc.context().num_skip_front() );
-		CHECK ( 2940 == calc.context().num_skip_back() );
-		CHECK ( not calc.complete() );
-	}
-}
-
-
-TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
-		"[calculate] [calculation]" )
-{
-	// Initialize Calculation
-
-	arcstk::Calculation calc(arcstk::make_context(false, false, "foo"));
-
-	arcstk::AudioSize audiosize;
-	audiosize.set_sample_count(196608);
-	calc.update_audiosize(audiosize);
-
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 786432 );
-	CHECK ( calc.context().audio_size().sample_count() == 196608 );
-	CHECK ( calc.context().audio_size().leadout_frame() == 334 );
-	CHECK ( calc.context().filename() == "foo" );
-	CHECK ( not calc.context().is_multi_track() );
-	CHECK ( not calc.context().skips_front() );
-	CHECK ( not calc.context().skips_back() );
-	CHECK ( calc.type() == arcstk::checksum::type::ARCS2 );
-	CHECK ( not calc.complete() );
-
-	// Initialize Buffer
-
-	std::vector<uint32_t> buffer(65536); // samples
-	// This forms 3 blocks with 65536 samples each
-
-
-	// Read Entire File Block-Wise and Update Calculation With the Blocks
-
-	std::ifstream in;
-	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try
-	{
-		in.open("calculation-test-01.bin",
-				std::ifstream::in | std::ifstream::binary);
-	} catch (const std::ifstream::failure& f)
-	{
-		FAIL ("Could not open test data file calculation-test-01.bin");
-	}
-
-	for (int i = 0; i < 3; ++i)
-	{
-		CHECK ( not calc.complete() );
-
-		try
-		{
-			in.read(reinterpret_cast<char*>(&buffer[0]), 262144);
-
-		} catch (const std::ifstream::failure& f)
-		{
-			in.close();
-			FAIL ("Error while reading from file calculation-test-01.bin");
-		}
-
-		try
-		{
-			calc.update(buffer.begin(), buffer.end());
-		} catch (...)
-		{
-			in.close();
-			FAIL ("Error while updating buffer");
-		}
-	}
-
-	in.close();
-
-	CHECK ( calc.complete() );
-
-	auto checksums = calc.result();
-
-	CHECK ( checksums.size() == 1 );
-
-
-	SECTION ( "Calculation::update() calculates aligned blocks correctly" )
-	{
-		// Only track with correct ARCSs
-
-		using type = arcstk::checksum::type;
-
-		auto track0 = checksums[0];
-
-		CHECK ( track0.size() == 2 );
-		CHECK ( 0xD15BB487 == (*track0.find(type::ARCS2)).value() );
-		CHECK ( 0x8FE8D29B == (*track0.find(type::ARCS1)).value() );
-	}
-}
-
-
-TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
-		"[calculate] [calculation]" )
-{
-	// Initialize Calculation
-
-	arcstk::Calculation calc(arcstk::make_context(false, false, "bar"));
-
-	arcstk::AudioSize audiosize;
-	audiosize.set_sample_count(196608);
-	calc.update_audiosize(audiosize);
-
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 786432 );
-	CHECK ( calc.context().audio_size().sample_count() == 196608 );
-	CHECK ( calc.context().audio_size().leadout_frame() == 334 );
-	CHECK ( calc.context().filename() == "bar" );
-	CHECK ( not calc.context().is_multi_track() );
-	CHECK ( not calc.context().skips_front() );
-	CHECK ( not calc.context().skips_back() );
-	CHECK ( not calc.complete() );
-
-
-	// Initialize Buffer
-
-	std::vector<uint32_t> buffer(80000); // samples
-	// This forms 3 blocks: two with 80000 samples and one with 36608 samples
-
-
-	// Read Entire File Block-Wise and Update Calculation With the Blocks
-
-	std::ifstream in;
-	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try
-	{
-		in.open("calculation-test-01.bin",
-				std::ifstream::in | std::ifstream::binary);
-	} catch (const std::ifstream::failure& f)
-	{
-		FAIL ("Could not open test data file calculation-test-01.bin");
-	}
-
-	for (int i = 0; i < 2; ++i)
-	{
-		try
-		{
-			in.read(reinterpret_cast<char*>(&buffer[0]), 320000);
-
-		} catch (const std::ifstream::failure& f)
-		{
-			in.close();
-			FAIL ("Error while reading from file calculation-test-01.bin");
-		}
-
-		try
-		{
-			calc.update(buffer.begin(), buffer.end());
-		} catch (...)
-		{
-			in.close();
-			FAIL ("Error while updating buffer");
-		}
-
-		CHECK ( not calc.complete() );
-	}
-	try // last block is smaller
-	{
-		//buffer.set_size(36608);
-		buffer.resize(36608);
-		in.read(reinterpret_cast<char*>(&buffer[0]), 146432);
-
-	} catch (const std::ifstream::failure& f)
-	{
-		in.close();
-		FAIL ("Error on last block from file calculation-test-01.bin");
-	}
-
-	in.close();
-
-	calc.update(buffer.begin(), buffer.end());
-
-	CHECK ( calc.complete() );
-
-	auto checksums = calc.result();
-
-	CHECK ( checksums.size() == 1 );
-
-
-	SECTION ( "Calculation::update() calculates non-aligned blocks correctly" )
-	{
-		using type = arcstk::checksum::type;
-
-		// Only track with correct ARCSs
-
-		auto track0 = checksums[0];
-
-		CHECK ( track0.size() == 2 );
-		CHECK ( 0xD15BB487 == (*track0.find(type::ARCS2)).value() );
-		CHECK ( 0x8FE8D29B == (*track0.find(type::ARCS1)).value() );
-	}
-}
-
-
-TEST_CASE ( "Calculation::update() with aligned blocks in multitrack",
-		"[calculate] [calculation]" )
-{
-	// Initialize Buffer and Calculation
-
-	using arcstk::details::TOCBuilder;
-
-	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	auto toc1 = TOCBuilder::build(3, { 12, 433, 924 }, 1233);
-
-	auto ctx = arcstk::make_context(toc1);
+	auto toc { TOCBuilder::build(
+		3, /* track count */
+		{ 12, 433, 924 }, /* offsets */
+		1233 /* leadout */
+	)};
+
+	auto ctx { arcstk::make_context(toc) };
 
 	CHECK ( ctx->track_count() == 3 );
 	CHECK ( ctx->offset(0) ==  12 );
 	CHECK ( ctx->offset(1) == 433 );
 	CHECK ( ctx->offset(2) == 924 );
 	CHECK ( ctx->audio_size().leadout_frame() == 1233 );
-
 	CHECK ( ctx->is_multi_track() );
 	CHECK ( ctx->skips_front() );
 	CHECK ( ctx->skips_back() );
+	CHECK ( ctx->num_skip_front() == 2939 );
+	CHECK ( ctx->num_skip_back()  == 2940 );
 
 
-	arcstk::Calculation calc(std::move(ctx));
-
-	CHECK ( calc.context().audio_size().leadout_frame() == 1233 );
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 2900016 );
-	CHECK ( calc.context().audio_size().sample_count() == 725004 );
-
-	CHECK ( calc.context().is_multi_track() );
-	CHECK ( calc.context().skips_front() );
-	CHECK ( calc.context().skips_back() );
-	CHECK ( 2939 == calc.context().num_skip_front() );
-	CHECK ( 2940 == calc.context().num_skip_back() );
-	CHECK ( arcstk::checksum::type::ARCS2 == calc.type() );
-	CHECK ( not calc.complete() );
-
-
-	// Initialize Buffer
-
-	std::vector<uint32_t> buffer(181251); // samples
-	// Gives 4 blocks with 181251 samples (==725004 bytes) each
-	// ==725004 samples total, 2900016 bytes total
-
-
-	// Read Entire File Block-Wise and Update Calculation With the Blocks
-
-	std::ifstream in;
-	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try
+	SECTION ( "By CalcContext" )
 	{
-		in.open("calculation-test-02.bin",
-				std::ifstream::in | std::ifstream::binary);
-	} catch (const std::ifstream::failure& f)
-	{
-		FAIL ("Could not open test data file calculation-test-02.bin");
-	}
-	for (int i = 0; i < 4; ++i)
-	{
-		CHECK ( not calc.complete() );
+		Calculation calculation(std::move(ctx)); // use default checksum::type
+		auto audiosize { calculation.context().audio_size() };
 
-		try
-		{
-			in.read(reinterpret_cast<char*>(&buffer[0]), 725004);
+		// Checks
 
-		} catch (const std::ifstream::failure& f)
-		{
-			in.close();
-			FAIL ("Error while reading from file calculation-test-02.bin");
-		}
+		CHECK ( calculation.type() == type::ARCS2 ); // default checksum::type
 
-		try
-		{
-			calc.update(buffer.begin(), buffer.end());
-		} catch (...)
-		{
-			in.close();
-			FAIL ("Error while updating buffer");
-		}
+		CHECK ( audiosize.leadout_frame()  ==    1233 );
+		CHECK ( audiosize.sample_count()   ==  725004 );
+		CHECK ( audiosize.pcm_byte_count() == 2900016 );
+
+		CHECK ( calculation.context().is_multi_track() );
+		CHECK ( calculation.context().skips_front() );
+		CHECK ( calculation.context().skips_back() );
+		CHECK ( calculation.context().num_skip_front() == 2939 );
+		CHECK ( calculation.context().num_skip_back()  == 2940 );
+
+		CHECK ( not calculation.complete() );
 	}
 
-	in.close();
 
-	CHECK ( calc.complete() );
-
-	auto checksums = calc.result();
-
-	CHECK ( checksums.size() == 3 );
-
-
-	SECTION ( "Calculation::update() calculates aligned blocks correctly" )
+	SECTION ( "By checksum::type and CalcContext" )
 	{
-		using type = arcstk::checksum::type;
+		Calculation calculation(type::ARCS1, std::move(ctx));
+		auto audiosize { calculation.context().audio_size() };
 
-		auto track1 = checksums[0];
+		// Checks
 
-		CHECK ( track1.size() == 2 );
-		CHECK ( 0x0DF230F0 == (*track1.find(type::ARCS2)).value());
-		CHECK ( 0x7C7BFAF4 == (*track1.find(type::ARCS1)).value());
+		CHECK ( calculation.type() == type::ARCS1 );
 
-		auto track2 = checksums[1];
+		CHECK ( audiosize.leadout_frame()  ==    1233 );
+		CHECK ( audiosize.sample_count()   ==  725004 );
+		CHECK ( audiosize.pcm_byte_count() == 2900016 );
 
-		CHECK ( track2.size() == 2 );
-		CHECK ( 0x34C681C3 == (*track2.find(type::ARCS2)).value());
-		CHECK ( 0x5989C533 == (*track2.find(type::ARCS1)).value());
+		CHECK ( calculation.context().is_multi_track() );
+		CHECK ( calculation.context().skips_front() );
+		CHECK ( calculation.context().skips_back() );
+		CHECK ( calculation.context().num_skip_front() == 2939 );
+		CHECK ( calculation.context().num_skip_back()  == 2940 );
 
-		auto track3 = checksums[2];
-
-		CHECK ( track3.size() == 2 );
-		CHECK ( 0xB845A497 == (*track3.find(type::ARCS2)).value());
-		CHECK ( 0xDD95CE6C == (*track3.find(type::ARCS1)).value());
+		CHECK ( not calculation.complete() );
 	}
 }
 
 
-TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
-		"[calculate] [calculation]" )
+TEST_CASE ( "Calculation context", "[calculate] [calculation]" )
 {
-	// Initialize Calculation
-
+	using arcstk::Calculation;
+	using arcstk::AudioSize;
+	using arcstk::checksum::type;
 	using arcstk::details::TOCBuilder;
 
-	// Emulate 3 tracks in 1233 frames with offsets 12, 433, 924
-	auto toc = TOCBuilder::build(3, { 12, 433, 924 }, 1233);
+	Calculation calculation(arcstk::make_context(false, false, "foo"));
 
-	auto ctx = arcstk::make_context(toc);
+	AudioSize audiosize;
+	audiosize.set_sample_count(196608); // fits calculation-test-01.bin
+	calculation.update_audiosize(audiosize);
+
+	CHECK ( calculation.context().audio_size().leadout_frame()  ==    334 );
+	CHECK ( calculation.context().audio_size().sample_count()   == 196608 );
+	CHECK ( calculation.context().audio_size().pcm_byte_count() == 786432 );
+	CHECK ( calculation.context().filename() == "foo" );
+	CHECK ( calculation.type() == type::ARCS2 );
+	CHECK ( not calculation.complete() );
+	CHECK ( not calculation.context().is_multi_track() );
+	CHECK ( not calculation.context().skips_front() );
+	CHECK ( not calculation.context().skips_back() );
+	CHECK ( calculation.context().num_skip_front() == 0 );
+	CHECK ( calculation.context().num_skip_back()  == 0 );
+
+
+	SECTION ( "Updates correctly on change" )
+	{
+		auto toc { TOCBuilder::build(
+			3, /* track count */
+			{ 12, 433, 924 }, /* offsets */
+			1233 /* leadout */
+		)};
+
+		auto ctx { arcstk::make_context(toc, "bar") };
+
+		CHECK ( ctx->track_count() == 3 );
+		CHECK ( ctx->offset(0) ==  12 );
+		CHECK ( ctx->offset(1) == 433 );
+		CHECK ( ctx->offset(2) == 924 );
+		CHECK ( ctx->audio_size().leadout_frame() == 1233 );
+		CHECK ( ctx->is_multi_track() );
+		CHECK ( ctx->skips_front() );
+		CHECK ( ctx->skips_back() );
+		CHECK ( ctx->num_skip_front() == 2939 );
+		CHECK ( ctx->num_skip_back()  == 2940 );
+
+		// Perform update
+
+		calculation.set_context(std::move(ctx));
+		auto calcsize { calculation.context().audio_size() };
+
+
+		// Checks
+
+		// unchanged: checksum::type + completeness status
+		CHECK ( calculation.type() == type::ARCS2 );
+		CHECK ( not calculation.complete() );
+
+		// changed: AudioSize, filename, multi_track + skipping
+		CHECK ( calcsize.leadout_frame()  ==    1233 );
+		CHECK ( calcsize.sample_count()   ==  725004 );
+		CHECK ( calcsize.pcm_byte_count() == 2900016 );
+		CHECK ( calculation.context().filename() == "bar" );
+		CHECK ( calculation.context().is_multi_track() );
+		CHECK ( calculation.context().skips_front() );
+		CHECK ( calculation.context().skips_back() );
+		CHECK ( calculation.context().num_skip_front() == 2939 );
+		CHECK ( calculation.context().num_skip_back()  == 2940);
+	}
+}
+
+
+TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
+{
+	using arcstk::AudioSize;
+	using arcstk::Calculation;
+	using arcstk::checksum::type;
+	using arcstk::make_context;
+
+	// Initialize Calculation
+
+	Calculation calculation(make_context(false, false, "foo"));
+
+	AudioSize audiosize;
+	audiosize.set_sample_count(196608); // fits calculation-test-01.bin
+	calculation.update_audiosize(audiosize);
+
+	CHECK ( calculation.type() == arcstk::checksum::type::ARCS2 );
+	CHECK ( calculation.context().audio_size().leadout_frame()  ==    334 );
+	CHECK ( calculation.context().audio_size().sample_count()   == 196608 );
+	CHECK ( calculation.context().audio_size().pcm_byte_count() == 786432 );
+	CHECK ( calculation.context().filename() == "foo" );
+	CHECK ( not calculation.context().is_multi_track() );
+	CHECK ( not calculation.context().skips_front() );
+	CHECK ( not calculation.context().skips_back() );
+	CHECK ( not calculation.complete() );
+
+
+	SECTION ( "Correct ARCS1+2 with aligned blocks" )
+	{
+		// Initialize Buffer
+		std::vector<uint32_t> buffer(65536); // samples
+
+		// => forms 3 blocks with 65536 samples each
+
+		// Read Entire File Block-Wise and Update Calculation With the Blocks
+
+		std::ifstream in;
+		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+		try
+		{
+			in.open("calculation-test-01.bin",
+					std::ifstream::in | std::ifstream::binary);
+		} catch (const std::ifstream::failure& f)
+		{
+			FAIL ("Could not open test data file calculation-test-01.bin");
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			CHECK ( not calculation.complete() );
+
+			try
+			{
+				in.read(reinterpret_cast<char*>(&buffer[0]), 262144);
+				// 262144 bytes == 65536 samples
+
+			} catch (const std::ifstream::failure& f)
+			{
+				in.close();
+				FAIL ("Error while reading from file calculation-test-01.bin");
+			}
+
+			try
+			{
+				calculation.update(buffer.begin(), buffer.end());
+			} catch (...)
+			{
+				in.close();
+				FAIL ("Error while updating buffer");
+			}
+		}
+
+		in.close();
+
+		CHECK ( calculation.complete() );
+
+		auto checksums { calculation.result() };
+
+		CHECK ( checksums.size() == 1 );
+
+		auto single_track { checksums[0] };
+
+
+		// Checks: only one single track with correct ARCS1+2
+
+		CHECK ( single_track.size() == 2 );
+		CHECK ( 0xD15BB487 == (*single_track.find(type::ARCS2)).value() );
+		CHECK ( 0x8FE8D29B == (*single_track.find(type::ARCS1)).value() );
+	}
+
+
+	SECTION ( "Correct ARCS1+2 with non-aligned blocks" )
+	{
+		// Initialize Buffer
+
+		std::vector<uint32_t> buffer(80000); // samples
+
+		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
+
+		// Read Entire File Block-Wise and Update Calculation With the Blocks
+
+		std::ifstream in;
+		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+		try
+		{
+			in.open("calculation-test-01.bin",
+					std::ifstream::in | std::ifstream::binary);
+		} catch (const std::ifstream::failure& f)
+		{
+			FAIL ("Could not open test data file calculation-test-01.bin");
+		}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			try
+			{
+				in.read(reinterpret_cast<char*>(&buffer[0]), 320000);
+				// 320000 bytes == 80000 samples
+
+			} catch (const std::ifstream::failure& f)
+			{
+				in.close();
+				FAIL ("Error while reading from file calculation-test-01.bin");
+			}
+
+			try
+			{
+				calculation.update(buffer.begin(), buffer.end());
+			} catch (...)
+			{
+				in.close();
+				FAIL ("Error while updating buffer");
+			}
+
+			CHECK ( not calculation.complete() );
+		}
+		try // last block is smaller
+		{
+			buffer.resize(36608);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 146432);
+
+		} catch (const std::ifstream::failure& f)
+		{
+			in.close();
+			FAIL ("Error on last block from file calculation-test-01.bin");
+		}
+
+		in.close();
+
+		calculation.update(buffer.begin(), buffer.end());
+
+		CHECK ( calculation.complete() );
+
+		auto checksums { calculation.result() };
+
+		CHECK ( checksums.size() == 1 );
+
+		auto single_track { checksums[0] };
+
+
+		// Only track with correct ARCSs
+
+		CHECK ( single_track.size() == 2 );
+		CHECK ( 0xD15BB487 == (*single_track.find(type::ARCS2)).value() );
+		CHECK ( 0x8FE8D29B == (*single_track.find(type::ARCS1)).value() );
+	}
+}
+
+
+TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
+{
+	using arcstk::Calculation;
+	using arcstk::checksum::type;
+	using arcstk::make_context;
+	using arcstk::details::TOCBuilder;
+
+	auto toc { TOCBuilder::build(
+		3, /* track count */
+		{ 12, 433, 924 }, /* offsets */
+		1233 /* leadout */
+	)};
+
+	auto ctx { arcstk::make_context(toc) };
 
 	CHECK ( ctx->track_count() == 3 );
-	CHECK ( ctx->offset(0) == 12 );
+	CHECK ( ctx->offset(0) ==  12 );
 	CHECK ( ctx->offset(1) == 433 );
 	CHECK ( ctx->offset(2) == 924 );
 	CHECK ( ctx->audio_size().leadout_frame() == 1233 );
-
 	CHECK ( ctx->is_multi_track() );
 	CHECK ( ctx->skips_front() );
 	CHECK ( ctx->skips_back() );
+	CHECK ( ctx->num_skip_front() == 2939 );
+	CHECK ( ctx->num_skip_back()  == 2940 );
+
+	Calculation calculation(std::move(ctx));
+
+	CHECK ( calculation.context().audio_size().leadout_frame()  ==    1233 );
+	CHECK ( calculation.context().audio_size().sample_count()   ==  725004 );
+	CHECK ( calculation.context().audio_size().pcm_byte_count() == 2900016 );
+	CHECK ( calculation.context().is_multi_track() );
+	CHECK ( calculation.context().skips_front() );
+	CHECK ( calculation.context().skips_back() );
+	CHECK ( calculation.context().num_skip_front() == 2939 );
+	CHECK ( calculation.context().num_skip_back()  == 2940 );
+	CHECK ( calculation.type() == type::ARCS2 );
+	CHECK ( not calculation.complete() );
 
 
-	arcstk::Calculation calc(std::move(ctx));
-
-	CHECK ( calc.context().audio_size().leadout_frame() == 1233 );
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 2900016 );
-	CHECK ( calc.context().audio_size().sample_count() == 725004 );
-
-	CHECK ( calc.context().is_multi_track() );
-	CHECK ( calc.context().skips_front() );
-	CHECK ( calc.context().skips_back() );
-	CHECK ( 2939 == calc.context().num_skip_front() );
-	CHECK ( 2940 == calc.context().num_skip_back() );
-	CHECK ( arcstk::checksum::type::ARCS2 == calc.type() );
-	CHECK ( not calc.complete() );
-
-
-	// Initialize Buffer
-
-	std::vector<uint32_t> buffer(241584); // samples
-	// Gives 3 blocks with 241584 samples each (== 966336 bytes)
-	// and 1 block with 252 samples (== 1008 bytes)
-	// ==725004 samples total, 2900016 bytes total
-
-
-	// Read Entire File Block-Wise and Update Calculation With the Blocks
-
-	std::ifstream in;
-	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try
+	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		in.open("calculation-test-02.bin",
-				std::ifstream::in | std::ifstream::binary);
-	} catch (const std::ifstream::failure& f)
-	{
-		FAIL ("Could not open test data file calculation-test-02.bin");
-	}
-	for (int i = 0; i < 3; ++i)
-	{
+		// Initialize Buffer
+
+		std::vector<uint32_t> buffer(181251); // samples
+
+		// => forms 4 blocks with 181251 samples each
+		// (total: 725004 samples, 2900016 bytes)
+
+		// Read Entire File Block-Wise and Update Calculation With the Blocks
+
+		std::ifstream in;
+		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
 		try
 		{
-			in.read(reinterpret_cast<char*>(&buffer[0]), 966336);
+			in.open("calculation-test-02.bin",
+					std::ifstream::in | std::ifstream::binary);
+		} catch (const std::ifstream::failure& f)
+		{
+			FAIL ("Could not open test data file calculation-test-02.bin");
+		}
+		for (int i = 0; i < 4; ++i)
+		{
+			CHECK ( not calculation.complete() );
 
+			try
+			{
+				in.read(reinterpret_cast<char*>(&buffer[0]), 725004);
+				// 725004 bytes == 181251 samples
+
+			} catch (const std::ifstream::failure& f)
+			{
+				in.close();
+				FAIL ("Error while reading from file calculation-test-02.bin");
+			}
+
+			try
+			{
+				calculation.update(buffer.begin(), buffer.end());
+			} catch (...)
+			{
+				in.close();
+				FAIL ("Error while updating buffer");
+			}
+		}
+
+		in.close();
+
+		CHECK ( calculation.complete() );
+
+		auto checksums { calculation.result() };
+
+		CHECK ( checksums.size() == 3 );
+
+
+		// Checks
+
+		auto track1 { checksums[0] };
+
+		CHECK ( track1.size() == 2 );
+		CHECK ( 0x0DF230F0 == (*track1.find(type::ARCS2)).value());
+		CHECK ( 0x7C7BFAF4 == (*track1.find(type::ARCS1)).value());
+
+		auto track2 { checksums[1] };
+
+		CHECK ( track2.size() == 2 );
+		CHECK ( 0x34C681C3 == (*track2.find(type::ARCS2)).value());
+		CHECK ( 0x5989C533 == (*track2.find(type::ARCS1)).value());
+
+		auto track3 { checksums[2] };
+
+		CHECK ( track3.size() == 2 );
+		CHECK ( 0xB845A497 == (*track3.find(type::ARCS2)).value());
+		CHECK ( 0xDD95CE6C == (*track3.find(type::ARCS1)).value());
+	}
+
+
+	SECTION ( "Correct ARCS1+2 with non-aligned blocks" )
+	{
+		// Initialize Buffer
+
+		std::vector<uint32_t> buffer(241584); // samples
+
+		// => forms 3 blocks: 2 x 241584 samples and 1 x 252 samples
+		// (total: 725004 samples, 2900016 bytes)
+
+		// Read Entire File Block-Wise and Update Calculation With the Blocks
+
+		std::ifstream in;
+		in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+		try
+		{
+			in.open("calculation-test-02.bin",
+					std::ifstream::in | std::ifstream::binary);
+		} catch (const std::ifstream::failure& f)
+		{
+			FAIL ("Could not open test data file calculation-test-02.bin");
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			try
+			{
+				in.read(reinterpret_cast<char*>(&buffer[0]), 966336);
+				// 966336 bytes == 241584 samples
+
+			} catch (const std::ifstream::failure& f)
+			{
+				in.close();
+				FAIL ("Error while reading from file calculation-test-02.bin");
+			}
+
+			try
+			{
+				calculation.update(buffer.begin(), buffer.end());
+			} catch (...)
+			{
+				in.close();
+				FAIL ("Error while updating buffer");
+			}
+
+			CHECK ( not calculation.complete() );
+		}
+		try // last block is smaller
+		{
+			buffer.resize(252);
+			in.read(reinterpret_cast<char*>(&buffer[0]), 1008);
 		} catch (const std::ifstream::failure& f)
 		{
 			in.close();
-			FAIL ("Error while reading from file calculation-test-02.bin");
+			FAIL ("Error on last block from file calculation-test-02.bin");
 		}
 
-		try
-		{
-			calc.update(buffer.begin(), buffer.end());
-		} catch (...)
-		{
-			in.close();
-			FAIL ("Error while updating buffer");
-		}
-
-		CHECK ( not calc.complete() );
-	}
-	try // last block is smaller
-	{
-		//buffer.set_size(252);
-		buffer.resize(252);
-		in.read(reinterpret_cast<char*>(&buffer[0]), 1008);
-	} catch (const std::ifstream::failure& f)
-	{
 		in.close();
-		FAIL ("Error on last block from file calculation-test-02.bin");
-	}
 
-	in.close();
+		calculation.update(buffer.begin(), buffer.end());
 
-	calc.update(buffer.begin(), buffer.end());
+		CHECK ( calculation.complete() );
 
-	CHECK ( calc.complete() );
+		auto checksums { calculation.result() };
 
-	auto checksums = calc.result();
-
-	CHECK ( checksums.size() == 3 );
+		CHECK ( checksums.size() == 3 );
 
 
-	SECTION ( "Calculation::update() calculates non-aligned blocks correctly" )
-	{
-		using type = arcstk::checksum::type;
+		// Checks
 
 		auto track1 = checksums[0];
 
@@ -625,67 +548,41 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in multitrack",
 }
 
 
-TEST_CASE ( "Calculation::update() accepts vector<uint32_t>", "" )
+// Interval
+
+
+TEST_CASE ( "Interval" "[calculate] [interval]" )
 {
-	// Load example samples
+	using arcstk::v_1_0_0::details::Interval;
 
-	std::ifstream in;
-	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	Interval i(10, 20);
 
-	try
+	SECTION ("Bounds are correct")
 	{
-		in.open("samplesequence-test-01.bin",
-				std::ifstream::in | std::ifstream::binary);
-	} catch (const std::ifstream::failure& f)
-	{
-		FAIL ("Could not open test data file calculation-test-01.bin");
+		CHECK ( not i.contains( 9) );
+		CHECK (     i.contains(10) );
+		CHECK (     i.contains(11) );
+		// ...
+		CHECK (     i.contains(19) );
+		CHECK (     i.contains(20) );
+		CHECK ( not i.contains(21) );
 	}
-
-	std::vector<uint8_t> bytes(
-			(std::istreambuf_iterator<char>(in)),
-			std::istreambuf_iterator<char>()
-	);
-
-	in.close();
-
-	arcstk::Calculation calc(arcstk::make_context(false, false, "bar"));
-
-	arcstk::AudioSize audiosize;
-	audiosize.set_sample_count(196608);
-	calc.update_audiosize(audiosize);
-
-	CHECK ( calc.context().audio_size().pcm_byte_count() == 786432 );
-	CHECK ( calc.context().audio_size().sample_count() == 196608 );
-	CHECK ( calc.context().audio_size().leadout_frame() == 334 );
-	CHECK ( calc.context().filename() == "bar" );
-	CHECK ( not calc.context().is_multi_track() );
-	CHECK ( not calc.context().skips_front() );
-	CHECK ( not calc.context().skips_back() );
-	CHECK ( not calc.complete() );
-
-
-	// Initialize Buffer
-
-	std::vector<uint32_t> buffer(80000); // samples
-
-	//calc.update(buffer);
 }
 
 
-// CalcContext
+// CalcContext implementations
 
 
-TEST_CASE ( "SingleCalcContext construction without parameters",
-		"[calculate] [calccontext]" )
+TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 {
-	// Construct a CalcContext without any parameters
+	using arcstk::make_context;
+	using arcstk::make_empty_arid;
+	auto empty_default_arid = make_empty_arid();
 
-	auto sctx = arcstk::make_context(false, false);
 
-
-	//SECTION ( "Construction without parameters is correct" )
-	//{
-		auto empty_default_arid = arcstk::make_empty_arid();
+	SECTION ( "Construction without parameters is correct" )
+	{
+		auto sctx { make_context(false, false) };
 
 		CHECK ( sctx->id() == *empty_default_arid );
 
@@ -723,7 +620,9 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 
 		CHECK ( sctx->track(0) == 1 );
 		CHECK ( sctx->track(static_cast<uint32_t>(-1)) == 1);
-	//}
+	}
+
+	// TODO Construction with parameters? (bool, bool, audiofilename)
 }
 
 
@@ -2025,23 +1924,5 @@ TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
 		CHECK ( ctx_copy->track(148783403) == 15);
 		CHECK ( ctx_copy->track(148783404) > ctx_copy->track_count() );
 	}
-
-}
-
-
-// Interval
-
-
-TEST_CASE ( "Interval" "[calculate] [interval]" )
-{
-	arcstk::v_1_0_0::details::Interval i(10, 20);
-
-	CHECK ( i.contains(10) );
-	CHECK ( i.contains(11) );
-	CHECK ( i.contains(19) );
-	CHECK ( i.contains(20) );
-
-	CHECK ( not i.contains(9) );
-	CHECK ( not i.contains(21) );
 }
 
