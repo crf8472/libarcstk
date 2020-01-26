@@ -2399,11 +2399,12 @@ InvalidAudioException::InvalidAudioException(const char *what_arg)
 }
 
 
-// make_context (audiofile, bool, bool)
+// make_context (bool, bool, audiofile)
 
 
-std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
-		const bool &skip_front, const bool &skip_back)
+std::unique_ptr<CalcContext> make_context(const bool &skip_front,
+		const bool &skip_back,
+		const std::string &audiofilename)
 {
 	// Note: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
@@ -2412,7 +2413,7 @@ std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
 }
 
 
-// make_context (audiofile, TOC)
+// make_context (TOC, audiofile)
 
 
 std::unique_ptr<CalcContext> make_context(const TOC &toc,

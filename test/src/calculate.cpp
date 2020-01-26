@@ -124,7 +124,7 @@ TEST_CASE ( "Calculation construction", "[calculate] [calculation]" )
 
 TEST_CASE ( "Calculation configuration", "[calculate] [calculation]" )
 {
-	arcstk::Calculation calc(arcstk::make_context("foo", false, false));
+	arcstk::Calculation calc(arcstk::make_context(false, false, "foo"));
 
 	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608); // fits calculation-test-01.bin
@@ -194,7 +194,7 @@ TEST_CASE ( "Calculation::update() with aligned blocks in singletrack/v1+2",
 {
 	// Initialize Calculation
 
-	arcstk::Calculation calc(arcstk::make_context("foo", false, false));
+	arcstk::Calculation calc(arcstk::make_context(false, false, "foo"));
 
 	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
@@ -283,7 +283,7 @@ TEST_CASE ( "Calculation::update() with non-aligned blocks in singletrack/v1+2",
 {
 	// Initialize Calculation
 
-	arcstk::Calculation calc(arcstk::make_context("bar", false, false));
+	arcstk::Calculation calc(arcstk::make_context(false, false, "bar"));
 
 	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
@@ -648,7 +648,7 @@ TEST_CASE ( "Calculation::update() accepts vector<uint32_t>", "" )
 
 	in.close();
 
-	arcstk::Calculation calc(arcstk::make_context("bar", false, false));
+	arcstk::Calculation calc(arcstk::make_context(false, false, "bar"));
 
 	arcstk::AudioSize audiosize;
 	audiosize.set_sample_count(196608);
@@ -680,7 +680,7 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 {
 	// Construct a CalcContext without any parameters
 
-	auto sctx = arcstk::make_context("", false, false);
+	auto sctx = arcstk::make_context(false, false);
 
 
 	//SECTION ( "Construction without parameters is correct" )

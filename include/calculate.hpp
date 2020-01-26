@@ -952,16 +952,17 @@ private:
  * \brief Create a CalcContext from an audio filename and two skip flags.
  *
  * The file will not be read, the filename is just declared. It is allowed to be
- * empty.
+ * omitted and defaults to an empty std::string in this case.
  *
- * \param[in] audiofilename The name of the audiofile
  * \param[in] skip_front    Tell wether to skip the front samples
  * \param[in] skip_back     Tell wether to skip the back samples
+ * \param[in] audiofilename The name of the audiofile
  *
  * \return CalcContext for the input
  */
-std::unique_ptr<CalcContext> make_context(const std::string &audiofilename,
-		const bool &skip_front, const bool &skip_back);
+std::unique_ptr<CalcContext> make_context(const bool &skip_front,
+		const bool &skip_back,
+		const std::string &audiofilename = std::string());
 
 
 /**
