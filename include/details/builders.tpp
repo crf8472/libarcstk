@@ -253,6 +253,16 @@ private:
 			const std::vector<std::string> &files);
 
 	/**
+	 * \brief TRUE iff \c t is a track in this TOC, i.e. 1 <= t <= track_count,
+	 * otherwise FALSE
+	 *
+	 * \param[in] track Track number to check
+	 *
+	 * \return TRUE iff \c t is a track in this TOC
+	 */
+	inline bool has_track(const TrackNo track) const noexcept;
+
+	/**
 	 * \brief Number of tracks
 	 */
 	TrackNo track_count_;
@@ -315,6 +325,12 @@ TOC::Impl::Impl(const TrackNo track_count,
 }
 
 
+bool TOC::Impl::has_track(const TrackNo track) const noexcept
+{
+	return track >= 1 and track <= this->track_count();
+}
+
+
 TrackNo TOC::Impl::track_count() const
 {
 	return track_count_;
@@ -323,19 +339,39 @@ TrackNo TOC::Impl::track_count() const
 
 uint32_t TOC::Impl::offset(const TrackNo track) const
 {
-	return ::arcstk::details::get_track(offsets_, track);
+	return details::get_track(offsets_, track);
 }
 
 
 uint32_t TOC::Impl::parsed_length(const TrackNo track) const
 {
-	return ::arcstk::details::get_track(lengths_, track);
+	try {
+
+		return details::get_track(lengths_, track);
+	} catch (const std::out_of_range &e)
+	{
+		// If track is valid, don't throw, even if lengths_ is empty
+		if (has_track(track))
+		{
+			return 0;
+		} else throw;
+	}
 }
 
 
 std::string TOC::Impl::filename(const TrackNo track) const
 {
-	return ::arcstk::details::get_track(files_, track);
+	try {
+
+		return details::get_track(files_, track);
+	} catch (const std::out_of_range &e)
+	{
+		// If track is valid, don't throw, even if files_ is empty
+		if (has_track(track))
+		{
+			return "";
+		} else throw;
+	}
 }
 
 

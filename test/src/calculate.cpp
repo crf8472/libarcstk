@@ -728,7 +728,7 @@ TEST_CASE ( "SingleCalcContext construction without parameters",
 }
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
+TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout",
 	"[calculate] [calccontext]" )
 {
 	using arcstk::details::TOCBuilder;
@@ -745,25 +745,69 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 		253038
 	);
 
+	CHECK_THROWS ( toc->offset( 0)    );
+	CHECK ( toc->offset( 1) ==     33 );
+	CHECK ( toc->offset( 2) ==   5225 );
+	CHECK ( toc->offset( 3) ==   7390 );
+	CHECK ( toc->offset( 4) ==  23380 );
+	CHECK ( toc->offset( 5) ==  35608 );
+	CHECK ( toc->offset( 6) ==  49820 );
+	CHECK ( toc->offset( 7) ==  69508 );
+	CHECK ( toc->offset( 8) ==  87733 );
+	CHECK ( toc->offset( 9) == 106333 );
+	CHECK ( toc->offset(10) == 139495 );
+	CHECK ( toc->offset(11) == 157863 );
+	CHECK ( toc->offset(12) == 198495 );
+	CHECK ( toc->offset(13) == 213368 );
+	CHECK ( toc->offset(14) == 225320 );
+	CHECK ( toc->offset(15) == 234103 );
+	CHECK_THROWS ( toc->offset(16)    );
+
+	CHECK_THROWS ( toc->parsed_length( 0));
+	CHECK ( toc->parsed_length( 1) ==  0 );
+	CHECK ( toc->parsed_length(15) ==  0 );
+	CHECK_THROWS ( toc->parsed_length(16));
+
+	CHECK_THROWS ( toc->filename( 0)       );
+	CHECK        ( toc->filename( 1) == "" );
+	CHECK        ( toc->filename(15) == "" );
+	CHECK_THROWS ( toc->filename(16)       );
+
+	CHECK ( toc->leadout() == 253038 );
+	CHECK ( toc->track_count() == 15 );
+	CHECK ( toc->complete() );
+
 	auto mctx = arcstk::make_context("", *toc);
+	auto audiosize = mctx->audio_size();
+	auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
 
-
-	SECTION ("pcm_byte_count() and filename()")
+	SECTION ("skips_front(), skips_back() and is_multi_track()")
 	{
-		CHECK ( mctx->audio_size().pcm_byte_count() == 595145376 );
-		CHECK ( mctx->filename() == std::string() );
+		CHECK ( mctx->skips_front() );
+		CHECK ( mctx->skips_back() );
+		CHECK ( mctx->is_multi_track() );
 	}
 
-	SECTION ("leadout_frame() and sample_count()")
+	SECTION ("id(), filename()")
 	{
-		CHECK ( mctx->audio_size().leadout_frame()  == 253038 );
-		CHECK ( mctx->audio_size().sample_count()   == 148786344 );
+		CHECK ( mctx->filename() == "" );
+		CHECK ( mctx->id() == arid );
 	}
 
-	SECTION ("track_count(), offset(), length()" )
+	SECTION ("AudioSize")
 	{
-		CHECK ( mctx->track_count()    == 15 );
+		CHECK ( audiosize.leadout_frame()  ==    253038 );
+		CHECK ( audiosize.sample_count()   == 148786344 );
+		CHECK ( audiosize.pcm_byte_count() == 595145376 );
+	}
 
+	SECTION ("track_count()")
+	{
+		CHECK ( mctx->track_count() == 15 );
+	}
+
+	SECTION ("offset()" )
+	{
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
 		CHECK ( mctx->offset(2)  ==   7390 );
@@ -779,8 +823,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 		CHECK ( mctx->offset(12) == 213368 );
 		CHECK ( mctx->offset(13) == 225320 );
 		CHECK ( mctx->offset(14) == 234103 );
-		CHECK ( mctx->offset(15) ==      0 );
+		CHECK ( mctx->offset(15) ==      0 ); // not a track
+	}
 
+	SECTION ("length()" )
+	{
 		// The lengths parsed from the CUEsheet differ from the lengths
 		// computed by CalcContext. The cause is that for CalcContext the length
 		// of track i is the difference offset(i+1) - offset(i). This accepts
@@ -803,7 +850,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 		CHECK ( mctx->length(12) == 11952 );
 		CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
 		CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
-		CHECK ( mctx->length(15) ==     0 );
+		CHECK ( mctx->length(15) ==     0 ); // not a track
 	}
 
 	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
@@ -938,7 +985,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with leadout",
 }
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
+TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts",
 	"[calculate] [calccontext]" )
 {
 	using arcstk::details::TOCBuilder;
@@ -956,30 +1003,83 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 			40152, 14798, 11952, 8463, 18935 }
 	);
 
+	CHECK_THROWS ( toc->offset( 0)    );
+	CHECK ( toc->offset( 1) ==     33 );
+	CHECK ( toc->offset( 2) ==   5225 );
+	CHECK ( toc->offset( 3) ==   7390 );
+	CHECK ( toc->offset( 4) ==  23380 );
+	CHECK ( toc->offset( 5) ==  35608 );
+	CHECK ( toc->offset( 6) ==  49820 );
+	CHECK ( toc->offset( 7) ==  69508 );
+	CHECK ( toc->offset( 8) ==  87733 );
+	CHECK ( toc->offset( 9) == 106333 );
+	CHECK ( toc->offset(10) == 139495 );
+	CHECK ( toc->offset(11) == 157863 );
+	CHECK ( toc->offset(12) == 198495 );
+	CHECK ( toc->offset(13) == 213368 );
+	CHECK ( toc->offset(14) == 225320 );
+	CHECK ( toc->offset(15) == 234103 );
+	CHECK_THROWS ( toc->offset(16)    );
+
+	CHECK_THROWS ( toc->parsed_length( 0)    );
+	CHECK ( toc->parsed_length( 1) ==   5192 );
+	CHECK ( toc->parsed_length( 2) ==   2165 );
+	CHECK ( toc->parsed_length( 3) ==  15885 );
+	CHECK ( toc->parsed_length( 4) ==  12228 );
+	CHECK ( toc->parsed_length( 5) ==  13925 );
+	CHECK ( toc->parsed_length( 6) ==  19513 );
+	CHECK ( toc->parsed_length( 7) ==  18155 );
+	CHECK ( toc->parsed_length( 8) ==  18325 );
+	CHECK ( toc->parsed_length( 9) ==  33075 );
+	CHECK ( toc->parsed_length(10) ==  18368 );
+	CHECK ( toc->parsed_length(11) ==  40152 );
+	CHECK ( toc->parsed_length(12) ==  14798 );
+	CHECK ( toc->parsed_length(13) ==  11952 );
+	CHECK ( toc->parsed_length(14) ==   8463 );
+	CHECK ( toc->parsed_length(15) ==  18935 );
+	CHECK_THROWS ( toc->parsed_length(16)    );
+
+	CHECK_THROWS ( toc->filename( 0)       );
+	CHECK        ( toc->filename( 1) == "" );
+	CHECK        ( toc->filename(15) == "" );
+	CHECK_THROWS ( toc->filename(16)       );
+
+	CHECK ( toc->leadout() == 253038 );
+	CHECK ( toc->track_count() == 15 );
+	CHECK ( toc->complete() );
+
 	auto mctx = arcstk::make_context(std::string(), *toc);
+	auto audiosize = mctx->audio_size();
+	auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
 
 
-	// NOTE that this TOC and the TOC from the previous test case are
-	// completely equivalent, but now we specify the lengths instead of the
-	// leadout! The CHECKments are exactly the same.
-
-
-	SECTION ("pcm_byte_count() and filename()")
+	SECTION ("skips_front(), skips_back() and is_multi_track()")
 	{
-		CHECK ( mctx->audio_size().pcm_byte_count() == 595145376 );
-		CHECK ( mctx->filename() == std::string() );
+		CHECK ( mctx->skips_front() );
+		CHECK ( mctx->skips_back() );
+		CHECK ( mctx->is_multi_track() );
 	}
 
-	SECTION ("leadout_frame() and sample_count()")
+	SECTION ("id(), filename()")
 	{
-		CHECK ( mctx->audio_size().leadout_frame()  == 253038 );
-		CHECK ( mctx->audio_size().sample_count()   == 148786344 );
+		CHECK ( mctx->filename() == "" );
+		CHECK ( mctx->id() == arid );
 	}
 
-	SECTION ("track_count(), offset(), length()" )
+	SECTION ("AudioSize")
+	{
+		CHECK ( audiosize.leadout_frame()  ==    253038 );
+		CHECK ( audiosize.sample_count()   == 148786344 );
+		CHECK ( audiosize.pcm_byte_count() == 595145376 );
+	}
+
+	SECTION ("track_count()")
 	{
 		CHECK ( mctx->track_count() == 15 );
+	}
 
+	SECTION ("offset()" )
+	{
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
 		CHECK ( mctx->offset(2)  ==   7390 );
@@ -995,8 +1095,11 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 		CHECK ( mctx->offset(12) == 213368 );
 		CHECK ( mctx->offset(13) == 225320 );
 		CHECK ( mctx->offset(14) == 234103 );
-		CHECK ( mctx->offset(15) ==      0 );
+		CHECK ( mctx->offset(15) ==      0 ); // not a track
+	}
 
+	SECTION ("length()")
+	{
 		// The lengths parsed from the CUEsheet differ from the lengths
 		// computed by CalcContext. The cause is that for CalcContext the length
 		// of track i is the difference offset(i+1) - offset(i). This accepts
@@ -1020,16 +1123,6 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, TOC with lenghts",
 		CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
 		CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
 		CHECK ( mctx->length(15) ==     0 );
-	}
-
-	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
-	{
-		CHECK ( mctx->id() ==
-				arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
-
-		CHECK ( mctx->skips_front() );
-		CHECK ( mctx->skips_back() );
-		CHECK ( mctx->is_multi_track() );
 	}
 
 	SECTION ("first_relevant_sample()")
@@ -1171,6 +1264,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		332075
 	);
 
+	CHECK_THROWS ( toc->offset( 0)    );
 	CHECK ( toc->offset( 1) ==      0 );
 	CHECK ( toc->offset( 2) ==  29042 );
 	CHECK ( toc->offset( 3) ==  53880 );
@@ -1189,12 +1283,21 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 	CHECK ( toc->offset(16) == 272055 );
 	CHECK ( toc->offset(17) == 291720 );
 	CHECK ( toc->offset(18) == 319992 );
+	CHECK_THROWS ( toc->offset(19)    );
 
-	//CHECK ( toc->filename( 1) == "" );
-	//CHECK ( toc->filename(18) == "" );
+	CHECK_THROWS ( toc->parsed_length( 0)      );
+	CHECK        ( toc->parsed_length( 1) == 0 );
+	CHECK        ( toc->parsed_length(18) == 0 );
+	CHECK_THROWS ( toc->parsed_length(19)      );
+
+	CHECK_THROWS ( toc->filename( 0)       );
+	CHECK        ( toc->filename( 1) == "" );
+	CHECK        ( toc->filename(18) == "" );
+	CHECK_THROWS ( toc->filename(19)       );
 
 	CHECK ( toc->leadout() == 332075 );
 	CHECK ( toc->track_count() == 18 );
+	CHECK ( toc->complete() );
 
 
 	auto mctx = arcstk::make_context(std::string(), *toc);
@@ -1224,7 +1327,6 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 
 	SECTION ("track_count()")
 	{
-		CHECK ( toc->track_count()  == 18 );
 		CHECK ( mctx->track_count() == 18 );
 	}
 
@@ -1326,11 +1428,86 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->last_relevant_sample(19) == 195257159 ); // not a track
 	}
 
+	SECTION ("track()")
+	{
+		// Test the bounds of each track
 
-	// TODO
-	//SECTION ("track()")
-	//{
-	//}
+		CHECK ( mctx->track(0) == 0);
+		CHECK ( mctx->track(1) == 1);
+		CHECK ( mctx->track(2) == 1);
+
+		CHECK ( mctx->track(17076694) == 1);
+		CHECK ( mctx->track(17076695) == 1);
+		CHECK ( mctx->track(17076696) == 2);
+
+		CHECK ( mctx->track(31681438) == 2);
+		CHECK ( mctx->track(31681439) == 2);
+		CHECK ( mctx->track(31681440) == 3);
+
+		CHECK ( mctx->track(34237474) == 3);
+		CHECK ( mctx->track(34237475) == 3);
+		CHECK ( mctx->track(34237476) == 4);
+
+		CHECK ( mctx->track(49638958) == 4);
+		CHECK ( mctx->track(49638959) == 4);
+		CHECK ( mctx->track(49638960) == 5);
+
+		CHECK ( mctx->track(55384894) == 5);
+		CHECK ( mctx->track(55384895) == 5);
+		CHECK ( mctx->track(55384896) == 6);
+
+		CHECK ( mctx->track(70069018) == 6);
+		CHECK ( mctx->track(70069019) == 6);
+		CHECK ( mctx->track(70069020) == 7);
+
+		CHECK ( mctx->track(72341638) == 7);
+		CHECK ( mctx->track(72341639) == 7);
+		CHECK ( mctx->track(72341640) == 8);
+
+		CHECK ( mctx->track(86729998) == 8);
+		CHECK ( mctx->track(86729999) == 8);
+		CHECK ( mctx->track(86730000) == 9);
+
+		CHECK ( mctx->track(87180994) == 9);
+		CHECK ( mctx->track(87180995) == 9);
+		CHECK ( mctx->track(87180996) == 10);
+
+		CHECK ( mctx->track(102665974) == 10);
+		CHECK ( mctx->track(102665975) == 10);
+		CHECK ( mctx->track(102665976) == 11);
+
+		CHECK ( mctx->track(122377498) == 11);
+		CHECK ( mctx->track(122377499) == 11);
+		CHECK ( mctx->track(122377500) == 12);
+
+		CHECK ( mctx->track(125070538) == 12);
+		CHECK ( mctx->track(125070539) == 12);
+		CHECK ( mctx->track(125070540) == 13);
+
+		CHECK ( mctx->track(141055318) == 13);
+		CHECK ( mctx->track(141055319) == 13);
+		CHECK ( mctx->track(141055320) == 14);
+
+		CHECK ( mctx->track(157998538) == 14);
+		CHECK ( mctx->track(157998539) == 14);
+		CHECK ( mctx->track(157998540) == 15);
+
+		CHECK ( mctx->track(159968338) == 15);
+		CHECK ( mctx->track(159968339) == 15);
+		CHECK ( mctx->track(159968340) == 16);
+
+		CHECK ( mctx->track(171531358) == 16);
+		CHECK ( mctx->track(171531359) == 16);
+		CHECK ( mctx->track(171531360) == 17);
+
+		CHECK ( mctx->track(188155294) == 17);
+		CHECK ( mctx->track(188155295) == 17);
+		CHECK ( mctx->track(188155296) == 18);
+
+		CHECK ( mctx->track(195257158) == 18);
+		CHECK ( mctx->track(195257159) == 18);
+		CHECK ( mctx->track(195257160) > mctx->track_count());
+	}
 }
 
 
@@ -1354,6 +1531,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 
 	CHECK ( toc->track_count() == 18 );
 
+	CHECK_THROWS ( toc->offset( 0)    );
 	CHECK ( toc->offset( 1) ==      0 );
 	CHECK ( toc->offset( 2) ==  29042 );
 	CHECK ( toc->offset( 3) ==  53880 );
@@ -1372,7 +1550,9 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 	CHECK ( toc->offset(16) == 272055 );
 	CHECK ( toc->offset(17) == 291720 );
 	CHECK ( toc->offset(18) == 319992 );
+	CHECK_THROWS ( toc->offset(19)    );
 
+	CHECK_THROWS ( toc->parsed_length( 0)   );
 	CHECK ( toc->parsed_length( 1) == 29042 );
 	CHECK ( toc->parsed_length( 2) == 24673 );
 	CHECK ( toc->parsed_length( 3) ==  4347 );
@@ -1391,12 +1571,227 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 	CHECK ( toc->parsed_length(16) == 19665 );
 	CHECK ( toc->parsed_length(17) == 28272 );
 	CHECK ( toc->parsed_length(18) ==     0 ); //normalized
+	CHECK_THROWS ( toc->parsed_length(19)   );
 
+	CHECK_THROWS ( toc->filename( 0)       );
+	CHECK        ( toc->filename( 1) == "" );
+	CHECK        ( toc->filename(18) == "" );
+	CHECK_THROWS ( toc->filename(19)       );
+
+	CHECK ( toc->track_count() == 18 );
+	CHECK ( not toc->complete() );
 	CHECK ( toc->leadout() == 0 ); // unknown due to last length unknown
 
 	auto mctx = arcstk::make_context(std::string(), *toc);
+	auto audiosize = mctx->audio_size();
+	auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
 
-	// TODO
+
+	SECTION ("skips_front(), skips_back() and is_multi_track()")
+	{
+		CHECK ( mctx->skips_front() );
+		CHECK ( mctx->skips_back() );
+		CHECK ( mctx->is_multi_track() );
+	}
+
+	SECTION ("id(), filename()")
+	{
+		CHECK ( mctx->filename() == "" );
+		//CHECK ( mctx->id() == arid );  // undefined
+	}
+
+	SECTION ("AudioSize")
+	{
+		CHECK ( audiosize.leadout_frame()  == 0 );
+		CHECK ( audiosize.sample_count()   == 0 );
+		CHECK ( audiosize.pcm_byte_count() == 0 );
+	}
+
+	SECTION ("track_count()")
+	{
+		CHECK ( mctx->track_count() == 18 );
+	}
+
+	SECTION ("offset()")
+	{
+		CHECK ( mctx->offset( 0) ==      0 );
+		CHECK ( mctx->offset( 1) ==  29042 );
+		CHECK ( mctx->offset( 2) ==  53880 );
+		CHECK ( mctx->offset( 3) ==  58227 );
+		CHECK ( mctx->offset( 4) ==  84420 );
+		CHECK ( mctx->offset( 5) ==  94192 );
+		CHECK ( mctx->offset( 6) == 119165 );
+		CHECK ( mctx->offset( 7) == 123030 );
+		CHECK ( mctx->offset( 8) == 147500 );
+		CHECK ( mctx->offset( 9) == 148267 );
+		CHECK ( mctx->offset(10) == 174602 );
+		CHECK ( mctx->offset(11) == 208125 );
+		CHECK ( mctx->offset(12) == 212705 );
+		CHECK ( mctx->offset(13) == 239890 );
+		CHECK ( mctx->offset(14) == 268705 );
+		CHECK ( mctx->offset(15) == 272055 );
+		CHECK ( mctx->offset(16) == 291720 );
+		CHECK ( mctx->offset(17) == 319992 );
+	}
+
+	SECTION ("length()")
+	{
+		CHECK ( mctx->length( 0) == 29042 );
+		CHECK ( mctx->length( 1) == 24838 );
+		CHECK ( mctx->length( 2) ==  4347 );
+		CHECK ( mctx->length( 3) == 26193 );
+		CHECK ( mctx->length( 4) ==  9772 );
+		CHECK ( mctx->length( 5) == 24973 );
+		CHECK ( mctx->length( 6) ==  3865 );
+		CHECK ( mctx->length( 7) == 24470 );
+		CHECK ( mctx->length( 8) ==   767 );
+		CHECK ( mctx->length( 9) == 26335 );
+		CHECK ( mctx->length(10) == 33523 );
+		CHECK ( mctx->length(11) ==  4580 );
+		CHECK ( mctx->length(12) == 27185 );
+		CHECK ( mctx->length(13) == 28815 );
+		CHECK ( mctx->length(14) ==  3350 );
+		CHECK ( mctx->length(15) == 19665 );
+		CHECK ( mctx->length(16) == 28272 );
+		CHECK ( mctx->length(17) ==     0 );
+	}
+
+	SECTION ("first_relevant_sample()")
+	{
+		CHECK ( mctx->first_relevant_sample(0)  ==         0 ); // not a track
+
+		CHECK ( mctx->first_relevant_sample(1)  ==      2939 ); // skipping!
+		CHECK ( mctx->first_relevant_sample(2)  ==  17076696 );
+		CHECK ( mctx->first_relevant_sample(3)  ==  31681440 );
+		CHECK ( mctx->first_relevant_sample(4)  ==  34237476 );
+		CHECK ( mctx->first_relevant_sample(5)  ==  49638960 );
+		CHECK ( mctx->first_relevant_sample(6)  ==  55384896 );
+		CHECK ( mctx->first_relevant_sample(7)  ==  70069020 );
+		CHECK ( mctx->first_relevant_sample(8)  ==  72341640 );
+		CHECK ( mctx->first_relevant_sample(9)  ==  86730000 );
+		CHECK ( mctx->first_relevant_sample(10) ==  87180996 );
+		CHECK ( mctx->first_relevant_sample(11) == 102665976 );
+		CHECK ( mctx->first_relevant_sample(12) == 122377500 );
+		CHECK ( mctx->first_relevant_sample(13) == 125070540 );
+		CHECK ( mctx->first_relevant_sample(14) == 141055320 );
+		CHECK ( mctx->first_relevant_sample(15) == 157998540 );
+		CHECK ( mctx->first_relevant_sample(16) == 159968340 );
+		CHECK ( mctx->first_relevant_sample(17) == 171531360 );
+		CHECK ( mctx->first_relevant_sample(18) == 188155296 );
+
+		CHECK ( mctx->first_relevant_sample(19) == 0 ); // not a track
+	}
+
+	SECTION ("last_relevant_sample()")
+	{
+		//CHECK ( mctx->last_relevant_sample()   == ); // undefined
+
+		CHECK ( mctx->last_relevant_sample(0)  ==         0 ); // not a track
+
+		CHECK ( mctx->last_relevant_sample(1)  ==  17076695 );
+		CHECK ( mctx->last_relevant_sample(2)  ==  31681439 );
+		CHECK ( mctx->last_relevant_sample(3)  ==  34237475 );
+		CHECK ( mctx->last_relevant_sample(4)  ==  49638959 );
+		CHECK ( mctx->last_relevant_sample(5)  ==  55384895 );
+		CHECK ( mctx->last_relevant_sample(6)  ==  70069019 );
+		CHECK ( mctx->last_relevant_sample(7)  ==  72341639 );
+		CHECK ( mctx->last_relevant_sample(8)  ==  86729999 );
+		CHECK ( mctx->last_relevant_sample(9)  ==  87180995 );
+		CHECK ( mctx->last_relevant_sample(10) == 102665975 );
+		CHECK ( mctx->last_relevant_sample(11) == 122377499 );
+		CHECK ( mctx->last_relevant_sample(12) == 125070539 );
+		CHECK ( mctx->last_relevant_sample(13) == 141055319 );
+		CHECK ( mctx->last_relevant_sample(14) == 157998539 );
+		CHECK ( mctx->last_relevant_sample(15) == 159968339 );
+		CHECK ( mctx->last_relevant_sample(16) == 171531359 );
+		CHECK ( mctx->last_relevant_sample(17) == 188155295 );
+		//CHECK ( mctx->last_relevant_sample(18) ==         0 ); // undefined
+
+		//CHECK ( mctx->last_relevant_sample(19) == 195257159 ); // undefined
+	}
+
+
+	SECTION ("track()")
+	{
+		// Test the bounds of each track
+
+		CHECK ( mctx->track(0) == 0);
+// FIXME Would be better to yield those values instead of 0
+//		CHECK ( mctx->track(1) == 1);
+//		CHECK ( mctx->track(2) == 1);
+//
+//		CHECK ( mctx->track(17076694) == 1);
+//		CHECK ( mctx->track(17076695) == 1);
+//		CHECK ( mctx->track(17076696) == 2);
+//
+//		CHECK ( mctx->track(31681438) == 2);
+//		CHECK ( mctx->track(31681439) == 2);
+//		CHECK ( mctx->track(31681440) == 3);
+//
+//		CHECK ( mctx->track(34237474) == 3);
+//		CHECK ( mctx->track(34237475) == 3);
+//		CHECK ( mctx->track(34237476) == 4);
+//
+//		CHECK ( mctx->track(49638958) == 4);
+//		CHECK ( mctx->track(49638959) == 4);
+//		CHECK ( mctx->track(49638960) == 5);
+//
+//		CHECK ( mctx->track(55384894) == 5);
+//		CHECK ( mctx->track(55384895) == 5);
+//		CHECK ( mctx->track(55384896) == 6);
+//
+//		CHECK ( mctx->track(70069018) == 6);
+//		CHECK ( mctx->track(70069019) == 6);
+//		CHECK ( mctx->track(70069020) == 7);
+//
+//		CHECK ( mctx->track(72341638) == 7);
+//		CHECK ( mctx->track(72341639) == 7);
+//		CHECK ( mctx->track(72341640) == 8);
+//
+//		CHECK ( mctx->track(86729998) == 8);
+//		CHECK ( mctx->track(86729999) == 8);
+//		CHECK ( mctx->track(86730000) == 9);
+//
+//		CHECK ( mctx->track(87180994) == 9);
+//		CHECK ( mctx->track(87180995) == 9);
+//		CHECK ( mctx->track(87180996) == 10);
+//
+//		CHECK ( mctx->track(102665974) == 10);
+//		CHECK ( mctx->track(102665975) == 10);
+//		CHECK ( mctx->track(102665976) == 11);
+//
+//		CHECK ( mctx->track(122377498) == 11);
+//		CHECK ( mctx->track(122377499) == 11);
+//		CHECK ( mctx->track(122377500) == 12);
+//
+//		CHECK ( mctx->track(125070538) == 12);
+//		CHECK ( mctx->track(125070539) == 12);
+//		CHECK ( mctx->track(125070540) == 13);
+//
+//		CHECK ( mctx->track(141055318) == 13);
+//		CHECK ( mctx->track(141055319) == 13);
+//		CHECK ( mctx->track(141055320) == 14);
+//
+//		CHECK ( mctx->track(157998538) == 14);
+//		CHECK ( mctx->track(157998539) == 14);
+//		CHECK ( mctx->track(157998540) == 15);
+//
+//		CHECK ( mctx->track(159968338) == 15);
+//		CHECK ( mctx->track(159968339) == 15);
+//		CHECK ( mctx->track(159968340) == 16);
+//
+//		CHECK ( mctx->track(171531358) == 16);
+//		CHECK ( mctx->track(171531359) == 16);
+//		CHECK ( mctx->track(171531360) == 17);
+//
+//		CHECK ( mctx->track(188155294) == 17);
+//		CHECK ( mctx->track(188155295) == 17);
+//		CHECK ( mctx->track(188155296) == 18);
+//
+//		CHECK ( mctx->track(195257158) == 18);
+//		CHECK ( mctx->track(195257159) == 18);
+//		CHECK ( mctx->track(195257160) > mctx->track_count());
+	}
 }
 
 
