@@ -1162,6 +1162,7 @@ class CalcStateV1andV2;
 
 
 /**
+ * \internal
  * \brief CalcState related tools.
  */
 namespace state
@@ -1171,13 +1172,14 @@ namespace state
 /**
  * \brief An aggregate of all predefined CalcState implementations.
  */
-using state_types = std::tuple<
+using types = std::tuple<
 	CalcStateV1,       // type::ARCS1
 	CalcStateV1andV2   // type::ARCS2
 	>;
 
 
 /**
+ * \internal
  * \brief Implementation details of namespace state.
  */
 namespace details
@@ -1193,7 +1195,12 @@ namespace details
 
 
 /**
- * \brief Invoke F on T*, except for <tt>T == void</tt>
+ * \internal
+ * \brief Invoke callable \c F with a nullptr of type \c T* and \c i as
+ * arguments iff \c T is not void.
+ *
+ * \tparam T Base type to invoke \c F on
+ * \tparam F Callable type with params \c T* and \c i
  *
  * \param[in] func The callable F to invoke on T*
  * \param[in] i    The size to pass to func
@@ -1211,9 +1218,11 @@ auto invoke(F&& func, std::size_t i)
 
 
 /**
- * \brief In case <tt>T == void</tt> just do not invoke F on T*
+ * \internal
+ * \brief In case \c T is void just do nothing.
  *
- * This version implements <tt>T == void</tt> and does nothing.
+ * \tparam T Base type to invoke \c F on
+ * \tparam F Callable type with params \c T* and \c i
  */
 template<typename T, typename F>
 auto invoke(F&& /* func */, std::size_t /* i */)
@@ -1228,9 +1237,14 @@ auto invoke(F&& /* func */, std::size_t /* i */)
 
 
 /**
+ * \internal
  * \brief Implementation of for_all_types
  *
- * \param[in] func To be invoked on each combination of a type and a size
+ * \tparam TUPLE Some iterable tuple type
+ * \tparam F     Callable type
+ * \tparam I     Parameter pack of sizes
+ *
+ * \param[in] func To be invoked on each combination of an element and a size
  */
 template <typename TUPLE, typename F, std::size_t... I>
 void for_all_types_impl(F&& func, std::index_sequence<I...>)
@@ -1241,9 +1255,13 @@ void for_all_types_impl(F&& func, std::index_sequence<I...>)
 
 
 /**
+ * \internal
  * \brief Invoke \c func on each type in tuple \c TUPLE
  *
- * \param[in] func To be invoked on each combination of a type and a size
+ * \tparam TUPLE Some iterable tuple type
+ * \tparam F     Callable type
+ *
+ * \param[in] func To be invoked on each combination of an element and a size
  */
 template <typename TUPLE, typename F>
 void for_all_types(F&& func)
@@ -1266,16 +1284,20 @@ void for_all_types(F&& func)
  * Argument \c i is of type std::size_t since it is intended to use this
  * function to load a class by specifying an enum value.
  *
+ * \tparam T     Type on index position \c i in \c TUPLE
+ * \tparam TUPLE Some iterable tuple type
+ * \tparam F     Callable type
+ *
  * \param[in] func The callable to instantiate the corresponding type
  * \param[in] i    The size to compare
  *
  * \return An instance of type \c R
  */
-template <typename R, typename TUPLE, typename F>
-R instantiate(F&& func, std::size_t i)
+template <typename T, typename TUPLE, typename F>
+T instantiate(F&& func, std::size_t i)
 {
-	R instance;
-	bool found = false;
+	T instance;
+	bool found { false };
 
 	// find the enum value whose size corresponds to the index position of the
 	// type in TUPLE and invoke func on it
@@ -1289,7 +1311,7 @@ R instantiate(F&& func, std::size_t i)
 			if (i == enum_val)
 			{
 				instance = func(p);
-				found = true;
+				found    = true;
 			}
 		}
 	);
@@ -1297,7 +1319,7 @@ R instantiate(F&& func, std::size_t i)
 	if (not found)
 	{
 		std::stringstream msg;
-		msg << "No CalcState type found with id " << i;
+		msg << "No type found with id " << i;
 
 		throw std::invalid_argument(msg.str());
 	}
@@ -1311,18 +1333,21 @@ R instantiate(F&& func, std::size_t i)
 /**
  * \brief Instantiate the CalcState for a checksum::type.
  *
- * \param[in] state_type The state type to instantiate
- * \param[in] x Constructor arguments for constructing CalcState
+ * \tparam X Types to be instantiated
+ * \tparam T checksum::type to instantiate a CalcState for
  *
- * \return The CalcState for \c stateType
+ * \param[in] state_type The state type to instantiate
+ * \param[in] x          Constructor arguments for constructing CalcState
+ *
+ * \return The CalcState for \c state_type
  */
 template<typename... X, typename T>
 auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 {
-    return details::instantiate <std::unique_ptr<CalcState>, state_types> (
-		[&](auto p)
+	return details::instantiate<std::unique_ptr<CalcState>, state::types> (
+		[&](auto ptr)
 		{
-			return std::make_unique<std::decay_t<decltype(*p)>>(
+			return std::make_unique<std::decay_t<decltype(*ptr)>>(
 					std::forward<X>(x)...
 			);
 		},
