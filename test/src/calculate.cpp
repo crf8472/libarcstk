@@ -551,7 +551,7 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 // Interval
 
 
-TEST_CASE ( "Interval" "[calculate] [interval]" )
+TEST_CASE ( "Interval", "[calculate] [interval]" )
 {
 	using arcstk::v_1_0_0::details::Interval;
 
@@ -626,86 +626,75 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 }
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout",
-	"[calculate] [calccontext]" )
+TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 {
 	using arcstk::details::TOCBuilder;
 
-	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	auto toc = TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	CHECK_THROWS ( toc->offset( 0)    );
-	CHECK ( toc->offset( 1) ==     33 );
-	CHECK ( toc->offset( 2) ==   5225 );
-	CHECK ( toc->offset( 3) ==   7390 );
-	CHECK ( toc->offset( 4) ==  23380 );
-	CHECK ( toc->offset( 5) ==  35608 );
-	CHECK ( toc->offset( 6) ==  49820 );
-	CHECK ( toc->offset( 7) ==  69508 );
-	CHECK ( toc->offset( 8) ==  87733 );
-	CHECK ( toc->offset( 9) == 106333 );
-	CHECK ( toc->offset(10) == 139495 );
-	CHECK ( toc->offset(11) == 157863 );
-	CHECK ( toc->offset(12) == 198495 );
-	CHECK ( toc->offset(13) == 213368 );
-	CHECK ( toc->offset(14) == 225320 );
-	CHECK ( toc->offset(15) == 234103 );
-	CHECK_THROWS ( toc->offset(16)    );
-
-	CHECK_THROWS ( toc->parsed_length( 0));
-	CHECK ( toc->parsed_length( 1) ==  0 );
-	CHECK ( toc->parsed_length(15) ==  0 );
-	CHECK_THROWS ( toc->parsed_length(16));
-
-	CHECK_THROWS ( toc->filename( 0)       );
-	CHECK        ( toc->filename( 1) == "" );
-	CHECK        ( toc->filename(15) == "" );
-	CHECK_THROWS ( toc->filename(16)       );
-
-	CHECK ( toc->leadout() == 253038 );
-	CHECK ( toc->track_count() == 15 );
-	CHECK ( toc->complete() );
-
-	auto mctx = arcstk::make_context(toc);
-	auto audiosize = mctx->audio_size();
-	auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
-
-	SECTION ("skips_front(), skips_back() and is_multi_track()")
+	SECTION ("Complete TOC with leadout, offset(1) > 0")
 	{
+		// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
+
+		auto toc = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// leadout
+			253038
+		);
+
+		CHECK_THROWS ( toc->offset( 0)    );
+		CHECK ( toc->offset( 1) ==     33 );
+		CHECK ( toc->offset( 2) ==   5225 );
+		CHECK ( toc->offset( 3) ==   7390 );
+		CHECK ( toc->offset( 4) ==  23380 );
+		CHECK ( toc->offset( 5) ==  35608 );
+		CHECK ( toc->offset( 6) ==  49820 );
+		CHECK ( toc->offset( 7) ==  69508 );
+		CHECK ( toc->offset( 8) ==  87733 );
+		CHECK ( toc->offset( 9) == 106333 );
+		CHECK ( toc->offset(10) == 139495 );
+		CHECK ( toc->offset(11) == 157863 );
+		CHECK ( toc->offset(12) == 198495 );
+		CHECK ( toc->offset(13) == 213368 );
+		CHECK ( toc->offset(14) == 225320 );
+		CHECK ( toc->offset(15) == 234103 );
+		CHECK_THROWS ( toc->offset(16)    );
+
+		CHECK_THROWS ( toc->parsed_length( 0));
+		CHECK ( toc->parsed_length( 1) ==  0 );
+		CHECK ( toc->parsed_length(15) ==  0 );
+		CHECK_THROWS ( toc->parsed_length(16));
+
+		CHECK_THROWS ( toc->filename( 0)       );
+		CHECK        ( toc->filename( 1) == "" );
+		CHECK        ( toc->filename(15) == "" );
+		CHECK_THROWS ( toc->filename(16)       );
+
+		CHECK ( toc->leadout() == 253038 );
+		CHECK ( toc->track_count() == 15 );
+		CHECK ( toc->complete() );
+
+		auto mctx = arcstk::make_context(toc);
+		auto audiosize = mctx->audio_size();
+		auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
+
+
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
-	}
 
-	SECTION ("id(), filename()")
-	{
 		CHECK ( mctx->filename() == "" );
 		CHECK ( mctx->id() == arid );
-	}
 
-	SECTION ("AudioSize")
-	{
 		CHECK ( audiosize.leadout_frame()  ==    253038 );
 		CHECK ( audiosize.sample_count()   == 148786344 );
 		CHECK ( audiosize.pcm_byte_count() == 595145376 );
-	}
 
-	SECTION ("track_count()")
-	{
 		CHECK ( mctx->track_count() == 15 );
-	}
 
-	SECTION ("offset()" )
-	{
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
 		CHECK ( mctx->offset(2)  ==   7390 );
@@ -722,10 +711,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout"
 		CHECK ( mctx->offset(13) == 225320 );
 		CHECK ( mctx->offset(14) == 234103 );
 		CHECK ( mctx->offset(15) ==      0 ); // not a track
-	}
 
-	SECTION ("length()" )
-	{
 		// The lengths parsed from the CUEsheet differ from the lengths
 		// computed by CalcContext. The cause is that for CalcContext the length
 		// of track i is the difference offset(i+1) - offset(i). This accepts
@@ -749,22 +735,15 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout"
 		CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
 		CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
 		CHECK ( mctx->length(15) ==     0 ); // not a track
-	}
 
-	SECTION ("id(), skips_front(), skips_back() and is_multi_track()")
-	{
 		CHECK ( mctx->id() ==
 				arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F) );
 
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
-	}
 
-	SECTION ("first_relevant_sample()")
-	{
 		CHECK ( mctx->first_relevant_sample(0)  ==         0 ); // not a track
-
 		CHECK ( mctx->first_relevant_sample(1)  ==     22343 ); // skipping
 		CHECK ( mctx->first_relevant_sample(2)  ==   3072300 );
 		CHECK ( mctx->first_relevant_sample(3)  ==   4345320 );
@@ -782,14 +761,10 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout"
 		CHECK ( mctx->first_relevant_sample(15) == 137652564 );
 		CHECK ( mctx->first_relevant_sample(16) ==         0 ); // not a track
 		CHECK ( mctx->first_relevant_sample(99) ==         0 ); // not a track
-	}
 
-	SECTION ("last_relevant_sample()")
-	{
 		CHECK ( mctx->last_relevant_sample() == 148783403 );
 
 		CHECK ( mctx->last_relevant_sample(0)  ==     19403 ); // not a track
-
 		CHECK ( mctx->last_relevant_sample(1)  ==   3072299 );
 		CHECK ( mctx->last_relevant_sample(2)  ==   4345319 );
 		CHECK ( mctx->last_relevant_sample(3)  ==  13747439 );
@@ -805,13 +780,9 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout"
 		CHECK ( mctx->last_relevant_sample(13) == 132488159 );
 		CHECK ( mctx->last_relevant_sample(14) == 137652563 );
 		CHECK ( mctx->last_relevant_sample(15) == 148783403 ); // skipping
-
 		CHECK ( mctx->last_relevant_sample(16) == 148783403 ); // not a track
 		CHECK ( mctx->last_relevant_sample(99) == 148783403 ); // not a track
-	}
 
-	SECTION ("track()")
-	{
 		// Test the bounds of each track
 
 		CHECK ( mctx->track(0) == 0);
@@ -880,104 +851,86 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with leadout"
 		CHECK ( mctx->track(148783403) == 15);
 		CHECK ( mctx->track(148783404) > mctx->track_count() );
 	}
-}
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts",
-	"[calculate] [calccontext]" )
-{
-	using arcstk::details::TOCBuilder;
-
-	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
-
-	auto toc = TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// lengths
-		{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075, 18368,
-			40152, 14798, 11952, 8463, 18935 }
-	);
-
-	CHECK_THROWS ( toc->offset( 0)    );
-	CHECK ( toc->offset( 1) ==     33 );
-	CHECK ( toc->offset( 2) ==   5225 );
-	CHECK ( toc->offset( 3) ==   7390 );
-	CHECK ( toc->offset( 4) ==  23380 );
-	CHECK ( toc->offset( 5) ==  35608 );
-	CHECK ( toc->offset( 6) ==  49820 );
-	CHECK ( toc->offset( 7) ==  69508 );
-	CHECK ( toc->offset( 8) ==  87733 );
-	CHECK ( toc->offset( 9) == 106333 );
-	CHECK ( toc->offset(10) == 139495 );
-	CHECK ( toc->offset(11) == 157863 );
-	CHECK ( toc->offset(12) == 198495 );
-	CHECK ( toc->offset(13) == 213368 );
-	CHECK ( toc->offset(14) == 225320 );
-	CHECK ( toc->offset(15) == 234103 );
-	CHECK_THROWS ( toc->offset(16)    );
-
-	CHECK_THROWS ( toc->parsed_length( 0)    );
-	CHECK ( toc->parsed_length( 1) ==   5192 );
-	CHECK ( toc->parsed_length( 2) ==   2165 );
-	CHECK ( toc->parsed_length( 3) ==  15885 );
-	CHECK ( toc->parsed_length( 4) ==  12228 );
-	CHECK ( toc->parsed_length( 5) ==  13925 );
-	CHECK ( toc->parsed_length( 6) ==  19513 );
-	CHECK ( toc->parsed_length( 7) ==  18155 );
-	CHECK ( toc->parsed_length( 8) ==  18325 );
-	CHECK ( toc->parsed_length( 9) ==  33075 );
-	CHECK ( toc->parsed_length(10) ==  18368 );
-	CHECK ( toc->parsed_length(11) ==  40152 );
-	CHECK ( toc->parsed_length(12) ==  14798 );
-	CHECK ( toc->parsed_length(13) ==  11952 );
-	CHECK ( toc->parsed_length(14) ==   8463 );
-	CHECK ( toc->parsed_length(15) ==  18935 );
-	CHECK_THROWS ( toc->parsed_length(16)    );
-
-	CHECK_THROWS ( toc->filename( 0)       );
-	CHECK        ( toc->filename( 1) == "" );
-	CHECK        ( toc->filename(15) == "" );
-	CHECK_THROWS ( toc->filename(16)       );
-
-	CHECK ( toc->leadout() == 253038 );
-	CHECK ( toc->track_count() == 15 );
-	CHECK ( toc->complete() );
-
-	auto mctx = arcstk::make_context(toc);
-	auto audiosize = mctx->audio_size();
-	auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
-
-
-	SECTION ("skips_front(), skips_back() and is_multi_track()")
+	SECTION ("Complete TOC with lengths, offset(1) > 0")
 	{
+		// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
+
+		auto toc = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// lengths
+			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075, 18368,
+				40152, 14798, 11952, 8463, 18935 }
+		);
+
+		CHECK_THROWS ( toc->offset( 0)    );
+		CHECK ( toc->offset( 1) ==     33 );
+		CHECK ( toc->offset( 2) ==   5225 );
+		CHECK ( toc->offset( 3) ==   7390 );
+		CHECK ( toc->offset( 4) ==  23380 );
+		CHECK ( toc->offset( 5) ==  35608 );
+		CHECK ( toc->offset( 6) ==  49820 );
+		CHECK ( toc->offset( 7) ==  69508 );
+		CHECK ( toc->offset( 8) ==  87733 );
+		CHECK ( toc->offset( 9) == 106333 );
+		CHECK ( toc->offset(10) == 139495 );
+		CHECK ( toc->offset(11) == 157863 );
+		CHECK ( toc->offset(12) == 198495 );
+		CHECK ( toc->offset(13) == 213368 );
+		CHECK ( toc->offset(14) == 225320 );
+		CHECK ( toc->offset(15) == 234103 );
+		CHECK_THROWS ( toc->offset(16)    );
+
+		CHECK_THROWS ( toc->parsed_length( 0)    );
+		CHECK ( toc->parsed_length( 1) ==   5192 );
+		CHECK ( toc->parsed_length( 2) ==   2165 );
+		CHECK ( toc->parsed_length( 3) ==  15885 );
+		CHECK ( toc->parsed_length( 4) ==  12228 );
+		CHECK ( toc->parsed_length( 5) ==  13925 );
+		CHECK ( toc->parsed_length( 6) ==  19513 );
+		CHECK ( toc->parsed_length( 7) ==  18155 );
+		CHECK ( toc->parsed_length( 8) ==  18325 );
+		CHECK ( toc->parsed_length( 9) ==  33075 );
+		CHECK ( toc->parsed_length(10) ==  18368 );
+		CHECK ( toc->parsed_length(11) ==  40152 );
+		CHECK ( toc->parsed_length(12) ==  14798 );
+		CHECK ( toc->parsed_length(13) ==  11952 );
+		CHECK ( toc->parsed_length(14) ==   8463 );
+		CHECK ( toc->parsed_length(15) ==  18935 );
+		CHECK_THROWS ( toc->parsed_length(16)    );
+
+		CHECK_THROWS ( toc->filename( 0)       );
+		CHECK        ( toc->filename( 1) == "" );
+		CHECK        ( toc->filename(15) == "" );
+		CHECK_THROWS ( toc->filename(16)       );
+
+		CHECK ( toc->leadout() == 253038 );
+		CHECK ( toc->track_count() == 15 );
+		CHECK ( toc->complete() );
+
+		auto mctx = arcstk::make_context(toc);
+		auto audiosize = mctx->audio_size();
+		auto arid = arcstk::ARId(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
+
+
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
-	}
 
-	SECTION ("id(), filename()")
-	{
 		CHECK ( mctx->filename() == "" );
 		CHECK ( mctx->id() == arid );
-	}
 
-	SECTION ("AudioSize")
-	{
 		CHECK ( audiosize.leadout_frame()  ==    253038 );
 		CHECK ( audiosize.sample_count()   == 148786344 );
 		CHECK ( audiosize.pcm_byte_count() == 595145376 );
-	}
 
-	SECTION ("track_count()")
-	{
 		CHECK ( mctx->track_count() == 15 );
-	}
 
-	SECTION ("offset()" )
-	{
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
 		CHECK ( mctx->offset(2)  ==   7390 );
@@ -994,10 +947,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts"
 		CHECK ( mctx->offset(13) == 225320 );
 		CHECK ( mctx->offset(14) == 234103 );
 		CHECK ( mctx->offset(15) ==      0 ); // not a track
-	}
 
-	SECTION ("length()")
-	{
 		// The lengths parsed from the CUEsheet differ from the lengths
 		// computed by CalcContext. The cause is that for CalcContext the length
 		// of track i is the difference offset(i+1) - offset(i). This accepts
@@ -1021,10 +971,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts"
 		CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
 		CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
 		CHECK ( mctx->length(15) ==     0 );
-	}
 
-	SECTION ("first_relevant_sample()")
-	{
 		CHECK ( mctx->first_relevant_sample(0)  ==         0 ); // not a track
 
 		CHECK ( mctx->first_relevant_sample(1)  ==     22343 ); // skipping
@@ -1044,11 +991,8 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts"
 		CHECK ( mctx->first_relevant_sample(15) == 137652564 );
 		CHECK ( mctx->first_relevant_sample(16) ==         0 ); // not a track
 		CHECK ( mctx->first_relevant_sample(99) ==         0 ); // not a track
-	}
 
-	SECTION ("last_relevant_sample()")
-	{
-		CHECK ( mctx->last_relevant_sample() == 148783403 );
+		CHECK ( mctx->last_relevant_sample()   == 148783403 );
 
 		CHECK ( mctx->last_relevant_sample(0)  ==     19403 ); // not a track
 
@@ -1070,10 +1014,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts"
 
 		CHECK ( mctx->last_relevant_sample(16) == 148783403 ); // not a track
 		CHECK ( mctx->last_relevant_sample(99) == 148783403 ); // not a track
-	}
 
-	SECTION ("track()")
-	{
 		// Test the bounds of each track
 
 		CHECK ( mctx->track(0) == 0);
@@ -1142,94 +1083,76 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) > 0, complete TOC with lenghts"
 		CHECK ( mctx->track(148783403) == 15);
 		CHECK ( mctx->track(148783404) > mctx->track_count() );
 	}
-}
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout",
-		"[calculate] [calccontext]" )
-{
-	using arcstk::details::TOCBuilder;
-
-	// Bent: Programmed to Love
-
-	auto toc = TOCBuilder::build(
-		// track count
-		18,
-		// offsets
-		{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500, 148267,
-			174602, 208125, 212705, 239890, 268705, 272055, 291720, 319992 },
-		// leadout
-		332075
-	);
-
-	CHECK_THROWS ( toc->offset( 0)    );
-	CHECK ( toc->offset( 1) ==      0 );
-	CHECK ( toc->offset( 2) ==  29042 );
-	CHECK ( toc->offset( 3) ==  53880 );
-	CHECK ( toc->offset( 4) ==  58227 );
-	CHECK ( toc->offset( 5) ==  84420 );
-	CHECK ( toc->offset( 6) ==  94192 );
-	CHECK ( toc->offset( 7) == 119165 );
-	CHECK ( toc->offset( 8) == 123030 );
-	CHECK ( toc->offset( 9) == 147500 );
-	CHECK ( toc->offset(10) == 148267 );
-	CHECK ( toc->offset(11) == 174602 );
-	CHECK ( toc->offset(12) == 208125 );
-	CHECK ( toc->offset(13) == 212705 );
-	CHECK ( toc->offset(14) == 239890 );
-	CHECK ( toc->offset(15) == 268705 );
-	CHECK ( toc->offset(16) == 272055 );
-	CHECK ( toc->offset(17) == 291720 );
-	CHECK ( toc->offset(18) == 319992 );
-	CHECK_THROWS ( toc->offset(19)    );
-
-	CHECK_THROWS ( toc->parsed_length( 0)      );
-	CHECK        ( toc->parsed_length( 1) == 0 );
-	CHECK        ( toc->parsed_length(18) == 0 );
-	CHECK_THROWS ( toc->parsed_length(19)      );
-
-	CHECK_THROWS ( toc->filename( 0)       );
-	CHECK        ( toc->filename( 1) == "" );
-	CHECK        ( toc->filename(18) == "" );
-	CHECK_THROWS ( toc->filename(19)       );
-
-	CHECK ( toc->leadout() == 332075 );
-	CHECK ( toc->track_count() == 18 );
-	CHECK ( toc->complete() );
-
-
-	auto mctx = arcstk::make_context(toc);
-	auto audiosize = mctx->audio_size();
-	auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
-
-
-	SECTION ("skips_front(), skips_back() and is_multi_track()")
+	SECTION ("Complete TOC with leadout, offset(1) == 0")
 	{
+		// Bent: Programmed to Love
+
+		auto toc = TOCBuilder::build(
+			// track count
+			18,
+			// offsets
+			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500, 148267,
+				174602, 208125, 212705, 239890, 268705, 272055, 291720, 319992 },
+			// leadout
+			332075
+		);
+
+		CHECK_THROWS ( toc->offset( 0)    );
+		CHECK ( toc->offset( 1) ==      0 );
+		CHECK ( toc->offset( 2) ==  29042 );
+		CHECK ( toc->offset( 3) ==  53880 );
+		CHECK ( toc->offset( 4) ==  58227 );
+		CHECK ( toc->offset( 5) ==  84420 );
+		CHECK ( toc->offset( 6) ==  94192 );
+		CHECK ( toc->offset( 7) == 119165 );
+		CHECK ( toc->offset( 8) == 123030 );
+		CHECK ( toc->offset( 9) == 147500 );
+		CHECK ( toc->offset(10) == 148267 );
+		CHECK ( toc->offset(11) == 174602 );
+		CHECK ( toc->offset(12) == 208125 );
+		CHECK ( toc->offset(13) == 212705 );
+		CHECK ( toc->offset(14) == 239890 );
+		CHECK ( toc->offset(15) == 268705 );
+		CHECK ( toc->offset(16) == 272055 );
+		CHECK ( toc->offset(17) == 291720 );
+		CHECK ( toc->offset(18) == 319992 );
+		CHECK_THROWS ( toc->offset(19)    );
+
+		CHECK_THROWS ( toc->parsed_length( 0)      );
+		CHECK        ( toc->parsed_length( 1) == 0 );
+		CHECK        ( toc->parsed_length(18) == 0 );
+		CHECK_THROWS ( toc->parsed_length(19)      );
+
+		CHECK_THROWS ( toc->filename( 0)       );
+		CHECK        ( toc->filename( 1) == "" );
+		CHECK        ( toc->filename(18) == "" );
+		CHECK_THROWS ( toc->filename(19)       );
+
+		CHECK ( toc->leadout() == 332075 );
+		CHECK ( toc->track_count() == 18 );
+		CHECK ( toc->complete() );
+
+
+		auto mctx = arcstk::make_context(toc);
+		auto audiosize = mctx->audio_size();
+		auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
+
+
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
-	}
 
-	SECTION ("id(), filename()")
-	{
 		CHECK ( mctx->filename() == "" );
 		CHECK ( mctx->id() == arid );
-	}
 
-	SECTION ("AudioSize")
-	{
 		CHECK ( audiosize.leadout_frame()  ==    332075 );
 		CHECK ( audiosize.sample_count()   == 195260100 );
 		CHECK ( audiosize.pcm_byte_count() == 781040400 );
-	}
 
-	SECTION ("track_count()")
-	{
 		CHECK ( mctx->track_count() == 18 );
-	}
 
-	SECTION ("offset()")
-	{
 		CHECK ( mctx->offset( 0) ==      0 );
 		CHECK ( mctx->offset( 1) ==  29042 );
 		CHECK ( mctx->offset( 2) ==  53880 );
@@ -1248,10 +1171,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->offset(15) == 272055 );
 		CHECK ( mctx->offset(16) == 291720 );
 		CHECK ( mctx->offset(17) == 319992 );
-	}
 
-	SECTION ("length()")
-	{
 		CHECK ( mctx->length( 0) == 29042 );
 		CHECK ( mctx->length( 1) == 24838 );
 		CHECK ( mctx->length( 2) ==  4347 );
@@ -1270,10 +1190,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->length(15) == 19665 );
 		CHECK ( mctx->length(16) == 28272 );
 		CHECK ( mctx->length(17) == 12083 );
-	}
 
-	SECTION ("first_relevant_sample()")
-	{
 		CHECK ( mctx->first_relevant_sample(0)  ==         0 ); // not a track
 
 		CHECK ( mctx->first_relevant_sample(1)  ==      2939 ); // skipping!
@@ -1296,10 +1213,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->first_relevant_sample(18) == 188155296 );
 
 		CHECK ( mctx->first_relevant_sample(19) == 0 ); // not a track
-	}
 
-	SECTION ("last_relevant_sample()")
-	{
 		CHECK ( mctx->last_relevant_sample()   == 195257159 );
 
 		CHECK ( mctx->last_relevant_sample(0)  ==         0 ); // not a track
@@ -1324,10 +1238,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->last_relevant_sample(18) == 195257159 ); // skipping
 
 		CHECK ( mctx->last_relevant_sample(19) == 195257159 ); // not a track
-	}
 
-	SECTION ("track()")
-	{
 		// Test the bounds of each track
 
 		CHECK ( mctx->track(0) == 0);
@@ -1406,112 +1317,94 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, complete TOC with leadout
 		CHECK ( mctx->track(195257159) == 18);
 		CHECK ( mctx->track(195257160) > mctx->track_count());
 	}
-}
 
 
-TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lenghts",
-		"[calculate] [calccontext]" )
-{
-	using arcstk::details::TOCBuilder;
-
-	// Bent: Programmed to Love
-
-	auto toc = TOCBuilder::build(
-		// track count
-		18,
-		// offsets
-		{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500, 148267,
-			174602, 208125, 212705, 239890, 268705, 272055, 291720, 319992 },
-		// lengths
-		{ 29042, 24673, 4347, 26035, 9772, 24973, 3865, 24325, 767, 26335,
-			33523, 4580, 27185, 28737, 3350, 19665, 28272, -1}
-	);
-
-	CHECK ( toc->track_count() == 18 );
-
-	CHECK_THROWS ( toc->offset( 0)    );
-	CHECK ( toc->offset( 1) ==      0 );
-	CHECK ( toc->offset( 2) ==  29042 );
-	CHECK ( toc->offset( 3) ==  53880 );
-	CHECK ( toc->offset( 4) ==  58227 );
-	CHECK ( toc->offset( 5) ==  84420 );
-	CHECK ( toc->offset( 6) ==  94192 );
-	CHECK ( toc->offset( 7) == 119165 );
-	CHECK ( toc->offset( 8) == 123030 );
-	CHECK ( toc->offset( 9) == 147500 );
-	CHECK ( toc->offset(10) == 148267 );
-	CHECK ( toc->offset(11) == 174602 );
-	CHECK ( toc->offset(12) == 208125 );
-	CHECK ( toc->offset(13) == 212705 );
-	CHECK ( toc->offset(14) == 239890 );
-	CHECK ( toc->offset(15) == 268705 );
-	CHECK ( toc->offset(16) == 272055 );
-	CHECK ( toc->offset(17) == 291720 );
-	CHECK ( toc->offset(18) == 319992 );
-	CHECK_THROWS ( toc->offset(19)    );
-
-	CHECK_THROWS ( toc->parsed_length( 0)   );
-	CHECK ( toc->parsed_length( 1) == 29042 );
-	CHECK ( toc->parsed_length( 2) == 24673 );
-	CHECK ( toc->parsed_length( 3) ==  4347 );
-	CHECK ( toc->parsed_length( 4) == 26035 );
-	CHECK ( toc->parsed_length( 5) ==  9772 );
-	CHECK ( toc->parsed_length( 6) == 24973 );
-	CHECK ( toc->parsed_length( 7) ==  3865 );
-	CHECK ( toc->parsed_length( 8) == 24325 );
-	CHECK ( toc->parsed_length( 9) ==   767 );
-	CHECK ( toc->parsed_length(10) == 26335 );
-	CHECK ( toc->parsed_length(11) == 33523 );
-	CHECK ( toc->parsed_length(12) ==  4580 );
-	CHECK ( toc->parsed_length(13) == 27185 );
-	CHECK ( toc->parsed_length(14) == 28737 );
-	CHECK ( toc->parsed_length(15) ==  3350 );
-	CHECK ( toc->parsed_length(16) == 19665 );
-	CHECK ( toc->parsed_length(17) == 28272 );
-	CHECK ( toc->parsed_length(18) ==     0 ); //normalized
-	CHECK_THROWS ( toc->parsed_length(19)   );
-
-	CHECK_THROWS ( toc->filename( 0)       );
-	CHECK        ( toc->filename( 1) == "" );
-	CHECK        ( toc->filename(18) == "" );
-	CHECK_THROWS ( toc->filename(19)       );
-
-	CHECK ( toc->track_count() == 18 );
-	CHECK ( not toc->complete() );
-	CHECK ( toc->leadout() == 0 ); // unknown due to last length unknown
-
-	auto mctx = arcstk::make_context(toc);
-	auto audiosize = mctx->audio_size();
-	auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
-
-
-	SECTION ("skips_front(), skips_back() and is_multi_track()")
+	SECTION ("Complete TOC with lengths, offset(1) == 0")
 	{
+		// Bent: Programmed to Love
+
+		auto toc = TOCBuilder::build(
+			// track count
+			18,
+			// offsets
+			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500, 148267,
+				174602, 208125, 212705, 239890, 268705, 272055, 291720, 319992 },
+			// lengths
+			{ 29042, 24673, 4347, 26035, 9772, 24973, 3865, 24325, 767, 26335,
+				33523, 4580, 27185, 28737, 3350, 19665, 28272, -1}
+		);
+
+		CHECK ( toc->track_count() == 18 );
+
+		CHECK_THROWS ( toc->offset( 0)    );
+		CHECK ( toc->offset( 1) ==      0 );
+		CHECK ( toc->offset( 2) ==  29042 );
+		CHECK ( toc->offset( 3) ==  53880 );
+		CHECK ( toc->offset( 4) ==  58227 );
+		CHECK ( toc->offset( 5) ==  84420 );
+		CHECK ( toc->offset( 6) ==  94192 );
+		CHECK ( toc->offset( 7) == 119165 );
+		CHECK ( toc->offset( 8) == 123030 );
+		CHECK ( toc->offset( 9) == 147500 );
+		CHECK ( toc->offset(10) == 148267 );
+		CHECK ( toc->offset(11) == 174602 );
+		CHECK ( toc->offset(12) == 208125 );
+		CHECK ( toc->offset(13) == 212705 );
+		CHECK ( toc->offset(14) == 239890 );
+		CHECK ( toc->offset(15) == 268705 );
+		CHECK ( toc->offset(16) == 272055 );
+		CHECK ( toc->offset(17) == 291720 );
+		CHECK ( toc->offset(18) == 319992 );
+		CHECK_THROWS ( toc->offset(19)    );
+
+		CHECK_THROWS ( toc->parsed_length( 0)   );
+		CHECK ( toc->parsed_length( 1) == 29042 );
+		CHECK ( toc->parsed_length( 2) == 24673 );
+		CHECK ( toc->parsed_length( 3) ==  4347 );
+		CHECK ( toc->parsed_length( 4) == 26035 );
+		CHECK ( toc->parsed_length( 5) ==  9772 );
+		CHECK ( toc->parsed_length( 6) == 24973 );
+		CHECK ( toc->parsed_length( 7) ==  3865 );
+		CHECK ( toc->parsed_length( 8) == 24325 );
+		CHECK ( toc->parsed_length( 9) ==   767 );
+		CHECK ( toc->parsed_length(10) == 26335 );
+		CHECK ( toc->parsed_length(11) == 33523 );
+		CHECK ( toc->parsed_length(12) ==  4580 );
+		CHECK ( toc->parsed_length(13) == 27185 );
+		CHECK ( toc->parsed_length(14) == 28737 );
+		CHECK ( toc->parsed_length(15) ==  3350 );
+		CHECK ( toc->parsed_length(16) == 19665 );
+		CHECK ( toc->parsed_length(17) == 28272 );
+		CHECK ( toc->parsed_length(18) ==     0 ); //normalized
+		CHECK_THROWS ( toc->parsed_length(19)   );
+
+		CHECK_THROWS ( toc->filename( 0)       );
+		CHECK        ( toc->filename( 1) == "" );
+		CHECK        ( toc->filename(18) == "" );
+		CHECK_THROWS ( toc->filename(19)       );
+
+		CHECK ( toc->track_count() == 18 );
+		CHECK ( not toc->complete() );
+		CHECK ( toc->leadout() == 0 ); // unknown due to last length unknown
+
+		auto mctx = arcstk::make_context(toc);
+		auto audiosize = mctx->audio_size();
+		auto arid = arcstk::ARId(18, 0x00307c78, 0x0281351d, 0x27114b12);
+
+
 		CHECK ( mctx->skips_front() );
 		CHECK ( mctx->skips_back() );
 		CHECK ( mctx->is_multi_track() );
-	}
 
-	SECTION ("id(), filename()")
-	{
 		CHECK ( mctx->filename() == "" );
 		//CHECK ( mctx->id() == arid );  // undefined
-	}
 
-	SECTION ("AudioSize")
-	{
 		CHECK ( audiosize.leadout_frame()  == 0 );
 		CHECK ( audiosize.sample_count()   == 0 );
 		CHECK ( audiosize.pcm_byte_count() == 0 );
-	}
 
-	SECTION ("track_count()")
-	{
 		CHECK ( mctx->track_count() == 18 );
-	}
 
-	SECTION ("offset()")
-	{
 		CHECK ( mctx->offset( 0) ==      0 );
 		CHECK ( mctx->offset( 1) ==  29042 );
 		CHECK ( mctx->offset( 2) ==  53880 );
@@ -1530,10 +1423,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 		CHECK ( mctx->offset(15) == 272055 );
 		CHECK ( mctx->offset(16) == 291720 );
 		CHECK ( mctx->offset(17) == 319992 );
-	}
 
-	SECTION ("length()")
-	{
 		CHECK ( mctx->length( 0) == 29042 );
 		CHECK ( mctx->length( 1) == 24838 );
 		CHECK ( mctx->length( 2) ==  4347 );
@@ -1552,10 +1442,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 		CHECK ( mctx->length(15) == 19665 );
 		CHECK ( mctx->length(16) == 28272 );
 		CHECK ( mctx->length(17) ==     0 );
-	}
 
-	SECTION ("first_relevant_sample()")
-	{
 		CHECK ( mctx->first_relevant_sample(0)  ==         0 ); // not a track
 
 		CHECK ( mctx->first_relevant_sample(1)  ==      2939 ); // skipping!
@@ -1578,10 +1465,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 		CHECK ( mctx->first_relevant_sample(18) == 188155296 );
 
 		CHECK ( mctx->first_relevant_sample(19) == 0 ); // not a track
-	}
 
-	SECTION ("last_relevant_sample()")
-	{
 		//CHECK ( mctx->last_relevant_sample()   == ); // undefined
 
 		CHECK ( mctx->last_relevant_sample(0)  ==         0 ); // not a track
@@ -1606,11 +1490,7 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 		//CHECK ( mctx->last_relevant_sample(18) ==         0 ); // undefined
 
 		//CHECK ( mctx->last_relevant_sample(19) == 195257159 ); // undefined
-	}
 
-
-	SECTION ("track()")
-	{
 		// Test the bounds of each track
 
 		CHECK ( mctx->track(0) == 0);
@@ -1693,73 +1573,74 @@ TEST_CASE ( "MultitrackCalcContext for offset(0) == 0, incomplete TOC with lengh
 }
 
 
-TEST_CASE ( "MultitrackCalcContext copying", "[calculate] [calccontext]" )
+TEST_CASE ("MultitrackCalcContext::clone()",
+		"[calculate] [calccontext] [multitrack]" )
 {
 	using arcstk::details::TOCBuilder;
 
-	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
-
-	auto toc = TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	auto mctx = arcstk::make_context(toc);
-
-	CHECK ( mctx->audio_size().pcm_byte_count() == 595145376 );
-	CHECK ( mctx->filename() == std::string() );
-
-	CHECK ( mctx->track_count() == 15 );
-
-	CHECK ( mctx->offset(0)  ==     33 );
-	CHECK ( mctx->offset(1)  ==   5225 );
-	CHECK ( mctx->offset(2)  ==   7390 );
-	CHECK ( mctx->offset(3)  ==  23380 );
-	CHECK ( mctx->offset(4)  ==  35608 );
-	CHECK ( mctx->offset(5)  ==  49820 );
-	CHECK ( mctx->offset(6)  ==  69508 );
-	CHECK ( mctx->offset(7)  ==  87733 );
-	CHECK ( mctx->offset(8)  == 106333 );
-	CHECK ( mctx->offset(9)  == 139495 );
-	CHECK ( mctx->offset(10) == 157863 );
-	CHECK ( mctx->offset(11) == 198495 );
-	CHECK ( mctx->offset(12) == 213368 );
-	CHECK ( mctx->offset(13) == 225320 );
-	CHECK ( mctx->offset(14) == 234103 );
-	CHECK ( mctx->offset(15) ==      0 );
-
-	// The lengths parsed from the CUEsheet differ from the lengths
-	// computed by CalcContext. The cause is that for CalcContext the length
-	// of track i is the difference offset(i+1) - offset(i). This accepts
-	// the gaps as part of the track and appends each gap to the end of
-	// the track. Libcue on the other hand seems to just ignore the gaps and
-	// subtract them from the actual length.
-
-	CHECK ( mctx->length(0)  ==  5192 );
-	CHECK ( mctx->length(1)  ==  2165 );
-	CHECK ( mctx->length(2)  == 15990 ); // TOC: 15885
-	CHECK ( mctx->length(3)  == 12228 );
-	CHECK ( mctx->length(4)  == 14212 ); // TOC: 13925
-	CHECK ( mctx->length(5)  == 19688 ); // TOC: 19513
-	CHECK ( mctx->length(6)  == 18225 ); // TOC: 18155
-	CHECK ( mctx->length(7)  == 18600 ); // TOC: 18325
-	CHECK ( mctx->length(8)  == 33162 ); // TOC: 33075
-	CHECK ( mctx->length(9)  == 18368 );
-	CHECK ( mctx->length(10) == 40632 ); // TOC: 40152
-	CHECK ( mctx->length(11) == 14873 ); // TOC: 14798
-	CHECK ( mctx->length(12) == 11952 );
-	CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
-	CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
-	CHECK ( mctx->length(15) ==     0 );
-
-
 	SECTION ( "clone()" )
 	{
+		// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
+
+		auto toc = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// leadout
+			253038
+		);
+
+		auto mctx = arcstk::make_context(toc);
+
+		CHECK ( mctx->audio_size().pcm_byte_count() == 595145376 );
+		CHECK ( mctx->filename() == std::string() );
+
+		CHECK ( mctx->track_count() == 15 );
+
+		CHECK ( mctx->offset(0)  ==     33 );
+		CHECK ( mctx->offset(1)  ==   5225 );
+		CHECK ( mctx->offset(2)  ==   7390 );
+		CHECK ( mctx->offset(3)  ==  23380 );
+		CHECK ( mctx->offset(4)  ==  35608 );
+		CHECK ( mctx->offset(5)  ==  49820 );
+		CHECK ( mctx->offset(6)  ==  69508 );
+		CHECK ( mctx->offset(7)  ==  87733 );
+		CHECK ( mctx->offset(8)  == 106333 );
+		CHECK ( mctx->offset(9)  == 139495 );
+		CHECK ( mctx->offset(10) == 157863 );
+		CHECK ( mctx->offset(11) == 198495 );
+		CHECK ( mctx->offset(12) == 213368 );
+		CHECK ( mctx->offset(13) == 225320 );
+		CHECK ( mctx->offset(14) == 234103 );
+		CHECK ( mctx->offset(15) ==      0 );
+
+		// The lengths parsed from the CUEsheet differ from the lengths
+		// computed by CalcContext. The cause is that for CalcContext the length
+		// of track i is the difference offset(i+1) - offset(i). This accepts
+		// the gaps as part of the track and appends each gap to the end of
+		// the track. Libcue on the other hand seems to just ignore the gaps and
+		// subtract them from the actual length.
+
+		CHECK ( mctx->length(0)  ==  5192 );
+		CHECK ( mctx->length(1)  ==  2165 );
+		CHECK ( mctx->length(2)  == 15990 ); // TOC: 15885
+		CHECK ( mctx->length(3)  == 12228 );
+		CHECK ( mctx->length(4)  == 14212 ); // TOC: 13925
+		CHECK ( mctx->length(5)  == 19688 ); // TOC: 19513
+		CHECK ( mctx->length(6)  == 18225 ); // TOC: 18155
+		CHECK ( mctx->length(7)  == 18600 ); // TOC: 18325
+		CHECK ( mctx->length(8)  == 33162 ); // TOC: 33075
+		CHECK ( mctx->length(9)  == 18368 );
+		CHECK ( mctx->length(10) == 40632 ); // TOC: 40152
+		CHECK ( mctx->length(11) == 14873 ); // TOC: 14798
+		CHECK ( mctx->length(12) == 11952 );
+		CHECK ( mctx->length(13) ==  8783 ); // TOC: 8463
+		CHECK ( mctx->length(14) == 18935 ); // TOC: 18935
+		CHECK ( mctx->length(15) ==     0 );
+
+
 		auto ctx_copy = mctx->clone();
 
 		// TODO Implement and test equality/inequality before this
