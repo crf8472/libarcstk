@@ -143,16 +143,6 @@ set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
 
 
 
-## --- Add Sources
-
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/calculate.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/checksum.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/match.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/identifier.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/logging.cpp" )
-list (APPEND SOURCES "${PROJECT_SOURCE_DIR}/parse.cpp" )
-
-
 ## --- Optional: Add include-what-you-use support (default: OFF)
 
 if (IWYU)
@@ -179,9 +169,11 @@ if (IWYU)
 endif (IWYU)
 
 
+
 ## --- Create Log directory
 
 file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
+
 
 
 ## --- Configure CMake controlled files
@@ -193,12 +185,6 @@ configure_file (
 	"${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
 	@ONLY
 )
-
-
-## --- Specify Private Headers
-
-set (NONPUBLIC_HEADERS )
-list (APPEND NONPUBLIC_HEADERS "${PROJECT_SOURCE_DIR}/calculate_details.hpp" )
 
 
 ## --- Specify Exported Headers
@@ -234,14 +220,22 @@ if (AS_STATIC)
 endif ()
 
 message (STATUS "Build library as: ${LINKFLAG}" )
-add_library (${PROJECT_NAME} ${LINKFLAG} ${SOURCES} )
 
-## Include generated sources
+add_library (${PROJECT_NAME} ${LINKFLAG}
+	"${PROJECT_SOURCE_DIR}/calculate.cpp"
+	"${PROJECT_SOURCE_DIR}/checksum.cpp"
+	"${PROJECT_SOURCE_DIR}/match.cpp"
+	"${PROJECT_SOURCE_DIR}/identifier.cpp"
+	"${PROJECT_SOURCE_DIR}/logging.cpp"
+	"${PROJECT_SOURCE_DIR}/parse.cpp" )
+
 target_include_directories (${PROJECT_NAME}
-	PRIVATE ${PROJECT_INCLUDE_DIR}
-	PRIVATE ${PROJECT_BUILD_SOURCE_DIR} )
+	PUBLIC
+		$<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
+	PRIVATE
+		${PROJECT_BUILD_SOURCE_DIR} )
 
-## Configure properties for project target
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
 	PUBLIC_HEADER  "${EXPORTED_HEADERS}"
