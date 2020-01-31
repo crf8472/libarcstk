@@ -22,8 +22,6 @@ set (PROJECT_VERSION_SUFFIX "beta.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
-set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
-
 
 ## --- Setup Version Information
 
@@ -53,6 +51,8 @@ if (NOT CMAKE_BUILD_TYPE )
 endif (NOT CMAKE_BUILD_TYPE )
 
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
+
+set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
 
 
 ## --- Abort release-builds on big endian platforms
@@ -125,47 +125,34 @@ set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 ## "Target directory for generated sources and configuration"
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
-
-## --- Install directories
-
-set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
-	CACHE PATH "Installation directory for library (.so) files" )
-
-set (INSTALL_INCLUDE_DIR   "${CMAKE_INSTALL_PREFIX}/include/arcstk"
-	CACHE PATH "Installation directory for include (.hpp) files" )
-
-set (INSTALL_CMAKECONFIG_DIR
-	"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
-	CACHE PATH "Installation directory for cmake package files" )
-
-set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
-	CACHE PATH "Installation directory for pkgconfig (.pc) files" )
-
+## Subdir for installing includes
+set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
 
+option (IWYU "Use include-what-you-use" OFF )
 if (IWYU)
 
 	message (STATUS "Program include-what-you-use requested" )
-	find_program (IWYU_PATH NAMES include-what-you-use iwyu )
+	find_program (IWYU_BINARY NAMES include-what-you-use iwyu )
 
-	if (IWYU_PATH)
+	if (IWYU_BINARY )
 
 		## Set for all subsequent targets
-		set (CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH} )
+		set (CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_BINARY} )
 
 		## Commented out: Set for specific targets only
 		#set_property(TARGET ${TARGET_NAME}
 		#	PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
 
-		message (STATUS "Program include-what-you-use found: ${IWYU_PATH}" )
+		message (STATUS "Program include-what-you-use found: ${IWYU_BINARY}" )
 
-	else (IWYU_PATH)
+	else (IWYU_BINARY )
 
 		message (WARNING "Program include-what-you-use not found" )
 
-	endif (IWYU_PATH)
+	endif (IWYU_BINARY )
 endif (IWYU)
 
 
@@ -211,17 +198,16 @@ list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 ## Build libarcstk library as project target (either shared or static)
 
 option (AS_STATIC "Build as static library" OFF )
-set (LINKFLAG SHARED )
+set (PROJECT_LINKFLAG SHARED )
 
 if (AS_STATIC)
 
-	set (LINKFLAG STATIC )
-
+	set (PROJECT_LINKFLAG STATIC )
 endif ()
 
-message (STATUS "Build library as: ${LINKFLAG}" )
+message (STATUS "Build library as: ${PROJECT_LINKFLAG}" )
 
-add_library (${PROJECT_NAME} ${LINKFLAG}
+add_library (${PROJECT_NAME} ${PROJECT_LINKFLAG}
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
 	"${PROJECT_SOURCE_DIR}/checksum.cpp"
 	"${PROJECT_SOURCE_DIR}/match.cpp"
@@ -231,10 +217,10 @@ add_library (${PROJECT_NAME} ${LINKFLAG}
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
-		$<INSTALL_INTERFACE:include>
+		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
 		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
 	PRIVATE
-		${PROJECT_BUILD_SOURCE_DIR} )
+		"${PROJECT_BUILD_SOURCE_DIR}" )
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
@@ -249,13 +235,27 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 
 if (NOT SKIP_INSTALL_ALL )
 
-	set (EXPORT_SET_NAME "${PROJECT_NAME}-targets" )
+	set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
+		CACHE PATH "Installation directory for library (.so) files" )
+
+	set (INSTALL_INCLUDE_DIR
+		"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
+		CACHE PATH "Installation directory for include (.hpp) files" )
+
+	set (INSTALL_CMAKECONFIG_DIR
+		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
+		CACHE PATH "Installation directory for cmake package files" )
+
+	set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
+		CACHE PATH "Installation directory for pkgconfig (.pc) files" )
+
+	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
 
 	if (AS_STATIC )
 
 		## install static library
 		install (TARGETS ${PROJECT_NAME}
-			EXPORT "${EXPORT_SET_NAME}"
+			EXPORT "${PROJECT_EXPORT_SET}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			ARCHIVE        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
@@ -264,13 +264,13 @@ if (NOT SKIP_INSTALL_ALL )
 
 		## install shared library
 		install (TARGETS ${PROJECT_NAME}
-			EXPORT "${EXPORT_SET_NAME}"
+			EXPORT "${PROJECT_EXPORT_SET}"
 			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
 			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
 			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/details" )
 	endif (AS_STATIC )
 
-	install (EXPORT ${EXPORT_SET_NAME}
+	install (EXPORT ${PROJECT_EXPORT_SET}
 		NAMESPACE libarcstk::
 		DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 	)
