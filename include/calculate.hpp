@@ -89,6 +89,9 @@ class AudioSize final
 {
 public: /* types */
 
+	/**
+	 * \brief Distinguish units for size declaration
+	 */
 	enum class UNIT
 	{
 		SAMPLES, FRAMES, BYTES
@@ -99,7 +102,7 @@ public: /* functions */
 	/**
 	 * \brief Constructor.
 	 */
-	AudioSize();
+	AudioSize() noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -107,7 +110,7 @@ public: /* functions */
 	 * \param[in] unit  Unit for \c value
 	 * \param[in] value Size value
 	 */
-	AudioSize(const UNIT unit, const uint32_t value);
+	AudioSize(const UNIT unit, const uint32_t value) noexcept;
 
 	/**
 	 * \brief Copy constructor.
@@ -136,14 +139,14 @@ public: /* functions */
 	 *
 	 * \param[in] leadout LBA leadout frame
 	 */
-	void set_leadout_frame(const uint32_t leadout);
+	void set_leadout_frame(const uint32_t leadout) noexcept;
 
 	/**
 	 * \brief Return the LBA leadout frame.
 	 *
 	 * \return LBA leadout frame
 	 */
-	uint32_t leadout_frame() const;
+	uint32_t leadout_frame() const noexcept;
 
 	/**
 	 * \brief Set the total number of 32 bit PCM samples.
@@ -152,14 +155,14 @@ public: /* functions */
 	 *
 	 * \param[in] smpl_count Total number of 32 bit PCM samples
 	 */
-	void set_sample_count(const uint32_t smpl_count);
+	void set_sample_count(const uint32_t smpl_count) noexcept;
 
 	/**
 	 * \brief Return the total number of 32 bit PCM samples.
 	 *
 	 * \return The total number of 32 bit PCM samples
 	 */
-	uint32_t sample_count() const;
+	uint32_t sample_count() const noexcept;
 
 	/**
 	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
@@ -169,21 +172,21 @@ public: /* functions */
 	 *
 	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
 	 */
-	void set_pcm_byte_count(const uint64_t byte_count);
+	void set_pcm_byte_count(const uint64_t byte_count) noexcept;
 
 	/**
 	 * \brief Return the number of bytes holding 32 bit PCM samples.
 	 *
 	 * \return The total number of bytes holding 32 bit PCM samples
 	 */
-	uint64_t pcm_byte_count() const;
+	uint64_t pcm_byte_count() const noexcept;
 
 	/**
 	 * \brief Return TRUE if the AudioSize is 0.
 	 *
 	 * \return TRUE if the AudioSize is 0
 	 */
-	bool null() const;
+	bool null() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
