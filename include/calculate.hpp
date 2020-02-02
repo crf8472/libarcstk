@@ -87,13 +87,27 @@ inline namespace v_1_0_0
  */
 class AudioSize final
 {
+public: /* types */
 
-public:
+	enum class UNIT
+	{
+		SAMPLES, FRAMES, BYTES
+	};
+
+public: /* functions */
 
 	/**
 	 * \brief Constructor.
 	 */
 	AudioSize();
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] unit  Unit for \c value
+	 * \param[in] value Size value
+	 */
+	AudioSize(const UNIT unit, const uint32_t value);
 
 	/**
 	 * \brief Copy constructor.
@@ -188,6 +202,24 @@ public:
 	 * \return The right hand side of the assignment
 	 */
 	AudioSize& operator = (AudioSize &&rhs) noexcept;
+
+	/**
+	 * \brief Equality.
+	 *
+	 * \param[in] rhs Right hand side of the comparison
+	 *
+	 * \return TRUE iff \c this equals \c rhs, otherwise FALSE
+	 */
+	bool operator == (const AudioSize &rhs) const noexcept;
+
+	/**
+	 * \brief Inequality.
+	 *
+	 * \param[in] rhs Right hand side of the comparison
+	 *
+	 * \return TRUE iff not \c this == \c rhs, otherwise FALSE
+	 */
+	bool operator != (const AudioSize &rhs) const noexcept;
 
 
 private:

@@ -863,6 +863,15 @@ protected:
 	 */
 	~CalcContextBase() noexcept override;
 
+	/**
+	 * \brief Base implementation for operator == in subclasses.
+	 *
+	 * \param[in] rhs Right hand side of the comparison
+	 *
+	 * \return TRUE iff \c rhs == *this, otherwise FALSE
+	 */
+	bool equals(const CalcContextBase &rhs) noexcept;
+
 
 private:
 

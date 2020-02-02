@@ -86,34 +86,49 @@ public:
 	Impl();
 
 	/**
+	 * \brief Constructor
+	 *
+	 * \param[in] unit  The unit of the declaring value
+	 * \param[in] value Absolute size
+	 */
+	Impl(const AudioSize::UNIT unit, const uint32_t value);
+
+	/**
 	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
 	 */
-	void set_leadout_frame(const uint32_t leadout);
+	void set_total_frames(const uint32_t leadout);
 
 	/**
 	 * \brief Implements AudioSize::leadout_frame() const
 	 */
-	uint32_t leadout_frame() const;
+	uint32_t total_frames() const;
 
 	/**
 	 * \brief Implements AudioSize::set_sample_count(const uint32_t smpl_count)
 	 */
-	void set_sample_count(const uint32_t smpl_count);
+	void set_total_samples(const uint32_t smpl_count);
 
 	/**
 	 * \brief Implements AudioSize::sample_count() const
 	 */
-	uint32_t sample_count() const;
+	uint32_t total_samples() const;
 
 	/**
 	 * \brief Implements AudioSize::set_pcm_byte_count(const uint64_t byte_count)
 	 */
-	void set_pcm_byte_count(const uint64_t byte_count);
+	void set_total_pcm_bytes(const uint64_t byte_count);
 
 	/**
 	 * \brief Implements AudioSize::pcm_byte_count() const
 	 */
-	uint64_t pcm_byte_count() const;
+	uint64_t total_pcm_bytes() const;
+
+	/**
+	 * \brief Equality operator
+	 *
+	 * \param[in] rhs The intance to compare
+	 */
+	bool operator == (const AudioSize::Impl &rhs) const noexcept;
 
 
 private:
@@ -134,43 +149,65 @@ AudioSize::Impl::Impl()
 }
 
 
-void AudioSize::Impl::set_leadout_frame(const uint32_t leadout)
+AudioSize::Impl::Impl(const AudioSize::UNIT unit, const uint32_t value)
+	: total_pcm_bytes_(value)
 {
-	this->set_pcm_byte_count(leadout *
+	using UNIT = AudioSize::UNIT;
+
+	if (UNIT::FRAMES == unit)
+	{
+		this->set_total_frames(value);
+	}
+	else if (UNIT::SAMPLES == unit)
+	{
+		this->set_total_samples(value);
+	}
+}
+
+
+void AudioSize::Impl::set_total_frames(const uint32_t frame_count)
+{
+	this->set_total_pcm_bytes(frame_count *
 			static_cast<unsigned int>(CDDA.BYTES_PER_FRAME));
 }
 
 
-uint32_t AudioSize::Impl::leadout_frame() const
+uint32_t AudioSize::Impl::total_frames() const
 {
-	return this->pcm_byte_count() /
+	return this->total_pcm_bytes() /
 		static_cast<unsigned int>(CDDA.BYTES_PER_FRAME);
 }
 
 
-void AudioSize::Impl::set_sample_count(const uint32_t sample_count)
+void AudioSize::Impl::set_total_samples(const uint32_t sample_count)
 {
-	this->set_pcm_byte_count(sample_count *
+	this->set_total_pcm_bytes(sample_count *
 			static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE));
 }
 
 
-uint32_t AudioSize::Impl::sample_count() const
+uint32_t AudioSize::Impl::total_samples() const
 {
-	return this->pcm_byte_count() /
+	return this->total_pcm_bytes() /
 		static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE);
 }
 
 
-void AudioSize::Impl::set_pcm_byte_count(const uint64_t byte_count)
+void AudioSize::Impl::set_total_pcm_bytes(const uint64_t byte_count)
 {
 	total_pcm_bytes_ = byte_count;
 }
 
 
-uint64_t AudioSize::Impl::pcm_byte_count() const
+uint64_t AudioSize::Impl::total_pcm_bytes() const
 {
 	return total_pcm_bytes_;
+}
+
+
+bool AudioSize::Impl::operator == (const AudioSize::Impl &rhs) const noexcept
+{
+	return total_pcm_bytes_ == rhs.total_pcm_bytes_;
 }
 
 
@@ -2088,6 +2125,13 @@ AudioSize::AudioSize()
 }
 
 
+AudioSize::AudioSize(const UNIT unit, const uint32_t value)
+	: impl_(std::make_unique<AudioSize::Impl>(unit, value))
+{
+	// empty
+}
+
+
 AudioSize::AudioSize(const AudioSize &rhs)
 	: impl_(std::make_unique<AudioSize::Impl>(*rhs.impl_))
 {
@@ -2103,43 +2147,43 @@ AudioSize::~AudioSize() noexcept = default;
 
 void AudioSize::set_leadout_frame(const uint32_t leadout)
 {
-	impl_->set_leadout_frame(leadout);
+	impl_->set_total_frames(leadout);
 }
 
 
 uint32_t AudioSize::leadout_frame() const
 {
-	return impl_->leadout_frame();
+	return impl_->total_frames();
 }
 
 
 void AudioSize::set_sample_count(const uint32_t sample_count)
 {
-	impl_->set_sample_count(sample_count);
+	impl_->set_total_samples(sample_count);
 }
 
 
 uint32_t AudioSize::sample_count() const
 {
-	return impl_->sample_count();
+	return impl_->total_samples();
 }
 
 
 void AudioSize::set_pcm_byte_count(const uint64_t byte_count)
 {
-	impl_->set_pcm_byte_count(byte_count);
+	impl_->set_total_pcm_bytes(byte_count);
 }
 
 
 uint64_t AudioSize::pcm_byte_count() const
 {
-	return impl_->pcm_byte_count();
+	return impl_->total_pcm_bytes();
 }
 
 
 bool AudioSize::null() const
 {
-	return 0 == impl_->pcm_byte_count();
+	return 0 == impl_->total_pcm_bytes();
 }
 
 
@@ -2151,6 +2195,18 @@ AudioSize& AudioSize::operator = (AudioSize rhs)
 
 
 AudioSize& AudioSize::operator = (AudioSize &&rhs) noexcept = default;
+
+
+bool AudioSize::operator == (const AudioSize &rhs) const noexcept
+{
+	return *impl_ == *rhs.impl_;
+}
+
+
+bool AudioSize::operator != (const AudioSize &rhs) const noexcept
+{
+	return not this->operator==(rhs);
+}
 
 
 // CalcContext

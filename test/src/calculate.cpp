@@ -548,28 +548,6 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 }
 
 
-// Interval
-
-
-TEST_CASE ( "Interval", "[calculate] [interval]" )
-{
-	using arcstk::v_1_0_0::details::Interval;
-
-	Interval i(10, 20);
-
-	SECTION ("Bounds are correct")
-	{
-		CHECK ( not i.contains( 9) );
-		CHECK (     i.contains(10) );
-		CHECK (     i.contains(11) );
-		// ...
-		CHECK (     i.contains(19) );
-		CHECK (     i.contains(20) );
-		CHECK ( not i.contains(21) );
-	}
-}
-
-
 // CalcContext implementations
 
 
@@ -1804,6 +1782,157 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 
 		CHECK ( ctx_copy->track(148783403) == 15);
 		CHECK ( ctx_copy->track(148783404) > ctx_copy->track_count() );
+	}
+}
+
+
+TEST_CASE ("MultitrackCalcContext Equality",
+		"[calculate] [calccontext] [multitrack]" )
+{
+	using arcstk::details::TOCBuilder;
+
+	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
+
+	auto mctx1 = arcstk::make_context(TOCBuilder::build(
+		// track count
+		15,
+		// offsets
+		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 },
+		// leadout
+		253038
+	));
+
+	// same as mctx 1
+	auto mctx2 = arcstk::make_context(TOCBuilder::build(
+		// track count
+		15,
+		// offsets
+		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 },
+		// leadout
+		253038
+	));
+
+	// different from mctx 1 and 2
+	auto mctx3 = arcstk::make_context(TOCBuilder::build(
+		// track count
+		16,
+		// offsets
+		{ 0, 2500, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333,
+		139495, 157863, 198495, 213368, 225320, 234103 },
+		// leadout
+		253038
+	));
+
+	// TODO
+	//CHECK ( *mctx1 == *mctx2 );
+	//CHECK ( *mctx1 != *mctx3 );
+	//CHECK ( *mctx2 != *mctx3 );
+}
+
+
+// Interval
+
+
+TEST_CASE ( "Interval", "[calculate] [interval]" )
+{
+	using arcstk::v_1_0_0::details::Interval;
+
+	Interval i(10, 20);
+
+	SECTION ("Bounds are correct")
+	{
+		CHECK ( not i.contains( 9) );
+		CHECK (     i.contains(10) );
+		CHECK (     i.contains(11) );
+		// ...
+		CHECK (     i.contains(19) );
+		CHECK (     i.contains(20) );
+		CHECK ( not i.contains(21) );
+	}
+}
+
+
+TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
+{
+	using arcstk::AudioSize;
+	using UNIT = arcstk::AudioSize::UNIT;
+
+	AudioSize size1;
+	size1.set_leadout_frame(253038);
+
+	AudioSize size2; // equals size1
+	size2.set_leadout_frame(253038);
+
+	AudioSize size3(UNIT::FRAMES, 253038); // equal to size1 and size2
+
+	AudioSize size4(UNIT::SAMPLES, 148786344); // equal to size1 and size2
+
+	AudioSize size5(UNIT::BYTES, 595145376); // equal to size1 and size2
+
+	AudioSize different_size; // not equal to neither size1 nor size2
+	different_size.set_leadout_frame(14827);
+
+
+	SECTION ("Constructors")
+	{
+		CHECK ( size1.leadout_frame()  ==    253038 );
+		CHECK ( size1.sample_count()   == 148786344 );
+		CHECK ( size1.pcm_byte_count() == 595145376 );
+
+		CHECK ( size2.leadout_frame()  ==    253038 );
+		CHECK ( size2.sample_count()   == 148786344 );
+		CHECK ( size2.pcm_byte_count() == 595145376 );
+
+		CHECK ( size3.leadout_frame()  ==    253038 );
+		CHECK ( size3.sample_count()   == 148786344 );
+		CHECK ( size3.pcm_byte_count() == 595145376 );
+
+		CHECK ( size4.leadout_frame()  ==    253038 );
+		CHECK ( size4.sample_count()   == 148786344 );
+		CHECK ( size4.pcm_byte_count() == 595145376 );
+
+		CHECK ( size5.leadout_frame()  ==    253038 );
+		CHECK ( size5.sample_count()   == 148786344 );
+		CHECK ( size5.pcm_byte_count() == 595145376 );
+
+		CHECK ( different_size.leadout_frame()  ==    14827 );
+		CHECK ( different_size.sample_count()   ==  8718276 );
+		CHECK ( different_size.pcm_byte_count() == 34873104 );
+	}
+
+	SECTION ("Equality")
+	{
+		CHECK ( size1 == size1 );
+		CHECK ( size2 == size2 );
+		CHECK ( size3 == size3 );
+		CHECK ( size4 == size4 );
+		CHECK ( size5 == size5 );
+
+		CHECK ( size1 == size2 );
+		CHECK ( size2 == size1 );
+
+		CHECK ( size2 == size3 );
+		CHECK ( size3 == size2 );
+
+		CHECK ( size3 == size4 );
+		CHECK ( size4 == size3 );
+
+		CHECK ( size4 == size5 );
+		CHECK ( size5 == size4 );
+
+		CHECK ( size1 == size3 );
+		CHECK ( size1 == size4 );
+		CHECK ( size1 == size5 );
+		CHECK ( size2 == size4 );
+		CHECK ( size2 == size5 );
+		CHECK ( size3 == size5 );
+
+		CHECK ( different_size != size1 );
+		CHECK ( different_size != size2 );
+		CHECK ( different_size != size4 );
+		CHECK ( different_size != size5 );
 	}
 }
 
