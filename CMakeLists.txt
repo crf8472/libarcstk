@@ -13,6 +13,9 @@ cmake_policy (SET CMP0057 NEW)
 
 project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 
+
+## --- Setup Version Information
+
 set (PROJECT_BRIEF_DESC
 	"A library to calculate and verify AccurateRip checksums and ids" )
 
@@ -21,9 +24,6 @@ set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}/" )
 set (PROJECT_VERSION_SUFFIX "beta.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
-
-
-## --- Setup Version Information
 
 set (PROJECT_VERSION_STRING_WITHOUT_SUFFIX
 	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
@@ -37,6 +37,7 @@ if (PROJECT_VERSION_SUFFIX )
 endif (PROJECT_VERSION_SUFFIX )
 
 message (STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
+
 
 
 ## --- Setup Default Build Type
@@ -53,6 +54,7 @@ endif (NOT CMAKE_BUILD_TYPE )
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
 set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
+
 
 
 ## --- Abort release-builds on big endian platforms
@@ -75,32 +77,6 @@ if (IS_BIG_ENDIAN )
 endif()
 
 
-## --- Ensure version info + current commit is available
-
-find_package (Git QUIET REQUIRED )
-
-execute_process(
-	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	RESULT_VARIABLE res
-	OUTPUT_VARIABLE PROJECT_GIT_DESCRIBE
-	ERROR_QUIET
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-execute_process(
-	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	RESULT_VARIABLE res
-	OUTPUT_VARIABLE PROJECT_GIT_COMMIT
-	ERROR_QUIET
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-set_property(GLOBAL APPEND
-	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
-)
-
 
 ## --- Project Directory Layout
 
@@ -113,12 +89,6 @@ set (PROJECT_INCLUDE_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 ## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
-## "Root directory for testcases and testdata"
-set (PROJECT_TEST_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/test" )
-
-## "Root directory for documentation config and sources" )
-set (PROJECT_DOC_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/doc" )
-
 ## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 
@@ -129,9 +99,10 @@ set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 
+
 ## --- Optional: Add include-what-you-use support (default: OFF)
 
-option (IWYU "Use include-what-you-use" OFF )
+option (IWYU "Don't compile, check headers with include-what-you-use" OFF )
 if (IWYU)
 
 	message (STATUS "Program include-what-you-use requested" )
@@ -176,21 +147,21 @@ configure_file (
 
 ## --- Specify Exported Headers
 
-set (EXPORTED_HEADERS )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/checksum.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/match.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/parse.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
-list (APPEND EXPORTED_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
+set (INTERFACE_HEADERS )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/checksum.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/match.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/parse.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
-set (TEMPLATE_HEADERS )
-list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
-list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
-list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
-list (APPEND TEMPLATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
+set (PRIVATE_HEADERS )
+list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
+list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
+list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
+list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 
 
 ## --- Add and configure project target
@@ -224,8 +195,8 @@ target_include_directories (${PROJECT_NAME}
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
-	PUBLIC_HEADER  "${EXPORTED_HEADERS}"
-	PRIVATE_HEADER "${TEMPLATE_HEADERS}"
+	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
+	PRIVATE_HEADER "${PRIVATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
@@ -235,45 +206,29 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 
 if (NOT SKIP_INSTALL_ALL )
 
-	set (INSTALL_LIBRARY_DIR   "${CMAKE_INSTALL_PREFIX}/lib"
-		CACHE PATH "Installation directory for library (.so) files" )
-
-	set (INSTALL_INCLUDE_DIR
-		"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
-		CACHE PATH "Installation directory for include (.hpp) files" )
-
 	set (INSTALL_CMAKECONFIG_DIR
 		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
 		CACHE PATH "Installation directory for cmake package files" )
 
-	set (INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
-		CACHE PATH "Installation directory for pkgconfig (.pc) files" )
-
 	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
 
-	if (AS_STATIC )
 
-		## install static library
-		install (TARGETS ${PROJECT_NAME}
-			EXPORT "${PROJECT_EXPORT_SET}"
-			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
-			ARCHIVE        DESTINATION "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
-			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/details" )
-	else (AS_STATIC )
-
-		## install shared library
-		install (TARGETS ${PROJECT_NAME}
-			EXPORT "${PROJECT_EXPORT_SET}"
-			LIBRARY        DESTINATION "${INSTALL_LIBRARY_DIR}"
-			PUBLIC_HEADER  DESTINATION "${INSTALL_INCLUDE_DIR}"
-			PRIVATE_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/details" )
-	endif (AS_STATIC )
+	install (TARGETS ${PROJECT_NAME}
+		EXPORT "${PROJECT_EXPORT_SET}"
+		LIBRARY
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+		PUBLIC_HEADER
+			DESTINATION
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
+		PRIVATE_HEADER
+			DESTINATION
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}/details" )
 
 	install (EXPORT ${PROJECT_EXPORT_SET}
 		NAMESPACE libarcstk::
 		DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 	)
+
 
 	if (NOT SKIP_INSTALL_FILES )
 
@@ -286,20 +241,16 @@ if (NOT SKIP_INSTALL_ALL )
 		)
 
 		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
-			DESTINATION "${INSTALL_PKGCONFIG_DIR}" )
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
 
 
 		# Support CMake Packaging
 
 		include (CMakePackageConfigHelpers )
 
-		set (PROJECT_CONFIG_FILE
-			"${PROJECT_NAME}-config.cmake"
-		)
+		set (PROJECT_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
 
-		set (PROJECT_CONFIG_VERSION_FILE
-			"${PROJECT_NAME}-config-version.cmake"
-		)
+		set (PROJECT_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
 
 		configure_package_config_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
@@ -443,6 +394,35 @@ endif (WITH_NATIVE )
 message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 
+
+## --- Ensure version info + current commit is available
+
+find_package (Git QUIET REQUIRED )
+
+execute_process(
+	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	RESULT_VARIABLE res
+	OUTPUT_VARIABLE PROJECT_GIT_DESCRIBE
+	ERROR_QUIET
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(
+	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	RESULT_VARIABLE res
+	OUTPUT_VARIABLE PROJECT_GIT_COMMIT
+	ERROR_QUIET
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set_property(GLOBAL APPEND
+	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
+)
+
+
+
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
 
 option (WITH_TESTS "Build unit tests" OFF )
@@ -457,7 +437,7 @@ if (WITH_TESTS)
 	add_subdirectory (thirdparty/catch2 EXCLUDE_FROM_ALL )
 
 	## Add tests
-	add_subdirectory (${PROJECT_TEST_DIR} )
+	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/test )
 
 else ()
 
@@ -480,7 +460,7 @@ endif()
 ## Process configuration for building the documentation
 if (WITH_DOCS )
 
-	add_subdirectory (${PROJECT_DOC_DIR} )
+	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/doc )
 else (WITH_DOCS )
 
 	message (STATUS "Build without documentation")
