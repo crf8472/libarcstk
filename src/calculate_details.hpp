@@ -913,6 +913,7 @@ private:
 
 class SingletrackCalcContext;
 
+
 /**
  * \brief Equality for SingletrackCalcContext
  *
@@ -922,14 +923,6 @@ class SingletrackCalcContext;
 bool operator == (const SingletrackCalcContext &lhs,
 		const SingletrackCalcContext &rhs) noexcept;
 
-/**
- * \brief Inequality for SingletrackCalcContext
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- */
-bool operator != (const SingletrackCalcContext &lhs,
-		const SingletrackCalcContext &rhs) noexcept;
 
 /**
  * \internal
@@ -947,9 +940,6 @@ public:
 
 	friend bool operator == (const SingletrackCalcContext &lhs,
 		const SingletrackCalcContext &rhs) noexcept;
-
-	//friend bool operator != (const SingletrackCalcContext &lhs,
-	//	const SingletrackCalcContext &rhs) noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -1038,6 +1028,16 @@ private:
 };
 
 
+/**
+ * \brief Inequality for SingletrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator != (const SingletrackCalcContext &lhs,
+		const SingletrackCalcContext &rhs) noexcept;
+
+
 class MultitrackCalcContext;
 
 
@@ -1048,16 +1048,6 @@ class MultitrackCalcContext;
  * \param[in] rhs Right hand side of the comparison
  */
 bool operator == (const MultitrackCalcContext &lhs,
-		const MultitrackCalcContext &rhs) noexcept;
-
-
-/**
- * \brief Inequality check for MultitrackCalcContext
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- */
-bool operator != (const MultitrackCalcContext &lhs,
 		const MultitrackCalcContext &rhs) noexcept;
 
 
@@ -1077,9 +1067,6 @@ public:
 
 	friend bool operator == (const MultitrackCalcContext &lhs,
 		const MultitrackCalcContext &rhs) noexcept;
-
-	//friend bool operator != (const MultitrackCalcContext &lhs,
-	//	const MultitrackCalcContext &rhs) noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -1184,6 +1171,15 @@ private:
 	TOC toc_;
 };
 
+
+/**
+ * \brief Inequality check for MultitrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator != (const MultitrackCalcContext &lhs,
+		const MultitrackCalcContext &rhs) noexcept;
 
 
 /**
