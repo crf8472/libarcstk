@@ -373,10 +373,10 @@ void CalcContextBase::do_hook_post_set_audio_size()
 
 bool CalcContextBase::equals(const CalcContextBase &rhs) const noexcept
 {
-	return audiosize_ == rhs.audiosize_ and
-		filename_ == rhs.filename_ and
-		num_skip_front_ == rhs.num_skip_front_ and
-		num_skip_back_ == rhs.num_skip_back_;
+	return audiosize_ == rhs.audiosize_
+		and filename_ == rhs.filename_
+		and num_skip_front_ == rhs.num_skip_front_
+		and num_skip_back_ == rhs.num_skip_back_;
 }
 
 
@@ -453,9 +453,9 @@ void CalcContextBase::do_notify_skips(const uint32_t num_skip_front,
 bool operator == (const SingletrackCalcContext &lhs,
 		const SingletrackCalcContext &rhs) noexcept
 {
-	return lhs.equals(rhs) and
-		lhs.skip_front_ == rhs.skip_front_ and
-		lhs.skip_back_  == rhs.skip_back_;
+	return lhs.equals(rhs)
+		and lhs.skip_front_ == rhs.skip_front_
+		and lhs.skip_back_  == rhs.skip_back_;
 }
 
 
