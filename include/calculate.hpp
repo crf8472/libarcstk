@@ -281,6 +281,21 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 } // namespace details
 
 
+class PCMForwardIterator; // forward declaration
+
+
+/**
+ * \brief Returns TRUE if \c lhs is equal to \c rhs.
+ *
+ * \param[in] lhs The left hand side to compare
+ * \param[in] rhs The right hand side to compare
+ *
+ * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
+ */
+bool operator == (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
+	noexcept;
+
+
 /**
  * \brief Type erasing interface for iterators over PCM 32 Bit samples.
  *
@@ -291,6 +306,9 @@ class PCMForwardIterator final
 {
 
 public:
+
+	friend bool operator == (const PCMForwardIterator &lhs,
+			const PCMForwardIterator &rhs) noexcept;
 
 	/**
 	 * \brief Iterator category is ForwardIterator.
@@ -510,28 +528,6 @@ public:
 	 */
 	PCMForwardIterator operator ++ (int); // required by ForwardIterator
 
-	/// \todo Make PCMForwardIterator::== a free function
-	/**
-	 * \brief Returns TRUE if \c rhs is equal to the instance.
-	 *
-	 * \param[in] rhs The instance to test for equality
-	 *
-	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
-	 */
-	bool operator == (const PCMForwardIterator& rhs) const;
-	// required by ForwardIterator
-
-	/// \todo Make PCMForwardIterator::!= a free function
-	/**
-	 * \brief Returns TRUE if \c rhs is not equal to the instance.
-	 *
-	 * \param[in] rhs The instance to test for inequality
-	 *
-	 * \return TRUE if \c rhs is not equal to the instance, otherwise FALSE
-	 */
-	bool operator != (const PCMForwardIterator& rhs) const;
-	// required by ForwardIterator
-
 	/// \todo Make PCMForwardIterator::+ a free function
 	/**
 	 * \brief Advance the iterator by a non-negative amount.
@@ -550,6 +546,18 @@ private:
 	 */
 	std::unique_ptr<Concept> object_;
 };
+
+
+/**
+ * \brief Returns TRUE if \c lhs is not equal to \c rhs.
+ *
+ * \param[in] lhs The left hand side to compare
+ * \param[in] rhs The right hand side to compare
+ *
+ * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
+ */
+bool operator != (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
+	noexcept;
 
 
 /**
@@ -1435,26 +1443,29 @@ inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
 }
 
 
-inline bool PCMForwardIterator::operator == (const PCMForwardIterator& rhs)
-	const
-{
-	return object_->equals(rhs.object_->pointer());
-}
-
-
-inline bool PCMForwardIterator::operator != (const PCMForwardIterator& rhs)
-	const
-{
-	return not (*this == rhs);
-}
-
-
 inline PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount)
 	const
 {
 	PCMForwardIterator it(*this);
 	it.object_->advance(amount);
 	return it;
+}
+
+
+// operators PCMForwardIterator
+
+
+inline bool operator == (const PCMForwardIterator &lhs,
+		const PCMForwardIterator &rhs) noexcept
+{
+	return lhs.object_->equals(rhs.object_->pointer());
+}
+
+
+inline bool operator != (const PCMForwardIterator &lhs,
+		const PCMForwardIterator &rhs) noexcept
+{
+	return not(lhs == rhs);
 }
 
 } // namespace v_1_0_0
