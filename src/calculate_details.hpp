@@ -40,6 +40,12 @@ inline namespace v_1_0_0
 namespace details
 {
 
+/**
+ * \brief Default argument for empty strings, avoid creating temporary objects
+ */
+const std::string empty_string = std::string();
+
+
 // Forward Declaration Required for Partitioner
 class Partition;
 
@@ -160,6 +166,9 @@ private:
 };
 
 
+/**
+ * \brief Partitioner for multitrack partitions.
+ */
 class MultitrackPartitioner final : public Partitioner
 {
 
@@ -192,6 +201,9 @@ private:
 };
 
 
+/**
+ * \brief Partitioner for singletrack partitions.
+ */
 class SingletrackPartitioner final : public Partitioner
 {
 
@@ -415,9 +427,11 @@ private:
 };
 
 
+/// \cond UNDOC_FUNCTION_BODIES
+
+
 // Partition
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 Partition::Partition(
 		const uint32_t &begin_offset,
@@ -868,9 +882,9 @@ protected:
 	 *
 	 * \param[in] rhs Right hand side of the comparison
 	 *
-	 * \return TRUE iff \c rhs == *this, otherwise FALSE
+	 * \return TRUE iff \c *this == \c rhs, otherwise FALSE
 	 */
-	bool equals(const CalcContextBase &rhs) noexcept;
+	bool equals(const CalcContextBase &rhs) const noexcept;
 
 
 private:
@@ -895,6 +909,281 @@ private:
 	 */
 	uint32_t num_skip_back_;
 };
+
+
+class SingletrackCalcContext;
+
+/**
+ * \brief Equality for SingletrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator == (const SingletrackCalcContext &lhs,
+		const SingletrackCalcContext &rhs) noexcept;
+
+/**
+ * \brief Inequality for SingletrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator != (const SingletrackCalcContext &lhs,
+		const SingletrackCalcContext &rhs) noexcept;
+
+/**
+ * \internal
+ * \ingroup calc
+ *
+ * \brief CalcContext for singletrack mode.
+ *
+ * A SingletrackCalcContext is a CalcContext derived from an actual filename
+ * representing a single track.
+ */
+class SingletrackCalcContext final : public CalcContextBase
+{
+
+public:
+
+	friend bool operator == (const SingletrackCalcContext &lhs,
+		const SingletrackCalcContext &rhs) noexcept;
+
+	//friend bool operator != (const SingletrackCalcContext &lhs,
+	//	const SingletrackCalcContext &rhs) noexcept;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * No samples are skipped.
+	 *
+	 * \param[in] filename Name of the audio file
+	 */
+	explicit SingletrackCalcContext(const std::string &filename);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] filename   Name of the audio file
+	 * \param[in] skip_front Indicate whether to skip samples at the beginning
+	 * \param[in] skip_back  Indicate whether to skip samples at the end
+	 */
+	SingletrackCalcContext(const std::string &filename,
+			const bool skip_front, const bool skip_back);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] filename   Name of the audio file
+	 * \param[in] skip_front Indicate whether to skip samples at the beginning
+	 * \param[in] num_skip_front Amount of samples to skip at the beginning
+	 * \param[in] skip_back  Indicate whether to skip samples at the end
+	 * \param[in] num_skip_back Amount of samples to skip at the end
+	 */
+	SingletrackCalcContext(const std::string &filename,
+			const bool skip_front, const uint32_t num_skip_front,
+			const bool skip_back,  const uint32_t num_skip_back);
+
+	/**
+	 * \brief Activate skipping of the first 2939 samples of the first track.
+	 *
+	 * \param[in] skip TRUE skips the first 2939 samples of the first track
+	 */
+	void set_skip_front(const bool skip);
+
+	/**
+	 * \brief Activate skipping of the last 2940 samples of the last track.
+	 *
+	 * \param[in] skip TRUE skips the last 2940 samples of the last track
+	 */
+	void set_skip_back(const bool skip);
+
+
+private:
+
+	uint8_t do_track_count() const final;
+
+	bool do_is_multi_track() const final;
+
+	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+
+	// do_first_relevant_sample() is generic in CalcContextBase
+
+	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+
+	// do_last_relevant_sample() is generic in CalcContextBase
+
+	TrackNo do_track(const uint32_t smpl) const final;
+
+	uint32_t do_offset(const uint8_t track) const final;
+
+	uint32_t do_length(const uint8_t track) const final;
+
+	ARId do_id() const final;
+
+	bool do_skips_front() const final;
+
+	bool do_skips_back() const final;
+
+	std::unique_ptr<CalcContext> do_clone() const final;
+
+	/**
+	 * \brief State: indicates whether to skip the front samples
+	 */
+	bool skip_front_;
+
+	/**
+	 * \brief State: indicates whether to skip the back samples
+	 */
+	bool skip_back_;
+};
+
+
+class MultitrackCalcContext;
+
+
+/**
+ * \brief Equality check for MultitrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator == (const MultitrackCalcContext &lhs,
+		const MultitrackCalcContext &rhs) noexcept;
+
+
+/**
+ * \brief Inequality check for MultitrackCalcContext
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ */
+bool operator != (const MultitrackCalcContext &lhs,
+		const MultitrackCalcContext &rhs) noexcept;
+
+
+/**
+ * \internal
+ * \ingroup calc
+ *
+ * \brief CalcContext for multitrack mode.
+ *
+ * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
+ * actual filename. It always skips the front and back samples.
+ */
+class MultitrackCalcContext final : public CalcContextBase
+{
+
+public:
+
+	friend bool operator == (const MultitrackCalcContext &lhs,
+		const MultitrackCalcContext &rhs) noexcept;
+
+	//friend bool operator != (const MultitrackCalcContext &lhs,
+	//	const MultitrackCalcContext &rhs) noexcept;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * The filenames in \c toc are ignored in favour of \c filename . No samples
+	 * are skipped.
+	 *
+	 * \param[in] toc      Name of the TOC
+	 * \param[in] filename Name of the file
+	 */
+	MultitrackCalcContext(const TOC &toc,
+			const std::string &filename = empty_string);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * The filenames in \c toc are ignored in favour of \c filename . No samples
+	 * are skipped.
+	 *
+	 * \param[in] toc      Name of the TOC
+	 * \param[in] filename Name of the file
+	 */
+	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
+			const std::string &filename = empty_string);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * The filenames in \c toc are ignored in favour of \c filename .
+	 *
+	 * \param[in] toc        Name of the TOC
+	 * \param[in] skip_front Amount of samples to skip at the beginning
+	 * \param[in] skip_back  Amount of samples to skip at the end
+	 * \param[in] filename   Name of the file
+	 */
+	MultitrackCalcContext(const TOC &toc, const uint32_t skip_front,
+			const uint32_t skip_back,
+			const std::string &filename = empty_string);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * The filenames in \c toc are ignored in favour of \c filename .
+	 *
+	 * \param[in] toc        Name of the TOC
+	 * \param[in] skip_front Amount of samples to skip at the beginning
+	 * \param[in] skip_back  Amount of samples to skip at the end
+	 * \param[in] filename   Name of the file
+	 */
+	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
+			const uint32_t skip_front, const uint32_t skip_back,
+			const std::string &filename = empty_string);
+
+	/**
+	 * \brief The TOC of the audio input file.
+	 *
+	 * \return The TOC information to use for the audio input
+	 */
+	const TOC& toc() const;
+
+	/**
+	 * \brief Set the TOC for the audio input.
+	 *
+	 * \param[in] toc The TOC information to use for the audio input
+	 */
+	void set_toc(const TOC &toc);
+
+
+private:
+
+	void do_hook_post_set_audio_size() final;
+
+	uint8_t do_track_count() const final;
+
+	bool do_is_multi_track() const final;
+
+	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+
+	// do_first_relevant_sample() is generic in CalcContextBase
+
+	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+
+	// do_last_relevant_sample() is generic in CalcContextBase
+
+	TrackNo do_track(const uint32_t smpl) const final;
+
+	uint32_t do_offset(const uint8_t track) const final;
+
+	uint32_t do_length(const uint8_t track) const final;
+
+	ARId do_id() const final;
+
+	bool do_skips_front() const final;
+
+	bool do_skips_back() const final;
+
+	std::unique_ptr<CalcContext> do_clone() const final;
+
+	/**
+	 * \brief TOC representation
+	 */
+	TOC toc_;
+};
+
 
 
 /**

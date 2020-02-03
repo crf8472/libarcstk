@@ -221,7 +221,7 @@ public:
 	/**
 	 * \brief Implements TOC::operator==()
 	 */
-	inline bool operator == (const TOC::Impl &rhs) const;
+	inline bool equals(const TOC::Impl &rhs) const;
 
 
 private:
@@ -387,18 +387,14 @@ bool TOC::Impl::complete() const
 }
 
 
-bool TOC::Impl::operator == (const TOC::Impl &rhs) const
+bool TOC::Impl::equals(const TOC::Impl &rhs) const
 {
-	if (this == &rhs)
-	{
-		return true;
-	}
-
-	return track_count_ == rhs.track_count_
-		and offsets_    == rhs.offsets_
-		and lengths_    == rhs.lengths_
-		and leadout_    == rhs.leadout_
-		and files_      == rhs.files_;
+	return this == &rhs
+		or  (track_count_ == rhs.track_count_
+		and  offsets_     == rhs.offsets_
+		and  lengths_     == rhs.lengths_
+		and  leadout_     == rhs.leadout_
+		and  files_       == rhs.files_);
 }
 
 /// \endcond

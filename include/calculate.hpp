@@ -74,6 +74,18 @@ inline namespace v_1_0_0
  * @{
  */
 
+class AudioSize;
+
+
+/**
+ * \brief Equality.
+ *
+ * \param[in] rhs Right hand side of the comparison
+ *
+ * \return TRUE iff \c this equals \c rhs, otherwise FALSE
+ */
+bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
+
 
 /**
  * \brief Uniform access to the size of the input audio information.
@@ -98,6 +110,9 @@ public: /* types */
 	};
 
 public: /* functions */
+
+	friend bool operator == (const AudioSize &lhs, const AudioSize &rhs)
+		noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -206,24 +221,6 @@ public: /* functions */
 	 */
 	AudioSize& operator = (AudioSize &&rhs) noexcept;
 
-	/**
-	 * \brief Equality.
-	 *
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff \c this equals \c rhs, otherwise FALSE
-	 */
-	bool operator == (const AudioSize &rhs) const noexcept;
-
-	/**
-	 * \brief Inequality.
-	 *
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff not \c this == \c rhs, otherwise FALSE
-	 */
-	bool operator != (const AudioSize &rhs) const noexcept;
-
 
 private:
 
@@ -235,6 +232,17 @@ private:
 	 */
 	std::unique_ptr<AudioSize::Impl> impl_;
 };
+
+
+/**
+ * \brief Inequality.
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ *
+ * \return TRUE iff not \c this == \c rhs, otherwise FALSE
+ */
+bool operator != (const AudioSize &lhs, const AudioSize &rhs) noexcept;
 
 
 /**
@@ -454,7 +462,7 @@ public:
 	 *
 	 * \tparam Iterator The iterator type to wrap
 	 *
-	 * \param[in] i Instance of an iterator over sample_type
+	 * \param[in] i Instance of an iterator over \c sample_type
 	 */
 	template <class Iterator,
 			typename = std::enable_if_t<
@@ -502,6 +510,7 @@ public:
 	 */
 	PCMForwardIterator operator ++ (int); // required by ForwardIterator
 
+	/// \todo Make PCMForwardIterator::== a free function
 	/**
 	 * \brief Returns TRUE if \c rhs is equal to the instance.
 	 *
@@ -512,6 +521,7 @@ public:
 	bool operator == (const PCMForwardIterator& rhs) const;
 	// required by ForwardIterator
 
+	/// \todo Make PCMForwardIterator::!= a free function
 	/**
 	 * \brief Returns TRUE if \c rhs is not equal to the instance.
 	 *
@@ -522,6 +532,7 @@ public:
 	bool operator != (const PCMForwardIterator& rhs) const;
 	// required by ForwardIterator
 
+	/// \todo Make PCMForwardIterator::+ a free function
 	/**
 	 * \brief Advance the iterator by a non-negative amount.
 	 *

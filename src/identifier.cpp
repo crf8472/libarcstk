@@ -221,12 +221,7 @@ public:
 	/**
 	 * \brief Implements ARId::operator == (const ARId &rhs) const
 	 */
-	bool operator == (const Impl &rhs) const;
-
-	/**
-	 * \brief Implements ARId::operator != (const ARId &rhs) const
-	 */
-	bool operator != (const Impl &rhs) const;
+	bool equals(const Impl &rhs) const noexcept;
 
 
 protected:
@@ -364,18 +359,12 @@ std::string ARId::Impl::to_string() const
 }
 
 
-bool ARId::Impl::operator == (const ARId::Impl& rhs) const
+bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
 {
 	return track_count_ == rhs.track_count_
 		&& disc_id1_    == rhs.disc_id1_
 		&& disc_id2_    == rhs.disc_id2_
 		&& cddb_id_     == rhs.cddb_id_;
-}
-
-
-bool ARId::Impl::operator != (const ARId::Impl& rhs) const
-{
-	return !(*this == rhs);
 }
 
 
@@ -501,14 +490,6 @@ void TOC::update(std::unique_ptr<TOC::Impl> impl)
 }
 
 
-bool TOC::operator == (const TOC &rhs) const
-{
-	return this == &rhs
-		or this->impl_  == rhs.impl_
-		or *this->impl_ == *rhs.impl_;
-}
-
-
 TOC& TOC::operator = (const TOC &rhs)
 {
 	if (this == &rhs)
@@ -523,6 +504,23 @@ TOC& TOC::operator = (const TOC &rhs)
 
 
 TOC& TOC::operator = (TOC &&rhs) noexcept = default;
+
+
+// operators TOC
+
+
+bool operator == (const TOC &lhs, const TOC &rhs) noexcept
+{
+	return &lhs == &rhs
+		or lhs.impl_ == rhs.impl_
+		or lhs.impl_->equals(*rhs.impl_);
+}
+
+
+bool operator != (const TOC &lhs, const TOC &rhs) noexcept
+{
+	return not(lhs == rhs);
+}
 
 
 // ARId
@@ -605,18 +603,6 @@ std::string ARId::to_string() const
 }
 
 
-bool ARId::operator == (const ARId& rhs) const
-{
-	return *this->impl_ == *rhs.impl_;
-}
-
-
-bool ARId::operator != (const ARId& rhs) const
-{
-	return not (*this->impl_ == *rhs.impl_);
-}
-
-
 ARId& ARId::operator = (const ARId &rhs)
 {
 	if (this == &rhs)
@@ -631,6 +617,23 @@ ARId& ARId::operator = (const ARId &rhs)
 
 
 ARId& ARId::operator = (ARId &&rhs) noexcept = default;
+
+
+// operators ARId
+
+
+bool operator == (const ARId &lhs, const ARId &rhs) noexcept
+{
+	return &lhs == &rhs
+		or lhs.impl_ == rhs.impl_
+		or lhs.impl_->equals(*rhs.impl_);
+}
+
+
+bool operator != (const ARId &lhs, const ARId &rhs) noexcept
+{
+	return not(lhs == rhs);
+}
 
 
 // InvalidMetadataException

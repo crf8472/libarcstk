@@ -1789,11 +1789,12 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 TEST_CASE ("MultitrackCalcContext Equality",
 		"[calculate] [calccontext] [multitrack]" )
 {
+	using arcstk::details::MultitrackCalcContext;
 	using arcstk::details::TOCBuilder;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG (with offset(1) > 0)
 
-	auto mctx1 = arcstk::make_context(TOCBuilder::build(
+	auto mctx1 = MultitrackCalcContext(TOCBuilder::build(
 		// track count
 		15,
 		// offsets
@@ -1804,7 +1805,7 @@ TEST_CASE ("MultitrackCalcContext Equality",
 	));
 
 	// same as mctx 1
-	auto mctx2 = arcstk::make_context(TOCBuilder::build(
+	auto mctx2 = MultitrackCalcContext(TOCBuilder::build(
 		// track count
 		15,
 		// offsets
@@ -1815,7 +1816,7 @@ TEST_CASE ("MultitrackCalcContext Equality",
 	));
 
 	// different from mctx 1 and 2
-	auto mctx3 = arcstk::make_context(TOCBuilder::build(
+	auto mctx3 = MultitrackCalcContext(TOCBuilder::build(
 		// track count
 		16,
 		// offsets
@@ -1825,10 +1826,13 @@ TEST_CASE ("MultitrackCalcContext Equality",
 		253038
 	));
 
-	// TODO
-	//CHECK ( *mctx1 == *mctx2 );
-	//CHECK ( *mctx1 != *mctx3 );
-	//CHECK ( *mctx2 != *mctx3 );
+	CHECK ( mctx1 == mctx1 );
+	CHECK ( mctx2 == mctx2 );
+	CHECK ( mctx3 == mctx3 );
+
+	CHECK ( mctx1 == mctx2 );
+	CHECK ( mctx1 != mctx3 );
+	CHECK ( mctx2 != mctx3 );
 }
 
 

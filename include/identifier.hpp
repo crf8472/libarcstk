@@ -166,6 +166,19 @@ extern const CDDA_t CDDA;
  * @{
  */
 
+class ARId; // forward declaration
+
+/**
+ * \brief Returns TRUE iff this ARId holds identical values as \c rhs,
+ * otherwise FALSE.
+ *
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
+ *
+ * \return TRUE iff the right hand side is equal to the left hand side,
+ * otherwise false
+ */
+bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
 
 /**
  * \brief AccurateRip-Identifier of a compact disc.
@@ -184,6 +197,8 @@ class ARId final
 {
 
 public:
+
+	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
 
 	/**
 	 * \brief Construct ARId.
@@ -281,28 +296,6 @@ public:
 	std::string to_string() const;
 
 	/**
-	 * \brief Returns TRUE iff this ARId holds identical values as \c rhs,
-	 * otherwise FALSE.
-	 *
-	 * \param[in] rhs The right hand side of the comparison
-	 *
-	 * \return TRUE iff the right hand side is equal to the left hand side,
-	 * otherwise false
-	 */
-	bool operator == (const ARId& rhs) const;
-
-	/**
-	 * \brief Returns TRUE if this ARId does not holds identical values as
-	 * \c rhs, otherwise FALSE.
-	 *
-	 * \param[in] rhs The right hand side of the comparison
-	 *
-	 * \return TRUE iff the right hand side is not equal to the left hand side,
-	 * otherwise false
-	 */
-	bool operator != (const ARId& rhs) const;
-
-	/**
 	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
@@ -334,6 +327,33 @@ private:
 
 
 /**
+ * \brief Returns TRUE if ARId \c lhs does not hold identical values as
+ * \c rhs, otherwise FALSE.
+ *
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
+ *
+ * \return TRUE iff the right hand side is not equal to the left hand side,
+ * otherwise FALSE
+ */
+bool operator != (const ARId& lhs, const ARId& rhs) noexcept;
+
+
+class TOC; // forward declaration
+
+
+/**
+ * \brief Equality operator
+ *
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
+ *
+ * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
+ */
+bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
+
+
+/**
  * \brief Table of contents of a compact disc.
  *
  * A TOC contains the number of tracks, their offsets and optionally their
@@ -362,6 +382,8 @@ class TOC final
 {
 
 public:
+
+	friend bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
 
 	// Forward declaration for private implementation
 	class Impl;
@@ -497,15 +519,6 @@ public:
 	 */
 	TOC& operator = (TOC &&rhs) noexcept;
 
-	/**
-	 * Equality operator
-	 *
-	 * \param[in] rhs The right hand side of the comparison
-	 *
-	 * \return The right hand side of the comparison
-	 */
-	bool operator == (const TOC &rhs) const; // TODO free function
-
 
 private:
 
@@ -514,6 +527,17 @@ private:
 	 */
 	std::unique_ptr<TOC::Impl> impl_;
 };
+
+
+/**
+ * \brief Inequality operator
+ *
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
+ *
+ * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
+ */
+bool operator != (const TOC &lhs, const TOC &rhs) noexcept;
 
 
 /**
