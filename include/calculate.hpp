@@ -281,7 +281,19 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 } // namespace details
 
 
+/**
+ * \internal
+ * \brief Defined iff \c Iterator is an iterator over \c sample_type.
+ *
+ * \tparam Iterator Iterator type to test
+ */
+template<typename Iterator>
+using IsSampleIterator = std::enable_if_t<
+		details::is_iterator_over<Iterator, sample_type>::value>;
+
+
 class PCMForwardIterator; // forward declaration
+
 
 
 /**
@@ -293,6 +305,18 @@ class PCMForwardIterator; // forward declaration
  * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
  */
 bool operator == (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
+	noexcept;
+
+
+/**
+ * \brief Advance the iterator by a non-negative amount.
+ *
+ * \param[in] lhs    The iterator to add to
+ * \param[in] amount A non-negative amount to advance the iterator
+ *
+ * \return Iterator pointing to the position advanced by \c amount
+ */
+PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
 	noexcept;
 
 
@@ -309,6 +333,9 @@ public:
 
 	friend bool operator == (const PCMForwardIterator &lhs,
 			const PCMForwardIterator &rhs) noexcept;
+
+	friend PCMForwardIterator operator + (PCMForwardIterator lhs,
+			const uint32_t amount) noexcept;
 
 	/**
 	 * \brief Iterator category is ForwardIterator.
@@ -482,11 +509,7 @@ public:
 	 *
 	 * \param[in] i Instance of an iterator over \c sample_type
 	 */
-	template <class Iterator,
-			typename = std::enable_if_t<
-				details::is_iterator_over<Iterator, sample_type>::value
-			>
-	>
+	template <class Iterator, typename = IsSampleIterator<Iterator> >
 	PCMForwardIterator(const Iterator &i)
 		: object_(std::make_unique<Model<Iterator>>(std::move(i)))
 	{
@@ -528,16 +551,6 @@ public:
 	 */
 	PCMForwardIterator operator ++ (int); // required by ForwardIterator
 
-	/// \todo Make PCMForwardIterator::+ a free function
-	/**
-	 * \brief Advance the iterator by a non-negative amount.
-	 *
-	 * \param[in] amount A non-negative amount to advance the iterator
-	 *
-	 * \return Iterator pointing to the position advanced by \c amount
-	 */
-	PCMForwardIterator operator + (const uint32_t amount) const;
-
 
 private:
 
@@ -557,6 +570,18 @@ private:
  * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
  */
 bool operator != (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
+	noexcept;
+
+
+/**
+ * \brief Advance the iterator by a non-negative amount.
+ *
+ * \param[in] amount A non-negative amount to advance the iterator
+ * \param[in] rhs    The iterator to add to
+ *
+ * \return Iterator pointing to the position advanced by \c amount
+ */
+PCMForwardIterator operator + (const uint32_t amount, PCMForwardIterator rhs)
 	noexcept;
 
 
@@ -1443,15 +1468,6 @@ inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
 }
 
 
-inline PCMForwardIterator PCMForwardIterator::operator + (const uint32_t amount)
-	const
-{
-	PCMForwardIterator it(*this);
-	it.object_->advance(amount);
-	return it;
-}
-
-
 // operators PCMForwardIterator
 
 
@@ -1466,6 +1482,21 @@ inline bool operator != (const PCMForwardIterator &lhs,
 		const PCMForwardIterator &rhs) noexcept
 {
 	return not(lhs == rhs);
+}
+
+
+inline PCMForwardIterator operator + (PCMForwardIterator lhs,
+		const uint32_t amount) noexcept
+{
+	lhs.object_->advance(amount);
+	return lhs;
+}
+
+
+inline PCMForwardIterator operator + (const uint32_t amount,
+		PCMForwardIterator rhs) noexcept
+{
+	return rhs + amount;
 }
 
 } // namespace v_1_0_0
