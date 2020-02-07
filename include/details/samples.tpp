@@ -102,25 +102,6 @@ public:
 	SampleIterator operator -- (int);
 
 	/**
-	 * \brief Add amount.
-	 */
-	SampleIterator operator + (const uint32_t value);
-
-	/**
-	 * \brief Subtract amount.
-	 */
-	SampleIterator operator - (const uint32_t value);
-
-	/**
-	 * \brief Subtract position.
-	 */
-	friend difference_type operator - (const SampleIterator &lhs,
-			const SampleIterator &rhs)
-	{
-		return lhs.pos_ - rhs.pos_;
-	}
-
-	/**
 	 * \brief Add-assign amount.
 	 */
 	SampleIterator& operator += (const uint32_t value);
@@ -135,6 +116,69 @@ public:
 	 */
 	uint32_t operator [] (const uint32_t index) const;
 
+	// Binary non-assignment operators are friends:
+	// 1.) Makes the operator a non-member to the class. (Makes type
+	// conversion for normal non-member + non-template functions work.)
+	// 2.) Makes operator invisible to normal lookup, it is only found by ADL.
+
+	/**
+	 * \brief Add amount.
+	 *
+	 * \param[in] lhs   Iterator to add amount
+	 * \param[in] value Amount to add
+	 *
+	 * \return Result of \c lhs + \c value
+	 */
+	friend SampleIterator operator + (SampleIterator lhs, const uint32_t value)
+		noexcept
+	{
+		lhs.pos_ += value;
+		return lhs;
+	}
+
+	/**
+	 * \brief Add amount.
+	 *
+	 * \param[in] value Amount to add
+	 * \param[in] rhs   Iterator to add amount
+	 *
+	 * \return Result of \c value + \c rhs
+	 */
+	friend SampleIterator operator + (const uint32_t value, SampleIterator rhs)
+		noexcept
+	{
+		return rhs + value;
+	}
+
+	/**
+	 * \brief Subtract amount.
+	 *
+	 * \param[in] lhs   Iterator to subtract amount from
+	 * \param[in] value Amount to subtract
+	 *
+	 * \return Result of \c lhs - \c value
+	 */
+	friend SampleIterator operator - (SampleIterator lhs, const uint32_t value)
+		noexcept
+	{
+		lhs.pos_ -= value;
+		return lhs;
+	}
+
+	/**
+	 * \brief Subtract position.
+	 *
+	 * \param[in] lhs Iterator to subtract from
+	 * \param[in] rhs Iterator to be subtracted
+	 *
+	 * \return Arithmetical difference between \c lhs and \c rhs
+	 */
+	friend difference_type operator - (const SampleIterator &lhs,
+			const SampleIterator &rhs) noexcept
+	{
+		return lhs.pos_ - rhs.pos_;
+	}
+
 	/**
 	 * \brief Equality.
 	 *
@@ -144,7 +188,7 @@ public:
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
 	friend bool operator == (const SampleIterator &lhs,
-			const SampleIterator &rhs) /* const */
+			const SampleIterator &rhs) noexcept
 	{
 		return lhs.seq_ == rhs.seq_ and lhs.pos_ == rhs.pos_;
 	}
@@ -158,7 +202,7 @@ public:
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
 	friend bool operator != (const SampleIterator &lhs,
-			const SampleIterator &rhs) /* const */
+			const SampleIterator &rhs) noexcept
 	{
 		return not(lhs == rhs);
 	}
@@ -256,22 +300,6 @@ auto SampleIterator<T, is_planar, is_const>::operator -- (int)
 	SampleIterator prev_val(*this);
 	this->operator--();
 	return prev_val;
-}
-
-
-template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator + (const uint32_t value)
-	-> SampleIterator<T, is_planar, is_const>
-{
-	return SampleIterator(*seq_, pos_ + value);
-}
-
-
-template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator - (const uint32_t value)
-	-> SampleIterator<T, is_planar, is_const>
-{
-	return SampleIterator(*seq_, pos_ - value);
 }
 
 
@@ -493,7 +521,8 @@ auto SampleSequenceImplBase<T, is_planar>::size() const
 
 
 template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::set_size(const SampleSequenceImplBase<T, is_planar>::size_type size)
+void SampleSequenceImplBase<T, is_planar>::set_size(
+		const SampleSequenceImplBase<T, is_planar>::size_type size)
 {
 	size_ = size;
 }
@@ -513,16 +542,16 @@ uint32_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
 
 
 template<typename T, bool is_planar>
-int SampleSequenceImplBase<T, is_planar>::out_of_range(const SampleSequenceImplBase<T, is_planar>::size_type index)
-	const
+int SampleSequenceImplBase<T, is_planar>::out_of_range(
+		const SampleSequenceImplBase<T, is_planar>::size_type index) const
 {
 	return index > this->size() ? this->size() - 1 - index : 0;
 }
 
 
 template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::bounds_check(const SampleSequenceImplBase<T, is_planar>::size_type index)
-	const
+void SampleSequenceImplBase<T, is_planar>::bounds_check(
+		const SampleSequenceImplBase<T, is_planar>::size_type index) const
 {
 	if (this->out_of_range(index))
 	{

@@ -171,20 +171,6 @@ bool ChecksumMap<K>::empty() const
 }
 
 
-template <typename K>
-bool ChecksumMap<K>::operator == (const ChecksumMap<K> &rhs) const
-{
-	return this->map_ == rhs.map_;
-}
-
-
-template <typename K>
-bool ChecksumMap<K>::operator != (const ChecksumMap<K> &rhs) const
-{
-	return not (*this == rhs);
-}
-
-
 // ChecksumMap : Modifiers
 
 

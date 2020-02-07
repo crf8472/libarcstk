@@ -99,6 +99,20 @@ namespace checksum
 } // namespace checksum
 
 
+class Checksum; // forward declaration for operator ==
+
+
+/**
+ * \brief Equality.
+ *
+ * \param[in] lhs The left hand side instance to check for equality
+ * \param[in] rhs The right hand side instance to check for equality
+ *
+ * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
+ */
+bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
+
+
 /**
  * \brief A 32-bit wide checksum for a single file or track.
  */
@@ -106,6 +120,8 @@ class Checksum final
 {
 
 public:
+
+	friend bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -146,24 +162,6 @@ public:
 	 */
 	bool empty() const;
 
-	/**
-	 * \brief Equality.
-	 *
-	 * \param[in] rhs The instance to check for equality
-	 *
-	 * \return TRUE if \c rhs is equal to this instance, otherwise FALSE
-	 */
-	bool operator == (const Checksum &rhs) const;
-
-	/**
-	 * \brief Inequality.
-	 *
-	 * \param[in] rhs The instance to check for inequality
-	 *
-	 * \return TRUE if \c rhs is not equal to this instance, otherwise FALSE
-	 */
-	bool operator != (const Checksum &rhs) const;
-
 	//Checksum& operator = (const Checksum &rhs);
 
 	//Checksum& operator = (Checksum &&rhs) noexcept;
@@ -176,6 +174,17 @@ private:
 	 */
 	uint32_t value_;
 };
+
+
+/**
+ * \brief Inequality.
+ *
+ * \param[in] lhs The left hand side instance to check for inequality
+ * \param[in] rhs The right hand side instance to check for inequality
+ *
+ * \return TRUE if \c lhs is not equal to \c rhs, otherwise FALSE
+ */
+bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept;
 
 
 /**
@@ -457,10 +466,10 @@ public: /* methods */
 	size_type size() const;
 
 	/**
-	 * \brief Returns TRUE iff the instance contains no elements, i.e. iff
-	 * <tt>size() == 0</tt>, otherwise FALSE.
+	 * \brief Returns TRUE iff the instance contains no elements, otherwise
+	 * FALSE.
 	 *
-	 * \return TRUE iff <tt>size() == 0</tt>, otherwise FALSE
+	 * \return TRUE iff instance contains no elements, otherwise FALSE
 	 */
 	bool empty() const;
 
@@ -474,20 +483,30 @@ public: /* methods */
 	/**
 	 * \brief Equality.
 	 *
-	 * \param[in] rhs The instance to check for equality
+	 * \param[in] lhs The left hand side instance to check for equality
+	 * \param[in] rhs The right hand side instance to check for equality
 	 *
-	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+	 * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
 	 */
-	bool operator == (const ChecksumMap<K> &rhs) const;
+	friend bool operator == (const ChecksumMap &lhs,
+			const ChecksumMap &rhs) noexcept
+	{
+		return lhs.map_ == rhs.map_;
+	}
 
 	/**
 	 * \brief Inequality.
 	 *
+	 * \param[in] lhs The instance to check for equality
 	 * \param[in] rhs The instance to check for inequality
 	 *
-	 * \return TRUE if \c rhs is not equal to the instance, otherwise FALSE
+	 * \return TRUE if \c lhs is not equal to \c rhs, otherwise FALSE
 	 */
-	bool operator != (const ChecksumMap<K> &rhs) const;
+	friend bool operator != (const ChecksumMap &lhs,
+			const ChecksumMap &rhs) noexcept
+	{
+		return not(lhs == rhs);
+	}
 
 
 // Modify
@@ -570,7 +589,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator= (const ChecksumMap<K> &rhs);
+	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs);
 
 	/**
 	 * \brief Move assignment.
@@ -579,7 +598,7 @@ public: /* methods */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator= (ChecksumMap<K> &&rhs) noexcept;
+	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept;
 
 
 private: // TODO Hide this!

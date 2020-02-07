@@ -48,24 +48,27 @@ bool Checksum::empty() const
 }
 
 
-bool Checksum::operator == (const Checksum &rhs) const
-{
-	return (value_ == rhs.value_);
-}
-
-
-bool Checksum::operator != (const Checksum &rhs) const
-{
-	return not (*this == rhs);
-}
-
-
 //Checksum& Checksum::operator = (const Checksum &rhs)
 //= default;
 
 
 //Checksum& Checksum::operator = (Checksum &&rhs) noexcept
 //= default;
+
+
+// Checksum operators
+
+
+bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
+{
+	return lhs.value_ == rhs.value_;
+}
+
+
+bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept
+{
+	return not(lhs == rhs);
+}
 
 
 /// \internal \addtogroup calcImpl
