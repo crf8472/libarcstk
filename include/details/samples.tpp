@@ -104,12 +104,12 @@ public:
 	/**
 	 * \brief Add-assign amount.
 	 */
-	SampleIterator& operator += (const uint32_t value);
+	SampleIterator& operator += (const difference_type value);
 
 	/**
 	 * \brief Subtract-assign amount.
 	 */
-	SampleIterator& operator -= (const uint32_t value);
+	SampleIterator& operator -= (const difference_type value);
 
 	/**
 	 * \brief Subscript operator.
@@ -120,7 +120,7 @@ public:
 	 *
 	 * \return Sample at position \c index
 	 */
-	uint32_t operator [] (const uint32_t index) const;
+	value_type operator [] (const difference_type index) const;
 
 	// Binary non-assignment operators are friends:
 	// 1.) Makes the operator a non-member to the class. (Makes type
@@ -135,8 +135,8 @@ public:
 	 *
 	 * \return Result of \c lhs + \c value
 	 */
-	friend SampleIterator operator + (SampleIterator lhs, const uint32_t value)
-		noexcept
+	friend SampleIterator operator + (SampleIterator lhs,
+			const difference_type value) noexcept
 	{
 		lhs.pos_ += value;
 		return lhs;
@@ -150,8 +150,8 @@ public:
 	 *
 	 * \return Result of \c value + \c rhs
 	 */
-	friend SampleIterator operator + (const uint32_t value, SampleIterator rhs)
-		noexcept
+	friend SampleIterator operator + (const difference_type value,
+			SampleIterator rhs) noexcept
 	{
 		return rhs + value;
 	}
@@ -164,8 +164,8 @@ public:
 	 *
 	 * \return Result of \c lhs - \c value
 	 */
-	friend SampleIterator operator - (SampleIterator lhs, const uint32_t value)
-		noexcept
+	friend SampleIterator operator - (SampleIterator lhs,
+			const difference_type value) noexcept
 	{
 		lhs.pos_ -= value;
 		return lhs;
@@ -284,7 +284,8 @@ private:
 	 * \param[in] seq SampleSequence to iterate
 	 * \param[in] pos Start index
 	 */
-	SampleIterator(const SampleSequence<T, is_planar> &seq, const uint32_t pos);
+	SampleIterator(const SampleSequence<T, is_planar> &seq, const
+			difference_type pos);
 
 	/**
 	 * \brief The SampleSequence to iterate.
@@ -294,7 +295,7 @@ private:
 	/**
 	 * \brief Current index position.
 	 */
-	uint32_t pos_;
+	difference_type pos_;
 };
 
 
@@ -303,7 +304,7 @@ private:
 
 template <typename T, bool is_planar, bool is_const>
 SampleIterator<T, is_planar, is_const>::SampleIterator(
-		const SampleSequence<T, is_planar> &seq, const uint32_t pos)
+		const SampleSequence<T, is_planar> &seq, const difference_type pos)
 	: seq_(&seq)
 	, pos_(pos)
 {
@@ -326,7 +327,8 @@ template <typename T, bool is_planar, bool is_const>
 typename SampleIterator<T, is_planar, is_const>::value_type
 	SampleIterator<T, is_planar, is_const>::operator * () const
 {
-	return seq_->operator[](pos_);
+	return seq_->operator[](static_cast<
+		typename SampleSequence<T, is_planar>::size_type>(pos_));
 }
 
 
@@ -369,8 +371,8 @@ auto SampleIterator<T, is_planar, is_const>::operator -- (int)
 
 
 template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator += (const uint32_t value)
-	-> SampleIterator<T, is_planar, is_const>&
+auto SampleIterator<T, is_planar, is_const>::operator +=
+	(const difference_type value) -> SampleIterator<T, is_planar, is_const>&
 {
 	pos_ += value;
 	return *this;
@@ -378,8 +380,8 @@ auto SampleIterator<T, is_planar, is_const>::operator += (const uint32_t value)
 
 
 template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator -= (const uint32_t value)
-	-> SampleIterator<T, is_planar, is_const>&
+auto SampleIterator<T, is_planar, is_const>::operator -=
+	(const difference_type value) -> SampleIterator<T, is_planar, is_const>&
 {
 	pos_ -= value;
 	return *this;
@@ -388,7 +390,7 @@ auto SampleIterator<T, is_planar, is_const>::operator -= (const uint32_t value)
 
 template <typename T, bool is_planar, bool is_const>
 uint32_t SampleIterator<T, is_planar, is_const>::operator [] (
-		const uint32_t index) const
+		const difference_type index) const
 {
 	return seq_->operator[](index);
 }
@@ -557,7 +559,10 @@ template<typename T, bool is_planar>
 auto SampleSequenceImplBase<T, is_planar>::end()
 		-> SampleSequenceImplBase<T, is_planar>::iterator
 {
-	return SampleIterator<T, is_planar, false>(*this->sequence(), this->size());
+	return SampleIterator<T, is_planar, false>(*this->sequence(),
+			static_cast<
+				typename SampleIterator<T, is_planar, false>::difference_type
+			>(this->size()));
 }
 
 
