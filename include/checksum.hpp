@@ -148,7 +148,7 @@ public:
 	 *
 	 * \return Numeric value of the checksum
 	 */
-	uint32_t value() const;
+	uint32_t value() const noexcept;
 
 	/**
 	 * \brief Return TRUE iff this Checksum is empty, otherwise FALSE.
@@ -160,11 +160,13 @@ public:
 	 *
 	 * \return Return TRUE iff this Checksum is empty, otherwise FALSE.
 	 */
-	bool empty() const;
+	bool empty() const noexcept;
 
 	//Checksum& operator = (const Checksum &rhs);
 
 	//Checksum& operator = (Checksum &&rhs) noexcept;
+
+	Checksum& operator = (const uint32_t rhs);
 
 
 private:
@@ -311,7 +313,7 @@ public: /* methods */
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
 	friend bool operator == (const ChecksumMapIterator &lhs,
-			const ChecksumMapIterator &rhs) /* const */
+			const ChecksumMapIterator &rhs)
 	{
 		return lhs.it_ == rhs.it_;
 	}
@@ -325,7 +327,7 @@ public: /* methods */
 	 * \return TRUE if lhs equals rhs, otherwise FALSE
 	 */
 	friend bool operator != (const ChecksumMapIterator &lhs,
-			const ChecksumMapIterator &rhs) /* const */
+			const ChecksumMapIterator &rhs)
 	{
 		return not(lhs == rhs);
 	}

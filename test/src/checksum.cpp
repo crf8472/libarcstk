@@ -27,6 +27,37 @@ TEST_CASE ( "checksum::type_name provides correct names",
 }
 
 
+// Checksum
+
+
+TEST_CASE ( "Checksum", "[checksum]" )
+{
+	using arcstk::Checksum;
+
+	Checksum track01 { 0xB89992E5 };
+	Checksum track02 { 0x98B10E0F };
+
+	CHECK ( track01.value() == 0xB89992E5 );
+	CHECK ( track02.value() == 0x98B10E0F );
+	CHECK ( track01 != track02 );
+
+
+	SECTION ( "copy assignment" )
+	{
+		track01 = track02;
+
+		CHECK ( track01.value() == 0x98B10E0F );
+	}
+
+	SECTION ( "move assignment" )
+	{
+		track01 = Checksum { 0x98B10E0F };
+
+		CHECK ( track01.value() == 0x98B10E0F );
+	}
+}
+
+
 // ChecksumList
 
 

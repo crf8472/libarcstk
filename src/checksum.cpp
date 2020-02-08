@@ -36,24 +36,23 @@ Checksum::Checksum(const uint32_t value)
 }
 
 
-uint32_t Checksum::value() const
+uint32_t Checksum::value() const noexcept
 {
 	return value_;
 }
 
 
-bool Checksum::empty() const
+bool Checksum::empty() const noexcept
 {
 	return 0 == value_;
 }
 
 
-//Checksum& Checksum::operator = (const Checksum &rhs)
-//= default;
-
-
-//Checksum& Checksum::operator = (Checksum &&rhs) noexcept
-//= default;
+Checksum& Checksum::operator = (const uint32_t rhs)
+{
+	value_ = rhs;
+	return *this;
+}
 
 
 // Checksum operators
