@@ -45,7 +45,12 @@ template <typename T, bool is_planar = true>
 class SampleSequence final
 {
 
-public:
+public: /* types */
+
+	using size_type = std::size_t;
+
+
+public: /* functions */
 
 	SampleSequence() = default;
 
@@ -89,7 +94,7 @@ public:
 	 * \param[in] size  Number of 16bit samples of genuine format in each buffer
 	 */
 	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
-			const uint32_t &size);
+			const size_type size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -103,7 +108,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const uint32_t index) const;
+	uint32_t operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
@@ -121,7 +126,7 @@ public:
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const uint32_t index) const;
+	uint32_t at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence
@@ -130,7 +135,7 @@ public:
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void reset(const T* buffer0, const T* buffer1, const uint32_t &size);
+	void reset(const T* buffer0, const T* buffer1, const size_type size);
 };
 
 /** @} */

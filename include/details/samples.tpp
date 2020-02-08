@@ -62,10 +62,10 @@ public:
 	using difference_type   = int64_t;
 
 	using pointer           = typename std::conditional<is_const,
-			const uint32_t*, uint32_t*>::type;
+			const value_type*, value_type*>::type;
 
 	using reference         = typename std::conditional<is_const,
-			const uint32_t&, uint32_t&>::type;
+			const value_type&, value_type&>::type;
 
 	/**
 	 * \brief Construct const_iterator from iterator.
@@ -599,7 +599,7 @@ public: /* methods */
 	 * \param[in] size    Number of bytes per buffer
 	 */
 	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
-			const size_type &size);
+			const size_type size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -640,7 +640,7 @@ public: /* methods */
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void reset(const T* buffer0, const T* buffer1, const size_type &size);
+	void reset(const T* buffer0, const T* buffer1, const size_type size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -649,7 +649,7 @@ public: /* methods */
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	std::size_t typesize() const;
+	size_type typesize() const;
 
 
 protected:
@@ -688,8 +688,7 @@ SampleSequence<T, true>::SampleSequence(bool left0_right1)
 
 template <typename T>
 void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
-		const uint8_t * buffer1,
-		const typename SampleSequence<T, true>::size_type &size)
+		const uint8_t * buffer1, const size_type size)
 {
 	buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
 	buffer_[right_] = reinterpret_cast<const T *>(buffer1),
@@ -699,7 +698,7 @@ void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
 
 template <typename T>
 void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
-		const typename SampleSequence<T, true>::size_type &size)
+		const size_type size)
 {
 	buffer_[left_ ] = buffer0;
 	buffer_[right_] = buffer1;
@@ -709,7 +708,7 @@ void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
 
 template <typename T>
 uint32_t SampleSequence<T, true>::operator [] (
-		const typename SampleSequence<T, true>::size_type index) const
+		const size_type index) const
 {
 	return this->combine(buffer_[right_][index], buffer_[left_][index]);
 	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
@@ -720,8 +719,7 @@ uint32_t SampleSequence<T, true>::operator [] (
 
 
 template <typename T>
-uint32_t SampleSequence<T, true>::at(
-		const  typename SampleSequence<T, true>::size_type index) const
+uint32_t SampleSequence<T, true>::at(const size_type index) const
 {
 	this->bounds_check(index);
 	return this->operator[](index);
@@ -729,7 +727,8 @@ uint32_t SampleSequence<T, true>::at(
 
 
 template <typename T>
-std::size_t SampleSequence<T, true>::typesize() const
+auto SampleSequence<T, true>::typesize() const
+	-> typename SampleSequence<T, true>::size_type
 {
 	return sizeof(T);
 }
@@ -777,7 +776,7 @@ public:
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
 	 */
-	void wrap(const uint8_t *buffer, const size_type &size);
+	void wrap(const uint8_t *buffer, const size_type size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -817,7 +816,7 @@ public:
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer
 	 */
-	void reset(const T* buffer, const size_type &size);
+	void reset(const T* buffer, const size_type size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -826,7 +825,7 @@ public:
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	std::size_t typesize() const;
+	size_type typesize() const;
 
 
 protected:
@@ -865,7 +864,7 @@ SampleSequence<T, false>::SampleSequence(bool left0_right1)
 
 template <typename T>
 void SampleSequence<T, false>::wrap(const uint8_t * buffer,
-		const typename SampleSequence<T, false>::size_type &size)
+		const size_type size)
 {
 	buffer_ = reinterpret_cast<const T*>(buffer),
 	this->set_size((size * sizeof(uint8_t) / 2 /* channels */ ) / sizeof(T));
@@ -873,8 +872,7 @@ void SampleSequence<T, false>::wrap(const uint8_t * buffer,
 
 
 template <typename T>
-void SampleSequence<T, false>::reset(const T* buffer0,
-		const typename SampleSequence<T, false>::size_type &size)
+void SampleSequence<T, false>::reset(const T* buffer0, const size_type size)
 {
 	buffer_ = buffer0;
 	this->set_size(size / 2 /* channels */);
@@ -882,8 +880,7 @@ void SampleSequence<T, false>::reset(const T* buffer0,
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::operator [] (
-		const typename SampleSequence<T, false>::size_type index) const
+uint32_t SampleSequence<T, false>::operator [] (const size_type index) const
 {
 	return this->combine(buffer_[2 * index + right_],
 			buffer_[2 * index + left_]);
@@ -895,8 +892,7 @@ uint32_t SampleSequence<T, false>::operator [] (
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::at(
-		const typename SampleSequence<T, false>::size_type index) const
+uint32_t SampleSequence<T, false>::at(const size_type index) const
 {
 	this->bounds_check(index);
 	return this->operator[](index);
@@ -904,7 +900,8 @@ uint32_t SampleSequence<T, false>::at(
 
 
 template <typename T>
-std::size_t SampleSequence<T, false>::typesize() const
+auto SampleSequence<T, false>::typesize() const
+	-> typename SampleSequence<T, false>::size_type
 {
 	return sizeof(T);
 }
