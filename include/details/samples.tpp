@@ -390,8 +390,9 @@ auto SampleIterator<T, is_planar, is_const>::operator -=
 
 
 template <typename T, bool is_planar, bool is_const>
-uint32_t SampleIterator<T, is_planar, is_const>::operator [] (
+auto SampleIterator<T, is_planar, is_const>::operator [] (
 		const difference_type index) const
+			-> SampleIterator<T, is_planar, is_const>::value_type
 {
 	return seq_->operator[](index);
 }
@@ -420,11 +421,13 @@ class SampleSequenceImplBase
 
 public: /* types */
 
+	using value_type = uint32_t;
+
+	using size_type = std::size_t;
+
 	using iterator = SampleIterator<T, is_planar, false>;
 
 	using const_iterator = SampleIterator<T, is_planar, true>;
-
-	using size_type = std::size_t;
 
 
 public: /* methods */
@@ -646,7 +649,13 @@ class SampleSequence<T, true> : public SampleSequenceImplBase<T, true>
 {
 public: /* types */
 
+	using typename SampleSequenceImplBase<T, true>::value_type;
+
 	using typename SampleSequenceImplBase<T, true>::size_type;
+
+	using typename SampleSequenceImplBase<T, true>::iterator;
+
+	using typename SampleSequenceImplBase<T, true>::const_iterator;
 
 
 public: /* methods */
@@ -684,7 +693,7 @@ public: /* methods */
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const size_type index) const;
+	value_type operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -702,7 +711,7 @@ public: /* methods */
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const size_type index) const;
+	value_type at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -778,8 +787,9 @@ void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
 
 
 template <typename T>
-uint32_t SampleSequence<T, true>::operator [] (
+auto SampleSequence<T, true>::operator [] (
 		const size_type index) const
+			-> SampleSequence<T, true>::value_type
 {
 	return this->combine(buffer_[right_][index], buffer_[left_][index]);
 	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
@@ -790,7 +800,8 @@ uint32_t SampleSequence<T, true>::operator [] (
 
 
 template <typename T>
-uint32_t SampleSequence<T, true>::at(const size_type index) const
+auto SampleSequence<T, true>::at(const size_type index) const
+			-> SampleSequence<T, true>::value_type
 {
 	this->bounds_check(index);
 	return this->operator[](index);
@@ -825,7 +836,13 @@ class SampleSequence<T, false> : public SampleSequenceImplBase<T, false>
 {
 public: /* types */
 
+	using typename SampleSequenceImplBase<T, false>::value_type;
+
 	using typename SampleSequenceImplBase<T, false>::size_type;
+
+	using typename SampleSequenceImplBase<T, false>::iterator;
+
+	using typename SampleSequenceImplBase<T, false>::const_iterator;
 
 
 public:
@@ -861,7 +878,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const size_type index) const;
+	value_type operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -879,7 +896,7 @@ public:
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const size_type index) const;
+	value_type at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffer into this sample sequence.
@@ -951,7 +968,8 @@ void SampleSequence<T, false>::reset(const T* buffer0, const size_type size)
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::operator [] (const size_type index) const
+auto SampleSequence<T, false>::operator [] (const size_type index) const
+		-> SampleSequence<T, false>::value_type
 {
 	return this->combine(buffer_[2 * index + right_],
 			buffer_[2 * index + left_]);
@@ -963,7 +981,8 @@ uint32_t SampleSequence<T, false>::operator [] (const size_type index) const
 
 
 template <typename T>
-uint32_t SampleSequence<T, false>::at(const size_type index) const
+auto SampleSequence<T, false>::at(const size_type index) const
+		-> SampleSequence<T, false>::value_type
 {
 	this->bounds_check(index);
 	return this->operator[](index);
@@ -972,7 +991,7 @@ uint32_t SampleSequence<T, false>::at(const size_type index) const
 
 template <typename T>
 auto SampleSequence<T, false>::typesize() const
-	-> typename SampleSequence<T, false>::size_type
+	-> SampleSequence<T, false>::size_type
 {
 	return sizeof(T);
 }

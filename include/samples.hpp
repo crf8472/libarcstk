@@ -47,7 +47,16 @@ class SampleSequence final
 
 public: /* types */
 
+	/**
+	 * \brief Unsigned integer of at least 32 bit size.
+	 */
+	using value_type = uint32_t;
+
 	using size_type = std::size_t;
+
+	using iterator = SampleIterator<T, is_planar, false>;
+
+	using const_iterator = SampleIterator<T, is_planar, true>;
 
 
 public: /* functions */
@@ -108,7 +117,7 @@ public: /* functions */
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	uint32_t operator [] (const size_type index) const;
+	value_type operator [] (const size_type index) const;
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM)
@@ -126,7 +135,7 @@ public: /* functions */
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	uint32_t at(const size_type index) const;
+	value_type at(const size_type index) const;
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence
