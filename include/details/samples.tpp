@@ -113,6 +113,12 @@ public:
 
 	/**
 	 * \brief Subscript operator.
+	 *
+	 * Access position \c index without bounds check.
+	 *
+	 * \param[in] index Index position to access
+	 *
+	 * \return Sample at position \c index
 	 */
 	uint32_t operator [] (const uint32_t index) const;
 
@@ -205,6 +211,65 @@ public:
 			const SampleIterator &rhs) noexcept
 	{
 		return not(lhs == rhs);
+	}
+
+	/**
+	 * \brief Less: TRUE if the position of lhs is less than that of rhs.
+	 *
+	 * \param[in] lhs Left hand side of the operation
+	 * \param[in] rhs Right hand side of the operation
+	 *
+	 * \return TRUE if lhs is less than rhs, otherwise FALSE
+	 */
+	friend bool operator < (const SampleIterator &lhs,
+			const SampleIterator &rhs) noexcept
+	{
+		return lhs.pos_ < rhs.pos_;
+	}
+
+	/**
+	 * \brief Greater: TRUE if the position of lhs is greater than that of
+	 * rhs.
+	 *
+	 * \param[in] lhs Left hand side of the operation
+	 * \param[in] rhs Right hand side of the operation
+	 *
+	 * \return TRUE if lhs is greater than rhs, otherwise FALSE
+	 */
+	friend bool operator > (const SampleIterator &lhs,
+			const SampleIterator &rhs) noexcept
+	{
+		return rhs < lhs;
+	}
+
+	/**
+	 * \brief Less or equal: TRUE if the position of lhs is less or equal
+	 * than that of rhs.
+	 *
+	 * \param[in] lhs Left hand side of the operation
+	 * \param[in] rhs Right hand side of the operation
+	 *
+	 * \return TRUE if lhs is less than rhs, otherwise FALSE
+	 */
+	friend bool operator <= (const SampleIterator &lhs,
+			const SampleIterator &rhs) noexcept
+	{
+		return not(lhs > rhs);
+	}
+
+	/**
+	 * \brief Greater or equal: TRUE if the position of lhs is greater than that
+	 * of rhs.
+	 *
+	 * \param[in] lhs Left hand side of the operation
+	 * \param[in] rhs Right hand side of the operation
+	 *
+	 * \return TRUE if lhs is greater than rhs, otherwise FALSE
+	 */
+	friend bool operator >= (const SampleIterator &lhs,
+			const SampleIterator &rhs) noexcept
+	{
+		return not(lhs < lhs);
 	}
 
 
