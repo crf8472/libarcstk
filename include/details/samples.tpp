@@ -60,6 +60,7 @@ public:
 	using value_type        = uint32_t;
 
 	using difference_type   = int64_t;
+	// Must be at least as wide as SampleSequence::size_type
 
 	using pointer           = typename std::conditional<is_const,
 			const value_type*, value_type*>::type;
