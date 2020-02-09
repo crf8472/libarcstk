@@ -92,7 +92,7 @@ public:
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
-	explicit Impl(const uint32_t length);
+	explicit Impl(const int64_t length);
 
 	/**
 	 * \brief Copy constructor
@@ -106,7 +106,7 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	uint32_t length() const;
+	int64_t length() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
@@ -123,12 +123,12 @@ private:
 	/**
 	 * \brief Internal representation of the length (in frames)
 	 */
-	uint32_t length_;
+	int64_t length_;
 };
 
 /** @} */
 
-ChecksumSet::Impl::Impl(const uint32_t length)
+ChecksumSet::Impl::Impl(const int64_t length)
 	: length_(length)
 {
 	// empty
@@ -142,7 +142,7 @@ ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
 }
 
 
-uint32_t ChecksumSet::Impl::length() const
+int64_t ChecksumSet::Impl::length() const noexcept
 {
 	return length_;
 }
@@ -162,7 +162,7 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(const uint32_t length)
+ChecksumSet::ChecksumSet(const int64_t length)
 	: impl_(std::make_unique<ChecksumSet::Impl>(length))
 {
 	// empty
@@ -183,7 +183,7 @@ ChecksumSet::~ChecksumSet() noexcept = default;
 ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
 
 
-uint32_t ChecksumSet::length() const
+int64_t ChecksumSet::length() const noexcept
 {
 	return impl_->length();
 }

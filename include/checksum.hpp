@@ -205,7 +205,7 @@ bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept;
 
 
 #ifndef __LIBARCSTK_CHECKSUM_TPP__
-#include "details/checksum.tpp"  // provides ChecksumMap<> + its iterator
+#include "details/checksum.tpp"
 #endif
 
 
@@ -241,7 +241,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(const uint32_t length);
+	explicit ChecksumSet(const int64_t length);
 
 	/**
 	 * \brief Default destructor
@@ -253,7 +253,7 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	uint32_t length() const;
+	int64_t length() const noexcept;
 
 	/**
 	 * \brief Return the \ref Checksum for the specified \c type

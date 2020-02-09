@@ -156,6 +156,54 @@ private:
 	WrappedIteratorType it_;
 };
 
+
+// ChecksumMapIterator
+
+
+template <typename K, bool is_const>
+ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
+		const WrappedIteratorType &it)
+	: it_(it)
+{
+	// empty
+}
+
+
+template <typename K, bool is_const>
+ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
+		const ChecksumMapIterator<K, false> &rhs)
+	: it_(rhs.it_)
+{
+	// empty
+}
+
+
+template <typename K, bool is_const>
+typename ChecksumMapIterator<K, is_const>::reference
+	ChecksumMapIterator<K, is_const>::operator * ()
+{
+	return (*it_).second;
+}
+
+
+template <typename K, bool is_const>
+ChecksumMapIterator<K, is_const>&
+	ChecksumMapIterator<K, is_const>::operator ++ ()
+{
+	++it_;
+	return *this;
+}
+
+
+template <typename K, bool is_const>
+ChecksumMapIterator<K, is_const>&
+	ChecksumMapIterator<K, is_const>::operator -- ()
+{
+	--it_;
+	return *this;
+}
+
+
 /**
  * \internal
  *
@@ -404,7 +452,7 @@ public: /* methods */
 	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept;
 
 
-private: // TODO Hide this!
+private:
 
 	/**
 	 * \brief Internal representation.
@@ -413,52 +461,6 @@ private: // TODO Hide this!
 	 */
 	std::map<K, Checksum> map_;
 };
-
-// ChecksumMapIterator
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
-		const WrappedIteratorType &it)
-	: it_(it)
-{
-	// empty
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
-		const ChecksumMapIterator<K, false> &rhs)
-	: it_(rhs.it_)
-{
-	// empty
-}
-
-
-template <typename K, bool is_const>
-typename ChecksumMapIterator<K, is_const>::reference
-	ChecksumMapIterator<K, is_const>::operator * ()
-{
-	return (*it_).second;
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>&
-	ChecksumMapIterator<K, is_const>::operator ++ ()
-{
-	++it_;
-	return *this;
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>&
-	ChecksumMapIterator<K, is_const>::operator -- ()
-{
-	--it_;
-	return *this;
-}
 
 
 // ChecksumMap
