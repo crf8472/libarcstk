@@ -104,6 +104,8 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 	for (auto i = static_cast<int>(t); i > 1; --i, ++it);
 
 	return *it;
+	// return *(it + t) would require iterators providing operator+
+	// FIXME Test for operator+ and return *(it + t)
 }
 
 
@@ -139,8 +141,11 @@ inline lba_count calculate_leadout(Container1&& lengths, Container2&& offsets)
 			"Requested leadout from inconsistent offsets and lengths");
 	}
 
-	auto last_length { *--std::end(lengths) };
-	auto leadout     { last_length ? *--std::end(offsets) + last_length : 0 };
+	auto end_lengths { std::end(lengths) }; // avoid modifying temporaries
+	auto last_length { *--end_lengths };
+
+	auto end_offsets { std::end(offsets) }; // avoid modifying temporaries
+	auto leadout     { last_length ? *--end_offsets + last_length : 0 };
 
 	if (CDDA.MAX_BLOCK_ADDRESS <
 			static_cast<decltype(CDDA.MAX_BLOCK_ADDRESS)>(leadout))
@@ -354,7 +359,9 @@ uint32_t TOC::Impl::parsed_length(const TrackNo track) const
 		if (has_track(track))
 		{
 			return 0;
-		} else throw;
+		} else {
+			throw;
+		}
 	}
 }
 
@@ -369,8 +376,10 @@ std::string TOC::Impl::filename(const TrackNo track) const
 		// If track is valid, don't throw, even if files_ is empty
 		if (has_track(track))
 		{
-			return "";
-		} else throw;
+			return std::string{};
+		} else {
+			throw;
+		}
 	}
 }
 
@@ -852,7 +861,8 @@ std::vector<uint32_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	std::vector<uint32_t> uv(lengths.begin(), lengths.end());
 
-	if (*--std::end(lengths) < 0) // normalize last length to 0
+	auto end_lengths { std::end(lengths) }; // avoid modifying temporaries
+	if (*--end_lengths < 0) // normalize last length to 0
 	{
 		uv.back() = 0;
 	}

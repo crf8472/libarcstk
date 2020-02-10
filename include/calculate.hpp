@@ -323,8 +323,11 @@ PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
 /**
  * \brief Type erasing interface for iterators over PCM 32 Bit samples.
  *
- * Type erasure class for iterators with the value_type uint32_t. It wraps the
- * concrete iterator to be passed for updating a \ref Calculation.
+ * Wraps the concrete iterator to be passed to
+ * \link Calculation::update() update() \endlink a Calculation.
+ * This allows it to pass in fact any iterator type to a Calculation.
+ *
+ * PCMForwardIterator can wrap any iterator with a value_type of uint32_t.
  */
 class PCMForwardIterator final
 {
