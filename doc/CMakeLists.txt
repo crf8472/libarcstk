@@ -37,7 +37,7 @@ set (DOC_COMMENT "Build documentation for APIs" )
 set (DOC_MAINPAGE "${DOC_TEXTS_GEN_DIR}/MAINPAGE.md" )
 
 ## Define input for documentation
-set (DOC_SOURCES ${EXPORTED_HEADERS} ${DOC_MAINPAGE} )
+set (DOC_SOURCES ${INTERFACE_HEADERS} ${DOC_MAINPAGE} )
 
 ## Define the target name and location of the base Doxyfile to be included
 set (DOC_DOXYFILE_BASE "${DOC_BINARY_DIR}/Doxyfile-base" )
@@ -79,7 +79,7 @@ if (WITH_INTERNAL_DOCS)
 		"${DOXYGEN_STRIP_FROM_INC_PATH} ${PROJECT_SOURCE_DIR}/" )
 
 	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
-	set (DOC_SOURCES ${DOC_SOURCES} ${NONPUBLIC_HEADERS} )
+	set (DOC_SOURCES ${DOC_SOURCES} ${PRIVATE_HEADERS} )
 
 else ()
 
