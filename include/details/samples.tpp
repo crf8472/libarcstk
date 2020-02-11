@@ -270,7 +270,7 @@ public:
 	friend bool operator >= (const SampleIterator &lhs,
 			const SampleIterator &rhs) noexcept
 	{
-		return not(lhs < lhs);
+		return not(lhs < rhs);
 	}
 
 
