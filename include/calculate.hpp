@@ -78,11 +78,12 @@ class AudioSize;
 
 
 /**
- * \brief Equality.
+ * \brief Equality
  *
- * \param[in] rhs Right hand side of the comparison
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
  *
- * \return TRUE iff \c this equals \c rhs, otherwise FALSE
+ * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
  */
 bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
 
@@ -297,12 +298,12 @@ class PCMForwardIterator; // forward declaration
 
 
 /**
- * \brief Returns TRUE if \c lhs is equal to \c rhs.
+ * \brief Equality
  *
- * \param[in] lhs The left hand side to compare
- * \param[in] rhs The right hand side to compare
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
  *
- * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
+ * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
  */
 bool operator == (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
 	noexcept;
@@ -565,12 +566,12 @@ private:
 
 
 /**
- * \brief Returns TRUE if \c lhs is not equal to \c rhs.
+ * \brief Inequality.
  *
- * \param[in] lhs The left hand side to compare
- * \param[in] rhs The right hand side to compare
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
  *
- * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
+ * \return TRUE iff not \c this == \c rhs, otherwise FALSE
  */
 bool operator != (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
 	noexcept;
@@ -1070,7 +1071,8 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 
 
 /**
- * \brief Result of a Calculation
+ * \brief The result of a Calculation, a list of
+ * \link ChecksumSet ChecksumSets \endlink.
  */
 class Checksums final
 {

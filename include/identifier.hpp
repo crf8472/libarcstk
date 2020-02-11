@@ -130,9 +130,8 @@ struct CDDA_t
 	 * 2 sec * 75 frames/sec == 150 frames.
 	 */
 	const uint32_t MIN_TRACK_LEN_FRAMES = 150;
-
 };
-//using CDDA_t = struct CDDA_t;
+
 
 /**
  * \brief Global instance of the CDDA constants.
@@ -169,14 +168,12 @@ extern const CDDA_t CDDA;
 class ARId; // forward declaration
 
 /**
- * \brief Returns TRUE iff this ARId holds identical values as \c rhs,
- * otherwise FALSE.
+ * \brief Equality
  *
  * \param[in] lhs The left hand side of the comparison
  * \param[in] rhs The right hand side of the comparison
  *
- * \return TRUE iff the right hand side is equal to the left hand side,
- * otherwise false
+ * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
  */
 bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
 
@@ -327,14 +324,12 @@ private:
 
 
 /**
- * \brief Returns TRUE if ARId \c lhs does not hold identical values as
- * \c rhs, otherwise FALSE.
+ * \brief Inequality.
  *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
  *
- * \return TRUE iff the right hand side is not equal to the left hand side,
- * otherwise FALSE
+ * \return TRUE iff not \c this == \c rhs, otherwise FALSE
  */
 bool operator != (const ARId& lhs, const ARId& rhs) noexcept;
 
@@ -343,7 +338,7 @@ class TOC; // forward declaration
 
 
 /**
- * \brief Equality operator
+ * \brief Equality
  *
  * \param[in] lhs The left hand side of the comparison
  * \param[in] rhs The right hand side of the comparison
@@ -530,12 +525,12 @@ private:
 
 
 /**
- * \brief Inequality operator
+ * \brief Inequality.
  *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
  *
- * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
+ * \return TRUE iff not \c this == \c rhs, otherwise FALSE
  */
 bool operator != (const TOC &lhs, const TOC &rhs) noexcept;
 

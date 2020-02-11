@@ -28,11 +28,8 @@
 #include <cstdint>
 #include <cstddef>     // for size_t
 #include <memory>
-#include <map>         // (ChecksumMap)
-#include <set>         // (ChecksumMap)
+#include <set>
 #include <string>
-#include <type_traits> // for conditional
-#include <utility>     // for pair
 
 namespace arcstk
 {
@@ -203,10 +200,19 @@ private:
  */
 bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept;
 
+} // namespace v_1_0_0
+} // namespace arcstk
+
 
 #ifndef __LIBARCSTK_CHECKSUM_TPP__
 #include "details/checksum.tpp"
 #endif
+
+
+namespace arcstk
+{
+inline namespace v_1_0_0
+{
 
 
 /**

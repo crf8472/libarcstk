@@ -14,6 +14,16 @@
  * \brief Implementation of ChecksumMapIterator and ChecksumMap
  */
 
+
+#include <map>
+#include <set>
+#include <type_traits> // for conditional
+#include <utility>     // for pair
+
+namespace arcstk
+{
+inline namespace v_1_0_0
+{
 namespace details
 {
 
@@ -662,6 +672,9 @@ ChecksumMap<K>& arcstk::v_1_0_0::details::ChecksumMap<K>::operator = (
 
 
 using ChecksumSetBase = details::ChecksumMap<checksum::type>;
+
+} // namespace v_1_0_0
+} // namespace arcstk
 
 
 #endif
