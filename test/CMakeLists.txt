@@ -13,7 +13,6 @@ set (MAIN_TEST_CPP   "${TEST_SOURCE_DIR}/main.test.cpp" )
 
 set (TEST_SETS )
 list (APPEND TEST_SETS calculate)
-list (APPEND TEST_SETS checksum )
 list (APPEND TEST_SETS identifier )
 list (APPEND TEST_SETS match )
 list (APPEND TEST_SETS parse )

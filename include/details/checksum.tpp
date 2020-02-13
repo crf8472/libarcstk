@@ -1,6 +1,6 @@
 // vim:ft=cpp
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
-#error "Do not include checksum.tpp directly, include checksum.hpp instead"
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#error "Do not include checksum.tpp directly, include calculate.hpp instead"
 #endif
 
 #ifndef __LIBARCSTK_CHECKSUM_TPP__

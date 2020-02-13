@@ -149,7 +149,6 @@ configure_file (
 
 set (INTERFACE_HEADERS )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/checksum.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/match.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
@@ -180,7 +179,6 @@ message (STATUS "Build library as: ${PROJECT_LINKFLAG}" )
 
 add_library (${PROJECT_NAME} ${PROJECT_LINKFLAG}
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
-	"${PROJECT_SOURCE_DIR}/checksum.cpp"
 	"${PROJECT_SOURCE_DIR}/match.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
