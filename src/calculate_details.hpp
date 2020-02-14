@@ -934,6 +934,7 @@ bool operator == (const SingletrackCalcContext &lhs,
  * representing a single track.
  */
 class SingletrackCalcContext final : public CalcContextBase
+								   , public Comparable<SingletrackCalcContext>
 {
 
 public:
@@ -1028,16 +1029,6 @@ private:
 };
 
 
-/**
- * \brief Inequality for SingletrackCalcContext
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- */
-bool operator != (const SingletrackCalcContext &lhs,
-		const SingletrackCalcContext &rhs) noexcept;
-
-
 class MultitrackCalcContext;
 
 
@@ -1061,6 +1052,7 @@ bool operator == (const MultitrackCalcContext &lhs,
  * actual filename. It always skips the front and back samples.
  */
 class MultitrackCalcContext final : public CalcContextBase
+								  , public Comparable<MultitrackCalcContext>
 {
 
 public:
@@ -1170,16 +1162,6 @@ private:
 	 */
 	TOC toc_;
 };
-
-
-/**
- * \brief Inequality check for MultitrackCalcContext
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- */
-bool operator != (const MultitrackCalcContext &lhs,
-		const MultitrackCalcContext &rhs) noexcept;
 
 
 /**

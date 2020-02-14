@@ -19,6 +19,79 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+namespace details
+{
+	/**
+	 * \brief Adds inequality to classes defining equality.
+	 */
+	template <typename T>
+	struct Comparable
+	{
+		virtual ~Comparable() = default;
+
+		/**
+		 * \brief Inequality.
+		 *
+		 * \param[in] lhs Left hand side of the comparison
+		 * \param[in] rhs Right hand side of the comparison
+		 *
+		 * \return TRUE iff not \c lhs == \c rhs, otherwise FALSE
+		 */
+		friend bool operator != (const T &lhs, const T &rhs) noexcept
+		{
+			return !(lhs == rhs);
+		}
+	};
+
+	/**
+	 * \brief Adds all relational operators to classes defining < (less-than).
+	 */
+	template <typename T>
+	struct TotallyOrdered : public Comparable<T>
+	{
+		virtual ~TotallyOrdered() = default;
+
+		/**
+		 * \brief Greater-than.
+		 *
+		 * \param[in] lhs Left hand side of the comparison
+		 * \param[in] rhs Right hand side of the comparison
+		 *
+		 * \return TRUE iff \c lhs > \c rhs, otherwise FALSE
+		 */
+		friend bool operator > (const T &lhs, const T &rhs) noexcept
+		{
+			return rhs < lhs;
+		}
+
+		/**
+		 * \brief Greater-or-equal-than.
+		 *
+		 * \param[in] lhs Left hand side of the comparison
+		 * \param[in] rhs Right hand side of the comparison
+		 *
+		 * \return TRUE iff \c lhs >= \c rhs, otherwise FALSE
+		 */
+		friend bool operator >= (const T &lhs, const T &rhs) noexcept
+		{
+			return !(rhs > lhs);
+		}
+
+		/**
+		 * \brief Less-or-equal-than.
+		 *
+		 * \param[in] lhs Left hand side of the comparison
+		 * \param[in] rhs Right hand side of the comparison
+		 *
+		 * \return TRUE iff \c lhs <= \c rhs, otherwise FALSE
+		 */
+		friend bool operator <= (const T &lhs, const T &rhs) noexcept
+		{
+			return !(lhs > rhs);
+		}
+	};
+}
+
 /// \addtogroup calc
 /// @{
 
@@ -190,7 +263,7 @@ bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
  * superflous. An ARId can be empty() to indicate that it carries no identifier.
  * An ARId that qualifies as empty() can be constructed by make_empty_arid().
  */
-class ARId final
+class ARId final : public details::Comparable<ARId>
 {
 
 public:
@@ -323,17 +396,6 @@ private:
 };
 
 
-/**
- * \brief Inequality.
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- *
- * \return TRUE iff not \c this == \c rhs, otherwise FALSE
- */
-bool operator != (const ARId& lhs, const ARId& rhs) noexcept;
-
-
 class TOC; // forward declaration
 
 
@@ -373,7 +435,7 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
  * leadout can be obtained from the actual audio data. However, also an
  * incomplete TOC may never be inconsistent.
  */
-class TOC final
+class TOC final : public details::Comparable<TOC>
 {
 
 public:
@@ -522,17 +584,6 @@ private:
 	 */
 	std::unique_ptr<TOC::Impl> impl_;
 };
-
-
-/**
- * \brief Inequality.
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- *
- * \return TRUE iff not \c this == \c rhs, otherwise FALSE
- */
-bool operator != (const TOC &lhs, const TOC &rhs) noexcept;
 
 
 /**

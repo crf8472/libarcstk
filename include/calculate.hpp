@@ -170,7 +170,7 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 /**
  * \brief A 32-bit wide checksum for a single file or track.
  */
-class Checksum final
+class Checksum final : public details::Comparable<Checksum>
 {
 
 public:
@@ -230,18 +230,6 @@ private:
 	 */
 	uint32_t value_;
 };
-
-
-/**
- * \brief Inequality.
- *
- * \param[in] lhs The left hand side instance to check for inequality
- * \param[in] rhs The right hand side instance to check for inequality
- *
- * \return TRUE if \c lhs is not equal to \c rhs, otherwise FALSE
- */
-bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept;
-
 
 /** @} */
 
@@ -367,6 +355,17 @@ bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
 
 
 /**
+ * \brief Less-than.
+ *
+ * \param[in] lhs The left hand side of the comparison
+ * \param[in] rhs The right hand side of the comparison
+ *
+ * \return TRUE if \c lhs < \c rhs, otherwise FALSE
+ */
+bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept;
+
+
+/**
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, other the number of samples and
@@ -376,7 +375,7 @@ bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
  * information. Any of the informations provided will determine all of the
  * others.
  */
-class AudioSize final
+class AudioSize final : public details::TotallyOrdered<AudioSize>
 {
 public: /* types */
 
@@ -514,17 +513,6 @@ private:
 
 
 /**
- * \brief Inequality.
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- *
- * \return TRUE iff not \c this == \c rhs, otherwise FALSE
- */
-bool operator != (const AudioSize &lhs, const AudioSize &rhs) noexcept;
-
-
-/**
  * \internal
  * \brief Implementation details of API version 1.0.0
  */
@@ -574,7 +562,6 @@ using IsSampleIterator = std::enable_if_t<
 class PCMForwardIterator; // forward declaration
 
 
-
 /**
  * \brief Equality
  *
@@ -608,7 +595,7 @@ PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
  *
  * PCMForwardIterator can wrap any iterator with a value_type of uint32_t.
  */
-class PCMForwardIterator final
+class PCMForwardIterator final : public details::Comparable<PCMForwardIterator>
 {
 
 public:
@@ -841,18 +828,6 @@ private:
 	 */
 	std::unique_ptr<Concept> object_;
 };
-
-
-/**
- * \brief Inequality.
- *
- * \param[in] lhs Left hand side of the comparison
- * \param[in] rhs Right hand side of the comparison
- *
- * \return TRUE iff not \c this == \c rhs, otherwise FALSE
- */
-bool operator != (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
-	noexcept;
 
 
 /**
@@ -1758,13 +1733,6 @@ inline bool operator == (const PCMForwardIterator &lhs,
 		const PCMForwardIterator &rhs) noexcept
 {
 	return lhs.object_->equals(rhs.object_->pointer());
-}
-
-
-inline bool operator != (const PCMForwardIterator &lhs,
-		const PCMForwardIterator &rhs) noexcept
-{
-	return not(lhs == rhs);
 }
 
 

@@ -517,12 +517,6 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept
 }
 
 
-bool operator != (const TOC &lhs, const TOC &rhs) noexcept
-{
-	return not(lhs == rhs);
-}
-
-
 // ARId
 
 
@@ -627,12 +621,6 @@ bool operator == (const ARId &lhs, const ARId &rhs) noexcept
 	return &lhs == &rhs
 		or lhs.impl_ == rhs.impl_
 		or lhs.impl_->equals(*rhs.impl_);
-}
-
-
-bool operator != (const ARId &lhs, const ARId &rhs) noexcept
-{
-	return not(lhs == rhs);
 }
 
 

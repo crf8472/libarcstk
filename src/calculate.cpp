@@ -463,13 +463,6 @@ bool operator == (const SingletrackCalcContext &lhs,
 }
 
 
-bool operator != (const SingletrackCalcContext &lhs,
-		const SingletrackCalcContext &rhs) noexcept
-{
-	return not(lhs == rhs);
-}
-
-
 // SingletrackCalcContext
 
 
@@ -620,13 +613,6 @@ bool operator == (const MultitrackCalcContext &lhs,
 		const MultitrackCalcContext &rhs) noexcept
 {
 	return lhs.equals(rhs) and lhs.toc_ == rhs.toc_;
-}
-
-
-bool operator != (const MultitrackCalcContext &lhs,
-		const MultitrackCalcContext &rhs) noexcept
-{
-	return not(lhs == rhs);
 }
 
 
@@ -2080,9 +2066,9 @@ bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept
 }
 
 
-bool operator != (const AudioSize &lhs, const AudioSize &rhs) noexcept
+bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept
 {
-	return not (lhs == rhs);
+	return lhs.pcm_byte_count() < rhs.pcm_byte_count();
 }
 
 
@@ -2406,12 +2392,6 @@ Checksum& Checksum::operator = (const uint32_t rhs)
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 {
 	return lhs.value_ == rhs.value_;
-}
-
-
-bool operator != (const Checksum &lhs, const Checksum &rhs) noexcept
-{
-	return not(lhs == rhs);
 }
 
 
