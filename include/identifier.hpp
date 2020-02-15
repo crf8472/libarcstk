@@ -21,6 +21,7 @@ inline namespace v_1_0_0
 namespace details
 {
 
+
 /**
  * \internal
  * \brief Adds inequality to classes defining equality operator==.
@@ -43,6 +44,7 @@ struct Comparable
 		return !(lhs == rhs);
 	}
 };
+
 
 /**
  * \internal
@@ -311,70 +313,70 @@ public:
 	 *
 	 * \return The AccurateRip request URL
 	 */
-	std::string url() const;
+	std::string url() const noexcept;
 
 	/**
 	 * \brief Return the AccurateRip filename of the response file.
 	 *
 	 * \return AccurateRip filename of the response file
 	 */
-	std::string filename() const;
+	std::string filename() const noexcept;
 
 	/**
 	 * \brief Return the track count.
 	 *
 	 * \return Track count of this medium
 	 */
-	TrackNo track_count() const;
+	TrackNo track_count() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 1.
 	 *
 	 * \return Disc id 1 of this medium
 	 */
-	uint32_t disc_id_1() const;
+	uint32_t disc_id_1() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 2.
 	 *
 	 * \return Disc id 2 of this medium
 	 */
-	uint32_t disc_id_2() const;
+	uint32_t disc_id_2() const noexcept;
 
 	/**
 	 * \brief Return the CDDB id.
 	 *
 	 * \return CDDB id of this medium
 	 */
-	uint32_t cddb_id() const;
+	uint32_t cddb_id() const noexcept;
 
 	/**
 	 * \brief Return the standard URL prefix for AccurateRip request urls.
 	 *
 	 * \return URL prefix for AccurateRip request URLs.
 	 */
-	std::string prefix() const;
+	std::string prefix() const noexcept;
 
 	/**
 	 * \brief Return TRUE iff this ARId is empty (holding no information).
 	 *
 	 * \return TRUE iff this ARId is empty
 	 */
-	bool empty() const;
+	bool empty() const noexcept;
 
 	/**
 	 * \brief Return a default string representation of this ARId.
 	 *
 	 * \return Default string representation of this ARId
 	 */
-	std::string to_string() const;
+	std::string to_string() const noexcept;
 
 	/**
 	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
-	 * \return The resulting left hand side after the assigment
+	 * \return Assigns a deep copy of \c rhs.
 	 */
 	ARId& operator = (const ARId &rhs);
 
@@ -486,7 +488,7 @@ public:
 	 *
 	 * \return Number of tracks
 	 */
-	TrackNo track_count() const;
+	TrackNo track_count() const noexcept;
 
 	/**
 	 * \brief Return the offset of the 1-based specified track in frames, i.e.
@@ -542,7 +544,7 @@ public:
 	 *
 	 * \return The leadout frame index
 	 */
-	uint32_t leadout() const;
+	uint32_t leadout() const noexcept;
 
 	/**
 	 * \brief Return TRUE iff TOC information is complete, otherwise FALSE.
@@ -552,10 +554,11 @@ public:
 	 *
 	 * \return TRUE iff TOC information is complete, otherwise FALSE.
 	 */
-	bool complete() const;
+	bool complete() const noexcept;
 
 	/**
 	 * \internal
+	 *
 	 * \brief Update this TOC with new information
 	 *
 	 * \param[in] impl The TOC::Impl to update
@@ -567,7 +570,7 @@ public:
 	 *
 	 * \param[in] rhs The right hand side of the assignment
 	 *
-	 * \return The right hand side of the assigment
+	 * \return Assigns a deep copy of \c rhs.
 	 */
 	TOC& operator = (const TOC &rhs);
 
@@ -658,7 +661,7 @@ public:
  *
  * \param[in] toc TOC to use
  *
- * \return ARId
+ * \return ARId corresponding to the input TOC
  *
  * \throw InvalidMetadataException
  * If \c toc is not \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
@@ -712,7 +715,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
  *
  * \return An \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  */
-std::unique_ptr<ARId> make_empty_arid();
+std::unique_ptr<ARId> make_empty_arid() noexcept;
 
 
 /**
@@ -734,6 +737,7 @@ namespace toc
  */
 std::vector<uint32_t> get_offsets(const TOC &toc);
 
+
 /**
  * \brief get_offsets(const TOC&)
  */
@@ -749,6 +753,7 @@ std::vector<uint32_t> get_offsets(const std::unique_ptr<TOC> &toc);
  */
 std::vector<uint32_t> get_parsed_lengths(const TOC &toc);
 
+
 /**
  * \brief get_parsed_lengths(const TOC&)
  */
@@ -763,6 +768,7 @@ std::vector<uint32_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc);
  * \return List of filenames
  */
 std::vector<std::string> get_filenames(const TOC &toc);
+
 
 /**
  * \brief get_filenames(const TOC&)

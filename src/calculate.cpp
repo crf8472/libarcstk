@@ -1935,7 +1935,8 @@ void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
 	if (not context_)
 	{
 		this->set_context(
-			std::make_unique<details::SingletrackCalcContext>(std::string()));
+			std::make_unique<details::SingletrackCalcContext>(
+				details::empty_string));
 	}
 }
 

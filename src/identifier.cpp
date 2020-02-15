@@ -181,42 +181,42 @@ public:
 	/**
 	 * \brief Implements ARId::url()
 	 */
-	std::string url() const;
+	std::string url() const noexcept;
 
 	/**
 	 * \brief Implements ARId::filename()
 	 */
-	std::string filename() const;
+	std::string filename() const noexcept;
 
 	/**
 	 * \brief Implements ARId::track_count()
 	 */
-	TrackNo track_count() const;
+	TrackNo track_count() const noexcept;
 
 	/**
 	 * \brief Implements ARId::disc_id_1()
 	 */
-	uint32_t disc_id_1() const;
+	uint32_t disc_id_1() const noexcept;
 
 	/**
 	 * \brief Implements ARId::disc_id_2()
 	 */
-	uint32_t disc_id_2() const;
+	uint32_t disc_id_2() const noexcept;
 
 	/**
 	 * \brief Implements ARId::cddb_id()
 	 */
-	uint32_t cddb_id() const;
+	uint32_t cddb_id() const noexcept;
 
 	/**
 	 * \brief Implements ARId::empty()
 	 */
-	bool empty() const;
+	bool empty() const noexcept;
 
 	/**
 	 * \brief Implements ARId::to_string()
 	 */
-	std::string to_string() const;
+	std::string to_string() const noexcept;
 
 	/**
 	 * \brief Implements ARId::operator == (const ARId &rhs) const
@@ -241,7 +241,7 @@ protected:
 	std::string construct_filename(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
-			const uint32_t cddb_id) const;
+			const uint32_t cddb_id) const noexcept;
 
 	/**
 	 * \brief Service method: Compute the AccurateRip request URL
@@ -258,7 +258,7 @@ protected:
 	std::string construct_url(const TrackNo track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
-			const uint32_t cddb_id) const;
+			const uint32_t cddb_id) const noexcept;
 
 
 private:
@@ -298,50 +298,50 @@ ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 }
 
 
-std::string ARId::Impl::url() const
+std::string ARId::Impl::url() const noexcept
 {
 	return this->construct_url(track_count_, disc_id1_, disc_id2_, cddb_id_);
 }
 
 
-std::string ARId::Impl::filename() const
+std::string ARId::Impl::filename() const noexcept
 {
 	return this->construct_filename(track_count_, disc_id1_, disc_id2_,
 			cddb_id_);
 }
 
 
-TrackNo ARId::Impl::track_count() const
+TrackNo ARId::Impl::track_count() const noexcept
 {
 	return track_count_;
 }
 
 
-uint32_t ARId::Impl::disc_id_1() const
+uint32_t ARId::Impl::disc_id_1() const noexcept
 {
 	return disc_id1_;
 }
 
 
-uint32_t ARId::Impl::disc_id_2() const
+uint32_t ARId::Impl::disc_id_2() const noexcept
 {
 	return disc_id2_;
 }
 
 
-uint32_t ARId::Impl::cddb_id() const
+uint32_t ARId::Impl::cddb_id() const noexcept
 {
 	return cddb_id_;
 }
 
 
-bool ARId::Impl::empty() const
+bool ARId::Impl::empty() const noexcept
 {
 	return 0 == (this->disc_id_1() + this->disc_id_2() + this->cddb_id());
 }
 
 
-std::string ARId::Impl::to_string() const
+std::string ARId::Impl::to_string() const noexcept
 {
 	std::stringstream id;
 
@@ -371,7 +371,7 @@ bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
 std::string ARId::Impl::construct_filename(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
-		const uint32_t cddb_id) const
+		const uint32_t cddb_id) const noexcept
 {
 	std::stringstream ss;
 
@@ -404,7 +404,7 @@ std::string ARId::Impl::construct_filename(const TrackNo track_count,
 std::string ARId::Impl::construct_url(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
-		const uint32_t cddb_id) const
+		const uint32_t cddb_id) const noexcept
 {
 	std::stringstream ss;
 
@@ -448,7 +448,7 @@ TOC::TOC(TOC &&rhs) noexcept = default;
 TOC::~TOC() noexcept = default;
 
 
-TrackNo TOC::track_count() const
+TrackNo TOC::track_count() const noexcept
 {
 	return impl_->track_count();
 }
@@ -472,13 +472,13 @@ std::string TOC::filename(const TrackNo idx) const
 }
 
 
-uint32_t TOC::leadout() const
+uint32_t TOC::leadout() const noexcept
 {
 	return impl_->leadout();
 }
 
 
-bool TOC::complete() const
+bool TOC::complete() const noexcept
 {
 	return impl_->complete();
 }
@@ -492,13 +492,12 @@ void TOC::update(std::unique_ptr<TOC::Impl> impl)
 
 TOC& TOC::operator = (const TOC &rhs)
 {
-	if (this == &rhs)
+	if (this != &rhs)
 	{
-		return *this;
+		// deep copy
+		impl_ = std::make_unique<TOC::Impl>(*rhs.impl_);
 	}
 
-	// deep copy
-	impl_ = std::make_unique<TOC::Impl>(*rhs.impl_);
 	return *this;
 }
 
@@ -543,55 +542,55 @@ ARId::ARId(ARId &&rhs) noexcept = default;
 ARId::~ARId() noexcept = default;
 
 
-std::string ARId::url() const
+std::string ARId::url() const noexcept
 {
 	return impl_->url();
 }
 
 
-std::string ARId::filename() const
+std::string ARId::filename() const noexcept
 {
 	return impl_->filename();
 }
 
 
-TrackNo ARId::track_count() const
+TrackNo ARId::track_count() const noexcept
 {
 	return impl_->track_count();
 }
 
 
-uint32_t ARId::disc_id_1() const
+uint32_t ARId::disc_id_1() const noexcept
 {
 	return impl_->disc_id_1();
 }
 
 
-uint32_t ARId::disc_id_2() const
+uint32_t ARId::disc_id_2() const noexcept
 {
 	return impl_->disc_id_2();
 }
 
 
-uint32_t ARId::cddb_id() const
+uint32_t ARId::cddb_id() const noexcept
 {
 	return impl_->cddb_id();
 }
 
 
-std::string ARId::prefix() const
+std::string ARId::prefix() const noexcept
 {
 	return impl_->AR_URL_PREFIX;
 }
 
 
-bool ARId::empty() const
+bool ARId::empty() const noexcept
 {
 	return impl_->empty();
 }
 
 
-std::string ARId::to_string() const
+std::string ARId::to_string() const noexcept
 {
 	return impl_->to_string();
 }
@@ -672,6 +671,7 @@ namespace details
 
 /**
  * \internal
+ *
  * \brief Uniform access to a container by track
  *
  * Instead of using at() that uses a 0-based index, we need a uniform method
@@ -786,7 +786,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 }
 
 
-std::unique_ptr<ARId> make_empty_arid()
+std::unique_ptr<ARId> make_empty_arid() noexcept
 {
 	details::ARIdBuilder builder;
 	return builder.build_empty_id();

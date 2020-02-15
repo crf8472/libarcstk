@@ -196,7 +196,7 @@ public:
 	/**
 	 * \brief Implements TOC::track_count()
 	 */
-	inline TrackNo track_count() const;
+	inline TrackNo track_count() const noexcept;
 
 	/**
 	 * \brief Implements TOC::offset(const uint8_t) const
@@ -216,17 +216,17 @@ public:
 	/**
 	 * \brief Implements TOC::leadout()
 	 */
-	inline uint32_t leadout() const;
+	inline uint32_t leadout() const noexcept;
 
 	/**
 	 * \brief Implements TOC::complete()
 	 */
-	inline bool complete() const;
+	inline bool complete() const noexcept;
 
 	/**
 	 * \brief Implements TOC::operator==()
 	 */
-	inline bool equals(const TOC::Impl &rhs) const;
+	inline bool equals(const TOC::Impl &rhs) const noexcept;
 
 
 private:
@@ -336,7 +336,7 @@ bool TOC::Impl::has_track(const TrackNo track) const noexcept
 }
 
 
-TrackNo TOC::Impl::track_count() const
+TrackNo TOC::Impl::track_count() const noexcept
 {
 	return track_count_;
 }
@@ -384,19 +384,19 @@ std::string TOC::Impl::filename(const TrackNo track) const
 }
 
 
-uint32_t TOC::Impl::leadout() const
+uint32_t TOC::Impl::leadout() const noexcept
 {
 	return leadout_;
 }
 
 
-bool TOC::Impl::complete() const
+bool TOC::Impl::complete() const noexcept
 {
 	return leadout_ != 0;
 }
 
 
-bool TOC::Impl::equals(const TOC::Impl &rhs) const
+bool TOC::Impl::equals(const TOC::Impl &rhs) const noexcept
 {
 	return this == &rhs
 		or  (track_count_ == rhs.track_count_
