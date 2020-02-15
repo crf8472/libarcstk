@@ -899,10 +899,10 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		return nullptr;
 	}
 
-	std::array<checksum::type, 2> types = {
-		checksum::type::ARCS1,
-		checksum::type::ARCS2
-	};
+	//std::array<checksum::type, 2> types = {
+	//	checksum::type::ARCS1,
+	//	checksum::type::ARCS2
+	//};
 
 	auto match = std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size());
@@ -935,7 +935,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 		for (auto track = block->begin(); track != block->end(); ++track)
 		{
-			for (const auto& type : types)
+			for (const auto& type : checksum::types)
 			{
 				checksum = *actual_sums[track_j].find(type);
 
@@ -1091,10 +1091,10 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		return nullptr;
 	}
 
-	std::array<checksum::type, 2> types = {
-		checksum::type::ARCS1,
-		checksum::type::ARCS2
-	};
+	//std::array<checksum::type, 2> types = {
+	//	checksum::type::ARCS1,
+	//	checksum::type::ARCS2
+	//};
 
 	auto match = std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size());
@@ -1135,7 +1135,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 			for (const auto& entry : actual_sums)
 			{
-				for (const auto& type : types)
+				for (const auto& type : checksum::types)
 				{
 					checksum = *entry.find(type);
 

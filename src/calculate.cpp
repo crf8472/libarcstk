@@ -2554,24 +2554,49 @@ namespace checksum
 namespace details
 {
 
-	/**
-	 * \internal
-	 *
-	 * \brief Return the numeric value of a >=C++11 enum class value
-	 *
-	 * \return The numeric constant of an enum class value
-	 */
-	template <typename E>
-	auto as_integral_value(E const value)
-			-> typename std::underlying_type<E>::type
-	{
-		return static_cast<typename std::underlying_type<E>::type>(value);
-	}
+/**
+ * \internal
+ *
+ * \brief Checksum type names.
+ *
+ * The order of names in this aggregate must match the order of types in
+ * enum class checksum::type, otherwise function type_name() will fail.
+ */
+static const std::array<std::string, 2> names {
+	"ARCSv1",
+	"ARCSv2",
+	// "THIRD_TYPE" ,
+	// "FOURTH_TYPE" ...
+};
 
-} // namespace checksum::details
+/**
+ * \internal
+ *
+ * \brief Creates a hexadecimal string representation of a 32bit checksum.
+ *
+ * \param[in] checksum The Checksum to represent
+ * \param[in] upper    TRUE indicates to print digits A-F in uppercase
+ * \param[in] base     TRUE indicates to print base '0x'
+ *
+ * \return A hexadecimal representation of the \c checksum as a string
+ */
+std::string to_hex_str(const Checksum &checksum, const bool upper,
+		const bool base);
 
+/**
+ * \internal
+ *
+ * \brief Return the numeric value of a >=C++11 enum class value
+ *
+ * \return The numeric constant of an enum class value
+ */
+template <typename E>
+auto as_integral_value(E const value)
+		-> typename std::underlying_type<E>::type
+{
+	return static_cast<typename std::underlying_type<E>::type>(value);
+}
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 std::string to_hex_str(const Checksum &checksum, const bool upper,
 		const bool base)
@@ -2585,9 +2610,16 @@ std::string to_hex_str(const Checksum &checksum, const bool upper,
 	return ss.str();
 }
 
+} // namespace checksum::details
 
-std::string type_name(type t)
+
+/// \cond UNDOC_FUNCTION_BODIES
+
+
+std::string type_name(const type t)
 {
+	using details::names;
+
 	return names.at(std::log2(details::as_integral_value(t)));
 }
 

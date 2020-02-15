@@ -5,53 +5,6 @@
  * \file
  *
  * \brief Public API for checksum calculation.
- *
- * An API to calculate different types of checksums for CDDA conforming audio
- * tracks.
- *
- * A Calculation represents a (stateful) concrete checksum calculation that
- * must be configured with a CalcContext specific to the input audio file
- * and a checksum::type that specifies the calculation algorithm. The input
- * of the audio file must be represented as a succession of iterable uint32_t
- * represented sample sequences and the Calculation is sequentially updated with
- * these sequences in order. After the last update, the Calculation
- * returns the calculation result on request. The calculated Checksums
- * are represented as an iterable aggregate of
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
- *
- * CalcContext represents the per-file metadata information that is used
- * during calculation. Calculation computes checksums from a sequence of
- * sample blocks according to its current CalcContext.
- *
- * Checksums represent a calculation result for all requested checksum
- * types and all tracks of the audio input.
- *
- * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
- * of different
- * @link arcstk::v_1_0_0::checksum::type checksum::types @endlink. It represents
- * the calculation result for a particular track.
- *
- * AudioSize represents the size of the audio data in a file in frames,
- * samples and bytes.
- *
- * PCMForwardIterator wraps the concrete iterator of the sample sequence so any
- * class with a compatible iterator can be used.
- *
- * InvalidAudioException is thrown if the audio input is insufficient or
- * invalid.
- *
- * Basic data representation classes include TOC, Checksum and
- * ChecksumSet.
- *
- * TOC represents the toc information of a compact disc along with a
- * function make_toc() that guarantees to provide only valid
- * @link arcstk::v_1_0_0::TOC TOCs @endlink or to throw an exception.
- *
- * Checksum represents a single checksum and a ChecksumSet the
- * @link arcstk::v_1_0_0::Checksum Checksums @endlink for a single track.
- *
- * Checksums is an aggregation of the
- * @link arcstk::v_1_0_0::Checksum Checksums @endlink of an audio input.
  */
 
 #include <array>
@@ -83,6 +36,50 @@ inline namespace v_1_0_0
 
 /**
  * \defgroup calc Checksum Calculation
+ *
+ * \brief Public API for \link Calculation checksum calculation \endlink.
+ *
+ * An API to calculate different types of checksums for CDDA conforming audio
+ * tracks.
+ *
+ * A Calculation represents a (stateful) concrete checksum calculation that
+ * must be configured with a CalcContext specific to the input audio file
+ * and a checksum::type that specifies the calculation algorithm. The input
+ * of the audio file must be represented as a succession of iterable uint32_t
+ * represented sample sequences and the Calculation is sequentially updated with
+ * these sequences in order. After the last update, the Calculation
+ * returns the calculation result on request. The calculated Checksums
+ * are represented as an iterable aggregate of
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ *
+ * A Checksum refers to a particular track and a particular checksum::type.
+ *
+ * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
+ * of different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink
+ * of the same track.
+ *
+ * Checksums represent a calculation result for all requested checksum
+ * types and all tracks of the audio input.
+ * It is an aggregation of the
+ * @link arcstk::v_1_0_0::Checksum Checksums @endlink of an audio input.
+ * Depending on the input, it can represent either an entire album or a single
+ * track.
+ *
+ * Considering the input of a Calculation, a CalcContext represents the per-file
+ * metadata information that is used during calculation. Calculation computes
+ * Checksums from a sequence of \link Calculation::update() updates \endlink
+ * by sample sequences according to its current CalcContext.
+ *
+ * PCMForwardIterator wraps the concrete iterator of the input sample sequence
+ * so any class with a compatible iterator can be used.
+ *
+ * AudioSize represents the size of the audio data in a file in frames,
+ * samples and bytes.
+ *
+ * InvalidAudioException is thrown during the
+ * \link Calculation::update update() \endlink if the audio input is
+ * insufficient or invalid.
+ *
  * @{
  */
 
@@ -95,63 +92,40 @@ class Checksum; // forward declaration for operator == and to_hex_str()
  */
 namespace checksum
 {
-	// Note: 'names' array must have same size as 'type' class and the name
-	// strings must occurr in exact the same order as in 'type'. Otherwise,
-	// function 'type_name()' will fail.
 
-	/**
-	 * \brief Type IDs of the pre-defined checksum types.
-	 */
-	enum class type : uint32_t
-	{
-		ARCS1   = 1,
-		ARCS2   = 2
-		//THIRD_TYPE  = 4,
-		//FOURTH_TYPE = 8 ...
-	};
+/**
+ * \brief Pre-defined checksum types.
+ */
+enum class type : unsigned int
+{
+	ARCS1   = 1,
+	ARCS2   = 2
+	//THIRD_TYPE  = 4,
+	//FOURTH_TYPE = 8 ...
+};
 
-	/**
-	 * \brief Checksum type names.
-	 */
-	static const std::array<std::string,4> names {
-		"ARCSv1",
-		"ARCSv2",
-		// "THIRD_TYPE" ,
-		// "FOURTH_TYPE" ...
-	};
 
-	/**
-	 * \brief Iterable sequence of all predefined checksum types.
-	 */
-	static const type types[] = {
-		type::ARCS1,
-		type::ARCS2
-		// type::THIRD_TYPE,
-		// type::FOURTH_TYPE ...
-	};
+/**
+ * \brief Iterable sequence of all predefined checksum types.
+ *
+ * There is no guaranteed order of the types.
+ */
+static const type types[] = {
+	type::ARCS1,
+	type::ARCS2
+	// type::THIRD_TYPE,
+	// type::FOURTH_TYPE ...
+};
 
-	/**
-	 * \brief Return the name of a checksum::type.
-	 *
-	 * \param[in] t Type to get name of
-	 *
-	 * \return Name of type
-	 */
-	std::string type_name(type t);
 
-	/**
-	 * \internal
-	 *
-	 * \brief Creates a hexadecimal string representation of a 32bit checksum.
-	 *
-	 * \param[in] checksum The Checksum to represent
-	 * \param[in] upper    TRUE indicates to print digits A-F in uppercase
-	 * \param[in] base     TRUE indicates to print base '0x'
-	 *
-	 * \return A hexadecimal representation of the \c checksum as a string
-	 */
-	std::string to_hex_str(const Checksum &checksum, const bool upper,
-			const bool base);
+/**
+ * \brief Return the name of a checksum::type.
+ *
+ * \param[in] t Type to get name of
+ *
+ * \return Name of type
+ */
+std::string type_name(const type t);
 
 } // namespace checksum
 
@@ -168,7 +142,7 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 
 
 /**
- * \brief A 32-bit wide checksum for a single file or track.
+ * \brief A 32-bit wide unsigned checksum for a single file or track.
  */
 class Checksum final : public details::Comparable<Checksum>
 {
