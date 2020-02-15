@@ -22,6 +22,7 @@ inline namespace v_1_0_0
 namespace details
 {
 	/**
+	 * \internal
 	 * \brief Adds inequality to classes defining equality.
 	 */
 	template <typename T>
@@ -44,6 +45,7 @@ namespace details
 	};
 
 	/**
+	 * \internal
 	 * \brief Adds all relational operators to classes defining < (less-than).
 	 */
 	template <typename T>
@@ -238,7 +240,7 @@ extern const CDDA_t CDDA;
  * @{
  */
 
-class ARId; // forward declaration
+class ARId; // forward declaration for operator==
 
 /**
  * \brief Equality
@@ -396,7 +398,7 @@ private:
 };
 
 
-class TOC; // forward declaration
+class TOC; // forward declaration for operator==
 
 
 /**
@@ -617,7 +619,7 @@ public:
  * \brief Reports metadata violating the redbook standard.
  *
  * Violating the redbook standard is usually not a problem for calculating
- * checksums. A common case are unusual lengths, as for example up to 99
+ * checksums. A common case are unusual total lengths, as for example up to 99
  * minutes.
  *
  * \todo Metadata files are usually parsed text files, hence position
