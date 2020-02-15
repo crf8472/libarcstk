@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 	// Step 2: Create a context from the TOC and the name of the audiofile.
 	// The context represents the configuration of the calculation process along
 	// with the necessary metadata.
-	auto context { arcstk::make_context(audiofilename, *toc) };
+	auto context { arcstk::make_context(toc, audiofilename) };
 
 	// Step 3: Create a Calculation and provide it with the context.
 	// We do not specify a checksum type, thus the Calculation will provide
