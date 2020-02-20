@@ -1881,26 +1881,32 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 	SECTION ("Constructors")
 	{
+		// constructed with frames
 		CHECK ( size1.leadout_frame()  ==    253038 );
 		CHECK ( size1.sample_count()   == 148786344 );
 		CHECK ( size1.pcm_byte_count() == 595145376 );
 
+		// constructed with frames too
 		CHECK ( size2.leadout_frame()  ==    253038 );
 		CHECK ( size2.sample_count()   == 148786344 );
 		CHECK ( size2.pcm_byte_count() == 595145376 );
 
+		// constructed with frames too
 		CHECK ( size3.leadout_frame()  ==    253038 );
 		CHECK ( size3.sample_count()   == 148786344 );
 		CHECK ( size3.pcm_byte_count() == 595145376 );
 
+		// constructed with samples
 		CHECK ( size4.leadout_frame()  ==    253038 );
 		CHECK ( size4.sample_count()   == 148786344 );
 		CHECK ( size4.pcm_byte_count() == 595145376 );
 
+		// constructed with bytes
 		CHECK ( size5.leadout_frame()  ==    253038 );
 		CHECK ( size5.sample_count()   == 148786344 );
 		CHECK ( size5.pcm_byte_count() == 595145376 );
 
+		// different size, constructed with frames
 		CHECK ( different_size.leadout_frame()  ==    14827 );
 		CHECK ( different_size.sample_count()   ==  8718276 );
 		CHECK ( different_size.pcm_byte_count() == 34873104 );
@@ -1942,21 +1948,22 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 
 TEST_CASE ( "checksum::type_name provides correct names",
-		"[checksum] [checksum::type_name]" )
+		"[calculate] [checksum::type_name]" )
 {
-	using type      = arcstk::checksum::type;
+	using arcstk::checksum::type;
+	using arcstk::checksum::type_name;
 
-	CHECK ( arcstk::checksum::type_name(type::ARCS1)   == "ARCSv1" );
-	CHECK ( arcstk::checksum::type_name(type::ARCS2)   == "ARCSv2" );
-	//CHECK ( arcstk::checksum::type_name(type::CRC32)   == "CRC32" );
-	//CHECK ( arcstk::checksum::type_name(type::CRC32ns) == "CRC32ns" );
+	CHECK ( type_name(type::ARCS1) == "ARCSv1" );
+	CHECK ( type_name(type::ARCS2) == "ARCSv2" );
+	//CHECK ( type_name(type::CRC32)   == "CRC32" );
+	//CHECK ( type_name(type::CRC32ns) == "CRC32ns" );
 }
 
 
 // Checksum
 
 
-TEST_CASE ( "Checksum", "[checksum]" )
+TEST_CASE ( "Checksum", "[calculate]" )
 {
 	using arcstk::Checksum;
 
@@ -1984,90 +1991,34 @@ TEST_CASE ( "Checksum", "[checksum]" )
 }
 
 
-// ChecksumList
+// ChecksumSet (aka ChecksumMap<ChecksumType>)
 
 
-TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
+TEST_CASE ( "ChecksumSet", "[calculate] [checksumset]" )
 {
-	using type = arcstk::checksum::type;
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
 
-	arcstk::ChecksumSet track01(0);
+	ChecksumSet track01(0);
 
 	CHECK ( track01.empty() );
-	CHECK ( 0 == track01.size() );
+	CHECK ( track01.size() == 0 );
 	CHECK ( track01.begin()  == track01.end() );
 	CHECK ( track01.cbegin() == track01.cend() );
 
-	track01.insert(type::ARCS2, arcstk::Checksum(0xB89992E5));
-	track01.insert(type::ARCS1, arcstk::Checksum(0x98B10E0F));
+	track01.insert(type::ARCS2, Checksum(0xB89992E5));
+	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
 
 	CHECK ( not track01.empty() );
-	CHECK ( 2 == track01.size() );
-
-// Commented out: just constructed all 15 tracks
-
-//	arcstk::ChecksumList<arcstk::ChecksumType> track02;
-//	track02.insert(type::ARCS2, arcstk::Checksum(0x4F77EB03));
-//	track02.insert(type::ARCS1, arcstk::Checksum(0x475F57E9));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track03;
-//	track03.insert(type::ARCS2, arcstk::Checksum(0x56582282));
-//	track03.insert(type::ARCS1, arcstk::Checksum(0x7304F1C4));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track04;
-//	track04.insert(type::ARCS2, arcstk::Checksum(0x9E2187F9));
-//	track04.insert(type::ARCS1, arcstk::Checksum(0xF2472287));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track05;
-//	track05.insert(type::ARCS2, arcstk::Checksum(0x6BE71E50));
-//	track05.insert(type::ARCS1, arcstk::Checksum(0x881BC504));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track06;
-//	track06.insert(type::ARCS2, arcstk::Checksum(0x01E7235F));
-//	track06.insert(type::ARCS1, arcstk::Checksum(0xBB94BFD4));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track07;
-//	track07.insert(type::ARCS2, arcstk::Checksum(0xD8F7763C));
-//	track07.insert(type::ARCS1, arcstk::Checksum(0xF9CAEE76));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track08;
-//	track08.insert(type::ARCS2, arcstk::Checksum(0x8480223E));
-//	track08.insert(type::ARCS1, arcstk::Checksum(0xF9F60BC1));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track09;
-//	track09.insert(type::ARCS2, arcstk::Checksum(0x42C5061C));
-//	track09.insert(type::ARCS1, arcstk::Checksum(0x2C736302));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track10;
-//	track10.insert(type::ARCS2, arcstk::Checksum(0x47A70F02));
-//	track10.insert(type::ARCS1, arcstk::Checksum(0x1C955978));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track11;
-//	track11.insert(type::ARCS2, arcstk::Checksum(0xBABF08CC));
-//	track11.insert(type::ARCS1, arcstk::Checksum(0xFDA6D833));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track12;
-//	track12.insert(type::ARCS2, arcstk::Checksum(0x563EDCCB));
-//	track12.insert(type::ARCS1, arcstk::Checksum(0x3A57E5D1));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track13;
-//	track13.insert(type::ARCS2, arcstk::Checksum(0xAB123C7C));
-//	track13.insert(type::ARCS1, arcstk::Checksum(0x6ED5F3E7));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track14;
-//	track14.insert(type::ARCS2, arcstk::Checksum(0xC65C20E4));
-//	track14.insert(type::ARCS1, arcstk::Checksum(0x4A5C3872));
-//
-//	arcstk::ChecksumList<arcstk::ChecksumType> track15;
-//	track15.insert(type::ARCS2, arcstk::Checksum(0x58FC3C3E));
-//	track15.insert(type::ARCS1, arcstk::Checksum(0x5FE8B032));
+	CHECK ( track01.size() == 2 );
 
 
 	SECTION ( "Equality and Inequality" )
 	{
-		arcstk::ChecksumSet track02(0);
-		track02.insert(type::ARCS2, arcstk::Checksum(0xB89992E5));
-		track02.insert(type::ARCS1, arcstk::Checksum(0x98B10E0F));
+		ChecksumSet track02(0);
+		track02.insert(type::ARCS2, Checksum(0xB89992E5));
+		track02.insert(type::ARCS1, Checksum(0x98B10E0F));
 
 		CHECK ( track02 == track01 );
 		CHECK ( track01 == track02 );
@@ -2076,43 +2027,67 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	}
 
 
-	SECTION ( "copy assignment" )
-	{
-		auto track02 = track01;
-
-		CHECK ( track02 == track01 );
-		CHECK ( track01 == track02 );
-	}
-
-
 	SECTION ( "copy construction" )
 	{
-		auto track02(track01);
+		ChecksumSet track02 { track01 };
 
 		CHECK ( track02 == track01 );
 		CHECK ( track01 == track02 );
+
+		CHECK ( track02.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track02.get(type::ARCS1) == Checksum(0x98B10E0F) );
 	}
 
 
-	SECTION ( "contains()" )
+	SECTION ( "copy assignment" )
+	{
+		ChecksumSet track02;
+		track02 = track01;
+
+		CHECK ( track02 == track01 );
+		CHECK ( track01 == track02 );
+
+		CHECK ( track02.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track02.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	}
+
+
+	SECTION ( "insert(type, Checksum)" )
+	{
+		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	}
+
+
+	SECTION ( "insert(type, Checksum) same type again has no effect" )
+	{
+		track01.insert(type::ARCS2, Checksum(0x4F77EB03));
+		track01.insert(type::ARCS1, Checksum(0x475F57E9));
+
+		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	}
+
+
+	SECTION ( "contains(type)" )
 	{
 		CHECK ( track01.contains(type::ARCS2) );
 		CHECK ( track01.contains(type::ARCS1) );
 	}
 
 
-	SECTION ( "find()" ) /* find() of each position is tested with insert() */
+	SECTION ( "get(type)" )
 	{
-		CHECK ( *track01.find(type::ARCS2) == arcstk::Checksum(0xB89992E5) );
-		CHECK ( *track01.find(type::ARCS1) == arcstk::Checksum(0x98B10E0F) );
+		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
 	}
 
 
-	SECTION ( "erase()" )
+	SECTION ( "erase(type)" )
 	{
 		track01.erase(type::ARCS1);
 
-		CHECK ( 1 == track01.size() );
+		CHECK ( track01.size() == 1 );
 		CHECK ( not track01.contains(type::ARCS1) );
 		CHECK ( track01.contains(type::ARCS2) );
 	}
@@ -2122,161 +2097,253 @@ TEST_CASE ( "ChecksumList<ChecksumType>", "[checksum] [checksumset]" )
 	{
 		track01.clear();
 
-		CHECK ( 0 == track01.size() );
+		CHECK ( track01.size() == 0 );
 		CHECK ( track01.empty() );
 
 		CHECK ( not track01.contains(type::ARCS2) );
 		CHECK ( not track01.contains(type::ARCS1) );
 	}
+
+
+	SECTION ( "iterator begin() points to first entry" )
+	{
+		auto it { track01.begin()  };
+
+		CHECK ( it != track01.end() );
+
+		CHECK ( not (*it).empty() );
+		CHECK ( not it->empty() );
+	}
+
+
+	SECTION ( "const_iterator cbegin() points to first entry" )
+	{
+		auto cit { track01.cbegin() };
+
+		CHECK ( cit != track01.cend() );
+
+		CHECK ( not (*cit).empty() );
+		CHECK ( not cit->empty() );
+	}
+
+
+	SECTION ( "iterator end() points behind last entry" )
+	{
+		auto it { track01.begin()  };
+
+		// begin() + size()
+		for (auto i = track01.size(); i > 0; --i) { ++it; }
+
+		CHECK ( it == track01.end() );
+	}
+
+
+	SECTION ( "const_iterator cend() points behind last entry" )
+	{
+		auto cit { track01.cbegin() };
+
+		// begin() + size()
+		for (auto i = track01.size(); i > 0; --i) { ++cit; }
+
+		CHECK ( cit == track01.cend() );
+	}
 }
 
 
-//TEST_CASE ( "ChecksumList<TrackNo>", "[checksum] [tracklist]" )
-//{
-//	arcstk::ChecksumList<arcstk::TrackNo> track_list1;
-//
-//	track_list1.insert( 1, arcstk::Checksum(0xB89992E5));
-//	track_list1.insert( 2, arcstk::Checksum(0x4F77EB03));
-//	track_list1.insert( 3, arcstk::Checksum(0x56582282));
-//	track_list1.insert( 4, arcstk::Checksum(0x9E2187F9));
-//	track_list1.insert( 5, arcstk::Checksum(0x6BE71E50));
-//	track_list1.insert( 6, arcstk::Checksum(0x01E7235F));
-//	track_list1.insert( 7, arcstk::Checksum(0xD8F7763C));
-//	track_list1.insert( 8, arcstk::Checksum(0x8480223E));
-//	track_list1.insert( 9, arcstk::Checksum(0x42C5061C));
-//	track_list1.insert(10, arcstk::Checksum(0x47A70F02));
-//	track_list1.insert(11, arcstk::Checksum(0xBABF08CC));
-//	track_list1.insert(12, arcstk::Checksum(0x563EDCCB));
-//	track_list1.insert(13, arcstk::Checksum(0xAB123C7C));
-//	track_list1.insert(14, arcstk::Checksum(0xC65C20E4));
-//	track_list1.insert(15, arcstk::Checksum(0x58FC3C3E));
-//
-//	CHECK ( 15 == track_list1.size() );
-//	CHECK ( not track_list1.empty() );
-//
-//
-//	SECTION ( "contains()" )
-//	{
-//		CHECK ( track_list1.contains( 1) );
-//		CHECK ( track_list1.contains( 2) );
-//		CHECK ( track_list1.contains( 3) );
-//		CHECK ( track_list1.contains( 4) );
-//		CHECK ( track_list1.contains( 5) );
-//		CHECK ( track_list1.contains( 6) );
-//		CHECK ( track_list1.contains( 7) );
-//		CHECK ( track_list1.contains( 8) );
-//		CHECK ( track_list1.contains( 9) );
-//		CHECK ( track_list1.contains(10) );
-//		CHECK ( track_list1.contains(11) );
-//		CHECK ( track_list1.contains(12) );
-//		CHECK ( track_list1.contains(13) );
-//		CHECK ( track_list1.contains(14) );
-//		CHECK ( track_list1.contains(15) );
-//
-//		CHECK ( not track_list1.contains( 0) );
-//		CHECK ( not track_list1.contains(16) );
-//		CHECK ( not track_list1.contains(255) );
-//	}
-//
-//
-//	SECTION ( "copy assignment" )
-//	{
-//		auto track_list2 = track_list1;
-//
-//		CHECK ( track_list2 == track_list1 );
-//		CHECK ( track_list1 == track_list2 );
-//	}
-//
-//
-//	SECTION ( "copy construction" )
-//	{
-//		auto track_list2(track_list1);
-//
-//		CHECK ( track_list2 == track_list1 );
-//		CHECK ( track_list1 == track_list2 );
-//	}
-//
-//
-//	SECTION ( "iterators point to end() after last entry" )
-//	{
-//		CHECK ( not track_list1.empty() );
-//		CHECK ( 15 == track_list1.size() );
-//
-//		auto it  = track_list1.begin();
-//
-//		// it + 15
-//		for (auto i = track_list1.size(); i > 0; --i) { ++it; }
-//
-//		CHECK ( it == track_list1.end() );
-//		// TODO: CHECK ( it == track_list1.cend() );
-//
-//		auto cit = track_list1.cbegin();
-//
-//		// cit + 15
-//		for (auto i = track_list1.size(); i > 0; --i) { ++cit; }
-//
-//		CHECK ( cit == track_list1.cend() );
-//		// TODO: CHECK ( cit == track_list1.end() );
-//	}
-//
-//
-//	SECTION ( "find()" )
-//	{
-//		CHECK ( *track_list1.find( 1) == arcstk::Checksum(0xB89992E5) );
-//		CHECK ( *track_list1.find( 2) == arcstk::Checksum(0x4F77EB03) );
-//		CHECK ( *track_list1.find( 3) == arcstk::Checksum(0x56582282) );
-//		CHECK ( *track_list1.find( 4) == arcstk::Checksum(0x9E2187F9) );
-//		CHECK ( *track_list1.find( 5) == arcstk::Checksum(0x6BE71E50) );
-//		CHECK ( *track_list1.find( 6) == arcstk::Checksum(0x01E7235F) );
-//		CHECK ( *track_list1.find( 7) == arcstk::Checksum(0xD8F7763C) );
-//		CHECK ( *track_list1.find( 8) == arcstk::Checksum(0x8480223E) );
-//		CHECK ( *track_list1.find( 9) == arcstk::Checksum(0x42C5061C) );
-//		CHECK ( *track_list1.find(10) == arcstk::Checksum(0x47A70F02) );
-//		CHECK ( *track_list1.find(11) == arcstk::Checksum(0xBABF08CC) );
-//		CHECK ( *track_list1.find(12) == arcstk::Checksum(0x563EDCCB) );
-//		CHECK ( *track_list1.find(13) == arcstk::Checksum(0xAB123C7C) );
-//		CHECK ( *track_list1.find(14) == arcstk::Checksum(0xC65C20E4) );
-//		CHECK ( *track_list1.find(15) == arcstk::Checksum(0x58FC3C3E) );
-//
-//		CHECK ( track_list1.find(0) == track_list1.end() );
-//		CHECK ( track_list1.end()   == track_list1.find(0));
-//
-//		CHECK ( track_list1.find(16) == track_list1.end() );
-//		CHECK ( track_list1.end()    == track_list1.find(16));
-//	}
-//
-//
-//	SECTION ( "erase()" )
-//	{
-//		track_list1.erase(7);
-//
-//		CHECK ( 14 == track_list1.size() );
-//		CHECK ( not track_list1.contains(7) );
-//	}
-//
-//
-//	SECTION ( "clear()" )
-//	{
-//		track_list1.clear();
-//
-//		CHECK ( 0 == track_list1.size() );
-//		CHECK ( track_list1.empty() );
-//
-//		CHECK ( not track_list1.contains( 1) );
-//		CHECK ( not track_list1.contains( 2) );
-//		CHECK ( not track_list1.contains( 3) );
-//		CHECK ( not track_list1.contains( 4) );
-//		CHECK ( not track_list1.contains( 5) );
-//		CHECK ( not track_list1.contains( 6) );
-//		CHECK ( not track_list1.contains( 7) );
-//		CHECK ( not track_list1.contains( 8) );
-//		CHECK ( not track_list1.contains( 9) );
-//		CHECK ( not track_list1.contains(10) );
-//		CHECK ( not track_list1.contains(11) );
-//		CHECK ( not track_list1.contains(12) );
-//		CHECK ( not track_list1.contains(13) );
-//		CHECK ( not track_list1.contains(14) );
-//		CHECK ( not track_list1.contains(15) );
-//	}
-//}
+TEST_CASE ( "Checksums", "[calculate] [checksums]" )
+{
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
+
+	// Track 1
+
+	ChecksumSet track01 { 5192 };
+
+	CHECK ( track01.empty() );
+	CHECK ( track01.size()   == 0 );
+	CHECK ( track01.begin()  == track01.end() );
+	CHECK ( track01.cbegin() == track01.cend() );
+	CHECK ( track01.length() == 5192 );
+
+	track01.insert(type::ARCS2, Checksum(0xB89992E5));
+	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
+
+	CHECK ( not track01.empty() );
+	CHECK ( track01.size()   == 2 );
+	CHECK ( track01.begin()  != track01.end() );
+	CHECK ( track01.cbegin() != track01.cend() );
+	CHECK ( track01.length() == 5192 );
+	CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+	CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+
+	// Track 2
+
+	ChecksumSet track02 { 2165 };
+
+	CHECK ( track02.empty() );
+	CHECK ( track02.size()   == 0 );
+	CHECK ( track02.begin()  == track02.end() );
+	CHECK ( track02.cbegin() == track02.cend() );
+	CHECK ( track02.length() == 2165 );
+
+	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+	track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+	CHECK ( not track02.empty() );
+	CHECK ( track02.size()   == 2 );
+	CHECK ( track02.begin()  != track02.end() );
+	CHECK ( track02.cbegin() != track02.cend() );
+	CHECK ( track02.length() == 2165 );
+	CHECK ( track02.get(type::ARCS2) == Checksum(0x4F77EB03) );
+	CHECK ( track02.get(type::ARCS1) == Checksum(0x475F57E9) );
+
+	// Constructed all 15 tracks
+
+	ChecksumSet track03 { 15885 };
+	track03.insert(type::ARCS2, Checksum(0x56582282));
+	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
+
+	ChecksumSet track04 { 12228 };
+	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+	track04.insert(type::ARCS1, Checksum(0xF2472287));
+
+	ChecksumSet track05 { 13925 };
+	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+	track05.insert(type::ARCS1, Checksum(0x881BC504));
+
+	ChecksumSet track06 { 19513 };
+	track06.insert(type::ARCS2, Checksum(0x01E7235F));
+	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
+
+	ChecksumSet track07 { 18155 };
+	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
+
+	ChecksumSet track08 { 18325 };
+	track08.insert(type::ARCS2, Checksum(0x8480223E));
+	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
+
+	ChecksumSet track09 { 33075 };
+	track09.insert(type::ARCS2, Checksum(0x42C5061C));
+	track09.insert(type::ARCS1, Checksum(0x2C736302));
+
+	ChecksumSet track10 { 18368 };
+	track10.insert(type::ARCS2, Checksum(0x47A70F02));
+	track10.insert(type::ARCS1, Checksum(0x1C955978));
+
+	ChecksumSet track11 { 40152 };
+	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
+	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
+
+	ChecksumSet track12 { 14798 };
+	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
+
+	ChecksumSet track13 { 11952 };
+	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
+
+	ChecksumSet track14 { 8463 };
+	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
+
+	ChecksumSet track15 { 18935 };
+	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
+
+	// And construct the Checksums
+
+	Checksums checksums { 15 };
+	checksums[ 0] = track01;
+	checksums[ 1] = track02;
+	checksums[ 2] = track03;
+	checksums[ 3] = track04;
+	checksums[ 4] = track05;
+	checksums[ 5] = track06;
+	checksums[ 6] = track07;
+	checksums[ 7] = track08;
+	checksums[ 8] = track09;
+	checksums[ 9] = track10;
+	checksums[10] = track11;
+	checksums[11] = track12;
+	checksums[12] = track13;
+	checksums[13] = track14;
+	checksums[14] = track15;
+
+	CHECK ( checksums.size() == 15 );
+
+
+	SECTION ( "operator [] read and assign succeeds" )
+	{
+		CHECK ( checksums[ 0] == track01 );
+		CHECK ( checksums[ 1] == track02 );
+		CHECK ( checksums[ 2] == track03 );
+		CHECK ( checksums[ 3] == track04 );
+		CHECK ( checksums[ 4] == track05 );
+		CHECK ( checksums[ 5] == track06 );
+		CHECK ( checksums[ 6] == track07 );
+		CHECK ( checksums[ 7] == track08 );
+		CHECK ( checksums[ 8] == track09 );
+		CHECK ( checksums[ 9] == track10 );
+		CHECK ( checksums[10] == track11 );
+		CHECK ( checksums[11] == track12 );
+		CHECK ( checksums[12] == track13 );
+		CHECK ( checksums[13] == track14 );
+		CHECK ( checksums[14] == track15 );
+	}
+
+
+	SECTION ( "range-based for with const ref read access succeeds" )
+	{
+		int i = 0;
+
+		for (const auto& track : checksums)
+		{
+			CHECK ( not track.empty() );
+			CHECK ( not (track.length() == 0) );
+
+			++i;
+		}
+
+		CHECK ( checksums.size() == i  );
+		CHECK ( checksums.size() == 15 );
+	}
+
+
+	SECTION ( "range-based for with modifiying write access succeeds" )
+	{
+		ChecksumSet other_track { 12345 };
+		other_track.insert(type::ARCS2, Checksum(0x11111111));
+		other_track.insert(type::ARCS1, Checksum(0x22222222));
+
+		int i = 0;
+
+		for (auto& track : checksums)
+		{
+			track = other_track;
+			++i;
+		}
+
+		CHECK ( checksums.size() == i  );
+		CHECK ( checksums.size() == 15 );
+
+		CHECK ( checksums[ 0] == other_track );
+		CHECK ( checksums[ 1] == other_track );
+		CHECK ( checksums[ 2] == other_track );
+		CHECK ( checksums[ 3] == other_track );
+		CHECK ( checksums[ 4] == other_track );
+		CHECK ( checksums[ 5] == other_track );
+		CHECK ( checksums[ 6] == other_track );
+		CHECK ( checksums[ 7] == other_track );
+		CHECK ( checksums[ 8] == other_track );
+		CHECK ( checksums[ 9] == other_track );
+		CHECK ( checksums[10] == other_track );
+		CHECK ( checksums[11] == other_track );
+		CHECK ( checksums[12] == other_track );
+		CHECK ( checksums[13] == other_track );
+		CHECK ( checksums[14] == other_track );
+	}
+}
 

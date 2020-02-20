@@ -2207,63 +2207,196 @@ Calculation& Calculation::operator = (Calculation rhs)
 Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
 
 
+// Checksums::Impl
+
+
+class Checksums::Impl final
+{
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] size Number of elements
+	 */
+	explicit Impl(const Checksums::size_type size);
+
+	Impl(const Impl &rhs);
+
+	Impl(Impl &&rhs) noexcept;
+
+	~Impl() noexcept;
+
+	Checksums::iterator begin();
+
+	Checksums::iterator end();
+
+	Checksums::const_iterator cbegin() const;
+
+	Checksums::const_iterator cend() const;
+
+	ChecksumSet& get(const Checksums::size_type index);
+
+	/**
+	 * \brief Return the number of elements.
+	 *
+	 * \return Number of elements
+	 */
+	Checksums::size_type size() const;
+
+	Impl& operator = (Impl rhs);
+
+	Impl& operator = (Impl &&rhs) noexcept;
+
+
+private:
+
+	/**
+	 * \brief Sequence of tracks
+	 */
+	std::unique_ptr<ChecksumSet[]> sets_;
+
+	/**
+	 * \brief Number of tracks
+	 */
+	Checksums::size_type size_;
+};
+
+
+// Checksums::Impl
+
+
+Checksums::Impl::Impl(const Checksums::size_type size)
+	: sets_{ std::make_unique<ChecksumSet[]>(size) }
+	, size_{ size }
+{
+	// empty
+}
+
+
+Checksums::Impl::Impl(const Checksums::Impl &rhs)
+	: sets_{ std::make_unique<ChecksumSet[]>(rhs.size_) }
+	, size_{ rhs.size_ }
+{
+	std::copy(rhs.cbegin(), rhs.cend(), this->begin());
+}
+
+
+Checksums::Impl::Impl(Checksums::Impl &&rhs) noexcept = default;
+
+
+Checksums::Impl::~Impl() noexcept = default;
+
+
+Checksums::iterator Checksums::Impl::begin()
+{
+	return sets_.get();
+}
+
+
+Checksums::iterator Checksums::Impl::end()
+{
+	return std::next(sets_.get(), static_cast<long>(size_));
+	// TODO type long is additional knowledge, size_type would be generic
+
+	//return std::next(sets_.get(), size_);
+}
+
+
+Checksums::const_iterator Checksums::Impl::cbegin() const
+{
+	return sets_.get();
+}
+
+
+Checksums::const_iterator Checksums::Impl::cend() const
+{
+	return std::next(sets_.get(), static_cast<long>(size_));
+	// TODO type long is additional knowledge, size_type would be generic
+}
+
+
+ChecksumSet& Checksums::Impl::get(const Checksums::size_type index)
+{
+	return (sets_.get())[index];
+}
+
+
+Checksums::size_type Checksums::Impl::size() const
+{
+	return size_;
+}
+
+
+Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl rhs)
+{
+	this->sets_ = std::move(rhs.sets_);
+	this->size_ = rhs.size_;
+	return *this;
+}
+
+
+Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl &&rhs) noexcept
+= default;
+
+
 // Checksums
 
 
 Checksums::Checksums(size_type size)
-	: sets_( std::make_unique<ChecksumSet[]>(size) )
-	, size_( size )
+	: impl_( std::make_unique<Checksums::Impl>(size) )
 {
 	// empty
 }
 
 
 Checksums::Checksums(const Checksums &rhs)
-	: sets_( new ChecksumSet[rhs.size_] )
-	, size_(rhs.size_)
+	: impl_( std::make_unique<Checksums::Impl>(*rhs.impl_) )
 {
-	std::copy(rhs.begin(), rhs.end(), this->begin());
+	// empty
 }
 
 
 Checksums::Checksums(Checksums &&rhs) noexcept = default;
 
 
+Checksums::~Checksums() noexcept = default;
+
+
 Checksums::iterator Checksums::begin()
 {
-	return sets_.get();
+	return impl_->begin();
 }
 
 
 Checksums::iterator Checksums::end()
 {
-	return std::next(sets_.get(), static_cast<long>(size_));
-	// TODO type long is additional knowledge, size_type would be generic
+	return impl_->end();
 }
 
 
 Checksums::const_iterator Checksums::begin() const
 {
-	return sets_.get();
+	return impl_->cbegin();
 }
 
 
 Checksums::const_iterator Checksums::end() const
 {
-	return std::next(sets_.get(), static_cast<long>(size_));
-	// TODO type long is additional knowledge, size_type would be generic
+	return impl_->cend();
 }
 
 
 Checksums::const_iterator Checksums::cbegin() const
 {
-	return this->begin();
+	return impl_->cbegin();
 }
 
 
 Checksums::const_iterator Checksums::cend() const
 {
-	return this->end();
+	return impl_->cend();
 }
 
 
@@ -2280,21 +2413,19 @@ ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
 const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
 	const
 {
-	return (sets_.get())[index];
+	return impl_->get(index);
 }
 
 
 Checksums::size_type Checksums::size() const
 {
-	return size_;
+	return impl_->size();
 }
 
 
 Checksums& Checksums::operator = (const Checksums &rhs)
 {
-	Checksums sums(rhs);
-	std::swap(this->sets_, sums.sets_);
-	std::swap(this->size_, sums.size_);
+	*impl_ = *rhs.impl_;
 	return *this;
 }
 
@@ -2392,7 +2523,7 @@ Checksum& Checksum::operator = (const uint32_t rhs)
 
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 {
-	return lhs.value_ == rhs.value_;
+	return (lhs.empty() and rhs.empty()) or lhs.value() == rhs.value();
 }
 
 

@@ -149,8 +149,6 @@ class Checksum final : public details::Comparable<Checksum>
 
 public:
 
-	friend bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
-
 	/**
 	 * \brief Constructor.
 	 *
@@ -231,7 +229,7 @@ inline namespace v_1_0_0
 /**
  * \brief A set of Checksum instances of different types for a single track.
  */
-class ChecksumSet final : public ChecksumSetBase
+class ChecksumSet final : public OpaqueChecksumSetBase
 {
 
 public:
@@ -581,29 +579,32 @@ public:
 			const uint32_t amount) noexcept;
 
 	/**
-	 * \brief Iterator category is ForwardIterator.
+	 * \brief Iterator category is input_iterator.
+	 *
+	 * \todo PCMForwardIterator cannot be a forward_iterator since it is not
+	 * default constructible
 	 */
 	using iterator_category = std::forward_iterator_tag;
 
 	/**
 	 * \brief The type this iterator enumerates.
 	 */
-	using value_type        = uint32_t;
+	using value_type = uint32_t;
 
 	/**
 	 * \brief Same as value_type, *not* a reference type.
 	 */
-	using reference         = uint32_t;
+	using reference = uint32_t;
 
 	/**
 	 * \brief Const pointer to the value_type.
 	 */
-	using pointer           = const uint32_t*;
+	using pointer = const uint32_t*;
 
 	/**
 	 * \brief Pointer difference type.
 	 */
-	using difference_type   = std::ptrdiff_t;
+	using difference_type = std::ptrdiff_t;
 
 
 private:
@@ -1322,7 +1323,7 @@ public: /* types */
 	using size_type = std::size_t;
 
 
-public: /* methods */
+public: /* member functions */
 
 	/**
 	 * \brief Constructor.
@@ -1344,6 +1345,11 @@ public: /* methods */
 	 * \param[in] rhs The Checksums to move
 	 */
 	Checksums(Checksums &&rhs) noexcept;
+
+	/**
+	 * \brief Default destructor
+	 */
+	~Checksums() noexcept;
 
 	/**
 	 * \brief Returns a pointer to the first element.
@@ -1437,15 +1443,13 @@ public: /* methods */
 
 private:
 
-	/**
-	 * \brief Implementation of the set.
-	 */
-	std::unique_ptr<ChecksumSet[]> sets_;
+	// forward declaration for Checksums::Impl
+	class Impl;
 
 	/**
-	 * \brief Number of elements.
+	 * \brief Private implementation of Checksums.
 	 */
-	size_type size_;
+	std::unique_ptr<Checksums::Impl> impl_;
 };
 
 

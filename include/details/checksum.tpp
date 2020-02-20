@@ -15,6 +15,7 @@
  */
 
 
+#include <algorithm>   // for transform
 #include <map>
 #include <set>
 #include <type_traits> // for conditional
@@ -35,13 +36,14 @@ class ChecksumMap;    // forward declaration for ChecksumMapIterator
 /**
  * \internal
  *
- * \brief Iterator for @link ChecksumMap ChecksumMaps @endlink.
+ * \brief Iterator for \link ChecksumMap ChecksumMaps \endlink.
  *
  * \tparam K        The key type of the iterated ChecksumMap
  * \tparam is_const TRUE indicates a const_iterator
  */
 template <typename K, bool is_const = false>
-class ChecksumMapIterator
+class ChecksumMapIterator :
+	public details::Comparable<ChecksumMapIterator<K, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
@@ -75,7 +77,7 @@ private: /* types */
 
 public: /* types */
 
-	using difference_type   = Checksum;
+	using difference_type   = std::ptrdiff_t;
 
 	using pointer           = typename std::conditional<is_const,
 			const Checksum*, Checksum*>::type;
@@ -83,7 +85,13 @@ public: /* types */
 	using reference         = typename std::conditional<is_const,
 			const Checksum&, Checksum&>::type;
 
-	using iterator_category = typename WrappedIteratorType::iterator_category;
+	/**
+	 * \brief Iterator category
+	 *
+	 * A ChecksumMapIterator has only std::input_iterator_tag since to any
+	 * higher-level iterator tag it would have to be default constructible.
+	 */
+	using iterator_category = std::input_iterator_tag;
 
 
 public: /* methods */
@@ -101,6 +109,13 @@ public: /* methods */
 	 * \return A Checksum
 	 */
 	reference operator * ();
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A Checksum
+	 */
+	pointer operator -> ();
 
 	/**
 	 * \brief Preincrement operator
@@ -128,20 +143,6 @@ public: /* methods */
 			const ChecksumMapIterator &rhs)
 	{
 		return lhs.it_ == rhs.it_;
-	}
-
-	/**
-	 * \brief Inequality
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
-	friend bool operator != (const ChecksumMapIterator &lhs,
-			const ChecksumMapIterator &rhs)
-	{
-		return not(lhs == rhs);
 	}
 
 
@@ -197,6 +198,14 @@ typename ChecksumMapIterator<K, is_const>::reference
 
 
 template <typename K, bool is_const>
+typename ChecksumMapIterator<K, is_const>::pointer
+	ChecksumMapIterator<K, is_const>::operator -> ()
+{
+	return &it_->second;
+}
+
+
+template <typename K, bool is_const>
 ChecksumMapIterator<K, is_const>&
 	ChecksumMapIterator<K, is_const>::operator ++ ()
 {
@@ -225,20 +234,28 @@ ChecksumMapIterator<K, is_const>&
  * \tparam K The key type of this instance
  */
 template <typename K>
-class ChecksumMap
+class ChecksumMap : public Comparable<ChecksumMap<K>>
 {
 
 public: /* types */
 
+	/**
+	 * \brief Iterator
+	 */
+	using iterator = ChecksumMapIterator<K, false>;
 
-	using iterator = ChecksumMapIterator<K>;
-
+	/**
+	 * \brief Const Iterator
+	 */
 	using const_iterator = ChecksumMapIterator<K, true>;
 
+	/**
+	 * \brief Size type
+	 */
 	using size_type = std::size_t;
 
 
-public: /* methods */
+public: /* member functions */
 
 	/**
 	 * \brief Constructor
@@ -262,7 +279,7 @@ public: /* methods */
 	/**
 	 * \brief Virtual default destructor
 	 */
-	~ChecksumMap() noexcept;
+	virtual ~ChecksumMap() noexcept;
 
 
 // Access
@@ -301,8 +318,6 @@ public: /* methods */
 	 *
 	 * If there is no element for the given key, the returned iterator will be
 	 * equal to end().
-	 *
-	 * The element can not be modified via the returned iterator.
 	 *
 	 * \param[in] key The key to lookup
 	 *
@@ -353,20 +368,6 @@ public: /* methods */
 			const ChecksumMap &rhs) noexcept
 	{
 		return lhs.map_ == rhs.map_;
-	}
-
-	/**
-	 * \brief Inequality.
-	 *
-	 * \param[in] lhs The instance to check for equality
-	 * \param[in] rhs The instance to check for inequality
-	 *
-	 * \return TRUE if \c lhs is not equal to \c rhs, otherwise FALSE
-	 */
-	friend bool operator != (const ChecksumMap &lhs,
-			const ChecksumMap &rhs) noexcept
-	{
-		return not(lhs == rhs);
 	}
 
 
@@ -470,6 +471,13 @@ private:
 	 * This is not intended as part of the interface and should be ignored.
 	 */
 	std::map<K, Checksum> map_;
+
+	/**
+	 * \brief Value type of the internal map.
+	 *
+	 * This is usually std::pair<K, Checksum>.
+	 */
+	using map_value_type = typename std::map<K, Checksum>::value_type;
 };
 
 
@@ -477,7 +485,7 @@ private:
 
 
 template <typename K>
-	ChecksumMap<K>::ChecksumMap()
+ChecksumMap<K>::ChecksumMap()
 	: map_()
 {
 	// empty
@@ -485,61 +493,54 @@ template <typename K>
 
 
 template <typename K>
-	ChecksumMap<K>::ChecksumMap(const ChecksumMap &rhs)
-= default;
+ChecksumMap<K>::ChecksumMap(const ChecksumMap &rhs) = default;
 
 
-// This @relates-statement silences a doxygen 1.8.15 warning that reads
-// "no uniquely matching class member found"
 /// \relates arcstk::v_1_0_0::details::ChecksumMap(ChecksumMap &&rhs) noexcept
 template <typename K>
-	ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept
-= default;
+ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept = default;
+// Note: The \relates-statement silences a doxygen 1.8.15 warning that reads
+// "no uniquely matching class member found"
 
 
 template <typename K>
-	ChecksumMap<K>::~ChecksumMap() noexcept
-= default;
+ChecksumMap<K>::~ChecksumMap() noexcept = default;
 
 
 // ChecksumMap : Accessors
 
 
 template <typename K>
-typename ChecksumMap<K>::const_iterator
-	ChecksumMap<K>::begin() const
+auto ChecksumMap<K>::begin() const -> typename ChecksumMap<K>::const_iterator
 {
 	return const_iterator(this->map_.begin());
 }
 
 
 template <typename K>
-typename ChecksumMap<K>::const_iterator
-	ChecksumMap<K>::cbegin() const
+auto ChecksumMap<K>::cbegin() const -> typename ChecksumMap<K>::const_iterator
 {
 	return const_iterator(this->map_.cbegin());
 }
 
 
 template <typename K>
-typename ChecksumMap<K>::const_iterator
-	ChecksumMap<K>::end() const
+auto ChecksumMap<K>::end() const -> typename ChecksumMap<K>::const_iterator
 {
 	return const_iterator(this->map_.end());
 }
 
 
 template <typename K>
-typename ChecksumMap<K>::const_iterator
-	ChecksumMap<K>::cend() const
+auto ChecksumMap<K>::cend() const -> typename ChecksumMap<K>::const_iterator
 {
 	return const_iterator(this->map_.cend());
 }
 
 
 template <typename K>
-typename ChecksumMap<K>::const_iterator
-	ChecksumMap<K>::find(const K &key) const
+auto ChecksumMap<K>::find(const K &key) const ->
+		typename ChecksumMap<K>::const_iterator
 {
 	return const_iterator(this->map_.find(key));
 }
@@ -548,7 +549,7 @@ typename ChecksumMap<K>::const_iterator
 template <typename K>
 bool ChecksumMap<K>::contains(const K &key) const
 {
-#if __cplusplus >= 201703L
+#if __cplusplus >= 201703L // FIXME Use the correct value for C++20
 	return this->map_.contains(key); // C++20
 #else
 	return map_.find(key) != map_.end();
@@ -561,10 +562,24 @@ std::set<K> ChecksumMap<K>::keys() const
 {
 	std::set<K> keys;
 
-	for (const auto& entry : this->map_)
-	{
-		keys.insert(keys.end(), entry.first);
-	}
+	std::transform(
+		this->map_.begin(),
+		this->map_.end(),
+		std::inserter(keys, keys.begin()),
+		[](const map_value_type &pair)
+		{
+			return pair.first;
+		}
+	);
+
+	// Note: one could just do
+	//
+	//for (const auto& entry : this->map_)
+	//{
+	//	keys.insert(keys.end(), entry.first);
+	//}
+	//
+	// but the use of std::transform avoids the loop. Nonetheless it's ugly.
 
 	return keys;
 }
@@ -615,7 +630,7 @@ template <typename K>
 std::pair<typename ChecksumMap<K>::iterator, bool>
 	ChecksumMap<K>::insert(const K &key, const Checksum &checksum)
 {
-	auto result = this->map_.insert(std::make_pair(key, checksum));
+	auto result { this->map_.insert(std::make_pair(key, checksum)) };
 	return std::make_pair(iterator(result.first), result.second);
 }
 
@@ -671,7 +686,7 @@ ChecksumMap<K>& arcstk::v_1_0_0::details::ChecksumMap<K>::operator = (
 } // namespace details
 
 
-using ChecksumSetBase = details::ChecksumMap<checksum::type>;
+using OpaqueChecksumSetBase = details::ChecksumMap<checksum::type>;
 
 } // namespace v_1_0_0
 } // namespace arcstk
