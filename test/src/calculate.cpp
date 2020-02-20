@@ -2345,5 +2345,33 @@ TEST_CASE ( "Checksums", "[calculate] [checksums]" )
 		CHECK ( checksums[13] == other_track );
 		CHECK ( checksums[14] == other_track );
 	}
+
+
+	SECTION ( "copy assignment" )
+	{
+		Checksums copy { 0 };
+		copy = checksums;
+
+		CHECK ( checksums[ 0] == track01 );
+		CHECK ( checksums[ 1] == track02 );
+		CHECK ( checksums[ 2] == track03 );
+		CHECK ( checksums[ 3] == track04 );
+		CHECK ( checksums[ 4] == track05 );
+		CHECK ( checksums[ 5] == track06 );
+		CHECK ( checksums[ 6] == track07 );
+		CHECK ( checksums[ 7] == track08 );
+		CHECK ( checksums[ 8] == track09 );
+		CHECK ( checksums[ 9] == track10 );
+		CHECK ( checksums[10] == track11 );
+		CHECK ( checksums[11] == track12 );
+		CHECK ( checksums[12] == track13 );
+		CHECK ( checksums[13] == track14 );
+		CHECK ( checksums[14] == track15 );
+
+		CHECK ( checksums.size() == 15 );
+
+		//CHECK ( checksums == copy );
+		//CHECK ( not (checksums != copy) );
+	}
 }
 

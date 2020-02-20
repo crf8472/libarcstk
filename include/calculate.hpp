@@ -672,6 +672,7 @@ private:
 		 * \return Address of the instance
 		 */
 		virtual const void* pointer() const
+		//virtual pointer as_pointer() const
 		= 0;
 
 		/**
@@ -724,8 +725,10 @@ private:
 		}
 
 		const void* pointer() const final
+		//pointer as_pointer() const final
 		{
 			return this;
+			//return iterator_.operator->();
 		}
 
 		std::unique_ptr<Concept> clone() const final
@@ -780,6 +783,13 @@ public:
 	 * \return A uint32_t sample, returned by value
 	 */
 	reference operator * () const; // required by ForwardIterator
+
+	/**
+	 * \brief Access members of the underlying referee
+	 *
+	 * \return A pointer to the underlying referee
+	 */
+	//pointer operator -> () const; // required by ForwardIterator
 
 	/**
 	 * \brief Pre-increment iterator.
@@ -1429,7 +1439,7 @@ public: /* member functions */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	Checksums& operator = (const Checksums &rhs);
+	Checksums& operator = (Checksums rhs);
 
 	/**
 	 * \brief Move assignment.
@@ -1439,6 +1449,19 @@ public: /* member functions */
 	 * \return The right hand side of the assignment
 	 */
 	Checksums& operator = (Checksums &&rhs) noexcept;
+
+	/**
+	 * \brief Swap for Checksums
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(Checksums &lhs, Checksums &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.impl_, rhs.impl_);
+	}
 
 
 private:
@@ -1689,6 +1712,12 @@ inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
 }
 
 
+//inline PCMForwardIterator::pointer PCMForwardIterator::operator -> () const
+//{
+//	return object_->as_pointer();
+//}
+
+
 inline PCMForwardIterator& PCMForwardIterator::operator ++ ()
 {
 	object_->preincrement();
@@ -1711,6 +1740,7 @@ inline bool operator == (const PCMForwardIterator &lhs,
 		const PCMForwardIterator &rhs) noexcept
 {
 	return lhs.object_->equals(rhs.object_->pointer());
+	//return lhs.object_->equals(&rhs.object_);
 }
 
 

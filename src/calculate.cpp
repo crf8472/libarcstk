@@ -2236,7 +2236,12 @@ public:
 
 	Checksums::const_iterator cend() const;
 
-	ChecksumSet& get(const Checksums::size_type index);
+	/**
+	 * \brief Implements Checksums::operator[]
+	 *
+	 * \return ChecksumSet at position \c index
+	 */
+	const ChecksumSet& get(const Checksums::size_type index) const;
 
 	/**
 	 * \brief Return the number of elements.
@@ -2248,6 +2253,14 @@ public:
 	Impl& operator = (Impl rhs);
 
 	Impl& operator = (Impl &&rhs) noexcept;
+
+	friend void swap(Checksums::Impl &lhs, Checksums::Impl &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.sets_, rhs.sets_);
+		swap(lhs.size_, rhs.size_);
+	}
 
 
 private:
@@ -2314,10 +2327,12 @@ Checksums::const_iterator Checksums::Impl::cend() const
 {
 	return std::next(sets_.get(), static_cast<long>(size_));
 	// TODO type long is additional knowledge, size_type would be generic
+
+	//return std::next(sets_.get(), size_);
 }
 
 
-ChecksumSet& Checksums::Impl::get(const Checksums::size_type index)
+const ChecksumSet& Checksums::Impl::get(const Checksums::size_type index) const
 {
 	return (sets_.get())[index];
 }
@@ -2331,8 +2346,7 @@ Checksums::size_type Checksums::Impl::size() const
 
 Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl rhs)
 {
-	this->sets_ = std::move(rhs.sets_);
-	this->size_ = rhs.size_;
+	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
 	return *this;
 }
 
@@ -2402,9 +2416,10 @@ Checksums::const_iterator Checksums::cend() const
 
 ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
 {
-	// Confer Meyers, Scott: Effective C++, 3rd ed.,
-	// Item 3, Section "Avoiding Duplication in const and Non-const member
-	// Functions", p. 23ff
+	// Confer Meyers, Scott: Effective C++, 3rd ed., 2005, Addison-Wesley
+	// Item 3,
+	// Section "Avoiding Duplication in const and Non-const member Functions",
+	// p. 23ff
 	return const_cast<ChecksumSet&>(
 			(*static_cast<const Checksums*>(this))[index]);
 }
@@ -2423,9 +2438,9 @@ Checksums::size_type Checksums::size() const
 }
 
 
-Checksums& Checksums::operator = (const Checksums &rhs)
+Checksums& Checksums::operator = (Checksums rhs)
 {
-	*impl_ = *rhs.impl_;
+	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
 	return *this;
 }
 
