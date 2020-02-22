@@ -57,7 +57,7 @@ public:
 
 	using iterator_category = std::random_access_iterator_tag;
 
-	using value_type        = uint32_t;
+	using value_type        = sample_t;
 
 	using difference_type   = int64_t;
 	// Must be at least as wide as SampleSequence::size_type
@@ -421,7 +421,7 @@ class SampleSequenceImplBase
 
 public: /* types */
 
-	using value_type = uint32_t;
+	using value_type = sample_t;
 
 	using size_type = std::size_t;
 
@@ -497,7 +497,7 @@ protected:
 	 *
 	 * \return A PCM 32 bit sample with the higher and lower bits as passed
 	 */
-	uint32_t combine(const T higher, const T lower) const;
+	sample_t combine(const T higher, const T lower) const;
 
 	/**
 	 * \brief Returns amount that \c index exceeds <tt>size() - 1</tt>.
@@ -603,15 +603,15 @@ void SampleSequenceImplBase<T, is_planar>::set_size(
 
 
 template<typename T, bool is_planar>
-uint32_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
+sample_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
 		const T lower) const
 {
-	return (static_cast<uint32_t>(higher) << 16) |
-		(static_cast<uint32_t>(lower) & 0x0000FFFF);
+	return (static_cast<sample_t>(higher) << 16) |
+		(static_cast<sample_t>(lower) & 0x0000FFFF);
 
 	// NOTE: This works because T cannot be anything but only signed or
 	// unsigned integers of either 32 or 64 bit length. Those variants can
-	// all be handled correctly by just casting them to uint32_t.
+	// all be handled correctly by just casting them to sample_t.
 }
 
 
@@ -794,7 +794,7 @@ auto SampleSequence<T, true>::operator [] (
 	return this->combine(buffer_[right_][index], buffer_[left_][index]);
 	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
 	// Equivalent to, but seemingly not slower than:
-	//return (static_cast<uint32_t>(buffer_[right_][index]) << 16)
+	//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
 	//	| static_cast<uint16_t>(buffer_[left_][index]);
 }
 
@@ -975,7 +975,7 @@ auto SampleSequence<T, false>::operator [] (const size_type index) const
 			buffer_[2 * index + left_]);
 	// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
 	// Equivalent to, but seemingly not slower than:
-	//return (static_cast<uint32_t>(buffer_[2 * index + right_]) << 16)
+	//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
 	//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
 }
 

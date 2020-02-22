@@ -184,9 +184,9 @@ lba_count AudioSize::Impl::total_frames() const noexcept
 }
 
 
-void AudioSize::Impl::set_total_samples(const uint32_t sample_count) noexcept
+void AudioSize::Impl::set_total_samples(const uint32_t smpl_count) noexcept
 {
-	this->set_total_pcm_bytes(sample_count *
+	this->set_total_pcm_bytes(smpl_count *
 			static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE));
 }
 

@@ -103,25 +103,51 @@ struct TotallyOrdered : public Comparable<T>
 
 
 /**
- * \brief Data type for track numbers.
- *
- * Note that track numbers are 1-based. Hence, a TrackNo can also be used to
- * represent a track count. A track count has a legal maximum of 99.
- * Note that \c 0 is not a valid TrackNo.
- */
-using TrackNo = int;
-
-
-/**
  * \brief Type to represent a PCM 32 bit sample (2 channels x 16 bit).
+ *
+ * An unsigned integer of 32 bit length.
+ *
+ * The type is not intended to do arithmetic operations on it.
+ *
+ * Bitwise operators are required to work as on unsigned types.
+ *
+ * The type should have at least the size of arcstk::sample_t.
+ *
+ * \see arcstk::sample_t
  */
 using sample_type = uint32_t;
 
+/**
+ * \brief Type to represent amounts of PCM 32 bit samples.
+ *
+ * A signed integer of at least 32 bit length.
+ *
+ * The type is required to express the maximum sample count in a medium, which
+ * is MAX_BLOCK_ADDRESS * SAMPLES_PER_FRAME == 264.599.412 samples.
+ *
+ * The type is intended to perform arithmetic operations on it.
+ */
+using sample_count = uint32_t;
 
 /**
- * \brief Type to represent amounts of LBA frames
+ * \brief Type to represent amounts of LBA frames.
+ *
+ * A signed integer of at least 32 bit length.
+ *
+ * The type is required to express the maximum frame count in a medium. The
+ * value is MAX_BLOCK_ADDRESS == 449.999 frames.
+ *
+ * The type is intended to perform arithmetic operations on it.
  */
 using lba_count = uint32_t;
+
+/**
+ * \brief Data type for track numbers.
+ *
+ * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
+ * TrackNo. Hence, a TrackNo is not suitable to represent a track count.
+ */
+using TrackNo = int;
 
 
 /**

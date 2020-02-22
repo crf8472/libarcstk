@@ -589,17 +589,17 @@ public:
 	/**
 	 * \brief The type this iterator enumerates.
 	 */
-	using value_type = uint32_t;
+	using value_type = sample_type;
 
 	/**
 	 * \brief Same as value_type, *not* a reference type.
 	 */
-	using reference = uint32_t;
+	using reference = sample_type;
 
 	/**
 	 * \brief Const pointer to the value_type.
 	 */
-	using pointer = const uint32_t*;
+	using pointer = const sample_type*;
 
 	/**
 	 * \brief Pointer difference type.
@@ -780,7 +780,7 @@ public:
 	/**
 	 * \brief Dereferences the iterator.
 	 *
-	 * \return A uint32_t sample, returned by value
+	 * \return A sample_type sample, returned by value
 	 */
 	reference operator * () const; // required by ForwardIterator
 

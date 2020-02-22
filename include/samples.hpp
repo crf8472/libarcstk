@@ -22,11 +22,21 @@ inline namespace v_1_0_0
  * @{
  */
 
+
+/**
+ * \brief Type for representing a 32 bit PCM stereo sample.
+ *
+ * This should be defined identically-as or at least assignable-to
+ * arcstk::sample_type.
+ */
+using sample_t = uint32_t;
+
+
 /**
  * \brief A random access iterator for samples.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
- * a single uint32_t integer.
+ * a single sample_t integer.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator;
@@ -50,7 +60,7 @@ public: /* types */
 	/**
 	 * \brief Unsigned integer of at least 32 bit size.
 	 */
-	using value_type = uint32_t;
+	using value_type = sample_t;
 
 	using size_type = std::size_t;
 
