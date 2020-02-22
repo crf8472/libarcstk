@@ -565,6 +565,12 @@ PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
  * \link Calculation::update() update() \endlink a Calculation.
  * This allows it to pass in fact any iterator type to a Calculation.
  *
+ * The type erasure interface only ensures that the requirements of a
+ * LegacyInputIterator are met:
+ * https://en.cppreference.com/w/cpp/named_req/InputIterator
+ * Those requirements are sufficient for
+ * \link Calculation::update() updating \endlink a Calculation.
+ *
  * PCMForwardIterator can wrap any iterator with a value_type of uint32_t.
  */
 class PCMForwardIterator final : public details::Comparable<PCMForwardIterator>
@@ -579,12 +585,9 @@ public:
 			const uint32_t amount) noexcept;
 
 	/**
-	 * \brief Iterator category is input_iterator.
-	 *
-	 * \todo PCMForwardIterator cannot be a forward_iterator since it is not
-	 * default constructible
+	 * \brief Iterator category is std::input_iterator_tag.
 	 */
-	using iterator_category = std::forward_iterator_tag;
+	using iterator_category = std::input_iterator_tag;
 
 	/**
 	 * \brief The type this iterator enumerates.
@@ -597,7 +600,7 @@ public:
 	using reference = sample_type;
 
 	/**
-	 * \brief Const pointer to the value_type.
+	 * \brief Const pointer to an instance of value_type.
 	 */
 	using pointer = const sample_type*;
 
@@ -653,7 +656,7 @@ private:
 		 *
 		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 		 */
-		virtual bool equals(const void* rhs) const
+		virtual bool equals(const Concept* rhs) const
 		= 0;
 
 		/**
@@ -665,14 +668,21 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns the address of the instance
+		 * \brief Returns the address of the instance.
 		 *
 		 * Required by the equality operator.
 		 *
 		 * \return Address of the instance
 		 */
-		virtual const void* pointer() const
-		//virtual pointer as_pointer() const
+		virtual const Concept* pointer() const
+		= 0;
+
+		/**
+		 * \brief Generic pointer to wrapped iterator instance.
+		 *
+		 * \return Generic pointer to wrapped iterator
+		 */
+		virtual void* wrapped_iterator()
 		= 0;
 
 		/**
@@ -714,7 +724,7 @@ private:
 			return *iterator_;
 		}
 
-		bool equals(const void* rhs) const final
+		bool equals(const Concept* rhs) const final
 		{
 			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
 		}
@@ -724,16 +734,32 @@ private:
 			return typeid(iterator_);
 		}
 
-		const void* pointer() const final
-		//pointer as_pointer() const final
+		const Concept* pointer() const final
 		{
 			return this;
-			//return iterator_.operator->();
+		}
+
+		void* wrapped_iterator() final
+		{
+			return iterator_.operator->();
 		}
 
 		std::unique_ptr<Concept> clone() const final
 		{
 			return std::make_unique<Model>(*this);
+		}
+
+		/**
+		 * \brief Swap for Models
+		 *
+		 * \param[in] lhs Left hand side to swap
+		 * \param[in] rhs Right hand side to swap
+		 */
+		friend void swap(Model &lhs, Model &rhs)
+		{
+			using std::swap;
+
+			swap(lhs.iterator_, rhs.iterator_);
 		}
 
 		private:
@@ -748,6 +774,26 @@ private:
 
 
 public:
+
+	// LegacyIterator:
+	// ok: value_type, difference_type, pointer, reference, iterator_category
+	// ok: CopyConstructible
+	// ok: dereference operator *it mus have specified effect
+	// ok: behaviour of ++it is defined
+	// ok: CopyAssignable
+	// ok: Destructible
+	// ok: lvalues must be swappable
+
+	// EqualityComparable:
+	// ok: it1 == it2 is possible (+ reflexivity, symmetry, transitivity)
+
+	// LegacyInputIterator:
+	// ok: it1 != it2 is possible (true iff !(it1 == it2))
+	// ok?: if it1 == it2, then *it1 == *it2
+	// ok?: it->m  (means (*it).m)
+	// ok: ++it returns type T&
+	// ok? (void)it++ is equivalent to (void)++i
+	// ok? *it++ means { value_type x = *it; ++it; return x; }
 
 	/**
 	 * \brief Converting constructor.
@@ -778,33 +824,60 @@ public:
 	PCMForwardIterator(PCMForwardIterator&& rhs) noexcept;
 
 	/**
+	 * \brief Destructor
+	 */
+	~PCMForwardIterator() noexcept;
+
+	/**
 	 * \brief Dereferences the iterator.
 	 *
 	 * \return A sample_type sample, returned by value
 	 */
-	reference operator * () const; // required by ForwardIterator
+	reference operator * () const; // required by LegacyIterator
 
 	/**
 	 * \brief Access members of the underlying referee
 	 *
 	 * \return A pointer to the underlying referee
 	 */
-	//pointer operator -> () const; // required by ForwardIterator
+	//pointer operator -> () const; // required by LegacyInpuIterator
 
 	/**
 	 * \brief Pre-increment iterator.
 	 *
 	 * \return Incremented iterator
 	 */
-	PCMForwardIterator& operator ++ (); // required by ForwardIterator
+	PCMForwardIterator& operator ++ (); // required by LegacyIterator
 
 	/**
 	 * \brief Post-increment iterator.
 	 *
 	 * \return Iterator representing the state befor the increment
 	 */
-	PCMForwardIterator operator ++ (int); // required by ForwardIterator
+	PCMForwardIterator operator ++ (int); // required by LegacyInputIterator
 
+	/**
+	 * \brief Copy assignment.
+	 *
+	 * \param[in] rhs Right hand side of the assignment
+	 *
+	 * \return Instance with the assigned value
+	 */
+	PCMForwardIterator& operator = (PCMForwardIterator rhs);
+	// required by LegacyIterator
+
+	/**
+	 * \brief Swap for PCMForwardIterators.
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(PCMForwardIterator &lhs, PCMForwardIterator &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.object_, rhs.object_);
+	} // required by LegacyIterator
 
 private:
 
@@ -1706,6 +1779,9 @@ inline PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
 }
 
 
+inline PCMForwardIterator::~PCMForwardIterator() noexcept = default;
+
+
 inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
 {
 	return object_->dereference();
@@ -1714,7 +1790,8 @@ inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
 
 //inline PCMForwardIterator::pointer PCMForwardIterator::operator -> () const
 //{
-//	return object_->as_pointer();
+//	return static_cast<PCMForwardIterator::pointer>(
+//			object_->wrapped_iterator());
 //}
 
 
@@ -1733,6 +1810,14 @@ inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
 }
 
 
+inline PCMForwardIterator& PCMForwardIterator::operator = (
+		PCMForwardIterator rhs)
+{
+	swap(*this, rhs);
+	return *this;
+}
+
+
 // operators PCMForwardIterator
 
 
@@ -1740,7 +1825,6 @@ inline bool operator == (const PCMForwardIterator &lhs,
 		const PCMForwardIterator &rhs) noexcept
 {
 	return lhs.object_->equals(rhs.object_->pointer());
-	//return lhs.object_->equals(&rhs.object_);
 }
 
 

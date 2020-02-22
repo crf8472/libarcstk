@@ -556,6 +556,129 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 }
 
 
+// PCMForwardIterator
+
+
+TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
+{
+	using arcstk::sample_type;
+	using arcstk::PCMForwardIterator;
+
+	std::vector<sample_type> samples {
+		 1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
+		11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+	};
+
+
+	SECTION ( "operator * (dereference) works correctly" )
+	{
+		PCMForwardIterator sample { samples.begin() };
+		CHECK ( *sample == 1 );
+	}
+
+
+	SECTION ( "operator ++ (preincrement) works correctly" )
+	{
+		PCMForwardIterator sample { samples.begin() };
+		CHECK ( *sample == 1 );
+
+		++sample;
+		CHECK ( *sample == 2 );
+
+		++sample;
+		CHECK ( *sample == 3 );
+
+		++sample;
+		CHECK ( *sample == 4 );
+
+		++sample;
+		CHECK ( *sample == 5 );
+
+		++sample;
+		++sample;
+		++sample;
+		++sample;
+		++sample;
+		CHECK ( *sample == 10 );
+	}
+
+
+	SECTION ( "operator ++ (postincrement) works correctly" )
+	{
+		PCMForwardIterator sample { samples.begin() };
+		CHECK ( *sample == 1 );
+
+		sample++;
+		sample++;
+		sample++;
+		sample++;
+		sample++;
+		sample++;
+		CHECK ( *sample == 7 );
+
+		sample++;
+		CHECK ( *sample == 8 );
+
+		sample++;
+		CHECK ( *sample == 9 );
+
+		sample++;
+		CHECK ( *sample == 10 );
+
+		sample++;
+		sample++;
+		sample++;
+		sample++;
+		sample++;
+		CHECK ( *sample == 15 );
+	}
+
+
+	SECTION ( "operator + (addition of an amount) works correctly" )
+	{
+		PCMForwardIterator sample1 { samples.begin() };
+		CHECK ( *sample1 == 1 );
+
+		PCMForwardIterator sample2 { sample1 + 17 };
+		CHECK ( *sample2 == 18 );
+
+		PCMForwardIterator sample3 { sample1 + 19 };
+		CHECK ( *sample3 == 20 );
+	}
+
+
+	SECTION ( "operator = (copy assignment) works correctly" )
+	{
+		PCMForwardIterator sample1 { samples.begin() };
+		CHECK ( *sample1 == 1 );
+
+		PCMForwardIterator sample2 { sample1 + 15 };
+		CHECK ( *sample2 == 16 );
+
+		sample1 = sample2;
+
+		CHECK ( *sample1 == 16 );
+		CHECK ( *sample1 == *sample2 );
+		CHECK ( sample1 == sample2 );
+	}
+
+
+	SECTION ( "Lvalues are correctly swappable" )
+	{
+		PCMForwardIterator lhs { samples.begin() };
+		PCMForwardIterator rhs { samples.end() };
+
+		CHECK ( *lhs == 1 );
+		CHECK ( rhs == samples.end() );
+
+		swap(lhs, rhs);
+
+		CHECK ( lhs == samples.end() );
+		CHECK ( *rhs == 1 );
+	}
+}
+
+
 // CalcContext implementations
 
 
