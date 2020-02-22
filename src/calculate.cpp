@@ -100,12 +100,12 @@ public:
 	/**
 	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
 	 */
-	void set_total_frames(const uint32_t leadout) noexcept;
+	void set_total_frames(const lba_count leadout) noexcept;
 
 	/**
 	 * \brief Implements AudioSize::leadout_frame() const
 	 */
-	uint32_t total_frames() const noexcept;
+	lba_count total_frames() const noexcept;
 
 	/**
 	 * \brief Implements AudioSize::set_sample_count(const uint32_t smpl_count)
@@ -170,14 +170,14 @@ AudioSize::Impl::Impl(const AudioSize::UNIT unit, const uint32_t value) noexcept
 }
 
 
-void AudioSize::Impl::set_total_frames(const uint32_t frame_count) noexcept
+void AudioSize::Impl::set_total_frames(const lba_count frame_count) noexcept
 {
 	this->set_total_pcm_bytes(frame_count *
 			static_cast<unsigned int>(CDDA.BYTES_PER_FRAME));
 }
 
 
-uint32_t AudioSize::Impl::total_frames() const noexcept
+lba_count AudioSize::Impl::total_frames() const noexcept
 {
 	return this->total_pcm_bytes() /
 		static_cast<unsigned int>(CDDA.BYTES_PER_FRAME);
@@ -285,13 +285,13 @@ TrackNo CalcContext::track(const uint32_t smpl) const
 }
 
 
-uint32_t CalcContext::offset(const uint8_t track) const
+lba_count CalcContext::offset(const uint8_t track) const
 {
 	return this->do_offset(track);
 }
 
 
-uint32_t CalcContext::length(const uint8_t track) const
+lba_count CalcContext::length(const uint8_t track) const
 {
 	return this->do_length(track);
 }
@@ -558,13 +558,13 @@ TrackNo SingletrackCalcContext::do_track(const uint32_t /* smpl */) const
 }
 
 
-uint32_t SingletrackCalcContext::do_offset(const uint8_t /* track */) const
+lba_count SingletrackCalcContext::do_offset(const uint8_t /* track */) const
 {
 	return 0;
 }
 
 
-uint32_t SingletrackCalcContext::do_length(const uint8_t /* track */) const
+lba_count SingletrackCalcContext::do_length(const uint8_t /* track */) const
 {
 	return 0;
 }
@@ -775,13 +775,13 @@ TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
 }
 
 
-uint32_t MultitrackCalcContext::do_offset(const uint8_t track) const
+lba_count MultitrackCalcContext::do_offset(const uint8_t track) const
 {
 	return track < this->track_count() ? toc().offset(track + 1) : 0;
 }
 
 
-uint32_t MultitrackCalcContext::do_length(const uint8_t track) const
+lba_count MultitrackCalcContext::do_length(const uint8_t track) const
 {
 	// We define track i as the sample sequence whose first frame is LBA
 	// offset[i] and whose last frame is LBA offset[i+1] - 1.
@@ -2006,13 +2006,13 @@ AudioSize::AudioSize(AudioSize &&rhs) noexcept = default;
 AudioSize::~AudioSize() noexcept = default;
 
 
-void AudioSize::set_leadout_frame(const uint32_t leadout) noexcept
+void AudioSize::set_leadout_frame(const lba_count leadout) noexcept
 {
 	impl_->set_total_frames(leadout);
 }
 
 
-uint32_t AudioSize::leadout_frame() const noexcept
+lba_count AudioSize::leadout_frame() const noexcept
 {
 	return impl_->total_frames();
 }
@@ -2567,7 +2567,7 @@ public:
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
-	explicit Impl(const int64_t length);
+	explicit Impl(const lba_count length);
 
 	/**
 	 * \brief Copy constructor
@@ -2581,7 +2581,7 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	int64_t length() const noexcept;
+	lba_count length() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
@@ -2598,7 +2598,7 @@ private:
 	/**
 	 * \brief Internal representation of the length (in frames)
 	 */
-	int64_t length_;
+	lba_count length_;
 };
 
 
@@ -2607,7 +2607,7 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 
-ChecksumSet::Impl::Impl(const int64_t length)
+ChecksumSet::Impl::Impl(const lba_count length)
 	: length_(length)
 {
 	// empty
@@ -2621,7 +2621,7 @@ ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
 }
 
 
-int64_t ChecksumSet::Impl::length() const noexcept
+lba_count ChecksumSet::Impl::length() const noexcept
 {
 	return length_;
 }
@@ -2641,7 +2641,7 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(const int64_t length)
+ChecksumSet::ChecksumSet(const lba_count length)
 	: impl_(std::make_unique<ChecksumSet::Impl>(length))
 {
 	// empty
@@ -2662,7 +2662,7 @@ ChecksumSet::~ChecksumSet() noexcept = default;
 ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
 
 
-int64_t ChecksumSet::length() const noexcept
+lba_count ChecksumSet::length() const noexcept
 {
 	return impl_->length();
 }

@@ -1005,9 +1005,9 @@ private:
 
 	TrackNo do_track(const uint32_t smpl) const final;
 
-	uint32_t do_offset(const uint8_t track) const final;
+	lba_count do_offset(const uint8_t track) const final;
 
-	uint32_t do_length(const uint8_t track) const final;
+	lba_count do_length(const uint8_t track) const final;
 
 	ARId do_id() const final;
 
@@ -1145,9 +1145,9 @@ private:
 
 	TrackNo do_track(const uint32_t smpl) const final;
 
-	uint32_t do_offset(const uint8_t track) const final;
+	lba_count do_offset(const uint8_t track) const final;
 
-	uint32_t do_length(const uint8_t track) const final;
+	lba_count do_length(const uint8_t track) const final;
 
 	ARId do_id() const final;
 
