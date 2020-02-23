@@ -70,7 +70,7 @@ inline namespace v_1_0_0
  * Checksums from a sequence of \link Calculation::update() updates \endlink
  * by sample sequences according to its current CalcContext.
  *
- * PCMForwardIterator wraps the concrete iterator of the input sample sequence
+ * SampleInputIterator wraps the concrete iterator of the input sample sequence
  * so any class with a compatible iterator can be used.
  *
  * AudioSize represents the size of the audio data in a file in frames,
@@ -531,7 +531,7 @@ using IsSampleIterator = std::enable_if_t<
 		details::is_iterator_over<Iterator, sample_type>::value>;
 
 
-class PCMForwardIterator; // forward declaration
+class SampleInputIterator; // forward declaration
 
 
 /**
@@ -542,7 +542,7 @@ class PCMForwardIterator; // forward declaration
  *
  * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
  */
-bool operator == (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
+bool operator == (const SampleInputIterator &lhs, const SampleInputIterator &rhs)
 	noexcept;
 
 
@@ -554,7 +554,7 @@ bool operator == (const PCMForwardIterator &lhs, const PCMForwardIterator &rhs)
  *
  * \return Iterator pointing to the position advanced by \c amount
  */
-PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
+SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
 	noexcept;
 
 
@@ -571,17 +571,17 @@ PCMForwardIterator operator + (PCMForwardIterator lhs, const uint32_t amount)
  * Those requirements are sufficient for
  * \link Calculation::update() updating \endlink a Calculation.
  *
- * PCMForwardIterator can wrap any iterator with a value_type of uint32_t.
+ * SampleInputIterator can wrap any iterator with a value_type of uint32_t.
  */
-class PCMForwardIterator final : public details::Comparable<PCMForwardIterator>
+class SampleInputIterator final : public details::Comparable<SampleInputIterator>
 {
 
 public:
 
-	friend bool operator == (const PCMForwardIterator &lhs,
-			const PCMForwardIterator &rhs) noexcept;
+	friend bool operator == (const SampleInputIterator &lhs,
+			const SampleInputIterator &rhs) noexcept;
 
-	friend PCMForwardIterator operator + (PCMForwardIterator lhs,
+	friend SampleInputIterator operator + (SampleInputIterator lhs,
 			const uint32_t amount) noexcept;
 
 	/**
@@ -677,13 +677,14 @@ private:
 		virtual const Concept* pointer() const
 		= 0;
 
-		/**
+		// Commented out: Require wrapped iterator to implement operator ->
+		/* *
 		 * \brief Generic pointer to wrapped iterator instance.
 		 *
 		 * \return Generic pointer to wrapped iterator
 		 */
-		virtual void* wrapped_iterator()
-		= 0;
+		//virtual void* wrapped_iterator()
+		//= 0;
 
 		/**
 		 * \brief Returns a deep copy of the instance
@@ -739,10 +740,13 @@ private:
 			return this;
 		}
 
-		void* wrapped_iterator() final
-		{
-			return iterator_.operator->();
-		}
+		//void* wrapped_iterator() final
+		//{
+		//	return iterator_.operator->();
+		//}
+		// Commented out: Require wrapped iterator to be LegacyInpuIterator.
+		// The commented out implementation is ok, but the requirement itself
+		// seems to strict.
 
 		std::unique_ptr<Concept> clone() const final
 		{
@@ -803,7 +807,7 @@ public:
 	 * \param[in] i Instance of an iterator over \c sample_type
 	 */
 	template <class Iterator, typename = IsSampleIterator<Iterator> >
-	PCMForwardIterator(const Iterator &i)
+	SampleInputIterator(const Iterator &i)
 		: object_(std::make_unique<Model<Iterator>>(std::move(i)))
 	{
 		// empty
@@ -814,19 +818,19 @@ public:
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
-	PCMForwardIterator(const PCMForwardIterator& rhs);
+	SampleInputIterator(const SampleInputIterator& rhs);
 
 	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
-	PCMForwardIterator(PCMForwardIterator&& rhs) noexcept;
+	SampleInputIterator(SampleInputIterator&& rhs) noexcept;
 
 	/**
 	 * \brief Destructor
 	 */
-	~PCMForwardIterator() noexcept;
+	~SampleInputIterator() noexcept;
 
 	/**
 	 * \brief Dereferences the iterator.
@@ -847,14 +851,14 @@ public:
 	 *
 	 * \return Incremented iterator
 	 */
-	PCMForwardIterator& operator ++ (); // required by LegacyIterator
+	SampleInputIterator& operator ++ (); // required by LegacyIterator
 
 	/**
 	 * \brief Post-increment iterator.
 	 *
 	 * \return Iterator representing the state befor the increment
 	 */
-	PCMForwardIterator operator ++ (int); // required by LegacyInputIterator
+	SampleInputIterator operator ++ (int); // required by LegacyInputIterator
 
 	/**
 	 * \brief Copy assignment.
@@ -863,16 +867,16 @@ public:
 	 *
 	 * \return Instance with the assigned value
 	 */
-	PCMForwardIterator& operator = (PCMForwardIterator rhs);
+	SampleInputIterator& operator = (SampleInputIterator rhs);
 	// required by LegacyIterator
 
 	/**
-	 * \brief Swap for PCMForwardIterators.
+	 * \brief Swap for SampleInputIterators.
 	 *
 	 * \param[in] lhs Left hand side to swap
 	 * \param[in] rhs Right hand side to swap
 	 */
-	friend void swap(PCMForwardIterator &lhs, PCMForwardIterator &rhs)
+	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
 	{
 		using std::swap;
 
@@ -896,7 +900,7 @@ private:
  *
  * \return Iterator pointing to the position advanced by \c amount
  */
-PCMForwardIterator operator + (const uint32_t amount, PCMForwardIterator rhs)
+SampleInputIterator operator + (const uint32_t amount, SampleInputIterator rhs)
 	noexcept;
 
 
@@ -1643,7 +1647,7 @@ public:
 	 * \param[in] begin Iterator pointing to the beginning of the sequence
 	 * \param[in] end   Iterator pointing to the end of the sequence
 	 */
-	void update(PCMForwardIterator begin, PCMForwardIterator end);
+	void update(SampleInputIterator begin, SampleInputIterator end);
 
 	/**
 	 * \brief Updates the instance with a new AudioSize.
@@ -1765,70 +1769,70 @@ public:
 /** @} */
 
 
-inline PCMForwardIterator::PCMForwardIterator(const PCMForwardIterator& rhs)
+inline SampleInputIterator::SampleInputIterator(const SampleInputIterator& rhs)
 	: object_(rhs.object_->clone())
 {
 	// empty
 }
 
 
-inline PCMForwardIterator::PCMForwardIterator(PCMForwardIterator&& rhs) noexcept
+inline SampleInputIterator::SampleInputIterator(SampleInputIterator&& rhs) noexcept
 	: object_(std::move(rhs.object_))
 {
 	// empty
 }
 
 
-inline PCMForwardIterator::~PCMForwardIterator() noexcept = default;
+inline SampleInputIterator::~SampleInputIterator() noexcept = default;
 
 
-inline PCMForwardIterator::reference PCMForwardIterator::operator * () const
+inline SampleInputIterator::reference SampleInputIterator::operator * () const
 {
 	return object_->dereference();
 }
 
 
-//inline PCMForwardIterator::pointer PCMForwardIterator::operator -> () const
+//inline SampleInputIterator::pointer SampleInputIterator::operator -> () const
 //{
-//	return static_cast<PCMForwardIterator::pointer>(
+//	return static_cast<SampleInputIterator::pointer>(
 //			object_->wrapped_iterator());
 //}
 
 
-inline PCMForwardIterator& PCMForwardIterator::operator ++ ()
+inline SampleInputIterator& SampleInputIterator::operator ++ ()
 {
 	object_->preincrement();
 	return *this;
 }
 
 
-inline PCMForwardIterator PCMForwardIterator::operator ++ (int)
+inline SampleInputIterator SampleInputIterator::operator ++ (int)
 {
-	PCMForwardIterator prev_val(*this);
+	SampleInputIterator prev_val(*this);
 	object_->preincrement();
 	return prev_val;
 }
 
 
-inline PCMForwardIterator& PCMForwardIterator::operator = (
-		PCMForwardIterator rhs)
+inline SampleInputIterator& SampleInputIterator::operator = (
+		SampleInputIterator rhs)
 {
 	swap(*this, rhs);
 	return *this;
 }
 
 
-// operators PCMForwardIterator
+// operators SampleInputIterator
 
 
-inline bool operator == (const PCMForwardIterator &lhs,
-		const PCMForwardIterator &rhs) noexcept
+inline bool operator == (const SampleInputIterator &lhs,
+		const SampleInputIterator &rhs) noexcept
 {
 	return lhs.object_->equals(rhs.object_->pointer());
 }
 
 
-inline PCMForwardIterator operator + (PCMForwardIterator lhs,
+inline SampleInputIterator operator + (SampleInputIterator lhs,
 		const uint32_t amount) noexcept
 {
 	lhs.object_->advance(amount);
@@ -1836,8 +1840,8 @@ inline PCMForwardIterator operator + (PCMForwardIterator lhs,
 }
 
 
-inline PCMForwardIterator operator + (const uint32_t amount,
-		PCMForwardIterator rhs) noexcept
+inline SampleInputIterator operator + (const uint32_t amount,
+		SampleInputIterator rhs) noexcept
 {
 	return rhs + amount;
 }

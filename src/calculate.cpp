@@ -929,7 +929,7 @@ uint32_t CalcStateARCSBase::num_skip_back() const
 }
 
 
-void CalcStateARCSBase::update(PCMForwardIterator &begin, PCMForwardIterator &end)
+void CalcStateARCSBase::update(SampleInputIterator &begin, SampleInputIterator &end)
 {
 	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
 	this->do_update(begin, end);
@@ -999,7 +999,7 @@ private:
 
 	void init(const uint32_t mult) final;
 
-	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
+	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
 	/**
 	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
@@ -1031,7 +1031,7 @@ CalcStateV1::CalcStateV1()
 }
 
 
-void CalcStateV1::do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
+void CalcStateV1::do_update(SampleInputIterator &begin, SampleInputIterator &end)
 {
 	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
@@ -1191,7 +1191,7 @@ private:
 
 	void init(const uint32_t mult) final;
 
-	void do_update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
+	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
 	/**
 	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
@@ -1235,8 +1235,8 @@ CalcStateV1andV2::CalcStateV1andV2()
 }
 
 
-void CalcStateV1andV2::do_update(PCMForwardIterator &begin,
-		PCMForwardIterator &end)
+void CalcStateV1andV2::do_update(SampleInputIterator &begin,
+		SampleInputIterator &end)
 {
 	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
@@ -1437,7 +1437,7 @@ public:
 	/**
 	 * \brief Implements Calculation::update()
 	 */
-	void update(PCMForwardIterator &begin, PCMForwardIterator &end);
+	void update(SampleInputIterator &begin, SampleInputIterator &end);
 
 	/**
 	 * \brief Implements Calculation::update_audiosize(const AudioSize &audiosize).
@@ -1690,8 +1690,8 @@ bool Calculation::Impl::complete() const
 }
 
 
-void Calculation::Impl::update(PCMForwardIterator &begin,
-		PCMForwardIterator &end)
+void Calculation::Impl::update(SampleInputIterator &begin,
+		SampleInputIterator &end)
 {
 	const auto samples_in_block     { std::distance(begin, end) };
 	const auto last_sample_in_block { smpl_offset_ + samples_in_block - 1 };
@@ -1731,8 +1731,8 @@ void Calculation::Impl::update(PCMForwardIterator &begin,
 
 		// Update the calculation state with the current partition/chunk
 
-		PCMForwardIterator part_begin { begin + partition.begin_offset() };
-		PCMForwardIterator part_end   { begin + partition.end_offset()   };
+		SampleInputIterator part_begin { begin + partition.begin_offset() };
+		SampleInputIterator part_end   { begin + partition.end_offset()   };
 
 		state_->update(part_begin, part_end);
 
@@ -2134,7 +2134,7 @@ checksum::type Calculation::type() const
 }
 
 
-void Calculation::update(PCMForwardIterator begin, PCMForwardIterator end)
+void Calculation::update(SampleInputIterator begin, SampleInputIterator end)
 {
 	ARCS_LOG_DEBUG << "PROCESS BLOCK";
 

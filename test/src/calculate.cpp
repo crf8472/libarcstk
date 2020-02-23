@@ -556,13 +556,13 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 }
 
 
-// PCMForwardIterator
+// SampleInputIterator
 
 
-TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
+TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 {
 	using arcstk::sample_type;
-	using arcstk::PCMForwardIterator;
+	using arcstk::SampleInputIterator;
 
 	std::vector<sample_type> samples {
 		 1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
@@ -572,14 +572,14 @@ TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
 
 	SECTION ( "operator * (dereference) works correctly" )
 	{
-		PCMForwardIterator sample { samples.begin() };
+		SampleInputIterator sample { samples.begin() };
 		CHECK ( *sample == 1 );
 	}
 
 
 	SECTION ( "operator ++ (preincrement) works correctly" )
 	{
-		PCMForwardIterator sample { samples.begin() };
+		SampleInputIterator sample { samples.begin() };
 		CHECK ( *sample == 1 );
 
 		++sample;
@@ -605,7 +605,7 @@ TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
 
 	SECTION ( "operator ++ (postincrement) works correctly" )
 	{
-		PCMForwardIterator sample { samples.begin() };
+		SampleInputIterator sample { samples.begin() };
 		CHECK ( *sample == 1 );
 
 		sample++;
@@ -636,23 +636,23 @@ TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
 
 	SECTION ( "operator + (addition of an amount) works correctly" )
 	{
-		PCMForwardIterator sample1 { samples.begin() };
+		SampleInputIterator sample1 { samples.begin() };
 		CHECK ( *sample1 == 1 );
 
-		PCMForwardIterator sample2 { sample1 + 17 };
+		SampleInputIterator sample2 { sample1 + 17 };
 		CHECK ( *sample2 == 18 );
 
-		PCMForwardIterator sample3 { sample1 + 19 };
+		SampleInputIterator sample3 { sample1 + 19 };
 		CHECK ( *sample3 == 20 );
 	}
 
 
 	SECTION ( "operator = (copy assignment) works correctly" )
 	{
-		PCMForwardIterator sample1 { samples.begin() };
+		SampleInputIterator sample1 { samples.begin() };
 		CHECK ( *sample1 == 1 );
 
-		PCMForwardIterator sample2 { sample1 + 15 };
+		SampleInputIterator sample2 { sample1 + 15 };
 		CHECK ( *sample2 == 16 );
 
 		sample1 = sample2;
@@ -665,8 +665,8 @@ TEST_CASE ( "PCMForwardIterator", "[calculate] [iterator]" )
 
 	SECTION ( "Lvalues are correctly swappable" )
 	{
-		PCMForwardIterator lhs { samples.begin() };
-		PCMForwardIterator rhs { samples.end() };
+		SampleInputIterator lhs { samples.begin() };
+		SampleInputIterator rhs { samples.end() };
 
 		CHECK ( *lhs == 1 );
 		CHECK ( rhs == samples.end() );

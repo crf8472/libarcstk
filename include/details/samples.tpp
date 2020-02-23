@@ -123,6 +123,13 @@ public:
 	 */
 	value_type operator [] (const difference_type index) const;
 
+	/**
+	 * \brief Pointer access.
+	 *
+	 * \return 
+	 */
+	SampleIterator* operator -> ();
+
 	// Binary non-assignment operators are friends:
 	// 1.) Makes the operator a non-member to the class. (Makes type
 	// conversion for normal non-member + non-template functions work.)
@@ -255,7 +262,7 @@ public:
 	friend bool operator <= (const SampleIterator &lhs,
 			const SampleIterator &rhs) noexcept
 	{
-		return not(lhs > rhs);
+		return not(rhs < lhs);
 	}
 
 	/**

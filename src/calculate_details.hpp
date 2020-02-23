@@ -1227,7 +1227,7 @@ public:
 	 * \param[in] begin Iterator pointing to the beginning of the sequence
 	 * \param[in] end   Iterator pointing to the end of the sequence
 	 */
-	virtual void update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	virtual void update(SampleInputIterator &begin, SampleInputIterator &end)
 	= 0;
 
 	/**
@@ -1388,7 +1388,7 @@ public:
 
 	uint32_t num_skip_back() const override;
 
-	void update(PCMForwardIterator &begin, PCMForwardIterator &end) final;
+	void update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
 
 protected:
@@ -1418,7 +1418,7 @@ private:
 	/**
 	 * \brief Worker: implement update()
 	 */
-	virtual void do_update(PCMForwardIterator &begin, PCMForwardIterator &end)
+	virtual void do_update(SampleInputIterator &begin, SampleInputIterator &end)
 	= 0;
 
 	/**
