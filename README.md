@@ -32,7 +32,8 @@ Checksums" or "ARCS"s for short.
 
 - Libarcstk does not rip CDs
 - Libarcstk does not offer to read, buffer or decode any audio data. You have to
-  provide the samples on your own.
+  provide the samples on your own. (But note that there is
+  [libarcsdec](https://codeberg.org/tristero/libarcsdec).)
 - Libarcstk offers no network facilities and is not supposed to do so. The
   actual HTTP request for fetching the reference values from AccurateRip is
   better performed by the HTTP networking client of your choice.
@@ -45,7 +46,7 @@ Build and install to just use the libarcstk API:
 
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
-	$ cmake -DCMAKE_BUILD_TYPE=Release ..
+	$ cmake ..           # defaults to 'Release' build
 	$ cmake --build .
 	$ sudo make install  # installs to /usr/local
 
@@ -59,8 +60,8 @@ build switches.
 - Consult the [example applications](./examples/README.md) in the examples
   folder. They illustrate the supported usecases.
 - [Build the API documentation](BUILD.md#building-the-api-documentation) and
-  view it in a browser or [read it online]
-  (https://pages.codeberg.org/tristero/libarcstk).
+  view it in a browser or
+  [read it online](https://pages.codeberg.org/tristero/libarcstk).
 - For local ARCS calculation, also check whether
   [libarcsdec](https://codeberg.org/tristero/libarcsdec) is helpful. Its
   target is to read virtually any lossless audio format by a uniform

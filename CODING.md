@@ -26,12 +26,12 @@ libarcstk.
 
 - Header file names end with ``.hpp`` (not ``.h`` or anything else).
 - Headers do not contain definitions, except for template (member) functions or
-  for functions the compiler must be able to inline (as PCMForwardIterator and
-  the methods in the logging API).
-- Definitions of templates reside in a separate .tpp file that is included by
-  the .hpp file
-- Avoid inline definitions in the class body (maybe ok for trivial inner
-  classes)
+  for functions the compiler must be able to inline (as SampleInputIterator and
+  the functions in the logging API).
+- Usual way for template definitions is to reside in a separate .tpp file that
+  is included by the .hpp file
+- Avoid inline definitions in the class body. An exception may be when very
+  short inline friend functions are required, e.g. for operator ==
 - For templates, use ``typename`` for sites where base types are allowed and use
   ``class`` for sites where own class definitions are required.
 
@@ -61,10 +61,11 @@ libarcstk.
 - Everything declared in a header, i.e. every namespace, every function,
   every constant, every type, every class and every class member must have a
   documentation comment.
-- Every declaration in a source file except implementation classes must have
+- Every declaration in a source file except implementation classes (i.e.
+  subclasses that are ``final`` and not declared in a header) must have a
   documentation comment.
-- Implementation classes (i.e. subclasses that are ``final`` and not declared in
-  a header) and their members may or may not have documentation comments.
+- Implementation classes and their members may or may not have documentation
+  comments.
 - If something involves a value, make the unit of the value maximally clear
   (bad: ``frame_size``, ``samples`` - good: ``bytes_per_frame``,
   ``total_samples``).

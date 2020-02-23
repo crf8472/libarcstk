@@ -22,9 +22,11 @@ This versioning policy intends to obey the requirements of
 - Suffix ``alpha`` means that some implementations for the next stable release
   are available but may contain bugs of any severity.
 - Suffix ``beta`` means feature completeness in regard of the next stable
-  release and tests for all new features have been provided.
-- Suffix ``rc`` (release candidate) means that all known bugs from beta stage
-  have been fixed.
+  release and tests for all new features have been provided. API changes between
+  beta versions of the same minor version are yet possible.
+- Suffix ``rc`` (release candidate) means that all known release-critical bugs
+  from beta stage have been fixed. It is intended to not change the API for the
+  upcoming release after the first release candidate.
 - Of course, stages may be skipped if it seems reasonable. It is not guaranteed
   that all suffixes will have been used in the development release history of
   every stable release.

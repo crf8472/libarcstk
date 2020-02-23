@@ -17,12 +17,8 @@ libarcstk is compiled as C++14.
 On the other hand, libarcstk has a tendency to OOP-style design along with some
 of its patterns but avoids deep inheritance levels. Inheritance is good in case
 it helps to avoid repeating yourself, assists the intuition of the reader, helps
-decoupling and models a natural is-a relationship. However, genericity is
-considered as the bigger achievement, so when in doubt, I tried to prefer the
-generic solution over default "OOPness".
-
-For example: I tried not to bloat classes with members just to make something a
-member. Always consider whether it is better to make it a non-member non-friend.
+decoupling and models a natural is-a relationship. However, in some cases,
+templates seemed the more natural or elegant solution.
 
 The API is deliberately conservative to enable its use also by pre-C++11-code
 and perhaps by other languages at some point.
@@ -30,8 +26,9 @@ and perhaps by other languages at some point.
 
 ## Macros
 
-- Avoid new macros whenever possible. Especially, avoid defining macros for data
-  values, use constant variables instead.
+- Avoid new macros whenever possible. Macros are the natural solution for
+  inclusion guards. Avoid them for any other use. Using a macros when you could
+  use a constant is considered a bug.
 
 
 ## C-Style things

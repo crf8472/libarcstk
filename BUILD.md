@@ -24,12 +24,13 @@ major issues.
 
 - git - for testing: to clone test framework [Catch2][2] as an external project
   when running the unit tests. You also need git if you want to build the
-  documentation with m.css (instead of stock doxygen).
+  documentation with [m.css][3] (instead of stock doxygen).
 - Doxygen - for documentation: to build the API documentation in HTML or LaTeX
-- graphviz - for documentation: to build the API documentation in HTML or LaTeX
+  (graphviz/dot is not required)
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
 - include-what-you-use - for development: to control ``include``-relationships
+
 
 
 ## Building the library
@@ -39,7 +40,7 @@ folder named ``libarcstk``. Then do:
 
 	$ cd libarcstk         # your libarcstk root folder where README.md resides
 	$ mkdir build && cd build  # create build folder for out-of-source-build
-	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # configure build type
+	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # choose build type 'Release' or 'Debug'
 	$ cmake --build .    # perform the actual build
 	$ sudo make install  # installs to /usr/local
 
@@ -48,7 +49,7 @@ debug-symbols and tests.
 
 We describe the build configuration for the following profiles:
 - User (read: a developer who uses libarcstk in her project)
-- Contributing developer (who wants to debug and test)
+- Contributing developer (who wants to debug and test libarcstk)
 - Package maintainer (who intends to package libarcstk for some target system).
 
 
@@ -67,9 +68,16 @@ This will install the following files to your system:
 - the shared object libarcstk.so.x.y.z (along with a symbolic link
   ``libarcstk.so``)
   in the standard library location (e.g. /usr/local/lib)
-- the seven public header files calculate.hpp, checksum.hpp, identifier.hpp,
-  logging.hpp, match.hpp, parse.hpp and samples.hpp in the standard include
+- the seven public header files calculate.hpp, identifier.hpp, logging.hpp,
+  match.hpp, parse.hpp, samples.hpp and version.hpp in the standard include
   location (e.g. /usr/local/include).
+- the four exported non-API template headers builder.tpp, checksum.tpp,
+  samples.tpp and validate.tpp in folder ``details'' below the location where
+  the public headers are
+- the four cmake packaging files libarcstk-config.cmake,
+  libarcstk-config-version.cmake, libarcstk-targets.cmake and
+  libarcstk-targets-release.cmake that allow other projects to simply import
+  libarcstk's exported cmake targets
 - the pkg-config configuration file libarcstk.pc
 
 You can change the install prefix by calling cmake with the
@@ -90,7 +98,8 @@ For also building and running the tests, just use the corresponding switch:
 	$ cmake --build .
 	$ ctest
 
-This will take significantly longer than building without tests.
+Note: This build will take *significantly* *longer* than the build without
+tests.
 
 Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework
 [Catch2][2] within your directory ``build`` and fail if this does not work.
@@ -109,7 +118,7 @@ gcc or clang. For other compilers, default settings apply.
 During early development stage, I tended to mess up the includes. So for mere
 personal use, I configured a workflow for reviewing the includes. CMake brings
 some support for Google's tool [include-what-you-use][1]. If you have installed
-this tool, you can instruct CMake to use it:
+this tool, you can use CMake to call it on the project:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON ..
 	$ cmake --build . 2>iwuy.txt
@@ -143,8 +152,6 @@ specific modifications to the compiler default settings. Therefore, you have to
 carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
 
-Use ``-DAS_STATIC=ON`` if you like to compile libarcstk as a static library.
-
 By default, the release-build of libarcstkdec uses -O3. If you intend to change
 that, locate [CMakeLists.txt](./CMakeLists.txt) in the root directory and adjust
 it to your needs.
@@ -155,7 +162,7 @@ it to your needs.
 
 |Switch             |Description                                     |Default|
 |-------------------|------------------------------------------------|-------|
-|AS_STATIC          |Build static library instead of shared library  |OFF    |
+|AS_STATIC          |Build static library instead of shared library (experimental)|OFF    |
 |IWYU               |Use include-what-you-use on compiling           |OFF    |
 |WITH_DOCS          |Configure documentation (but don't build it)    |OFF    |
 |WITH_INTERNAL_DOCS |Configure documentation also for internal APIs (but don't build it)    |OFF    |
@@ -168,19 +175,19 @@ it to your needs.
 ## Building the API documentation
 
 When you configure the project, switch ``-DWITH_DOCS=ON`` is required to prepare
-building the documentation.
+building the documentation. Only this configuration option will create the
+target ``doc`` that can be used to build the documentation.
 
-Doxygen and the tool ``dot`` from graphviz are required for building the
-documentation. The documentation can be build as a set of static HTML pages
-or as a PDF manual using LaTeX.
+Doxygen is required for building the documentation. The documentation can be
+build as a set of static HTML pages (recommended) or as a PDF manual using
+LaTeX (experimental, currently unmaintained).
 
 
-### Quickstart: Doxygen Stock HTML
+### Quickstart: Doxygen Stock HTML (vintage, but reliable)
 
 The generation of the documentation sources must be requested at configuration
 stage. The documentation sources will not be generated automatically during
-build. It is required to call target ``doc`` manually. This target requires
-doxygen and graphviz.
+build. It is required to call target ``doc`` manually.
 
 	$ cd build
 	$ cmake -DWITH_DOCS=ON ..
@@ -191,52 +198,62 @@ subdirectories of ``build/generated-docs/``. Open the file
 ``build/generated-docs/html/index.html`` in your browser to see the entry page.
 
 
-### Doxygen with HTML5 and CSS3 (experimental)
+### Doxygen with HTML5 and CSS3 (tested, still experimental)
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
-and generates a static site in plain HTML5 and CSS3 from it (without
+and generates a static site in plain HTML5 and CSS3 from it (nearly without
 JavaScript). The resulting site presents the content much cleaner and (at least
 in my opinion) more to the point regarding its structure than the stock doxygen
 HTML output. (Which, on the other hand, gives us this warm nostalgic memory of
 the Nineties... we loved the Nineties, didn't we?)
 
-Build the m.css based documentation by the following steps:
+Build the [m.css][3] based documentation by the following steps:
 
 	$ cd build
-	$ cmake -DUSE_MCSS=ON ..   # Implies -DWITH_DOCS=ON
+	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=ON ..
 	$ cmake --build . --target doc
 
-This generates the documentation in ``build/generated-docs`` and you can load
-``build/generated-docs/html/index.html`` in your browser.
+This generates the documentation in ``build/generated-docs/mcss`` and you can
+load ``build/generated-docs/mcss/html/index.html`` in your browser.
+
+Note that ``-DUSE_MCSS=ON`` turns off the LaTeX output!
 
 CMake builds a local python sandbox with ``virtualenv``, installs jinja2 and
-Pygments in it, then clones m.css, and then runs doxygen by m.css's
-``dox2html.py`` in the process. This is a bit of a machinery and maybe it needs
-finetuning for some environments I did not foresee. Help on improvements is
-welcome.
+Pygments in it, then clones [m.css][3], and then runs doxygen in the process.
+This is a bit of a machinery and maybe it needs finetuning for some environments
+I did not foresee. Help on improvements is welcome.
 
 
-### Manual: PDF by LaTeX
+### Manual: PDF by LaTeX (early stage)
 
 Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
 installation (along with ``pdflatex``) is required for creating the manual.
 
-Building the PDF manual is only available without ``-DUSE_MCSS=ON``. Using
-``-DUSE_MCSS=ON`` will effectively turn off LaTeX source generation!
+Building the PDF manual is only available when ``USE_MCSS`` is ``OFF``. Using
+``-DUSE_MCSS=ON`` will effectively turn off LaTeX source generation! If you have
+previously configured ``USE_MCSS``, just reconfigure your build:
+
+	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=OFF ..
 
 Building the ``doc`` target like in the examples above will create the LaTeX
 sources for the PDF manual but will not automatically typeset the actual PDF
-document. If you intend to build the PDF manual, do:
+document. This requires to change directory to ``build/generated-docs/latex``
+and issue ``make``.
+
+The entire process:
 
 	$ cd build
 	$ cmake -DWITH_DOCS=ON ..  # Do not use -DUSE_MCSS=ON!
 	$ cmake --build . --target doc
-	$ cd doc/latex
+	$ cd generated-docs/latex
 	$ make
 
 This will create the manual ``refman.pdf`` in folder
 ``build/generated-docs/latex`` (while issueing loads of ``Underfull \hbox``
 warnings, which is perfectly normal).
+
+Note that I did never give any love to the manual. It will build but it will not
+be convenient or look good at its current stage!
 
 
 ## Libarcstk code in my ``$EDITOR``
