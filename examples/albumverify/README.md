@@ -1,8 +1,8 @@
 # Example application: albumverify
 
-This example application demonstrates how libarcstk is used to match the checksums
-you have from your rip with the AccurateRip checksums. This example can only
-verify entire albums.
+This example application demonstrates how libarcstk is used to match the
+checksums you have from your rip with the AccurateRip checksums. This example
+can only verify entire albums.
 
 
 ## Requirements
@@ -11,10 +11,13 @@ Dependencies for building and running:
 
 - libarcstk
 
-Install ``curl`` if you want to send actual queries to AccurateRip.
+Install a http-client like ``curl`` if you want to send actual queries to
+AccurateRip.
 
 
 ## Build
+
+The Makefile uses g++ to compile the sources.
 
 Build application with just
 
@@ -36,7 +39,7 @@ albumverify expects two mandatory parameters:
 - ``--id=...`` The AccurateRip id of the album in the form
   AAA-BBBBBBBB-CCCCCCCC-DDDDDDDD
 - ``--arcs1=...`` or ``--arcs2=...`` A comma-separated list of hexadecimal
-  numbers, representing the "actual" local checksums that are to be verified.
+  numbers, representing the actual local checksums that are to be verified.
   You have to declare ARCSv1 values by using ``--arcs1`` and ARCSv2 values by
   using ``--arcs2``. The values may or may not be prefixed by "0x".
 - The ``<name_of_the_response_file>`` is interpreted as a file holding the
@@ -58,6 +61,9 @@ On Linux these input data can be verified against the values from AccurateRip as
 follows:
 
 	$ curl -s "$(tail -1 < example_arid.txt)" | ./albumverify --id=$(head -1 < example_arid.txt) --arcs2="$(xargs < example_sums_ok.txt | tr ' ' ',')"
+
+To see the output for a partial failing verify, replace ``example_sums_ok.txt``
+by ``example_sums_fail.txt`` in the example above.
 
 For more information, read the comments in [albumverify.cpp](./albumverify.cpp).
 

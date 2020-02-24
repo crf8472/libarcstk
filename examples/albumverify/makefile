@@ -1,7 +1,8 @@
 # Makefile for the example 'albumverify', part of libarcstk
 
 CXX     := g++
-CFLAGS  := -std=c++14 -Wall -Wextra -pedantic -larcstk
+## Replace 'g++' with 'clang++' if you like to use clang
+CFLAGS  := -std=c++14 -Wall -Wextra -pedantic
 
 PROJECT := albumverify
 
@@ -9,7 +10,7 @@ PROJECT := albumverify
 	$(CXX) -c $(CFLAGS) -O3 $<
 
 $(PROJECT) : $(PROJECT).o
-	$(CXX) $(CFLAGS) $< -o $@
+	$(CXX) $(CFLAGS) $< -larcstk -o $@
 
 clean:
 	rm -f *.o $(PROJECT)

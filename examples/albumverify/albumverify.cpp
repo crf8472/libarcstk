@@ -44,16 +44,20 @@
 // This requires some boilerplate code. Although that boilerplate does not carry
 // any didactic evidence concerning libarcstk, I wanted to provide an example
 // that at least demonstrates the added value on your own input data.
-// In fact, the functions parse_arid(), parse_input_arcs() and
-// parse_match_arcs() are more or less quick and dirty dummies for just
-// providing the required input values. This is not related to getting
-// acquainted to the libarcstk API.
+// In fact, the functions
+//
+// parse_arid(),
+// parse_input_arcs() and
+// parse_match_arcs()
+//
+// are more or less quick and dirty dummies for just providing the required
+// input values. This is not related to getting acquainted to the libarcstk API.
 // The actual example demonstrating the use of the AlbumMatcher class is
 // contained in main(). It's very simple to use. Have fun!
 
 
 /**
- * Parse the ARId from the command line.
+ * \brief Parse the ARId from the command line.
  *
  * @param[in] input_id A string representation of the ARId
  *
@@ -63,20 +67,20 @@ arcstk::ARId parse_arid(const char* input_id)
 {
 	const std::string id_str { input_id };
 
-	uint16_t track_count = std::stoul(id_str.substr(0, 3), nullptr, 10);
-	uint32_t id_1 = std::stoul(id_str.substr(4, 8), nullptr, 16);
-	uint32_t id_2 = std::stoul(id_str.substr(13, 8), nullptr, 16);
-	uint32_t cddb_id = std::stoul(id_str.substr(22, 8), nullptr, 16);
+	const uint16_t track_count = std::stoul(id_str.substr(0, 3), nullptr, 10);
+	const uint32_t id_1 = std::stoul(id_str.substr(4, 8), nullptr, 16);
+	const uint32_t id_2 = std::stoul(id_str.substr(13, 8), nullptr, 16);
+	const uint32_t cddb_id = std::stoul(id_str.substr(22, 8), nullptr, 16);
 
 	return arcstk::ARId(track_count, id_1, id_2, cddb_id);
 }
 
 
 /**
- * Parse a comma-separated list of hexadecimal numbers.
+ * \brief Parse a comma-separated list of hexadecimal numbers.
  *
  * @param[in] list A string representation of the list
- * @param[in] t The checksum type to declare (either ARCS1 or ARCS2)
+ * @param[in] t    The checksum type to declare (either ARCS1 or ARCS2)
  *
  * @return Parsed Checksums
  */
@@ -84,23 +88,23 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
 {
 	const std::string checksum_list { list };
 
-	const size_t total_tracks =
-		1 + std::count(checksum_list.begin(), checksum_list.end(), ',');
+	const auto total_tracks { static_cast<std::size_t>(
+		1 + std::count(checksum_list.begin(), checksum_list.end(), ',')) };
 
 	arcstk::Checksums checksums { total_tracks };
 
-	std::string token;
-	uint32_t arcs;
+	std::string::size_type token_start { 0 };
+	std::string::size_type token_end   { checksum_list.find_first_of(',') };
 
-	std::string::size_type token_start = 0;
-	std::string::size_type token_end   = checksum_list.find_first_of(',');
-
-	auto prev_settings = std::cout.flags();
+	auto prev_settings { std::cout.flags() };
 	std::cout << "My checksums to match:" << std::endl;
+
+	std::string token; // current token
+	uint32_t arcs; // ARCS of the current token
 	for (std::size_t i = 0; i < total_tracks; ++i)
 	{
 		token = checksum_list.substr(token_start, token_end - token_start);
-		arcs = std::stoul(token, nullptr, 16);
+		arcs  = std::stoul(token, nullptr, 16);
 
 		std::cout << "Track "
 			<< std::dec
@@ -114,9 +118,10 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
 			<< " - " << std::setw(3) << std::setfill(' ') << token_end << ")"
 			<< '\n';
 
-		checksums[i].insert(t, arcstk::Checksum(std::stoul(token, nullptr, 16)));
+		//checksums[i].insert(t, arcstk::Checksum(std::stoul(token, nullptr, 16)));
+		checksums[i].insert(t, arcstk::Checksum(arcs));
 		token_start = token_end + 1;
-		token_end = checksum_list.find_first_of(',', token_start);
+		token_end   = checksum_list.find_first_of(',', token_start);
 
 		if (token_end == std::string::npos)
 		{
@@ -130,7 +135,7 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
 
 
 /**
- * Parse ARCSs from a non-empty response file or from stdin.
+ * \brief Parse ARCSs from a non-empty response file or from stdin.
  *
  * @param[in] filename Name of the response file (maybe empty, then stdin)
  *
@@ -138,13 +143,10 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
  */
 arcstk::ARResponse parse_match_arcs(const std::string &filename)
 {
-	auto content_hdlr = std::make_unique<arcstk::DefaultContentHandler>();
-
+	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
 	arcstk::ARResponse response_data;
 	content_hdlr->set_object(response_data);
-
-	auto error_hdlr = std::make_unique<arcstk::DefaultErrorHandler>();
-
+	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
 	std::unique_ptr<arcstk::ARStreamParser> parser;
 
 	if (filename.empty())
@@ -188,17 +190,17 @@ int main(int argc, char* argv[])
 	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
 	// Parse the AccurateRip id of the album passed from the command line
-	const arcstk::ARId arid = parse_arid( argv[1] + 5 );
+	const arcstk::ARId arid { parse_arid(argv[1] + 5) };
 
 	std::cout << "Album ID: " << arid.to_string() << '\n';
 
 	// Parse declared ARCS type (ARCSv1 or ARCSv2)
-	arcstk::checksum::type type = argv[2][6] == '1'
+	arcstk::checksum::type type { argv[2][6] == '1'
 		? arcstk::checksum::type::ARCS1
-		: arcstk::checksum::type::ARCS2;
+		: arcstk::checksum::type::ARCS2 };
 
 	// Parse the checksums of the album passed from the command line
-	const arcstk::Checksums checksums = parse_input_arcs( argv[2] + 8, type );
+	const arcstk::Checksums checksums { parse_input_arcs(argv[2] + 8, type) };
 
 	// Parse the checksums to be matched from file or stdin
 	std::string filename;
@@ -206,13 +208,13 @@ int main(int argc, char* argv[])
 	{
 		filename = std::string(argv[3]);
 	}
-	const arcstk::ARResponse arcss = parse_match_arcs(filename);
+	const arcstk::ARResponse arcss { parse_match_arcs(filename) };
 
 	// Now the interesting part: peform the match.
 	// The AlbumMatcher class targets situations in which you have a list of
 	// checksums and you _know_ in which order they form the album. Therefore
 	// AlbumMatcher is the device of choice here.
-	arcstk::AlbumMatcher matcher(checksums, arid, arcss);
+	arcstk::AlbumMatcher matcher { checksums, arid, arcss };
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
 	// arcstk::TracksetMatcher.
@@ -236,10 +238,10 @@ int main(int argc, char* argv[])
 
 	// And now print the gory details
 
-	auto match { matcher.match() };
-	auto block { matcher.best_match() };
-	int trackno {0};
-	bool is_match = false;
+	auto match    { matcher.match() };
+	auto block    { matcher.best_match() };
+	auto trackno  { 0 };
+	bool is_match { false };
 
 	auto prev_settings = std::cout.flags();
 

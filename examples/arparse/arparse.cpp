@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 {
 	// Use the default parser content handler that just returns the parsed
 	// content as an object
-	auto content_hdlr = std::make_unique<arcstk::DefaultContentHandler>();
+	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
 	// Of course you could just write a content handler that prints every parsed
 	// entitity instead of constructing an object from it.
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
 	// Use the standard error handler that just throws an exception on invalid
 	// input.
-	auto error_hdlr = std::make_unique<arcstk::DefaultErrorHandler>();
+	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
 
 	// Pointer to the parser object, concrete parser type is not yet known.
 	std::unique_ptr<arcstk::ARStreamParser> parser;
@@ -83,10 +83,11 @@ int main(int argc, char* argv[])
 	std::cout << "  ARCS   Conf. Frame450" << std::endl;
 	std::cout << "-----------------------" << std::endl;
 
-	auto prev_cout_settings { std::cout.flags() }; // Save current cout settings
+	// Save current cout settings
+	const auto prev_cout_settings { std::cout.flags() };
 
 	// Traverse the response data and print every parsed entity
-	int block_counter {1};
+	auto block_counter { 1 };
 	for (const auto& block : response_data)
 	{
 		std::cout << "Block: " << block_counter << "/"

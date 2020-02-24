@@ -4,24 +4,25 @@
 //
 
 #include <cstdint>   // for uint32_t etc.
+#include <cstdio>    // for fopen, fclose, FILE
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
 extern "C" {
-#include <libcue/libcue.h>         // libcue for parsing the CUEsheet
+#include <libcue/libcue.h>        // libcue for parsing the CUEsheet
 }
-#include <sndfile.hh>              // libsndfile for reading the audio file
+#include <sndfile.hh>             // libsndfile for reading the audio file
 
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
+#ifndef __LIBARCSTK_CALCULATE_HPP__ // libarcstk: calculate ARCSs
 #include <arcstk/calculate.hpp>
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
 #include <arcstk/identifier.hpp>
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef __LIBARCSTK_LOGGING_HPP__   // libarcstk: log what you do
 #include <arcstk/logging.hpp>
 #endif
 
@@ -35,14 +36,14 @@ extern "C" {
 
 
 /**
- * Parse a CUEsheet and return offsets and implicitly the track count.
+ * \brief Parse a CUEsheet and return offsets and implicitly the track count.
  *
  * This method is implemented without any use of libarcstk. It just has to be
  * available for parsing the CUESheet.
  *
  * @param[in] cuefilename Name of the CUEsheet file to parse
  *
- * @return Offsets
+ * @return STL-like container with a size_type holding offsets
  */
 auto parse_cuesheet(const std::string &cuefilename)
 {
@@ -71,7 +72,7 @@ auto parse_cuesheet(const std::string &cuefilename)
 	std::vector<int> offsets;
 
 	auto track_count = ::cd_get_ntrack(cdinfo);
-	offsets.reserve(track_count);
+	offsets.reserve(static_cast<decltype(offsets)::size_type>(track_count));
 
 	for (int i = 1; i <= track_count; ++i)
 	{
@@ -104,7 +105,7 @@ auto parse_cuesheet(const std::string &cuefilename)
  *
  * @return Total number of samples
  */
-auto total_samples(const std::string &audiofilename)
+auto get_total_samples(const std::string &audiofilename)
 {
 	// libsndfile provides file handle
 	SndfileHandle audiofile(audiofilename, SFM_READ);
@@ -127,47 +128,46 @@ int main(int argc, char* argv[])
 	const std::string audiofilename { argv[2] };
 
 	// If you like, you can activate the internal logging of libarcstk to
-	// see what's going on behind the scenes. We provide an appender for stdout
-	// and set the loglevel to 'INFO', which means you should probably not see
-	// anything unless you give libarcstk unexpected input.
+	// see what's going on behind the scenes. We provide an appender for stdout.
 	arcstk::Logging::instance().add_appender(
 			std::make_unique<arcstk::Appender>("stdout", stdout));
 
-	// Set this to DEBUG or DEBUG1 if you want to see what libarcstk is
-	// doing with your input.
+	// 'INFO' means you should probably not see anything unless you give
+	// libarcstk unexpected input.  Try 'DEBUG' or 'DEBUG1' if you want to
+	// see more about what libarcstk is doing with your input.
 	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
-	// Calculation will have to distinguish the tracks in the audiofile. To
-	// identify the track bounds, we need the TOC, precisely:
+	// Calculation will have to distinguish the tracks in the audiofile.
+	// To identify the track bounds, we need the TOC, precisely:
 	// 1. the number of tracks
 	// 2. the track offset for each track
 	// 3. the leadout frame
 
-	// Since the CUEsheet usually does not know the length of the last track,
-	// we may receive only 1. and 2. from the actual CUESheet. In this case, we
-	// have to derive the leadout frame from the audio data using libarcstk's
-	// AudioReader::acquire_size() method.  But thanks to libsndfile, this
-	// is not even necessary: the information is conveniently provided by the
+	// We derive 1. total number of tracks and 2. actual track offsets from
+	// parsing the CUEsheet.  We skip the details here for libarcstk does not
+	// provide this functionality and the author just did a quick hack with
+	// libcue.  (Just consult the implementation of function parse_cuesheet()
+	// if you are interested in the details, but this is libcue, not libarcstk.)
+	auto offsets { parse_cuesheet(cuefilename) };
+	// Skip santiy checks and everything you could do with try/catch ...
+
+	// Two completed, one to go.  Since the CUEsheet usually does not know the
+	// length of the last track, we have to derive the leadout frame from the
+	// audio data.  We could do this quite convenient by using libarcstk's
+	// AudioReader::acquire_size() method.  But thanks to libsndfile, this is
+	// not even necessary: the information is conveniently provided by the
 	// audiofile handle:
-	arcstk::AudioSize audiosize;
-	audiosize.set_sample_count(total_samples(audiofilename));
+	arcstk::AudioSize total_samples;
+	total_samples.set_sample_count(get_total_samples(audiofilename));
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
-	// "PCM 32 samples" or just "samples". Our "sample" represents a pair of
+	// "PCM 32 bit samples" or just "samples". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
 	// Libsndfile's frame encodes the same information as 2 signed 16 bit
 	// integers, one per channel.
 
-	// One completed, two to go. We derive track number and offsets from parsing
-	// the CUEsheet. We skip the details here for libarcstk does not provide
-	// this functionality and the author just did a quick hack with libcue.
-	// (Just consult the implementation of function parse_cuesheet if you are
-	// interested in the details, but this is libcue, not libarcstk.)
-	auto offsets { parse_cuesheet(cuefilename) };
-	// Skip santiy checks and everything you could do with try/catch ...
-
 	// We now have derived all relevant metadata from our input files.
 	// Let's print it one last time before starting with the real business:
-	for (unsigned int i = 1; i < offsets.size(); ++i)
+	for (decltype(offsets)::size_type i = 1; i < offsets.size(); ++i)
 	{
 		std::cout << "Track " << std::setw(2) << std::setfill(' ') << i
 			<< " offset: "
@@ -175,17 +175,25 @@ int main(int argc, char* argv[])
 			<< std::endl;
 	}
 	std::cout << "Track count: " << offsets.size()                << std::endl;
-	std::cout << "Leadout: "     << audiosize.leadout_frame() << std::endl;
+	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
 
 	// Step 1: Use libarcstk to construct the TOC.
-	// This validates the parsed toc data and will throw if the parsed data is
-	// inconsistent. For providing a nice message, you could wrap this command
-	// in a try/catch block.
-	auto toc { arcstk::make_toc(offsets, audiosize.leadout_frame()) };
+	std::unique_ptr<arcstk::TOC> toc = nullptr;
+	try
+	{
+		// This validates the parsed toc data and will throw if the parsed data
+		// is inconsistent.
+		toc = arcstk::make_toc(offsets, total_samples.leadout_frame());
+
+	} catch (const std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	// Step 2: Since the TOC is guaranteed to be complete, i.e. yield a non-zero
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.
-	auto id { arcstk::make_arid(toc) };
+	const auto id { arcstk::make_arid(toc) };
 
 	std::cout << "ID: " << id->to_string() << std::endl;
 	std::cout << "Filename: " << id->filename() << std::endl;

@@ -10,9 +10,6 @@ libarcstk, the author feels you should have some code to start with.
 Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
 
-Of course the examples can be plugged together on a shell command line to
-demonstrate how they complement each other.
-
 Note: The example applications do only target situations where an entire album
 as a single audio file along with its metadata (as a CUESheet) is to be
 processed. This restriction keeps the examples reasonably small. Of course,

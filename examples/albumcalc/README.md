@@ -17,6 +17,8 @@ Dependencies for building and running:
 
 ## Build
 
+The Makefile uses g++ to compile the sources.
+
 Build application with just
 
 	$ make
@@ -28,11 +30,11 @@ For removing all compiled and temporary files, just use
 
 ## Usage
 
-albumcalc expects two filenames as parameters, the first being a CUE sheet and
+albumcalc expects two filenames as parameters, the first being a CUEsheet and
 the second an audio file in a lossless audio format that can be read by
 libsndfile, e.g. RIFFWAV/PCM or FLAC/FLAC.
 
-	$ ./albumcalc <name_of_chuesheet.cue> <name_of_audio_file>
+	$ ./albumcalc <name_of_cuesheet.cue> <name_of_audio_file>
 
 For more information, read the comments in [albumcalc.cpp](./albumcalc.cpp).
 
