@@ -39,6 +39,9 @@
 build/*
 compile_commands.json
 
+# clang files
+.clangd/*
+
 # vim intermediate files
 *.swp
 *.swo
