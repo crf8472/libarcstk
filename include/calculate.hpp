@@ -119,7 +119,7 @@ static const type types[] = {
 
 
 /**
- * \brief Return the name of a checksum::type.
+ * \brief Name of a checksum::type.
  *
  * \param[in] t Type to get name of
  *
@@ -316,7 +316,7 @@ class AudioSize; // forward declaration for operator ==
 
 
 /**
- * \brief Equality
+ * \brief Equality.
  *
  * \param[in] lhs The left hand side of the comparison
  * \param[in] rhs The right hand side of the comparison
@@ -566,12 +566,13 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
  * This allows it to pass in fact any iterator type to a Calculation.
  *
  * The type erasure interface only ensures that the requirements of a
- * LegacyInputIterator are met:
- * https://en.cppreference.com/w/cpp/named_req/InputIterator
- * Those requirements are sufficient for
+ * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
+ * LegacyInputIterator</A> are met. Those requirements are sufficient for
  * \link Calculation::update() updating \endlink a Calculation.
  *
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t.
+ *
+ * \todo SampleInputIterator::operator->() is currently not available
  */
 class SampleInputIterator final : public details::Comparable<SampleInputIterator>
 {
@@ -746,7 +747,7 @@ private:
 		//}
 		// Commented out: Require wrapped iterator to be LegacyInpuIterator.
 		// The commented out implementation is ok, but the requirement itself
-		// seems to strict.
+		// seems too strict.
 
 		std::unique_ptr<Concept> clone() const final
 		{
@@ -1345,12 +1346,22 @@ private:
 	= 0;
 };
 
+/**
+ * \brief Create a CalcContext from an audio filename and two skip flags.
+ *
+ * \param[in] skip_front    Tell wether to skip the front samples
+ * \param[in] skip_back     Tell wether to skip the back samples
+ *
+ * \return CalcContext for the input
+ */
+std::unique_ptr<CalcContext> make_context(const bool &skip_front,
+		const bool &skip_back);
 
 /**
  * \brief Create a CalcContext from an audio filename and two skip flags.
  *
- * The file will not be read, the filename is just declared. It is allowed to be
- * omitted and defaults to an empty std::string in this case.
+ * The file will not be opened by the object, it is just declared as part of the
+ * metadata.
  *
  * \param[in] skip_front    Tell wether to skip the front samples
  * \param[in] skip_back     Tell wether to skip the back samples
@@ -1360,14 +1371,22 @@ private:
  */
 std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 		const bool &skip_back,
-		const std::string &audiofilename = std::string());
-
+		const std::string &audiofilename);
 
 /**
  * \brief Create a CalcContext from an audio filename and a TOC.
  *
- * The file will not be read, the filename is just declared. It is allowed to be
- * omitted and defaults to an empty std::string in this case.
+ * \param[in] toc The TOC to use
+ *
+ * \return CalcContext for the input
+ */
+std::unique_ptr<CalcContext> make_context(const TOC &toc);
+
+/**
+ * \brief Create a CalcContext from an audio filename and a TOC.
+ *
+ * The file will not be opened by the object, it is just declared as part of the
+ * metadata.
  *
  * \param[in] toc           The TOC to use
  * \param[in] audiofilename The name of the audiofile, empty be default
@@ -1375,14 +1394,18 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
  * \return CalcContext for the input
  */
 std::unique_ptr<CalcContext> make_context(const TOC &toc,
-		const std::string &audiofilename = std::string());
-
+		const std::string &audiofilename);
 
 /**
- * \copydoc make_context(const TOC&, const std::string &)
+ * \copydoc make_context(const TOC&)
+ */
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
+
+/**
+ * \copydoc make_context(const TOC&, const std::string&)
  */
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
-		const std::string &audiofilename = std::string());
+		const std::string &audiofilename);
 
 
 /**

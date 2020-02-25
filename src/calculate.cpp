@@ -2469,6 +2469,13 @@ InvalidAudioException::InvalidAudioException(const char *what_arg)
 
 
 std::unique_ptr<CalcContext> make_context(const bool &skip_front,
+		const bool &skip_back)
+{
+	return make_context(skip_front, skip_back, details::empty_string);
+}
+
+
+std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 		const bool &skip_back,
 		const std::string &audiofilename)
 {
@@ -2482,13 +2489,28 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 // make_context (TOC, audiofile)
 
 
+std::unique_ptr<CalcContext> make_context(const TOC &toc)
+{
+	return make_context(toc, details::empty_string);
+}
+
+
 std::unique_ptr<CalcContext> make_context(const TOC &toc,
 		const std::string &audiofilename)
 {
 	// Note: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::MultitrackCalcContext>(toc,
-			NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK, audiofilename);
+			NUM_SKIP_SAMPLES_FRONT,
+			NUM_SKIP_SAMPLES_BACK,
+			audiofilename);
 }
+
+
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc)
+{
+	return make_context(toc, details::empty_string);
+}
+
 
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename)
