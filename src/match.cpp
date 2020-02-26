@@ -50,15 +50,15 @@ void log(const Match &match);
 
 void log(const Match &match)
 {
-	for (int b { 0 }; b < match.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < match.total_blocks(); ++b)
 	{
 		ARCS_LOG_DEBUG << "Block " << b;
 
-		for (int t { 0 }; t < match.tracks_per_block(); ++t)
+		for (auto t = int { 0 }; t < match.tracks_per_block(); ++t)
 		{
 			ARCS_LOG_DEBUG << "  Track " << (t+1);
 
-			for (int v { 0 }; v < 2; ++v)
+			for (auto v = int { 0 }; v < 2; ++v)
 			{
 				ARCS_LOG_DEBUG << "v" << (v+1) << ": " << match.track(b, t, v);
 			}
@@ -329,12 +329,6 @@ bool DefaultMatchBase::do_id(int b) const
 
 	const auto i { static_cast<DefaultMatchBase::size_type>(block_start(b)) };
 
-	// Commented out: exception from stdlib is sufficient
-	//if (i > this->size() - 1)
-	//{
-	//	throw std::runtime_error("Block index too big");
-	//}
-
 	return flag_[i];
 }
 
@@ -352,21 +346,15 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 
 	const auto i { static_cast<DefaultMatchBase::size_type>(index(b, t, v2)) };
 
-	// Commented out: exception from stdlib is sufficient
-	//if (i > this->size() - 1)
-	//{
-	//	throw std::runtime_error("Accessor too big");
-	//}
-
 	return flag_[i];
 }
 
 
 int64_t DefaultMatchBase::do_difference(int b, bool v2) const
 {
-	uint32_t difference { (id(b) ? 0 : 1u) }; // also calls validate_block()
+	auto difference = uint32_t { (id(b) ? 0 : 1u) }; // also calls validate_block()
 
-	for (int trk { 0 }; trk < tracks_per_block_; ++trk)
+	for (auto trk = int { 0 }; trk < tracks_per_block_; ++trk)
 	{
 		difference += ( track(b, trk, v2) ? 0u : 1u );
 	}
@@ -418,12 +406,6 @@ int DefaultMatchBase::set_id(int b, bool value)
 
 	const auto offset { block_start(b) };
 
-	// Commented out: not necessary
-	//if (static_cast<DefaultMatchBase::size_type>(offset) > this->size() - 1)
-	//{
-	//	throw std::runtime_error("Block index too big");
-	//}
-
 	flag_.emplace(flag_.begin() + offset, value);
 	return block_start(b);
 }
@@ -436,12 +418,6 @@ int DefaultMatchBase::set_track(int b, int t, bool v2, bool value)
 
 	const auto i { index(b, t, v2) };
 
-	// Commented out: not necessary
-	//if (static_cast<DefaultMatchBase::size_type>(i) > this->size() - 1)
-	//{
-	//	throw std::runtime_error("Accessor too big");
-	//}
-
 	flag_.emplace(flag_.begin() + i, value);
 	return i;
 }
@@ -451,7 +427,7 @@ void DefaultMatchBase::validate_block(int b) const
 {
 	if (blocks_ - b < 1)
 	{
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "Block index " << b << " too big, only " << blocks_
 			<< " blocks in response";
 
@@ -464,7 +440,7 @@ void DefaultMatchBase::validate_track(int t) const
 {
 	if (tracks_per_block_ - t < 1)
 	{
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "Track index " << t << " too big, only " << tracks_per_block_
 			<< " tracks in album";
 
@@ -790,11 +766,11 @@ int MatcherImplBase::best_block(const DefaultMatch &m,
 		return -1;
 	}
 
-	auto best_diff    { 100 }; // maximal difference possible, 99 tracks + id
-	int  curr_diff_v1 { 0 };
-	int  curr_diff_v2 { 0 };
+	auto best_diff = int { 100 }; // maximal difference possible, 99 tracks + id
+	auto curr_diff_v1 = int { 0 };
+	auto curr_diff_v2 = int { 0 };
 
-	for (int b { 0 }; b < m.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < m.total_blocks(); ++b)
 	{
 		// Note: v2 matching will always be preferred over v1 matching
 
@@ -844,8 +820,8 @@ const DefaultMatch * MatcherImplBase::match() const
 
 int MatcherImplBase::mark_best_block()
 {
-	int  block   { 0 };
-	bool version { false };
+	auto block = int { 0 };
+	auto version = bool { false };
 
 	auto status { this->best_block(*match_, block, version) };
 
@@ -907,10 +883,10 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 	auto match { std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size()) };
 
-	int block_i { 0 };
-	int bitpos  { 0 };
-	Checksums::size_type track_j { 0 };
-	bool is_v2 { false };
+	auto block_i = int { 0 };
+	auto bitpos = int { 0 };
+	auto track_j = Checksums::size_type { 0 };
+	auto is_v2 = bool { false };
 
 	Checksum checksum;
 
@@ -1099,11 +1075,11 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 	auto match { std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size()) };
 
-	int block_i { 0 };
-	int track_j { 0 };
-	int bitpos  { 0 };
-	Checksums::size_type start_track { 0 };
-	bool is_v2 { false };
+	auto block_i = int { 0 };
+	auto track_j = int { 0 };
+	auto bitpos = int { 0 };
+	auto start_track = Checksums::size_type { 0 };
+	auto is_v2 = bool { false };
 
 	Checksum checksum;
 

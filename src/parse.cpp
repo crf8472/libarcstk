@@ -141,7 +141,7 @@ std::vector<char> StdIn::bytes()
 	// Cancel on error
 	if (std::ferror(stdin))
 	{
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "While opening stdin for input: " << std::strerror(errno)
 			<< " (errno " << errno << ")";
 
@@ -150,9 +150,9 @@ std::vector<char> StdIn::bytes()
 
 	// Commented out version with std::array (lines 149,155 and 167)
 
-	std::vector<char> bytes; // collects the input bytes
+	auto bytes = std::vector<char> {}; // collects the input bytes
 	auto buf { std::make_unique<char[]>(buf_size()) }; // input buffer
-	std::size_t len; // number of bytes read from stdin
+	auto len = std::size_t { 0 }; // number of bytes read from stdin
 
 	// As long as there are any bytes, read them
 
@@ -160,7 +160,7 @@ std::vector<char> StdIn::bytes()
 	{
 		if (std::ferror(stdin) and not std::feof(stdin))
 		{
-			std::stringstream msg;
+			auto msg = std::stringstream {};
 			msg << "While reading from stdin: " << std::strerror(errno)
 				<< " (errno " << errno << ")";
 
@@ -1533,7 +1533,7 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 	constexpr int BHB { 13 }; // number of block header bytes
 	constexpr int BPT {  9 }; // number of bytes in a triplet
 
-	std::stringstream cause;
+	auto cause = std::stringstream {};
 
 	if (byte_pos > block_byte_pos) // This actually must be the case
 	{
@@ -1549,10 +1549,10 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		cause << "Unknown.";
 	}
 
-	std::stringstream logical_pos;
-	logical_pos << "Block " << block;
+	auto logical_pos = std::stringstream {};
+	auto logical_err = std::stringstream {};
 
-	std::stringstream logical_err;
+	logical_pos << "Block " << block;
 
 	if (block_byte_pos == 0) // error at block start (expected more blocks?)
 	{
@@ -1647,7 +1647,7 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		}
 	}
 
-	std::stringstream message;
+	auto message = std::stringstream {};
 	message << "Read error after byte " << byte_pos
 		<< ", Logical error position: " << logical_pos.str()
 		<< ", Problem: " << logical_err.str()
@@ -1913,7 +1913,7 @@ const ErrorHandler& ARStreamParser::Impl::error_handler() const
 
 uint32_t ARStreamParser::Impl::parse_stream(std::istream &in_stream)
 {
-	uint32_t bytes { 0 };
+	auto bytes = uint32_t { 0 };
 	try
 	{
 		bytes = this->parse_stream_worker(in_stream);
@@ -1945,7 +1945,7 @@ void ARStreamParser::Impl::on_error(const uint32_t byte_pos,
 		error_handler_->error(byte_pos, block, block_byte_pos);
 	}
 
-	std::stringstream ss;
+	auto ss = std::stringstream {};
 	ss << "Error on input byte " << byte_pos << " (block " << block
 		<< ", byte " << block_byte_pos << ")";
 
@@ -1965,19 +1965,19 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 	std::vector<char> id(BLOCK_HEADER_BYTES * sizeof(char));
 	std::vector<char> triplet(TRIPLET_BYTES * sizeof(char));
 
-	TrackNo track_count { 0 };
-	uint32_t discId1 { 0 };
-	uint32_t discId2 { 0 };
-	uint32_t cddbId { 0 };
-	unsigned int confidence { 0 };
-	uint32_t trk_arcs { 0 };
-	uint32_t frame450_arcs { 0 };
+	auto track_count = TrackNo { 0 };
+	auto discId1 = uint32_t { 0 };
+	auto discId2 = uint32_t { 0 };
+	auto cddbId = uint32_t { 0 };
+	auto confidence = unsigned { 0 };
+	auto trk_arcs = uint32_t { 0 };
+	auto frame450_arcs = uint32_t { 0 };
 
-	unsigned int bytes_read { 0 };
+	auto bytes_read = unsigned { 0 };
 
-	unsigned int byte_counter { 0 };
-	unsigned int block_counter { 0 };
-	unsigned int block_byte_counter { 0 };
+	auto byte_counter = unsigned { 0 };
+	auto block_counter = unsigned { 0 };
+	auto block_byte_counter = unsigned { 0 };
 
 	content_handler_->start_input();
 
@@ -2092,7 +2092,7 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 
 		// Read triplets of current block
 
-		for (uint8_t trk { 0 }; trk < track_count; ++trk)
+		for (auto trk = uint8_t { 0 }; trk < track_count; ++trk)
 		{
 			try
 			{

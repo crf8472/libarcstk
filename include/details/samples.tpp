@@ -636,7 +636,7 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(
 {
 	if (this->out_of_range(index))
 	{
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "Index out of bounds: " << index << ". Size: " << this->size();
 		throw std::out_of_range(msg.str());
 	}

@@ -491,8 +491,8 @@ private:
 // Appender
 
 inline Appender::Appender(const std::string &filename)
-	: name_(filename)
-	, stream_(std::fopen(name_.c_str(), "a"))
+	: name_ { filename }
+	, stream_ { std::fopen(name_.c_str(), "a") }
 {
 	if (!stream_)
 	{
@@ -504,8 +504,8 @@ inline Appender::Appender(const std::string &filename)
 
 
 inline Appender::Appender(const std::string &name, FILE* stream)
-	: name_(name)
-	, stream_(stream)
+	: name_ { name }
+	, stream_ { stream }
 {
 	if (!stream)
 	{
@@ -558,8 +558,8 @@ inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
 
 
 inline Logger::Logger()
-	: appenders_()
-	, log_timestamps_(true)
+	: appenders_ {}
+	, log_timestamps_ { true }
 {
 	// empty
 }
@@ -618,22 +618,24 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
 
 inline std::string now_time()
 {
-	auto now = std::chrono::system_clock::now();
+	const auto now { std::chrono::system_clock::now() };
 	std::stringstream ss;
 
 	// Print year, month, day, hour, minute, second
 
 	{
-		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+		std::time_t now_time { std::chrono::system_clock::to_time_t(now) };
 		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
 	}
 
 	// Print milliseconds
 
 	{
-		auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
-		auto m = now - seconds;
-		auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(m);
+		const auto secs {
+			std::chrono::time_point_cast<std::chrono::seconds>(now) };
+		const auto m { now - secs };
+		const auto millis {
+			std::chrono::duration_cast<std::chrono::milliseconds>(m) };
 		ss << "." << millis.count();
 	}
 
@@ -645,9 +647,9 @@ inline std::string now_time()
 
 
 inline Log::Log(const Logger &logger, LOGLEVEL msg_level)
-	: os_()
-	, logger_(&logger)
-	, msg_level_(msg_level)
+	: os_ {}
+	, logger_ { &logger }
+	, msg_level_ { msg_level }
 {
 	// empty
 }
@@ -751,8 +753,8 @@ inline LOGLEVEL Log::from_string(const std::string& level)
 
 
 inline Logging::Logging()
-	: mutex_()
-	, level_(LOGLEVEL::WARNING)
+	: mutex_ {}
+	, level_ { LOGLEVEL::WARNING }
 {
 	// empty
 }

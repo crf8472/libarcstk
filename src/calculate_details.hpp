@@ -43,7 +43,7 @@ namespace details
 /**
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
-const std::string empty_string { std::string() };
+const auto empty_string = std::string { std::string() };
 
 
 // Forward Declaration Required for Partitioner
@@ -587,7 +587,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count { number_of_samples };
+	const auto sample_count = uint32_t { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -597,7 +597,8 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	uint32_t block_last_smpl { this->last_sample_idx(offset, sample_count) };
+	auto block_last_smpl = uint32_t {
+		this->last_sample_idx(offset, sample_count) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
@@ -608,7 +609,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	uint32_t chunk_first_smpl { offset };
+	auto chunk_first_smpl = uint32_t { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -617,17 +618,17 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 
 	// Will be track_count+1 if 1st sample is beyond global last relevant sample
 	// This entails that the loop is not entered for irrelevant partitions
-	TrackNo   track  { context.track(chunk_first_smpl) };
+	auto track = TrackNo { context.track(chunk_first_smpl) };
 
 	// If track > track_count this is global last sample
-	uint32_t  chunk_last_smpl   { context.last_relevant_sample(track) };
+	auto chunk_last_smpl = uint32_t { context.last_relevant_sample(track) };
 
-	uint32_t  begin_offset { 0 } ;
-	uint32_t  end_offset   { 0 } ;
-	bool      starts_track { false } ;
-	bool      ends_track   { false } ;
+	auto begin_offset = uint32_t { 0 } ;
+	auto end_offset   = uint32_t { 0 } ;
+	auto starts_track = bool     { false } ;
+	auto ends_track   = bool     { false } ;
 
-	const uint8_t last_track { context.track_count() };
+	const auto last_track = uint8_t { context.track_count() };
 
 
 	// Now construct all partitions except the last (that needs clipping) in a
@@ -729,7 +730,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count { number_of_samples };
+	const auto sample_count = uint32_t { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -739,7 +740,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	uint32_t chunk_last_smpl { this->last_sample_idx(offset, sample_count) };
+	auto chunk_last_smpl = uint32_t { this->last_sample_idx(offset, sample_count) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
@@ -750,7 +751,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	uint32_t chunk_first_smpl { offset };
+	auto chunk_first_smpl = uint32_t { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -774,11 +775,11 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 
 	// Determine first sample in partition (easy for singletrack: 0)
 
-	const uint32_t begin_offset { chunk_first_smpl - offset };
+	const auto begin_offset = uint32_t { chunk_first_smpl - offset };
 
 	// Determine last sample in partition (easy for singletrack: sample_count)
 
-	const uint32_t end_offset { chunk_last_smpl - offset + 1 };
+	const auto end_offset = uint32_t { chunk_last_smpl - offset + 1 };
 
 	Partitioning chunks;
 	chunks.push_back(
@@ -1573,7 +1574,7 @@ template <typename T, typename TUPLE, typename F>
 T instantiate(F&& func, std::size_t i)
 {
 	T instance;
-	bool found { false };
+	auto found = bool { false };
 
 	// find the enum value whose size corresponds to the index position of the
 	// type in TUPLE and invoke func on it
@@ -1594,7 +1595,7 @@ T instantiate(F&& func, std::size_t i)
 
 	if (not found)
 	{
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "No type found with id " << i;
 
 		throw std::invalid_argument(msg.str());

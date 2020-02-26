@@ -93,7 +93,7 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 	// Do the range check
 	if (t < 1 or static_cast<decltype(container_size)>(t) > container_size)
 	{
-		std::stringstream message;
+		auto message = std::stringstream {};
 		message << "Track " << t << " is out of range (yields index "
 			<< (t - 1) << " but max index is " << (container_size - 1) << ")";
 
@@ -800,7 +800,7 @@ std::vector<lba_count> TOCBuilder::build_offsets(
 
 	if (offsets.size() != lengths.size())
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
 			<< " lengths for " << std::to_string(offsets.size()) << " offsets";
 
@@ -839,7 +839,7 @@ std::vector<lba_count> TOCBuilder::build_lengths(Container&& lengths,
 
 	if (lengths.size() != static_cast<std::size_t>(track_count))
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Cannot construct TOC with " << std::to_string(lengths.size())
 			<< " lengths for " << std::to_string(track_count) << " tracks";
 

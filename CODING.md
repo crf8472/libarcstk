@@ -19,7 +19,8 @@ libarcstk.
 - Non-public class member variables are suffixed with an underscore:
   ``config_``, ``handler_``, etc.
 - Namespace names are lower case ASCII-letters (``[a-z]``)
-- Macro names are upper case ASCII-letters and may have underscores (``[A-Z_]``)
+- Macro names are upper case ASCII-letters and may contain underscores
+  (``[A-Z_]``)
 
 
 # Headers, Declarations, Definitions
@@ -40,9 +41,12 @@ libarcstk.
 
 - Use tabs not spaces for indenting
 - 1 indent step is 1 tab = 4 spaces.
-- Put opening and closing curly braces (``{`` and ``}``) on the next line.
+- Put opening and closing curly braces of blocks (``{`` and ``}``) on the next
+  line.
 - There is no space after the opening parenthesis ``(`` and no space before the
   closing parenthesis ``)``.
+- Braced initializers: There is one space before and after the opening brace
+  ``{`` and one space before the closing brace ``}``.
 - There is a space before and after any operator.
 - Put the ``= 0;`` of a pure virtual method declaration on a separate line.
 - Constructor initialization lists are formatted with one assignment per line,
@@ -98,9 +102,8 @@ libarcstk.
 - Libarcstk project files have unix line endings (== line feed,``0x0A``).
   Whatever your git is configured to checkout, ensure that your git commits unix
   line endings.
-- Ensure that every source file you modify has a unix line ending at the end of
-  file. Every line ends with a unix line ending and the end of file must have
-  a unix line ending too.
+- Ensure that every source file you modify has a unix line ending (a blank line)
+  at the end of the file.
 - Libarcstk project files are encoded UTF-8. Whatever your git is configured to
   checkout, ensure that your git commits UTF-8 encoded characters.
 

@@ -763,10 +763,10 @@ TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
 		return CDDA.MAX_TRACKCOUNT + 1;
 	}
 
-	const int last_track { this->track_count() };
+	const auto last_track = int { this->track_count() };
 
 	// Increase track number while sample is smaller than track's last relevant
-	TrackNo track { 0 };
+	auto track = TrackNo { 0 };
 	for (uint32_t last_sample_trk { this->last_relevant_sample(track) } ;
 			smpl > last_sample_trk and track <= last_track ;
 			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
@@ -1034,7 +1034,7 @@ CalcStateV1::CalcStateV1()
 
 void CalcStateV1::do_update(SampleInputIterator &begin, SampleInputIterator &end)
 {
-	for (auto pos { begin }; pos != end; ++pos, ++multiplier_)
+	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
 		subtotal_v1_ += (multiplier_ * (*pos)) & LOWER_32_BITS_;
 	}
@@ -1239,7 +1239,7 @@ CalcStateV1andV2::CalcStateV1andV2()
 void CalcStateV1andV2::do_update(SampleInputIterator &begin,
 		SampleInputIterator &end)
 {
-	for (auto pos { begin }; pos != end; ++pos, ++multiplier_)
+	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
 		update64_ = multiplier_ * (*pos);
 		subtotal_v1_ +=  update64_ & LOWER_32_BITS_;
@@ -1647,7 +1647,7 @@ void Calculation::Impl::set_type(const checksum::type type)
 	{
 		ARCS_LOG_ERROR << e.what();
 
-		std::stringstream msg;
+		auto msg = std::stringstream {};
 		msg << "Could not load CalcState for requested type "
 			<< checksum::type_name(type) << ": ";
 		msg << e.what();
@@ -1719,8 +1719,8 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 
 	// Update the internal CalcState with each partition in this partitioning
 
-	uint16_t partition_counter        { 0 };
-	uint32_t relevant_samples_counter { 0 };
+	auto partition_counter = uint16_t { 0 };
+	auto relevant_samples_counter = uint32_t { 0 };
 
 	const auto start_time { std::chrono::steady_clock::now() };
 	for (const auto& partition : partitioning)
@@ -1732,8 +1732,9 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 
 		// Update the calculation state with the current partition/chunk
 
-		SampleInputIterator part_begin { begin + partition.begin_offset() };
-		SampleInputIterator part_end   { begin + partition.end_offset()   };
+		auto part_begin = SampleInputIterator { begin + partition.begin_offset() };
+		auto part_end = SampleInputIterator { begin + partition.end_offset()   };
+		// FIXME Do not allocate in loop
 
 		state_->update(part_begin, part_end);
 
@@ -1823,9 +1824,9 @@ Checksums Calculation::Impl::result() const
 	{
 		// multitrack
 
-		for (uint8_t i { 0 }; i < track_count; ++i)
+		for (auto i = uint8_t { 0 }; i < track_count; ++i)
 		{
-			ChecksumSet checksums { context_->length(i) };
+			auto checksums = ChecksumSet { context_->length(i) };
 
 			checksums.merge(state_->result(i + 1));
 
@@ -1835,7 +1836,7 @@ Checksums Calculation::Impl::result() const
 	{
 		// singletrack
 
-		ChecksumSet checksums { context_->audio_size().leadout_frame() };
+		auto checksums = ChecksumSet { context_->audio_size().leadout_frame() };
 
 		checksums.merge(state_->result()); // alias for result(0)
 
@@ -1947,15 +1948,15 @@ void Calculation::Impl::log_partition(const uint16_t i,
 {
 	ARCS_LOG_DEBUG << "  CHUNK " << i << "/" << n;
 
-	const uint32_t chunk_first_smpl_idx { chunk.first_sample_idx() };
-	const uint32_t chunk_last_smpl_idx  { chunk.last_sample_idx()  };
+	const auto chunk_first_smpl_idx = uint32_t { chunk.first_sample_idx() };
+	const auto chunk_last_smpl_idx = uint32_t { chunk.last_sample_idx()  };
 
 	const uint32_t samples_in_chunk {
 		chunk_last_smpl_idx - chunk_first_smpl_idx + 1
 		// chunk_first_smpl_idx counts as relevant therefore + 1
 	};
 
-	const bool chunk_starts_track { chunk.starts_track() };
+	const auto chunk_starts_track = bool { chunk.starts_track() };
 
 	ARCS_LOG_DEBUG << "    Samples " << chunk_first_smpl_idx
 			<< " - "              << chunk_last_smpl_idx
@@ -2771,7 +2772,7 @@ auto as_integral_value(E const value)
 std::string to_hex_str(const Checksum &checksum, const bool upper,
 		const bool base)
 {
-	std::stringstream ss;
+	auto ss = std::stringstream {};
 	ss << std::hex
 		<< (base  ? std::showbase  : std::noshowbase  )
 		<< (upper ? std::uppercase : std::nouppercase )

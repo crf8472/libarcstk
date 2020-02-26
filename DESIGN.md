@@ -35,7 +35,7 @@ and perhaps by other languages at some point.
 
 - Absolutely *never* use C-style casts, they are totally forbidden. Use
   only C++-casts. For conversions of arithmetic types prefer braced initializers
-  (e.g. ``uint32_t{foo}``).
+  (e.g. ``uint32_t { foo }``).
 - Avoid using the C-API entirely wherever possible, do things C++style.
 - If you absolutely must use the C-API for now, use it via its C++-headers
   whenever possible (e.g. ``cstdint`` instead of ``stdint.h``) to avoid
@@ -53,8 +53,8 @@ and perhaps by other languages at some point.
   reason for a global: this can also be a static member of a class/struct or a
   function just returning the constant.)
 - Make it a member of a class except for good reasons (e.g. in case of
-  operators, service methods or if encapsulation is better supported by making
-  it a non-member non-friend.).
+  operators, service functions, builder functions or if encapsulation is better
+  supported by making it a non-member non-friend.).
 
 
 ## Types
@@ -66,7 +66,10 @@ and perhaps by other languages at some point.
 - Use non-owning raw pointers sparingly, except for very good reasons.
 - Prefer ``using A = foo::A`` over ``typedef foo::A A``.
 - Prefer choosing the minimal possible scope for a using declarative. Avoid
-  any declarative of the form ``using namespace``.
+  any declarative of the form ``using namespace foo`` except for good reasons.
+- Prefer the form ``auto foo { expr }`` for auto-typed and ``auto foo = type
+  {expr}`` for fixed-type variables (see [Gotw94][1]).
+- Prefer braced initialization, also in constructor lists.
 
 
 ## Classes
@@ -75,8 +78,9 @@ and perhaps by other languages at some point.
   accessors and mutators instead. Also trivial accessors and mutators are ok.
 - Classes in exported header files should be Pimpls. The forward declaration
   and the opaque pointer in the Pimpl class are ``private``.
-- A class declaration contains only declaration of its members, but never their
-  inline implementation. (Inlining is no reason, static is no reason.)
+- A class declaration contains only declaration of its members, but not their
+  inline implementation. (Inlining is no reason, static is no reason. Inline
+  non-member friend functions are an accepted exception.)
 - The definition ``= default`` has to be in the source file not in the header
   since it is an implementation detail.
 - The definition ``= delete`` has to be in the header not in the source file
@@ -100,10 +104,10 @@ and perhaps by other languages at some point.
 - Any header file only declares symbols that are intentionally part of its API.
   Symbols in a header may not exist "by accident" or for "technical reasons".
   If you absolutely must provide a symbol in a header that is not considered
-  part of the public API enclose it in a namespace ``details``.
-- Of course forward declared implementation pointers are ok.
+  part of the public API enclose it in a namespace ``details``. Of course
+  forward declared implementation pointers are ok.
 - Non-public files (such as .tpp files with template implementations) reside
-  in a directory ``details`` within the ``arcs`` directory.
+  in a directory ``details`` within the top-level include directory.
 
 
 ## Dependencies
@@ -116,9 +120,11 @@ and perhaps by other languages at some point.
 ## Tests
 
 - If it does anything non-trivial, add a unit test for it.
-- Keep one testcase file per module, since compiling tests is expensive.
+- Keep one testcase file per module, since the modules are of moderate size and
+  compiling tests is expensive.
 - If it is not part of the public API but needs to be tested, move it to a
   separate header, that is included to a non-public namespace at its actual site
   and included "as-if-public" by the test class. Give it the same name as the
   public header it belongs to, suffixed by ``_details``.
 
+[1]: https://herbsutter.com/2013/08/12/gotw-94-solution-aaa-style-almost-always-auto/

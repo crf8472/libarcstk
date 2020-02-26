@@ -67,7 +67,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 {
 	// Override TOC leadout with optional non-null extra leadout
 
-	lba_count leadout_val { leadout };
+	auto leadout_val = lba_count { leadout };
 
 	if (leadout_val > 0)
 	{
@@ -93,7 +93,7 @@ uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
-	uint32_t sum_offsets { 0 };
+	auto sum_offsets = uint32_t { 0 };
 
 	for (const auto &o : offsets) { sum_offsets += o; }
 
@@ -107,9 +107,9 @@ uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
 
-	uint32_t accum { 0 };
+	auto accum = uint32_t { 0 };
 
-	uint16_t track { 1 };
+	auto track = uint16_t { 1 };
 	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
 
 	return accum + static_cast<uint32_t>(leadout) /* must be > 0*/ * track;
@@ -120,7 +120,7 @@ uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 		const lba_count leadout) noexcept
 {
 	const auto fps { static_cast<uint32_t>(CDDA.FRAMES_PER_SEC) };
-	uint32_t accum { 0 };
+	auto accum = uint32_t { 0 };
 
 	for (const auto &o : offsets)
 	{
@@ -132,7 +132,7 @@ uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 		static_cast<uint32_t>(leadout) / fps  -  offsets[0] / fps };
 
 	// since 0 <= offsets.size <= 99 narrowing is no problem
-	const uint32_t track_count { static_cast<uint32_t>(offsets.size()) };
+	const auto track_count = uint32_t { static_cast<uint32_t>(offsets.size()) };
 
 	return (accum << 24u) | (total_seconds << 8u) | track_count;
 }
@@ -347,7 +347,7 @@ bool ARId::Impl::empty() const noexcept
 
 std::string ARId::Impl::to_string() const noexcept
 {
-	std::stringstream id;
+	auto id = std::stringstream {};
 
 	id << std::dec
 		<< std::setw(3) << std::setfill('0') << this->track_count()
@@ -377,15 +377,15 @@ std::string ARId::Impl::construct_filename(const TrackNo track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) const noexcept
 {
-	std::stringstream ss;
+	auto ss = std::stringstream {};
 
-	std::ios_base::fmtflags dec_flags { ss.flags() };
+	auto dec_flags = std::ios_base::fmtflags { ss.flags() };
 	dec_flags &= ~ss.basefield;
 	dec_flags &= ~ss.adjustfield;
 	dec_flags |= ss.right;
 	dec_flags |= ss.dec;
 
-	std::ios_base::fmtflags hex_flags { ss.flags() };
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
 	hex_flags &= ~ss.basefield;
 	hex_flags &= ~ss.adjustfield;
 	hex_flags |= ss.right;
@@ -410,9 +410,9 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) const noexcept
 {
-	std::stringstream ss;
+	auto ss = std::stringstream {};
 
-	std::ios_base::fmtflags hex_flags { ss.flags() };
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
 	hex_flags &= ~ss.basefield;
 	hex_flags &= ~ss.adjustfield;
 	hex_flags |= ss.right;

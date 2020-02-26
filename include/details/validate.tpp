@@ -182,7 +182,7 @@ public:
 	 *
 	 * Will be TRUE for types with a size, otherwise false.
 	 */
-	static const bool value { sizeof(test<T>(nullptr)) == sizeof(yes) };
+	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -225,7 +225,7 @@ public:
 	 *
 	 * Will be TRUE for types with begin() const, otherwise false.
 	 */
-	static bool const value { sizeof(test<T>(nullptr)) == sizeof(yes) };
+	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -268,7 +268,7 @@ public:
 	 *
 	 * Will be TRUE for types with end() const, otherwise false.
 	 */
-	static bool const value { sizeof(test<T>(nullptr)) == sizeof(yes) };
+	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -362,7 +362,7 @@ public:
 	 *
 	 * Will be TRUE for types whose value_type is std::string, otherwise false.
 	 */
-	static const bool value { sizeof(test<T>(nullptr)) == sizeof(yes) };
+	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -605,7 +605,7 @@ void TOCValidator::validate_offsets(Container&& offsets)
 
 	if (offsets.size() == 0)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "No offsets were given. Bail out.";
 
 		throw InvalidMetadataException(ss.str());
@@ -614,7 +614,7 @@ void TOCValidator::validate_offsets(Container&& offsets)
 	if (offsets.size() >
 			static_cast<decltype(offsets.size())>(CDDA.MAX_TRACKCOUNT))
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Offsets are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
 
@@ -627,7 +627,7 @@ void TOCValidator::validate_offsets(Container&& offsets)
 
 	if (*track < 0)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Cannot construct TOC with negative offset for first track: "
 			<< std::to_string(offsets[0]);
 
@@ -655,7 +655,7 @@ void TOCValidator::validate_offsets(Container&& offsets)
 
 		if (*track > static_cast<int64_t>(CDDA.MAX_OFFSET))
 		{
-			std::stringstream ss;
+			auto ss = std::stringstream {};
 			ss << "Offset " << std::to_string(*track)
 				<< " for track " << std::to_string(t);
 
@@ -720,7 +720,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 
 	if (offsets_count != static_cast<decltype(offsets_count)>(track_count))
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Track count does not match offset count." << " Bail out.";
 
 		throw InvalidMetadataException(ss.str());
@@ -751,7 +751,7 @@ void TOCValidator::validate(const TrackNo track_count,
 
 	if (leadout < *last_track + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Leadout frame " << leadout
 			<< " is too near to last offset " << *last_track
 			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
@@ -780,7 +780,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	if (lengths.size() == 0)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "No lengths were given. Bail out.";
 
 		throw InvalidMetadataException(ss.str());
@@ -789,7 +789,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 	if (lengths.size() >
 			static_cast<decltype(lengths.size())>(CDDA.MAX_TRACKCOUNT))
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Lengths are only possible for at most "
 			<< CDDA.MAX_TRACKCOUNT << " tracks";
 
@@ -798,7 +798,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	// Length values are valid?
 
-	lba_count sum_lengths { 0 };
+	auto sum_lengths = lba_count { 0 };
 
 	auto last { --std::end(lengths) };
 	auto t { 1 };
@@ -808,7 +808,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 	{
 		if (*track < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 		{
-			std::stringstream ss;
+			auto ss = std::stringstream {};
 			ss << "Cannot construct TOC with illegal length "
 				<< std::to_string(*track) << " for track "
 				<< std::to_string(t);
@@ -823,7 +823,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	if (sum_lengths > CDDA.MAX_OFFSET)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Total length " << std::to_string(sum_lengths);
 
 		if (sum_lengths > MAX_OFFSET_99)
@@ -864,7 +864,7 @@ void TOCValidator::validate_leadout(const lba_count leadout)
 
 	if (static_cast<int64_t>(leadout) < CDDA.MIN_TRACK_OFFSET_DIST)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout
 			<< " is smaller than minimum track length";
 
@@ -875,7 +875,7 @@ void TOCValidator::validate_leadout(const lba_count leadout)
 
 	if (leadout > CDDA.MAX_BLOCK_ADDRESS)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout << " exceeds physical maximum";
 
 		throw InvalidMetadataException(ss.str());
@@ -885,7 +885,7 @@ void TOCValidator::validate_leadout(const lba_count leadout)
 
 	if (leadout > CDDA.MAX_OFFSET)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout << " exceeds redbook maximum";
 
 		throw NonstandardMetadataException(ss.str());
@@ -897,7 +897,7 @@ void TOCValidator::validate_trackcount(const TrackNo track_count)
 {
 	if (track_count < 1 or track_count > 99)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Cannot construct TOC from invalid track count: "
 			<< std::to_string(track_count);
 
@@ -920,7 +920,7 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 {
 	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
 	{
-		std::stringstream ss;
+		auto ss = std::stringstream {};
 		ss << "Track with offset " << prev_track
 			<< " is too short. Next track starts at " << next_track
 			<< " but minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
