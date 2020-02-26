@@ -50,15 +50,15 @@ void log(const Match &match);
 
 void log(const Match &match)
 {
-	for (int b = 0; b < match.total_blocks(); ++b)
+	for (int b { 0 }; b < match.total_blocks(); ++b)
 	{
 		ARCS_LOG_DEBUG << "Block " << b;
 
-		for (int t = 0; t < match.tracks_per_block(); ++t)
+		for (int t { 0 }; t < match.tracks_per_block(); ++t)
 		{
 			ARCS_LOG_DEBUG << "  Track " << (t+1);
 
-			for (int v = 0; v < 2; ++v)
+			for (int v { 0 }; v < 2; ++v)
 			{
 				ARCS_LOG_DEBUG << "v" << (v+1) << ": " << match.track(b, t, v);
 			}
@@ -300,11 +300,11 @@ private:
 
 
 DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
-	: blocks_(blocks)
-	, tracks_per_block_(tracks)
-	, size_(static_cast<std::size_t>(blocks) *
-			(2u * static_cast<std::size_t>(tracks) + 1u))
-	, flag_(size_, false)
+	: blocks_ { blocks }
+	, tracks_per_block_ { tracks }
+	, size_ { static_cast<std::size_t>(blocks) *
+			(2u * static_cast<std::size_t>(tracks) + 1u) }
+	, flag_ ( size_, false ) // No braces!
 {
 	// TODO Validate block and track numbers
 	//if (blocks < 0 or tracks < 0)
@@ -327,7 +327,7 @@ bool DefaultMatchBase::do_id(int b) const
 {
 	this->validate_block(b);
 
-	const auto i = static_cast<DefaultMatchBase::size_type>(block_start(b));
+	const auto i { static_cast<DefaultMatchBase::size_type>(block_start(b)) };
 
 	// Commented out: exception from stdlib is sufficient
 	//if (i > this->size() - 1)
@@ -350,7 +350,7 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 	this->validate_block(b);
 	this->validate_track(t);
 
-	const auto i = static_cast<DefaultMatchBase::size_type>(index(b, t, v2));
+	const auto i { static_cast<DefaultMatchBase::size_type>(index(b, t, v2)) };
 
 	// Commented out: exception from stdlib is sufficient
 	//if (i > this->size() - 1)
@@ -364,9 +364,9 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 
 int64_t DefaultMatchBase::do_difference(int b, bool v2) const
 {
-	uint32_t difference = (id(b) ? 0 : 1u); // also calls validate_block()
+	uint32_t difference { (id(b) ? 0 : 1u) }; // also calls validate_block()
 
-	for (int trk = 0; trk < tracks_per_block_; ++trk)
+	for (int trk { 0 }; trk < tracks_per_block_; ++trk)
 	{
 		difference += ( track(b, trk, v2) ? 0u : 1u );
 	}
@@ -416,7 +416,7 @@ int DefaultMatchBase::set_id(int b, bool value)
 {
 	this->validate_block(b);
 
-	const auto offset = block_start(b);
+	const auto offset { block_start(b) };
 
 	// Commented out: not necessary
 	//if (static_cast<DefaultMatchBase::size_type>(offset) > this->size() - 1)
@@ -434,7 +434,7 @@ int DefaultMatchBase::set_track(int b, int t, bool v2, bool value)
 	this->validate_block(b);
 	this->validate_track(t);
 
-	const auto i = index(b, t, v2);
+	const auto i { index(b, t, v2) };
 
 	// Commented out: not necessary
 	//if (static_cast<DefaultMatchBase::size_type>(i) > this->size() - 1)
@@ -507,7 +507,7 @@ private:
 
 
 DefaultMatch::DefaultMatch(int blocks, int tracks)
-	: DefaultMatchBase(blocks, tracks)
+	: DefaultMatchBase { blocks, tracks }
 {
 	// empty
 }
@@ -710,27 +710,27 @@ private:
 
 
 MatcherImplBase::MatcherImplBase()
-	: match_(nullptr)
-	, best_block_(0)
-	, matches_v2_(false)
+	: match_ { nullptr }
+	, best_block_ { 0 }
+	, matches_v2_ { false }
 {
 	// empty
 }
 
 
 MatcherImplBase::MatcherImplBase(const MatcherImplBase &rhs)
-	: match_(std::make_unique<DefaultMatch>(*rhs.match_))  // deep copy
-	, best_block_(rhs.best_block_)
-	, matches_v2_(rhs.matches_v2_)
+	: match_ { std::make_unique<DefaultMatch>(*rhs.match_) }  // deep copy
+	, best_block_ { rhs.best_block_ }
+	, matches_v2_ { rhs.matches_v2_ }
 {
 	// empty
 }
 
 
 MatcherImplBase::MatcherImplBase(MatcherImplBase &&rhs) noexcept
-	: match_(std::move(rhs.match_))
-	, best_block_(rhs.best_block_)
-	, matches_v2_(rhs.matches_v2_)
+	: match_ { std::move(rhs.match_) }
+	, best_block_ { rhs.best_block_ }
+	, matches_v2_ { rhs.matches_v2_ }
 {
 	// empty
 }
@@ -790,11 +790,11 @@ int MatcherImplBase::best_block(const DefaultMatch &m,
 		return -1;
 	}
 
-	auto best_diff    = 100; // maximal difference possible, 99 tracks + id
-	int  curr_diff_v1 = 0;
-	int  curr_diff_v2 = 0;
+	auto best_diff    { 100 }; // maximal difference possible, 99 tracks + id
+	int  curr_diff_v1 { 0 };
+	int  curr_diff_v2 { 0 };
 
-	for (int b = 0; b < m.total_blocks(); ++b)
+	for (int b { 0 }; b < m.total_blocks(); ++b)
 	{
 		// Note: v2 matching will always be preferred over v1 matching
 
@@ -844,10 +844,10 @@ const DefaultMatch * MatcherImplBase::match() const
 
 int MatcherImplBase::mark_best_block()
 {
-	int  block   = 0;
-	bool version = false;
+	int  block   { 0 };
+	bool version { false };
 
-	auto status = this->best_block(*match_, block, version);
+	auto status { this->best_block(*match_, block, version) };
 
 	if (status == 0) // best block found?
 	{
@@ -883,9 +883,9 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
-	auto ref_tracks = ref_sums.tracks_per_block() < 0
+	auto ref_tracks { ref_sums.tracks_per_block() < 0
 		? 0
-		: ref_sums.tracks_per_block(); // TODO Better way to compare
+		: ref_sums.tracks_per_block() }; // TODO Better way to compare
 
 	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
 	{
@@ -904,8 +904,8 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 	//	checksum::type::ARCS2
 	//};
 
-	auto match = std::make_unique<DefaultMatch>(
-			ref_sums.size(), actual_sums.size());
+	auto match { std::make_unique<DefaultMatch>(
+			ref_sums.size(), actual_sums.size()) };
 
 	int block_i { 0 };
 	int bitpos  { 0 };
@@ -914,7 +914,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 	Checksum checksum;
 
-	for (auto block = ref_sums.begin(); block != ref_sums.end(); ++block)
+	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
@@ -933,7 +933,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 		track_j = 0;
 
-		for (auto track = block->begin(); track != block->end(); ++track)
+		for (auto track { block->begin() }; track != block->end(); ++track)
 		{
 			for (const auto& type : checksum::types)
 			{
@@ -978,14 +978,14 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: impl_(std::make_unique<AlbumMatcher::Impl>())
+	: impl_ { std::make_unique<AlbumMatcher::Impl>() }
 {
 	impl_->init_match(checksums, id, response);
 }
 
 
 AlbumMatcher::AlbumMatcher(const AlbumMatcher &rhs)
-	: impl_(std::make_unique<AlbumMatcher::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<AlbumMatcher::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -1075,9 +1075,9 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const
 {
-	auto ref_tracks = ref_sums.tracks_per_block() < 0
+	auto ref_tracks { ref_sums.tracks_per_block() < 0
 		? 0
-		: ref_sums.tracks_per_block(); // TODO Better way to compare
+		: ref_sums.tracks_per_block() }; // TODO Better way to compare
 
 	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
 	{
@@ -1096,8 +1096,8 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 	//	checksum::type::ARCS2
 	//};
 
-	auto match = std::make_unique<DefaultMatch>(
-			ref_sums.size(), actual_sums.size());
+	auto match { std::make_unique<DefaultMatch>(
+			ref_sums.size(), actual_sums.size()) };
 
 	int block_i { 0 };
 	int track_j { 0 };
@@ -1107,7 +1107,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 	Checksum checksum;
 
-	for (auto block = ref_sums.begin(); block != ref_sums.end(); ++block)
+	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
@@ -1127,7 +1127,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		track_j = 0;
 		start_track = 0;
 
-		for (auto track = block->begin();
+		for (auto track { block->begin() };
 				track != block->end() && start_track < actual_sums.size();
 				++track)
 		{
@@ -1184,7 +1184,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: impl_(std::make_unique<TracksetMatcher::Impl>())
+	: impl_ { std::make_unique<TracksetMatcher::Impl>() }
 {
 	impl_->init_match(checksums, id, response);
 }
@@ -1192,14 +1192,14 @@ TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums,
 		const ARResponse &response)
-	: impl_(std::make_unique<TracksetMatcher::Impl>())
+	: impl_ { std::make_unique<TracksetMatcher::Impl>() }
 {
 	impl_->init_match(checksums, *make_empty_arid(), response);
 }
 
 
 TracksetMatcher::TracksetMatcher(const TracksetMatcher &rhs)
-	: impl_(std::make_unique<TracksetMatcher::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<TracksetMatcher::Impl>(*rhs.impl_) }
 {
 	// empty
 }
