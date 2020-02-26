@@ -148,14 +148,14 @@ private:
 
 
 AudioSize::Impl::Impl() noexcept
-	: total_pcm_bytes_(0)
+	: total_pcm_bytes_ { 0 }
 {
 	// empty
 }
 
 
 AudioSize::Impl::Impl(const AudioSize::UNIT unit, const uint32_t value) noexcept
-	: total_pcm_bytes_(value)
+	: total_pcm_bytes_ { value }
 {
 	using UNIT = AudioSize::UNIT;
 
@@ -349,10 +349,10 @@ namespace details
 CalcContextBase::CalcContextBase(const std::string &filename,
 		const uint32_t num_skip_front,
 		const uint32_t num_skip_back)
-	: audiosize_(AudioSize())
-	, filename_(filename)
-	, num_skip_front_(num_skip_front)
-	, num_skip_back_(num_skip_back)
+	: audiosize_ { AudioSize() }
+	, filename_ { filename }
+	, num_skip_front_ { num_skip_front }
+	, num_skip_back_ { num_skip_back }
 {
 	// empty
 }
@@ -467,9 +467,9 @@ bool operator == (const SingletrackCalcContext &lhs,
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
-	: CalcContextBase(filename, 0, 0)
-	, skip_front_(false)
-	, skip_back_(false)
+	: CalcContextBase { filename, 0, 0 }
+	, skip_front_ { false }
+	, skip_back_  { false }
 {
 	// empty
 }
@@ -477,9 +477,9 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 		const bool skip_front, const bool skip_back)
-	: CalcContextBase(filename, 2939, 2940)
-	, skip_front_(skip_front)
-	, skip_back_(skip_back)
+	: CalcContextBase { filename, 2939, 2940 }
+	, skip_front_ { skip_front }
+	, skip_back_  { skip_back }
 {
 	// empty
 }
@@ -488,9 +488,9 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 		const bool skip_front, const uint32_t num_skip_front,
 		const bool skip_back,  const uint32_t num_skip_back)
-	: CalcContextBase(filename, num_skip_front, num_skip_back)
-	, skip_front_(skip_front)
-	, skip_back_(skip_back)
+	: CalcContextBase { filename, num_skip_front, num_skip_back }
+	, skip_front_ { skip_front }
+	, skip_back_  { skip_back }
 {
 	// empty
 }
@@ -621,8 +621,8 @@ bool operator == (const MultitrackCalcContext &lhs,
 
 MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
 		const std::string &filename)
-	: CalcContextBase(filename, 0, 0)
-	, toc_(toc)
+	: CalcContextBase { filename, 0, 0 }
+	, toc_ { toc }
 {
 	this->set_toc(toc_);
 }
@@ -630,8 +630,8 @@ MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
 
 MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 		const std::string &filename)
-	: CalcContextBase(filename, 0, 0)
-	, toc_(*toc)
+	: CalcContextBase { filename, 0, 0 }
+	, toc_ { *toc }
 {
 	this->set_toc(toc_);
 }
@@ -640,8 +640,8 @@ MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
 		const uint32_t num_skip_front,
 		const uint32_t num_skip_back, const std::string &filename)
-	: CalcContextBase(filename, num_skip_front, num_skip_back)
-	, toc_(toc)
+	: CalcContextBase { filename, num_skip_front, num_skip_back }
+	, toc_ { toc }
 {
 	this->set_toc(toc_);
 }
@@ -650,8 +650,8 @@ MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
 MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 		const uint32_t num_skip_front,
 		const uint32_t num_skip_back, const std::string &filename)
-	: CalcContextBase(filename, num_skip_front, num_skip_back)
-	, toc_(*toc)
+	: CalcContextBase { filename, num_skip_front, num_skip_back }
+	, toc_ { *toc }
 {
 	this->set_toc(toc_);
 }
@@ -763,11 +763,11 @@ TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
 		return CDDA.MAX_TRACKCOUNT + 1;
 	}
 
-	const int last_track = this->track_count();
+	const int last_track { this->track_count() };
 
 	// Increase track number while sample is smaller than track's last relevant
-	TrackNo track = 0;
-	for (uint32_t last_sample_trk = this->last_relevant_sample(track) ;
+	TrackNo track { 0 };
+	for (uint32_t last_sample_trk { this->last_relevant_sample(track) } ;
 			smpl > last_sample_trk and track <= last_track ;
 			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
 
@@ -858,10 +858,11 @@ void MultitrackCalcContext::set_toc(const TOC &toc)
 {
 	// NOTE: Leadout will be 0 if TOC is not complete.
 
-	AudioSize audiosize;
-	audiosize.set_leadout_frame(toc.leadout());
-	this->set_audio_size(audiosize);
-	//this->set_audio_size(AudioSize{AudioSize::UNIT::FRAMES, toc.leadout()});
+	this->set_audio_size(AudioSize { AudioSize::UNIT::FRAMES, toc.leadout() });
+	// Commented out: without conversion
+	//AudioSize audiosize;
+	//audiosize.set_leadout_frame(toc.leadout());
+	//this->set_audio_size(audiosize);
 
 	toc_ = toc;
 }
@@ -889,8 +890,8 @@ CalcState::~CalcState() noexcept = default;
 
 
 CalcStateARCSBase::CalcStateARCSBase()
-	: actual_skip_front_(0)
-	, actual_skip_back_(0)
+	: actual_skip_front_ { 0 }
+	, actual_skip_back_  { 0 }
 {
 	// empty
 }
@@ -1023,9 +1024,9 @@ private:
 
 
 CalcStateV1::CalcStateV1()
-	: multiplier_(1)
-	, subtotal_v1_(0)
-	, arcss_()
+	: multiplier_ { 1 }
+	, subtotal_v1_ { 0 }
+	, arcss_ {}
 {
 	// empty
 }
@@ -1033,7 +1034,7 @@ CalcStateV1::CalcStateV1()
 
 void CalcStateV1::do_update(SampleInputIterator &begin, SampleInputIterator &end)
 {
-	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
+	for (auto pos { begin }; pos != end; ++pos, ++multiplier_)
 	{
 		subtotal_v1_ += (multiplier_ * (*pos)) & LOWER_32_BITS_;
 	}
@@ -1225,11 +1226,11 @@ private:
 
 
 CalcStateV1andV2::CalcStateV1andV2()
-	: multiplier_(1)
-	, subtotal_v1_(0)
-	, subtotal_v2_(0)
-	, update64_(0)
-	, arcss_()
+	: multiplier_ { 1 }
+	, subtotal_v1_ { 0 }
+	, subtotal_v2_ { 0 }
+	, update64_ { 0 }
+	, arcss_ {}
 {
 	// empty
 }
@@ -1238,7 +1239,7 @@ CalcStateV1andV2::CalcStateV1andV2()
 void CalcStateV1andV2::do_update(SampleInputIterator &begin,
 		SampleInputIterator &end)
 {
-	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
+	for (auto pos { begin }; pos != end; ++pos, ++multiplier_)
 	{
 		update64_ = multiplier_ * (*pos);
 		subtotal_v1_ +=  update64_ & LOWER_32_BITS_;
@@ -1249,7 +1250,7 @@ void CalcStateV1andV2::do_update(SampleInputIterator &begin,
 
 void CalcStateV1andV2::save(const TrackNo track)
 {
-	const auto rc = arcss_.insert(
+	const auto rc { arcss_.insert(
 		std::make_pair(
 			track,
 			std::make_pair(
@@ -1257,7 +1258,7 @@ void CalcStateV1andV2::save(const TrackNo track)
 				subtotal_v1_ + subtotal_v2_
 			)
 		)
-	);
+	) } ;
 
 	if (not rc.second)
 	{
@@ -1573,11 +1574,11 @@ private:
 
 Calculation::Impl::Impl(const checksum::type type,
 		std::unique_ptr<CalcContext> ctx)
-	: smpl_offset_(0)
-	, context_(nullptr)
-	, state_(nullptr)
-	, partitioner_(nullptr)
-	, proc_time_elapsed_(std::chrono::milliseconds::zero())
+	: smpl_offset_ { 0 }
+	, context_ { nullptr }
+	, state_ { nullptr }
+	, partitioner_ { nullptr }
+	, proc_time_elapsed_ { std::chrono::milliseconds::zero() }
 {
 	this->set_type(type);
 	this->set_context_or_default(std::move(ctx));
@@ -1585,22 +1586,22 @@ Calculation::Impl::Impl(const checksum::type type,
 
 
 Calculation::Impl::Impl(std::unique_ptr<CalcContext> ctx)
-	: smpl_offset_(0)
-	, context_(nullptr)
-	, state_(std::make_unique<CalcStateV1andV2>()) // default
-	, partitioner_(nullptr)
-	, proc_time_elapsed_(std::chrono::milliseconds::zero())
+	: smpl_offset_ { 0 }
+	, context_ { nullptr }
+	, state_ { std::make_unique<CalcStateV1andV2>() } // default
+	, partitioner_ { nullptr }
+	, proc_time_elapsed_ { std::chrono::milliseconds::zero() }
 {
 	this->set_context_or_default(std::move(ctx));
 }
 
 
 Calculation::Impl::Impl(const Impl& rhs)
-	: smpl_offset_(rhs.smpl_offset_)
-	, context_(rhs.context_->clone())
-	, state_(rhs.state_->clone())
-	, partitioner_(rhs.partitioner_->clone())
-	, proc_time_elapsed_(rhs.proc_time_elapsed_)
+	: smpl_offset_ { rhs.smpl_offset_ }
+	, context_ { rhs.context_->clone() }
+	, state_ { rhs.state_->clone() }
+	, partitioner_ { rhs.partitioner_->clone() }
+	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
 {
 	// empty
 }
@@ -1822,7 +1823,7 @@ Checksums Calculation::Impl::result() const
 	{
 		// multitrack
 
-		for (uint8_t i = 0; i < track_count; ++i)
+		for (uint8_t i { 0 }; i < track_count; ++i)
 		{
 			ChecksumSet checksums { context_->length(i) };
 
@@ -1980,21 +1981,21 @@ void Calculation::Impl::log_partition(const uint16_t i,
 
 
 AudioSize::AudioSize() noexcept
-	: impl_(std::make_unique<AudioSize::Impl>())
+	: impl_ { std::make_unique<AudioSize::Impl>() }
 {
 	//empty
 }
 
 
 AudioSize::AudioSize(const UNIT unit, const uint32_t value) noexcept
-	: impl_(std::make_unique<AudioSize::Impl>(unit, value))
+	: impl_ { std::make_unique<AudioSize::Impl>(unit, value) }
 {
 	// empty
 }
 
 
 AudioSize::AudioSize(const AudioSize &rhs)
-	: impl_(std::make_unique<AudioSize::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<AudioSize::Impl>(*rhs.impl_) }
 {
 	//empty
 }
@@ -2084,21 +2085,21 @@ CalcContext::~CalcContext() noexcept = default;
 
 Calculation::Calculation(const checksum::type type,
 		std::unique_ptr<CalcContext> ctx)
-	: impl_(std::make_unique<Calculation::Impl>(type, std::move(ctx)))
+	: impl_ { std::make_unique<Calculation::Impl>(type, std::move(ctx)) }
 {
 	// empty
 }
 
 
 Calculation::Calculation(std::unique_ptr<CalcContext> ctx)
-	: impl_(std::make_unique<Calculation::Impl>(std::move(ctx)))
+	: impl_ { std::make_unique<Calculation::Impl>(std::move(ctx)) }
 {
 	// empty
 }
 
 
 Calculation::Calculation(const Calculation &rhs)
-	: impl_(std::make_unique<Calculation::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<Calculation::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -2281,16 +2282,16 @@ private:
 
 
 Checksums::Impl::Impl(const Checksums::size_type size)
-	: sets_{ std::make_unique<ChecksumSet[]>(size) }
-	, size_{ size }
+	: sets_ { std::make_unique<ChecksumSet[]>(size) }
+	, size_ { size }
 {
 	// empty
 }
 
 
 Checksums::Impl::Impl(const Checksums::Impl &rhs)
-	: sets_{ std::make_unique<ChecksumSet[]>(rhs.size_) }
-	, size_{ rhs.size_ }
+	: sets_ { std::make_unique<ChecksumSet[]>(rhs.size_) }
+	, size_ { rhs.size_ }
 {
 	std::copy(rhs.cbegin(), rhs.cend(), this->begin());
 }
@@ -2359,14 +2360,14 @@ Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl &&rhs) noexcept
 
 
 Checksums::Checksums(size_type size)
-	: impl_( std::make_unique<Checksums::Impl>(size) )
+	: impl_ { std::make_unique<Checksums::Impl>(size) }
 {
 	// empty
 }
 
 
 Checksums::Checksums(const Checksums &rhs)
-	: impl_( std::make_unique<Checksums::Impl>(*rhs.impl_) )
+	: impl_ { std::make_unique<Checksums::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -2452,14 +2453,14 @@ Checksums& Checksums::operator = (Checksums &&rhs) noexcept = default;
 
 
 InvalidAudioException::InvalidAudioException(const std::string &what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
 
 
 InvalidAudioException::InvalidAudioException(const char *what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
@@ -2523,14 +2524,14 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 
 
 Checksum::Checksum()
-	: value_(0)
+	: value_ { 0 }
 {
 	// empty
 }
 
 
 Checksum::Checksum(const uint32_t value)
-	: value_(value)
+	: value_ { value }
 {
 	// empty
 }
@@ -2630,14 +2631,14 @@ private:
 
 
 ChecksumSet::Impl::Impl(const lba_count length)
-	: length_(length)
+	: length_ { length }
 {
 	// empty
 }
 
 
 ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
-	: length_(rhs.length_)
+	: length_ { rhs.length_ }
 {
 	// empty
 }
@@ -2657,22 +2658,22 @@ ChecksumSet::Impl& ChecksumSet::Impl::operator = (const ChecksumSet::Impl& rhs)
 
 
 ChecksumSet::ChecksumSet()
-	: impl_(std::make_unique<ChecksumSet::Impl>(0))
+	: impl_ { std::make_unique<ChecksumSet::Impl>(0) }
 {
 	// empty
 }
 
 
 ChecksumSet::ChecksumSet(const lba_count length)
-	: impl_(std::make_unique<ChecksumSet::Impl>(length))
+	: impl_ { std::make_unique<ChecksumSet::Impl>(length) }
 {
 	// empty
 }
 
 
 ChecksumSet::ChecksumSet(const ChecksumSet &rhs)
-	: ChecksumMap<checksum::type>(rhs)
-	, impl_(std::make_unique<ChecksumSet::Impl>(*rhs.impl_))
+	: OpaqueChecksumSetBase { rhs }
+	, impl_ { std::make_unique<ChecksumSet::Impl>(*rhs.impl_) }
 {
 	// empty
 }

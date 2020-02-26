@@ -128,6 +128,7 @@ using sample_type = uint32_t;
  * The type is intended to perform arithmetic operations on it.
  */
 using sample_count = uint32_t;
+/* TODO Typedef is unnecessary after successful test with int32_t */
 
 /**
  * \brief Type to represent amounts of LBA frames.
@@ -140,12 +141,18 @@ using sample_count = uint32_t;
  * The type is intended to perform arithmetic operations on it.
  */
 using lba_count = uint32_t;
+/* TODO Typedef is unnecessary after successful test with int32_t */
 
 /**
  * \brief Data type for track numbers.
  *
  * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
  * TrackNo. Hence, a TrackNo is not suitable to represent a track count.
+ *
+ * A validation check is not provided, though.
+ *
+ * The intention of this typedef is to provide a marker for 1-based track
+ * numbers in the interface.
  */
 using TrackNo = int;
 
@@ -159,22 +166,22 @@ struct CDDA_t
 	/**
 	 * \brief CDDA: sampling rate of 44100 samples per second.
 	 */
-	const int SAMPLES_PER_SECOND = 44100;
+	const int SAMPLES_PER_SECOND { 44100 };
 
 	/**
 	 * \brief CDDA: 16 bits per sample.
 	 */
-	const int BITS_PER_SAMPLE    = 16;
+	const int BITS_PER_SAMPLE    { 16 };
 
 	/**
 	 * \brief CDDA: stereo involves 2 channels.
 	 */
-	const int NUMBER_OF_CHANNELS = 2;
+	const int NUMBER_OF_CHANNELS { 2 };
 
 	/**
 	 * \brief Number of frames per second is 75.
 	 */
-	const int FRAMES_PER_SEC     = 75;
+	const int FRAMES_PER_SEC     { 75 };
 
 	/**
 	 * \brief Number of 4 bytes per sample.
@@ -182,32 +189,32 @@ struct CDDA_t
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
 	 */
-	const int BYTES_PER_SAMPLE   = 4;
+	const int BYTES_PER_SAMPLE   { 4 };
 
 	/**
 	 * \brief Number of 588 samples per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 44100 samples/sec / 75 frames/sec
 	 */
-	const int SAMPLES_PER_FRAME  = 588;
+	const int SAMPLES_PER_FRAME  { 588 };
 
 	/**
 	 * \brief Number of 2352 bytes per frame.
 	 *
 	 * This follows from CDDA where 1 frame == 588 samples * 4 bytes/sample
 	 */
-	const int BYTES_PER_FRAME    = 2352;
+	const int BYTES_PER_FRAME    { 2352 };
 
 	/**
 	 * \brief Maximal valid track count.
 	 */
-	const TrackNo MAX_TRACKCOUNT = 99;
+	const TrackNo MAX_TRACKCOUNT { 99 };
 
 	/**
 	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
 	 * equivalent to 449.999 frames.
 	 */
-	const lba_count MAX_BLOCK_ADDRESS  = ( 99 * 60 + 59 ) * 75 + 74;
+	const lba_count MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Maximal valid offset value in cdda frames.
@@ -216,7 +223,7 @@ struct CDDA_t
 	 * which is equivalent to 360.000 frames, thus the maximal offset is frame
 	 * index 359.999.
 	 */
-	const lba_count MAX_OFFSET         = ( 79 * 60 + 59 ) * 75 + 74;
+	const lba_count MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Two subsequenct offsets must have a distance of at least this
@@ -225,7 +232,7 @@ struct CDDA_t
 	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
-	const lba_count MIN_TRACK_OFFSET_DIST = 300;
+	const lba_count MIN_TRACK_OFFSET_DIST { 300 };
 
 	/**
 	 * \brief Minimal number of frames a track contains.
@@ -234,7 +241,7 @@ struct CDDA_t
 	 * pause but the pause does not contribute to the track lengths, thus
 	 * 2 sec * 75 frames/sec == 150 frames.
 	 */
-	const lba_count MIN_TRACK_LEN_FRAMES = 150;
+	const lba_count MIN_TRACK_LEN_FRAMES { 150 };
 };
 
 

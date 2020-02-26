@@ -43,7 +43,7 @@ namespace details
 /**
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
-const std::string empty_string = std::string();
+const std::string empty_string { std::string() };
 
 
 // Forward Declaration Required for Partitioner
@@ -442,13 +442,13 @@ Partition::Partition(
 		const bool     &ends_track,
 		const TrackNo  &track
 	)
-	: begin_offset_(begin_offset)
-	, end_offset_(end_offset)
-	, first_sample_idx_(first)
-	, last_sample_idx_(last)
-	, starts_track_(starts_track)
-	, ends_track_(ends_track)
-	, track_(track)
+	: begin_offset_ { begin_offset }
+	, end_offset_ { end_offset }
+	, first_sample_idx_ { first }
+	, last_sample_idx_ { last }
+	, starts_track_ { starts_track }
+	, ends_track_ { ends_track }
+	, track_ { track }
 {
 	// empty
 }
@@ -506,8 +506,8 @@ uint32_t Partition::size() const
 
 
 Interval::Interval(const uint32_t a, const uint32_t b)
-	: a_(a)
-	, b_(b)
+	: a_ { a }
+	, b_ { b }
 {
 	// empty
 }
@@ -538,7 +538,7 @@ Partitioning Partitioner::create_partitioning(
 	// If the sample block does not contain any relevant samples,
 	// just return an empty partition list
 
-	auto const block_end = last_sample_idx(offset, number_of_samples);
+	auto const block_end { last_sample_idx(offset, number_of_samples) };
 
 	if (block_end < context.first_relevant_sample(1)
 		or offset > context.last_relevant_sample())
@@ -587,7 +587,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count = number_of_samples;
+	const uint32_t sample_count { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -597,7 +597,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	uint32_t block_last_smpl = this->last_sample_idx(offset, sample_count);
+	uint32_t block_last_smpl { this->last_sample_idx(offset, sample_count) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
@@ -608,7 +608,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	uint32_t chunk_first_smpl = offset;
+	uint32_t chunk_first_smpl { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -617,17 +617,17 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 
 	// Will be track_count+1 if 1st sample is beyond global last relevant sample
 	// This entails that the loop is not entered for irrelevant partitions
-	TrackNo   track             = context.track(chunk_first_smpl);
+	TrackNo   track  { context.track(chunk_first_smpl) };
 
 	// If track > track_count this is global last sample
-	uint32_t  chunk_last_smpl   = context.last_relevant_sample(track);
+	uint32_t  chunk_last_smpl   { context.last_relevant_sample(track) };
 
-	uint32_t  begin_offset = 0;
-	uint32_t  end_offset   = 0;
-	bool      starts_track = false;
-	bool      ends_track   = false;
+	uint32_t  begin_offset { 0 } ;
+	uint32_t  end_offset   { 0 } ;
+	bool      starts_track { false } ;
+	bool      ends_track   { false } ;
 
-	const uint8_t last_track    = context.track_count();
+	const uint8_t last_track { context.track_count() };
 
 
 	// Now construct all partitions except the last (that needs clipping) in a
@@ -729,7 +729,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 		const uint32_t number_of_samples,
 		const CalcContext &context) const
 {
-	const uint32_t sample_count = number_of_samples;//samples.size();
+	const uint32_t sample_count { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, sample_count)
@@ -1404,7 +1404,7 @@ protected:
 	 * \brief Bitmask for getting the lower 32 bits of a 64 bit unsigned
 	 * integer.
 	 */
-	static constexpr uint_fast32_t LOWER_32_BITS_ = 0xFFFFFFFF;
+	static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 
 
 private:

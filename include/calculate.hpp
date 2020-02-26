@@ -559,7 +559,7 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
 
 
 /**
- * \brief Type erasing interface for iterators over PCM 32 Bit samples.
+ * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
  * \link Calculation::update() update() \endlink a Calculation.
@@ -570,7 +570,8 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
  * \link Calculation::update() updating \endlink a Calculation.
  *
- * SampleInputIterator can wrap any iterator with a value_type of uint32_t.
+ * SampleInputIterator can wrap any iterator with a value_type of uint32_t
+ * except instances of itself, e.g. it can not be "nested".
  *
  * \todo SampleInputIterator::operator->() is currently not available
  */
@@ -809,7 +810,7 @@ public:
 	 */
 	template <class Iterator, typename = IsSampleIterator<Iterator> >
 	SampleInputIterator(const Iterator &i)
-		: object_(std::make_unique<Model<Iterator>>(std::move(i)))
+		: object_ { std::make_unique<Model<Iterator>>(std::move(i)) }
 	{
 		// empty
 	}
@@ -834,13 +835,13 @@ public:
 	~SampleInputIterator() noexcept;
 
 	/**
-	 * \brief Dereferences the iterator.
+	 * \brief Dereferences the iterator to the sample pointed to.
 	 *
 	 * \return A sample_type sample, returned by value
 	 */
 	reference operator * () const; // required by LegacyIterator
 
-	/**
+	/* *
 	 * \brief Access members of the underlying referee
 	 *
 	 * \return A pointer to the underlying referee
@@ -1347,7 +1348,7 @@ private:
 };
 
 /**
- * \brief Create a CalcContext from an audio filename and two skip flags.
+ * \brief Create a CalcContext from two skip flags.
  *
  * \param[in] skip_front    Tell wether to skip the front samples
  * \param[in] skip_back     Tell wether to skip the back samples
@@ -1374,7 +1375,7 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 		const std::string &audiofilename);
 
 /**
- * \brief Create a CalcContext from an audio filename and a TOC.
+ * \brief Create a CalcContext from a TOC.
  *
  * \param[in] toc The TOC to use
  *
@@ -1793,14 +1794,15 @@ public:
 
 
 inline SampleInputIterator::SampleInputIterator(const SampleInputIterator& rhs)
-	: object_(rhs.object_->clone())
+	: object_ { rhs.object_->clone() }
 {
 	// empty
 }
 
 
-inline SampleInputIterator::SampleInputIterator(SampleInputIterator&& rhs) noexcept
-	: object_(std::move(rhs.object_))
+inline SampleInputIterator::SampleInputIterator(SampleInputIterator&& rhs)
+noexcept
+	: object_ { std::move(rhs.object_) }
 {
 	// empty
 }
@@ -1840,7 +1842,7 @@ inline SampleInputIterator SampleInputIterator::operator ++ (int)
 inline SampleInputIterator& SampleInputIterator::operator = (
 		SampleInputIterator rhs)
 {
-	swap(*this, rhs);
+	swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
 	return *this;
 }
 
