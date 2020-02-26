@@ -939,6 +939,11 @@ public:
 	 */
 	void set_object(ARResponse &object);
 
+	/**
+	 * \brief Get the object constructed by the parsed content.
+	 *
+	 * \return Object with parsed content.
+	 */
 	ARResponse& object();
 
 	/**

@@ -55,10 +55,10 @@ public:
 	 *
 	 * \param[in] v The vector to wrap
 	 */
-    explicit VectorIStream(std::vector<CharT> &v)
+	explicit VectorIStream(std::vector<CharT> &v)
 	{
-        this->setg(v.data(), v.data(), v.data() + v.size());
-    }
+		this->setg(v.data(), v.data(), v.data() + v.size());
+	}
 };
 
 
@@ -105,7 +105,7 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 StdIn::StdIn(const std::size_t buf_size)
-	: buf_size_(buf_size)
+	: buf_size_ { buf_size }
 {
 	// empty
 }
@@ -151,13 +151,11 @@ std::vector<char> StdIn::bytes()
 	// Commented out version with std::array (lines 149,155 and 167)
 
 	std::vector<char> bytes; // collects the input bytes
-	//std::array<char, 1024> buf; // input buffer
-	auto buf = std::make_unique<char[]>(buf_size()); // input buffer
+	auto buf { std::make_unique<char[]>(buf_size()) }; // input buffer
 	std::size_t len; // number of bytes read from stdin
 
 	// As long as there are any bytes, read them
 
-	//while((len = std::fread(buf.data(), sizeof(buf[0]), buf.size(), stdin)) > 0)
 	while((len = std::fread(buf.get(), sizeof(buf[0]), buf_size(), stdin)) > 0)
 	{
 		if (std::ferror(stdin) and not std::feof(stdin))
@@ -169,7 +167,6 @@ std::vector<char> StdIn::bytes()
 			throw std::runtime_error(msg.str());
 		}
 
-		//bytes.insert(bytes.end(), buf.data(), buf.data() + len);
 		bytes.insert(bytes.end(), buf.get(), buf.get() + len);
 	}
 
@@ -325,9 +322,9 @@ private:
 ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
 		const uint32_t frame450_arcs)
-	: arcs_(arcs)
-	, confidence_(confidence)
-	, frame450_arcs_(frame450_arcs)
+	: arcs_ { arcs }
+	, confidence_ { confidence }
+	, frame450_arcs_ { frame450_arcs }
 {
 	// empty
 }
@@ -431,11 +428,12 @@ ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
-	: ARTripletImpl(arcs, confidence, frame450_arcs)
-	, flags_(0x00u // set bits 0,1,2 according to the validity flags
+	: ARTripletImpl { arcs, confidence, frame450_arcs }
+	, flags_ { static_cast<uint8_t>(0x00u
 			| (arcs_valid          ? 0x01u : 0x00u)
 			| (confidence_valid    ? 0x02u : 0x00u)
-			| (frame450_arcs_valid ? 0x04u : 0x00u))
+			| (frame450_arcs_valid ? 0x04u : 0x00u)) }
+	// set bits 0,1,2 according to the validity flags
 {
 	// empty
 }
@@ -474,7 +472,7 @@ std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::clone() const
 ARTriplet::ARTriplet(const uint32_t arcs,
 		const uint32_t confidence,
 		const uint32_t frame450_arcs)
-	: impl_(std::make_unique<ARTripletImpl>(arcs, confidence, frame450_arcs))
+	: impl_ { std::make_unique<ARTripletImpl>(arcs, confidence, frame450_arcs) }
 {
 	// empty
 }
@@ -486,16 +484,16 @@ ARTriplet::ARTriplet(const uint32_t arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
-	: impl_(std::make_unique<ARIncompleteTripletImpl>(arcs, confidence,
+	: impl_ { std::make_unique<ARIncompleteTripletImpl>(arcs, confidence,
 				frame450_arcs, arcs_valid, confidence_valid,
-				frame450_arcs_valid))
+				frame450_arcs_valid) }
 {
 	// empty
 }
 
 
 ARTriplet::ARTriplet(const ARTriplet &rhs)
-	: impl_(rhs.impl_->clone()) // deep copy
+	: impl_ { rhs.impl_->clone() } // deep copy
 {
 	// empty
 }
@@ -668,8 +666,8 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 ARBlock::Impl::Impl(const ARId &id)
-	: ar_id_(id)
-	, triplets_()
+	: ar_id_ { id }
+	, triplets_ {}
 {
 	// empty
 }
@@ -751,14 +749,14 @@ ARTriplet&
 
 
 ARBlock::ARBlock(const ARId &id)
-	: impl_(std::make_unique<ARBlock::Impl>(id))
+	: impl_ { std::make_unique<ARBlock::Impl>(id) }
 {
 	// empty
 }
 
 
 ARBlock::ARBlock(const ARBlock &rhs)
-	: impl_(std::make_unique<ARBlock::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<ARBlock::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -950,7 +948,7 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 ARResponse::Impl::Impl()
-	: blocks_()
+	: blocks_ {}
 {
 	// empty
 }
@@ -1033,14 +1031,14 @@ ARBlock&
 
 
 ARResponse::ARResponse()
-	: impl_(std::make_unique<ARResponse::Impl>())
+	: impl_ { std::make_unique<ARResponse::Impl>() }
 {
 	// empty
 }
 
 
 ARResponse::ARResponse(const ARResponse &rhs)
-	: impl_(std::make_unique<ARResponse::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<ARResponse::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -1332,8 +1330,8 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 DefaultContentHandler::Impl::Impl()
-	: current_block_(nullptr)
-	, response_(nullptr)
+	: current_block_ { nullptr }
+	, response_ { nullptr }
 {
 	// empty
 }
@@ -1341,11 +1339,11 @@ DefaultContentHandler::Impl::Impl()
 
 DefaultContentHandler::Impl::Impl(
 		const DefaultContentHandler::Impl &rhs)
-	: current_block_(rhs.current_block_
+	: current_block_ { rhs.current_block_
 		? std::make_unique<ARBlock>(*(rhs.current_block_.get()))
 		: nullptr
-		)
-	, response_(rhs.response_)
+		}
+	, response_ { rhs.response_ }
 {
 	// empty
 }
@@ -1426,14 +1424,14 @@ void DefaultContentHandler::Impl::end_input()
 
 
 DefaultContentHandler::DefaultContentHandler()
-	: impl_(std::make_unique<DefaultContentHandler::Impl>())
+	: impl_ { std::make_unique<DefaultContentHandler::Impl>() }
 {
 	// empty
 }
 
 
 DefaultContentHandler::DefaultContentHandler(const DefaultContentHandler &rhs)
-	: impl_(std::make_unique<DefaultContentHandler::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<DefaultContentHandler::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -1532,14 +1530,15 @@ std::unique_ptr<ErrorHandler> ErrorHandler::clone() const
 void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		const uint32_t block, const uint32_t block_byte_pos)
 {
-	constexpr int BHB = 13; // number of block header bytes
-	constexpr int BPT =  9; // number of bytes in a triplet
+	constexpr int BHB { 13 }; // number of block header bytes
+	constexpr int BPT {  9 }; // number of bytes in a triplet
 
 	std::stringstream cause;
 
 	if (byte_pos > block_byte_pos) // This actually must be the case
 	{
-		const auto bytes_per_block = (byte_pos - block_byte_pos) / (block - 1);
+		const auto bytes_per_block {
+			(byte_pos - block_byte_pos) / (block - 1) };
 
 		cause << "Current block ended after "     << block_byte_pos
 			<< " bytes but was expected to have " << bytes_per_block
@@ -1561,12 +1560,12 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 	}
 	else if (block_byte_pos > BHB * sizeof(char)) // error in track information
 	{
-		const uint32_t triplets_byte_pos = block_byte_pos - BHB * sizeof(char);
+		const auto triplet_byte_pos { block_byte_pos - BHB * sizeof(char) };
 
 		logical_pos << ", track "
-			<< (triplets_byte_pos / BPT * sizeof(char) + 1);
+			<< (triplet_byte_pos / BPT * sizeof(char) + 1);
 
-		auto track_byte_pos = triplets_byte_pos % (BPT * sizeof(char));
+		const auto track_byte_pos { triplet_byte_pos % (BPT * sizeof(char)) };
 
 		if (track_byte_pos == 0)
 		{
@@ -1673,10 +1672,10 @@ StreamReadException::StreamReadException(const uint32_t byte_pos,
 		const uint32_t block,
 		const uint32_t block_byte_pos,
 		const std::string &what_arg)
-	: std::runtime_error(what_arg)
-	, byte_pos_(byte_pos)
-	, block_(block)
-	, block_byte_pos_(block_byte_pos)
+	: std::runtime_error { what_arg }
+	, byte_pos_ { byte_pos }
+	, block_ { block }
+	, block_byte_pos_ { block_byte_pos }
 {
 	// empty
 }
@@ -1686,10 +1685,10 @@ StreamReadException::StreamReadException(const uint32_t byte_pos,
 		const uint32_t block,
 		const uint32_t block_byte_pos,
 		const char *what_arg)
-	: std::runtime_error(what_arg)
-	, byte_pos_(byte_pos)
-	, block_(block)
-	, block_byte_pos_(block_byte_pos)
+	: std::runtime_error { what_arg }
+	, byte_pos_ { byte_pos }
+	, block_ { block }
+	, block_byte_pos_ { block_byte_pos }
 {
 	// empty
 }
@@ -1732,16 +1731,16 @@ public:
 	Impl(const Impl &rhs);
 
 	/**
-	 * \brief Size in bytes of the block header containing disc_id_1, disc_id_2 and
-	 * cddb_id.
+	 * \brief Size in bytes of the block header containing disc_id_1, disc_id_2
+	 * and cddb_id.
 	 */
-	static constexpr int BLOCK_HEADER_BYTES = 13;
+	static constexpr int BLOCK_HEADER_BYTES { 13 };
 
 	/**
 	 * \brief Size in bytes of a triplet containing the ARCS for a single track,
 	 * the confidence of this ARCS, and the ARCS of frame 450 of this track.
 	 */
-	static constexpr int TRIPLET_BYTES      =  9;
+	static constexpr int TRIPLET_BYTES      {  9 };
 
 	/**
 	 * \brief Default constructor.
@@ -1869,18 +1868,18 @@ private:
 /// \cond UNDOC_FUNCTION_BODIES
 
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
-	: content_handler_(nullptr)
-	, error_handler_(nullptr)
-	, parser_(parser)
+	: content_handler_ { nullptr }
+	, error_handler_ { nullptr }
+	, parser_ { parser }
 {
 	// empty
 }
 
 
 ARStreamParser::Impl::Impl(const Impl &rhs)
-	: content_handler_(rhs.content_handler_->clone())
-	, error_handler_(rhs.error_handler_->clone())
-	, parser_(nullptr) // Do not copy the parent object of rhs!
+	: content_handler_ { rhs.content_handler_->clone() }
+	, error_handler_ { rhs.error_handler_->clone() }
+	, parser_ { nullptr } // Do not copy the parent object of rhs!
 {
 	// empty
 }
@@ -1914,7 +1913,7 @@ const ErrorHandler& ARStreamParser::Impl::error_handler() const
 
 uint32_t ARStreamParser::Impl::parse_stream(std::istream &in_stream)
 {
-	uint32_t bytes{0};
+	uint32_t bytes { 0 };
 	try
 	{
 		bytes = this->parse_stream_worker(in_stream);
@@ -1966,19 +1965,19 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 	std::vector<char> id(BLOCK_HEADER_BYTES * sizeof(char));
 	std::vector<char> triplet(TRIPLET_BYTES * sizeof(char));
 
-	TrackNo track_count = 0;
-	uint32_t discId1 = 0;
-	uint32_t discId2 = 0;
-	uint32_t cddbId = 0;
-	unsigned int confidence = 0;
-	uint32_t trk_arcs = 0;
-	uint32_t frame450_arcs = 0;
+	TrackNo track_count { 0 };
+	uint32_t discId1 { 0 };
+	uint32_t discId2 { 0 };
+	uint32_t cddbId { 0 };
+	unsigned int confidence { 0 };
+	uint32_t trk_arcs { 0 };
+	uint32_t frame450_arcs { 0 };
 
-	unsigned int bytes_read = 0;
+	unsigned int bytes_read { 0 };
 
-	unsigned int byte_counter = 0;
-	unsigned int block_counter = 0;
-	unsigned int block_byte_counter = 0;
+	unsigned int byte_counter { 0 };
+	unsigned int block_counter { 0 };
+	unsigned int block_byte_counter { 0 };
 
 	content_handler_->start_input();
 
@@ -2093,7 +2092,7 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 
 		// Read triplets of current block
 
-		for (uint8_t trk = 0; trk < track_count; ++trk)
+		for (uint8_t trk { 0 }; trk < track_count; ++trk)
 		{
 			try
 			{
@@ -2211,7 +2210,7 @@ ARStreamParser::Impl& ARStreamParser::Impl::operator = (
 
 
 ARStreamParser::ARStreamParser()
-	: impl_(std::make_unique<ARStreamParser::Impl>(this))
+	: impl_ { std::make_unique<ARStreamParser::Impl>(this) }
 {
 	//empty
 }
@@ -2262,14 +2261,14 @@ uint32_t ARStreamParser::parse_stream(std::istream &in_stream)
 
 
 ARFileParser::ARFileParser()
-	: filename_()
+	: filename_ {}
 {
 	// empty
 }
 
 
 ARFileParser::ARFileParser(const std::string &filename)
-	: filename_(filename)
+	: filename_ { filename }
 {
 	// empty
 }
@@ -2314,8 +2313,9 @@ uint32_t ARFileParser::do_parse()
 void ARFileParser::on_catched_exception(std::istream &istream,
 		const std::exception & /* e */) const
 {
-	auto *filestream = dynamic_cast<std::ifstream*>(&istream);
+	auto *filestream { dynamic_cast<std::ifstream*>(&istream) };
 	filestream->close();
+	//dynamic_cast<std::ifstream*>(&istream)->close(); // TODO Sufficient?
 }
 
 
@@ -2327,7 +2327,7 @@ ARStdinParser::ARStdinParser() = default;
 
 uint32_t ARStdinParser::do_parse()
 {
-	auto response_data = StdIn(1024).bytes();
+	auto response_data { StdIn(1024).bytes() };
 
 	VectorIStream<char> response_data_w(response_data);
 	std::istream stream(&response_data_w);
