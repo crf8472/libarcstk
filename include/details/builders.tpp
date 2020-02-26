@@ -88,7 +88,7 @@ template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
-	auto container_size = c.size();
+	const auto container_size { c.size() };
 
 	// Do the range check
 	if (t < 1 or static_cast<decltype(container_size)>(t) > container_size)
@@ -100,8 +100,8 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 		throw std::out_of_range(message.str());
 	}
 
-	auto it = std::begin(c);
-	for (auto i = static_cast<int>(t); i > 1; --i, ++it);
+	auto it { std::begin(c) };
+	for (auto i { static_cast<int>(t) }; i > 1; --i, ++it);
 
 	return *it;
 	// return *(it + t) would require iterators providing operator+
@@ -306,11 +306,11 @@ TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<lba_count> &offsets,
 		const lba_count leadout,
 		const std::vector<std::string> &files)
-	: track_count_(track_count)
-	, offsets_(offsets)
-	, lengths_()
-	, leadout_(leadout)
-	, files_(files)
+	: track_count_ { track_count }
+	, offsets_ { offsets }
+	, lengths_ {}
+	, leadout_ { leadout }
+	, files_ { files }
 {
 	// empty
 }
@@ -320,11 +320,11 @@ TOC::Impl::Impl(const TrackNo track_count,
 		const std::vector<lba_count> &offsets,
 		const std::vector<lba_count> &lengths,
 		const std::vector<std::string> &files)
-	: track_count_(track_count)
-	, offsets_(offsets)
-	, lengths_(lengths)
-	, leadout_(arcstk::details::calculate_leadout(lengths, offsets))
-	, files_(files)
+	: track_count_ { track_count }
+	, offsets_ { offsets }
+	, lengths_ { lengths }
+	, leadout_ { arcstk::details::calculate_leadout(lengths, offsets) }
+	, files_ { files }
 {
 	// empty
 }
@@ -656,12 +656,12 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		const lba_count leadout,
 		Files&& files)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::forward<Container>(offsets), track_count, leadout),
 		build_leadout(leadout),
 		build_files(files))
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -672,12 +672,12 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		const lba_count leadout)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::vector<T>{offsets}, track_count, leadout),
 		build_leadout(leadout),
 		build_files(std::vector<std::string>{}))
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -690,12 +690,12 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container2&& lengths,
 		Files&& files)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::forward<Container1>(offsets), track_count, lengths),
 		build_lengths(std::forward<Container2>(lengths), track_count),
 		build_files(files))
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -706,13 +706,13 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
 		Container&& lengths)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::vector<T>{offsets}, track_count,
 			std::forward<Container>(lengths)),
 		build_lengths(std::forward<Container>(lengths), track_count),
 		{/* no filenames */})
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -723,13 +723,13 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container&& offsets,
 		std::initializer_list<T> lengths)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::forward<Container>(offsets), track_count,
 			std::vector<T>{lengths}),
 		build_lengths(std::vector<T>{lengths}, track_count),
 		{/* no filenames */})
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -740,12 +740,12 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T1> offsets,
 		std::initializer_list<T2> lengths)
 {
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
 		build_offsets(std::vector<T1>(offsets), track_count, lengths),
 		build_lengths(std::vector<T2>(lengths), track_count),
 		{/* no filenames */})
-	);
+	) };
 
 	return std::make_unique<TOC>(std::move(impl));
 }
@@ -756,12 +756,12 @@ void TOCBuilder::update(TOC &toc, const lba_count leadout)
 	TOCValidator::validate(toc, leadout);
 
 	// FIXME Copying TOC::Impl manually is inefficient
-	auto impl = std::make_unique<TOC::Impl>(TOC::Impl(
+	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 			toc.track_count(),
 			toc::get_offsets(toc),
 			toc::get_parsed_lengths(toc),
 			toc::get_filenames(toc))
-	);
+	) };
 
 	impl->leadout_ = leadout;
 
@@ -893,7 +893,7 @@ std::vector<std::string> TOCBuilder::build_files(Container&& files)
 
 	// FIXME This requires the container T to be assignable to std::string
 	// but this is not checked by the template specification
-	auto filenames = std::vector<std::string>(files.size());
+	auto filenames { std::vector<std::string>(files.size()) };
     filenames.insert(std::end(filenames), std::begin(files), std::end(files));
 
 	return filenames;

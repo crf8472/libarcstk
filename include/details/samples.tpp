@@ -313,8 +313,8 @@ private:
 template <typename T, bool is_planar, bool is_const>
 SampleIterator<T, is_planar, is_const>::SampleIterator(
 		const SampleSequence<T, is_planar> &seq, const difference_type pos)
-	: seq_(&seq)
-	, pos_(pos)
+	: seq_ { &seq }
+	, pos_ { pos }
 {
 	// empty
 }
@@ -324,8 +324,8 @@ template <typename T, bool is_planar, bool is_const>
 SampleIterator<T, is_planar, is_const>::SampleIterator(
 		const SampleIterator<T, is_planar, false> &rhs)
 	// works due to friendship
-	: seq_(rhs.seq_)
-	, pos_(rhs.pos_)
+	: seq_ { rhs.seq_ }
+	, pos_ { rhs.pos_ }
 {
 	// empty
 }
@@ -547,7 +547,7 @@ private:
 
 template<typename T, bool is_planar>
 SampleSequenceImplBase<T, is_planar>::SampleSequenceImplBase()
-	: size_(0)
+	: size_ { 0 }
 {
 	// empty
 }
@@ -765,9 +765,9 @@ private:
 
 template <typename T>
 SampleSequence<T, true>::SampleSequence(bool left0_right1)
-	: buffer_()
-	, left_ (left0_right1 ? 0 : 1)
-	, right_(left0_right1 ? 1 : 0)
+	: buffer_ {}
+	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
 {
 	// empty
 }
@@ -949,9 +949,9 @@ private:
 
 template <typename T>
 SampleSequence<T, false>::SampleSequence(bool left0_right1)
-	: buffer_()
-	, left_ (left0_right1 ? 0 : 1)
-	, right_(left0_right1 ? 1 : 0)
+	: buffer_ {}
+	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
 {
 	// empty
 }

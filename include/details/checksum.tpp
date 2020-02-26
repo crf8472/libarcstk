@@ -174,7 +174,7 @@ private:
 template <typename K, bool is_const>
 ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
 		const WrappedIteratorType &it)
-	: it_(it)
+	: it_ { it }
 {
 	// empty
 }
@@ -183,7 +183,7 @@ ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
 template <typename K, bool is_const>
 ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
 		const ChecksumMapIterator<K, false> &rhs)
-	: it_(rhs.it_)
+	: it_ { rhs.it_ }
 {
 	// empty
 }
@@ -486,7 +486,7 @@ private:
 
 template <typename K>
 ChecksumMap<K>::ChecksumMap()
-	: map_()
+	: map_ {}
 {
 	// empty
 }

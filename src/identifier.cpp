@@ -63,11 +63,11 @@ std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
 
 
 std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
-		const uint32_t leadout)
+		const lba_count leadout)
 {
 	// Override TOC leadout with optional non-null extra leadout
 
-	uint32_t leadout_val { leadout };
+	lba_count leadout_val { leadout };
 
 	if (leadout_val > 0)
 	{
@@ -77,7 +77,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 		leadout_val = toc.leadout();
 	}
 
-	auto offsets = toc::get_offsets(toc);
+	auto offsets { toc::get_offsets(toc) };
 
 	return std::make_unique<ARId>(
 			toc.track_count(),
@@ -89,38 +89,38 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 
 
 uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) noexcept
+		const lba_count leadout) noexcept
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
-	uint32_t sum_offsets = 0;
+	uint32_t sum_offsets { 0 };
 
 	for (const auto &o : offsets) { sum_offsets += o; }
 
-	return sum_offsets + leadout;
+	return sum_offsets + static_cast<uint32_t>(leadout);
 }
 
 
 uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) noexcept
+		const lba_count leadout) noexcept
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
 
-	uint32_t accum = 0;
+	uint32_t accum { 0 };
 
-	uint16_t track = 1;
+	uint16_t track { 1 };
 	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
 
-	return accum + leadout /* must be > 0*/ * track;
+	return accum + static_cast<uint32_t>(leadout) /* must be > 0*/ * track;
 }
 
 
 uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
-		const uint32_t leadout) noexcept
+		const lba_count leadout) noexcept
 {
-	const auto fps = static_cast<uint32_t>(CDDA.FRAMES_PER_SEC);
-	uint32_t accum = 0;
+	const auto fps { static_cast<uint32_t>(CDDA.FRAMES_PER_SEC) };
+	uint32_t accum { 0 };
 
 	for (const auto &o : offsets)
 	{
@@ -128,8 +128,11 @@ uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 	}
 	accum %= 255; // normalize to 1 byte
 
-	const uint32_t     total_seconds = leadout / fps - offsets[0] / fps;
-	const unsigned int track_count   = offsets.size();
+	const uint32_t total_seconds {
+		static_cast<uint32_t>(leadout) / fps  -  offsets[0] / fps };
+
+	// since 0 <= offsets.size <= 99 narrowing is no problem
+	const uint32_t track_count { static_cast<uint32_t>(offsets.size()) };
 
 	return (accum << 24u) | (total_seconds << 8u) | track_count;
 }
@@ -168,7 +171,8 @@ public:
 	/**
 	 * \brief URL prefix for accessing AccurateRip
 	 */
-	const std::string AR_URL_PREFIX = "http://www.accuraterip.com/accuraterip/";
+	const std::string AR_URL_PREFIX {
+		"http://www.accuraterip.com/accuraterip/" };
 
 	/**
 	 * \brief Implements ARId::ARId().
@@ -289,10 +293,10 @@ private:
 
 ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
-	: track_count_(track_count)
-	, disc_id1_   (id_1)
-	, disc_id2_   (id_2)
-	, cddb_id_    (cddb_id)
+	: track_count_ { track_count }
+	, disc_id1_    { id_1 }
+	, disc_id2_    { id_2 }
+	, cddb_id_     { cddb_id }
 {
 	// empty
 }
@@ -375,13 +379,13 @@ std::string ARId::Impl::construct_filename(const TrackNo track_count,
 {
 	std::stringstream ss;
 
-	std::ios_base::fmtflags dec_flags = ss.flags();
+	std::ios_base::fmtflags dec_flags { ss.flags() };
 	dec_flags &= ~ss.basefield;
 	dec_flags &= ~ss.adjustfield;
 	dec_flags |= ss.right;
 	dec_flags |= ss.dec;
 
-	std::ios_base::fmtflags hex_flags = ss.flags();
+	std::ios_base::fmtflags hex_flags { ss.flags() };
 	hex_flags &= ~ss.basefield;
 	hex_flags &= ~ss.adjustfield;
 	hex_flags |= ss.right;
@@ -408,7 +412,7 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 {
 	std::stringstream ss;
 
-	std::ios_base::fmtflags hex_flags = ss.flags();
+	std::ios_base::fmtflags hex_flags { ss.flags() };
 	hex_flags &= ~ss.basefield;
 	hex_flags &= ~ss.adjustfield;
 	hex_flags |= ss.right;
@@ -429,14 +433,14 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 
 
 TOC::TOC(std::unique_ptr<TOC::Impl> impl)
-	: impl_(std::move(impl))
+	: impl_ { std::move(impl) }
 {
 	// empty
 }
 
 
 TOC::TOC(const TOC &rhs)
-	: impl_(std::make_unique<TOC::Impl>(*rhs.impl_))
+	: impl_ { std::make_unique<TOC::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -523,14 +527,14 @@ ARId::ARId(const TrackNo track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id)
-	: impl_(std::make_unique<ARId::Impl>(track_count, id_1, id_2, cddb_id))
+	: impl_ { std::make_unique<ARId::Impl>(track_count, id_1, id_2, cddb_id) }
 {
 	// empty
 }
 
 
 ARId::ARId(const ARId &id)
-	: impl_(std::make_unique<ARId::Impl>(*id.impl_))
+	: impl_ { std::make_unique<ARId::Impl>(*id.impl_) }
 {
 	// empty
 }
@@ -627,14 +631,14 @@ bool operator == (const ARId &lhs, const ARId &rhs) noexcept
 
 
 InvalidMetadataException::InvalidMetadataException(const std::string &what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
 
 
 InvalidMetadataException::InvalidMetadataException(const char *what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
@@ -645,14 +649,14 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 
 NonstandardMetadataException::NonstandardMetadataException(
 		const std::string &what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
 
 
 NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
-	: std::logic_error(what_arg)
+	: std::logic_error { what_arg }
 {
 	// empty
 }
@@ -696,8 +700,9 @@ decltype(auto) toc_get(Container&& c,
 {
 	auto container_size { c.size() };
 
-	auto track_count = static_cast<decltype(container_size)>(toc.track_count());
-	for (decltype(container_size) t = 1; t <= track_count; ++t)
+	auto track_count {
+		static_cast<decltype(container_size)>(toc.track_count()) };
+	for (decltype(container_size) t { 1 }; t <= track_count; ++t)
 	{
 		c[t - 1] = (toc.*accessor)(t);
 		// FIXME Uniform container insertion? std::inserter?

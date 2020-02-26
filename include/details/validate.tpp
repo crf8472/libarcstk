@@ -182,7 +182,7 @@ public:
 	 *
 	 * Will be TRUE for types with a size, otherwise false.
 	 */
-	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+	static const bool value { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -225,7 +225,7 @@ public:
 	 *
 	 * Will be TRUE for types with begin() const, otherwise false.
 	 */
-	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+	static bool const value { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -268,7 +268,7 @@ public:
 	 *
 	 * Will be TRUE for types with end() const, otherwise false.
 	 */
-	static bool const value = sizeof(test<T>(nullptr)) == sizeof(yes);
+	static bool const value { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -362,7 +362,7 @@ public:
 	 *
 	 * Will be TRUE for types whose value_type is std::string, otherwise false.
 	 */
-	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
+	static const bool value { sizeof(test<T>(nullptr)) == sizeof(yes) };
 
 	/**
 	 * \brief Input type
@@ -581,7 +581,7 @@ protected:
 	 *
 	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
 	 */
-	static constexpr lba_count MAX_OFFSET_90 = (89 * 60 + 59) * 75 + 74;
+	static constexpr lba_count MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 
 	/**
 	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
@@ -589,7 +589,7 @@ protected:
 	 *
 	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
 	 */
-	static constexpr lba_count MAX_OFFSET_99 = (98 * 60 + 59) * 75 + 74;
+	static constexpr lba_count MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 };
 
 /// \cond UNDOC_FUNCTION_BODIES
@@ -648,7 +648,7 @@ void TOCValidator::validate_offsets(Container&& offsets)
 	auto previous_track { std::begin(offsets) };
 	auto finished       { std::end(offsets)   };
 
-	auto t = 2;
+	auto t { 2 };
 	for (; track != finished; ++previous_track, ++track)
 	{
 		// Is offset in a CDDA-legal range?
@@ -716,7 +716,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 
 	// Validation: Track count consistent with Number of Offsets?
 
-	auto offsets_count = offsets.size();
+	auto offsets_count { offsets.size() };
 
 	if (offsets_count != static_cast<decltype(offsets_count)>(track_count))
 	{
@@ -798,7 +798,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	// Length values are valid?
 
-	lba_count sum_lengths = 0;
+	lba_count sum_lengths { 0 };
 
 	auto last { --std::end(lengths) };
 	auto t { 1 };
