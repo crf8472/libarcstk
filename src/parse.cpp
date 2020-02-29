@@ -151,8 +151,8 @@ std::vector<char> StdIn::bytes()
 	// Commented out version with std::array (lines 149,155 and 167)
 
 	auto bytes = std::vector<char> {}; // collects the input bytes
+	auto len   = std::size_t { 0 }; // number of bytes read from stdin
 	auto buf { std::make_unique<char[]>(buf_size()) }; // input buffer
-	auto len = std::size_t { 0 }; // number of bytes read from stdin
 
 	// As long as there are any bytes, read them
 
@@ -169,10 +169,6 @@ std::vector<char> StdIn::bytes()
 
 		bytes.insert(bytes.end(), buf.get(), buf.get() + len);
 	}
-
-	// Note:
-	// Using std::array would entail to define buffer size at compile time.
-	// Using std::unique_ptr<char[]> feels nonetheless quite unnatural.
 
 	return bytes;
 }
@@ -234,21 +230,21 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	uint32_t arcs() const;
+	uint32_t arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	uint32_t confidence() const;
+	uint32_t confidence() const noexcept;
 
 	/**
 	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	uint32_t frame450_arcs() const;
+	uint32_t frame450_arcs() const noexcept;
 
 	/**
 	 * \brief The track ARCS in this ARTripletImpl.
@@ -257,28 +253,28 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	virtual bool arcs_valid() const;
+	virtual bool arcs_valid() const noexcept;
 
 	/**
 	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	virtual bool confidence_valid() const;
+	virtual bool confidence_valid() const noexcept;
 
 	/**
 	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	virtual bool frame450_arcs_valid() const;
+	virtual bool frame450_arcs_valid() const noexcept;
 
 	/**
 	 * \brief Clone this instance, i.e. create a deep copy
 	 *
 	 * \return A clone of this instance
 	 */
-	virtual std::unique_ptr<ARTripletImpl> clone() const;
+	virtual std::unique_ptr<ARTripletImpl> clone() const noexcept;
 
 	/**
 	 * \brief Copy assignment operator.
@@ -330,43 +326,43 @@ ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 }
 
 
-uint32_t ARTripletImpl::arcs() const
+uint32_t ARTripletImpl::arcs() const noexcept
 {
 	return arcs_;
 }
 
 
-uint32_t ARTripletImpl::confidence() const
+uint32_t ARTripletImpl::confidence() const noexcept
 {
 	return confidence_;
 }
 
 
-uint32_t ARTripletImpl::frame450_arcs() const
+uint32_t ARTripletImpl::frame450_arcs() const noexcept
 {
 	return frame450_arcs_;
 }
 
 
-bool ARTripletImpl::arcs_valid() const
+bool ARTripletImpl::arcs_valid() const noexcept
 {
 	return true;
 }
 
 
-bool ARTripletImpl::confidence_valid() const
+bool ARTripletImpl::confidence_valid() const noexcept
 {
 	return true;
 }
 
 
-bool ARTripletImpl::frame450_arcs_valid() const
+bool ARTripletImpl::frame450_arcs_valid() const noexcept
 {
 	return true;
 }
 
 
-std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const
+std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const noexcept
 {
 	return std::make_unique<ARTripletImpl>(this->arcs_, this->confidence_,
 			this->frame450_arcs_);
@@ -403,13 +399,13 @@ public:
 			const uint32_t frame450_arcs, const bool arcs_valid,
 			const bool confidence_valid, const bool frame450_arcs_valid);
 
-	bool arcs_valid() const override;
+	bool arcs_valid() const noexcept override;
 
-	bool confidence_valid() const override;
+	bool confidence_valid() const noexcept override;
 
-	bool frame450_arcs_valid() const override;
+	bool frame450_arcs_valid() const noexcept override;
 
-	std::unique_ptr<ARTripletImpl> clone() const override;
+	std::unique_ptr<ARTripletImpl> clone() const noexcept override;
 
 
 private:
@@ -439,25 +435,25 @@ ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 }
 
 
-bool ARIncompleteTripletImpl::arcs_valid() const
+bool ARIncompleteTripletImpl::arcs_valid() const noexcept
 {
-	return flags_ & uint8_t{0x01};
+	return flags_ & uint8_t { 0x01 };
 }
 
 
-bool ARIncompleteTripletImpl::confidence_valid() const
+bool ARIncompleteTripletImpl::confidence_valid() const noexcept
 {
-	return flags_ & uint8_t{0x02};
+	return flags_ & uint8_t { 0x02 };
 }
 
 
-bool ARIncompleteTripletImpl::frame450_arcs_valid() const
+bool ARIncompleteTripletImpl::frame450_arcs_valid() const noexcept
 {
-	return flags_ & uint8_t{0x04};
+	return flags_ & uint8_t { 0x04 };
 }
 
 
-std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::clone() const
+std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::clone() const noexcept
 {
 	return std::make_unique<ARIncompleteTripletImpl>(this->arcs(),
 			this->confidence(), this->frame450_arcs(),
@@ -505,37 +501,37 @@ ARTriplet::ARTriplet(ARTriplet &&rhs) noexcept = default;
 ARTriplet::~ARTriplet() noexcept = default;
 
 
-uint32_t ARTriplet::arcs() const
+uint32_t ARTriplet::arcs() const noexcept
 {
 	return impl_->arcs();
 }
 
 
-uint32_t ARTriplet::confidence() const
+uint32_t ARTriplet::confidence() const noexcept
 {
 	return impl_->confidence();
 }
 
 
-uint32_t ARTriplet::frame450_arcs() const
+uint32_t ARTriplet::frame450_arcs() const noexcept
 {
 	return impl_->frame450_arcs();
 }
 
 
-bool ARTriplet::arcs_valid() const
+bool ARTriplet::arcs_valid() const noexcept
 {
 	return impl_->arcs_valid();
 }
 
 
-bool ARTriplet::confidence_valid() const
+bool ARTriplet::confidence_valid() const noexcept
 {
 	return impl_->confidence_valid();
 }
 
 
-bool ARTriplet::frame450_arcs_valid() const
+bool ARTriplet::frame450_arcs_valid() const noexcept
 {
 	return impl_->frame450_arcs_valid();
 }
@@ -604,7 +600,7 @@ public: /* member functions */
 	 *
 	 * \return The number of triplets in this block.
 	 */
-	ARBlock::size_type size() const;
+	ARBlock::size_type size() const noexcept;
 
 	/**
 	 * \brief const_iterator pointing to the first triplet.
@@ -697,7 +693,7 @@ ARTriplet& ARBlock::Impl::triplet(const ARBlock::size_type index)
 }
 
 
-ARBlock::size_type ARBlock::Impl::size() const
+ARBlock::size_type ARBlock::Impl::size() const noexcept
 {
 	return triplets_.size();
 }
@@ -768,7 +764,7 @@ ARBlock::ARBlock(ARBlock &&rhs) noexcept = default;
 ARBlock::~ARBlock() noexcept = default;
 
 
-const ARId& ARBlock::id() const
+const ARId& ARBlock::id() const noexcept
 {
 	return impl_->id();
 }
@@ -792,7 +788,7 @@ ARTriplet& ARBlock::triplet(const ARBlock::size_type index)
 }
 
 
-uint32_t ARBlock::size() const
+uint32_t ARBlock::size() const noexcept
 {
 	return impl_->size();
 }
@@ -895,12 +891,12 @@ public: /* member functions */
 	/**
 	 * \brief Implements ARResponse::size() const
 	 */
-	ARResponse::size_type size() const;
+	ARResponse::size_type size() const noexcept;
 
 	/**
 	 * \brief Implements ARResponse::tracks_per_block() const
 	 */
-	int tracks_per_block() const;
+	int tracks_per_block() const noexcept;
 
 	/**
 	 * \brief Implements ARResponse::begin()
@@ -973,13 +969,13 @@ ARBlock& ARResponse::Impl::block(const ARResponse::size_type index)
 }
 
 
-ARResponse::size_type ARResponse::Impl::size() const
+ARResponse::size_type ARResponse::Impl::size() const noexcept
 {
 	return blocks_.size();
 }
 
 
-int ARResponse::Impl::tracks_per_block() const
+int ARResponse::Impl::tracks_per_block() const noexcept
 {
 	return static_cast<int>(blocks_.empty() ? 0 : blocks_[0].size());
 }
@@ -1068,13 +1064,13 @@ ARBlock& ARResponse::block(const ARResponse::size_type index)
 }
 
 
-std::size_t ARResponse::size() const
+std::size_t ARResponse::size() const noexcept
 {
 	return impl_->size();
 }
 
 
-int ARResponse::tracks_per_block() const
+int ARResponse::tracks_per_block() const noexcept
 {
 	return impl_->tracks_per_block();
 }
@@ -1694,19 +1690,19 @@ StreamReadException::StreamReadException(const uint32_t byte_pos,
 }
 
 
-uint32_t StreamReadException::byte_position() const
+uint32_t StreamReadException::byte_position() const noexcept
 {
 	return byte_pos_;
 }
 
 
-uint32_t StreamReadException::block() const
+uint32_t StreamReadException::block() const noexcept
 {
 	return block_;
 }
 
 
-uint32_t StreamReadException::block_byte_position() const
+uint32_t StreamReadException::block_byte_position() const noexcept
 {
 	return block_byte_pos_;
 }
@@ -2280,7 +2276,7 @@ void ARFileParser::set_file(const std::string &filename)
 }
 
 
-std::string ARFileParser::file() const
+std::string ARFileParser::file() const noexcept
 {
 	return filename_;
 }

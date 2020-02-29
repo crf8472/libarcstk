@@ -168,35 +168,35 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	uint32_t arcs() const;
+	uint32_t arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this triplet.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	uint32_t confidence() const;
+	uint32_t confidence() const noexcept;
 
 	/**
 	 * \brief The ARCS of frame 450 of the particular track in this triplet.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	uint32_t frame450_arcs() const;
+	uint32_t frame450_arcs() const noexcept;
 
 	/**
 	 * \brief Validity flag for the track ARCS in this triplet.
 	 *
 	 * \return Validity flag for the ARCS value in this triplet
 	 */
-	bool arcs_valid() const;
+	bool arcs_valid() const noexcept;
 
 	/**
 	 * \brief Validity flag for the confidence value in this triplet.
 	 *
 	 * \return Validity flag for the confidence in this triplet
 	 */
-	bool confidence_valid() const;
+	bool confidence_valid() const noexcept;
 
 	/**
 	 * \brief Validity flag for the ARCS of frame 450 of the particular track in
@@ -204,7 +204,7 @@ public:
 	 *
 	 * \return Validity flag for the frame450 ARCS value in this triplet
 	 */
-	bool frame450_arcs_valid() const;
+	bool frame450_arcs_valid() const noexcept;
 
 	/**
 	 * \brief Copy assignment operator.
@@ -314,7 +314,7 @@ public: /* member functions */
 	 *
 	 * \return ARId of this block
 	 */
-	const ARId& id() const;
+	const ARId& id() const noexcept;
 
 	/**
 	 * \brief Append an ARTriplet as last element to this ARBlock.
@@ -366,7 +366,7 @@ public: /* member functions */
 	 *
 	 * \return The number of \link ARTriplet ARTriplets\endlink in this block.
 	 */
-	uint32_t size() const;
+	uint32_t size() const noexcept;
 
 	/**
 	 * \brief iterator pointing to first ARTriplet.
@@ -583,14 +583,14 @@ public: /* member functions */
 	 *
 	 * \return Number of \link ARBlock ARBlocks\endlink in this response
 	 */
-	size_type size() const;
+	size_type size() const noexcept;
 
 	/**
 	 * \brief Number of tracks per ARBlock.
 	 *
 	 * \return Number of tracks per \link ARBlock ARBlocks\endlink
 	 */
-	int tracks_per_block() const;
+	int tracks_per_block() const noexcept;
 
 	/**
 	 * \brief iterator pointing to the first ARBlock.
@@ -1135,7 +1135,7 @@ public:
 	 *
 	 * \return Last 1-based global byte position before the exception occurred
 	 */
-	uint32_t byte_position() const;
+	uint32_t byte_position() const noexcept;
 
 	/**
 	 * \brief The 1-based block number of the block in which the exception
@@ -1143,7 +1143,7 @@ public:
 	 *
 	 * \return The 1-based block number of the block
 	 */
-	uint32_t block() const;
+	uint32_t block() const noexcept;
 
 	/**
 	 * \brief Last 1-based byte position relative to the start of the current
@@ -1151,7 +1151,7 @@ public:
 	 *
 	 * \return Last 1-based block byte position read before the exception
 	 */
-	uint32_t block_byte_position() const;
+	uint32_t block_byte_position() const noexcept;
 
 
 private:
@@ -1347,7 +1347,7 @@ public:
 	 * \return Name of the file that is parsed when
 	 * \link ARStreamParser::parse() parse() \endlink is called.
 	 */
-	std::string file() const;
+	std::string file() const noexcept;
 
 
 private:
