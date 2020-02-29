@@ -28,6 +28,8 @@ inline namespace v_1_0_0
  *
  * This should be defined identically-as or at least assignable-to
  * arcstk::sample_type.
+ *
+ * \see arcstk::sample_type
  */
 using sample_t = uint32_t;
 

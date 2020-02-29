@@ -182,7 +182,8 @@ add_library (${PROJECT_NAME} ${PROJECT_LINKFLAG}
 	"${PROJECT_SOURCE_DIR}/match.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
-	"${PROJECT_SOURCE_DIR}/parse.cpp" )
+	"${PROJECT_SOURCE_DIR}/parse.cpp"
+	"${PROJECT_SOURCE_DIR}/samples.cpp" )
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC

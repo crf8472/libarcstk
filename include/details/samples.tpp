@@ -56,10 +56,11 @@ class SampleIterator final
 public:
 
 	using iterator_category = std::random_access_iterator_tag;
+	// FIXME Must be at most input_iterator (LegacyInputIterator)
 
 	using value_type        = sample_t;
 
-	using difference_type   = int64_t;
+	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
 
 	using pointer           = typename std::conditional<is_const,
@@ -123,12 +124,13 @@ public:
 	 */
 	value_type operator [] (const difference_type index) const;
 
-	/**
+	// Commented out: pointer access to the underlying sample
+	/* *
 	 * \brief Pointer access.
 	 *
-	 * \return 
+	 * \return Pointer the underlying sample
 	 */
-	SampleIterator* operator -> ();
+	//pointer operator -> ();
 
 	// Binary non-assignment operators are friends:
 	// 1.) Makes the operator a non-member to the class. (Makes type
