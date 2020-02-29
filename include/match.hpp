@@ -349,13 +349,13 @@ public:
 	virtual ~Matcher() noexcept;
 
 	/**
-	 * \brief Returns TRUE iff at least one block in the ARResponse is
-	 * has a \link Match::difference() difference() \endlink of \c 0 to either
+	 * \brief Returns TRUE iff at least one block in the ARResponse has a
+	 * \link Match::difference() difference() \endlink of \c 0 to either
 	 * the ARCSs v1 or the ARCSs v2 in the request.
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
 	 */
-	bool matches() const;
+	bool matches() const noexcept;
 
 	/**
 	 * \brief Returns the 0-based index of the best matching block in the
@@ -363,7 +363,7 @@ public:
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
-	int best_match() const;
+	int best_match() const noexcept;
 
 	/**
 	 * \brief Returns the difference value of the ARBlock with index
@@ -376,7 +376,7 @@ public:
 	 *
 	 * \return Difference value of best block
 	 */
-	int best_difference() const;
+	int best_difference() const noexcept;
 
 	/**
 	 * \brief Returns TRUE iff the ARBlock with index best_match() matches
@@ -384,21 +384,21 @@ public:
 	 *
 	 * \return TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
 	 */
-	bool matches_v2() const;
+	bool matches_v2() const noexcept;
 
 	/**
 	 * \brief Returns the actual Match.
 	 *
 	 * \return The actual Match
 	 */
-	const Match* match() const;
+	const Match* match() const noexcept;
 
 	/**
 	 * \brief Clones this instance.
 	 *
 	 * \return Deep copy of this instance
 	 */
-	std::unique_ptr<Matcher> clone() const;
+	std::unique_ptr<Matcher> clone() const noexcept;
 
 
 private:
@@ -408,7 +408,7 @@ private:
 	 *
 	 * \return TRUE if \c response contains a block matching \c result
 	 */
-	virtual bool do_matches() const
+	virtual bool do_matches() const noexcept
 	= 0;
 
 	/**
@@ -418,7 +418,7 @@ private:
 	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
-	virtual int do_best_match() const
+	virtual int do_best_match() const noexcept
 	= 0;
 
 	/**
@@ -428,7 +428,7 @@ private:
 	 *
 	 * \return Difference value of best block
 	 */
-	virtual int do_best_difference() const
+	virtual int do_best_difference() const noexcept
 	= 0;
 
 	/**
@@ -438,7 +438,7 @@ private:
 	 *
 	 * \return TRUE if \c best_match() was a match to the ARCSsv2
 	 */
-	virtual bool do_matches_v2() const
+	virtual bool do_matches_v2() const noexcept
 	= 0;
 
 	/**
@@ -446,7 +446,7 @@ private:
 	 *
 	 * \return The actual match information.
 	 */
-	virtual const Match* do_match() const
+	virtual const Match* do_match() const noexcept
 	= 0;
 
 	/**
@@ -454,7 +454,7 @@ private:
 	 *
 	 * \return Deep copy of this instance.
 	 */
-	virtual std::unique_ptr<Matcher> do_clone() const
+	virtual std::unique_ptr<Matcher> do_clone() const noexcept
 	= 0;
 };
 
@@ -523,17 +523,17 @@ public:
 
 private:
 
-	bool do_matches() const final;
+	bool do_matches() const noexcept final;
 
-	int do_best_match() const final;
+	int do_best_match() const noexcept final;
 
-	int do_best_difference() const final;
+	int do_best_difference() const noexcept final;
 
-	bool do_matches_v2() const final;
+	bool do_matches_v2() const noexcept final;
 
-	const Match* do_match() const final;
+	const Match* do_match() const noexcept final;
 
-	std::unique_ptr<Matcher> do_clone() const final;
+	std::unique_ptr<Matcher> do_clone() const noexcept final;
 
 	// forward declaration
 	class Impl;
@@ -622,17 +622,17 @@ public:
 
 private:
 
-	bool do_matches() const final;
+	bool do_matches() const noexcept final;
 
-	int do_best_match() const final;
+	int do_best_match() const noexcept final;
 
-	int do_best_difference() const final;
+	int do_best_difference() const noexcept final;
 
-	bool do_matches_v2() const final;
+	bool do_matches_v2() const noexcept final;
 
-	const Match* do_match() const final;
+	const Match* do_match() const noexcept final;
 
-	std::unique_ptr<Matcher> do_clone() const final;
+	std::unique_ptr<Matcher> do_clone() const noexcept final;
 
 	// forward declaration
 	class Impl;

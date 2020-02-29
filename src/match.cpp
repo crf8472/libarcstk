@@ -501,37 +501,37 @@ std::unique_ptr<Match> DefaultMatch::do_clone() const
 Matcher::~Matcher() noexcept = default;
 
 
-bool Matcher::matches() const
+bool Matcher::matches() const noexcept
 {
 	return this->do_matches();
 }
 
 
-int Matcher::best_match() const
+int Matcher::best_match() const noexcept
 {
 	return this->do_best_match();
 }
 
 
-int Matcher::best_difference() const
+int Matcher::best_difference() const noexcept
 {
 	return this->do_best_difference();
 }
 
 
-bool Matcher::matches_v2() const
+bool Matcher::matches_v2() const noexcept
 {
 	return this->do_matches_v2();
 }
 
 
-const Match * Matcher::match() const
+const Match * Matcher::match() const noexcept
 {
 	return this->do_match();
 }
 
 
-std::unique_ptr<Matcher> Matcher::clone() const
+std::unique_ptr<Matcher> Matcher::clone() const noexcept
 {
 	return this->do_clone();
 }
@@ -580,22 +580,22 @@ public:
 	/**
 	 * \brief Implements Matcher::matches() const.
 	 */
-	bool matches() const;
+	bool matches() const noexcept;
 
 	/**
 	 * \brief Implements Matcher::best_match() const.
 	 */
-	int best_match() const;
+	int best_match() const noexcept;
 
 	/**
 	 * \brief Implements Matcher::best_difference() const.
 	 */
-	int best_difference() const;
+	int best_difference() const noexcept;
 
 	/**
 	 * \brief Implements Matcher::matches_v2() const.
 	 */
-	bool matches_v2() const;
+	bool matches_v2() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
@@ -620,7 +620,7 @@ public:
 	 *
 	 * \return Actual match result.
 	 */
-	const DefaultMatch * match() const;
+	const DefaultMatch * match() const noexcept;
 
 
 protected:
@@ -640,14 +640,23 @@ protected:
 	 *
 	 * \return Status value, 0 indicates success
 	 */
-	int best_block(const DefaultMatch &m, int &block, bool &matches_v2);
+	int best_block(const DefaultMatch &m, int &block, bool &matches_v2)
+		noexcept;
 
 	/**
 	 * \brief Internal service method for constructor.
 	 *
 	 * \return 0-based index of the best block
 	 */
-	int mark_best_block();
+	int mark_best_block() noexcept;
+
+	/**
+	 * \brief The checksum types to verify.
+	 */
+	static constexpr std::array<checksum::type, 2> types {
+		checksum::type::ARCS1,
+		checksum::type::ARCS2
+	};
 
 
 private:
@@ -662,7 +671,7 @@ private:
 	 * \return Match information
 	 */
 	virtual std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const
+			const ARId &id, const ARResponse &ref_sums) const noexcept
 	= 0;
 
 	/**
@@ -683,6 +692,9 @@ private:
 
 
 /// \cond UNDOC_FUNCTION_BODIES
+
+
+constexpr std::array<checksum::type, 2> MatcherImplBase::types;
 
 
 MatcherImplBase::MatcherImplBase()
@@ -734,41 +746,41 @@ void MatcherImplBase::init_match(const Checksums &checksums, const ARId &id,
 }
 
 
-bool MatcherImplBase::matches() const
+bool MatcherImplBase::matches() const noexcept
 {
 	return this->best_difference() == 0;
 }
 
 
-int MatcherImplBase::best_match() const
+int MatcherImplBase::best_match() const noexcept
 {
 	return best_block_;
 }
 
 
-int MatcherImplBase::best_difference() const
+int MatcherImplBase::best_difference() const noexcept
 {
 	return match_->difference(best_block_, matches_v2_);
 }
 
 
-bool MatcherImplBase::matches_v2() const
+bool MatcherImplBase::matches_v2() const noexcept
 {
 	return matches_v2_;
 }
 
 
 int MatcherImplBase::best_block(const DefaultMatch &m,
-		int &block, bool &matches_v2)
+		int &block, bool &matches_v2) noexcept
 {
 	if (m.size() == 0)
 	{
 		return -1;
 	}
 
-	auto best_diff = int { 100 }; // maximal difference possible, 99 tracks + id
-	auto curr_diff_v1 = int { 0 };
-	auto curr_diff_v2 = int { 0 };
+	auto best_diff    = int { 100 }; // max difference possible, 99 tracks + id
+	auto curr_diff_v1 = int {   0 };
+	auto curr_diff_v2 = int {   0 };
 
 	for (auto b = int { 0 }; b < m.total_blocks(); ++b)
 	{
@@ -812,18 +824,18 @@ MatcherImplBase& MatcherImplBase::operator = (
 		MatcherImplBase &&rhs) noexcept = default;
 
 
-const DefaultMatch * MatcherImplBase::match() const
+const DefaultMatch * MatcherImplBase::match() const noexcept
 {
 	return match_.get();
 }
 
 
-int MatcherImplBase::mark_best_block()
+int MatcherImplBase::mark_best_block() noexcept
 {
-	auto block = int { 0 };
+	auto block   = int  { 0 };
 	auto version = bool { false };
 
-	auto status { this->best_block(*match_, block, version) };
+	const auto status { this->best_block(*match_, block, version) };
 
 	if (status == 0) // best block found?
 	{
@@ -851,13 +863,13 @@ class AlbumMatcher::Impl final : public MatcherImplBase
 protected:
 
 	std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const override;
+			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
 
 
 std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
-		const ARResponse &ref_sums) const
+		const ARResponse &ref_sums) const noexcept
 {
 	auto ref_tracks { ref_sums.tracks_per_block() < 0
 		? 0
@@ -875,20 +887,14 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		return nullptr;
 	}
 
-	//std::array<checksum::type, 2> types = {
-	//	checksum::type::ARCS1,
-	//	checksum::type::ARCS2
-	//};
-
 	auto match { std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size()) };
 
-	auto block_i = int { 0 };
-	auto bitpos = int { 0 };
-	auto track_j = Checksums::size_type { 0 };
-	auto is_v2 = bool { false };
-
-	Checksum checksum;
+	auto block_i  = int  { 0 };
+	auto bitpos   = int  { 0 };
+	auto is_v2    = bool { false };
+	auto track_j  = Checksums::size_type { 0 };
+	auto checksum = Checksum {};
 
 	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
@@ -911,7 +917,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 		for (auto track { block->begin() }; track != block->end(); ++track)
 		{
-			for (const auto& type : checksum::types)
+			for (const auto& type : MatcherImplBase::types)
 			{
 				checksum = *actual_sums[track_j].find(type);
 
@@ -973,25 +979,25 @@ AlbumMatcher::AlbumMatcher(AlbumMatcher &&rhs) noexcept = default;
 AlbumMatcher::~AlbumMatcher() noexcept = default;
 
 
-bool AlbumMatcher::do_matches() const
+bool AlbumMatcher::do_matches() const noexcept
 {
 	return impl_->matches();
 }
 
 
-int AlbumMatcher::do_best_match() const
+int AlbumMatcher::do_best_match() const noexcept
 {
 	return impl_->best_match();
 }
 
 
-int AlbumMatcher::do_best_difference() const
+int AlbumMatcher::do_best_difference() const noexcept
 {
 	return impl_->best_difference();
 }
 
 
-bool AlbumMatcher::do_matches_v2() const
+bool AlbumMatcher::do_matches_v2() const noexcept
 {
 	return impl_->matches_v2();
 }
@@ -999,12 +1005,11 @@ bool AlbumMatcher::do_matches_v2() const
 
 AlbumMatcher& AlbumMatcher::operator = (const AlbumMatcher &rhs)
 {
-	if (this == &rhs)
+	if (this != &rhs)
 	{
-		return *this;
+		impl_ = std::make_unique<AlbumMatcher::Impl>(*rhs.impl_);
 	}
 
-	impl_ = std::make_unique<AlbumMatcher::Impl>(*rhs.impl_);
 	return *this;
 }
 
@@ -1013,13 +1018,13 @@ AlbumMatcher& AlbumMatcher::operator = (AlbumMatcher &&rhs) noexcept
 	= default;
 
 
-const Match* AlbumMatcher::do_match() const
+const Match* AlbumMatcher::do_match() const noexcept
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> AlbumMatcher::do_clone() const
+std::unique_ptr<Matcher> AlbumMatcher::do_clone() const noexcept
 {
 	return std::make_unique<AlbumMatcher>(*this);
 }
@@ -1037,7 +1042,7 @@ class TracksetMatcher::Impl final : public MatcherImplBase
 protected:
 
 	std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const override;
+			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
 
 
@@ -1049,7 +1054,7 @@ protected:
 
 std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		const Checksums &actual_sums, const ARId &id,
-		const ARResponse &ref_sums) const
+		const ARResponse &ref_sums) const noexcept
 {
 	auto ref_tracks { ref_sums.tracks_per_block() < 0
 		? 0
@@ -1067,21 +1072,15 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 		return nullptr;
 	}
 
-	//std::array<checksum::type, 2> types = {
-	//	checksum::type::ARCS1,
-	//	checksum::type::ARCS2
-	//};
-
 	auto match { std::make_unique<DefaultMatch>(
 			ref_sums.size(), actual_sums.size()) };
 
-	auto block_i = int { 0 };
-	auto track_j = int { 0 };
-	auto bitpos = int { 0 };
+	auto block_i = int  { 0 };
+	auto track_j = int  { 0 };
+	auto bitpos  = int  { 0 };
+	auto is_v2   = bool { false };
 	auto start_track = Checksums::size_type { 0 };
-	auto is_v2 = bool { false };
-
-	Checksum checksum;
+	auto checksum    = Checksum {};
 
 	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
@@ -1111,7 +1110,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 			for (const auto& entry : actual_sums)
 			{
-				for (const auto& type : checksum::types)
+				for (const auto& type : MatcherImplBase::types)
 				{
 					checksum = *entry.find(type);
 
@@ -1187,25 +1186,25 @@ TracksetMatcher::TracksetMatcher(TracksetMatcher &&rhs) noexcept = default;
 TracksetMatcher::~TracksetMatcher() noexcept = default;
 
 
-bool TracksetMatcher::do_matches() const
+bool TracksetMatcher::do_matches() const noexcept
 {
 	return impl_->matches();
 }
 
 
-int TracksetMatcher::do_best_match() const
+int TracksetMatcher::do_best_match() const noexcept
 {
 	return impl_->best_match();
 }
 
 
-int TracksetMatcher::do_best_difference() const
+int TracksetMatcher::do_best_difference() const noexcept
 {
 	return impl_->best_difference();
 }
 
 
-bool TracksetMatcher::do_matches_v2() const
+bool TracksetMatcher::do_matches_v2() const noexcept
 {
 	return impl_->matches_v2();
 }
@@ -1227,13 +1226,13 @@ TracksetMatcher& TracksetMatcher::operator = (TracksetMatcher &&rhs) noexcept
 	= default;
 
 
-const Match * TracksetMatcher::do_match() const
+const Match * TracksetMatcher::do_match() const noexcept
 {
 	return impl_->match();
 }
 
 
-std::unique_ptr<Matcher> TracksetMatcher::do_clone() const
+std::unique_ptr<Matcher> TracksetMatcher::do_clone() const noexcept
 {
 	return std::make_unique<TracksetMatcher>(*this);
 }
