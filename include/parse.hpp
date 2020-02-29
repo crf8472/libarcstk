@@ -264,20 +264,20 @@ public: /* member types */
 	 * ARBlock.
 	 */
 	using iterator = std::vector<ARTriplet>::iterator;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 	/**
 	 * \brief A const-iterator over the \link ARTriplet ARTriplets \endlink of
 	 * an ARBlock.
 	 */
 	using const_iterator = std::vector<ARTriplet>::const_iterator;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 	/**
 	 * \brief Size type for ARBlock.
 	 */
 	using size_type = std::vector<ARTriplet>::size_type;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 
 public: /* member functions */
@@ -490,20 +490,20 @@ public: /* member types */
 	 * ARResponse.
 	 */
 	using iterator = std::vector<ARBlock>::iterator;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 	/**
 	 * \brief A const_iterator over the \link ARBlock ARBlocks \endlink of an
 	 * ARResponse.
 	 */
 	using const_iterator = std::vector<ARBlock>::const_iterator;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 	/**
 	 * \brief Size type of ARResponse.
 	 */
 	using size_type = std::vector<ARBlock>::size_type;
-	// TODO Presupposes/leaks implementation knowledge
+	// FIXME Presupposes/leaks implementation knowledge
 
 
 public: /* member functions */

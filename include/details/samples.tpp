@@ -294,8 +294,8 @@ private:
 	 * \param[in] seq SampleSequence to iterate
 	 * \param[in] pos Start index
 	 */
-	SampleIterator(const SampleSequence<T, is_planar> &seq, const
-			difference_type pos);
+	SampleIterator(const SampleSequence<T, is_planar> &seq,
+			const difference_type pos);
 
 	/**
 	 * \brief The SampleSequence to iterate.
