@@ -219,122 +219,122 @@ bool AudioSize::Impl::equals(const AudioSize::Impl &rhs) const noexcept
 // CalcContext
 
 
-void CalcContext::set_audio_size(const AudioSize &audio_size)
+void CalcContext::set_audio_size(const AudioSize &audio_size) noexcept
 {
 	this->do_set_audio_size(audio_size);
 }
 
 
-const AudioSize& CalcContext::audio_size() const
+const AudioSize& CalcContext::audio_size() const noexcept
 {
 	return this->do_audio_size();
 }
 
 
-void CalcContext::set_filename(const std::string &filename)
+void CalcContext::set_filename(const std::string &filename) noexcept
 {
 	this->do_set_filename(filename);
 }
 
 
-std::string CalcContext::filename() const
+std::string CalcContext::filename() const noexcept
 {
 	return this->do_filename();
 }
 
 
-uint8_t CalcContext::track_count() const
+uint8_t CalcContext::track_count() const noexcept
 {
 	return this->do_track_count();
 }
 
 
-bool CalcContext::is_multi_track() const
+bool CalcContext::is_multi_track() const noexcept
 {
 	return this->do_is_multi_track();
 }
 
 
-uint32_t CalcContext::first_relevant_sample(const TrackNo track) const
+uint32_t CalcContext::first_relevant_sample(const TrackNo track) const noexcept
 {
 	return this->do_first_relevant_sample(track);
 }
 
 
-uint32_t CalcContext::first_relevant_sample() const
+uint32_t CalcContext::first_relevant_sample() const noexcept
 {
 	return this->do_first_relevant_sample_0();
 }
 
 
-uint32_t CalcContext::last_relevant_sample(const TrackNo track) const
+uint32_t CalcContext::last_relevant_sample(const TrackNo track) const noexcept
 {
 	return this->do_last_relevant_sample(track);
 }
 
 
-uint32_t CalcContext::last_relevant_sample() const
+uint32_t CalcContext::last_relevant_sample() const noexcept
 {
 	return this->do_last_relevant_sample_0();
 }
 
 
-TrackNo CalcContext::track(const uint32_t smpl) const
+TrackNo CalcContext::track(const uint32_t smpl) const noexcept
 {
 	return this->do_track(smpl);
 }
 
 
-lba_count CalcContext::offset(const uint8_t track) const
+lba_count CalcContext::offset(const uint8_t track) const noexcept
 {
 	return this->do_offset(track);
 }
 
 
-lba_count CalcContext::length(const uint8_t track) const
+lba_count CalcContext::length(const uint8_t track) const noexcept
 {
 	return this->do_length(track);
 }
 
 
-ARId CalcContext::id() const
+ARId CalcContext::id() const noexcept
 {
 	return this->do_id();
 }
 
 
-bool CalcContext::skips_front() const
+bool CalcContext::skips_front() const noexcept
 {
 	return this->do_skips_front();
 }
 
 
-bool CalcContext::skips_back() const
+bool CalcContext::skips_back() const noexcept
 {
 	return this->do_skips_back();
 }
 
 
-uint32_t CalcContext::num_skip_front() const
+uint32_t CalcContext::num_skip_front() const noexcept
 {
 	return this->do_num_skip_front();
 }
 
 
-uint32_t CalcContext::num_skip_back() const
+uint32_t CalcContext::num_skip_back() const noexcept
 {
 	return this->do_num_skip_back();
 }
 
 
 void CalcContext::notify_skips(const uint32_t num_skip_front,
-		const uint32_t num_skip_back)
+		const uint32_t num_skip_back) noexcept
 {
 	this->do_notify_skips(num_skip_front, num_skip_back);
 }
 
 
-std::unique_ptr<CalcContext> CalcContext::clone() const
+std::unique_ptr<CalcContext> CalcContext::clone() const noexcept
 {
 	return this->do_clone();
 }
@@ -361,7 +361,7 @@ CalcContextBase::CalcContextBase(const std::string &filename,
 CalcContextBase::~CalcContextBase() noexcept = default;
 
 
-void CalcContextBase::do_set_audio_size(const AudioSize &audio_size)
+void CalcContextBase::do_set_audio_size(const AudioSize &audio_size) noexcept
 {
 	audiosize_ = audio_size;
 
@@ -369,7 +369,7 @@ void CalcContextBase::do_set_audio_size(const AudioSize &audio_size)
 }
 
 
-void CalcContextBase::do_hook_post_set_audio_size()
+void CalcContextBase::do_hook_post_set_audio_size() noexcept
 {
 	// empty
 }
@@ -384,64 +384,64 @@ bool CalcContextBase::equals(const CalcContextBase &rhs) const noexcept
 }
 
 
-const AudioSize& CalcContextBase::do_audio_size() const
+const AudioSize& CalcContextBase::do_audio_size() const noexcept
 {
 	return audiosize_;
 }
 
 
-void CalcContextBase::do_set_filename(const std::string &filename)
+void CalcContextBase::do_set_filename(const std::string &filename) noexcept
 {
 	filename_ = filename;
 }
 
 
-std::string CalcContextBase::do_filename() const
+std::string CalcContextBase::do_filename() const noexcept
 {
 	return filename_;
 }
 
 
 uint32_t CalcContextBase::do_first_relevant_sample(const TrackNo /* track */)
-	const
+	const noexcept
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t CalcContextBase::do_first_relevant_sample_0() const
+uint32_t CalcContextBase::do_first_relevant_sample_0() const noexcept
 {
 	return this->first_relevant_sample(1);
 }
 
 
 uint32_t CalcContextBase::do_last_relevant_sample(const TrackNo /* track */)
-	const
+	const noexcept
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-uint32_t CalcContextBase::do_last_relevant_sample_0() const
+uint32_t CalcContextBase::do_last_relevant_sample_0() const noexcept
 {
 	return this->last_relevant_sample(this->track_count());
 }
 
 
-uint32_t CalcContextBase::do_num_skip_front() const
+uint32_t CalcContextBase::do_num_skip_front() const noexcept
 {
 	return num_skip_front_;
 }
 
 
-uint32_t CalcContextBase::do_num_skip_back() const
+uint32_t CalcContextBase::do_num_skip_back() const noexcept
 {
 	return num_skip_back_;
 }
 
 
 void CalcContextBase::do_notify_skips(const uint32_t num_skip_front,
-		const uint32_t num_skip_back)
+		const uint32_t num_skip_back) noexcept
 {
 	num_skip_front_ = num_skip_front;
 	num_skip_back_  = num_skip_back;
@@ -496,20 +496,20 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 }
 
 
-uint8_t SingletrackCalcContext::do_track_count() const
+uint8_t SingletrackCalcContext::do_track_count() const noexcept
 {
 	return 1;
 }
 
 
-bool SingletrackCalcContext::do_is_multi_track() const
+bool SingletrackCalcContext::do_is_multi_track() const noexcept
 {
 	return false;
 }
 
 
 uint32_t SingletrackCalcContext::do_first_relevant_sample(
-		const TrackNo track) const
+		const TrackNo track) const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -532,7 +532,7 @@ uint32_t SingletrackCalcContext::do_first_relevant_sample(
 
 
 uint32_t SingletrackCalcContext::do_last_relevant_sample(
-		const TrackNo track) const
+		const TrackNo track) const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -553,54 +553,57 @@ uint32_t SingletrackCalcContext::do_last_relevant_sample(
 
 
 TrackNo SingletrackCalcContext::do_track(const uint32_t /* smpl */) const
+noexcept
 {
 	return 1;
 }
 
 
 lba_count SingletrackCalcContext::do_offset(const uint8_t /* track */) const
+noexcept
 {
 	return 0;
 }
 
 
 lba_count SingletrackCalcContext::do_length(const uint8_t /* track */) const
+noexcept
 {
 	return 0;
 }
 
 
-ARId SingletrackCalcContext::do_id() const
+ARId SingletrackCalcContext::do_id() const noexcept
 {
 	return *(make_empty_arid());
 }
 
 
-bool SingletrackCalcContext::do_skips_front() const
+bool SingletrackCalcContext::do_skips_front() const noexcept
 {
 	return skip_front_;
 }
 
 
-void SingletrackCalcContext::set_skip_front(const bool skip)
+void SingletrackCalcContext::set_skip_front(const bool skip) noexcept
 {
 	skip_front_ = skip;
 }
 
 
-bool SingletrackCalcContext::do_skips_back() const
+bool SingletrackCalcContext::do_skips_back() const noexcept
 {
 	return skip_back_;
 }
 
 
-void SingletrackCalcContext::set_skip_back(const bool skip)
+void SingletrackCalcContext::set_skip_back(const bool skip) noexcept
 {
 	skip_back_ = skip;
 }
 
 
-std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const
+std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const noexcept
 {
 	return std::make_unique<SingletrackCalcContext>(*this);
 }
@@ -657,7 +660,7 @@ MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 }
 
 
-void MultitrackCalcContext::do_hook_post_set_audio_size()
+void MultitrackCalcContext::do_hook_post_set_audio_size() noexcept
 {
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
@@ -667,20 +670,20 @@ void MultitrackCalcContext::do_hook_post_set_audio_size()
 }
 
 
-uint8_t MultitrackCalcContext::do_track_count() const
+uint8_t MultitrackCalcContext::do_track_count() const noexcept
 {
 	return toc().track_count();
 }
 
 
-bool MultitrackCalcContext::do_is_multi_track() const
+bool MultitrackCalcContext::do_is_multi_track() const noexcept
 {
 	return true;
 }
 
 
 uint32_t MultitrackCalcContext::do_first_relevant_sample(const TrackNo track)
-	const
+	const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -717,7 +720,7 @@ uint32_t MultitrackCalcContext::do_first_relevant_sample(const TrackNo track)
 
 
 uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
-	const
+	const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -748,7 +751,7 @@ uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 }
 
 
-TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
+TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const noexcept
 {
 	if (this->audio_size().sample_count() == 0)
 	{
@@ -775,13 +778,13 @@ TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const
 }
 
 
-lba_count MultitrackCalcContext::do_offset(const uint8_t track) const
+lba_count MultitrackCalcContext::do_offset(const uint8_t track) const noexcept
 {
 	return track < this->track_count() ? toc().offset(track + 1) : 0;
 }
 
 
-lba_count MultitrackCalcContext::do_length(const uint8_t track) const
+lba_count MultitrackCalcContext::do_length(const uint8_t track) const noexcept
 {
 	// We define track i as the sample sequence whose first frame is LBA
 	// offset[i] and whose last frame is LBA offset[i+1] - 1.
@@ -822,7 +825,7 @@ lba_count MultitrackCalcContext::do_length(const uint8_t track) const
 }
 
 
-ARId MultitrackCalcContext::do_id() const
+ARId MultitrackCalcContext::do_id() const noexcept
 {
 	std::unique_ptr<ARId> id;
 
@@ -842,19 +845,19 @@ ARId MultitrackCalcContext::do_id() const
 }
 
 
-bool MultitrackCalcContext::do_skips_front() const
+bool MultitrackCalcContext::do_skips_front() const noexcept
 {
 	return true;
 }
 
 
-bool MultitrackCalcContext::do_skips_back() const
+bool MultitrackCalcContext::do_skips_back() const noexcept
 {
 	return true;
 }
 
 
-void MultitrackCalcContext::set_toc(const TOC &toc)
+void MultitrackCalcContext::set_toc(const TOC &toc) noexcept
 {
 	// NOTE: Leadout will be 0 if TOC is not complete.
 
@@ -868,13 +871,13 @@ void MultitrackCalcContext::set_toc(const TOC &toc)
 }
 
 
-const TOC& MultitrackCalcContext::toc() const
+const TOC& MultitrackCalcContext::toc() const noexcept
 {
 	return toc_;
 }
 
 
-std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const
+std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const noexcept
 {
 	return std::make_unique<MultitrackCalcContext>(*this);
 }
@@ -900,7 +903,7 @@ CalcStateARCSBase::CalcStateARCSBase()
 CalcStateARCSBase::~CalcStateARCSBase() noexcept = default;
 
 
-void CalcStateARCSBase::init_with_skip()
+void CalcStateARCSBase::init_with_skip() noexcept
 {
 	actual_skip_front_ = NUM_SKIP_SAMPLES_FRONT;
 	actual_skip_back_  = NUM_SKIP_SAMPLES_BACK;
@@ -909,7 +912,7 @@ void CalcStateARCSBase::init_with_skip()
 }
 
 
-void CalcStateARCSBase::init_without_skip()
+void CalcStateARCSBase::init_without_skip() noexcept
 {
 	actual_skip_front_ = 0;
 	actual_skip_back_  = 0;
@@ -918,19 +921,20 @@ void CalcStateARCSBase::init_without_skip()
 }
 
 
-uint32_t CalcStateARCSBase::num_skip_front() const
+uint32_t CalcStateARCSBase::num_skip_front() const noexcept
 {
 	return actual_skip_front_;
 }
 
 
-uint32_t CalcStateARCSBase::num_skip_back() const
+uint32_t CalcStateARCSBase::num_skip_back() const noexcept
 {
 	return actual_skip_back_;
 }
 
 
-void CalcStateARCSBase::update(SampleInputIterator &begin, SampleInputIterator &end)
+void CalcStateARCSBase::update(SampleInputIterator &begin,
+		SampleInputIterator &end)
 {
 	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
 	this->do_update(begin, end);
@@ -956,23 +960,23 @@ public:
 	 */
 	CalcStateV1();
 
-	void save(const TrackNo track) final;
+	void save(const TrackNo track) noexcept final;
 
-	int track_count() const final;
+	int track_count() const noexcept final;
 
-	checksum::type type() const final;
+	checksum::type type() const noexcept final;
 
-	ChecksumSet result(const TrackNo track) const final;
+	ChecksumSet result(const TrackNo track) const noexcept final;
 
-	ChecksumSet result() const final;
+	ChecksumSet result() const noexcept final;
 
-	void reset() final;
+	void reset() noexcept final;
 
-	void wipe() final;
+	void wipe() noexcept final;
 
-	uint32_t mult() const final;
+	uint32_t mult() const noexcept final;
 
-	std::unique_ptr<CalcState> clone() const final;
+	std::unique_ptr<CalcState> clone() const noexcept final;
 
 
 protected:
@@ -984,7 +988,7 @@ protected:
 	 *
 	 * \return The Checksum for this track
 	 */
-	Checksum find(const uint8_t track) const;
+	Checksum find(const uint8_t track) const noexcept;
 
 	/**
 	 * \brief Worker: compose a ChecksumSet from a single Checksum
@@ -993,12 +997,12 @@ protected:
 	 *
 	 * \return The ChecksumSet containing \c checksum
 	 */
-	ChecksumSet compose(const Checksum &checksum) const;
+	ChecksumSet compose(const Checksum &checksum) const noexcept;
 
 
 private:
 
-	void init(const uint32_t mult) final;
+	void init(const uint32_t mult) noexcept final;
 
 	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
@@ -1032,7 +1036,8 @@ CalcStateV1::CalcStateV1()
 }
 
 
-void CalcStateV1::do_update(SampleInputIterator &begin, SampleInputIterator &end)
+void CalcStateV1::do_update(SampleInputIterator &begin,
+		SampleInputIterator &end)
 {
 	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
 	{
@@ -1041,7 +1046,7 @@ void CalcStateV1::do_update(SampleInputIterator &begin, SampleInputIterator &end
 }
 
 
-void CalcStateV1::save(const TrackNo track)
+void CalcStateV1::save(const TrackNo track) noexcept
 {
 	const auto rc { arcss_.insert(std::make_pair(track, subtotal_v1_)) };
 
@@ -1055,59 +1060,59 @@ void CalcStateV1::save(const TrackNo track)
 }
 
 
-int CalcStateV1::track_count() const
+int CalcStateV1::track_count() const noexcept
 {
 	return arcss_.size();
 }
 
 
-checksum::type CalcStateV1::type() const
+checksum::type CalcStateV1::type() const noexcept
 {
 	return checksum::type::ARCS1;
 }
 
 
-ChecksumSet CalcStateV1::result(const TrackNo track) const
+ChecksumSet CalcStateV1::result(const TrackNo track) const noexcept
 {
 	const auto arcs1_value { this->find(track) };
 	return compose(arcs1_value);
 }
 
 
-ChecksumSet CalcStateV1::result() const
+ChecksumSet CalcStateV1::result() const noexcept
 {
 	const auto arcs1_value { this->find(0) };
 	return compose(arcs1_value);
 }
 
 
-void CalcStateV1::reset()
+void CalcStateV1::reset() noexcept
 {
 	multiplier_  = 1;
 	subtotal_v1_ = 0;
 }
 
 
-void CalcStateV1::wipe()
+void CalcStateV1::wipe() noexcept
 {
 	this->reset();
 	arcss_.clear();
 }
 
 
-uint32_t CalcStateV1::mult() const
+uint32_t CalcStateV1::mult() const noexcept
 {
 	return multiplier_;
 }
 
 
-std::unique_ptr<CalcState> CalcStateV1::clone() const
+std::unique_ptr<CalcState> CalcStateV1::clone() const noexcept
 {
 	return std::make_unique<CalcStateV1>(*this);
 }
 
 
-void CalcStateV1::init(const uint32_t mult)
+void CalcStateV1::init(const uint32_t mult) noexcept
 {
 	this->wipe();
 
@@ -1115,7 +1120,7 @@ void CalcStateV1::init(const uint32_t mult)
 }
 
 
-Checksum CalcStateV1::find(const uint8_t track) const
+Checksum CalcStateV1::find(const uint8_t track) const noexcept
 {
 	const auto value { arcss_.find(track) };
 
@@ -1128,7 +1133,7 @@ Checksum CalcStateV1::find(const uint8_t track) const
 }
 
 
-ChecksumSet CalcStateV1::compose(const Checksum &checksum) const
+ChecksumSet CalcStateV1::compose(const Checksum &checksum) const noexcept
 {
 	ChecksumSet checksums;
 
@@ -1164,33 +1169,33 @@ public:
 	 */
 	CalcStateV1andV2();
 
-	void save(const TrackNo track) final;
+	void save(const TrackNo track) noexcept final;
 
-	int track_count() const final;
+	int track_count() const noexcept final;
 
-	checksum::type type() const final;
+	checksum::type type() const noexcept final;
 
-	ChecksumSet result(const TrackNo track) const final;
+	ChecksumSet result(const TrackNo track) const noexcept final;
 
-	ChecksumSet result() const final;
+	ChecksumSet result() const noexcept final;
 
-	void reset() final;
+	void reset() noexcept final;
 
-	void wipe() final;
+	void wipe() noexcept final;
 
-	uint32_t mult() const final;
+	uint32_t mult() const noexcept final;
 
-	std::unique_ptr<CalcState> clone() const final;
+	std::unique_ptr<CalcState> clone() const noexcept final;
 
 
 protected:
 
-	ChecksumSet find(const uint8_t track) const;
+	ChecksumSet find(const uint8_t track) const noexcept;
 
 
 private:
 
-	void init(const uint32_t mult) final;
+	void init(const uint32_t mult) noexcept final;
 
 	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
@@ -1248,7 +1253,7 @@ void CalcStateV1andV2::do_update(SampleInputIterator &begin,
 }
 
 
-void CalcStateV1andV2::save(const TrackNo track)
+void CalcStateV1andV2::save(const TrackNo track) noexcept
 {
 	const auto rc { arcss_.insert(
 		std::make_pair(
@@ -1270,31 +1275,31 @@ void CalcStateV1andV2::save(const TrackNo track)
 }
 
 
-int CalcStateV1andV2::track_count() const
+int CalcStateV1andV2::track_count() const noexcept
 {
 	return arcss_.size();
 }
 
 
-checksum::type CalcStateV1andV2::type() const
+checksum::type CalcStateV1andV2::type() const noexcept
 {
 	return checksum::type::ARCS2;
 }
 
 
-ChecksumSet CalcStateV1andV2::result(const TrackNo track) const
+ChecksumSet CalcStateV1andV2::result(const TrackNo track) const noexcept
 {
 	return this->find(track);
 }
 
 
-ChecksumSet CalcStateV1andV2::result() const
+ChecksumSet CalcStateV1andV2::result() const noexcept
 {
 	return this->find(0);
 }
 
 
-void CalcStateV1andV2::reset()
+void CalcStateV1andV2::reset() noexcept
 {
 	multiplier_  = 1;
 	subtotal_v1_ = 0;
@@ -1305,26 +1310,26 @@ void CalcStateV1andV2::reset()
 }
 
 
-void CalcStateV1andV2::wipe()
+void CalcStateV1andV2::wipe() noexcept
 {
 	this->reset();
 	arcss_.clear();
 }
 
 
-uint32_t CalcStateV1andV2::mult() const
+uint32_t CalcStateV1andV2::mult() const noexcept
 {
 	return multiplier_;
 }
 
 
-std::unique_ptr<CalcState> CalcStateV1andV2::clone() const
+std::unique_ptr<CalcState> CalcStateV1andV2::clone() const noexcept
 {
 	return std::make_unique<CalcStateV1andV2>(*this);
 }
 
 
-void CalcStateV1andV2::init(const uint32_t mult)
+void CalcStateV1andV2::init(const uint32_t mult) noexcept
 {
 	this->wipe();
 
@@ -1332,7 +1337,7 @@ void CalcStateV1andV2::init(const uint32_t mult)
 }
 
 
-ChecksumSet CalcStateV1andV2::find(const uint8_t track) const
+ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
 {
 	const auto value { arcss_.find(track) };
 
@@ -1423,17 +1428,17 @@ public:
 	/**
 	 * \brief Implements Calculation::set_context().
 	 */
-	void set_context(std::unique_ptr<CalcContext> context);
+	void set_context(std::unique_ptr<CalcContext> context) noexcept;
 
 	/**
 	 * \brief Implements Calculation::context().
 	 */
-	const CalcContext& context() const;
+	const CalcContext& context() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::type()
 	 */
-	checksum::type type() const;
+	checksum::type type() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::update()
@@ -1443,53 +1448,53 @@ public:
 	/**
 	 * \brief Implements Calculation::update_audiosize(const AudioSize &audiosize).
 	 */
-	void update_audiosize(const AudioSize &audiosize);
+	void update_audiosize(const AudioSize &audiosize) noexcept;
 
 	/**
 	 * \brief Implements Calculation::complete().
 	 */
-	bool complete() const;
+	bool complete() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::samples_expected().
 	 */
-	int64_t samples_expected() const;
+	int64_t samples_expected() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::samples_processed().
 	 */
-	int64_t samples_processed() const;
+	int64_t samples_processed() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::samples_todo().
 	 */
-	int64_t samples_todo() const;
+	int64_t samples_todo() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::result().
 	 */
-	Checksums result() const;
+	Checksums result() const noexcept;
 
 	/**
 	 * \brief Set the Partitioner for this instance.
 	 *
 	 * \param[in] partitioner The Partitioner for this instance
 	 */
-	void set_partitioner(std::unique_ptr<Partitioner> partitioner);
+	void set_partitioner(std::unique_ptr<Partitioner> partitioner) noexcept;
 
 	/**
 	 * \brief Read the Partitioner of this instance.
 	 *
 	 * \return The Partitioner of this instance
 	 */
-	const Partitioner& partitioner() const;
+	const Partitioner& partitioner() const noexcept;
 
 	/**
 	 * \brief Read the state of this instance.
 	 *
 	 * \return the CalcState of this instance to read
 	 */
-	const CalcState& state() const;
+	const CalcState& state() const noexcept;
 
 	/**
 	 * \brief Implements Calculation::set_type()
@@ -1528,7 +1533,7 @@ protected:
 	 *
 	 * \param[in] ctx The new context, if non-empty
 	 */
-	void set_context_or_default(std::unique_ptr<CalcContext> ctx);
+	void set_context_or_default(std::unique_ptr<CalcContext> ctx) noexcept;
 
 	/**
 	 * \brief Log statistics about a Partition.
@@ -1538,7 +1543,7 @@ protected:
 	 * \param[in] chunk Chunk to log
 	 */
 	void log_partition(const uint16_t i, const uint16_t n,
-			const Partition &chunk) const;
+			const Partition &chunk) const noexcept;
 
 
 private:
@@ -1608,6 +1613,7 @@ Calculation::Impl::Impl(const Impl& rhs)
 
 
 void Calculation::Impl::set_context(std::unique_ptr<CalcContext> context)
+noexcept
 {
 	if (!context)
 	{
@@ -1631,7 +1637,7 @@ void Calculation::Impl::set_context(std::unique_ptr<CalcContext> context)
 }
 
 
-const CalcContext& Calculation::Impl::context() const
+const CalcContext& Calculation::Impl::context() const noexcept
 {
 	return *context_;
 }
@@ -1659,19 +1665,19 @@ void Calculation::Impl::set_type(const checksum::type type)
 }
 
 
-checksum::type Calculation::Impl::type() const
+checksum::type Calculation::Impl::type() const noexcept
 {
 	return state_->type();
 }
 
 
-void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
+void Calculation::Impl::update_audiosize(const AudioSize &audiosize) noexcept
 {
 	context_->set_audio_size(audiosize);
 }
 
 
-bool Calculation::Impl::complete() const
+bool Calculation::Impl::complete() const noexcept
 {
 	return (this->samples_expected() - this->samples_processed()) < 1;
 
@@ -1782,25 +1788,25 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 }
 
 
-int64_t Calculation::Impl::samples_expected() const
+int64_t Calculation::Impl::samples_expected() const noexcept
 {
 	return context().audio_size().sample_count();
 }
 
 
-int64_t Calculation::Impl::samples_processed() const
+int64_t Calculation::Impl::samples_processed() const noexcept
 {
 	return smpl_offset_;
 }
 
 
-int64_t Calculation::Impl::samples_todo() const
+int64_t Calculation::Impl::samples_todo() const noexcept
 {
 	return this->samples_expected() - this->samples_processed();
 }
 
 
-Checksums Calculation::Impl::result() const
+Checksums Calculation::Impl::result() const noexcept
 {
 	if (not context_ or not state_)
 	{
@@ -1848,19 +1854,19 @@ Checksums Calculation::Impl::result() const
 
 
 void Calculation::Impl::set_partitioner(
-			std::unique_ptr<Partitioner> partitioner)
+			std::unique_ptr<Partitioner> partitioner) noexcept
 {
 	partitioner_ = std::move(partitioner);
 }
 
 
-const Partitioner& Calculation::Impl::partitioner() const
+const Partitioner& Calculation::Impl::partitioner() const noexcept
 {
 	return *partitioner_;
 }
 
 
-const CalcState& Calculation::Impl::state() const
+const CalcState& Calculation::Impl::state() const noexcept
 {
 	return *state_;
 }
@@ -1931,6 +1937,7 @@ void Calculation::Impl::sync_state_and_context()
 
 
 void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
+noexcept
 {
 	this->set_context(std::move(ctx));
 
@@ -1944,7 +1951,7 @@ void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
 
 
 void Calculation::Impl::log_partition(const uint16_t i,
-		const uint16_t n, const Partition &chunk) const
+		const uint16_t n, const Partition &chunk) const noexcept
 {
 	ARCS_LOG_DEBUG << "  CHUNK " << i << "/" << n;
 
@@ -2112,13 +2119,13 @@ Calculation::Calculation(Calculation &&rhs) noexcept = default;
 Calculation::~Calculation() noexcept = default;
 
 
-void Calculation::set_context(std::unique_ptr<CalcContext> context)
+void Calculation::set_context(std::unique_ptr<CalcContext> context) noexcept
 {
 	impl_->set_context(std::move(context));
 }
 
 
-const CalcContext& Calculation::context() const
+const CalcContext& Calculation::context() const noexcept
 {
 	return impl_->context();
 }
@@ -2130,7 +2137,7 @@ void Calculation::set_type(const checksum::type type)
 }
 
 
-checksum::type Calculation::type() const
+checksum::type Calculation::type() const noexcept
 {
 	return impl_->type();
 }
@@ -2158,37 +2165,37 @@ void Calculation::update(SampleInputIterator begin, SampleInputIterator end)
 }
 
 
-void Calculation::update_audiosize(const AudioSize &audiosize)
+void Calculation::update_audiosize(const AudioSize &audiosize) noexcept
 {
 	impl_->update_audiosize(audiosize);
 }
 
 
-bool Calculation::complete() const
+bool Calculation::complete() const noexcept
 {
 	return impl_->complete();
 }
 
 
-int64_t Calculation::samples_expected() const
+int64_t Calculation::samples_expected() const noexcept
 {
 	return impl_->samples_expected();
 }
 
 
-int64_t Calculation::samples_processed() const
+int64_t Calculation::samples_processed() const noexcept
 {
 	return impl_->samples_processed();
 }
 
 
-int64_t Calculation::samples_todo() const
+int64_t Calculation::samples_todo() const noexcept
 {
 	return impl_->samples_todo();
 }
 
 
-Checksums Calculation::result() const
+Checksums Calculation::result() const noexcept
 {
 	return impl_->result();
 }
@@ -2230,13 +2237,13 @@ public:
 
 	~Impl() noexcept;
 
-	Checksums::iterator begin();
+	Checksums::iterator begin() noexcept;
 
-	Checksums::iterator end();
+	Checksums::iterator end() noexcept;
 
-	Checksums::const_iterator cbegin() const;
+	Checksums::const_iterator cbegin() const noexcept;
 
-	Checksums::const_iterator cend() const;
+	Checksums::const_iterator cend() const noexcept;
 
 	/**
 	 * \brief Implements Checksums::operator[]
@@ -2250,7 +2257,7 @@ public:
 	 *
 	 * \return Number of elements
 	 */
-	Checksums::size_type size() const;
+	Checksums::size_type size() const noexcept;
 
 	Impl& operator = (Impl rhs);
 
@@ -2304,13 +2311,13 @@ Checksums::Impl::Impl(Checksums::Impl &&rhs) noexcept = default;
 Checksums::Impl::~Impl() noexcept = default;
 
 
-Checksums::iterator Checksums::Impl::begin()
+Checksums::iterator Checksums::Impl::begin() noexcept
 {
 	return sets_.get();
 }
 
 
-Checksums::iterator Checksums::Impl::end()
+Checksums::iterator Checksums::Impl::end() noexcept
 {
 	return std::next(sets_.get(), static_cast<long>(size_));
 	// TODO type long is additional knowledge, size_type would be generic
@@ -2319,13 +2326,13 @@ Checksums::iterator Checksums::Impl::end()
 }
 
 
-Checksums::const_iterator Checksums::Impl::cbegin() const
+Checksums::const_iterator Checksums::Impl::cbegin() const noexcept
 {
 	return sets_.get();
 }
 
 
-Checksums::const_iterator Checksums::Impl::cend() const
+Checksums::const_iterator Checksums::Impl::cend() const noexcept
 {
 	return std::next(sets_.get(), static_cast<long>(size_));
 	// TODO type long is additional knowledge, size_type would be generic
@@ -2340,7 +2347,7 @@ const ChecksumSet& Checksums::Impl::get(const Checksums::size_type index) const
 }
 
 
-Checksums::size_type Checksums::Impl::size() const
+Checksums::size_type Checksums::Impl::size() const noexcept
 {
 	return size_;
 }
@@ -2380,37 +2387,37 @@ Checksums::Checksums(Checksums &&rhs) noexcept = default;
 Checksums::~Checksums() noexcept = default;
 
 
-Checksums::iterator Checksums::begin()
+Checksums::iterator Checksums::begin() noexcept
 {
 	return impl_->begin();
 }
 
 
-Checksums::iterator Checksums::end()
+Checksums::iterator Checksums::end() noexcept
 {
 	return impl_->end();
 }
 
 
-Checksums::const_iterator Checksums::begin() const
+Checksums::const_iterator Checksums::begin() const noexcept
 {
 	return impl_->cbegin();
 }
 
 
-Checksums::const_iterator Checksums::end() const
+Checksums::const_iterator Checksums::end() const noexcept
 {
 	return impl_->cend();
 }
 
 
-Checksums::const_iterator Checksums::cbegin() const
+Checksums::const_iterator Checksums::cbegin() const noexcept
 {
 	return impl_->cbegin();
 }
 
 
-Checksums::const_iterator Checksums::cend() const
+Checksums::const_iterator Checksums::cend() const noexcept
 {
 	return impl_->cend();
 }
@@ -2434,7 +2441,7 @@ const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
 }
 
 
-Checksums::size_type Checksums::size() const
+Checksums::size_type Checksums::size() const noexcept
 {
 	return impl_->size();
 }

@@ -163,12 +163,6 @@ public:
 	 */
 	explicit Checksum(const uint32_t value);
 
-	//Checksum(const Checksum &rhs);
-
-	//Checksum(Checksum &&rhs) noexcept;
-
-	//virtual ~Checksum() noexcept = default;
-
 	/**
 	 * \brief Numeric value of the checksum.
 	 *
@@ -188,10 +182,13 @@ public:
 	 */
 	bool empty() const noexcept;
 
-	//Checksum& operator = (const Checksum &rhs);
-
-	//Checksum& operator = (Checksum &&rhs) noexcept;
-
+	/**
+	 * \brief Copy assignment
+	 *
+	 * \param[in] rhs Right hand side of the assignment
+	 *
+	 * \return Result of the assignment
+	 */
 	Checksum& operator = (const uint32_t rhs);
 
 
@@ -630,7 +627,7 @@ private:
 		/**
 		 * \brief Preincrements the iterator.
 		 */
-		virtual void preincrement()
+		virtual void preincrement() noexcept
 		= 0;
 
 		/**
@@ -638,7 +635,7 @@ private:
 		 *
 		 * \param[in] n Number of positions to advance
 		 */
-		virtual void advance(const uint32_t n)
+		virtual void advance(const uint32_t n) noexcept
 		= 0;
 
 		/**
@@ -646,7 +643,7 @@ private:
 		 *
 		 * \return Reference to actual value.
 		 */
-		virtual reference dereference() const
+		virtual reference dereference() const noexcept
 		= 0;
 
 		/**
@@ -658,7 +655,7 @@ private:
 		 *
 		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 		 */
-		virtual bool equals(const Concept* rhs) const
+		virtual bool equals(const Concept* rhs) const noexcept
 		= 0;
 
 		/**
@@ -666,7 +663,7 @@ private:
 		 *
 		 * \return Runtime type information of this instance
 		 */
-		virtual const std::type_info& type() const
+		virtual const std::type_info& type() const noexcept
 		= 0;
 
 		/**
@@ -676,7 +673,7 @@ private:
 		 *
 		 * \return Address of the instance
 		 */
-		virtual const Concept* pointer() const
+		virtual const Concept* pointer() const noexcept
 		= 0;
 
 		// Commented out: Require wrapped iterator to implement operator ->
@@ -685,7 +682,7 @@ private:
 		 *
 		 * \return Generic pointer to wrapped iterator
 		 */
-		//virtual void* wrapped_iterator()
+		//virtual void* wrapped_iterator() noexcept
 		//= 0;
 
 		/**
@@ -693,8 +690,9 @@ private:
 		 *
 		 * \return A deep copy of the instance
 		 */
-		virtual std::unique_ptr<Concept> clone() const // for copy constructor
+		virtual std::unique_ptr<Concept> clone() const noexcept
 		= 0;
+		// for copy constructor
 	};
 
 
@@ -712,37 +710,37 @@ private:
 			// empty
 		}
 
-		void preincrement() final
+		void preincrement() noexcept final
 		{
 			++iterator_;
 		}
 
-		void advance(const uint32_t n) final
+		void advance(const uint32_t n) noexcept final
 		{
 			std::advance(iterator_, n);
 		}
 
-		reference dereference() const final
+		reference dereference() const noexcept final
 		{
 			return *iterator_;
 		}
 
-		bool equals(const Concept* rhs) const final
+		bool equals(const Concept* rhs) const noexcept final
 		{
 			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
 		}
 
-		const std::type_info& type() const final
+		const std::type_info& type() const noexcept final
 		{
 			return typeid(iterator_);
 		}
 
-		const Concept* pointer() const final
+		const Concept* pointer() const noexcept final
 		{
 			return this;
 		}
 
-		//void* wrapped_iterator() final
+		//void* wrapped_iterator() noexcept final
 		//{
 		//	return iterator_.operator->();
 		//}
@@ -750,7 +748,7 @@ private:
 		// The commented out implementation is ok, but the requirement itself
 		// seems too strict.
 
-		std::unique_ptr<Concept> clone() const final
+		std::unique_ptr<Concept> clone() const noexcept final
 		{
 			return std::make_unique<Model>(*this);
 		}
@@ -761,7 +759,7 @@ private:
 		 * \param[in] lhs Left hand side to swap
 		 * \param[in] rhs Right hand side to swap
 		 */
-		friend void swap(Model &lhs, Model &rhs)
+		friend void swap(Model &lhs, Model &rhs) noexcept
 		{
 			using std::swap;
 
@@ -839,28 +837,29 @@ public:
 	 *
 	 * \return A sample_type sample, returned by value
 	 */
-	reference operator * () const; // required by LegacyIterator
+	reference operator * () const noexcept; // required by LegacyIterator
 
 	/* *
 	 * \brief Access members of the underlying referee
 	 *
 	 * \return A pointer to the underlying referee
 	 */
-	//pointer operator -> () const; // required by LegacyInpuIterator
+	//pointer operator -> () const noexcept; // required by LegacyInpuIterator
 
 	/**
 	 * \brief Pre-increment iterator.
 	 *
 	 * \return Incremented iterator
 	 */
-	SampleInputIterator& operator ++ (); // required by LegacyIterator
+	SampleInputIterator& operator ++ () noexcept; // required by LegacyIterator
 
 	/**
 	 * \brief Post-increment iterator.
 	 *
 	 * \return Iterator representing the state befor the increment
 	 */
-	SampleInputIterator operator ++ (int); // required by LegacyInputIterator
+	SampleInputIterator operator ++ (int) noexcept;
+	// required by LegacyInputIterator
 
 	/**
 	 * \brief Copy assignment.
@@ -869,7 +868,7 @@ public:
 	 *
 	 * \return Instance with the assigned value
 	 */
-	SampleInputIterator& operator = (SampleInputIterator rhs);
+	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept;
 	// required by LegacyIterator
 
 	/**
@@ -879,6 +878,7 @@ public:
 	 * \param[in] rhs Right hand side to swap
 	 */
 	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
+		noexcept
 	{
 		using std::swap;
 
@@ -940,28 +940,28 @@ public:
 	 *
 	 * \param[in] audio_size AudioSize
 	 */
-	void set_audio_size(const AudioSize &audio_size);
+	void set_audio_size(const AudioSize &audio_size) noexcept;
 
 	/**
-	 * \brief Return the number of bytes of the PCM samples.
+	 * \brief Return the size of the referenced audio file
 	 *
-	 * \return The total number of bytes of the PCM samples
+	 * \return The size of the referenced audio file
 	 */
-	const AudioSize& audio_size() const;
+	const AudioSize& audio_size() const noexcept;
 
 	/**
 	 * \brief Set the name of the current audio file.
 	 *
 	 * \param[in] filename Name of the audio file that is to be processed
 	 */
-	void set_filename(const std::string &filename);
+	void set_filename(const std::string &filename) noexcept;
 
 	/**
 	 * \brief Name of current audio file.
 	 *
 	 * \return Name of the audio file that is currently processed
 	 */
-	std::string filename() const;
+	std::string filename() const noexcept;
 
 	/**
 	 * \brief Convenience method: Total number of tracks.
@@ -979,7 +979,7 @@ public:
 	 *
 	 * \return The number of tracks represented in this file
 	 */
-	uint8_t track_count() const;
+	uint8_t track_count() const noexcept;
 
 	/**
 	 * \brief Returns TRUE if this instances indicates a processing for multiple
@@ -990,7 +990,7 @@ public:
 	 *
 	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
 	 */
-	bool is_multi_track() const;
+	bool is_multi_track() const noexcept;
 
 	/**
 	 * \brief Service method: Get 0-based index of the first relevant sample of
@@ -1004,7 +1004,7 @@ public:
 	 *
 	 * \return Index of the first sample contributing to the track's ARCS
 	 */
-	uint32_t first_relevant_sample(const TrackNo track) const;
+	uint32_t first_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
 	 * \brief Get 0-based index of the first sample to be counted in
@@ -1019,7 +1019,7 @@ public:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	uint32_t first_relevant_sample() const;
+	uint32_t first_relevant_sample() const noexcept;
 
 	/**
 	 * \brief Service method: Get 0-based index of the last relevant sample of
@@ -1039,7 +1039,7 @@ public:
 	 *
 	 * \return Index of last sample contributing to the specified track's ARCS
 	 */
-	uint32_t last_relevant_sample(const TrackNo track) const;
+	uint32_t last_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
 	 * \brief Get 0-based index of the last sample to be counted in computation.
@@ -1052,7 +1052,7 @@ public:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	uint32_t last_relevant_sample() const;
+	uint32_t last_relevant_sample() const noexcept;
 
 	/**
 	 * \brief Returns 1-based track number of the track containing the specified
@@ -1071,7 +1071,7 @@ public:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	TrackNo track(const uint32_t smpl) const;
+	TrackNo track(const uint32_t smpl) const noexcept;
 
 	/**
 	 * \brief Return the offset of the specified 0-based track from the TOC.
@@ -1083,7 +1083,7 @@ public:
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	lba_count offset(const uint8_t track) const;
+	lba_count offset(const uint8_t track) const noexcept;
 
 	/**
 	 * \brief Return the normalized length of the specified 0-based track.
@@ -1100,7 +1100,7 @@ public:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	lba_count length(const uint8_t track) const;
+	lba_count length(const uint8_t track) const noexcept;
 
 	/**
 	 * \brief Return the ARId of the current medium, if known.
@@ -1111,7 +1111,7 @@ public:
 	 *
 	 * \return The ARId of the current medium
 	 */
-	ARId id() const;
+	ARId id() const noexcept;
 
 	/**
 	 * \brief Returns TRUE iff this context will skip the first 2939 samples of
@@ -1119,7 +1119,7 @@ public:
 	 *
 	 * \return TRUE iff context will signal to skip the first samples.
 	 */
-	bool skips_front() const;
+	bool skips_front() const noexcept;
 
 	/**
 	 * \brief Returns TRUE iff this context will skip the last 2940 samples
@@ -1127,7 +1127,7 @@ public:
 	 *
 	 * \return TRUE iff context will signal to skip the last samples.
 	 */
-	bool skips_back() const;
+	bool skips_back() const noexcept;
 
 	/**
 	 * \brief Returns the amount of samples to skip at the beginning of the
@@ -1137,7 +1137,7 @@ public:
 	 *
 	 * \return The number of samples to skip at the beginning of the first track
 	 */
-	uint32_t num_skip_front() const;
+	uint32_t num_skip_front() const noexcept;
 
 	/**
 	 * \brief Returns the amount of samples to skip at the end of the last track
@@ -1147,7 +1147,7 @@ public:
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
-	uint32_t num_skip_back() const;
+	uint32_t num_skip_back() const noexcept;
 
 	/**
 	 * \brief Notifies the instance about configured skipping amounts at the
@@ -1160,7 +1160,7 @@ public:
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
 	void notify_skips(const uint32_t num_skip_front,
-			const uint32_t num_skip_back);
+			const uint32_t num_skip_back) noexcept;
 
 	/**
 	 * \brief Clone this CalcContext object.
@@ -1170,7 +1170,7 @@ public:
 	 *
 	 * \return A clone of this instance
 	 */
-	std::unique_ptr<CalcContext> clone() const;
+	std::unique_ptr<CalcContext> clone() const noexcept;
 
 
 private:
@@ -1180,7 +1180,7 @@ private:
 	 *
 	 * \param[in] audio_size AudioSize
 	 */
-	virtual void do_set_audio_size(const AudioSize &audio_size)
+	virtual void do_set_audio_size(const AudioSize &audio_size) noexcept
 	= 0;
 
 	/**
@@ -1188,7 +1188,7 @@ private:
 	 *
 	 * \return The total number of bytes of the PCM samples
 	 */
-	virtual const AudioSize& do_audio_size() const
+	virtual const AudioSize& do_audio_size() const noexcept
 	= 0;
 
 	/**
@@ -1196,7 +1196,7 @@ private:
 	 *
 	 * \param[in] filename Name of the audio file that is to be processed
 	 */
-	virtual void do_set_filename(const std::string &filename)
+	virtual void do_set_filename(const std::string &filename) noexcept
 	= 0;
 
 	/**
@@ -1204,7 +1204,7 @@ private:
 	 *
 	 * \return Name of the audio file that is currently processed
 	 */
-	virtual std::string do_filename() const
+	virtual std::string do_filename() const noexcept
 	= 0;
 
 	/**
@@ -1212,7 +1212,7 @@ private:
 	 *
 	 * \return The number of tracks represented in this file
 	 */
-	virtual uint8_t do_track_count() const
+	virtual uint8_t do_track_count() const noexcept
 	= 0;
 
 	/**
@@ -1220,7 +1220,7 @@ private:
 	 *
 	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
 	 */
-	virtual bool do_is_multi_track() const
+	virtual bool do_is_multi_track() const noexcept
 	= 0;
 
 	/**
@@ -1231,6 +1231,7 @@ private:
 	 * \return Index of the first sample contributing to the track's ARCS
 	 */
 	virtual uint32_t do_first_relevant_sample(const TrackNo track) const
+	noexcept
 	= 0;
 
 	/**
@@ -1238,7 +1239,7 @@ private:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	virtual uint32_t do_first_relevant_sample_0() const
+	virtual uint32_t do_first_relevant_sample_0() const noexcept
 	= 0;
 
 	/**
@@ -1249,6 +1250,7 @@ private:
 	 * \return Index of last sample contributing to the specified track's ARCS
 	 */
 	virtual uint32_t do_last_relevant_sample(const TrackNo track) const
+	noexcept
 	= 0;
 
 	/**
@@ -1256,7 +1258,7 @@ private:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	virtual uint32_t do_last_relevant_sample_0() const
+	virtual uint32_t do_last_relevant_sample_0() const noexcept
 	= 0;
 
 	/**
@@ -1266,7 +1268,7 @@ private:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	virtual TrackNo do_track(const uint32_t smpl) const
+	virtual TrackNo do_track(const uint32_t smpl) const noexcept
 	= 0;
 
 	/**
@@ -1276,7 +1278,7 @@ private:
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	virtual lba_count do_offset(const uint8_t track) const
+	virtual lba_count do_offset(const uint8_t track) const noexcept
 	= 0;
 
 	/**
@@ -1286,7 +1288,7 @@ private:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	virtual lba_count do_length(const uint8_t track) const
+	virtual lba_count do_length(const uint8_t track) const noexcept
 	= 0;
 
 	/**
@@ -1294,7 +1296,7 @@ private:
 	 *
 	 * \return The ARId of the current medium
 	 */
-	virtual ARId do_id() const
+	virtual ARId do_id() const noexcept
 	= 0;
 
 	/**
@@ -1302,7 +1304,7 @@ private:
 	 *
 	 * \return TRUE iff context will signal to skip the first samples.
 	 */
-	virtual bool do_skips_front() const
+	virtual bool do_skips_front() const noexcept
 	= 0;
 
 	/**
@@ -1310,7 +1312,7 @@ private:
 	 *
 	 * \return TRUE iff context will signal to skip the last samples.
 	 */
-	virtual bool do_skips_back() const
+	virtual bool do_skips_back() const noexcept
 	= 0;
 
 	/**
@@ -1318,7 +1320,7 @@ private:
 	 *
 	 * \return The number of samples to skip at the beginning of the first track
 	 */
-	virtual uint32_t do_num_skip_front() const
+	virtual uint32_t do_num_skip_front() const noexcept
 	= 0;
 
 	/**
@@ -1326,7 +1328,7 @@ private:
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
-	virtual uint32_t do_num_skip_back() const
+	virtual uint32_t do_num_skip_back() const noexcept
 	= 0;
 
 	/**
@@ -1335,15 +1337,16 @@ private:
 	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
-	virtual void do_notify_skips(const uint32_t num_skip_front, const uint32_t
-		num_skip_back) = 0;
+	virtual void do_notify_skips(const uint32_t num_skip_front,
+			const uint32_t num_skip_back) noexcept
+	= 0;
 
 	/**
 	 * \brief Implements clone() const.
 	 *
 	 * \return A clone of this instance
 	 */
-	virtual std::unique_ptr<CalcContext> do_clone() const
+	virtual std::unique_ptr<CalcContext> do_clone() const noexcept
 	= 0;
 };
 
@@ -1467,42 +1470,42 @@ public: /* member functions */
 	 *
 	 * \return Pointer to the first element
 	 */
-	iterator begin();
+	iterator begin() noexcept;
 
 	/**
 	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
-	iterator end();
+	iterator end() noexcept;
 
 	/**
 	 * \brief Returns a pointer to the first element.
 	 *
 	 * \return Pointer to the first element
 	 */
-	const_iterator begin() const;
+	const_iterator begin() const noexcept;
 
 	/**
 	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
-	const_iterator end() const;
+	const_iterator end() const noexcept;
 
 	/**
 	 * \brief Returns a pointer to the first element.
 	 *
 	 * \return Pointer to the first element
 	 */
-	const_iterator cbegin() const;
+	const_iterator cbegin() const noexcept;
 
 	/**
 	 * \brief Returns a pointer after the last element.
 	 *
 	 * \return Pointer after the last element
 	 */
-	const_iterator cend() const;
+	const_iterator cend() const noexcept;
 
 	/**
 	 * \brief Access element by its 0-based \c index .
@@ -1531,7 +1534,7 @@ public: /* member functions */
 	 *
 	 * \return Number of elements
 	 */
-	size_type size() const;
+	size_type size() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
@@ -1557,7 +1560,7 @@ public: /* member functions */
 	 * \param[in] lhs Left hand side to swap
 	 * \param[in] rhs Right hand side to swap
 	 */
-	friend void swap(Checksums &lhs, Checksums &rhs)
+	friend void swap(Checksums &lhs, Checksums &rhs) noexcept
 	{
 		using std::swap;
 
@@ -1649,21 +1652,21 @@ public:
 	 *
 	 * \param[in] context The CalcContext for this instance
 	 */
-	void set_context(std::unique_ptr<CalcContext> context);
+	void set_context(std::unique_ptr<CalcContext> context) noexcept;
 
 	/**
 	 * \brief Read the CalcContext of this instance.
 	 *
 	 * \return The CalcContext of this instance
 	 */
-	const CalcContext& context() const;
+	const CalcContext& context() const noexcept;
 
 	/**
 	 * \brief Returns current type.
 	 *
 	 * \return A disjunction of all requested types.
 	 */
-	checksum::type type() const;
+	checksum::type type() const noexcept;
 
 	/**
 	 * \brief Update the calculation with a sequence of samples.
@@ -1680,7 +1683,7 @@ public:
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
-	void update_audiosize(const AudioSize &audiosize);
+	void update_audiosize(const AudioSize &audiosize) noexcept;
 
 	/**
 	 * \brief Returns TRUE iff this Calculation is completed, otherwise FALSE.
@@ -1690,7 +1693,7 @@ public:
 	 *
 	 * \return TRUE if the Calculation is completed, otherwise FALSE
 	 */
-	bool complete() const;
+	bool complete() const noexcept;
 
 	/**
 	 * \brief Returns the total number of expected PCM 32 bit samples.
@@ -1699,7 +1702,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples expected.
 	 */
-	int64_t samples_expected() const;
+	int64_t samples_expected() const noexcept;
 
 	/**
 	 * \brief Returns the counter for PCM 32 bit samples.
@@ -1708,7 +1711,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int64_t samples_processed() const;
+	int64_t samples_processed() const noexcept;
 
 	/**
 	 * \brief Returns the number of PCM 32 bit samples that is yet to process.
@@ -1719,14 +1722,14 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples yet to process.
 	 */
-	int64_t samples_todo() const;
+	int64_t samples_todo() const noexcept;
 
 	/**
 	 * \brief Acquire the resulting Checksums.
 	 *
 	 * \return The computed Checksums
 	 */
-	Checksums result() const;
+	Checksums result() const noexcept;
 
 	/**
 	 * \brief Copy assignment.
@@ -1812,26 +1815,29 @@ inline SampleInputIterator::~SampleInputIterator() noexcept = default;
 
 
 inline SampleInputIterator::reference SampleInputIterator::operator * () const
+noexcept
 {
 	return object_->dereference();
 }
 
 
+// Commented out: possible implementation of pointer operator
 //inline SampleInputIterator::pointer SampleInputIterator::operator -> () const
+//noexcept
 //{
 //	return static_cast<SampleInputIterator::pointer>(
 //			object_->wrapped_iterator());
 //}
 
 
-inline SampleInputIterator& SampleInputIterator::operator ++ ()
+inline SampleInputIterator& SampleInputIterator::operator ++ () noexcept
 {
 	object_->preincrement();
 	return *this;
 }
 
 
-inline SampleInputIterator SampleInputIterator::operator ++ (int)
+inline SampleInputIterator SampleInputIterator::operator ++ (int) noexcept
 {
 	SampleInputIterator prev_val(*this);
 	object_->preincrement();
@@ -1840,7 +1846,7 @@ inline SampleInputIterator SampleInputIterator::operator ++ (int)
 
 
 inline SampleInputIterator& SampleInputIterator::operator = (
-		SampleInputIterator rhs)
+		SampleInputIterator rhs) noexcept
 {
 	swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
 	return *this;

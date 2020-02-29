@@ -826,26 +826,27 @@ public:
 
 private:
 
-	void do_set_audio_size(const AudioSize &audio_size) override;
+	void do_set_audio_size(const AudioSize &audio_size) noexcept override;
 
-	const AudioSize& do_audio_size() const override;
+	const AudioSize& do_audio_size() const noexcept override;
 
 	// do_sample_count()
 
-	void do_set_filename(const std::string &filename) override;
+	void do_set_filename(const std::string &filename) noexcept override;
 
-	std::string do_filename() const override;
+	std::string do_filename() const noexcept override;
 
 	// do_track_count()
 	// do_is_multi_track()
 
-	uint32_t do_first_relevant_sample(const TrackNo) const override;
+	uint32_t do_first_relevant_sample(const TrackNo) const noexcept override;
 
-	uint32_t do_first_relevant_sample_0() const override;
+	uint32_t do_first_relevant_sample_0() const noexcept override;
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const override;
+	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept
+		override;
 
-	uint32_t do_last_relevant_sample_0() const override;
+	uint32_t do_last_relevant_sample_0() const noexcept override;
 
 	// do_track(const uint32_t)
 	// do_offset(const uint8_t)
@@ -854,19 +855,19 @@ private:
 	// do_skips_front()
 	// do_skips_back()
 
-	uint32_t do_num_skip_front() const override;
+	uint32_t do_num_skip_front() const noexcept override;
 
-	uint32_t do_num_skip_back() const override;
+	uint32_t do_num_skip_back() const noexcept override;
 
 	void do_notify_skips(const uint32_t num_skip_front,
-			const uint32_t num_skip_back) override;
+			const uint32_t num_skip_back) noexcept override;
 
 	// do_clone()
 
 	/**
 	 * \brief Hook called after set_audio_size() is finished.
 	 */
-	virtual void do_hook_post_set_audio_size();
+	virtual void do_hook_post_set_audio_size() noexcept;
 
 
 protected:
@@ -980,43 +981,43 @@ public:
 	 *
 	 * \param[in] skip TRUE skips the first 2939 samples of the first track
 	 */
-	void set_skip_front(const bool skip);
+	void set_skip_front(const bool skip) noexcept;
 
 	/**
 	 * \brief Activate skipping of the last 2940 samples of the last track.
 	 *
 	 * \param[in] skip TRUE skips the last 2940 samples of the last track
 	 */
-	void set_skip_back(const bool skip);
+	void set_skip_back(const bool skip) noexcept;
 
 
 private:
 
-	uint8_t do_track_count() const final;
+	uint8_t do_track_count() const noexcept final;
 
-	bool do_is_multi_track() const final;
+	bool do_is_multi_track() const noexcept final;
 
-	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+	uint32_t do_first_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const uint32_t smpl) const final;
+	TrackNo do_track(const uint32_t smpl) const noexcept final;
 
-	lba_count do_offset(const uint8_t track) const final;
+	lba_count do_offset(const uint8_t track) const noexcept final;
 
-	lba_count do_length(const uint8_t track) const final;
+	lba_count do_length(const uint8_t track) const noexcept final;
 
-	ARId do_id() const final;
+	ARId do_id() const noexcept final;
 
-	bool do_skips_front() const final;
+	bool do_skips_front() const noexcept final;
 
-	bool do_skips_back() const final;
+	bool do_skips_back() const noexcept final;
 
-	std::unique_ptr<CalcContext> do_clone() const final;
+	std::unique_ptr<CalcContext> do_clone() const noexcept final;
 
 	/**
 	 * \brief State: indicates whether to skip the front samples
@@ -1118,45 +1119,45 @@ public:
 	 *
 	 * \return The TOC information to use for the audio input
 	 */
-	const TOC& toc() const;
+	const TOC& toc() const noexcept;
 
 	/**
 	 * \brief Set the TOC for the audio input.
 	 *
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
-	void set_toc(const TOC &toc);
+	void set_toc(const TOC &toc) noexcept;
 
 
 private:
 
-	void do_hook_post_set_audio_size() final;
+	void do_hook_post_set_audio_size() noexcept final;
 
-	uint8_t do_track_count() const final;
+	uint8_t do_track_count() const noexcept final;
 
-	bool do_is_multi_track() const final;
+	bool do_is_multi_track() const noexcept final;
 
-	uint32_t do_first_relevant_sample(const TrackNo track) const final;
+	uint32_t do_first_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const final;
+	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const uint32_t smpl) const final;
+	TrackNo do_track(const uint32_t smpl) const noexcept final;
 
-	lba_count do_offset(const uint8_t track) const final;
+	lba_count do_offset(const uint8_t track) const noexcept final;
 
-	lba_count do_length(const uint8_t track) const final;
+	lba_count do_length(const uint8_t track) const noexcept final;
 
-	ARId do_id() const final;
+	ARId do_id() const noexcept final;
 
-	bool do_skips_front() const final;
+	bool do_skips_front() const noexcept final;
 
-	bool do_skips_back() const final;
+	bool do_skips_back() const noexcept final;
 
-	std::unique_ptr<CalcContext> do_clone() const final;
+	std::unique_ptr<CalcContext> do_clone() const noexcept final;
 
 	/**
 	 * \brief TOC representation
@@ -1195,7 +1196,7 @@ public:
 	 *
 	 * Initializing calles <tt>wipe()</tt> before doing anything.
 	 */
-	virtual void init_with_skip()
+	virtual void init_with_skip() noexcept
 	= 0;
 
 	/**
@@ -1203,7 +1204,7 @@ public:
 	 *
 	 * Initializing calles <tt>wipe()</tt> before doing anything.
 	 */
-	virtual void init_without_skip()
+	virtual void init_without_skip() noexcept
 	= 0;
 
 	/**
@@ -1211,7 +1212,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the beginning
 	 */
-	virtual uint32_t num_skip_front() const
+	virtual uint32_t num_skip_front() const noexcept
 	= 0;
 
 	/**
@@ -1219,7 +1220,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the end
 	 */
-	virtual uint32_t num_skip_back() const
+	virtual uint32_t num_skip_back() const noexcept
 	= 0;
 
 	/**
@@ -1240,7 +1241,7 @@ public:
 	 *
 	 * \param[in] track The 0-based track number to save the ARCSs for
 	 */
-	virtual void save(const TrackNo track)
+	virtual void save(const TrackNo track) noexcept
 	= 0;
 
 	/**
@@ -1248,7 +1249,7 @@ public:
 	 *
 	 * \return Number of currently saved tracks
 	 */
-	virtual int track_count() const
+	virtual int track_count() const noexcept
 	= 0;
 
 	/**
@@ -1256,7 +1257,7 @@ public:
 	 *
 	 * \return A disjunction of all requested types.
 	 */
-	virtual checksum::type type() const
+	virtual checksum::type type() const noexcept
 	= 0;
 
 	/**
@@ -1272,7 +1273,7 @@ public:
 	 *
 	 * \return The @link Checksum Checksums @endlink calculated
 	 */
-	virtual ChecksumSet result(const TrackNo track) const
+	virtual ChecksumSet result(const TrackNo track) const noexcept
 	= 0;
 
 	/**
@@ -1286,7 +1287,7 @@ public:
 	 *
 	 * \return The @link Checksum Checksums @endlink calculated
 	 */
-	virtual ChecksumSet result() const
+	virtual ChecksumSet result() const noexcept
 	= 0;
 
 	/**
@@ -1300,14 +1301,14 @@ public:
 	 * new track. However, it is not necessary to <tt>reset()</tt> an instance
 	 * that was already <tt>init()</tt>ed.
 	 */
-	virtual void reset()
+	virtual void reset() noexcept
 	= 0;
 
 	/**
 	 * \brief Resets the internal subtotals and the multiplier and deletes all
 	 * previously saved computation results.
 	 */
-	virtual void wipe()
+	virtual void wipe() noexcept
 	= 0;
 
 	/**
@@ -1319,7 +1320,7 @@ public:
 	 *
 	 * \return Multiplier for next multiplication operation
 	 */
-	virtual uint32_t mult() const
+	virtual uint32_t mult() const noexcept
 	= 0;
 
 	/**
@@ -1330,7 +1331,7 @@ public:
 	 *
 	 * \return A clone of this instance
 	 */
-	virtual std::unique_ptr<CalcState> clone() const
+	virtual std::unique_ptr<CalcState> clone() const noexcept
 	= 0;
 };
 
@@ -1374,7 +1375,7 @@ public:
 	 *
 	 * Initializing calls <tt>wipe()</tt> before doing anything.
 	 */
-	void init_with_skip() override;
+	void init_with_skip() noexcept override;
 
 	/**
 	 * \brief Implements CalcState::init_without_skip()
@@ -1383,11 +1384,11 @@ public:
 	 *
 	 * Initializing calls <tt>wipe()</tt> before doing anything.
 	 */
-	void init_without_skip() override;
+	void init_without_skip() noexcept override;
 
-	uint32_t num_skip_front() const override;
+	uint32_t num_skip_front() const noexcept override;
 
-	uint32_t num_skip_back() const override;
+	uint32_t num_skip_back() const noexcept override;
 
 	void update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
@@ -1413,7 +1414,7 @@ private:
 	/**
 	 * \brief Worker: initialize state with specified multiplier.
 	 */
-	virtual void init(const uint32_t mult)
+	virtual void init(const uint32_t mult) noexcept
 	= 0;
 
 	/**
