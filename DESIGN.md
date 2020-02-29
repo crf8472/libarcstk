@@ -90,10 +90,10 @@ and perhaps by other languages at some point.
 ## Linkage
 
 - Libarcstk does never ever put anything in the global namespace. Everything
-  that is part of libarcstk *must* reside in the ``arcs`` namespace or one of
+  that is part of libarcstk *must* reside in the ``arcstk`` namespace or one of
   its contained namespaces.
-- When it is arcs-global, it should have ``extern`` linkage to avoid unnecessary
-  instances.
+- When it is arcstk-global, it should have ``extern`` linkage to avoid
+  unnecessary instances.
 - What is declared and used only within a ``.cpp`` file must have internal
   linkage, usually by putting it an unnamed namespace. Avoid the ``static``
   qualifier for defining linkage.
