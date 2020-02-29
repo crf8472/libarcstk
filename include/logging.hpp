@@ -123,7 +123,7 @@ public:
 	 *
 	 * \return Name of the Appender
 	 */
-	inline std::string name() const;
+	inline std::string name() const noexcept;
 
 	/**
 	 * \brief Appender is non-copyable
@@ -193,14 +193,14 @@ public:
 	 *
 	 * \param[in] onoff TRUE activates the logging of timestamps for this logger
 	 */
-	void set_timestamps(const bool &onoff);
+	void set_timestamps(const bool &onoff) noexcept;
 
 	/**
 	 * \brief Returns TRUE iff this instance is configured to log timestamps.
 	 *
 	 * \return TRUE iff this instance will log timestamps.
 	 */
-	bool has_timestamps() const;
+	bool has_timestamps() const noexcept;
 
 	/**
 	 * \brief Add an Appender to this Logger
@@ -419,7 +419,7 @@ public:
 	 *
 	 * \return TRUE iff Logger has at least the level passed
 	 */
-	bool has_level(LOGLEVEL level);
+	bool has_level(LOGLEVEL level) noexcept;
 
 	/**
 	 * \brief Activates or deactivates the output of timestamps.
@@ -434,7 +434,7 @@ public:
 	 *
 	 * \return TRUE iff timestamps are logged, otherwise FALSE.
 	 */
-	bool has_timestamps();
+	bool has_timestamps() noexcept;
 
 	/**
 	 * \brief Add an appender to the internal Logger.
@@ -545,7 +545,7 @@ inline void Appender::append(const std::string& msg) const
 }
 
 
-inline std::string Appender::name() const
+inline std::string Appender::name() const noexcept
 {
 	return name_;
 }
@@ -571,13 +571,13 @@ inline Logger::Logger(Logger&& logger) noexcept = default;
 inline Logger::~Logger() noexcept = default;
 
 
-inline void Logger::set_timestamps(const bool &on_or_off)
+inline void Logger::set_timestamps(const bool &on_or_off) noexcept
 {
 	log_timestamps_ = on_or_off;
 }
 
 
-inline bool Logger::has_timestamps() const
+inline bool Logger::has_timestamps() const noexcept
 {
 	return log_timestamps_;
 }
@@ -619,12 +619,13 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
 inline std::string now_time()
 {
 	const auto now { std::chrono::system_clock::now() };
-	std::stringstream ss;
+	auto ss = std::stringstream {};
 
 	// Print year, month, day, hour, minute, second
 
 	{
-		std::time_t now_time { std::chrono::system_clock::to_time_t(now) };
+		const std::time_t now_time {
+			std::chrono::system_clock::to_time_t(now) };
 		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
 	}
 
@@ -793,7 +794,7 @@ inline void Logging::set_level(LOGLEVEL level)
 }
 
 
-inline bool Logging::has_level(LOGLEVEL level)
+inline bool Logging::has_level(LOGLEVEL level) noexcept
 {
 	return level_ >= level;
 }
@@ -806,7 +807,7 @@ inline void Logging::set_timestamps(const bool &on_or_off)
 }
 
 
-inline bool Logging::has_timestamps()
+inline bool Logging::has_timestamps() noexcept
 {
 	return logger_.has_timestamps();
 }
