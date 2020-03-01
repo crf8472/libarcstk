@@ -577,6 +577,13 @@ TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 	}
 
 
+	SECTION ( "operator -> (pointer access) works correctly" )
+	{
+		SampleInputIterator sample { samples.begin() };
+		CHECK ( *sample.operator->() == 1 );
+	}
+
+
 	SECTION ( "operator ++ (preincrement) works correctly" )
 	{
 		SampleInputIterator sample { samples.begin() };

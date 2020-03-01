@@ -570,9 +570,13 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
  * except instances of itself, e.g. it can not be "nested".
  *
- * \todo SampleInputIterator::operator->() is currently not available
+ * Note that SampleInputIterator formally satisfies the requirements for a
+ * LegacyInputIterator, but its arrow operator -> will always point to
+ * a sample_type. Therefore, the only legal call of this operator will be
+ * of the form i.operator->().
  */
-class SampleInputIterator final : public details::Comparable<SampleInputIterator>
+class SampleInputIterator final
+		: public details::Comparable<SampleInputIterator>
 {
 
 public:
@@ -682,8 +686,8 @@ private:
 		 *
 		 * \return Generic pointer to wrapped iterator
 		 */
-		//virtual void* wrapped_iterator() noexcept
-		//= 0;
+		virtual void* wrapped_iterator() noexcept
+		= 0;
 
 		/**
 		 * \brief Returns a deep copy of the instance
@@ -740,13 +744,14 @@ private:
 			return this;
 		}
 
-		//void* wrapped_iterator() noexcept final
-		//{
-		//	return iterator_.operator->();
-		//}
-		// Commented out: Require wrapped iterator to be LegacyInpuIterator.
-		// The commented out implementation is ok, but the requirement itself
-		// seems too strict.
+		void* wrapped_iterator() noexcept final
+		{
+			//return iterator_.operator->();
+			// Commented out: Passing through requires wrapped iterator to be
+			// LegacyInpuIterator.
+
+			return &(*iterator_);
+		}
 
 		std::unique_ptr<Concept> clone() const noexcept final
 		{
@@ -781,9 +786,9 @@ public:
 
 	// LegacyIterator:
 	// ok: value_type, difference_type, pointer, reference, iterator_category
-	// ok: CopyConstructible
 	// ok: dereference operator *it mus have specified effect
 	// ok: behaviour of ++it is defined
+	// ok: CopyConstructible
 	// ok: CopyAssignable
 	// ok: Destructible
 	// ok: lvalues must be swappable
@@ -844,7 +849,7 @@ public:
 	 *
 	 * \return A pointer to the underlying referee
 	 */
-	//pointer operator -> () const noexcept; // required by LegacyInpuIterator
+	pointer operator -> () const noexcept; // required by LegacyInpuIterator
 
 	/**
 	 * \brief Pre-increment iterator.
@@ -1821,13 +1826,12 @@ noexcept
 }
 
 
-// Commented out: possible implementation of pointer operator
-//inline SampleInputIterator::pointer SampleInputIterator::operator -> () const
-//noexcept
-//{
-//	return static_cast<SampleInputIterator::pointer>(
-//			object_->wrapped_iterator());
-//}
+inline SampleInputIterator::pointer SampleInputIterator::operator -> () const
+noexcept
+{
+	return static_cast<SampleInputIterator::pointer>(
+			object_->wrapped_iterator());
+}
 
 
 inline SampleInputIterator& SampleInputIterator::operator ++ () noexcept
