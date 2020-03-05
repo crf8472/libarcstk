@@ -676,9 +676,16 @@ public: /* methods */
 	/**
 	 * \brief Constructor.
 	 *
+	 * Indicates channel ordering left:0, right:1.
+	 */
+	SampleSequence();
+
+	/**
+	 * \brief Constructor.
+	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
-	SampleSequence(bool left0_right1 = true);
+	SampleSequence(bool left0_right1);
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -763,6 +770,14 @@ private:
 	 */
 	const size_type right_;
 };
+
+
+template <typename T>
+SampleSequence<T, true>::SampleSequence()
+	: SampleSequence<T, true>(true)
+{
+	// empty
+}
 
 
 template <typename T>
@@ -863,9 +878,16 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
+	 * Indicates channel ordering left:0, right:1.
+	 */
+	SampleSequence();
+
+	/**
+	 * \brief Constructor.
+	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
-	SampleSequence(bool left0_right1 = true);
+	SampleSequence(bool left0_right1);
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -947,6 +969,14 @@ private:
 	 */
 	const size_type right_;
 };
+
+
+template <typename T>
+SampleSequence<T, false>::SampleSequence()
+	: SampleSequence<T, false>(true)
+{
+	// empty
+}
 
 
 template <typename T>
