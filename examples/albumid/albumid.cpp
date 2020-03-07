@@ -61,6 +61,7 @@ auto parse_cuesheet(const std::string &cuefilename)
 	{
 		std::cerr << "Failed to close CUEsheet: " << cuefilename << std::endl;
 	}
+	f = nullptr;
 
 	if (!cdinfo)
 	{
@@ -68,13 +69,13 @@ auto parse_cuesheet(const std::string &cuefilename)
 		throw std::runtime_error("Failed to parse CUEsheet");
 	}
 
-	Track* track = nullptr;
-	std::vector<int> offsets;
+	const auto track_count = ::cd_get_ntrack(cdinfo);
 
-	auto track_count = ::cd_get_ntrack(cdinfo);
+	std::vector<int> offsets;
 	offsets.reserve(static_cast<decltype(offsets)::size_type>(track_count));
 
-	for (int i = 1; i <= track_count; ++i)
+	::Track* track = nullptr;
+	for (auto i = int { 1 }; i <= track_count; ++i)
 	{
 		track = ::cd_get_track(cdinfo, i);
 
@@ -124,8 +125,8 @@ int main(int argc, char* argv[])
 	}
 
 	// Of course you would validate your input parameters in production code.
-	const std::string cuefilename   { argv[1] };
-	const std::string audiofilename { argv[2] };
+	const auto cuefilename   { std::string { argv[1] }};
+	const auto audiofilename { std::string { argv[2] }};
 
 	// If you like, you can activate the internal logging of libarcstk to
 	// see what's going on behind the scenes. We provide an appender for stdout.
@@ -148,7 +149,7 @@ int main(int argc, char* argv[])
 	// provide this functionality and the author just did a quick hack with
 	// libcue.  (Just consult the implementation of function parse_cuesheet()
 	// if you are interested in the details, but this is libcue, not libarcstk.)
-	auto offsets { parse_cuesheet(cuefilename) };
+	const auto offsets { parse_cuesheet(cuefilename) };
 	// Skip santiy checks and everything you could do with try/catch ...
 
 	// Two completed, one to go.  Since the CUEsheet usually does not know the
@@ -157,8 +158,8 @@ int main(int argc, char* argv[])
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this is
 	// not even necessary: the information is conveniently provided by the
 	// audiofile handle:
-	arcstk::AudioSize total_samples;
-	total_samples.set_sample_count(get_total_samples(audiofilename));
+	auto total_samples { arcstk::AudioSize { get_total_samples(audiofilename),
+		arcstk::AudioSize::UNIT::SAMPLES } };
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
 	// "PCM 32 bit samples" or just "samples". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
@@ -178,7 +179,7 @@ int main(int argc, char* argv[])
 	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
 
 	// Step 1: Use libarcstk to construct the TOC.
-	std::unique_ptr<arcstk::TOC> toc = nullptr;
+	auto toc { std::unique_ptr<arcstk::TOC> { nullptr }};
 	try
 	{
 		// This validates the parsed toc data and will throw if the parsed data

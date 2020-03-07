@@ -84,7 +84,8 @@ arcstk::ARId parse_arid(const char* input_id)
  *
  * @return Parsed Checksums
  */
-arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::type t)
+arcstk::Checksums parse_input_arcs(const char* list,
+		const arcstk::checksum::type t)
 {
 	const std::string checksum_list { list };
 
@@ -100,7 +101,7 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
 	std::cout << "My checksums to match:" << std::endl;
 
 	std::string token; // current token
-	uint32_t arcs; // ARCS of the current token
+	auto arcs = uint32_t { 0 };  // ARCS of the current token
 	for (std::size_t i = 0; i < total_tracks; ++i)
 	{
 		token = checksum_list.substr(token_start, token_end - token_start);
@@ -118,7 +119,6 @@ arcstk::Checksums parse_input_arcs(const char* list, const arcstk::checksum::typ
 			<< " - " << std::setw(3) << std::setfill(' ') << token_end << ")"
 			<< '\n';
 
-		//checksums[i].insert(t, arcstk::Checksum(std::stoul(token, nullptr, 16)));
 		checksums[i].insert(t, arcstk::Checksum(arcs));
 		token_start = token_end + 1;
 		token_end   = checksum_list.find_first_of(',', token_start);
@@ -241,9 +241,9 @@ int main(int argc, char* argv[])
 	auto match    { matcher.match() };
 	auto block    { matcher.best_match() };
 	auto trackno  { 0 };
-	bool is_match { false };
+	auto is_match = bool { false };
 
-	auto prev_settings = std::cout.flags();
+	auto prev_settings { std::cout.flags() };
 
 	std::cout << "TRACK   MINE      THEIRS\n";
 

@@ -369,10 +369,10 @@ public: /* functions */
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] unit  Unit for \c value
 	 * \param[in] value Size value
+	 * \param[in] unit  Unit for \c value
 	 */
-	AudioSize(const UNIT unit, const uint32_t value) noexcept;
+	AudioSize(const long int value, const UNIT unit) noexcept;
 
 	/**
 	 * \brief Copy constructor.
@@ -417,14 +417,14 @@ public: /* functions */
 	 *
 	 * \param[in] smpl_count Total number of 32 bit PCM samples
 	 */
-	void set_sample_count(const uint32_t smpl_count) noexcept;
+	void set_total_samples(const uint32_t smpl_count) noexcept;
 
 	/**
 	 * \brief Return the total number of 32 bit PCM samples.
 	 *
 	 * \return The total number of 32 bit PCM samples
 	 */
-	uint32_t sample_count() const noexcept;
+	uint32_t total_samples() const noexcept;
 
 	/**
 	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
@@ -434,14 +434,14 @@ public: /* functions */
 	 *
 	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
 	 */
-	void set_pcm_byte_count(const uint64_t byte_count) noexcept;
+	void set_pcm_byte_count(const uint32_t byte_count) noexcept;
 
 	/**
 	 * \brief Return the number of bytes holding 32 bit PCM samples.
 	 *
 	 * \return The total number of bytes holding 32 bit PCM samples
 	 */
-	uint64_t pcm_byte_count() const noexcept;
+	uint32_t pcm_byte_count() const noexcept;
 
 	/**
 	 * \brief Return TRUE if the AudioSize is 0.
@@ -605,7 +605,8 @@ public:
 	/**
 	 * \brief Const pointer to an instance of value_type.
 	 */
-	using pointer = const sample_type*;
+	//using pointer = const sample_type*;
+	using pointer = void;
 
 	/**
 	 * \brief Pointer difference type.
@@ -647,19 +648,17 @@ private:
 		 *
 		 * \return Reference to actual value.
 		 */
-		virtual reference dereference() const noexcept
+		virtual reference dereference() noexcept
 		= 0;
 
 		/**
 		 * \brief Returns TRUE if \c rhs is equal to the instance.
 		 *
-		 * Required by the equality operator.
-		 *
 		 * \param[in] rhs The instance to test for equality
 		 *
 		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 		 */
-		virtual bool equals(const Concept* rhs) const noexcept
+		virtual bool equals(const Concept &rhs) const noexcept
 		= 0;
 
 		/**
@@ -671,32 +670,12 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns the address of the instance.
-		 *
-		 * Required by the equality operator.
-		 *
-		 * \return Address of the instance
-		 */
-		virtual const Concept* pointer() const noexcept
-		= 0;
-
-		// Commented out: Require wrapped iterator to implement operator ->
-		/* *
-		 * \brief Generic pointer to wrapped iterator instance.
-		 *
-		 * \return Generic pointer to wrapped iterator
-		 */
-		virtual void* wrapped_iterator() noexcept
-		= 0;
-
-		/**
 		 * \brief Returns a deep copy of the instance
 		 *
 		 * \return A deep copy of the instance
 		 */
 		virtual std::unique_ptr<Concept> clone() const noexcept
 		= 0;
-		// for copy constructor
 	};
 
 
@@ -724,33 +703,19 @@ private:
 			std::advance(iterator_, n);
 		}
 
-		reference dereference() const noexcept final
+		reference dereference() noexcept final
 		{
 			return *iterator_;
 		}
 
-		bool equals(const Concept* rhs) const noexcept final
+		bool equals(const Concept &rhs) const noexcept final
 		{
-			return iterator_ == static_cast<const Model*>(rhs)->iterator_;
+			return iterator_ == static_cast<const Model&>(rhs).iterator_;
 		}
 
 		const std::type_info& type() const noexcept final
 		{
 			return typeid(iterator_);
-		}
-
-		const Concept* pointer() const noexcept final
-		{
-			return this;
-		}
-
-		void* wrapped_iterator() noexcept final
-		{
-			//return iterator_.operator->();
-			// Commented out: Passing through requires wrapped iterator to be
-			// LegacyInpuIterator.
-
-			return &(*iterator_);
 		}
 
 		std::unique_ptr<Concept> clone() const noexcept final
@@ -1826,14 +1791,6 @@ noexcept
 }
 
 
-inline SampleInputIterator::pointer SampleInputIterator::operator -> () const
-noexcept
-{
-	return static_cast<SampleInputIterator::pointer>(
-			object_->wrapped_iterator());
-}
-
-
 inline SampleInputIterator& SampleInputIterator::operator ++ () noexcept
 {
 	object_->preincrement();
@@ -1863,7 +1820,7 @@ inline SampleInputIterator& SampleInputIterator::operator = (
 inline bool operator == (const SampleInputIterator &lhs,
 		const SampleInputIterator &rhs) noexcept
 {
-	return lhs.object_->equals(rhs.object_->pointer());
+	return lhs.object_->equals(*rhs.object_);
 }
 
 

@@ -19,8 +19,11 @@
 #include <fstream>
 #include <iomanip>       // for uppercase, nouppercase, setw, setfill
                          // showbase, noshowbase
+#include <limits>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -92,10 +95,10 @@ public:
 	/**
 	 * \brief Constructor
 	 *
-	 * \param[in] unit  The unit of the declaring value
 	 * \param[in] value Absolute size
+	 * \param[in] unit  The unit of the declaring value
 	 */
-	Impl(const AudioSize::UNIT unit, const uint32_t value) noexcept;
+	Impl(const long int value, const AudioSize::UNIT unit) noexcept;
 
 	/**
 	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
@@ -108,24 +111,24 @@ public:
 	lba_count total_frames() const noexcept;
 
 	/**
-	 * \brief Implements AudioSize::set_sample_count(const uint32_t smpl_count)
+	 * \brief Implements AudioSize::set_total_samples(const uint32_t smpl_count)
 	 */
 	void set_total_samples(const uint32_t smpl_count) noexcept;
 
 	/**
-	 * \brief Implements AudioSize::sample_count() const
+	 * \brief Implements AudioSize::total_samples() const
 	 */
 	uint32_t total_samples() const noexcept;
 
 	/**
-	 * \brief Implements AudioSize::set_pcm_byte_count(const uint64_t byte_count)
+	 * \brief Implements AudioSize::set_pcm_byte_count(const uint32_t byte_count)
 	 */
-	void set_total_pcm_bytes(const uint64_t byte_count) noexcept;
+	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
 
 	/**
 	 * \brief Implements AudioSize::pcm_byte_count() const
 	 */
-	uint64_t total_pcm_bytes() const noexcept;
+	uint32_t total_pcm_bytes() const noexcept;
 
 	/**
 	 * \brief Equality
@@ -138,9 +141,44 @@ public:
 private:
 
 	/**
+	 * \brief Convert \c value to the corrsponding number of bytes.
+	 *
+	 * \param[in] value Value to convert
+	 * \param[in] unit  Unit of the value
+	 *
+	 * \return The equivalent number of bytes.
+	 *
+	 * \throw std::overflow_error If value is bigger than the legal unit maximum
+	 * \throw std::underflow_error If value is negative
+	 */
+	uint32_t to_bytes(const long int value, const AudioSize::UNIT unit);
+
+	/**
+	 * \brief Convert \c frame_count to the corrsponding number of bytes.
+	 *
+	 * \param[in] frame_count Number of LBA frames to convert
+	 *
+	 * \return The equivalent number of bytes.
+	 *
+	 * \throw std::overflow_error If value is bigger than the legal unit maximum
+	 */
+	uint32_t frames_to_bytes(const lba_count frame_count);
+
+	/**
+	 * \brief Convert \c frame_count to the corrsponding number of bytes.
+	 *
+	 * \param[in] sample_count Number of PCM 32 bit samples to convert
+	 *
+	 * \return The equivalent number of bytes.
+	 *
+	 * \throw std::overflow_error If value is bigger than the legal unit maximum
+	 */
+	uint32_t samples_to_bytes(const uint32_t sample_count);
+
+	/**
 	 * \brief Data: Number of pcm sample bytes in the audio file.
 	 */
-	uint64_t total_pcm_bytes_;
+	uint32_t total_pcm_bytes_;
 };
 
 
@@ -154,26 +192,83 @@ AudioSize::Impl::Impl() noexcept
 }
 
 
-AudioSize::Impl::Impl(const AudioSize::UNIT unit, const uint32_t value) noexcept
-	: total_pcm_bytes_ { value }
+AudioSize::Impl::Impl(const long int value, const AudioSize::UNIT unit) noexcept
+	: total_pcm_bytes_ { to_bytes(value, unit) }
 {
-	using UNIT = AudioSize::UNIT;
+	// empty
+}
 
-	if (UNIT::FRAMES == unit)
+
+uint32_t AudioSize::Impl::to_bytes(const long int value,
+		const AudioSize::UNIT unit)
+{
+	if (value < 0)
 	{
-		this->set_total_frames(value);
+		auto ss = std::stringstream {};
+		ss << "Cannot construct AudioSize from negative value: "
+			<< std::to_string(value);
+
+		throw std::underflow_error(ss.str());
 	}
-	else if (UNIT::SAMPLES == unit)
+
+	if (value > std::numeric_limits<uint32_t>::max())
 	{
-		this->set_total_samples(value);
+		auto ss = std::stringstream {};
+		ss << "Value too big for AudioSize: " << std::to_string(value);
+
+		throw std::overflow_error(ss.str());
 	}
+
+	if (AudioSize::UNIT::FRAMES == unit)
+	{
+		return this->frames_to_bytes(value);
+	}
+	else if (AudioSize::UNIT::SAMPLES == unit)
+	{
+		return this->samples_to_bytes(value);
+	}
+
+	return value;
+}
+
+
+uint32_t AudioSize::Impl::frames_to_bytes(const lba_count frame_count)
+{
+	if (frame_count > static_cast<unsigned int>(CDDA.MAX_BLOCK_ADDRESS))
+	{
+		auto ss = std::stringstream {};
+		ss << "Frame count too big for AudioSize: "
+			<< std::to_string(frame_count);
+
+		throw std::overflow_error(ss.str());
+	}
+
+	return frame_count * static_cast<unsigned int>(CDDA.BYTES_PER_FRAME);
+}
+
+
+uint32_t AudioSize::Impl::samples_to_bytes(const uint32_t smpl_count)
+{
+	static const unsigned int MAX_SAMPLES {
+		static_cast<unsigned int>(CDDA.SAMPLES_PER_FRAME)
+		* static_cast<unsigned int>(CDDA.MAX_BLOCK_ADDRESS) };
+
+	if (smpl_count > MAX_SAMPLES)
+	{
+		auto ss = std::stringstream {};
+		ss << "Sample count too big for AudioSize: "
+			<< std::to_string(smpl_count);
+
+		throw std::overflow_error(ss.str());
+	}
+
+	return smpl_count * static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE);
 }
 
 
 void AudioSize::Impl::set_total_frames(const lba_count frame_count) noexcept
 {
-	this->set_total_pcm_bytes(frame_count *
-			static_cast<unsigned int>(CDDA.BYTES_PER_FRAME));
+	this->set_total_pcm_bytes(this->frames_to_bytes(frame_count));
 }
 
 
@@ -186,8 +281,7 @@ lba_count AudioSize::Impl::total_frames() const noexcept
 
 void AudioSize::Impl::set_total_samples(const uint32_t smpl_count) noexcept
 {
-	this->set_total_pcm_bytes(smpl_count *
-			static_cast<unsigned int>(CDDA.BYTES_PER_SAMPLE));
+	this->set_total_pcm_bytes(this->samples_to_bytes(smpl_count));
 }
 
 
@@ -198,13 +292,13 @@ uint32_t AudioSize::Impl::total_samples() const noexcept
 }
 
 
-void AudioSize::Impl::set_total_pcm_bytes(const uint64_t byte_count) noexcept
+void AudioSize::Impl::set_total_pcm_bytes(const uint32_t byte_count) noexcept
 {
 	total_pcm_bytes_ = byte_count;
 }
 
 
-uint64_t AudioSize::Impl::total_pcm_bytes() const noexcept
+uint32_t AudioSize::Impl::total_pcm_bytes() const noexcept
 {
 	return total_pcm_bytes_;
 }
@@ -537,7 +631,7 @@ uint32_t SingletrackCalcContext::do_last_relevant_sample(
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
 	{
-		return this->audio_size().sample_count() - 1;
+		return this->audio_size().total_samples() - 1;
 	}
 
 	// We have no offsets and the track parameter is irrelevant. Hence iff the
@@ -547,8 +641,8 @@ uint32_t SingletrackCalcContext::do_last_relevant_sample(
 
 	return this->skips_back() and track == this->track_count() // ==1!
 				/* FIXME Is this ^^^ necessary or even correct??? */
-		? this->audio_size().sample_count() - 1 - this->num_skip_back()
-		: this->audio_size().sample_count() - 1;
+		? this->audio_size().total_samples() - 1 - this->num_skip_back()
+		: this->audio_size().total_samples() - 1;
 }
 
 
@@ -725,14 +819,14 @@ uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
 	{
-		return this->audio_size().sample_count() - 1;
+		return this->audio_size().total_samples() - 1;
 	}
 
 	// Invalid track requested?
 	if (track > this->track_count())
 	{
 		// Return the last relevant sample respecting skipping
-		return this->audio_size().sample_count() - 1
+		return this->audio_size().total_samples() - 1
 			- (this->skips_back() ? this->num_skip_back() : 0 );
 	}
 
@@ -740,7 +834,7 @@ uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 
 	if (this->skips_back() and track == this->track_count())
 	{
-		return this->audio_size().sample_count() - 1 - this->num_skip_back();
+		return this->audio_size().total_samples() - 1 - this->num_skip_back();
 	}
 
 	// Ensure result 0 for previous track's offset 0
@@ -753,13 +847,13 @@ uint32_t MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 
 TrackNo MultitrackCalcContext::do_track(const uint32_t smpl) const noexcept
 {
-	if (this->audio_size().sample_count() == 0)
+	if (this->audio_size().total_samples() == 0)
 	{
 		return 0;
 	}
 
 	// Sample beyond last track?
-	if (smpl > this->audio_size().sample_count() - 1)
+	if (smpl > this->audio_size().total_samples() - 1)
 	{
 		// This will return an invalid track number
 		// Caller has to check result for <= track_count() for a valid result
@@ -861,7 +955,7 @@ void MultitrackCalcContext::set_toc(const TOC &toc) noexcept
 {
 	// NOTE: Leadout will be 0 if TOC is not complete.
 
-	this->set_audio_size(AudioSize { AudioSize::UNIT::FRAMES, toc.leadout() });
+	this->set_audio_size(AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
 	// Commented out: without conversion
 	//AudioSize audiosize;
 	//audiosize.set_leadout_frame(toc.leadout());
@@ -1689,7 +1783,7 @@ bool Calculation::Impl::complete() const noexcept
 	// than its predecessors) was accurately set before passing the block to
 	// update().
 	// One could do:
-	// return this->smpl_offset_ == context().audio_size().sample_count();
+	// return this->smpl_offset_ == context().audio_size().total_samples();
 	// but this would mean that the calculation is not complete when more
 	// samples were processed than expected. (Nonetheless, this may or may not
 	// indicate an actual error.) But in a sense, the calculation is completed
@@ -1790,7 +1884,7 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 
 int64_t Calculation::Impl::samples_expected() const noexcept
 {
-	return context().audio_size().sample_count();
+	return context().audio_size().total_samples();
 }
 
 
@@ -1995,8 +2089,8 @@ AudioSize::AudioSize() noexcept
 }
 
 
-AudioSize::AudioSize(const UNIT unit, const uint32_t value) noexcept
-	: impl_ { std::make_unique<AudioSize::Impl>(unit, value) }
+AudioSize::AudioSize(const long int value, const UNIT unit) noexcept
+	: impl_ { std::make_unique<AudioSize::Impl>(value, unit) }
 {
 	// empty
 }
@@ -2027,25 +2121,25 @@ lba_count AudioSize::leadout_frame() const noexcept
 }
 
 
-void AudioSize::set_sample_count(const uint32_t sample_count) noexcept
+void AudioSize::set_total_samples(const uint32_t smpl_count) noexcept
 {
-	impl_->set_total_samples(sample_count);
+	impl_->set_total_samples(smpl_count);
 }
 
 
-uint32_t AudioSize::sample_count() const noexcept
+uint32_t AudioSize::total_samples() const noexcept
 {
 	return impl_->total_samples();
 }
 
 
-void AudioSize::set_pcm_byte_count(const uint64_t byte_count) noexcept
+void AudioSize::set_pcm_byte_count(const uint32_t byte_count) noexcept
 {
 	impl_->set_total_pcm_bytes(byte_count);
 }
 
 
-uint64_t AudioSize::pcm_byte_count() const noexcept
+uint32_t AudioSize::pcm_byte_count() const noexcept
 {
 	return impl_->total_pcm_bytes();
 }
