@@ -562,18 +562,21 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
  * \link Calculation::update() update() \endlink a Calculation.
  * This allows it to pass in fact any iterator type to a Calculation.
  *
+ * SampleInputIterator can wrap any iterator with a value_type of uint32_t
+ * except instances of itself, e.g. it can not be "nested".
+ *
  * The type erasure interface only ensures that the requirements of a
  * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
  * \link Calculation::update() updating \endlink a Calculation.
  *
- * SampleInputIterator can wrap any iterator with a value_type of uint32_t
- * except instances of itself, e.g. it can not be "nested".
+ * Although SampleInputIterator is intended to provide the functionality of
+ * an input iterator, it does not provide operator->() and does
+ * therefore not completely fulfill the requirements for a LegacyInputIterator.
  *
- * Note that SampleInputIterator formally satisfies the requirements for a
- * LegacyInputIterator, but its arrow operator -> will always point to
- * a sample_type. Therefore, the only legal call of this operator will be
- * of the form i.operator->().
+ * SampleInputIterator provides iteration over values of type sample_type,
+ * which is a primitve type. Samples have no members, therefore operator ->
+ * would not provide any reasonable function.
  */
 class SampleInputIterator final
 		: public details::Comparable<SampleInputIterator>
