@@ -765,7 +765,7 @@ void TOCBuilder::update(TOC &toc, const lba_count leadout)
 
 	impl->leadout_ = leadout;
 
-	toc.update(std::move(impl));
+	toc.reimplement(std::move(impl));
 }
 
 

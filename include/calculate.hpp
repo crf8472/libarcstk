@@ -21,6 +21,9 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"
+#endif
 
 /**
  * \brief libarcstk main namespace
@@ -144,7 +147,7 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 /**
  * \brief A 32-bit wide unsigned checksum for a single file or track.
  */
-class Checksum final : public details::Comparable<Checksum>
+class Checksum final : public Comparable<Checksum>
 {
 
 public:
@@ -344,7 +347,7 @@ bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept;
  * information. Any of the informations provided will determine all of the
  * others.
  */
-class AudioSize final : public details::TotallyOrdered<AudioSize>
+class AudioSize final : public TotallyOrdered<AudioSize>
 {
 public: /* types */
 
@@ -578,8 +581,7 @@ SampleInputIterator operator + (SampleInputIterator lhs, const uint32_t amount)
  * which is a primitve type. Samples have no members, therefore operator ->
  * would not provide any reasonable function.
  */
-class SampleInputIterator final
-		: public details::Comparable<SampleInputIterator>
+class SampleInputIterator final : public Comparable<SampleInputIterator>
 {
 
 public:
@@ -1385,6 +1387,26 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
 
+class Checksums;
+
+/**
+ * \brief Swap for Checksums
+ *
+ * \param[in] lhs Left hand side to swap
+ * \param[in] rhs Right hand side to swap
+ */
+void swap(Checksums &lhs, Checksums &rhs) noexcept;
+
+/**
+ * \brief Equality for Checksums
+ *
+ * \param[in] lhs Left hand side to compare
+ * \param[in] rhs Right hand side to compare
+ *
+ * \return TRUE if \c lhs equals \c rhs
+ */
+bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
+
 /**
  * \brief The result of a Calculation, a list of
  * \link ChecksumSet ChecksumSets \endlink.
@@ -1410,6 +1432,12 @@ public: /* types */
 	using size_type = std::size_t;
 
 
+	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
+
+	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
+		noexcept;
+
+
 public: /* member functions */
 
 	/**
@@ -1418,6 +1446,26 @@ public: /* member functions */
 	 * \param[in] size Number of elements
 	 */
 	explicit Checksums(size_type size);
+
+	// forward declaration for Checksums::Impl
+	class Impl;
+
+	/**
+	 * \internal
+	 * \brief Construct with custom implementation
+	 *
+	 * \param[in] impl The implementation of this instance
+	 */
+	Checksums(std::unique_ptr<Impl> impl);
+
+	/**
+	 * \brief Constructor
+	 *
+	 * This constructor is intended for testing purposes only.
+	 *
+	 * \param[in] tracks Sequence of track checksums
+	 */
+	Checksums(std::initializer_list<ChecksumSet> tracks);
 
 	/**
 	 * \brief Copy constructor.
@@ -1438,19 +1486,7 @@ public: /* member functions */
 	 */
 	~Checksums() noexcept;
 
-	/**
-	 * \brief Returns a pointer to the first element.
-	 *
-	 * \return Pointer to the first element
-	 */
-	iterator begin() noexcept;
-
-	/**
-	 * \brief Returns a pointer after the last element.
-	 *
-	 * \return Pointer after the last element
-	 */
-	iterator end() noexcept;
+	void append(const ChecksumSet &checksum);
 
 	/**
 	 * \brief Returns a pointer to the first element.
@@ -1481,24 +1517,34 @@ public: /* member functions */
 	const_iterator cend() const noexcept;
 
 	/**
-	 * \brief Access element by its 0-based \c index .
+	 * \brief The ARTriplet with the specified 0-based index \c index.
 	 *
-	 * Legal range is from <tt>0</tt> to <tt>size - 1</tt>.
+	 * \details
 	 *
-	 * \param[in] index The 0-based index of the element
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
 	 *
-	 * \return The element with index \c index
+	 * \see \link Checksums::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ChecksumSet to read
+	 *
+	 * \return ChecksumSet at index \c index.
+	 *
+	 * \throws std::out_of_range Iff \c index > Checksums::size() - 1.
 	 */
-	ChecksumSet& operator [] (const size_type index);
+	const ChecksumSet& at(const size_type index) const;
 
 	/**
-	 * \brief Access element by its 0-based \c index .
+	 * \brief The ChecksumSet with the specified \c index.
 	 *
-	 * Legal range is from <tt>0</tt> to <tt>size - 1</tt>.
+	 * No bounds checking is performed. For index based access with bounds
+	 * checking, see
+	 * \link Checksums::at(const size_type index) const at()\endlink.
 	 *
-	 * \param[in] index The 0-based index of the element
+	 * \param[in] index The 0-based index of the ChecksumSet to return
 	 *
-	 * \return The element with index \c index
+	 * \return ChecksumSet at the specified index
 	 */
 	const ChecksumSet& operator [] (const size_type index) const;
 
@@ -1527,30 +1573,32 @@ public: /* member functions */
 	 */
 	Checksums& operator = (Checksums &&rhs) noexcept;
 
-	/**
-	 * \brief Swap for Checksums
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
-	friend void swap(Checksums &lhs, Checksums &rhs) noexcept
-	{
-		using std::swap;
-
-		swap(lhs.impl_, rhs.impl_);
-	}
-
 
 private:
-
-	// forward declaration for Checksums::Impl
-	class Impl;
 
 	/**
 	 * \brief Private implementation of Checksums.
 	 */
 	std::unique_ptr<Checksums::Impl> impl_;
 };
+
+
+/**
+ * \brief Defined, if T is an iterator type whose value_type is ChecksumSet
+ *
+ * \tparam T Type to test
+ */
+//template <typename T>
+//using IsChecksumSetIterator =
+//	std::enable_if_t<
+//		std::is_same<
+//			typename std::iterator_traits<T>::value_type, ChecksumSet>::value>;
+//
+//
+//template <typename Iterator, typename = IsChecksumSetIterator<Iterator>>
+//Checksums make_checksums(const Iterator begin, const Iterator end)
+//{
+//}
 
 
 /**

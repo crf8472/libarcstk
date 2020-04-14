@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <type_traits>
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -19,9 +20,28 @@
 
 TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 {
-	SECTION ( "Construct complete triplet" )
+	using arcstk::ARTriplet;
+
+	ARTriplet empty_triplet;
+
+	REQUIRE ( empty_triplet.empty() );
+
+	ARTriplet triplet0{ 0xABCDEF00, 100, 0x0023BFCC, true,  true,  true  };
+	ARTriplet triplet1{ 0xABCDEF01, 101, 0x0023BFCC, true,  false, true  };
+	ARTriplet triplet2{ 0xABCDEF02, 102, 0x0023BFCC, false, true,  true  };
+	ARTriplet triplet3{ 0xABCDEF03, 103, 0x0023BFCC, true,  true,  false };
+	ARTriplet triplet4{ 0xABCDEF04, 104, 0x0023BFCC, true,  false, false };
+	ARTriplet triplet5{ 0xABCDEF05, 105, 0x0023BFCC, false, true,  false };
+	ARTriplet triplet6{ 0xABCDEF06, 106, 0x0023BFCC, false, false, true  };
+	ARTriplet triplet7{ 0xABCDEF07, 107, 0x0023BFCC, false, false, false };
+
+
+	// TODO REQUIRE ...
+
+
+	SECTION ( "Construct complete ARTriplet" )
 	{
-		arcstk::ARTriplet triplet(0xABCDEF00, 100, 0x0023BFCC);
+		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
 
 		CHECK ( triplet.arcs()          == 0xABCDEF00 );
 		CHECK ( triplet.confidence()    == 100 );
@@ -30,116 +50,1107 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( triplet.arcs_valid() );
 		CHECK ( triplet.confidence_valid() );
 		CHECK ( triplet.frame450_arcs_valid() );
+
+		CHECK ( not triplet.empty() );
 	}
 
 
-//	SECTION ( "Construct incomplete triplet" )
-//	{
-//		arcstk::ARIncompleteTriplet triplet(0xABCDEF00, 100, 0x0023BFCC,
-//				true, false, true);
-//
-//		CHECK ( triplet.arcs()          == 0xABCDEF00 );
-//		CHECK ( triplet.confidence()    == 100 );
-//		CHECK ( triplet.frame450_arcs() == 0x0023BFCC );
-//
-//		CHECK ( triplet.arcs_valid() );
-//		CHECK ( not triplet.confidence_valid() );
-//		CHECK ( triplet.frame450_arcs_valid() );
-//	}
+	SECTION ( "Construct incomplete ARTriplet" )
+	{
+		CHECK ( triplet0.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet0.confidence()    == 100 );
+		CHECK ( triplet0.frame450_arcs() == 0x0023BFCC );
 
+		CHECK ( triplet0.arcs_valid() );
+		CHECK ( triplet0.confidence_valid() );
+		CHECK ( triplet0.frame450_arcs_valid() );
+
+		CHECK ( not triplet0.empty() );
+
+
+		CHECK ( triplet1.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet1.confidence()    == 101 );
+		CHECK ( triplet1.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet1.arcs_valid() );
+		CHECK ( not triplet1.confidence_valid() );
+		CHECK ( triplet1.frame450_arcs_valid() );
+
+		CHECK ( not triplet1.empty() );
+
+
+		CHECK ( triplet2.arcs()          == 0xABCDEF02 );
+		CHECK ( triplet2.confidence()    == 102 );
+		CHECK ( triplet2.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( not triplet2.arcs_valid() );
+		CHECK ( triplet2.confidence_valid() );
+		CHECK ( triplet2.frame450_arcs_valid() );
+
+		CHECK ( not triplet2.empty() );
+
+
+		CHECK ( triplet3.arcs()          == 0xABCDEF03 );
+		CHECK ( triplet3.confidence()    == 103 );
+		CHECK ( triplet3.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet3.arcs_valid() );
+		CHECK ( triplet3.confidence_valid() );
+		CHECK ( not triplet3.frame450_arcs_valid() );
+
+		CHECK ( not triplet3.empty() );
+
+
+		CHECK ( triplet4.arcs()          == 0xABCDEF04 );
+		CHECK ( triplet4.confidence()    == 104 );
+		CHECK ( triplet4.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet4.arcs_valid() );
+		CHECK ( not triplet4.confidence_valid() );
+		CHECK ( not triplet4.frame450_arcs_valid() );
+
+		CHECK ( not triplet4.empty() );
+
+
+		CHECK ( triplet5.arcs()          == 0xABCDEF05 );
+		CHECK ( triplet5.confidence()    == 105 );
+		CHECK ( triplet5.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( not triplet5.arcs_valid() );
+		CHECK ( triplet5.confidence_valid() );
+		CHECK ( not triplet5.frame450_arcs_valid() );
+
+		CHECK ( not triplet5.empty() );
+
+
+		CHECK ( triplet6.arcs()          == 0xABCDEF06 );
+		CHECK ( triplet6.confidence()    == 106 );
+		CHECK ( triplet6.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( not triplet6.arcs_valid() );
+		CHECK ( not triplet6.confidence_valid() );
+		CHECK ( triplet6.frame450_arcs_valid() );
+
+		CHECK ( not triplet6.empty() );
+
+
+		CHECK ( triplet7.arcs()          == 0xABCDEF07 );
+		CHECK ( triplet7.confidence()    == 107 );
+		CHECK ( triplet7.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( not triplet7.arcs_valid() );
+		CHECK ( not triplet7.confidence_valid() );
+		CHECK ( not triplet7.frame450_arcs_valid() );
+
+		CHECK ( not triplet7.empty() );
+	}
+
+
+	SECTION ( "Construct empty ARTriplet" )
+	{
+		ARTriplet triplet;
+
+		CHECK ( triplet.empty() );
+	}
+
+
+	SECTION ( "Copy construct complete ARTriplet" )
+	{
+		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
+		ARTriplet triplet_copy(triplet);
+
+		CHECK ( triplet_copy.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet_copy.confidence()    == 100 );
+		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet_copy.arcs_valid() );
+		CHECK ( triplet_copy.confidence_valid() );
+		CHECK ( triplet_copy.frame450_arcs_valid() );
+
+		CHECK ( not triplet_copy.empty() );
+
+		CHECK ( triplet == triplet_copy );
+	}
+
+
+	SECTION ( "Copy construct incomplete ARTriplet" )
+	{
+		ARTriplet triplet_copy(triplet1);
+
+		CHECK ( triplet_copy.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet_copy.confidence()    == 101 );
+		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet_copy.arcs_valid() );
+		CHECK ( not triplet_copy.confidence_valid() );
+		CHECK ( triplet_copy.frame450_arcs_valid() );
+
+		CHECK ( not triplet_copy.empty() );
+
+		CHECK ( triplet1 == triplet_copy );
+	}
+
+
+	SECTION ( "Copy construct empty ARTriplet" )
+	{
+		ARTriplet triplet { empty_triplet };
+
+		CHECK ( triplet.empty() );
+	}
+
+
+	SECTION ( "Move construct complete ARTriplet" )
+	{
+		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
+		ARTriplet triplet_moved( std::move(triplet) );
+
+		CHECK ( triplet_moved.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet_moved.confidence()    == 100 );
+		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( triplet_moved.arcs_valid() );
+		CHECK ( triplet_moved.confidence_valid() );
+		CHECK ( triplet_moved.frame450_arcs_valid() );
+
+		CHECK ( not triplet_moved.empty() );
+	}
+
+
+	SECTION ( "Move construct incomplete ARTriplet" )
+	{
+		ARTriplet triplet { 0xABCDEF01, 101, 0x0023BFCC, false, true, false };
+		ARTriplet triplet_moved( std::move(triplet) );
+
+		CHECK ( triplet_moved.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet_moved.confidence()    == 101 );
+		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCC );
+
+		CHECK ( not triplet_moved.arcs_valid() );
+		CHECK ( triplet_moved.confidence_valid() );
+		CHECK ( not triplet_moved.frame450_arcs_valid() );
+
+		CHECK ( not triplet_moved.empty() );
+	}
+
+
+	SECTION ( "Move construct empty ARTriplet" )
+	{
+		ARTriplet triplet;
+
+		CHECK ( triplet.empty() );
+
+		ARTriplet triplet_moved(std::move(triplet));
+
+		CHECK ( triplet_moved.empty() );
+	}
+
+
+	SECTION ( "Equality of two complete ARTriplets" )
+	{
+		ARTriplet tripletA { 0xABCDEF00, 100, 0x0023BFCC };
+		ARTriplet tripletB { 0xABCDEF00, 100, 0x0023BFCC };
+
+		CHECK ( tripletA == tripletB );
+
+		ARTriplet tripletC(0xABCDEF00, 101, 0x0023BFCC);
+
+		CHECK ( not (tripletA == tripletC) );
+		CHECK ( not (tripletB == tripletC) );
+	}
+
+
+	SECTION ( "Equality of two incomplete ARTriplets" )
+	{
+		ARTriplet tripletA { 0xABCDEF00, 100, 0x0023BFCC, true,  true, true };
+		ARTriplet tripletB { 0xABCDEF00, 100, 0x0023BFCC, true,  true, true };
+
+		CHECK ( tripletA == tripletB );
+
+		ARTriplet tripletC { 0xABCDEF00, 101, 0x0023BFCC, true,  false, true };
+
+		CHECK ( not (tripletA == tripletC) );
+		CHECK ( not (tripletB == tripletC) );
+	}
+
+
+	SECTION ( "Equality of empty and non-empty ARTriplet" )
+	{
+		ARTriplet tripletA;
+
+		REQUIRE (tripletA == empty_triplet);
+
+
+		ARTriplet tripletB { 0, 0, 0, false, false, false };
+
+		CHECK ( not (tripletB == empty_triplet) );
+
+		ARTriplet tripletC { 0, 0, 0, true, true, true };
+
+		CHECK ( not (tripletC == empty_triplet) );
+	}
+
+
+	SECTION ( "Swap two complete ARTriplets" )
+	{
+		ARTriplet tripletA { 0xABCDEF01, 101, 0x0023BFCC };
+		ARTriplet tripletB { 0xABCDEF02, 102, 0x0023BFDD };
+
+		swap(tripletA, tripletB);
+
+		CHECK ( tripletA.arcs()          == 0xABCDEF02 );
+		CHECK ( tripletA.confidence()    == 102 );
+		CHECK ( tripletA.frame450_arcs() == 0x0023BFDD );
+		CHECK ( tripletA.arcs_valid() );
+		CHECK ( tripletA.confidence_valid() );
+		CHECK ( tripletA.frame450_arcs_valid() );
+
+		CHECK ( tripletB.arcs()          == 0xABCDEF01 );
+		CHECK ( tripletB.confidence()    == 101 );
+		CHECK ( tripletB.frame450_arcs() == 0x0023BFCC );
+		CHECK ( tripletB.arcs_valid() );
+		CHECK ( tripletB.confidence_valid() );
+		CHECK ( tripletB.frame450_arcs_valid() );
+	}
+
+
+	SECTION ( "Swap two incomplete ARTriplets" )
+	{
+		ARTriplet tripletA { 0xABCDEF01, 101, 0x0023BFCC, false, false, false };
+		ARTriplet tripletB { 0xABCDEF02, 102, 0x0023BFDD, true,  true,  true  };
+
+		swap(tripletA, tripletB);
+
+		CHECK ( tripletA.arcs()          == 0xABCDEF02 );
+		CHECK ( tripletA.confidence()    == 102 );
+		CHECK ( tripletA.frame450_arcs() == 0x0023BFDD );
+		CHECK ( tripletA.arcs_valid() );
+		CHECK ( tripletA.confidence_valid() );
+		CHECK ( tripletA.frame450_arcs_valid() );
+
+		CHECK ( tripletB.arcs()          == 0xABCDEF01 );
+		CHECK ( tripletB.confidence()    == 101 );
+		CHECK ( tripletB.frame450_arcs() == 0x0023BFCC );
+		CHECK ( not tripletB.arcs_valid() );
+		CHECK ( not tripletB.confidence_valid() );
+		CHECK ( not tripletB.frame450_arcs_valid() );
+	}
+
+
+	SECTION ( "Swap two empty ARTriplets" )
+	{
+		ARTriplet tripletA;
+		ARTriplet tripletB;
+
+		REQUIRE ( tripletA == empty_triplet );
+		REQUIRE ( tripletB == empty_triplet );
+		REQUIRE ( tripletA == tripletB );
+
+		swap(tripletA, tripletB);
+
+		CHECK ( tripletA == empty_triplet );
+		CHECK ( tripletB == empty_triplet );
+		CHECK ( tripletA == tripletB );
+	}
 }
 
 
 TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 {
-	arcstk::ARBlock block( { 15, 0x001b9178, 0x014be24e, 0xb40d2d0f } );
+	using arcstk::ARTriplet;
+	using arcstk::ARBlock;
 
-	CHECK ( block.id().track_count() == 15 );
-	CHECK ( block.id().disc_id_1()   == 0x001b9178 );
-	CHECK ( block.id().disc_id_2()   == 0x014be24e );
-	CHECK ( block.id().cddb_id()     == 0xb40d2d0f );
+	ARBlock block( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0x98B10E0F, 24, 0 },
+			{ 0x475F57E9, 24, 0 },
+			{ 0x7304F1C4, 24, 0 },
+			{ 0xF2472287, 24, 0 },
+			{ 0x881BC504, 24, 0 },
+			{ 0xBB94BFD4, 24, 0 },
+			{ 0xF9CAEE76, 24, 0 },
+			{ 0xF9F60BC1, 24, 0 },
+			{ 0x2C736302, 24, 0 },
+			{ 0x1C955978, 24, 0 },
+			{ 0xFDA6D833, 24, 0 },
+			{ 0x3A57E5D1, 24, 0 },
+			{ 0x6ED5F3E7, 24, 0 },
+			{ 0x4A5C3872, 24, 0 },
+			{ 0x5FE8B032, 24, 0 }
+		}
+	);
+
+	REQUIRE ( block.id().track_count() == 15 );
+	REQUIRE ( block.id().disc_id_1()   == 0x001b9178 );
+	REQUIRE ( block.id().disc_id_2()   == 0x014be24e );
+	REQUIRE ( block.id().cddb_id()     == 0xb40d2d0f );
+
+	REQUIRE ( block.size()     == 15 );
+
+	REQUIRE ( block[ 0].arcs() == 0x98B10E0F );
+	REQUIRE ( block[ 1].arcs() == 0x475F57E9 );
+	REQUIRE ( block[ 2].arcs() == 0x7304F1C4 );
+	REQUIRE ( block[ 3].arcs() == 0xF2472287 );
+	REQUIRE ( block[ 4].arcs() == 0x881BC504 );
+	REQUIRE ( block[ 5].arcs() == 0xBB94BFD4 );
+	REQUIRE ( block[ 6].arcs() == 0xF9CAEE76 );
+	REQUIRE ( block[ 7].arcs() == 0xF9F60BC1 );
+	REQUIRE ( block[ 8].arcs() == 0x2C736302 );
+	REQUIRE ( block[ 9].arcs() == 0x1C955978 );
+	REQUIRE ( block[10].arcs() == 0xFDA6D833 );
+	REQUIRE ( block[11].arcs() == 0x3A57E5D1 );
+	REQUIRE ( block[12].arcs() == 0x6ED5F3E7 );
+	REQUIRE ( block[13].arcs() == 0x4A5C3872 );
+	REQUIRE ( block[14].arcs() == 0x5FE8B032 );
 
 
-	SECTION ( "Append triplets" )
+	SECTION ( "Copy construct ARBlock" )
 	{
-		block.append(arcstk::ARTriplet(0xABCDEF00, 100, 0x0023BFCC));
+		ARBlock block_copy { block };
 
-		CHECK ( block.size() == 1 );
+		CHECK ( block_copy.id().track_count() == 15 );
+		CHECK ( block_copy.id().disc_id_1()   == 0x001b9178 );
+		CHECK ( block_copy.id().disc_id_2()   == 0x014be24e );
+		CHECK ( block_copy.id().cddb_id()     == 0xb40d2d0f );
 
-		CHECK ( block.begin()->arcs()          == 0xABCDEF00 );
-		CHECK ( block.begin()->confidence()    == 100 );
-		CHECK ( block.begin()->frame450_arcs() == 0x0023BFCC );
+		CHECK ( block_copy.size()     == 15 );
 
-		CHECK ( block.begin()->arcs_valid() );
-		CHECK ( block.begin()->confidence_valid() );
-		CHECK ( block.begin()->frame450_arcs_valid() );
+		CHECK ( block_copy[ 0].arcs() == 0x98B10E0F );
+		CHECK ( block_copy[ 1].arcs() == 0x475F57E9 );
+		CHECK ( block_copy[ 2].arcs() == 0x7304F1C4 );
+		CHECK ( block_copy[ 3].arcs() == 0xF2472287 );
+		CHECK ( block_copy[ 4].arcs() == 0x881BC504 );
+		CHECK ( block_copy[ 5].arcs() == 0xBB94BFD4 );
+		CHECK ( block_copy[ 6].arcs() == 0xF9CAEE76 );
+		CHECK ( block_copy[ 7].arcs() == 0xF9F60BC1 );
+		CHECK ( block_copy[ 8].arcs() == 0x2C736302 );
+		CHECK ( block_copy[ 9].arcs() == 0x1C955978 );
+		CHECK ( block_copy[10].arcs() == 0xFDA6D833 );
+		CHECK ( block_copy[11].arcs() == 0x3A57E5D1 );
+		CHECK ( block_copy[12].arcs() == 0x6ED5F3E7 );
+		CHECK ( block_copy[13].arcs() == 0x4A5C3872 );
+		CHECK ( block_copy[14].arcs() == 0x5FE8B032 );
+	}
+
+
+	SECTION ( "Move construct ARBlock" )
+	{
+		ARBlock block_moved { std::move(block) };
+
+		CHECK ( block_moved.id().track_count() == 15 );
+		CHECK ( block_moved.id().disc_id_1()   == 0x001b9178 );
+		CHECK ( block_moved.id().disc_id_2()   == 0x014be24e );
+		CHECK ( block_moved.id().cddb_id()     == 0xb40d2d0f );
+
+		CHECK ( block_moved.size()     == 15 );
+
+		CHECK ( block_moved[ 0].arcs() == 0x98B10E0F );
+		CHECK ( block_moved[ 1].arcs() == 0x475F57E9 );
+		CHECK ( block_moved[ 2].arcs() == 0x7304F1C4 );
+		CHECK ( block_moved[ 3].arcs() == 0xF2472287 );
+		CHECK ( block_moved[ 4].arcs() == 0x881BC504 );
+		CHECK ( block_moved[ 5].arcs() == 0xBB94BFD4 );
+		CHECK ( block_moved[ 6].arcs() == 0xF9CAEE76 );
+		CHECK ( block_moved[ 7].arcs() == 0xF9F60BC1 );
+		CHECK ( block_moved[ 8].arcs() == 0x2C736302 );
+		CHECK ( block_moved[ 9].arcs() == 0x1C955978 );
+		CHECK ( block_moved[10].arcs() == 0xFDA6D833 );
+		CHECK ( block_moved[11].arcs() == 0x3A57E5D1 );
+		CHECK ( block_moved[12].arcs() == 0x6ED5F3E7 );
+		CHECK ( block_moved[13].arcs() == 0x4A5C3872 );
+		CHECK ( block_moved[14].arcs() == 0x5FE8B032 );
+	}
+
+
+	SECTION ( "Equality of two ARBlocks" )
+	{
+		// equal to block
+		ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0x98B10E0F, 24, 0 },
+				{ 0x475F57E9, 24, 0 },
+				{ 0x7304F1C4, 24, 0 },
+				{ 0xF2472287, 24, 0 },
+				{ 0x881BC504, 24, 0 },
+				{ 0xBB94BFD4, 24, 0 },
+				{ 0xF9CAEE76, 24, 0 },
+				{ 0xF9F60BC1, 24, 0 },
+				{ 0x2C736302, 24, 0 },
+				{ 0x1C955978, 24, 0 },
+				{ 0xFDA6D833, 24, 0 },
+				{ 0x3A57E5D1, 24, 0 },
+				{ 0x6ED5F3E7, 24, 0 },
+				{ 0x4A5C3872, 24, 0 },
+				{ 0x5FE8B032, 24, 0 }
+			}
+		);
+
+		// not equal to block
+		ARBlock block3( /* id */ { 14, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0xA8B10E0F, 23, 0 },
+				{ 0x575F57E9, 23, 0 },
+				{ 0x8304F1C4, 23, 0 },
+				{ 0x02472287, 23, 0 },
+				{ 0x981BC504, 23, 0 },
+				{ 0xCB94BFD4, 23, 0 },
+				{ 0x09CAEE76, 23, 0 },
+				{ 0x09F60BC1, 23, 0 },
+				{ 0x3C736302, 23, 0 },
+				{ 0x2C955978, 23, 0 },
+				{ 0x0DA6D833, 23, 0 },
+				{ 0x4A57E5D1, 23, 0 },
+				{ 0x7ED5F3E7, 23, 0 },
+				{ 0x5A5C3872, 23, 0 }
+			}
+		);
+
+		CHECK ( block  == block2 );
+		CHECK ( not (block  == block3) );
+		CHECK ( not (block2 == block3) );
+	}
+
+
+	SECTION ( "Swap two ARBlocks" )
+	{
+		// equal to block
+		ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0x98B10E0F, 24, 0 },
+				{ 0x475F57E9, 24, 0 },
+				{ 0x7304F1C4, 24, 0 },
+				{ 0xF2472287, 24, 0 },
+				{ 0x881BC504, 24, 0 },
+				{ 0xBB94BFD4, 24, 0 },
+				{ 0xF9CAEE76, 24, 0 },
+				{ 0xF9F60BC1, 24, 0 },
+				{ 0x2C736302, 24, 0 },
+				{ 0x1C955978, 24, 0 },
+				{ 0xFDA6D833, 24, 0 },
+				{ 0x3A57E5D1, 24, 0 },
+				{ 0x6ED5F3E7, 24, 0 },
+				{ 0x4A5C3872, 24, 0 },
+				{ 0x5FE8B032, 24, 0 }
+			}
+		);
+
+		// not equal to block
+		ARBlock block3( /* id */ { 14, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0xA8B10E0F, 23, 0 },
+				{ 0x575F57E9, 23, 0 },
+				{ 0x8304F1C4, 23, 0 },
+				{ 0x02472287, 23, 0 },
+				{ 0x981BC504, 23, 0 },
+				{ 0xCB94BFD4, 23, 0 },
+				{ 0x09CAEE76, 23, 0 },
+				{ 0x09F60BC1, 23, 0 },
+				{ 0x3C736302, 23, 0 },
+				{ 0x2C955978, 23, 0 },
+				{ 0x0DA6D833, 23, 0 },
+				{ 0x4A57E5D1, 23, 0 },
+				{ 0x7ED5F3E7, 23, 0 },
+				{ 0x5A5C3872, 23, 0 }
+			}
+		);
+
+		REQUIRE ( block  == block2 );
+		REQUIRE ( not (block  == block3) );
+		REQUIRE ( not (block2 == block3) );
+
+		swap(block2, block3);
+
+		CHECK ( block  == block3 );
+		CHECK ( not (block  == block2) );
+		CHECK ( not (block2 == block3) );
+	}
+
+
+	SECTION ( "Iteration" )
+	{
+		// const begin+end
+
+		int i = 0;
+
+		for (auto &triplet : block)
+		{
+			if ( i == 0)
+			{
+				CHECK ( triplet.arcs() == 0x98B10E0F );
+			} else
+			if ( i == 1)
+			{
+				CHECK ( triplet.arcs() == 0x475F57E9 );
+			} else
+			if ( i == 2)
+			{
+				CHECK ( triplet.arcs() == 0x7304F1C4 );
+			} else
+			if ( i == 3)
+			{
+				CHECK ( triplet.arcs() == 0xF2472287 );
+			} else
+			if ( i == 4)
+			{
+				CHECK ( triplet.arcs() == 0x881BC504 );
+			} else
+			if ( i == 5)
+			{
+				CHECK ( triplet.arcs() == 0xBB94BFD4 );
+			} else
+			if ( i == 6)
+			{
+				CHECK ( triplet.arcs() == 0xF9CAEE76 );
+			} else
+			if ( i == 7)
+			{
+				CHECK ( triplet.arcs() == 0xF9F60BC1 );
+			} else
+			if ( i == 8)
+			{
+				CHECK ( triplet.arcs() == 0x2C736302 );
+			} else
+			if ( i == 9)
+			{
+				CHECK ( triplet.arcs() == 0x1C955978 );
+			} else
+			if ( i == 10)
+			{
+				CHECK ( triplet.arcs() == 0xFDA6D833 );
+			} else
+			if ( i == 11)
+			{
+				CHECK ( triplet.arcs() == 0x3A57E5D1 );
+			} else
+			if ( i == 12)
+			{
+				CHECK ( triplet.arcs() == 0x6ED5F3E7 );
+			} else
+			if ( i == 13)
+			{
+				CHECK ( triplet.arcs() == 0x4A5C3872 );
+			} else
+			if ( i == 14)
+			{
+				CHECK ( triplet.arcs() == 0x5FE8B032 );
+			}
+
+			++i;
+		}
+		CHECK ( i == 15 );
+
+
+		// cbegin + cend
+
+		int j = 0;
+		ARTriplet triplet;
+
+		for (auto it = block.cbegin(); it != block.cend(); ++it)
+		{
+			triplet = *it;
+
+			if ( j == 0)
+			{
+				CHECK ( triplet.arcs() == 0x98B10E0F );
+			} else
+			if ( j == 1)
+			{
+				CHECK ( triplet.arcs() == 0x475F57E9 );
+			} else
+			if ( j == 2)
+			{
+				CHECK ( triplet.arcs() == 0x7304F1C4 );
+			} else
+			if ( j == 3)
+			{
+				CHECK ( triplet.arcs() == 0xF2472287 );
+			} else
+			if ( j == 4)
+			{
+				CHECK ( triplet.arcs() == 0x881BC504 );
+			} else
+			if ( j == 5)
+			{
+				CHECK ( triplet.arcs() == 0xBB94BFD4 );
+			} else
+			if ( j == 6)
+			{
+				CHECK ( triplet.arcs() == 0xF9CAEE76 );
+			} else
+			if ( j == 7)
+			{
+				CHECK ( triplet.arcs() == 0xF9F60BC1 );
+			} else
+			if ( j == 8)
+			{
+				CHECK ( triplet.arcs() == 0x2C736302 );
+			} else
+			if ( j == 9)
+			{
+				CHECK ( triplet.arcs() == 0x1C955978 );
+			} else
+			if ( j == 10)
+			{
+				CHECK ( triplet.arcs() == 0xFDA6D833 );
+			} else
+			if ( j == 11)
+			{
+				CHECK ( triplet.arcs() == 0x3A57E5D1 );
+			} else
+			if ( j == 12)
+			{
+				CHECK ( triplet.arcs() == 0x6ED5F3E7 );
+			} else
+			if ( j == 13)
+			{
+				CHECK ( triplet.arcs() == 0x4A5C3872 );
+			} else
+			if ( j == 14)
+			{
+				CHECK ( triplet.arcs() == 0x5FE8B032 );
+			}
+
+			++j;
+		}
+	}
+
+}
+
+
+TEST_CASE ( "ARResponse", "[parse] [arresponse]" )
+{
+	using arcstk::ARTriplet;
+	using arcstk::ARBlock;
+	using arcstk::ARResponse;
+
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0x98B10E0F, 24, 0 },
+			{ 0x475F57E9, 24, 0 },
+			{ 0x7304F1C4, 24, 0 },
+			{ 0xF2472287, 24, 0 },
+			{ 0x881BC504, 24, 0 },
+			{ 0xBB94BFD4, 24, 0 },
+			{ 0xF9CAEE76, 24, 0 },
+			{ 0xF9F60BC1, 24, 0 },
+			{ 0x2C736302, 24, 0 },
+			{ 0x1C955978, 24, 0 },
+			{ 0xFDA6D833, 24, 0 },
+			{ 0x3A57E5D1, 24, 0 },
+			{ 0x6ED5F3E7, 24, 0 },
+			{ 0x4A5C3872, 24, 0 },
+			{ 0x5FE8B032, 24, 0 }
+		}
+	);
+
+	REQUIRE ( block1.id().track_count() == 15 );
+	REQUIRE ( block1.id().disc_id_1()   == 0x001b9178 );
+	REQUIRE ( block1.id().disc_id_2()   == 0x014be24e );
+	REQUIRE ( block1.id().cddb_id()     == 0xb40d2d0f );
+
+	REQUIRE ( block1.size()     == 15 );
+
+	REQUIRE ( block1[ 0].arcs() == 0x98B10E0F );
+	REQUIRE ( block1[ 1].arcs() == 0x475F57E9 );
+	REQUIRE ( block1[ 2].arcs() == 0x7304F1C4 );
+	REQUIRE ( block1[ 3].arcs() == 0xF2472287 );
+	REQUIRE ( block1[ 4].arcs() == 0x881BC504 );
+	REQUIRE ( block1[ 5].arcs() == 0xBB94BFD4 );
+	REQUIRE ( block1[ 6].arcs() == 0xF9CAEE76 );
+	REQUIRE ( block1[ 7].arcs() == 0xF9F60BC1 );
+	REQUIRE ( block1[ 8].arcs() == 0x2C736302 );
+	REQUIRE ( block1[ 9].arcs() == 0x1C955978 );
+	REQUIRE ( block1[10].arcs() == 0xFDA6D833 );
+	REQUIRE ( block1[11].arcs() == 0x3A57E5D1 );
+	REQUIRE ( block1[12].arcs() == 0x6ED5F3E7 );
+	REQUIRE ( block1[13].arcs() == 0x4A5C3872 );
+	REQUIRE ( block1[14].arcs() == 0x5FE8B032 );
+
+	ARBlock block2( /* id */ { 13, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0x08B10E0F, 23, 0 },
+			{ 0x575F57E9, 23, 0 },
+			{ 0x8304F1C4, 23, 0 },
+			{ 0x02472287, 23, 0 },
+			{ 0x981BC504, 23, 0 },
+			{ 0xCB94BFD4, 23, 0 },
+			{ 0x09CAEE76, 23, 0 },
+			{ 0x09F60BC1, 23, 0 },
+			{ 0x3C736302, 23, 0 },
+			{ 0x2C955978, 23, 0 },
+			{ 0x0DA6D833, 23, 0 },
+			{ 0x4A57E5D1, 23, 0 },
+			{ 0x7ED5F3E7, 23, 0 },
+		}
+	);
+
+	ARResponse response1 { block1, block2 };
+
+	REQUIRE( response1.size() == 2 );
+
+
+	SECTION ( "Copy construct ARResponse" )
+	{
+		ARResponse response_copy { response1 };
+
+		CHECK ( response_copy.size() == 2 );
+
+		CHECK ( response_copy[0] == block1 );
+		CHECK ( response_copy[1] == block2 );
+	}
+
+
+	SECTION ( "Move construct ARResponse" )
+	{
+		ARResponse response_moved { std::move(response1) };
+
+		CHECK ( response_moved.size() == 2 );
+
+		CHECK ( response_moved[0] == block1 );
+		CHECK ( response_moved[1] == block2 );
+	}
+
+
+	SECTION ( "Equality of two ARResponses" )
+	{
+		// equal to block
+		ARBlock block3( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0x98B10E0F, 24, 0 },
+				{ 0x475F57E9, 24, 0 },
+				{ 0x7304F1C4, 24, 0 },
+				{ 0xF2472287, 24, 0 },
+				{ 0x881BC504, 24, 0 },
+				{ 0xBB94BFD4, 24, 0 },
+				{ 0xF9CAEE76, 24, 0 },
+				{ 0xF9F60BC1, 24, 0 },
+				{ 0x2C736302, 24, 0 },
+				{ 0x1C955978, 24, 0 },
+				{ 0xFDA6D833, 24, 0 },
+				{ 0x3A57E5D1, 24, 0 },
+				{ 0x6ED5F3E7, 24, 0 },
+				{ 0x4A5C3872, 24, 0 },
+				{ 0x5FE8B032, 24, 0 }
+			}
+		);
+
+		// not equal to block
+		ARBlock block4( /* id */ { 14, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0xA8B10E0F, 23, 0 },
+				{ 0x575F57E9, 23, 0 },
+				{ 0x8304F1C4, 23, 0 },
+				{ 0x02472287, 23, 0 },
+				{ 0x981BC504, 23, 0 },
+				{ 0xCB94BFD4, 23, 0 },
+				{ 0x09CAEE76, 23, 0 },
+				{ 0x09F60BC1, 23, 0 },
+				{ 0x3C736302, 23, 0 },
+				{ 0x2C955978, 23, 0 },
+				{ 0x0DA6D833, 23, 0 },
+				{ 0x4A57E5D1, 23, 0 },
+				{ 0x7ED5F3E7, 23, 0 },
+				{ 0x5A5C3872, 23, 0 }
+			}
+		);
+
+		ARResponse response2 { block1, block2 };
+		ARResponse response3 { block3, block4 };
+
+		CHECK ( response1 == response2 );
+		CHECK ( not (response1 == response3 ) );
+		CHECK ( not (response2 == response3 ) );
+	}
+
+
+	SECTION ( "Swap two ARResponses" )
+	{
+		// equal to block
+		ARBlock block3( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0x98B10E0F, 24, 0 },
+				{ 0x475F57E9, 24, 0 },
+				{ 0x7304F1C4, 24, 0 },
+				{ 0xF2472287, 24, 0 },
+				{ 0x881BC504, 24, 0 },
+				{ 0xBB94BFD4, 24, 0 },
+				{ 0xF9CAEE76, 24, 0 },
+				{ 0xF9F60BC1, 24, 0 },
+				{ 0x2C736302, 24, 0 },
+				{ 0x1C955978, 24, 0 },
+				{ 0xFDA6D833, 24, 0 },
+				{ 0x3A57E5D1, 24, 0 },
+				{ 0x6ED5F3E7, 24, 0 },
+				{ 0x4A5C3872, 24, 0 },
+				{ 0x5FE8B032, 24, 0 }
+			}
+		);
+
+		// not equal to block
+		ARBlock block4( /* id */ { 14, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ /* triplets */
+				{ 0xA8B10E0F, 23, 0 },
+				{ 0x575F57E9, 23, 0 },
+				{ 0x8304F1C4, 23, 0 },
+				{ 0x02472287, 23, 0 },
+				{ 0x981BC504, 23, 0 },
+				{ 0xCB94BFD4, 23, 0 },
+				{ 0x09CAEE76, 23, 0 },
+				{ 0x09F60BC1, 23, 0 },
+				{ 0x3C736302, 23, 0 },
+				{ 0x2C955978, 23, 0 },
+				{ 0x0DA6D833, 23, 0 },
+				{ 0x4A57E5D1, 23, 0 },
+				{ 0x7ED5F3E7, 23, 0 },
+				{ 0x5A5C3872, 23, 0 }
+			}
+		);
+
+		ARResponse response2 { block1, block2 };
+		ARResponse response3 { block3, block4 };
+
+		swap(response2, response3);
+
+		CHECK ( response1 == response3 );
+		CHECK ( not (response1 == response2 ) );
+		CHECK ( not (response2 == response3 ) );
+	}
+
+
+	SECTION ( "Iteration" )
+	{
+		// const begin+end
+
+		int i = 0;
+
+		for (auto &block : response1)
+		{
+			if ( i == 0)
+			{
+				CHECK ( block == block1 );
+			} else
+			if ( i == 1)
+			{
+				CHECK ( block == block2 );
+			}
+
+			++i;
+		}
+		CHECK ( i == 2 );
+
+
+		// cbegin + cend
+
+		int j = 0;
+
+		for (auto it = response1.cbegin(); it != response1.cend(); ++it)
+		{
+			if ( j == 0)
+			{
+				CHECK ( *it == block1 );
+			} else
+			if ( j == 1)
+			{
+				CHECK ( *it == block2 );
+			}
+
+			++j;
+		}
 	}
 }
 
 
 TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 {
-	arcstk::DefaultContentHandler c_handler;
+	using arcstk::ARId;
+	using arcstk::DefaultContentHandler;
+	using arcstk::ARResponse;
 
-	arcstk::ARResponse result;
+	DefaultContentHandler c_handler;
+	ARResponse result;
+
 	c_handler.set_object(result);
 
-	// The functionality of DefaultContentHandler is implicitly tested
-	// by the testcases for ARParser and ARFileParser.
+	SECTION ( "Not copyable" )
+	{
+		CHECK ( not std::is_copy_constructible<DefaultContentHandler>::value );
+		CHECK ( not std::is_copy_assignable<DefaultContentHandler>::value    );
+	}
 
-	c_handler.start_input();
-	c_handler.start_block();
+	SECTION ( "Move constructor" )
+	{
+		DefaultContentHandler c_handler_moved(std::move(c_handler));
 
-	c_handler.id(5, 123, 456, 789);
-	c_handler.triplet(12345, 20, 45551);
-	c_handler.triplet(23456, 20, 56677);
-	c_handler.triplet(34567, 21, 65599);
-	c_handler.triplet(45678, 21, 43322);
-	c_handler.triplet(56789, 21, 45533);
+		CHECK ( &c_handler_moved.object() == &result );
+		CHECK ( c_handler_moved.object()  == result );
+	}
 
-	c_handler.end_block();
-	c_handler.end_input();
+	SECTION ( "Move assignment" )
+	{
+		DefaultContentHandler c_handler_moved = std::move(c_handler);
 
-	CHECK ( result.size()    == 1 );
-	CHECK ( result[0].size() == 5 );
-	CHECK ( result[0].id()   == arcstk::ARId(5, 123, 456, 789) );
-	CHECK ( result[0][0].arcs()          == 12345 );
-	CHECK ( result[0][0].confidence()    ==    20 );
-	CHECK ( result[0][0].frame450_arcs() == 45551 );
-	CHECK ( result[0][1].arcs()          == 23456 );
-	CHECK ( result[0][1].confidence()    ==    20 );
-	CHECK ( result[0][1].frame450_arcs() == 56677 );
-	CHECK ( result[0][2].arcs()          == 34567 );
-	CHECK ( result[0][2].confidence()    ==    21 );
-	CHECK ( result[0][2].frame450_arcs() == 65599 );
-	CHECK ( result[0][3].arcs()          == 45678 );
-	CHECK ( result[0][3].confidence()    ==    21 );
-	CHECK ( result[0][3].frame450_arcs() == 43322 );
-	CHECK ( result[0][4].arcs()          == 56789 );
-	CHECK ( result[0][4].confidence()    ==    21 );
-	CHECK ( result[0][4].frame450_arcs() == 45533 );
+		CHECK ( &c_handler_moved.object() == &result );
+		CHECK ( c_handler_moved.object()  == result );
+	}
+
+	SECTION ( "DefaultContentHandler returns correct ARResponse" )
+	{
+		// Implicitly testing the appending to ARResponse and ARBlock!
+
+		// The functionality of DefaultContentHandler is implicitly tested
+		// by the testcases for ARParser and ARFileParser.
+
+		// start parsing
+		c_handler.start_input();
+		c_handler.start_block();
+
+		// block 0
+		c_handler.id(5, 123, 456, 789);
+		c_handler.triplet(12345, 20, 45551);
+		c_handler.triplet(23456, 20, 56677);
+		c_handler.triplet(34567, 21, 65599);
+		c_handler.triplet(45678, 21, 43322);
+		c_handler.triplet(56789, 21, 45533);
+
+		c_handler.end_block();
+		c_handler.start_block();
+
+		// block 1
+		c_handler.id(5, 123, 456, 789); // same id as block 0
+		c_handler.triplet(23456, 20, 45551);
+		c_handler.triplet(34567, 20, 56677);
+		c_handler.triplet(45678, 21, 65599);
+		c_handler.triplet(56789, 21, 43322);
+		c_handler.triplet(67890, 21, 45533);
+
+		c_handler.end_block();
+		c_handler.end_input();
+		// end parsing
+
+
+		CHECK ( result.size()    == 2 );
+
+		// block 0
+		CHECK ( result[0].size() == 5 );
+		CHECK ( result[0].id()   == ARId { 5, 123, 456, 789 } );
+
+		CHECK ( result[0][0].arcs()          == 12345 );
+		CHECK ( result[0][0].confidence()    ==    20 );
+		CHECK ( result[0][0].frame450_arcs() == 45551 );
+		CHECK ( result[0][1].arcs()          == 23456 );
+		CHECK ( result[0][1].confidence()    ==    20 );
+		CHECK ( result[0][1].frame450_arcs() == 56677 );
+		CHECK ( result[0][2].arcs()          == 34567 );
+		CHECK ( result[0][2].confidence()    ==    21 );
+		CHECK ( result[0][2].frame450_arcs() == 65599 );
+		CHECK ( result[0][3].arcs()          == 45678 );
+		CHECK ( result[0][3].confidence()    ==    21 );
+		CHECK ( result[0][3].frame450_arcs() == 43322 );
+		CHECK ( result[0][4].arcs()          == 56789 );
+		CHECK ( result[0][4].confidence()    ==    21 );
+		CHECK ( result[0][4].frame450_arcs() == 45533 );
+
+		// block 1
+		CHECK ( result[1].size() == 5 );
+		CHECK ( result[1].id()   == ARId { 5, 123, 456, 789 } );
+
+		CHECK ( result[1][0].arcs()          == 23456 );
+		CHECK ( result[1][0].confidence()    ==    20 );
+		CHECK ( result[1][0].frame450_arcs() == 45551 );
+		CHECK ( result[1][1].arcs()          == 34567 );
+		CHECK ( result[1][1].confidence()    ==    20 );
+		CHECK ( result[1][1].frame450_arcs() == 56677 );
+		CHECK ( result[1][2].arcs()          == 45678 );
+		CHECK ( result[1][2].confidence()    ==    21 );
+		CHECK ( result[1][2].frame450_arcs() == 65599 );
+		CHECK ( result[1][3].arcs()          == 56789 );
+		CHECK ( result[1][3].confidence()    ==    21 );
+		CHECK ( result[1][3].frame450_arcs() == 43322 );
+		CHECK ( result[1][4].arcs()          == 67890 );
+		CHECK ( result[1][4].confidence()    ==    21 );
+		CHECK ( result[1][4].frame450_arcs() == 45533 );
+	}
 }
 
 
-TEST_CASE ( "DefaultErrorHandler can be instantiated", "[defaulterrorhandler]" )
+TEST_CASE ( "DefaultErrorHandler", "[defaulterrorhandler]" )
 {
-	arcstk::DefaultErrorHandler e_handler;
+	using DefaultErrorHandler = arcstk::DefaultErrorHandler;
+
+	DefaultErrorHandler e_handler;
+
+	SECTION ( "Not copyable" )
+	{
+		CHECK ( not std::is_copy_constructible<DefaultErrorHandler>::value );
+		CHECK ( not std::is_copy_assignable<DefaultErrorHandler>::value    );
+	}
+
+	SECTION ( "Move constructor (NO CHECKS)" )
+	{
+		DefaultErrorHandler e_handler_moved(std::move(e_handler));
+	}
+
+	SECTION ( "Move assignment (NO CHECKS)" )
+	{
+		DefaultErrorHandler e_handler_moved = std::move(e_handler);
+	}
 }
 
 
-TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
+TEST_CASE ( "ARFileParser", "[parse] [arfileparser]" )
 {
-	arcstk::ARFileParser parser;
-	arcstk::ARResponse result;
+	using ARFileParser = arcstk::ARFileParser;
+	using ARResponse   = arcstk::ARResponse;
+	using DefaultErrorHandler   = arcstk::DefaultErrorHandler;
+	using DefaultContentHandler = arcstk::DefaultContentHandler;
 
-	auto c_handler = std::make_unique<arcstk::DefaultContentHandler>();
+	ARFileParser parser;
+	ARResponse result;
+
+	auto c_handler = std::make_unique<DefaultContentHandler>();
 	c_handler->set_object(result);
 
 	// content handler but no error handler
 	parser.set_content_handler(std::move(c_handler));
 
+	SECTION ( "Not copyable" )
+	{
+		CHECK ( not std::is_copy_constructible<ARFileParser>::value );
+		CHECK ( not std::is_copy_assignable<ARFileParser>::value    );
+	}
 
-	SECTION ( "Parse valid file" )
+	SECTION ( "Move constructor" )
+	{
+		auto e_handler = std::make_unique<DefaultErrorHandler>();
+		parser.set_error_handler(std::move(e_handler));
+		parser.set_file("foo");
+
+		auto c_handler_adr = &parser.content_handler();
+		auto e_handler_adr = &parser.error_handler();
+
+		ARFileParser fileparser_moved(std::move(parser));
+
+		CHECK ( &fileparser_moved.content_handler() == c_handler_adr );
+		CHECK ( &fileparser_moved.error_handler()   == e_handler_adr );
+		CHECK ( fileparser_moved.file()             == "foo" );
+	}
+
+	SECTION ( "Move assignment" )
+	{
+		auto e_handler = std::make_unique<DefaultErrorHandler>();
+		parser.set_error_handler(std::move(e_handler));
+		parser.set_file("foo");
+
+		auto c_handler_adr = &parser.content_handler();
+		auto e_handler_adr = &parser.error_handler();
+
+		ARFileParser fileparser_moved = std::move(parser);
+
+		CHECK ( &fileparser_moved.content_handler() == c_handler_adr );
+		CHECK ( &fileparser_moved.error_handler()   == e_handler_adr );
+		CHECK ( fileparser_moved.file()             == "foo" );
+	}
+
+	SECTION ( "Parse valid file correctly" )
 	{
 		parser.set_file("dBAR-015-001b9178-014be24e-b40d2d0f.bin");
 		parser.parse();
@@ -712,6 +1723,58 @@ TEST_CASE ( "ARFileParser parses correctly", "[parse] [arfileparser]" )
 			CHECK ( e.block_byte_position() == 147 );
 			CHECK ( e.byte_position()       == 295 );
 		}
+	}
+}
+
+
+TEST_CASE ( "ARStdinParser", "[parse] [arstdinparser]" )
+{
+	using ARStdinParser = arcstk::ARStdinParser;
+	using ARResponse   = arcstk::ARResponse;
+	using DefaultErrorHandler   = arcstk::DefaultErrorHandler;
+	using DefaultContentHandler = arcstk::DefaultContentHandler;
+
+	ARStdinParser parser;
+	ARResponse result;
+
+	auto c_handler = std::make_unique<DefaultContentHandler>();
+	c_handler->set_object(result);
+
+	// content handler but no error handler
+	parser.set_content_handler(std::move(c_handler));
+
+	SECTION ( "Not copyable" )
+	{
+		CHECK ( not std::is_copy_constructible<ARStdinParser>::value );
+		CHECK ( not std::is_copy_assignable<ARStdinParser>::value    );
+	}
+
+	SECTION ( "Move constructor" )
+	{
+		auto e_handler = std::make_unique<DefaultErrorHandler>();
+		parser.set_error_handler(std::move(e_handler));
+
+		auto c_handler_adr = &parser.content_handler();
+		auto e_handler_adr = &parser.error_handler();
+
+		ARStdinParser stdinparser_moved(std::move(parser));
+
+		CHECK ( &stdinparser_moved.content_handler() == c_handler_adr );
+		CHECK ( &stdinparser_moved.error_handler()   == e_handler_adr );
+	}
+
+	SECTION ( "Move assignment" )
+	{
+		auto e_handler = std::make_unique<DefaultErrorHandler>();
+		parser.set_error_handler(std::move(e_handler));
+
+		auto c_handler_adr = &parser.content_handler();
+		auto e_handler_adr = &parser.error_handler();
+
+		ARStdinParser stdinparser_moved = std::move(parser);
+
+		CHECK ( &stdinparser_moved.content_handler() == c_handler_adr );
+		CHECK ( &stdinparser_moved.error_handler()   == e_handler_adr );
 	}
 }
 

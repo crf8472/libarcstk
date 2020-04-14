@@ -23,158 +23,182 @@
 
 TEST_CASE ( "Matcher", "[match] [matcher]" )
 {
+	using arcstk::AlbumMatcher;
+	using arcstk::ARBlock;
+	using arcstk::ARId;
+	using arcstk::ARResponse;
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::Checksums;
+	using arcstk::ChecksumSet;
+	using arcstk::Match;
+	using arcstk::TracksetMatcher;
+
 	// Construct the checksums by hand
 
 	// From: "Bach: Organ Concertos", Simon Preston, DGG
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
-	arcstk::ChecksumSet track01( 5192);
-	track01.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xB89992E5));
-	track01.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x98B10E0F));
+	ChecksumSet track01( 5192);
+	track01.insert(type::ARCS2, Checksum(0xB89992E5));
+	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
 
-	arcstk::ChecksumSet track02( 2165);
-	track02.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x4F77EB03));
-	track02.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x475F57E9));
+	ChecksumSet track02( 2165);
+	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+	track02.insert(type::ARCS1, Checksum(0x475F57E9));
 
-	arcstk::ChecksumSet track03(15885);
-	track03.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x56582282));
-	track03.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x7304F1C4));
+	ChecksumSet track03(15885);
+	track03.insert(type::ARCS2, Checksum(0x56582282));
+	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
 
-	arcstk::ChecksumSet track04(12228);
-	track04.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x9E2187F9));
-	track04.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF2472287));
+	ChecksumSet track04(12228);
+	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+	track04.insert(type::ARCS1, Checksum(0xF2472287));
 
-	arcstk::ChecksumSet track05(13925);
-	track05.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x6BE71E50));
-	track05.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x881BC504));
+	ChecksumSet track05(13925);
+	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+	track05.insert(type::ARCS1, Checksum(0x881BC504));
 
-	arcstk::ChecksumSet track06(19513);
-	track06.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x01E7235F));
-	track06.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xBB94BFD4));
+	ChecksumSet track06(19513);
+	track06.insert(type::ARCS2, Checksum(0x01E7235F));
+	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
 
-	arcstk::ChecksumSet track07(18155);
-	track07.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xD8F7763C));
-	track07.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF9CAEE76));
+	ChecksumSet track07(18155);
+	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
 
-	arcstk::ChecksumSet track08(18325);
-	track08.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x8480223E));
-	track08.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xF9F60BC1));
+	ChecksumSet track08(18325);
+	track08.insert(type::ARCS2, Checksum(0x8480223E));
+	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
 
-	arcstk::ChecksumSet track09(33075);
-	track09.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x42C5061C));
-	track09.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x2C736302));
+	ChecksumSet track09(33075);
+	track09.insert(type::ARCS2, Checksum(0x42C5061C));
+	track09.insert(type::ARCS1, Checksum(0x2C736302));
 
-	arcstk::ChecksumSet track10(18368);
-	track10.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x47A70F02));
-	track10.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x1C955978));
+	ChecksumSet track10(18368);
+	track10.insert(type::ARCS2, Checksum(0x47A70F02));
+	track10.insert(type::ARCS1, Checksum(0x1C955978));
 
-	arcstk::ChecksumSet track11(40152);
-	track11.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xBABF08CC));
-	track11.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0xFDA6D833));
+	ChecksumSet track11(40152);
+	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
+	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
 
-	arcstk::ChecksumSet track12(14798);
-	track12.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x563EDCCB));
-	track12.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x3A57E5D1));
+	ChecksumSet track12(14798);
+	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
 
-	arcstk::ChecksumSet track13(11952);
-	track13.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xAB123C7C));
-	track13.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x6ED5F3E7));
+	ChecksumSet track13(11952);
+	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
 
-	arcstk::ChecksumSet track14( 8463);
-	track14.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0xC65C20E4));
-	track14.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x4A5C3872));
+	ChecksumSet track14( 8463);
+	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
 
-	arcstk::ChecksumSet track15(18935);
-	track15.insert(arcstk::checksum::type::ARCS2, arcstk::Checksum(0x58FC3C3E));
-	track15.insert(arcstk::checksum::type::ARCS1, arcstk::Checksum(0x5FE8B032));
+	ChecksumSet track15(18935);
+	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
 
-	arcstk::Checksums result1(15);
-
-	result1[ 0] = track01;
-	result1[ 1] = track02;
-	result1[ 2] = track03;
-	result1[ 3] = track04;
-	result1[ 4] = track05;
-	result1[ 5] = track06;
-	result1[ 6] = track07;
-	result1[ 7] = track08;
-	result1[ 8] = track09;
-	result1[ 9] = track10;
-	result1[10] = track11;
-	result1[11] = track12;
-	result1[12] = track13;
-	result1[13] = track14;
-	result1[14] = track15;
+	Checksums result1 {
+		track01,
+		track02,
+		track03,
+		track04,
+		track05,
+		track06,
+		track07,
+		track08,
+		track09,
+		track10,
+		track11,
+		track12,
+		track13,
+		track14,
+		track15
+	};
 
 	REQUIRE ( result1.size() == 15 );
 
 
 	// Construct ARResponse by hand
 
-	arcstk::ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
+	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
-	// Define block: v1 values from the profile
-	arcstk::ARBlock block0({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
-	block0.append( { 0x98B10E0F, 24, 0 } );
-	block0.append( { 0x475F57E9, 24, 0 } );
-	block0.append( { 0x7304F1C4, 24, 0 } );
-	block0.append( { 0xF2472287, 24, 0 } );
-	block0.append( { 0x881BC504, 24, 0 } );
-	block0.append( { 0xBB94BFD4, 24, 0 } );
-	block0.append( { 0xF9CAEE76, 24, 0 } );
-	block0.append( { 0xF9F60BC1, 24, 0 } );
-	block0.append( { 0x2C736302, 24, 0 } );
-	block0.append( { 0x1C955978, 24, 0 } );
-	block0.append( { 0xFDA6D833, 24, 0 } );
-	block0.append( { 0x3A57E5D1, 24, 0 } );
-	block0.append( { 0x6ED5F3E7, 24, 0 } );
-	block0.append( { 0x4A5C3872, 24, 0 } );
-	block0.append( { 0x5FE8B032, 24, 0 } );
+	// Define block: v1 values
+	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0x98B10E0F, 24, 0 },
+			{ 0x475F57E9, 24, 0 },
+			{ 0x7304F1C4, 24, 0 },
+			{ 0xF2472287, 24, 0 },
+			{ 0x881BC504, 24, 0 },
+			{ 0xBB94BFD4, 24, 0 },
+			{ 0xF9CAEE76, 24, 0 },
+			{ 0xF9F60BC1, 24, 0 },
+			{ 0x2C736302, 24, 0 },
+			{ 0x1C955978, 24, 0 },
+			{ 0xFDA6D833, 24, 0 },
+			{ 0x3A57E5D1, 24, 0 },
+			{ 0x6ED5F3E7, 24, 0 },
+			{ 0x4A5C3872, 24, 0 },
+			{ 0x5FE8B032, 24, 0 }
+		}
+	);
 
-	// Define block: v2 values from the profile, but different id
-	arcstk::ARBlock block1({ 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
-	block1.append( { 0xB89992E5, 24, 0 } );
-	block1.append( { 0x4F77EB03, 24, 0 } );
-	block1.append( { 0x56582282, 24, 0 } );
-	block1.append( { 0x9E2187F9, 24, 0 } );
-	block1.append( { 0x6BE71E50, 24, 0 } );
-	block1.append( { 0x01E7235F, 24, 0 } );
-	block1.append( { 0xD8F7763C, 24, 0 } );
-	block1.append( { 0x8480223E, 24, 0 } );
-	block1.append( { 0x42C5061C, 24, 0 } );
-	block1.append( { 0x47A70F02, 24, 0 } );
-	block1.append( { 0xBABF08CC, 24, 0 } );
-	block1.append( { 0x563EDCCB, 24, 0 } );
-	block1.append( { 0xAB123C7C, 24, 0 } );
-	block1.append( { 0xC65C20E4, 24, 0 } );
-	block1.append( { 0x58FC3C3E, 24, 0 } );
+	// Define block: v2 values, but different id
+	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0xB89992E5, 24, 0 },
+			{ 0x4F77EB03, 24, 0 },
+			{ 0x56582282, 24, 0 },
+			{ 0x9E2187F9, 24, 0 },
+			{ 0x6BE71E50, 24, 0 },
+			{ 0x01E7235F, 24, 0 },
+			{ 0xD8F7763C, 24, 0 },
+			{ 0x8480223E, 24, 0 },
+			{ 0x42C5061C, 24, 0 },
+			{ 0x47A70F02, 24, 0 },
+			{ 0xBABF08CC, 24, 0 },
+			{ 0x563EDCCB, 24, 0 },
+			{ 0xAB123C7C, 24, 0 },
+			{ 0xC65C20E4, 24, 0 },
+			{ 0x58FC3C3E, 24, 0 }
+		}
+	);
 
-	// Define block: v2 values from the profile
-	arcstk::ARBlock block2({ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F });
-	block2.append( { 0xB89992E5, 24, 0 } );
-	block2.append( { 0x4F77EB03, 24, 0 } );
-	block2.append( { 0x56582282, 24, 0 } );
-	block2.append( { 0x9E2187F9, 24, 0 } );
-	block2.append( { 0x6BE71E50, 24, 0 } );
-	block2.append( { 0x01E7235F, 24, 0 } );
-	block2.append( { 0xD8F7763C, 24, 0 } );
-	block2.append( { 0x8480223E, 24, 0 } );
-	block2.append( { 0x42C5061C, 24, 0 } );
-	block2.append( { 0x47A70F02, 24, 0 } );
-	block2.append( { 0xBABF08CC, 24, 0 } );
-	block2.append( { 0x563EDCCB, 24, 0 } );
-	block2.append( { 0xAB123C7C, 24, 0 } );
-	block2.append( { 0xC65C20E4, 24, 0 } );
-	block2.append( { 0x58FC3C3E, 24, 0 } );
+	// Define block: v2 values same as block 2, id from block 1
+	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0xB89992E5, 24, 0 },
+			{ 0x4F77EB03, 24, 0 },
+			{ 0x56582282, 24, 0 },
+			{ 0x9E2187F9, 24, 0 },
+			{ 0x6BE71E50, 24, 0 },
+			{ 0x01E7235F, 24, 0 },
+			{ 0xD8F7763C, 24, 0 },
+			{ 0x8480223E, 24, 0 },
+			{ 0x42C5061C, 24, 0 },
+			{ 0x47A70F02, 24, 0 },
+			{ 0xBABF08CC, 24, 0 },
+			{ 0x563EDCCB, 24, 0 },
+			{ 0xAB123C7C, 24, 0 },
+			{ 0xC65C20E4, 24, 0 },
+			{ 0x58FC3C3E, 24, 0 }
+		}
+	);
 
-	arcstk::ARResponse response;
-	response.append(block0);   // 0: profile v1 matches
-	response.append(block1);   // 1: profile v2 matches, but ARId does not match
-	response.append(block2);   // 2: profile v2 matches
+	// TODO Check content of the block instances
+
+	ARResponse response { block0, block1, block2 };
+
+	// TODO Check content of the ARResponse
 
 
 	REQUIRE ( response.size() == 3 );
+	REQUIRE ( response[0] == block0 );
+	REQUIRE ( response[1] == block1 );
+	REQUIRE ( response[2] == block2 );
 
 
 	// common constants
@@ -183,7 +207,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 	const bool v2 = true;
 
 
-	arcstk::AlbumMatcher am_diff(result1, id, response);
+	AlbumMatcher am_diff(result1, id, response);
 
 
 	SECTION ( "AlbumMatcher finds best match" )
@@ -198,7 +222,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 	SECTION ( "AlbumMatcher's Match loads as declared" )
 	{
-		const arcstk::Match* match = am_diff.match();
+		const Match* match = am_diff.match();
 
 		CHECK ( match->tracks_per_block() == 15 );
 
@@ -329,7 +353,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 	}
 
 
-	arcstk::TracksetMatcher tsm_diff(result1, response);
+	TracksetMatcher tsm_diff(result1, response);
 
 
 	SECTION ( "TracksetMatcher finds best match on verifying album input" )
@@ -344,7 +368,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 	SECTION ( "TracksetMatcher's Match loads as declared on album input" )
 	{
-		const arcstk::Match* match = tsm_diff.match();
+		const Match* match = tsm_diff.match();
 
 		CHECK ( match->tracks_per_block() == 15 );
 

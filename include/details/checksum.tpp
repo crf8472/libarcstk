@@ -42,8 +42,7 @@ class ChecksumMap;    // forward declaration for ChecksumMapIterator
  * \tparam is_const TRUE indicates a const_iterator
  */
 template <typename K, bool is_const = false>
-class ChecksumMapIterator :
-	public details::Comparable<ChecksumMapIterator<K, is_const>>
+class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)

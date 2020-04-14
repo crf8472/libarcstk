@@ -29,6 +29,7 @@ namespace arcstk
 
 inline namespace v_1_0_0
 {
+
 namespace details
 {
 
@@ -52,6 +53,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
 	try
 	{
 		return std::make_unique<ARId>(0, 0, 0, 0);
+		// This site defines emptyness for ARIds, it used by make_empty_arid()
 
 	} catch (const std::exception& e)
 	{
@@ -341,7 +343,7 @@ uint32_t ARId::Impl::cddb_id() const noexcept
 
 bool ARId::Impl::empty() const noexcept
 {
-	return 0 == (this->disc_id_1() + this->disc_id_2() + this->cddb_id());
+	return this->equals(*EmptyARId.impl_);
 }
 
 
@@ -488,7 +490,7 @@ bool TOC::complete() const noexcept
 }
 
 
-void TOC::update(std::unique_ptr<TOC::Impl> impl)
+void TOC::reimplement(std::unique_ptr<TOC::Impl> impl)
 {
 	impl_ = std::move(impl);
 }
@@ -621,9 +623,7 @@ ARId& ARId::operator = (ARId &&rhs) noexcept = default;
 
 bool operator == (const ARId &lhs, const ARId &rhs) noexcept
 {
-	return &lhs == &rhs
-		or lhs.impl_ == rhs.impl_
-		or lhs.impl_->equals(*rhs.impl_);
+	return &lhs == &rhs or lhs.impl_->equals(*rhs.impl_);
 }
 
 
@@ -766,8 +766,7 @@ std::vector<std::string> get_filenames(const std::unique_ptr<TOC> &toc)
 
 std::unique_ptr<ARId> make_arid(const TOC &toc)
 {
-	using details::ARIdBuilder;
-	return ARIdBuilder::build(toc);
+	return details::ARIdBuilder::build(toc);
 }
 
 
@@ -779,8 +778,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc)
 
 std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout)
 {
-	using details::ARIdBuilder;
-	return ARIdBuilder::build(toc, leadout);
+	return details::ARIdBuilder::build(toc, leadout);
 }
 
 
@@ -793,9 +791,10 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 
 std::unique_ptr<ARId> make_empty_arid() noexcept
 {
-	details::ARIdBuilder builder;
-	return builder.build_empty_id();
+	return details::ARIdBuilder::build_empty_id();
 }
+
+const ARId EmptyARId = *make_empty_arid();
 
 /// \endcond
 

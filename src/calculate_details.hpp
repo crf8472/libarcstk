@@ -43,7 +43,7 @@ namespace details
 /**
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
-const auto empty_string = std::string { std::string() };
+const auto EmptyString = std::string { };
 
 
 // Forward Declaration Required for Partitioner
@@ -1072,7 +1072,7 @@ public:
 	 * \param[in] filename Name of the file
 	 */
 	MultitrackCalcContext(const TOC &toc,
-			const std::string &filename = empty_string);
+			const std::string &filename = EmptyString);
 
 	/**
 	 * \brief Constructor.
@@ -1084,7 +1084,7 @@ public:
 	 * \param[in] filename Name of the file
 	 */
 	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-			const std::string &filename = empty_string);
+			const std::string &filename = EmptyString);
 
 	/**
 	 * \brief Constructor.
@@ -1098,7 +1098,7 @@ public:
 	 */
 	MultitrackCalcContext(const TOC &toc, const uint32_t skip_front,
 			const uint32_t skip_back,
-			const std::string &filename = empty_string);
+			const std::string &filename = EmptyString);
 
 	/**
 	 * \brief Constructor.
@@ -1112,7 +1112,7 @@ public:
 	 */
 	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 			const uint32_t skip_front, const uint32_t skip_back,
-			const std::string &filename = empty_string);
+			const std::string &filename = EmptyString);
 
 	/**
 	 * \brief The TOC of the audio input file.

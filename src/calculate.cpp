@@ -33,6 +33,9 @@
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+#ifndef __LIBARCSTK_APPENDABLESEQ_HPP__
+#include "appendableseq.hpp"
+#endif
 
 namespace arcstk
 {
@@ -44,9 +47,9 @@ using arcstk::v_1_0_0::details::Partition;
 using arcstk::v_1_0_0::details::Partitioner;
 using arcstk::v_1_0_0::details::MultitrackPartitioner;
 using arcstk::v_1_0_0::details::SingletrackPartitioner;
-//using arcstk::v_1_0_0::details::CalcContextBase;
+//using arcstk::v_1_0_0::details::CalcContextBase; // unused
 using arcstk::v_1_0_0::details::CalcState;
-//using arcstk::v_1_0_0::details::CalcStateARCSBase;
+//using arcstk::v_1_0_0::details::CalcStateARCSBase; // unused
 using arcstk::v_1_0_0::details::CalcStateV1;
 using arcstk::v_1_0_0::details::CalcStateV1andV2;
 
@@ -1470,6 +1473,148 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
 /// \endcond
 
 
+// Checksums::Impl
+
+using ChecksumsImplBase = details::AppendableSequence<ChecksumSet>;
+
+/**
+ * \brief Private implementation of Checksums.
+ *
+ * \see Checksums
+ */
+class Checksums::Impl final : public ChecksumsImplBase
+{
+
+public:
+
+	using ChecksumsImplBase::ChecksumsImplBase;
+
+
+private:
+
+	std::unique_ptr<ChecksumsImplBase> do_create(
+			const ChecksumsImplBase::size_type size) const override;
+};
+
+
+std::unique_ptr<ChecksumsImplBase> Checksums::Impl::do_create(
+		const ChecksumsImplBase::size_type size) const
+{
+	return std::make_unique<Checksums::Impl>(size);
+}
+
+
+// Checksums
+
+
+Checksums::Checksums(size_type size)
+	: impl_ { std::make_unique<Checksums::Impl>(size) }
+{
+	// empty
+}
+
+
+Checksums::Checksums(std::unique_ptr<Checksums::Impl> impl)
+	: impl_ { std::move(impl) }
+{
+	// empty
+}
+
+
+Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
+	: impl_ { std::make_unique<Checksums::Impl>(tracks) }
+{
+	// empty
+}
+
+
+Checksums::Checksums(const Checksums &rhs)
+	: impl_ { std::make_unique<Checksums::Impl>(*rhs.impl_) }
+{
+	// empty
+}
+
+
+Checksums::Checksums(Checksums &&rhs) noexcept = default;
+
+
+Checksums::~Checksums() noexcept = default;
+
+
+void Checksums::append(const ChecksumSet &checksum)
+{
+	impl_->append(checksum);
+}
+//Checksums::append(ChecksumSet &&rhs) noexcept
+
+
+Checksums::const_iterator Checksums::begin() const noexcept
+{
+	return impl_->cbegin();
+}
+
+
+Checksums::const_iterator Checksums::end() const noexcept
+{
+	return impl_->cend();
+}
+
+
+Checksums::const_iterator Checksums::cbegin() const noexcept
+{
+	return impl_->cbegin();
+}
+
+
+Checksums::const_iterator Checksums::cend() const noexcept
+{
+	return impl_->cend();
+}
+
+
+const ChecksumSet& Checksums::at(const Checksums::size_type index) const
+{
+	return impl_->at(index);
+}
+
+
+const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
+	const
+{
+	return impl_->operator[](index);
+}
+
+
+Checksums::size_type Checksums::size() const noexcept
+{
+	return impl_->size();
+}
+
+
+Checksums& Checksums::operator = (Checksums rhs)
+{
+	using std::swap;
+
+	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
+	return *this;
+}
+
+
+Checksums& Checksums::operator = (Checksums &&rhs) noexcept = default;
+
+
+void swap(Checksums &lhs, Checksums &rhs) noexcept
+{
+	lhs.impl_->swap(*rhs.impl_);
+}
+
+
+bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
+{
+	return lhs.impl_->equals(*rhs.impl_);
+}
+
+
 /**
  * \internal
  * \ingroup calc
@@ -1915,7 +2060,8 @@ Checksums Calculation::Impl::result() const noexcept
 		// TODO throw something
 	}
 
-	auto result { Checksums(static_cast<Checksums::size_type>(track_count)) };
+	auto checksums { std::make_unique<Checksums::Impl>(
+			static_cast<Checksums::size_type>(track_count)) };
 
 	// FIXME Does not make sense, a loop from 0 to track_count should be correct
 	// for both cases
@@ -1926,24 +2072,24 @@ Checksums Calculation::Impl::result() const noexcept
 
 		for (auto i = uint8_t { 0 }; i < track_count; ++i)
 		{
-			auto checksums = ChecksumSet { context_->length(i) };
+			auto track = ChecksumSet { context_->length(i) };
 
-			checksums.merge(state_->result(i + 1));
+			track.merge(state_->result(i + 1));
 
-			result[i] = checksums;
+			checksums->append(track);
 		}
 	} else
 	{
 		// singletrack
 
-		auto checksums = ChecksumSet { context_->audio_size().leadout_frame() };
+		auto track = ChecksumSet { context_->audio_size().leadout_frame() };
 
-		checksums.merge(state_->result()); // alias for result(0)
+		track.merge(state_->result()); // alias for result(0)
 
-		result[0] = checksums;
+		checksums->append(track);
 	}
 
-	return result;
+	return Checksums(std::move(checksums));
 }
 
 
@@ -2039,7 +2185,7 @@ noexcept
 	{
 		this->set_context(
 			std::make_unique<details::SingletrackCalcContext>(
-				details::empty_string));
+				details::EmptyString));
 	}
 }
 
@@ -2310,245 +2456,6 @@ Calculation& Calculation::operator = (Calculation rhs)
 Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
 
 
-// Checksums::Impl
-
-
-class Checksums::Impl final
-{
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] size Number of elements
-	 */
-	explicit Impl(const Checksums::size_type size);
-
-	Impl(const Impl &rhs);
-
-	Impl(Impl &&rhs) noexcept;
-
-	~Impl() noexcept;
-
-	Checksums::iterator begin() noexcept;
-
-	Checksums::iterator end() noexcept;
-
-	Checksums::const_iterator cbegin() const noexcept;
-
-	Checksums::const_iterator cend() const noexcept;
-
-	/**
-	 * \brief Implements Checksums::operator[]
-	 *
-	 * \return ChecksumSet at position \c index
-	 */
-	const ChecksumSet& get(const Checksums::size_type index) const;
-
-	/**
-	 * \brief Return the number of elements.
-	 *
-	 * \return Number of elements
-	 */
-	Checksums::size_type size() const noexcept;
-
-	Impl& operator = (Impl rhs);
-
-	Impl& operator = (Impl &&rhs) noexcept;
-
-	friend void swap(Checksums::Impl &lhs, Checksums::Impl &rhs)
-	{
-		using std::swap;
-
-		swap(lhs.sets_, rhs.sets_);
-		swap(lhs.size_, rhs.size_);
-	}
-
-
-private:
-
-	/**
-	 * \brief Sequence of tracks
-	 */
-	std::unique_ptr<ChecksumSet[]> sets_;
-
-	/**
-	 * \brief Number of tracks
-	 */
-	Checksums::size_type size_;
-};
-
-
-// Checksums::Impl
-
-
-Checksums::Impl::Impl(const Checksums::size_type size)
-	: sets_ { std::make_unique<ChecksumSet[]>(size) }
-	, size_ { size }
-{
-	// empty
-}
-
-
-Checksums::Impl::Impl(const Checksums::Impl &rhs)
-	: sets_ { std::make_unique<ChecksumSet[]>(rhs.size_) }
-	, size_ { rhs.size_ }
-{
-	std::copy(rhs.cbegin(), rhs.cend(), this->begin());
-}
-
-
-Checksums::Impl::Impl(Checksums::Impl &&rhs) noexcept = default;
-
-
-Checksums::Impl::~Impl() noexcept = default;
-
-
-Checksums::iterator Checksums::Impl::begin() noexcept
-{
-	return sets_.get();
-}
-
-
-Checksums::iterator Checksums::Impl::end() noexcept
-{
-	return std::next(sets_.get(), static_cast<long>(size_));
-	// TODO type long is additional knowledge, size_type would be generic
-
-	//return std::next(sets_.get(), size_);
-}
-
-
-Checksums::const_iterator Checksums::Impl::cbegin() const noexcept
-{
-	return sets_.get();
-}
-
-
-Checksums::const_iterator Checksums::Impl::cend() const noexcept
-{
-	return std::next(sets_.get(), static_cast<long>(size_));
-	// TODO type long is additional knowledge, size_type would be generic
-
-	//return std::next(sets_.get(), size_);
-}
-
-
-const ChecksumSet& Checksums::Impl::get(const Checksums::size_type index) const
-{
-	return (sets_.get())[index];
-}
-
-
-Checksums::size_type Checksums::Impl::size() const noexcept
-{
-	return size_;
-}
-
-
-Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl rhs)
-{
-	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
-	return *this;
-}
-
-
-Checksums::Impl& Checksums::Impl::operator = (Checksums::Impl &&rhs) noexcept
-= default;
-
-
-// Checksums
-
-
-Checksums::Checksums(size_type size)
-	: impl_ { std::make_unique<Checksums::Impl>(size) }
-{
-	// empty
-}
-
-
-Checksums::Checksums(const Checksums &rhs)
-	: impl_ { std::make_unique<Checksums::Impl>(*rhs.impl_) }
-{
-	// empty
-}
-
-
-Checksums::Checksums(Checksums &&rhs) noexcept = default;
-
-
-Checksums::~Checksums() noexcept = default;
-
-
-Checksums::iterator Checksums::begin() noexcept
-{
-	return impl_->begin();
-}
-
-
-Checksums::iterator Checksums::end() noexcept
-{
-	return impl_->end();
-}
-
-
-Checksums::const_iterator Checksums::begin() const noexcept
-{
-	return impl_->cbegin();
-}
-
-
-Checksums::const_iterator Checksums::end() const noexcept
-{
-	return impl_->cend();
-}
-
-
-Checksums::const_iterator Checksums::cbegin() const noexcept
-{
-	return impl_->cbegin();
-}
-
-
-Checksums::const_iterator Checksums::cend() const noexcept
-{
-	return impl_->cend();
-}
-
-
-ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
-{
-	// Confer Meyers, Scott: Effective C++, 3rd ed., 2005, Addison-Wesley
-	// Item 3,
-	// Section "Avoiding Duplication in const and Non-const member Functions",
-	// p. 23ff
-	return const_cast<ChecksumSet&>(
-			(*static_cast<const Checksums*>(this))[index]);
-}
-
-
-const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
-	const
-{
-	return impl_->get(index);
-}
-
-
-Checksums::size_type Checksums::size() const noexcept
-{
-	return impl_->size();
-}
-
-
-Checksums& Checksums::operator = (Checksums rhs)
-{
-	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
-	return *this;
-}
-
-
-Checksums& Checksums::operator = (Checksums &&rhs) noexcept = default;
 
 
 // InvalidAudioException
@@ -2574,7 +2481,7 @@ InvalidAudioException::InvalidAudioException(const char *what_arg)
 std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 		const bool &skip_back)
 {
-	return make_context(skip_front, skip_back, details::empty_string);
+	return make_context(skip_front, skip_back, details::EmptyString);
 }
 
 
@@ -2594,7 +2501,7 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 
 std::unique_ptr<CalcContext> make_context(const TOC &toc)
 {
-	return make_context(toc, details::empty_string);
+	return make_context(toc, details::EmptyString);
 }
 
 
@@ -2611,7 +2518,7 @@ std::unique_ptr<CalcContext> make_context(const TOC &toc,
 
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc)
 {
-	return make_context(toc, details::empty_string);
+	return make_context(toc, details::EmptyString);
 }
 
 

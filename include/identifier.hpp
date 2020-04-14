@@ -14,93 +14,17 @@
 #include <utility>    // for forward
 #include <vector>
 
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"
+#endif
+
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
-namespace details
-{
-
-
-/**
- * \internal
- * \brief Adds inequality to classes defining equality operator==.
- */
-template <typename T>
-struct Comparable
-{
-	virtual ~Comparable() = default;
-
-	/**
-	 * \brief Inequality.
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff not \c lhs == \c rhs, otherwise FALSE
-	 */
-	friend bool operator != (const T &lhs, const T &rhs) noexcept
-	{
-		return !(lhs == rhs);
-	}
-};
-
-
-/**
- * \internal
- * \brief Adds all relational operators to classes defining operator<
- * (less-than).
- */
-template <typename T>
-struct TotallyOrdered : public Comparable<T>
-{
-	virtual ~TotallyOrdered() = default;
-
-	/**
-	 * \brief Greater-than.
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff \c lhs > \c rhs, otherwise FALSE
-	 */
-	friend bool operator > (const T &lhs, const T &rhs) noexcept
-	{
-		return rhs < lhs;
-	}
-
-	/**
-	 * \brief Greater-or-equal-than.
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff \c lhs >= \c rhs, otherwise FALSE
-	 */
-	friend bool operator >= (const T &lhs, const T &rhs) noexcept
-	{
-		return !(rhs > lhs);
-	}
-
-	/**
-	 * \brief Less-or-equal-than.
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE iff \c lhs <= \c rhs, otherwise FALSE
-	 */
-	friend bool operator <= (const T &lhs, const T &rhs) noexcept
-	{
-		return !(lhs > rhs);
-	}
-};
-
-} // namespace details
 
 /// \addtogroup calc
 /// @{
-
 
 /**
  * \brief Type to represent a PCM 32 bit sample (2 channels x 16 bit).
@@ -302,7 +226,7 @@ bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
  * superflous. An ARId can be empty() to indicate that it carries no identifier.
  * An ARId that qualifies as empty() can be constructed by make_empty_arid().
  */
-class ARId final : public details::Comparable<ARId>
+class ARId final : public Comparable<ARId>
 {
 
 public:
@@ -435,6 +359,17 @@ private:
 };
 
 
+/**
+ * \brief Global instance of an empty ARId.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * ARId can be avoided when a reference instance is at hand.
+ *
+ * The instance is created using make_empty_arid().
+ */
+extern const ARId EmptyARId;
+
+
 class TOC; // forward declaration for operator==
 
 
@@ -474,7 +409,7 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
  * leadout can be obtained from the actual audio data. However, also an
  * incomplete TOC may never be inconsistent.
  */
-class TOC final : public details::Comparable<TOC>
+class TOC final : public Comparable<TOC>
 {
 
 public:
@@ -590,15 +525,6 @@ public:
 	bool complete() const noexcept;
 
 	/**
-	 * \internal
-	 *
-	 * \brief Update this TOC with new information
-	 *
-	 * \param[in] impl The TOC::Impl to update
-	 */
-	void update(std::unique_ptr<TOC::Impl> impl);
-
-	/**
 	 * \brief Copy assignment.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
@@ -615,6 +541,15 @@ public:
 	 * \return The right hand side of the assigment
 	 */
 	TOC& operator = (TOC &&rhs) noexcept;
+
+	/**
+	 * \internal
+	 *
+	 * \brief Update this TOC with new information
+	 *
+	 * \param[in] impl The TOC::Impl to update
+	 */
+	void reimplement(std::unique_ptr<TOC::Impl> impl);
 
 
 private:
@@ -745,6 +680,8 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 
 /**
  * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
+ *
+ * The implementation of this defines emptiness for ARIds.
  *
  * \return An \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  */

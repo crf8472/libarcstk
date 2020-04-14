@@ -14,6 +14,7 @@
 #include <cstring>  // for EOF, strerror
 #include <fstream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,10 @@
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+#ifndef __LIBARCSTK_APPENDABLESEQ_HPP__
+#include "appendableseq.hpp"
+#endif
+
 
 namespace arcstk
 {
@@ -185,38 +190,13 @@ std::size_t StdIn::buf_size() const
 
 
 /**
- * \brief Implements ARTriplet.
+ * \brief Interface for implementations of ARTriplet.
  *
  * \see ARTriplet
  */
 class ARTripletImpl
 {
-
 public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] arcs          The ARCS value of this triplet
-	 * \param[in] confidence    The confidence value of this triplet
-	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
-	 */
-	ARTripletImpl(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs);
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
-	ARTripletImpl(const ARTripletImpl &rhs) = delete;
-
-	/**
-	 * \brief Move constructor
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	ARTripletImpl(ARTripletImpl &&rhs) noexcept = delete;
 
 	/**
 	 * \brief Virtual default destructor.
@@ -240,7 +220,7 @@ public:
 	uint32_t confidence() const noexcept;
 
 	/**
-	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
+	 * \brief ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
@@ -253,49 +233,132 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	virtual bool arcs_valid() const noexcept;
+	bool arcs_valid() const noexcept;
 
 	/**
 	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	virtual bool confidence_valid() const noexcept;
+	bool confidence_valid() const noexcept;
 
 	/**
-	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
+	 * \brief ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	virtual bool frame450_arcs_valid() const noexcept;
+	bool frame450_arcs_valid() const noexcept;
+
+	/**
+	 * \brief Returns TRUE iff this instance does not hold any parsed values,
+	 * otherwise FALSE.
+	 *
+	 * \return TRUE iff this instance is empty, otherwise FALSE.
+	 */
+	bool empty() const noexcept;
 
 	/**
 	 * \brief Clone this instance, i.e. create a deep copy
 	 *
 	 * \return A clone of this instance
 	 */
-	virtual std::unique_ptr<ARTripletImpl> clone() const noexcept;
+	std::unique_ptr<ARTripletImpl> clone() const noexcept;
 
 	/**
-	 * \brief Copy assignment operator.
+	 * \brief Equality
 	 *
-	 * \param[in] rhs The right hand side of the assignment
+	 * \param[in] rhs Right hand side of the comparison
 	 *
-	 * \return The resulting left hand side after the assigment
+	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
 	 */
-	ARTripletImpl& operator = (const ARTripletImpl &rhs) = delete;
+	bool equals(const ARTripletImpl &rhs) const noexcept;
 
 	/**
-	 * \brief Move assignment operator.
+	 * \brief Swap
 	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
+	 * \param[in] rhs Right hand side to swap
 	 */
-	ARTripletImpl& operator = (ARTripletImpl &&rhs) noexcept = delete;
+	void swap(ARTripletImpl &rhs);
+
+
+protected:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] arcs          The ARCS value of this triplet
+	 * \param[in] confidence    The confidence value of this triplet
+	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
+	 */
+	ARTripletImpl(const uint32_t arcs, const uint32_t confidence,
+			const uint32_t frame450_arcs);
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	ARTripletImpl(const ARTripletImpl &rhs);
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARTripletImpl(ARTripletImpl &&rhs) noexcept;
 
 
 private:
+
+	/**
+	 * \brief The track ARCS in this ARTripletImpl.
+	 *
+	 * The ARCS may be v1 as well as v2.
+	 *
+	 * \return ARCS value in this triplet
+	 */
+	virtual bool do_arcs_valid() const noexcept
+	= 0;
+
+	/**
+	 * \brief The confidence value in this ARTripletImpl.
+	 *
+	 * \return Confidence in this triplet
+	 */
+	virtual bool do_confidence_valid() const noexcept
+	= 0;
+
+	/**
+	 * \brief The ARCS of frame 450 of the particular track in this ARTripletImpl.
+	 *
+	 * \return Frame450 ARCS in this triplet
+	 */
+	virtual bool do_frame450_arcs_valid() const noexcept
+	= 0;
+
+	/**
+	 * \brief Clone this instance, i.e. create a deep copy
+	 *
+	 * \return A clone of this instance
+	 */
+	virtual std::unique_ptr<ARTripletImpl> do_clone() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements the part of equals() specific for this class
+	 *
+	 * \param[in] rhs Right hand side of the comparison
+	 *
+	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+	 */
+	virtual bool do_equals(const ARTripletImpl &rhs) const noexcept;
+
+	/**
+	 * \brief Implements the part of swap() specific for this class
+	 *
+	 * \param[in] rhs Right hand side to swap
+	 */
+	virtual void do_swap(ARTripletImpl &rhs);
 
 	/**
 	 * \brief ARCS v1 or v2 of this track
@@ -326,6 +389,12 @@ ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 }
 
 
+ARTripletImpl::ARTripletImpl(const ARTripletImpl &rhs) = default;
+
+
+ARTripletImpl::ARTripletImpl(ARTripletImpl &&rhs) noexcept = default;
+
+
 uint32_t ARTripletImpl::arcs() const noexcept
 {
 	return arcs_;
@@ -346,26 +415,189 @@ uint32_t ARTripletImpl::frame450_arcs() const noexcept
 
 bool ARTripletImpl::arcs_valid() const noexcept
 {
-	return true;
+	return this->do_arcs_valid();
 }
 
 
 bool ARTripletImpl::confidence_valid() const noexcept
 {
-	return true;
+	return this->do_confidence_valid();
 }
 
 
 bool ARTripletImpl::frame450_arcs_valid() const noexcept
 {
-	return true;
+	return this->do_frame450_arcs_valid();
 }
+
+
+// ARTripletImpl::empty() must be defined after AREmptyTripletImpl below!
 
 
 std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const noexcept
 {
-	return std::make_unique<ARTripletImpl>(this->arcs_, this->confidence_,
-			this->frame450_arcs_);
+	return this->do_clone();
+}
+
+
+bool ARTripletImpl::equals(const ARTripletImpl &rhs) const noexcept
+{
+	const bool base_equals = typeid(*this) == typeid(rhs)
+					&& this->arcs_    == rhs.arcs_
+					&& this->confidence_    == rhs.confidence_
+					&& this->frame450_arcs_ == rhs.frame450_arcs_;
+
+	return base_equals && this->do_equals(rhs);
+}
+
+
+void ARTripletImpl::swap(ARTripletImpl &rhs)
+{
+	if (typeid(*this) != typeid(rhs))
+	{
+		throw std::domain_error(
+			"Cannot swap instances of different ARTripletImpl subclasses");
+	}
+
+	using std::swap;
+
+	swap(this->arcs_,          rhs.arcs_);
+	swap(this->confidence_,    rhs.confidence_);
+	swap(this->frame450_arcs_, rhs.frame450_arcs_);
+
+	this->do_swap(rhs);
+}
+
+
+bool ARTripletImpl::do_equals(const ARTripletImpl & /* rhs */) const noexcept
+{
+	return true; // Means: no specific additions for equality check
+}
+
+
+void ARTripletImpl::do_swap(ARTripletImpl & /* rhs */)
+{
+	// empty     // Means: no specific actions to swap
+}
+
+
+/// \endcond
+
+
+/**
+ * \brief Implements an incompletely parsed ARTriplet.
+ *
+ * \see ARTriplet
+ */
+class ARCompleteTripletImpl final : public ARTripletImpl
+{
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] arcs          The ARCS value of this triplet
+	 * \param[in] confidence    The confidence value of this triplet
+	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
+	 */
+	ARCompleteTripletImpl(const uint32_t arcs, const uint32_t confidence,
+			const uint32_t frame450_arcs);
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	ARCompleteTripletImpl(const ARCompleteTripletImpl &rhs);
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARCompleteTripletImpl(ARCompleteTripletImpl &&rhs) noexcept;
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	ARCompleteTripletImpl& operator = (const ARCompleteTripletImpl &rhs)
+	= delete;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	ARCompleteTripletImpl& operator = (ARCompleteTripletImpl &&rhs) noexcept
+	= delete;
+
+
+private:
+
+	bool do_arcs_valid() const noexcept final;
+
+	bool do_confidence_valid() const noexcept final;
+
+	bool do_frame450_arcs_valid() const noexcept final;
+
+	std::unique_ptr<ARTripletImpl> do_clone() const noexcept final;
+};
+
+/// \cond UNDOC_FUNCTION_BODIES
+
+ARCompleteTripletImpl::ARCompleteTripletImpl(const uint32_t arcs,
+		const uint32_t confidence,
+		const uint32_t frame450_arcs)
+	: ARTripletImpl { arcs, confidence, frame450_arcs }
+{
+	// empty
+}
+
+
+ARCompleteTripletImpl::ARCompleteTripletImpl(const ARCompleteTripletImpl &rhs)
+	: ARTripletImpl { rhs }
+{
+	// empty
+}
+
+
+ARCompleteTripletImpl::ARCompleteTripletImpl(ARCompleteTripletImpl &&rhs)
+	noexcept
+	: ARTripletImpl { std::move(rhs) }
+{
+	// empty
+}
+
+
+bool ARCompleteTripletImpl::do_arcs_valid() const noexcept
+{
+	return true;
+}
+
+
+bool ARCompleteTripletImpl::do_confidence_valid() const noexcept
+{
+	return true;
+}
+
+
+bool ARCompleteTripletImpl::do_frame450_arcs_valid() const noexcept
+{
+	return true;
+}
+
+
+std::unique_ptr<ARTripletImpl> ARCompleteTripletImpl::do_clone() const noexcept
+{
+	return std::make_unique<ARCompleteTripletImpl>(
+			this->arcs(), this->confidence(), this->frame450_arcs());
 }
 
 /// \endcond
@@ -374,11 +606,8 @@ std::unique_ptr<ARTripletImpl> ARTripletImpl::clone() const noexcept
  * \brief Implements an incompletely parsed ARTriplet.
  *
  * It carries information about the validity of its parts.
- *
- * \see ARTripletImpl
- * \see ARTriplet
  */
-class ARIncompleteTripletImpl : public ARTripletImpl
+class ARIncompleteTripletImpl final : public ARTripletImpl
 {
 
 public:
@@ -399,16 +628,54 @@ public:
 			const uint32_t frame450_arcs, const bool arcs_valid,
 			const bool confidence_valid, const bool frame450_arcs_valid);
 
-	bool arcs_valid() const noexcept override;
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	ARIncompleteTripletImpl(const ARIncompleteTripletImpl &rhs);
 
-	bool confidence_valid() const noexcept override;
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARIncompleteTripletImpl(ARIncompleteTripletImpl &&rhs) noexcept;
 
-	bool frame450_arcs_valid() const noexcept override;
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	ARIncompleteTripletImpl& operator = (const ARIncompleteTripletImpl &rhs)
+	= delete;
 
-	std::unique_ptr<ARTripletImpl> clone() const noexcept override;
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	ARIncompleteTripletImpl& operator = (ARIncompleteTripletImpl &&rhs) noexcept
+	= delete;
 
 
 private:
+
+	bool do_arcs_valid() const noexcept override;
+
+	bool do_confidence_valid() const noexcept override;
+
+	bool do_frame450_arcs_valid() const noexcept override;
+
+	std::unique_ptr<ARTripletImpl> do_clone() const noexcept override;
+
+	bool do_equals(const ARTripletImpl &rhs) const noexcept override;
+
+	void do_swap(ARTripletImpl &rhs) override;
 
 	/**
 	 * \brief Validity flags
@@ -435,25 +702,44 @@ ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 }
 
 
-bool ARIncompleteTripletImpl::arcs_valid() const noexcept
+ARIncompleteTripletImpl::ARIncompleteTripletImpl(
+		const ARIncompleteTripletImpl &rhs)
+	: ARTripletImpl { rhs }
+	, flags_ { rhs.flags_ }
+{
+	// empty
+}
+
+
+ARIncompleteTripletImpl::ARIncompleteTripletImpl(ARIncompleteTripletImpl &&rhs)
+	noexcept
+	: ARTripletImpl { rhs } // Calls copy ctor!
+	, flags_ { rhs.flags_ } // <- Impossible after std::move(rhs) !
+{
+	// empty // TODO Copy is unnecessary, find better solution
+}
+
+
+bool ARIncompleteTripletImpl::do_arcs_valid() const noexcept
 {
 	return flags_ & uint8_t { 0x01 };
 }
 
 
-bool ARIncompleteTripletImpl::confidence_valid() const noexcept
+bool ARIncompleteTripletImpl::do_confidence_valid() const noexcept
 {
 	return flags_ & uint8_t { 0x02 };
 }
 
 
-bool ARIncompleteTripletImpl::frame450_arcs_valid() const noexcept
+bool ARIncompleteTripletImpl::do_frame450_arcs_valid() const noexcept
 {
 	return flags_ & uint8_t { 0x04 };
 }
 
 
-std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::clone() const noexcept
+std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::do_clone() const
+	noexcept
 {
 	return std::make_unique<ARIncompleteTripletImpl>(this->arcs(),
 			this->confidence(), this->frame450_arcs(),
@@ -462,13 +748,166 @@ std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::clone() const noexcept
 }
 
 
+bool ARIncompleteTripletImpl::do_equals(const ARTripletImpl &rhs) const
+	noexcept
+{
+	return this->arcs_valid()          == rhs.arcs_valid()
+		&& this->confidence_valid()    == rhs.confidence_valid()
+		&& this->frame450_arcs_valid() == rhs.frame450_arcs_valid();
+}
+
+
+void ARIncompleteTripletImpl::do_swap(ARTripletImpl &rhs)
+{
+	auto casted_rhs { dynamic_cast<ARIncompleteTripletImpl*>(&rhs) };
+
+	if (!casted_rhs)
+	{
+		throw std::domain_error("Type mismatch detected while swapping");
+	}
+
+	using std::swap;
+
+	swap(this->flags_, casted_rhs->flags_);
+}
+
+/// \endcond
+
+
+/**
+ * \brief Represents an empty ARTriplet.
+ */
+class AREmptyTripletImpl final : public ARTripletImpl
+{
+public:
+
+	/**
+	 * \brief Default constructor
+	 */
+	AREmptyTripletImpl();
+
+	/**
+	 * \brief Copy constructor
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	AREmptyTripletImpl(const AREmptyTripletImpl &rhs);
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	AREmptyTripletImpl(AREmptyTripletImpl &&rhs) noexcept;
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	AREmptyTripletImpl& operator = (const AREmptyTripletImpl &rhs)
+	= delete;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	AREmptyTripletImpl& operator = (AREmptyTripletImpl &&rhs) noexcept
+	= delete;
+
+
+private:
+
+	bool do_arcs_valid() const noexcept final;
+
+	bool do_confidence_valid() const noexcept final;
+
+	bool do_frame450_arcs_valid() const noexcept final;
+
+	std::unique_ptr<ARTripletImpl> do_clone() const noexcept final;
+};
+
+/// \cond UNDOC_FUNCTION_BODIES
+
+
+AREmptyTripletImpl::AREmptyTripletImpl()
+	: ARTripletImpl { 0, 0, 0 } // This defines emptyness for all
+{
+	// empty
+}
+
+
+AREmptyTripletImpl::AREmptyTripletImpl(const AREmptyTripletImpl &rhs)
+	: ARTripletImpl { rhs }
+{
+	// empty
+}
+
+
+AREmptyTripletImpl::AREmptyTripletImpl(AREmptyTripletImpl &&rhs) noexcept
+	: ARTripletImpl { std::move(rhs) }
+{
+	// empty
+}
+
+
+bool AREmptyTripletImpl::do_arcs_valid() const noexcept
+{
+	return false;
+}
+
+
+bool AREmptyTripletImpl::do_confidence_valid() const noexcept
+{
+	return false;
+}
+
+
+bool AREmptyTripletImpl::do_frame450_arcs_valid() const noexcept
+{
+	return false;
+}
+
+
+std::unique_ptr<ARTripletImpl> AREmptyTripletImpl::do_clone() const
+	noexcept
+{
+	return std::make_unique<AREmptyTripletImpl>();
+}
+
+
+// ARTripletImpl::empty()
+
+
+bool ARTripletImpl::empty() const noexcept
+{
+	return this->equals(AREmptyTripletImpl{});
+
+	// This entails that only the definition of AREmptyTripletImpl
+	// defines when exactly an ARTriplet is empty!
+}
+
+
 // ARTriplet
+
+
+ARTriplet::ARTriplet()
+	: impl_ { std::make_unique<AREmptyTripletImpl>() }
+{
+	// empty
+}
 
 
 ARTriplet::ARTriplet(const uint32_t arcs,
 		const uint32_t confidence,
 		const uint32_t frame450_arcs)
-	: impl_ { std::make_unique<ARTripletImpl>(arcs, confidence, frame450_arcs) }
+	: impl_ { std::make_unique<ARCompleteTripletImpl>( arcs, confidence,
+				frame450_arcs) }
 {
 	// empty
 }
@@ -537,6 +976,12 @@ bool ARTriplet::frame450_arcs_valid() const noexcept
 }
 
 
+bool ARTriplet::empty() const noexcept
+{
+	return impl_->empty();
+}
+
+
 ARTriplet& ARTriplet::operator = (const ARTriplet &rhs)
 {
 	if (this == &rhs)
@@ -551,24 +996,68 @@ ARTriplet& ARTriplet::operator = (const ARTriplet &rhs)
 
 ARTriplet& ARTriplet::operator = (ARTriplet &&rhs) noexcept = default;
 
+
+// ARTriplet friends
+
+
+bool operator == (const ARTriplet &lhs, const ARTriplet &rhs) noexcept
+{
+	return lhs.impl_->equals(*rhs.impl_);
+}
+
+
+void swap(ARTriplet &lhs, ARTriplet &rhs) noexcept
+{
+	lhs.impl_->swap(*rhs.impl_);
+}
+
+
 /// \endcond
+
+using ARBlockImplBase = details::AppendableSequence<ARTriplet>;
+
 
 /**
  * \brief Private implementation of ARBlock.
  *
  * \see ARBlock
  */
-class ARBlock::Impl final
+class ARBlock::Impl final : public ARBlockImplBase
 {
-
 public: /* member functions */
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] id ARId of the cd this block describes
 	 */
 	explicit Impl(const ARId &id);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] id       ARId of this block
+	 * \param[in] triplets ARTriplets in block
+	 */
+	Impl(ARId &&id, std::initializer_list<ARTriplet> triplets);
+
+	/**
+	 * \brief Copy constructor
+	 *
+	 * \param[in] rhs Right hand side for copy
+	 *
+	 * \return Deep copy of \c rhs
+	 */
+	Impl(const Impl &rhs);
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Right hand side for move
+	 *
+	 * \return Instance moved from \c rhs
+	 */
+	Impl(Impl &&rhs) noexcept;
 
 	/**
 	 * \brief Returns the AccurateRip Id (i.e. the header) of the block.
@@ -577,96 +1066,62 @@ public: /* member functions */
 	 */
 	const ARId& id() const;
 
-	/**
-	 * \brief Append a triplet to this block.
-	 *
-	 * \param[in] triplet Append a new triplet to this block
-	 */
-	void append(const ARTriplet &triplet);
-
-	/**
-	 * \brief Implements ARBlock::triplet(const size_type index) const
-	 */
-	const ARTriplet& triplet(const ARBlock::size_type index) const;
-
-	/**
-	 * \brief Implements ARBlock::triplet(const size_type index)
-	 */
-	ARTriplet& triplet(const ARBlock::size_type index);
-
-	/**
-	 * \brief Returns the size of this ARBlock, i.e. the number of triplets it
-	 * contains.
-	 *
-	 * \return The number of triplets in this block.
-	 */
-	ARBlock::size_type size() const noexcept;
-
-	/**
-	 * \brief const_iterator pointing to the first triplet.
-	 *
-	 * \return Const iterator pointing to the first triplet
-	 */
-	ARBlock::iterator begin();
-
-	/**
-	 * \brief const_iterator pointing to the last triplet.
-	 *
-	 * \return Const iterator pointing behind the last triplet
-	 */
-	ARBlock::iterator end();
-
-	/**
-	 * \brief const_iterator pointing to the first triplet.
-	 *
-	 * \return Const iterator pointing to the first triplet
-	 */
-	ARBlock::const_iterator cbegin() const;
-
-	/**
-	 * \brief const_iterator pointing to the last triplet.
-	 *
-	 * \return Const iterator pointing behind the last triplet
-	 */
-	ARBlock::const_iterator cend() const;
-
-	/**
-	 * \brief Return the ARTriplet with the specified index
-	 *
-	 * \return ARTriplet at index
-	 */
-	const ARTriplet& operator [](const ARBlock::size_type index) const;
-
-	/**
-	 * \brief Return the ARTriplet with the specified index
-	 *
-	 * \return ARTriplet at index
-	 */
-	ARTriplet& operator [](const ARBlock::size_type index);
-
 
 private:
 
-	/**
-	 * \brief The AccurateRip identifier representing the header information of the
-	 * block
-	 */
-	ARId ar_id_;
+	std::unique_ptr<ARBlockImplBase> do_clone() const override;
+
+	std::unique_ptr<ARBlockImplBase> do_create(
+			const ARBlockImplBase::size_type size) const override;
+
+	bool do_equals(const ARBlockImplBase &rhs) const noexcept override;
+
+	void do_swap(ARBlockImplBase &rhs) noexcept override;
 
 	/**
-	 * \brief Triplets in the order of their occurrence in the block.
+	 * \brief Constructor used by do_create()
+	 *
+	 * \param[in] size Size of the instance
 	 */
-	std::vector<ARTriplet> triplets_;
+	Impl(const ARBlockImplBase::size_type size);
+
+	/**
+	 * \brief The AccurateRip identifier preceding this block
+	 */
+	ARId ar_id_;
 };
 
 /// \cond UNDOC_FUNCTION_BODIES
 
-ARBlock::Impl::Impl(const ARId &id)
-	: ar_id_ { id }
-	, triplets_ {}
+
+ARBlock::Impl::Impl(const ARBlockImplBase::size_type size)
+	: ARBlockImplBase(size)
+	, ar_id_ { EmptyARId }
 {
 	// empty
 }
+
+
+ARBlock::Impl::Impl(const ARId &id)
+	: ARBlockImplBase(static_cast<ARBlockImplBase::size_type>(id.track_count()))
+	, ar_id_ { id }
+{
+	// empty
+}
+
+
+ARBlock::Impl::Impl(ARId &&id, std::initializer_list<ARTriplet> triplets)
+	: ARBlockImplBase(triplets)
+	, ar_id_ { std::move(id) }
+{
+	// empty
+}
+
+
+ARBlock::Impl::Impl(const Impl &rhs) = default;
+
+
+ARBlock::Impl::Impl(Impl &&rhs) noexcept = default;
 
 
 const ARId& ARBlock::Impl::id() const
@@ -675,69 +1130,45 @@ const ARId& ARBlock::Impl::id() const
 }
 
 
-void ARBlock::Impl::append(const ARTriplet &triplet)
+std::unique_ptr<ARBlockImplBase> ARBlock::Impl::do_clone() const
 {
-	triplets_.push_back(triplet);
+	auto cloned_base { this->clone_base() };
+
+	auto cloned_impl { dynamic_cast<ARBlock::Impl*>(cloned_base.get()) };
+	if (!cloned_impl)
+	{
+		throw std::runtime_error("Copy operation on ARBlock failed");
+	}
+	cloned_impl->ar_id_ = this->ar_id_;
+
+	return cloned_base;
 }
 
 
-const ARTriplet& ARBlock::Impl::triplet(const ARBlock::size_type index) const
+std::unique_ptr<ARBlockImplBase> ARBlock::Impl::do_create(
+		const ARBlockImplBase::size_type size) const
 {
-	return triplets_.at(index);
+	std::unique_ptr<ARBlock::Impl> ptr;
+	ptr.reset(new ARBlock::Impl(size));
+	return ptr;
 }
 
 
-ARTriplet& ARBlock::Impl::triplet(const ARBlock::size_type index)
+bool ARBlock::Impl::do_equals(const ARBlockImplBase &rhs) const noexcept
 {
-	return triplets_.at(index);
+	auto downcasted { dynamic_cast<const ARBlock::Impl*>(&rhs) };
+
+	return downcasted != nullptr && this->ar_id_ == downcasted->ar_id_;
 }
 
 
-ARBlock::size_type ARBlock::Impl::size() const noexcept
+void ARBlock::Impl::do_swap(ARBlockImplBase &rhs) noexcept
 {
-	return triplets_.size();
-}
+	auto downcasted { dynamic_cast<ARBlock::Impl*>(&rhs) };
 
+	using std::swap;
 
-ARBlock::iterator ARBlock::Impl::begin()
-{
-	return triplets_.begin();
-}
-
-
-ARBlock::iterator ARBlock::Impl::end()
-{
-	return triplets_.end();
-}
-
-
-ARBlock::const_iterator ARBlock::Impl::cbegin() const
-{
-	return triplets_.cbegin();
-}
-
-
-ARBlock::const_iterator ARBlock::Impl::cend() const
-{
-	return triplets_.cend();
-}
-
-
-const ARTriplet&
-	ARBlock::Impl::operator [](const ARBlock::size_type index) const
-{
-	return triplets_[index];
-}
-
-
-ARTriplet&
-	ARBlock::Impl::operator [](const ARBlock::size_type index)
-{
-	// Confer Meyers, Scott: Effective C++, 3rd ed.,
-	// Item 3, Section "Avoiding Duplication in const and Non-const member
-	// Functions", p. 23ff
-	return const_cast<ARTriplet&>(
-			(*static_cast<const ARBlock::Impl*>(this))[index]);
+	swap(this->ar_id_, downcasted->ar_id_);
 }
 
 
@@ -746,6 +1177,20 @@ ARTriplet&
 
 ARBlock::ARBlock(const ARId &id)
 	: impl_ { std::make_unique<ARBlock::Impl>(id) }
+{
+	// empty
+}
+
+
+ARBlock::ARBlock(ARId &&id, std::initializer_list<ARTriplet> triplets)
+	: impl_ { std::make_unique<ARBlock::Impl>(std::move(id), triplets) }
+{
+	// empty
+}
+
+
+ARBlock::ARBlock(std::unique_ptr<ARBlock::Impl> impl) noexcept
+	: impl_ { std::move(impl) }
 {
 	// empty
 }
@@ -770,39 +1215,15 @@ const ARId& ARBlock::id() const noexcept
 }
 
 
-void ARBlock::append(const ARTriplet &triplet)
+const ARTriplet& ARBlock::at(const ARBlock::size_type index) const
 {
-	impl_->append(triplet);
+	return impl_->at(index);
 }
 
 
-const ARTriplet& ARBlock::triplet(const ARBlock::size_type index) const
-{
-	return impl_->triplet(index);
-}
-
-
-ARTriplet& ARBlock::triplet(const ARBlock::size_type index)
-{
-	return impl_->triplet(index);
-}
-
-
-uint32_t ARBlock::size() const noexcept
+ARBlock::size_type ARBlock::size() const noexcept
 {
 	return impl_->size();
-}
-
-
-ARBlock::iterator ARBlock::begin()
-{
-	return impl_->begin();
-}
-
-
-ARBlock::iterator ARBlock::end()
-{
-	return impl_->end();
 }
 
 
@@ -836,12 +1257,6 @@ const ARTriplet& ARBlock::operator [](const ARBlock::size_type index) const
 }
 
 
-ARTriplet& ARBlock::operator [](const ARBlock::size_type index)
-{
-	return (*impl_)[index];
-}
-
-
 ARBlock& ARBlock::operator = (const ARBlock &rhs)
 {
 	if (this == &rhs)
@@ -856,170 +1271,135 @@ ARBlock& ARBlock::operator = (const ARBlock &rhs)
 
 ARBlock& ARBlock::operator = (ARBlock &&rhs) noexcept = default;
 
+
+bool operator == (const ARBlock &lhs, const ARBlock &rhs) noexcept
+{
+	return lhs.impl_->equals(*rhs.impl_);
+}
+
+
+void swap(const ARBlock &lhs, const ARBlock &rhs)
+{
+	lhs.impl_->swap(*rhs.impl_);
+}
+
+
 /// \endcond
+
+using ARResponseImplBase = details::AppendableSequence<ARBlock>;
 
 /**
  * \brief Private implementation of ARResponse.
  *
  * \see ARResponse
  */
-class ARResponse::Impl final
+class ARResponse::Impl final : public ARResponseImplBase
 {
-
 public: /* member functions */
 
 	/**
-	 * \brief Empty constructor
+	 * \brief Constructor.
+	 *
+	 * At the start of the parsing process we do not know the number of blocks
+	 * to be encountered, hence ARResponse must be constructible without size.
 	 */
 	Impl();
 
 	/**
-	 * \brief Implements ARResponse::append(const ARBlock &block)
+	 * \brief Constructor.
+	 *
+	 * \param[in] blocks ARBlocks in response
 	 */
-	void append(const ARBlock &block);
+	Impl(std::initializer_list<ARBlock> blocks);
 
 	/**
-	 * \brief Implements ARResponse::block(const int index) const
+	 * \brief Copy constructor
+	 *
+	 * \param[in] rhs Right hand side for copy
+	 *
+	 * \return Deep copy of \c rhs
 	 */
-	const ARBlock& block(const ARResponse::size_type index) const;
+	Impl(const Impl &rhs);
 
 	/**
-	 * \brief Implements ARResponse::block(const int index) const
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Right hand side for move
+	 *
+	 * \return Instance moved from \c rhs
 	 */
-	ARBlock& block(const ARResponse::size_type index);
-
-	/**
-	 * \brief Implements ARResponse::size() const
-	 */
-	ARResponse::size_type size() const noexcept;
+	Impl(Impl &&rhs) noexcept;
 
 	/**
 	 * \brief Implements ARResponse::tracks_per_block() const
+	 *
+	 * \return Number of tracks per block
 	 */
 	int tracks_per_block() const noexcept;
-
-	/**
-	 * \brief Implements ARResponse::begin()
-	 */
-	ARResponse::iterator begin();
-
-	/**
-	 * \brief Implements ARResponse::end()
-	 */
-	ARResponse::iterator end();
-
-	/**
-	 * \brief Implements ARResponse::cbegin() const
-	 */
-	ARResponse::const_iterator cbegin() const;
-
-	/**
-	 * \brief Implements ARResponse::cend() const
-	 */
-	ARResponse::const_iterator cend() const;
-
-	/**
-	 * \brief Return the ARBlock with the specified index
-	 *
-	 * \return ARBlock at index
-	 */
-	const ARBlock& operator [](const ARResponse::size_type index) const;
-
-	/**
-	 * \brief Return the ARBlock with the specified index
-	 *
-	 * \return ARBlock at index
-	 */
-	ARBlock& operator [](const ARResponse::size_type index);
 
 
 private:
 
+	std::unique_ptr<ARResponseImplBase> do_clone() const override;
+
+	std::unique_ptr<ARResponseImplBase> do_create(
+			const ARResponseImplBase::size_type size) const override;
+
 	/**
-	 * \brief Internal representation of the response data.
+	 * \brief Constructor used by do_create()
+	 *
+	 * \param[in] size Size of the instance
 	 */
-	std::vector<ARBlock> blocks_;
+	Impl(const ARResponseImplBase::size_type size);
 };
 
 /// \cond UNDOC_FUNCTION_BODIES
 
 ARResponse::Impl::Impl()
-	: blocks_ {}
+	: ARResponseImplBase {}
 {
 	// empty
 }
 
 
-void ARResponse::Impl::append(const ARBlock &block)
+ARResponse::Impl::Impl(const ARResponseImplBase::size_type size)
+	: ARResponseImplBase(size)
 {
-	blocks_.push_back(block);
+	// empty
 }
 
 
-const ARBlock& ARResponse::Impl::block(
-		const ARResponse::size_type index) const
+ARResponse::Impl::Impl(std::initializer_list<ARBlock> blocks)
+	: ARResponseImplBase(blocks)
 {
-	return blocks_.at(index);
+	// empty
 }
 
 
-ARBlock& ARResponse::Impl::block(const ARResponse::size_type index)
-{
-	return blocks_.at(index);
-}
+ARResponse::Impl::Impl(const Impl &rhs) = default;
 
 
-ARResponse::size_type ARResponse::Impl::size() const noexcept
-{
-	return blocks_.size();
-}
+ARResponse::Impl::Impl(Impl &&rhs) noexcept = default;
 
 
 int ARResponse::Impl::tracks_per_block() const noexcept
 {
-	return static_cast<int>(blocks_.empty() ? 0 : blocks_[0].size());
+	return static_cast<int>(this->size() ? this->operator[](0).size() : 0);
 }
 
 
-ARResponse::iterator ARResponse::Impl::begin()
+std::unique_ptr<ARResponseImplBase> ARResponse::Impl::do_clone() const
 {
-	return blocks_.begin();
+	return this->clone_base();
 }
 
 
-ARResponse::iterator ARResponse::Impl::end()
+std::unique_ptr<ARResponseImplBase> ARResponse::Impl::do_create(
+		const ARResponseImplBase::size_type size) const
 {
-	return blocks_.end();
-}
-
-
-ARResponse::const_iterator ARResponse::Impl::cbegin() const
-{
-	return blocks_.cbegin();
-}
-
-
-ARResponse::const_iterator ARResponse::Impl::cend() const
-{
-	return blocks_.cend();
-}
-
-
-const ARBlock&
-	ARResponse::Impl::operator [](const ARResponse::size_type index) const
-{
-	return blocks_[index];
-}
-
-
-ARBlock&
-	ARResponse::Impl::operator [](const ARResponse::size_type index)
-{
-	// Confer Meyers, Scott: Effective C++, 3rd ed.,
-	// Item 3, Section "Avoiding Duplication in const and Non-const member
-	// Functions", p. 23ff
-	return const_cast<ARBlock&>(
-			(*static_cast<const ARResponse::Impl*>(this))[index]);
+	std::unique_ptr<ARResponse::Impl> ptr;
+	ptr.reset(new ARResponse::Impl(size));
+	return ptr;
 }
 
 
@@ -1028,6 +1408,13 @@ ARBlock&
 
 ARResponse::ARResponse()
 	: impl_ { std::make_unique<ARResponse::Impl>() }
+{
+	// empty
+}
+
+
+ARResponse::ARResponse(std::initializer_list<ARBlock> blocks)
+	: impl_ { std::make_unique<ARResponse::Impl>(blocks) }
 {
 	// empty
 }
@@ -1046,45 +1433,15 @@ ARResponse::ARResponse(ARResponse &&rhs) noexcept = default;
 ARResponse::~ARResponse() noexcept = default;
 
 
-void ARResponse::append(const ARBlock &block)
-{
-	impl_->append(block);
-}
-
-
-const ARBlock& ARResponse::block(const ARResponse::size_type index) const
-{
-	return impl_->block(index);
-}
-
-
-ARBlock& ARResponse::block(const ARResponse::size_type index)
-{
-	return impl_->block(index);
-}
-
-
-std::size_t ARResponse::size() const noexcept
-{
-	return impl_->size();
-}
-
-
 int ARResponse::tracks_per_block() const noexcept
 {
 	return impl_->tracks_per_block();
 }
 
 
-ARResponse::iterator ARResponse::begin()
+ARResponse::size_type ARResponse::size() const noexcept
 {
-	return impl_->begin();
-}
-
-
-ARResponse::iterator ARResponse::end()
-{
-	return impl_->end();
+	return impl_->size();
 }
 
 
@@ -1112,13 +1469,13 @@ ARResponse::const_iterator ARResponse::cend() const
 }
 
 
-const ARBlock& ARResponse::operator [](const ARResponse::size_type index) const
+const ARBlock& ARResponse::at(const ARResponse::size_type index) const
 {
-	return (*impl_)[index];
+	return impl_->at(index);
 }
 
 
-ARBlock& ARResponse::operator [](const ARResponse::size_type index)
+const ARBlock& ARResponse::operator [](const ARResponse::size_type index) const
 {
 	return (*impl_)[index];
 }
@@ -1137,6 +1494,24 @@ ARResponse& ARResponse::operator = (const ARResponse &rhs)
 
 
 ARResponse& ARResponse::operator = (ARResponse &&rhs) noexcept = default;
+
+
+void ARResponse::reimplement(std::unique_ptr<ARResponse::Impl> impl) noexcept
+{
+	impl_ = std::move(impl);
+}
+
+
+bool operator == (const ARResponse &lhs, const ARResponse &rhs) noexcept
+{
+	return lhs.impl_->equals(*rhs.impl_);
+}
+
+
+void swap(const ARResponse &lhs, const ARResponse &rhs)
+{
+	lhs.impl_->swap(*rhs.impl_);
+}
 
 
 // ContentHandler
@@ -1197,12 +1572,6 @@ void ContentHandler::end_input()
 	this->do_end_input();
 }
 
-
-std::unique_ptr<ContentHandler> ContentHandler::clone() const
-{
-	return this->do_clone();
-}
-
 /// \endcond
 
 /**
@@ -1221,13 +1590,6 @@ public:
 	Impl();
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
-	Impl(const Impl &rhs);
-
-	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
@@ -1242,9 +1604,16 @@ public:
 	/**
 	 * \brief Implements DefaultContentHandler::set_object()
 	 *
-	 * \param[in,out] object The object to construct from the parsed content
+	 * \param[in] object The object to construct from the parsed content
 	 */
 	void set_object(ARResponse &object);
+
+	/**
+	 * \brief Implements DefaultContentHandler::object()
+	 *
+	 * \return The object to construct from the parsed content
+	 */
+	const ARResponse& object() const;
 
 	/**
 	 * \brief Implements DefaultContentHandler::start_input()
@@ -1292,15 +1661,6 @@ public:
 	void end_input();
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
-	Impl& operator = (const Impl &rhs);
-
-	/**
 	 * \brief Move assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
@@ -1309,16 +1669,25 @@ public:
 	 */
 	Impl& operator = (Impl &&rhs) noexcept;
 
+	// Non-copyable class
+	Impl(const Impl &rhs) = delete;
+	Impl& operator = (const Impl &rhs) = delete;
+
 
 private:
 
 	/**
-	 * \brief Internal representation of the current_block_
+	 * \brief Internal representation of the current block.
 	 */
-	std::unique_ptr<ARBlock> current_block_;
+	std::unique_ptr<ARBlock::Impl> current_block_;
 
 	/**
-	 * \brief Aggregating of the blocks parsed
+	 * \brief Internal representation of previously parsed blocks.
+	 */
+	std::unique_ptr<ARResponse::Impl> blocks_;
+
+	/**
+	 * \brief Non-owning pointer to the instance aggregating the parsed blocks.
 	 */
 	ARResponse *response_;
 };
@@ -1327,22 +1696,15 @@ private:
 
 DefaultContentHandler::Impl::Impl()
 	: current_block_ { nullptr }
-	, response_ { nullptr }
+	, blocks_        { std::make_unique<ARResponse::Impl>() }
+	, response_      { nullptr }
 {
 	// empty
 }
 
 
-DefaultContentHandler::Impl::Impl(
-		const DefaultContentHandler::Impl &rhs)
-	: current_block_ { rhs.current_block_
-		? std::make_unique<ARBlock>(*(rhs.current_block_.get()))
-		: nullptr
-		}
-	, response_ { rhs.response_ }
-{
-	// empty
-}
+DefaultContentHandler::Impl::Impl(DefaultContentHandler::Impl &&rhs) noexcept
+= default;
 
 
 DefaultContentHandler::Impl::~Impl() noexcept = default;
@@ -1351,6 +1713,12 @@ DefaultContentHandler::Impl::~Impl() noexcept = default;
 void DefaultContentHandler::Impl::set_object(ARResponse &object)
 {
 	response_ = &object;
+}
+
+
+const ARResponse& DefaultContentHandler::Impl::object() const
+{
+	return *response_;
 }
 
 
@@ -1372,7 +1740,7 @@ void DefaultContentHandler::Impl::id(const uint8_t track_count,
 		const uint32_t cddb_id)
 {
 	current_block_ =
-		std::make_unique<ARBlock>(ARId(track_count, id1, id2, cddb_id));
+		std::make_unique<ARBlock::Impl>(ARId{ track_count, id1, id2, cddb_id });
 }
 
 
@@ -1380,7 +1748,7 @@ void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
 		const uint8_t confidence,
 		const uint32_t frame450_arcs)
 {
-	current_block_->append(ARTriplet(arcs, confidence, frame450_arcs));
+	current_block_->append(ARTriplet{ arcs, confidence, frame450_arcs });
 }
 
 
@@ -1393,27 +1761,35 @@ void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
 {
 	if (arcs_valid and confidence_valid and frame450_arcs_valid)
 	{
-		current_block_->append(ARTriplet(arcs, confidence, frame450_arcs));
+		current_block_->append(ARTriplet{ arcs, confidence, frame450_arcs });
 	} else
 	{
-		current_block_->append(ARTriplet(arcs, confidence,
+		current_block_->append(ARTriplet{ arcs, confidence,
 					frame450_arcs, arcs_valid, confidence_valid,
-					frame450_arcs_valid));
+					frame450_arcs_valid });
 	}
 }
 
 
 void DefaultContentHandler::Impl::end_block()
 {
-	response_->append(*current_block_);
+	blocks_->append(ARBlock{ std::move(current_block_) });
+
 	current_block_.reset();
 }
 
 
 void DefaultContentHandler::Impl::end_input()
 {
-	// empty
+	response_->reimplement(std::move(blocks_));
+
+	blocks_.reset();
 }
+
+
+DefaultContentHandler::Impl& DefaultContentHandler::Impl::operator = (
+		DefaultContentHandler::Impl &&rhs) noexcept
+= default;
 
 
 // DefaultContentHandler
@@ -1426,11 +1802,9 @@ DefaultContentHandler::DefaultContentHandler()
 }
 
 
-DefaultContentHandler::DefaultContentHandler(const DefaultContentHandler &rhs)
-	: impl_ { std::make_unique<DefaultContentHandler::Impl>(*rhs.impl_) }
-{
-	// empty
-}
+DefaultContentHandler::DefaultContentHandler(DefaultContentHandler &&rhs)
+	noexcept
+= default;
 
 
 DefaultContentHandler::~DefaultContentHandler() noexcept = default;
@@ -1440,6 +1814,17 @@ void DefaultContentHandler::set_object(ARResponse &object)
 {
 	impl_->set_object(object);
 }
+
+
+const ARResponse& DefaultContentHandler::object() const
+{
+	return impl_->object();
+}
+
+
+DefaultContentHandler& DefaultContentHandler::operator = (
+		DefaultContentHandler &&rhs) noexcept
+= default;
 
 
 void DefaultContentHandler::do_start_input()
@@ -1495,12 +1880,6 @@ void DefaultContentHandler::do_end_input()
 }
 
 
-std::unique_ptr<ContentHandler> DefaultContentHandler::do_clone() const
-{
-	return std::make_unique<DefaultContentHandler>(*this);
-}
-
-
 // ErrorHandler
 
 
@@ -1514,18 +1893,26 @@ void ErrorHandler::error(const uint32_t byte_pos, const uint32_t block,
 }
 
 
-std::unique_ptr<ErrorHandler> ErrorHandler::clone() const
-{
-	return this->do_clone();
-}
-
-
 // DefaultErrorHandler
+
+
+DefaultErrorHandler::DefaultErrorHandler() = default;
+
+
+DefaultErrorHandler::DefaultErrorHandler(DefaultErrorHandler &&rhs) noexcept
+= default;
+
+
+DefaultErrorHandler& DefaultErrorHandler::operator = (
+		DefaultErrorHandler &&rhs) noexcept
+= default;
 
 
 void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		const uint32_t block, const uint32_t block_byte_pos)
 {
+	static const auto SIZE_OF_CHAR = sizeof(char);
+
 	constexpr int BHB { 13 }; // number of block header bytes
 	constexpr int BPT {  9 }; // number of bytes in a triplet
 
@@ -1554,14 +1941,14 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 	{
 		logical_pos << ", begin of block " << block;
 	}
-	else if (block_byte_pos > BHB * sizeof(char)) // error in track information
+	else if (block_byte_pos > BHB * SIZE_OF_CHAR) // error in track information
 	{
-		const auto triplet_byte_pos { block_byte_pos - BHB * sizeof(char) };
+		const auto triplet_byte_pos { block_byte_pos - BHB * SIZE_OF_CHAR };
 
 		logical_pos << ", track "
-			<< (triplet_byte_pos / BPT * sizeof(char) + 1);
+			<< (triplet_byte_pos / BPT * SIZE_OF_CHAR + 1);
 
-		const auto track_byte_pos { triplet_byte_pos % (BPT * sizeof(char)) };
+		const auto track_byte_pos { triplet_byte_pos % (BPT * SIZE_OF_CHAR) };
 
 		if (track_byte_pos == 0)
 		{
@@ -1595,41 +1982,41 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 	{
 		logical_pos << ", header: ";
 
-		if (block_byte_pos < 1 * sizeof(char))
+		if (block_byte_pos < 1 * SIZE_OF_CHAR)
 		{
 			logical_pos << "track count expected but missing";
 			logical_err << "Expected header but none present";
 		} else
-		if (block_byte_pos == 1 * sizeof(char)) // track count ok
+		if (block_byte_pos == 1 * SIZE_OF_CHAR) // track count ok
 		{
 			logical_pos << "disc id 1 expected but missing";
 			logical_err << "Missing Disc id 1";
 		} else
-		if (block_byte_pos < 5 * sizeof(char)) // Disc Id 1 incomplete
+		if (block_byte_pos < 5 * SIZE_OF_CHAR) // Disc Id 1 incomplete
 		{
 			logical_pos << "disc id 1"
 					<< " is only " << (block_byte_pos - 1)
 					<< " bytes wide instead of 4";
 			logical_err << "Disc id 1 incomplete";
 		} else
-		if (block_byte_pos == 5 * sizeof(char)) // Disc Id 2 missing
+		if (block_byte_pos == 5 * SIZE_OF_CHAR) // Disc Id 2 missing
 		{
 			logical_pos << "disc id 2 expected but missing";
 			logical_err << "Missing Disc id 2";
 		} else
-		if (block_byte_pos < 9 * sizeof(char)) // Disc Id 2 incomplete
+		if (block_byte_pos < 9 * SIZE_OF_CHAR) // Disc Id 2 incomplete
 		{
 			logical_pos << "disc id 2"
 					<< " is only " << (block_byte_pos - 5)
 					<< " bytes wide instead of 4";
 			logical_err << "Disc id 2 incomplete";
 		} else
-		if (block_byte_pos == 9 * sizeof(char)) // CDDB Id missing
+		if (block_byte_pos == 9 * SIZE_OF_CHAR) // CDDB Id missing
 		{
 			logical_pos << "cddb id expected but missing";
 			logical_err << "Missing CDDB id";
 		} else
-		if (block_byte_pos < BHB * sizeof(char)) // CDDB Id incomplete
+		if (block_byte_pos < BHB * SIZE_OF_CHAR) // CDDB Id incomplete
 		{
 			logical_pos << "cddb id"
 					<< " is only " << (block_byte_pos - 9)
@@ -1651,13 +2038,6 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 	ARCS_LOG_ERROR << message.str();
 
 	throw StreamReadException(byte_pos, block, block_byte_pos, message.str());
-}
-
-
-std::unique_ptr<ErrorHandler> DefaultErrorHandler::do_clone()
-	const
-{
-	return std::make_unique<DefaultErrorHandler>(*this);
 }
 
 
@@ -1718,13 +2098,6 @@ class ARStreamParser::Impl final
 {
 
 public:
-
-	/**
-	 * \brief Copy constructor
-	 *
-	 * \param[in] rhs The instance to copy
-	 */
-	Impl(const Impl &rhs);
 
 	/**
 	 * \brief Size in bytes of the block header containing disc_id_1, disc_id_2
@@ -1788,11 +2161,23 @@ public:
 	uint32_t parse_stream(std::istream &in_stream);
 
 	/**
-	 * \brief Copy assignment
+	 * \brief Move assignment
 	 *
 	 * \param[in] rhs The instance to assign
 	 */
-	Impl& operator = (const Impl &rhs);
+	Impl& operator = (Impl &&rhs) noexcept;
+
+	/**
+	 * \brief Swap
+	 *
+	 * \param[in] rhs Right hand side to swap
+	 */
+	void swap(Impl &rhs);
+
+
+	// non-copyable class
+	Impl(const Impl &rhs) = delete;
+	Impl& operator = (const Impl &rhs) = delete;
 
 
 private:
@@ -1867,15 +2252,6 @@ ARStreamParser::Impl::Impl(const ARStreamParser *parser)
 	: content_handler_ { nullptr }
 	, error_handler_ { nullptr }
 	, parser_ { parser }
-{
-	// empty
-}
-
-
-ARStreamParser::Impl::Impl(const Impl &rhs)
-	: content_handler_ { rhs.content_handler_->clone() }
-	, error_handler_ { rhs.error_handler_->clone() }
-	, parser_ { nullptr } // Do not copy the parent object of rhs!
 {
 	// empty
 }
@@ -2192,13 +2568,20 @@ uint32_t ARStreamParser::Impl::le_bytes_to_uint32(const char b1,
 
 
 ARStreamParser::Impl& ARStreamParser::Impl::operator = (
-		const ARStreamParser::Impl &rhs)
+		ARStreamParser::Impl &&rhs) noexcept
 {
-	this->content_handler_ = rhs.content_handler_->clone();
-	this->error_handler_   = rhs.error_handler_->clone();
-	parser_ = nullptr;
-
+	this->swap(rhs);
 	return *this;
+}
+
+
+void ARStreamParser::Impl::swap(ARStreamParser::Impl &rhs)
+{
+	using std::swap;
+
+	swap(this->content_handler_, rhs.content_handler_);
+	swap(this->error_handler_,   rhs.error_handler_);
+	// Leave parser_ untouched!
 }
 
 
@@ -2253,6 +2636,24 @@ uint32_t ARStreamParser::parse_stream(std::istream &in_stream)
 }
 
 
+void ARStreamParser::swap(ARStreamParser &rhs)
+{
+	if (typeid(*this) != typeid(rhs))
+	{
+		throw std::domain_error("Refuse to swap instances of different types");
+	}
+
+	this->impl_->swap(*rhs.impl_);
+	this->do_swap(rhs);
+}
+
+
+void ARStreamParser::do_swap(ARStreamParser &/* rhs */)
+{
+	// empty
+}
+
+
 // ARFileParser
 
 
@@ -2260,6 +2661,13 @@ ARFileParser::ARFileParser()
 	: filename_ {}
 {
 	// empty
+}
+
+
+ARFileParser::ARFileParser(ARFileParser &&rhs) noexcept
+	: filename_ { /* empty */ }
+{
+	this->swap(rhs);
 }
 
 
@@ -2310,8 +2718,36 @@ void ARFileParser::on_catched_exception(std::istream &istream,
 		const std::exception & /* e */) const
 {
 	auto *filestream { dynamic_cast<std::ifstream*>(&istream) };
-	filestream->close();
-	//dynamic_cast<std::ifstream*>(&istream)->close(); // TODO Sufficient?
+
+	if (filestream)
+	{
+		filestream->close();
+		return;
+	}
+
+	ARCS_LOG_WARNING << "Could not close filestream";
+}
+
+
+ARFileParser& ARFileParser::operator = (ARFileParser &&rhs) noexcept
+{
+	this->swap(rhs);
+	return *this;
+}
+
+
+void ARFileParser::do_swap(ARStreamParser &rhs)
+{
+	auto casted_rhs { dynamic_cast<ARFileParser*>(&rhs) };
+
+	if (!casted_rhs)
+	{
+		throw std::domain_error("Type mismatch detected while swapping");
+	}
+
+	using std::swap;
+
+	swap(this->filename_, casted_rhs->filename_);
 }
 
 
@@ -2319,6 +2755,12 @@ void ARFileParser::on_catched_exception(std::istream &istream,
 
 
 ARStdinParser::ARStdinParser() = default;
+
+
+ARStdinParser::ARStdinParser(ARStdinParser &&rhs) noexcept
+{
+	this->swap(rhs);
+}
 
 
 uint32_t ARStdinParser::do_parse()
@@ -2329,6 +2771,13 @@ uint32_t ARStdinParser::do_parse()
 	std::istream stream(&response_data_w);
 
 	return ARStreamParser::parse_stream(stream);
+}
+
+
+ARStdinParser& ARStdinParser::operator = (ARStdinParser &&rhs) noexcept
+{
+	this->swap(rhs);
+	return *this;
 }
 
 

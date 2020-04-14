@@ -15,11 +15,16 @@
  */
 
 #include <cstdint>
+#include <initializer_list>
 #include <istream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"
+#endif
 
 namespace arcstk
 {
@@ -27,7 +32,7 @@ inline namespace v_1_0_0
 {
 
 
-// Forward declaration for class ARId, used in the Interface
+// Forward declaration to avoid including identfier.hpp
 class ARId;
 
 // Forward declaration for the base class for a private implementation
@@ -121,6 +126,14 @@ public:
 	 * \brief Constructor.
 	 *
 	 * \details
+	 * All validity flags are set to \c FALSE.
+	 */
+	ARTriplet();
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \details
 	 * All validity flags are set to \c TRUE.
 	 *
 	 * \param[in] arcs          The ARCS value of this triplet
@@ -207,6 +220,13 @@ public:
 	bool frame450_arcs_valid() const noexcept;
 
 	/**
+	 * \brief Indicates whether parsed content is present.
+	 *
+	 * \return TRUE iff the ARTriplet holds not parsed content, otherwise FALSE
+	 */
+	bool empty() const noexcept;
+
+	/**
 	 * \brief Copy assignment operator.
 	 *
 	 * \param[in] rhs The right hand side of the assignment
@@ -223,6 +243,25 @@ public:
 	 * \return The resulting left hand side after the assigment
 	 */
 	ARTriplet& operator = (ARTriplet &&rhs) noexcept;
+
+	/**
+	 * \brief Equality
+	 *
+	 * \param[in] lhs Left hand side of the comparison
+	 * \param[in] rhs Right hand side of the comparison
+	 *
+	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+	 */
+	friend bool operator == (const ARTriplet &lhs, const ARTriplet &rhs)
+		noexcept;
+
+	/**
+	 * \brief Swap
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(ARTriplet &lhs, ARTriplet &rhs) noexcept;
 
 
 private:
@@ -254,7 +293,7 @@ private:
  *
  * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
-class ARBlock final
+class ARBlock final : public Comparable<ARBlock>
 {
 
 public: /* member types */
@@ -263,21 +302,18 @@ public: /* member types */
 	 * \brief An iterator over the \link ARTriplet ARTriplets \endlink of an
 	 * ARBlock.
 	 */
-	using iterator = std::vector<ARTriplet>::iterator;
-	// FIXME Presupposes/leaks implementation knowledge
+	using iterator = ARTriplet*;
 
 	/**
 	 * \brief A const-iterator over the \link ARTriplet ARTriplets \endlink of
 	 * an ARBlock.
 	 */
-	using const_iterator = std::vector<ARTriplet>::const_iterator;
-	// FIXME Presupposes/leaks implementation knowledge
+	using const_iterator = const ARTriplet*;
 
 	/**
 	 * \brief Size type for ARBlock.
 	 */
-	using size_type = std::vector<ARTriplet>::size_type;
-	// FIXME Presupposes/leaks implementation knowledge
+	using size_type = std::size_t;
 
 
 public: /* member functions */
@@ -289,6 +325,16 @@ public: /* member functions */
 	 * describes
 	 */
 	explicit ARBlock(const ARId &id);
+
+	/**
+	 * \brief Constructor
+	 *
+	 * This constructor is intended for testing purposes only.
+	 *
+	 * \param[in] id       Id of this block
+	 * \param[in] triplets Sequence of triplets
+	 */
+	ARBlock(ARId &&id, std::initializer_list<ARTriplet> triplets);
 
 	/**
 	 * \brief Copy constructor.
@@ -317,70 +363,11 @@ public: /* member functions */
 	const ARId& id() const noexcept;
 
 	/**
-	 * \brief Append an ARTriplet as last element to this ARBlock.
-	 *
-	 * \param[in] triplet Append a new entry to this ARBlock
-	 */
-	void append(const ARTriplet &triplet);
-
-	/**
-	 * \brief The ARTriplet with 0-based index \c index.
-	 *
-	 * \details
-	 *
-	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
-	 *
-	 * \see \link ARBlock::operator [](const size_type index) const
-	 * operator[]\endlink
-	 *
-	 * \param[in] index Index of the ARTriplet to read
-	 *
-	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
-	 *
-	 * \return ARTriplet at index \c index.
-	 */
-	const ARTriplet& triplet(const size_type index) const;
-
-	/**
-	 * \copybrief triplet(const size_type index) const
-	 *
-	 * \details
-	 *
-	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
-	 *
-	 * \see \link ARBlock::operator [](const size_type index)
-	 * operator[]\endlink
-	 *
-	 * \param[in] index Index of the ARTriplet to get
-	 *
-	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
-	 *
-	 * \return ARTriplet at index \c index.
-	 */
-	ARTriplet& triplet(const size_type index);
-
-	/**
 	 * \brief Number of \link ARTriplet ARTriplets\endlink in this ARBlock.
 	 *
 	 * \return The number of \link ARTriplet ARTriplets\endlink in this block.
 	 */
-	uint32_t size() const noexcept;
-
-	/**
-	 * \brief iterator pointing to first ARTriplet.
-	 *
-	 * \return iterator pointing to first ARTriplet
-	 */
-	iterator begin();
-
-	/**
-	 * \brief iterator pointing behind last ARTriplet.
-	 *
-	 * \return iterator pointing behind last ARTriplet
-	 */
-	iterator end();
+	size_type size() const noexcept;
 
 	/**
 	 * \brief const_iterator pointing to first ARTriplet.
@@ -411,26 +398,36 @@ public: /* member functions */
 	const_iterator cend() const;
 
 	/**
+	 * \brief The ARTriplet with the specified 0-based index \c index.
+	 *
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARBlock::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARTriplet to read
+	 *
+	 * \return ARTriplet at index \c index.
+	 *
+	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
+	 */
+	const ARTriplet& at(const size_type index) const;
+
+	/**
 	 * \brief The ARTriplet with the specified \c index.
 	 *
-	 * \see \link triplet(const size_type index) const triplet()\endlink
+	 * No bounds checking is performed. For index based access with bounds
+	 * checking, see
+	 * \link ARBlock::at(const size_type index) const at()\endlink.
 	 *
 	 * \param[in] index The 0-based index of the ARTriplet to return
 	 *
 	 * \return ARTriplet at the specified index
 	 */
 	const ARTriplet& operator [](const size_type index) const;
-
-	/**
-	 * \brief The ARTriplet with the specified \c index.
-	 *
-	 * \see \link triplet(const size_type index) triplet()\endlink
-	 *
-	 * \param[in] index The 0-based index of the ARTriplet to return
-	 *
-	 * \return ARTriplet at the specified index
-	 */
-	ARTriplet& operator [](const size_type index);
 
 	/**
 	 * \brief Copy assignment operator.
@@ -450,11 +447,34 @@ public: /* member functions */
 	 */
 	ARBlock& operator = (ARBlock &&rhs) noexcept;
 
+	/**
+	 * \brief Equality for ARBlock
+	 *
+	 * \param[in] lhs Left hand side of the comparison
+	 * \param[in] rhs Right hand side of the comparison
+	 */
+	friend bool operator == (const ARBlock &lhs, const ARBlock &rhs) noexcept;
+
+	/**
+	 * \brief Swap two ARBlocks
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(const ARBlock &lhs, const ARBlock &rhs);
+
+	// Forward declaration for the opaque implementation
+	class Impl;
+
+	/**
+	 * \brief Constructor for predefined implementation
+	 *
+	 * \param[in] impl Implementation of this block
+	 */
+	ARBlock(std::unique_ptr<Impl> impl) noexcept;
+
 
 private:
-
-	// Forward declaration for the private implementation
-	class Impl;
 
 	/**
 	 * \brief Private implementation of ARBlock.
@@ -480,7 +500,7 @@ private:
  *
  * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
-class ARResponse final
+class ARResponse final : public Comparable<ARResponse>
 {
 
 public: /* member types */
@@ -489,21 +509,18 @@ public: /* member types */
 	 * \brief An iterator over the \link ARBlock ARBlocks \endlink of an
 	 * ARResponse.
 	 */
-	using iterator = std::vector<ARBlock>::iterator;
-	// FIXME Presupposes/leaks implementation knowledge
+	using iterator = ARBlock*;
 
 	/**
 	 * \brief A const_iterator over the \link ARBlock ARBlocks \endlink of an
 	 * ARResponse.
 	 */
-	using const_iterator = std::vector<ARBlock>::const_iterator;
-	// FIXME Presupposes/leaks implementation knowledge
+	using const_iterator = const ARBlock*;
 
 	/**
 	 * \brief Size type of ARResponse.
 	 */
-	using size_type = std::vector<ARBlock>::size_type;
-	// FIXME Presupposes/leaks implementation knowledge
+	using size_type = std::size_t;
 
 
 public: /* member functions */
@@ -512,6 +529,15 @@ public: /* member functions */
 	 * \brief Constructor.
 	 */
 	ARResponse();
+
+	/**
+	 * \brief Constructor
+	 *
+	 * This constructor is intended for testing purposes only.
+	 *
+	 * \param[in] blocks Sequence of blocks
+	 */
+	ARResponse(std::initializer_list<ARBlock> blocks);
 
 	/**
 	 * \brief Copy constructor.
@@ -533,49 +559,11 @@ public: /* member functions */
 	~ARResponse() noexcept;
 
 	/**
-	 * \brief Appends an ARBlock to the response.
+	 * \brief Number of tracks per ARBlock.
 	 *
-	 * \param[in] block The ARBlock to append
+	 * \return Number of tracks per \link ARBlock ARBlocks\endlink
 	 */
-	void append(const ARBlock &block);
-
-	/**
-	 * \brief The ARBlock with 0-based index \c index.
-	 *
-	 * \details
-	 *
-	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
-	 *
-	 * \see \link ARResponse::operator [](const size_type index) const
-	 * operator[]\endlink
-	 *
-	 * \param[in] index Index of the ARBlock to read
-	 *
-	 * \throws std::out_of_range Iff \c index > ARResponse::size() - 1.
-	 *
-	 * \return ARBlock at index \c index.
-	 */
-	const ARBlock& block(const size_type index) const;
-
-	/**
-	 * \copybrief block(const size_type index) const
-	 *
-	 * \details
-	 *
-	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
-	 *
-	 * \see \link ARResponse::operator [](const size_type index)
-	 * operator[]\endlink
-	 *
-	 * \param[in] index Index of the ARBlock to get
-	 *
-	 * \throws std::out_of_range Iff \c index > ARResponse::size() - 1.
-	 *
-	 * \return ARBlock at index \c index.
-	 */
-	ARBlock& block(const size_type index);
+	int tracks_per_block() const noexcept;
 
 	/**
 	 * \brief Number of \link ARBlock ARBlocks\endlink in this
@@ -584,27 +572,6 @@ public: /* member functions */
 	 * \return Number of \link ARBlock ARBlocks\endlink in this response
 	 */
 	size_type size() const noexcept;
-
-	/**
-	 * \brief Number of tracks per ARBlock.
-	 *
-	 * \return Number of tracks per \link ARBlock ARBlocks\endlink
-	 */
-	int tracks_per_block() const noexcept;
-
-	/**
-	 * \brief iterator pointing to the first ARBlock.
-	 *
-	 * \return iterator pointing to the first ARBlock
-	 */
-	iterator begin();
-
-	/**
-	 * \brief iterator pointing behind the last ARBlock.
-	 *
-	 * \return iterator pointing behind the last ARBlock
-	 */
-	iterator end();
 
 	/**
 	 * \brief const_iterator pointing to the first ARBlock.
@@ -635,36 +602,37 @@ public: /* member functions */
 	const_iterator cend() const;
 
 	/**
+	 * \brief The ARBlock with the specified 0-based index \c index.
+	 *
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link ARResponse::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ARBlock to read
+	 *
+	 * \return ARBlock at index \c index.
+	 *
+	 * \throws std::out_of_range Iff \c index > ARResponse::size() - 1.
+	 */
+	const ARBlock& at(const size_type index) const;
+
+	/**
 	 * \brief The ARBlock with the specified 0-based \c index.
 	 *
 	 * \details
 	 * No bounds checking is performed. For index based access with bounds
 	 * checking, see
-	 * \link ARResponse::block(const size_type index) const block()\endlink.
-	 *
-	 * \see \link ARResponse::block(const size_type index) const block()\endlink
+	 * \link ARResponse::at(const size_type index) const at()\endlink.
 	 *
 	 * \param[in] index The index of the ARBlock to get
 	 *
 	 * \return ARBlock at index
 	 */
 	const ARBlock& operator [](const size_type index) const;
-
-	/**
-	 * \brief Return the ARBlock with the specified 0-based \c index.
-	 *
-	 * \details
-	 * No bounds checking is performed. For index based access with bounds
-	 * checking, see
-	 * \link ARResponse::block(const size_type index) block() \endlink.
-	 *
-	 * \see \link ARResponse::block(const size_type index) block()\endlink
-	 *
-	 * \param[in] index The index of the ARBlock to get
-	 *
-	 * \return ARBlock at index
-	 */
-	ARBlock& operator [](const size_type index);
 
 	/**
 	 * \brief Copy assignment operator.
@@ -684,11 +652,37 @@ public: /* member functions */
 	 */
 	ARResponse& operator = (ARResponse &&rhs) noexcept;
 
+	/**
+	 * \brief Equality for ARResponse
+	 *
+	 * \param[in] lhs Left hand side of the comparison
+	 * \param[in] rhs Right hand side of the comparison
+	 */
+	friend bool operator == (const ARResponse &lhs, const ARResponse &rhs)
+		noexcept;
+
+	/**
+	 * \brief Swap two ARResponses
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(const ARResponse &lhs, const ARResponse &rhs);
+
+	// Forward declaration for opaque implementation
+	class Impl;
+
+	/**
+	 * \internal
+	 *
+	 * \brief Set the underlying implementation object.
+	 *
+	 * \param[in] impl Implementation of this ARResponse
+	 */
+	void reimplement(std::unique_ptr<Impl> impl) noexcept;
+
 
 private:
-
-	// Forward declaration for the private implementation
-	class Impl;
 
 	/**
 	 * \brief Private implementation of ARResponse.
@@ -786,16 +780,6 @@ public:
 	 */
 	void end_input();
 
-	/**
-	 * \brief Clone this object.
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return Deep copy of this object
-	 */
-	std::unique_ptr<ContentHandler> clone() const;
-
 
 private:
 
@@ -875,17 +859,6 @@ private:
 	 */
 	virtual void do_end_input()
 	= 0;
-
-	/**
-	 * \brief Implements \link ContentHandler::clone() const clone() \endlink
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return Deep copy of this object
-	 */
-	virtual std::unique_ptr<ContentHandler> do_clone() const
-	= 0;
 };
 
 
@@ -918,7 +891,7 @@ public:
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
-	DefaultContentHandler(const DefaultContentHandler &rhs);
+	DefaultContentHandler(const DefaultContentHandler &rhs) = delete;
 
 	/**
 	 * \brief Move constructor.
@@ -935,16 +908,16 @@ public:
 	/**
 	 * \brief Set the object to be constructed by the parsed content.
 	 *
-	 * \param[in,out] object Object to construct from parsed content.
+	 * \param[in] object Object to construct from parsed content.
 	 */
 	void set_object(ARResponse &object);
 
 	/**
-	 * \brief Get the object constructed by the parsed content.
+	 * \brief Return the object to be consturcted by the parsed content.
 	 *
-	 * \return Object with parsed content.
+	 * \return Object to construct from parsed content.
 	 */
-	ARResponse& object();
+	const ARResponse& object() const;
 
 	/**
 	 * \brief Copy assignment operator.
@@ -953,7 +926,8 @@ public:
 	 *
 	 * \return The resulting left hand side after the assigment
 	 */
-	DefaultContentHandler& operator = (const DefaultContentHandler &rhs);
+	DefaultContentHandler& operator = (const DefaultContentHandler &rhs)
+	= delete;
 
 	/**
 	 * \brief Move assignment operator.
@@ -990,8 +964,6 @@ private:
 	void do_end_block() final;
 
 	void do_end_input() final;
-
-	std::unique_ptr<ContentHandler> do_clone() const final;
 
 	// Forward declaration for private implementation.
 	class Impl;
@@ -1043,16 +1015,6 @@ public:
 	void error(const uint32_t byte_pos, const uint32_t block,
 			const uint32_t block_byte_pos);
 
-	/**
-	 * \brief Clone this object.
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return Deep copy of this object
-	 */
-	std::unique_ptr<ErrorHandler> clone() const;
-
 
 private:
 
@@ -1068,32 +1030,49 @@ private:
 	virtual void do_error(const uint32_t byte_pos, const uint32_t block,
 			const uint32_t block_byte_pos)
 	= 0;
-
-	/**
-	 * \brief Clone this object.
-	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return Deep copy of this object
-	 */
-	virtual std::unique_ptr<ErrorHandler> do_clone() const
-	= 0;
 };
 
 
 /**
- * \brief Logs every error and throws StreamReadException afterwards
+ * \brief Logs every error and throws StreamReadException afterwards.
+ *
+ * This class is movable but not copyable.
  */
 class DefaultErrorHandler final : public ErrorHandler
 {
 
 public:
 
+	/**
+	 * \brief Default constructor
+	 */
+	DefaultErrorHandler();
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	DefaultErrorHandler(DefaultErrorHandler &&rhs) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The right hand side of the assignment
+	 *
+	 * \return The resulting left hand side after the assigment
+	 */
+	DefaultErrorHandler& operator = (DefaultErrorHandler &&rhs) noexcept;
+
+	// Non-copyable class
+	DefaultErrorHandler(const DefaultErrorHandler &rhs) = delete;
+	DefaultErrorHandler& operator = (const DefaultErrorHandler &rhs) = delete;
+
+
+private:
+
 	void do_error(const uint32_t byte_pos, const uint32_t block,
 			const uint32_t block_byte_pos) final;
-
-	std::unique_ptr<ErrorHandler> do_clone() const final;
 };
 
 
@@ -1253,6 +1232,10 @@ public:
 	 */
 	uint32_t parse();
 
+	// non-copyable class
+	ARStreamParser(const ARStreamParser &) = delete;
+	ARStreamParser& operator = (const ARStreamParser &rhs) = delete;
+
 
 protected:
 
@@ -1270,6 +1253,13 @@ protected:
 	 */
 	uint32_t parse_stream(std::istream &in_stream);
 
+	/**
+	 * \brief Base class swap
+	 *
+	 * \param[in] rhs Right hand side to swap
+	 */
+	void swap(ARStreamParser &rhs);
+
 
 private:
 
@@ -1280,6 +1270,13 @@ private:
 	 */
 	virtual uint32_t do_parse()
 	= 0;
+
+	/**
+	 * \brief Implements swap().
+	 *
+	 * \param[in] rhs Right hand side to swap
+	 */
+	virtual void do_swap(ARStreamParser &rhs);
 
 	/**
 	 * \brief Hook: Called by parse_stream() on a StreamReadException before
@@ -1328,6 +1325,13 @@ public:
 	ARFileParser();
 
 	/**
+	 * \brief Move Constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARFileParser(ARFileParser &&rhs) noexcept;
+
+	/**
 	 * \brief Constructor for specific file.
 	 *
 	 * \param[in] filename Name of the file to parse
@@ -1349,10 +1353,34 @@ public:
 	 */
 	std::string file() const noexcept;
 
+	/**
+	 * \brief Move assignment
+	 *
+	 * \param[in] rhs Right hand side to move
+	 */
+	ARFileParser& operator = (ARFileParser &&rhs) noexcept;
+
+	/**
+	 * \brief Swap for ARFileParsers
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(ARFileParser &lhs, ARFileParser &rhs)
+	{
+		lhs.swap(rhs);
+	}
+
+	// non-copyable class
+	ARFileParser(const ARFileParser &rhs) = delete;
+	ARFileParser& operator = (const ARFileParser &rhs) = delete;
+
 
 private:
 
 	uint32_t do_parse() final;
+
+	void do_swap(ARStreamParser &rhs) final;
 
 	void on_catched_exception(std::istream &istream,
 			const std::exception &e) const final;
@@ -1376,6 +1404,35 @@ public:
 	 * \brief Default constructor.
 	 */
 	ARStdinParser();
+
+	/**
+	 * \brief Move Constructor
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARStdinParser(ARStdinParser &&rhs) noexcept;
+
+	/**
+	 * \brief Move assignment
+	 *
+	 * \param[in] rhs Right hand side to move
+	 */
+	ARStdinParser& operator = (ARStdinParser &&rhs) noexcept;
+
+	/**
+	 * \brief Swap for ARStdinParsers
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(ARStdinParser &lhs, ARStdinParser &rhs)
+	{
+		lhs.swap(rhs);
+	}
+
+	// non-copyable class
+	ARStdinParser(const ARStdinParser &rhs) = delete;
+	ARStdinParser& operator = (const ARStdinParser &rhs) = delete;
 
 
 private:
