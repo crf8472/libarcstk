@@ -1486,7 +1486,12 @@ public: /* member functions */
 	 */
 	~Checksums() noexcept;
 
-	void append(const ChecksumSet &checksum);
+	/**
+	 * \brief Append a track's checksums
+	 *
+	 * \param[in] checksums The checksums of a track
+	 */
+	void append(const ChecksumSet &checksums);
 
 	/**
 	 * \brief Returns a pointer to the first element.
@@ -1581,24 +1586,6 @@ private:
 	 */
 	std::unique_ptr<Checksums::Impl> impl_;
 };
-
-
-/**
- * \brief Defined, if T is an iterator type whose value_type is ChecksumSet
- *
- * \tparam T Type to test
- */
-//template <typename T>
-//using IsChecksumSetIterator =
-//	std::enable_if_t<
-//		std::is_same<
-//			typename std::iterator_traits<T>::value_type, ChecksumSet>::value>;
-//
-//
-//template <typename Iterator, typename = IsChecksumSetIterator<Iterator>>
-//Checksums make_checksums(const Iterator begin, const Iterator end)
-//{
-//}
 
 
 /**
