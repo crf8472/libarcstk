@@ -1055,54 +1055,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		//CHECK ( not(const_copy3 != sequence.begin()) );
 	}
 
-//	SECTION ("Iterator Copy assignment")
-//	{
-//		using arcstk::SampleIterator;
-//
-//		SampleSequence<uint32_t, false/* interleaved */> sequence;
-//
-//		REQUIRE ( sequence.typesize() == 4 );
-//
-//		sequence.wrap(&bytes[0], 1024); // bytes
-//
-//		REQUIRE ( sequence.size() == 128 );
-//		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
-//
-//		auto const_begin { sequence.cbegin() };
-//		auto const_end   { sequence.cend() };
-//
-//		// Copy from const to const iterator
-//
-//		auto const_copy { sequence.cbegin() };
-//		const_copy = const_end;
-//
-//		CHECK ( const_copy == const_end );
-//		CHECK ( not(const_copy != const_end) );
-//
-//		// Copy from non-const to non-const iterator
-//
-//		auto copy { sequence.begin() };
-//		copy = sequence.end();
-//
-//		CHECK ( copy == sequence.end() );
-//		CHECK ( not(copy != sequence.end()) );
-//
-//		// Copy from non-const to const iterator
-//
-//		SampleIterator<uint32_t, false, true> const_copy2(sequence.begin());
-//		const_copy2 = sequence.end();
-//
-//		CHECK ( const_copy2 == sequence.end() );
-//		CHECK ( not(const_copy2 != sequence.end()) );
-//
-//		// Copy from const to non-const iterator is forbidden!
-//
-//		//copy = sequence.cbegin();
-//
-//		//CHECK ( const_copy3 == sequence.begin() );
-//		//CHECK ( not(const_copy3 != sequence.begin()) );
-//	}
-
 	SECTION ("Iterator Swap")
 	{
 		using arcstk::SampleIterator;
