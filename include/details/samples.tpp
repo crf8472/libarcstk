@@ -42,6 +42,11 @@ class SampleSequenceImplBase;
  * \internal
  *
  * \brief Iterator of a SampleSequence.
+ *
+ * Equality of between a const_iterator and an iterator works as expected.
+ *
+ * Although tagged as an input_iterator, SampleIterator provides decrement
+ * operations and subtraction additionally.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final
