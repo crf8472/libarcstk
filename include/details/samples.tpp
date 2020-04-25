@@ -73,7 +73,7 @@ public:
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
-	SampleIterator(const SampleIterator<T, is_planar, false> &rhs); // input_it
+	SampleIterator(const SampleIterator<T, is_planar, false> &rhs);
 
 	/**
 	 * \brief Dereference operator.
@@ -117,7 +117,7 @@ public:
 	 *
 	 * \param[in] rhs Right hand side of the assignment
 	 */
-	SampleIterator& operator = (const SampleIterator &rhs); // input_iterator
+	//SampleIterator& operator = (const SampleIterator &rhs);
 
 	// Commented out: pointer access to the underlying sample
 	/* *
@@ -344,8 +344,8 @@ SampleIterator<T, is_planar, is_const>::SampleIterator(
 
 
 template <typename T, bool is_planar, bool is_const>
-typename SampleIterator<T, is_planar, is_const>::value_type
-	SampleIterator<T, is_planar, is_const>::operator * () const
+auto SampleIterator<T, is_planar, is_const>::operator * () const
+	-> typename SampleIterator<T, is_planar, is_const>::value_type
 {
 	return seq_->operator[](static_cast<
 		typename SampleSequence<T, is_planar>::size_type>(pos_));
@@ -408,14 +408,15 @@ auto SampleIterator<T, is_planar, is_const>::operator -=
 }
 
 
-template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator =
-	(const SampleIterator<T, is_planar, is_const> &rhs)
-		-> SampleIterator<T, is_planar, is_const>&
-{
-	seq_ = rhs.seq_;
-	pos_ = rhs.pos_;
-}
+//template <typename T, bool is_planar, bool is_const>
+//auto SampleIterator<T, is_planar, is_const>::operator =
+//	(const SampleIterator<T, is_planar, false> &rhs)
+//		-> SampleIterator<T, is_planar, is_const>&
+//{
+//	seq_ = rhs.seq_;
+//	pos_ = rhs.pos_;
+//	return *this;
+//}
 
 
 // forward delcaration to be used by SampleSequenceImplBase
@@ -451,6 +452,20 @@ public: /* types */
 
 
 public: /* methods */
+
+	/**
+	 * \brief Iterator pointing behind to the beginning.
+	 *
+	 * \return Iterator pointing to the beginning of the SampleSequence
+	 */
+	const_iterator cbegin() const;
+
+	/**
+	 * \brief Iterator pointing behind the end.
+	 *
+	 * \return Iterator pointing behind the end of the SampleSequence
+	 */
+	const_iterator cend() const;
 
 	/**
 	 * \brief Iterator pointing behind to the beginning.
@@ -572,6 +587,25 @@ SampleSequenceImplBase<T, is_planar>::~SampleSequenceImplBase() noexcept
 
 
 template<typename T, bool is_planar>
+auto SampleSequenceImplBase<T, is_planar>::cbegin() const
+		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+{
+	return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
+}
+
+
+template<typename T, bool is_planar>
+auto SampleSequenceImplBase<T, is_planar>::cend() const
+		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+{
+	return SampleIterator<T, is_planar, true>(*this->sequence(),
+			static_cast<
+				typename SampleIterator<T, is_planar, false>::difference_type
+			>(this->size()));
+}
+
+
+template<typename T, bool is_planar>
 auto SampleSequenceImplBase<T, is_planar>::begin()
 		-> SampleSequenceImplBase<T, is_planar>::iterator
 {
@@ -594,7 +628,7 @@ template<typename T, bool is_planar>
 auto SampleSequenceImplBase<T, is_planar>::begin() const
 		-> SampleSequenceImplBase<T, is_planar>::const_iterator
 {
-	return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
+	return this->cbegin();
 }
 
 
@@ -602,7 +636,7 @@ template<typename T, bool is_planar>
 auto SampleSequenceImplBase<T, is_planar>::end() const
 		-> SampleSequenceImplBase<T, is_planar>::const_iterator
 {
-	return SampleIterator<T, is_planar, true>(*this->sequence(), this->size());
+	return this->cend();
 }
 
 
