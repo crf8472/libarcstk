@@ -51,7 +51,7 @@ using sample_type = uint32_t;
  *
  * The type is intended to perform arithmetic operations on it.
  */
-using sample_count = uint32_t;
+using sample_count = int32_t;
 /* TODO Typedef is unnecessary after successful test with int32_t */
 
 /**
@@ -64,8 +64,8 @@ using sample_count = uint32_t;
  *
  * The type is intended to perform arithmetic operations on it.
  */
-using lba_count = uint32_t;
-/* TODO Typedef is unnecessary after successful test with int32_t */
+using lba_count = int32_t;
+/* TODO Typedef is unnecessary after successful test with int */
 
 /**
  * \brief Data type for track numbers.

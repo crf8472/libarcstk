@@ -36,7 +36,7 @@ namespace details
 // ARIdBuilder
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const uint32_t leadout)
+std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const lba_count leadout)
 {
 	return build_worker(toc, leadout);
 }
@@ -90,35 +90,35 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 }
 
 
-uint32_t ARIdBuilder::disc_id_1(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::disc_id_1(const std::vector<lba_count> &offsets,
 		const lba_count leadout) noexcept
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
-	auto sum_offsets = uint32_t { 0 };
+	auto sum_offsets = lba_count { 0 };
 
 	for (const auto &o : offsets) { sum_offsets += o; }
 
-	return sum_offsets + static_cast<uint32_t>(leadout);
+	return static_cast<uint32_t>(sum_offsets + leadout);
 }
 
 
-uint32_t ARIdBuilder::disc_id_2(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::disc_id_2(const std::vector<lba_count> &offsets,
 		const lba_count leadout) noexcept
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
 
-	auto accum = uint32_t { 0 };
+	auto accum = lba_count { 0 };
 
-	auto track = uint16_t { 1 };
+	auto track { 1 };
 	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
 
-	return accum + static_cast<uint32_t>(leadout) /* must be > 0*/ * track;
+	return static_cast<uint32_t>(accum + leadout * track);
 }
 
 
-uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
+uint32_t ARIdBuilder::cddb_id(const std::vector<lba_count> &offsets,
 		const lba_count leadout) noexcept
 {
 	const auto fps { static_cast<uint32_t>(CDDA.FRAMES_PER_SEC) };
@@ -126,12 +126,13 @@ uint32_t ARIdBuilder::cddb_id(const std::vector<uint32_t> &offsets,
 
 	for (const auto &o : offsets)
 	{
-		accum += sum_digits(o / fps + 2u);
+		accum += sum_digits(static_cast<uint32_t>(o) / fps + 2u);
 	}
 	accum %= 255; // normalize to 1 byte
 
 	const uint32_t total_seconds {
-		static_cast<uint32_t>(leadout) / fps  -  offsets[0] / fps };
+		static_cast<uint32_t>(leadout) / fps  -
+			static_cast<uint32_t>(offsets[0]) / fps };
 
 	// since 0 <= offsets.size <= 99 narrowing is no problem
 	const auto track_count = uint32_t { static_cast<uint32_t>(offsets.size()) };
@@ -460,13 +461,13 @@ TrackNo TOC::track_count() const noexcept
 }
 
 
-uint32_t TOC::offset(const TrackNo idx) const
+lba_count TOC::offset(const TrackNo idx) const
 {
 	return impl_->offset(idx);
 }
 
 
-uint32_t TOC::parsed_length(const TrackNo idx) const
+lba_count TOC::parsed_length(const TrackNo idx) const
 {
 	return impl_->parsed_length(idx);
 }
@@ -478,7 +479,7 @@ std::string TOC::filename(const TrackNo idx) const
 }
 
 
-uint32_t TOC::leadout() const noexcept
+lba_count TOC::leadout() const noexcept
 {
 	return impl_->leadout();
 }
@@ -714,31 +715,31 @@ decltype(auto) toc_get(Container&& c,
 } // namespace details
 
 
-std::vector<uint32_t> get_offsets(const TOC &toc)
+std::vector<lba_count> get_offsets(const TOC &toc)
 {
-	std::vector<uint32_t> target;
+	std::vector<lba_count> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
 
 	return details::toc_get(target, toc, &TOC::offset);
 }
 
 
-std::vector<uint32_t> get_offsets(const std::unique_ptr<TOC> &toc)
+std::vector<lba_count> get_offsets(const std::unique_ptr<TOC> &toc)
 {
 	return get_offsets(*toc);
 }
 
 
-std::vector<uint32_t> get_parsed_lengths(const TOC &toc)
+std::vector<lba_count> get_parsed_lengths(const TOC &toc)
 {
-	std::vector<uint32_t> target;
+	std::vector<lba_count> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
 
 	return details::toc_get(target, toc, &TOC::parsed_length);
 }
 
 
-std::vector<uint32_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc)
+std::vector<lba_count> get_parsed_lengths(const std::unique_ptr<TOC> &toc)
 {
 	return get_parsed_lengths(*toc);
 }
@@ -776,14 +777,14 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc)
 }
 
 
-std::unique_ptr<ARId> make_arid(const TOC &toc, const uint32_t leadout)
+std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count leadout)
 {
 	return details::ARIdBuilder::build(toc, leadout);
 }
 
 
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
-		const uint32_t leadout)
+		const lba_count leadout)
 {
 	return make_arid(*toc, leadout);
 }

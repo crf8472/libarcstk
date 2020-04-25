@@ -90,8 +90,8 @@ public:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
-			const uint32_t offset,
-			const uint32_t number_of_samples,
+			const sample_count offset,
+			const sample_count number_of_samples,
 			const CalcContext &context) const;
 
 	/**
@@ -116,8 +116,8 @@ protected:
 	 *
 	 * \return Index of the last physical sample in the block
 	 */
-	uint32_t last_sample_idx(const uint32_t offset,
-			const uint32_t sample_count) const;
+	sample_count last_sample_idx(const sample_count offset,
+			const sample_count sample_count) const;
 
 	/**
 	 * \brief Creates a Partition.
@@ -138,10 +138,10 @@ protected:
 	 * \return A Partition as specified
 	 */
 	Partition create_partition(
-			const uint32_t     &begin_offset,
-			const uint32_t     &end_offset,
-			const uint32_t     &first,
-			const uint32_t     &last,
+			const sample_count     &begin_offset,
+			const sample_count     &end_offset,
+			const sample_count     &first,
+			const sample_count     &last,
 			const bool         &starts_track,
 			const bool         &ends_track,
 			const TrackNo      &track) const;
@@ -159,8 +159,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-			const uint32_t offset,
-			const uint32_t number_of_samples,
+			const sample_count offset,
+			const sample_count number_of_samples,
 			const CalcContext &context) const
 	= 0;
 };
@@ -194,8 +194,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning do_create_partitioning(
-			const uint32_t offset,
-			const uint32_t number_of_samples,
+			const sample_count offset,
+			const sample_count number_of_samples,
 			const CalcContext &context)
 			const override;
 };
@@ -229,8 +229,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning do_create_partitioning(
-			const uint32_t offset,
-			const uint32_t number_of_samples,
+			const sample_count offset,
+			const sample_count number_of_samples,
 			const CalcContext &context)
 			const override;
 };
@@ -260,28 +260,28 @@ public: /* methods */
 	 *
 	 * \return Relative offset of the first sample in the partition.
 	 */
-	uint32_t begin_offset() const;
+	sample_count begin_offset() const;
 
 	/**
 	 * \brief Relative offset of the last sample in the partition + 1.
 	 *
 	 * \return Relative offset of the last sample in the partition + 1.
 	 */
-	uint32_t end_offset() const;
+	sample_count end_offset() const;
 
 	/**
 	 * \brief Returns global index of the first sample in the partition.
 	 *
 	 * \return Global index of the first sample in this partition
 	 */
-	uint32_t first_sample_idx() const;
+	sample_count first_sample_idx() const;
 
 	/**
 	 * \brief Returns global index of the last sample in the partition.
 	 *
 	 * \return Global index of the last sample in this partition
 	 */
-	uint32_t last_sample_idx() const;
+	sample_count last_sample_idx() const;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the
@@ -311,7 +311,7 @@ public: /* methods */
 	 *
 	 * \return Number of samples in this partition
 	 */
-	uint32_t size() const;
+	sample_count size() const;
 
 
 private:
@@ -334,10 +334,10 @@ private:
 	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
-			const uint32_t     &begin_offset,
-			const uint32_t     &end_offset,
-			const uint32_t     &first,
-			const uint32_t     &last,
+			const sample_count     &begin_offset,
+			const sample_count     &end_offset,
+			const sample_count     &first,
+			const sample_count     &last,
 			const bool         &starts_track,
 			const bool         &ends_track,
 			const TrackNo      &track);
@@ -345,22 +345,22 @@ private:
 	/**
 	 * \brief Relative offset of the first sample in this partition
 	 */
-	const uint32_t begin_offset_;
+	const sample_count begin_offset_;
 
 	/**
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
-	const uint32_t end_offset_;
+	const sample_count end_offset_;
 
 	/**
 	 * \brief Global (absolute) index of the first sample in this partition
 	 */
-	const uint32_t first_sample_idx_;
+	const sample_count first_sample_idx_;
 
 	/**
 	 * \brief Global (absolute) index of the last sample in this partition
 	 */
-	const uint32_t last_sample_idx_;
+	const sample_count last_sample_idx_;
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
@@ -400,7 +400,7 @@ public:
 	 * \param[in] a First number in closed interval
 	 * \param[in] b Last number in closed interval
 	 */
-	Interval(const uint32_t a, const uint32_t b);
+	Interval(const sample_count a, const sample_count b);
 
 	/**
 	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise
@@ -410,7 +410,7 @@ public:
 	 *
 	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
 	 */
-	bool contains(const uint32_t i) const;
+	bool contains(const sample_count i) const;
 
 
 private:
@@ -418,12 +418,12 @@ private:
 	/**
 	 * \brief First number in interval
 	 */
-	const uint32_t a_;
+	const sample_count a_;
 
 	/**
 	 * \brief Last number in interval
 	 */
-	const uint32_t b_;
+	const sample_count b_;
 };
 
 
@@ -434,10 +434,10 @@ private:
 
 
 Partition::Partition(
-		const uint32_t &begin_offset,
-		const uint32_t &end_offset,
-		const uint32_t &first,
-		const uint32_t &last,
+		const sample_count &begin_offset,
+		const sample_count &end_offset,
+		const sample_count &first,
+		const sample_count &last,
 		const bool     &starts_track,
 		const bool     &ends_track,
 		const TrackNo  &track
@@ -454,25 +454,25 @@ Partition::Partition(
 }
 
 
-uint32_t Partition::begin_offset() const
+sample_count Partition::begin_offset() const
 {
 	return begin_offset_;
 }
 
 
-uint32_t Partition::end_offset() const
+sample_count Partition::end_offset() const
 {
 	return end_offset_;
 }
 
 
-uint32_t Partition::first_sample_idx() const
+sample_count Partition::first_sample_idx() const
 {
 	return first_sample_idx_;
 }
 
 
-uint32_t Partition::last_sample_idx() const
+sample_count Partition::last_sample_idx() const
 {
 	return last_sample_idx_;
 }
@@ -496,7 +496,7 @@ TrackNo Partition::track() const
 }
 
 
-uint32_t Partition::size() const
+sample_count Partition::size() const
 {
 	return last_sample_idx() - first_sample_idx() + 1;
 }
@@ -505,7 +505,7 @@ uint32_t Partition::size() const
 // Interval
 
 
-Interval::Interval(const uint32_t a, const uint32_t b)
+Interval::Interval(const sample_count a, const sample_count b)
 	: a_ { a }
 	, b_ { b }
 {
@@ -513,7 +513,7 @@ Interval::Interval(const uint32_t a, const uint32_t b)
 }
 
 
-bool Interval::contains(const uint32_t i) const
+bool Interval::contains(const sample_count i) const
 {
 	if (a_ <= b_)
 	{
@@ -531,8 +531,8 @@ Partitioner::~Partitioner() noexcept = default;
 
 
 Partitioning Partitioner::create_partitioning(
-		const uint32_t offset,
-		const uint32_t number_of_samples,
+		const sample_count offset,
+		const sample_count number_of_samples,
 		const CalcContext &context) const
 {
 	// If the sample block does not contain any relevant samples,
@@ -552,18 +552,18 @@ Partitioning Partitioner::create_partitioning(
 }
 
 
-uint32_t Partitioner::last_sample_idx(const uint32_t offset,
-		const uint32_t sample_count) const
+sample_count Partitioner::last_sample_idx(const sample_count offset,
+		const sample_count sample_count) const
 {
 	return offset + sample_count - 1;
 }
 
 
 Partition Partitioner::create_partition(
-		const uint32_t     &begin_offset,
-		const uint32_t     &end_offset,
-		const uint32_t     &first,
-		const uint32_t     &last,
+		const sample_count     &begin_offset,
+		const sample_count     &end_offset,
+		const sample_count     &first,
+		const sample_count     &last,
 		const bool         &starts_track,
 		const bool         &ends_track,
 		const TrackNo      &track) const
@@ -583,22 +583,22 @@ std::unique_ptr<Partitioner> MultitrackPartitioner::clone() const
 
 
 Partitioning MultitrackPartitioner::do_create_partitioning(
-		const uint32_t offset,
-		const uint32_t number_of_samples,
+		const sample_count offset,
+		const sample_count number_of_samples,
 		const CalcContext &context) const
 {
-	const auto sample_count = uint32_t { number_of_samples };
+	const auto total_samples = sample_count { number_of_samples };
 
 	Interval sample_block {
-		offset, this->last_sample_idx(offset, sample_count)
+		offset, this->last_sample_idx(offset, total_samples)
 	};
 
 	// If the sample index range of this block contains the last relevant
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	auto block_last_smpl = uint32_t {
-		this->last_sample_idx(offset, sample_count) };
+	auto block_last_smpl = sample_count {
+		this->last_sample_idx(offset, total_samples) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
@@ -609,7 +609,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	auto chunk_first_smpl = uint32_t { offset };
+	auto chunk_first_smpl = sample_count { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -621,10 +621,10 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	auto track = TrackNo { context.track(chunk_first_smpl) };
 
 	// If track > track_count this is global last sample
-	auto chunk_last_smpl = uint32_t { context.last_relevant_sample(track) };
+	auto chunk_last_smpl = sample_count { context.last_relevant_sample(track) };
 
-	auto begin_offset = uint32_t { 0 } ;
-	auto end_offset   = uint32_t { 0 } ;
+	auto begin_offset = sample_count { 0 } ;
+	auto end_offset   = sample_count { 0 } ;
 	auto starts_track = bool     { false } ;
 	auto ends_track   = bool     { false } ;
 
@@ -726,21 +726,21 @@ std::unique_ptr<Partitioner> SingletrackPartitioner::clone() const
 
 
 Partitioning SingletrackPartitioner::do_create_partitioning(
-		const uint32_t offset,
-		const uint32_t number_of_samples,
+		const sample_count offset,
+		const sample_count number_of_samples,
 		const CalcContext &context) const
 {
-	const auto sample_count = uint32_t { number_of_samples };
+	const auto total_samples = sample_count { number_of_samples };
 
 	Interval sample_block {
-		offset, this->last_sample_idx(offset, sample_count)
+		offset, this->last_sample_idx(offset, total_samples)
 	};
 
 	// If the sample index range of this block contains the last relevant
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	auto chunk_last_smpl = uint32_t { this->last_sample_idx(offset, sample_count) };
+	auto chunk_last_smpl = sample_count { this->last_sample_idx(offset, total_samples) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
@@ -751,7 +751,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	auto chunk_first_smpl = uint32_t { offset };
+	auto chunk_first_smpl = sample_count { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -775,11 +775,11 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 
 	// Determine first sample in partition (easy for singletrack: 0)
 
-	const auto begin_offset = uint32_t { chunk_first_smpl - offset };
+	const auto begin_offset = sample_count { chunk_first_smpl - offset };
 
-	// Determine last sample in partition (easy for singletrack: sample_count)
+	// Determine last sample in partition (easy for singletrack: total_samples)
 
-	const auto end_offset = uint32_t { chunk_last_smpl - offset + 1 };
+	const auto end_offset = sample_count { chunk_last_smpl - offset + 1 };
 
 	Partitioning chunks;
 	chunks.push_back(
@@ -820,8 +820,8 @@ public:
 	 * \param[in] num_skip_front Amount of samples to skip at the beginning
 	 * \param[in] num_skip_back  Amount of samples to skip at the end
 	 */
-	CalcContextBase(const std::string &filename, const uint32_t num_skip_front,
-			const uint32_t num_skip_back);
+	CalcContextBase(const std::string &filename, const sample_count num_skip_front,
+			const sample_count num_skip_back);
 
 
 private:
@@ -839,28 +839,28 @@ private:
 	// do_track_count()
 	// do_is_multi_track()
 
-	uint32_t do_first_relevant_sample(const TrackNo) const noexcept override;
+	sample_count do_first_relevant_sample(const TrackNo) const noexcept override;
 
-	uint32_t do_first_relevant_sample_0() const noexcept override;
+	sample_count do_first_relevant_sample_0() const noexcept override;
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept
+	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
 		override;
 
-	uint32_t do_last_relevant_sample_0() const noexcept override;
+	sample_count do_last_relevant_sample_0() const noexcept override;
 
-	// do_track(const uint32_t)
+	// do_track(const sample_count)
 	// do_offset(const uint8_t)
 	// do_length(const uint8_t)
 	// do_id()
 	// do_skips_front()
 	// do_skips_back()
 
-	uint32_t do_num_skip_front() const noexcept override;
+	sample_count do_num_skip_front() const noexcept override;
 
-	uint32_t do_num_skip_back() const noexcept override;
+	sample_count do_num_skip_back() const noexcept override;
 
-	void do_notify_skips(const uint32_t num_skip_front,
-			const uint32_t num_skip_back) noexcept override;
+	void do_notify_skips(const sample_count num_skip_front,
+			const sample_count num_skip_back) noexcept override;
 
 	// do_clone()
 
@@ -904,12 +904,12 @@ private:
 	/**
 	 * \brief Number of samples to skip at beginning of first track if requested
 	 */
-	uint32_t num_skip_front_;
+	sample_count num_skip_front_;
 
 	/**
 	 * \brief Number of samples to skip at end of last track if requested
 	 */
-	uint32_t num_skip_back_;
+	sample_count num_skip_back_;
 };
 
 
@@ -973,8 +973,8 @@ public:
 	 * \param[in] num_skip_back Amount of samples to skip at the end
 	 */
 	SingletrackCalcContext(const std::string &filename,
-			const bool skip_front, const uint32_t num_skip_front,
-			const bool skip_back,  const uint32_t num_skip_back);
+			const bool skip_front, const sample_count num_skip_front,
+			const bool skip_back,  const sample_count num_skip_back);
 
 	/**
 	 * \brief Activate skipping of the first 2939 samples of the first track.
@@ -997,15 +997,15 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	uint32_t do_first_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_first_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_last_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const uint32_t smpl) const noexcept final;
+	TrackNo do_track(const sample_count smpl) const noexcept final;
 
 	lba_count do_offset(const uint8_t track) const noexcept final;
 
@@ -1096,8 +1096,8 @@ public:
 	 * \param[in] skip_back  Amount of samples to skip at the end
 	 * \param[in] filename   Name of the file
 	 */
-	MultitrackCalcContext(const TOC &toc, const uint32_t skip_front,
-			const uint32_t skip_back,
+	MultitrackCalcContext(const TOC &toc, const sample_count skip_front,
+			const sample_count skip_back,
 			const std::string &filename = EmptyString);
 
 	/**
@@ -1111,7 +1111,7 @@ public:
 	 * \param[in] filename   Name of the file
 	 */
 	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-			const uint32_t skip_front, const uint32_t skip_back,
+			const sample_count skip_front, const sample_count skip_back,
 			const std::string &filename = EmptyString);
 
 	/**
@@ -1137,15 +1137,15 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	uint32_t do_first_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_first_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	uint32_t do_last_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_last_relevant_sample(const TrackNo track) const noexcept final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const uint32_t smpl) const noexcept final;
+	TrackNo do_track(const sample_count smpl) const noexcept final;
 
 	lba_count do_offset(const uint8_t track) const noexcept final;
 
@@ -1212,7 +1212,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the beginning
 	 */
-	virtual uint32_t num_skip_front() const noexcept
+	virtual sample_count num_skip_front() const noexcept
 	= 0;
 
 	/**
@@ -1220,7 +1220,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the end
 	 */
-	virtual uint32_t num_skip_back() const noexcept
+	virtual sample_count num_skip_back() const noexcept
 	= 0;
 
 	/**
@@ -1386,9 +1386,9 @@ public:
 	 */
 	void init_without_skip() noexcept override;
 
-	uint32_t num_skip_front() const noexcept override;
+	sample_count num_skip_front() const noexcept override;
 
-	uint32_t num_skip_back() const noexcept override;
+	sample_count num_skip_back() const noexcept override;
 
 	void update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
@@ -1426,12 +1426,12 @@ private:
 	/**
 	 * \brief Actual amount of skipped samples at front
 	 */
-	uint32_t actual_skip_front_;
+	sample_count actual_skip_front_;
 
 	/**
 	 * \brief Actual amount of skipped samples at back
 	 */
-	uint32_t actual_skip_back_;
+	sample_count actual_skip_back_;
 };
 
 
