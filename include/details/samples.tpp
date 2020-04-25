@@ -112,20 +112,8 @@ public:
 	 */
 	SampleIterator& operator -= (const difference_type value);
 
-	/**
-	 * \brief Copy assignment
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 */
-	//SampleIterator& operator = (const SampleIterator &rhs);
 
-	// Commented out: pointer access to the underlying sample
-	/* *
-	 * \brief Pointer access.
-	 *
-	 * \return Pointer the underlying sample
-	 */
-	//pointer operator -> ();
+	SampleIterator& operator = (const SampleIterator &rhs) = delete;
 
 
 	// Binary non-assignment operators are friends:
@@ -406,17 +394,6 @@ auto SampleIterator<T, is_planar, is_const>::operator -=
 	pos_ -= value;
 	return *this;
 }
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator =
-//	(const SampleIterator<T, is_planar, false> &rhs)
-//		-> SampleIterator<T, is_planar, is_const>&
-//{
-//	seq_ = rhs.seq_;
-//	pos_ = rhs.pos_;
-//	return *this;
-//}
 
 
 // forward delcaration to be used by SampleSequenceImplBase
