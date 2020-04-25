@@ -92,8 +92,6 @@ arcstk::Checksums parse_input_arcs(const char* list,
 	const auto total_tracks { static_cast<std::size_t>(
 		1 + std::count(checksum_list.begin(), checksum_list.end(), ',')) };
 
-	arcstk::Checksums checksums { total_tracks };
-
 	std::string::size_type token_start { 0 };
 	std::string::size_type token_end   { checksum_list.find_first_of(',') };
 
@@ -102,6 +100,7 @@ arcstk::Checksums parse_input_arcs(const char* list,
 
 	std::string token; // current token
 	auto arcs = uint32_t { 0 };  // ARCS of the current token
+	arcstk::Checksums checksums { total_tracks };
 	for (std::size_t i = 0; i < total_tracks; ++i)
 	{
 		token = checksum_list.substr(token_start, token_end - token_start);
@@ -119,7 +118,10 @@ arcstk::Checksums parse_input_arcs(const char* list,
 			<< " - " << std::setw(3) << std::setfill(' ') << token_end << ")"
 			<< '\n';
 
-		checksums[i].insert(t, arcstk::Checksum(arcs));
+		auto track_sum = arcstk::ChecksumSet { 0 };
+		track_sum.insert(t, arcstk::Checksum(arcs));
+		checksums.append(track_sum);
+
 		token_start = token_end + 1;
 		token_end   = checksum_list.find_first_of(',', token_start);
 
