@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <fstream>
+#include <limits>
 #include <memory>
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
@@ -1276,10 +1277,12 @@ TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 {
 	using arcstk::sample_type;
+	using arcstk::sample_count;
 	using arcstk::make_context;
 	using arcstk::make_empty_arid;
-	auto empty_default_arid = make_empty_arid();
 
+	const auto empty_default_arid = make_empty_arid();
+	const auto SAMPLE_TYPE_MAX_VALUE = std::numeric_limits<sample_type>::max();
 
 	SECTION ( "Construction without parameters is correct" )
 	{
@@ -1312,15 +1315,15 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 		CHECK ( sctx->first_relevant_sample(99)  == 0 );
 		CHECK ( sctx->first_relevant_sample(255) == 0 );
 
-		CHECK ( sctx->last_relevant_sample()    == static_cast<uint32_t>(-1) );
+		CHECK ( sctx->last_relevant_sample()    == SAMPLE_TYPE_MAX_VALUE );
 
-		CHECK ( sctx->last_relevant_sample(0)   == static_cast<uint32_t>(-1) );
-		CHECK ( sctx->last_relevant_sample(1)   == static_cast<uint32_t>(-1) );
-		CHECK ( sctx->last_relevant_sample(99)  == static_cast<uint32_t>(-1) );
-		CHECK ( sctx->last_relevant_sample(255) == static_cast<uint32_t>(-1) );
+		CHECK ( sctx->last_relevant_sample(0)   == SAMPLE_TYPE_MAX_VALUE );
+		CHECK ( sctx->last_relevant_sample(1)   == SAMPLE_TYPE_MAX_VALUE );
+		CHECK ( sctx->last_relevant_sample(99)  == SAMPLE_TYPE_MAX_VALUE );
+		CHECK ( sctx->last_relevant_sample(255) == SAMPLE_TYPE_MAX_VALUE );
 
 		CHECK ( sctx->track(0) == 1 );
-		CHECK ( sctx->track(static_cast<uint32_t>(-1)) == 1);
+		CHECK ( sctx->track(std::numeric_limits<sample_count>::max()) == 1);
 	}
 
 	// TODO Construction with parameters? (bool, bool, audiofilename)

@@ -538,10 +538,12 @@ Partitioning Partitioner::create_partitioning(
 	// If the sample block does not contain any relevant samples,
 	// just return an empty partition list
 
-	auto const block_end { last_sample_idx(offset, number_of_samples) };
+	const auto block_end { last_sample_idx(offset, number_of_samples) };
 
-	if (block_end < context.first_relevant_sample(1)
-		or offset > context.last_relevant_sample())
+	const auto first_smpl { context.first_relevant_sample(1) };
+	// avoids -Wstrict-overflow firing in if-clause
+
+	if (block_end < first_smpl or offset > context.last_relevant_sample())
 	{
 		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
 
@@ -625,8 +627,8 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 
 	auto begin_offset = sample_count { 0 } ;
 	auto end_offset   = sample_count { 0 } ;
-	auto starts_track = bool     { false } ;
-	auto ends_track   = bool     { false } ;
+	auto starts_track = bool { false } ;
+	auto ends_track   = bool { false } ;
 
 	const auto last_track = uint8_t { context.track_count() };
 
