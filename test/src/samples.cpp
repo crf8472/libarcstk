@@ -17,16 +17,20 @@
 TEST_CASE ( "SampleSequence allows int16_t and int32_t",
 		"[samplesequence] [construction]" )
 {
-	arcstk::SampleSequence<int16_t, true>  seq_planar_16;
-	arcstk::SampleSequence<int16_t, false> seq_interl_16;
-	arcstk::SampleSequence<int32_t, true>  seq_planar_32;
-	arcstk::SampleSequence<int32_t, false> seq_interl_32;
+	using arcstk::SampleSequence;
+
+	SampleSequence<int16_t, true>  seq_planar_16;
+	SampleSequence<int16_t, false> seq_interl_16;
+	SampleSequence<int32_t, true>  seq_planar_32;
+	SampleSequence<int32_t, false> seq_interl_32;
 }
 
 
 TEST_CASE ( "SampleSequence index access works correctly",
-		"[samplesequence] [subscript] [iterator]" )
+		"[samplesequence] [subscript]" )
 {
+	using arcstk::SampleSequence;
+
 	// Load example samples
 
 	std::ifstream in;
@@ -62,7 +66,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t interleaved sequence")
 	{
-		arcstk::SampleSequence<int16_t, false> sequence;
+		SampleSequence<int16_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -126,7 +130,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iterate in16_t interleaved sequence")
 	{
-		arcstk::SampleSequence<int16_t, false> sequence;
+		SampleSequence<int16_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -263,7 +267,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t interleaved sequence")
 	{
-		arcstk::SampleSequence<int16_t, false> sequence;
+		SampleSequence<int16_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -272,7 +276,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		arcstk::SampleSequence<int16_t, false>::size_type index = 0;
+		SampleSequence<int16_t, false>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -285,7 +289,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		arcstk::SampleSequence<int16_t, false>::size_type index2 = 0;
+		SampleSequence<int16_t, false>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -297,7 +301,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in32_t interleaved sequence")
 	{
-		arcstk::SampleSequence<int32_t, false> sequence;
+		SampleSequence<int32_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -385,7 +389,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in32_t interleaved sequence")
 	{
-		arcstk::SampleSequence<int32_t, false> sequence;
+		SampleSequence<int32_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -394,7 +398,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		arcstk::SampleSequence<int32_t, false>::size_type index = 0;
+		SampleSequence<int32_t, false>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -407,7 +411,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		arcstk::SampleSequence<int32_t, false>::size_type index2 = 0;
+		SampleSequence<int32_t, false>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -419,7 +423,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t planar sequence")
 	{
-		arcstk::SampleSequence<int16_t, true> sequence;
+		SampleSequence<int16_t, true> sequence;
 
 		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
 
@@ -483,7 +487,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t planar sequence")
 	{
-		arcstk::SampleSequence<int16_t, true> sequence;
+		SampleSequence<int16_t, true> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -492,7 +496,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		arcstk::SampleSequence<int16_t, true>::size_type index = 0;
+		SampleSequence<int16_t, true>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -507,7 +511,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		arcstk::SampleSequence<int16_t, true>::size_type index2 = 0;
+		SampleSequence<int16_t, true>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -519,7 +523,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in32_t planar sequence")
 	{
-		arcstk::SampleSequence<int32_t, true> sequence;
+		SampleSequence<int32_t, true> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -609,7 +613,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in32_t planar sequence")
 	{
-		arcstk::SampleSequence<int32_t, true> sequence;
+		SampleSequence<int32_t, true> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -618,7 +622,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		arcstk::SampleSequence<int32_t, true>::size_type index = 0;
+		SampleSequence<int32_t, true>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -633,7 +637,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		arcstk::SampleSequence<int32_t, true>::size_type index2 = 0;
+		SampleSequence<int32_t, true>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -645,7 +649,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t interleaved sequence")
 	{
-		arcstk::SampleSequence<uint16_t, false> sequence;
+		SampleSequence<uint16_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -709,7 +713,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t planar sequence")
 	{
-		arcstk::SampleSequence<uint16_t, true> sequence;
+		SampleSequence<uint16_t, true> sequence;
 
 		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
 
@@ -773,7 +777,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin32_t interleaved sequence")
 	{
-		arcstk::SampleSequence<uint32_t, false> sequence;
+		SampleSequence<uint32_t, false> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -861,7 +865,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin32_t planar sequence")
 	{
-		arcstk::SampleSequence<uint32_t, true> sequence;
+		SampleSequence<uint32_t, true> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -949,9 +953,151 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[127] == 0xDD6D28EF );
 	}
 
-	SECTION ("SampleIterator 16 bit begin and end", "[sampleiterator]")
+	SECTION ("Iterator Equality")
 	{
-		arcstk::SampleSequence<int16_t, true> sequence;
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		const auto begin1 = sequence.begin();
+		auto begin2 = sequence.begin();
+		auto begin3 = sequence.begin();
+
+		// const == non-const
+		CHECK ( begin1 == begin2 );
+		CHECK ( not(begin1 != begin2) );
+
+		// non-const == non-const
+		CHECK ( begin3 == begin2 );
+		CHECK ( not(begin3 != begin2) );
+
+		// move one of them
+		begin2++;
+		CHECK ( not(begin3 == begin2) );
+		CHECK ( begin3 != begin2 );
+
+		// take begin of other sequence
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence_other;
+		sequence_other.wrap(&bytes[0], 1024); // bytes
+		auto begin_other = sequence_other.begin();
+
+		CHECK ( not(begin_other == begin2) );
+		CHECK ( begin_other != begin2 );
+	}
+
+	SECTION ("Iterator Copy constructor")
+	{
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		const auto const_begin { sequence.begin() };
+		const auto const_end   { sequence.end() };
+
+		REQUIRE ( const_begin != const_end );
+
+		// Copy from const to non-const iterator
+		SampleIterator<uint32_t, false, false> nonconst_copy { const_begin };
+
+		CHECK ( nonconst_copy == const_begin );
+		CHECK ( not(nonconst_copy != const_begin) );
+
+		// Copy from const to non-const iterator
+		SampleIterator<uint32_t, false, true> const_copy { const_begin };
+
+		CHECK ( const_copy == const_begin );
+		CHECK ( not(const_copy != const_begin) );
+	}
+
+	SECTION ("Iterator is destructible")
+	{
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		auto pointer = new SampleIterator<uint32_t, false, false>(
+				sequence.begin());
+		delete pointer;
+	}
+
+	SECTION ("Iterator Copy assignment")
+	{
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		const auto const_begin { sequence.begin() };
+		const auto const_end   { sequence.end() };
+
+		REQUIRE ( const_begin != const_end );
+
+		// Copy from const to non-const iterator
+		SampleIterator<uint32_t, false, false> nonconst_copy = const_begin;
+
+		CHECK ( nonconst_copy == const_begin );
+		CHECK ( not(nonconst_copy != const_begin) );
+
+		// Copy from const to non-const iterator
+		SampleIterator<uint32_t, false, true> const_copy = const_begin;
+
+		CHECK ( const_copy == const_begin );
+		CHECK ( not(const_copy != const_begin) );
+	}
+
+	SECTION ("Iterator Swap")
+	{
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		auto begin { sequence.begin() };
+		auto end   { sequence.end() };
+
+		CHECK ( begin == sequence.begin() );
+		CHECK ( end   == sequence.end() );
+
+		swap(begin, end);
+
+		CHECK ( end   == sequence.begin() );
+		CHECK ( begin == sequence.end() );
+	}
+
+	SECTION ("Iterator 16 bit begin and end")
+	{
+		SampleSequence<int16_t, true> sequence;
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
@@ -966,9 +1112,9 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		//CHECK ( not sequence.empty() );
 	}
 
-	SECTION ("SampleIterator 32 bit begin and end", "[sampleiterator]")
+	SECTION ("Iterator 32 bit begin and end")
 	{
-		arcstk::SampleSequence<int32_t, true> sequence;
+		SampleSequence<int32_t, true> sequence;
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
@@ -981,6 +1127,48 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 		//CHECK ( not sequence.empty() );
+
+		CHECK ( *sequence.begin() == 0xD9DBC2A5 );
+	}
+
+	SECTION ("Iterator increment begins on beginning and ends on end")
+	{
+		using arcstk::SampleIterator;
+
+		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		sequence.wrap(&bytes[0], 1024); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+
+		auto ptr = sequence.begin();
+
+		// begin: first 10 samples
+		CHECK (    *ptr  == 0x9ECCC2A5 );
+		CHECK ( *(++ptr) == 0x65DC4D95 );
+		CHECK ( *(++ptr) == 0x0C0F979D );
+		CHECK ( *(++ptr) == 0x84699BD5 );
+		CHECK ( *(++ptr) == 0xF5F6F9E6 );
+		CHECK ( *(++ptr) == 0xE6EAC2DA );
+		CHECK ( *(++ptr) == 0x8E86AA07 );
+		CHECK ( *(++ptr) == 0x60F6FA60 );
+		CHECK ( *(++ptr) == 0x4A1FF5A5 );
+		CHECK ( *(++ptr) == 0x5BCA0129 );
+
+		ptr += 109;
+
+		// end: last 10 samples
+		CHECK (    *ptr  == 0xE6791252 ); // 118
+		CHECK ( *(++ptr) == 0xE46ECE70 );
+		CHECK ( *(++ptr) == 0x352BB52A );
+		CHECK ( *(++ptr) == 0x59952BDA );
+		CHECK ( *(++ptr) == 0x31C575C7 );
+		CHECK ( *(++ptr) == 0xA419E185 );
+		CHECK ( *(++ptr) == 0xA7ED30D6 );
+		CHECK ( *(++ptr) == 0x363FBB36 );
+		CHECK ( *(++ptr) == 0xE0EBE817 );
+		CHECK ( *(++ptr) == 0xDD6DABA8 );
+
+		CHECK ( ++ptr == sequence.end() );
 	}
 }
 

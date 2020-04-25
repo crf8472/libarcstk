@@ -55,8 +55,7 @@ class SampleIterator final
 
 public:
 
-	using iterator_category = std::random_access_iterator_tag;
-	// FIXME Must be at most input_iterator (LegacyInputIterator)
+	using iterator_category = std::input_iterator_tag;
 
 	using value_type        = sample_t;
 
@@ -74,7 +73,7 @@ public:
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
-	SampleIterator(const SampleIterator<T, is_planar, false> &rhs);
+	SampleIterator(const SampleIterator<T, is_planar, false> &rhs); // input_it
 
 	/**
 	 * \brief Dereference operator.
@@ -114,15 +113,11 @@ public:
 	SampleIterator& operator -= (const difference_type value);
 
 	/**
-	 * \brief Subscript operator.
+	 * \brief Copy assignment
 	 *
-	 * Access position \c index without bounds check.
-	 *
-	 * \param[in] index Index position to access
-	 *
-	 * \return Sample at position \c index
+	 * \param[in] rhs Right hand side of the assignment
 	 */
-	value_type operator [] (const difference_type index) const;
+	SampleIterator& operator = (const SampleIterator &rhs); // input_iterator
 
 	// Commented out: pointer access to the underlying sample
 	/* *
@@ -131,6 +126,7 @@ public:
 	 * \return Pointer the underlying sample
 	 */
 	//pointer operator -> ();
+
 
 	// Binary non-assignment operators are friends:
 	// 1.) Makes the operator a non-member to the class. (Makes type
@@ -282,6 +278,20 @@ public:
 		return not(lhs < rhs);
 	}
 
+	/**
+	 * \brief Swap two iterators
+	 *
+	 * \param[in] lhs Left-hand side to swap
+	 * \param[in] rhs Right-hand side to swap
+	 */
+	friend void swap(SampleIterator &lhs, SampleIterator &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.seq_, rhs.seq_);
+		swap(lhs.pos_, rhs.pos_);
+	}
+
 
 private:
 
@@ -399,11 +409,12 @@ auto SampleIterator<T, is_planar, is_const>::operator -=
 
 
 template <typename T, bool is_planar, bool is_const>
-auto SampleIterator<T, is_planar, is_const>::operator [] (
-		const difference_type index) const
-			-> SampleIterator<T, is_planar, is_const>::value_type
+auto SampleIterator<T, is_planar, is_const>::operator =
+	(const SampleIterator<T, is_planar, is_const> &rhs)
+		-> SampleIterator<T, is_planar, is_const>&
 {
-	return seq_->operator[](index);
+	seq_ = rhs.seq_;
+	pos_ = rhs.pos_;
 }
 
 
