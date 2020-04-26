@@ -478,6 +478,17 @@ public: /* methods */
 		return size_;
 	}
 
+	/**
+	 * \brief Return the size of the template argument type in bytes.
+	 *
+	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
+	 *
+	 * \return This of the template argument type in bytes.
+	 */
+	size_type typesize() const
+	{
+		return sizeof(T);
+	}
 
 protected:
 
@@ -829,10 +840,10 @@ public: /* methods */
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	size_type typesize() const
-	{
-		return sizeof(T);
-	}
+	//size_type typesize() const
+	//{
+	//	return sizeof(T);
+	//}
 
 protected:
 
@@ -1067,10 +1078,10 @@ public:
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	size_type typesize() const
-	{
-		return sizeof(T);
-	}
+	//size_type typesize() const
+	//{
+	//	return sizeof(T);
+	//}
 
 protected:
 
