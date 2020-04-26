@@ -278,100 +278,6 @@ private:
 };
 
 
-// SampleIterator
-
-
-//template <typename T, bool is_planar, bool is_const>
-//SampleIterator<T, is_planar, is_const>::SampleIterator(
-//		const SampleSequence<T, is_planar> &seq, const difference_type pos)
-//	: seq_ { &seq }
-//	, pos_ { pos }
-//{
-//	// empty
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//SampleIterator<T, is_planar, is_const>::SampleIterator(
-//		const SampleIterator<T, is_planar, false> &rhs)
-//	// works due to friendship
-//	: seq_ { rhs.seq_ }
-//	, pos_ { rhs.pos_ }
-//{
-//	// empty
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator * () const
-//	-> typename SampleIterator<T, is_planar, is_const>::value_type
-//{
-//	return seq_->operator[](static_cast<
-//		typename SampleSequence<T, is_planar>::size_type>(pos_));
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator ++ ()
-//	-> SampleIterator<T, is_planar, is_const>&
-//{
-//	++pos_;
-//	return *this;
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator ++ (int)
-//	-> SampleIterator<T, is_planar, is_const>
-//{
-//	SampleIterator prev_val(*this);
-//	this->operator++();
-//	return prev_val;
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator -- ()
-//	-> SampleIterator<T, is_planar, is_const>&
-//{
-//	--pos_;
-//	return *this;
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator -- (int)
-//	-> SampleIterator<T, is_planar, is_const>
-//{
-//	SampleIterator prev_val(*this);
-//	this->operator--();
-//	return prev_val;
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator +=
-//	(const difference_type value) -> SampleIterator<T, is_planar, is_const>&
-//{
-//	pos_ += value;
-//	return *this;
-//}
-
-
-//template <typename T, bool is_planar, bool is_const>
-//auto SampleIterator<T, is_planar, is_const>::operator -=
-//	(const difference_type value) -> SampleIterator<T, is_planar, is_const>&
-//{
-//	pos_ -= value;
-//	return *this;
-//}
-
-
-// forward delcaration to be used by SampleSequenceImplBase
-//template<typename T, bool is_planar>
-//class SampleSequence;
-
-
 /**
  * \internal
  *
@@ -574,7 +480,6 @@ protected:
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
 
-
 private:
 
 	/**
@@ -582,126 +487,6 @@ private:
 	 */
 	size_type size_;
 };
-
-
-// SampleSequenceImplBase
-
-
-//template<typename T, bool is_planar>
-//SampleSequenceImplBase<T, is_planar>::SampleSequenceImplBase()
-//	: size_ { 0 }
-//{
-//	// empty
-//}
-//
-//
-//template<typename T, bool is_planar>
-//SampleSequenceImplBase<T, is_planar>::~SampleSequenceImplBase() noexcept
-//= default;
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::cbegin() const
-//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-//{
-//	return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::cend() const
-//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-//{
-//	return SampleIterator<T, is_planar, true>(*this->sequence(),
-//			static_cast<
-//				typename SampleIterator<T, is_planar, false>::difference_type
-//			>(this->size()));
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::begin()
-//		-> SampleSequenceImplBase<T, is_planar>::iterator
-//{
-//	return SampleIterator<T, is_planar, false>(*this->sequence(), 0);
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::end()
-//		-> SampleSequenceImplBase<T, is_planar>::iterator
-//{
-//	return SampleIterator<T, is_planar, false>(*this->sequence(),
-//			static_cast<
-//				typename SampleIterator<T, is_planar, false>::difference_type
-//			>(this->size()));
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::begin() const
-//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-//{
-//	return this->cbegin();
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::end() const
-//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-//{
-//	return this->cend();
-//}
-//
-//
-//template<typename T, bool is_planar>
-//auto SampleSequenceImplBase<T, is_planar>::size() const
-//		-> SampleSequenceImplBase<T, is_planar>::size_type
-//{
-//	return size_;
-//}
-//
-//
-//template<typename T, bool is_planar>
-//void SampleSequenceImplBase<T, is_planar>::set_size(
-//		const SampleSequenceImplBase<T, is_planar>::size_type size)
-//{
-//	size_ = size;
-//}
-//
-//
-//template<typename T, bool is_planar>
-//sample_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
-//		const T lower) const
-//{
-//	return (static_cast<sample_t>(higher) << 16) |
-//		(static_cast<sample_t>(lower) & 0x0000FFFF);
-//
-//	// NOTE: This works because T cannot be anything but only signed or
-//	// unsigned integers of either 32 or 64 bit length. Those variants can
-//	// all be handled correctly by just casting them to sample_t.
-//}
-//
-//
-//template<typename T, bool is_planar>
-//int SampleSequenceImplBase<T, is_planar>::out_of_range(
-//		const SampleSequenceImplBase<T, is_planar>::size_type index) const
-//{
-//	return index > this->size() ? this->size() - 1 - index : 0;
-//}
-//
-//
-//template<typename T, bool is_planar>
-//void SampleSequenceImplBase<T, is_planar>::bounds_check(
-//		const SampleSequenceImplBase<T, is_planar>::size_type index) const
-//{
-//	if (this->out_of_range(index))
-//	{
-//		auto msg = std::stringstream {};
-//		msg << "Index out of bounds: " << index << ". Size: " << this->size();
-//		throw std::out_of_range(msg.str());
-//	}
-//}
 
 
 // SampleSequence: Full Specialization for planar sequences (is_planar == true)
@@ -833,18 +618,6 @@ public: /* methods */
 		return this->operator[](index);
 	}
 
-	/**
-	 * \brief Return the size of the template argument type in bytes.
-	 *
-	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
-	 *
-	 * \return This of the template argument type in bytes.
-	 */
-	//size_type typesize() const
-	//{
-	//	return sizeof(T);
-	//}
-
 protected:
 
 	const SampleSequence<T, true> *sequence() const final
@@ -869,81 +642,6 @@ private:
 	 */
 	const size_type right_;
 };
-
-
-//template <typename T>
-//SampleSequence<T, true>::SampleSequence()
-//	: SampleSequence<T, true>(true)
-//{
-//	// empty
-//}
-//
-//
-//template <typename T>
-//SampleSequence<T, true>::SampleSequence(bool left0_right1)
-//	: buffer_ {}
-//	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-//	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
-//{
-//	// empty
-//}
-//
-//
-//template <typename T>
-//void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
-//		const uint8_t * buffer1, const size_type size)
-//{
-//	buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
-//	buffer_[right_] = reinterpret_cast<const T *>(buffer1),
-//	this->set_size((size * sizeof(uint8_t)) / sizeof(T));
-//}
-//
-//
-//template <typename T>
-//void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
-//		const size_type size)
-//{
-//	buffer_[left_ ] = buffer0;
-//	buffer_[right_] = buffer1;
-//	this->set_size(size);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, true>::operator [] (
-//		const size_type index) const
-//			-> SampleSequence<T, true>::value_type
-//{
-//	return this->combine(buffer_[right_][index], buffer_[left_][index]);
-//	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
-//	// Equivalent to, but seemingly not slower than:
-//	//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
-//	//	| static_cast<uint16_t>(buffer_[left_][index]);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, true>::at(const size_type index) const
-//			-> SampleSequence<T, true>::value_type
-//{
-//	this->bounds_check(index);
-//	return this->operator[](index);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, true>::typesize() const
-//	-> typename SampleSequence<T, true>::size_type
-//{
-//	return sizeof(T);
-//}
-//
-//
-//template <typename T>
-//const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
-//{
-//	return this;
-//}
 
 
 // SampleSequence: Full Specialization for interleaved sequences
@@ -1071,18 +769,6 @@ public:
 		return this->operator[](index);
 	}
 
-	/**
-	 * \brief Return the size of the template argument type in bytes.
-	 *
-	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
-	 *
-	 * \return This of the template argument type in bytes.
-	 */
-	//size_type typesize() const
-	//{
-	//	return sizeof(T);
-	//}
-
 protected:
 
 	const SampleSequence<T, false> *sequence() const final
@@ -1107,78 +793,6 @@ private:
 	 */
 	const size_type right_;
 };
-
-
-//template <typename T>
-//SampleSequence<T, false>::SampleSequence()
-//	: SampleSequence<T, false>(true)
-//{
-//	// empty
-//}
-//
-//
-//template <typename T>
-//SampleSequence<T, false>::SampleSequence(bool left0_right1)
-//	: buffer_ {}
-//	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-//	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
-//{
-//	// empty
-//}
-//
-//
-//template <typename T>
-//void SampleSequence<T, false>::wrap(const uint8_t * buffer,
-//		const size_type size)
-//{
-//	buffer_ = reinterpret_cast<const T*>(buffer),
-//	this->set_size((size * sizeof(uint8_t) / 2 /* channels */ ) / sizeof(T));
-//}
-//
-//
-//template <typename T>
-//void SampleSequence<T, false>::reset(const T* buffer0, const size_type size)
-//{
-//	buffer_ = buffer0;
-//	this->set_size(size / 2 /* channels */);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, false>::operator [] (const size_type index) const
-//		-> SampleSequence<T, false>::value_type
-//{
-//	return this->combine(buffer_[2 * index + right_],
-//			buffer_[2 * index + left_]);
-//	// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
-//	// Equivalent to, but seemingly not slower than:
-//	//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
-//	//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, false>::at(const size_type index) const
-//		-> SampleSequence<T, false>::value_type
-//{
-//	this->bounds_check(index);
-//	return this->operator[](index);
-//}
-//
-//
-//template <typename T>
-//auto SampleSequence<T, false>::typesize() const
-//	-> SampleSequence<T, false>::size_type
-//{
-//	return sizeof(T);
-//}
-//
-//
-//template <typename T>
-//const SampleSequence<T, false>* SampleSequence<T, false>::sequence() const
-//{
-//	return this;
-//}
 
 } // namespace v_1_0_0
 
