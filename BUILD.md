@@ -34,7 +34,6 @@ major issues.
 - [include-what-you-use][1] - for development: easily find unused ``include``s
 
 
-
 ## Building the library
 
 We presuppose you have downloaded and unpacked or git-cloned libarcstk to a
@@ -50,9 +49,44 @@ This will just install libarcstk with all optimizations and without
 debug-symbols and tests.
 
 We describe the build configuration for the following profiles:
-- User (read: a developer who uses libarcstk in her project)
-- Contributing developer (who wants to debug and test libarcstk)
-- Package maintainer (who intends to package libarcstk for some target system).
+- [User](#users) (read: a developer who uses libarcstk in her project)
+- [Contributing developer](#contributors) (who wants to debug and test
+  libarcstk)
+- [Package maintainer](#package-maintainers) (who intends to package libarcstk
+  for some target system).
+
+
+### Trying a different compiler
+
+Libarcstk is tested to compile with clang++ as well as with g++.
+
+If you have both and want to switch the compiler, you should just hint CMake
+what compiler to use. On many unixoid systems you can do this via the
+environment variables ``CC`` and ``CXX``.
+
+If your actual compiler is not clang and you want to use your installed clang:
+
+	$ export CC=$(which clang)
+	$ export CXX=$(which clang++)
+
+If your actual compiler is not g++ and you want to use your installed g++:
+
+	$ export CC=$(which gcc)
+	$ export CXX=$(which g++)
+
+Then, delete all contents of directory ``build`` (which contains metadata from
+the previous compiler) to start off cleanly.
+
+CMake-reconfigure the project to have the change take effect:
+
+	$ mkdir build && cd build
+	$ cmake ..
+
+During the configure step, CMake informs about the actual C++-compiler like:
+
+	-- The CXX compiler identification is Clang 10.0.0
+	...
+	-- Check for working CXX compiler: /usr/bin/clang++ - works
 
 
 ### Users
@@ -138,6 +172,12 @@ have installed this tool, you can just use CMake to call it on the project:
 This runs every source file through inlcude-what-you-use instead of the actual
 compiler and writes the resulting analysis to file ``iwyu.txt``. If you want to
 use your real compiler again, you have to reconfigure the project.
+
+The tool may log some warnings about unknown compile switches when you have
+selected g++ as your actual compiler. This is just because there are some
+switches configured for g++ that are unknown to clang. The warnings can be
+ignored. To avoid them [switch to clang++](#trying-a-different-compiler) before
+configuring with ``-DIWYU=ON``.
 
 
 ### Package maintainers
