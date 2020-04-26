@@ -406,42 +406,66 @@ public: /* methods */
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
-	const_iterator cbegin() const;
+	const_iterator cbegin() const
+	{
+		return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
+	}
 
 	/**
 	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
-	const_iterator cend() const;
+	const_iterator cend() const
+	{
+		return SampleIterator<T, is_planar, true>(*this->sequence(),
+			static_cast<
+				typename SampleIterator<T, is_planar, false>::difference_type
+			>(this->size()));
+	}
 
 	/**
 	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
-	iterator begin();
+	iterator begin()
+	{
+		return SampleIterator<T, is_planar, false>(*this->sequence(), 0);
+	}
 
 	/**
 	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
-	iterator end();
+	iterator end()
+	{
+		return SampleIterator<T, is_planar, false>(*this->sequence(),
+			static_cast<
+				typename SampleIterator<T, is_planar, false>::difference_type
+			>(this->size()));
+	}
 
 	/**
 	 * \brief Iterator pointing behind to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
-	const_iterator begin() const;
+	const_iterator begin() const
+	{
+		return this->cbegin();
+	}
 
 	/**
 	 * \brief Iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
-	const_iterator end() const;
+	const_iterator end() const
+	{
+		return this->cend();
+	}
 
 	/**
 	 * \brief Return the number of 32 bit PCM samples represented by this
@@ -449,7 +473,10 @@ public: /* methods */
 	 *
 	 * \return The number of 32 bit PCM samples represented by this sequence
 	 */
-	size_type size() const;
+	size_type size() const
+	{
+		return size_;
+	}
 
 
 protected:
@@ -457,19 +484,27 @@ protected:
 	/**
 	 * \brief Default constructor.
 	 */
-	SampleSequenceImplBase();
+	SampleSequenceImplBase()
+		: size_ { 0 }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Protected non-virtual destructor for non-polymorphic use only.
 	 */
-	~SampleSequenceImplBase() noexcept;
+	~SampleSequenceImplBase() noexcept
+	= default;
 
 	/**
 	 * \brief Set the number 32 bit PCM samples in this buffer.
 	 *
 	 * \param[in] size number of 32 bit PCM samples in the buffer
 	 */
-	void set_size(const size_type size);
+	void set_size(const size_type size)
+	{
+		size_ = size;
+	}
 
 	/**
 	 * \brief Convert two integers to a PCM 32 bit sample.
@@ -479,7 +514,15 @@ protected:
 	 *
 	 * \return A PCM 32 bit sample with the higher and lower bits as passed
 	 */
-	sample_t combine(const T higher, const T lower) const;
+	sample_t combine(const T higher, const T lower) const
+	{
+		return (static_cast<sample_t>(higher) << 16) |
+			(static_cast<sample_t>(lower) & 0x0000FFFF);
+
+		// NOTE: This works because T cannot be anything but only signed or
+		// unsigned integers of either 32 or 64 bit length. Those variants can
+		// all be handled correctly by just casting them to sample_t.
+	}
 
 	/**
 	 * \brief Returns amount that \c index exceeds <tt>size() - 1</tt>.
@@ -490,7 +533,10 @@ protected:
 	 *
 	 * \return 0 if not out of bounds, otherwise <tt>index - 1 - size()</tt>.
 	 */
-	int out_of_range(const size_type index) const;
+	int out_of_range(const size_type index) const
+	{
+		return index > this->size() ? this->size() - 1 - index : 0;
+	}
 
 	/**
 	 * \brief Performs bounds check.
@@ -499,7 +545,17 @@ protected:
 	 *
 	 * \throws std::out_of_range if \c index is out of legal range
 	 */
-	void bounds_check(const size_type index) const;
+	void bounds_check(const size_type index) const
+	{
+		if (this->out_of_range(index))
+		{
+			auto msg = std::stringstream {};
+			msg << "Index out of bounds: " << index
+				<< ". Size: " << this->size();
+
+			throw std::out_of_range(msg.str());
+		}
+	}
 
 	/**
 	 * \brief Pointer to actual SampleSequence.
@@ -520,121 +576,121 @@ private:
 // SampleSequenceImplBase
 
 
-template<typename T, bool is_planar>
-SampleSequenceImplBase<T, is_planar>::SampleSequenceImplBase()
-	: size_ { 0 }
-{
-	// empty
-}
-
-
-template<typename T, bool is_planar>
-SampleSequenceImplBase<T, is_planar>::~SampleSequenceImplBase() noexcept
-= default;
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::cbegin() const
-		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-{
-	return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::cend() const
-		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-{
-	return SampleIterator<T, is_planar, true>(*this->sequence(),
-			static_cast<
-				typename SampleIterator<T, is_planar, false>::difference_type
-			>(this->size()));
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::begin()
-		-> SampleSequenceImplBase<T, is_planar>::iterator
-{
-	return SampleIterator<T, is_planar, false>(*this->sequence(), 0);
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::end()
-		-> SampleSequenceImplBase<T, is_planar>::iterator
-{
-	return SampleIterator<T, is_planar, false>(*this->sequence(),
-			static_cast<
-				typename SampleIterator<T, is_planar, false>::difference_type
-			>(this->size()));
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::begin() const
-		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-{
-	return this->cbegin();
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::end() const
-		-> SampleSequenceImplBase<T, is_planar>::const_iterator
-{
-	return this->cend();
-}
-
-
-template<typename T, bool is_planar>
-auto SampleSequenceImplBase<T, is_planar>::size() const
-		-> SampleSequenceImplBase<T, is_planar>::size_type
-{
-	return size_;
-}
-
-
-template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::set_size(
-		const SampleSequenceImplBase<T, is_planar>::size_type size)
-{
-	size_ = size;
-}
-
-
-template<typename T, bool is_planar>
-sample_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
-		const T lower) const
-{
-	return (static_cast<sample_t>(higher) << 16) |
-		(static_cast<sample_t>(lower) & 0x0000FFFF);
-
-	// NOTE: This works because T cannot be anything but only signed or
-	// unsigned integers of either 32 or 64 bit length. Those variants can
-	// all be handled correctly by just casting them to sample_t.
-}
-
-
-template<typename T, bool is_planar>
-int SampleSequenceImplBase<T, is_planar>::out_of_range(
-		const SampleSequenceImplBase<T, is_planar>::size_type index) const
-{
-	return index > this->size() ? this->size() - 1 - index : 0;
-}
-
-
-template<typename T, bool is_planar>
-void SampleSequenceImplBase<T, is_planar>::bounds_check(
-		const SampleSequenceImplBase<T, is_planar>::size_type index) const
-{
-	if (this->out_of_range(index))
-	{
-		auto msg = std::stringstream {};
-		msg << "Index out of bounds: " << index << ". Size: " << this->size();
-		throw std::out_of_range(msg.str());
-	}
-}
+//template<typename T, bool is_planar>
+//SampleSequenceImplBase<T, is_planar>::SampleSequenceImplBase()
+//	: size_ { 0 }
+//{
+//	// empty
+//}
+//
+//
+//template<typename T, bool is_planar>
+//SampleSequenceImplBase<T, is_planar>::~SampleSequenceImplBase() noexcept
+//= default;
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::cbegin() const
+//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+//{
+//	return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::cend() const
+//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+//{
+//	return SampleIterator<T, is_planar, true>(*this->sequence(),
+//			static_cast<
+//				typename SampleIterator<T, is_planar, false>::difference_type
+//			>(this->size()));
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::begin()
+//		-> SampleSequenceImplBase<T, is_planar>::iterator
+//{
+//	return SampleIterator<T, is_planar, false>(*this->sequence(), 0);
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::end()
+//		-> SampleSequenceImplBase<T, is_planar>::iterator
+//{
+//	return SampleIterator<T, is_planar, false>(*this->sequence(),
+//			static_cast<
+//				typename SampleIterator<T, is_planar, false>::difference_type
+//			>(this->size()));
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::begin() const
+//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+//{
+//	return this->cbegin();
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::end() const
+//		-> SampleSequenceImplBase<T, is_planar>::const_iterator
+//{
+//	return this->cend();
+//}
+//
+//
+//template<typename T, bool is_planar>
+//auto SampleSequenceImplBase<T, is_planar>::size() const
+//		-> SampleSequenceImplBase<T, is_planar>::size_type
+//{
+//	return size_;
+//}
+//
+//
+//template<typename T, bool is_planar>
+//void SampleSequenceImplBase<T, is_planar>::set_size(
+//		const SampleSequenceImplBase<T, is_planar>::size_type size)
+//{
+//	size_ = size;
+//}
+//
+//
+//template<typename T, bool is_planar>
+//sample_t SampleSequenceImplBase<T, is_planar>::combine(const T higher,
+//		const T lower) const
+//{
+//	return (static_cast<sample_t>(higher) << 16) |
+//		(static_cast<sample_t>(lower) & 0x0000FFFF);
+//
+//	// NOTE: This works because T cannot be anything but only signed or
+//	// unsigned integers of either 32 or 64 bit length. Those variants can
+//	// all be handled correctly by just casting them to sample_t.
+//}
+//
+//
+//template<typename T, bool is_planar>
+//int SampleSequenceImplBase<T, is_planar>::out_of_range(
+//		const SampleSequenceImplBase<T, is_planar>::size_type index) const
+//{
+//	return index > this->size() ? this->size() - 1 - index : 0;
+//}
+//
+//
+//template<typename T, bool is_planar>
+//void SampleSequenceImplBase<T, is_planar>::bounds_check(
+//		const SampleSequenceImplBase<T, is_planar>::size_type index) const
+//{
+//	if (this->out_of_range(index))
+//	{
+//		auto msg = std::stringstream {};
+//		msg << "Index out of bounds: " << index << ". Size: " << this->size();
+//		throw std::out_of_range(msg.str());
+//	}
+//}
 
 
 // SampleSequence: Full Specialization for planar sequences (is_planar == true)
