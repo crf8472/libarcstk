@@ -314,7 +314,7 @@ public: /* methods */
 	 */
 	const_iterator cbegin() const
 	{
-		return SampleIterator<T, is_planar, true>(*this->sequence(), 0);
+		return const_iterator(*this->sequence(), 0);
 	}
 
 	/**
@@ -324,10 +324,8 @@ public: /* methods */
 	 */
 	const_iterator cend() const
 	{
-		return SampleIterator<T, is_planar, true>(*this->sequence(),
-			static_cast<
-				typename SampleIterator<T, is_planar, false>::difference_type
-			>(this->size()));
+		return const_iterator(*this->sequence(), static_cast<
+				typename const_iterator::difference_type>(this->size()));
 	}
 
 	/**
@@ -337,7 +335,7 @@ public: /* methods */
 	 */
 	iterator begin()
 	{
-		return SampleIterator<T, is_planar, false>(*this->sequence(), 0);
+		return iterator(*this->sequence(), 0);
 	}
 
 	/**
@@ -347,10 +345,8 @@ public: /* methods */
 	 */
 	iterator end()
 	{
-		return SampleIterator<T, is_planar, false>(*this->sequence(),
-			static_cast<
-				typename SampleIterator<T, is_planar, false>::difference_type
-			>(this->size()));
+		return iterator(*this->sequence(),
+			static_cast<typename iterator::difference_type>(this->size()));
 	}
 
 	/**
