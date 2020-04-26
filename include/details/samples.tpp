@@ -724,16 +724,27 @@ public: /* methods */
 	/**
 	 * \brief Constructor.
 	 *
-	 * Indicates channel ordering left:0, right:1.
+	 * Indicates channel ordering left:0, right:1. Equivalent to
+	 * SampleSequence(true).
 	 */
-	SampleSequence();
+	SampleSequence()
+		: SampleSequence<T, true>(true)
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Constructor.
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
-	SampleSequence(bool left0_right1);
+	SampleSequence(bool left0_right1)
+		: buffer_ {}
+		, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+		, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -747,7 +758,12 @@ public: /* methods */
 	 * \param[in] size    Number of bytes per buffer
 	 */
 	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
-			const size_type size);
+			const size_type size)
+	{
+		buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
+		buffer_[right_] = reinterpret_cast<const T *>(buffer1),
+		this->set_size((size * sizeof(uint8_t)) / sizeof(T));
+	}
 
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
@@ -756,7 +772,12 @@ public: /* methods */
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void reset(const T* buffer0, const T* buffer1, const size_type size);
+	void reset(const T* buffer0, const T* buffer1, const size_type size)
+	{
+		buffer_[left_ ] = buffer0;
+		buffer_[right_] = buffer1;
+		this->set_size(size);
+	}
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -770,7 +791,14 @@ public: /* methods */
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	value_type operator [] (const size_type index) const;
+	value_type operator [] (const size_type index) const
+	{
+		return this->combine(buffer_[right_][index], buffer_[left_][index]);
+		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+		// Equivalent to, but seemingly not slower than:
+		//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
+		//	| static_cast<uint16_t>(buffer_[left_][index]);
+	}
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -788,7 +816,11 @@ public: /* methods */
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	value_type at(const size_type index) const;
+	value_type at(const size_type index) const
+	{
+		this->bounds_check(index);
+		return this->operator[](index);
+	}
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -797,13 +829,17 @@ public: /* methods */
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	size_type typesize() const;
-
+	size_type typesize() const
+	{
+		return sizeof(T);
+	}
 
 protected:
 
-	const SampleSequence<T, true> *sequence() const final;
-
+	const SampleSequence<T, true> *sequence() const final
+	{
+		return this;
+	}
 
 private:
 
@@ -824,79 +860,79 @@ private:
 };
 
 
-template <typename T>
-SampleSequence<T, true>::SampleSequence()
-	: SampleSequence<T, true>(true)
-{
-	// empty
-}
-
-
-template <typename T>
-SampleSequence<T, true>::SampleSequence(bool left0_right1)
-	: buffer_ {}
-	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
-{
-	// empty
-}
-
-
-template <typename T>
-void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
-		const uint8_t * buffer1, const size_type size)
-{
-	buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
-	buffer_[right_] = reinterpret_cast<const T *>(buffer1),
-	this->set_size((size * sizeof(uint8_t)) / sizeof(T));
-}
-
-
-template <typename T>
-void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
-		const size_type size)
-{
-	buffer_[left_ ] = buffer0;
-	buffer_[right_] = buffer1;
-	this->set_size(size);
-}
-
-
-template <typename T>
-auto SampleSequence<T, true>::operator [] (
-		const size_type index) const
-			-> SampleSequence<T, true>::value_type
-{
-	return this->combine(buffer_[right_][index], buffer_[left_][index]);
-	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
-	// Equivalent to, but seemingly not slower than:
-	//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
-	//	| static_cast<uint16_t>(buffer_[left_][index]);
-}
-
-
-template <typename T>
-auto SampleSequence<T, true>::at(const size_type index) const
-			-> SampleSequence<T, true>::value_type
-{
-	this->bounds_check(index);
-	return this->operator[](index);
-}
-
-
-template <typename T>
-auto SampleSequence<T, true>::typesize() const
-	-> typename SampleSequence<T, true>::size_type
-{
-	return sizeof(T);
-}
-
-
-template <typename T>
-const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
-{
-	return this;
-}
+//template <typename T>
+//SampleSequence<T, true>::SampleSequence()
+//	: SampleSequence<T, true>(true)
+//{
+//	// empty
+//}
+//
+//
+//template <typename T>
+//SampleSequence<T, true>::SampleSequence(bool left0_right1)
+//	: buffer_ {}
+//	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+//	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+//{
+//	// empty
+//}
+//
+//
+//template <typename T>
+//void SampleSequence<T, true>::wrap(const uint8_t * buffer0,
+//		const uint8_t * buffer1, const size_type size)
+//{
+//	buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
+//	buffer_[right_] = reinterpret_cast<const T *>(buffer1),
+//	this->set_size((size * sizeof(uint8_t)) / sizeof(T));
+//}
+//
+//
+//template <typename T>
+//void SampleSequence<T, true>::reset(const T* buffer0, const T* buffer1,
+//		const size_type size)
+//{
+//	buffer_[left_ ] = buffer0;
+//	buffer_[right_] = buffer1;
+//	this->set_size(size);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, true>::operator [] (
+//		const size_type index) const
+//			-> SampleSequence<T, true>::value_type
+//{
+//	return this->combine(buffer_[right_][index], buffer_[left_][index]);
+//	// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+//	// Equivalent to, but seemingly not slower than:
+//	//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
+//	//	| static_cast<uint16_t>(buffer_[left_][index]);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, true>::at(const size_type index) const
+//			-> SampleSequence<T, true>::value_type
+//{
+//	this->bounds_check(index);
+//	return this->operator[](index);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, true>::typesize() const
+//	-> typename SampleSequence<T, true>::size_type
+//{
+//	return sizeof(T);
+//}
+//
+//
+//template <typename T>
+//const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
+//{
+//	return this;
+//}
 
 
 // SampleSequence: Full Specialization for interleaved sequences
@@ -930,16 +966,27 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Indicates channel ordering left:0, right:1.
+	 * Indicates channel ordering left:0, right:1. Equivalent to
+	 * SampleSequence(true).
 	 */
-	SampleSequence();
+	SampleSequence()
+		: SampleSequence<T, false>(true)
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Constructor.
 	 *
 	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
 	 */
-	SampleSequence(bool left0_right1);
+	SampleSequence(bool left0_right1)
+		: buffer_ {}
+		, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+		, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Rewrap the specified buffer into this sample sequence.
@@ -951,7 +998,11 @@ public:
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
 	 */
-	void wrap(const uint8_t *buffer, const size_type size);
+	void wrap(const uint8_t *buffer, const size_type size)
+	{
+		buffer_ = reinterpret_cast<const T*>(buffer),
+		this->set_size((size * sizeof(uint8_t) / 2/* channels */ ) / sizeof(T));
+	}
 
 	/**
 	 * \brief Rewrap the specified buffer into this sample sequence.
@@ -959,7 +1010,11 @@ public:
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer
 	 */
-	void reset(const T* buffer, const size_type size);
+	void reset(const T* buffer, const size_type size)
+	{
+		buffer_ = buffer;
+		this->set_size(size / 2/* channels */);
+	}
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -973,7 +1028,15 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	value_type operator [] (const size_type index) const;
+	value_type operator [] (const size_type index) const
+	{
+		return this->combine(buffer_[2 * index + right_],
+				buffer_[2 * index + left_]);
+		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+		// Equivalent to, but seemingly not slower than:
+		//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
+		//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
+	}
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -991,7 +1054,11 @@ public:
 	 *
 	 * \throw std::out_of_range if \c index is out of range
 	 */
-	value_type at(const size_type index) const;
+	value_type at(const size_type index) const
+	{
+		this->bounds_check(index);
+		return this->operator[](index);
+	}
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -1000,13 +1067,17 @@ public:
 	 *
 	 * \return This of the template argument type in bytes.
 	 */
-	size_type typesize() const;
-
+	size_type typesize() const
+	{
+		return sizeof(T);
+	}
 
 protected:
 
-	const SampleSequence<T, false> *sequence() const final;
-
+	const SampleSequence<T, false> *sequence() const final
+	{
+		return this;
+	}
 
 private:
 
@@ -1027,76 +1098,76 @@ private:
 };
 
 
-template <typename T>
-SampleSequence<T, false>::SampleSequence()
-	: SampleSequence<T, false>(true)
-{
-	// empty
-}
-
-
-template <typename T>
-SampleSequence<T, false>::SampleSequence(bool left0_right1)
-	: buffer_ {}
-	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
-{
-	// empty
-}
-
-
-template <typename T>
-void SampleSequence<T, false>::wrap(const uint8_t * buffer,
-		const size_type size)
-{
-	buffer_ = reinterpret_cast<const T*>(buffer),
-	this->set_size((size * sizeof(uint8_t) / 2 /* channels */ ) / sizeof(T));
-}
-
-
-template <typename T>
-void SampleSequence<T, false>::reset(const T* buffer0, const size_type size)
-{
-	buffer_ = buffer0;
-	this->set_size(size / 2 /* channels */);
-}
-
-
-template <typename T>
-auto SampleSequence<T, false>::operator [] (const size_type index) const
-		-> SampleSequence<T, false>::value_type
-{
-	return this->combine(buffer_[2 * index + right_],
-			buffer_[2 * index + left_]);
-	// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
-	// Equivalent to, but seemingly not slower than:
-	//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
-	//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
-}
-
-
-template <typename T>
-auto SampleSequence<T, false>::at(const size_type index) const
-		-> SampleSequence<T, false>::value_type
-{
-	this->bounds_check(index);
-	return this->operator[](index);
-}
-
-
-template <typename T>
-auto SampleSequence<T, false>::typesize() const
-	-> SampleSequence<T, false>::size_type
-{
-	return sizeof(T);
-}
-
-
-template <typename T>
-const SampleSequence<T, false>* SampleSequence<T, false>::sequence() const
-{
-	return this;
-}
+//template <typename T>
+//SampleSequence<T, false>::SampleSequence()
+//	: SampleSequence<T, false>(true)
+//{
+//	// empty
+//}
+//
+//
+//template <typename T>
+//SampleSequence<T, false>::SampleSequence(bool left0_right1)
+//	: buffer_ {}
+//	, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
+//	, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+//{
+//	// empty
+//}
+//
+//
+//template <typename T>
+//void SampleSequence<T, false>::wrap(const uint8_t * buffer,
+//		const size_type size)
+//{
+//	buffer_ = reinterpret_cast<const T*>(buffer),
+//	this->set_size((size * sizeof(uint8_t) / 2 /* channels */ ) / sizeof(T));
+//}
+//
+//
+//template <typename T>
+//void SampleSequence<T, false>::reset(const T* buffer0, const size_type size)
+//{
+//	buffer_ = buffer0;
+//	this->set_size(size / 2 /* channels */);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, false>::operator [] (const size_type index) const
+//		-> SampleSequence<T, false>::value_type
+//{
+//	return this->combine(buffer_[2 * index + right_],
+//			buffer_[2 * index + left_]);
+//	// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+//	// Equivalent to, but seemingly not slower than:
+//	//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
+//	//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, false>::at(const size_type index) const
+//		-> SampleSequence<T, false>::value_type
+//{
+//	this->bounds_check(index);
+//	return this->operator[](index);
+//}
+//
+//
+//template <typename T>
+//auto SampleSequence<T, false>::typesize() const
+//	-> SampleSequence<T, false>::size_type
+//{
+//	return sizeof(T);
+//}
+//
+//
+//template <typename T>
+//const SampleSequence<T, false>* SampleSequence<T, false>::sequence() const
+//{
+//	return this;
+//}
 
 } // namespace v_1_0_0
 
