@@ -27,9 +27,11 @@ major issues.
   documentation with [m.css][3] (instead of stock doxygen).
 - Doxygen - for documentation: to build the API documentation in HTML or LaTeX
   (graphviz/dot is not required)
+- Python (with virtualenv) - for documentation: to build the documentation with
+  [m.css][3]
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
-- include-what-you-use - for development: to control ``include``-relationships
+- [include-what-you-use][1] - for development: easily find unused ``include``s
 
 
 
@@ -40,7 +42,7 @@ folder named ``libarcstk``. Then do:
 
 	$ cd libarcstk         # your libarcstk root folder where README.md resides
 	$ mkdir build && cd build  # create build folder for out-of-source-build
-	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # choose build type 'Release' or 'Debug'
+	$ cmake -DCMAKE_BUILD_TYPE=Release ..   # choose 'Release' or 'Debug'
 	$ cmake --build .    # perform the actual build
 	$ sudo make install  # installs to /usr/local
 
@@ -66,22 +68,23 @@ not getting in your way:
 This will install the following files to your system:
 
 - the shared object libarcstk.so.x.y.z (along with a symbolic link
-  ``libarcstk.so``)
-  in the standard library location (e.g. /usr/local/lib)
-- the seven public header files calculate.hpp, identifier.hpp, logging.hpp,
-  match.hpp, parse.hpp, samples.hpp and version.hpp in the standard include
-  location (e.g. /usr/local/include).
+  ``libarcstk.so``) in the standard library location (e.g. /usr/local/lib)
+- the eight public header files ``calculate.hpp``, ``identifier.hpp``,
+  ``logging.hpp``, ``match.hpp``, ``parse.hpp``, ``policies.hpp``,
+  ``samples.hpp`` and ``version.hpp`` in the standard include location
+  (e.g. /usr/local/include).
 - the four exported non-API template headers builder.tpp, checksum.tpp,
   samples.tpp and validate.tpp in folder ``details'' below the location where
   the public headers are
-- the four cmake packaging files libarcstk-config.cmake,
-  libarcstk-config-version.cmake, libarcstk-targets.cmake and
-  libarcstk-targets-release.cmake that allow other projects to simply import
+- the four cmake packaging files ``libarcstk-config.cmake``,
+  ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
+  ``libarcstk-targets-release.cmake`` that allow other projects to simply import
   libarcstk's exported cmake targets
 - the pkg-config configuration file libarcstk.pc
 
-You can change the install prefix by calling cmake with the
+You can change the install location by calling cmake with the
 ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` switch.
+
 
 
 ### Contributors
@@ -101,24 +104,33 @@ For also building and running the tests, just use the corresponding switch:
 Note: This build will take *significantly* *longer* than the build without
 tests.
 
-Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework
-[Catch2][2] within your directory ``build`` and fail if this does not work.
-
-Running the unit tests is *not* part of the build process. The tests have to be
-executed manually after the build is completed, just by invoking ``ctest``.
-
-Note that ctest will write report files in the ``build`` folder, their name
-pattern is ``report.<testcase>.xml``.
+#### Turn optimizing on/off
 
 You may or may not want the ``-march=native`` and ``-mtune=generic`` switches on
-compilation. For Debug-builds, they are not used by default, but can be added by
+compilation. For Debug-builds, they are ``OFF`` by default, but can be added by
 using ``-DWITH_NATIVE=ON``. For now, this switch has only influence when using
 gcc or clang. For other compilers, default settings apply.
 
-During early development stage, I tended to mess up the includes. So for mere
-personal use, I configured a workflow for reviewing the includes. CMake brings
-some support for Google's tool [include-what-you-use][1]. If you have installed
-this tool, you can use CMake to call it on the project:
+#### Run unit tests
+
+Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework
+[Catch2][2] within your ``build`` directory and fail if this does not work.
+
+Running the unit tests is *not* part of the build process. To run the tests,
+invoke ``ctest`` manually in the ``build`` directory after ``cmake --build .``
+is completed.
+
+Note that ctest will write report files in the ``build`` folder, their name
+pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
+``.cpp``-file in ``test/src``.
+
+#### Find unused header includes
+
+From time to time, I tend to mess up the includes. So for mere personal use, I
+configured a workflow for identifying unused includes that can be removed.
+
+CMake brings some support for Google's tool [include-what-you-use][1]. If you
+have installed this tool, you can just use CMake to call it on the project:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON ..
 	$ cmake --build . 2>iwuy.txt
@@ -136,10 +148,12 @@ gcc or clang).
 
 Furthermore, you would like to adjust the install prefix path such that
 libarcstk is configured for being installed in the real system prefix (such as
-``/usr``) instead of some default prefix (such as ``/usr/local``). You will also
-choose a staging directory as an intermediate install target.
+``/usr``) instead of some default prefix (such as ``/usr/local``).
 
-When using clang or gcc, this can be achieved as follows:
+You may also want to specify a staging directory as an intermediate install
+target.
+
+When using clang or gcc, all of these can be achieved as follows:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Release -DWITH_NATIVE=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
 	$ cmake --build .
@@ -153,22 +167,26 @@ carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
 
 By default, the release-build of libarcstkdec uses -O3. If you intend to change
-that, locate [CMakeLists.txt](./CMakeLists.txt) in the root directory and adjust
-it to your needs.
+that, locate the paragraph ``Compiler Specific Settings`` in
+[CMakeLists.txt](./CMakeLists.txt) in the root directory and adjust the
+settings to your needs.
 
 
 
 ## Buildtime switches
 
-|Switch             |Description                                     |Default|
-|-------------------|------------------------------------------------|-------|
-|AS_STATIC          |Build static library instead of shared library (experimental)|OFF    |
-|IWYU               |Use include-what-you-use on compiling           |OFF    |
-|WITH_DOCS          |Configure documentation (but don't build it)    |OFF    |
-|WITH_INTERNAL_DOCS |Configure documentation also for internal APIs (but don't build it)    |OFF    |
-|WITH_NATIVE        |Use platform specific optimization on compiling |OFF for CMAKE_BUILD_TYPE=Debug, ON for CMAKE_BUILD_TYPE=Release|
-|WITH_TESTS         |Compile tests (but don't run them)              |OFF    |
-|USE_MCSS           |Use [m.css][3] when building the documentation  |OFF    |
+|Switch              |Description                                     |Default|
+|--------------------|------------------------------------------------|-------|
+|CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
+|CMAKE_INSTALL_PREFIX|Top-level install location prefix     |plattform defined|
+|IWYU                |Use include-what-you-use on compiling           |OFF    |
+|WITH_DOCS           |Configure for documentation                     |OFF    |
+|WITH_INTERNAL_DOCS  |Configure for documentation for internal APIs   |OFF    |
+|WITH_NATIVE         |Use platform specific optimization on compiling |       |
+|                    |CMAKE_BUILD_TYPE=Debug                          |OFF    |
+|                    |CMAKE_BUILD_TYPE=Release                        |ON     |
+|WITH_TESTS          |Compile tests (but don't run them)              |OFF    |
+|USE_MCSS            |Use [m.css][3] when building the documentation  |OFF    |
 
 
 
@@ -180,7 +198,7 @@ target ``doc`` that can be used to build the documentation.
 
 Doxygen is required for building the documentation. The documentation can be
 build as a set of static HTML pages (recommended) or as a PDF manual using
-LaTeX (experimental, currently unmaintained).
+LaTeX (experimental, very alpha).
 
 
 ### Quickstart: Doxygen Stock HTML (vintage, but reliable)
@@ -198,33 +216,38 @@ subdirectories of ``build/generated-docs/``. Open the file
 ``build/generated-docs/html/index.html`` in your browser to see the entry page.
 
 
-### Doxygen with HTML5 and CSS3 (tested, still experimental)
+### Doxygen by m.css with HTML5 and CSS3 (tested, but still experimental)
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
 and generates a static site in plain HTML5 and CSS3 from it (nearly without
-JavaScript). The resulting site presents the content much cleaner and (at least
-in my opinion) more to the point regarding its structure than the stock doxygen
-HTML output. (Which, on the other hand, gives us this warm nostalgic memory of
-the Nineties... we loved the Nineties, didn't we?)
+JavaScript).
 
-Build the [m.css][3] based documentation by the following steps:
+The resulting site presents the documentation content very clean and
+well structured, using a more contemporary design than the stock doxygen HTML
+output. (Which, on the other hand, gives us this warm nostalgic memory of the
+Nineties... we loved the Nineties, didn't we?)
+
+The [public APIdoc of libarcstk is build with m.css][4].
+
+This APIdoc can be built locally by the following steps:
 
 	$ cd build
 	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=ON ..
 	$ cmake --build . --target doc
 
-This generates the documentation in ``build/generated-docs/mcss`` and you can
+CMake then builds a local python sandbox with ``virtualenv``, installs jinja2
+and Pygments in it, then clones [m.css][3], and then runs m.css which internally
+runs doxygen. Maybe it needs finetuning for some environments I did not foresee.
+(It is completely untested on Windows and may not work.)
+
+Documentation is generated in ``build/generated-docs/mcss`` and you can
 load ``build/generated-docs/mcss/html/index.html`` in your browser.
 
-Note that ``-DUSE_MCSS=ON`` turns off the LaTeX output!
-
-CMake builds a local python sandbox with ``virtualenv``, installs jinja2 and
-Pygments in it, then clones [m.css][3], and then runs doxygen in the process.
-This is a bit of a machinery and maybe it needs finetuning for some environments
-I did not foresee. Help on improvements is welcome.
+Note that ``-DUSE_MCSS=ON`` turns off the LaTeX output! You cannot generate
+m.css and LaTeX output in the same build.
 
 
-### Manual: PDF by LaTeX (early stage)
+### Manual: PDF by LaTeX (smoke-tested, more or less)
 
 Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
 installation (along with ``pdflatex``) is required for creating the manual.
@@ -256,27 +279,26 @@ Note that I did never give any love to the manual. It will build but it will not
 be convenient or look good at its current stage!
 
 
-## Libarcstk code in my ``$EDITOR``
+## Deep language support in your ``$EDITOR``
 
-If you used to work with some features of what is called "deep language support"
-for C++, you may notice that libarcstk comes with a top-level ``.clang`` file
-that points to a file ``compile_commands.json`` in the same directory that will
-only exist if you generate it. Generate it by:
+The project provides a workflow to create a compilation database as a basic
+support for what is usually called "deep language support" (DLS).
+
+You may have noticed that libarcstk comes with a top-level ``.clang`` file that
+already points to ``compile_commands.json`` in the same directory. This prepares
+the support for clang-based DSL for libarcstk, but you have to create the
+compilation database on your own, for your compiler and your settings:
 
 	$ cd build
 	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 	$ ln -s compile_commands.json ..  # May or may not be required
 
-This generated file is a compilation database. If your ``$EDITOR`` is configured
-accordingly, the compilation database may (or may not) help your ``$EDITOR`` to
-provide some enhanced features for navigating the code (i.e.
-``goto-definition``) or autocompletion. If this sounds odd for you, it is
-completely safe to skip this paragraph, ignore the ``.clang`` file and just feel
-good.
+Whenever the compilation process changes - say, a source file is added or
+removed or the code changes significantly - you should recreate the compilation
+database.
 
-I used to work with autocompletion for C++ in neovim. With the project, I share
-the ``.clang`` file as a configuration stub for this. If you ignore it, it will
-not get in your way.
+If this all sounds odd for you, it is completely safe to skip this paragraph,
+ignore the ``.clang`` file and just feel good. It will not get in your way.
 
 
 ## Build on Windows ... duh!
@@ -287,13 +309,14 @@ In fact, as a lack of requirement, libarcstk has not yet even been tried to be
 built on Windows.
 
 To avoid any show-stoppers for porting libarcstk to Windows or other platforms,
-libarcstk relies completely on pure C++14 and the C++ standard library. It
-requires no other dependencies. In fact, it is intended to not use platform
+libarcstk relies completely on pure C++14 and the C++ standard library. It does
+not require any other dependencies. In fact, it is intended to not use platform
 specific operations at all. Code that breaks platform independence will be
-considered being a bug). The porting is expected not to be difficult, but is
-just not done.
+considered being a bug. The porting is expected not to be difficult, but is
+just not done. Help will be appreciated.
 
 
 [1]: https://include-what-you-use.org/
 [2]: https://github.com/catchorg/Catch2
 [3]: https://mcss.mosra.cz/doxygen/
+[4]: https://pages.codeberg.org/tristero/libarcstk
