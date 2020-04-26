@@ -8,17 +8,14 @@
 #include "identifier.hpp"
 #endif
 
-#include <cstdint>
-#include <functional>// for function
-#include <iomanip>   // for setw, setfill
-#include <limits>
-#include <memory>
-#include <sstream>   // for stringstream
-#include <stdexcept> // for logic_error
-#include <string>
-#include <type_traits>
-#include <utility>   // for forward
-#include <vector>
+#include <cstdint>           // for uint32_t, uint64_t
+#include <iomanip>           // for operator<<, setw, setfill
+#include <memory>            // for unique_ptr, make_unique, operator==
+#include <sstream>           // for operator<<, basic_ostream, basic_strings...
+#include <stdexcept>         // for logic_error
+#include <string>            // for string, operator<<, char_traits
+#include <utility>           // for move
+#include <vector>            // for vector, vector<>::size_type
 
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"

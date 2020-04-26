@@ -7,16 +7,18 @@
  * \brief Public API for checksum calculation.
  */
 
-#include <array>
-#include <cstdint>
-#include <cstddef>     // for size_t
-#include <iterator>    // for forward_iterator_tag
-#include <memory>
-#include <set>
-#include <stdexcept>   // for logic_error
-#include <string>
-#include <type_traits> // for is_same, decay_t
-#include <utility>     // for declval
+#include <cstddef>               // for ptrdiff_t, size_t
+#include <cstdint>               // for uint32_t, uint8_t, int64_t
+#include <initializer_list>      // for initializer_list
+#include <iterator>              // for input_iterator_tag
+#include <map>                   // for swap
+#include <memory>                // for unique_ptr, swap, make_unique
+#include <set>                   // for set
+#include <stdexcept>             // for logic_error
+#include <string>                // for string
+#include <type_traits>           // for declval, decay_t, enable_if_t, is_same
+#include <typeinfo>              // for type_info
+#include <utility>               // for move
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"

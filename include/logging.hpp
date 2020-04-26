@@ -15,18 +15,22 @@
  * Marginean, P: "Logging in C++: Part 2", http://www.ddj.com/cpp/221900468
  */
 
-#include <cstdio>
 
-#include <chrono>
-#include <ctime>         // for localtime
-#include <iomanip>       // for put_time
-#include <memory>
-#include <mutex>         // for lock_guard, mutex
-#include <sstream>
-#include <stdexcept>     // for runtime_error
-#include <string>
-#include <type_traits>   // for underlying_type
-#include <unordered_set>
+#include <cxxabi.h>       // for __forced_unwind
+#include <stdint.h>       // for int16_t
+#include <chrono>         // for milliseconds, seconds, duration_cast, opera...
+#include <cstdio>         // for fclose, fflush, FILE, fopen, fprintf
+#include <ctime>          // for localtime, time_t
+#include <iomanip>        // for operator<<, put_time
+#include <memory>         // for unique_ptr, hash, operator==
+#include <mutex>          // for mutex, lock_guard
+#include <sstream>        // for operator<<, basic_ostream, ostringstream
+#include <stdexcept>      // for runtime_error
+#include <string>         // for string, operator==, char_traits, operator<<
+#include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
+#include <unordered_set>  // for unordered_set
+#include <utility>        // for move
+
 
 #ifndef __LIBARCSTK_VERSION_HPP__
 #include "version.hpp"

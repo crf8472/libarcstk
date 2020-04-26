@@ -11,21 +11,19 @@
 #include "calculate_details.hpp"
 #endif
 
-#include <algorithm>     // for copy
-#include <chrono>
-#include <cmath>         // for log2
-#include <cstdint>
-#include <exception>     // for exception
-#include <fstream>
-#include <iomanip>       // for uppercase, nouppercase, setw, setfill
-                         // showbase, noshowbase
-#include <limits>
-#include <memory>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <array>                  // for array
+#include <chrono>                 // for milliseconds, duration_cast, operator-
+//#include <cmath>                  // for log2
+#include <cstdint>                // for uint32_t, uint_fast32_t, uint8_t
+//#include <exception>              // for exception
+#include <iomanip>                // for operator<<, setfill, setw
+#include <limits>                 // for numeric_limits
+#include <memory>                 // for unique_ptr, make_unique, unique_ptr...
+#include <sstream>                // for operator<<, basic_ostream, basic_os...
+#include <stdexcept>              // for overflow_error, invalid_argument
+#include <string>                 // for char_traits, operator<<, string
+#include <unordered_map>          // for unordered_map, operator==, _Node_co...
+#include <vector>                 // for vector
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -33,6 +31,7 @@
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+
 #ifndef __LIBARCSTK_APPENDABLESEQ_HPP__
 #include "appendableseq.hpp"
 #endif
@@ -1438,29 +1437,29 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
 		return ChecksumSet{};
 	}
 
-	ChecksumSet checksums;
+	ChecksumSet sums;
 
-	auto rc {
-		checksums.insert(checksum::type::ARCS2,
-				Checksum { value->second.second })
+	const auto rc_v2 {
+		sums.insert(checksum::type::ARCS2, Checksum { value->second.second })
 	};
 
-	if (not rc.second)
+	if (not rc_v2.second)
 	{
 		ARCS_LOG_WARNING << "Insertion to result failed for type "
 			<< checksum::type_name(checksum::type::ARCS2);
 	}
 
-	rc = checksums.insert(checksum::type::ARCS1,
-			Checksum { value->second.first});
+	const auto rc_v1 {
+		sums.insert(checksum::type::ARCS1, Checksum { value->second.first })
+	};
 
-	if (not rc.second)
+	if (not rc_v1.second)
 	{
 		ARCS_LOG_WARNING << "Insertion to result failed for type "
 			<< checksum::type_name(checksum::type::ARCS1);
 	}
 
-	return checksums;
+	return sums;
 }
 
 } // namespace details

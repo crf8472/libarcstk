@@ -164,7 +164,8 @@ TEST_CASE ( "Checksum", "[calculate]" )
 
 	SECTION ( "Move assignment" )
 	{
-		track01 = std::move(Checksum { 0x98B10E0F });
+		auto sum = Checksum { 0x98B10E0F };
+		track01 = std::move(sum);
 
 		CHECK ( track01.value() == 0x98B10E0F );
 	}

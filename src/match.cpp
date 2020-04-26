@@ -8,12 +8,15 @@
 #include "match.hpp"
 #endif
 
-#include <cstdint>
-#include <iomanip>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
+#include <array>          // for array
+#include <cstdint>        // for int64_t, uint32_t
+#include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
+#include <memory>         // for unique_ptr, make_unique
+#include <sstream>        // for operator<<, basic_ostream::operator<<, basi...
+#include <stdexcept>      // for runtime_error
+#include <string>         // for char_traits, operator<<, string
+#include <utility>        // for move
+#include <vector>         // for vector, _Bit_iterator
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"

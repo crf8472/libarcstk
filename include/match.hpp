@@ -14,9 +14,9 @@
  * checksums.
  */
 
-#include <cstdint>
-#include <cstddef>
-#include <memory>
+#include <cstddef>         // for size_t
+#include <cstdint>         // for int64_t
+#include <memory>          // for unique_ptr
 
 namespace arcstk
 {

@@ -9,14 +9,18 @@
 #include "parse.hpp"
 #endif
 
-#include <cerrno>   // for errno
-#include <cstdio>   // for feof, ferror, fread, freopen, stdin
-#include <cstring>  // for EOF, strerror
-#include <fstream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
+#include <cerrno>              // for errno
+#include <cstdio>              // for ferror, stdin, feof, freopen, fread, EOF
+#include <cstring>             // for strerror
+#include <fstream>             // for basic_ifstream
+#include <memory>              // for unique_ptr, make_unique, allocator, swap
+#include <sstream>             // for basic_stringstream
+#include <stdexcept>           // for runtime_error, domain_error
+#include <string>              // for char_traits, operator+, operator<<
+#include <type_traits>         // for remove_reference<>::type
+#include <typeinfo>            // for type_info
+#include <utility>             // for move, swap
+#include <vector>              // for vector
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"

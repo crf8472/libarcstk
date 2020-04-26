@@ -130,6 +130,8 @@ public: /* methods */
 	 */
 	ChecksumMapIterator& operator -- ();
 
+	ChecksumMapIterator& operator = (const ChecksumMapIterator &rhs) = delete;
+
 	/**
 	 * \brief Equality
 	 *
@@ -142,6 +144,20 @@ public: /* methods */
 			const ChecksumMapIterator &rhs)
 	{
 		return lhs.it_ == rhs.it_;
+	}
+
+	/**
+	 * \brief Swap
+	 *
+	 * \param[in] lhs Left hand side to swap
+	 * \param[in] rhs Right hand side to swap
+	 */
+	friend void swap(const ChecksumMapIterator &lhs,
+			const ChecksumMapIterator &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.it_, rhs.it_);
 	}
 
 

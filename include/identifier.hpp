@@ -7,12 +7,14 @@
  * \brief Public API for \link id calculating AccurateRip ids\endlink
  */
 
-#include <cstdint>
-#include <memory>
-#include <stdexcept>  // for logic_error
-#include <string>
-#include <utility>    // for forward
-#include <vector>
+#include <cstdint>               // for uint32_t, int32_t, uint64_t
+#include <initializer_list>      // for initializer_list
+#include <memory>                // for unique_ptr
+#include <stdexcept>             // for logic_error
+#include <string>                // for string
+#include <type_traits>           // for enable_if_t
+#include <utility>               // for forward
+#include <vector>                // for vector
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"
@@ -65,7 +67,7 @@ using sample_count = int32_t;
  * The type is intended to perform arithmetic operations on it.
  */
 using lba_count = int32_t;
-/* TODO Typedef is unnecessary after successful test with int */
+/* TODO Typedef is unnecessary after successful test with int32_t */
 
 /**
  * \brief Data type for track numbers.

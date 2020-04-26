@@ -7,10 +7,8 @@
  * \brief Public API for representing unconverted sequences of samples.
  */
 
-#include <cstdint>
-#include <iterator>
-#include <type_traits> // for conditional, is_same
-#include <memory>
+#include <cstdint>              // for uint8_t, uint32_t
+#include <iosfwd>               // for size_t
 
 namespace arcstk
 {

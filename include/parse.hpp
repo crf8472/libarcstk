@@ -14,13 +14,12 @@
  * ARResponse object.
  */
 
-#include <cstdint>
-#include <initializer_list>
-#include <istream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
+#include <cstdint>           // for uint32_t, uint8_t
+#include <initializer_list>  // for initializer_list
+#include <istream>           // for istream, size_t
+#include <memory>            // for unique_ptr
+#include <stdexcept>         // for runtime_error
+#include <string>            // for string
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"
