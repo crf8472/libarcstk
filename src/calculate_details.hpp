@@ -1,14 +1,9 @@
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#error "Do not include calculate_details.hpp, include calculate.hpp instead"
+#include "calculate.hpp"
 #endif
 
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #define __LIBARCSTK_CALCULATE_DETAILS_HPP__
-
-// Just for switching off LSP warnings about unresolvable names
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
 
 /**
  * \internal
@@ -18,15 +13,10 @@
  * \brief Internal APIs for checksum calculation
  */
 
+// Include only what is used here and not already in calculate.hpp
 #include <cmath>         // for exp2
-#include <cstdint>
-#include <memory>
-#include <stdexcept>     // for logic_error, invalid_argument
 #include <tuple>         // for tuple_element_t, tuple_size
                          // C++17: for tuple_size_v instead of tuple_size
-#include <type_traits>   // for enable_if_t, is_same, decay_t
-                         // C++17: for is_same_v instead of is_same
-#include <utility>       // for pair, forward, make_index_sequence
 #include <vector>
 
 #ifndef __LIBARCSTK_LOGGING_HPP__

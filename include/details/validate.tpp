@@ -14,14 +14,9 @@
  * \brief TOC data validation
  */
 
-
-#include <initializer_list>
+// Include only what is used HERE but NOT in identifier.hpp
 #include <iterator>         // for begin, end
-#include <sstream>
-#include <string>
-#include <type_traits>      // is_integral, is_arithmetic, integral_constant,
-                            // enable_if, remove_reference_t, is_same, true_type
-#include <vector>
+#include <sstream>          // for stringstream
 
 // requires InvalidMetadataException, NonstandardMetadataException, TrackNo,
 // TOC and CDDA from identifier.hpp

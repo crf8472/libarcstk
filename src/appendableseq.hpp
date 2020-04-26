@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Nonpublic policies for implementing classes.
+ * \brief AppendableSequence is a common implementation for some containers.
  */
 
 #include <algorithm>         // for equal

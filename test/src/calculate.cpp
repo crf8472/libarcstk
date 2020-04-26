@@ -1,13 +1,16 @@
 #include "catch2/catch.hpp"
 
-#include <cstdint>
-#include <fstream>
-#include <limits>
-#include <memory>
+#include <algorithm>              // for max
+#include <fstream>                // for ifstream, operator|, ios_base::failure
+#include <limits>                 // for numeric_limits
+#include <memory>                 // for unique_ptr
+#include <string>                 // for basic_string, operator==, string
+#include <utility>                // for move
+#include <vector>                 // for vector
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
+//#ifndef __LIBARCSTK_CALCULATE_HPP__
+//#include "calculate.hpp"
+//#endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif

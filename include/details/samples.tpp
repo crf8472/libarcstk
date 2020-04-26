@@ -21,11 +21,10 @@
  * \brief Implementation of SampleSequence and SampleIterator
  */
 
+// Include only what is used HERE but NOT in samples.hpp
 #include <array>
-#include <cstdint>
 #include <stdexcept>
 #include <sstream>
-#include <vector>
 
 namespace arcstk
 {

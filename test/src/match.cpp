@@ -1,10 +1,5 @@
 #include "catch2/catch.hpp"
 
-#include <cstdint>
-#include <fstream>
-#include <memory>
-#include <vector>
-
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif

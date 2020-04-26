@@ -203,7 +203,8 @@ extern const CDDA_t CDDA;
  * @{
  */
 
-class ARId; // forward declaration for operator==
+// forward declaration for operator==
+class ARId; // IWYU pragma keep
 
 /**
  * \brief Equality
@@ -372,7 +373,8 @@ private:
 extern const ARId EmptyARId;
 
 
-class TOC; // forward declaration for operator==
+// forward declaration for operator==
+class TOC; // IWYU pragma keep
 
 
 /**

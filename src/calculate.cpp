@@ -4,26 +4,27 @@
  * \brief Implementation of the checksum calculation API
  */
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif
 
 #include <array>                  // for array
 #include <chrono>                 // for milliseconds, duration_cast, operator-
-//#include <cmath>                  // for log2
 #include <cstdint>                // for uint32_t, uint_fast32_t, uint8_t
-//#include <exception>              // for exception
+#include <initializer_list>       // for initializer_list
 #include <iomanip>                // for operator<<, setfill, setw
+#include <iterator>               // for distance
 #include <limits>                 // for numeric_limits
 #include <memory>                 // for unique_ptr, make_unique, unique_ptr...
+#include <set>                    // for set
 #include <sstream>                // for operator<<, basic_ostream, basic_os...
 #include <stdexcept>              // for overflow_error, invalid_argument
 #include <string>                 // for char_traits, operator<<, string
+#include <type_traits>            // for __underlying_type_impl<>::type, und...
 #include <unordered_map>          // for unordered_map, operator==, _Node_co...
+#include <utility>                // for pair, move, make_pair, swap
 #include <vector>                 // for vector
+
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"

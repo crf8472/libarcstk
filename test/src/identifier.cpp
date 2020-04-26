@@ -1,9 +1,13 @@
 #include "catch2/catch.hpp"
 
-#include <cstdint>
-#include <memory>
-#include <array>
-#include <list>
+#include <algorithm>         // for max
+#include <array>             // for array
+#include <cstdint>           // for uint32_t, int32_t
+#include <list>              // for list
+#include <memory>            // for unique_ptr
+#include <string>            // for basic_string, operator==, string
+#include <type_traits>       // for integral_constant<>::value
+#include <vector>            // for vector
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"

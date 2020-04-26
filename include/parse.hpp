@@ -35,7 +35,7 @@ inline namespace v_1_0_0
 class ARId;
 
 // Forward declaration for the base class for a private implementation
-class ARTripletImpl;
+class ARTripletImpl; // IWYU pragma keep
 
 
 /**

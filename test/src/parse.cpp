@@ -1,9 +1,9 @@
 #include "catch2/catch.hpp"
 
-#include <cstdint>
-#include <fstream>
-#include <memory>
-#include <type_traits>
+#include <memory>            // for make_unique, unique_ptr
+#include <string>            // for basic_string, operator==, string
+#include <type_traits>       // for integral_constant<>::value, is_copy_assi...
+#include <utility>           // for move
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"

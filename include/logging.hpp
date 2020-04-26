@@ -15,7 +15,6 @@
  * Marginean, P: "Logging in C++: Part 2", http://www.ddj.com/cpp/221900468
  */
 
-
 #include <cxxabi.h>       // for __forced_unwind
 #include <stdint.h>       // for int16_t
 #include <chrono>         // for milliseconds, seconds, duration_cast, opera...
@@ -30,11 +29,6 @@
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
 #include <unordered_set>  // for unordered_set
 #include <utility>        // for move
-
-
-#ifndef __LIBARCSTK_VERSION_HPP__
-#include "version.hpp"
-#endif
 
 namespace arcstk
 {

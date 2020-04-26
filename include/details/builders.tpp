@@ -17,18 +17,9 @@
  * \brief Builder for TOCs.
  */
 
-
-#include <cstdint>
-#include <initializer_list>
+// Include only what is used HERE but NOT in identifier.hpp
 #include <iterator>         // for begin, end
-#include <memory>           // for make_unique, unique_ptr
-#include <numeric>          // for accumulate
 #include <sstream>
-#include <stdexcept>        // for out_of_range
-#include <string>
-#include <type_traits>      // for enable_if, remove_reference_t
-#include <utility>          // for move, forward
-#include <vector>
 
 // requires InvalidMetadataException, NonstandardMetadataException and TrackNo
 // from identifier.hpp

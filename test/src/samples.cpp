@@ -1,8 +1,10 @@
 #include "catch2/catch.hpp"
 
-#include <cstdint>
-#include <fstream>
-#include <memory>
+#include <algorithm>         // for max
+#include <cstdint>           // for int16_t, uint8_t, uint32_t, int32_t, uin...
+#include <fstream>           // for ifstream, operator|, basic_istream, ios_...
+#include <iterator>          // for istreambuf_iterator, operator!=
+#include <vector>            // for vector
 
 #ifndef __LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"

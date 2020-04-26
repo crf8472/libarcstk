@@ -14,12 +14,9 @@
  * \brief Implementation of ChecksumMapIterator and ChecksumMap
  */
 
-
-#include <algorithm>   // for transform
-#include <map>
-#include <set>
-#include <type_traits> // for conditional
-#include <utility>     // for pair
+// Include only what is used HERE but NOT in calculate.hpp
+#include <algorithm>     // for transform
+#include <map>           // for map
 
 namespace arcstk
 {

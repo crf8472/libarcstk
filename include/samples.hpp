@@ -39,7 +39,7 @@ using sample_t = uint32_t;
  * a single sample_t integer.
  */
 template <typename T, bool is_planar, bool is_const>
-class SampleIterator;
+class SampleIterator; // IWYU pragma keep
 
 
 /**

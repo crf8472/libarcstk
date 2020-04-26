@@ -7,18 +7,18 @@
  * \brief Public API for checksum calculation.
  */
 
-#include <cstddef>               // for ptrdiff_t, size_t
 #include <cstdint>               // for uint32_t, uint8_t, int64_t
 #include <initializer_list>      // for initializer_list
 #include <iterator>              // for input_iterator_tag
-#include <map>                   // for swap
 #include <memory>                // for unique_ptr, swap, make_unique
 #include <set>                   // for set
+#include <sstream>               // for swap, ptrdiff_t, size_t
 #include <stdexcept>             // for logic_error
 #include <string>                // for string
 #include <type_traits>           // for declval, decay_t, enable_if_t, is_same
 #include <typeinfo>              // for type_info
 #include <utility>               // for move
+
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
@@ -89,9 +89,6 @@ inline namespace v_1_0_0
  */
 
 
-class Checksum; // forward declaration for operator == and to_hex_str()
-
-
 /**
  * \brief Everything regarding operation with Checksums.
  */
@@ -133,6 +130,10 @@ static const type types[] = {
 std::string type_name(const type t);
 
 } // namespace checksum
+
+
+// forward declaration for operator == and to_hex_str()
+class Checksum; // IWYU pragma keep
 
 
 /**
@@ -314,7 +315,8 @@ private:
 };
 
 
-class AudioSize; // forward declaration for operator ==
+// forward declaration for operator ==
+class AudioSize; // IWYU pragma keep
 
 
 /**
@@ -533,7 +535,8 @@ using IsSampleIterator = std::enable_if_t<
 		details::is_iterator_over<Iterator, sample_type>::value>;
 
 
-class SampleInputIterator; // forward declaration
+// forward declaration for operator == and binary ops
+class SampleInputIterator; // IWYU pragma keep
 
 
 /**
@@ -1389,7 +1392,8 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
 
-class Checksums;
+// forward declaration for operator == and swap()
+class Checksums; // IWYU pragma keep
 
 /**
  * \brief Swap for Checksums
