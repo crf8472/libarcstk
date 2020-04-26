@@ -179,15 +179,15 @@ settings to your needs.
 |--------------------|------------------------------------------------|-------|
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix     |plattform defined|
-|CMAKE_EXPORT_COMPILE_COMMANDS|Create a [compilation database](#user-content-deep-language-support-in-your-editor)            |OFF    |
-|IWYU                |Use [include-what-you-use](#user-content-find-unused-header-includes) on compiling           |OFF    |
-|WITH_DOCS           |Configure for [documentation](#user-content-building-the-api-documentation)                     |OFF    |
-|WITH_INTERNAL_DOCS  |Configure for [documentation](#user-content-building-the-api-documentation) for internal APIs   |OFF    |
-|WITH_NATIVE         |Use platform [specific optimization](#user-content-turn-optimizing-on-off) on compiling |       |
+|CMAKE_EXPORT_COMPILE_COMMANDS|Create a [compilation database](#deep-language-support-in-your-editor)            |OFF    |
+|IWYU                |Use [include-what-you-use](#find-unused-header-includes) on compiling           |OFF    |
+|WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                     |OFF    |
+|WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs   |OFF    |
+|WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-on-off) on compiling |       |
 |                    |CMAKE_BUILD_TYPE=Debug                          |OFF    |
 |                    |CMAKE_BUILD_TYPE=Release                        |ON     |
-|WITH_TESTS          |Compile [tests](#user-content-run-unit-tests) (but don't run them)              |OFF    |
-|USE_MCSS            |[Use m.css](#user-content-doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) when building the documentation  |OFF    |
+|WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)              |OFF    |
+|USE_MCSS            |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) when building the documentation  |OFF    |
 
 
 
