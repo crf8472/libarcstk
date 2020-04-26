@@ -31,10 +31,14 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+namespace details
+{
 
 // forward declaration required by friend delcaration in SampleIterator
 template<typename T, bool is_planar>
 class SampleSequenceImplBase;
+
+} // namespace details
 
 
 /**
@@ -48,7 +52,7 @@ class SampleIterator final
 	friend SampleIterator<T, is_planar, not is_const>;
 
 	// Allow use of private constructor
-	friend class SampleSequenceImplBase<T, is_planar>;
+	friend class details::SampleSequenceImplBase<T, is_planar>;
 
 public:
 
@@ -277,6 +281,8 @@ private:
 	difference_type pos_;
 };
 
+namespace details
+{
 
 /**
  * \internal
@@ -484,6 +490,8 @@ private:
 	size_type size_;
 };
 
+} // namespace details
+
 
 // SampleSequence: Full Specialization for planar sequences (is_planar == true)
 
@@ -494,17 +502,17 @@ private:
  * \brief SampleSequence specialization for planar sequences.
  */
 template <typename T>
-class SampleSequence<T, true> final : public SampleSequenceImplBase<T, true>
+class SampleSequence<T, true> final : public details::SampleSequenceImplBase<T, true>
 {
 public: /* types */
 
-	using typename SampleSequenceImplBase<T, true>::value_type;
+	using typename details::SampleSequenceImplBase<T, true>::value_type;
 
-	using typename SampleSequenceImplBase<T, true>::size_type;
+	using typename details::SampleSequenceImplBase<T, true>::size_type;
 
-	using typename SampleSequenceImplBase<T, true>::iterator;
+	using typename details::SampleSequenceImplBase<T, true>::iterator;
 
-	using typename SampleSequenceImplBase<T, true>::const_iterator;
+	using typename details::SampleSequenceImplBase<T, true>::const_iterator;
 
 
 public: /* methods */
@@ -649,17 +657,17 @@ private:
  * \brief SampleSequence specialization for interleaved sequences.
  */
 template <typename T>
-class SampleSequence<T, false> final : public SampleSequenceImplBase<T, false>
+class SampleSequence<T, false> final : public details::SampleSequenceImplBase<T, false>
 {
 public: /* types */
 
-	using typename SampleSequenceImplBase<T, false>::value_type;
+	using typename details::SampleSequenceImplBase<T, false>::value_type;
 
-	using typename SampleSequenceImplBase<T, false>::size_type;
+	using typename details::SampleSequenceImplBase<T, false>::size_type;
 
-	using typename SampleSequenceImplBase<T, false>::iterator;
+	using typename details::SampleSequenceImplBase<T, false>::iterator;
 
-	using typename SampleSequenceImplBase<T, false>::const_iterator;
+	using typename details::SampleSequenceImplBase<T, false>::const_iterator;
 
 
 public:
