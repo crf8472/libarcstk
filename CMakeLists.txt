@@ -166,19 +166,7 @@ list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 
 ## --- Add and configure project target
 
-## Build libarcstk library as project target (either shared or static)
-
-option (AS_STATIC "Build as static library" OFF )
-set (PROJECT_LINKFLAG SHARED )
-
-if (AS_STATIC)
-
-	set (PROJECT_LINKFLAG STATIC )
-endif ()
-
-message (STATUS "Build library as: ${PROJECT_LINKFLAG}" )
-
-add_library (${PROJECT_NAME} ${PROJECT_LINKFLAG}
+add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
 	"${PROJECT_SOURCE_DIR}/match.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"

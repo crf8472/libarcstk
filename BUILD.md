@@ -213,13 +213,13 @@ settings to your needs.
 
 
 
-## Buildtime switches
+## Configure switches
 
 |Switch              |Description                                     |Default|
 |--------------------|------------------------------------------------|-------|
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix     |plattform defined|
-|CMAKE_EXPORT_COMPILE_COMMANDS|Create a [compilation database](#deep-language-support-in-your-editor)            |OFF    |
+|CMAKE_EXPORT_COMPILE_COMMANDS|Rebuilds a [compilation database](#deep-language-support-in-your-editor) when configuring |OFF    |
 |IWYU                |Use [include-what-you-use](#find-unused-header-includes) on compiling           |OFF    |
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                     |OFF    |
 |WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs   |OFF    |
