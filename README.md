@@ -32,8 +32,8 @@ Checksums" or "ARCS"s for short.
 
 - Libarcstk does not rip CDs
 - Libarcstk does not offer to read, buffer or decode any audio data. You have to
-  provide the samples on your own. (But note that there is
-  [libarcsdec](https://codeberg.org/tristero/libarcsdec).)
+  provide the samples on your own. (But note that there is [libarcsdec][1] than
+  can probably do that for you.)
 - Libarcstk offers no network facilities and is not supposed to do so. The
   actual HTTP request for fetching the reference values from AccurateRip is
   better performed by the HTTP networking client of your choice.
@@ -59,11 +59,9 @@ build switches.
 
 - Consult the [example applications](./examples/README.md) in the examples
   folder. They illustrate the supported usecases.
-- [Build the API documentation](BUILD.md#building-the-api-documentation) and
-  view it in a browser or
-  [read it online](https://pages.codeberg.org/tristero/libarcstk).
-- For local ARCS calculation, also check whether
-  [libarcsdec](https://codeberg.org/tristero/libarcsdec) is helpful. Its
+- [Build the API documentation](./BUILD.md#building-the-api-documentation) and
+  view it in a browser or [read it online][1].
+- For local ARCS calculation, also check whether [libarcsdec][1] is helpful. Its
   target is to read virtually any lossless audio format by a uniform
   API that is really simple to use.
 - As soon as I manage to write a quickstart tutorial, it will be found in the
@@ -75,7 +73,7 @@ build switches.
 
 - No production release yet - will be 1.0.0
 - API is not considered stable before 1.0.0 (may change any time in any way
-  until then)
+  while major release number is 0)
 - Supports only little endian plattforms. Release-build on big endian plattforms
   is therefore ruled out by cmake.
 - Never built, installed or tested on Windows or Mac OS X, but it is intended to
@@ -87,3 +85,5 @@ build switches.
 
 - Never tested with CD images containing data tracks.
 
+[1]: https://pages.codeberg.org/tristero/libarcstk
+[2]: https://codeberg.org/tristero/libarcsdec
