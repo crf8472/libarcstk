@@ -161,7 +161,6 @@ set (PRIVATE_HEADERS )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
-list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/samples.tpp" )
 
 
 ## --- Add and configure project target

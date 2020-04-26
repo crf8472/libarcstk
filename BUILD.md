@@ -107,9 +107,9 @@ This will install the following files to your system:
   ``logging.hpp``, ``match.hpp``, ``parse.hpp``, ``policies.hpp``,
   ``samples.hpp`` and ``version.hpp`` in the standard include location
   (e.g. /usr/local/include).
-- the four exported non-API template headers builder.tpp, checksum.tpp,
-  samples.tpp and validate.tpp in folder ``details'' below the location where
-  the public headers are
+- the three exported non-API template headers builder.tpp, checksum.tpp,
+  and validate.tpp in folder ``details'' below the location where the public
+  headers are
 - the four cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
   ``libarcstk-targets-release.cmake`` that allow other projects to simply import

@@ -19,19 +19,21 @@
 TEST_CASE ( "SampleSequence allows int16_t and int32_t",
 		"[samplesequence] [construction]" )
 {
-	using arcstk::SampleSequence;
+	using arcstk::PlanarSamples;
+	using arcstk::InterleavedSamples;
 
-	SampleSequence<int16_t, true>  seq_planar_16;
-	SampleSequence<int16_t, false> seq_interl_16;
-	SampleSequence<int32_t, true>  seq_planar_32;
-	SampleSequence<int32_t, false> seq_interl_32;
+	PlanarSamples<int16_t>      seq_planar_16;
+	InterleavedSamples<int16_t> seq_interl_16;
+	PlanarSamples<int32_t>      seq_planar_32;
+	InterleavedSamples<int32_t> seq_interl_32;
 }
 
 
 TEST_CASE ( "SampleSequence index access works correctly",
 		"[samplesequence] [subscript]" )
 {
-	using arcstk::SampleSequence;
+	using arcstk::PlanarSamples;
+	using arcstk::InterleavedSamples;
 
 	// Load example samples
 
@@ -68,7 +70,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t interleaved sequence")
 	{
-		SampleSequence<int16_t, false> sequence;
+		InterleavedSamples<int16_t> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -132,7 +134,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iterate in16_t interleaved sequence")
 	{
-		SampleSequence<int16_t, false> sequence;
+		InterleavedSamples<int16_t> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -269,7 +271,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t interleaved sequence")
 	{
-		SampleSequence<int16_t, false> sequence;
+		InterleavedSamples<int16_t> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -278,7 +280,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		SampleSequence<int16_t, false>::size_type index = 0;
+		InterleavedSamples<int16_t>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -291,7 +293,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		SampleSequence<int16_t, false>::size_type index2 = 0;
+		InterleavedSamples<int16_t>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -303,7 +305,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in32_t interleaved sequence")
 	{
-		SampleSequence<int32_t, false> sequence;
+		InterleavedSamples<int32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -391,7 +393,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in32_t interleaved sequence")
 	{
-		SampleSequence<int32_t, false> sequence;
+		InterleavedSamples<int32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -400,7 +402,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		SampleSequence<int32_t, false>::size_type index = 0;
+		InterleavedSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -413,7 +415,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		SampleSequence<int32_t, false>::size_type index2 = 0;
+		InterleavedSamples<int32_t>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -425,7 +427,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t planar sequence")
 	{
-		SampleSequence<int16_t, true> sequence;
+		PlanarSamples<int16_t> sequence;
 
 		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
 
@@ -489,7 +491,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t planar sequence")
 	{
-		SampleSequence<int16_t, true> sequence;
+		PlanarSamples<int16_t> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -498,7 +500,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		SampleSequence<int16_t, true>::size_type index = 0;
+		PlanarSamples<int16_t>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -513,7 +515,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 256 );
 
-		SampleSequence<int16_t, true>::size_type index2 = 0;
+		PlanarSamples<int16_t>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -525,7 +527,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in32_t planar sequence")
 	{
-		SampleSequence<int32_t, true> sequence;
+		PlanarSamples<int32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -615,7 +617,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in32_t planar sequence")
 	{
-		SampleSequence<int32_t, true> sequence;
+		PlanarSamples<int32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -624,7 +626,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		SampleSequence<int32_t, true>::size_type index = 0;
+		PlanarSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
@@ -639,7 +641,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.size() == 128 );
 
-		SampleSequence<int32_t, true>::size_type index2 = 0;
+		PlanarSamples<int32_t>::size_type index2 = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index2] );
@@ -651,7 +653,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t interleaved sequence")
 	{
-		SampleSequence<uint16_t, false> sequence;
+		InterleavedSamples<uint16_t> sequence;
 
 		CHECK ( sequence.typesize() == 2 );
 
@@ -715,7 +717,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t planar sequence")
 	{
-		SampleSequence<uint16_t, true> sequence;
+		PlanarSamples<uint16_t> sequence;
 
 		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
 
@@ -779,7 +781,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin32_t interleaved sequence")
 	{
-		SampleSequence<uint32_t, false> sequence;
+		InterleavedSamples<uint32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -867,7 +869,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin32_t planar sequence")
 	{
-		SampleSequence<uint32_t, true> sequence;
+		PlanarSamples<uint32_t> sequence;
 
 		CHECK ( sequence.typesize() == 4 );
 
@@ -959,7 +961,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		using arcstk::SampleIterator;
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		InterleavedSamples<uint32_t> sequence;
 
 		REQUIRE ( sequence.typesize() == 4 );
 
@@ -987,7 +989,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		// take begin of other sequence
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence_other;
+		InterleavedSamples<uint32_t> sequence_other;
 		sequence_other.wrap(&bytes[0], 1024); // bytes
 		auto begin_other = sequence_other.begin();
 
@@ -999,7 +1001,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		using arcstk::SampleIterator;
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		InterleavedSamples<uint32_t> sequence;
 
 		REQUIRE ( sequence.typesize() == 4 );
 
@@ -1014,7 +1016,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		using arcstk::SampleIterator;
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		InterleavedSamples<uint32_t> sequence;
 
 		REQUIRE ( sequence.typesize() == 4 );
 
@@ -1061,7 +1063,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		using arcstk::SampleIterator;
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		InterleavedSamples<uint32_t> sequence;
 
 		REQUIRE ( sequence.typesize() == 4 );
 
@@ -1084,7 +1086,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iterator 16 bit begin and end")
 	{
-		SampleSequence<int16_t, true> sequence;
+		PlanarSamples<int16_t> sequence;
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
@@ -1101,7 +1103,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iterator 32 bit begin and end")
 	{
-		SampleSequence<int32_t, true> sequence;
+		PlanarSamples<int32_t> sequence;
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
@@ -1122,7 +1124,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		using arcstk::SampleIterator;
 
-		SampleSequence<uint32_t, false/* interleaved */> sequence;
+		InterleavedSamples<uint32_t> sequence;
 		sequence.wrap(&bytes[0], 1024); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
