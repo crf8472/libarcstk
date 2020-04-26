@@ -394,7 +394,6 @@ endif (WITH_NATIVE )
 message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 
-
 ## --- Ensure version info + current commit is available
 
 find_package (Git QUIET REQUIRED )
@@ -420,7 +419,6 @@ execute_process(
 set_property(GLOBAL APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
 )
-
 
 
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
