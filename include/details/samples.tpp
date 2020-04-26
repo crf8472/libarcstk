@@ -39,13 +39,6 @@ class SampleSequenceImplBase;
 
 /**
  * \internal
- *
- * \brief Iterator of a SampleSequence.
- *
- * Equality of between a const_iterator and an iterator works as expected.
- *
- * Although tagged as an input_iterator, SampleIterator provides decrement
- * operations and subtraction additionally.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final
@@ -58,6 +51,9 @@ class SampleIterator final
 	friend class SampleSequenceImplBase<T, is_planar>;
 
 public:
+
+	SampleIterator& operator = (const SampleIterator &rhs) = delete;
+
 
 	using iterator_category = std::input_iterator_tag;
 
@@ -115,9 +111,6 @@ public:
 	 * \brief Subtract-assign amount.
 	 */
 	SampleIterator& operator -= (const difference_type value);
-
-
-	SampleIterator& operator = (const SampleIterator &rhs) = delete;
 
 
 	// Binary non-assignment operators are friends:
@@ -657,12 +650,25 @@ public: /* methods */
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
 	 *
+	 * This function does essentially the same as reset() but converts a
+	 * sequence of uint8_t instances by reinterpreting the samples as instances
+	 * of type T. However, reset() expects samples of type T.
+	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of bytes per buffer
 	 */
 	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
 			const size_type size);
+
+	/**
+	 * \brief Rewrap the specified buffers into this sample sequence.
+	 *
+	 * \param[in] buffer0 Buffer for channel 0
+	 * \param[in] buffer1 Buffer for channel 1
+	 * \param[in] size    Number of T's per buffer
+	 */
+	void reset(const T* buffer0, const T* buffer1, const size_type size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -695,15 +701,6 @@ public: /* methods */
 	 * \throw std::out_of_range if \c index is out of range
 	 */
 	value_type at(const size_type index) const;
-
-	/**
-	 * \brief Rewrap the specified buffers into this sample sequence.
-	 *
-	 * \param[in] buffer0 Buffer for channel 0
-	 * \param[in] buffer1 Buffer for channel 1
-	 * \param[in] size    Number of T's per buffer
-	 */
-	void reset(const T* buffer0, const T* buffer1, const size_type size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
@@ -857,12 +854,24 @@ public:
 	SampleSequence(bool left0_right1);
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence.
+	 * \brief Rewrap the specified buffer into this sample sequence.
+	 *
+	 * This function does essentially the same as reset() but converts a
+	 * sequence of uint8_t instances by reinterpreting the samples as instances
+	 * of type T. However, reset() expects samples of type T.
 	 *
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
 	 */
 	void wrap(const uint8_t *buffer, const size_type size);
+
+	/**
+	 * \brief Rewrap the specified buffer into this sample sequence.
+	 *
+	 * \param[in] buffer Interleaved buffer
+	 * \param[in] size   Number of T's in the buffer
+	 */
+	void reset(const T* buffer, const size_type size);
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
@@ -895,14 +904,6 @@ public:
 	 * \throw std::out_of_range if \c index is out of range
 	 */
 	value_type at(const size_type index) const;
-
-	/**
-	 * \brief Rewrap the specified buffer into this sample sequence.
-	 *
-	 * \param[in] buffer Interleaved buffer
-	 * \param[in] size   Number of T's in the buffer
-	 */
-	void reset(const T* buffer, const size_type size);
 
 	/**
 	 * \brief Return the size of the template argument type in bytes.
