@@ -335,8 +335,8 @@ auto SampleIterator<T, is_planar, is_const>::operator -=
 
 
 // forward delcaration to be used by SampleSequenceImplBase
-template<typename T, bool is_planar>
-class SampleSequence;
+//template<typename T, bool is_planar>
+//class SampleSequence;
 
 
 /**
@@ -427,10 +427,9 @@ protected:
 	SampleSequenceImplBase();
 
 	/**
-	 * \brief Protected non-virtual destructor to indicate non-polymorphic use
-	 * only.
+	 * \brief Protected non-virtual destructor for non-polymorphic use only.
 	 */
-	virtual ~SampleSequenceImplBase() noexcept;
+	~SampleSequenceImplBase() noexcept;
 
 	/**
 	 * \brief Set the number 32 bit PCM samples in this buffer.
@@ -614,7 +613,7 @@ void SampleSequenceImplBase<T, is_planar>::bounds_check(
  * \brief SampleSequence specialization for planar sequences.
  */
 template <typename T>
-class SampleSequence<T, true> : public SampleSequenceImplBase<T, true>
+class SampleSequence<T, true> final : public SampleSequenceImplBase<T, true>
 {
 public: /* types */
 
@@ -820,7 +819,7 @@ const SampleSequence<T, true>* SampleSequence<T, true>::sequence() const
  * \brief SampleSequence specialization for interleaved sequences.
  */
 template <typename T>
-class SampleSequence<T, false> : public SampleSequenceImplBase<T, false>
+class SampleSequence<T, false> final : public SampleSequenceImplBase<T, false>
 {
 public: /* types */
 
