@@ -32,7 +32,7 @@ Checksums" or "ARCS"s for short.
 
 - Libarcstk does not rip CDs
 - Libarcstk does not offer to read, buffer or decode any audio data. You have to
-  provide the samples on your own. (But note that there is [libarcsdec][1] than
+  provide the samples on your own. (But note that there is [libarcsdec][2] than
   can probably do that for you.)
 - Libarcstk offers no network facilities and is not supposed to do so. The
   actual HTTP request for fetching the reference values from AccurateRip is
@@ -59,9 +59,9 @@ build switches.
 
 - Consult the [example applications](./examples/README.md) in the examples
   folder. They illustrate the supported usecases.
-- [Build the API documentation](./BUILD.md#building-the-api-documentation) and
+- [Build the API documentation](BUILD.md#user-content-building-the-api-documentation) and
   view it in a browser or [read it online][1].
-- For local ARCS calculation, also check whether [libarcsdec][1] is helpful. Its
+- For local ARCS calculation, also check whether [libarcsdec][2] is helpful. Its
   target is to read virtually any lossless audio format by a uniform
   API that is really simple to use.
 - As soon as I manage to write a quickstart tutorial, it will be found in the
