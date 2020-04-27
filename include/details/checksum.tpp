@@ -25,20 +25,28 @@ inline namespace v_1_0_0
 namespace details
 {
 
-
+// forward declaration for ChecksumMapIterator
 template <typename K>
-class ChecksumMap;    // forward declaration for ChecksumMapIterator
+class ChecksumMap; // IWYU pragma keep
 
 
 /**
  * \internal
  *
- * \brief Iterator for \link ChecksumMap ChecksumMaps \endlink.
+ * \brief Input iterator for \link ChecksumMap ChecksumMaps \endlink.
+ *
+ * ChecksumMapIterator is not default constructible since it wraps another
+ * iterator instance. Therefore it does not satisfy all requirements for an
+ * input iterator.
+ *
+ * ChecksumMapIterator can be preincremented and pre-decremented.
+ *
+ * Equality between const_iterator and iterator variants works like expected.
  *
  * \tparam K        The key type of the iterated ChecksumMap
  * \tparam is_const TRUE indicates a const_iterator
  */
-template <typename K, bool is_const = false>
+template <typename K, bool is_const>
 class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
@@ -49,29 +57,9 @@ class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
 	// constructor
 	friend ChecksumMap<K>;
 
-
-public: /* types */
+public:
 
 	using value_type = Checksum;
-
-
-private: /* types */
-
-	/**
-	 * \brief Type of the container to iterate
-	 */
-	using IteratedContainerType = typename std::map<K, value_type>;
-
-	/**
-	 * \brief Type of the container's iterator to wrap
-	 */
-	using WrappedIteratorType = typename std::conditional<is_const,
-			typename IteratedContainerType::const_iterator,
-			typename IteratedContainerType::iterator
-		>::type;
-
-
-public: /* types */
 
 	using difference_type   = std::ptrdiff_t;
 
@@ -89,66 +77,63 @@ public: /* types */
 	 */
 	using iterator_category = std::input_iterator_tag;
 
-
-public: /* methods */
-
 	/**
 	 * \brief Construct const_iterator from iterator
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
 	 */
-	ChecksumMapIterator(const ChecksumMapIterator<K, false> &rhs);
+	ChecksumMapIterator(const ChecksumMapIterator<K, false> &rhs)
+		: it_ { rhs.it_ }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Dereference operator
 	 *
 	 * \return A Checksum
 	 */
-	reference operator * ();
+	reference operator * ()
+	{
+		return (*it_).second;
+	}
 
 	/**
 	 * \brief Dereference operator
 	 *
 	 * \return A Checksum
 	 */
-	pointer operator -> ();
+	pointer operator -> ()
+	{
+		return &it_->second;
+	}
 
-	/**
-	 * \brief Preincrement operator
-	 *
-	 * \return The incremented instance
-	 */
-	ChecksumMapIterator& operator ++ ();
 
-	/**
-	 * \brief Decrement operator
-	 *
-	 * \return The decremented instance
-	 */
-	ChecksumMapIterator& operator -- ();
+	ChecksumMapIterator& operator ++ ()
+	{
+		++it_;
+		return *this;
+	}
 
+
+	ChecksumMapIterator& operator -- ()
+	{
+		--it_;
+		return *this;
+	}
+
+	// Defining an assignment operator leads to -Wdeprecated-copy firing
+	// and we do not need any
 	ChecksumMapIterator& operator = (const ChecksumMapIterator &rhs) = delete;
 
-	/**
-	 * \brief Equality
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
+
 	friend bool operator == (const ChecksumMapIterator &lhs,
 			const ChecksumMapIterator &rhs)
 	{
 		return lhs.it_ == rhs.it_;
 	}
 
-	/**
-	 * \brief Swap
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
+
 	friend void swap(const ChecksumMapIterator &lhs,
 			const ChecksumMapIterator &rhs)
 	{
@@ -157,8 +142,20 @@ public: /* methods */
 		swap(lhs.it_, rhs.it_);
 	}
 
-
 private:
+
+	/**
+	 * \brief Type of the container to iterate.
+	 */
+	using IteratedContainerType = typename std::map<K, value_type>;
+
+	/**
+	 * \brief Type of the container's iterator to wrap.
+	 */
+	using WrappedIteratorType = typename std::conditional<is_const,
+			typename IteratedContainerType::const_iterator,
+			typename IteratedContainerType::iterator
+		>::type;
 
 	/**
 	 * \brief Private Constructor.
@@ -171,7 +168,11 @@ private:
 	 *
 	 * \param[in] it iterator of the wrapped type
 	 */
-	explicit ChecksumMapIterator(const WrappedIteratorType &it);
+	explicit ChecksumMapIterator(const WrappedIteratorType &it)
+		: it_ { it }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Wrapped iterator of the class implementing ChecksumMap
@@ -180,65 +181,10 @@ private:
 };
 
 
-// ChecksumMapIterator
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
-		const WrappedIteratorType &it)
-	: it_ { it }
-{
-	// empty
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>::ChecksumMapIterator(
-		const ChecksumMapIterator<K, false> &rhs)
-	: it_ { rhs.it_ }
-{
-	// empty
-}
-
-
-template <typename K, bool is_const>
-typename ChecksumMapIterator<K, is_const>::reference
-	ChecksumMapIterator<K, is_const>::operator * ()
-{
-	return (*it_).second;
-}
-
-
-template <typename K, bool is_const>
-typename ChecksumMapIterator<K, is_const>::pointer
-	ChecksumMapIterator<K, is_const>::operator -> ()
-{
-	return &it_->second;
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>&
-	ChecksumMapIterator<K, is_const>::operator ++ ()
-{
-	++it_;
-	return *this;
-}
-
-
-template <typename K, bool is_const>
-ChecksumMapIterator<K, is_const>&
-	ChecksumMapIterator<K, is_const>::operator -- ()
-{
-	--it_;
-	return *this;
-}
-
-
 /**
  * \internal
  *
- * \brief Generic implementation of a ChecksumMap.
+ * \brief Generic Map for \link Checksum Checksums \endlink and some key type.
  *
  * This is a generic container for ChecksumMaps adaptable to different
  * checksum types and different keys.
@@ -249,7 +195,7 @@ template <typename K>
 class ChecksumMap : public Comparable<ChecksumMap<K>>
 {
 
-public: /* types */
+public:
 
 	/**
 	 * \brief Iterator
@@ -266,76 +212,117 @@ public: /* types */
 	 */
 	using size_type = std::size_t;
 
-
-public: /* member functions */
-
 	/**
 	 * \brief Constructor
 	 */
-	ChecksumMap();
+	ChecksumMap()
+		: map_ {}
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Copy constructor
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
-	ChecksumMap(const ChecksumMap &rhs);
+	ChecksumMap(const ChecksumMap &rhs)
+	= default;
 
 	/**
 	 * \brief Move constructor
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	ChecksumMap(ChecksumMap &&rhs) noexcept;
+	ChecksumMap(ChecksumMap &&rhs) noexcept
+	= default;
 
 	/**
 	 * \brief Virtual default destructor
 	 */
-	virtual ~ChecksumMap() noexcept;
-
-
-// Access
-
+	virtual ~ChecksumMap() noexcept
+	= default;
 
 	/**
 	 * \brief Returns a ChecksumMap::const_iterator to the beginning
 	 *
 	 * \return ChecksumMap::const_iterator to the beginning
 	 */
-	const_iterator begin() const;
+	const_iterator cbegin() const
+	{
+		return const_iterator(this->map_.cbegin());
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::const_iterator to the end
+	 *
+	 * \return ChecksumMap::const_iterator to the end
+	 */
+	const_iterator cend() const
+	{
+		return const_iterator(this->map_.cend());
+	}
 
 	/**
 	 * \brief Returns a ChecksumMap::const_iterator to the beginning
 	 *
 	 * \return ChecksumMap::const_iterator to the beginning
 	 */
-	const_iterator cbegin() const;
+	const_iterator begin() const
+	{
+		return this->cbegin();
+	}
 
 	/**
 	 * \brief Returns a ChecksumMap::const_iterator to the end
 	 *
 	 * \return ChecksumMap::const_iterator to the end
 	 */
-	const_iterator end() const;
+	const_iterator end() const
+	{
+		return this->cend();
+	}
 
 	/**
-	 * \brief Returns a ChecksumMap::const_iterator to the end
+	 * \brief Returns a ChecksumMap::iterator to the beginning
 	 *
-	 * \return ChecksumMap::const_iterator to the end
+	 * \return ChecksumMap::iterator to the beginning
 	 */
-	const_iterator cend() const;
+	iterator begin()
+	{
+		return iterator(this->map_.begin());
+	}
 
 	/**
-	 * \brief Finds an element in the instance by its key.
+	 * \brief Returns a ChecksumMap::iterator to the end
 	 *
-	 * If there is no element for the given key, the returned iterator will be
-	 * equal to end().
-	 *
-	 * \param[in] key The key to lookup
-	 *
-	 * \return ChecksumMap::const_iterator to the element or to end()
+	 * \return ChecksumMap::iterator to the end
 	 */
-	const_iterator find(const K &key) const;
+	iterator end()
+	{
+		return iterator(this->map_.end());
+	}
+
+	/**
+	 * \brief Returns the number of elements contained in the instance.
+	 *
+	 * \return Number of elements contained in the instance.
+	 */
+	size_type size() const
+	{
+		return this->map_.size();
+	}
+
+	/**
+	 * \brief Returns TRUE iff the instance contains no elements, otherwise
+	 * FALSE.
+	 *
+	 * \return TRUE iff instance contains no elements, otherwise FALSE
+	 */
+	bool empty() const
+	{
+		return this->map_.empty();
+	}
 
 	/**
 	 * \brief Returns TRUE iff the instance contains the key \c key .
@@ -344,61 +331,31 @@ public: /* member functions */
 	 *
 	 * \return TRUE iff \c key is present in the instance, otherwise FALSE
 	 */
-	bool contains(const K &key) const;
-
-	/**
-	 * \brief Returns the number of elements contained in the instance.
-	 *
-	 * \return Number of elements contained in the instance.
-	 */
-	size_type size() const;
-
-	/**
-	 * \brief Returns TRUE iff the instance contains no elements, otherwise
-	 * FALSE.
-	 *
-	 * \return TRUE iff instance contains no elements, otherwise FALSE
-	 */
-	bool empty() const;
+	bool contains(const K &key) const
+	{
+		return map_.find(key) != map_.end();
+		// TODO C++20 can do: return this->map_.contains(key);
+	}
 
 	/**
 	 * \brief Returns the set of all keys contained in the instance.
 	 *
 	 * \return Set of keys used in this instance
 	 */
-	std::set<K> keys() const;
-
-	/**
-	 * \brief Equality.
-	 *
-	 * \param[in] lhs The left hand side instance to check for equality
-	 * \param[in] rhs The right hand side instance to check for equality
-	 *
-	 * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
-	 */
-	friend bool operator == (const ChecksumMap &lhs,
-			const ChecksumMap &rhs) noexcept
+	std::set<K> keys() const
 	{
-		return lhs.map_ == rhs.map_;
+		std::set<K> keys;
+
+		std::transform(this->map_.begin(), this->map_.end(),
+			std::inserter(keys, keys.begin()),
+			[](const map_value_type &pair)
+			{
+				return pair.first;
+			}
+		);
+
+		return keys;
 	}
-
-
-// Modify
-
-
-	/**
-	 * \brief Returns a ChecksumMap::iterator to the beginning
-	 *
-	 * \return ChecksumMap::iterator to the beginning
-	 */
-	iterator begin();
-
-	/**
-	 * \brief Returns a ChecksumMap::iterator to the end
-	 *
-	 * \return ChecksumMap::iterator to the end
-	 */
-	iterator end();
 
 	/**
 	 * \brief Finds an element in the instance by its key.
@@ -410,7 +367,18 @@ public: /* member functions */
 	 *
 	 * \return ChecksumMap::const_iterator to the element or to end()
 	 */
-	iterator find(const K &key);
+	const_iterator find(const K &key) const
+	{
+		return const_iterator(this->map_.find(key));
+	}
+
+	/**
+	 * \copydoc find(const K &key) const
+	 */
+	iterator find(const K &key)
+	{
+		return iterator(this->map_.find(key));
+	}
 
 	/**
 	 * \brief Inserts a new key-value-pair to the instance.
@@ -428,7 +396,11 @@ public: /* member functions */
 	 *
 	 * \return Pair with an iterator to the inserted value and a status flag
 	 */
-	std::pair<iterator, bool> insert(const K &key, const Checksum &checksum);
+	std::pair<iterator, bool> insert(const K &key, const Checksum &checksum)
+	{
+		auto result { this->map_.insert(std::make_pair(key, checksum)) };
+		return std::make_pair(iterator(result.first), result.second);
+	}
 
 	/**
 	 * \brief Merge the elements of another instance into this instance.
@@ -438,7 +410,31 @@ public: /* member functions */
 	 *
 	 * \param[in] rhs The list to be merged into the instance
 	 */
-	void merge(const ChecksumMap<K> &rhs);
+	void merge(const ChecksumMap<K> &rhs)
+	{
+	#if __cplusplus >= 201703L
+		this->map_.merge(rhs.map_);
+	#else
+		this->map_.insert(rhs.map_.begin(), rhs.map_.end());
+	#endif
+	}
+
+	/**
+	 * \brief Merge the elements of another instance into this instance.
+	 *
+	 * If a key in the other instance is already present in this instance, the
+	 * corresponding element will be overwritten with the element from the other
+	 * instance.
+	 *
+	 * \param[in] rhs The list to be merged into the instance
+	 */
+	void merge_overwrite(const ChecksumMap<K> &rhs)
+	{
+		for(auto& it : rhs.map_)
+		{
+			this->map_[it.first] = it.second;
+		}
+	}
 
 	/**
 	 * \brief Erases the element with the given key.
@@ -447,14 +443,20 @@ public: /* member functions */
 	 *
 	 * \param[in] key The key to erase
 	 */
-	void erase(const K &key);
+	void erase(const K &key)
+	{
+		this->map_.erase(key);
+	}
 
 	/**
 	 * \brief Erases all elements contained in the instance.
 	 *
 	 * After clear() the size of the container will be \c 0 .
 	 */
-	void clear();
+	void clear()
+	{
+		this->map_.clear();
+	}
 
 	/**
 	 * \brief Copy assignment.
@@ -463,7 +465,11 @@ public: /* member functions */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs);
+	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs)
+	{
+		this->map_ = rhs.map_;
+		return *this;
+	}
 
 	/**
 	 * \brief Move assignment.
@@ -472,7 +478,15 @@ public: /* member functions */
 	 *
 	 * \return The right hand side of the assignment
 	 */
-	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept;
+	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept
+	= default;
+
+
+	friend bool operator == (const ChecksumMap &lhs,
+			const ChecksumMap &rhs) noexcept
+	{
+		return lhs.map_ == rhs.map_;
+	}
 
 
 private:
@@ -496,204 +510,204 @@ private:
 // ChecksumMap
 
 
-template <typename K>
-ChecksumMap<K>::ChecksumMap()
-	: map_ {}
-{
-	// empty
-}
-
-
-template <typename K>
-ChecksumMap<K>::ChecksumMap(const ChecksumMap &rhs) = default;
-
-
-/// \relates arcstk::v_1_0_0::details::ChecksumMap(ChecksumMap &&rhs) noexcept
-template <typename K>
-ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept = default;
-// Note: The \relates-statement silences a doxygen 1.8.15 warning that reads
-// "no uniquely matching class member found"
-
-
-template <typename K>
-ChecksumMap<K>::~ChecksumMap() noexcept = default;
+//template <typename K>
+//ChecksumMap<K>::ChecksumMap()
+//	: map_ {}
+//{
+//	// empty
+//}
+//
+//
+//template <typename K>
+//ChecksumMap<K>::ChecksumMap(const ChecksumMap &rhs) = default;
+//
+//
+///// \relates arcstk::v_1_0_0::details::ChecksumMap(ChecksumMap &&rhs) noexcept
+//template <typename K>
+//ChecksumMap<K>::ChecksumMap(ChecksumMap &&rhs) noexcept = default;
+//// Note: The \relates-statement silences a doxygen 1.8.15 warning that reads
+//// "no uniquely matching class member found"
+//
+//
+//template <typename K>
+//ChecksumMap<K>::~ChecksumMap() noexcept = default;
 
 
 // ChecksumMap : Accessors
 
 
-template <typename K>
-auto ChecksumMap<K>::begin() const -> typename ChecksumMap<K>::const_iterator
-{
-	return const_iterator(this->map_.begin());
-}
+//template <typename K>
+//auto ChecksumMap<K>::cbegin() const -> typename ChecksumMap<K>::const_iterator
+//{
+//	return const_iterator(this->map_.cbegin());
+//}
+//
+//
+//template <typename K>
+//auto ChecksumMap<K>::cend() const -> typename ChecksumMap<K>::const_iterator
+//{
+//	return const_iterator(this->map_.cend());
+//}
+//
+//
+//template <typename K>
+//auto ChecksumMap<K>::begin() const -> typename ChecksumMap<K>::const_iterator
+//{
+//	return const_iterator(this->map_.begin());
+//}
+//
+//
+//template <typename K>
+//auto ChecksumMap<K>::end() const -> typename ChecksumMap<K>::const_iterator
+//{
+//	return const_iterator(this->map_.end());
+//}
 
 
-template <typename K>
-auto ChecksumMap<K>::cbegin() const -> typename ChecksumMap<K>::const_iterator
-{
-	return const_iterator(this->map_.cbegin());
-}
-
-
-template <typename K>
-auto ChecksumMap<K>::end() const -> typename ChecksumMap<K>::const_iterator
-{
-	return const_iterator(this->map_.end());
-}
-
-
-template <typename K>
-auto ChecksumMap<K>::cend() const -> typename ChecksumMap<K>::const_iterator
-{
-	return const_iterator(this->map_.cend());
-}
-
-
-template <typename K>
-auto ChecksumMap<K>::find(const K &key) const ->
-		typename ChecksumMap<K>::const_iterator
-{
-	return const_iterator(this->map_.find(key));
-}
-
-
-template <typename K>
-bool ChecksumMap<K>::contains(const K &key) const
-{
-#if __cplusplus >= 201703L // FIXME Use the correct value for C++20
-	return this->map_.contains(key); // C++20
-#else
-	return map_.find(key) != map_.end();
-#endif
-}
-
-
-template <typename K>
-std::set<K> ChecksumMap<K>::keys() const
-{
-	std::set<K> keys;
-
-	std::transform(
-		this->map_.begin(),
-		this->map_.end(),
-		std::inserter(keys, keys.begin()),
-		[](const map_value_type &pair)
-		{
-			return pair.first;
-		}
-	);
-
-	// Note: one could just do
-	//
-	//for (const auto& entry : this->map_)
-	//{
-	//	keys.insert(keys.end(), entry.first);
-	//}
-	//
-	// but the use of std::transform avoids the loop. Nonetheless it's ugly.
-
-	return keys;
-}
-
-
-template <typename K>
-typename ChecksumMap<K>::size_type ChecksumMap<K>::size() const
-{
-	return this->map_.size();
-}
-
-
-template <typename K>
-bool ChecksumMap<K>::empty() const
-{
-	return this->map_.empty();
-}
+//template <typename K>
+//auto ChecksumMap<K>::find(const K &key) const ->
+//		typename ChecksumMap<K>::const_iterator
+//{
+//	return const_iterator(this->map_.find(key));
+//}
+//
+//
+//template <typename K>
+//bool ChecksumMap<K>::contains(const K &key) const
+//{
+//#if __cplusplus >= 201703L // FIXME Use the correct value for C++20
+//	return this->map_.contains(key); // C++20
+//#else
+//	return map_.find(key) != map_.end();
+//#endif
+//}
+//
+//
+//template <typename K>
+//std::set<K> ChecksumMap<K>::keys() const
+//{
+//	std::set<K> keys;
+//
+//	std::transform(
+//		this->map_.begin(),
+//		this->map_.end(),
+//		std::inserter(keys, keys.begin()),
+//		[](const map_value_type &pair)
+//		{
+//			return pair.first;
+//		}
+//	);
+//
+//	// Note: one could just do
+//	//
+//	//for (const auto& entry : this->map_)
+//	//{
+//	//	keys.insert(keys.end(), entry.first);
+//	//}
+//	//
+//	// but the use of std::transform avoids the loop. Nonetheless it's ugly.
+//
+//	return keys;
+//}
+//
+//
+//template <typename K>
+//typename ChecksumMap<K>::size_type ChecksumMap<K>::size() const
+//{
+//	return this->map_.size();
+//}
+//
+//
+//template <typename K>
+//bool ChecksumMap<K>::empty() const
+//{
+//	return this->map_.empty();
+//}
 
 
 // ChecksumMap : Modifiers
 
 
-template <typename K>
-typename ChecksumMap<K>::iterator
-	ChecksumMap<K>::begin()
-{
-	return iterator(this->map_.begin());
-}
-
-
-template <typename K>
-typename ChecksumMap<K>::iterator
-	ChecksumMap<K>::end()
-{
-	return iterator(this->map_.end());
-}
-
-
-template <typename K>
-typename ChecksumMap<K>::iterator
-	ChecksumMap<K>::find(const K &key)
-{
-	return iterator(this->map_.find(key));
-}
-
-
-template <typename K>
-std::pair<typename ChecksumMap<K>::iterator, bool>
-	ChecksumMap<K>::insert(const K &key, const Checksum &checksum)
-{
-	auto result { this->map_.insert(std::make_pair(key, checksum)) };
-	return std::make_pair(iterator(result.first), result.second);
-}
-
-
-template <typename K>
-void ChecksumMap<K>::merge(const ChecksumMap<K> &rhs)
-{
-#if __cplusplus >= 201703L
-	this->map_.merge(rhs.map_);
-#else
-	this->map_.insert(rhs.map_.begin(), rhs.map_.end());
-#endif
-}
-
-// Note: merge with overwrite would be:
 //template <typename K>
-//void ChecksumMap<K>::merge_overwrite(const ChecksumMap<K> &rhs)
+//typename ChecksumMap<K>::iterator
+//	ChecksumMap<K>::begin()
 //{
-//	for(auto& it : rhs.map_)
-//	{
-//		this->map_[it.first] = it.second;
-//	}
+//	return iterator(this->map_.begin());
+//}
+//
+//
+//template <typename K>
+//typename ChecksumMap<K>::iterator
+//	ChecksumMap<K>::end()
+//{
+//	return iterator(this->map_.end());
 //}
 
 
-template <typename K>
-void ChecksumMap<K>::erase(const K &key)
-{
-	this->map_.erase(key);
-}
+//template <typename K>
+//typename ChecksumMap<K>::iterator
+//	ChecksumMap<K>::find(const K &key)
+//{
+//	return iterator(this->map_.find(key));
+//}
 
 
-template <typename K>
-void ChecksumMap<K>::clear()
-{
-	this->map_.clear();
-}
+//template <typename K>
+//std::pair<typename ChecksumMap<K>::iterator, bool>
+//	ChecksumMap<K>::insert(const K &key, const Checksum &checksum)
+//{
+//	auto result { this->map_.insert(std::make_pair(key, checksum)) };
+//	return std::make_pair(iterator(result.first), result.second);
+//}
+//
+//
+//template <typename K>
+//void ChecksumMap<K>::merge(const ChecksumMap<K> &rhs)
+//{
+//#if __cplusplus >= 201703L
+//	this->map_.merge(rhs.map_);
+//#else
+//	this->map_.insert(rhs.map_.begin(), rhs.map_.end());
+//#endif
+//}
+
+//// Note: merge with overwrite would be:
+////template <typename K>
+////void ChecksumMap<K>::merge_overwrite(const ChecksumMap<K> &rhs)
+////{
+////	for(auto& it : rhs.map_)
+////	{
+////		this->map_[it.first] = it.second;
+////	}
+////}
 
 
-template <typename K>
-ChecksumMap<K>& ChecksumMap<K>::operator = (const ChecksumMap<K> &rhs)
-{
-	this->map_ = rhs.map_;
-	return *this;
-}
-
-// The full path silences a doxygen 1.8.15 warning that reads
-// "no uniquely matching class member found"
-template <typename K>
-ChecksumMap<K>& arcstk::v_1_0_0::details::ChecksumMap<K>::operator = (
-		ChecksumMap<K> &&rhs) noexcept = default;
+//template <typename K>
+//void ChecksumMap<K>::erase(const K &key)
+//{
+//	this->map_.erase(key);
+//}
+//
+//
+//template <typename K>
+//void ChecksumMap<K>::clear()
+//{
+//	this->map_.clear();
+//}
+//
+//
+//template <typename K>
+//ChecksumMap<K>& ChecksumMap<K>::operator = (const ChecksumMap<K> &rhs)
+//{
+//	this->map_ = rhs.map_;
+//	return *this;
+//}
+//
+//// The full path silences a doxygen 1.8.15 warning that reads
+//// "no uniquely matching class member found"
+//template <typename K>
+//ChecksumMap<K>& arcstk::v_1_0_0::details::ChecksumMap<K>::operator = (
+//		ChecksumMap<K> &&rhs) noexcept = default;
 
 } // namespace details
 
