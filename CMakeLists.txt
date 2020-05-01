@@ -384,27 +384,47 @@ message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 find_package (Git QUIET REQUIRED )
 
-execute_process(
-	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	RESULT_VARIABLE res
-	OUTPUT_VARIABLE PROJECT_GIT_DESCRIBE
-	ERROR_QUIET
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+## Run git with specified command options
+## return $git_exit_code and $git_output
+macro (RunGit )
 
-execute_process(
-	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	RESULT_VARIABLE res
-	OUTPUT_VARIABLE PROJECT_GIT_COMMIT
-	ERROR_QUIET
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+	execute_process(COMMAND
+		"${GIT_EXECUTABLE}" ${ARGV}
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		RESULT_VARIABLE git_exit_code
+		OUTPUT_VARIABLE git_output
+		ERROR_QUIET
+		OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+	if (git_exit_code EQUAL 0 )
+		set (GIT_STATE TRUE )
+	else()
+		set (GIT_STATE FALSE )
+	endif()
+endmacro()
+
+
+set(git_object HEAD)
+
+RunGit ("describe" "--always" "${git_object}")
+
+if (GIT_STATE )
+	set (PROJECT_GIT_DESCRIBE ${git_output} )
+endif()
+
+RunGit ("rev-parse" "${git_object}" )
+
+if (GIT_STATE )
+	set (PROJECT_GIT_COMMIT "${git_output}" )
+endif()
+
 
 set_property(GLOBAL APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
 )
+
+message (STATUS "Git describe: ${PROJECT_GIT_DESCRIBE}" )
+message (STATUS "Git commit id: ${PROJECT_GIT_COMMIT}" )
 
 
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)

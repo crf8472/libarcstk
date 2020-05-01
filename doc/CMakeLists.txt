@@ -9,6 +9,7 @@ find_package (Doxygen 1.8.0 ) #COMPONENTS REQUIRED dot )
 message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )
 
+
 ## "Root directory for documentation config and sources" )
 set (PROJECT_DOC_DIR          "${CMAKE_CURRENT_SOURCE_DIR}" )
 
