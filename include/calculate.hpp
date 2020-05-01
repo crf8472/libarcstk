@@ -10,6 +10,7 @@
 #include <cstdint>               // for uint32_t, uint8_t, int64_t
 #include <initializer_list>      // for initializer_list
 #include <iterator>              // for input_iterator_tag
+#include <map>                   // for map
 #include <memory>                // for unique_ptr, swap, make_unique
 #include <set>                   // for set
 #include <sstream>               // for swap, ptrdiff_t, size_t
@@ -135,17 +136,7 @@ std::string type_name(const type t);
 // forward declaration for operator == and to_hex_str()
 class Checksum; // IWYU pragma keep
 
-
-/**
- * \brief Equality.
- *
- * \param[in] lhs The left hand side instance to check for equality
- * \param[in] rhs The right hand side instance to check for equality
- *
- * \return TRUE if \c lhs is equal to \c rhs, otherwise FALSE
- */
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
-
 
 /**
  * \brief A 32-bit wide unsigned checksum for a single file or track.
@@ -188,15 +179,8 @@ public:
 	 */
 	bool empty() const noexcept;
 
-	/**
-	 * \brief Copy assignment
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return Result of the assignment
-	 */
-	Checksum& operator = (const uint32_t rhs);
 
+	Checksum& operator = (const uint32_t rhs);
 
 private:
 
@@ -206,36 +190,186 @@ private:
 	uint32_t value_;
 };
 
-/** @} */
 
-} // namespace v_1_0_0
-} // namespace arcstk
-
-
-#ifndef __LIBARCSTK_CHECKSUM_TPP__
-#include "details/checksum.tpp"
-#endif
-
-
-namespace arcstk
+namespace details
 {
-inline namespace v_1_0_0
-{
+
+// forward declaration for ChecksumMapIterator
+template <typename K>
+class ChecksumMap; // IWYU pragma keep
+
 
 /**
- * \addtogroup calc
+ * \internal
  *
- * @{
+ * \brief Input iterator for \link ChecksumMap ChecksumMaps \endlink.
+ *
+ * ChecksumMapIterator is not default constructible since it wraps another
+ * iterator instance. Therefore it does not satisfy all requirements for an
+ * input iterator.
+ *
+ * ChecksumMapIterator can be preincremented and pre-decremented.
+ *
+ * Equality between const_iterator and iterator variants works like expected.
+ *
+ * \tparam K        The key type of the iterated ChecksumMap
+ * \tparam is_const TRUE indicates a const_iterator
  */
+template <typename K, bool is_const>
+class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
+{
+	// Befriend the converse version of the type: const_iterator can access
+	// private members of iterator (and vice versa)
+	friend ChecksumMapIterator<K, not is_const>;
 
+	// ChecksumMap shall exclusively construct iterators by their private
+	// constructor
+	friend ChecksumMap<K>;
+
+public:
+
+	using value_type = Checksum;
+
+	using difference_type   = std::ptrdiff_t;
+
+	using pointer           = typename std::conditional<is_const,
+			const Checksum*, Checksum*>::type;
+
+	using reference         = typename std::conditional<is_const,
+			const Checksum&, Checksum&>::type;
+
+	/**
+	 * \brief Iterator category
+	 *
+	 * A ChecksumMapIterator has only std::input_iterator_tag since to any
+	 * higher-level iterator tag it would have to be default constructible.
+	 */
+	using iterator_category = std::input_iterator_tag;
+
+	/**
+	 * \brief Construct const_iterator from iterator
+	 *
+	 * \param[in] rhs The iterator to construct a const_iterator
+	 */
+	ChecksumMapIterator(const ChecksumMapIterator<K, false> &rhs)
+		: it_ { rhs.it_ }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A Checksum
+	 */
+	reference operator * ()
+	{
+		return (*it_).second;
+	}
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A Checksum
+	 */
+	pointer operator -> ()
+	{
+		return &it_->second;
+	}
+
+
+	ChecksumMapIterator& operator ++ ()
+	{
+		++it_;
+		return *this;
+	}
+
+
+	ChecksumMapIterator& operator -- ()
+	{
+		--it_;
+		return *this;
+	}
+
+	// Defining an assignment operator leads to -Wdeprecated-copy firing
+	// and we do not need any
+	ChecksumMapIterator& operator = (const ChecksumMapIterator &rhs) = delete;
+
+
+	friend bool operator == (const ChecksumMapIterator &lhs,
+			const ChecksumMapIterator &rhs)
+	{
+		return lhs.it_ == rhs.it_;
+	}
+
+
+	friend void swap(const ChecksumMapIterator &lhs,
+			const ChecksumMapIterator &rhs)
+	{
+		using std::swap;
+
+		swap(lhs.it_, rhs.it_);
+	}
+
+private:
+
+	/**
+	 * \brief Type of the container to iterate.
+	 */
+	using IteratedContainerType = typename std::map<K, value_type>;
+
+	/**
+	 * \brief Type of the container's iterator to wrap.
+	 */
+	using WrappedIteratorType = typename std::conditional<is_const,
+			typename IteratedContainerType::const_iterator,
+			typename IteratedContainerType::iterator
+		>::type;
+
+	/**
+	 * \brief Private Constructor.
+	 *
+	 * Constructs a ChecksumMapIterator from the iterator of the
+	 * wrapped type.
+	 *
+	 * This constructor is private since ChecksumMap<> instantiates
+	 * its iterators exclusively.
+	 *
+	 * \param[in] it iterator of the wrapped type
+	 */
+	explicit ChecksumMapIterator(const WrappedIteratorType &it)
+		: it_ { it }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Wrapped iterator of the class implementing ChecksumMap
+	 */
+	WrappedIteratorType it_;
+};
+
+} // namespace details
+
+
+class ChecksumSet; // IWYU pragma keep
+
+//forward declaration
+bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
 
 /**
  * \brief A set of Checksum instances of different types for a single track.
  */
-class ChecksumSet final : public OpaqueChecksumSetBase
+class ChecksumSet final : public Comparable<ChecksumSet>
 {
 
 public:
+
+	using const_iterator = details::ChecksumMapIterator<checksum::type, true>;
+
+	using iterator = details::ChecksumMapIterator<checksum::type, false>;
+
+	using size_type = std::size_t;
 
 	/**
 	 * \brief Constructor for a track with unknown length (will be 0)
@@ -269,6 +403,63 @@ public:
 	~ChecksumSet() noexcept;
 
 	/**
+	 * \brief Returns the number of elements contained in the instance.
+	 *
+	 * \return Number of elements contained in the instance.
+	 */
+	size_type size() const;
+
+	/**
+	 * \brief Returns TRUE iff the instance contains no elements, otherwise
+	 * FALSE.
+	 *
+	 * \return TRUE iff instance contains no elements, otherwise FALSE
+	 */
+	bool empty() const;
+
+	/**
+	 * \brief Const iterator pointing to the beginning.
+	 *
+	 * \return Const iterator pointing to the beginning.
+	 */
+	const_iterator cbegin() const;
+
+	/**
+	 * \brief Const iterator pointing behind the end.
+	 *
+	 * \return Const iterator pointing behind the end.
+	 */
+	const_iterator cend() const;
+
+	/**
+	 * \brief Const iterator pointing to the beginning.
+	 *
+	 * \return Const iterator pointing to the beginning.
+	 */
+	const_iterator begin() const;
+
+	/**
+	 * \brief Const iterator pointing behind the end.
+	 *
+	 * \return Const iterator pointing behind the end.
+	 */
+	const_iterator end() const;
+
+	/**
+	 * \brief Iterator pointing to the beginning.
+	 *
+	 * \return Iterator pointing to the beginning.
+	 */
+	iterator begin();
+
+	/**
+	 * \brief Iterator pointing behind the end.
+	 *
+	 * \return Iterator pointing behind the end.
+	 */
+	iterator end();
+
+	/**
 	 * \brief Length (in LBA frames) of this track.
 	 *
 	 * \return Length of this track in LBA frames
@@ -276,7 +467,19 @@ public:
 	lba_count length() const noexcept;
 
 	/**
+	 * \brief Returns TRUE iff the instance contains the type \c type .
+	 *
+	 * \param[in] type The type to lookup the Checksum for
+	 *
+	 * \return TRUE iff \c type is present in the instance, otherwise FALSE
+	 */
+	bool contains(const checksum::type &type) const;
+
+	/**
 	 * \brief Return the \ref Checksum for the specified \c type
+	 *
+	 * If there is no Checksum represented for the \c type, the Checksum
+	 * returned will be \link Checksum::empty() empty()\endlink.
 	 *
 	 * \param[in] type The checksum::type to return the value
 	 *
@@ -287,21 +490,60 @@ public:
 	/**
 	 * \brief Return the checksum types present in this ChecksumSet
 	 *
-	 * Just an alias to ChecksumMap::keys().
-	 *
 	 * \return The checksum types in this ChecksumSet
 	 */
 	std::set<checksum::type> types() const;
 
 	/**
-	 * \brief Copy assignment.
+	 * \brief Inserts a new type-Checksum-pair to the instance.
 	 *
-	 * \param[in] rhs Right hand side of the assignment
+	 * If the type is already present in the instance, the associated Checksum
+	 * will be overwritten with \c checksum.
 	 *
-	 * \return The right hand side of the assignment
+	 * The pair returned contains an iterator to the inserted Checksum and a
+	 * bool that is TRUE iff the insertion was successful. If the insertion was
+	 * not successful, the value FALSE is returned for the bool and end() for
+	 * the iterator.
+	 *
+	 * \param[in] type     The key to use
+	 * \param[in] checksum The checksum for the given key
+	 *
+	 * \return Pair with an iterator to the inserted value and a status flag
 	 */
+	std::pair<iterator, bool> insert(const checksum::type type,
+			const Checksum &checksum);
+
+	/**
+	 * \brief Merge the elements of another instance into this instance.
+	 *
+	 * If a key in the other instance is already present in this instance, the
+	 * corresponding element will be left unmodified.
+	 *
+	 * \param[in] rhs The list to be merged into the instance
+	 */
+	void merge(const ChecksumSet &rhs);
+
+	/**
+	 * \brief Erases the Checksum with the given type.
+	 *
+	 * Iff the given type is not contained in the instance, the call has
+	 * no effect.
+	 *
+	 * \param[in] type The type to erase
+	 */
+	void erase(const checksum::type &type);
+
+	/**
+	 * \brief Erases all elements contained in the instance.
+	 *
+	 * After clear() has been called the size of the container will be \c 0 .
+	 */
+	void clear();
+
+
 	ChecksumSet& operator = (const ChecksumSet &rhs);
 
+	friend bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
 
 private:
 
@@ -318,28 +560,9 @@ private:
 // forward declaration for operator ==
 class AudioSize; // IWYU pragma keep
 
-
-/**
- * \brief Equality.
- *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
- *
- * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
- */
 bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
 
-
-/**
- * \brief Less-than.
- *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
- *
- * \return TRUE if \c lhs < \c rhs, otherwise FALSE
- */
 bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept;
-
 
 /**
  * \brief Uniform access to the size of the input audio information.
@@ -457,24 +680,10 @@ public: /* functions */
 	 */
 	bool null() const noexcept;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
+
 	AudioSize& operator = (AudioSize rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
 	AudioSize& operator = (AudioSize &&rhs) noexcept;
-
 
 private:
 
@@ -538,30 +747,11 @@ using IsSampleIterator = std::enable_if_t<
 // forward declaration for operator == and binary ops
 class SampleInputIterator; // IWYU pragma keep
 
+bool operator == (const SampleInputIterator &lhs,
+		const SampleInputIterator &rhs) noexcept;
 
-/**
- * \brief Equality
- *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
- *
- * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
- */
-bool operator == (const SampleInputIterator &lhs, const SampleInputIterator &rhs)
-	noexcept;
-
-
-/**
- * \brief Advance the iterator by a non-negative amount.
- *
- * \param[in] lhs    The iterator to add to
- * \param[in] amount A non-negative amount to advance the iterator
- *
- * \return Iterator pointing to the position advanced by \c amount
- */
-SampleInputIterator operator + (SampleInputIterator lhs, const sample_count amount)
-	noexcept;
-
+SampleInputIterator operator + (SampleInputIterator lhs,
+		const sample_count amount) noexcept;
 
 /**
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
@@ -733,12 +923,6 @@ private:
 			return std::make_unique<Model>(*this);
 		}
 
-		/**
-		 * \brief Swap for Models
-		 *
-		 * \param[in] lhs Left hand side to swap
-		 * \param[in] rhs Right hand side to swap
-		 */
 		friend void swap(Model &lhs, Model &rhs) noexcept
 		{
 			using std::swap;
@@ -841,22 +1025,10 @@ public:
 	SampleInputIterator operator ++ (int) noexcept;
 	// required by LegacyInputIterator
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return Instance with the assigned value
-	 */
+
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept;
 	// required by LegacyIterator
 
-	/**
-	 * \brief Swap for SampleInputIterators.
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
 		noexcept
 	{
@@ -1395,22 +1567,8 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 // forward declaration for operator == and swap()
 class Checksums; // IWYU pragma keep
 
-/**
- * \brief Swap for Checksums
- *
- * \param[in] lhs Left hand side to swap
- * \param[in] rhs Right hand side to swap
- */
 void swap(Checksums &lhs, Checksums &rhs) noexcept;
 
-/**
- * \brief Equality for Checksums
- *
- * \param[in] lhs Left hand side to compare
- * \param[in] rhs Right hand side to compare
- *
- * \return TRUE if \c lhs equals \c rhs
- */
 bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
 
 /**
@@ -1422,19 +1580,10 @@ class Checksums final
 
 public: /* types */
 
-	/**
-	 * \brief Iterator for Checksums.
-	 */
 	using iterator = ChecksumSet*;
 
-	/**
-	 * \brief Const_iterator for Checksums.
-	 */
 	using const_iterator = const ChecksumSet*;
 
-	/**
-	 * \brief Size type for Checksums.
-	 */
 	using size_type = std::size_t;
 
 
@@ -1566,24 +1715,10 @@ public: /* member functions */
 	 */
 	size_type size() const noexcept;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
+
 	Checksums& operator = (Checksums rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
 	Checksums& operator = (Checksums &&rhs) noexcept;
-
 
 private:
 
@@ -1745,24 +1880,10 @@ public:
 	 */
 	Checksums result() const noexcept;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
+
 	Calculation& operator = (Calculation rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
 	Calculation& operator = (Calculation &&rhs) noexcept;
-
 
 private:
 

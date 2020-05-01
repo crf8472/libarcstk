@@ -159,7 +159,6 @@ list (APPEND INTERFACE_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
 
 set (PRIVATE_HEADERS )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
-list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/checksum.tpp" )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
 
 

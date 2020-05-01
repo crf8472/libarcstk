@@ -854,8 +854,8 @@ TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
 		// Checks: only one single track with correct ARCS1+2
 
 		CHECK ( single_track.size() == 2 );
-		CHECK ( 0xD15BB487 == (*single_track.find(type::ARCS2)).value() );
-		CHECK ( 0x8FE8D29B == (*single_track.find(type::ARCS1)).value() );
+		CHECK ( 0xD15BB487 == (single_track.get(type::ARCS2)).value() );
+		CHECK ( 0x8FE8D29B == (single_track.get(type::ARCS1)).value() );
 	}
 
 
@@ -934,8 +934,8 @@ TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
 		// Only track with correct ARCSs
 
 		CHECK ( single_track.size() == 2 );
-		CHECK ( 0xD15BB487 == (*single_track.find(type::ARCS2)).value() );
-		CHECK ( 0x8FE8D29B == (*single_track.find(type::ARCS1)).value() );
+		CHECK ( 0xD15BB487 == (single_track.get(type::ARCS2)).value() );
+		CHECK ( 0x8FE8D29B == (single_track.get(type::ARCS1)).value() );
 	}
 }
 
@@ -1043,20 +1043,20 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 		auto track1 { checksums[0] };
 
 		CHECK ( track1.size() == 2 );
-		CHECK ( 0x0DF230F0 == (*track1.find(type::ARCS2)).value());
-		CHECK ( 0x7C7BFAF4 == (*track1.find(type::ARCS1)).value());
+		CHECK ( 0x0DF230F0 == (track1.get(type::ARCS2)).value());
+		CHECK ( 0x7C7BFAF4 == (track1.get(type::ARCS1)).value());
 
 		auto track2 { checksums[1] };
 
 		CHECK ( track2.size() == 2 );
-		CHECK ( 0x34C681C3 == (*track2.find(type::ARCS2)).value());
-		CHECK ( 0x5989C533 == (*track2.find(type::ARCS1)).value());
+		CHECK ( 0x34C681C3 == (track2.get(type::ARCS2)).value());
+		CHECK ( 0x5989C533 == (track2.get(type::ARCS1)).value());
 
 		auto track3 { checksums[2] };
 
 		CHECK ( track3.size() == 2 );
-		CHECK ( 0xB845A497 == (*track3.find(type::ARCS2)).value());
-		CHECK ( 0xDD95CE6C == (*track3.find(type::ARCS1)).value());
+		CHECK ( 0xB845A497 == (track3.get(type::ARCS2)).value());
+		CHECK ( 0xDD95CE6C == (track3.get(type::ARCS1)).value());
 	}
 
 
@@ -1134,20 +1134,20 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 		auto track1 = checksums[0];
 
 		CHECK ( track1.size() == 2 );
-		CHECK ( 0x0DF230F0 == (*track1.find(type::ARCS2)).value());
-		CHECK ( 0x7C7BFAF4 == (*track1.find(type::ARCS1)).value());
+		CHECK ( 0x0DF230F0 == (track1.get(type::ARCS2)).value());
+		CHECK ( 0x7C7BFAF4 == (track1.get(type::ARCS1)).value());
 
 		auto track2 = checksums[1];
 
 		CHECK ( track2.size() == 2 );
-		CHECK ( 0x34C681C3 == (*track2.find(type::ARCS2)).value());
-		CHECK ( 0x5989C533 == (*track2.find(type::ARCS1)).value());
+		CHECK ( 0x34C681C3 == (track2.get(type::ARCS2)).value());
+		CHECK ( 0x5989C533 == (track2.get(type::ARCS1)).value());
 
 		auto track3 = checksums[2];
 
 		CHECK ( track3.size() == 2 );
-		CHECK ( 0xB845A497 == (*track3.find(type::ARCS2)).value());
-		CHECK ( 0xDD95CE6C == (*track3.find(type::ARCS1)).value());
+		CHECK ( 0xB845A497 == (track3.get(type::ARCS2)).value());
+		CHECK ( 0xDD95CE6C == (track3.get(type::ARCS1)).value());
 	}
 }
 

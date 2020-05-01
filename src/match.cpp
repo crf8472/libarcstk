@@ -922,7 +922,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 		{
 			for (const auto& type : MatcherImplBase::types)
 			{
-				checksum = *actual_sums[track_j].find(type);
+				checksum = actual_sums[track_j].get(type);
 
 				is_v2 = (type == checksum::type::ARCS2);
 
@@ -1115,7 +1115,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 			{
 				for (const auto& type : MatcherImplBase::types)
 				{
-					checksum = *entry.find(type);
+					checksum = entry.get(type);
 
 					is_v2 = (type == checksum::type::ARCS2);
 

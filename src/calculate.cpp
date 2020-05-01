@@ -8,6 +8,7 @@
 #include "calculate_details.hpp"
 #endif
 
+#include <algorithm>              // for transform
 #include <array>                  // for array
 #include <chrono>                 // for milliseconds, duration_cast, operator-
 #include <cstdint>                // for uint32_t, uint_fast32_t, uint8_t
@@ -15,6 +16,7 @@
 #include <iomanip>                // for operator<<, setfill, setw
 #include <iterator>               // for distance
 #include <limits>                 // for numeric_limits
+#include <map>                    // for map
 #include <memory>                 // for unique_ptr, make_unique, unique_ptr...
 #include <set>                    // for set
 #include <sstream>                // for operator<<, basic_ostream, basic_os...
@@ -1735,22 +1737,9 @@ public:
 	 */
 	void set_type(const checksum::type type);
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
+
 	Impl& operator = (const Impl &rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
-	 */
 	Impl& operator = (Impl &&rhs) noexcept;
 
 
@@ -2575,6 +2564,318 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 /// \internal \addtogroup calcImpl
 /// @{
 
+namespace details
+{
+
+/**
+ * \internal
+ *
+ * \brief Generic Map for \link Checksum Checksums \endlink and some key type.
+ *
+ * This is a generic container for ChecksumMaps adaptable to different
+ * checksum types and different keys.
+ *
+ * \tparam K The key type of this instance
+ */
+template <typename K>
+class ChecksumMap : public Comparable<ChecksumMap<K>>
+{
+
+public:
+
+	/**
+	 * \brief Iterator
+	 */
+	using iterator = ChecksumMapIterator<K, false>;
+
+	/**
+	 * \brief Const Iterator
+	 */
+	using const_iterator = ChecksumMapIterator<K, true>;
+
+	/**
+	 * \brief Size type
+	 */
+	using size_type = std::size_t;
+
+	/**
+	 * \brief Constructor
+	 */
+	ChecksumMap()
+		: map_ {}
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Copy constructor
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
+	ChecksumMap(const ChecksumMap &rhs)
+	= default;
+
+	/**
+	 * \brief Move constructor
+	 *
+	 * \param[in] rhs The instance to move
+	 */
+	ChecksumMap(ChecksumMap &&rhs) noexcept
+	= default;
+
+	/**
+	 * \brief Virtual default destructor
+	 */
+	virtual ~ChecksumMap() noexcept
+	= default;
+
+	/**
+	 * \brief Returns a ChecksumMap::const_iterator to the beginning
+	 *
+	 * \return ChecksumMap::const_iterator to the beginning
+	 */
+	const_iterator cbegin() const
+	{
+		return const_iterator(this->map_.cbegin());
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::const_iterator to the end
+	 *
+	 * \return ChecksumMap::const_iterator to the end
+	 */
+	const_iterator cend() const
+	{
+		return const_iterator(this->map_.cend());
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::const_iterator to the beginning
+	 *
+	 * \return ChecksumMap::const_iterator to the beginning
+	 */
+	const_iterator begin() const
+	{
+		return this->cbegin();
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::const_iterator to the end
+	 *
+	 * \return ChecksumMap::const_iterator to the end
+	 */
+	const_iterator end() const
+	{
+		return this->cend();
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::iterator to the beginning
+	 *
+	 * \return ChecksumMap::iterator to the beginning
+	 */
+	iterator begin()
+	{
+		return iterator(this->map_.begin());
+	}
+
+	/**
+	 * \brief Returns a ChecksumMap::iterator to the end
+	 *
+	 * \return ChecksumMap::iterator to the end
+	 */
+	iterator end()
+	{
+		return iterator(this->map_.end());
+	}
+
+	/**
+	 * \brief Returns the number of elements contained in the instance.
+	 *
+	 * \return Number of elements contained in the instance.
+	 */
+	size_type size() const
+	{
+		return this->map_.size();
+	}
+
+	/**
+	 * \brief Returns TRUE iff the instance contains no elements, otherwise
+	 * FALSE.
+	 *
+	 * \return TRUE iff instance contains no elements, otherwise FALSE
+	 */
+	bool empty() const
+	{
+		return this->map_.empty();
+	}
+
+	/**
+	 * \brief Returns TRUE iff the instance contains the key \c key .
+	 *
+	 * \param[in] key The key to lookup
+	 *
+	 * \return TRUE iff \c key is present in the instance, otherwise FALSE
+	 */
+	bool contains(const K &key) const
+	{
+		return map_.find(key) != map_.end();
+		// TODO C++20 can do: return this->map_.contains(key);
+	}
+
+	/**
+	 * \brief Returns the set of all keys contained in the instance.
+	 *
+	 * \return Set of keys used in this instance
+	 */
+	std::set<K> keys() const
+	{
+		std::set<K> keys;
+
+		std::transform(this->map_.begin(), this->map_.end(),
+			std::inserter(keys, keys.begin()),
+			[](const map_value_type &pair)
+			{
+				return pair.first;
+			}
+		);
+
+		return keys;
+	}
+
+	/**
+	 * \brief Finds an element in the instance by its key.
+	 *
+	 * If there is no element for the given key, the returned iterator will be
+	 * equal to end().
+	 *
+	 * \param[in] key The key to lookup
+	 *
+	 * \return ChecksumMap::const_iterator to the element or to end()
+	 */
+	const_iterator find(const K &key) const
+	{
+		return const_iterator(this->map_.find(key));
+	}
+
+	/**
+	 * \copydoc find(const K &key) const
+	 */
+	iterator find(const K &key)
+	{
+		return iterator(this->map_.find(key));
+	}
+
+	/**
+	 * \brief Inserts a new key-value-pair to the instance.
+	 *
+	 * If the key is already present in the instance, the existing checksum will
+	 * be overwritten with \c checksum.
+	 *
+	 * The pair returned contains an iterator to the inserted value and a bool
+	 * that is TRUE iff the insertion was successful. If the insertion was not
+	 * successful, the value FALSE is returned for the bool and end() for
+	 * the iterator.
+	 *
+	 * \param[in] key The key to use
+	 * \param[in] checksum The checksum for the given key
+	 *
+	 * \return Pair with an iterator to the inserted value and a status flag
+	 */
+	std::pair<iterator, bool> insert(const K &key, const Checksum &checksum)
+	{
+		auto result { this->map_.insert(std::make_pair(key, checksum)) };
+		return std::make_pair(iterator(result.first), result.second);
+	}
+
+	/**
+	 * \brief Merge the elements of another instance into this instance.
+	 *
+	 * If a key in the other instance is already present in this instance, the
+	 * corresponding element will be left unmodified.
+	 *
+	 * \param[in] rhs The list to be merged into the instance
+	 */
+	void merge(const ChecksumMap<K> &rhs)
+	{
+	#if __cplusplus >= 201703L
+		this->map_.merge(rhs.map_);
+	#else
+		this->map_.insert(rhs.map_.begin(), rhs.map_.end());
+	#endif
+	}
+
+	/**
+	 * \brief Merge the elements of another instance into this instance.
+	 *
+	 * If a key in the other instance is already present in this instance, the
+	 * corresponding element will be overwritten with the element from the other
+	 * instance.
+	 *
+	 * \param[in] rhs The list to be merged into the instance
+	 */
+	void merge_overwrite(const ChecksumMap<K> &rhs)
+	{
+		this->map_.insert_or_assign(rhs.map_.begin(), rhs.map_.end());
+	}
+
+	/**
+	 * \brief Erases the element with the given key.
+	 *
+	 * Does nothing if the given key is not contained in the instance.
+	 *
+	 * \param[in] key The key to erase
+	 */
+	void erase(const K &key)
+	{
+		this->map_.erase(key);
+	}
+
+	/**
+	 * \brief Erases all elements contained in the instance.
+	 *
+	 * After clear() the size of the container will be \c 0 .
+	 */
+	void clear()
+	{
+		this->map_.clear();
+	}
+
+
+	ChecksumMap<K>& operator = (const ChecksumMap<K> &rhs)
+	{
+		this->map_ = rhs.map_;
+		return *this;
+	}
+
+
+	ChecksumMap<K>& operator = (ChecksumMap<K> &&rhs) noexcept
+	= default;
+
+
+	friend bool operator == (const ChecksumMap &lhs,
+			const ChecksumMap &rhs) noexcept
+	{
+		return lhs.map_ == rhs.map_;
+	}
+
+private:
+
+	/**
+	 * \brief Internal representation.
+	 */
+	std::map<K, Checksum> map_;
+
+	/**
+	 * \brief Value type of the internal map.
+	 *
+	 * This is usually std::pair<K, Checksum>.
+	 */
+	using map_value_type = typename std::map<K, Checksum>::value_type;
+};
+
+} // namespace details
+
 
 // ChecksumSet::Impl
 
@@ -2583,10 +2884,10 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
  * \brief Private implementation of ChecksumSet.
  *
  * \see ChecksumSet
+ * \see details::ChecksumMap
  */
 class ChecksumSet::Impl final
 {
-
 public:
 
 	/**
@@ -2604,6 +2905,13 @@ public:
 	Impl(const Impl &rhs);
 
 	/**
+	 * \brief Equality
+	 *
+	 * \param[in] rhs The instance to compare
+	 */
+	bool equals(const Impl &rhs) const;
+
+	/**
 	 * \brief Length (in LBA frames) of this track.
 	 *
 	 * \return Length of this track in LBA frames
@@ -2611,21 +2919,27 @@ public:
 	lba_count length() const noexcept;
 
 	/**
-	 * \brief Copy assignment.
+	 * \brief Return the internal map
 	 *
-	 * \param[in] rhs Right hand side of the assignment
-	 *
-	 * \return The right hand side of the assignment
+	 * \return The internal map
 	 */
+	details::ChecksumMap<checksum::type>& map();
+
+
 	Impl& operator = (const Impl &rhs);
 
 
 private:
 
 	/**
-	 * \brief Internal representation of the length (in frames)
+	 * \brief Internal representation of the length (in frames).
 	 */
 	lba_count length_;
+
+	/**
+	 * \brief Internal representation of the checksums.
+	 */
+	details::ChecksumMap<checksum::type> checksum_map_;
 };
 
 
@@ -2636,6 +2950,7 @@ private:
 
 ChecksumSet::Impl::Impl(const lba_count length)
 	: length_ { length }
+	, checksum_map_ {}
 {
 	// empty
 }
@@ -2643,8 +2958,15 @@ ChecksumSet::Impl::Impl(const lba_count length)
 
 ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
 	: length_ { rhs.length_ }
+	, checksum_map_ { rhs.checksum_map_ }
 {
 	// empty
+}
+
+
+bool ChecksumSet::Impl::equals(const Impl &rhs) const
+{
+	return length_ == rhs.length_ and checksum_map_ == rhs.checksum_map_;
 }
 
 
@@ -2654,8 +2976,20 @@ lba_count ChecksumSet::Impl::length() const noexcept
 }
 
 
+details::ChecksumMap<checksum::type>& ChecksumSet::Impl::map()
+{
+	return checksum_map_;
+}
+
+
 ChecksumSet::Impl& ChecksumSet::Impl::operator = (const ChecksumSet::Impl& rhs)
 = default;
+
+
+bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs)
+{
+	return lhs.impl_->equals(*rhs.impl_);
+}
 
 
 // ChecksumSet
@@ -2676,17 +3010,64 @@ ChecksumSet::ChecksumSet(const lba_count length)
 
 
 ChecksumSet::ChecksumSet(const ChecksumSet &rhs)
-	: OpaqueChecksumSetBase { rhs }
-	, impl_ { std::make_unique<ChecksumSet::Impl>(*rhs.impl_) }
+	: impl_ { std::make_unique<ChecksumSet::Impl>(*rhs.impl_) }
 {
 	// empty
 }
 
 
+ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
+
+
 ChecksumSet::~ChecksumSet() noexcept = default;
 
 
-ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
+ChecksumSet::size_type ChecksumSet::size() const
+{
+	return impl_->map().size();
+}
+
+
+bool ChecksumSet::empty() const
+{
+	return impl_->map().empty();
+}
+
+
+ChecksumSet::const_iterator ChecksumSet::cbegin() const
+{
+	return impl_->map().cbegin();
+}
+
+
+ChecksumSet::const_iterator ChecksumSet::cend() const
+{
+	return impl_->map().cend();
+}
+
+
+ChecksumSet::const_iterator ChecksumSet::begin() const
+{
+	return impl_->map().cbegin();
+}
+
+
+ChecksumSet::const_iterator ChecksumSet::end() const
+{
+	return impl_->map().cend();
+}
+
+
+ChecksumSet::iterator ChecksumSet::begin()
+{
+	return impl_->map().begin();
+}
+
+
+ChecksumSet::iterator ChecksumSet::end()
+{
+	return impl_->map().end();
+}
 
 
 lba_count ChecksumSet::length() const noexcept
@@ -2695,22 +3076,59 @@ lba_count ChecksumSet::length() const noexcept
 }
 
 
+bool ChecksumSet::contains(const checksum::type &type) const
+{
+	return impl_->map().contains(type);
+}
+
+
+void ChecksumSet::erase(const checksum::type &type)
+{
+	return impl_->map().erase(type);
+}
+
+
+void ChecksumSet::clear()
+{
+	return impl_->map().clear();
+}
+
+
 Checksum ChecksumSet::get(const checksum::type type) const
 {
-	return *this->find(type);
+	auto rc { impl_->map().find(type) };
+
+	if (rc == impl_->map().end())
+	{
+		return Checksum(0);
+	}
+
+	return *rc;
 }
 
 
 std::set<checksum::type> ChecksumSet::types() const
 {
-	return this->keys();
+	return impl_->map().keys();
+}
+
+
+std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
+		const checksum::type type, const Checksum &checksum)
+{
+	return impl_->map().insert(type, checksum);
+}
+
+
+void ChecksumSet::merge(const ChecksumSet &rhs)
+{
+	impl_->map().merge(rhs.impl_->map());
 }
 
 
 ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
 {
-	ChecksumMap<checksum::type>::operator=(rhs);
-	impl_ = std::make_unique<ChecksumSet::Impl>(rhs.length());
+	impl_ = std::make_unique<ChecksumSet::Impl>(*rhs.impl_);
 	return *this;
 }
 
