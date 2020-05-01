@@ -107,9 +107,8 @@ This will install the following files to your system:
   ``logging.hpp``, ``match.hpp``, ``parse.hpp``, ``policies.hpp``,
   ``samples.hpp`` and ``version.hpp`` in the standard include location
   (e.g. /usr/local/include).
-- the three exported non-API template headers builder.tpp, checksum.tpp,
-  and validate.tpp in folder ``details'' below the location where the public
-  headers are
+- the two exported non-API template headers builder.tpp and validate.tpp in
+  folder ``details'' below the location where the public headers are
 - the four cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
   ``libarcstk-targets-release.cmake`` that allow other projects to simply import
@@ -242,7 +241,7 @@ build as a set of static HTML pages (recommended) or as a PDF manual using
 LaTeX (experimental, very alpha).
 
 
-### Quickstart: Doxygen Stock HTML (vintage, but reliable)
+### Quickstart: Doxygen Stock HTML
 
 The generation of the documentation sources must be requested at configuration
 stage. The documentation sources will not be generated automatically during
