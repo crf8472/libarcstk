@@ -249,40 +249,19 @@ public:
 		return lhs.pos_ - rhs.pos_;
 	}
 
-	/**
-	 * \brief Equality.
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
+
 	friend bool operator == (const SampleIterator &lhs,
 			const SampleIterator &rhs) noexcept
 	{
 		return lhs.seq_ == rhs.seq_ and lhs.pos_ == rhs.pos_;
 	}
 
-	/**
-	 * \brief Inequality.
-	 *
-	 * \param[in] lhs Left hand side of the operation
-	 * \param[in] rhs Right hand side of the operation
-	 *
-	 * \return TRUE if lhs equals rhs, otherwise FALSE
-	 */
 	friend bool operator != (const SampleIterator &lhs,
 			const SampleIterator &rhs) noexcept
 	{
 		return not(lhs == rhs);
 	}
 
-	/**
-	 * \brief Swap two iterators
-	 *
-	 * \param[in] lhs Left-hand side to swap
-	 * \param[in] rhs Right-hand side to swap
-	 */
 	friend void swap(SampleIterator &lhs, SampleIterator &rhs)
 	{
 		using std::swap;
@@ -290,6 +269,7 @@ public:
 		swap(lhs.seq_, rhs.seq_);
 		swap(lhs.pos_, rhs.pos_);
 	}
+
 
 private:
 
@@ -438,6 +418,7 @@ public: /* methods */
 		return sizeof(T);
 	}
 
+
 protected:
 
 	/**
@@ -521,6 +502,7 @@ protected:
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
+
 
 private:
 
@@ -663,12 +645,14 @@ public: /* methods */
 		return this->operator[](index);
 	}
 
+
 protected:
 
 	const SampleSequence<T, true> *sequence() const final
 	{
 		return this;
 	}
+
 
 private:
 
@@ -815,12 +799,14 @@ public:
 		return this->operator[](index);
 	}
 
+
 protected:
 
 	const SampleSequence<T, false> *sequence() const final
 	{
 		return this;
 	}
+
 
 private:
 

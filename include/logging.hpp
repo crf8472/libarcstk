@@ -123,18 +123,11 @@ public:
 	 */
 	inline std::string name() const noexcept;
 
-	/**
-	 * \brief Appender is non-copyable
-	 */
+
+	// Appender is non-copyable
 	inline Appender& operator = (const Appender&) = delete;
 
-	/**
-	 * \brief Move assignment
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return The instance after assignment
-	 */
+	// Appender is movable-only
 	inline Appender& operator = (Appender &&rhs) noexcept;
 
 
@@ -221,18 +214,11 @@ public:
 	 */
 	void log(const std::string &msg) const;
 
-	/**
-	 * \brief Logger is non-copyable.
-	 */
+
+	// Logger is non-copyable.
 	Logger& operator = (const Logger&) = delete;
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The instance to assign
-	 *
-	 * \return The instance after assignment
-	 */
+	// Logger is movable-only.
 	Logger& operator = (Logger&& rhs) noexcept;
 
 
@@ -325,14 +311,11 @@ public:
 	 */
 	static LOGLEVEL from_string(const std::string& level);
 
-	/**
-	 * \brief Class is non-copyable.
-	 */
+
+	// Log is non-copyable
 	Log& operator = (const Log&) = delete;
 
-	/**
-	 * \brief Class is non-movable.
-	 */
+	// Log is movable-only
 	Log& operator = (Log&&) noexcept = delete;
 
 
@@ -448,14 +431,11 @@ public:
 	 */
 	void remove_appender(Appender *appender);
 
-	/**
-	 * \brief Class is non-copyable.
-	 */
+
+	// Logging is non-copyable
 	Logging& operator = (Logging& rhs) = delete;
 
-	/**
-	 * \brief Class is non-movable.
-	 */
+	// Logging is movable-only
 	Logging& operator = (Logging&& rhs) noexcept = delete;
 
 

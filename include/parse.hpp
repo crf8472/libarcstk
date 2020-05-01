@@ -118,7 +118,6 @@ class ARTripletImpl; // IWYU pragma keep
  */
 class ARTriplet final
 {
-
 public:
 
 	/**
@@ -225,41 +224,14 @@ public:
 	 */
 	bool empty() const noexcept;
 
-	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
+
 	ARTriplet& operator = (const ARTriplet &rhs);
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
 	ARTriplet& operator = (ARTriplet &&rhs) noexcept;
 
-	/**
-	 * \brief Equality
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 *
-	 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
-	 */
 	friend bool operator == (const ARTriplet &lhs, const ARTriplet &rhs)
 		noexcept;
 
-	/**
-	 * \brief Swap
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(ARTriplet &lhs, ARTriplet &rhs) noexcept;
 
 
@@ -294,7 +266,6 @@ private:
  */
 class ARBlock final : public Comparable<ARBlock>
 {
-
 public: /* member types */
 
 	/**
@@ -428,38 +399,13 @@ public: /* member functions */
 	 */
 	const ARTriplet& operator [](const size_type index) const;
 
-	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
+
 	ARBlock& operator = (const ARBlock &rhs);
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
 	ARBlock& operator = (ARBlock &&rhs) noexcept;
 
-	/**
-	 * \brief Equality for ARBlock
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 */
 	friend bool operator == (const ARBlock &lhs, const ARBlock &rhs) noexcept;
 
-	/**
-	 * \brief Swap two ARBlocks
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(const ARBlock &lhs, const ARBlock &rhs);
 
 	// Forward declaration for the opaque implementation
@@ -501,7 +447,6 @@ private:
  */
 class ARResponse final : public Comparable<ARResponse>
 {
-
 public: /* member types */
 
 	/**
@@ -633,39 +578,14 @@ public: /* member functions */
 	 */
 	const ARBlock& operator [](const size_type index) const;
 
-	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
+
 	ARResponse& operator = (const ARResponse &rhs);
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
 	ARResponse& operator = (ARResponse &&rhs) noexcept;
 
-	/**
-	 * \brief Equality for ARResponse
-	 *
-	 * \param[in] lhs Left hand side of the comparison
-	 * \param[in] rhs Right hand side of the comparison
-	 */
 	friend bool operator == (const ARResponse &lhs, const ARResponse &rhs)
 		noexcept;
 
-	/**
-	 * \brief Swap two ARResponses
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(const ARResponse &lhs, const ARResponse &rhs);
 
 	// Forward declaration for opaque implementation
@@ -705,7 +625,6 @@ private:
  */
 class ContentHandler
 {
-
 public:
 
 	/**
@@ -877,7 +796,6 @@ private:
  */
 class DefaultContentHandler final : public ContentHandler
 {
-
 public:
 
 	/**
@@ -918,23 +836,10 @@ public:
 	 */
 	const ARResponse& object() const;
 
-	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
+
 	DefaultContentHandler& operator = (const DefaultContentHandler &rhs)
 	= delete;
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
 	DefaultContentHandler& operator = (DefaultContentHandler &&rhs) noexcept;
 
 
@@ -993,7 +898,6 @@ private:
  */
 class ErrorHandler
 {
-
 public:
 
 	/**
@@ -1039,7 +943,6 @@ private:
  */
 class DefaultErrorHandler final : public ErrorHandler
 {
-
 public:
 
 	/**
@@ -1054,16 +957,10 @@ public:
 	 */
 	DefaultErrorHandler(DefaultErrorHandler &&rhs) noexcept;
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
+
 	DefaultErrorHandler& operator = (DefaultErrorHandler &&rhs) noexcept;
 
-	// Non-copyable class
+	// non-copyable class
 	DefaultErrorHandler(const DefaultErrorHandler &rhs) = delete;
 	DefaultErrorHandler& operator = (const DefaultErrorHandler &rhs) = delete;
 
@@ -1083,7 +980,6 @@ private:
  */
 class StreamReadException final : public std::runtime_error
 {
-
 public:
 
 	/**
@@ -1183,7 +1079,6 @@ private:
  */
 class ARStreamParser
 {
-
 public:
 
 	/**
@@ -1315,7 +1210,6 @@ private:
  */
 class ARFileParser final : public ARStreamParser
 {
-
 public:
 
 	/**
@@ -1352,19 +1246,9 @@ public:
 	 */
 	std::string file() const noexcept;
 
-	/**
-	 * \brief Move assignment
-	 *
-	 * \param[in] rhs Right hand side to move
-	 */
+
 	ARFileParser& operator = (ARFileParser &&rhs) noexcept;
 
-	/**
-	 * \brief Swap for ARFileParsers
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(ARFileParser &lhs, ARFileParser &rhs)
 	{
 		lhs.swap(rhs);
@@ -1396,7 +1280,6 @@ private:
  */
 class ARStdinParser final : public ARStreamParser
 {
-
 public:
 
 	/**
@@ -1411,19 +1294,9 @@ public:
 	 */
 	ARStdinParser(ARStdinParser &&rhs) noexcept;
 
-	/**
-	 * \brief Move assignment
-	 *
-	 * \param[in] rhs Right hand side to move
-	 */
+
 	ARStdinParser& operator = (ARStdinParser &&rhs) noexcept;
 
-	/**
-	 * \brief Swap for ARStdinParsers
-	 *
-	 * \param[in] lhs Left hand side to swap
-	 * \param[in] rhs Right hand side to swap
-	 */
 	friend void swap(ARStdinParser &lhs, ARStdinParser &rhs)
 	{
 		lhs.swap(rhs);

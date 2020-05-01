@@ -143,7 +143,6 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
  */
 class Checksum final : public Comparable<Checksum>
 {
-
 public:
 
 	/**
@@ -181,6 +180,7 @@ public:
 
 
 	Checksum& operator = (const uint32_t rhs);
+
 
 private:
 
@@ -311,6 +311,7 @@ public:
 		swap(lhs.it_, rhs.it_);
 	}
 
+
 private:
 
 	/**
@@ -362,7 +363,6 @@ bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
  */
 class ChecksumSet final : public Comparable<ChecksumSet>
 {
-
 public:
 
 	using const_iterator = details::ChecksumMapIterator<checksum::type, true>;
@@ -545,6 +545,7 @@ public:
 
 	friend bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
 
+
 private:
 
 	// forward declaration for ChecksumSet::Impl
@@ -685,6 +686,7 @@ public: /* functions */
 
 	AudioSize& operator = (AudioSize &&rhs) noexcept;
 
+
 private:
 
 	// forward declaration for AudioSize::Impl
@@ -778,7 +780,6 @@ SampleInputIterator operator + (SampleInputIterator lhs,
  */
 class SampleInputIterator final : public Comparable<SampleInputIterator>
 {
-
 public:
 
 	friend bool operator == (const SampleInputIterator &lhs,
@@ -1037,6 +1038,7 @@ public:
 		swap(lhs.object_, rhs.object_);
 	} // required by LegacyIterator
 
+
 private:
 
 	/**
@@ -1074,7 +1076,6 @@ SampleInputIterator operator + (const sample_count amount, SampleInputIterator r
  */
 class CalcContext
 {
-
 public:
 
 	/**
@@ -1577,7 +1578,6 @@ bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
  */
 class Checksums final
 {
-
 public: /* types */
 
 	using iterator = ChecksumSet*;
@@ -1720,6 +1720,7 @@ public: /* member functions */
 
 	Checksums& operator = (Checksums &&rhs) noexcept;
 
+
 private:
 
 	/**
@@ -1758,7 +1759,6 @@ private:
  */
 class Calculation final
 {
-
 public:
 
 	/**
@@ -1885,6 +1885,7 @@ public:
 
 	Calculation& operator = (Calculation &&rhs) noexcept;
 
+
 private:
 
 	/**
@@ -1910,7 +1911,6 @@ private:
  */
 class InvalidAudioException final : public std::logic_error
 {
-
 public:
 
 	/**

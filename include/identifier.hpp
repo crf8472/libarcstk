@@ -206,14 +206,6 @@ extern const CDDA_t CDDA;
 // forward declaration for operator==
 class ARId; // IWYU pragma keep
 
-/**
- * \brief Equality
- *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
- *
- * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
- */
 bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
 
 /**
@@ -231,7 +223,6 @@ bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
  */
 class ARId final : public Comparable<ARId>
 {
-
 public:
 
 	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
@@ -331,22 +322,9 @@ public:
 	 */
 	std::string to_string() const noexcept;
 
-	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return Assigns a deep copy of \c rhs.
-	 */
+
 	ARId& operator = (const ARId &rhs);
 
-	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The resulting left hand side after the assigment
-	 */
 	ARId& operator = (ARId &&rhs) noexcept;
 
 
@@ -376,17 +354,7 @@ extern const ARId EmptyARId;
 // forward declaration for operator==
 class TOC; // IWYU pragma keep
 
-
-/**
- * \brief Equality
- *
- * \param[in] lhs The left hand side of the comparison
- * \param[in] rhs The right hand side of the comparison
- *
- * \return TRUE if the content of \c lhs and \c rhs is equal, otherwise FALSE
- */
 bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
-
 
 /**
  * \brief Table of contents of a compact disc.
@@ -415,7 +383,6 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
  */
 class TOC final : public Comparable<TOC>
 {
-
 public:
 
 	friend bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
@@ -529,24 +496,6 @@ public:
 	bool complete() const noexcept;
 
 	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return Assigns a deep copy of \c rhs.
-	 */
-	TOC& operator = (const TOC &rhs);
-
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	TOC& operator = (TOC &&rhs) noexcept;
-
-	/**
 	 * \internal
 	 *
 	 * \brief Update this TOC with new information
@@ -554,6 +503,11 @@ public:
 	 * \param[in] impl The TOC::Impl to update
 	 */
 	void reimplement(std::unique_ptr<TOC::Impl> impl);
+
+
+	TOC& operator = (const TOC &rhs);
+
+	TOC& operator = (TOC &&rhs) noexcept;
 
 
 private:
@@ -573,7 +527,6 @@ private:
  */
 class InvalidMetadataException final : public std::logic_error
 {
-
 public:
 
 	/**
@@ -604,7 +557,6 @@ public:
  */
 class NonstandardMetadataException final : public std::logic_error
 {
-
 public:
 
 	/**
@@ -774,7 +726,6 @@ namespace details
  */
 class ARIdBuilder final
 {
-
 public:
 
 	/**

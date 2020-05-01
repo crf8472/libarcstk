@@ -502,22 +502,9 @@ public:
 	 */
 	~AlbumMatcher() noexcept final;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The instance after the assigment
-	 */
+
 	AlbumMatcher& operator = (const AlbumMatcher &rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The instance after the assigment
-	 */
 	AlbumMatcher& operator = (AlbumMatcher &&rhs) noexcept;
 
 
@@ -601,22 +588,9 @@ public:
 	 */
 	~TracksetMatcher() noexcept final;
 
-	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
+
 	TracksetMatcher& operator = (const TracksetMatcher &rhs);
 
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
 	TracksetMatcher& operator = (TracksetMatcher &&rhs) noexcept;
 
 
