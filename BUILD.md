@@ -331,7 +331,8 @@ compilation database on your own, for your compiler and your settings:
 
 	$ cd build
 	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-	$ ln -s compile_commands.json ..  # May or may not be required
+	$ cd ..
+	$ ln -s build/compile_commands.json . # May or may not be required
 
 Whenever the compilation process changes - say, a source file is added or
 removed or the code changes significantly - you should recreate the compilation
