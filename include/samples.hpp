@@ -23,7 +23,6 @@ inline namespace v_1_0_0
  * @{
  */
 
-
 /**
  * \brief Type for representing a 32 bit PCM stereo sample.
  *
@@ -33,6 +32,58 @@ inline namespace v_1_0_0
  * \see arcstk::sample_type
  */
 using sample_t = uint32_t;
+
+/**
+ * \brief A sequence of samples represented by signed integral types.
+ *
+ * A SampleSequence is a compatibility wrapper for passing sample sequences of
+ * virtually any signed integral format to Calculation::update(). SampleSequence
+ * instances provide converting access to the samples. The wrapped data is not
+ * altered.
+ *
+ * The sequence is compatible to sample sequences that represent their samples
+ * by integral types of either 16 or 32 bit that may or may not be signed.
+ * When wrapping the original data in a SampleSequence, it must be correctly
+ * declared as either interleaved or planar.
+ *
+ * The channel ordering can be either left/right or right/left.
+ *
+ * Wrapping
+ */
+template <typename T, bool is_planar>
+class SampleSequence;
+
+/** @} */
+
+
+namespace details
+{
+
+/**
+ * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
+ */
+template <typename T>
+using IsSampleType = std::enable_if_t<
+				std::is_same<T,  int16_t>::value
+			or  std::is_same<T,  int32_t>::value
+			or  std::is_same<T, uint16_t>::value
+			or  std::is_same<T, uint32_t>::value>;
+
+/**
+ * \internal
+ *
+ * \brief Common code base for SampleSequence specializations.
+ *
+ * This class is not intended for polymorphic use.
+ *
+ * \tparam T         Actual sample type
+ * \tparam is_planar TRUE indicates a planar sequence, FALSE is interleaved
+ */
+template<typename T, bool is_planar, typename = IsSampleType<T>>
+class SampleSequenceImplBase; // IWYU pragma keep
+// forward declaration required by friend delcaration in SampleIterator
+
+} // namespace details
 
 
 /**
@@ -44,45 +95,9 @@ using sample_t = uint32_t;
  * Equality between a const_iterator and an iterator works as expected.
  *
  * Although tagged as an input_iterator, SampleIterator provides some additional
- * functionality as there is prefix- and postfix decrement, subtract-assignment
- * and a binary subtraction operator.
- */
-template <typename T, bool is_planar, bool is_const>
-class SampleIterator; // IWYU pragma keep
-
-
-/**
- * \brief A sequence of samples represented by signed integral types.
- *
- * A SampleSequence is compatibility wrapper for passing sample sequences of
- * virtually any signed integral format to Calculation::update(). SampleSequence
- * instances provide converting access to the samples. The wrapped data is not
- * altered.
- *
- * The sequence is compatible to sample sequences that represent their samples
- * by integral types of either 16 or 32 bit that may or may not be signed.
- * When wrapping the original data in a SampleSequence, it must be correctly
- * declared as either interleaved or planar.
- *
- * The channel ordering can be either left/right or right/left.
- */
-template <typename T, bool is_planar>
-class SampleSequence;
-
-/** @} */
-
-namespace details
-{
-
-// forward declaration required by friend delcaration in SampleIterator
-template<typename T, bool is_planar>
-class SampleSequenceImplBase;
-
-} // namespace details
-
-
-/**
- * \internal
+ * functionality as there is prefix- and postfix decrement, add-assignment,
+ * subtract-assignment, binary add and subtract and a binary subtraction
+ * operator for positions.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final
@@ -113,6 +128,7 @@ public:
 			const value_type&, value_type&>::type;
 
 	/**
+	 * \internal
 	 * \brief Construct const_iterator from iterator.
 	 *
 	 * \param[in] rhs The iterator to construct a const_iterator
@@ -125,6 +141,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Dereference operator.
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
@@ -136,6 +153,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Prefix increment operator.
 	 */
 	SampleIterator& operator ++ ()
@@ -145,6 +163,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Postfix increment operator.
 	 */
 	SampleIterator operator ++ (int)
@@ -155,6 +174,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Prefix decrement operator.
 	 */
 	SampleIterator& operator -- ()
@@ -164,6 +184,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Postfix decrement operator.
 	 */
 	SampleIterator operator -- (int)
@@ -174,6 +195,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Add-assign amount.
 	 */
 	SampleIterator& operator += (const difference_type value)
@@ -183,6 +205,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Subtract-assign amount.
 	 */
 	SampleIterator& operator -= (const difference_type value)
@@ -192,6 +215,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Add amount.
 	 *
 	 * \param[in] lhs   Iterator to add amount
@@ -207,6 +231,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Add amount.
 	 *
 	 * \param[in] value Amount to add
@@ -221,6 +246,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Subtract amount.
 	 *
 	 * \param[in] lhs   Iterator to subtract amount from
@@ -236,6 +262,7 @@ public:
 	}
 
 	/**
+	 * \internal
 	 * \brief Subtract position.
 	 *
 	 * \param[in] lhs Iterator to subtract from
@@ -304,23 +331,10 @@ private:
 namespace details
 {
 
-/**
- * \internal
- *
- * \brief Common code base for SampleSequence specializations.
- *
- * This class is not intended for polymorphic use.
- */
-template<typename T, bool is_planar>
+template <typename T, bool is_planar, typename>
 class SampleSequenceImplBase
 {
-	static_assert(std::is_same<T,  int16_t>::value
-			or    std::is_same<T,  int32_t>::value
-			or    std::is_same<T, uint16_t>::value
-			or    std::is_same<T, uint32_t>::value,
-			"A SampleSequence can only be declared for signed integral types of either 16 or 32 bit width or for unsigned integers of 32 bit width");
-
-public: /* types */
+public:
 
 	using value_type = sample_t;
 
@@ -329,9 +343,6 @@ public: /* types */
 	using iterator = SampleIterator<T, is_planar, false>;
 
 	using const_iterator = SampleIterator<T, is_planar, true>;
-
-
-public: /* methods */
 
 	/**
 	 * \brief Iterator pointing behind to the beginning.
@@ -522,6 +533,8 @@ private:
  * \internal
  *
  * \brief SampleSequence specialization for planar sequences.
+ *
+ * \tparam T Actual sample type
  */
 template <typename T>
 class SampleSequence<T, true> final :
@@ -680,6 +693,8 @@ private:
  * \internal
  *
  * \brief SampleSequence specialization for interleaved sequences.
+ *
+ * \tparam T Actual sample type
  */
 template <typename T>
 class SampleSequence<T, false> final :
@@ -740,7 +755,7 @@ public:
 	void wrap(const uint8_t *buffer, const size_type size)
 	{
 		buffer_ = reinterpret_cast<const T*>(buffer),
-		this->set_size((size * sizeof(uint8_t) / 2/* channels */ ) / sizeof(T));
+		this->set_size((size * sizeof(uint8_t) / 2/* channels */) / sizeof(T));
 	}
 
 	/**
