@@ -360,6 +360,8 @@ bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
 
 /**
  * \brief A set of Checksum instances of different types for a single track.
+ *
+ * The ChecksumSet represents the calculation result for a single track.
  */
 class ChecksumSet final : public Comparable<ChecksumSet>
 {
@@ -519,7 +521,13 @@ public:
 	 * If a key in the other instance is already present in this instance, the
 	 * corresponding element will be left unmodified.
 	 *
+	 * Trying to merge a set with non-zero length into an instance with non-zero
+	 * length of different value will cause a std::domain_error. If either
+	 * \c rhs or \c this has zero length, the merge will succeed.
+	 *
 	 * \param[in] rhs The list to be merged into the instance
+	 *
+	 * \throws domain_error If \c rhs.length() != \c length() and both are != 0
 	 */
 	void merge(const ChecksumSet &rhs);
 
@@ -1554,12 +1562,12 @@ std::unique_ptr<CalcContext> make_context(const TOC &toc,
 		const std::string &audiofilename);
 
 /**
- * \copydoc make_context(const TOC&)
+ * \copydoc arcstk::v_1_0_0::make_context(const TOC&)
  */
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
 
 /**
- * \copydoc make_context(const TOC&, const std::string&)
+ * \copydoc arcstk::v_1_0_0::make_context(const TOC&, const std::string&)
  */
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);

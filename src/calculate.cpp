@@ -20,7 +20,7 @@
 #include <memory>                 // for unique_ptr, make_unique, unique_ptr...
 #include <set>                    // for set
 #include <sstream>                // for operator<<, basic_ostream, basic_os...
-#include <stdexcept>              // for overflow_error, invalid_argument
+#include <stdexcept>              // for overflow_error, invalid_argument, ...
 #include <string>                 // for char_traits, operator<<, string
 #include <type_traits>            // for __underlying_type_impl<>::type, und...
 #include <unordered_map>          // for unordered_map, operator==, _Node_co...
@@ -2905,6 +2905,11 @@ public:
 	Impl(const Impl &rhs);
 
 	/**
+	 * \brief Implements ChecksumSet::merge(const ChecksumSet &)
+	 */
+	void merge(const Impl &rhs);
+
+	/**
 	 * \brief Equality
 	 *
 	 * \param[in] rhs The instance to compare
@@ -2967,6 +2972,25 @@ ChecksumSet::Impl::Impl(const ChecksumSet::Impl &rhs)
 bool ChecksumSet::Impl::equals(const Impl &rhs) const
 {
 	return length_ == rhs.length_ and checksum_map_ == rhs.checksum_map_;
+}
+
+
+void ChecksumSet::Impl::merge(const Impl &rhs)
+{
+	if (this->length() != 0 and rhs.length() != 0)
+	{
+		// A set with no length may be merged without constraint
+		// but a non-zero length of different value indicates merge
+		// of different tracks.
+
+		if (this->length() != rhs.length())
+		{
+			throw std::domain_error(
+					"Refuse to merge checksums of different track");
+		}
+	}
+
+	checksum_map_.merge(rhs.checksum_map_);
 }
 
 
@@ -3122,7 +3146,7 @@ std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
 
 void ChecksumSet::merge(const ChecksumSet &rhs)
 {
-	impl_->map().merge(rhs.impl_->map());
+	impl_->merge(*rhs.impl_);
 }
 
 

@@ -9,6 +9,7 @@
 
 #include <algorithm>         // for equal
 #include <initializer_list>
+#include <stdexcept>         // for domain_error
 #include <memory>
 #include <vector>
 

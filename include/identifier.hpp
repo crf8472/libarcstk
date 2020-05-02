@@ -594,7 +594,7 @@ std::unique_ptr<ARId> make_arid(const TOC &toc);
 
 
 /**
- * \copydoc make_arid(const TOC &toc)
+ * \copydoc arcstk::v_1_0_0::make_arid(const TOC &)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
 
@@ -628,7 +628,7 @@ std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count leadout);
 
 
 /**
- * \copydoc make_arid(const TOC &toc, const lba_count leadout)
+ * \copydoc arcstk::v_1_0_0::make_arid(const TOC &, const lba_count)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 		const lba_count leadout);
