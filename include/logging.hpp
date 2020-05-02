@@ -36,7 +36,10 @@ inline namespace v_1_0_0
 {
 
 /**
- * \defgroup logging Logging API for use by clients
+ * \defgroup logging Logging API
+ *
+ * \brief Log operations
+ *
  * @{
  */
 
