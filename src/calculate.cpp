@@ -2812,6 +2812,7 @@ public:
 	#endif
 	}
 
+	#if __cplusplus >= 201703L
 	/**
 	 * \brief Merge the elements of another instance into this instance.
 	 *
@@ -2825,6 +2826,7 @@ public:
 	{
 		this->map_.insert_or_assign(rhs.map_.begin(), rhs.map_.end());
 	}
+	#endif
 
 	/**
 	 * \brief Erases the element with the given key.
