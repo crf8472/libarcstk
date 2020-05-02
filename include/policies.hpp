@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Policies for enhancing clases.
+ * \brief Policies for enhancing classes with comparison operators.
  */
 
 namespace arcstk
