@@ -500,7 +500,7 @@ public:
 	 * \brief Inserts a new type-Checksum-pair to the instance.
 	 *
 	 * If the key is already present in the instance, the existing checksum will
-	 * remain unaltered.
+	 * be left unmodified.
 	 *
 	 * The pair returned contains an iterator to the inserted Checksum and a
 	 * bool that is TRUE iff the insertion was successful. If the insertion was
