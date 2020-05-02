@@ -70,9 +70,6 @@ void log(const Match &match)
 }
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
 // Match
 
 
@@ -131,9 +128,6 @@ std::unique_ptr<Match> Match::clone() const
 {
 	return this->do_clone();
 }
-
-
-/// \endcond
 
 
 /**
@@ -299,9 +293,6 @@ private:
 };
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
 DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 	: blocks_ { blocks }
 	, tracks_per_block_ { tracks }
@@ -452,9 +443,6 @@ void DefaultMatchBase::validate_track(int t) const
 }
 
 
-/// \endcond
-
-
 /**
  * \brief Default implementation of a Match.
  *
@@ -480,9 +468,6 @@ private:
 
 	std::unique_ptr<Match> do_clone() const final;
 };
-
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 DefaultMatch::DefaultMatch(int blocks, int tracks)
@@ -538,9 +523,6 @@ std::unique_ptr<Matcher> Matcher::clone() const noexcept
 {
 	return this->do_clone();
 }
-
-
-/// \endcond
 
 
 /**
@@ -692,9 +674,6 @@ private:
 	 */
 	bool matches_v2_;
 };
-
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 constexpr std::array<checksum::type, 2> MatcherImplBase::types;
@@ -854,9 +833,6 @@ int MatcherImplBase::mark_best_block() noexcept
 }
 
 
-/// \endcond
-
-
 /**
  * \brief Implementation of AlbumMatcher.
  */
@@ -955,9 +931,6 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 }
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
 // AlbumMatcher
 
 
@@ -1033,9 +1006,6 @@ std::unique_ptr<Matcher> AlbumMatcher::do_clone() const noexcept
 }
 
 
-/// \endcond
-
-
 /**
  * \brief Private implementation of TracksetMatcher.
  */
@@ -1047,9 +1017,6 @@ protected:
 	std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
-
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 // TracksetMatcher::Impl
@@ -1239,9 +1206,6 @@ std::unique_ptr<Matcher> TracksetMatcher::do_clone() const noexcept
 {
 	return std::make_unique<TracksetMatcher>(*this);
 }
-
-
-/// \endcond
 
 /** @} */
 

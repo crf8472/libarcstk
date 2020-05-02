@@ -288,8 +288,6 @@ private:
 	uint32_t cddb_id_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
-
 
 ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
@@ -793,8 +791,6 @@ std::unique_ptr<ARId> make_empty_arid() noexcept
 }
 
 const ARId EmptyARId = *make_empty_arid();
-
-/// \endcond
 
 } // namespace v_1_0_0
 

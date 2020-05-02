@@ -111,7 +111,6 @@ private:
 	const std::size_t buf_size_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 StdIn::StdIn(const std::size_t buf_size)
 	: buf_size_ { buf_size }
@@ -187,8 +186,6 @@ std::size_t StdIn::buf_size() const
 {
 	return buf_size_;
 }
-
-/// \endcond
 
 } // namespace
 
@@ -380,7 +377,6 @@ private:
 	uint32_t frame450_arcs_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 ARTripletImpl::ARTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -485,9 +481,6 @@ void ARTripletImpl::do_swap(ARTripletImpl & /* rhs */)
 }
 
 
-/// \endcond
-
-
 /**
  * \brief Implements an incompletely parsed ARTriplet.
  *
@@ -554,7 +547,6 @@ private:
 	std::unique_ptr<ARTripletImpl> do_clone() const noexcept final;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 ARCompleteTripletImpl::ARCompleteTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -604,7 +596,6 @@ std::unique_ptr<ARTripletImpl> ARCompleteTripletImpl::do_clone() const noexcept
 			this->arcs(), this->confidence(), this->frame450_arcs());
 }
 
-/// \endcond
 
 /**
  * \brief Implements an incompletely parsed ARTriplet.
@@ -687,7 +678,6 @@ private:
 	uint8_t flags_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
 		const uint32_t confidence,
@@ -775,8 +765,6 @@ void ARIncompleteTripletImpl::do_swap(ARTripletImpl &rhs)
 	swap(this->flags_, casted_rhs->flags_);
 }
 
-/// \endcond
-
 
 /**
  * \brief Represents an empty ARTriplet.
@@ -835,8 +823,6 @@ private:
 
 	std::unique_ptr<ARTripletImpl> do_clone() const noexcept final;
 };
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 AREmptyTripletImpl::AREmptyTripletImpl()
@@ -1016,8 +1002,6 @@ void swap(ARTriplet &lhs, ARTriplet &rhs) noexcept
 }
 
 
-/// \endcond
-
 using ARBlockImplBase = details::AppendableSequence<ARTriplet>;
 
 
@@ -1094,8 +1078,6 @@ private:
 	 */
 	ARId ar_id_;
 };
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 ARBlock::Impl::Impl(const ARBlockImplBase::size_type size)
@@ -1288,8 +1270,6 @@ void swap(const ARBlock &lhs, const ARBlock &rhs)
 }
 
 
-/// \endcond
-
 using ARResponseImplBase = details::AppendableSequence<ARBlock>;
 
 /**
@@ -1357,7 +1337,6 @@ private:
 	Impl(const ARResponseImplBase::size_type size);
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 ARResponse::Impl::Impl()
 	: ARResponseImplBase {}
@@ -1576,7 +1555,6 @@ void ContentHandler::end_input()
 	this->do_end_input();
 }
 
-/// \endcond
 
 /**
  * \brief Private implementation of DefaultContentHandler.
@@ -1696,7 +1674,6 @@ private:
 	ARResponse *response_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 DefaultContentHandler::Impl::Impl()
 	: current_block_ { nullptr }
@@ -2091,7 +2068,6 @@ uint32_t StreamReadException::block_byte_position() const noexcept
 	return block_byte_pos_;
 }
 
-/// \endcond
 
 /**
  * \brief Private implementation of ARStreamParser.
@@ -2250,7 +2226,6 @@ private:
 
 // ARStreamParser::Impl
 
-/// \cond UNDOC_FUNCTION_BODIES
 
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
 	: content_handler_ { nullptr }
@@ -2790,8 +2765,6 @@ void ARStdinParser::on_catched_exception(std::istream & /* istream */,
 {
 	// empty
 }
-
-/// \endcond
 
 /** @} */
 

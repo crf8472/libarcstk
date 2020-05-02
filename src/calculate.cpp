@@ -186,9 +186,6 @@ private:
 };
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
 AudioSize::Impl::Impl() noexcept
 	: total_pcm_bytes_ { 0 }
 {
@@ -1034,8 +1031,6 @@ void CalcStateARCSBase::update(SampleInputIterator &begin,
 	ARCS_LOG_DEBUG << "    Last multiplier was: " << (this->mult() - 1);
 }
 
-/// \endcond
-
 
 /**
  * \internal
@@ -1115,9 +1110,6 @@ private:
 	 */
 	std::unordered_map<TrackNo, uint32_t> arcss_;
 };
-
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 CalcStateV1::CalcStateV1()
@@ -1243,8 +1235,6 @@ ChecksumSet CalcStateV1::compose(const Checksum &checksum) const noexcept
 	return checksums;
 }
 
-/// \endcond
-
 
 /**
  * \internal
@@ -1319,8 +1309,6 @@ private:
 	 */
 	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
 };
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 CalcStateV1andV2::CalcStateV1andV2()
@@ -1465,8 +1453,6 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
 }
 
 } // namespace details
-
-/// \endcond
 
 
 // Checksums::Impl
@@ -1795,8 +1781,6 @@ private:
 	 */
 	std::chrono::milliseconds proc_time_elapsed_;
 };
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 Calculation::Impl::Impl(const checksum::type type,
@@ -2557,9 +2541,6 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 }
 
 
-/// \endcond
-
-
 /// \internal \addtogroup calcImpl
 /// @{
 
@@ -2636,8 +2617,6 @@ private:
 
 
 /** @} */
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 ChecksumSet::Impl::Impl(const lba_count length)
@@ -2844,8 +2823,6 @@ ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
 }
 
 
-/// \endcond
-
 namespace checksum
 {
 
@@ -2916,17 +2893,12 @@ std::string to_hex_str(const Checksum &checksum, const bool upper,
 } // namespace checksum::details
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
 std::string type_name(const type t)
 {
 	using details::names;
 
 	return names.at(std::log2(details::as_integral_value(t)));
 }
-
-/// \endcond
 
 
 } // namespace checksum
