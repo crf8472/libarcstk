@@ -2294,13 +2294,14 @@ void ARStreamParser::Impl::on_error(const uint32_t byte_pos,
 	if (error_handler_)
 	{
 		error_handler_->error(byte_pos, block, block_byte_pos);
+	} else
+	{
+		auto ss = std::stringstream {};
+		ss << "Error on input byte " << byte_pos << " (block " << block
+			<< ", byte " << block_byte_pos << ")";
+
+		throw StreamReadException(byte_pos, block, block_byte_pos, ss.str());
 	}
-
-	auto ss = std::stringstream {};
-	ss << "Error on input byte " << byte_pos << " (block " << block
-		<< ", byte " << block_byte_pos << ")";
-
-	throw StreamReadException(byte_pos, block, block_byte_pos, ss.str());
 }
 
 

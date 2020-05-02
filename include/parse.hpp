@@ -261,8 +261,6 @@ private:
  * An AccurateRip response may contain different \link ARBlock ARBlocks \endlink
  * for a single disc id and the ARBlocks may differ in the ARCSs they contain
  * for the tracks.
- *
- * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
 class ARBlock final : public Comparable<ARBlock>
 {
@@ -442,8 +440,6 @@ private:
  * Although an ARResponse represents content that is usually not created by the
  * client, the client may nonetheless create an ARResponse on its own or modify
  * an existing instance. This allows for easy testing ARResponse objects.
- *
- * \todo Implementation of rbegin(), rend(), crbegin(), crend()
  */
 class ARResponse final : public Comparable<ARResponse>
 {
@@ -1069,13 +1065,6 @@ private:
  * on_catched_exception() is called before the exception is rethrown,
  * so the subclass has the chance to perform some cleanup as closing the
  * stream if this required.
- *
- * \todo
- * It should be possible to parse without exceptions. If intercepting is
- * preferred, the ErrorHandler should rethrow the exception instead of the
- * parser.
- *
- * \todo Specify/ensure all possible exceptions parse_stream() can throw
  */
 class ARStreamParser
 {
@@ -1144,6 +1133,8 @@ protected:
 	 * \param[in] in_stream The stream to be parsed
 	 *
 	 * \return Number of bytes parsed from \c in_stream
+	 *
+	 * \throw StreamReadException If any positional error occurred on parsing
 	 */
 	uint32_t parse_stream(std::istream &in_stream);
 

@@ -479,8 +479,6 @@ public:
 	 * Should be either 0 if unknown, or, if known, equal to the sum of
 	 * <tt>offset(track_count())</tt> and <tt>length(track_count())</tt>.
 	 *
-	 * \todo Not sure about the leadout for CDs with a data track.
-	 *
 	 * \return The leadout frame index
 	 */
 	lba_count leadout() const noexcept;
@@ -521,9 +519,6 @@ private:
 
 /**
  * \brief Reports invalid metadata for building a TOC.
- *
- * \todo Metadata files are usually parsed text files, hence position
- * information about the error may be useful.
  */
 class InvalidMetadataException final : public std::logic_error
 {
@@ -551,9 +546,6 @@ public:
  * Violating the redbook standard is usually not a problem for calculating
  * checksums. A common case are unusual total lengths, as for example up to 99
  * minutes.
- *
- * \todo Metadata files are usually parsed text files, hence position
- * information about the error may be useful.
  */
 class NonstandardMetadataException final : public std::logic_error
 {
@@ -646,10 +638,6 @@ std::unique_ptr<ARId> make_empty_arid() noexcept;
 
 /**
  * \brief Functions assisting the management of @link TOC TOCs @endlink.
- *
- * \todo Avoid redundancy of 3 implementations. A template solution could do
- * that - or just use copy possibilities offered by \c std. Anyway, solution
- * should be generic for all 3 cases.
  */
 namespace toc
 {
