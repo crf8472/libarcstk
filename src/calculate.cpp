@@ -2770,12 +2770,12 @@ public:
 	 * \brief Inserts a new key-value-pair to the instance.
 	 *
 	 * If the key is already present in the instance, the existing checksum will
-	 * be overwritten with \c checksum.
+	 * remain unaltered.
 	 *
-	 * The pair returned contains an iterator to the inserted value and a bool
-	 * that is TRUE iff the insertion was successful. If the insertion was not
-	 * successful, the value FALSE is returned for the bool and end() for
-	 * the iterator.
+	 * The pair returned contains an iterator to the inserted Checksum and a
+	 * bool that is TRUE iff the insertion was successful. If the insertion was
+	 * not successful, the value FALSE is returned for the bool and the
+	 * iterator will point to the element that prevented the insertion.
 	 *
 	 * \param[in] key The key to use
 	 * \param[in] checksum The checksum for the given key
@@ -2785,6 +2785,13 @@ public:
 	std::pair<iterator, bool> insert(const K &key, const Checksum &checksum)
 	{
 		auto result { this->map_.insert(std::make_pair(key, checksum)) };
+
+		//Commented out: implement insert_or_assign
+		//if (!result.second) // Overwrite, if present
+		//{
+		//	(*result.first).second = checksum;
+		//}
+
 		return std::make_pair(iterator(result.first), result.second);
 	}
 
