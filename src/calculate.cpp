@@ -4,8 +4,8 @@
  * \brief Implementation of the checksum calculation API
  */
 
-#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"
+#ifndef __LIBARCSTK_CALCULATE_APIS_HPP__
+#include "calculate_apis.hpp"
 #endif
 
 #include <array>                  // for array

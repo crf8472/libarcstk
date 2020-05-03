@@ -8,11 +8,8 @@
 #include <utility>                // for move
 #include <vector>                 // for vector
 
-//#ifndef __LIBARCSTK_CALCULATE_HPP__
-//#include "calculate.hpp"
-//#endif
-#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"
+#ifndef __LIBARCSTK_CALCULATE_APIS_HPP__
+#include "calculate_apis.hpp"
 #endif
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
