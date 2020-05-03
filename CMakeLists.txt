@@ -121,7 +121,7 @@ if (IWYU)
 
 	else (IWYU_BINARY )
 
-		message (WARNING "Program include-what-you-use not found" )
+		message (FATAL_ERROR "Program include-what-you-use not found" )
 
 	endif (IWYU_BINARY )
 endif (IWYU)
