@@ -1731,6 +1731,18 @@ private:
 
 
 /**
+ * \brief Global instance of an empty Checksum.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * Checksum can be avoided when a reference instance is at hand.
+ *
+ * This instance defines emptyness for checksums since Checksum::empty()
+ * just compares the instance with this instance.
+ */
+extern const Checksum EmptyChecksum;
+
+
+/**
  * \brief Checksum calculation for a requested checksum::type.
  *
  * To calculate the checksum for a given entirety of samples, an appropriate

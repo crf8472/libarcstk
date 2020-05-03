@@ -366,7 +366,7 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
  * A TOC is an object constructed from parsed data. It is therefore not
  * modifiable.
  *
- * \link TOC TOCs\endlink can exclusively be built by to two build functions
+ * \link TOC TOCs\endlink can exclusively be built by two build functions
  * called make_toc().
  * Both functions guarantee to provide either a valid TOC or to throw an
  * InvalidMetadataException. This entails that any concrete

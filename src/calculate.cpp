@@ -53,6 +53,7 @@ using arcstk::v_1_0_0::details::CalcState;
 using arcstk::v_1_0_0::details::CalcStateV1;
 using arcstk::v_1_0_0::details::CalcStateV1andV2;
 
+const Checksum EmptyChecksum = Checksum(0); // defines emptyness for Checksum
 
 namespace
 {
@@ -2890,7 +2891,7 @@ uint32_t Checksum::value() const noexcept
 
 bool Checksum::empty() const noexcept
 {
-	return 0 == value_;
+	return value_ == EmptyChecksum.value_;
 }
 
 
@@ -3159,7 +3160,7 @@ Checksum ChecksumSet::get(const checksum::type type) const
 
 	if (rc == impl_->map().end())
 	{
-		return Checksum(0);
+		return EmptyChecksum;
 	}
 
 	return *rc;

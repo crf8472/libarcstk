@@ -57,6 +57,9 @@ using sample_t = uint32_t;
  *
  * For convenience, this template is not intended to be used directly. Instead,
  * use one of the templates PlanarSamples or InterleavedSamples.
+ *
+ * \see arcstk::SampleSequence<T, true>
+ * \see arcstk::SampleSequence<T, false>
  */
 template <typename T, bool is_planar>
 class SampleSequence;
@@ -537,9 +540,7 @@ private:
 
 
 /**
- * \internal
- *
- * \brief SampleSequence specialization for planar sequences.
+ * \brief A planar sequence of samples.
  *
  * This class is intended to be used by its alias PlanarSamples<T>.
  *
@@ -699,9 +700,7 @@ private:
 
 
 /**
- * \internal
- *
- * \brief SampleSequence specialization for interleaved sequences.
+ * \brief An interleaved sequence of samples.
  *
  * This class is intended to be used by its alias InterleavedSamples<T>.
  *

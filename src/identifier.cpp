@@ -23,9 +23,10 @@
 
 namespace arcstk
 {
-
 inline namespace v_1_0_0
 {
+
+const ARId EmptyARId = *make_empty_arid();
 
 namespace details
 {
@@ -789,8 +790,6 @@ std::unique_ptr<ARId> make_empty_arid() noexcept
 {
 	return details::ARIdBuilder::build_empty_id();
 }
-
-const ARId EmptyARId = *make_empty_arid();
 
 } // namespace v_1_0_0
 
