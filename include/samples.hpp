@@ -10,8 +10,10 @@
 #include <array>                // for array
 #include <cstdint>              // for uint8_t, uint32_t
 #include <iosfwd>               // for size_t
+#include <iterator>             // for input_iterator_tag
 #include <stdexcept>            // for out_of_range
 #include <sstream>              // for stringstream
+#include <type_traits>          // for is_same, conditional, enable_if_t
 
 namespace arcstk
 {
