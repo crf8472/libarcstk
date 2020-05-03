@@ -32,6 +32,7 @@ namespace details
 {
 
 /**
+ * \internal
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
 const auto EmptyString = std::string { };
@@ -41,6 +42,7 @@ const auto EmptyString = std::string { };
 class Partition;
 
 /**
+ * \internal
  * \brief Partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
@@ -62,7 +64,6 @@ using Partitioning = std::vector<Partition>;
  */
 class Partitioner
 {
-
 public:
 
 	/**
@@ -162,7 +163,6 @@ private:
  */
 class MultitrackPartitioner final : public Partitioner
 {
-
 public:
 
 	std::unique_ptr<Partitioner> clone() const override;
@@ -197,7 +197,6 @@ private:
  */
 class SingletrackPartitioner final : public Partitioner
 {
-
 public:
 
 	std::unique_ptr<Partitioner> clone() const override;
@@ -382,7 +381,6 @@ private:
  */
 class Interval final
 {
-
 public:
 
 	/**
@@ -418,379 +416,6 @@ private:
 };
 
 
-/// \cond UNDOC_FUNCTION_BODIES
-
-
-// Partition
-
-
-Partition::Partition(
-		const sample_count &begin_offset,
-		const sample_count &end_offset,
-		const sample_count &first,
-		const sample_count &last,
-		const bool     &starts_track,
-		const bool     &ends_track,
-		const TrackNo  &track
-	)
-	: begin_offset_ { begin_offset }
-	, end_offset_ { end_offset }
-	, first_sample_idx_ { first }
-	, last_sample_idx_ { last }
-	, starts_track_ { starts_track }
-	, ends_track_ { ends_track }
-	, track_ { track }
-{
-	// empty
-}
-
-
-sample_count Partition::begin_offset() const
-{
-	return begin_offset_;
-}
-
-
-sample_count Partition::end_offset() const
-{
-	return end_offset_;
-}
-
-
-sample_count Partition::first_sample_idx() const
-{
-	return first_sample_idx_;
-}
-
-
-sample_count Partition::last_sample_idx() const
-{
-	return last_sample_idx_;
-}
-
-
-bool Partition::starts_track() const
-{
-	return starts_track_;
-}
-
-
-bool Partition::ends_track() const
-{
-	return ends_track_;
-}
-
-
-TrackNo Partition::track() const
-{
-	return track_;
-}
-
-
-sample_count Partition::size() const
-{
-	return last_sample_idx() - first_sample_idx() + 1;
-}
-
-
-// Interval
-
-
-Interval::Interval(const sample_count a, const sample_count b)
-	: a_ { a }
-	, b_ { b }
-{
-	// empty
-}
-
-
-bool Interval::contains(const sample_count i) const
-{
-	if (a_ <= b_)
-	{
-		return a_ <= i and i <= b_;
-	}
-
-	return a_ >= i and i >= b_;
-}
-
-
-// Partitioner
-
-
-Partitioner::~Partitioner() noexcept = default;
-
-
-Partitioning Partitioner::create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
-		const CalcContext &context) const
-{
-	// If the sample block does not contain any relevant samples,
-	// just return an empty partition list
-
-	const auto block_end { last_sample_idx(offset, number_of_samples) };
-
-	const auto first_smpl { context.first_relevant_sample(1) };
-	// avoids -Wstrict-overflow firing in if-clause
-
-	if (block_end < first_smpl or offset > context.last_relevant_sample())
-	{
-		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
-
-		return Partitioning();
-	}
-
-	return this->do_create_partitioning(offset, number_of_samples, context);
-}
-
-
-sample_count Partitioner::last_sample_idx(const sample_count offset,
-		const sample_count sample_count) const
-{
-	return offset + sample_count - 1;
-}
-
-
-Partition Partitioner::create_partition(
-		const sample_count     &begin_offset,
-		const sample_count     &end_offset,
-		const sample_count     &first,
-		const sample_count     &last,
-		const bool         &starts_track,
-		const bool         &ends_track,
-		const TrackNo      &track) const
-{
-	return Partition(begin_offset, end_offset, first, last, starts_track,
-			ends_track, track);
-}
-
-
-// MultitrackPartitioner
-
-
-std::unique_ptr<Partitioner> MultitrackPartitioner::clone() const
-{
-	return std::make_unique<MultitrackPartitioner>(*this);
-}
-
-
-Partitioning MultitrackPartitioner::do_create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
-		const CalcContext &context) const
-{
-	const auto total_samples = sample_count { number_of_samples };
-
-	Interval sample_block {
-		offset, this->last_sample_idx(offset, total_samples)
-	};
-
-	// If the sample index range of this block contains the last relevant
-	// sample, set this as the last sample in block instead of the last
-	// physical sample
-
-	auto block_last_smpl = sample_count {
-		this->last_sample_idx(offset, total_samples) };
-
-	if (sample_block.contains(context.last_relevant_sample()))
-	{
-		block_last_smpl = context.last_relevant_sample();
-	}
-
-	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first partition instead of
-	// the first physical sample
-
-	auto chunk_first_smpl = sample_count { offset };
-
-	if (sample_block.contains(context.first_relevant_sample(1)))
-	{
-		chunk_first_smpl = context.first_relevant_sample(1);
-	}
-
-	// Will be track_count+1 if 1st sample is beyond global last relevant sample
-	// This entails that the loop is not entered for irrelevant partitions
-	auto track = TrackNo { context.track(chunk_first_smpl) };
-
-	// If track > track_count this is global last sample
-	auto chunk_last_smpl = sample_count { context.last_relevant_sample(track) };
-
-	auto begin_offset = sample_count { 0 } ;
-	auto end_offset   = sample_count { 0 } ;
-	auto starts_track = bool { false } ;
-	auto ends_track   = bool { false } ;
-
-	const auto last_track = uint8_t { context.track_count() };
-
-
-	// Now construct all partitions except the last (that needs clipping) in a
-	// loop
-
-	Partitioning chunks{};
-	chunks.reserve(10);
-
-	while (chunk_last_smpl < block_last_smpl and track <= last_track)
-	{
-		ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
-
-		starts_track =
-			(chunk_first_smpl == context.first_relevant_sample(track));
-
-		begin_offset = chunk_first_smpl - offset;
-
-		end_offset   = chunk_last_smpl  - offset + 1;
-
-		chunks.push_back(
-			this->create_partition(
-				begin_offset,
-				end_offset,
-				chunk_first_smpl,
-				chunk_last_smpl,
-				starts_track,
-				ends_track,
-				track
-			)
-		);
-
-		ARCS_LOG(DEBUG1) << "  Create chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-		++track;
-
-		chunk_first_smpl = chunk_last_smpl + 1;
-		chunk_last_smpl  = context.last_relevant_sample(track);
-	} // while
-
-
-	// If the loop has finished or was never entered, the last partition has to
-	// be prepared
-
-
-	// Clip last partition to block end if necessary
-
-	if (chunk_last_smpl > block_last_smpl)
-	{
-		chunk_last_smpl = block_last_smpl;
-
-		ARCS_LOG(DEBUG1) << "  Block ends within track "
-			<< std::to_string(track)
-			<< ", clip last sample to: " << chunk_last_smpl;
-	}
-
-	// Prepare last partition
-
-	starts_track = (chunk_first_smpl == context.first_relevant_sample(track));
-
-	ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
-
-	begin_offset = chunk_first_smpl - offset;
-
-	end_offset   = chunk_last_smpl  - offset + 1;
-
-	ARCS_LOG(DEBUG1) << "  Create last chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-	chunks.push_back(
-		this->create_partition(
-			begin_offset,
-			end_offset,
-			chunk_first_smpl,
-			chunk_last_smpl,
-			starts_track,
-			ends_track,
-			track
-		)
-	);
-
-	chunks.shrink_to_fit();
-
-	return chunks;
-}
-
-
-// SingletrackPartitioner
-
-
-std::unique_ptr<Partitioner> SingletrackPartitioner::clone() const
-{
-	return std::make_unique<SingletrackPartitioner>(*this);
-}
-
-
-Partitioning SingletrackPartitioner::do_create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
-		const CalcContext &context) const
-{
-	const auto total_samples = sample_count { number_of_samples };
-
-	Interval sample_block {
-		offset, this->last_sample_idx(offset, total_samples)
-	};
-
-	// If the sample index range of this block contains the last relevant
-	// sample, set this as the last sample in block instead of the last
-	// physical sample
-
-	auto chunk_last_smpl = sample_count { this->last_sample_idx(offset, total_samples) };
-
-	if (sample_block.contains(context.last_relevant_sample()))
-	{
-		chunk_last_smpl = context.last_relevant_sample();
-	}
-
-	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first partition instead of
-	// the first physical sample
-
-	auto chunk_first_smpl = sample_count { offset };
-
-	if (sample_block.contains(context.first_relevant_sample(1)))
-	{
-		chunk_first_smpl = context.first_relevant_sample(1);
-	}
-
-	// Create a single partition spanning the entire sample block, but respect
-	// skipping samples at front or back
-
-	// Is this the last partition in the current track?
-
-	const bool ends_track {
-		chunk_last_smpl == context.last_relevant_sample()
-	};
-
-	// Is this the first partition of the current track in the current block?
-
-	const bool starts_track {
-		chunk_first_smpl == context.first_relevant_sample(1)
-	};
-
-	// Determine first sample in partition (easy for singletrack: 0)
-
-	const auto begin_offset = sample_count { chunk_first_smpl - offset };
-
-	// Determine last sample in partition (easy for singletrack: total_samples)
-
-	const auto end_offset = sample_count { chunk_last_smpl - offset + 1 };
-
-	Partitioning chunks;
-	chunks.push_back(
-		this->create_partition(
-			begin_offset,
-			end_offset,
-			chunk_first_smpl,
-			chunk_last_smpl,
-			starts_track,
-			ends_track,
-			0
-		));
-
-	return chunks;
-}
-
-/// \endcond
-
 /**
  * \internal
  * \ingroup calc
@@ -803,7 +428,6 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
  */
 class CalcContextBase : virtual public arcstk::v_1_0_0::CalcContext
 {
-
 public:
 
 	/**
@@ -813,7 +437,8 @@ public:
 	 * \param[in] num_skip_front Amount of samples to skip at the beginning
 	 * \param[in] num_skip_back  Amount of samples to skip at the end
 	 */
-	CalcContextBase(const std::string &filename, const sample_count num_skip_front,
+	CalcContextBase(const std::string &filename,
+			const sample_count num_skip_front,
 			const sample_count num_skip_back);
 
 
@@ -832,7 +457,8 @@ private:
 	// do_track_count()
 	// do_is_multi_track()
 
-	sample_count do_first_relevant_sample(const TrackNo) const noexcept override;
+	sample_count do_first_relevant_sample(const TrackNo) const noexcept
+		override;
 
 	sample_count do_first_relevant_sample_0() const noexcept override;
 
@@ -906,8 +532,8 @@ private:
 };
 
 
+// forward declaration for operator ==
 class SingletrackCalcContext;
-
 
 bool operator == (const SingletrackCalcContext &lhs,
 		const SingletrackCalcContext &rhs) noexcept;
@@ -984,11 +610,13 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	sample_count do_first_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_first_relevant_sample(const TrackNo track) const noexcept
+		final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	sample_count do_last_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
+		final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
@@ -1018,8 +646,8 @@ private:
 };
 
 
+// forward declaration for operator ==
 class MultitrackCalcContext;
-
 
 bool operator == (const MultitrackCalcContext &lhs,
 		const MultitrackCalcContext &rhs) noexcept;
@@ -1037,7 +665,6 @@ bool operator == (const MultitrackCalcContext &lhs,
 class MultitrackCalcContext final : public CalcContextBase
 								  , public Comparable<MultitrackCalcContext>
 {
-
 public:
 
 	friend bool operator == (const MultitrackCalcContext &lhs,
@@ -1118,11 +745,13 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	sample_count do_first_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_first_relevant_sample(const TrackNo track) const noexcept
+		final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	sample_count do_last_relevant_sample(const TrackNo track) const noexcept final;
+	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
+		final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
@@ -1416,6 +1045,7 @@ private:
 };
 
 
+// forward declaration for state::types
 class CalcStateV1;
 class CalcStateV1andV2;
 
