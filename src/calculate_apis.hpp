@@ -1,7 +1,3 @@
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
-
 #ifndef __LIBARCSTK_CALCULATE_APIS_HPP__
 #define __LIBARCSTK_CALCULATE_APIS_HPP__
 
@@ -12,6 +8,10 @@
  *
  * \brief Internal APIs for checksum calculation
  */
+
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
 
 #ifndef __LIBARCSTK_CALC_PARTITION_HPP__
 #include "calc_partition.hpp"
