@@ -10,16 +10,28 @@
  */
 
 #include <algorithm>     // for transform
-#include <map>
-#include <set>
-#include <utility>
+#include <map>           // for map
+#include <set>           // for set
+#include <utility>       // for make_pair
+
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"
+#endif
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+// Forward declaration to avoid including calculate.hpp
+class Checksum; // IWYU pragma keep
+
 namespace details
 {
+
+// Forward declaration to avoid including calculate.hpp
+template <typename K, bool is_const>
+class ChecksumMapIterator; // IWYU pragma keep
 
 /**
  * \internal

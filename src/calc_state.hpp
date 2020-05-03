@@ -14,10 +14,14 @@
 #endif
 
 #include <cmath>         // for exp2
+#include <cstddef>       // for size_t
+#include <memory>        // for make_unique
 #include <tuple>         // for tuple_element_t, tuple_size
                          // C++17: for tuple_size_v instead of tuple_size
 #include <stdexcept>     // for invalid_argument
 #include <sstream>       // for stringstream
+#include <type_traits>   // for enable_if
+#include <utility>       // for make_index_sequence
 
 namespace arcstk
 {
