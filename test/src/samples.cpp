@@ -74,7 +74,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 2 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -103,7 +103,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[254] == 0xF617ABA8 );
 		CHECK ( sequence[255] == 0x1571DD6D );
 
-		sequence.reset(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
+		sequence.wrap(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
 
 		CHECK ( sequence.size() == 256 );
 
@@ -138,7 +138,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 2 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -190,7 +190,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		--it_end;
 		CHECK ( *it_end == 0x338DE185 );
 
-		sequence.reset(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
+		sequence.wrap(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
 
 		CHECK ( sequence.size() == 256 );
 
@@ -275,7 +275,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 2 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -289,7 +289,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( index == 256 );
 
-		sequence.reset(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
+		sequence.wrap(reinterpret_cast<int16_t*>(&bytes[0]), 512); // int16_t's
 
 		CHECK ( sequence.size() == 256 );
 
@@ -309,7 +309,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -350,7 +350,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[126] == 0xE0EBE817 );
 		CHECK ( sequence[127] == 0xDD6DABA8 );
 
-		sequence.reset(reinterpret_cast<int32_t*>(&bytes[0]), 256); // int32_t's
+		sequence.wrap(reinterpret_cast<int32_t*>(&bytes[0]), 256); // int32_t's
 
 		CHECK ( sequence.size() == 128 );
 
@@ -397,7 +397,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -411,7 +411,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( index == 128 );
 
-		sequence.reset(reinterpret_cast<int32_t*>(&bytes[0]), 256); // int32_t's
+		sequence.wrap(reinterpret_cast<int32_t*>(&bytes[0]), 256); // int32_t's
 
 		CHECK ( sequence.size() == 128 );
 
@@ -429,7 +429,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		PlanarSamples<int16_t> sequence;
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -458,7 +458,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[254] == 0xDD6D28EF );
 		CHECK ( sequence[255] == 0x157171F9 );
 
-		sequence.reset(reinterpret_cast<int16_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<int16_t*>(&bytes[0]),
 				reinterpret_cast<int16_t*>(&bytes[512]),
 				256); // int16_t's
 
@@ -495,7 +495,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 2 );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -509,7 +509,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( index == 256 );
 
-		sequence.reset(reinterpret_cast<int16_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<int16_t*>(&bytes[0]),
 				reinterpret_cast<int16_t*>(&bytes[0]),
 				256); // int16_t's
 
@@ -531,7 +531,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -572,7 +572,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[126] == 0xABA8E966 );
 		CHECK ( sequence[127] == 0xDD6D28EF );
 
-		sequence.reset(reinterpret_cast<int32_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<int32_t*>(&bytes[0]),
 				reinterpret_cast<int32_t*>(&bytes[512]),
 				128); // int32_t's
 
@@ -621,7 +621,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -635,7 +635,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( index == 128 );
 
-		sequence.reset(reinterpret_cast<int32_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<int32_t*>(&bytes[0]),
 				reinterpret_cast<int32_t*>(&bytes[0]),
 				128); // int32_t's
 
@@ -657,7 +657,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 2 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -686,7 +686,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[254] == 0xF617ABA8 );
 		CHECK ( sequence[255] == 0x1571DD6D );
 
-		sequence.reset(reinterpret_cast<uint16_t*>(&bytes[0]), 512); // uint16_t
+		sequence.wrap(reinterpret_cast<uint16_t*>(&bytes[0]), 512); // uint16_t
 
 		CHECK ( sequence.size() == 256 );
 
@@ -719,7 +719,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	{
 		PlanarSamples<uint16_t> sequence;
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -748,7 +748,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[254] == 0xDD6D28EF );
 		CHECK ( sequence[255] == 0x157171F9 );
 
-		sequence.reset(reinterpret_cast<uint16_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<uint16_t*>(&bytes[0]),
 				reinterpret_cast<uint16_t*>(&bytes[512]),
 				256); // uint16_t's
 
@@ -785,7 +785,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -826,7 +826,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[126] == 0xE0EBE817 );
 		CHECK ( sequence[127] == 0xDD6DABA8 );
 
-		sequence.reset(reinterpret_cast<uint32_t*>(&bytes[0]), 256); // uint32_t
+		sequence.wrap(reinterpret_cast<uint32_t*>(&bytes[0]), 256); // uint32_t
 
 		CHECK ( sequence.size() == 128 );
 
@@ -873,7 +873,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
@@ -914,7 +914,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[126] == 0xABA8E966 );
 		CHECK ( sequence[127] == 0xDD6D28EF );
 
-		sequence.reset(reinterpret_cast<uint32_t*>(&bytes[0]),
+		sequence.wrap(reinterpret_cast<uint32_t*>(&bytes[0]),
 				reinterpret_cast<uint32_t*>(&bytes[512]),
 				128); // uint32_t's
 
@@ -965,7 +965,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		REQUIRE ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
@@ -990,7 +990,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		// take begin of other sequence
 
 		InterleavedSamples<uint32_t> sequence_other;
-		sequence_other.wrap(&bytes[0], 1024); // bytes
+		sequence_other.wrap_bytes(&bytes[0], 1024); // bytes
 		auto begin_other = sequence_other.begin();
 
 		CHECK ( not(begin_other == begin2) );
@@ -1005,7 +1005,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		REQUIRE ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		auto pointer = new SampleIterator<uint32_t, false, false>(
 				sequence.begin());
@@ -1020,7 +1020,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		REQUIRE ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
@@ -1067,7 +1067,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		REQUIRE ( sequence.typesize() == 4 );
 
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
@@ -1093,7 +1093,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 		//CHECK ( sequence.empty() );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( sequence.size() == 256 );
@@ -1110,7 +1110,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 		//CHECK ( sequence.empty() );
 
-		sequence.wrap(&bytes[0], &bytes[512], 512); // bytes
+		sequence.wrap_bytes(&bytes[0], &bytes[512], 512); // bytes
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( sequence.size() == 128 );
@@ -1125,7 +1125,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		using arcstk::SampleIterator;
 
 		InterleavedSamples<uint32_t> sequence;
-		sequence.wrap(&bytes[0], 1024); // bytes
+		sequence.wrap_bytes(&bytes[0], 1024); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 

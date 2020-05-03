@@ -29,7 +29,7 @@ inline namespace v_1_0_0
 /// @{
 
 /**
- * \brief Type to represent a PCM 32 bit sample (2 channels x 16 bit).
+ * \brief Type to represent a 32 bit PCM stereo sample.
  *
  * An unsigned integer of 32 bit length.
  *

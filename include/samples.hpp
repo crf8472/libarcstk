@@ -26,7 +26,7 @@ inline namespace v_1_0_0
  */
 
 /**
- * \brief Type for representing a 32 bit PCM stereo sample.
+ * \brief Type to represent a 32 bit PCM stereo sample.
  *
  * This should be defined identically-as or at least assignable-to
  * arcstk::sample_type.
@@ -50,13 +50,18 @@ using sample_t = uint32_t;
  *
  * The channel ordering can be either left/right or right/left.
  *
- * Wrapping
+ * The interface of SampleSequence is very simple: an existing amount of samples
+ * is adapted by the use of wrap() or wrap_bytes(). Random access is provided by
+ * operator[] (without bounds check) or at() (providing bounds check). A
+ * SampleSequence provides also access via iterators.
+ *
+ * For convenience, this template is not intended to be used directly. Instead,
+ * use one of the templates PlanarSamples or InterleavedSamples.
  */
 template <typename T, bool is_planar>
 class SampleSequence;
 
 /** @} */
-
 
 namespace details
 {
@@ -536,6 +541,8 @@ private:
  *
  * \brief SampleSequence specialization for planar sequences.
  *
+ * This class is intended to be used by its alias PlanarSamples<T>.
+ *
  * \tparam T Actual sample type
  */
 template <typename T>
@@ -587,15 +594,15 @@ public: /* methods */
 	/**
 	 * \brief Rewrap the specified buffers into this sample sequence.
 	 *
-	 * This function does essentially the same as reset() but converts a
-	 * sequence of uint8_t instances by reinterpreting the samples as instances
-	 * of type T. However, reset() expects samples of type T.
+	 * This function does essentially the same as wrap() but converts a
+	 * sequence of uint8_t values by reinterpreting the samples as instances
+	 * of type T. However, wrap() expects samples of type T.
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of bytes per buffer
 	 */
-	void wrap(const uint8_t *buffer0, const uint8_t *buffer1,
+	void wrap_bytes(const uint8_t *buffer0, const uint8_t *buffer1,
 			const size_type size)
 	{
 		buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
@@ -610,7 +617,7 @@ public: /* methods */
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void reset(const T* buffer0, const T* buffer1, const size_type size)
+	void wrap(const T* buffer0, const T* buffer1, const size_type size)
 	{
 		buffer_[left_ ] = buffer0;
 		buffer_[right_] = buffer1;
@@ -696,6 +703,8 @@ private:
  *
  * \brief SampleSequence specialization for interleaved sequences.
  *
+ * This class is intended to be used by its alias InterleavedSamples<T>.
+ *
  * \tparam T Actual sample type
  */
 template <typename T>
@@ -747,14 +756,14 @@ public:
 	/**
 	 * \brief Rewrap the specified buffer into this sample sequence.
 	 *
-	 * This function does essentially the same as reset() but converts a
+	 * This function does essentially the same as wrap() but converts a
 	 * sequence of uint8_t instances by reinterpreting the samples as instances
-	 * of type T. However, reset() expects samples of type T.
+	 * of type T. However, wrap() expects samples of type T.
 	 *
 	 * \param[in] buffer Buffer for channel 0
 	 * \param[in] size   Number of bytes in buffer
 	 */
-	void wrap(const uint8_t *buffer, const size_type size)
+	void wrap_bytes(const uint8_t *buffer, const size_type size)
 	{
 		buffer_ = reinterpret_cast<const T*>(buffer),
 		this->set_size((size * sizeof(uint8_t) / 2/* channels */) / sizeof(T));
@@ -766,7 +775,7 @@ public:
 	 * \param[in] buffer Interleaved buffer
 	 * \param[in] size   Number of T's in the buffer
 	 */
-	void reset(const T* buffer, const size_type size)
+	void wrap(const T* buffer, const size_type size)
 	{
 		buffer_ = buffer;
 		this->set_size(size / 2/* channels */);

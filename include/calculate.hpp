@@ -1056,16 +1056,8 @@ private:
 };
 
 
-/**
- * \brief Advance the iterator by a non-negative amount.
- *
- * \param[in] amount A non-negative amount to advance the iterator
- * \param[in] rhs    The iterator to add to
- *
- * \return Iterator pointing to the position advanced by \c amount
- */
-SampleInputIterator operator + (const sample_count amount, SampleInputIterator rhs)
-	noexcept;
+SampleInputIterator operator + (const sample_count amount,
+		SampleInputIterator rhs) noexcept;
 
 
 /**
