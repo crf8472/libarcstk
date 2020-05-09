@@ -111,9 +111,11 @@ enum class type : unsigned int
 /**
  * \brief Iterable sequence of all predefined checksum types.
  *
- * There is no guaranteed order of the types.
+ * The order of the types is identical to the total order of numeric values the
+ * types have as checksum::type.
  */
-static const type types[] = {
+//static const type types[] = {
+static const std::array<type, 2> types = {
 	type::ARCS1,
 	type::ARCS2
 	// type::THIRD_TYPE,
@@ -1578,7 +1580,7 @@ bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
  */
 class Checksums final
 {
-public: /* types */
+public:
 
 	using iterator = ChecksumSet*;
 
@@ -1591,9 +1593,6 @@ public: /* types */
 
 	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
 		noexcept;
-
-
-public: /* member functions */
 
 	/**
 	 * \brief Constructor.

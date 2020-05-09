@@ -1897,7 +1897,6 @@ void Checksums::append(const ChecksumSet &checksum)
 {
 	impl_->append(checksum);
 }
-//Checksums::append(ChecksumSet &&rhs) noexcept
 
 
 Checksums::const_iterator Checksums::begin() const noexcept
