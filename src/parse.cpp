@@ -2016,7 +2016,6 @@ void DefaultErrorHandler::do_error(const uint32_t byte_pos,
 		<< ", Logical error position: " << logical_pos.str()
 		<< ", Problem: " << logical_err.str()
 		<< ", Cause: " << cause.str();
-	ARCS_LOG_ERROR << message.str();
 
 	throw StreamReadException(byte_pos, block, block_byte_pos, message.str());
 }
