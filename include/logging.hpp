@@ -45,6 +45,9 @@ inline namespace v_1_0_0
 
 /**
  * \brief Range of log levels
+ *
+ * The loglevels are totally ordered in ascending order of verbosity starting
+ * on the value 0 that represents the level where nothing is logged at all.
  */
 enum class LOGLEVEL : int16_t
 {
@@ -59,6 +62,11 @@ enum class LOGLEVEL : int16_t
 	DEBUG3   = 7,
 	DEBUG4   = 8
 };
+
+
+extern const int LOGLEVEL_MIN;
+
+extern const int LOGLEVEL_MAX;
 
 
 /**
