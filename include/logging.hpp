@@ -64,8 +64,15 @@ enum class LOGLEVEL : int16_t
 };
 
 
+/**
+ * \brief Numeric representation of the minimal legal loglevel.
+ */
 extern const int LOGLEVEL_MIN;
 
+
+/**
+ * \brief Numeric representation of the maximum legal loglevel.
+ */
 extern const int LOGLEVEL_MAX;
 
 
