@@ -1911,6 +1911,18 @@ Checksums::const_iterator Checksums::end() const noexcept
 }
 
 
+Checksums::iterator Checksums::begin() noexcept
+{
+	return impl_->begin();
+}
+
+
+Checksums::iterator Checksums::end() noexcept
+{
+	return impl_->end();
+}
+
+
 Checksums::const_iterator Checksums::cbegin() const noexcept
 {
 	return impl_->cbegin();
@@ -2220,9 +2232,14 @@ const CalcContext& Calculation::Impl::context() const noexcept
 
 void Calculation::Impl::set_type(const checksum::type type)
 {
+	ARCS_LOG_DEBUG << "Requested checksum type: " << checksum::type_name(type);
+
 	try
 	{
 		state_ = details::state::make(type);
+
+		ARCS_LOG_DEBUG << "Instantiated state for type: "
+			<< checksum::type_name(state_->type());
 
 	} catch (const std::exception& e)
 	{
@@ -2400,7 +2417,15 @@ Checksums Calculation::Impl::result() const noexcept
 			static_cast<Checksums::size_type>(track_count)) };
 
 	// FIXME Does not make sense, a loop from 0 to track_count should be correct
-	// for both cases
+	// for both cases, like:
+	//
+	// auto shift = context_->is_multi_track() ? 0 : 1;
+	// for (auto i = uint8_t { 0 }; i < track_count; ++i)
+	// {
+	//		auto track = ChecksumSet { context_->length(i) };
+	//		track.merge(state_->result(i - shift + 1));
+	//		checksums->append(track);
+	// }
 
 	if (context_->is_multi_track())
 	{
@@ -2423,6 +2448,27 @@ Checksums Calculation::Impl::result() const noexcept
 		track.merge(state_->result()); // alias for result(0)
 
 		checksums->append(track);
+	}
+
+	// Logging
+	{
+		auto types = checksums->at(0).types();
+
+		if (not types.empty())
+		{
+			auto tstream = std::stringstream { };
+			for (const auto& type : types)
+			{
+				tstream << checksum::type_name(type) << ",";
+			}
+			auto typelist = tstream.str();
+			typelist.pop_back();
+
+			ARCS_LOG_DEBUG << "Checksum types in result: " << typelist;
+		} else
+		{
+			ARCS_LOG_DEBUG << "No checksum types in result";
+		}
 	}
 
 	return Checksums(std::move(checksums));

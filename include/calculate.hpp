@@ -1666,6 +1666,20 @@ public:
 	 *
 	 * \return Pointer to the first element
 	 */
+	iterator begin() noexcept;
+
+	/**
+	 * \brief Returns a pointer after the last element.
+	 *
+	 * \return Pointer after the last element
+	 */
+	iterator end() noexcept;
+
+	/**
+	 * \brief Returns a pointer to the first element.
+	 *
+	 * \return Pointer to the first element
+	 */
 	const_iterator cbegin() const noexcept;
 
 	/**
