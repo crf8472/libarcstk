@@ -653,7 +653,7 @@ std::vector<lba_count> get_offsets(const TOC &toc);
 
 
 /**
- * \brief get_offsets(const TOC&)
+ * \copydoc get_offsets(const TOC&)
  */
 std::vector<lba_count> get_offsets(const std::unique_ptr<TOC> &toc);
 
@@ -669,7 +669,7 @@ std::vector<lba_count> get_parsed_lengths(const TOC &toc);
 
 
 /**
- * \brief get_parsed_lengths(const TOC&)
+ * \copydoc get_parsed_lengths(const TOC&)
  */
 std::vector<lba_count> get_parsed_lengths(const std::unique_ptr<TOC> &toc);
 
@@ -685,7 +685,7 @@ std::vector<std::string> get_filenames(const TOC &toc);
 
 
 /**
- * \brief get_filenames(const TOC&)
+ * \copydoc get_filenames(const TOC&)
  */
 std::vector<std::string> get_filenames(const std::unique_ptr<TOC> &toc);
 
