@@ -498,8 +498,8 @@ protected:
 	 * \param[in] id
 	 * \param[in] response
 	 */
-	void init_match(const Checksums &checksums, const ARId &id,
-		const ARResponse &response);
+	//void init_match(const Checksums &checksums, const ARId &id,
+	//	const ARResponse &response);
 
 	/**
 	 * \brief Access the implementation of the MatcherBase.

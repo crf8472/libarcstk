@@ -550,14 +550,9 @@ public:
 	virtual ~Impl() noexcept;
 
 	/**
-	 * \brief Initializes the match.
-	 *
-	 * \param[in] checksums Checksums to be matched
-	 * \param[in] id        ARId to be matched
-	 * \param[in] response  Response data to match
+	 * \brief Hook for post-construction initialization.
 	 */
-	void init_match(const Checksums &checksums, const ARId &id,
-		const ARResponse &response);
+	void init() noexcept;
 
 	/**
 	 * \brief Implements Matcher::matches() const.
@@ -597,18 +592,6 @@ public:
 	 * \return Status value, 0 indicates success
 	 */
 	int best_block(const Match &m, int &block, bool &matches_v2) const noexcept;
-
-	/**
-	 * \brief Perform the match.
-	 *
-	 * \param[in] actual_sums
-	 * \param[in] id
-	 * \param[in] ref_sums
-	 *
-	 * \return Match result for the input.
-	 */
-	std::unique_ptr<Match> match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const noexcept;
 
 	/**
 	 * \brief Set the match instance and mark best block.
@@ -660,19 +643,6 @@ protected:
 	};
 
 	/**
-	 * \brief Validate input.
-	 *
-	 * \param[in] actual_sums Checksums to match against reference values
-	 * \param[in] id          Id for the \c actual_sums
-	 * \param[in] ref_sums    Reference values to be matched by \c checksums
-	 *
-	 * \throws std::invalid_argument If \c actual_sums and \c ref_sums are
-	 * not matchable
-	 */
-	void validate(const Checksums &actual_sums, const ARId &id,
-			const ARResponse &ref_sums) const;
-
-	/**
 	 * \brief Marks the "best block" as matching block.
 	 *
 	 * Internal service method for constructor.
@@ -691,6 +661,12 @@ protected:
 	std::unique_ptr<MatcherBase::Impl> clone_base() const;
 
 private:
+
+	/**
+	 * \brief Implements init().
+	 */
+	virtual void do_init() noexcept
+	= 0;
 
 	/**
 	 * \brief Creates an (empty) instance of the subclass to clone.
@@ -714,19 +690,6 @@ private:
 	 * \return A clone (deep copy) of the object.
 	 */
 	virtual std::unique_ptr<MatcherBase::Impl> do_clone() const;
-
-	/**
-	 * \brief Performs the actual match.
-	 *
-	 * \param[in] actual_sums The checksums to match
-	 * \param[in] id          The id to match
-	 * \param[in] ref_sums    The reference checksums to be matched
-	 *
-	 * \return Match information
-	 */
-	virtual std::unique_ptr<Match> do_match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const noexcept
-	= 0;
 
 	/**
 	 * \brief State: representation of the comparison result.
@@ -758,17 +721,6 @@ MatcherBase::Impl::Impl()
 
 
 MatcherBase::Impl::~Impl() noexcept = default;
-
-
-void MatcherBase::Impl::init_match(const Checksums &checksums, const ARId &id,
-		const ARResponse &response)
-{
-	this->validate(checksums, id, response);
-
-	match_ = this->do_match(checksums, id, response);
-
-	this->mark_best_block();
-}
 
 
 bool MatcherBase::Impl::matches() const noexcept
@@ -838,14 +790,6 @@ int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
 }
 
 
-std::unique_ptr<Match> MatcherBase::Impl::match(const Checksums &actual_sums,
-			const ARId &id, const ARResponse &ref_sums) const noexcept
-{
-	this->validate(actual_sums, id, ref_sums);
-	return this->do_match(actual_sums, id, ref_sums);
-}
-
-
 void MatcherBase::Impl::set_match(std::unique_ptr<Match> match)
 {
 	match_ = std::move(match);
@@ -856,7 +800,7 @@ void MatcherBase::Impl::set_match(std::unique_ptr<Match> match)
 std::unique_ptr<Match> MatcherBase::Impl::create_match_instance(
 		const int blocks, const std::size_t tracks) const noexcept
 {
-	return std::make_unique<DefaultMatch>(blocks, tracks);
+	return details::create_match(blocks, tracks);
 }
 
 
@@ -866,25 +810,9 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone() const
 }
 
 
-void MatcherBase::Impl::validate(const Checksums &actual_sums,
-		const ARId &/* unused */, const ARResponse &ref_sums) const
+void MatcherBase::Impl::init() noexcept
 {
-	if (actual_sums.size() == 0)
-	{
-		throw std::invalid_argument("Cannot match empty checksums");
-	}
-
-	if (ref_sums.size() == 0)
-	{
-		throw std::invalid_argument("Cannot match against empty ARResponse");
-	}
-
-	if (actual_sums.size() !=
-			static_cast<std::size_t>(ref_sums.tracks_per_block()))
-	{
-		throw std::invalid_argument("Number of tracks in input"
-			" does not match number of tracks in ARResponse");
-	}
+	this->do_init();
 }
 
 
@@ -961,13 +889,6 @@ std::unique_ptr<Matcher> MatcherBase::clone_base() const noexcept
 }
 
 
-void MatcherBase::init_match(const Checksums &checksums, const ARId &id,
-		const ARResponse &response)
-{
-	impl_->init_match(checksums, id, response);
-}
-
-
 MatcherBase::Impl& MatcherBase::access_impl()
 {
 	return *impl_;
@@ -1024,17 +945,205 @@ std::unique_ptr<Matcher> MatcherBase::do_clone() const noexcept
 
 
 /**
+ * \brief Matcher for matching against ARResponses.
+ *
+ * Must be init()'ed after construction!
+ */
+class ResponseMatcherBaseImpl : public MatcherBase::Impl
+{
+public:
+
+	/**
+	 * \brief Construct a Matcher for the specified input
+	 *
+	 * \param[in] actual_sums Checksums to match against reference values
+	 * \param[in] actual_id   Id for the \c actual_sums
+	 * \param[in] ref_sums    Reference values to be matched by \c checksums
+	 */
+	ResponseMatcherBaseImpl(const Checksums &checksums, const ARId &id,
+		const ARResponse &response);
+
+	ResponseMatcherBaseImpl(const ResponseMatcherBaseImpl &) = delete;
+
+	ResponseMatcherBaseImpl& operator = (const ResponseMatcherBaseImpl &)
+		= delete;
+
+protected:
+
+	/**
+	 * \brief Constructor
+	 */
+	ResponseMatcherBaseImpl();
+
+	/**
+	 * \brief Worker for do_init(): initializes the match.
+	 *
+	 * \param[in] actual_sums Checksums to match against reference values
+	 * \param[in] actual_id   Id for the \c actual_sums
+	 * \param[in] ref_sums    Reference values to be matched by \c checksums
+	 */
+	void init_match(const Checksums &checksums, const ARId &id,
+		const ARResponse &response);
+
+	/**
+	 * \brief Worker for init_match(): validate input.
+	 *
+	 * \param[in] actual_sums Checksums to match against reference values
+	 * \param[in] actual_id   Id for the \c actual_sums
+	 * \param[in] ref_sums    Reference values to be matched by \c checksums
+	 *
+	 * \throws std::invalid_argument If \c actual_sums and \c ref_sums are
+	 * not matchable
+	 */
+	void validate(const Checksums &actual_sums, const ARId &actual_id,
+			const ARResponse &ref_sums) const;
+
+	std::unique_ptr<MatcherBase::Impl> clone_base() const;
+
+private:
+
+	/**
+	 * \brief Pointer to actual checksums.
+	 */
+	const Checksums*  actual_sums_;
+
+	/**
+	 * \brief Pointer to actual id.
+	 */
+	const ARId*       actual_id_;
+
+	/**
+	 * \brief Pointer to reference checksums.
+	 */
+	const ARResponse* ref_sums_;
+
+	/**
+	 * \brief Performs the actual match.
+	 *
+	 * \param[in] actual_sums Checksums to match against reference values
+	 * \param[in] actual_id   Id for the \c actual_sums
+	 * \param[in] ref_sums    Reference values to be matched by \c checksums
+	 *
+	 * \return Match information
+	 */
+	virtual std::unique_ptr<Match> perform_match(
+			const Checksums &actual_sums, const ARId &actual_id,
+			const ARResponse &ref_sums) const noexcept
+	= 0;
+
+	void do_init() noexcept override;
+
+	std::unique_ptr<MatcherBase::Impl> do_clone() const override;
+};
+
+
+ResponseMatcherBaseImpl::ResponseMatcherBaseImpl()
+	: MatcherBase::Impl {}
+	, actual_sums_ { nullptr }
+	, actual_id_   { nullptr }
+	, ref_sums_    { nullptr }
+{
+	// empty
+}
+
+
+ResponseMatcherBaseImpl::ResponseMatcherBaseImpl(const Checksums &checksums,
+		const ARId &id, const ARResponse &response)
+	: MatcherBase::Impl {}
+	, actual_sums_ { &checksums }
+	, actual_id_   { &id }
+	, ref_sums_    { &response }
+{
+	// empty
+}
+
+
+void ResponseMatcherBaseImpl::init_match(const Checksums &checksums,
+		const ARId &id, const ARResponse &response)
+{
+	validate(checksums, id, response);
+	set_match(perform_match(checksums, id, response));
+	mark_best_block();
+}
+
+
+void ResponseMatcherBaseImpl::validate(const Checksums &actual_sums,
+		const ARId &/* unused */, const ARResponse &ref_sums) const
+{
+	if (actual_sums.size() == 0)
+	{
+		throw std::invalid_argument("Cannot match empty checksums");
+	}
+
+	if (ref_sums.size() == 0)
+	{
+		throw std::invalid_argument("Cannot match against empty ARResponse");
+	}
+
+	if (actual_sums.size() !=
+			static_cast<std::size_t>(ref_sums.tracks_per_block()))
+	{
+		throw std::invalid_argument("Number of tracks in input"
+			" does not match number of tracks in ARResponse");
+	}
+}
+
+
+void ResponseMatcherBaseImpl::do_init() noexcept
+{
+	init_match(*actual_sums_, *actual_id_, *ref_sums_);
+}
+
+
+std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::clone_base() const
+{
+	auto clone = MatcherBase::Impl::clone_base();
+
+	// Clone my members
+	{
+		auto my_clone = dynamic_cast<ResponseMatcherBaseImpl*>(clone.get());
+		my_clone->actual_sums_ = actual_sums_;
+		my_clone->actual_id_   = actual_id_;
+		my_clone->ref_sums_    = ref_sums_;
+	}
+
+	return clone;
+}
+
+
+std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::do_clone() const
+{
+	return clone_base();
+}
+
+
+/**
  * \brief Implementation of AlbumMatcher.
  */
-class AlbumMatcherImpl final : public MatcherBase::Impl
+class AlbumMatcherImpl final : public ResponseMatcherBaseImpl
 {
+public:
+
+	using ResponseMatcherBaseImpl::ResponseMatcherBaseImpl;
+
+	//AlbumMatcherImpl(const Checksums &actual_sums,
+	//		const ARId &id, const ARResponse &ref_sums);
+
 private:
 
 	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
 
-	std::unique_ptr<Match> do_match(const Checksums &actual_sums,
+	std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
+
+
+//AlbumMatcherImpl::AlbumMatcherImpl(const Checksums &actual_sums,
+//			const ARId &id, const ARResponse &ref_sums)
+//	: ResponseMatcherBaseImpl(actual_sums, id, ref_sums)
+//{
+//	// empty
+//}
 
 
 std::unique_ptr<MatcherBase::Impl> AlbumMatcherImpl::do_create_instance() const
@@ -1043,13 +1152,13 @@ std::unique_ptr<MatcherBase::Impl> AlbumMatcherImpl::do_create_instance() const
 }
 
 
-std::unique_ptr<Match> AlbumMatcherImpl::do_match(
-		const Checksums &actual_sums, const ARId &id,
+std::unique_ptr<Match> AlbumMatcherImpl::perform_match(
+		const Checksums &actual_sums, const ARId &actual_id,
 		const ARResponse &ref_sums) const noexcept
 {
 	// Validation is assumed to be already performed
 
-	auto match { details::create_match(ref_sums.size(), actual_sums.size()) };
+	auto match { create_match_instance(ref_sums.size(), actual_sums.size()) };
 
 	auto block_i  = int  { 0 };
 	auto bitpos   = int  { 0 };
@@ -1062,7 +1171,7 @@ std::unique_ptr<Match> AlbumMatcherImpl::do_match(
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
 
-		if (block->id() == id)
+		if (block->id() == actual_id)
 		{
 			bitpos = match->verify_id(block_i);
 			ARCS_LOG_DEBUG << "Id verified: " << match->id(block_i)
@@ -1118,9 +1227,10 @@ std::unique_ptr<Match> AlbumMatcherImpl::do_match(
 
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
+	: MatcherBase {
+		std::make_unique<AlbumMatcherImpl>(checksums, id, response) }
 {
-	init_match(checksums, id, response);
+	access_impl().init();
 }
 
 
@@ -1172,13 +1282,17 @@ std::unique_ptr<MatcherBase> AlbumMatcher::do_create_instance(
 /**
  * \brief Private implementation of TracksetMatcher.
  */
-class TracksetMatcherImpl final : public MatcherBase::Impl
+class TracksetMatcherImpl final : public ResponseMatcherBaseImpl
 {
+public:
+
+	using ResponseMatcherBaseImpl::ResponseMatcherBaseImpl;
+
 private:
 
 	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
 
-	std::unique_ptr<Match> do_match(const Checksums &actual_sums,
+	std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
 
@@ -1193,13 +1307,13 @@ std::unique_ptr<MatcherBase::Impl> TracksetMatcherImpl::do_create_instance()
 }
 
 
-std::unique_ptr<Match> TracksetMatcherImpl::do_match(
-		const Checksums &actual_sums, const ARId &id,
+std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
+		const Checksums &actual_sums, const ARId &actual_id,
 		const ARResponse &ref_sums) const noexcept
 {
 	// Validation is assumed to be already performed
 
-	auto match { details::create_match(ref_sums.size(), actual_sums.size()) };
+	auto match { create_match_instance(ref_sums.size(), actual_sums.size()) };
 
 	auto block_i = int  { 0 };
 	auto track_j = int  { 0 };
@@ -1213,7 +1327,7 @@ std::unique_ptr<Match> TracksetMatcherImpl::do_match(
 		ARCS_LOG_DEBUG << "Try to match block " << block_i
 			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
 
-		if (id.empty() or block->id() == id)
+		if (actual_id.empty() or block->id() == actual_id)
 		{
 			bitpos = match->verify_id(block_i);
 			ARCS_LOG_DEBUG << "Id verified: " << match->id(block_i)
@@ -1246,9 +1360,7 @@ std::unique_ptr<Match> TracksetMatcherImpl::do_match(
 						<< std::hex
 						<< std::setw(8) << std::setfill('0') << std::uppercase
 						<< track->arcs()
-						<< " to (v"
-						<< (is_v2 ? "2" : "1")
-						<< ") "
+						<< " to (v" << (is_v2 ? "2" : "1") << ") "
 						<< std::hex
 						<< std::setw(8) << std::setfill('0') << std::uppercase
 						<< checksum.value();
@@ -1285,17 +1397,19 @@ std::unique_ptr<Match> TracksetMatcherImpl::do_match(
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
+	: MatcherBase {
+		std::make_unique<TracksetMatcherImpl>(checksums, id, response) }
 {
-	init_match(checksums, id, response);
+	access_impl().init();
 }
 
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums,
 		const ARResponse &response)
-	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
+	: MatcherBase {
+		std::make_unique<TracksetMatcherImpl>(checksums, EmptyARId, response) }
 {
-	init_match(checksums, EmptyARId, response);
+	access_impl().init();
 }
 
 
