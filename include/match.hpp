@@ -17,6 +17,14 @@
 #include <cstddef>         // for size_t
 #include <cstdint>         // for int64_t
 #include <memory>          // for unique_ptr
+#include <vector>          // for vector
+
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp" // for is_container
+#endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"  // for Checksums
+#endif
 
 namespace arcstk
 {
@@ -24,9 +32,10 @@ inline namespace v_1_0_0
 {
 
 // forward declarations
-class ARId;
+//class ARId;
 class ARResponse;
-class Checksums;
+//class Checksum;
+//class Checksums;
 
 /**
  * \defgroup match AccurateRip Checksum Matching
@@ -215,7 +224,6 @@ public:
 	 */
 	std::unique_ptr<Match> clone() const;
 
-
 private:
 
 	/**
@@ -340,7 +348,6 @@ private:
  */
 class Matcher
 {
-
 public:
 
 	/**
@@ -399,7 +406,6 @@ public:
 	 * \return Deep copy of this instance
 	 */
 	std::unique_ptr<Matcher> clone() const noexcept;
-
 
 private:
 
@@ -460,6 +466,112 @@ private:
 
 
 /**
+ * \internal
+ * \brief Abstract base class for Matcher implementations
+ */
+class MatcherBase : public Matcher
+{
+public:
+
+	virtual ~MatcherBase() noexcept = default;
+
+	// forward declaration
+	class Impl;
+
+	/**
+	 * \brief Construct base class with some implementation.
+	 *
+	 * \param[in] impl The implementation to use for this class
+	 */
+	explicit MatcherBase(std::unique_ptr<MatcherBase::Impl> impl) noexcept;
+
+protected:
+
+	/**
+	 * \brief Worker for cloning a MatcherBase instance.
+	 *
+	 * \return Clone of a MatcherBase instance.
+	 */
+	std::unique_ptr<Matcher> clone_base() const noexcept;
+
+	/**
+	 * \brief Initialize the match.
+	 *
+	 * \param[in] checksums
+	 * \param[in] id
+	 * \param[in] response
+	 */
+	void init_match(const Checksums &checksums, const ARId &id,
+		const ARResponse &response);
+
+	/**
+	 * \brief Access the implementation of the MatcherBase.
+	 *
+	 * \return Internal implementation
+	 */
+	Impl& access_impl();
+
+	/**
+	 * \brief Const-access the implementation of the MatcherBase.
+	 *
+	 * \return Internal implementation
+	 */
+	const Impl& impl() const;
+
+
+	MatcherBase(const MatcherBase &rhs);
+
+	MatcherBase(MatcherBase &&rhs) noexcept = default;
+
+	MatcherBase& operator = (const MatcherBase &rhs);
+
+	MatcherBase& operator = (MatcherBase &&rhs) noexcept = default;
+
+private:
+
+	/**
+	 * \brief Create a Match object.
+	 *
+	 * \param[in] int refblocks
+	 * \param[in] int tracks
+	 *
+	 * \return Match object for internal use.
+	 */
+	std::unique_ptr<Match> create_match(const int refblocks,
+			const std::size_t tracks) const;
+
+	/**
+	 * \brief Create an empty instance of a concrete MatcherBase subclass.
+	 *
+	 * The concrete subclass should override this to create an instance of
+	 * itself. This is used in the implementation of clone().
+	 *
+	 * \return A base class pointer to a newly created instance of a subclass.
+	 */
+	virtual std::unique_ptr<MatcherBase> do_create_instance(
+			std::unique_ptr<Impl> impl) const
+	= 0;
+
+	bool do_matches() const noexcept override;
+
+	int do_best_match() const noexcept override;
+
+	int do_best_difference() const noexcept override;
+
+	bool do_matches_v2() const noexcept override;
+
+	const Match* do_match() const noexcept override;
+
+	std::unique_ptr<Matcher> do_clone() const noexcept override;
+
+	/**
+	 * Private implementation
+	 */
+	std::unique_ptr<Impl> impl_;
+};
+
+
+/**
  * \brief Match an album track list against an ARResponse.
  *
  * \details
@@ -468,10 +580,13 @@ private:
  * in each ARBlock of the ARResponse. This is how an entire album can be
  * matched.
  */
-class AlbumMatcher final : public Matcher
+class AlbumMatcher final : public MatcherBase
 {
-
 public:
+
+	using MatcherBase::MatcherBase;
+
+	AlbumMatcher();
 
 	/**
 	 * \brief Constructor.
@@ -507,28 +622,10 @@ public:
 
 	AlbumMatcher& operator = (AlbumMatcher &&rhs) noexcept;
 
-
 private:
 
-	bool do_matches() const noexcept final;
-
-	int do_best_match() const noexcept final;
-
-	int do_best_difference() const noexcept final;
-
-	bool do_matches_v2() const noexcept final;
-
-	const Match* do_match() const noexcept final;
-
-	std::unique_ptr<Matcher> do_clone() const noexcept final;
-
-	// forward declaration
-	class Impl;
-
-	/**
-	 * Private implementation
-	 */
-	std::unique_ptr<AlbumMatcher::Impl> impl_;
+	std::unique_ptr<MatcherBase> do_create_instance(
+			std::unique_ptr<Impl> impl) const noexcept final;
 };
 
 
@@ -546,10 +643,13 @@ private:
  * adds the restriction that the order of tracks in the ARResponse must be
  * matched too.
  */
-class TracksetMatcher final : public Matcher
+class TracksetMatcher final : public MatcherBase
 {
-
 public:
+
+	using MatcherBase::MatcherBase;
+
+	TracksetMatcher();
 
 	/**
 	 * \brief Constructor.
@@ -593,28 +693,161 @@ public:
 
 	TracksetMatcher& operator = (TracksetMatcher &&rhs) noexcept;
 
+private:
+
+	std::unique_ptr<MatcherBase> do_create_instance(
+			std::unique_ptr<Impl> impl) const noexcept final;
+};
+
+
+namespace details
+{
+
+/**
+ * \brief std::true_type iff T::value_type is of type Checksum
+ * otherwise std::false_type.
+ *
+ * \tparam T The type to inspect
+ */
+template <typename T, std::enable_if_t<
+	std::is_same<Checksum, typename T::value_type>::value, int> = 0>
+struct has_checksum_type
+{
+	using value = std::true_type;
+};
+
+/**
+ * \brief Defined iff is_container<T> and T has_checksum_type.
+ *
+ * \tparam T The type to inspect
+ */
+template <typename T>
+struct is_checksum_container : public std::integral_constant<bool,
+	is_container<T>::value &&
+	has_checksum_type<std::remove_reference_t<T>>::value >
+{
+	/* empty */
+};
+
+
+/**
+ * \brief Create a match object to match a number of \c tracks against some
+ * \c tracks.
+ *
+ * \return Match object of the specified dimensions.
+ */
+std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
+	noexcept;
+
+} // namespace details
+
+
+/**
+ * \brief Defined iff T is a container whose value_type is Checksum.
+ */
+template <typename T>
+using IsChecksumContainer =
+	std::enable_if_t<details::is_checksum_container<T>::value>;
+
+
+/**
+ * \brief Perform a match of some \c checksums agains a \c container of
+ * reference values.
+ *
+ * The \c container has to obey the IsChecksumContainer requirements.
+ *
+ * \return Match of \c checkums against the container values for ARCS2 and ARCS1
+ */
+template <typename Container, typename = IsChecksumContainer<Container>>
+std::unique_ptr<Match> perform_match(const Checksums &checksums,
+		const Container&& container)
+{
+	auto match = details::create_match(1, checksums.size());
+
+	int track = 0;
+	for (const auto& checksum : container)
+	{
+		if (checksum == checksums[track].get(checksum::type::ARCS2))
+		{
+			match->verify_track(0, track, true);
+		}
+
+		if (checksum == checksums[track].get(checksum::type::ARCS1))
+		{
+			match->verify_track(0, track, false);
+		}
+
+		++track;
+	}
+
+	return match;
+}
+
+
+/**
+ * \brief List matcher
+ */
+class ListMatcher final : public MatcherBase
+{
+public:
+
+	ListMatcher();
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] checksums The checksums to match
+	 * \param[in] list      The reference checksums to be matched
+	 */
+	template <typename Container, typename = IsChecksumContainer<Container>>
+	ListMatcher(const Checksums &checksums, const Container&& list)
+		: MatcherBase { nullptr }
+	{
+		if (checksums.size() == 0 or list.size() == 0)
+		{
+			return; // TODO throw?
+		}
+
+		if (checksums.size() != list.size())
+		{
+			return; // TODO throw?
+		}
+
+		auto match = perform_match(checksums, list);
+		update(std::move(match));
+	}
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	ListMatcher(const ListMatcher &rhs);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ListMatcher(ListMatcher &&rhs) noexcept;
+
+	/**
+	 * \brief Default destructor.
+	 */
+	~ListMatcher() noexcept final;
+
+
+	ListMatcher& operator = (const ListMatcher &rhs);
+
+	ListMatcher& operator = (ListMatcher &&rhs) noexcept;
+
 
 private:
 
-	bool do_matches() const noexcept final;
+	void update(std::unique_ptr<Match> match);
 
-	int do_best_match() const noexcept final;
-
-	int do_best_difference() const noexcept final;
-
-	bool do_matches_v2() const noexcept final;
-
-	const Match* do_match() const noexcept final;
-
-	std::unique_ptr<Matcher> do_clone() const noexcept final;
-
-	// forward declaration
-	class Impl;
-
-	/**
-	 * \brief Private implementation
-	 */
-	std::unique_ptr<TracksetMatcher::Impl> impl_;
+	std::unique_ptr<MatcherBase> do_create_instance(
+			std::unique_ptr<Impl> impl) const noexcept final;
 };
 
 /** @} */

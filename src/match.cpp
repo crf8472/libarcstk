@@ -135,13 +135,9 @@ std::unique_ptr<Match> Match::clone() const
  */
 class DefaultMatchBase : public Match
 {
-
-public: /* types */
+public:
 
 	using size_type = std::size_t;
-
-
-public: /* functions */
 
 	/**
 	 * \brief Default constructor.
@@ -155,7 +151,6 @@ public: /* functions */
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~DefaultMatchBase() noexcept override;
-
 
 protected:
 
@@ -241,7 +236,6 @@ protected:
 	 * \throws Iff \c t is out of range
 	 */
 	void validate_track(int t) const;
-
 
 private:
 
@@ -452,7 +446,6 @@ void DefaultMatchBase::validate_track(int t) const
  */
 class DefaultMatch final : virtual public DefaultMatchBase
 {
-
 public:
 
 	/**
@@ -462,7 +455,6 @@ public:
 	 * \param[in] tracks Number of tracks per block
 	 */
 	DefaultMatch(int blocks, int tracks);
-
 
 private:
 
@@ -525,32 +517,37 @@ std::unique_ptr<Matcher> Matcher::clone() const noexcept
 }
 
 
-/**
- * \brief Abstract base class for matcher implementations.
- */
-class MatcherImplBase
+namespace details
 {
 
+std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
+	noexcept
+{
+	return std::make_unique<DefaultMatch>(blocks, tracks);
+}
+
+} // namespace details
+
+
+/**
+ * \brief Abstract base class for matcher implementations.
+ *
+ * All Matchers share basically the same implementation but differ in how
+ * Matcher::do_match() is implemented.
+ */
+class MatcherBase::Impl
+{
 public:
 
 	/**
 	 * \brief Default constructor.
 	 */
-	MatcherImplBase();
+	Impl();
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
+	 * \brief Virtual default destructor.
 	 */
-	MatcherImplBase(const MatcherImplBase &rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	MatcherImplBase(MatcherImplBase &&rhs) noexcept;
+	virtual ~Impl() noexcept;
 
 	/**
 	 * \brief Initializes the match.
@@ -583,37 +580,11 @@ public:
 	bool matches_v2() const noexcept;
 
 	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	MatcherImplBase& operator = (const MatcherImplBase &rhs);
-
-	/**
-	 * \brief Move assignment.
-	 *
-	 * \param[in] rhs The right hand side of the assignment
-	 *
-	 * \return The right hand side of the assigment
-	 */
-	MatcherImplBase& operator = (MatcherImplBase &&rhs) noexcept;
-
-	/**
 	 * \brief Returns the actual match result.
 	 *
 	 * \return Actual match result.
 	 */
-	const DefaultMatch * match() const noexcept;
-
-
-protected:
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~MatcherImplBase() noexcept;
+	const Match * match() const noexcept;
 
 	/**
 	 * \brief Derive best matching block from match result.
@@ -625,15 +596,60 @@ protected:
 	 *
 	 * \return Status value, 0 indicates success
 	 */
-	int best_block(const DefaultMatch &m, int &block, bool &matches_v2)
-		noexcept;
+	int best_block(const Match &m, int &block, bool &matches_v2) const noexcept;
 
 	/**
-	 * \brief Internal service method for constructor.
+	 * \brief Perform the match.
 	 *
-	 * \return 0-based index of the best block
+	 * \param[in] actual_sums
+	 * \param[in] id
+	 * \param[in] ref_sums
+	 *
+	 * \return Match result for the input.
 	 */
-	int mark_best_block() noexcept;
+	std::unique_ptr<Match> match(const Checksums &actual_sums,
+			const ARId &id, const ARResponse &ref_sums) const noexcept;
+
+	/**
+	 * \brief Set the match instance and mark best block.
+	 *
+	 * \param[in] match Match instance to set
+	 */
+	void set_match(std::unique_ptr<Match> match);
+
+	/**
+	 * \brief Create a match object for internal use.
+	 *
+	 * \param[in] blocks
+	 * \param[in] tracks_per_block
+	 *
+	 * \return Empty Match object.
+	 */
+	std::unique_ptr<Match> create_match_instance(const int blocks,
+			const std::size_t tracks_per_block) const noexcept;
+
+	/**
+	 * \brief Clone this instance.
+	 *
+	 * \return A clone (deep copy) of the instance.
+	 */
+	std::unique_ptr<MatcherBase::Impl> clone() const;
+
+protected:
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	Impl(const Impl &rhs);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	Impl(Impl &&rhs) noexcept;
 
 	/**
 	 * \brief The checksum types to verify.
@@ -643,8 +659,61 @@ protected:
 		checksum::type::ARCS2
 	};
 
+	/**
+	 * \brief Validate input.
+	 *
+	 * \param[in] actual_sums Checksums to match against reference values
+	 * \param[in] id          Id for the \c actual_sums
+	 * \param[in] ref_sums    Reference values to be matched by \c checksums
+	 *
+	 * \throws std::invalid_argument If \c actual_sums and \c ref_sums are
+	 * not matchable
+	 */
+	void validate(const Checksums &actual_sums, const ARId &id,
+			const ARResponse &ref_sums) const;
+
+	/**
+	 * \brief Marks the "best block" as matching block.
+	 *
+	 * Internal service method for constructor.
+	 *
+	 * \return 0-based index of the best block
+	 */
+	int mark_best_block() noexcept;
+
+	/**
+	 * \brief Worker for overriden clone() functions: clone the base class.
+	 *
+	 * Subclasses can use clone_base() to receive a base class pointer to an
+	 * instance of the concrete subclass type, downcast it and clone the
+	 * specific properties.
+	 */
+	std::unique_ptr<MatcherBase::Impl> clone_base() const;
 
 private:
+
+	/**
+	 * \brief Creates an (empty) instance of the subclass to clone.
+	 *
+	 * Used in clone_base() to create an instance of the concrete subclass.
+	 * Since do_clone() is supposed to downcast the result of clone_base(), the
+	 * downcast is always safe if the subclass implements do_create_instance().
+	 *
+	 * \return Instance of the subclass to clone.
+	 */
+	virtual std::unique_ptr<MatcherBase::Impl> do_create_instance() const
+	= 0;
+
+	/**
+	 * \brief Implements clone() for subclasses.
+	 *
+	 * Call clone_base(), downcast to the concrete subclass type (which is safe
+	 * since clone_base() uses do_create_instance() to create the instance),
+	 * clone all subclass specific settings and return the instance.
+	 *
+	 * \return A clone (deep copy) of the object.
+	 */
+	virtual std::unique_ptr<MatcherBase::Impl> do_clone() const;
 
 	/**
 	 * \brief Performs the actual match.
@@ -655,14 +724,14 @@ private:
 	 *
 	 * \return Match information
 	 */
-	virtual std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
+	virtual std::unique_ptr<Match> do_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept
 	= 0;
 
 	/**
 	 * \brief State: representation of the comparison result.
 	 */
-	std::unique_ptr<DefaultMatch> match_;
+	std::unique_ptr<Match> match_;
 
 	/**
 	 * \brief State: index as pointer to best block.
@@ -676,10 +745,10 @@ private:
 };
 
 
-constexpr std::array<checksum::type, 2> MatcherImplBase::types;
+constexpr std::array<checksum::type, 2> MatcherBase::Impl::types;
 
 
-MatcherImplBase::MatcherImplBase()
+MatcherBase::Impl::Impl()
 	: match_ { nullptr }
 	, best_block_ { 0 }
 	, matches_v2_ { false }
@@ -688,39 +757,13 @@ MatcherImplBase::MatcherImplBase()
 }
 
 
-MatcherImplBase::MatcherImplBase(const MatcherImplBase &rhs)
-	: match_ { std::make_unique<DefaultMatch>(*rhs.match_) }  // deep copy
-	, best_block_ { rhs.best_block_ }
-	, matches_v2_ { rhs.matches_v2_ }
-{
-	// empty
-}
+MatcherBase::Impl::~Impl() noexcept = default;
 
 
-MatcherImplBase::MatcherImplBase(MatcherImplBase &&rhs) noexcept
-	: match_ { std::move(rhs.match_) }
-	, best_block_ { rhs.best_block_ }
-	, matches_v2_ { rhs.matches_v2_ }
-{
-	// empty
-}
-
-
-MatcherImplBase::~MatcherImplBase() noexcept = default;
-
-
-void MatcherImplBase::init_match(const Checksums &checksums, const ARId &id,
+void MatcherBase::Impl::init_match(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 {
-	if (checksums.size() == 0)
-	{
-		return;
-	}
-
-	if (response.size() == 0)
-	{
-		return;
-	}
+	this->validate(checksums, id, response);
 
 	match_ = this->do_match(checksums, id, response);
 
@@ -728,32 +771,38 @@ void MatcherImplBase::init_match(const Checksums &checksums, const ARId &id,
 }
 
 
-bool MatcherImplBase::matches() const noexcept
+bool MatcherBase::Impl::matches() const noexcept
 {
 	return this->best_difference() == 0;
 }
 
 
-int MatcherImplBase::best_match() const noexcept
+int MatcherBase::Impl::best_match() const noexcept
 {
 	return best_block_;
 }
 
 
-int MatcherImplBase::best_difference() const noexcept
+int MatcherBase::Impl::best_difference() const noexcept
 {
 	return match_->difference(best_block_, matches_v2_);
 }
 
 
-bool MatcherImplBase::matches_v2() const noexcept
+bool MatcherBase::Impl::matches_v2() const noexcept
 {
 	return matches_v2_;
 }
 
 
-int MatcherImplBase::best_block(const DefaultMatch &m,
-		int &block, bool &matches_v2) noexcept
+const Match * MatcherBase::Impl::match() const noexcept
+{
+	return match_.get();
+}
+
+
+int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
+	const noexcept
 {
 	if (m.size() == 0)
 	{
@@ -780,8 +829,8 @@ int MatcherImplBase::best_block(const DefaultMatch &m,
 			matches_v2 = curr_diff_v2 <= curr_diff_v1;
 			best_diff  = matches_v2 ? curr_diff_v2 : curr_diff_v1;
 
-			ARCS_LOG_DEBUG << "Set block " << b << " ("
-				<< (matches_v2+1) << ") as best";
+			ARCS_LOG_DEBUG << "Set block " << b << " (v"
+				<< (matches_v2 + 1) << ") as best";
 		}
 	}
 
@@ -789,30 +838,57 @@ int MatcherImplBase::best_block(const DefaultMatch &m,
 }
 
 
-MatcherImplBase& MatcherImplBase::operator = (
-		const MatcherImplBase &rhs)
+std::unique_ptr<Match> MatcherBase::Impl::match(const Checksums &actual_sums,
+			const ARId &id, const ARResponse &ref_sums) const noexcept
 {
-	if (this == &rhs)
+	this->validate(actual_sums, id, ref_sums);
+	return this->do_match(actual_sums, id, ref_sums);
+}
+
+
+void MatcherBase::Impl::set_match(std::unique_ptr<Match> match)
+{
+	match_ = std::move(match);
+	this->mark_best_block();
+}
+
+
+std::unique_ptr<Match> MatcherBase::Impl::create_match_instance(
+		const int blocks, const std::size_t tracks) const noexcept
+{
+	return std::make_unique<DefaultMatch>(blocks, tracks);
+}
+
+
+std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone() const
+{
+	return this->do_clone();
+}
+
+
+void MatcherBase::Impl::validate(const Checksums &actual_sums,
+		const ARId &/* unused */, const ARResponse &ref_sums) const
+{
+	if (actual_sums.size() == 0)
 	{
-		return *this;
+		throw std::invalid_argument("Cannot match empty checksums");
 	}
 
-	match_ = std::make_unique<DefaultMatch>(*rhs.match_);
-	return *this;
+	if (ref_sums.size() == 0)
+	{
+		throw std::invalid_argument("Cannot match against empty ARResponse");
+	}
+
+	if (actual_sums.size() !=
+			static_cast<std::size_t>(ref_sums.tracks_per_block()))
+	{
+		throw std::invalid_argument("Number of tracks in input"
+			" does not match number of tracks in ARResponse");
+	}
 }
 
 
-MatcherImplBase& MatcherImplBase::operator = (
-		MatcherImplBase &&rhs) noexcept = default;
-
-
-const DefaultMatch * MatcherImplBase::match() const noexcept
-{
-	return match_.get();
-}
-
-
-int MatcherImplBase::mark_best_block() noexcept
+int MatcherBase::Impl::mark_best_block() noexcept
 {
 	auto block   = int  { 0 };
 	auto version = bool { false };
@@ -833,41 +909,147 @@ int MatcherImplBase::mark_best_block() noexcept
 }
 
 
+std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone_base() const
+{
+	auto instance = this->do_create_instance();
+
+	instance->match_ = match_->clone();
+	instance->matches_v2_ = matches_v2_;
+	instance->best_block_ = best_block_;
+
+	return instance;
+}
+
+
+std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::do_clone() const
+{
+	return this->clone_base();
+	// Seems a sensible default. Only subclasses that add member variables
+	// need to override this, call clone_base() and than clone their respective
+	// members.
+}
+
+
+// MatcherBase
+
+
+MatcherBase::MatcherBase(std::unique_ptr<MatcherBase::Impl> impl) noexcept
+	: impl_ { std::move(impl) }
+{
+	// empty
+}
+
+
+MatcherBase::MatcherBase(const MatcherBase &rhs)
+	: MatcherBase { rhs.impl_->clone() }
+{
+	// empty
+}
+
+
+std::unique_ptr<Match> MatcherBase::create_match(const int refblocks,
+			const std::size_t tracks) const
+{
+	return impl_->create_match_instance(refblocks, tracks);
+}
+
+
+std::unique_ptr<Matcher> MatcherBase::clone_base() const noexcept
+{
+	auto impl = impl_->clone();
+	return this->do_create_instance(std::move(impl));
+}
+
+
+void MatcherBase::init_match(const Checksums &checksums, const ARId &id,
+		const ARResponse &response)
+{
+	impl_->init_match(checksums, id, response);
+}
+
+
+MatcherBase::Impl& MatcherBase::access_impl()
+{
+	return *impl_;
+}
+
+
+const MatcherBase::Impl& MatcherBase::impl() const
+{
+	return *impl_;
+}
+
+
+MatcherBase& MatcherBase::operator = (const MatcherBase &rhs)
+{
+	impl_ = rhs.impl_->clone();
+	return *this;
+}
+
+
+bool MatcherBase::do_matches() const noexcept
+{
+	return impl_->matches();
+}
+
+
+int MatcherBase::do_best_match() const noexcept
+{
+	return impl_->best_match();
+}
+
+
+int MatcherBase::do_best_difference() const noexcept
+{
+	return impl_->best_difference();
+}
+
+
+bool MatcherBase::do_matches_v2() const noexcept
+{
+	return impl_->matches_v2();
+}
+
+
+const Match* MatcherBase::do_match() const noexcept
+{
+	return impl_->match();
+}
+
+
+std::unique_ptr<Matcher> MatcherBase::do_clone() const noexcept
+{
+	return this->clone_base();
+}
+
+
 /**
  * \brief Implementation of AlbumMatcher.
  */
-class AlbumMatcher::Impl final : public MatcherImplBase
+class AlbumMatcherImpl final : public MatcherBase::Impl
 {
+private:
 
-protected:
+	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
 
-	std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
+	std::unique_ptr<Match> do_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
 
 
-std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
+std::unique_ptr<MatcherBase::Impl> AlbumMatcherImpl::do_create_instance() const
+{
+	return std::make_unique<AlbumMatcherImpl>();
+}
+
+
+std::unique_ptr<Match> AlbumMatcherImpl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const noexcept
 {
-	auto ref_tracks { ref_sums.tracks_per_block() < 0
-		? 0
-		: ref_sums.tracks_per_block() }; // TODO Better way to compare
+	// Validation is assumed to be already performed
 
-	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
-	{
-		ARCS_LOG_ERROR << "No match possible."
-			<< " Number of tracks in actual_sums (" << actual_sums.size()
-			<< ") is different from number of tracks in ref_sums ("
-			<< ref_tracks << ")";
-
-		// TODO exception
-
-		return nullptr;
-	}
-
-	auto match { std::make_unique<DefaultMatch>(
-			ref_sums.size(), actual_sums.size()) };
+	auto match { details::create_match(ref_sums.size(), actual_sums.size()) };
 
 	auto block_i  = int  { 0 };
 	auto bitpos   = int  { 0 };
@@ -896,7 +1078,7 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 		for (auto track { block->begin() }; track != block->end(); ++track)
 		{
-			for (const auto& type : MatcherImplBase::types)
+			for (const auto& type : MatcherBase::Impl::types)
 			{
 				checksum = actual_sums[track_j].get(type);
 
@@ -936,114 +1118,88 @@ std::unique_ptr<DefaultMatch> AlbumMatcher::Impl::do_match(
 
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: impl_ { std::make_unique<AlbumMatcher::Impl>() }
+	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
 {
-	impl_->init_match(checksums, id, response);
+	init_match(checksums, id, response);
 }
 
 
 AlbumMatcher::AlbumMatcher(const AlbumMatcher &rhs)
-	: impl_ { std::make_unique<AlbumMatcher::Impl>(*rhs.impl_) }
+	: MatcherBase { rhs }
 {
 	// empty
 }
 
 
-AlbumMatcher::AlbumMatcher(AlbumMatcher &&rhs) noexcept = default;
+AlbumMatcher::AlbumMatcher(AlbumMatcher &&rhs) noexcept
+	: MatcherBase { std::move(rhs) }
+{
+	// empty
+}
 
 
 AlbumMatcher::~AlbumMatcher() noexcept = default;
 
 
-bool AlbumMatcher::do_matches() const noexcept
-{
-	return impl_->matches();
-}
-
-
-int AlbumMatcher::do_best_match() const noexcept
-{
-	return impl_->best_match();
-}
-
-
-int AlbumMatcher::do_best_difference() const noexcept
-{
-	return impl_->best_difference();
-}
-
-
-bool AlbumMatcher::do_matches_v2() const noexcept
-{
-	return impl_->matches_v2();
-}
-
-
 AlbumMatcher& AlbumMatcher::operator = (const AlbumMatcher &rhs)
 {
-	if (this != &rhs)
-	{
-		impl_ = std::make_unique<AlbumMatcher::Impl>(*rhs.impl_);
-	}
-
+	MatcherBase::operator=(rhs);
 	return *this;
 }
 
 
 AlbumMatcher& AlbumMatcher::operator = (AlbumMatcher &&rhs) noexcept
-	= default;
-
-
-const Match* AlbumMatcher::do_match() const noexcept
 {
-	return impl_->match();
+	MatcherBase::operator=(std::move(rhs));
+	return *this;
 }
 
 
-std::unique_ptr<Matcher> AlbumMatcher::do_clone() const noexcept
+AlbumMatcher::AlbumMatcher()
+	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
 {
-	return std::make_unique<AlbumMatcher>(*this);
+	// empty
+}
+
+
+std::unique_ptr<MatcherBase> AlbumMatcher::do_create_instance(
+			std::unique_ptr<Impl> impl) const noexcept
+{
+	return std::make_unique<AlbumMatcher>(std::move(impl));
 }
 
 
 /**
  * \brief Private implementation of TracksetMatcher.
  */
-class TracksetMatcher::Impl final : public MatcherImplBase
+class TracksetMatcherImpl final : public MatcherBase::Impl
 {
+private:
 
-protected:
+	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
 
-	std::unique_ptr<DefaultMatch> do_match(const Checksums &actual_sums,
+	std::unique_ptr<Match> do_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
 
 
-// TracksetMatcher::Impl
+// TracksetMatcherImpl
 
 
-std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
+std::unique_ptr<MatcherBase::Impl> TracksetMatcherImpl::do_create_instance()
+	const
+{
+	return std::make_unique<TracksetMatcherImpl>();
+}
+
+
+std::unique_ptr<Match> TracksetMatcherImpl::do_match(
 		const Checksums &actual_sums, const ARId &id,
 		const ARResponse &ref_sums) const noexcept
 {
-	auto ref_tracks { ref_sums.tracks_per_block() < 0
-		? 0
-		: ref_sums.tracks_per_block() }; // TODO Better way to compare
+	// Validation is assumed to be already performed
 
-	if (actual_sums.size() != static_cast<Checksums::size_type>(ref_tracks))
-	{
-		ARCS_LOG_ERROR << "No match possible."
-			<< " Number of tracks in actual_sums (" << actual_sums.size()
-			<< ") is different from number of tracks in ref_sums ("
-			<< ref_tracks << ")";
-
-		// TODO exception
-
-		return nullptr;
-	}
-
-	auto match { std::make_unique<DefaultMatch>(
-			ref_sums.size(), actual_sums.size()) };
+	auto match { details::create_match(ref_sums.size(), actual_sums.size()) };
 
 	auto block_i = int  { 0 };
 	auto track_j = int  { 0 };
@@ -1080,7 +1236,7 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 			for (const auto& entry : actual_sums)
 			{
-				for (const auto& type : MatcherImplBase::types)
+				for (const auto& type : MatcherBase::Impl::types)
 				{
 					checksum = entry.get(type);
 
@@ -1129,83 +1285,118 @@ std::unique_ptr<DefaultMatch> TracksetMatcher::Impl::do_match(
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
-	: impl_ { std::make_unique<TracksetMatcher::Impl>() }
+	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
 {
-	impl_->init_match(checksums, id, response);
+	init_match(checksums, id, response);
 }
 
 
 TracksetMatcher::TracksetMatcher(const Checksums &checksums,
 		const ARResponse &response)
-	: impl_ { std::make_unique<TracksetMatcher::Impl>() }
+	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
 {
-	impl_->init_match(checksums, *make_empty_arid(), response);
+	init_match(checksums, EmptyARId, response);
 }
 
 
 TracksetMatcher::TracksetMatcher(const TracksetMatcher &rhs)
-	: impl_ { std::make_unique<TracksetMatcher::Impl>(*rhs.impl_) }
+	: MatcherBase { rhs }
 {
 	// empty
 }
 
 
-TracksetMatcher::TracksetMatcher(TracksetMatcher &&rhs) noexcept = default;
+TracksetMatcher::TracksetMatcher(TracksetMatcher &&rhs) noexcept
+	: MatcherBase { std::move(rhs) }
+{
+	// empty
+}
 
 
 TracksetMatcher::~TracksetMatcher() noexcept = default;
 
 
-bool TracksetMatcher::do_matches() const noexcept
-{
-	return impl_->matches();
-}
-
-
-int TracksetMatcher::do_best_match() const noexcept
-{
-	return impl_->best_match();
-}
-
-
-int TracksetMatcher::do_best_difference() const noexcept
-{
-	return impl_->best_difference();
-}
-
-
-bool TracksetMatcher::do_matches_v2() const noexcept
-{
-	return impl_->matches_v2();
-}
-
-
 TracksetMatcher& TracksetMatcher::operator = (const TracksetMatcher &rhs)
 {
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	impl_ = std::make_unique<TracksetMatcher::Impl>(*rhs.impl_);
+	MatcherBase::operator=(rhs);
 	return *this;
 }
 
 
 TracksetMatcher& TracksetMatcher::operator = (TracksetMatcher &&rhs) noexcept
-	= default;
-
-
-const Match * TracksetMatcher::do_match() const noexcept
 {
-	return impl_->match();
+	MatcherBase::operator=(std::move(rhs));
+	return *this;
 }
 
 
-std::unique_ptr<Matcher> TracksetMatcher::do_clone() const noexcept
+TracksetMatcher::TracksetMatcher()
+	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
 {
-	return std::make_unique<TracksetMatcher>(*this);
+	// empty
 }
+
+
+std::unique_ptr<MatcherBase> TracksetMatcher::do_create_instance(
+			std::unique_ptr<Impl> impl) const noexcept
+{
+	return std::make_unique<TracksetMatcher>(std::move(impl));
+}
+
+
+// ListMatcher
+
+
+ListMatcher::ListMatcher()
+	: MatcherBase { nullptr }
+{
+	// empty
+}
+
+
+ListMatcher::ListMatcher(const ListMatcher &rhs)
+	: MatcherBase { rhs }
+{
+	// empty
+}
+
+
+ListMatcher::ListMatcher(ListMatcher &&rhs) noexcept
+	: MatcherBase { std::move(rhs) }
+{
+	// empty
+}
+
+
+ListMatcher::~ListMatcher() noexcept = default;
+
+
+ListMatcher& ListMatcher::operator = (const ListMatcher &rhs)
+{
+	MatcherBase::operator= (rhs);
+	return *this;
+}
+
+
+ListMatcher& ListMatcher::operator = (ListMatcher &&rhs) noexcept
+{
+	MatcherBase::operator= (rhs);
+	return *this;
+}
+
+
+void ListMatcher::update(std::unique_ptr<Match> match)
+{
+	access_impl().set_match(std::move(match));
+}
+
+
+std::unique_ptr<MatcherBase> ListMatcher::do_create_instance(
+			std::unique_ptr<Impl> /* unused */) const noexcept
+{
+	return std::make_unique<ListMatcher>();
+}
+
 
 /** @} */
 
