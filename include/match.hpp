@@ -32,10 +32,7 @@ inline namespace v_1_0_0
 {
 
 // forward declarations
-//class ARId;
 class ARResponse;
-//class Checksum;
-//class Checksums;
 
 /**
  * \defgroup match AccurateRip Checksum Matching
