@@ -205,6 +205,12 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 	AlbumMatcher am_diff(result1, id, response);
 
 
+	SECTION ( "AlbumMatcher Copy construct" )
+	{
+		AlbumMatcher am_diff_copy(am_diff);
+	}
+
+
 	SECTION ( "AlbumMatcher finds best match" )
 	{
 		CHECK ( am_diff.matches() );
@@ -349,6 +355,12 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 
 	TracksetMatcher tsm_diff(result1, response);
+
+
+	SECTION ( "TracksetMatcher Copy construct" )
+	{
+		TracksetMatcher tsm_diff_copy(tsm_diff);
+	}
 
 
 	SECTION ( "TracksetMatcher finds best match on verifying album input" )

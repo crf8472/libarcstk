@@ -88,7 +88,6 @@ class ARResponse;
  */
 class Match
 {
-
 public:
 
 	/**
@@ -221,6 +220,15 @@ public:
 	 */
 	std::unique_ptr<Match> clone() const;
 
+	/**
+	 * \brief Return TRUE iff the specified Match equals this instance.
+	 *
+	 * \param[in] rhs The right hand side of the operation
+	 *
+	 * \return TRUE iff \c rhs equals this instance
+	 */
+	bool equals(const Match &rhs) const noexcept;
+
 private:
 
 	/**
@@ -331,6 +339,12 @@ private:
 	 */
 	virtual std::unique_ptr<Match> do_clone() const
 	= 0;
+
+	/**
+	 * \brief Implements \link Match::equals() equals() \endlink.
+	 */
+	virtual bool do_equals(const Match &rhs) const noexcept
+	= 0;
 };
 
 
@@ -404,6 +418,15 @@ public:
 	 */
 	std::unique_ptr<Matcher> clone() const noexcept;
 
+	/**
+	 * \brief Return TRUE iff the specified Matcher equals this instance.
+	 *
+	 * \param[in] rhs The right hand side of the operation
+	 *
+	 * \return TRUE iff \c rhs equals this instance
+	 */
+	bool equals(const Matcher &rhs) const noexcept;
+
 private:
 
 	/**
@@ -458,6 +481,12 @@ private:
 	 * \return Deep copy of this instance.
 	 */
 	virtual std::unique_ptr<Matcher> do_clone() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements \link Matcher::equals() equals() \endlink.
+	 */
+	virtual bool do_equals(const Matcher &rhs) const noexcept
 	= 0;
 };
 
@@ -552,6 +581,8 @@ private:
 
 	std::unique_ptr<Matcher> do_clone() const noexcept override;
 
+	bool do_equals(const Matcher &rhs) const noexcept override;
+
 	/**
 	 * Private implementation
 	 */
@@ -574,10 +605,7 @@ public:
 
 	using MatcherBase::MatcherBase;
 
-	/**
-	 * \brief Constructor.
-	 */
-	//AlbumMatcher();
+	AlbumMatcher() = delete; // Won't compile anyway due to MatcherBase::Impl
 
 	/**
 	 * \brief Constructor.
@@ -589,25 +617,12 @@ public:
 	AlbumMatcher(const Checksums &checksums, const ARId &id,
 			const ARResponse &response);
 
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
+
 	AlbumMatcher(const AlbumMatcher &rhs);
 
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
-	 */
 	AlbumMatcher(AlbumMatcher &&rhs) noexcept;
 
-	/**
-	 * \brief Default destructor.
-	 */
-	~AlbumMatcher() noexcept final;
-
+	~AlbumMatcher() noexcept;
 
 	AlbumMatcher& operator = (const AlbumMatcher &rhs);
 
@@ -640,6 +655,8 @@ public:
 
 	using MatcherBase::MatcherBase;
 
+	TracksetMatcher() = delete; // Won't compile anyway due to MatcherBase::Impl
+
 	/**
 	 * \brief Constructor.
 	 *
@@ -658,25 +675,12 @@ public:
 	 */
 	TracksetMatcher(const Checksums &checksums, const ARResponse &response);
 
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
+
 	TracksetMatcher(const TracksetMatcher &rhs);
 
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
-	 */
 	TracksetMatcher(TracksetMatcher &&rhs) noexcept;
 
-	/**
-	 * \brief Default destructor.
-	 */
 	~TracksetMatcher() noexcept final;
-
 
 	TracksetMatcher& operator = (const TracksetMatcher &rhs);
 

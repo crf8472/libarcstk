@@ -130,6 +130,12 @@ std::unique_ptr<Match> Match::clone() const
 }
 
 
+bool Match::equals(const Match &rhs) const noexcept
+{
+	return this->do_equals(rhs);
+}
+
+
 /**
  * \brief Base for @link DefaultMatch DefaultMatches @endlink.
  */
@@ -255,6 +261,8 @@ private:
 
 	size_t do_size() const override;
 
+	bool do_equals(const Match &rhs) const noexcept override;
+
 	/**
 	 * \brief Number of @link ARBlock ARBlocks @endlink represented.
 	 */
@@ -366,6 +374,22 @@ int DefaultMatchBase::do_tracks_per_block() const
 size_t DefaultMatchBase::do_size() const
 {
 	return size_;
+}
+
+
+bool DefaultMatchBase::do_equals(const Match &rhs) const noexcept
+{
+	auto rhs_dm = dynamic_cast<const DefaultMatchBase*>(&rhs);
+
+	if (!rhs_dm)
+	{
+		return false;
+	}
+
+	return blocks_ == rhs_dm->blocks_
+		and tracks_per_block_ == rhs_dm->tracks_per_block_
+		and size_ == rhs_dm->size_
+		and flag_ == rhs_dm->flag_;
 }
 
 
@@ -517,6 +541,12 @@ std::unique_ptr<Matcher> Matcher::clone() const noexcept
 }
 
 
+bool Matcher::equals(const Matcher &rhs) const noexcept
+{
+	return this->do_equals(rhs);
+}
+
+
 namespace details
 {
 
@@ -618,6 +648,11 @@ public:
 	 */
 	std::unique_ptr<MatcherBase::Impl> clone() const;
 
+	/**
+	 * \brief Returns TRUE if the right hand side equals the instance.
+	 */
+	bool equals(const MatcherBase::Impl &rhs) const noexcept;
+
 protected:
 
 	/**
@@ -652,13 +687,18 @@ protected:
 	int mark_best_block() noexcept;
 
 	/**
-	 * \brief Worker for overriden clone() functions: clone the base class.
+	 * \brief Worker for clone(): clones the base class parts.
 	 *
 	 * Subclasses can use clone_base() to receive a base class pointer to an
 	 * instance of the concrete subclass type, downcast it and clone the
-	 * specific properties.
+	 * properties specific for the subclass. The downcast will be safe as
+	 * clone_base() uses do_create_instance() to instantiate the clone instance.
+	 *
+	 * \return Concrete subclass instance with cloned base class parts.
 	 */
 	std::unique_ptr<MatcherBase::Impl> clone_base() const;
+
+	bool equals_base(const MatcherBase::Impl &rhs) const noexcept;
 
 private:
 
@@ -685,11 +725,13 @@ private:
 	 *
 	 * Call clone_base(), downcast to the concrete subclass type (which is safe
 	 * since clone_base() uses do_create_instance() to create the instance),
-	 * clone all subclass specific settings and return the instance.
+	 * clone all settings specific for the subclass and return the instance.
 	 *
-	 * \return A clone (deep copy) of the object.
+	 * \return A clone (deep copy) of the object
 	 */
 	virtual std::unique_ptr<MatcherBase::Impl> do_clone() const;
+
+	virtual bool do_equals(const MatcherBase::Impl &rhs) const noexcept;
 
 	/**
 	 * \brief State: representation of the comparison result.
@@ -810,6 +852,12 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone() const
 }
 
 
+bool MatcherBase::Impl::equals(const MatcherBase::Impl &rhs) const noexcept
+{
+	return this->do_equals(rhs);
+}
+
+
 void MatcherBase::Impl::init() noexcept
 {
 	this->do_init();
@@ -849,12 +897,29 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone_base() const
 }
 
 
+bool MatcherBase::Impl::equals_base(const MatcherBase::Impl &rhs) const noexcept
+{
+	return best_block_ == rhs.best_block_
+		and matches_v2_ == rhs.matches_v2_
+		and match_->equals(*rhs.match_);
+}
+
+
 std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::do_clone() const
 {
 	return this->clone_base();
 	// Seems a sensible default. Only subclasses that add member variables
 	// need to override this, call clone_base() and than clone their respective
 	// members.
+}
+
+
+bool MatcherBase::Impl::do_equals(const MatcherBase::Impl &rhs) const noexcept
+{
+	return this->equals_base(rhs);
+	// Seems a sensible default. Only subclasses that add member variables
+	// need to override this, call equals_base() and than compare their
+	// respective members for equality.
 }
 
 
@@ -973,6 +1038,19 @@ std::unique_ptr<Matcher> MatcherBase::do_clone() const noexcept
 }
 
 
+bool MatcherBase::do_equals(const Matcher &rhs) const noexcept
+{
+	auto rhs_mb = dynamic_cast<const MatcherBase*>(&rhs);
+
+	if (!rhs_mb)
+	{
+		return false;
+	}
+
+	return impl_->equals(*rhs_mb->impl_);
+}
+
+
 /**
  * \brief Matcher for matching against ARResponses.
  *
@@ -1027,6 +1105,16 @@ protected:
 	void validate(const Checksums &actual_sums, const ARId &actual_id,
 			const ARResponse &ref_sums) const;
 
+	/**
+	 * \brief Worker for clone(): clones the base class parts.
+	 *
+	 * Subclasses can use clone_base() to receive a base class pointer to an
+	 * instance of the concrete subclass type, downcast it and clone the
+	 * properties specific for the subclass. The downcast will be safe as
+	 * clone_base() uses do_create_instance() to instantiate the clone instance.
+	 *
+	 * \return Concrete subclass instance with cloned base class parts.
+	 */
 	std::unique_ptr<MatcherBase::Impl> clone_base() const;
 
 private:
@@ -1063,6 +1151,8 @@ private:
 	void do_init() noexcept override;
 
 	std::unique_ptr<MatcherBase::Impl> do_clone() const override;
+
+	bool do_equals(const MatcherBase::Impl &rhs) const noexcept override;
 };
 
 
@@ -1143,6 +1233,22 @@ std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::clone_base() const
 std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::do_clone() const
 {
 	return this->clone_base();
+}
+
+
+bool ResponseMatcherBaseImpl::do_equals(const MatcherBase::Impl &rhs) const
+	noexcept
+{
+	auto rhs_rmbi = dynamic_cast<const ResponseMatcherBaseImpl*>(&rhs);
+	if (!rhs_rmbi)
+	{
+		return false;
+	}
+
+	return this->equals_base(rhs)
+		and actual_sums_ == rhs_rmbi->actual_sums_
+		and actual_id_ == rhs_rmbi->actual_id_
+		and ref_sums_ == rhs_rmbi->ref_sums_;
 }
 
 
