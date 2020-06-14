@@ -577,7 +577,7 @@ public:
 	/**
 	 * \brief Constructor.
 	 */
-	AlbumMatcher();
+	//AlbumMatcher();
 
 	/**
 	 * \brief Constructor.
@@ -639,11 +639,6 @@ class TracksetMatcher final : public MatcherBase
 public:
 
 	using MatcherBase::MatcherBase;
-
-	/**
-	 * \brief Constructor.
-	 */
-	TracksetMatcher();
 
 	/**
 	 * \brief Constructor.
@@ -785,10 +780,7 @@ class ListMatcher final : public MatcherBase
 {
 public:
 
-	/**
-	 * \brief Constructor.
-	 */
-	ListMatcher();
+	using MatcherBase::MatcherBase;
 
 	/**
 	 * \brief Constructor.
@@ -841,6 +833,11 @@ public:
 
 private:
 
+	/**
+	 * \brief Update the Matcher with a Match instance.
+	 *
+	 * \param[in] match Match instance to use
+	 */
 	void update(std::unique_ptr<Match> match);
 
 	std::unique_ptr<MatcherBase> do_create_instance(

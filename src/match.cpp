@@ -1243,13 +1243,6 @@ std::unique_ptr<Match> AlbumMatcherImpl::perform_match(
 // AlbumMatcher
 
 
-AlbumMatcher::AlbumMatcher()
-	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
-{
-	// empty
-}
-
-
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 	: MatcherBase {
@@ -1413,13 +1406,6 @@ std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
 // TracksetMatcher
 
 
-TracksetMatcher::TracksetMatcher()
-	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
-{
-	// empty
-}
-
-
 TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 	: MatcherBase {
@@ -1479,13 +1465,6 @@ std::unique_ptr<MatcherBase> TracksetMatcher::do_create_instance(
 // ListMatcher
 
 
-ListMatcher::ListMatcher()
-	: MatcherBase { nullptr }
-{
-	// empty
-}
-
-
 ListMatcher::ListMatcher(const ListMatcher &rhs)
 	: MatcherBase { rhs }
 {
@@ -1524,9 +1503,10 @@ void ListMatcher::update(std::unique_ptr<Match> match)
 
 
 std::unique_ptr<MatcherBase> ListMatcher::do_create_instance(
-			std::unique_ptr<Impl> /* unused */) const noexcept
+			std::unique_ptr<Impl> impl) const noexcept
 {
-	return std::make_unique<ListMatcher>();
+	//return std::unique_ptr<ListMatcher>(new ListMatcher());
+	return std::make_unique<ListMatcher>(std::move(impl));
 }
 
 
