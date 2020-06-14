@@ -470,7 +470,10 @@ class MatcherBase : public Matcher
 {
 public:
 
-	virtual ~MatcherBase() noexcept = default;
+	/**
+	 * \brief Constructor.
+	 */
+	MatcherBase();
 
 	// forward declaration
 	class Impl;
@@ -482,24 +485,12 @@ public:
 	 */
 	explicit MatcherBase(std::unique_ptr<MatcherBase::Impl> impl) noexcept;
 
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~MatcherBase() noexcept = default;
+
 protected:
-
-	/**
-	 * \brief Worker for cloning a MatcherBase instance.
-	 *
-	 * \return Clone of a MatcherBase instance.
-	 */
-	std::unique_ptr<Matcher> clone_base() const noexcept;
-
-	/**
-	 * \brief Initialize the match.
-	 *
-	 * \param[in] checksums
-	 * \param[in] id
-	 * \param[in] response
-	 */
-	//void init_match(const Checksums &checksums, const ARId &id,
-	//	const ARResponse &response);
 
 	/**
 	 * \brief Access the implementation of the MatcherBase.
@@ -509,11 +500,11 @@ protected:
 	Impl& access_impl();
 
 	/**
-	 * \brief Const-access the implementation of the MatcherBase.
+	 * \brief Worker for cloning a MatcherBase instance.
 	 *
-	 * \return Internal implementation
+	 * \return Clone of a MatcherBase instance.
 	 */
-	const Impl& impl() const;
+	std::unique_ptr<Matcher> clone_base() const noexcept;
 
 
 	MatcherBase(const MatcherBase &rhs);
@@ -583,6 +574,9 @@ public:
 
 	using MatcherBase::MatcherBase;
 
+	/**
+	 * \brief Constructor.
+	 */
 	AlbumMatcher();
 
 	/**
@@ -646,6 +640,9 @@ public:
 
 	using MatcherBase::MatcherBase;
 
+	/**
+	 * \brief Constructor.
+	 */
 	TracksetMatcher();
 
 	/**
@@ -788,6 +785,9 @@ class ListMatcher final : public MatcherBase
 {
 public:
 
+	/**
+	 * \brief Constructor.
+	 */
 	ListMatcher();
 
 	/**

@@ -858,11 +858,46 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::do_clone() const
 }
 
 
+/**
+ * \brief Default implementation of a matcher
+ */
+class DefaultMatcherBaseImpl : public MatcherBase::Impl
+{
+private:
+
+	void do_init() noexcept override;
+
+	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
+};
+
+
+void DefaultMatcherBaseImpl::do_init() noexcept
+{
+	// empty
+}
+
+
+std::unique_ptr<MatcherBase::Impl> DefaultMatcherBaseImpl::do_create_instance()
+	const
+{
+	return std::make_unique<DefaultMatcherBaseImpl>();
+}
+
+
 // MatcherBase
 
 
+MatcherBase::MatcherBase()
+	: impl_ { std::make_unique<DefaultMatcherBaseImpl>() }
+{
+	// empty
+}
+
+
 MatcherBase::MatcherBase(std::unique_ptr<MatcherBase::Impl> impl) noexcept
-	: impl_ { std::move(impl) }
+	: impl_ { impl
+		? std::move(impl)
+		: std::make_unique<DefaultMatcherBaseImpl>() }
 {
 	// empty
 }
@@ -890,12 +925,6 @@ std::unique_ptr<Matcher> MatcherBase::clone_base() const noexcept
 
 
 MatcherBase::Impl& MatcherBase::access_impl()
-{
-	return *impl_;
-}
-
-
-const MatcherBase::Impl& MatcherBase::impl() const
 {
 	return *impl_;
 }
@@ -1113,7 +1142,7 @@ std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::clone_base() const
 
 std::unique_ptr<MatcherBase::Impl> ResponseMatcherBaseImpl::do_clone() const
 {
-	return clone_base();
+	return this->clone_base();
 }
 
 
@@ -1126,9 +1155,6 @@ public:
 
 	using ResponseMatcherBaseImpl::ResponseMatcherBaseImpl;
 
-	//AlbumMatcherImpl(const Checksums &actual_sums,
-	//		const ARId &id, const ARResponse &ref_sums);
-
 private:
 
 	std::unique_ptr<MatcherBase::Impl> do_create_instance() const override;
@@ -1136,14 +1162,6 @@ private:
 	std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
 			const ARId &id, const ARResponse &ref_sums) const noexcept override;
 };
-
-
-//AlbumMatcherImpl::AlbumMatcherImpl(const Checksums &actual_sums,
-//			const ARId &id, const ARResponse &ref_sums)
-//	: ResponseMatcherBaseImpl(actual_sums, id, ref_sums)
-//{
-//	// empty
-//}
 
 
 std::unique_ptr<MatcherBase::Impl> AlbumMatcherImpl::do_create_instance() const
@@ -1230,7 +1248,7 @@ AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 	: MatcherBase {
 		std::make_unique<AlbumMatcherImpl>(checksums, id, response) }
 {
-	access_impl().init();
+	access_impl().init(); // This actually performs the match
 }
 
 
@@ -1400,7 +1418,7 @@ TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 	: MatcherBase {
 		std::make_unique<TracksetMatcherImpl>(checksums, id, response) }
 {
-	access_impl().init();
+	access_impl().init(); // This actually performs the match
 }
 
 
