@@ -1243,6 +1243,13 @@ std::unique_ptr<Match> AlbumMatcherImpl::perform_match(
 // AlbumMatcher
 
 
+AlbumMatcher::AlbumMatcher()
+	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
+{
+	// empty
+}
+
+
 AlbumMatcher::AlbumMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 	: MatcherBase {
@@ -1280,13 +1287,6 @@ AlbumMatcher& AlbumMatcher::operator = (AlbumMatcher &&rhs) noexcept
 {
 	MatcherBase::operator=(std::move(rhs));
 	return *this;
-}
-
-
-AlbumMatcher::AlbumMatcher()
-	: MatcherBase { std::make_unique<AlbumMatcherImpl>() }
-{
-	// empty
 }
 
 
@@ -1413,6 +1413,13 @@ std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
 // TracksetMatcher
 
 
+TracksetMatcher::TracksetMatcher()
+	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
+{
+	// empty
+}
+
+
 TracksetMatcher::TracksetMatcher(const Checksums &checksums, const ARId &id,
 		const ARResponse &response)
 	: MatcherBase {
@@ -1459,13 +1466,6 @@ TracksetMatcher& TracksetMatcher::operator = (TracksetMatcher &&rhs) noexcept
 {
 	MatcherBase::operator=(std::move(rhs));
 	return *this;
-}
-
-
-TracksetMatcher::TracksetMatcher()
-	: MatcherBase { std::make_unique<TracksetMatcherImpl>() }
-{
-	// empty
 }
 
 
