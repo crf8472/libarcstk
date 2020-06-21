@@ -47,7 +47,7 @@ compile_commands.json
 *.swo
 # kdevelop metafiles
 libarcstk.kdev4
-kdev4/*
+.kdev4/*
 
 # valgrind report files
 cachegrind.*
