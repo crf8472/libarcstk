@@ -19,6 +19,9 @@
 #include <memory>          // for unique_ptr
 #include <vector>          // for vector
 
+#include <iostream>
+#include <iomanip>
+
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp" // for is_container
 #endif
@@ -71,6 +74,13 @@ class ARResponse;
  * @{
  */
 
+class Match;
+
+std::ostream& operator << (std::ostream&, const Match &match);
+
+// TODO operator ==
+// TODO swap
+
 /**
  * \brief Interface: Result of matching Checksums against an ARResponse.
  *
@@ -89,6 +99,8 @@ class ARResponse;
 class Match
 {
 public:
+
+	friend std::ostream& operator << (std::ostream&, const Match &match);
 
 	/**
 	 * \brief Virtual default destructor
@@ -517,7 +529,7 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~MatcherBase() noexcept = default;
+	virtual ~MatcherBase() noexcept;
 
 protected:
 
@@ -702,11 +714,11 @@ namespace details
  *
  * \tparam T The type to inspect
  */
-template <typename T, std::enable_if_t<
-	std::is_same<Checksum, typename T::value_type>::value, int> = 0>
-struct has_checksum_type
+template <typename T>
+struct has_checksum_type : public std::integral_constant<bool,
+	std::is_same<Checksum, typename T::value_type>::value>
 {
-	using value = std::true_type;
+	// empty
 };
 
 /**
@@ -722,16 +734,6 @@ struct is_checksum_container : public std::integral_constant<bool,
 	/* empty */
 };
 
-
-/**
- * \brief Create a match object to match a number of \c tracks against some
- * \c tracks.
- *
- * \return Match object of the specified dimensions.
- */
-std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
-	noexcept;
-
 } // namespace details
 
 
@@ -743,34 +745,129 @@ using IsChecksumContainer =
 	std::enable_if_t<details::is_checksum_container<T>::value>;
 
 
+namespace details
+{
+
+/**
+ * \brief Create a match object to match a number of \c tracks against some
+ * \c tracks.
+ *
+ * \param[in] blocks Number of blocks
+ * \param[in] tracks Number of tracks per block
+ *
+ * \return Match object of the specified dimensions.
+ */
+std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
+	noexcept;
+
+/**
+ * \brief Worker: perform a match of some \c checksums agains a \c container of
+ * reference values.
+ *
+ * The \c container has to obey the IsChecksumContainer requirements.
+ *
+ * If \c container.size() is n, the first n Checksum instances in \c checksums
+ * will be compared to the Checksum instances on the equivalent index position
+ * in \c container. For this operation to be successfully completed, the caller
+ * has to ensure that <tt>checksums.size() >= container.size()</tt>.
+ *
+ * The block ARId match flag will be ignored in the comparison and therefore
+ * be always FALSE. A total match is therefore characterized by
+ * <tt>difference(0) == 1 && !id(0)</tt> (means: only id flag is false).
+ *
+ * \param[in] actual_sums Actual Checksums to verify
+ * \param[in] container   Iterable container of reference \link Checksum Checksums\endlink
+ *
+ * \return Match of \c checkums against the container values for ARCS2 and ARCS1
+ */
+template <typename Container, typename = IsChecksumContainer<Container>>
+std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
+		Container&& container)
+{
+	// Assumes checksums.size() >= container.size(), caller is responsible
+
+	auto match = details::create_match(1, actual_sums.size());
+
+	Checksums::size_type idx = 0;
+	for (const auto& refsum : container)
+	{
+		if (refsum == actual_sums[idx].get(checksum::type::ARCS2))
+		{
+			match->verify_track(0, idx, true);
+		}
+
+		if (refsum == actual_sums[idx].get(checksum::type::ARCS1))
+		{
+			match->verify_track(0, idx, false);
+		}
+
+		++idx;
+	}
+
+	return match;
+}
+
+} // namespace details
+
+
 /**
  * \brief Perform a match of some \c checksums agains a \c container of
  * reference values.
  *
  * The \c container has to obey the IsChecksumContainer requirements.
  *
+ * If \c container.size() is n, the first n Checksum instances in \c checksums
+ * will be compared to the Checksum instances on the equivalent index position
+ * in \c container. For this operation to be successfully completed, the caller
+ * has to ensure that <tt>checksums.size() >= container.size()</tt>.
+ *
+ * There is no ARId to compare, therefore the ARId is excluded as source of
+ * difference. The block id match flag will therefore always be TRUE.
+ *
+ * \param[in] actual_sums Actual Checksums to verify
+ * \param[in] ref_sums    Iterable container of reference \link Checksum Checksums\endlink
+ *
  * \return Match of \c checkums against the container values for ARCS2 and ARCS1
  */
 template <typename Container, typename = IsChecksumContainer<Container>>
-std::unique_ptr<Match> perform_match(const Checksums &checksums,
-		const Container&& container)
+std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
+		Container&& ref_sums)
 {
-	auto match = details::create_match(1, checksums.size());
+	auto match = details::perform_match_impl(actual_sums, ref_sums);
 
-	int track = 0;
-	for (const auto& checksum : container)
+	match->verify_id(0); // Assume ID requirement OK
+
+	return match;
+}
+
+
+/**
+ * \brief Perform a match of some \c checksums agains a \c container of
+ * reference values.
+ *
+ * The \c container has to obey the IsChecksumContainer requirements.
+ *
+ * If \c container.size() is n, the first n Checksum instances in \c checksums
+ * will be compared to the Checksum instances on the equivalent index position
+ * in \c container. For this operation to be successfully completed, the caller
+ * has to ensure that <tt>checksums.size() >= container.size()</tt>.
+ *
+ * \param[in] actual_sums Actual Checksums to verify
+ * \param[in] actual_id   Actual ARId to verify
+ * \param[in] ref_sums    Iterable container of reference \link Checksum Checksums\endlink
+ * \param[in] ref_id      Reference ARId
+ *
+ * \return Match of \c checkums against the container values for ARCS2 and ARCS1
+ */
+template <typename Container, typename = IsChecksumContainer<Container>>
+std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
+		const ARId &actual_id, Container&& ref_sums, const ARId &ref_id)
+{
+	auto match = details::perform_match_impl(actual_sums, ref_sums);
+
+	if (actual_id == ref_id)
 	{
-		if (checksum == checksums[track].get(checksum::type::ARCS2))
-		{
-			match->verify_track(0, track, true);
-		}
-
-		if (checksum == checksums[track].get(checksum::type::ARCS1))
-		{
-			match->verify_track(0, track, false);
-		}
-
-		++track;
+		match->verify_id(0);
 	}
 
 	return match;
@@ -778,7 +875,14 @@ std::unique_ptr<Match> perform_match(const Checksums &checksums,
 
 
 /**
- * \brief List matcher
+ * \brief Match a set of actual Checksums against a list of reference Checksums.
+ *
+ * \details
+ *
+ * Determine whether a list of Checksums match a list of reference values. This
+ * targets the situation where the caller already has local reference values,
+ * say, from a logfile. The actual Checksums are just compared to the reference
+ * values and the resulting Match will have set the ARId match flag to TRUE.
  */
 class ListMatcher final : public MatcherBase
 {
@@ -790,23 +894,23 @@ public:
 	 * \brief Constructor.
 	 *
 	 * \param[in] checksums The checksums to match
-	 * \param[in] list      The reference checksums to be matched
+	 * \param[in] reflist   The list of reference checksums to be matched
 	 */
 	template <typename Container, typename = IsChecksumContainer<Container>>
-	ListMatcher(const Checksums &checksums, const Container&& list)
-		: MatcherBase { nullptr }
+	ListMatcher(const Checksums &checksums, Container&& reflist)
+		: MatcherBase {}
 	{
-		if (checksums.size() == 0 or list.size() == 0)
+		if (checksums.size() == 0 or reflist.size() == 0)
 		{
 			return; // TODO throw?
 		}
 
-		if (checksums.size() != list.size())
+		if (checksums.size() != reflist.size())
 		{
 			return; // TODO throw?
 		}
 
-		auto match = perform_match(checksums, list);
+		auto match = perform_match<Container>(checksums, reflist);
 		update(std::move(match));
 	}
 

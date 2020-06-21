@@ -43,33 +43,6 @@ inline namespace v_1_0_0
  */
 
 
-/**
- * \brief Log a Match.
- *
- * For debugging only.
- */
-void log(const Match &match);
-
-
-void log(const Match &match)
-{
-	for (auto b = int { 0 }; b < match.total_blocks(); ++b)
-	{
-		ARCS_LOG_DEBUG << "Block " << b;
-
-		for (auto t = int { 0 }; t < match.tracks_per_block(); ++t)
-		{
-			ARCS_LOG_DEBUG << "  Track " << (t+1);
-
-			for (auto v = int { 0 }; v < 2; ++v)
-			{
-				ARCS_LOG_DEBUG << "v" << (v+1) << ": " << match.track(b, t, v);
-			}
-		}
-	}
-}
-
-
 // Match
 
 
@@ -136,6 +109,32 @@ bool Match::equals(const Match &rhs) const noexcept
 }
 
 
+std::ostream& operator << (std::ostream &out, const Match &match)
+{
+	std::ios_base::fmtflags prev_settings = out.flags();
+
+	const auto indent = std::string { "  " };
+	for (auto b = int { 0 }; b < match.total_blocks(); ++b)
+	{
+		out << "Block " << b << std::endl;
+
+		out << indent << "Id match: "
+			<< std::boolalpha << match.id(b) << std::endl;
+
+		for (auto t = int { 0 }; t < match.tracks_per_block(); ++t)
+		{
+			out << indent << "Track " << std::setw(2) << (t + 1)
+				<< ": ARCSv1 is " << std::boolalpha << match.track(b, t, false)
+				<< ", ARCSv2 is " << std::boolalpha << match.track(b, t, true)
+				<< std::endl;
+		}
+	}
+
+	out.flags(prev_settings);
+	return out;
+}
+
+
 /**
  * \brief Base for @link DefaultMatch DefaultMatches @endlink.
  */
@@ -161,8 +160,21 @@ public:
 protected:
 
 	/**
-	 * \brief Converts a logical block index to an absolute single flag
-	 * position.
+	 * \brief Converts a logical ARCS position in ARResponse to an absolute
+	 * flag index.
+	 *
+	 * Equivalent to the sum of \c index(b) and \c track_offset(t, v2).
+	 *
+	 * \param[in] b  0-based index of the block in \c response
+	 * \param[in] t  0-based index of the track in block \c b
+	 * \param[in] v2 TRUE requests offset of ARCSv2, FALSE requests ARCSv1
+	 *
+	 * \return Flag index for single ARCS
+	 */
+	int index(int b, int t, bool v2) const;
+
+	/**
+	 * \brief Converts a logical block index to an absolute flag index.
 	 *
 	 * Note that the block start is also the position of the flag respresenting
 	 * the ARId comparison.
@@ -171,7 +183,7 @@ protected:
 	 *
 	 * \return Index of the start for the logical block \c b
 	 */
-	int block_start(int b) const;
+	int index(int b) const;
 
 	/**
 	 * \brief Converts a 0-based track number to an offset position within a
@@ -183,20 +195,6 @@ protected:
 	 * \return Offset for the flag index to be added to the start of the block
 	 */
 	int track_offset(int t, bool v2) const;
-
-	/**
-	 * \brief Converts a logical ARCS position in ARResponse to an absolute
-	 * single flag position.
-	 *
-	 * The sum of \c block_start(b) and \c track_offset(t, v2).
-	 *
-	 * \param[in] b  0-based index of the block in \c response
-	 * \param[in] t  0-based index of the track in \c response
-	 * \param[in] v2 Iff TRUE, the offset of the ARCSv2 is returned
-	 *
-	 * \return Flag index for a single ARCS
-	 */
-	int index(int b, int t, bool v2) const;
 
 	/**
 	 * \brief Set the verification flag for the ARId of block \b to \c value.
@@ -224,6 +222,13 @@ protected:
 	 * \throws Iff \c b or \c t are out of range
 	 */
 	int set_track(int b, int t, bool v2, bool value);
+
+	/**
+	 * \brief Set the flag on position \c offset to \c value.
+	 *
+	 * \return Absolute index position the operation modified
+	 */
+	void set_flag(const int offset, const bool value);
 
 	/**
 	 * \brief Ensures that \c b is a legal block value.
@@ -323,7 +328,7 @@ bool DefaultMatchBase::do_id(int b) const
 {
 	this->validate_block(b);
 
-	const auto i { static_cast<DefaultMatchBase::size_type>(block_start(b)) };
+	const auto i { static_cast<DefaultMatchBase::size_type>(index(b)) };
 
 	return flag_[i];
 }
@@ -348,11 +353,11 @@ bool DefaultMatchBase::do_track(int b, int t, bool v2) const
 
 int64_t DefaultMatchBase::do_difference(int b, bool v2) const
 {
-	auto difference = uint32_t { (id(b) ? 0 : 1u) }; // also calls validate_block()
+	auto difference = int { (id(b) ? 0 : 1) }; // also calls validate_block()
 
 	for (auto trk = int { 0 }; trk < tracks_per_block_; ++trk)
 	{
-		difference += ( track(b, trk, v2) ? 0u : 1u );
+		difference += ( track(b, trk, v2) ? 0 : 1 );
 	}
 
 	return difference;
@@ -393,7 +398,7 @@ bool DefaultMatchBase::do_equals(const Match &rhs) const noexcept
 }
 
 
-int DefaultMatchBase::block_start(int b) const
+int DefaultMatchBase::index(int b) const
 {
 	return b * (2 * tracks_per_block_ + 1);
 }
@@ -408,7 +413,8 @@ int DefaultMatchBase::track_offset(int t, bool v2) const
 int DefaultMatchBase::index(int b, int t, bool v2) const
 {
 	// b and t are 0-based
-	return block_start(b) + track_offset(t, v2);
+	return index(b) + //track_offset(t, v2);
+		(t + 1 + (v2 ? tracks_per_block_ : 0));
 }
 
 
@@ -416,10 +422,10 @@ int DefaultMatchBase::set_id(int b, bool value)
 {
 	this->validate_block(b);
 
-	const auto offset { block_start(b) };
+	const auto offset { index(b) };
+	set_flag(offset, value);
 
-	flag_.emplace(flag_.begin() + offset, value);
-	return block_start(b);
+	return offset;
 }
 
 
@@ -428,10 +434,18 @@ int DefaultMatchBase::set_track(int b, int t, bool v2, bool value)
 	this->validate_block(b);
 	this->validate_track(t);
 
-	const auto i { index(b, t, v2) };
+	const auto offset { index(b, t, v2) };
 
-	flag_.emplace(flag_.begin() + i, value);
-	return i;
+	set_flag(offset, value);
+
+	return offset;
+}
+
+
+void DefaultMatchBase::set_flag(const int offset, const bool value)
+{
+	auto pos = flag_.begin() + offset;
+	*pos = value;
 }
 
 
@@ -698,6 +712,13 @@ protected:
 	 */
 	std::unique_ptr<MatcherBase::Impl> clone_base() const;
 
+	/**
+	 * \brief Worker for equals(): check base class parts for equality.
+	 *
+	 * \param[in] rhs Right hand side to compare
+	 *
+	 * \return TRUE iff base class parts are equal, otherwise FALSE
+	 */
 	bool equals_base(const MatcherBase::Impl &rhs) const noexcept;
 
 private:
@@ -731,6 +752,13 @@ private:
 	 */
 	virtual std::unique_ptr<MatcherBase::Impl> do_clone() const;
 
+	/**
+	 * \brief Implements equals() for subclasses.
+	 *
+	 * \param[in] rhs Right hand side to compare
+	 *
+	 * \return TRUE iff base class parts are equal, otherwise FALSE
+	 */
 	virtual bool do_equals(const MatcherBase::Impl &rhs) const noexcept;
 
 	/**
@@ -798,6 +826,8 @@ const Match * MatcherBase::Impl::match() const noexcept
 int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
 	const noexcept
 {
+	ARCS_LOG(DEBUG1) << "Find best block:";
+
 	if (m.size() == 0)
 	{
 		return -1;
@@ -811,7 +841,7 @@ int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
 	{
 		// Note: v2 matching will always be preferred over v1 matching
 
-		ARCS_LOG_DEBUG << "Check block " << b;
+		ARCS_LOG(DEBUG1) << "Check block " << b;
 
 		curr_diff_v1 = m.difference(b, /* v1 */false);
 		curr_diff_v2 = m.difference(b, /* v2 */true);
@@ -823,8 +853,8 @@ int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
 			matches_v2 = curr_diff_v2 <= curr_diff_v1;
 			best_diff  = matches_v2 ? curr_diff_v2 : curr_diff_v1;
 
-			ARCS_LOG_DEBUG << "Set block " << b << " (v"
-				<< (matches_v2 + 1) << ") as best";
+			ARCS_LOG_DEBUG << "Declare block " << b << " as best match"
+				<< " (is ARCSv" << (matches_v2 + 1) << ")";
 		}
 	}
 
@@ -877,8 +907,7 @@ int MatcherBase::Impl::mark_best_block() noexcept
 		matches_v2_ = version;
 
 		ARCS_LOG(DEBUG1) << "Best block: " << best_block_;
-		ARCS_LOG(DEBUG1) << "Match:      "
-			<< (matches_v2_ ? std::string("v2") : std::string("v1"));
+		ARCS_LOG(DEBUG1) << "Match:      ARCSv" << (matches_v2_ ? "2" : "1");
 	}
 
 	return status;
@@ -960,9 +989,7 @@ MatcherBase::MatcherBase()
 
 
 MatcherBase::MatcherBase(std::unique_ptr<MatcherBase::Impl> impl) noexcept
-	: impl_ { impl
-		? std::move(impl)
-		: std::make_unique<DefaultMatcherBaseImpl>() }
+	: impl_ { std::move(impl) }
 {
 	// empty
 }
@@ -973,6 +1000,9 @@ MatcherBase::MatcherBase(const MatcherBase &rhs)
 {
 	// empty
 }
+
+
+MatcherBase::~MatcherBase() noexcept = default;
 
 
 std::unique_ptr<Match> MatcherBase::create_match(const int refblocks,
@@ -1611,7 +1641,6 @@ void ListMatcher::update(std::unique_ptr<Match> match)
 std::unique_ptr<MatcherBase> ListMatcher::do_create_instance(
 			std::unique_ptr<Impl> impl) const noexcept
 {
-	//return std::unique_ptr<ListMatcher>(new ListMatcher());
 	return std::make_unique<ListMatcher>(std::move(impl));
 }
 
