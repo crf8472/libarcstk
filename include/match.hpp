@@ -19,9 +19,6 @@
 #include <memory>          // for unique_ptr
 #include <vector>          // for vector
 
-#include <iostream>
-#include <iomanip>
-
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp" // for is_container
 #endif
