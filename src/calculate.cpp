@@ -2956,6 +2956,20 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 }
 
 
+std::ostream& operator << (std::ostream& out, const Checksum &c)
+{
+	std::ios_base::fmtflags prev_settings = out.flags();
+
+	out << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
+		<< c.value();
+	// FIXME Provide some global arcstk::set_layout and use that for formatting
+	// default would just be HexLayout with its defaults
+
+	out.flags(prev_settings);
+	return out;
+}
+
+
 /// \internal \addtogroup calcImpl
 /// @{
 

@@ -141,11 +141,24 @@ class Checksum; // IWYU pragma keep
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 
 /**
+ * \brief Overload operator << for outputting Checksums
+ */
+std::ostream& operator << (std::ostream& out, const Checksum &c);
+
+/**
  * \brief A 32-bit wide unsigned checksum for a single file or track.
+ *
+ * A Checksum can be represented by its numeric value(). This is an unsigned
+ * integer of at least 32 bit length.
+ *
+ * As a technical convenience, a Checksum may be empty() which means: it carries
+ * no value. Using operator ==, two empty Checksum instances qualify as equal.
  */
 class Checksum final : public Comparable<Checksum>
 {
 public:
+
+	friend std::ostream& operator << (std::ostream& out, const Checksum &c);
 
 	/**
 	 * \brief Constructor.
