@@ -656,6 +656,20 @@ public:
 			const std::size_t tracks_per_block) const noexcept;
 
 	/**
+	 * \brief Implement matching an actual Checksum against a reference.
+	 *
+	 * The matching is implemented by calling operator == on the input
+	 * Checksum instances.
+	 *
+	 * \param[in] actual    The actual Checksum to be matched
+	 * \param[in] reference The reference Checksum to match
+	 *
+	 * \return TRUE if the sums match, otherwise FALSE
+	 */
+	bool matching(const Checksum &actual, const Checksum &reference) const
+		noexcept;
+
+	/**
 	 * \brief Clone this instance.
 	 *
 	 * \return A clone (deep copy) of the instance.
@@ -891,6 +905,13 @@ bool MatcherBase::Impl::equals(const MatcherBase::Impl &rhs) const noexcept
 void MatcherBase::Impl::init() noexcept
 {
 	this->do_init();
+}
+
+
+bool MatcherBase::Impl::matching(const Checksum &actual,
+		const Checksum &reference) const noexcept
+{
+	return actual == reference;
 }
 
 
@@ -1318,7 +1339,8 @@ std::unique_ptr<Match> AlbumMatcherImpl::perform_match(
 	auto bitpos   = int  { 0 };
 	auto is_v2    = bool { false };
 	auto track_j  = Checksums::size_type { 0 };
-	auto checksum = Checksum {};
+	auto actual_checksum    = Checksum {};
+	auto reference_checksum = Checksum {};
 
 	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
@@ -1343,11 +1365,20 @@ std::unique_ptr<Match> AlbumMatcherImpl::perform_match(
 		{
 			for (const auto& type : MatcherBase::Impl::types)
 			{
-				checksum = actual_sums[track_j].get(type);
-
 				is_v2 = (type == checksum::type::ARCS2);
 
-				if (track->arcs() == checksum.value())
+				actual_checksum    = actual_sums[track_j].get(type);
+				reference_checksum = Checksum { track->arcs() };
+
+				ARCS_LOG(DEBUG1) << "Check track "
+					<< std::setw(2) << std::setfill('0') << (track_j + 1)
+					<< ": "
+					<< actual_checksum
+					<< " to match "
+					<< reference_checksum
+					<< " (v" << (is_v2 ? "2" : "1") << ") ";
+
+				if (matching(actual_checksum, reference_checksum))
 				{
 					bitpos = match->verify_track(block_i, track_j, is_v2);
 
@@ -1467,7 +1498,8 @@ std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
 	auto bitpos  = int  { 0 };
 	auto is_v2   = bool { false };
 	auto start_track = Checksums::size_type { 0 };
-	auto checksum    = Checksum {};
+	auto actual_checksum    = Checksum {};
+	auto reference_checksum = Checksum {};
 
 	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	{
@@ -1495,29 +1527,30 @@ std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
 		{
 			ARCS_LOG_DEBUG << "Track " << (track_j + 1);
 
-			for (const auto& entry : actual_sums)
+			for (const auto& actual_track : actual_sums)
 			{
 				for (const auto& type : MatcherBase::Impl::types)
 				{
-					checksum = entry.get(type);
-
 					is_v2 = (type == checksum::type::ARCS2);
 
-					ARCS_LOG(DEBUG1) << "Check track " << (track_j + 1) << ": "
-						<< std::hex
-						<< std::setw(8) << std::setfill('0') << std::uppercase
-						<< track->arcs()
-						<< " to (v" << (is_v2 ? "2" : "1") << ") "
-						<< std::hex
-						<< std::setw(8) << std::setfill('0') << std::uppercase
-						<< checksum.value();
+					actual_checksum    = actual_track.get(type);
+					reference_checksum = Checksum { track->arcs() };
 
-					if (track->arcs() == checksum.value())
+					ARCS_LOG(DEBUG1) << "Check track "
+						<< std::setw(2) << std::setfill('0') << (track_j + 1)
+						<< ": "
+						<< actual_checksum
+						<< " to match "
+						<< reference_checksum
+						<< " (v" << (is_v2 ? "2" : "1") << ") ";
+
+					if (matching(actual_checksum,reference_checksum))
 					{
 						bitpos = match->verify_track(block_i, track_j, is_v2);
 
 						ARCS_LOG_DEBUG << "  >Track "
-							<< std::setw(2) << (track_j + 1)
+							<< std::setw(2) << std::setfill('0')
+							<< (track_j + 1)
 							<< " v" << (is_v2 ? "2" : "1") << " verified: "
 							<< match->track(block_i, track_j, is_v2)
 							<< " (bit " << bitpos << ")"
@@ -1525,6 +1558,13 @@ std::unique_ptr<Match> TracksetMatcherImpl::perform_match(
 
 						++start_track;
 						break;
+					} else
+					{
+						ARCS_LOG_DEBUG << "Track "
+							<< std::setw(2) << std::setfill('0')
+							<< (track_j + 1)
+							<< " v" << (is_v2 ? "2" : "1") << " not verified: "
+							<< match->track(block_i, track_j, is_v2);
 					}
 				}
 			}
