@@ -349,7 +349,8 @@ bool CalcContext::is_multi_track() const noexcept
 }
 
 
-sample_count CalcContext::first_relevant_sample(const TrackNo track) const noexcept
+sample_count CalcContext::first_relevant_sample(const TrackNo track) const
+	noexcept
 {
 	return this->do_first_relevant_sample(track);
 }
@@ -361,7 +362,8 @@ sample_count CalcContext::first_relevant_sample() const noexcept
 }
 
 
-sample_count CalcContext::last_relevant_sample(const TrackNo track) const noexcept
+sample_count CalcContext::last_relevant_sample(const TrackNo track) const
+	noexcept
 {
 	return this->do_last_relevant_sample(track);
 }
@@ -750,7 +752,8 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	auto chunk_last_smpl = sample_count { this->last_sample_idx(offset, total_samples) };
+	auto chunk_last_smpl = sample_count {
+		this->last_sample_idx(offset, total_samples) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
 	{
