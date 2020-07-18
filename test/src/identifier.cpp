@@ -19,6 +19,79 @@
  */
 
 
+TEST_CASE ( "toc::get_filenames", "[identifier]" )
+{
+	using arcstk::toc::get_filenames;
+
+	using arcstk::details::TOCBuilder;
+
+	SECTION ( "Returns empty list when TOC does not contain filenames" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 },
+			// leadout
+			253038
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.empty() );
+	}
+
+	SECTION ( "Returns list of size track_count when TOC contains 1 filename" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			std::vector<arcstk::lba_count>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// leadout
+			253038,
+			// filenames
+			std::vector<std::string>{ "file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file" }
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.size() == 15 );
+	}
+
+	SECTION ( "Returns list of size track_count when TOC contains"
+			" multiple filenames" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			std::vector<arcstk::lba_count>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// leadout
+			253038,
+			// filenames
+			std::vector<std::string>{ "file1", "file2", "file3", "file4",
+			"file5", "file6", "file7", "file8", "file9", "file10",
+			"file11", "file12", "file13", "file14", "file15" }
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.size() == 15 );
+	}
+}
+
+
 TEST_CASE ( "get_track", "[identifier] [make_toc]" )
 {
 	using arcstk::details::get_track;

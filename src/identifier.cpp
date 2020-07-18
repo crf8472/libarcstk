@@ -746,7 +746,16 @@ std::vector<std::string> get_filenames(const TOC &toc)
 	std::vector<std::string> target;
 	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
 
-	return details::toc_get(target, toc, &TOC::filename);
+	details::toc_get(target, toc, &TOC::filename);
+
+	// If we have no filenames in the TOC, do not generate a list full of
+	// empty strings, but just return an empty list
+	for (const auto& filename : target)
+	{
+		if (not filename.empty()) { return target; }
+	}
+
+	return {};
 }
 
 

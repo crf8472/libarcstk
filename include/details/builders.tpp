@@ -882,9 +882,10 @@ std::vector<std::string> TOCBuilder::build_files(Container&& files)
 {
 	// No validation for now, just convert to vector<string>
 
-	// FIXME This requires the container T to be assignable to std::string
+	// FIXME This requires Container::value_type to be assignable to std::string
 	// but this is not checked by the template specification
-	auto filenames { std::vector<std::string>(files.size()) };
+	auto filenames = std::vector<std::string>{};
+	filenames.reserve(files.size());
     filenames.insert(std::end(filenames), std::begin(files), std::end(files));
 
 	return filenames;
