@@ -1119,6 +1119,8 @@ public:
 	ARStreamParser(const ARStreamParser &) = delete;
 	ARStreamParser& operator = (const ARStreamParser &rhs) = delete;
 
+	// TODO Moving should not be prohibited
+
 
 protected:
 
@@ -1191,7 +1193,47 @@ private:
 
 
 /**
+ * \brief Generic parser for std::ifstream instances.
+ *
+ * The client has complete control about opening and handling the ifstream.
+ * Allows to parse stdin, files and strings.
+ */
+class ARParser final : public ARStreamParser
+{
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] stream The std::istream to parse.
+	 */
+	ARParser(std::istream &stream);
+
+	ARParser(const ARParser &parser) = delete;
+	ARParser(ARParser &&parser) noexcept = delete;
+	ARParser& operator = (const ARParser &parser) = delete;
+	ARParser& operator = (ARParser &&parser) noexcept = delete;
+
+private:
+
+	uint32_t do_parse() override;
+
+	void do_swap(ARStreamParser &rhs) override;
+
+	void on_catched_exception(std::istream &stream,
+			const std::exception &e) const override;
+
+	/**
+	 * \brief Internal reference to the passed std::istream.
+	 */
+	std::istream& stream_;
+};
+
+
+/**
  * \brief Parser for dBAR-\*.bin files.
+ *
+ * \deprecated Use ARParser instead and control ifstream by client
  *
  * \details
  *
@@ -1268,6 +1310,8 @@ private:
 
 /**
  * \brief Parser for AccurateRip response as a binary stream on stdin.
+ *
+ * \deprecated Use ARParser instead and control stdin stream by client
  */
 class ARStdinParser final : public ARStreamParser
 {

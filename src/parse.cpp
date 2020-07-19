@@ -2633,6 +2633,35 @@ void ARStreamParser::do_swap(ARStreamParser &/* rhs */)
 }
 
 
+// ARParser
+
+
+ARParser::ARParser(std::istream &stream)
+	: stream_ { stream }
+{
+	// empty
+}
+
+
+uint32_t ARParser::do_parse()
+{
+	return this->parse_stream(stream_);
+}
+
+
+void ARParser::do_swap(ARStreamParser &)
+{
+	// empty
+}
+
+
+void ARParser::on_catched_exception(std::istream &, const std::exception &)
+	const
+{
+	// empty
+}
+
+
 // ARFileParser
 
 
