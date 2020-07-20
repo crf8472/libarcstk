@@ -46,18 +46,9 @@ arparse expects the filename as parameter, just like:
 
 	$ ./arparse response_file.bin
 
-Alternatively, you can pipe the file content to arparse:
-
-	$ ./arparse < response_file.bin
-
-Or
-
-	$ cat response_file.bin | ./arparse
-
-You can just pipe the response of an actual AccurateRip query directly to
-``arparse``:
-
-	$ curl -s "$(../albumid/albumid /path/to/album/album.{cue,flac} | tail -1 | awk '{print $2}'))" | ./arparse
-
 For more information, read the comments in [arparse.cpp](./arparse.cpp).
+
+Note: the 'parse' application of arcs-tools contains
+[a parser subclass that can parse from stdin](https://codeberg.org/tristero/arcs-tools/src/branch/master/src/tools-parse.hpp).
+
 

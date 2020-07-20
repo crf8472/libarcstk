@@ -3,6 +3,7 @@
 //
 
 #include <cstdint>   // for uint32_t etc.
+#include <fstream>   // for ifstream
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
@@ -29,11 +30,19 @@
 
 int main(int argc, char* argv[])
 {
+	if (argc != 2)
+	{
+		std::cout << "Arguments: " << argc << std::endl;
+		std::cout << "Usage: arparse <response_file_name>" << std::endl;
+		return EXIT_SUCCESS;
+	}
+
 	// Use the default parser content handler that just returns the parsed
 	// content as an object
 	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
 	// Of course you could just write a content handler that prints every parsed
-	// entitity instead of constructing an object from it.
+	// entitity instead of constructing an object from it. Or you could
+	// construct an entirely different object.
 
 	arcstk::ARResponse response_data;
 	content_hdlr->set_object(response_data);
@@ -42,35 +51,30 @@ int main(int argc, char* argv[])
 	// input.
 	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
 
-	// Pointer to the parser object, concrete parser type is not yet known.
-	std::unique_ptr<arcstk::ARStreamParser> parser;
-
-	if (argc == 2) // read from the file passed
+	// Open file if file is readable
+	const std::string infilename { argv[1] };
+	std::ifstream infile;
+	infile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	try
 	{
-		const std::string infilename { argv[1] };
-
-		// Create parser for files
-		parser = std::make_unique<arcstk::ARFileParser>(infilename);
+		infile.open(infilename, std::ifstream::in | std::ifstream::binary);
 	}
-	else if (argc == 1) // read from stdin
+	catch (const std::ifstream::failure& f)
 	{
-		// Create parser for input piped via stdin
-		parser = std::make_unique<arcstk::ARStdinParser>();
-	}
-	else
-	{
-		std::cout << "Arguments: " << argc << std::endl;
-		std::cout << "Usage: arparse <response_file_name>" << std::endl;
-		return EXIT_SUCCESS;
+		throw std::runtime_error(
+			std::string("Failed to open file '") + infilename +
+			std::string("', got: ") + typeid(f).name() +
+			std::string(", message: ") + f.what());
 	}
 
-	// Register parser handlers
-	parser->set_content_handler(std::move(content_hdlr));
-	parser->set_error_handler(std::move(error_hdlr));
+	// Create parser and register handlers
+	arcstk::ARParser parser { infile };
+	parser.set_content_handler(std::move(content_hdlr));
+	parser.set_error_handler(std::move(error_hdlr));
 
 	// Finally, run parser
 	try {
-		parser->parse();
+		parser.parse();
 	} catch (const arcstk::StreamReadException& e)
 	{
 		std::cerr << e.what();
