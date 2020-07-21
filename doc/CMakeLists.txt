@@ -11,7 +11,7 @@ message (STATUS
 
 
 ## "Root directory for documentation config and sources" )
-set (PROJECT_DOC_DIR          "${CMAKE_CURRENT_SOURCE_DIR}" )
+set (PROJECT_DOC_DIR      "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 
 ## --- Organize subdirectories and build directories
@@ -32,16 +32,16 @@ set (DOC_TEXTS_SOURCE_DIR "${PROJECT_DOC_DIR}/texts" )
 ## --- Organize documentation sources
 
 ## Construct comment for doc target
-set (DOC_COMMENT "Build documentation for APIs" )
+set (DOC_COMMENT          "Build documentation for APIs" )
 
 ## Deployed mainpage file
-set (DOC_MAINPAGE "${DOC_TEXTS_GEN_DIR}/MAINPAGE.md" )
+set (DOC_MAINPAGE         "${DOC_TEXTS_GEN_DIR}/MAINPAGE.md" )
 
 ## Define input for documentation
-set (DOC_SOURCES ${INTERFACE_HEADERS} ${DOC_MAINPAGE} )
+set (DOC_SOURCES           ${INTERFACE_HEADERS} ${DOC_MAINPAGE} )
 
 ## Define the target name and location of the base Doxyfile to be included
-set (DOC_DOXYFILE_BASE "${DOC_BINARY_DIR}/Doxyfile-base" )
+set (DOC_DOXYFILE_BASE    "${DOC_BINARY_DIR}/Doxyfile-base" )
 
 ## Define the target name and location of the base Doxyfile to be included
 set (DOC_DOXYFILE_BASE_TEMPLATE "${PROJECT_DOC_DIR}/Doxyfile.in" )
