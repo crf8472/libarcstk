@@ -284,8 +284,6 @@ private:
 	std::vector<std::string> files_;
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
-
 
 TOC::Impl::Impl(const TOC::Impl &rhs) = default;
 
@@ -396,8 +394,6 @@ bool TOC::Impl::equals(const TOC::Impl &rhs) const noexcept
 		and  leadout_     == rhs.leadout_
 		and  files_       == rhs.files_);
 }
-
-/// \endcond
 
 
 namespace details
@@ -634,8 +630,6 @@ private:
 	template <typename Container, typename = FilenameContainer<Container> >
 	inline static std::vector<std::string> build_files(Container&& files);
 };
-
-/// \cond UNDOC_FUNCTION_BODIES
 
 
 // TOCBuilder
@@ -890,8 +884,6 @@ std::vector<std::string> TOCBuilder::build_files(Container&& files)
 
 	return filenames;
 }
-
-/// \endcond
 
 } // namespace details
 

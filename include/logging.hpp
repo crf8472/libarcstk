@@ -482,8 +482,6 @@ private:
 
 /** @} */
 
-/// \cond UNDOC_FUNCTION_BODIES
-
 // Appender
 
 inline Appender::Appender(const std::string &filename)
@@ -821,8 +819,6 @@ inline void Logging::remove_appender(Appender *a)
 	std::lock_guard<std::mutex> lock(mutex_);
 	logger_.remove_appender(a);
 }
-
-/// \endcond
 
 } // namespace v_1_0_0
 

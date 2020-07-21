@@ -587,8 +587,6 @@ protected:
 	static constexpr lba_count MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 };
 
-/// \cond UNDOC_FUNCTION_BODIES
-
 
 // TOCValidator
 
@@ -924,8 +922,6 @@ void TOCValidator::have_min_dist(const lba_count prev_track,
 		throw InvalidMetadataException(ss.str());
 	}
 }
-
-/// \endcond
 
 } // namespace details
 
