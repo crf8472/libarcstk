@@ -2453,6 +2453,13 @@ Checksums Calculation::Impl::result() const noexcept
 		checksums->append(track);
 	}
 
+	if (checksums->size() == 0)
+	{
+		ARCS_LOG_WARNING << "Calculation result is empty.";
+
+		return Checksums{};
+	}
+
 	// Logging
 	{
 		auto types = checksums->at(0).types();
