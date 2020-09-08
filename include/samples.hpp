@@ -354,6 +354,10 @@ public:
 
 	using const_iterator = SampleIterator<T, is_planar, true>;
 
+
+	// TODO Delete copy members here instead of deleting them in each subclass
+
+
 	/**
 	 * \brief Iterator pointing behind to the beginning.
 	 *
@@ -544,24 +548,29 @@ private:
  *
  * This class is intended to be used by its alias PlanarSamples<T>.
  *
+ * \note
+ * Instances of this class are non-copyable but movable.
+ *
  * \tparam T Actual sample type
  */
 template <typename T>
 class SampleSequence<T, true> final :
 								public details::SampleSequenceImplBase<T, true>
 {
-public: /* types */
+	using Base = typename details::SampleSequenceImplBase<T, true>;
 
-	using typename details::SampleSequenceImplBase<T, true>::value_type;
+public: /* typedefs */
 
-	using typename details::SampleSequenceImplBase<T, true>::size_type;
+	using typename Base::value_type;
 
-	using typename details::SampleSequenceImplBase<T, true>::iterator;
+	using typename Base::size_type;
 
-	using typename details::SampleSequenceImplBase<T, true>::const_iterator;
+	using typename Base::iterator;
+
+	using typename Base::const_iterator;
 
 
-public: /* methods */
+public: /* member functions */
 
 	SampleSequence(const SampleSequence &) = delete;
 
@@ -710,18 +719,20 @@ template <typename T>
 class SampleSequence<T, false> final :
 								public details::SampleSequenceImplBase<T, false>
 {
-public: /* types */
+	using Base = typename details::SampleSequenceImplBase<T, false>;
 
-	using typename details::SampleSequenceImplBase<T, false>::value_type;
+public: /* typedefs */
 
-	using typename details::SampleSequenceImplBase<T, false>::size_type;
+	using typename Base::value_type;
 
-	using typename details::SampleSequenceImplBase<T, false>::iterator;
+	using typename Base::size_type;
 
-	using typename details::SampleSequenceImplBase<T, false>::const_iterator;
+	using typename Base::iterator;
+
+	using typename Base::const_iterator;
 
 
-public:
+public: /* member functions */
 
 	SampleSequence(const SampleSequence &) = delete;
 
@@ -730,8 +741,9 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Indicates channel ordering left:0, right:1. Equivalent to
-	 * SampleSequence(true).
+	 * Indicates channel ordering left:0, right:1.
+	 *
+	 * Equivalent to SampleSequence(true).
 	 */
 	SampleSequence()
 		: SampleSequence<T, false>(true)
