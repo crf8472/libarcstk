@@ -412,7 +412,7 @@ private:
 	 */
 	virtual std::unique_ptr<AppendableSequence> do_clone() const
 	{
-		return this->clone_base();
+		return this->clone_base(); // XXX This should be pure virtual
 	}
 
 	/**
