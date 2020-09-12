@@ -572,9 +572,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	SampleSequence(const SampleSequence &) = delete;
+	//SampleSequence(const SampleSequence &) = delete;
 
-	SampleSequence& operator = (const SampleSequence &) = delete;
+	//SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
 	 * \brief Constructor.
@@ -734,9 +734,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	SampleSequence(const SampleSequence &) = delete;
+	//SampleSequence(const SampleSequence &) = delete;
 
-	SampleSequence& operator = (const SampleSequence &) = delete;
+	//SampleSequence& operator = (const SampleSequence &) = delete;
 
 	/**
 	 * \brief Constructor.
