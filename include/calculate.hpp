@@ -82,10 +82,6 @@ inline namespace v_1_0_0
  * AudioSize represents the size of the audio data in a file in frames,
  * samples and bytes.
  *
- * InvalidAudioException is thrown during the
- * \link Calculation::update update() \endlink if the audio input is
- * insufficient or invalid.
- *
  * @{
  */
 
@@ -1941,29 +1937,6 @@ private:
 	 * \brief Private implementation of Calculation.
 	 */
 	std::unique_ptr<Calculation::Impl> impl_;
-};
-
-
-/**
- * \brief Reports invalid audio data.
- */
-class InvalidAudioException final : public std::logic_error
-{
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InvalidAudioException(const std::string &what_arg);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InvalidAudioException(const char *what_arg);
 };
 
 /** @} */

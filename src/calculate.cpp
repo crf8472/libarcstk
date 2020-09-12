@@ -2849,24 +2849,6 @@ Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
 
 
 
-
-// InvalidAudioException
-
-
-InvalidAudioException::InvalidAudioException(const std::string &what_arg)
-	: std::logic_error { what_arg }
-{
-	// empty
-}
-
-
-InvalidAudioException::InvalidAudioException(const char *what_arg)
-	: std::logic_error { what_arg }
-{
-	// empty
-}
-
-
 // make_context (bool, bool, audiofile)
 
 
