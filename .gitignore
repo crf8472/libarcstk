@@ -45,11 +45,12 @@ compile_commands.json
 # vim intermediate files
 *.swp
 *.swo
-# kdevelop metafiles
-libarcstk.kdev4
-.kdev4/*
 
 # valgrind report files
 cachegrind.*
 callgrind.*
+
+# kdevelop metafiles
+.kdev4/*
+libarcstk.kdev4
 
