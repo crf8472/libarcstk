@@ -526,7 +526,7 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~MatcherBase() noexcept;
+	~MatcherBase() noexcept override;
 
 protected:
 
