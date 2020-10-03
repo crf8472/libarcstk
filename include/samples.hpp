@@ -102,9 +102,9 @@ class SampleSequenceImplBase; // IWYU pragma keep
  * Provides a representation of the 16 bit stereo samples for each channel as
  * a single integer of type sample_t.
  *
- * Equality between a const_iterator and an iterator works as expected.
+ * Equality between a \c const_iterator and an \c iterator works as expected.
  *
- * Although tagged as an input_iterator, SampleIterator provides some additional
+ * Although tagged as \c input_iterator, SampleIterator provides some additional
  * functionality as there is prefix- and postfix decrement, add-assignment,
  * subtract-assignment, binary add and subtract and a binary subtraction
  * operator for positions.
@@ -355,9 +355,6 @@ public:
 	using const_iterator = SampleIterator<T, is_planar, true>;
 
 
-	// TODO Delete copy members here instead of deleting them in each subclass
-
-
 	/**
 	 * \brief Iterator pointing behind to the beginning.
 	 *
@@ -443,11 +440,10 @@ public:
 		return sizeof(T);
 	}
 
-
 protected:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Protected default constructor.
 	 */
 	SampleSequenceImplBase()
 		: size_ { 0 }
@@ -456,7 +452,31 @@ protected:
 	}
 
 	/**
-	 * \brief Protected non-virtual destructor for non-polymorphic use only.
+	 * \brief Protected default copy constructor.
+	 */
+	SampleSequenceImplBase(const SampleSequenceImplBase &)
+	= default;
+
+	/**
+	 * \brief Protected default copy assignment operator.
+	 */
+	SampleSequenceImplBase& operator = (const SampleSequenceImplBase &)
+	= default;
+
+	/**
+	 * \brief Protected default move constructor.
+	 */
+	SampleSequenceImplBase(SampleSequenceImplBase &&) noexcept
+	= default;
+
+	/**
+	 * \brief Protected default move assignment operator.
+	 */
+	SampleSequenceImplBase& operator = (SampleSequenceImplBase &&) noexcept
+	= default;
+
+	/**
+	 * \brief Protected non-virtual default destructor.
 	 */
 	~SampleSequenceImplBase() noexcept
 	= default;
@@ -527,7 +547,6 @@ protected:
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
-
 
 private:
 
@@ -677,14 +696,12 @@ public: /* member functions */
 		return this->operator[](index);
 	}
 
-
 protected:
 
 	const SampleSequence<T, true> *sequence() const final
 	{
 		return this;
 	}
-
 
 private:
 
@@ -836,14 +853,12 @@ public: /* member functions */
 		return this->operator[](index);
 	}
 
-
 protected:
 
 	const SampleSequence<T, false> *sequence() const final
 	{
 		return this;
 	}
-
 
 private:
 
