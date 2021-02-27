@@ -852,10 +852,10 @@ public:
 	using reference = sample_t;
 
 	/**
-	 * \brief Const pointer to an instance of value_type.
+	 * \brief Defined as void.
 	 */
-	//using pointer = const sample_t*;
 	using pointer = void;
+	//TODO Try  using pointer = const value_type*;
 
 	/**
 	 * \brief Pointer difference type.
@@ -1434,6 +1434,7 @@ private:
 	 */
 	virtual sample_count_t do_first_relevant_sample_0() const noexcept
 	= 0;
+	// TODO Rename this function
 
 	/**
 	 * \brief Implements last_relevant_sample(const TrackNo track) const.
@@ -1453,6 +1454,7 @@ private:
 	 */
 	virtual sample_count_t do_last_relevant_sample_0() const noexcept
 	= 0;
+	// TODO Rename this function
 
 	/**
 	 * \brief Implements track(const sample_count_t smpl) const.

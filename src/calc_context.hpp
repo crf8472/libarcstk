@@ -63,8 +63,6 @@ private:
 
 	const AudioSize& do_audio_size() const noexcept override;
 
-	// do_sample_count()
-
 	void do_set_filename(const std::string &filename) noexcept override;
 
 	std::string do_filename() const noexcept override;
