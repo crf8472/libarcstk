@@ -29,21 +29,6 @@ inline namespace v_1_0_0
 /// @{
 
 /**
- * \brief Type to represent a 32 bit PCM stereo sample.
- *
- * An unsigned integer of 32 bit length.
- *
- * The type is not intended to do arithmetic operations on it.
- *
- * Bitwise operators are required to work as on unsigned types.
- *
- * The type should have at least the size of arcstk::sample_t.
- *
- * \see arcstk::sample_t
- */
-using sample_type = uint32_t;
-
-/**
  * \brief Type to represent amounts of PCM 32 bit samples.
  *
  * A signed integer of at least 32 bit length.

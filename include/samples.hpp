@@ -28,12 +28,11 @@ inline namespace v_1_0_0
 /**
  * \brief Type to represent a 32 bit PCM stereo sample.
  *
- * This should be defined identically-as or at least assignable-to
- * arcstk::sample_type.
+ * This type must be defined assignable-to arcstk::sample_t.
  *
- * \see arcstk::sample_type
+ * \see arcstk::sample_t
  */
-using sample_t = uint32_t;
+using sample_type = uint32_t;
 
 /**
  * \brief A sequence of samples represented by signed integral types.
@@ -81,7 +80,6 @@ using IsSampleType = std::enable_if_t<
 
 /**
  * \internal
- *
  * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
@@ -100,7 +98,7 @@ class SampleSequenceImplBase; // IWYU pragma keep
  * \brief An input iterator for samples in SampleSequence instances.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
- * a single integer of type sample_t.
+ * a single integer of type sample_type.
  *
  * Equality between a \c const_iterator and an \c iterator works as expected.
  *
@@ -126,7 +124,7 @@ public:
 
 	using iterator_category = std::input_iterator_tag;
 
-	using value_type        = sample_t;
+	using value_type        = sample_type;
 
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
@@ -346,7 +344,7 @@ class SampleSequenceImplBase
 {
 public:
 
-	using value_type = sample_t;
+	using value_type = sample_type;
 
 	using size_type = std::size_t;
 
@@ -499,14 +497,14 @@ protected:
 	 *
 	 * \return A PCM 32 bit sample with the higher and lower bits as passed
 	 */
-	sample_t combine(const T higher, const T lower) const
+	sample_type combine(const T higher, const T lower) const
 	{
-		return (static_cast<sample_t>(higher) << 16) |
-			(static_cast<sample_t>(lower) & 0x0000FFFF);
+		return (static_cast<sample_type>(higher) << 16) |
+			(static_cast<sample_type>(lower) & 0x0000FFFF);
 
 		// NOTE: This works because T cannot be anything but only signed or
 		// unsigned integers of either 32 or 64 bit length. Those variants can
-		// all be handled correctly by just casting them to sample_t.
+		// all be handled correctly by just casting them to sample_type.
 	}
 
 	/**
@@ -591,9 +589,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//SampleSequence(const SampleSequence &) = delete;
+	//Skip copy-ctor   SampleSequence(const SampleSequence &)
 
-	//SampleSequence& operator = (const SampleSequence &) = delete;
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
 
 	/**
 	 * \brief Constructor.
@@ -669,8 +667,10 @@ public: /* member functions */
 	{
 		return this->combine(buffer_[right_][index], buffer_[left_][index]);
 		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+
+		// NOTE:
 		// Equivalent to, but seemingly not slower than:
-		//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
+		//return (static_cast<sample_type>(buffer_[right_][index]) << 16)
 		//	| static_cast<uint16_t>(buffer_[left_][index]);
 	}
 
@@ -751,9 +751,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//SampleSequence(const SampleSequence &) = delete;
+	//Skip copy-ctor   SampleSequence(const SampleSequence &)
 
-	//SampleSequence& operator = (const SampleSequence &) = delete;
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
 
 	/**
 	 * \brief Constructor.
@@ -826,8 +826,10 @@ public: /* member functions */
 		return this->combine(buffer_[2 * index + right_],
 				buffer_[2 * index + left_]);
 		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+
+		// NOTE:
 		// Equivalent to, but seemingly not slower than:
-		//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
+		//return (static_cast<sample_type>(buffer_[2 * index + right_]) << 16)
 		//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
 	}
 

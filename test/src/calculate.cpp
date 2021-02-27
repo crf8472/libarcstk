@@ -862,10 +862,10 @@ TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
 
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		using arcstk::sample_type;
+		using arcstk::sample_t;
 
 		// Initialize Buffer
-		std::vector<sample_type> buffer(65536); // samples
+		std::vector<sample_t> buffer(65536); // samples
 
 		// => forms 3 blocks with 65536 samples each
 
@@ -929,11 +929,11 @@ TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
 
 	SECTION ( "Correct ARCS1+2 with non-aligned blocks" )
 	{
-		using arcstk::sample_type;
+		using arcstk::sample_t;
 
 		// Initialize Buffer
 
-		std::vector<sample_type> buffer(80000); // samples
+		std::vector<sample_t> buffer(80000); // samples
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -1050,11 +1050,11 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		using arcstk::sample_type;
+		using arcstk::sample_t;
 
 		// Initialize Buffer
 
-		std::vector<sample_type> buffer(181251); // samples
+		std::vector<sample_t> buffer(181251); // samples
 
 		// => forms 4 blocks with 181251 samples each
 		// (total: 725004 samples, 2900016 bytes)
@@ -1130,11 +1130,11 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 
 	SECTION ( "Correct ARCS1+2 with non-aligned blocks" )
 	{
-		using arcstk::sample_type;
+		using arcstk::sample_t;
 
 		// Initialize Buffer
 
-		std::vector<sample_type> buffer(241584); // samples
+		std::vector<sample_t> buffer(241584); // samples
 
 		// => forms 3 blocks: 2 x 241584 samples and 1 x 252 samples
 		// (total: 725004 samples, 2900016 bytes)
@@ -1225,10 +1225,10 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 
 TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 {
-	using arcstk::sample_type;
+	using arcstk::sample_t;
 	using arcstk::SampleInputIterator;
 
-	std::vector<sample_type> samples {
+	std::vector<sample_t> samples {
 		 1,  2,  3,  4,  5,  6,  7,  8,  9, 10,
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20
 	};
@@ -1348,13 +1348,13 @@ TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 
 TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 {
-	using arcstk::sample_type;
+	using arcstk::sample_t;
 	using arcstk::sample_count;
 	using arcstk::make_context;
 	using arcstk::make_empty_arid;
 
 	const auto empty_default_arid = make_empty_arid();
-	const auto SAMPLE_TYPE_MAX_VALUE = std::numeric_limits<sample_type>::max();
+	const auto SAMPLE_TYPE_MAX_VALUE = std::numeric_limits<sample_t>::max();
 
 	SECTION ( "Construction without parameters is correct" )
 	{

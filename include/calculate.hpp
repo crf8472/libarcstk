@@ -755,14 +755,30 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 
 /**
+ * \brief Type to represent a 32 bit PCM stereo sample.
+ *
+ * An unsigned integer of 32 bit length.
+ *
+ * The type is not intended to do arithmetic operations on it.
+ *
+ * Bitwise operators are required to work as on unsigned types.
+ *
+ * The type has at least the size of arcstk::sample_type.
+ *
+ * \see arcstk::sample_type
+ */
+using sample_t = uint32_t;
+
+
+/**
  * \internal
- * \brief Defined iff \c Iterator is an iterator over \c sample_type.
+ * \brief Defined iff \c Iterator is an iterator over \c sample_t.
  *
  * \tparam Iterator Iterator type to test
  */
 template<typename Iterator>
 using IsSampleIterator = std::enable_if_t<
-		details::is_iterator_over<Iterator, sample_type>::value>;
+		details::is_iterator_over<Iterator, sample_t>::value>;
 
 
 // forward declaration for operator == and binary ops
@@ -793,7 +809,7 @@ SampleInputIterator operator + (SampleInputIterator lhs,
  * an input iterator, it does not provide operator->() and does
  * therefore not completely fulfill the requirements for a LegacyInputIterator.
  *
- * SampleInputIterator provides iteration over values of type sample_type,
+ * SampleInputIterator provides iteration over values of type sample_t,
  * which is a primitve type. Samples have no members, therefore operator ->
  * would not provide any reasonable function.
  */
@@ -815,17 +831,17 @@ public:
 	/**
 	 * \brief The type this iterator enumerates.
 	 */
-	using value_type = sample_type;
+	using value_type = sample_t;
 
 	/**
 	 * \brief Same as value_type, *not* a reference type.
 	 */
-	using reference = sample_type;
+	using reference = sample_t;
 
 	/**
 	 * \brief Const pointer to an instance of value_type.
 	 */
-	//using pointer = const sample_type*;
+	//using pointer = const sample_t*;
 	using pointer = void;
 
 	/**
@@ -988,7 +1004,7 @@ public:
 	 *
 	 * \tparam Iterator The iterator type to wrap
 	 *
-	 * \param[in] i Instance of an iterator over \c sample_type
+	 * \param[in] i Instance of an iterator over \c sample_t
 	 */
 	template <class Iterator, typename = IsSampleIterator<Iterator> >
 	SampleInputIterator(const Iterator &i)
@@ -1019,7 +1035,7 @@ public:
 	/**
 	 * \brief Dereferences the iterator to the sample pointed to.
 	 *
-	 * \return A sample_type sample, returned by value
+	 * \return A sample_t sample, returned by value
 	 */
 	reference operator * () const noexcept; // required by LegacyIterator
 
