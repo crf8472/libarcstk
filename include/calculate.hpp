@@ -408,7 +408,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(const lba_count length);
+	explicit ChecksumSet(const lba_count_t length);
 
 	/**
 	 * \brief Default destructor
@@ -477,7 +477,7 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	lba_count length() const noexcept;
+	lba_count_t length() const noexcept;
 
 	/**
 	 * \brief Returns TRUE iff the instance contains the type \c type .
@@ -664,14 +664,14 @@ public: /* functions */
 	 *
 	 * \param[in] leadout LBA leadout frame
 	 */
-	void set_leadout_frame(const lba_count leadout) noexcept;
+	void set_leadout_frame(const lba_count_t leadout) noexcept;
 
 	/**
 	 * \brief Return the LBA leadout frame.
 	 *
 	 * \return LBA leadout frame
 	 */
-	lba_count leadout_frame() const noexcept;
+	lba_count_t leadout_frame() const noexcept;
 
 	/**
 	 * \brief Set the total number of 32 bit PCM samples.
@@ -1276,7 +1276,7 @@ public:
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	lba_count offset(const uint8_t track) const noexcept;
+	lba_count_t offset(const uint8_t track) const noexcept;
 
 	/**
 	 * \brief Return the normalized length of the specified 0-based track.
@@ -1293,7 +1293,7 @@ public:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	lba_count length(const uint8_t track) const noexcept;
+	lba_count_t length(const uint8_t track) const noexcept;
 
 	/**
 	 * \brief Return the ARId of the current medium, if known.
@@ -1471,7 +1471,7 @@ private:
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	virtual lba_count do_offset(const uint8_t track) const noexcept
+	virtual lba_count_t do_offset(const uint8_t track) const noexcept
 	= 0;
 
 	/**
@@ -1481,7 +1481,7 @@ private:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	virtual lba_count do_length(const uint8_t track) const noexcept
+	virtual lba_count_t do_length(const uint8_t track) const noexcept
 	= 0;
 
 	/**

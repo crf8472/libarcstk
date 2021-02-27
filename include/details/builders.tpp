@@ -117,7 +117,7 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 template <typename Container1, typename Container2,
 		typename = LBAContainer<Container1>,
 		typename = LBAContainer<Container2>>
-inline lba_count calculate_leadout(Container1&& lengths, Container2&& offsets)
+inline lba_count_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 {
 	// from last offset and last length
 
@@ -145,8 +145,8 @@ inline lba_count calculate_leadout(Container1&& lengths, Container2&& offsets)
 			"Calculated leadout is bigger than maximal legal block address");
 	}
 
-	// We suppose std::numeric_limits<lba_count>::max() > CDDA.MAX_BLOCK_ADDRESS
-	return static_cast<lba_count>(leadout);
+	// We suppose std::numeric_limits<lba_count_t>::max() > CDDA.MAX_BLOCK_ADDRESS
+	return static_cast<lba_count_t>(leadout);
 }
 
 } // namespace details
@@ -192,12 +192,12 @@ public:
 	/**
 	 * \brief Implements TOC::offset(const uint8_t) const
 	 */
-	inline lba_count offset(const TrackNo idx) const;
+	inline lba_count_t offset(const TrackNo idx) const;
 
 	/**
 	 * \brief Implements TOC::parsed_length(const uint8_t) const
 	 */
-	inline lba_count parsed_length(const TrackNo idx) const;
+	inline lba_count_t parsed_length(const TrackNo idx) const;
 
 	/**
 	 * \brief Implements TOC::filename(const TrackNo idx) const
@@ -207,7 +207,7 @@ public:
 	/**
 	 * \brief Implements TOC::leadout()
 	 */
-	inline lba_count leadout() const noexcept;
+	inline lba_count_t leadout() const noexcept;
 
 	/**
 	 * \brief Implements TOC::complete()
@@ -231,8 +231,8 @@ private:
 	 * \param[in] files       File name of each track
 	 */
 	inline Impl(const TrackNo track_count,
-			const std::vector<lba_count> &offsets,
-			const lba_count leadout,
+			const std::vector<lba_count_t> &offsets,
+			const lba_count_t leadout,
 			const std::vector<std::string> &files);
 
 	/**
@@ -244,8 +244,8 @@ private:
 	 * \param[in] files       File name of each track
 	 */
 	inline Impl(const TrackNo track_count,
-			const std::vector<lba_count> &offsets,
-			const std::vector<lba_count> &lengths,
+			const std::vector<lba_count_t> &offsets,
+			const std::vector<lba_count_t> &lengths,
 			const std::vector<std::string> &files);
 
 	/**
@@ -266,17 +266,17 @@ private:
 	/**
 	 * \brief Track offsets (in frames)
 	 */
-	std::vector<lba_count> offsets_;
+	std::vector<lba_count_t> offsets_;
 
 	/**
 	 * \brief Track lengths (in frames)
 	 */
-	std::vector<lba_count> lengths_;
+	std::vector<lba_count_t> lengths_;
 
 	/**
 	 * \brief Leadout frame
 	 */
-	lba_count leadout_;
+	lba_count_t leadout_;
 
 	/**
 	 * \brief Audio file names
@@ -292,8 +292,8 @@ TOC::Impl::Impl(TOC::Impl &&rhs) noexcept = default;
 
 
 TOC::Impl::Impl(const TrackNo track_count,
-		const std::vector<lba_count> &offsets,
-		const lba_count leadout,
+		const std::vector<lba_count_t> &offsets,
+		const lba_count_t leadout,
 		const std::vector<std::string> &files)
 	: track_count_ { track_count }
 	, offsets_ { offsets }
@@ -306,8 +306,8 @@ TOC::Impl::Impl(const TrackNo track_count,
 
 
 TOC::Impl::Impl(const TrackNo track_count,
-		const std::vector<lba_count> &offsets,
-		const std::vector<lba_count> &lengths,
+		const std::vector<lba_count_t> &offsets,
+		const std::vector<lba_count_t> &lengths,
 		const std::vector<std::string> &files)
 	: track_count_ { track_count }
 	, offsets_ { offsets }
@@ -331,13 +331,13 @@ TrackNo TOC::Impl::track_count() const noexcept
 }
 
 
-lba_count TOC::Impl::offset(const TrackNo track) const
+lba_count_t TOC::Impl::offset(const TrackNo track) const
 {
 	return details::get_track(offsets_, track);
 }
 
 
-lba_count TOC::Impl::parsed_length(const TrackNo track) const
+lba_count_t TOC::Impl::parsed_length(const TrackNo track) const
 {
 	try {
 
@@ -373,7 +373,7 @@ std::string TOC::Impl::filename(const TrackNo track) const
 }
 
 
-lba_count TOC::Impl::leadout() const noexcept
+lba_count_t TOC::Impl::leadout() const noexcept
 {
 	return leadout_;
 }
@@ -441,7 +441,7 @@ public:
 			typename = FilenameContainer<Files> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			Container&& offsets,
-			const lba_count leadout,
+			const lba_count_t leadout,
 			Files&& files);
 
 	/**
@@ -460,7 +460,7 @@ public:
 	template <typename T, typename = LBAType<T> >
 	inline static std::unique_ptr<TOC> build(const TrackNo track_count,
 			std::initializer_list<T> offsets,
-			const lba_count leadout);
+			const lba_count_t leadout);
 
 	/**
 	 * \brief Build a TOC object from the specified information.
@@ -531,7 +531,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the input data forms no valid TOC
 	 */
-	inline static void update(TOC &toc, const lba_count leadout);
+	inline static void update(TOC &toc, const lba_count_t leadout);
 
 
 private:
@@ -561,8 +561,8 @@ private:
 	 * \throw InvalidMetadataException If the offsets are not valid
 	 */
 	template <typename Container, typename = LBAContainer<Container> >
-	inline static std::vector<lba_count> build_offsets(Container&& offsets,
-			const TrackNo track_count, const lba_count leadout);
+	inline static std::vector<lba_count_t> build_offsets(Container&& offsets,
+			const TrackNo track_count, const lba_count_t leadout);
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -581,7 +581,7 @@ private:
 	template <typename Container1, typename Container2,
 		typename = LBAContainer<Container1>,
 		typename = LBAContainer<Container2> >
-	inline static std::vector<lba_count> build_offsets(
+	inline static std::vector<lba_count_t> build_offsets(
 			Container1&& offsets,
 			const TrackNo track_count,
 			Container2&& lengths);
@@ -599,7 +599,7 @@ private:
 	 * \throw InvalidMetadataException If the lengths are not valid
 	 */
 	template <typename Container, typename = LBAContainer<Container> >
-	inline static std::vector<lba_count> build_lengths(Container&& lengths,
+	inline static std::vector<lba_count_t> build_lengths(Container&& lengths,
 			const TrackNo track_count);
 
 	/**
@@ -611,7 +611,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the leadout is not valid
 	 */
-	inline static lba_count build_leadout(const lba_count leadout);
+	inline static lba_count_t build_leadout(const lba_count_t leadout);
 
 	/**
 	 * \brief Service method: Builds validated audio file list for a TOC object.
@@ -638,7 +638,7 @@ private:
 template <typename Container, typename Files, typename, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		Container&& offsets,
-		const lba_count leadout,
+		const lba_count_t leadout,
 		Files&& files)
 {
 	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
@@ -655,7 +655,7 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 template <typename T, typename>
 std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 		std::initializer_list<T> offsets,
-		const lba_count leadout)
+		const lba_count_t leadout)
 {
 	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
 		build_track_count(track_count),
@@ -736,7 +736,7 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 }
 
 
-void TOCBuilder::update(TOC &toc, const lba_count leadout)
+void TOCBuilder::update(TOC &toc, const lba_count_t leadout)
 {
 	TOCValidator::validate(toc, leadout);
 
@@ -763,21 +763,21 @@ TrackNo TOCBuilder::build_track_count(const TrackNo track_count)
 
 
 template <typename Container, typename>
-std::vector<lba_count> TOCBuilder::build_offsets(
+std::vector<lba_count_t> TOCBuilder::build_offsets(
 		Container&& offsets,
 		const TrackNo track_count,
-		const lba_count leadout)
+		const lba_count_t leadout)
 {
 	TOCValidator::validate(track_count, offsets, leadout);
 
-	// Convert offsets to lba_count
+	// Convert offsets to lba_count_t
 
-	return std::vector<lba_count>(offsets.begin(), offsets.end());
+	return std::vector<lba_count_t>(offsets.begin(), offsets.end());
 }
 
 
 template <typename Container1, typename Container2, typename, typename>
-std::vector<lba_count> TOCBuilder::build_offsets(
+std::vector<lba_count_t> TOCBuilder::build_offsets(
 		Container1&& offsets, const TrackNo track_count,
 		Container2&& lengths)
 {
@@ -810,14 +810,14 @@ std::vector<lba_count> TOCBuilder::build_offsets(
 		// Just swallow it for now
 	}
 
-	// Convert offsets to lba_count
+	// Convert offsets to lba_count_t
 
-	return std::vector<lba_count>(offsets.begin(), offsets.end());
+	return std::vector<lba_count_t>(offsets.begin(), offsets.end());
 }
 
 
 template <typename Container, typename>
-std::vector<lba_count> TOCBuilder::build_lengths(Container&& lengths,
+std::vector<lba_count_t> TOCBuilder::build_lengths(Container&& lengths,
 		const TrackNo track_count)
 {
 	// Valid number of lengths ?
@@ -842,9 +842,9 @@ std::vector<lba_count> TOCBuilder::build_lengths(Container&& lengths,
 		// Just swallow it for now
 	}
 
-	// Convert ints to lba_count while normalizing the last length to 0
+	// Convert ints to lba_count_t while normalizing the last length to 0
 
-	std::vector<lba_count> uv(lengths.begin(), lengths.end());
+	std::vector<lba_count_t> uv(lengths.begin(), lengths.end());
 
 	auto end_lengths { std::end(lengths) }; // avoid modifying temporaries
 	if (*--end_lengths < 0) // normalize last length to 0
@@ -856,7 +856,7 @@ std::vector<lba_count> TOCBuilder::build_lengths(Container&& lengths,
 }
 
 
-lba_count TOCBuilder::build_leadout(const lba_count leadout)
+lba_count_t TOCBuilder::build_leadout(const lba_count_t leadout)
 {
 	try {
 

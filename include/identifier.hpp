@@ -33,13 +33,13 @@ inline namespace v_1_0_0
  *
  * A signed integer of at least 32 bit length.
  *
- * The type is required to express the maximum frame count in a medium. The
- * value is MAX_BLOCK_ADDRESS == 449.999 frames.
+ * The type is required to be able to express the maximum frame count in a
+ * medium. The value is CDDA.MAX_BLOCK_ADDRESS == 449.999 frames.
  *
  * The type is intended to perform arithmetic operations on it.
  */
-using lba_count = int32_t;
-/* TODO Typedef is unnecessary after successful test with int32_t */
+using lba_count_t = int32_t;
+
 
 /**
  * \brief Data type for track numbers.
@@ -112,7 +112,7 @@ struct CDDA_t
 	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
 	 * equivalent to 449.999 frames.
 	 */
-	const lba_count MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
+	const lba_count_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Maximal valid offset value in cdda frames.
@@ -121,7 +121,7 @@ struct CDDA_t
 	 * which is equivalent to 360.000 frames, thus the maximal offset is frame
 	 * index 359.999.
 	 */
-	const lba_count MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
+	const lba_count_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Two subsequenct offsets must have a distance of at least this
@@ -130,7 +130,7 @@ struct CDDA_t
 	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
-	const lba_count MIN_TRACK_OFFSET_DIST { 300 };
+	const lba_count_t MIN_TRACK_OFFSET_DIST { 300 };
 
 	/**
 	 * \brief Minimal number of frames a track contains.
@@ -139,7 +139,7 @@ struct CDDA_t
 	 * pause but the pause does not contribute to the track lengths, thus
 	 * 2 sec * 75 frames/sec == 150 frames.
 	 */
-	const lba_count MIN_TRACK_LEN_FRAMES { 150 };
+	const lba_count_t MIN_TRACK_LEN_FRAMES { 150 };
 };
 
 
@@ -410,7 +410,7 @@ public:
 	 *
 	 * \return Offset of specified track
 	 */
-	lba_count offset(const TrackNo idx) const;
+	lba_count_t offset(const TrackNo idx) const;
 
 	/**
 	 * \brief Return the length of the 1-based specified track in frames as
@@ -427,7 +427,7 @@ public:
 	 *
 	 * \return Length of specified track
 	 */
-	lba_count parsed_length(const TrackNo idx) const;
+	lba_count_t parsed_length(const TrackNo idx) const;
 
 	/**
 	 * \brief Return the file of the 1-based specified track, i.e.
@@ -453,7 +453,7 @@ public:
 	 *
 	 * \return The leadout frame index
 	 */
-	lba_count leadout() const noexcept;
+	lba_count_t leadout() const noexcept;
 
 	/**
 	 * \brief Return TRUE iff TOC information is complete, otherwise FALSE.
@@ -588,14 +588,14 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
  *
  * \throw InvalidMetadataException If \c toc and \c leadout are invalid
  */
-std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count leadout);
+std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count_t leadout);
 
 
 /**
- * \copydoc arcstk::v_1_0_0::make_arid(const TOC &, const lba_count)
+ * \copydoc arcstk::v_1_0_0::make_arid(const TOC &, const lba_count_t)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
-		const lba_count leadout);
+		const lba_count_t leadout);
 
 
 /**
@@ -621,13 +621,13 @@ namespace toc
  *
  * \return The offsets of this TOC as an iterable container
  */
-std::vector<lba_count> get_offsets(const TOC &toc);
+std::vector<lba_count_t> get_offsets(const TOC &toc);
 
 
 /**
  * \copydoc get_offsets(const TOC&)
  */
-std::vector<lba_count> get_offsets(const std::unique_ptr<TOC> &toc);
+std::vector<lba_count_t> get_offsets(const std::unique_ptr<TOC> &toc);
 
 
 /**
@@ -637,13 +637,13 @@ std::vector<lba_count> get_offsets(const std::unique_ptr<TOC> &toc);
  *
  * \return List of parsed lengths from metafile
  */
-std::vector<lba_count> get_parsed_lengths(const TOC &toc);
+std::vector<lba_count_t> get_parsed_lengths(const TOC &toc);
 
 
 /**
  * \copydoc get_parsed_lengths(const TOC&)
  */
-std::vector<lba_count> get_parsed_lengths(const std::unique_ptr<TOC> &toc);
+std::vector<lba_count_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc);
 
 
 /**
@@ -700,7 +700,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
-	static std::unique_ptr<ARId> build(const TOC &toc, const lba_count leadout);
+	static std::unique_ptr<ARId> build(const TOC &toc, const lba_count_t leadout);
 
 	/**
 	 * \brief Build an ARId object from the specified TOC.
@@ -745,7 +745,7 @@ private:
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
 	static std::unique_ptr<ARId> build_worker(const TOC &toc,
-			const lba_count leadout);
+			const lba_count_t leadout);
 
 	/**
 	 * \brief Service method: Compute the disc id 1 from offsets and leadout.
@@ -753,8 +753,8 @@ private:
 	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 * \param[in] leadout Leadout LBA frame
 	 */
-	static uint32_t disc_id_1(const std::vector<lba_count> &offsets,
-			const lba_count leadout) noexcept;
+	static uint32_t disc_id_1(const std::vector<lba_count_t> &offsets,
+			const lba_count_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: Compute the disc id 2 from offsets and leadout.
@@ -762,8 +762,8 @@ private:
 	 * \param[in] offsets Offsets (in LBA frames) of each track
 	 * \param[in] leadout Leadout LBA frame
 	 */
-	static uint32_t disc_id_2(const std::vector<lba_count> &offsets,
-			const lba_count leadout) noexcept;
+	static uint32_t disc_id_2(const std::vector<lba_count_t> &offsets,
+			const lba_count_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: Compute the CDDB id from offsets and leadout.
@@ -777,8 +777,8 @@ private:
 	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 * \param[in] leadout     Leadout LBA frame
 	 */
-	static uint32_t cddb_id(const std::vector<lba_count> &offsets,
-			const lba_count leadout) noexcept;
+	static uint32_t cddb_id(const std::vector<lba_count_t> &offsets,
+			const lba_count_t leadout) noexcept;
 
 	/**
 	 * \brief Service method: sum up the digits of the number passed
@@ -881,7 +881,7 @@ template <typename LBAContainer,
 	typename = IsLBAContainer<LBAContainer>,
 	typename = IsFilenameContainer<FilenameContainer> >
 inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
-		const lba_count leadout,
+		const lba_count_t leadout,
 		FilenameContainer&& files = {})
 {
 	using ::arcstk::details::TOCBuilder;
@@ -922,7 +922,7 @@ template <typename LBAContainer,
 	typename = IsFilenameContainer<FilenameContainer> >
 std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 		LBAContainer&& offsets,
-		const lba_count leadout,
+		const lba_count_t leadout,
 		FilenameContainer&& files = {})
 {
 	using ::arcstk::details::TOCBuilder;
@@ -1037,7 +1037,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  */
 template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	LBAContainer&& offsets, const lba_count leadout)
+	LBAContainer&& offsets, const lba_count_t leadout)
 {
 	auto toc = make_toc(track_count,
 			std::forward<LBAContainer>(offsets),
@@ -1061,7 +1061,7 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
  */
 template <typename LBAContainer, typename = IsLBAContainer<LBAContainer> >
 inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
-		const lba_count leadout)
+		const lba_count_t leadout)
 {
 	auto toc = make_toc(std::forward<LBAContainer>(offsets), leadout);
 
@@ -1084,7 +1084,7 @@ inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
  */
 template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	std::initializer_list<T> offsets, const lba_count leadout)
+	std::initializer_list<T> offsets, const lba_count_t leadout)
 {
 	return make_arid(track_count, std::vector<T>{offsets}, leadout);
 }
@@ -1104,7 +1104,7 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
  */
 template <typename T, typename = IsLBAType<T> >
 inline std::unique_ptr<ARId> make_arid(std::initializer_list<T> offsets,
-		const lba_count leadout)
+		const lba_count_t leadout)
 {
 	return make_arid(std::vector<T>{offsets}, leadout);
 }

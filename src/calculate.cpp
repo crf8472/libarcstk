@@ -107,12 +107,12 @@ public:
 	/**
 	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
 	 */
-	void set_total_frames(const lba_count leadout) noexcept;
+	void set_total_frames(const lba_count_t leadout) noexcept;
 
 	/**
 	 * \brief Implements AudioSize::leadout_frame() const
 	 */
-	lba_count total_frames() const noexcept;
+	lba_count_t total_frames() const noexcept;
 
 	/**
 	 * \brief Implements AudioSize::set_total_samples(const sample_count_t smpl_count)
@@ -166,7 +166,7 @@ private:
 	 *
 	 * \throw std::overflow_error If value is bigger than the legal unit maximum
 	 */
-	uint32_t frames_to_bytes(const lba_count frame_count);
+	uint32_t frames_to_bytes(const lba_count_t frame_count);
 
 	/**
 	 * \brief Convert \c frame_count to the corrsponding number of bytes.
@@ -233,9 +233,9 @@ uint32_t AudioSize::Impl::to_bytes(const long int value,
 }
 
 
-uint32_t AudioSize::Impl::frames_to_bytes(const lba_count frame_count)
+uint32_t AudioSize::Impl::frames_to_bytes(const lba_count_t frame_count)
 {
-	if (frame_count > static_cast<lba_count>(CDDA.MAX_BLOCK_ADDRESS))
+	if (frame_count > static_cast<lba_count_t>(CDDA.MAX_BLOCK_ADDRESS))
 	{
 		auto ss = std::stringstream {};
 		ss << "Frame count too big for AudioSize: "
@@ -266,15 +266,15 @@ uint32_t AudioSize::Impl::samples_to_bytes(const sample_count_t smpl_count)
 }
 
 
-void AudioSize::Impl::set_total_frames(const lba_count frame_count) noexcept
+void AudioSize::Impl::set_total_frames(const lba_count_t frame_count) noexcept
 {
 	this->set_total_pcm_bytes(this->frames_to_bytes(frame_count));
 }
 
 
-lba_count AudioSize::Impl::total_frames() const noexcept
+lba_count_t AudioSize::Impl::total_frames() const noexcept
 {
-	return static_cast<lba_count>(
+	return static_cast<lba_count_t>(
 		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA.BYTES_PER_FRAME));
 }
 
@@ -381,13 +381,13 @@ TrackNo CalcContext::track(const sample_count_t smpl) const noexcept
 }
 
 
-lba_count CalcContext::offset(const uint8_t track) const noexcept
+lba_count_t CalcContext::offset(const uint8_t track) const noexcept
 {
 	return this->do_offset(track);
 }
 
 
-lba_count CalcContext::length(const uint8_t track) const noexcept
+lba_count_t CalcContext::length(const uint8_t track) const noexcept
 {
 	return this->do_length(track);
 }
@@ -1027,14 +1027,14 @@ noexcept
 }
 
 
-lba_count SingletrackCalcContext::do_offset(const uint8_t /* track */) const
+lba_count_t SingletrackCalcContext::do_offset(const uint8_t /* track */) const
 noexcept
 {
 	return 0;
 }
 
 
-lba_count SingletrackCalcContext::do_length(const uint8_t /* track */) const
+lba_count_t SingletrackCalcContext::do_length(const uint8_t /* track */) const
 noexcept
 {
 	return 0;
@@ -1243,13 +1243,13 @@ TrackNo MultitrackCalcContext::do_track(const sample_count_t smpl)
 }
 
 
-lba_count MultitrackCalcContext::do_offset(const uint8_t track) const noexcept
+lba_count_t MultitrackCalcContext::do_offset(const uint8_t track) const noexcept
 {
 	return track < this->track_count() ? toc().offset(track + 1) : 0;
 }
 
 
-lba_count MultitrackCalcContext::do_length(const uint8_t track) const noexcept
+lba_count_t MultitrackCalcContext::do_length(const uint8_t track) const noexcept
 {
 	// We define track i as the sample sequence whose first frame is LBA
 	// offset[i] and whose last frame is LBA offset[i+1] - 1.
@@ -2649,13 +2649,13 @@ AudioSize::AudioSize(AudioSize &&rhs) noexcept = default;
 AudioSize::~AudioSize() noexcept = default;
 
 
-void AudioSize::set_leadout_frame(const lba_count leadout) noexcept
+void AudioSize::set_leadout_frame(const lba_count_t leadout) noexcept
 {
 	impl_->set_total_frames(leadout);
 }
 
 
-lba_count AudioSize::leadout_frame() const noexcept
+lba_count_t AudioSize::leadout_frame() const noexcept
 {
 	return impl_->total_frames();
 }
@@ -2986,7 +2986,7 @@ public:
 	 *
 	 * \param[in] length Length (in LBA frames) of this track
 	 */
-	explicit Impl(const lba_count length);
+	explicit Impl(const lba_count_t length);
 
 	/**
 	 * \brief Copy constructor
@@ -3012,7 +3012,7 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	lba_count length() const noexcept;
+	lba_count_t length() const noexcept;
 
 	/**
 	 * \brief Return the internal map
@@ -3030,7 +3030,7 @@ private:
 	/**
 	 * \brief Internal representation of the length (in frames).
 	 */
-	lba_count length_;
+	lba_count_t length_;
 
 	/**
 	 * \brief Internal representation of the checksums.
@@ -3042,7 +3042,7 @@ private:
 /** @} */
 
 
-ChecksumSet::Impl::Impl(const lba_count length)
+ChecksumSet::Impl::Impl(const lba_count_t length)
 	: length_ { length }
 	, checksum_map_ {}
 {
@@ -3083,7 +3083,7 @@ void ChecksumSet::Impl::merge(const Impl &rhs)
 }
 
 
-lba_count ChecksumSet::Impl::length() const noexcept
+lba_count_t ChecksumSet::Impl::length() const noexcept
 {
 	return length_;
 }
@@ -3115,7 +3115,7 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(const lba_count length)
+ChecksumSet::ChecksumSet(const lba_count_t length)
 	: impl_ { std::make_unique<ChecksumSet::Impl>(length) }
 {
 	// empty
@@ -3183,7 +3183,7 @@ ChecksumSet::iterator ChecksumSet::end()
 }
 
 
-lba_count ChecksumSet::length() const noexcept
+lba_count_t ChecksumSet::length() const noexcept
 {
 	return impl_->length();
 }

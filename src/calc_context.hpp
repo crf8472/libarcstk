@@ -237,9 +237,9 @@ private:
 
 	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 
-	lba_count do_offset(const uint8_t track) const noexcept final;
+	lba_count_t do_offset(const uint8_t track) const noexcept final;
 
-	lba_count do_length(const uint8_t track) const noexcept final;
+	lba_count_t do_length(const uint8_t track) const noexcept final;
 
 	ARId do_id() const noexcept final;
 
@@ -372,9 +372,9 @@ private:
 
 	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 
-	lba_count do_offset(const uint8_t track) const noexcept final;
+	lba_count_t do_offset(const uint8_t track) const noexcept final;
 
-	lba_count do_length(const uint8_t track) const noexcept final;
+	lba_count_t do_length(const uint8_t track) const noexcept final;
 
 	ARId do_id() const noexcept final;
 

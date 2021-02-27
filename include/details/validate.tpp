@@ -484,15 +484,15 @@ public:
 	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate(const TrackNo track_count,
 			Container&& offsets,
-			const lba_count leadout);
+			const lba_count_t leadout);
 
 	/**
-	 * \copydoc validate(TrackNo, Container&&, const lba_count) const
+	 * \copydoc validate(TrackNo, Container&&, const lba_count_t) const
 	 */
 	template <typename T, typename = LBAType<T>>
 	inline static void validate(TrackNo track_count,
 			std::initializer_list<T> offsets,
-			const lba_count leadout);
+			const lba_count_t leadout);
 
 	/**
 	 * \brief Validate lengths.
@@ -529,7 +529,7 @@ public:
 	 * \throw InvalidMetadataException If leadout exceeds physical maximum
 	 * \throw NonstandardMetadataException If leadout exceeds CDDA.MAX_OFFSET
 	 */
-	inline static void validate_leadout(const lba_count leadout);
+	inline static void validate_leadout(const lba_count_t leadout);
 
 	/**
 	 * \brief Validate track count.
@@ -553,7 +553,7 @@ public:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline static void validate(const TOC &toc, const lba_count leadout);
+	inline static void validate(const TOC &toc, const lba_count_t leadout);
 
 
 protected:
@@ -567,8 +567,8 @@ protected:
 	 *
 	 * \throw InvalidMetadataException If the validation fails
 	 */
-	inline static void have_min_dist(const lba_count prev_track,
-			const lba_count next_track);
+	inline static void have_min_dist(const lba_count_t prev_track,
+			const lba_count_t next_track);
 
 	/**
 	 * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
@@ -576,7 +576,7 @@ protected:
 	 *
 	 * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
 	 */
-	static constexpr lba_count MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
+	static constexpr lba_count_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 
 	/**
 	 * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
@@ -584,7 +584,7 @@ protected:
 	 *
 	 * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
 	 */
-	static constexpr lba_count MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
+	static constexpr lba_count_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 };
 
 
@@ -677,8 +677,8 @@ void TOCValidator::validate_offsets(Container&& offsets)
 		// offset for last track?
 
 		TOCValidator::have_min_dist(
-				static_cast<lba_count>(*previous_track),
-				static_cast<lba_count>(*track));
+				static_cast<lba_count_t>(*previous_track),
+				static_cast<lba_count_t>(*track));
 
 		++t;
 	} // for
@@ -734,7 +734,7 @@ void TOCValidator::validate_offsets(const TrackNo track_count,
 
 template <typename Container, typename>
 void TOCValidator::validate(const TrackNo track_count,
-		Container&& offsets, const lba_count leadout)
+		Container&& offsets, const lba_count_t leadout)
 {
 	TOCValidator::validate_leadout(leadout);
 
@@ -759,7 +759,7 @@ void TOCValidator::validate(const TrackNo track_count,
 
 template <typename T, typename>
 void TOCValidator::validate(const TrackNo track_count,
-		std::initializer_list<T> offsets, const lba_count leadout)
+		std::initializer_list<T> offsets, const lba_count_t leadout)
 {
 	// FIXME Works, but performance hurts. Just pass list?
 	TOCValidator::validate(track_count, std::vector<T>{offsets}, leadout);
@@ -791,7 +791,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	// Length values are valid?
 
-	auto sum_lengths = lba_count { 0 };
+	auto sum_lengths = lba_count_t { 0 };
 
 	auto last { --std::end(lengths) };
 	auto t { 1 };
@@ -809,7 +809,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 			throw InvalidMetadataException(ss.str());
 		}
 
-		sum_lengths += static_cast<lba_count>(*track);
+		sum_lengths += static_cast<lba_count_t>(*track);
 	}
 
 	// Sum of all lengths in legal range ?
@@ -851,7 +851,7 @@ void TOCValidator::validate_lengths(std::initializer_list<T> lengths)
 }
 
 
-void TOCValidator::validate_leadout(const lba_count leadout)
+void TOCValidator::validate_leadout(const lba_count_t leadout)
 {
 	// Greater than Minimum ?
 
@@ -899,7 +899,7 @@ void TOCValidator::validate_trackcount(const TrackNo track_count)
 }
 
 
-void TOCValidator::validate(const TOC &toc, const lba_count leadout)
+void TOCValidator::validate(const TOC &toc, const lba_count_t leadout)
 {
 	TOCValidator::validate_leadout(leadout);
 
@@ -908,8 +908,8 @@ void TOCValidator::validate(const TOC &toc, const lba_count leadout)
 }
 
 
-void TOCValidator::have_min_dist(const lba_count prev_track,
-		const lba_count next_track)
+void TOCValidator::have_min_dist(const lba_count_t prev_track,
+		const lba_count_t next_track)
 {
 	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
 	{

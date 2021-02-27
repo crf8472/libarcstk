@@ -50,7 +50,7 @@ TEST_CASE ( "toc::get_filenames", "[identifier]" )
 			// track count
 			15,
 			// offsets
-			std::vector<arcstk::lba_count>{ 33, 5225, 7390, 23380, 35608, 49820,
+			std::vector<arcstk::lba_count_t>{ 33, 5225, 7390, 23380, 35608, 49820,
 			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
 			234103 },
 			// leadout
@@ -74,7 +74,7 @@ TEST_CASE ( "toc::get_filenames", "[identifier]" )
 			// track count
 			15,
 			// offsets
-			std::vector<arcstk::lba_count>{ 33, 5225, 7390, 23380, 35608, 49820,
+			std::vector<arcstk::lba_count_t>{ 33, 5225, 7390, 23380, 35608, 49820,
 			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
 			234103 },
 			// leadout
@@ -772,7 +772,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 {
 	using arcstk::details::TOCValidator;
 	using arcstk::CDDA;
-	using arcstk::lba_count;
+	using arcstk::lba_count_t;
 
 
 	SECTION ( "Validation succeeds for correct offsets" )
@@ -834,11 +834,11 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// track count bigger than legal maximum
 		CHECK_THROWS ( TOCValidator::validate_offsets(
-					std::vector<lba_count>(100)) );
+					std::vector<lba_count_t>(100)) );
 
 		// track count smaller than legal minimum
 		CHECK_THROWS ( TOCValidator::validate_offsets(
-					std::vector<lba_count>()) );
+					std::vector<lba_count_t>()) );
 	}
 
 
@@ -875,7 +875,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 
 		// track count bigger than legal maximum
 		CHECK_THROWS ( TOCValidator::validate_lengths(
-					std::vector<lba_count>(100)) );
+					std::vector<lba_count_t>(100)) );
 
 		// last length smaller than legal minimum
 		CHECK_THROWS ( TOCValidator::validate_lengths(
@@ -883,7 +883,7 @@ TEST_CASE ( "TOCValidator", "[identifier]" )
 		));
 
 		// track count smaller than legal minimum
-		CHECK_THROWS (TOCValidator::validate_lengths(std::vector<lba_count>()));
+		CHECK_THROWS (TOCValidator::validate_lengths(std::vector<lba_count_t>()));
 	}
 
 
@@ -1144,7 +1144,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 {
 	using arcstk::details::TOCBuilder;
 	using arcstk::CDDA;
-	using arcstk::lba_count;
+	using arcstk::lba_count_t;
 
 	SECTION ( "Build fails for incorrect offsets" )
 	{
@@ -1428,7 +1428,7 @@ TEST_CASE ( "TOCBuilder: build fails with illegal values",
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
 			// lengths
-			std::vector<lba_count>(100) /* BOOM */
+			std::vector<lba_count_t>(100) /* BOOM */
 		));
 
 		// no lengths
