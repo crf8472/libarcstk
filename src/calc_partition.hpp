@@ -66,8 +66,8 @@ public:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
-			const sample_count offset,
-			const sample_count number_of_samples,
+			const sample_count_t offset,
+			const sample_count_t number_of_samples,
 			const CalcContext &context) const;
 
 	/**
@@ -88,12 +88,12 @@ protected:
 	 * \brief Index of the last sample of the block.
 	 *
 	 * \param[in] offset       Offset of the sample block
-	 * \param[in] sample_count Number of samples in the partition
+	 * \param[in] sample_count_t Number of samples in the partition
 	 *
 	 * \return Index of the last physical sample in the block
 	 */
-	sample_count last_sample_idx(const sample_count offset,
-			const sample_count sample_count) const;
+	sample_count_t last_sample_idx(const sample_count_t offset,
+			const sample_count_t sample_count) const;
 
 	/**
 	 * \brief Creates a Partition.
@@ -114,10 +114,10 @@ protected:
 	 * \return A Partition as specified
 	 */
 	Partition create_partition(
-			const sample_count &begin_offset,
-			const sample_count &end_offset,
-			const sample_count &first,
-			const sample_count &last,
+			const sample_count_t &begin_offset,
+			const sample_count_t &end_offset,
+			const sample_count_t &first,
+			const sample_count_t &last,
 			const bool         &starts_track,
 			const bool         &ends_track,
 			const TrackNo      &track) const;
@@ -135,8 +135,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-			const sample_count offset,
-			const sample_count number_of_samples,
+			const sample_count_t offset,
+			const sample_count_t number_of_samples,
 			const CalcContext &context) const
 	= 0;
 };
@@ -169,8 +169,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning do_create_partitioning(
-			const sample_count offset,
-			const sample_count number_of_samples,
+			const sample_count_t offset,
+			const sample_count_t number_of_samples,
 			const CalcContext &context)
 			const override;
 };
@@ -203,8 +203,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning do_create_partitioning(
-			const sample_count offset,
-			const sample_count number_of_samples,
+			const sample_count_t offset,
+			const sample_count_t number_of_samples,
 			const CalcContext &context)
 			const override;
 };
@@ -234,28 +234,28 @@ public: /* methods */
 	 *
 	 * \return Relative offset of the first sample in the partition.
 	 */
-	sample_count begin_offset() const;
+	sample_count_t begin_offset() const;
 
 	/**
 	 * \brief Relative offset of the last sample in the partition + 1.
 	 *
 	 * \return Relative offset of the last sample in the partition + 1.
 	 */
-	sample_count end_offset() const;
+	sample_count_t end_offset() const;
 
 	/**
 	 * \brief Returns global index of the first sample in the partition.
 	 *
 	 * \return Global index of the first sample in this partition
 	 */
-	sample_count first_sample_idx() const;
+	sample_count_t first_sample_idx() const;
 
 	/**
 	 * \brief Returns global index of the last sample in the partition.
 	 *
 	 * \return Global index of the last sample in this partition
 	 */
-	sample_count last_sample_idx() const;
+	sample_count_t last_sample_idx() const;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the
@@ -285,7 +285,7 @@ public: /* methods */
 	 *
 	 * \return Number of samples in this partition
 	 */
-	sample_count size() const;
+	sample_count_t size() const;
 
 
 private:
@@ -308,10 +308,10 @@ private:
 	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
-			const sample_count &begin_offset,
-			const sample_count &end_offset,
-			const sample_count &first,
-			const sample_count &last,
+			const sample_count_t &begin_offset,
+			const sample_count_t &end_offset,
+			const sample_count_t &first,
+			const sample_count_t &last,
 			const bool         &starts_track,
 			const bool         &ends_track,
 			const TrackNo      &track);
@@ -319,22 +319,22 @@ private:
 	/**
 	 * \brief Relative offset of the first sample in this partition
 	 */
-	const sample_count begin_offset_;
+	const sample_count_t begin_offset_;
 
 	/**
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
-	const sample_count end_offset_;
+	const sample_count_t end_offset_;
 
 	/**
 	 * \brief Global (absolute) index of the first sample in this partition
 	 */
-	const sample_count first_sample_idx_;
+	const sample_count_t first_sample_idx_;
 
 	/**
 	 * \brief Global (absolute) index of the last sample in this partition
 	 */
-	const sample_count last_sample_idx_;
+	const sample_count_t last_sample_idx_;
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
@@ -373,7 +373,7 @@ public:
 	 * \param[in] a First number in closed interval
 	 * \param[in] b Last number in closed interval
 	 */
-	Interval(const sample_count a, const sample_count b);
+	Interval(const sample_count_t a, const sample_count_t b);
 
 	/**
 	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise
@@ -383,7 +383,7 @@ public:
 	 *
 	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
 	 */
-	bool contains(const sample_count i) const;
+	bool contains(const sample_count_t i) const;
 
 
 private:
@@ -391,12 +391,12 @@ private:
 	/**
 	 * \brief First number in interval
 	 */
-	const sample_count a_;
+	const sample_count_t a_;
 
 	/**
 	 * \brief Last number in interval
 	 */
-	const sample_count b_;
+	const sample_count_t b_;
 };
 
 } // namespace details

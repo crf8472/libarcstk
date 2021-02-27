@@ -75,7 +75,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the beginning
 	 */
-	virtual sample_count num_skip_front() const noexcept
+	virtual sample_count_t num_skip_front() const noexcept
 	= 0;
 
 	/**
@@ -83,7 +83,7 @@ public:
 	 *
 	 * \return Amount of samples to be skipped at the end
 	 */
-	virtual sample_count num_skip_back() const noexcept
+	virtual sample_count_t num_skip_back() const noexcept
 	= 0;
 
 	/**
@@ -249,9 +249,9 @@ public:
 	 */
 	void init_without_skip() noexcept override;
 
-	sample_count num_skip_front() const noexcept override;
+	sample_count_t num_skip_front() const noexcept override;
 
-	sample_count num_skip_back() const noexcept override;
+	sample_count_t num_skip_back() const noexcept override;
 
 	void update(SampleInputIterator &begin, SampleInputIterator &end) final;
 
@@ -289,12 +289,12 @@ private:
 	/**
 	 * \brief Actual amount of skipped samples at front
 	 */
-	sample_count actual_skip_front_;
+	sample_count_t actual_skip_front_;
 
 	/**
 	 * \brief Actual amount of skipped samples at back
 	 */
-	sample_count actual_skip_back_;
+	sample_count_t actual_skip_back_;
 };
 
 

@@ -29,19 +29,6 @@ inline namespace v_1_0_0
 /// @{
 
 /**
- * \brief Type to represent amounts of PCM 32 bit samples.
- *
- * A signed integer of at least 32 bit length.
- *
- * The type is required to express the maximum sample count in a medium, which
- * is MAX_BLOCK_ADDRESS * SAMPLES_PER_FRAME == 264.599.412 samples.
- *
- * The type is intended to perform arithmetic operations on it.
- */
-using sample_count = int32_t;
-/* TODO Typedef is unnecessary after successful test with int32_t */
-
-/**
  * \brief Type to represent amounts of LBA frames.
  *
  * A signed integer of at least 32 bit length.

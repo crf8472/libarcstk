@@ -577,6 +577,19 @@ private:
 };
 
 
+/**
+ * \brief Type to represent amounts of PCM 32 bit samples.
+ *
+ * A signed integer of at least 32 bit length.
+ *
+ * The type is required to express the maximum sample count in a medium, which
+ * is MAX_BLOCK_ADDRESS * SAMPLES_PER_FRAME == 264.599.412 samples.
+ *
+ * The type is intended to perform arithmetic operations on it.
+ */
+using sample_count_t = int32_t;
+
+
 // forward declaration for operator ==
 class AudioSize; // IWYU pragma keep
 
@@ -667,14 +680,14 @@ public: /* functions */
 	 *
 	 * \param[in] smpl_count Total number of 32 bit PCM samples
 	 */
-	void set_total_samples(const sample_count smpl_count) noexcept;
+	void set_total_samples(const sample_count_t smpl_count) noexcept;
 
 	/**
 	 * \brief Return the total number of 32 bit PCM samples.
 	 *
 	 * \return The total number of 32 bit PCM samples
 	 */
-	sample_count total_samples() const noexcept;
+	sample_count_t total_samples() const noexcept;
 
 	/**
 	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
@@ -788,7 +801,7 @@ bool operator == (const SampleInputIterator &lhs,
 		const SampleInputIterator &rhs) noexcept;
 
 SampleInputIterator operator + (SampleInputIterator lhs,
-		const sample_count amount) noexcept;
+		const sample_count_t amount) noexcept;
 
 /**
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
@@ -821,7 +834,7 @@ public:
 			const SampleInputIterator &rhs) noexcept;
 
 	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const sample_count amount) noexcept;
+			const sample_count_t amount) noexcept;
 
 	/**
 	 * \brief Iterator category is std::input_iterator_tag.
@@ -876,7 +889,7 @@ private:
 		 *
 		 * \param[in] n Number of positions to advance
 		 */
-		virtual void advance(const sample_count n) noexcept
+		virtual void advance(const sample_count_t n) noexcept
 		= 0;
 
 		/**
@@ -934,7 +947,7 @@ private:
 			++iterator_;
 		}
 
-		void advance(const sample_count n) noexcept final
+		void advance(const sample_count_t n) noexcept final
 		{
 			std::advance(iterator_, n);
 		}
@@ -1083,7 +1096,7 @@ private:
 };
 
 
-SampleInputIterator operator + (const sample_count amount,
+SampleInputIterator operator + (const sample_count_t amount,
 		SampleInputIterator rhs) noexcept;
 
 
@@ -1184,7 +1197,7 @@ public:
 	 *
 	 * \return Index of the first sample contributing to the track's ARCS
 	 */
-	sample_count first_relevant_sample(const TrackNo track) const noexcept;
+	sample_count_t first_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
 	 * \brief Get 0-based index of the first sample to be counted in
@@ -1199,7 +1212,7 @@ public:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	sample_count first_relevant_sample() const noexcept;
+	sample_count_t first_relevant_sample() const noexcept;
 
 	/**
 	 * \brief Service method: Get 0-based index of the last relevant sample of
@@ -1219,7 +1232,7 @@ public:
 	 *
 	 * \return Index of last sample contributing to the specified track's ARCS
 	 */
-	sample_count last_relevant_sample(const TrackNo track) const noexcept;
+	sample_count_t last_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
 	 * \brief Get 0-based index of the last sample to be counted in computation.
@@ -1232,16 +1245,16 @@ public:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	sample_count last_relevant_sample() const noexcept;
+	sample_count_t last_relevant_sample() const noexcept;
 
 	/**
 	 * \brief Returns 1-based track number of the track containing the specified
 	 * 0-based sample.
 	 *
-	 * If sample_count() is 0, the method will return 0 regardless of
+	 * If total_samples() is 0, the method will return 0 regardless of
 	 * the actual value of \c smpl.
 	 *
-	 * If \c smpl is bigger than <tt>sample_count() - 1</tt>, the method will
+	 * If \c smpl is bigger than <tt>total_samples() - 1</tt>, the method will
 	 * return an invalid high track number ("infinite").
 	 *
 	 * The user has therefore to check for the validity of the result by
@@ -1251,7 +1264,7 @@ public:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	TrackNo track(const sample_count smpl) const noexcept;
+	TrackNo track(const sample_count_t smpl) const noexcept;
 
 	/**
 	 * \brief Return the offset of the specified 0-based track from the TOC.
@@ -1317,7 +1330,7 @@ public:
 	 *
 	 * \return The number of samples to skip at the beginning of the first track
 	 */
-	sample_count num_skip_front() const noexcept;
+	sample_count_t num_skip_front() const noexcept;
 
 	/**
 	 * \brief Returns the amount of samples to skip at the end of the last track
@@ -1327,7 +1340,7 @@ public:
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
-	sample_count num_skip_back() const noexcept;
+	sample_count_t num_skip_back() const noexcept;
 
 	/**
 	 * \brief Notifies the instance about configured skipping amounts at the
@@ -1339,8 +1352,8 @@ public:
 	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
-	void notify_skips(const sample_count num_skip_front,
-			const sample_count num_skip_back) noexcept;
+	void notify_skips(const sample_count_t num_skip_front,
+			const sample_count_t num_skip_back) noexcept;
 
 	/**
 	 * \brief Clone this CalcContext object.
@@ -1410,7 +1423,7 @@ private:
 	 *
 	 * \return Index of the first sample contributing to the track's ARCS
 	 */
-	virtual sample_count do_first_relevant_sample(const TrackNo track) const
+	virtual sample_count_t do_first_relevant_sample(const TrackNo track) const
 	noexcept
 	= 0;
 
@@ -1419,7 +1432,7 @@ private:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	virtual sample_count do_first_relevant_sample_0() const noexcept
+	virtual sample_count_t do_first_relevant_sample_0() const noexcept
 	= 0;
 
 	/**
@@ -1429,7 +1442,7 @@ private:
 	 *
 	 * \return Index of last sample contributing to the specified track's ARCS
 	 */
-	virtual sample_count do_last_relevant_sample(const TrackNo track) const
+	virtual sample_count_t do_last_relevant_sample(const TrackNo track) const
 	noexcept
 	= 0;
 
@@ -1438,17 +1451,17 @@ private:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	virtual sample_count do_last_relevant_sample_0() const noexcept
+	virtual sample_count_t do_last_relevant_sample_0() const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements track(const sample_count smpl) const.
+	 * \brief Implements track(const sample_count_t smpl) const.
 	 *
 	 * \param[in] smpl The sample to get the track for
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	virtual TrackNo do_track(const sample_count smpl) const noexcept
+	virtual TrackNo do_track(const sample_count_t smpl) const noexcept
 	= 0;
 
 	/**
@@ -1500,7 +1513,7 @@ private:
 	 *
 	 * \return The number of samples to skip at the beginning of the first track
 	 */
-	virtual sample_count do_num_skip_front() const noexcept
+	virtual sample_count_t do_num_skip_front() const noexcept
 	= 0;
 
 	/**
@@ -1508,17 +1521,17 @@ private:
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
-	virtual sample_count do_num_skip_back() const noexcept
+	virtual sample_count_t do_num_skip_back() const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements notify_skips(const sample_count num_skip_front, const sample_count num_skip_back).
+	 * \brief Implements notify_skips(const sample_count_t num_skip_front, const sample_count_t num_skip_back).
 	 *
 	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
 	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
-	virtual void do_notify_skips(const sample_count num_skip_front,
-			const sample_count num_skip_back) noexcept
+	virtual void do_notify_skips(const sample_count_t num_skip_front,
+			const sample_count_t num_skip_back) noexcept
 	= 0;
 
 	/**
@@ -2017,14 +2030,14 @@ inline bool operator == (const SampleInputIterator &lhs,
 
 
 inline SampleInputIterator operator + (SampleInputIterator lhs,
-		const sample_count amount) noexcept
+		const sample_count_t amount) noexcept
 {
 	lhs.object_->advance(amount);
 	return lhs;
 }
 
 
-inline SampleInputIterator operator + (const sample_count amount,
+inline SampleInputIterator operator + (const sample_count_t amount,
 		SampleInputIterator rhs) noexcept
 {
 	return rhs + amount;

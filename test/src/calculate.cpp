@@ -1349,7 +1349,7 @@ TEST_CASE ( "SampleInputIterator", "[calculate] [iterator]" )
 TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 {
 	using arcstk::sample_t;
-	using arcstk::sample_count;
+	using arcstk::sample_count_t;
 	using arcstk::make_context;
 	using arcstk::make_empty_arid;
 
@@ -1395,7 +1395,7 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 		CHECK ( sctx->last_relevant_sample(255) == SAMPLE_TYPE_MAX_VALUE );
 
 		CHECK ( sctx->track(0) == 1 );
-		CHECK ( sctx->track(std::numeric_limits<sample_count>::max()) == 1);
+		CHECK ( sctx->track(std::numeric_limits<sample_count_t>::max()) == 1);
 	}
 
 	// TODO Construction with parameters? (bool, bool, audiofilename)

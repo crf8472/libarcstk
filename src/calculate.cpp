@@ -65,7 +65,7 @@ namespace
  * = 2940 samples. We derive the number of samples to be skipped at the
  * start of the first track by just subtracting 1 from this constant.
  */
-constexpr sample_count NUM_SKIP_SAMPLES_BACK  = 5/* frames */ * 588/* samples */;
+constexpr sample_count_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
 
 /**
  * \brief Number of samples to be skipped after the start of the first track.
@@ -73,7 +73,7 @@ constexpr sample_count NUM_SKIP_SAMPLES_BACK  = 5/* frames */ * 588/* samples */
  * There are 5 frames - 1 sample to be skipped, i.e.
  * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
  */
-constexpr sample_count NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
+constexpr sample_count_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
 } // namespace
 
@@ -115,14 +115,14 @@ public:
 	lba_count total_frames() const noexcept;
 
 	/**
-	 * \brief Implements AudioSize::set_total_samples(const sample_count smpl_count)
+	 * \brief Implements AudioSize::set_total_samples(const sample_count_t smpl_count)
 	 */
-	void set_total_samples(const sample_count smpl_count) noexcept;
+	void set_total_samples(const sample_count_t smpl_count) noexcept;
 
 	/**
 	 * \brief Implements AudioSize::total_samples() const
 	 */
-	sample_count total_samples() const noexcept;
+	sample_count_t total_samples() const noexcept;
 
 	/**
 	 * \brief Implements AudioSize::set_pcm_byte_count(const uint32_t byte_count)
@@ -171,13 +171,13 @@ private:
 	/**
 	 * \brief Convert \c frame_count to the corrsponding number of bytes.
 	 *
-	 * \param[in] sample_count Number of PCM 32 bit samples to convert
+	 * \param[in] sample_count_t Number of PCM 32 bit samples to convert
 	 *
 	 * \return The equivalent number of bytes.
 	 *
 	 * \throw std::overflow_error If value is bigger than the legal unit maximum
 	 */
-	uint32_t samples_to_bytes(const sample_count sample_count);
+	uint32_t samples_to_bytes(const sample_count_t sample_count);
 
 	/**
 	 * \brief Data: Number of pcm sample bytes in the audio file.
@@ -248,9 +248,9 @@ uint32_t AudioSize::Impl::frames_to_bytes(const lba_count frame_count)
 }
 
 
-uint32_t AudioSize::Impl::samples_to_bytes(const sample_count smpl_count)
+uint32_t AudioSize::Impl::samples_to_bytes(const sample_count_t smpl_count)
 {
-	static const sample_count MAX_SAMPLES {
+	static const sample_count_t MAX_SAMPLES {
 		CDDA.SAMPLES_PER_FRAME * CDDA.MAX_BLOCK_ADDRESS };
 
 	if (smpl_count > MAX_SAMPLES)
@@ -279,15 +279,15 @@ lba_count AudioSize::Impl::total_frames() const noexcept
 }
 
 
-void AudioSize::Impl::set_total_samples(const sample_count smpl_count) noexcept
+void AudioSize::Impl::set_total_samples(const sample_count_t smpl_count) noexcept
 {
 	this->set_total_pcm_bytes(this->samples_to_bytes(smpl_count));
 }
 
 
-sample_count AudioSize::Impl::total_samples() const noexcept
+sample_count_t AudioSize::Impl::total_samples() const noexcept
 {
-	return static_cast<sample_count>(
+	return static_cast<sample_count_t>(
 		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA.BYTES_PER_SAMPLE));
 }
 
@@ -349,33 +349,33 @@ bool CalcContext::is_multi_track() const noexcept
 }
 
 
-sample_count CalcContext::first_relevant_sample(const TrackNo track) const
+sample_count_t CalcContext::first_relevant_sample(const TrackNo track) const
 	noexcept
 {
 	return this->do_first_relevant_sample(track);
 }
 
 
-sample_count CalcContext::first_relevant_sample() const noexcept
+sample_count_t CalcContext::first_relevant_sample() const noexcept
 {
 	return this->do_first_relevant_sample_0();
 }
 
 
-sample_count CalcContext::last_relevant_sample(const TrackNo track) const
+sample_count_t CalcContext::last_relevant_sample(const TrackNo track) const
 	noexcept
 {
 	return this->do_last_relevant_sample(track);
 }
 
 
-sample_count CalcContext::last_relevant_sample() const noexcept
+sample_count_t CalcContext::last_relevant_sample() const noexcept
 {
 	return this->do_last_relevant_sample_0();
 }
 
 
-TrackNo CalcContext::track(const sample_count smpl) const noexcept
+TrackNo CalcContext::track(const sample_count_t smpl) const noexcept
 {
 	return this->do_track(smpl);
 }
@@ -411,20 +411,20 @@ bool CalcContext::skips_back() const noexcept
 }
 
 
-sample_count CalcContext::num_skip_front() const noexcept
+sample_count_t CalcContext::num_skip_front() const noexcept
 {
 	return this->do_num_skip_front();
 }
 
 
-sample_count CalcContext::num_skip_back() const noexcept
+sample_count_t CalcContext::num_skip_back() const noexcept
 {
 	return this->do_num_skip_back();
 }
 
 
-void CalcContext::notify_skips(const sample_count num_skip_front,
-		const sample_count num_skip_back) noexcept
+void CalcContext::notify_skips(const sample_count_t num_skip_front,
+		const sample_count_t num_skip_back) noexcept
 {
 	this->do_notify_skips(num_skip_front, num_skip_back);
 }
@@ -444,10 +444,10 @@ namespace details
 
 
 Partition::Partition(
-		const sample_count &begin_offset,
-		const sample_count &end_offset,
-		const sample_count &first,
-		const sample_count &last,
+		const sample_count_t &begin_offset,
+		const sample_count_t &end_offset,
+		const sample_count_t &first,
+		const sample_count_t &last,
 		const bool     &starts_track,
 		const bool     &ends_track,
 		const TrackNo  &track
@@ -464,25 +464,25 @@ Partition::Partition(
 }
 
 
-sample_count Partition::begin_offset() const
+sample_count_t Partition::begin_offset() const
 {
 	return begin_offset_;
 }
 
 
-sample_count Partition::end_offset() const
+sample_count_t Partition::end_offset() const
 {
 	return end_offset_;
 }
 
 
-sample_count Partition::first_sample_idx() const
+sample_count_t Partition::first_sample_idx() const
 {
 	return first_sample_idx_;
 }
 
 
-sample_count Partition::last_sample_idx() const
+sample_count_t Partition::last_sample_idx() const
 {
 	return last_sample_idx_;
 }
@@ -506,7 +506,7 @@ TrackNo Partition::track() const
 }
 
 
-sample_count Partition::size() const
+sample_count_t Partition::size() const
 {
 	return last_sample_idx() - first_sample_idx() + 1;
 }
@@ -515,7 +515,7 @@ sample_count Partition::size() const
 // Interval
 
 
-Interval::Interval(const sample_count a, const sample_count b)
+Interval::Interval(const sample_count_t a, const sample_count_t b)
 	: a_ { a }
 	, b_ { b }
 {
@@ -523,7 +523,7 @@ Interval::Interval(const sample_count a, const sample_count b)
 }
 
 
-bool Interval::contains(const sample_count i) const
+bool Interval::contains(const sample_count_t i) const
 {
 	if (a_ <= b_)
 	{
@@ -541,8 +541,8 @@ Partitioner::~Partitioner() noexcept = default;
 
 
 Partitioning Partitioner::create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
+		const sample_count_t offset,
+		const sample_count_t number_of_samples,
 		const CalcContext &context) const
 {
 	// If the sample block does not contain any relevant samples,
@@ -564,18 +564,18 @@ Partitioning Partitioner::create_partitioning(
 }
 
 
-sample_count Partitioner::last_sample_idx(const sample_count offset,
-		const sample_count sample_count) const
+sample_count_t Partitioner::last_sample_idx(const sample_count_t offset,
+		const sample_count_t sample_count) const
 {
 	return offset + sample_count - 1;
 }
 
 
 Partition Partitioner::create_partition(
-		const sample_count     &begin_offset,
-		const sample_count     &end_offset,
-		const sample_count     &first,
-		const sample_count     &last,
+		const sample_count_t     &begin_offset,
+		const sample_count_t     &end_offset,
+		const sample_count_t     &first,
+		const sample_count_t     &last,
 		const bool         &starts_track,
 		const bool         &ends_track,
 		const TrackNo      &track) const
@@ -595,11 +595,11 @@ std::unique_ptr<Partitioner> MultitrackPartitioner::clone() const
 
 
 Partitioning MultitrackPartitioner::do_create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
+		const sample_count_t offset,
+		const sample_count_t number_of_samples,
 		const CalcContext &context) const
 {
-	const auto total_samples = sample_count { number_of_samples };
+	const auto total_samples = sample_count_t { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, total_samples)
@@ -609,7 +609,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	auto block_last_smpl = sample_count {
+	auto block_last_smpl = sample_count_t {
 		this->last_sample_idx(offset, total_samples) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
@@ -621,7 +621,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	auto chunk_first_smpl = sample_count { offset };
+	auto chunk_first_smpl = sample_count_t { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -633,10 +633,11 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	auto track = TrackNo { context.track(chunk_first_smpl) };
 
 	// If track > track_count this is global last sample
-	auto chunk_last_smpl = sample_count { context.last_relevant_sample(track) };
+	auto chunk_last_smpl = sample_count_t {
+		context.last_relevant_sample(track) };
 
-	auto begin_offset = sample_count { 0 } ;
-	auto end_offset   = sample_count { 0 } ;
+	auto begin_offset = sample_count_t { 0 } ;
+	auto end_offset   = sample_count_t { 0 } ;
 	auto starts_track = bool { false } ;
 	auto ends_track   = bool { false } ;
 
@@ -738,11 +739,11 @@ std::unique_ptr<Partitioner> SingletrackPartitioner::clone() const
 
 
 Partitioning SingletrackPartitioner::do_create_partitioning(
-		const sample_count offset,
-		const sample_count number_of_samples,
+		const sample_count_t offset,
+		const sample_count_t number_of_samples,
 		const CalcContext &context) const
 {
-	const auto total_samples = sample_count { number_of_samples };
+	const auto total_samples = sample_count_t { number_of_samples };
 
 	Interval sample_block {
 		offset, this->last_sample_idx(offset, total_samples)
@@ -752,7 +753,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the last sample in block instead of the last
 	// physical sample
 
-	auto chunk_last_smpl = sample_count {
+	auto chunk_last_smpl = sample_count_t {
 		this->last_sample_idx(offset, total_samples) };
 
 	if (sample_block.contains(context.last_relevant_sample()))
@@ -764,7 +765,7 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 	// sample, set this as the first sample of the first partition instead of
 	// the first physical sample
 
-	auto chunk_first_smpl = sample_count { offset };
+	auto chunk_first_smpl = sample_count_t { offset };
 
 	if (sample_block.contains(context.first_relevant_sample(1)))
 	{
@@ -788,11 +789,11 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 
 	// Determine first sample in partition (easy for singletrack: 0)
 
-	const auto begin_offset = sample_count { chunk_first_smpl - offset };
+	const auto begin_offset = sample_count_t { chunk_first_smpl - offset };
 
 	// Determine last sample in partition (easy for singletrack: total_samples)
 
-	const auto end_offset = sample_count { chunk_last_smpl - offset + 1 };
+	const auto end_offset = sample_count_t { chunk_last_smpl - offset + 1 };
 
 	Partitioning chunks;
 	chunks.push_back(
@@ -814,8 +815,8 @@ Partitioning SingletrackPartitioner::do_create_partitioning(
 
 
 CalcContextBase::CalcContextBase(const std::string &filename,
-		const sample_count num_skip_front,
-		const sample_count num_skip_back)
+		const sample_count_t num_skip_front,
+		const sample_count_t num_skip_back)
 	: audiosize_ { AudioSize() }
 	, filename_ { filename }
 	, num_skip_front_ { num_skip_front }
@@ -869,46 +870,46 @@ std::string CalcContextBase::do_filename() const noexcept
 }
 
 
-sample_count CalcContextBase::do_first_relevant_sample(const TrackNo /* track */)
+sample_count_t CalcContextBase::do_first_relevant_sample(const TrackNo /*t*/)
 	const noexcept
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-sample_count CalcContextBase::do_first_relevant_sample_0() const noexcept
+sample_count_t CalcContextBase::do_first_relevant_sample_0() const noexcept
 {
 	return this->first_relevant_sample(1);
 }
 
 
-sample_count CalcContextBase::do_last_relevant_sample(const TrackNo /* track */)
+sample_count_t CalcContextBase::do_last_relevant_sample(const TrackNo /*t*/)
 	const noexcept
 {
 	return 0; // no functionality, just to be overriden
 }
 
 
-sample_count CalcContextBase::do_last_relevant_sample_0() const noexcept
+sample_count_t CalcContextBase::do_last_relevant_sample_0() const noexcept
 {
 	return this->last_relevant_sample(this->track_count());
 }
 
 
-sample_count CalcContextBase::do_num_skip_front() const noexcept
+sample_count_t CalcContextBase::do_num_skip_front() const noexcept
 {
 	return num_skip_front_;
 }
 
 
-sample_count CalcContextBase::do_num_skip_back() const noexcept
+sample_count_t CalcContextBase::do_num_skip_back() const noexcept
 {
 	return num_skip_back_;
 }
 
 
-void CalcContextBase::do_notify_skips(const sample_count num_skip_front,
-		const sample_count num_skip_back) noexcept
+void CalcContextBase::do_notify_skips(const sample_count_t num_skip_front,
+		const sample_count_t num_skip_back) noexcept
 {
 	num_skip_front_ = num_skip_front;
 	num_skip_back_  = num_skip_back;
@@ -953,8 +954,8 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
-		const bool skip_front, const sample_count num_skip_front,
-		const bool skip_back,  const sample_count num_skip_back)
+		const bool skip_front, const sample_count_t num_skip_front,
+		const bool skip_back,  const sample_count_t num_skip_back)
 	: CalcContextBase { filename, num_skip_front, num_skip_back }
 	, skip_front_ { skip_front }
 	, skip_back_  { skip_back }
@@ -975,7 +976,7 @@ bool SingletrackCalcContext::do_is_multi_track() const noexcept
 }
 
 
-sample_count SingletrackCalcContext::do_first_relevant_sample(
+sample_count_t SingletrackCalcContext::do_first_relevant_sample(
 		const TrackNo track) const noexcept
 {
 	// Illegal track request?
@@ -998,7 +999,7 @@ sample_count SingletrackCalcContext::do_first_relevant_sample(
 }
 
 
-sample_count SingletrackCalcContext::do_last_relevant_sample(
+sample_count_t SingletrackCalcContext::do_last_relevant_sample(
 		const TrackNo track) const noexcept
 {
 	// Illegal track request?
@@ -1019,7 +1020,7 @@ sample_count SingletrackCalcContext::do_last_relevant_sample(
 }
 
 
-TrackNo SingletrackCalcContext::do_track(const sample_count /* smpl */) const
+TrackNo SingletrackCalcContext::do_track(const sample_count_t /* smpl */) const
 noexcept
 {
 	return 1;
@@ -1108,8 +1109,8 @@ MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 
 
 MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
-		const sample_count num_skip_front,
-		const sample_count num_skip_back, const std::string &filename)
+		const sample_count_t num_skip_front,
+		const sample_count_t num_skip_back, const std::string &filename)
 	: CalcContextBase { filename, num_skip_front, num_skip_back }
 	, toc_ { toc }
 {
@@ -1118,8 +1119,8 @@ MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
 
 
 MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-		const sample_count num_skip_front,
-		const sample_count num_skip_back, const std::string &filename)
+		const sample_count_t num_skip_front,
+		const sample_count_t num_skip_back, const std::string &filename)
 	: CalcContextBase { filename, num_skip_front, num_skip_back }
 	, toc_ { *toc }
 {
@@ -1149,8 +1150,8 @@ bool MultitrackCalcContext::do_is_multi_track() const noexcept
 }
 
 
-sample_count MultitrackCalcContext::do_first_relevant_sample(const TrackNo track)
-	const noexcept
+sample_count_t MultitrackCalcContext::do_first_relevant_sample(
+		const TrackNo track) const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -1183,8 +1184,8 @@ sample_count MultitrackCalcContext::do_first_relevant_sample(const TrackNo track
 }
 
 
-sample_count MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
-	const noexcept
+sample_count_t MultitrackCalcContext::do_last_relevant_sample(
+		const TrackNo track) const noexcept
 {
 	// Illegal track request?
 	if (track > CDDA.MAX_TRACKCOUNT)
@@ -1214,7 +1215,8 @@ sample_count MultitrackCalcContext::do_last_relevant_sample(const TrackNo track)
 }
 
 
-TrackNo MultitrackCalcContext::do_track(const sample_count smpl) const noexcept
+TrackNo MultitrackCalcContext::do_track(const sample_count_t smpl)
+	const noexcept
 {
 	if (this->audio_size().total_samples() == 0)
 	{
@@ -1233,7 +1235,7 @@ TrackNo MultitrackCalcContext::do_track(const sample_count smpl) const noexcept
 
 	// Increase track number while sample is smaller than track's last relevant
 	auto track = TrackNo { 0 };
-	for (sample_count last_sample_trk { this->last_relevant_sample(track) } ;
+	for (sample_count_t last_sample_trk { this->last_relevant_sample(track) } ;
 			smpl > last_sample_trk and track <= last_track ;
 			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
 
@@ -1384,13 +1386,13 @@ void CalcStateARCSBase::init_without_skip() noexcept
 }
 
 
-sample_count CalcStateARCSBase::num_skip_front() const noexcept
+sample_count_t CalcStateARCSBase::num_skip_front() const noexcept
 {
 	return actual_skip_front_;
 }
 
 
-sample_count CalcStateARCSBase::num_skip_back() const noexcept
+sample_count_t CalcStateARCSBase::num_skip_back() const noexcept
 {
 	return actual_skip_back_;
 }
@@ -2143,7 +2145,7 @@ private:
 	/**
 	 * \brief State: 1-based global index of the sample to be processed as next.
 	 */
-	sample_count smpl_offset_;
+	sample_count_t smpl_offset_;
 
 	/**
 	 * \brief Internal stream context.
@@ -2321,7 +2323,7 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 	// Update the internal CalcState with each partition in this partitioning
 
 	auto partition_counter = uint16_t { 0 };
-	auto relevant_samples_counter = sample_count { 0 };
+	auto relevant_samples_counter = sample_count_t { 0 };
 
 	const auto start_time { std::chrono::steady_clock::now() };
 	for (const auto& partition : partitioning)
@@ -2334,7 +2336,7 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 		// Update the calculation state with the current partition/chunk
 
 		auto part_begin = SampleInputIterator { begin + partition.begin_offset() };
-		auto part_end = SampleInputIterator { begin + partition.end_offset()   };
+		auto part_end = SampleInputIterator { begin + partition.end_offset() };
 		// FIXME Do not allocate in loop
 
 		state_->update(part_begin, part_end);
@@ -2587,10 +2589,10 @@ void Calculation::Impl::log_partition(const uint16_t i,
 {
 	ARCS_LOG_DEBUG << "  CHUNK " << i << "/" << n;
 
-	const auto chunk_first_smpl_idx = sample_count { chunk.first_sample_idx() };
-	const auto chunk_last_smpl_idx = sample_count { chunk.last_sample_idx()  };
+	const auto chunk_first_smpl_idx = sample_count_t { chunk.first_sample_idx() };
+	const auto chunk_last_smpl_idx = sample_count_t { chunk.last_sample_idx()  };
 
-	const sample_count samples_in_chunk {
+	const sample_count_t samples_in_chunk {
 		chunk_last_smpl_idx - chunk_first_smpl_idx + 1
 		// chunk_first_smpl_idx counts as relevant therefore + 1
 	};
@@ -2659,13 +2661,13 @@ lba_count AudioSize::leadout_frame() const noexcept
 }
 
 
-void AudioSize::set_total_samples(const sample_count smpl_count) noexcept
+void AudioSize::set_total_samples(const sample_count_t smpl_count) noexcept
 {
 	impl_->set_total_samples(smpl_count);
 }
 
 
-sample_count AudioSize::total_samples() const noexcept
+sample_count_t AudioSize::total_samples() const noexcept
 {
 	return impl_->total_samples();
 }

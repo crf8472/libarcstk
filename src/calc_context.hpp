@@ -53,8 +53,8 @@ public:
 	 * \param[in] num_skip_back  Amount of samples to skip at the end
 	 */
 	CalcContextBase(const std::string &filename,
-			const sample_count num_skip_front,
-			const sample_count num_skip_back);
+			const sample_count_t num_skip_front,
+			const sample_count_t num_skip_back);
 
 
 private:
@@ -72,29 +72,29 @@ private:
 	// do_track_count()
 	// do_is_multi_track()
 
-	sample_count do_first_relevant_sample(const TrackNo) const noexcept
+	sample_count_t do_first_relevant_sample(const TrackNo) const noexcept
 		override;
 
-	sample_count do_first_relevant_sample_0() const noexcept override;
+	sample_count_t do_first_relevant_sample_0() const noexcept override;
 
-	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
+	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		override;
 
-	sample_count do_last_relevant_sample_0() const noexcept override;
+	sample_count_t do_last_relevant_sample_0() const noexcept override;
 
-	// do_track(const sample_count)
+	// do_track(const sample_count_t)
 	// do_offset(const uint8_t)
 	// do_length(const uint8_t)
 	// do_id()
 	// do_skips_front()
 	// do_skips_back()
 
-	sample_count do_num_skip_front() const noexcept override;
+	sample_count_t do_num_skip_front() const noexcept override;
 
-	sample_count do_num_skip_back() const noexcept override;
+	sample_count_t do_num_skip_back() const noexcept override;
 
-	void do_notify_skips(const sample_count num_skip_front,
-			const sample_count num_skip_back) noexcept override;
+	void do_notify_skips(const sample_count_t num_skip_front,
+			const sample_count_t num_skip_back) noexcept override;
 
 	// do_clone()
 
@@ -138,12 +138,12 @@ private:
 	/**
 	 * \brief Number of samples to skip at beginning of first track if requested
 	 */
-	sample_count num_skip_front_;
+	sample_count_t num_skip_front_;
 
 	/**
 	 * \brief Number of samples to skip at end of last track if requested
 	 */
-	sample_count num_skip_back_;
+	sample_count_t num_skip_back_;
 };
 
 
@@ -201,8 +201,8 @@ public:
 	 * \param[in] num_skip_back Amount of samples to skip at the end
 	 */
 	SingletrackCalcContext(const std::string &filename,
-			const bool skip_front, const sample_count num_skip_front,
-			const bool skip_back,  const sample_count num_skip_back);
+			const bool skip_front, const sample_count_t num_skip_front,
+			const bool skip_back,  const sample_count_t num_skip_back);
 
 	/**
 	 * \brief Activate skipping of the first 2939 samples of the first track.
@@ -225,17 +225,17 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	sample_count do_first_relevant_sample(const TrackNo track) const noexcept
+	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
 		final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
+	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const sample_count smpl) const noexcept final;
+	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 
 	lba_count do_offset(const uint8_t track) const noexcept final;
 
@@ -319,8 +319,8 @@ public:
 	 * \param[in] skip_back  Amount of samples to skip at the end
 	 * \param[in] filename   Name of the file
 	 */
-	MultitrackCalcContext(const TOC &toc, const sample_count skip_front,
-			const sample_count skip_back,
+	MultitrackCalcContext(const TOC &toc, const sample_count_t skip_front,
+			const sample_count_t skip_back,
 			const std::string &filename = EmptyString);
 
 	/**
@@ -334,7 +334,7 @@ public:
 	 * \param[in] filename   Name of the file
 	 */
 	MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-			const sample_count skip_front, const sample_count skip_back,
+			const sample_count_t skip_front, const sample_count_t skip_back,
 			const std::string &filename = EmptyString);
 
 	/**
@@ -360,17 +360,17 @@ private:
 
 	bool do_is_multi_track() const noexcept final;
 
-	sample_count do_first_relevant_sample(const TrackNo track) const noexcept
+	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
 		final;
 
 	// do_first_relevant_sample() is generic in CalcContextBase
 
-	sample_count do_last_relevant_sample(const TrackNo track) const noexcept
+	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		final;
 
 	// do_last_relevant_sample() is generic in CalcContextBase
 
-	TrackNo do_track(const sample_count smpl) const noexcept final;
+	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 
 	lba_count do_offset(const uint8_t track) const noexcept final;
 
