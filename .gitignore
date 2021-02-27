@@ -54,3 +54,6 @@ callgrind.*
 .kdev4/*
 libarcstk.kdev4
 
+# clangd cache
+.cache
+
