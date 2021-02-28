@@ -1397,8 +1397,8 @@ sample_count_t CalcStateARCSBase::num_skip_back() const noexcept
 }
 
 
-void CalcStateARCSBase::update(SampleInputIterator &begin,
-		SampleInputIterator &end)
+void CalcStateARCSBase::update(SampleInputIterator begin,
+		SampleInputIterator end)
 {
 	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
 	this->do_update(begin, end);
@@ -2334,11 +2334,8 @@ void Calculation::Impl::update(SampleInputIterator &begin,
 
 		// Update the calculation state with the current partition/chunk
 
-		auto part_begin = SampleInputIterator { begin + partition.begin_offset() };
-		auto part_end = SampleInputIterator { begin + partition.end_offset() };
-		// FIXME Do not allocate in loop
-
-		state_->update(part_begin, part_end);
+		state_->update(SampleInputIterator { begin + partition.begin_offset() },
+				SampleInputIterator { begin + partition.end_offset() });
 
 		// If the current partition ends a track, save the ARCSs for this track
 
@@ -2866,7 +2863,7 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 		const bool &skip_back,
 		const std::string &audiofilename)
 {
-	// Note: ARCS specific values, since ARCS2 is default checksum type
+	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
 			skip_front, NUM_SKIP_SAMPLES_FRONT,
 			skip_back,  NUM_SKIP_SAMPLES_BACK);
@@ -2885,7 +2882,7 @@ std::unique_ptr<CalcContext> make_context(const TOC &toc)
 std::unique_ptr<CalcContext> make_context(const TOC &toc,
 		const std::string &audiofilename)
 {
-	// Note: ARCS specific values, since ARCS2 is default checksum type
+	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::MultitrackCalcContext>(toc,
 			NUM_SKIP_SAMPLES_FRONT,
 			NUM_SKIP_SAMPLES_BACK,
@@ -2957,8 +2954,9 @@ std::ostream& operator << (std::ostream& out, const Checksum &c)
 
 	out << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
 		<< c.value();
-	// FIXME Provide some global arcstk::set_layout and use that for formatting
-	// default would just be HexLayout with its defaults
+	// NOTE: This is the default layout for printing ARCSs:
+	// uppercase letters with leading zeros filling the width up to 8 digits
+	// and without the '0x' base indicator.
 
 	out.flags(prev_settings);
 	return out;

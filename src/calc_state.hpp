@@ -92,7 +92,7 @@ public:
 	 * \param[in] begin Iterator pointing to the beginning of the sequence
 	 * \param[in] end   Iterator pointing to the end of the sequence
 	 */
-	virtual void update(SampleInputIterator &begin, SampleInputIterator &end)
+	virtual void update(SampleInputIterator begin, SampleInputIterator end)
 	= 0;
 
 	/**
@@ -253,7 +253,7 @@ public:
 
 	sample_count_t num_skip_back() const noexcept override;
 
-	void update(SampleInputIterator &begin, SampleInputIterator &end) final;
+	void update(SampleInputIterator begin, SampleInputIterator end) final;
 
 
 protected:
