@@ -672,37 +672,40 @@ namespace details
 
 /**
  * \internal
- *
- * \brief Uniform access to a container by track
- *
- * Instead of using at() that uses a 0-based index, we need a uniform method
- * to access a container by using a 1-based index and we want to range check it.
+ * \brief Add TOC data to the end of a container.
  *
  * Type Container is required to yield its number of elements by member function
- * size() and to allow assignment via operator[].
+ * size() and to allow non-const iteration via begin() and end(). Those
+ * requirements are not checked.
  *
- * \tparam Container Container type with size() and operator []&
+ * \tparam Container Container type with size(), begin() and end()
  * \tparam InType    The type \c accessor returns
  *
- * \param[in,out] c         Actual container
- * \param[in]     toc       Number of the track to access
- * \param[in]     accessor  TOC member function to iterate
+ * \param[in,out] c         Actual container to fill
+ * \param[in]     toc       TOC
+ * \param[in]     accessor  TOC member function to iterate tracks
  *
- * \return The values \c accessor yields in the order the occurr in \c toc
+ * \return The values \c accessor yields in the order they occurr in \c toc
  */
-template <typename Container, typename InType> // FIXME requirements
+template <typename Container, typename InType>
 decltype(auto) toc_get(Container&& c,
 		const TOC &toc,
 		InType (TOC::*accessor)(const TrackNo) const)
 {
-	auto container_size { c.size() };
+	using csize_t = decltype(c.size());
 
-	auto track_count {
-		static_cast<decltype(container_size)>(toc.track_count()) };
-	for (decltype(container_size) t { 1 }; t <= track_count; ++t)
+	const auto track_count { static_cast<csize_t>(toc.track_count()) };
+
+	if (c.size() < track_count)
 	{
-		c[t - 1] = (toc.*accessor)(t);
-		// FIXME Uniform container insertion? std::inserter?
+		throw std::logic_error("Container is too small to insert all tracks");
+	}
+
+	auto c_element { std::begin(c) };
+
+	for (csize_t track { 1 }; track <= track_count; ++track, ++c_element)
+	{
+		*c_element = (toc.*accessor)(track);
 	}
 
 	return c;
@@ -754,7 +757,6 @@ std::vector<std::string> get_filenames(const TOC &toc)
 	{
 		if (not filename.empty()) { return target; }
 	}
-
 	return {};
 }
 

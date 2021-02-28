@@ -19,6 +19,53 @@
  */
 
 
+TEST_CASE ( "toc::get_offsets", "[identifier]" )
+{
+	using arcstk::toc::get_offsets;
+
+	using arcstk::details::TOCBuilder;
+
+	SECTION ( "Returns correct offsets from TOC" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			std::vector<arcstk::lba_count_t>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// leadout
+			253038,
+			// filenames
+			std::vector<std::string>{ "file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file" }
+		);
+
+		auto offsets = get_offsets(*toc0);
+
+		CHECK ( offsets.size() == 15 );
+
+		CHECK ( offsets[ 0] ==     33 );
+		CHECK ( offsets[ 1] ==   5225 );
+		CHECK ( offsets[ 2] ==   7390 );
+		CHECK ( offsets[ 3] ==  23380 );
+		CHECK ( offsets[ 4] ==  35608 );
+		CHECK ( offsets[ 5] ==  49820 );
+		CHECK ( offsets[ 6] ==  69508 );
+		CHECK ( offsets[ 7] ==  87733 );
+		CHECK ( offsets[ 8] == 106333 );
+		CHECK ( offsets[ 9] == 139495 );
+		CHECK ( offsets[10] == 157863 );
+		CHECK ( offsets[11] == 198495 );
+		CHECK ( offsets[12] == 213368 );
+		CHECK ( offsets[13] == 225320 );
+		CHECK ( offsets[14] == 234103 );
+	}
+}
+
+
 TEST_CASE ( "toc::get_filenames", "[identifier]" )
 {
 	using arcstk::toc::get_filenames;
