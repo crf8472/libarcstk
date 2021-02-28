@@ -672,7 +672,6 @@ void TOCValidator::validate_offsets(Container&& offsets)
 template <typename T, typename>
 void TOCValidator::validate_offsets(std::initializer_list<T> offsets)
 {
-	// FIXME Works, but performance hurts. Just pass list?
 	TOCValidator::validate_offsets(std::vector<T>{offsets});
 }
 
@@ -703,7 +702,6 @@ template <typename T, typename>
 void TOCValidator::validate_offsets(const TrackNo track_count,
 		std::initializer_list<T> offsets)
 {
-	// FIXME Works, but performance hurts. Just pass list?
 	TOCValidator::validate_offsets(track_count, std::vector<T>{offsets});
 }
 
@@ -737,7 +735,6 @@ template <typename T, typename>
 void TOCValidator::validate(const TrackNo track_count,
 		std::initializer_list<T> offsets, const lba_count_t leadout)
 {
-	// FIXME Works, but performance hurts. Just pass list?
 	TOCValidator::validate(track_count, std::vector<T>{offsets}, leadout);
 }
 
