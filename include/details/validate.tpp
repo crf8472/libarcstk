@@ -556,6 +556,18 @@ public:
 protected:
 
 	/**
+	 * \brief Ensure that \c offset does not exceed legal range.
+	 *
+	 * \param[in] offset The offset value to validate
+	 * \param[in] track  The track to check
+	 *
+	 * \throw InvalidMetadataException If offset exceeds physical maximum
+	 * \throw NonstandardMetadataException If offset exceeds CDDA.MAX_OFFSET
+	 */
+	inline static void check_legal_range(const lba_count_t offset,
+			const TrackNo track);
+
+	/**
 	 * \brief Ensure that \c prev_track and \c next_track offsets have at least
 	 * minimal distance
 	 *
@@ -611,20 +623,11 @@ void TOCValidator::validate_offsets(Container&& offsets)
 		throw InvalidMetadataException(ss.str());
 	}
 
-	// Explicitly allow the offset of the first track to be 0
+	// Skip check for 0 for first track
 
 	auto track { std::begin(offsets) };
 
-	if (*track < 0)
-	{
-		auto ss = std::stringstream {};
-		ss << "Cannot construct TOC with negative offset for first track: "
-			<< std::to_string(offsets[0]);
-
-		throw InvalidMetadataException(ss.str());
-	}
-
-	// FIXME Check for max offset exceed before the first track?
+	check_legal_range(*track, 1);
 
 	++track;
 
@@ -643,32 +646,16 @@ void TOCValidator::validate_offsets(Container&& offsets)
 	{
 		// Is offset in a CDDA-legal range?
 
-		if (*track > static_cast<int64_t>(CDDA.MAX_OFFSET))
+		if (*track == 0)
 		{
 			auto ss = std::stringstream {};
-			ss << "Offset " << std::to_string(*track)
-				<< " for track " << std::to_string(t);
-
-			if (*track > static_cast<int64_t>(MAX_OFFSET_99))
-			{
-				ss << " exceeds physical range of 99 min ("
-					<< std::to_string(MAX_OFFSET_99) << " frames)";
-
-				throw NonstandardMetadataException(ss.str());
-			} else if (*track > static_cast<int64_t>(MAX_OFFSET_90))
-			{
-				ss << " exceeds physical range of 90 min ("
-					<< std::to_string(MAX_OFFSET_90) << " frames)";
-
-				throw NonstandardMetadataException(ss.str());
-			} else
-			{
-				ss << " exceeds redbook maximum duration of "
-					<< std::to_string(CDDA.MAX_OFFSET);
-			}
+			ss << "Offset for track " << std::to_string(t)
+				<< " is not allowed to be 0";
 
 			throw InvalidMetadataException(ss.str());
 		}
+
+		check_legal_range(*track, t);
 
 		// Has offset for current track at least minimum distance after
 		// offset for last track?
@@ -791,9 +778,8 @@ void TOCValidator::validate_lengths(Container&& lengths)
 		if (*track < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
 		{
 			auto ss = std::stringstream {};
-			ss << "Cannot construct TOC with illegal length "
-				<< std::to_string(*track) << " for track "
-				<< std::to_string(t);
+			ss << "Illegal length " << std::to_string(*track)
+				<< " for track " << std::to_string(t);
 
 			throw InvalidMetadataException(ss.str());
 		}
@@ -880,8 +866,7 @@ void TOCValidator::validate_trackcount(const TrackNo track_count)
 	if (track_count < 1 or track_count > 99)
 	{
 		auto ss = std::stringstream {};
-		ss << "Cannot construct TOC from invalid track count: "
-			<< std::to_string(track_count);
+		ss << "Invalid track count: " << std::to_string(track_count);
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -894,6 +879,45 @@ void TOCValidator::validate(const TOC &toc, const lba_count_t leadout)
 
 	auto last_offset { toc.offset(toc.track_count()) };
 	TOCValidator::have_min_dist(last_offset, leadout);
+}
+
+
+void TOCValidator::check_legal_range(const lba_count_t offset, const TrackNo t)
+{
+	if (offset < 0)
+	{
+		auto ss = std::stringstream {};
+		ss << "Negative offset: " << std::to_string(offset);
+
+		throw InvalidMetadataException(ss.str());
+	}
+
+	if (offset > static_cast<int64_t>(CDDA.MAX_OFFSET))
+	{
+		auto ss = std::stringstream {};
+		ss << "Offset " << std::to_string(offset)
+			<< " for track " << std::to_string(t);
+
+		if (offset > static_cast<int64_t>(MAX_OFFSET_99))
+		{
+			ss << " exceeds physical range of 99 min ("
+				<< std::to_string(MAX_OFFSET_99) << " frames)";
+
+			throw NonstandardMetadataException(ss.str());
+		} else if (offset > static_cast<int64_t>(MAX_OFFSET_90))
+		{
+			ss << " exceeds physical range of 90 min ("
+				<< std::to_string(MAX_OFFSET_90) << " frames)";
+
+			throw NonstandardMetadataException(ss.str());
+		} else
+		{
+			ss << " exceeds redbook maximum duration of "
+				<< std::to_string(CDDA.MAX_OFFSET);
+		}
+
+		throw InvalidMetadataException(ss.str());
+	}
 }
 
 
