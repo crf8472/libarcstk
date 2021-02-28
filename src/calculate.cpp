@@ -1013,8 +1013,7 @@ sample_count_t SingletrackCalcContext::do_last_relevant_sample(
 	// constant is provided, otherwise the result is always the last known
 	// sample.
 
-	return this->skips_back() and track == this->track_count() // ==1!
-				/* FIXME Is this ^^^ necessary or even correct??? */
+	return this->skips_back() and track == this->track_count() /* == 1 */
 		? this->audio_size().total_samples() - 1 - this->num_skip_back()
 		: this->audio_size().total_samples() - 1;
 }
