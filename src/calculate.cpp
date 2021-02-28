@@ -2420,39 +2420,41 @@ Checksums Calculation::Impl::result() const noexcept
 	auto checksums { std::make_unique<Checksums::Impl>(
 			static_cast<Checksums::size_type>(track_count)) };
 
-	// FIXME Does not make sense, a loop from 0 to track_count should be correct
-	// for both cases, like:
-	//
-	// auto shift = context_->is_multi_track() ? 0 : 1;
-	// for (auto i = uint8_t { 0 }; i < track_count; ++i)
-	// {
-	//		auto track = ChecksumSet { context_->length(i) };
-	//		track.merge(state_->result(i - shift + 1));
-	//		checksums->append(track);
-	// }
-
-	if (context_->is_multi_track())
+	// Collect checksums for all tracks (for singletrack+multitrack)
+	
+	const auto shift = context_->is_multi_track() ? 0 : 1;
+	for (auto i = uint8_t { 0 }; i < track_count; ++i)
 	{
-		// multitrack
-
-		for (auto i = uint8_t { 0 }; i < track_count; ++i)
-		{
-			auto track = ChecksumSet { context_->length(i) };
-
-			track.merge(state_->result(i + 1));
-
-			checksums->append(track);
-		}
-	} else
-	{
-		// singletrack
-
-		auto track = ChecksumSet { context_->audio_size().leadout_frame() };
-
-		track.merge(state_->result()); // alias for result(0)
-
-		checksums->append(track);
+	 	auto track = ChecksumSet { context_->length(i) };
+	 	track.merge(state_->result(i - shift + 1));
+	 	checksums->append(track);
 	}
+
+// NOTE: Commented out, old implementation: collect checksums while
+// distinguishing between multitrack and singletrack.
+//
+//	if (context_->is_multi_track())
+//	{
+//		// multitrack
+//
+//		for (auto i = uint8_t { 0 }; i < track_count; ++i)
+//		{
+//			auto track = ChecksumSet { context_->length(i) };
+//
+//			track.merge(state_->result(i + 1));
+//
+//			checksums->append(track);
+//		}
+//	} else
+//	{
+//		// singletrack
+//
+//		auto track = ChecksumSet { context_->audio_size().leadout_frame() };
+//
+//		track.merge(state_->result()); // alias for result(0)
+//
+//		checksums->append(track);
+//	}
 
 	if (checksums->size() == 0)
 	{
