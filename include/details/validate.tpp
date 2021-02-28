@@ -439,10 +439,6 @@ public:
 	template <typename T, typename = LBAType<T>>
 	inline static void validate_offsets(std::initializer_list<T> offsets);
 
-	// Commented out: alternative to initializer_lists: C-style arrays
-	//template <typename T, std::size_t S>
-	//inline void validate_offsets(T const (&list)[S]) const;
-
 	/**
 	 * \brief Validate offsets and track count.
 	 *
@@ -692,14 +688,6 @@ void TOCValidator::validate_offsets(std::initializer_list<T> offsets)
 	// FIXME Works, but performance hurts. Just pass list?
 	TOCValidator::validate_offsets(std::vector<T>{offsets});
 }
-
-
-// Commented out: alternative to initializer_lists: C-style arrays
-//template <typename T, std::size_t S>
-//inline void TOCValidator::validate_offsets(T const (&list)[S])
-//{
-//	TOCValidator::validate_offsets<T[S]>(list); // FIXME: Size??
-//}
 
 
 template <typename Container, typename>
