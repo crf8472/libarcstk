@@ -487,9 +487,11 @@ bool TOC::complete() const noexcept
 }
 
 
-void TOC::reimplement(std::unique_ptr<TOC::Impl> impl)
+void TOC::update(const lba_count_t leadout)
 {
-	impl_ = std::move(impl);
+	details::TOCValidator::validate(*this, leadout);
+
+	impl_->update(leadout);
 }
 
 

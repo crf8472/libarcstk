@@ -466,13 +466,16 @@ public:
 	bool complete() const noexcept;
 
 	/**
-	 * \internal
+	 * \brief Updates the leadout iff \c leadout validates.
 	 *
-	 * \brief Update this TOC with new information
+	 * If \c leadout does not validate against the existing values,
+	 * an InvalidMetadataException is thrown.
 	 *
-	 * \param[in] impl The TOC::Impl to update
+	 * \param[in] leadout The new leadout to update the TOC with
+	 *
+	 * \throws InvalidMetadateException iff validation fails
 	 */
-	void reimplement(std::unique_ptr<TOC::Impl> impl);
+	void update(const lba_count_t leadout);
 
 
 	TOC& operator = (const TOC &rhs);

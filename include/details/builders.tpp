@@ -79,14 +79,14 @@ template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
-	const auto container_size { c.size() };
+	using csize_t = decltype(c.size());
 
 	// Do the range check
-	if (t < 1 or static_cast<decltype(container_size)>(t) > container_size)
+	if (t < 1 or static_cast<csize_t>(t) > c.size())
 	{
 		auto message = std::stringstream {};
 		message << "Track " << t << " is out of range (yields index "
-			<< (t - 1) << " but max index is " << (container_size - 1) << ")";
+			<< (t - 1) << " but max index is " << (c.size() - 1) << ")";
 
 		throw std::out_of_range(message.str());
 	}
@@ -218,6 +218,13 @@ public:
 	 * \brief Implements TOC::operator==()
 	 */
 	inline bool equals(const TOC::Impl &rhs) const noexcept;
+
+	/**
+	 * \brief Updates the leadout.
+	 *
+	 * \param[in] leadout The new leadout to update the TOC with
+	 */
+	inline void update(const lba_count_t leadout) noexcept;
 
 
 private:
@@ -393,6 +400,12 @@ bool TOC::Impl::equals(const TOC::Impl &rhs) const noexcept
 		and  lengths_     == rhs.lengths_
 		and  leadout_     == rhs.leadout_
 		and  files_       == rhs.files_);
+}
+
+
+void TOC::Impl::update(const lba_count_t leadout) noexcept
+{
+	leadout_ = leadout;
 }
 
 
@@ -738,19 +751,7 @@ std::unique_ptr<TOC> TOCBuilder::build(const TrackNo track_count,
 
 void TOCBuilder::update(TOC &toc, const lba_count_t leadout)
 {
-	TOCValidator::validate(toc, leadout);
-
-	// FIXME Copying TOC::Impl manually is inefficient
-	auto impl { std::make_unique<TOC::Impl>(TOC::Impl(
-			toc.track_count(),
-			toc::get_offsets(toc),
-			toc::get_parsed_lengths(toc),
-			toc::get_filenames(toc))
-	) };
-
-	impl->leadout_ = leadout;
-
-	toc.reimplement(std::move(impl));
+	toc.update(leadout);
 }
 
 
@@ -798,7 +799,7 @@ std::vector<lba_count_t> TOCBuilder::build_offsets(
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it for now
+		throw;
 	}
 
 	try {
@@ -807,7 +808,7 @@ std::vector<lba_count_t> TOCBuilder::build_offsets(
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it for now
+		throw;
 	}
 
 	// Convert offsets to lba_count_t
@@ -839,7 +840,7 @@ std::vector<lba_count_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it for now
+		throw;
 	}
 
 	// Convert ints to lba_count_t while normalizing the last length to 0
@@ -864,20 +865,18 @@ lba_count_t TOCBuilder::build_leadout(const lba_count_t leadout)
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Just swallow it for now
+		throw;
 	}
 
 	return leadout;
 }
 
 
-template <typename Container, typename>
+template <typename Container, typename = FilenameContainer<Container> >
 std::vector<std::string> TOCBuilder::build_files(Container&& files)
 {
 	// No validation for now, just convert to vector<string>
 
-	// FIXME This requires Container::value_type to be assignable to std::string
-	// but this is not checked by the template specification
 	auto filenames = std::vector<std::string>{};
 	filenames.reserve(files.size());
     filenames.insert(std::end(filenames), std::begin(files), std::end(files));
