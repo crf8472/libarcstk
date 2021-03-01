@@ -2092,8 +2092,18 @@ public:
 
 	/**
 	 * \brief Default constructor.
+	 *
+	 * \param[in] parser Pointer to outer ARStreamParser instance
 	 */
 	explicit Impl(const ARStreamParser *parser);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs    Instance to move.
+	 * \param[in] parser Pointer to outer ARStreamParser instance
+	 */
+	Impl(Impl&& rhs, const ARStreamParser *parser) noexcept;
 
 	/**
 	 * \brief Default destructor.
@@ -2152,7 +2162,6 @@ public:
 	 * \param[in] rhs Right hand side to swap
 	 */
 	void swap(Impl &rhs);
-
 
 	// non-copyable class
 	Impl(const Impl &rhs) = delete;
@@ -2229,6 +2238,15 @@ private:
 ARStreamParser::Impl::Impl(const ARStreamParser *parser)
 	: content_handler_ { nullptr }
 	, error_handler_ { nullptr }
+	, parser_ { parser }
+{
+	// empty
+}
+
+
+ARStreamParser::Impl::Impl(Impl&& rhs, const ARStreamParser *parser) noexcept
+	: content_handler_ { std::move(rhs.content_handler_) }
+	, error_handler_   { std::move(rhs.error_handler_) }
 	, parser_ { parser }
 {
 	// empty
@@ -2574,6 +2592,14 @@ ARStreamParser::ARStreamParser()
 }
 
 
+ARStreamParser::ARStreamParser(ARStreamParser &&rhs) noexcept
+	: impl_ {
+		std::make_unique<ARStreamParser::Impl>(std::move(*rhs.impl_), this) }
+{
+	// empty
+}
+
+
 ARStreamParser::~ARStreamParser() noexcept = default;
 
 
@@ -2606,6 +2632,13 @@ const ErrorHandler& ARStreamParser::error_handler() const
 uint32_t ARStreamParser::parse()
 {
 	return this->do_parse();
+}
+
+
+ARStreamParser& ARStreamParser::operator = (ARStreamParser &&rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 

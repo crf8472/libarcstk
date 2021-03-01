@@ -942,12 +942,12 @@ class DefaultErrorHandler final : public ErrorHandler
 public:
 
 	/**
-	 * \brief Default constructor
+	 * \brief Default constructor.
 	 */
 	DefaultErrorHandler();
 
 	/**
-	 * \brief Move constructor
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
@@ -1076,6 +1076,13 @@ public:
 	ARStreamParser();
 
 	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	ARStreamParser(ARStreamParser &&rhs) noexcept;
+
+	/**
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~ARStreamParser() noexcept;
@@ -1116,10 +1123,10 @@ public:
 	uint32_t parse();
 
 	// non-copyable class
-	ARStreamParser(const ARStreamParser &) = delete;
-	ARStreamParser& operator = (const ARStreamParser &rhs) = delete;
+	//ARStreamParser(const ARStreamParser &) = delete;
+	//ARStreamParser& operator = (const ARStreamParser &rhs) = delete;
 
-	// TODO Moving should not be prohibited
+	ARStreamParser& operator = (ARStreamParser &&rhs) noexcept;
 
 
 protected:
