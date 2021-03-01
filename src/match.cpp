@@ -307,11 +307,17 @@ DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 			(2u * static_cast<std::size_t>(tracks) + 1u) }
 	, flag_ ( size_, false ) // No braces!
 {
-	// TODO Validate block and track numbers
-	//if (blocks < 0 or tracks < 0)
-	//{
-	//	throw ...
-	//}
+	if (tracks < 0 or tracks > CDDA.MAX_TRACKCOUNT)
+	{
+		throw std::out_of_range("Illegal number of tracks: "
+				+ std::to_string(tracks));
+	}
+
+	if (blocks < 0)
+	{
+		ARCS_LOG_WARNING << "Match: set negative number of blocks to 0";
+		blocks_ = 0;
+	}
 }
 
 
