@@ -58,31 +58,31 @@ template <typename T>
 using FilenameContainer =
 	std::enable_if_t<details::is_filename_container<T>::value>;
 
-
 /**
- * \brief Uniform access to a container by track
+ * \brief Uniform access to a (0-based) container by (1-based) track.
  *
- * Uniform range-checked method to access a container by using the track number,
- * which is a 1-based index.
+ * Uniform range-checked method to access a (0-based) container by using the
+ * track number, which is a 1-based index. In fact, track \c t is converted
+ * to <tt>t - 1</tt> and then the container is accessed.
  *
  * The Container is required to yield its number of elements by member function
- * size() and to provide begin() const.
+ * size() and to provide begin().
  *
- * \tparam Container Container type with \c size() and <tt>begin() const</tt>
+ * \tparam Container Container type with \c size() and <tt>begin()</tt>
  *
  * \param c Actual container
  * \param t Number of the track to access
  *
- * \return The value for track \c t in the container \c
+ * \return The value for track \c t in the \c Container
+ *
+ * \throw std::out_of_range If either <tt>t < 1</tt> or <tt>t > Container.size()</tt>
  */
 template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
-	using csize_t = decltype(c.size());
-
-	// Do the range check
-	if (t < 1 or static_cast<csize_t>(t) > c.size())
+	// Range check
+	if (t < 1 or static_cast<decltype(c.size())>(t) > c.size())
 	{
 		auto message = std::stringstream {};
 		message << "Track " << t << " is out of range (yields index "
@@ -91,14 +91,8 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
 		throw std::out_of_range(message.str());
 	}
 
-	auto it { std::begin(c) };
-	for (auto i { static_cast<int>(t) }; i > 1; --i, ++it);
-
-	return *it;
-	// return *(it + t) would require iterators providing operator+
-	// FIXME Test for operator+ and return *(it + t)
+	return *(std::next(std::begin(c), t - 1));
 }
-
 
 /**
  * \brief Calculate leadout from lengths and offsets.
