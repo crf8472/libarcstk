@@ -2401,18 +2401,19 @@ int64_t Calculation::Impl::samples_todo() const noexcept
 
 Checksums Calculation::Impl::result() const noexcept
 {
-	if (not context_ or not state_)
+	if (not context_)
 	{
+		ARCS_LOG_WARNING << "Calculation has no context.";
 		return Checksums(0);
 	}
 
-	auto track_count { state_->track_count()  };
-
-	if (track_count < 0)
+	if (not state_)
 	{
-		track_count = 0;
-		// TODO throw something
+		ARCS_LOG_WARNING << "Calculation has no state.";
+		return Checksums(0);
 	}
+
+	auto track_count { state_->track_count() };
 
 	auto checksums { std::make_unique<Checksums::Impl>(
 			static_cast<Checksums::size_type>(track_count)) };
