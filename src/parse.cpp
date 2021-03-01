@@ -707,10 +707,10 @@ ARIncompleteTripletImpl::ARIncompleteTripletImpl(
 
 ARIncompleteTripletImpl::ARIncompleteTripletImpl(ARIncompleteTripletImpl &&rhs)
 	noexcept
-	: ARTripletImpl { rhs } // Calls copy ctor!
-	, flags_ { rhs.flags_ } // <- Impossible after std::move(rhs) !
+	: ARTripletImpl { std::move(rhs) }
+	, flags_ { rhs.flags_ }
 {
-	// empty // TODO Copy is unnecessary, find better solution
+	// empty
 }
 
 
