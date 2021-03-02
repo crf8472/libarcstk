@@ -808,7 +808,7 @@ std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
 
 
 /**
- * \brief Perform a match of some \c checksums agains a \c container of
+ * \brief Perform a match of some \c checksums against a \c container of
  * reference values.
  *
  * The \c container has to obey the IsChecksumContainer requirements.
@@ -839,7 +839,7 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
 
 
 /**
- * \brief Perform a match of some \c checksums agains a \c container of
+ * \brief Perform a match of some \c checksums against a \c container of
  * reference values.
  *
  * The \c container has to obey the IsChecksumContainer requirements.
@@ -892,19 +892,28 @@ public:
 	 *
 	 * \param[in] checksums The checksums to match
 	 * \param[in] reflist   The list of reference checksums to be matched
+	 *
+	 * \throw out_of_range If checksums.size() != reflist.size() or some size() is 0
 	 */
 	template <typename Container, typename = IsChecksumContainer<Container>>
 	ListMatcher(const Checksums &checksums, Container&& reflist)
 		: MatcherBase {}
 	{
-		if (checksums.size() == 0 or reflist.size() == 0)
+		if (checksums.size() == 0)
 		{
-			return; // TODO throw?
+			throw std::out_of_range("Cannot match checksums with size 0");
+		}
+
+		if (reflist.size() == 0)
+		{
+			throw std::out_of_range("Cannot match checksums against empty "
+					"reference.");
 		}
 
 		if (checksums.size() != reflist.size())
 		{
-			return; // TODO throw?
+			throw std::out_of_range("Cannot match checksums against "
+					"a reference of different size");
 		}
 
 		auto match = perform_match<Container>(checksums, reflist);
