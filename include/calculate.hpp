@@ -852,10 +852,10 @@ public:
 	using reference = sample_t;
 
 	/**
-	 * \brief Defined as void.
+	 * \brief Defined as void due to absence of operator ->.
 	 */
 	using pointer = void;
-	//TODO Try  using pointer = const value_type*;
+	// Note: Should be const value_type* when operator-> is provided
 
 	/**
 	 * \brief Pointer difference type.
@@ -864,8 +864,6 @@ public:
 
 
 private:
-
-	/// \cond UNDOC_FUNCTION_BODIES
 
 	/**
 	 * \brief Internal interface to the type-erased object.
@@ -987,30 +985,8 @@ private:
 			Iterator iterator_;
 	};
 
-	/// \endcond
-
 
 public:
-
-	// LegacyIterator:
-	// ok: value_type, difference_type, pointer, reference, iterator_category
-	// ok: dereference operator *it mus have specified effect
-	// ok: behaviour of ++it is defined
-	// ok: CopyConstructible
-	// ok: CopyAssignable
-	// ok: Destructible
-	// ok: lvalues must be swappable
-
-	// EqualityComparable:
-	// ok: it1 == it2 is possible (+ reflexivity, symmetry, transitivity)
-
-	// LegacyInputIterator:
-	// ok: it1 != it2 is possible (true iff !(it1 == it2))
-	// ok?: if it1 == it2, then *it1 == *it2
-	// ok?: it->m  (means (*it).m)
-	// ok: ++it returns type T&
-	// ok? (void)it++ is equivalent to (void)++i
-	// ok? *it++ means { value_type x = *it; ++it; return x; }
 
 	/**
 	 * \brief Converting constructor.
