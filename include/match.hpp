@@ -555,8 +555,8 @@ private:
 	/**
 	 * \brief Create a Match object.
 	 *
-	 * \param[in] int refblocks
-	 * \param[in] int tracks
+	 * \param[in] refblocks Number of blocks in reference input
+	 * \param[in] tracks    Number of tracks per block
 	 *
 	 * \return Match object for internal use.
 	 */
@@ -568,6 +568,8 @@ private:
 	 *
 	 * The concrete subclass should override this to create an instance of
 	 * itself. This is used in the implementation of clone().
+	 *
+	 * \param[in] impl The implementation to use for the created instance
 	 *
 	 * \return A base class pointer to a newly created instance of a subclass.
 	 */
@@ -770,7 +772,7 @@ std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
  * <tt>difference(0) == 1 && !id(0)</tt> (means: only id flag is false).
  *
  * \param[in] actual_sums Actual Checksums to verify
- * \param[in] container   Iterable container of reference \link Checksum Checksums\endlink
+ * \param[in] container   Iterable container of reference \link arcstk::Checksum Checksums\endlink
  *
  * \return Match of \c checkums against the container values for ARCS2 and ARCS1
  */

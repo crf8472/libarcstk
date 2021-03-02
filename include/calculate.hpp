@@ -110,7 +110,6 @@ enum class type : unsigned int
  * The order of the types is identical to the total order of numeric values the
  * types have as checksum::type.
  */
-//static const type types[] = {
 static const std::array<type, 2> types = {
 	type::ARCS1,
 	type::ARCS2
@@ -807,7 +806,7 @@ SampleInputIterator operator + (SampleInputIterator lhs,
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
- * \link Calculation::update() update() \endlink a Calculation.
+ * \link Calculation::update() update \endlink a Calculation.
  * This allows it to pass in fact any iterator type to a Calculation.
  *
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
@@ -865,7 +864,7 @@ public:
 
 private:
 
-	// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
+	/// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
 
 	/**
 	 * \internal
@@ -989,7 +988,7 @@ private:
 			Iterator iterator_;
 	};
 
-	// \endcond
+	/// \endcond
 
 
 public:
