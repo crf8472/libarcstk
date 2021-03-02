@@ -75,9 +75,6 @@ class Match;
 
 std::ostream& operator << (std::ostream&, const Match &match);
 
-// TODO operator ==
-// TODO swap
-
 /**
  * \brief Interface: Result of matching Checksums against an ARResponse.
  *
