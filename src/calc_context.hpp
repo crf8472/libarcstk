@@ -73,12 +73,12 @@ private:
 	sample_count_t do_first_relevant_sample(const TrackNo) const noexcept
 		override;
 
-	sample_count_t do_first_relevant_sample_0() const noexcept override;
+	sample_count_t do_first_relevant_sample_no_parms() const noexcept override;
 
 	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		override;
 
-	sample_count_t do_last_relevant_sample_0() const noexcept override;
+	sample_count_t do_last_relevant_sample_no_parms() const noexcept override;
 
 	// do_track(const sample_count_t)
 	// do_offset(const uint8_t)
@@ -226,12 +226,12 @@ private:
 	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
 		final;
 
-	// do_first_relevant_sample() is generic in CalcContextBase
+	// do_first_relevant_sample_no_parms() is implemented in CalcContextBase
 
 	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		final;
 
-	// do_last_relevant_sample() is generic in CalcContextBase
+	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
 
 	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 
@@ -361,12 +361,12 @@ private:
 	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
 		final;
 
-	// do_first_relevant_sample() is generic in CalcContextBase
+	// do_first_relevant_sample_no_parms() is implemented in CalcContextBase
 
 	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
 		final;
 
-	// do_last_relevant_sample() is generic in CalcContextBase
+	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
 
 	TrackNo do_track(const sample_count_t smpl) const noexcept final;
 

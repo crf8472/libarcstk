@@ -358,7 +358,7 @@ sample_count_t CalcContext::first_relevant_sample(const TrackNo track) const
 
 sample_count_t CalcContext::first_relevant_sample() const noexcept
 {
-	return this->do_first_relevant_sample_0();
+	return this->do_first_relevant_sample_no_parms();
 }
 
 
@@ -371,7 +371,7 @@ sample_count_t CalcContext::last_relevant_sample(const TrackNo track) const
 
 sample_count_t CalcContext::last_relevant_sample() const noexcept
 {
-	return this->do_last_relevant_sample_0();
+	return this->do_last_relevant_sample_no_parms();
 }
 
 
@@ -877,7 +877,8 @@ sample_count_t CalcContextBase::do_first_relevant_sample(const TrackNo /*t*/)
 }
 
 
-sample_count_t CalcContextBase::do_first_relevant_sample_0() const noexcept
+sample_count_t CalcContextBase::do_first_relevant_sample_no_parms()
+	const noexcept
 {
 	return this->first_relevant_sample(1);
 }
@@ -890,7 +891,8 @@ sample_count_t CalcContextBase::do_last_relevant_sample(const TrackNo /*t*/)
 }
 
 
-sample_count_t CalcContextBase::do_last_relevant_sample_0() const noexcept
+sample_count_t CalcContextBase::do_last_relevant_sample_no_parms()
+	const noexcept
 {
 	return this->last_relevant_sample(this->track_count());
 }

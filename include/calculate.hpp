@@ -1432,9 +1432,8 @@ private:
 	 *
 	 * \return Index of the first sample contributing to the first track's ARCS
 	 */
-	virtual sample_count_t do_first_relevant_sample_0() const noexcept
+	virtual sample_count_t do_first_relevant_sample_no_parms() const noexcept
 	= 0;
-	// TODO Rename this function
 
 	/**
 	 * \brief Implements last_relevant_sample(const TrackNo track) const.
@@ -1452,9 +1451,8 @@ private:
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
-	virtual sample_count_t do_last_relevant_sample_0() const noexcept
+	virtual sample_count_t do_last_relevant_sample_no_parms() const noexcept
 	= 0;
-	// TODO Rename this function
 
 	/**
 	 * \brief Implements track(const sample_count_t smpl) const.
