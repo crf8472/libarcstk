@@ -865,7 +865,10 @@ public:
 
 private:
 
+	// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
+
 	/**
+	 * \internal
 	 * \brief Internal interface to the type-erased object.
 	 */
 	struct Concept
@@ -927,6 +930,7 @@ private:
 
 
 	/**
+	 * \internal
 	 * \brief Internal object representation
 	 *
 	 * \tparam Iterator The iterator type to wrap
@@ -984,6 +988,8 @@ private:
 			 */
 			Iterator iterator_;
 	};
+
+	// \endcond
 
 
 public:
