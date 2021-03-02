@@ -1134,6 +1134,9 @@ protected:
 	/**
 	 * \brief Parses the (opened) byte stream of an AccurateRip response.
 	 *
+	 * This function can be called in \c do_parse() implementations of
+	 * subclasses to perform the actual parsing process.
+	 *
 	 * \attention
 	 * It is in the responsibility of the client that the stream is opened
 	 * before passing. Exceptions must be activated and failbit as well as
@@ -1234,127 +1237,6 @@ private:
 	 * \brief Internal reference to the passed std::istream.
 	 */
 	std::istream& stream_;
-};
-
-
-/**
- * \brief Parser for dBAR-\*.bin files.
- *
- * \deprecated Use ARParser instead and control ifstream by client
- *
- * \details
- *
- * This class parses dBAR-\*.bin files saved by the actual ripper software
- * or achieved by an HTTP request to AccurateRip. Those files are just the byte
- * stream of the AccurateRip response persisted to the file system.
- */
-class ARFileParser final : public ARStreamParser
-{
-public:
-
-	/**
-	 * \brief Constructor.
-	 */
-	ARFileParser();
-
-	/**
-	 * \brief Move Constructor
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	ARFileParser(ARFileParser &&rhs) noexcept;
-
-	/**
-	 * \brief Constructor for specific file.
-	 *
-	 * \param[in] filename Name of the file to parse
-	 */
-	explicit ARFileParser(const std::string &filename);
-
-	/**
-	 * \brief Set the file to be parsed.
-	 *
-	 * \param[in] filename Name of the file to parse
-	 */
-	void set_file(const std::string &filename);
-
-	/**
-	 * \brief Name of the file to parse.
-	 *
-	 * \return Name of the file that is parsed when
-	 * \link ARStreamParser::parse() parse() \endlink is called.
-	 */
-	std::string file() const noexcept;
-
-
-	ARFileParser& operator = (ARFileParser &&rhs) noexcept;
-
-	friend void swap(ARFileParser &lhs, ARFileParser &rhs)
-	{
-		lhs.swap(rhs);
-	}
-
-	// non-copyable class
-	ARFileParser(const ARFileParser &rhs) = delete;
-	ARFileParser& operator = (const ARFileParser &rhs) = delete;
-
-
-private:
-
-	uint32_t do_parse() final;
-
-	void do_swap(ARStreamParser &rhs) final;
-
-	void on_catched_exception(std::istream &istream,
-			const std::exception &e) const final;
-
-	/**
-	 * \brief Internal filename representation
-	 */
-	std::string filename_;
-};
-
-
-/**
- * \brief Parser for AccurateRip response as a binary stream on stdin.
- *
- * \deprecated Use ARParser instead and control stdin stream by client
- */
-class ARStdinParser final : public ARStreamParser
-{
-public:
-
-	/**
-	 * \brief Default constructor.
-	 */
-	ARStdinParser();
-
-	/**
-	 * \brief Move Constructor
-	 *
-	 * \param[in] rhs Instance to move
-	 */
-	ARStdinParser(ARStdinParser &&rhs) noexcept;
-
-
-	ARStdinParser& operator = (ARStdinParser &&rhs) noexcept;
-
-	friend void swap(ARStdinParser &lhs, ARStdinParser &rhs)
-	{
-		lhs.swap(rhs);
-	}
-
-	// non-copyable class
-	ARStdinParser(const ARStdinParser &rhs) = delete;
-	ARStdinParser& operator = (const ARStdinParser &rhs) = delete;
-
-
-private:
-
-	uint32_t do_parse() final;
-
-	void on_catched_exception(std::istream &istream,
-			const std::exception &e) const final;
 };
 
 /** @} */
