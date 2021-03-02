@@ -58,9 +58,8 @@ using TrackNo = int;
 /**
  * \brief Constants related to the CDDA format
  */
-struct CDDA_t
+struct CDDA_t final
 {
-
 	/**
 	 * \brief CDDA: sampling rate of 44100 samples per second.
 	 */
