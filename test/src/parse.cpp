@@ -1101,7 +1101,6 @@ TEST_CASE ( "ARStreamParser::parse_stream", "[parse]" )
 {
 	using ARParser = arcstk::ARParser;
 	using ARResponse = arcstk::ARResponse;
-	//using DefaultErrorHandler   = arcstk::DefaultErrorHandler;
 	using DefaultContentHandler = arcstk::DefaultContentHandler;
 
 	ARResponse result;
