@@ -60,7 +60,8 @@ version with deviating values for tracks 6, 12 and 15 resides in
 On Linux these input data can be verified against the values from AccurateRip as
 follows:
 
-	$ curl -s "$(tail -1 < example_arid.txt)" | ./albumverify --id=$(head -1 < example_arid.txt) --arcs2="$(xargs < example_sums_ok.txt | tr ' ' ',')"
+	$ curl -s "$(tail -1 < example_arid.txt)" > response.txt
+	$./albumverify --id=$(head -1 < example_arid.txt) --arcs2="$(xargs < example_sums_ok.txt | tr ' ' ',')" response.txt
 
 To see the output for a partial failing verify, replace ``example_sums_ok.txt``
 by ``example_sums_fail.txt`` in the example above.

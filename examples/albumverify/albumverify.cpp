@@ -6,6 +6,7 @@
 #include <algorithm> // for count
 #include <cstdint>   // for uint32_t etc.
 #include <cstring>   // for strtok
+#include <fstream>   // for ifstream etc.
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
@@ -139,25 +140,32 @@ arcstk::Checksums parse_input_arcs(const char* list,
 /**
  * \brief Parse ARCSs from a non-empty response file or from stdin.
  *
- * @param[in] filename Name of the response file (maybe empty, then stdin)
+ * @param[in] filename Name of the response file
  *
  * @return Parsed ARResponse
+ *
+ * @throws std::runtime_error If filename is empty
  */
 arcstk::ARResponse parse_match_arcs(const std::string &filename)
 {
+	if (filename.empty())
+	{
+		throw std::runtime_error("Filename must not be empty!");
+	}
+
 	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
 	arcstk::ARResponse response_data;
 	content_hdlr->set_object(response_data);
+
 	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
+
 	std::unique_ptr<arcstk::ARStreamParser> parser;
 
-	if (filename.empty())
-	{
-		parser = std::make_unique<arcstk::ARStdinParser>();
-	} else
-	{
-		parser = std::make_unique<arcstk::ARFileParser>(filename);
-	}
+	std::ifstream file;
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	file.open(filename, std::ifstream::in | std::ifstream::binary);
+
+	parser = std::make_unique<arcstk::ARParser>(file);
 
 	parser->set_content_handler(std::move(content_hdlr));
 	parser->set_error_handler(std::move(error_hdlr));
