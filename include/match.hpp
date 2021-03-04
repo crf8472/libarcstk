@@ -45,23 +45,43 @@ class ARResponse;
  * Matcher provides an interface to match the ARCSs of some audio input against
  * a response from AccurateRip.
  *
+ * Use a Matcher by just calling its constructor with the required input.
+ * Thereafter the Matcher provides the caller with information about the Match:
+ *
+ * <ul>
+ *	<li>\link Matcher::matches() matches()\endlink indicates whether a complete
+ *	    match was found</li>
+ *	<li>\link Matcher::best_match() best_match()\endlink points to a block with
+ *	    best matching</li>
+ *	<li>\link Matcher::best_difference() best_difference()\endlink yields the
+ *	    number of non-matching tracks in the best matching block</li>
+ *	<li>\link Matcher::matches_v2() matches_v2()\endlink indicates whether
+ *	    best_match() refers to an ARCSv2</li>
+ *	<li>\link Matcher::match() match()\endlink yields the entire Match
+ *	    result</li>
+ * </ul>
+ *
  * A Matcher returns a Match that represents a matrix of numeric comparisons:
  * the result of matching the Checksums to each ARBlock in the ARResponse.
  *
- * While Matcher implements the comparison strategy, the Match implements
- * the result of the comparison.
+ * While Matcher implements the comparison strategy and the above convenience
+ * functions about the result, the Match implements the actual result of the
+ * comparison.
  *
  * \link arcstk::v_1_0_0::Match::track(int, int, bool) const
  * Match::track(block, track, isV2) \endlink
  * provides access to any single comparison by its block index, track index and
  * ARCS algorithm version.
  *
- * Provided are two Matcher implementations.
+ * Three Matcher implementations are provided.
  *
  * AlbumMatcher matches each checksum in a list of track-based Checksums against
  * the value of the corresponding track in each ARBlock of the ARResponse. This
  * implements the verification process of a complete disc image. AlbumMatcher
  * requires an ARId and respects it in the match against the ARBlock.
+ *
+ * ListMatcher performs the same logic as AlbumMatcher, but works on a single
+ * list of reference checksums instead of an ARResponse.
  *
  * TracksetMatcher matches a set of file-based Checksums against an ARResponse
  * by trying to match each of the Checksums against \em each of the sums
@@ -78,17 +98,16 @@ std::ostream& operator << (std::ostream&, const Match &match);
 /**
  * \brief Interface: Result of matching Checksums against an ARResponse.
  *
- * A Match is the result of checking given Checksums against an ARResponse.
- * A Match is produced by instantiating a Matcher. It holds the
- * result of any matching operation the Matcher has performed. Access to each of
- * these results is provided in terms of <tt>block:track:version</tt>. The
- * <tt>block</tt> and <tt>track</tt> address components are integers, while
- * <tt>version</tt> is a boolean that indicates whether the match is for ARCSv2
- * (TRUE) or for ARCSv1 (FALSE).
+ * \details
  *
- * Match indicates whether a matching block was found, returns the best
- * difference value, the index position of the best matching block in the
- * ARResponse and whether the match occurred for ARCSv1 or ARCSv2.
+ * A Match is the result of matching given Checksums against an ARResponse.
+ * A Match is obtained by instantiating a Matcher and calling \c match() on it.
+ * It holds the result of any matching operation the Matcher has performed.
+ * Access to each of these results is provided in terms of
+ * <tt>block:track:version</tt>. The <tt>block</tt> and <tt>track</tt> address
+ * components are integers, that refer to the respective 0-based block and
+ * 0-based track in the ARResponse. The <tt>version</tt> is a boolean that
+ * indicates whether the match is for ARCSv2 (TRUE) or for ARCSv1 (FALSE).
  */
 class Match
 {
@@ -148,10 +167,10 @@ public:
 	 * 18 in the first block. If this call returns \c true, track 18 in the
 	 * first ARBlock in the ARResponse was matched by the Matcher. Whether this
 	 * indicates that track 18 of the current Checksums caused the match is
-	 * implementation defined. If the Match was calculated by an AlbumMatcher,
-	 * track 18 of the input Checksums will only be matched against track 18 in
-	 * each block. A TracksetMatcher on the other hand will just indicate that
-	 * \em one of the input checksums matched track 18.
+	 * implementation defined. If the Match was calculated by an AlbumMatcher or
+	 * a ListMatcher, track 18 of the input Checksums will only be matched
+	 * against track 18 in each block. A TracksetMatcher on the other hand will
+	 * just indicate that \em one of the input checksums matched track 18.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
@@ -211,9 +230,10 @@ public:
 	 *
 	 * \note
 	 * The size of a Match with a number \f$b\f$ of total_blocks() and
-	 * \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$.
-	 * The \f$+1\f$ is required since the ARId of each block contributes an
-	 * additional verification flag to the Match.
+	 * \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$. The coefficient
+	 * \f$2\f$ is required since each block is matched against ARCSv1 and
+	 * ARCSv2 sums. The \f$+1\f$ is required since the ARId of each block
+	 * contributes an additional verification flag to the Match.
 	 *
 	 * \return Number of flags stored
 	 */
@@ -357,11 +377,17 @@ private:
 /**
  * \brief Interface: Try to Match Checksums against a specified ARResponse.
  *
+ * \details
+ *
  * A Matcher implements a concrete logic of matching Checksums against a
  * specified ARResponse. This logic defines which comparisons are actually
  * performed, in which order and which input information is actually considered.
  * Different \link Matcher Matchers \endlink may therefore produce
  * \link Match Matches \endlink with different content on identical input.
+ *
+ * \see AlbumMatcher
+ * \see TracksetMatcher
+ * \see ListMatcher
  */
 class Matcher
 {
@@ -385,6 +411,9 @@ public:
 	 * \brief Returns the 0-based index of the best matching block in the
 	 * ARResponse.
 	 *
+	 * If there is an ARCSv1 block that matches equally good as another
+	 * ARCSv2 block, best_match() will point to the ARCSv2 block.
+	 *
 	 * \return 0-based index of the best matching block in \c response
 	 */
 	int best_match() const noexcept;
@@ -405,6 +434,12 @@ public:
 	/**
 	 * \brief Returns TRUE iff the ARBlock with index best_match() matches
 	 * the ARCSsv2 of the request, otherwise FALSE.
+	 *
+	 * \note
+	 * \c matches_v2() can yield a different value than \c matches(). While
+	 * \c matches() is true iff <tt>best_difference == 0</tt>, \c matches_v2()
+	 * is true iff \c best_match() points to an ARCSv2 block, regardless of its
+	 * actual difference.
 	 *
 	 * \return TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
 	 */
@@ -444,8 +479,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link Matcher::best_match() const
-	 * best_match()
+	 * \brief Implements \link Matcher::best_match() const best_match()
 	 * \endlink.
 	 *
 	 * \return 0-based index of the best matching block in \c response
@@ -499,7 +533,7 @@ private:
 
 /**
  * \internal
- * \brief Abstract base class for Matcher implementations
+ * \brief Abstract base class for Matcher implementations.
  */
 class MatcherBase : public Matcher
 {
@@ -604,8 +638,15 @@ private:
  * \details
  *
  * Tries to match each position \c i in the actual Checksums with position \c i
- * in each ARBlock of the ARResponse. This is how an entire album can be
- * matched.
+ * in each ARBlock of the ARResponse. Additonally checks the input id for
+ * identity with the ARId of each respective block in the ARResponse.
+ *
+ * AlbumMatcher is the Matcher class suitable for easy matching of entire album
+ * rips. Checksum lists whose ARId do not match have therefore a difference of
+ * at least \c 1.
+ *
+ * \see TracksetMatcher
+ * \see ListMatcher
  */
 class AlbumMatcher final : public MatcherBase
 {
@@ -618,9 +659,10 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] checksums The checksums to match
+	 * \param[in] checksums The Checksums to match
 	 * \param[in] id        The ARId to match
-	 * \param[in] response  The AccurateRip response to be matched
+	 * \param[in] response  The \link ARResponse AccurateRip response \endlink
+	 *                      to be matched
 	 */
 	AlbumMatcher(const Checksums &checksums, const ARId &id,
 			const ARResponse &response);
@@ -644,18 +686,22 @@ private:
 
 
 /**
- * \brief Match an arbitrary set of tracks against an ARResponse.
+ * \brief Match an arbitrary set of Checksums against an ARResponse.
  *
  * \details
  *
  * Find any match of any actual Checksum in the ARResponse. This targets the
  * situation where a subset of tracks from the same album are tried to be
- * matched, but the subset may be incomplete.
+ * matched, but the subset may be incomplete and the order of the tracks might
+ * not be known.
  *
  * \note
  * The TracksetMatcher is a generalization of the AlbumMatcher. The AlbumMatcher
  * adds the restriction that the order of tracks in the ARResponse must be
  * matched too.
+ *
+ * \see AlbumMatcher
+ * \see ListMatcher
  */
 class TracksetMatcher final : public MatcherBase
 {
@@ -705,6 +751,7 @@ namespace details
 {
 
 /**
+ * \internal
  * \brief std::true_type iff T::value_type is of type Checksum
  * otherwise std::false_type.
  *
@@ -717,7 +764,9 @@ struct has_checksum_type : public std::integral_constant<bool,
 	// empty
 };
 
+
 /**
+ * \internal
  * \brief Defined iff is_container<T> and T has_checksum_type.
  *
  * \tparam T The type to inspect
@@ -735,6 +784,8 @@ struct is_checksum_container : public std::integral_constant<bool,
 
 /**
  * \brief Defined iff T is a container whose value_type is Checksum.
+ *
+ * \tparam T The type to inspect
  */
 template <typename T>
 using IsChecksumContainer =
@@ -745,6 +796,7 @@ namespace details
 {
 
 /**
+ * \internal
  * \brief Create a match object to match a number of \c tracks against some
  * \c tracks.
  *
@@ -757,8 +809,11 @@ std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
 	noexcept;
 
 /**
- * \brief Worker: perform a match of some \c checksums agains a \c container of
- * reference values.
+ * \internal
+ * \brief Worker: perform a match of some \c checksums against a \c container
+ * of reference values in order.
+ *
+ * \details
  *
  * The \c container has to obey the IsChecksumContainer requirements.
  *
@@ -772,7 +827,8 @@ std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
  * <tt>difference(0) == 1 && !id(0)</tt> (means: only id flag is false).
  *
  * \param[in] actual_sums Actual Checksums to verify
- * \param[in] container   Iterable container of reference \link arcstk::Checksum Checksums\endlink
+ * \param[in] container   Iterable container of reference
+ *                        \link arcstk::Checksum Checksums\endlink
  *
  * \return Match of \c checkums against the container values for ARCS2 and ARCS1
  */
@@ -810,6 +866,8 @@ std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
  * \brief Perform a match of some \c checksums against a \c container of
  * reference values.
  *
+ * \details
+ *
  * The \c container has to obey the IsChecksumContainer requirements.
  *
  * If \c container.size() is n, the first n Checksum instances in \c checksums
@@ -821,7 +879,8 @@ std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
  * difference. The block id match flag will therefore always be TRUE.
  *
  * \param[in] actual_sums Actual Checksums to verify
- * \param[in] ref_sums    Iterable container of reference \link Checksum Checksums\endlink
+ * \param[in] ref_sums    Iterable container of reference
+ *                        \link Checksum Checksums\endlink
  *
  * \return Match of \c checkums against the container values for ARCS2 and ARCS1
  */
@@ -841,6 +900,8 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
  * \brief Perform a match of some \c checksums against a \c container of
  * reference values.
  *
+ * \details
+ *
  * The \c container has to obey the IsChecksumContainer requirements.
  *
  * If \c container.size() is n, the first n Checksum instances in \c checksums
@@ -850,7 +911,8 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
  *
  * \param[in] actual_sums Actual Checksums to verify
  * \param[in] actual_id   Actual ARId to verify
- * \param[in] ref_sums    Iterable container of reference \link Checksum Checksums\endlink
+ * \param[in] ref_sums    Iterable container of reference
+ *                        \link Checksum Checksums\endlink
  * \param[in] ref_id      Reference ARId
  *
  * \return Match of \c checkums against the container values for ARCS2 and ARCS1
@@ -875,10 +937,17 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
  *
  * \details
  *
- * Determine whether a list of Checksums match a list of reference values. This
- * targets the situation where the caller already has local reference values,
- * say, from a logfile. The actual Checksums are just compared to the reference
- * values and the resulting Match will have set the ARId match flag to TRUE.
+ * The ListMatcher implements the same logic as the AlbumMatcher but accepts a
+ * single list of reference values instead of an ARResponse.
+ *
+ * Check whether a list of Checksums matches a list of reference values.
+ * This targets the situation where the caller already has local reference
+ * values, say, from a logfile. The actual Checksums are just compared to the
+ * reference values in their respective order and the resulting Match will have
+ * set the ARId match flag to TRUE.
+ *
+ * \see AlbumMatcher
+ * \see TracksetMatcher
  */
 class ListMatcher final : public MatcherBase
 {
@@ -892,7 +961,8 @@ public:
 	 * \param[in] checksums The checksums to match
 	 * \param[in] reflist   The list of reference checksums to be matched
 	 *
-	 * \throw out_of_range If checksums.size() != reflist.size() or some size() is 0
+	 * \throw out_of_range If <tt>checksums.size() != reflist.size()</tt> or
+	 *                     some \c size() is 0
 	 */
 	template <typename Container, typename = IsChecksumContainer<Container>>
 	ListMatcher(const Checksums &checksums, Container&& reflist)
