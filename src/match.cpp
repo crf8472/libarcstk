@@ -543,9 +543,9 @@ int Matcher::best_difference() const noexcept
 }
 
 
-bool Matcher::matches_v2() const noexcept
+bool Matcher::best_match_is_v2() const noexcept
 {
-	return this->do_matches_v2();
+	return this->do_best_match_is_v2();
 }
 
 
@@ -620,9 +620,9 @@ public:
 	int best_difference() const noexcept;
 
 	/**
-	 * \brief Implements Matcher::matches_v2() const.
+	 * \brief Implements Matcher::best_match_is_v2() const.
 	 */
-	bool matches_v2() const noexcept;
+	bool best_match_is_v2() const noexcept;
 
 	/**
 	 * \brief Returns the actual match result.
@@ -637,11 +637,13 @@ public:
 	 * \param[in]  m          Match to analyze
 	 *
 	 * \param[out] block      Best matching block found
-	 * \param[out] matches_v2 TRUE iff best match is for ARCSv2, otherwise FALSE
+	 * \param[out] best_match_is_v2 TRUE iff best match is for ARCSv2,
+	 *                              otherwise FALSE
 	 *
 	 * \return Status value, 0 indicates success
 	 */
-	int best_block(const Match &m, int &block, bool &matches_v2) const noexcept;
+	int best_block(const Match &m, int &block, bool &best_match_is_v2)
+		const noexcept;
 
 	/**
 	 * \brief Set the match instance and mark best block.
@@ -794,7 +796,7 @@ private:
 	/**
 	 * \brief State: stores information about best block.
 	 */
-	bool matches_v2_;
+	bool best_match_is_v2_;
 };
 
 
@@ -804,7 +806,7 @@ constexpr std::array<checksum::type, 2> MatcherBase::Impl::types;
 MatcherBase::Impl::Impl()
 	: match_ { nullptr }
 	, best_block_ { 0 }
-	, matches_v2_ { false }
+	, best_match_is_v2_ { false }
 {
 	// empty
 }
@@ -827,13 +829,13 @@ int MatcherBase::Impl::best_match() const noexcept
 
 int MatcherBase::Impl::best_difference() const noexcept
 {
-	return match_->difference(best_block_, matches_v2_);
+	return match_->difference(best_block_, best_match_is_v2_);
 }
 
 
-bool MatcherBase::Impl::matches_v2() const noexcept
+bool MatcherBase::Impl::best_match_is_v2() const noexcept
 {
-	return matches_v2_;
+	return best_match_is_v2_;
 }
 
 
@@ -843,8 +845,8 @@ const Match * MatcherBase::Impl::match() const noexcept
 }
 
 
-int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
-	const noexcept
+int MatcherBase::Impl::best_block(const Match &m, int &block,
+		bool &best_match_is_v2) const noexcept
 {
 	ARCS_LOG(DEBUG1) << "Find best block:";
 
@@ -870,11 +872,11 @@ int MatcherBase::Impl::best_block(const Match &m, int &block, bool &matches_v2)
 		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
 		{
 			block      = b;
-			matches_v2 = curr_diff_v2 <= curr_diff_v1;
-			best_diff  = matches_v2 ? curr_diff_v2 : curr_diff_v1;
+			best_match_is_v2 = curr_diff_v2 <= curr_diff_v1;
+			best_diff  = best_match_is_v2 ? curr_diff_v2 : curr_diff_v1;
 
 			ARCS_LOG_DEBUG << "Declare block " << b << " as best match"
-				<< " (is ARCSv" << (matches_v2 + 1) << ")";
+				<< " (is ARCSv" << (best_match_is_v2 + 1) << ")";
 		}
 	}
 
@@ -931,10 +933,11 @@ int MatcherBase::Impl::mark_best_block() noexcept
 	if (status == 0) // best block found?
 	{
 		best_block_ = block;
-		matches_v2_ = version;
+		best_match_is_v2_ = version;
 
 		ARCS_LOG(DEBUG1) << "Best block: " << best_block_;
-		ARCS_LOG(DEBUG1) << "Match:      ARCSv" << (matches_v2_ ? "2" : "1");
+		ARCS_LOG(DEBUG1) <<
+			"Match:      ARCSv" << (best_match_is_v2_ ? "2" : "1");
 	}
 
 	return status;
@@ -946,7 +949,7 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone_base() const
 	auto instance = this->do_create_instance();
 
 	instance->match_ = match_->clone();
-	instance->matches_v2_ = matches_v2_;
+	instance->best_match_is_v2_ = best_match_is_v2_;
 	instance->best_block_ = best_block_;
 
 	return instance;
@@ -956,7 +959,7 @@ std::unique_ptr<MatcherBase::Impl> MatcherBase::Impl::clone_base() const
 bool MatcherBase::Impl::equals_base(const MatcherBase::Impl &rhs) const noexcept
 {
 	return best_block_ == rhs.best_block_
-		and matches_v2_ == rhs.matches_v2_
+		and best_match_is_v2_ == rhs.best_match_is_v2_
 		and match_->equals(*rhs.match_);
 }
 
@@ -1077,9 +1080,9 @@ int MatcherBase::do_best_difference() const noexcept
 }
 
 
-bool MatcherBase::do_matches_v2() const noexcept
+bool MatcherBase::do_best_match_is_v2() const noexcept
 {
-	return impl_->matches_v2();
+	return impl_->best_match_is_v2();
 }
 
 

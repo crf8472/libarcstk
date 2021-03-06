@@ -397,7 +397,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 		CHECK ( am_diff.best_match() == 2 );
 		CHECK ( am_diff.best_difference() == 0 );
-		CHECK ( am_diff.matches_v2() );
+		CHECK ( am_diff.best_match_is_v2() );
 	}
 
 
@@ -549,7 +549,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 		CHECK ( tsm_diff.best_match() == 2 );
 		CHECK ( tsm_diff.best_difference() == 0 );
-		CHECK ( tsm_diff.matches_v2() );
+		CHECK ( tsm_diff.best_match_is_v2() );
 	}
 
 
@@ -744,7 +744,7 @@ TEST_CASE ( "Matcher", "[match] [matcher]" )
 
 		CHECK ( lm_diff_v2.best_match() == 0 );
 		CHECK ( lm_diff_v2.best_difference() == 0 );
-		CHECK ( lm_diff_v2.matches_v2() );
+		CHECK ( lm_diff_v2.best_match_is_v2() );
 	}
 
 	SECTION ( "ListMatcher's v1 Match loads as declared on album input" )

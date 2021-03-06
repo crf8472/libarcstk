@@ -168,7 +168,7 @@ extern const CDDA_t CDDA;
  * thrown.
  *
  * A NonstandardMetadataException indicates that the input is not conforming to
- * the redbook standard. This exception can occurr in tthe internal validation
+ * the redbook standard. This exception can occurr in the internal validation
  * mechanism but is currently not used in the public API.
  *
  * @{
@@ -547,7 +547,7 @@ public:
  *
  * \details
  *
- * The input is validated.
+ * The \c toc is validated.
  *
  * \param[in] toc TOC to use
  *
@@ -588,13 +588,13 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc);
  *
  * \return ARId
  *
- * \throw InvalidMetadataException If \c toc and \c leadout are invalid
+ * \throw InvalidMetadataException If \c toc and \c leadout are inconsistent
  */
 std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count_t leadout);
 
 
 /**
- * \copydoc arcstk::v_1_0_0::make_arid(const TOC &, const lba_count_t)
+ * \copydoc arcstk::make_arid(const TOC &, const lba_count_t)
  */
 std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 		const lba_count_t leadout);
@@ -603,7 +603,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 /**
  * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  *
- * The implementation of this defines emptiness for ARIds.
+ * The implementation of make_empty_arid() defines emptiness for ARIds.
  *
  * \return An \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
  */
@@ -691,25 +691,25 @@ class ARIdBuilder final
 public:
 
 	/**
-	 * \brief Build an ARId object from the specified TOC and leadout.
+	 * \brief Create an ARId from the specified TOC and leadout.
 	 *
 	 * Actual parameters \c toc and \c leadout are validated against each other.
 	 *
 	 * \param[in] toc     TOC to build ARId from
 	 * \param[in] leadout Leadout frame
 	 *
-	 * \return An ARId object representing the specified information
+	 * \return An ARId representing the specified information
 	 *
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
 	static std::unique_ptr<ARId> build(const TOC &toc, const lba_count_t leadout);
 
 	/**
-	 * \brief Build an ARId object from the specified TOC.
+	 * \brief Create an ARId from the specified TOC.
 	 *
 	 * \param[in] toc TOC to build ARId from
 	 *
-	 * \return An ARId object representing the specified information
+	 * \return An ARId representing the specified information
 	 *
 	 * \throw InvalidMetadataException If the TOC forms no valid ARId
 	 */
@@ -742,7 +742,7 @@ private:
 	 * \param[in] toc         The TOC to use
 	 * \param[in] leadout     Leadout frame
 	 *
-	 * \return An ARId object representing the specified information
+	 * \return An ARId representing the specified information
 	 *
 	 * \throw InvalidMetadataException If the parameters form no valid ARId
 	 */
@@ -819,6 +819,8 @@ inline namespace v_1_0_0
 
 /**
  * \brief Defined iff T is a numerical integer type of at least 32 bit size.
+ *
+ * \tparam T The type to test
  */
 template <typename T>
 using IsLBAType = std::enable_if_t<details::is_lba_type<T>::value>;
@@ -828,6 +830,8 @@ using IsLBAType = std::enable_if_t<details::is_lba_type<T>::value>;
  *
  * To qualify as an LBAContainer, the class must have const versions of begin()
  * and end(), a const_iterator, a size() and a value_type that IsLBAType.
+ *
+ * \tparam T The type to test
  */
 template <typename T>
 using IsLBAContainer = std::enable_if_t<details::is_lba_container<T>::value>;
@@ -842,6 +846,8 @@ using IsLBAContainer = std::enable_if_t<details::is_lba_container<T>::value>;
  * template <>
  * struct arcstk::details::is_filename_type<MyType> : public std::true_type { };
  * \endcode
+ *
+ * \tparam T The type to test
  */
 template <typename T>
 using IsFilenameType = std::enable_if_t<details::is_filename_type<T>::value>;
@@ -852,6 +858,8 @@ using IsFilenameType = std::enable_if_t<details::is_filename_type<T>::value>;
  * To qualify as a FilenameContainer, the class must have const versions of
  * begin() and end(), a const_iterator, a size() and a value_type that
  * IsFilenameType.
+ *
+ * \tparam T The type to test
  */
 template <typename T>
 using IsFilenameContainer =
@@ -859,7 +867,7 @@ using IsFilenameContainer =
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Create a TOC by offsets, leadout and optional filenames.
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
  * TOC is therefore not guaranteed to be
@@ -874,7 +882,7 @@ using IsFilenameContainer =
  * \param[in] leadout Leadout frame
  * \param[in] files   File name of each track
  *
- * \return A TOC object representing the specified information
+ * \return A TOC representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
  */
@@ -897,14 +905,15 @@ inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Create a TOC by track count, offsets, leadout and optional
+ * filenames.
  *
  * The input data is validated but the leadout is allowed to be 0. The returned
  * TOC is therefore not guaranteed to be
  * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
+ * The value of \c track_count must be equal to <tt>offsets().size()</tt> and is
+ * just used for additional validation.
  *
  * \tparam LBAContainer      Container type of the offsets container
  * \tparam FilenameContainer Container type of the optional filename container
@@ -914,7 +923,7 @@ inline std::unique_ptr<TOC> make_toc(LBAContainer&& offsets,
  * \param[in] leadout     Leadout frame
  * \param[in] files       File name of each track
  *
- * \return A TOC object representing the specified information
+ * \return A TOC representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
  */
@@ -938,7 +947,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Create a TOC by offsets, lengths and optional filenames.
  *
  * The input data is validated but the length of the last track is allowed to
  * be 0. The returned TOC is therefore not guaranteed to be
@@ -956,7 +965,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \param[in] lengths Lengths (in LBA frames) of each track
  * \param[in] files   File name of each track
  *
- * \return A TOC object representing the specified information
+ * \return A TOC representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
  */
@@ -980,14 +989,14 @@ std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
 
 
 /**
- * \brief Create a TOC object from the specified information.
+ * \brief Create a TOC from the specified information.
  *
  * The input data is validated but the length of the last track is allowed to
  * be 0. The returned TOC is therefore not guaranteed to be
  * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
- * The value of \c track_count must be equal to \c offsets().size and is just
- * used for additional validation.
+ * The value of \c track_count must be equal to <tt>offsets().size()</tt> and is
+ * just used for additional validation.
  *
  * Value \c offsets.size() and \c lengths.size() must be equal.
  *
@@ -1000,7 +1009,7 @@ std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
  * \param[in] lengths     Lengths (in LBA frames) of each track
  * \param[in] files       File name of each track
  *
- * \return A TOC object representing the specified information
+ * \return A TOC representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid TOC
  */
@@ -1025,7 +1034,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 
 
 /**
- * \brief Build an ARId object from the specified information.
+ * \brief Create an object by track_count, offsets and leadout.
  *
  * \tparam LBAContainer  Container type of the offsets container
  *
@@ -1033,7 +1042,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * \param[in] offsets     Offsets
  * \param[in] leadout     Leadout frame
  *
- * \return An ARId object representing the specified information
+ * \return An ARId representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
  */
@@ -1050,14 +1059,35 @@ inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
 
 
 /**
- * \brief Build an ARId object from the specified information.
+ * \brief Create an ARId by track_count, offsets and leadout.
+ *
+ * \tparam T Type of the offsets
+ *
+ * \param[in] track_count Track count
+ * \param[in] offsets     Offsets
+ * \param[in] leadout     Leadout frame
+ *
+ * \return An ARId representing the specified information
+ *
+ * \throw InvalidMetadataException If the input forms no valid ARId
+ */
+template <typename T, typename = IsLBAType<T> >
+inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
+	std::initializer_list<T> offsets, const lba_count_t leadout)
+{
+	return make_arid(track_count, std::vector<T>{offsets}, leadout);
+}
+
+
+/**
+ * \brief Create an ARId by offsets and leadout.
  *
  * \tparam LBAContainer  Container type of the offsets container
  *
  * \param[in] offsets     Offsets
  * \param[in] leadout     Leadout frame
  *
- * \return An ARId object representing the specified information
+ * \return An ARId representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
  */
@@ -1072,35 +1102,14 @@ inline std::unique_ptr<ARId> make_arid(LBAContainer&& offsets,
 
 
 /**
- * \brief Build an ARId object from the specified information.
- *
- * \tparam T Type of the offsets
- *
- * \param[in] track_count Track count
- * \param[in] offsets     Offsets
- * \param[in] leadout     Leadout frame
- *
- * \return An ARId object representing the specified information
- *
- * \throw InvalidMetadataException If the input forms no valid ARId
- */
-template <typename T, typename = IsLBAType<T> >
-inline std::unique_ptr<ARId> make_arid(const TrackNo track_count,
-	std::initializer_list<T> offsets, const lba_count_t leadout)
-{
-	return make_arid(track_count, std::vector<T>{offsets}, leadout);
-}
-
-
-/**
- * \brief Build an ARId object from the specified information.
+ * \brief Create an ARId by offsets and leadout.
  *
  * \tparam T Type of the offsets
  *
  * \param[in] offsets     Offsets
  * \param[in] leadout     Leadout frame
  *
- * \return An ARId object representing the specified information
+ * \return An ARId representing the specified information
  *
  * \throw InvalidMetadataException If the input forms no valid ARId
  */

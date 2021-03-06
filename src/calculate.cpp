@@ -2950,6 +2950,15 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 	return (lhs.empty() and rhs.empty()) or lhs.value() == rhs.value();
 }
 
+bool operator == (const Checksum &lhs, const uint32_t rhs) noexcept
+{
+	return lhs.value() == rhs;
+}
+
+bool operator == (const uint32_t lhs, const Checksum &rhs) noexcept
+{
+	return lhs == rhs.value();
+}
 
 std::ostream& operator << (std::ostream& out, const Checksum &c)
 {

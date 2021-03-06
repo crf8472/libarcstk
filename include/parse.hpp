@@ -31,8 +31,9 @@ inline namespace v_1_0_0
 {
 
 
-// Forward declaration to avoid including identfier.hpp
+// Forward declaration to avoid including other headers
 class ARId;
+class Checksum;
 
 // Forward declaration for the base class for a private implementation
 class ARTripletImpl; // IWYU pragma keep
@@ -41,17 +42,15 @@ class ARTripletImpl; // IWYU pragma keep
 /**
  * \defgroup parse AccurateRip Response Parser
  *
- * \brief Parse an AccurateRip HTTP-response to an object representation
+ * \brief Parse an AccurateRip HTTP-response to an
+ * \link ARResponse object representation\endlink
  *
  * \details
  *
  * An ARStreamParser push-parses the binary content of a HTTP-response from
- * AccurateRip and emits a series of events. There are two default
- * implementations of ARStreamParser provided, ARFileParser and ARStdinParser.
- *
- * ARFileParser parses files obtained by just saving the payload of the
- * AccurateRip response to a (binary) file. ARStdinParser parses stdin for this
- * payload instead of a file. It can be used for parsing piped input.
+ * AccurateRip and emits a series of events. There is a minimal default
+ * implementations of ARStreamParser provided, ARParser, that accepts an opened
+ * stream throwing exceptions on at least failbit and badbit.
  *
  * For handling the emitted events, an ARStreamParser can be registered two
  * types of handlers to, a ContentHandler and an ErrorHandler.
@@ -70,7 +69,8 @@ class ARTripletImpl; // IWYU pragma keep
  * ARResponse with the parsed information. An ARResponse represents the entire
  * content data from an AccurateRip HTTP-response. It is composed of a sequence
  * of \link ARBlock ARBlocks \endlink of which each is composed of a leading
- * ARId followed by a sequence of ARTriplets, one for each track.
+ * ARId followed by a sequence of \link ARTriplet ARTriplets\endlink, one for
+ * each track.
  *
  * While an ARBlock represents thus a single checksum profile for a compact disc
  * pressing an ARTriplet represents the AccurateRip information for a single
@@ -78,11 +78,11 @@ class ARTripletImpl; // IWYU pragma keep
  * value, a confidence value and a check value to identify the pressing.
  *
  * \note
- * There is no way to inform the client whether the ARCS is v1 or v2.
- * The AccurateRip response does not distinguish blocks of ARCSv1 from
- * blocks of ARCSv2 and provides no information about the concrete checksum
- * algorithm. A block of ARCSv1 is considered just an information about
- * another pressing of an album.
+ * There is no way to inform the client whether the actual ARCS in an ARTriplet
+ * is an ARCSv1 or an ARCSv2. The AccurateRip response does not distinguish
+ * blocks of ARCSv1 from blocks of ARCSv2 and provides no information about the
+ * concrete checksum algorithm. A block of ARCSv1 is considered just an
+ * information about another pressing of an album.
  *
  * @{
  */
@@ -107,7 +107,7 @@ class ARTripletImpl; // IWYU pragma keep
  * position in the ARBlock. The first ARTriplet in the ARBlock describes track
  * 1, the second ARTriplet track 2 and so forth.
  *
- * An ARTriplet carries no information whether its ARCS are v1 or v2. It
+ * An ARTriplet carries no information whether its ARCS are ARCSv1 or ARCSv2. It
  * contains only parsed data and metadata flags indicating whether the content
  * is valid, i.e. was correctly parsed.
  *
@@ -129,7 +129,7 @@ public:
 	ARTriplet();
 
 	/**
-	 * \brief Constructor.
+	 * \brief Constructor that sets all validity flags to \c TRUE.
 	 *
 	 * \details
 	 * All validity flags are set to \c TRUE.
@@ -179,7 +179,7 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	uint32_t arcs() const noexcept;
+	Checksum arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this triplet.
@@ -193,7 +193,7 @@ public:
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	uint32_t frame450_arcs() const noexcept;
+	Checksum frame450_arcs() const noexcept;
 
 	/**
 	 * \brief Validity flag for the track ARCS in this triplet.
@@ -220,7 +220,8 @@ public:
 	/**
 	 * \brief Indicates whether parsed content is present.
 	 *
-	 * \return TRUE iff the ARTriplet holds not parsed content, otherwise FALSE
+	 * \return \c TRUE iff the ARTriplet holds not parsed content, otherwise
+	 *         \c FALSE
 	 */
 	bool empty() const noexcept;
 
@@ -250,8 +251,8 @@ private:
  *
  * An AccurateRip response is in fact parsed as a sequence of ARBlocks.
  *
- * Syntactically each ARBlock is an ordered pair of a header and a sequence
- * of \link ARTriplet ARTriplets \endlink.
+ * Syntactically each ARBlock is an ordered pair of a header and a subsequent
+ * sequence of \link ARTriplet ARTriplets \endlink.
  *
  * Semantically, an ARBlock contains exactly one ARTriplet for each
  * track of the original disc. This makes the ARBlock in fact an ARCS set
@@ -259,8 +260,8 @@ private:
  * for a disc. The header contains the AccurateRip Id of the disc.
  *
  * An AccurateRip response may contain different \link ARBlock ARBlocks \endlink
- * for a single disc id and the ARBlocks may differ in the ARCSs they contain
- * for the tracks.
+ * for a single disc id and the \link ARBlock ARBlocks \endlink may differ in
+ * the ARCSs they contain for the tracks.
  */
 class ARBlock final : public Comparable<ARBlock>
 {
@@ -331,42 +332,40 @@ public: /* member functions */
 	const ARId& id() const noexcept;
 
 	/**
-	 * \brief Number of \link ARTriplet ARTriplets\endlink in this ARBlock.
+	 * \brief Total Number of \link ARTriplet ARTriplets\endlink in this
+	 * ARBlock.
 	 *
-	 * \return The number of \link ARTriplet ARTriplets\endlink in this block.
+	 * \return The total number of \link ARTriplet ARTriplets\endlink in this
+	 * block.
 	 */
 	size_type size() const noexcept;
 
 	/**
-	 * \brief const_iterator pointing to first ARTriplet.
-	 *
-	 * \return const_iterator pointing to first ARTriplet
+	 * \copydoc cbegin()
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief const_iterator pointing behind last ARTriplet.
-	 *
-	 * \return const_iterator pointing behind last ARTriplet
+	 * \copydoc cend()
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief const_iterator pointing to first ARTriplet.
+	 * \brief Obtain a const_iterator pointing to first ARTriplet.
 	 *
 	 * \return const_iterator pointing to first ARTriplet
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief const_iterator pointing behind last ARTriplet.
+	 * \brief Obtain a const_iterator pointing behind last ARTriplet.
 	 *
 	 * \return const_iterator pointing behind last ARTriplet
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * \brief The ARTriplet with the specified 0-based index \c index.
+	 * \brief The ARTriplet with the specified 0-based \c index.
 	 *
 	 * \details
 	 *
@@ -380,12 +379,12 @@ public: /* member functions */
 	 *
 	 * \return ARTriplet at index \c index.
 	 *
-	 * \throws std::out_of_range Iff \c index > ARBlock::size() - 1.
+	 * \throws std::out_of_range Iff \c index >= ARBlock::size().
 	 */
 	const ARTriplet& at(const size_type index) const;
 
 	/**
-	 * \brief The ARTriplet with the specified \c index.
+	 * \copybrief at()
 	 *
 	 * No bounds checking is performed. For index based access with bounds
 	 * checking, see
@@ -434,8 +433,11 @@ private:
  * An ARResponse represents the HTTP-response of AccurateRip to an request for
  * some ARId.
  *
- * Technically, an ARResponse is essentially an iterable sequence of
+ * Syntactically, an ARResponse is essentially an iterable sequence of
  * \link ARBlock ARBlocks\endlink.
+ *
+ * Semantically, an ARResponse represents the collected checksums AccurateRip
+ * has obtained for albums with the specified ARId.
  *
  * Although an ARResponse represents content that is usually not created by the
  * client, the client may nonetheless create an ARResponse on its own or modify
@@ -487,14 +489,14 @@ public: /* member functions */
 	ARResponse(const ARResponse &rhs);
 
 	/**
-	 * \brief Default move constructor.
+	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
 	ARResponse(ARResponse &&rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \brief Destructor.
 	 */
 	~ARResponse() noexcept;
 
@@ -514,35 +516,35 @@ public: /* member functions */
 	size_type size() const noexcept;
 
 	/**
-	 * \brief const_iterator pointing to the first ARBlock.
+	 * \brief Obtain a const_iterator pointing to the first ARBlock.
 	 *
 	 * \return const_iterator pointing to the first ARBlock
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief const_iterator pointing behind the last ARBlock.
+	 * \brief Obtain a const_iterator pointing behind the last ARBlock.
 	 *
 	 * \return const_iterator pointing behind the last ARBlock
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief const_iterator pointing to the first ARBlock.
+	 * \brief Obtain a const_iterator pointing to the first ARBlock.
 	 *
 	 * \return const_iterator pointing to the first ARBlock
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief const_iterator pointing behind the last ARBlock.
+	 * \brief Obtain a const_iterator pointing behind the last ARBlock.
 	 *
 	 * \return const_iterator pointing behind the last ARBlock
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * \brief The ARBlock with the specified 0-based index \c index.
+	 * \brief The ARBlock with the specified 0-based \c index.
 	 *
 	 * \details
 	 *
@@ -561,7 +563,7 @@ public: /* member functions */
 	const ARBlock& at(const size_type index) const;
 
 	/**
-	 * \brief The ARBlock with the specified 0-based \c index.
+	 * \copybrief at()
 	 *
 	 * \details
 	 * No bounds checking is performed. For index based access with bounds
@@ -1050,21 +1052,45 @@ private:
  *
  * \details
  *
- * ARStreamParser parses a std::istream as an AccurateRip response.
+ * ARStreamParser provides the capability for parsing a std::istream as an
+ * AccurateRip response.
+ *
+ * Protected service function parse_stream() is provided as a building block
+ * for subclasses to implement the parsing. 
+ *
+ * Concrete subclasses are responsible for implementing functions do_parse()
+ * and on_catched_exception().
+ *
+ * Method do_parse() may call parse_stream() to perform the actual parsing and
+ * do some pre- or postprocessing.
+ *
+ * Hook method on_catched_exception() is called after an exception was catched
+ * and before the respective exception is rethrown, so the subclass has the
+ * chance to perform some cleanup as closing the stream if this required.
+ *
+ * The stream must have been opened before passing it to parse_stream().
+ *
+ * ARStreamParser requires furthermore that the stream is configured to throw
+ * exceptions for \c failbit and \c badbit incidents, thus before the input
+ * istream is passed to parse_stream(), do something like:
+ *
+ * \code{.cpp}
+ * my_istream.exceptions(std::istream::failbit | std::istream::badbit);
+ * \endcode
+ *
+ * Leaving out the exception settings means the ARStreamParser instance will not
+ * recognize parse errors. It will probably not react appropriate and validity
+ * flags will not be reliable.
  *
  * A ContentHandler is required to actually process the parsed content.
+ * DefaultContentHandler will just compose an ARResponse object from the parsed
+ * input.
  *
- * An ErrorHandler can optionally be set to perform some processing of the
- * error information before a StreamReadException is thrown. If no
+ * An ErrorHandler can optionally be set to react on parse errors. If no
  * ErrorHandler is set, a StreamReadException or std::runtime_error is thrown
  * on a parse error.
  *
- * Concrete subclasses are responsible for implementing function
- * do_parse(). Protected service function parse_stream() is provided as a
- * building block for subclasses to implement the parsing. Hook method
- * on_catched_exception() is called before the exception is rethrown,
- * so the subclass has the chance to perform some cleanup as closing the
- * stream if this required.
+ * A minimal implementation is provided by ARParser.
  */
 class ARStreamParser
 {
@@ -1122,25 +1148,23 @@ public:
 	 */
 	uint32_t parse();
 
-	// non-copyable class
-	//ARStreamParser(const ARStreamParser &) = delete;
-	//ARStreamParser& operator = (const ARStreamParser &rhs) = delete;
-
 	ARStreamParser& operator = (ARStreamParser &&rhs) noexcept;
 
 
 protected:
 
 	/**
-	 * \brief Parses the (opened) byte stream of an AccurateRip response.
+	 * \brief Parses the (opened) byte stream as an AccurateRip response.
 	 *
 	 * This function can be called in \c do_parse() implementations of
 	 * subclasses to perform the actual parsing process.
 	 *
 	 * \attention
-	 * It is in the responsibility of the client that the stream is opened
-	 * before passing. Exceptions must be activated and failbit as well as
-	 * badbit must be set.
+	 * It is in the responsibility of the client that
+	 * <ul>
+	 *     <li>the stream is opened before passing it.</li>
+	 *     <li>Exceptions must be activated on failbit as well as badbit.</li>
+	 * </ul>
 	 *
 	 * \param[in] in_stream The stream to be parsed
 	 *
@@ -1203,10 +1227,12 @@ private:
 
 
 /**
- * \brief Generic parser for std::ifstream instances.
+ * \brief Generic parser for std::istream instances.
  *
  * The client has complete control about opening and handling the ifstream.
  * Allows to parse stdin, files and strings.
+ *
+ * \see ARStreamParser
  */
 class ARParser final : public ARStreamParser
 {

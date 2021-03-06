@@ -53,12 +53,12 @@ class ARResponse;
  *	    match was found</li>
  *	<li>\link Matcher::best_match() best_match()\endlink points to a block with
  *	    best matching</li>
+ *	<li>\link Matcher::best_match_is_v2() best_match_is_v2()\endlink indicates
+ *	    whether best_match() refers to a Checksum of type ARCSv2</li>
  *	<li>\link Matcher::best_difference() best_difference()\endlink yields the
- *	    number of non-matching tracks in the best matching block</li>
- *	<li>\link Matcher::matches_v2() matches_v2()\endlink indicates whether
- *	    best_match() refers to an ARCSv2</li>
+ *	    number of non-matching tracks in the best_match()</li>
  *	<li>\link Matcher::match() match()\endlink yields the entire Match
- *	    result</li>
+ *	    matrix</li>
  * </ul>
  *
  * A Matcher returns a Match that represents a matrix of numeric comparisons:
@@ -70,8 +70,11 @@ class ARResponse;
  *
  * \link arcstk::v_1_0_0::Match::track(int, int, bool) const
  * Match::track(block, track, isV2) \endlink
- * provides access to any single comparison by its block index, track index and
- * ARCS algorithm version.
+ * provides access to the result of any single comparison by its block index,
+ * track index and ARCS algorithm version. The block is the 0-based index of the
+ * set of Checksums in the ARResponse, the track is the 0-based index of the
+ * track within the block and the boolean \c isV2 indicates by \c TRUE that the
+ * comparison was performed for ARCSv2.
  *
  * Three Matcher implementations are provided.
  *
@@ -107,7 +110,7 @@ std::ostream& operator << (std::ostream&, const Match &match);
  * <tt>block:track:version</tt>. The <tt>block</tt> and <tt>track</tt> address
  * components are integers, that refer to the respective 0-based block and
  * 0-based track in the ARResponse. The <tt>version</tt> is a boolean that
- * indicates whether the match is for ARCSv2 (TRUE) or for ARCSv1 (FALSE).
+ * indicates whether the match is for ARCSv2 (\c TRUE) or for ARCSv1 (\c FALSE).
  */
 class Match
 {
@@ -132,14 +135,15 @@ public:
 	int verify_id(int block);
 
 	/**
-	 * \brief TRUE iff the ARId of the specified block matches the ARId of
-	 * the original request, otherwise FALSE.
+	 * \brief \c TRUE iff the ARId of the specified block matches the ARId of
+	 * the original request, otherwise \c FALSE.
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
 	 * \throws std::runtime_error Iff \c b is out of range
 	 *
-	 * \return TRUE iff the ARId of block \c b matches the ARId of the request
+	 * \return \c TRUE iff the ARId of block \c b matches the ARId of the
+	 *         request
 	 */
 	bool id(int b) const;
 
@@ -149,7 +153,7 @@ public:
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
-	 * \param[in] v2 Verifies the ARCSv2 iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Verifies the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
@@ -174,7 +178,7 @@ public:
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
 	 * \param[in] t  0-based index of the track to verify in the ARResponse
-	 * \param[in] v2 Returns the ARCSv2 flag iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Returns the ARCSv2 flag iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
@@ -198,7 +202,7 @@ public:
 	 * exact same ARBlock will have a difference of only 15.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ARResponse
-	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b is out of range
 	 *
@@ -247,11 +251,11 @@ public:
 	std::unique_ptr<Match> clone() const;
 
 	/**
-	 * \brief Return TRUE iff the specified Match equals this instance.
+	 * \brief Return \c TRUE iff the specified Match equals this instance.
 	 *
 	 * \param[in] rhs The right hand side of the operation
 	 *
-	 * \return TRUE iff \c rhs equals this instance
+	 * \return \c TRUE iff \c rhs equals this instance
 	 */
 	bool equals(const Match &rhs) const noexcept;
 
@@ -274,7 +278,7 @@ private:
 	 *
 	 * \throws Iff \c b is out of range
 	 *
-	 * \return TRUE iff the ARId of block \c b matches the ARId of \c
+	 * \return \c TRUE iff the ARId of block \c b matches the ARId of \c
 	 * result
 	 */
 	virtual bool do_id(const int b) const
@@ -288,7 +292,7 @@ private:
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
-	 * \param[in] v2 Verifies the ARCSv2 iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Verifies the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws Iff \c b or \c t are out of range
 	 *
@@ -305,7 +309,7 @@ private:
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
 	 * \param[in] t  0-based index of the track to verify in \c response
-	 * \param[in] v2 Returns the ARCSv2 flag iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Returns the ARCSv2 flag iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws Iff \c b or \c t are out of range
 	 *
@@ -321,7 +325,7 @@ private:
 	 * \endlink.
 	 *
 	 * \param[in] b  0-based index of the block to verify in \c response
-	 * \param[in] v2 Returns the ARCSv2 iff TRUE, otherwise ARCSv1
+	 * \param[in] v2 Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws Iff \c b is out of range
 	 *
@@ -399,11 +403,11 @@ public:
 	virtual ~Matcher() noexcept;
 
 	/**
-	 * \brief Returns TRUE iff at least one block in the ARResponse has a
+	 * \brief Returns \c TRUE iff at least one block in the ARResponse has a
 	 * \link Match::difference() difference() \endlink of \c 0 to either
 	 * the ARCSs v1 or the ARCSs v2 in the request.
 	 *
-	 * \return TRUE if \c response contains a block matching \c result
+	 * \return \c TRUE if \c response contains a block matching \c result
 	 */
 	bool matches() const noexcept;
 
@@ -432,18 +436,12 @@ public:
 	int best_difference() const noexcept;
 
 	/**
-	 * \brief Returns TRUE iff the ARBlock with index best_match() matches
-	 * the ARCSsv2 of the request, otherwise FALSE.
+	 * \brief Returns \c TRUE iff the ARBlock with index best_match() matches
+	 * the ARCSsv2 of the request, otherwise \c FALSE.
 	 *
-	 * \note
-	 * \c matches_v2() can yield a different value than \c matches(). While
-	 * \c matches() is true iff <tt>best_difference == 0</tt>, \c matches_v2()
-	 * is true iff \c best_match() points to an ARCSv2 block, regardless of its
-	 * actual difference.
-	 *
-	 * \return TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
+	 * \return \c TRUE if \c best_match() was to the ARCSsv2 in the ARResponse
 	 */
-	bool matches_v2() const noexcept;
+	bool best_match_is_v2() const noexcept;
 
 	/**
 	 * \brief Returns the actual Match.
@@ -460,11 +458,11 @@ public:
 	std::unique_ptr<Matcher> clone() const noexcept;
 
 	/**
-	 * \brief Return TRUE iff the specified Matcher equals this instance.
+	 * \brief Return \c TRUE iff the specified Matcher equals this instance.
 	 *
 	 * \param[in] rhs The right hand side of the operation
 	 *
-	 * \return TRUE iff \c rhs equals this instance
+	 * \return \c TRUE iff \c rhs equals this instance
 	 */
 	bool equals(const Matcher &rhs) const noexcept;
 
@@ -473,7 +471,7 @@ private:
 	/**
 	 * \brief Implements \link Matcher::matches() const matches() \endlink.
 	 *
-	 * \return TRUE if \c response contains a block matching \c result
+	 * \return \c TRUE if \c response contains a block matching \c result
 	 */
 	virtual bool do_matches() const noexcept
 	= 0;
@@ -498,13 +496,13 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link Matcher::matches_v2() const
-	 * matches_v2()
+	 * \brief Implements \link Matcher::best_match_is_v2() const
+	 * best_match_is_v2()
 	 * \endlink.
 	 *
-	 * \return TRUE if \c best_match() was a match to the ARCSsv2
+	 * \return \c TRUE if \c best_match() was a match to the ARCSsv2
 	 */
-	virtual bool do_matches_v2() const noexcept
+	virtual bool do_best_match_is_v2() const noexcept
 	= 0;
 
 	/**
@@ -617,7 +615,7 @@ private:
 
 	int do_best_difference() const noexcept override;
 
-	bool do_matches_v2() const noexcept override;
+	bool do_best_match_is_v2() const noexcept override;
 
 	const Match* do_match() const noexcept override;
 
@@ -755,7 +753,7 @@ namespace details
  * \brief std::true_type iff T::value_type is of type Checksum
  * otherwise std::false_type.
  *
- * \tparam T The type to inspect
+ * \tparam T The type to test
  */
 template <typename T>
 struct has_checksum_type : public std::integral_constant<bool,
@@ -769,7 +767,7 @@ struct has_checksum_type : public std::integral_constant<bool,
  * \internal
  * \brief Defined iff is_container<T> and T has_checksum_type.
  *
- * \tparam T The type to inspect
+ * \tparam T The type to test
  */
 template <typename T>
 struct is_checksum_container : public std::integral_constant<bool,
@@ -785,7 +783,7 @@ struct is_checksum_container : public std::integral_constant<bool,
 /**
  * \brief Defined iff T is a container whose value_type is Checksum.
  *
- * \tparam T The type to inspect
+ * \tparam T The type to test
  */
 template <typename T>
 using IsChecksumContainer =
@@ -815,7 +813,7 @@ std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
  *
  * \details
  *
- * The \c container has to obey the IsChecksumContainer requirements.
+ * The \c container has to obey the \c IsChecksumContainer requirements.
  *
  * If \c container.size() is n, the first n Checksum instances in \c checksums
  * will be compared to the Checksum instances on the equivalent index position
@@ -823,7 +821,7 @@ std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
  * has to ensure that <tt>checksums.size() >= container.size()</tt>.
  *
  * The block ARId match flag will be ignored in the comparison and therefore
- * be always FALSE. A total match is therefore characterized by
+ * be always \c FALSE. A total match is therefore characterized by
  * <tt>difference(0) == 1 && !id(0)</tt> (means: only id flag is false).
  *
  * \param[in] actual_sums Actual Checksums to verify
@@ -868,7 +866,7 @@ std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
  *
  * \details
  *
- * The \c container has to obey the IsChecksumContainer requirements.
+ * The \c container has to obey the \c IsChecksumContainer requirements.
  *
  * If \c container.size() is n, the first n Checksum instances in \c checksums
  * will be compared to the Checksum instances on the equivalent index position
@@ -876,7 +874,7 @@ std::unique_ptr<Match> perform_match_impl(const Checksums &actual_sums,
  * has to ensure that <tt>checksums.size() >= container.size()</tt>.
  *
  * There is no ARId to compare, therefore the ARId is excluded as source of
- * difference. The block id match flag will therefore always be TRUE.
+ * difference. The block id match flag will therefore always be \c TRUE.
  *
  * \param[in] actual_sums Actual Checksums to verify
  * \param[in] ref_sums    Iterable container of reference
@@ -902,7 +900,7 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
  *
  * \details
  *
- * The \c container has to obey the IsChecksumContainer requirements.
+ * The \c container has to obey the \c IsChecksumContainer requirements.
  *
  * If \c container.size() is n, the first n Checksum instances in \c checksums
  * will be compared to the Checksum instances on the equivalent index position
@@ -944,7 +942,7 @@ std::unique_ptr<Match> perform_match(const Checksums &actual_sums,
  * This targets the situation where the caller already has local reference
  * values, say, from a logfile. The actual Checksums are just compared to the
  * reference values in their respective order and the resulting Match will have
- * set the ARId match flag to TRUE.
+ * set the ARId match flag to \c TRUE.
  *
  * \see AlbumMatcher
  * \see TracksetMatcher

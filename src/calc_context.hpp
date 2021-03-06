@@ -27,6 +27,7 @@ namespace details
 
 /**
  * \internal
+ * \ingroup calc
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
 const auto EmptyString = std::string { };

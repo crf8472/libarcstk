@@ -25,6 +25,9 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
@@ -66,7 +69,7 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	uint32_t arcs() const noexcept;
+	Checksum arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this ARTripletImpl.
@@ -80,7 +83,7 @@ public:
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	uint32_t frame450_arcs() const noexcept;
+	Checksum frame450_arcs() const noexcept;
 
 	/**
 	 * \brief The track ARCS in this ARTripletImpl.
@@ -250,9 +253,9 @@ ARTripletImpl::ARTripletImpl(const ARTripletImpl &rhs) = default;
 ARTripletImpl::ARTripletImpl(ARTripletImpl &&rhs) noexcept = default;
 
 
-uint32_t ARTripletImpl::arcs() const noexcept
+Checksum ARTripletImpl::arcs() const noexcept
 {
-	return arcs_;
+	return Checksum{arcs_};
 }
 
 
@@ -262,9 +265,9 @@ uint32_t ARTripletImpl::confidence() const noexcept
 }
 
 
-uint32_t ARTripletImpl::frame450_arcs() const noexcept
+Checksum ARTripletImpl::frame450_arcs() const noexcept
 {
-	return frame450_arcs_;
+	return Checksum{frame450_arcs_};
 }
 
 
@@ -448,7 +451,8 @@ bool ARCompleteTripletImpl::do_frame450_arcs_valid() const noexcept
 std::unique_ptr<ARTripletImpl> ARCompleteTripletImpl::do_clone() const noexcept
 {
 	return std::make_unique<ARCompleteTripletImpl>(
-			this->arcs(), this->confidence(), this->frame450_arcs());
+			this->arcs().value(), this->confidence(),
+			this->frame450_arcs().value());
 }
 
 
@@ -590,8 +594,8 @@ bool ARIncompleteTripletImpl::do_frame450_arcs_valid() const noexcept
 std::unique_ptr<ARTripletImpl> ARIncompleteTripletImpl::do_clone() const
 	noexcept
 {
-	return std::make_unique<ARIncompleteTripletImpl>(this->arcs(),
-			this->confidence(), this->frame450_arcs(),
+	return std::make_unique<ARIncompleteTripletImpl>(this->arcs().value(),
+			this->confidence(), this->frame450_arcs().value(),
 			this->arcs_valid(), this->confidence_valid(),
 			this->frame450_arcs_valid());
 }
@@ -785,7 +789,7 @@ ARTriplet::ARTriplet(ARTriplet &&rhs) noexcept = default;
 ARTriplet::~ARTriplet() noexcept = default;
 
 
-uint32_t ARTriplet::arcs() const noexcept
+Checksum ARTriplet::arcs() const noexcept
 {
 	return impl_->arcs();
 }
@@ -797,7 +801,7 @@ uint32_t ARTriplet::confidence() const noexcept
 }
 
 
-uint32_t ARTriplet::frame450_arcs() const noexcept
+Checksum ARTriplet::frame450_arcs() const noexcept
 {
 	return impl_->frame450_arcs();
 }

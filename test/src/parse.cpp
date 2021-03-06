@@ -12,6 +12,9 @@
 #ifndef __LIBARCSTK_PARSE_HPP__
 #include "parse.hpp"
 #endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
 
 
 /**

@@ -793,7 +793,8 @@ std::vector<lba_count_t> TOCBuilder::build_offsets(
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		throw;
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
 	}
 
 	try {
@@ -802,7 +803,8 @@ std::vector<lba_count_t> TOCBuilder::build_offsets(
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		throw;
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
 	}
 
 	// Convert offsets to lba_count_t
@@ -834,7 +836,8 @@ std::vector<lba_count_t> TOCBuilder::build_lengths(Container&& lengths,
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		throw;
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
 	}
 
 	// Convert ints to lba_count_t while normalizing the last length to 0
@@ -859,7 +862,8 @@ lba_count_t TOCBuilder::build_leadout(const lba_count_t leadout)
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		throw;
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
 	}
 
 	return leadout;

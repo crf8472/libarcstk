@@ -48,7 +48,7 @@ namespace details
  * The intention is to include exactly the non-ref, non-pointer variants of
  * short, int, long and long long.
  *
- * \tparam T Type to inspect for LBA facility
+ * \tparam T Type to test for LBA facility
  */
 template <typename T>
 struct is_lba_type : public std::integral_constant<bool,
@@ -74,7 +74,7 @@ struct sfinae_values
  * \brief Helper: check for a \c value_type with at least 32 bit width that is
  * of integer type and as well arithmetic.
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_lba_value_type : private sfinae_values
@@ -113,7 +113,7 @@ public:
 /**
  * \brief Helper: check for the presence of a const_iterator
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_const_iterator : private sfinae_values
@@ -150,7 +150,7 @@ public:
 /**
  * \brief Helper: check for the presence of a size
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_size : private sfinae_values
@@ -193,7 +193,7 @@ public:
 /**
  * \brief Helper: check for the presence of begin() const
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_begin : private sfinae_values
@@ -236,7 +236,7 @@ public:
 /**
  * \brief Helper: check for the presence of end() const
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_end : private sfinae_values
@@ -280,7 +280,7 @@ public:
  * \brief std::true_type iff T is a const-iterable container type with a size
  * otherwise std::false_type.
  *
- * \tparam T The type to inspect
+ * \tparam T The type to test
  */
 template <typename T, typename T_noref = std::remove_reference_t<T>>
 struct is_container : public std::integral_constant<bool,
@@ -297,7 +297,7 @@ struct is_container : public std::integral_constant<bool,
  * \brief std::true_type iff is_container<T> and T::value_type is an lba type,
  * otherwise std::false_type.
  *
- * \tparam The type to inspect
+ * \tparam The type to test
  */
 template <typename T>
 struct is_lba_container : public std::integral_constant<bool,
@@ -333,7 +333,7 @@ struct is_filename_type<std::wstring> : public std::true_type { /* empty */ };
 /**
  * \brief Helper: check for \c value_type  std::string.
  *
- * \tparam T Input type to inspect
+ * \tparam T Input type to test
  */
 template <typename T>
 struct has_filename_value_type : private sfinae_values
@@ -374,7 +374,7 @@ public:
  * \brief std::true_type iff is_container<T> and T::value_type can represent
  * filenames, otherwise std::false_type.
  *
- * \tparam The type to inspect
+ * \tparam The type to test
  */
 template <typename T>
 struct is_filename_container : public std::integral_constant<bool,

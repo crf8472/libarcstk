@@ -135,6 +135,9 @@ class Checksum; // IWYU pragma keep
 
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 
+bool operator == (const Checksum &lhs, const uint32_t rhs) noexcept;
+bool operator == (const uint32_t lhs,  const Checksum &rhs) noexcept;
+
 /**
  * \brief Overload operator << for outputting Checksums
  */

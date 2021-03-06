@@ -52,7 +52,7 @@ foreach (_testcase ${TEST_SETS} )
 
 	target_link_libraries (${_testcase}_test
 		Catch2::Catch2    ## Catch2
-		${PROJECT_NAME} ) ## project binaries
+		${PROJECT_NAME} ) ## compiled libarcstk lib
 
 
 	## Add test to ctest set
