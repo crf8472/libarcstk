@@ -2916,14 +2916,14 @@ Checksum::Checksum()
 }
 
 
-Checksum::Checksum(const uint32_t value)
+Checksum::Checksum(const Checksum::value_type value)
 	: value_ { value }
 {
 	// empty
 }
 
 
-uint32_t Checksum::value() const noexcept
+Checksum::value_type Checksum::value() const noexcept
 {
 	return value_;
 }
@@ -2935,7 +2935,7 @@ bool Checksum::empty() const noexcept
 }
 
 
-Checksum& Checksum::operator = (const uint32_t rhs)
+Checksum& Checksum::operator = (const Checksum::value_type rhs)
 {
 	value_ = rhs;
 	return *this;
@@ -2950,12 +2950,12 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 	return (lhs.empty() and rhs.empty()) or lhs.value() == rhs.value();
 }
 
-bool operator == (const Checksum &lhs, const uint32_t rhs) noexcept
+bool operator == (const Checksum &lhs, const Checksum::value_type rhs) noexcept
 {
 	return lhs.value() == rhs;
 }
 
-bool operator == (const uint32_t lhs, const Checksum &rhs) noexcept
+bool operator == (const Checksum::value_type lhs, const Checksum &rhs) noexcept
 {
 	return lhs == rhs.value();
 }

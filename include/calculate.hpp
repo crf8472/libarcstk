@@ -146,8 +146,14 @@ std::ostream& operator << (std::ostream& out, const Checksum &c);
 /**
  * \brief A 32-bit wide unsigned checksum for a single file or track.
  *
- * A Checksum can be represented by its numeric value(). This is an unsigned
- * integer of at least 32 bit length.
+ * A Checksum has a value_type. This is an unsigned integer of 32 bit length.
+ *
+ * A Checksum can be represented by its numeric value() which is of type
+ * value_type.
+ *
+ * A Checksum has a converting constructor for its value_type, thus every
+ * parameter that expects a checksum can be assigned a value of type value_type
+ * instead of a Checksum.
  *
  * As a technical convenience, a Checksum may be empty() which means: it carries
  * no value. Using operator ==, two empty Checksum instances qualify as equal.
@@ -159,6 +165,11 @@ public:
 	friend std::ostream& operator << (std::ostream& out, const Checksum &c);
 
 	/**
+	 * \brief The numerical base type of the Checksum.
+	 */
+	using value_type = uint32_t;
+
+	/**
 	 * \brief Constructor.
 	 *
 	 * Creates an empty Checksum.
@@ -166,18 +177,18 @@ public:
 	Checksum();
 
 	/**
-	 * \brief Constructor.
+	 * \brief Converting Constructor.
 	 *
 	 * \param[in] value Actual checksum value
 	 */
-	explicit Checksum(const uint32_t value);
+	Checksum(const value_type value);
 
 	/**
 	 * \brief Numeric value of the checksum.
 	 *
 	 * \return Numeric value of the checksum
 	 */
-	uint32_t value() const noexcept;
+	value_type value() const noexcept;
 
 	/**
 	 * \brief Return TRUE iff this Checksum is empty, otherwise FALSE.
@@ -192,7 +203,7 @@ public:
 	bool empty() const noexcept;
 
 
-	Checksum& operator = (const uint32_t rhs);
+	Checksum& operator = (const value_type rhs);
 
 
 private:
@@ -200,7 +211,7 @@ private:
 	/**
 	 * \brief Actual checksum value;
 	 */
-	uint32_t value_;
+	value_type value_;
 };
 
 

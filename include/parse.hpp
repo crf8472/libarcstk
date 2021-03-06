@@ -138,8 +138,8 @@ public:
 	 * \param[in] confidence    The confidence value of this triplet
 	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
 	 */
-	ARTriplet(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs);
+	ARTriplet(const Checksum arcs, const uint32_t confidence,
+			const Checksum frame450_arcs);
 
 	/**
 	 * \brief Constructor.
@@ -151,8 +151,8 @@ public:
 	 * \param[in] confidence_valid    Validity of confidence of this triplet
 	 * \param[in] frame450_arcs_valid Validity of frame 450 ARCS of this triplet
 	 */
-	ARTriplet(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs, const bool arcs_valid,
+	ARTriplet(const Checksum arcs, const uint32_t confidence,
+			const Checksum frame450_arcs, const bool arcs_valid,
 			const bool confidence_valid, const bool frame450_arcs_valid);
 
 	/**
@@ -665,9 +665,9 @@ public:
 	 * \param[in] confidence    Confidence in this triplet
 	 * \param[in] frame450_arcs ARCS of frame 450 in this triplet
 	 */
-	void triplet(const uint32_t arcs,
+	void triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs);
+			const Checksum frame450_arcs);
 
 	/**
 	 * \brief React on an ARTriplet.
@@ -679,9 +679,9 @@ public:
 	 * \param[in] confidence_valid    Validity of confidence of this triplet
 	 * \param[in] frame450_arcs_valid Validity of frame 450 ARCS of this triplet
 	 */
-	void triplet(const uint32_t arcs,
+	void triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs,
+			const Checksum frame450_arcs,
 			const bool arcs_valid,
 			const bool confidence_valid,
 			const bool frame450_arcs_valid);
@@ -733,7 +733,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
+	 * \brief Implements \link ContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs)
 	 * triplet()
 	 * \endlink
 	 *
@@ -741,13 +741,13 @@ private:
 	 * \param[in] confidence    Confidence in this triplet
 	 * \param[in] frame450_arcs ARCS of frame 450 in this triplet
 	 */
-	virtual void do_triplet(const uint32_t arcs,
+	virtual void do_triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs)
+			const Checksum frame450_arcs)
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid) triplet() \endlink
+	 * \brief Implements \link ContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid) triplet() \endlink
 	 *
 	 * \param[in] arcs                The ARCS value of this triplet
 	 * \param[in] confidence          The confidence value of this triplet
@@ -756,9 +756,9 @@ private:
 	 * \param[in] confidence_valid    Validity of confidence of this triplet
 	 * \param[in] frame450_arcs_valid Validity of frame 450 ARCS of this triplet
 	 */
-	virtual void do_triplet(const uint32_t arcs,
+	virtual void do_triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs,
+			const Checksum frame450_arcs,
 			const bool arcs_valid,
 			const bool confidence_valid,
 			const bool frame450_arcs_valid)
@@ -852,13 +852,13 @@ private:
 			const uint32_t id2,
 			const uint32_t cddb_id) final;
 
-	void do_triplet(const uint32_t arcs,
+	void do_triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs) final;
+			const Checksum frame450_arcs) final;
 
-	void do_triplet(const uint32_t arcs,
+	void do_triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs,
+			const Checksum frame450_arcs,
 			const bool arcs_valid,
 			const bool confidence_valid,
 			const bool frame450_arcs_valid) final;

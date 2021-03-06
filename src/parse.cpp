@@ -149,8 +149,8 @@ protected:
 	 * \param[in] confidence    The confidence value of this triplet
 	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
 	 */
-	ARTripletImpl(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs);
+	ARTripletImpl(const Checksum arcs, const uint32_t confidence,
+			const Checksum frame450_arcs);
 
 	/**
 	 * \brief Copy constructor.
@@ -222,7 +222,7 @@ private:
 	/**
 	 * \brief ARCS v1 or v2 of this track
 	 */
-	uint32_t arcs_;
+	Checksum arcs_;
 
 	/**
 	 * \brief Confidence of arcs_
@@ -232,13 +232,13 @@ private:
 	/**
 	 * \brief ARCS of frame 450
 	 */
-	uint32_t frame450_arcs_;
+	Checksum frame450_arcs_;
 };
 
 
-ARTripletImpl::ARTripletImpl(const uint32_t arcs,
+ARTripletImpl::ARTripletImpl(const Checksum arcs,
 		const uint32_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 	: arcs_ { arcs }
 	, confidence_ { confidence }
 	, frame450_arcs_ { frame450_arcs }
@@ -356,8 +356,8 @@ public:
 	 * \param[in] confidence    The confidence value of this triplet
 	 * \param[in] frame450_arcs The ARCS for frame 450 of this triplet
 	 */
-	ARCompleteTripletImpl(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs);
+	ARCompleteTripletImpl(const Checksum arcs, const uint32_t confidence,
+			const Checksum frame450_arcs);
 
 	/**
 	 * \brief Copy constructor.
@@ -406,9 +406,9 @@ private:
 };
 
 
-ARCompleteTripletImpl::ARCompleteTripletImpl(const uint32_t arcs,
+ARCompleteTripletImpl::ARCompleteTripletImpl(const Checksum arcs,
 		const uint32_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 	: ARTripletImpl { arcs, confidence, frame450_arcs }
 {
 	// empty
@@ -478,8 +478,8 @@ public:
 	 * \param[in] confidence_valid    Validity of confidence of this triplet
 	 * \param[in] frame450_arcs_valid Validity of frame 450 ARCS of this triplet
 	 */
-	ARIncompleteTripletImpl(const uint32_t arcs, const uint32_t confidence,
-			const uint32_t frame450_arcs, const bool arcs_valid,
+	ARIncompleteTripletImpl(const Checksum arcs, const uint32_t confidence,
+			const Checksum frame450_arcs, const bool arcs_valid,
 			const bool confidence_valid, const bool frame450_arcs_valid);
 
 	/**
@@ -538,9 +538,9 @@ private:
 };
 
 
-ARIncompleteTripletImpl::ARIncompleteTripletImpl(const uint32_t arcs,
+ARIncompleteTripletImpl::ARIncompleteTripletImpl(const Checksum arcs,
 		const uint32_t confidence,
-		const uint32_t frame450_arcs,
+		const Checksum frame450_arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
@@ -752,9 +752,9 @@ ARTriplet::ARTriplet()
 }
 
 
-ARTriplet::ARTriplet(const uint32_t arcs,
+ARTriplet::ARTriplet(const Checksum arcs,
 		const uint32_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 	: impl_ { std::make_unique<ARCompleteTripletImpl>( arcs, confidence,
 				frame450_arcs) }
 {
@@ -762,9 +762,9 @@ ARTriplet::ARTriplet(const uint32_t arcs,
 }
 
 
-ARTriplet::ARTriplet(const uint32_t arcs,
+ARTriplet::ARTriplet(const Checksum arcs,
 		const uint32_t confidence,
-		const uint32_t frame450_arcs,
+		const Checksum frame450_arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
@@ -1383,17 +1383,17 @@ void ContentHandler::id(const uint8_t track_count,
 }
 
 
-void ContentHandler::triplet(const uint32_t arcs,
+void ContentHandler::triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 {
 	this->do_triplet(arcs, confidence, frame450_arcs);
 }
 
 
-void ContentHandler::triplet(const uint32_t arcs,
+void ContentHandler::triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs,
+		const Checksum frame450_arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
@@ -1475,18 +1475,18 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * \brief Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs)
+	 * \brief Implements DefaultContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs)
 	 */
-	void triplet(const uint32_t arcs,
+	void triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs);
+			const Checksum frame450_arcs);
 
 	/**
-	 * \brief Implements DefaultContentHandler::triplet(const uint32_t arcs, const uint8_t confidence, const uint32_t frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
+	 * \brief Implements DefaultContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid)
 	 */
-	void triplet(const uint32_t arcs,
+	void triplet(const Checksum arcs,
 			const uint8_t confidence,
-			const uint32_t frame450_arcs,
+			const Checksum frame450_arcs,
 			const bool arcs_valid,
 			const bool confidence_valid,
 			const bool frame450_arcs_valid);
@@ -1584,17 +1584,17 @@ void DefaultContentHandler::Impl::id(const uint8_t track_count,
 }
 
 
-void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
+void DefaultContentHandler::Impl::triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 {
 	current_block_->append(ARTriplet{ arcs, confidence, frame450_arcs });
 }
 
 
-void DefaultContentHandler::Impl::triplet(const uint32_t arcs,
+void DefaultContentHandler::Impl::triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs,
+		const Checksum frame450_arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
@@ -1688,17 +1688,17 @@ void DefaultContentHandler::do_id(const uint8_t track_count,
 }
 
 
-void DefaultContentHandler::do_triplet(const uint32_t arcs,
+void DefaultContentHandler::do_triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs)
+		const Checksum frame450_arcs)
 {
 	impl_->triplet(arcs, confidence, frame450_arcs);
 }
 
 
-void DefaultContentHandler::do_triplet(const uint32_t arcs,
+void DefaultContentHandler::do_triplet(const Checksum arcs,
 		const uint8_t confidence,
-		const uint32_t frame450_arcs,
+		const Checksum frame450_arcs,
 		const bool arcs_valid,
 		const bool confidence_valid,
 		const bool frame450_arcs_valid)
@@ -2198,8 +2198,8 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 	auto discId2 = uint32_t { 0 };
 	auto cddbId = uint32_t { 0 };
 	auto confidence = unsigned { 0 };
-	auto trk_arcs = uint32_t { 0 };
-	auto frame450_arcs = uint32_t { 0 };
+	auto trk_arcs = Checksum::value_type { 0 };
+	auto frame450_arcs = Checksum::value_type { 0 };
 
 	auto bytes_read = unsigned { 0 };
 
