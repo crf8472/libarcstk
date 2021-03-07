@@ -617,9 +617,30 @@ private:
  * ContentHandler implements the handling of each syntactic entity the
  * ARStreamParser emits.
  *
- * Behaviour can be added at the start and end of the response content, at the
- * start and end of each block, at the id at the start of each block and on each
- * triplet.
+ * A ContentHandler reacts to the following events:
+ * <ul>
+ *    <li>Start of input (once on beginning the parsing process)</li>
+ *    <li>Start of a block (once on every block)</li>
+ *    <li>ARId, i.e. the header of a block (once on every block)</li>
+ *    <li>A triplet (once or more times on every block)</li>
+ *    <li>End of a block (once on every block)</li>
+ *    <li>End of input (once on the end of the parsing process)</li>
+ * </ul>
+ *
+ * Event start_input() occurrs before the first actual bytes are parsed. Event
+ * end_input() occurrs after the last actual bytes are parsed.
+ *
+ * The ARId is not represented as such, but as a sequence of the four numeric
+ * constants that are required to compute the actual ARId.
+ *
+ * Each triplet comes with an ARCS for the entire track, a confidence value and
+ * an ARCS for frame 450 of the track.
+ *
+ * If a parsing error occurrs, the ContentHandler will receive additional
+ * validity flags to indicate which members of the last triplet were parsed
+ * successfully and which were not.
+ *
+ * \see DefaultContentHandler
  */
 class ContentHandler
 {
@@ -652,6 +673,10 @@ public:
 	 * \param[in] id1         Disc id 1 in this id
 	 * \param[in] id2         Disc id 2 in this id
 	 * \param[in] cddb_id     CDDB id in this id
+	 *
+	 * \todo
+	 * Since \c track_count is stored in a single byte, this parameter should be
+	 * typed \c byte once migrating to C++17.
 	 */
 	void id(const uint8_t track_count,
 			const uint32_t id1,
@@ -664,6 +689,10 @@ public:
 	 * \param[in] arcs          ARCS in this triplet
 	 * \param[in] confidence    Confidence in this triplet
 	 * \param[in] frame450_arcs ARCS of frame 450 in this triplet
+	 *
+	 * \todo
+	 * Since \c confidence is stored in a single byte, this parameter should be
+	 * typed \c byte once migrating to C++17.
 	 */
 	void triplet(const Checksum arcs,
 			const uint8_t confidence,
@@ -672,12 +701,21 @@ public:
 	/**
 	 * \brief React on an ARTriplet.
 	 *
+	 * If a parse error occurred on parsing the triplet, validity flags for each
+	 * part of the triplet are passed. A validity flag that is \c TRUE indicates
+	 * that the respective part of the triplet was parsed correctly. A validity
+	 * value of \c FALSE reports that the parsed value is not reliable.
+	 *
 	 * \param[in] arcs                The ARCS value of this triplet
 	 * \param[in] confidence          The confidence value of this triplet
 	 * \param[in] frame450_arcs       The ARCS for frame 450 of this triplet
 	 * \param[in] arcs_valid          Validity of ARCS of this triplet
 	 * \param[in] confidence_valid    Validity of confidence of this triplet
 	 * \param[in] frame450_arcs_valid Validity of frame 450 ARCS of this triplet
+	 *
+	 * \todo
+	 * Since \c confidence is stored in a single byte, this parameter should be
+	 * typed \c byte once migrating to C++17.
 	 */
 	void triplet(const Checksum arcs,
 			const uint8_t confidence,
@@ -696,7 +734,6 @@ public:
 	 */
 	void end_input();
 
-
 private:
 
 	/**
@@ -712,9 +749,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::id(const uint8_t track_count, const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
-	 * id()
-	 * \endlink
+	 * \brief Implements id()
 	 *
 	 * \details
 	 *
@@ -733,9 +768,9 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs)
-	 * triplet()
-	 * \endlink
+	 * \brief Implements
+	 * \link triplet(const Checksum,const uint8_t,const Checksum)
+	 * triplet()\endlink.
 	 *
 	 * \param[in] arcs          ARCS in this triplet
 	 * \param[in] confidence    Confidence in this triplet
@@ -747,7 +782,8 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::triplet(const Checksum arcs, const uint8_t confidence, const Checksum frame450_arcs, const bool arcs_valid, const bool confidence_valid, const bool frame450_arcs_valid) triplet() \endlink
+	 * \brief Implements \link triplet(const Checksum, const uint8_t, const Checksum , const bool, const bool, const bool)
+	 * triplet() \endlink
 	 *
 	 * \param[in] arcs                The ARCS value of this triplet
 	 * \param[in] confidence          The confidence value of this triplet
@@ -765,13 +801,13 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::end_block() end_block() \endlink
+	 * \brief Implements end_block()
 	 */
 	virtual void do_end_block()
 	= 0;
 
 	/**
-	 * \brief Implements \link ContentHandler::end_input() end_input() \endlink
+	 * \brief Implements end_input()
 	 */
 	virtual void do_end_input()
 	= 0;
@@ -787,10 +823,12 @@ private:
  * about that object. The handler instance will then populate this object with
  * the parsed content.
  *
+ * DefaultContentHandler is movable but not copyable.
+ *
  * \attention
- * The client is responsible for the lifetime management: the ARResponse object
- * must exist at least until \link ARStreamParser::parse() parse() \endlink is
- * finished.
+ * The client is responsible for the lifetime management: the ARResponse
+ * instance must exist at least until
+ * \link ARStreamParser::parse() parse() \endlink is finished.
  */
 class DefaultContentHandler final : public ContentHandler
 {
@@ -801,11 +839,6 @@ public:
 	 */
 	DefaultContentHandler();
 
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
-	 */
 	DefaultContentHandler(const DefaultContentHandler &rhs) = delete;
 
 	/**
@@ -821,16 +854,16 @@ public:
 	~DefaultContentHandler() noexcept final;
 
 	/**
-	 * \brief Set the object to be constructed by the parsed content.
+	 * \brief Set the object to be populated with the parsed content.
 	 *
-	 * \param[in] object Object to construct from parsed content.
+	 * \param[in] object Object to populate with parsed content.
 	 */
 	void set_object(ARResponse &object);
 
 	/**
-	 * \brief Return the object to be consturcted by the parsed content.
+	 * \brief Return the object to be populated with the parsed content.
 	 *
-	 * \return Object to construct from parsed content.
+	 * \return Object to be populated with parsed content.
 	 */
 	const ARResponse& object() const;
 
@@ -893,6 +926,8 @@ private:
  * is a mere interceptor for a StreamReadException before it is rethrown anyway.
  * This provides the convenience to get informative log messages by intercepting
  * the exceptions like DefaultErrorHandler does.
+ *
+ * \see DefaultErrorHandler
  */
 class ErrorHandler
 {
@@ -937,7 +972,9 @@ private:
 /**
  * \brief Logs every error and throws StreamReadException afterwards.
  *
- * This class is movable but not copyable.
+ * \details
+ *
+ * DefaultErrorHandler is movable but not copyable.
  */
 class DefaultErrorHandler final : public ErrorHandler
 {

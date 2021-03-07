@@ -26,9 +26,14 @@ inline namespace v_1_0_0
  */
 
 /**
+ * \internal
  * \brief Type to represent a 32 bit PCM stereo sample.
  *
- * This type must be defined assignable-to arcstk::sample_t.
+ * This type must be defined assignable-to arcstk::sample_t. It has therefore
+ * at most the size of arcstk::sample_t.
+ *
+ * \attention
+ * Do not use this type in your code, use only arcstk::sample_t.
  *
  * \see arcstk::sample_t
  */
@@ -54,21 +59,18 @@ using sample_type = uint32_t;
  * operator[] (without bounds check) or at() (providing bounds check). A
  * SampleSequence provides also access via iterators.
  *
+ * \attention
  * For convenience, this template is not intended to be used directly. Instead,
  * use one of the templates PlanarSamples or InterleavedSamples.
- *
- * \see arcstk::SampleSequence<T, true>
- * \see arcstk::SampleSequence<T, false>
  */
 template <typename T, bool is_planar>
 class SampleSequence;
-
-/** @} */
 
 namespace details
 {
 
 /**
+ * \internal
  * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
  */
 template <typename T>
@@ -77,6 +79,7 @@ using IsSampleType = std::enable_if_t<
 			or  std::is_same<T,  int32_t>::value
 			or  std::is_same<T, uint16_t>::value
 			or  std::is_same<T, uint32_t>::value>;
+
 
 /**
  * \internal
@@ -95,17 +98,22 @@ class SampleSequenceImplBase; // IWYU pragma keep
 
 
 /**
- * \brief An input iterator for samples in SampleSequence instances.
+ * \internal
+ * \brief An \c input_iterator for samples in SampleSequence instances.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
- * a single integer of type sample_type.
+ * a single integer of an unsigned integer type assignable to \c sample_t.
  *
  * Equality between a \c const_iterator and an \c iterator works as expected.
  *
  * Although tagged as \c input_iterator, SampleIterator provides some additional
- * functionality as there is prefix- and postfix decrement, add-assignment,
- * subtract-assignment, binary add and subtract and a binary subtraction
- * operator for positions.
+ * functionality as there is
+ * <ul>
+ *   <li>prefix- and postfix decrement,</li>
+ *   <li>operators add-assign (+=) and subtract-assign (-=),</li>
+ *   <li>binary operators for addition and substraction of values, and</li>
+ *   <li>binary operators for addition and substraction of positions.</li>
+ * </ul>
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final
@@ -305,11 +313,10 @@ public:
 		swap(lhs.pos_, rhs.pos_);
 	}
 
-
 private:
 
 	/**
-	 * \brief Private Constructor.
+	 * \brief Private constructor.
 	 *
 	 * Constructs a SampleIterator for the specified SampleSequence starting
 	 * at index \c pos.
@@ -339,6 +346,10 @@ private:
 namespace details
 {
 
+/**
+ * \internal
+ * \brief Abstract base class for SampleSequences.
+ */
 template <typename T, bool is_planar, typename>
 class SampleSequenceImplBase
 {
@@ -561,12 +572,12 @@ private:
 
 
 /**
+ * \internal
  * \brief A planar sequence of samples.
  *
  * This class is intended to be used by its alias PlanarSamples<T>.
  *
- * \note
- * Instances of this class are non-copyable but movable.
+ * SampleSequence<T,true> is movable but not copyable.
  *
  * \tparam T Actual sample type
  */
@@ -726,9 +737,12 @@ private:
 
 
 /**
+ * \internal
  * \brief An interleaved sequence of samples.
  *
  * This class is intended to be used by its alias InterleavedSamples<T>.
+ *
+ * SampleSequence<T,false> is movable but not copyable.
  *
  * \tparam T Actual sample type
  */
@@ -879,11 +893,6 @@ private:
 	 */
 	const size_type right_;
 };
-
-/**
- * \addtogroup calc
- * @{
- */
 
 /**
  * \brief Planar sample sequence with samples of type T.

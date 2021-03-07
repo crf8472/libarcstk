@@ -67,32 +67,32 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 		// constructed with frames
 		CHECK ( size1.leadout_frame()  ==    253038 );
 		CHECK ( size1.total_samples()  == 148786344 );
-		CHECK ( size1.pcm_byte_count() == 595145376 );
+		CHECK ( size1.total_pcm_bytes() == 595145376 );
 
 		// constructed with frames too
 		CHECK ( size2.leadout_frame()  ==    253038 );
 		CHECK ( size2.total_samples()  == 148786344 );
-		CHECK ( size2.pcm_byte_count() == 595145376 );
+		CHECK ( size2.total_pcm_bytes() == 595145376 );
 
 		// constructed with frames too
 		CHECK ( size3.leadout_frame()  ==    253038 );
 		CHECK ( size3.total_samples()  == 148786344 );
-		CHECK ( size3.pcm_byte_count() == 595145376 );
+		CHECK ( size3.total_pcm_bytes() == 595145376 );
 
 		// constructed with samples
 		CHECK ( size4.leadout_frame()  ==    253038 );
 		CHECK ( size4.total_samples()  == 148786344 );
-		CHECK ( size4.pcm_byte_count() == 595145376 );
+		CHECK ( size4.total_pcm_bytes() == 595145376 );
 
 		// constructed with bytes
 		CHECK ( size5.leadout_frame()  ==    253038 );
 		CHECK ( size5.total_samples()  == 148786344 );
-		CHECK ( size5.pcm_byte_count() == 595145376 );
+		CHECK ( size5.total_pcm_bytes() == 595145376 );
 
 		// different size, constructed with frames
 		CHECK ( different_size.leadout_frame()  ==    14827 );
 		CHECK ( different_size.total_samples()  ==  8718276 );
-		CHECK ( different_size.pcm_byte_count() == 34873104 );
+		CHECK ( different_size.total_pcm_bytes() == 34873104 );
 	}
 
 	SECTION ("Equality")
@@ -725,7 +725,7 @@ TEST_CASE ( "Calculation Constructors", "[calculate] [calculation]" )
 
 		CHECK ( audiosize.leadout_frame()  ==    1233 );
 		CHECK ( audiosize.total_samples()  ==  725004 );
-		CHECK ( audiosize.pcm_byte_count() == 2900016 );
+		CHECK ( audiosize.total_pcm_bytes() == 2900016 );
 
 		CHECK ( calculation.context().is_multi_track() );
 		CHECK ( calculation.context().skips_front() );
@@ -748,7 +748,7 @@ TEST_CASE ( "Calculation Constructors", "[calculate] [calculation]" )
 
 		CHECK ( audiosize.leadout_frame()  ==    1233 );
 		CHECK ( audiosize.total_samples()  ==  725004 );
-		CHECK ( audiosize.pcm_byte_count() == 2900016 );
+		CHECK ( audiosize.total_pcm_bytes() == 2900016 );
 
 		CHECK ( calculation.context().is_multi_track() );
 		CHECK ( calculation.context().skips_front() );
@@ -776,7 +776,7 @@ TEST_CASE ( "Calculation context", "[calculate] [calculation]" )
 
 	CHECK ( calculation.context().audio_size().leadout_frame()  ==    334 );
 	CHECK ( calculation.context().audio_size().total_samples()  == 196608 );
-	CHECK ( calculation.context().audio_size().pcm_byte_count() == 786432 );
+	CHECK ( calculation.context().audio_size().total_pcm_bytes() == 786432 );
 	CHECK ( calculation.context().filename() == "foo" );
 	CHECK ( calculation.type() == type::ARCS2 );
 	CHECK ( not calculation.complete() );
@@ -823,7 +823,7 @@ TEST_CASE ( "Calculation context", "[calculate] [calculation]" )
 		// changed: AudioSize, filename, multi_track + skipping
 		CHECK ( calcsize.leadout_frame()  ==    1233 );
 		CHECK ( calcsize.total_samples()  ==  725004 );
-		CHECK ( calcsize.pcm_byte_count() == 2900016 );
+		CHECK ( calcsize.total_pcm_bytes() == 2900016 );
 		CHECK ( calculation.context().filename() == "bar" );
 		CHECK ( calculation.context().is_multi_track() );
 		CHECK ( calculation.context().skips_front() );
@@ -852,7 +852,7 @@ TEST_CASE ( "Calculation Update in singletrack", "[calculate] [calculation]" )
 	CHECK ( calculation.type() == arcstk::checksum::type::ARCS2 );
 	CHECK ( calculation.context().audio_size().leadout_frame()  ==    334 );
 	CHECK ( calculation.context().audio_size().total_samples()  == 196608 );
-	CHECK ( calculation.context().audio_size().pcm_byte_count() == 786432 );
+	CHECK ( calculation.context().audio_size().total_pcm_bytes() == 786432 );
 	CHECK ( calculation.context().filename() == "foo" );
 	CHECK ( not calculation.context().is_multi_track() );
 	CHECK ( not calculation.context().skips_front() );
@@ -1038,7 +1038,7 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 
 	CHECK ( calculation.context().audio_size().leadout_frame()  ==    1233 );
 	CHECK ( calculation.context().audio_size().total_samples()  ==  725004 );
-	CHECK ( calculation.context().audio_size().pcm_byte_count() == 2900016 );
+	CHECK ( calculation.context().audio_size().total_pcm_bytes() == 2900016 );
 	CHECK ( calculation.context().is_multi_track() );
 	CHECK ( calculation.context().skips_front() );
 	CHECK ( calculation.context().skips_back() );
@@ -1376,7 +1376,7 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 
 		CHECK ( sctx->audio_size().leadout_frame()  == 0 );
 		CHECK ( sctx->audio_size().total_samples()  == 0 );
-		CHECK ( sctx->audio_size().pcm_byte_count() == 0 );
+		CHECK ( sctx->audio_size().total_pcm_bytes() == 0 );
 
 		CHECK ( not sctx->is_multi_track() );
 		CHECK ( not sctx->skips_front() );
@@ -1467,7 +1467,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 
 		CHECK ( audiosize.leadout_frame()  ==    253038 );
 		CHECK ( audiosize.total_samples()  == 148786344 );
-		CHECK ( audiosize.pcm_byte_count() == 595145376 );
+		CHECK ( audiosize.total_pcm_bytes() == 595145376 );
 
 		CHECK ( mctx->track_count() == 15 );
 
@@ -1703,7 +1703,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 
 		CHECK ( audiosize.leadout_frame()  ==    253038 );
 		CHECK ( audiosize.total_samples()  == 148786344 );
-		CHECK ( audiosize.pcm_byte_count() == 595145376 );
+		CHECK ( audiosize.total_pcm_bytes() == 595145376 );
 
 		CHECK ( mctx->track_count() == 15 );
 
@@ -1925,7 +1925,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 
 		CHECK ( audiosize.leadout_frame()  ==    332075 );
 		CHECK ( audiosize.total_samples()  == 195260100 );
-		CHECK ( audiosize.pcm_byte_count() == 781040400 );
+		CHECK ( audiosize.total_pcm_bytes() == 781040400 );
 
 		CHECK ( mctx->track_count() == 18 );
 
@@ -2177,7 +2177,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 
 		CHECK ( audiosize.leadout_frame()  == 0 );
 		CHECK ( audiosize.total_samples()  == 0 );
-		CHECK ( audiosize.pcm_byte_count() == 0 );
+		CHECK ( audiosize.total_pcm_bytes() == 0 );
 
 		CHECK ( mctx->track_count() == 18 );
 
@@ -2370,7 +2370,7 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 
 		auto mctx = arcstk::make_context(toc);
 
-		CHECK ( mctx->audio_size().pcm_byte_count() == 595145376 );
+		CHECK ( mctx->audio_size().total_pcm_bytes() == 595145376 );
 		CHECK ( mctx->filename() == std::string() );
 
 		CHECK ( mctx->track_count() == 15 );
@@ -2425,7 +2425,7 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 
 		CHECK ( ctx_copy->audio_size().leadout_frame()  == 253038 );
 		CHECK ( ctx_copy->audio_size().total_samples()  == 148786344 );
-		CHECK ( ctx_copy->audio_size().pcm_byte_count() == 595145376 );
+		CHECK ( ctx_copy->audio_size().total_pcm_bytes() == 595145376 );
 
 		CHECK ( ctx_copy->track_count() == 15 );
 

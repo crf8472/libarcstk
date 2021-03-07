@@ -42,7 +42,7 @@ using lba_count_t = int32_t;
 
 
 /**
- * \brief Data type for track numbers.
+ * \brief Type to represent track numbers.
  *
  * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
  * TrackNo. Hence, a TrackNo is not suitable to represent a track count.
@@ -50,13 +50,14 @@ using lba_count_t = int32_t;
  * A validation check is not provided, though.
  *
  * The intention of this typedef is to provide a marker for 1-based track
- * numbers in the interface.
+ * numbers in the interface. It is not encouraged to use this type in client
+ * code.
  */
 using TrackNo = int;
 
 
 /**
- * \brief Constants related to the CDDA format
+ * \brief Constants related to the CDDA format.
  */
 struct CDDA_t final
 {
@@ -76,12 +77,12 @@ struct CDDA_t final
 	const int NUMBER_OF_CHANNELS { 2 };
 
 	/**
-	 * \brief Number of frames per second is 75.
+	 * \brief Total number of frames per second is 75.
 	 */
 	const int FRAMES_PER_SEC     { 75 };
 
 	/**
-	 * \brief Number of 4 bytes per sample.
+	 * \brief Total number of bytes per sample is 4.
 	 *
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
@@ -89,42 +90,44 @@ struct CDDA_t final
 	const int BYTES_PER_SAMPLE   { 4 };
 
 	/**
-	 * \brief Number of 588 samples per frame.
+	 * \brief Total number of samples per frame is 588.
 	 *
 	 * This follows from CDDA where 1 frame == 44100 samples/sec / 75 frames/sec
 	 */
 	const int SAMPLES_PER_FRAME  { 588 };
 
 	/**
-	 * \brief Number of 2352 bytes per frame.
+	 * \brief Total number of bytes per frame is 2352.
 	 *
 	 * This follows from CDDA where 1 frame == 588 samples * 4 bytes/sample
 	 */
 	const int BYTES_PER_FRAME    { 2352 };
 
 	/**
-	 * \brief Maximal valid track count.
+	 * \brief Maximal valid track count is 99.
 	 */
 	const TrackNo MAX_TRACKCOUNT { 99 };
 
 	/**
-	 * \brief Redbook maximal valid block address is 99:59.74 (MSF) which is
+	 * \brief Redbook maximal value for a valid LBA frame index is 449.999.
+	 *
+	 * Redbook defines 99:59.74 (MSF) as maximal valid block adress. This is
 	 * equivalent to 449.999 frames.
 	 */
 	const lba_count_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
-	 * \brief Maximal valid offset value in cdda frames.
+	 * \brief Redbook maximal valid offset value is 359.999 LBA frames. 
 	 *
-	 * Redbook defines 79:59.74 (MSF) (+leadin+leadout) as maximal play duration
-	 * which is equivalent to 360.000 frames, thus the maximal offset is frame
-	 * index 359.999.
+	 * Redbook defines 79:59.74 (MSF) (+leadin+leadout) as maximal play
+	 * duration. This is equivalent to 360.000 frames, thus the maximal valid
+	 * offset is LBA frame index 359.999.
 	 */
 	const lba_count_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
-	 * \brief Two subsequenct offsets must have a distance of at least this
-	 * number of frames.
+	 * \brief Two subsequenct offsets must have a distance of at least 300 LBA
+	 * frames.
 	 *
 	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
@@ -132,7 +135,7 @@ struct CDDA_t final
 	const lba_count_t MIN_TRACK_OFFSET_DIST { 300 };
 
 	/**
-	 * \brief Minimal number of frames a track contains.
+	 * \brief Minimal number of LBA frames a track contains is 150.
 	 *
 	 * The CDDA conforming minmal track length is 4 seconds including 2 seconds
 	 * pause but the pause does not contribute to the track lengths, thus
@@ -280,9 +283,9 @@ public:
 	std::string prefix() const noexcept;
 
 	/**
-	 * \brief Return TRUE iff this ARId is empty (holding no information).
+	 * \brief Return \c TRUE iff this ARId is empty (holding no information).
 	 *
-	 * \return TRUE iff this ARId is empty
+	 * \return \c TRUE iff this ARId is empty
 	 */
 	bool empty() const noexcept;
 
@@ -455,12 +458,12 @@ public:
 	lba_count_t leadout() const noexcept;
 
 	/**
-	 * \brief Return TRUE iff TOC information is complete, otherwise FALSE.
+	 * \brief Return \c TRUE iff TOC information is complete, otherwise FALSE.
 	 *
 	 * A TOC \c t is complete, if <tt>t.leadout() != 0</tt>, otherwise it is
 	 * not complete.
 	 *
-	 * \return TRUE iff TOC information is complete, otherwise FALSE.
+	 * \return \c TRUE iff TOC information is complete, otherwise FALSE.
 	 */
 	bool complete() const noexcept;
 
@@ -520,6 +523,13 @@ public:
  * Violating the redbook standard is usually not a problem for calculating
  * checksums. A common case are unusual total lengths, as for example up to 99
  * minutes.
+ *
+ * Nonstandard metadata values are usually not an impediment for calculating
+ * ARCSs.
+ *
+ * \attention
+ * This exception occurrs only internally in the current API version, but is
+ * never thrown to the client. This may change in future versions.
  */
 class NonstandardMetadataException final : public std::logic_error
 {

@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Public API for checksum calculation.
+ * \brief Public API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #include <cstdint>               // for uint32_t, uint8_t, int64_t
@@ -51,12 +51,12 @@ inline namespace v_1_0_0
  * A Calculation represents a (stateful) concrete checksum calculation that
  * must be configured with a CalcContext specific to the input audio file
  * and a checksum::type that specifies the calculation algorithm. The input
- * of the audio file must be represented as a succession of iterable uint32_t
- * represented sample sequences and the Calculation is sequentially updated with
- * these sequences in order. After the last update, the Calculation
- * returns the calculation result on request. The calculated Checksums
- * are represented as an iterable aggregate of
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ * of the audio file must be represented as a succession of iterable
+ * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink
+ * and the Calculation is sequentially updated with these sequences in
+ * order. After the last update, the Calculation returns the calculation result
+ * on request. The calculated Checksums are represented as an iterable aggregate
+ * of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
  *
@@ -67,20 +67,24 @@ inline namespace v_1_0_0
  * Checksums represent a calculation result for all requested checksum
  * types and all tracks of the audio input.
  * It is an aggregation of the
- * @link arcstk::v_1_0_0::Checksum Checksums @endlink of an audio input.
- * Depending on the input, it can represent either an entire album or a single
- * track.
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of
+ * an respective audio input. Depending on the input, it can represent either
+ * an entire album or a single track.
  *
  * Considering the input of a Calculation, a CalcContext represents the per-file
- * metadata information that is used during calculation. Calculation computes
- * Checksums from a sequence of \link Calculation::update() updates \endlink
- * by sample sequences according to its current CalcContext.
+ * metadata information that is used during calculation. The CalcContext informs
+ * the Calculation about technical aspects like the encoding of the samples and
+ * the channel order, and as well about semantic aspects like the precise track
+ * bounds and the number of total samples.
  *
  * SampleInputIterator wraps the concrete iterator of the input sample sequence
- * so any class with a compatible iterator can be used.
+ * so any class with a compatible iterator can be used for generating the audio
+ * input..
  *
- * AudioSize represents the size of the audio data in a file in frames,
- * samples and bytes.
+ * AudioSize represents the size of the audio input in frames, samples or bytes.
+ *
+ * The CDDA constants provide some CDDA-related constants that are frequently
+ * reused throughout the code.
  *
  * @{
  */
@@ -108,7 +112,7 @@ enum class type : unsigned int
  * \brief Iterable sequence of all predefined checksum types.
  *
  * The order of the types is identical to the total order of numeric values the
- * types have as checksum::type.
+ * types have in enum class checksum::type.
  */
 static const std::array<type, 2> types = {
 	type::ARCS1,
@@ -119,53 +123,66 @@ static const std::array<type, 2> types = {
 
 
 /**
- * \brief Name of a checksum::type.
+ * \brief Obtain the name of a checksum::type.
  *
  * \param[in] t Type to get name of
  *
- * \return Name of type
+ * \return Name of type \c t
  */
 std::string type_name(const type t);
 
 } // namespace checksum
 
 
-// forward declaration for operator == and to_hex_str()
+// forward declaration for operator ==
 class Checksum; // IWYU pragma keep
 
+/**
+ * \internal
+ * \brief Overload operator == for comparing Checksums.
+ *
+ * \param[in] lhs Left hand side of the comparison
+ * \param[in] rhs Right hand side of the comparison
+ *
+ * \return \c TRUE iff lhs.value() == rhs.value() or lhs and rhs are empty()
+ */
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept;
 
-bool operator == (const Checksum &lhs, const uint32_t rhs) noexcept;
-bool operator == (const uint32_t lhs,  const Checksum &rhs) noexcept;
-
 /**
- * \brief Overload operator << for outputting Checksums
+ * \internal
+ * \brief Overload operator << for outputting Checksums.
  */
 std::ostream& operator << (std::ostream& out, const Checksum &c);
 
 /**
- * \brief A 32-bit wide unsigned checksum for a single file or track.
+ * \brief An AccurateRip checksum for a single file or track.
  *
- * A Checksum has a value_type. This is an unsigned integer of 32 bit length.
+ * A Checksum has a value_type. This is its numeric representation. It is an
+ * unsigned integer of 32 bit length.
  *
  * A Checksum can be represented by its numeric value() which is of type
- * value_type.
+ * value_type. A Checksum can be compared for equality with instances of its
+ * value_type using operator ==.
  *
  * A Checksum has a converting constructor for its value_type, thus every
  * parameter that expects a checksum can be assigned a value of type value_type
  * instead of a Checksum.
  *
+ * Operator << is overloaded for printing Checksums to streams. The Checksum
+ * will then occurr in its standard layout: as a hexadecimal number without the
+ * base '0x', all digits in upper case, and filled with leading zeros up to a
+ * width of 8 digits.
+ *
  * As a technical convenience, a Checksum may be empty() which means: it carries
- * no value. Using operator ==, two empty Checksum instances qualify as equal.
+ * no value. Calling value() on an empty() Checksum may lead any result. Two
+ * empty Checksum instances qualify as equal when compared using operator ==.
  */
 class Checksum final : public Comparable<Checksum>
 {
 public:
 
-	friend std::ostream& operator << (std::ostream& out, const Checksum &c);
-
 	/**
-	 * \brief The numerical base type of the Checksum.
+	 * \brief Numerical base type of checksums: a 32-bit wide unsigned integer.
 	 */
 	using value_type = uint32_t;
 
@@ -177,7 +194,7 @@ public:
 	Checksum();
 
 	/**
-	 * \brief Converting Constructor.
+	 * \brief Converting constructor.
 	 *
 	 * \param[in] value Actual checksum value
 	 */
@@ -191,20 +208,19 @@ public:
 	value_type value() const noexcept;
 
 	/**
-	 * \brief Return TRUE iff this Checksum is empty, otherwise FALSE.
+	 * \brief Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
 	 *
 	 * A Checksum is empty if it contains no valid value. Note that this
 	 * does not entail <tt>value() == 0</tt> in all cases. Nonetheless, for most
 	 * checksum types, the converse holds, they are <tt>empty()</tt> if they are
 	 * \c 0 .
 	 *
-	 * \return Return TRUE iff this Checksum is empty, otherwise FALSE.
+	 * \return Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
 	 */
 	bool empty() const noexcept;
 
 
 	Checksum& operator = (const value_type rhs);
-
 
 private:
 
@@ -213,6 +229,9 @@ private:
 	 */
 	value_type value_;
 };
+
+bool operator == (const Checksum &lhs, const Checksum::value_type rhs) noexcept;
+bool operator == (const Checksum::value_type lhs, const Checksum &rhs) noexcept;
 
 
 namespace details
@@ -237,7 +256,7 @@ class ChecksumMap; // IWYU pragma keep
  * Equality between const_iterator and iterator variants works like expected.
  *
  * \tparam K        The key type of the iterated ChecksumMap
- * \tparam is_const TRUE indicates a const_iterator
+ * \tparam is_const \c TRUE indicates a const_iterator
  */
 template <typename K, bool is_const>
 class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
@@ -436,52 +455,48 @@ public:
 	size_type size() const;
 
 	/**
-	 * \brief Returns TRUE iff the instance contains no elements, otherwise
-	 * FALSE.
+	 * \brief Returns \c TRUE iff the instance contains no elements, otherwise
+	 * \c FALSE.
 	 *
-	 * \return TRUE iff instance contains no elements, otherwise FALSE
+	 * \return \c TRUE iff instance contains no elements, otherwise \c FALSE
 	 */
 	bool empty() const;
 
 	/**
-	 * \brief Const iterator pointing to the beginning.
+	 * \brief Obtain a pointer to the first Checksum.
 	 *
-	 * \return Const iterator pointing to the beginning.
+	 * \return Pointer to the first Checksum
 	 */
 	const_iterator cbegin() const;
 
 	/**
-	 * \brief Const iterator pointing behind the end.
+	 * \brief Obtain a pointer pointing behind the last Checksum.
 	 *
-	 * \return Const iterator pointing behind the end.
+	 * \return Pointer pointing behind the last Checksum
 	 */
 	const_iterator cend() const;
 
 	/**
-	 * \brief Const iterator pointing to the beginning.
-	 *
-	 * \return Const iterator pointing to the beginning.
+	 * \copydoc cbegin()
 	 */
 	const_iterator begin() const;
 
 	/**
-	 * \brief Const iterator pointing behind the end.
-	 *
-	 * \return Const iterator pointing behind the end.
+	 * \copydoc cend()
 	 */
 	const_iterator end() const;
 
 	/**
-	 * \brief Iterator pointing to the beginning.
+	 * \brief Obtain a pointer to the first Checksum.
 	 *
-	 * \return Iterator pointing to the beginning.
+	 * \return Pointer to the first Checksum
 	 */
 	iterator begin();
 
 	/**
-	 * \brief Iterator pointing behind the end.
+	 * \brief Obtain a pointer pointing behind the last Checksum.
 	 *
-	 * \return Iterator pointing behind the end.
+	 * \return Pointer pointing behind the last Checksum
 	 */
 	iterator end();
 
@@ -493,11 +508,12 @@ public:
 	lba_count_t length() const noexcept;
 
 	/**
-	 * \brief Returns TRUE iff the instance contains the type \c type .
+	 * \brief Returns \c TRUE iff the instance contains a Checksum of the type
+	 * \c type.
 	 *
 	 * \param[in] type The type to lookup the Checksum for
 	 *
-	 * \return TRUE iff \c type is present in the instance, otherwise FALSE
+	 * \return \c TRUE iff \c type is present in the instance, otherwise \c FALSE
 	 */
 	bool contains(const checksum::type &type) const;
 
@@ -521,14 +537,14 @@ public:
 	std::set<checksum::type> types() const;
 
 	/**
-	 * \brief Inserts a new type-Checksum-pair to the instance.
+	 * \brief Inserts a new <type,Checksum> pair to the instance.
 	 *
 	 * If the key is already present in the instance, the existing checksum will
 	 * be left unmodified.
 	 *
 	 * The pair returned contains an iterator to the inserted Checksum and a
-	 * bool that is TRUE iff the insertion was successful. If the insertion was
-	 * not successful, the value FALSE is returned for the bool and the
+	 * bool that is \c TRUE iff the insertion was successful. If the insertion was
+	 * not successful, the value \c FALSE is returned for the bool and the
 	 * iterator will point to the element that prevented the insertion.
 	 *
 	 * \param[in] type     The key to use
@@ -566,7 +582,8 @@ public:
 	void erase(const checksum::type &type);
 
 	/**
-	 * \brief Erases all elements contained in the instance.
+	 * \brief Erases all \link Checksum Checksums\endlink contained in the
+	 * instance.
 	 *
 	 * After clear() has been called the size of the container will be \c 0 .
 	 */
@@ -710,19 +727,19 @@ public: /* functions */
 	 *
 	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
 	 */
-	void set_pcm_byte_count(const uint32_t byte_count) noexcept;
+	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
 
 	/**
 	 * \brief Return the number of bytes holding 32 bit PCM samples.
 	 *
 	 * \return The total number of bytes holding 32 bit PCM samples
 	 */
-	uint32_t pcm_byte_count() const noexcept;
+	uint32_t total_pcm_bytes() const noexcept;
 
 	/**
-	 * \brief Return TRUE if the AudioSize is 0.
+	 * \brief Return \c TRUE if the AudioSize is 0.
 	 *
-	 * \return TRUE if the AudioSize is 0
+	 * \return \c TRUE if the AudioSize is 0
 	 */
 	bool null() const noexcept;
 
@@ -788,10 +805,6 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
  * The type is not intended to do arithmetic operations on it.
  *
  * Bitwise operators are required to work as on unsigned types.
- *
- * The type has at least the size of arcstk::sample_type.
- *
- * \see arcstk::sample_type
  */
 using sample_t = uint32_t;
 
@@ -821,12 +834,12 @@ SampleInputIterator operator + (SampleInputIterator lhs,
  *
  * Wraps the concrete iterator to be passed to
  * \link Calculation::update() update \endlink a Calculation.
- * This allows it to pass in fact any iterator type to a Calculation.
+ * This allows to pass in fact iterators of any type to a Calculation.
  *
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
  * except instances of itself, e.g. it can not be "nested".
  *
- * The type erasure interface only ensures that the requirements of a
+ * The type erasure interface only ensures that (most of) the requirements of a
  * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
  * \link Calculation::update() updating \endlink a Calculation.
@@ -835,9 +848,12 @@ SampleInputIterator operator + (SampleInputIterator lhs,
  * an input iterator, it does not provide operator->() and does
  * therefore not completely fulfill the requirements for a LegacyInputIterator.
  *
- * SampleInputIterator provides iteration over values of type sample_t,
- * which is a primitve type. Samples have no members, therefore operator ->
- * would not provide any reasonable function.
+ * SampleInputIterator provides iteration over values of type
+ * \link arcstk::v_1_0_0::sample_t sample_t\endlink which is defined as a
+ * primitve type. Since samples therefore do not have members, operator -> would
+ * not provide any reasonable function.
+ *
+ * \see Calculation::update()
  */
 class SampleInputIterator final : public Comparable<SampleInputIterator>
 {
@@ -915,11 +931,11 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns TRUE if \c rhs is equal to the instance.
+		 * \brief Returns \c TRUE if \c rhs is equal to the instance.
 		 *
 		 * \param[in] rhs The instance to test for equality
 		 *
-		 * \return TRUE if \c rhs is equal to the instance, otherwise FALSE
+		 * \return \c TRUE if \c rhs is equal to the instance, otherwise \c FALSE
 		 */
 		virtual bool equals(const Concept &rhs) const noexcept
 		= 0;
@@ -1098,16 +1114,34 @@ SampleInputIterator operator + (const sample_count_t amount,
 /**
  * \brief Interface for information about the current audio input.
  *
- * Computationally relevant data are TOC information as there is
- * track count, offsets, and leadout. Additionally, the filename is provided.
+ * CalcContext provides the metadata that is required to perform the Calculation
+ * correctly.
  *
- * Determines whether the calculation is single- or multitrack and whether it
- * has to skip samples on the beginning of the first or the end of the last
- * track.
+ * The CalcContext determines whether the input is single- or multitrack and
+ * whether it has to skip samples on the beginning of the first or the end of
+ * the last track.
  *
  * CalcContext also provides service methods for identifying the first and
- * last sample of a track relevant for computation or to get the track for a
+ * last sample of a track relevant for Calculation or to get the track for a
  * given sample.
+ *
+ * CalcContext offers also access to its underlying TOC data.
+ *
+ * CalcContext instances are created exclusively via the variants of
+ * make_context().
+ *
+ * A CalcContext is intended as a "read-only" object, it should never be
+ * required to modify the CalcContext of an audio input. The only exception
+ * is notify_skips() which depends on the concrete algorithm that is only
+ * known within Calculation. Thus, Calculation must inform its CalcContext about
+ * it.
+ *
+ * \note
+ * Currently it should not be required for the user to subclass CalcContext. All
+ * subclasses required for calculating ARCSv1 and ARCSv2 in single- and
+ * multitrack scenarios are already provided by libarcstk. Note that subclassing
+ * CalcContext would require to also add a new variant of make_context() that
+ * can yield an instance of this subclass.
  */
 class CalcContext
 {
@@ -1159,10 +1193,11 @@ public:
 	 * Since the track count should be accessed in a uniform way, regardless
 	 * whether we actually have multiple tracks or only one.
 	 *
+	 * \attention
 	 * Note that this is independent from <tt>is_multi_track()</tt>. A
 	 * TOC containing only one track would have a CalcContext in
 	 * which <tt>track_count()</tt> is \c 1 but <tt>is_multi_track()</tt> is
-	 * TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
+	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
 	 * while <tt>track_count()</tt> just provides information about the TOC.
 	 *
 	 * \return The number of tracks represented in this file
@@ -1170,23 +1205,30 @@ public:
 	uint8_t track_count() const noexcept;
 
 	/**
-	 * \brief Returns TRUE if this instances indicates a processing for multiple
+	 * \brief Returns \c TRUE if this instances indicates a processing for multiple
 	 * tracks on a single input file.
 	 *
-	 * If this is FALSE, no chunks will be available. Multitrack mode is
+	 * If this is \c FALSE, no chunks will be available. Multitrack mode is
 	 * activated by setting a TOC.
 	 *
-	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
+	 * \attention
+	 * Note that this is independent from <tt>track_count()</tt>. A
+	 * TOC containing only one track would have a CalcContext in
+	 * which <tt>track_count()</tt> is \c 1 but <tt>is_multi_track()</tt> is
+	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
+	 * while <tt>track_count()</tt> just provides information about the TOC.
+	 *
+	 * \return \c TRUE if this context specifies multitrack mode, otherwise \c FALSE
 	 */
 	bool is_multi_track() const noexcept;
 
 	/**
-	 * \brief Service method: Get 0-based index of the first relevant sample of
-	 * the specified 1-based track.
+	 * \brief Get 0-based index of the first relevant sample of the specified
+	 * 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
-	 * \c first_relevant_sample(2) returns the last 0-based sample of track 2
-	 * (and not track 3).
+	 * \c first_relevant_sample(2) returns the first 0-based sample of the
+	 * actual track 2 (and not track 3).
 	 *
 	 * \param[in] track The 1-based track number
 	 *
@@ -1195,12 +1237,15 @@ public:
 	sample_count_t first_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
-	 * \brief Get 0-based index of the first sample to be counted in
-	 * computation.
+	 * \brief Get 0-based index of the first relevant sample of the current
+	 * audio input.
 	 *
-	 * Which sample is actually the first relevant one depends on the offset
-	 * of the first track and whether samples in the beginning of the first
-	 * track are to be skipped.
+	 * Which sample is actually the first relevant one depends on
+	 * <ul>
+	 *   <li>the offset of the first track and</li>
+	 *   <li>whether samples in the beginning of the first track are to be
+	 *       skipped.</li>
+	 * </ul>
 	 *
 	 * Always equivalent with
 	 * @link CalcContext::first_relevant_sample() first_relevant_sample(1) @endlink.
@@ -1210,12 +1255,12 @@ public:
 	sample_count_t first_relevant_sample() const noexcept;
 
 	/**
-	 * \brief Service method: Get 0-based index of the last relevant sample of
-	 * the specified 1-based track.
+	 * \brief Get 0-based index of the last relevant sample of the specified
+	 * 1-based track.
 	 *
 	 * Note that parameter \c track is 1-based, which means that
-	 * last_relevant_sample(2) returns the last 0-based sample of track 2
-	 * (and not track 3).
+	 * last_relevant_sample(2) returns the last 0-based sample of the actual
+	 * track 2 (and not track 3).
 	 *
 	 * If no offsets are set, the output will always be identical to
 	 * @link CalcContext::last_relevant_sample() last_relevant_sample() @endlink.
@@ -1230,9 +1275,10 @@ public:
 	sample_count_t last_relevant_sample(const TrackNo track) const noexcept;
 
 	/**
-	 * \brief Get 0-based index of the last sample to be counted in computation.
+	 * \brief Get 0-based index of the last relevant sample of the current
+	 * audio input.
 	 *
-	 * Which sample is actualley the last relevant one depends on whether
+	 * Which sample is actually the last relevant one depends on whether
 	 * samples in the end of the last track are to be skipped.
 	 *
 	 * Always equivalent with
@@ -1302,24 +1348,28 @@ public:
 	ARId id() const noexcept;
 
 	/**
-	 * \brief Returns TRUE iff this context will skip the first 2939 samples of
+	 * \brief Returns \c TRUE iff this context will skip the first 2939 samples of
 	 * the first track.
 	 *
-	 * \return TRUE iff context will signal to skip the first samples.
+	 * \return \c TRUE iff context will signal to skip the first samples.
 	 */
 	bool skips_front() const noexcept;
 
 	/**
-	 * \brief Returns TRUE iff this context will skip the last 2940 samples
+	 * \brief Returns \c TRUE iff this context will skip the last 2940 samples
 	 * (5 LBA frames) of the last track.
 	 *
-	 * \return TRUE iff context will signal to skip the last samples.
+	 * \return \c TRUE iff context will signal to skip the last samples.
 	 */
 	bool skips_back() const noexcept;
 
 	/**
 	 * \brief Returns the amount of samples to skip at the beginning of the
-	 * first track - or, in a single track scenario, once at the beginning.
+	 * first track.
+	 *
+	 * If the audio input contains only one track, this track is the first track.
+	 *
+	 * The value is either 2939 or 0.
 	 *
 	 * The skipping is already active if this instance skips_front().
 	 *
@@ -1328,10 +1378,14 @@ public:
 	sample_count_t num_skip_front() const noexcept;
 
 	/**
-	 * \brief Returns the amount of samples to skip at the end of the last track
-	 * - or, in a single track scenario, once at the end.
+	 * \brief Returns the amount of samples to skip at the end of the last
+	 * track.
 	 *
-	 * The skipping is already active if this instance skips_back()
+	 * If the audio input contains only one track, this track is the last track.
+	 *
+	 * The value is either 2940 or 0.
+	 *
+	 * The skipping is already active if this instance skips_back().
 	 *
 	 * \return The number of samples to skip at the end of the last track
 	 */
@@ -1406,7 +1460,7 @@ private:
 	/**
 	 * \brief Implements is_multi_track() const.
 	 *
-	 * \return TRUE if this context specifies multitrack mode, otherwise FALSE
+	 * \return \c TRUE if this context specifies multitrack mode, otherwise \c FALSE
 	 */
 	virtual bool do_is_multi_track() const noexcept
 	= 0;
@@ -1490,7 +1544,7 @@ private:
 	/**
 	 * \brief Implements skips_front() const.
 	 *
-	 * \return TRUE iff context will signal to skip the first samples.
+	 * \return \c TRUE iff context will signal to skip the first samples.
 	 */
 	virtual bool do_skips_front() const noexcept
 	= 0;
@@ -1498,7 +1552,7 @@ private:
 	/**
 	 * \brief Implements skips_back() const.
 	 *
-	 * \return TRUE iff context will signal to skip the last samples.
+	 * \return \c TRUE iff context will signal to skip the last samples.
 	 */
 	virtual bool do_skips_back() const noexcept
 	= 0;
@@ -1541,6 +1595,8 @@ private:
 /**
  * \brief Create a CalcContext from two skip flags.
  *
+ * This addresses a situation where a single track has to be checksummed.
+ *
  * \param[in] skip_front    Tell wether to skip the front samples
  * \param[in] skip_back     Tell wether to skip the back samples
  *
@@ -1552,8 +1608,9 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 /**
  * \brief Create a CalcContext from an audio filename and two skip flags.
  *
- * The file will not be opened by the object, it is just declared as part of the
- * metadata.
+ * This addresses a situation where a single track has to be checksummed.
+ *
+ * The file will not be opened, it is just declared as part of the metadata.
  *
  * \param[in] skip_front    Tell wether to skip the front samples
  * \param[in] skip_back     Tell wether to skip the back samples
@@ -1577,8 +1634,7 @@ std::unique_ptr<CalcContext> make_context(const TOC &toc);
 /**
  * \brief Create a CalcContext from an audio filename and a TOC.
  *
- * The file will not be opened by the object, it is just declared as part of the
- * metadata.
+ * The file will not be opened, it is just declared as part of the metadata.
  *
  * \param[in] toc           The TOC to use
  * \param[in] audiofilename The name of the audiofile, empty be default
@@ -1608,7 +1664,7 @@ void swap(Checksums &lhs, Checksums &rhs) noexcept;
 bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
 
 /**
- * \brief The result of a Calculation, a list of
+ * \brief The result of a Calculation, an iterable list of
  * \link ChecksumSet ChecksumSets \endlink.
  */
 class Checksums final
@@ -1681,49 +1737,45 @@ public:
 	void append(const ChecksumSet &checksums);
 
 	/**
-	 * \brief Returns a pointer to the first element.
+	 * \brief Obtain a pointer to the first ChecksumSet.
 	 *
-	 * \return Pointer to the first element
-	 */
-	const_iterator begin() const noexcept;
-
-	/**
-	 * \brief Returns a pointer after the last element.
-	 *
-	 * \return Pointer after the last element
-	 */
-	const_iterator end() const noexcept;
-
-	/**
-	 * \brief Returns a pointer to the first element.
-	 *
-	 * \return Pointer to the first element
+	 * \return Pointer to the first ChecksumSet
 	 */
 	iterator begin() noexcept;
 
 	/**
-	 * \brief Returns a pointer after the last element.
+	 * \brief Obtain a pointer pointing behind the last ChecksumSet.
 	 *
-	 * \return Pointer after the last element
+	 * \return Pointer pointing behind the last ChecksumSet
 	 */
 	iterator end() noexcept;
 
 	/**
-	 * \brief Returns a pointer to the first element.
+	 * \copydoc cbegin()
+	 */
+	const_iterator begin() const noexcept;
+
+	/**
+	 * \copydoc cend()
+	 */
+	const_iterator end() const noexcept;
+
+	/**
+	 * \brief Obtain a const_iterator pointing to first ChecksumSet.
 	 *
-	 * \return Pointer to the first element
+	 * \return const_iterator pointing to first ChecksumSet
 	 */
 	const_iterator cbegin() const noexcept;
 
 	/**
-	 * \brief Returns a pointer after the last element.
+	 * \brief Obtain a const_iterator pointing behind last ChecksumSet.
 	 *
-	 * \return Pointer after the last element
+	 * \return const_iterator pointing behind last ChecksumSet
 	 */
 	const_iterator cend() const noexcept;
 
 	/**
-	 * \brief The ARTriplet with the specified 0-based index \c index.
+	 * \brief The ChecksumSet with the specified 0-based index \c index.
 	 *
 	 * \details
 	 *
@@ -1737,7 +1789,7 @@ public:
 	 *
 	 * \return ChecksumSet at index \c index.
 	 *
-	 * \throws std::out_of_range Iff \c index > Checksums::size() - 1.
+	 * \throws std::out_of_range Iff \c index >= Checksums::size()
 	 */
 	const ChecksumSet& at(const size_type index) const;
 
@@ -1755,9 +1807,9 @@ public:
 	const ChecksumSet& operator [] (const size_type index) const;
 
 	/**
-	 * \brief Return the number of elements.
+	 * \brief Return the total number of elements.
 	 *
-	 * \return Number of elements
+	 * \return Total number of elements
 	 */
 	size_type size() const noexcept;
 
@@ -1765,7 +1817,6 @@ public:
 	Checksums& operator = (Checksums rhs);
 
 	Checksums& operator = (Checksums &&rhs) noexcept;
-
 
 private:
 
@@ -1791,6 +1842,11 @@ extern const Checksum EmptyChecksum;
 /**
  * \brief Checksum calculation for a requested checksum::type.
  *
+ * \attention
+ * Calculation is a stateful object. It is designed to be updated with a
+ * sequence of chunks of the actual audio input. Thereafter, it will provide
+ * the caller with a Checksums instance that represents the result.
+ *
  * To calculate the checksum for a given entirety of samples, an appropriate
  * CalcContext must be set and, optionally, a request for the checksum
  * types to calculate.
@@ -1800,20 +1856,27 @@ extern const Checksum EmptyChecksum;
  * processed as a single track, the CalcContext configures whether it is
  * the first or last track or an intermediate track.
  *
- * Requesting the checksum types determines whether ARCSs v1 only or ARCSs v1
- * and ARCSs v2 are calculated.
+ * \attention
+ * After having called update() for the first time, it is not supported to alter
+ * the CalcContext before Calculation is complete(). Otherwise, the result()
+ * will be probably incorrect.
  *
- * After context and requested types are set, Calculation::update() can be
- * called for a each subsequent sample block until all samples declared in the
- * CalcContext have been processed. After the last call of
- * Calculation::update(), a call of Calculation::result() will return
- * the result of the calculation on the entire sample stream.
+ * Requesting the checksum types determines whether ARCSsv1 only or ARCSsv1
+ * and ARCSsv2 are calculated. The checksum type can be skipped in which case
+ * Calculation will use ARCSv2 as default.
+ *
+ * After context and requested types are set, update() must be called for each
+ * subsequent sample block until all samples declared in the CalcContext have
+ * been processed. After the last call of update(), a call of complete() can
+ * do a sanity check of the result().
  *
  * Note that at least before processing the last block, the total number of
- * samples must be known to the Calculation instance. The instance will be
+ * samples must be known to the Calculation instance. The instance must be
  * informed about this value either early in the process by the TOC, or,
- * if the TOC is incomplete, by a callback call of
- * Calculation::update_audiosize().
+ * in case the TOC is incomplete, by a callback call of
+ * Calculation::update_audiosize() as soon as the total number of input samples
+ * is known. The caller is responsible for informing Calculation about the total
+ * number of input samples before the last call of update().
  */
 class Calculation final
 {
@@ -1869,7 +1932,7 @@ public:
 	const CalcContext& context() const noexcept;
 
 	/**
-	 * \brief Returns current type.
+	 * \brief Returns current type requested.
 	 *
 	 * \return A disjunction of all requested types.
 	 */
@@ -1878,27 +1941,27 @@ public:
 	/**
 	 * \brief Update the calculation with a sequence of samples.
 	 *
-	 * \param[in] begin Iterator pointing to the beginning of the sequence
-	 * \param[in] end   Iterator pointing to the end of the sequence
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
 	 */
 	void update(SampleInputIterator begin, SampleInputIterator end);
 
 	/**
 	 * \brief Updates the instance with a new AudioSize.
 	 *
-	 * This must be done before the last call of Calculation::update().
+	 * This must be done before the last call of update().
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
 	void update_audiosize(const AudioSize &audiosize) noexcept;
 
 	/**
-	 * \brief Returns TRUE iff this Calculation is completed, otherwise FALSE.
+	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise \c FALSE.
 	 *
-	 * FALSE indicates that the instance expects more updates. If the instance
-	 * returns TRUE it is safe to call result().
+	 * \c FALSE indicates that the instance expects more updates. If the instance
+	 * returns \c TRUE it is safe to call result().
 	 *
-	 * \return TRUE if the Calculation is completed, otherwise FALSE
+	 * \return \c TRUE if the Calculation is completed, otherwise \c FALSE
 	 */
 	bool complete() const noexcept;
 
@@ -1912,7 +1975,7 @@ public:
 	int64_t samples_expected() const noexcept;
 
 	/**
-	 * \brief Returns the counter for PCM 32 bit samples.
+	 * \brief Returns the total number for PCM 32 bit samples yet processed.
 	 *
 	 * This is just for debugging.
 	 *
@@ -1921,7 +1984,8 @@ public:
 	int64_t samples_processed() const noexcept;
 
 	/**
-	 * \brief Returns the number of PCM 32 bit samples that is yet to process.
+	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
+	 * processed.
 	 *
 	 * This value is equivalent to samples_expected() - samples_processed().
 	 *

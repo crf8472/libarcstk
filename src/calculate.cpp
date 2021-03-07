@@ -59,6 +59,7 @@ namespace
 {
 
 /**
+ * \internal
  * \brief Number of samples to be skipped before the end of the last track.
  *
  * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
@@ -68,6 +69,7 @@ namespace
 constexpr sample_count_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
 
 /**
+ * \internal
  * \brief Number of samples to be skipped after the start of the first track.
  *
  * There are 5 frames - 1 sample to be skipped, i.e.
@@ -125,12 +127,12 @@ public:
 	sample_count_t total_samples() const noexcept;
 
 	/**
-	 * \brief Implements AudioSize::set_pcm_byte_count(const uint32_t byte_count)
+	 * \brief Implements AudioSize::set_total_pcm_bytes(const uint32_t byte_count)
 	 */
 	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
 
 	/**
-	 * \brief Implements AudioSize::pcm_byte_count() const
+	 * \brief Implements AudioSize::total_pcm_bytes() const
 	 */
 	uint32_t total_pcm_bytes() const noexcept;
 
@@ -140,7 +142,6 @@ public:
 	 * \param[in] rhs The instance to compare
 	 */
 	bool equals(const AudioSize::Impl &rhs) const noexcept;
-
 
 private:
 
@@ -155,7 +156,7 @@ private:
 	 * \throw std::overflow_error If value is bigger than the legal unit maximum
 	 * \throw std::underflow_error If value is negative
 	 */
-	uint32_t to_bytes(const long int value, const AudioSize::UNIT unit);
+	static uint32_t to_bytes(const long int value, const AudioSize::UNIT unit);
 
 	/**
 	 * \brief Convert \c frame_count to the corrsponding number of bytes.
@@ -166,7 +167,7 @@ private:
 	 *
 	 * \throw std::overflow_error If value is bigger than the legal unit maximum
 	 */
-	uint32_t frames_to_bytes(const lba_count_t frame_count);
+	static uint32_t frames_to_bytes(const lba_count_t frame_count);
 
 	/**
 	 * \brief Convert \c frame_count to the corrsponding number of bytes.
@@ -177,10 +178,10 @@ private:
 	 *
 	 * \throw std::overflow_error If value is bigger than the legal unit maximum
 	 */
-	uint32_t samples_to_bytes(const sample_count_t sample_count);
+	static uint32_t samples_to_bytes(const sample_count_t sample_count);
 
 	/**
-	 * \brief Data: Number of pcm sample bytes in the audio file.
+	 * \brief Data: Total number of pcm sample bytes in the audio file.
 	 */
 	uint32_t total_pcm_bytes_;
 };
@@ -222,11 +223,11 @@ uint32_t AudioSize::Impl::to_bytes(const long int value,
 
 	if (AudioSize::UNIT::FRAMES == unit)
 	{
-		return this->frames_to_bytes(value);
+		return AudioSize::Impl::frames_to_bytes(value);
 	}
 	else if (AudioSize::UNIT::SAMPLES == unit)
 	{
-		return this->samples_to_bytes(value);
+		return AudioSize::Impl::samples_to_bytes(value);
 	}
 
 	return value;
@@ -1836,6 +1837,7 @@ ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
 using ChecksumsImplBase = details::AppendableSequence<ChecksumSet>;
 
 /**
+ * \internal
  * \brief Private implementation of Checksums.
  *
  * \see Checksums
@@ -1905,18 +1907,6 @@ void Checksums::append(const ChecksumSet &checksum)
 }
 
 
-Checksums::const_iterator Checksums::begin() const noexcept
-{
-	return impl_->cbegin();
-}
-
-
-Checksums::const_iterator Checksums::end() const noexcept
-{
-	return impl_->cend();
-}
-
-
 Checksums::iterator Checksums::begin() noexcept
 {
 	return impl_->begin();
@@ -1926,6 +1916,18 @@ Checksums::iterator Checksums::begin() noexcept
 Checksums::iterator Checksums::end() noexcept
 {
 	return impl_->end();
+}
+
+
+Checksums::const_iterator Checksums::begin() const noexcept
+{
+	return impl_->cbegin();
+}
+
+
+Checksums::const_iterator Checksums::end() const noexcept
+{
+	return impl_->cend();
 }
 
 
@@ -2674,13 +2676,13 @@ sample_count_t AudioSize::total_samples() const noexcept
 }
 
 
-void AudioSize::set_pcm_byte_count(const uint32_t byte_count) noexcept
+void AudioSize::set_total_pcm_bytes(const uint32_t byte_count) noexcept
 {
 	impl_->set_total_pcm_bytes(byte_count);
 }
 
 
-uint32_t AudioSize::pcm_byte_count() const noexcept
+uint32_t AudioSize::total_pcm_bytes() const noexcept
 {
 	return impl_->total_pcm_bytes();
 }
@@ -2713,7 +2715,7 @@ bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept
 
 bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept
 {
-	return lhs.pcm_byte_count() < rhs.pcm_byte_count();
+	return lhs.total_pcm_bytes() < rhs.total_pcm_bytes();
 }
 
 
@@ -2788,7 +2790,7 @@ void Calculation::update(SampleInputIterator begin, SampleInputIterator end)
 		return;
 	}
 
-	if (impl_->context().audio_size().pcm_byte_count() == 0)
+	if (impl_->context().audio_size().total_pcm_bytes() == 0)
 	{
 		ARCS_LOG_ERROR << "Context says there are 0 bytes to process";
 		return;
@@ -2983,6 +2985,7 @@ std::ostream& operator << (std::ostream& out, const Checksum &c)
 
 
 /**
+ * \internal
  * \brief Private implementation of ChecksumSet.
  *
  * \see ChecksumSet
