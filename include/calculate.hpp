@@ -230,6 +230,10 @@ private:
 	value_type value_;
 };
 
+// Those are not really necessary to implement, since Checksum has a converting
+// constructor for its value_type. However, the default operator== performs in
+// fact 3 comparisons since it has to respect the empty() case. The overloads
+// just use 1 comparison and are therefor provided as a minor optimization.
 bool operator == (const Checksum &lhs, const Checksum::value_type rhs) noexcept;
 bool operator == (const Checksum::value_type lhs, const Checksum &rhs) noexcept;
 
