@@ -21,6 +21,9 @@
 #include <stdexcept>         // for runtime_error
 #include <string>            // for string
 
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"     // for Checksum
+#endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"
 #endif
@@ -33,7 +36,6 @@ inline namespace v_1_0_0
 
 // Forward declaration to avoid including other headers
 class ARId;
-class Checksum;
 
 // Forward declaration for the base class for a private implementation
 class ARTripletImpl; // IWYU pragma keep
@@ -131,7 +133,6 @@ public:
 	/**
 	 * \brief Constructor that sets all validity flags to \c TRUE.
 	 *
-	 * \details
 	 * All validity flags are set to \c TRUE.
 	 *
 	 * \param[in] arcs          The ARCS value of this triplet
