@@ -235,13 +235,13 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "Response contains a total match in block "
 			<< matcher.best_match()
-			<< ", which is of type ARCSv" << (matcher.matches_v2() + 1)
+			<< ", which is of type ARCSv" << (matcher.best_match_is_v2() + 1)
 			<< "." << std::endl;
 	} else
 	{
 		std::cout << "No total match. Best block is "
 			<< matcher.best_match()
-			<< ", which is of type ARCSv" << (matcher.matches_v2() + 1)
+			<< ", which is of type ARCSv" << (matcher.best_match_is_v2() + 1)
 			<< " with difference " << matcher.best_difference()
 			<< std::endl;
 	}
