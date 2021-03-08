@@ -875,7 +875,7 @@ lba_count_t TOCBuilder::build_leadout(const lba_count_t leadout)
 }
 
 
-template <typename Container, typename = FilenameContainer<Container> >
+template <typename Container, typename>
 std::vector<std::string> TOCBuilder::build_files(Container&& files)
 {
 	// No validation for now, just convert to vector<string>
