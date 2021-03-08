@@ -1303,7 +1303,7 @@ public:
 	 * return an invalid high track number ("infinite").
 	 *
 	 * The user has therefore to check for the validity of the result by
-	 * checking whether <tt>0 < result <= CDDA.MAX_TRACKCOUNT</tt>.
+	 * checking whether <tt>0 < result <= CDDA::MAX_TRACKCOUNT</tt>.
 	 *
 	 * \param[in] smpl The sample to get the track for
 	 *

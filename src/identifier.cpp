@@ -119,7 +119,7 @@ uint32_t ARIdBuilder::disc_id_2(const std::vector<lba_count_t> &offsets,
 uint32_t ARIdBuilder::cddb_id(const std::vector<lba_count_t> &offsets,
 		const lba_count_t leadout) noexcept
 {
-	const auto fps { static_cast<uint32_t>(CDDA.FRAMES_PER_SEC) };
+	const auto fps { static_cast<uint32_t>(CDDA::FRAMES_PER_SEC) };
 	auto accum = uint32_t { 0 };
 
 	for (const auto &o : offsets)
@@ -145,15 +145,6 @@ uint64_t ARIdBuilder::sum_digits(const uint32_t number) noexcept
 }
 
 } // namespace details
-
-
-/**
- * \internal
- * \ingroup id
- *
- * \brief Global instance of the CDDA constants
- */
-const CDDA_t CDDA;
 
 
 /**

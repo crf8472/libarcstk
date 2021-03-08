@@ -307,7 +307,7 @@ DefaultMatchBase::DefaultMatchBase(int blocks, int tracks)
 			(2u * static_cast<std::size_t>(tracks) + 1u) }
 	, flag_ ( size_, false ) // No braces!
 {
-	if (tracks < 0 or tracks > CDDA.MAX_TRACKCOUNT)
+	if (tracks < 0 or tracks > CDDA::MAX_TRACKCOUNT)
 	{
 		throw std::out_of_range("Illegal number of tracks: "
 				+ std::to_string(tracks));

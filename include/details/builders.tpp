@@ -101,7 +101,7 @@ inline decltype(auto) get_track(Container&& c, const TrackNo t)
  * \brief Calculate leadout from lengths and offsets.
  *
  * No validation is performed except check for non-emptyness, equal size and
- * not exceeding CDDA.MAX_BLOCK_ADDRESS.
+ * not exceeding CDDA::MAX_BLOCK_ADDRESS.
  *
  * \tparam Container1 Type of the lengths container
  * \tparam Container2 Type of the offsets container
@@ -135,14 +135,14 @@ inline lba_count_t calculate_leadout(Container1&& lengths, Container2&& offsets)
 	auto end_offsets { std::end(offsets) }; // avoid modifying temporaries
 	auto leadout     { last_length ? *--end_offsets + last_length : 0 };
 
-	if (CDDA.MAX_BLOCK_ADDRESS <
-			static_cast<decltype(CDDA.MAX_BLOCK_ADDRESS)>(leadout))
+	if (CDDA::MAX_BLOCK_ADDRESS <
+			static_cast<decltype(CDDA::MAX_BLOCK_ADDRESS)>(leadout))
 	{
 		throw InvalidMetadataException(
 			"Calculated leadout is bigger than maximal legal block address");
 	}
 
-	// We suppose std::numeric_limits<lba_count_t>::max() > CDDA.MAX_BLOCK_ADDRESS
+	// We suppose std::numeric_limits<lba_count_t>::max() > CDDA::MAX_BLOCK_ADDRESS
 	return static_cast<lba_count_t>(leadout);
 }
 

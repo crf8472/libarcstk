@@ -234,7 +234,7 @@ uint32_t AudioSize::Impl::to_bytes(const long int value,
 
 uint32_t AudioSize::Impl::frames_to_bytes(const lba_count_t frame_count)
 {
-	if (frame_count > static_cast<lba_count_t>(CDDA.MAX_BLOCK_ADDRESS))
+	if (frame_count > static_cast<lba_count_t>(CDDA::MAX_BLOCK_ADDRESS))
 	{
 		auto ss = std::stringstream {};
 		ss << "Frame count too big for AudioSize: "
@@ -243,14 +243,14 @@ uint32_t AudioSize::Impl::frames_to_bytes(const lba_count_t frame_count)
 		throw std::overflow_error(ss.str());
 	}
 
-	return static_cast<uint32_t>(frame_count * CDDA.BYTES_PER_FRAME);
+	return static_cast<uint32_t>(frame_count * CDDA::BYTES_PER_FRAME);
 }
 
 
 uint32_t AudioSize::Impl::samples_to_bytes(const sample_count_t smpl_count)
 {
 	static const sample_count_t MAX_SAMPLES {
-		CDDA.SAMPLES_PER_FRAME * CDDA.MAX_BLOCK_ADDRESS };
+		CDDA::SAMPLES_PER_FRAME * CDDA::MAX_BLOCK_ADDRESS };
 
 	if (smpl_count > MAX_SAMPLES)
 	{
@@ -261,7 +261,7 @@ uint32_t AudioSize::Impl::samples_to_bytes(const sample_count_t smpl_count)
 		throw std::overflow_error(ss.str());
 	}
 
-	return static_cast<uint32_t>(smpl_count * CDDA.BYTES_PER_SAMPLE);
+	return static_cast<uint32_t>(smpl_count * CDDA::BYTES_PER_SAMPLE);
 }
 
 
@@ -274,7 +274,7 @@ void AudioSize::Impl::set_total_frames(const lba_count_t frame_count) noexcept
 lba_count_t AudioSize::Impl::total_frames() const noexcept
 {
 	return static_cast<lba_count_t>(
-		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA.BYTES_PER_FRAME));
+		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA::BYTES_PER_FRAME));
 }
 
 
@@ -287,7 +287,7 @@ void AudioSize::Impl::set_total_samples(const sample_count_t smpl_count) noexcep
 sample_count_t AudioSize::Impl::total_samples() const noexcept
 {
 	return static_cast<sample_count_t>(
-		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA.BYTES_PER_SAMPLE));
+		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA::BYTES_PER_SAMPLE));
 }
 
 
@@ -1169,11 +1169,11 @@ sample_count_t MultitrackCalcContext::do_first_relevant_sample(
 	// Skipping applies at most for track 1, so we add the appropriate constant.
 	if (this->skips_front() and track == 1)
 	{
-		return offset * CDDA.SAMPLES_PER_FRAME + this->num_skip_front();
+		return offset * CDDA::SAMPLES_PER_FRAME + this->num_skip_front();
 	}
 
 	// Standard multi track case: just the first sample of the track
-	return offset * CDDA.SAMPLES_PER_FRAME;
+	return offset * CDDA::SAMPLES_PER_FRAME;
 }
 
 
@@ -1210,7 +1210,7 @@ sample_count_t MultitrackCalcContext::do_last_relevant_sample(
 	}
 
 	// Ensure result 0 for previous track's offset 0
-	return next_offset ? next_offset * CDDA.SAMPLES_PER_FRAME - 1 : 0;
+	return next_offset ? next_offset * CDDA::SAMPLES_PER_FRAME - 1 : 0;
 }
 
 
@@ -1227,7 +1227,7 @@ int MultitrackCalcContext::do_track(const sample_count_t smpl)
 	{
 		// This will return an invalid track number
 		// Caller has to check result for <= total_tracks() for a valid result
-		return CDDA.MAX_TRACKCOUNT + 1;
+		return CDDA::MAX_TRACKCOUNT + 1;
 	}
 
 	const auto last_track { this->total_tracks() };

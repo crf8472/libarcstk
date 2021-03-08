@@ -39,7 +39,7 @@ namespace details
  * std::false_type.
  *
  * An "LBA type" holds amounts of LBA frames, that means it must be able to
- * express CDDA.MAX_OFFSET which excludes types with less than 32 bits width.
+ * express CDDA::MAX_OFFSET which excludes types with less than 32 bits width.
  *
  * Furthermore, it should be possible to perform at least addition of the types.
  * (Ref-types and pointer types would have to be dereferenced for that. This
@@ -504,7 +504,7 @@ public:
 	 * \param[in] lengths Lengths (in LBA frames) of each track
 	 *
 	 * \throw InvalidMetadataException If total length exceeds physical maximum
-	 * \throw NonstandardMetadataException If total length exceeds CDDA.MAX_OFFSET
+	 * \throw NonstandardMetadataException If total length exceeds CDDA::MAX_OFFSET
 	 */
 	template <typename Container, typename = LBAContainer<Container>>
 	inline static void validate_lengths(Container&& lengths);
@@ -524,7 +524,7 @@ public:
 	 * \param[in] leadout Leadout frame of the medium
 	 *
 	 * \throw InvalidMetadataException If leadout exceeds physical maximum
-	 * \throw NonstandardMetadataException If leadout exceeds CDDA.MAX_OFFSET
+	 * \throw NonstandardMetadataException If leadout exceeds CDDA::MAX_OFFSET
 	 */
 	inline static void validate_leadout(const lba_count_t leadout);
 
@@ -562,7 +562,7 @@ protected:
 	 * \param[in] track  The track to check
 	 *
 	 * \throw InvalidMetadataException If offset exceeds physical maximum
-	 * \throw NonstandardMetadataException If offset exceeds CDDA.MAX_OFFSET
+	 * \throw NonstandardMetadataException If offset exceeds CDDA::MAX_OFFSET
 	 */
 	inline static void check_legal_range(const lba_count_t offset,
 			const TrackNo track);
@@ -614,11 +614,11 @@ void TOCValidator::validate_offsets(Container&& offsets)
 	}
 
 	if (offsets.size() >
-			static_cast<decltype(offsets.size())>(CDDA.MAX_TRACKCOUNT))
+			static_cast<decltype(offsets.size())>(CDDA::MAX_TRACKCOUNT))
 	{
 		auto ss = std::stringstream {};
 		ss << "Offsets are only possible for at most "
-			<< CDDA.MAX_TRACKCOUNT << " tracks";
+			<< CDDA::MAX_TRACKCOUNT << " tracks";
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -714,14 +714,14 @@ void TOCValidator::validate(const TrackNo track_count,
 
 	// Validation: Leadout in Valid Distance after Last Offset?
 
-	auto last_track { --std::end(offsets) };
+	const auto last_track { --std::end(offsets) };
 
-	if (leadout < *last_track + static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
+	if (leadout - *last_track < CDDA::MIN_TRACK_LEN_FRAMES)
 	{
 		auto ss = std::stringstream {};
 		ss << "Leadout frame " << leadout
 			<< " is too near to last offset " << *last_track
-			<< ". Minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
+			<< ". Minimal distance is " << CDDA::MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
 		throw InvalidMetadataException(ss.str());
@@ -753,11 +753,11 @@ void TOCValidator::validate_lengths(Container&& lengths)
 	}
 
 	if (lengths.size() >
-			static_cast<decltype(lengths.size())>(CDDA.MAX_TRACKCOUNT))
+			static_cast<decltype(lengths.size())>(CDDA::MAX_TRACKCOUNT))
 	{
 		auto ss = std::stringstream {};
 		ss << "Lengths are only possible for at most "
-			<< CDDA.MAX_TRACKCOUNT << " tracks";
+			<< CDDA::MAX_TRACKCOUNT << " tracks";
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -772,7 +772,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 	if (*last > 0) { ++last; } // If last length is actually known, validate it
 	for (auto track { std::begin(lengths) }; track != last; ++track)
 	{
-		if (*track < static_cast<int64_t>(CDDA.MIN_TRACK_LEN_FRAMES))
+		if (*track < static_cast<int64_t>(CDDA::MIN_TRACK_LEN_FRAMES))
 		{
 			auto ss = std::stringstream {};
 			ss << "Illegal length " << std::to_string(*track)
@@ -786,7 +786,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 
 	// Sum of all lengths in legal range ?
 
-	if (sum_lengths > CDDA.MAX_OFFSET)
+	if (sum_lengths > CDDA::MAX_OFFSET)
 	{
 		auto ss = std::stringstream {};
 		ss << "Total length " << std::to_string(sum_lengths);
@@ -808,7 +808,7 @@ void TOCValidator::validate_lengths(Container&& lengths)
 		} else // More than redbook originally defines?
 		{
 			ss << " exceeds redbook maximum of "
-				<< std::to_string(CDDA.MAX_OFFSET);
+				<< std::to_string(CDDA::MAX_OFFSET);
 
 			throw NonstandardMetadataException(ss.str());
 		}
@@ -827,7 +827,7 @@ void TOCValidator::validate_leadout(const lba_count_t leadout)
 {
 	// Greater than Minimum ?
 
-	if (static_cast<int64_t>(leadout) < CDDA.MIN_TRACK_OFFSET_DIST)
+	if (static_cast<int64_t>(leadout) < CDDA::MIN_TRACK_OFFSET_DIST)
 	{
 		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout
@@ -838,7 +838,7 @@ void TOCValidator::validate_leadout(const lba_count_t leadout)
 
 	// Less than Maximum ?
 
-	if (leadout > CDDA.MAX_BLOCK_ADDRESS)
+	if (leadout > CDDA::MAX_BLOCK_ADDRESS)
 	{
 		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout << " exceeds physical maximum";
@@ -848,7 +848,7 @@ void TOCValidator::validate_leadout(const lba_count_t leadout)
 
 	// Warning ?
 
-	if (leadout > CDDA.MAX_OFFSET)
+	if (leadout > CDDA::MAX_OFFSET)
 	{
 		auto ss = std::stringstream {};
 		ss << "Leadout " << leadout << " exceeds redbook maximum";
@@ -890,7 +890,7 @@ void TOCValidator::check_legal_range(const lba_count_t offset, const TrackNo t)
 		throw InvalidMetadataException(ss.str());
 	}
 
-	if (offset > static_cast<int64_t>(CDDA.MAX_OFFSET))
+	if (offset > static_cast<int64_t>(CDDA::MAX_OFFSET))
 	{
 		auto ss = std::stringstream {};
 		ss << "Offset " << std::to_string(offset)
@@ -911,7 +911,7 @@ void TOCValidator::check_legal_range(const lba_count_t offset, const TrackNo t)
 		} else
 		{
 			ss << " exceeds redbook maximum duration of "
-				<< std::to_string(CDDA.MAX_OFFSET);
+				<< std::to_string(CDDA::MAX_OFFSET);
 		}
 
 		throw InvalidMetadataException(ss.str());
@@ -922,12 +922,12 @@ void TOCValidator::check_legal_range(const lba_count_t offset, const TrackNo t)
 void TOCValidator::have_min_dist(const lba_count_t prev_track,
 		const lba_count_t next_track)
 {
-	if (next_track < prev_track + CDDA.MIN_TRACK_OFFSET_DIST)
+	if (next_track - prev_track < CDDA::MIN_TRACK_OFFSET_DIST)
 	{
 		auto ss = std::stringstream {};
 		ss << "Track with offset " << prev_track
 			<< " is too short. Next track starts at " << next_track
-			<< " but minimal distance is " << CDDA.MIN_TRACK_LEN_FRAMES
+			<< " but minimal distance is " << CDDA::MIN_TRACK_LEN_FRAMES
 			<< " frames." << " Bail out.";
 
 		throw InvalidMetadataException(ss.str());
