@@ -62,6 +62,9 @@ using sample_type = uint32_t;
  * \attention
  * For convenience, this template is not intended to be used directly. Instead,
  * use one of the templates PlanarSamples or InterleavedSamples.
+ *
+ * \see PlanarSamples
+ * \see InterleavedSamples
  */
 template <typename T, bool is_planar>
 class SampleSequence;
@@ -901,6 +904,8 @@ private:
  *
  * T can only be some signed or unsigned integral type of either 16 or 32 bit
  * width.
+ *
+ * \see SampleSequence
  */
 template <typename T>
 using PlanarSamples = SampleSequence<T, true>;
@@ -914,6 +919,8 @@ using PlanarSamples = SampleSequence<T, true>;
  *
  * T can only be some signed or unsigned integral type of either 16 or 32 bit
  * width.
+ *
+ * \see SampleSequence
  */
 template <typename T>
 using InterleavedSamples = SampleSequence<T, false>;
