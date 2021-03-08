@@ -7,7 +7,7 @@
  * \brief Public API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#include <cstdint>               // for uint32_t, uint8_t, int64_t
+#include <cstdint>               // for uint32_t, int64_t
 #include <initializer_list>      // for initializer_list
 #include <iterator>              // for input_iterator_tag
 #include <map>                   // for map
@@ -75,7 +75,7 @@ inline namespace v_1_0_0
  * metadata information that is used during calculation. The CalcContext informs
  * the Calculation about technical aspects like the encoding of the samples and
  * the channel order, and as well about semantic aspects like the precise track
- * bounds and the number of total samples.
+ * bounds and the total number of samples.
  *
  * SampleInputIterator wraps the concrete iterator of the input sample sequence
  * so any class with a compatible iterator can be used for generating the audio
@@ -634,7 +634,7 @@ bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept;
 /**
  * \brief Uniform access to the size of the input audio information.
  *
- * Some decoders provide the number of frames, other the number of samples and
+ * Some decoders provide the number of frames, others the number of samples and
  * maybe in some situations just the number of bytes of the sample stream is
  * known. To avoid implementing the appropriate conversion for each decoder,
  * AudioSize provides an interface for uniform representation to this
@@ -693,7 +693,7 @@ public: /* functions */
 	/**
 	 * \brief Set the 1-based index of the LBA leadout frame.
 	 *
-	 * This also determines the number of PCM samples and the number of
+	 * This also determines the total number of PCM samples and the number of
 	 * PCM bytes.
 	 *
 	 * \param[in] leadout LBA leadout frame
@@ -726,7 +726,7 @@ public: /* functions */
 	/**
 	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
 	 *
-	 * This also determines the leadout frame and the number of 32 bit PCM
+	 * This also determines the leadout frame and the total number of 32 bit PCM
 	 * samples.
 	 *
 	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
@@ -734,7 +734,7 @@ public: /* functions */
 	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
 
 	/**
-	 * \brief Return the number of bytes holding 32 bit PCM samples.
+	 * \brief Return the total number of bytes holding 32 bit PCM samples.
 	 *
 	 * \return The total number of bytes holding 32 bit PCM samples
 	 */
@@ -1200,13 +1200,13 @@ public:
 	 * \attention
 	 * Note that this is independent from <tt>is_multi_track()</tt>. A
 	 * TOC containing only one track would have a CalcContext in
-	 * which <tt>track_count()</tt> is \c 1 but <tt>is_multi_track()</tt> is
+	 * which <tt>total_tracks()</tt> is \c 1 but <tt>is_multi_track()</tt> is
 	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
-	 * while <tt>track_count()</tt> just provides information about the TOC.
+	 * while <tt>total_tracks()</tt> just provides information about the TOC.
 	 *
 	 * \return The number of tracks represented in this file
 	 */
-	uint8_t track_count() const noexcept;
+	int total_tracks() const noexcept;
 
 	/**
 	 * \brief Returns \c TRUE if this instances indicates a processing for multiple
@@ -1216,11 +1216,11 @@ public:
 	 * activated by setting a TOC.
 	 *
 	 * \attention
-	 * Note that this is independent from <tt>track_count()</tt>. A
+	 * Note that this is independent from <tt>total_tracks()</tt>. A
 	 * TOC containing only one track would have a CalcContext in
-	 * which <tt>track_count()</tt> is \c 1 but <tt>is_multi_track()</tt> is
+	 * which <tt>total_tracks()</tt> is \c 1 but <tt>is_multi_track()</tt> is
 	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
-	 * while <tt>track_count()</tt> just provides information about the TOC.
+	 * while <tt>total_tracks()</tt> just provides information about the TOC.
 	 *
 	 * \return \c TRUE if this context specifies multitrack mode, otherwise \c FALSE
 	 */
@@ -1286,7 +1286,7 @@ public:
 	 * samples in the end of the last track are to be skipped.
 	 *
 	 * Always equivalent with
-	 * @link CalcContext::last_relevant_sample(const TrackNo track) const last_relevant_sample(this->track_count()) @endlink.
+	 * @link CalcContext::last_relevant_sample(const TrackNo track) const last_relevant_sample(this->total_tracks()) @endlink.
 	 *
 	 * \return Index of the last sample contributing to the last track's ARCS
 	 */
@@ -1309,27 +1309,27 @@ public:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	TrackNo track(const sample_count_t smpl) const noexcept;
+	int track(const sample_count_t smpl) const noexcept;
 
 	/**
 	 * \brief Return the offset of the specified 0-based track from the TOC.
 	 *
 	 * Note that <tt>offset(i) == toc().offset(i+1)</tt> for all
-	 * <tt>i: 0 <= i < toc().track_count()</tt>.
+	 * <tt>i: 0 <= i < toc().total_tracks()</tt>.
 	 *
 	 * \param[in] track The 0-based track to get the offset for
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	lba_count_t offset(const uint8_t track) const noexcept;
+	lba_count_t offset(const int track) const noexcept;
 
 	/**
 	 * \brief Return the normalized length of the specified 0-based track.
 	 *
 	 * Note that <tt>length(i) == offset(i+2) - offset(i+1)</tt> for all
-	 * <tt>i: 0 <= i < toc().track_count() - 1</tt>.
+	 * <tt>i: 0 <= i < toc().total_tracks() - 1</tt>.
 	 *
-	 * For the last track <tt>t = toc().track_count() - 1</tt>, the value of
+	 * For the last track <tt>t = toc().total_tracks() - 1</tt>, the value of
 	 * <tt>length(t)</tt> may be \c 0 if the TOC is incomplete and the instance
 	 * is not yet updated with the concrete AudioSize, otherwise it is
 	 * <tt>length(t) == leadout_frame() - offset(t+1)</tt>.
@@ -1338,7 +1338,7 @@ public:
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	lba_count_t length(const uint8_t track) const noexcept;
+	lba_count_t length(const int track) const noexcept;
 
 	/**
 	 * \brief Return the ARId of the current medium, if known.
@@ -1454,11 +1454,11 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements track_count() const.
+	 * \brief Implements total_tracks() const.
 	 *
 	 * \return The number of tracks represented in this file
 	 */
-	virtual uint8_t do_track_count() const noexcept
+	virtual int do_total_tracks() const noexcept
 	= 0;
 
 	/**
@@ -1514,27 +1514,27 @@ private:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	virtual TrackNo do_track(const sample_count_t smpl) const noexcept
+	virtual int do_track(const sample_count_t smpl) const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements offset(const uint8_t track) const.
+	 * \brief Implements offset(const int track) const.
 	 *
 	 * \param[in] track The 0-based track to get the offset for
 	 *
 	 * \return The offset for the specified 0-based track
 	 */
-	virtual lba_count_t do_offset(const uint8_t track) const noexcept
+	virtual lba_count_t do_offset(const int track) const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements length(const uint8_t track) const.
+	 * \brief Implements length(const int track) const.
 	 *
 	 * \param[in] track The 0-based track to get the length for
 	 *
 	 * \return The length for the specified 0-based track
 	 */
-	virtual lba_count_t do_length(const uint8_t track) const noexcept
+	virtual lba_count_t do_length(const int track) const noexcept
 	= 0;
 
 	/**

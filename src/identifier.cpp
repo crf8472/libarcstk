@@ -80,7 +80,7 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 	auto offsets { toc::get_offsets(toc) };
 
 	return std::make_unique<ARId>(
-			toc.track_count(),
+			toc.total_tracks(),
 			disc_id_1(offsets, leadout_val),
 			disc_id_2(offsets, leadout_val),
 			cddb_id  (offsets, leadout_val)
@@ -196,7 +196,7 @@ public:
 	/**
 	 * \brief Implements ARId::track_count()
 	 */
-	TrackNo track_count() const noexcept;
+	int track_count() const noexcept;
 
 	/**
 	 * \brief Implements ARId::disc_id_1()
@@ -271,7 +271,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	TrackNo track_count_;
+	int track_count_;
 
 	/**
 	 * \brief Disc id no. 1
@@ -314,7 +314,7 @@ std::string ARId::Impl::filename() const noexcept
 }
 
 
-TrackNo ARId::Impl::track_count() const noexcept
+int ARId::Impl::track_count() const noexcept
 {
 	return track_count_;
 }
@@ -451,9 +451,9 @@ TOC::TOC(TOC &&rhs) noexcept = default;
 TOC::~TOC() noexcept = default;
 
 
-TrackNo TOC::track_count() const noexcept
+int TOC::total_tracks() const noexcept
 {
-	return impl_->track_count();
+	return impl_->total_tracks();
 }
 
 
@@ -559,7 +559,7 @@ std::string ARId::filename() const noexcept
 }
 
 
-TrackNo ARId::track_count() const noexcept
+int ARId::track_count() const noexcept
 {
 	return impl_->track_count();
 }
@@ -696,16 +696,16 @@ decltype(auto) toc_get(Container&& c,
 {
 	using csize_t = decltype(c.size());
 
-	const auto track_count { static_cast<csize_t>(toc.track_count()) };
+	const auto track_count { toc.total_tracks() };
 
-	if (c.size() < track_count)
+	if (c.size() < static_cast<csize_t>(track_count))
 	{
 		throw std::logic_error("Container is too small to insert all tracks");
 	}
 
 	auto c_element { std::begin(c) };
 
-	for (csize_t track { 1 }; track <= track_count; ++track, ++c_element)
+	for (int track { 1 }; track <= track_count; ++track, ++c_element)
 	{
 		*c_element = (toc.*accessor)(track);
 	}
@@ -719,7 +719,7 @@ decltype(auto) toc_get(Container&& c,
 std::vector<lba_count_t> get_offsets(const TOC &toc)
 {
 	std::vector<lba_count_t> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
 
 	return details::toc_get(target, toc, &TOC::offset);
 }
@@ -734,7 +734,7 @@ std::vector<lba_count_t> get_offsets(const std::unique_ptr<TOC> &toc)
 std::vector<lba_count_t> get_parsed_lengths(const TOC &toc)
 {
 	std::vector<lba_count_t> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
 
 	return details::toc_get(target, toc, &TOC::parsed_length);
 }
@@ -749,7 +749,7 @@ std::vector<lba_count_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc)
 std::vector<std::string> get_filenames(const TOC &toc)
 {
 	std::vector<std::string> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.track_count()));
+	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
 
 	details::toc_get(target, toc, &TOC::filename);
 

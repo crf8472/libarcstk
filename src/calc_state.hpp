@@ -112,7 +112,7 @@ public:
 	 *
 	 * \return Number of currently saved tracks
 	 */
-	virtual int track_count() const noexcept
+	virtual int total_tracks() const noexcept
 	= 0;
 
 	/**

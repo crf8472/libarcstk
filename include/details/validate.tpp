@@ -460,7 +460,7 @@ public:
 	 * \copydoc validate_offsets(TrackNo, Container&&) const
 	 */
 	template <typename T, typename = LBAType<T>>
-	inline static void validate_offsets(TrackNo track_count,
+	inline static void validate_offsets(const TrackNo track_count,
 			std::initializer_list<T> offsets);
 
 	/**
@@ -487,7 +487,7 @@ public:
 	 * \copydoc validate(TrackNo, Container&&, const lba_count_t) const
 	 */
 	template <typename T, typename = LBAType<T>>
-	inline static void validate(TrackNo track_count,
+	inline static void validate(const TrackNo track_count,
 			std::initializer_list<T> offsets,
 			const lba_count_t leadout);
 
@@ -863,7 +863,8 @@ void TOCValidator::validate_trackcount(const TrackNo track_count)
 	if (track_count < 1 or track_count > 99)
 	{
 		auto ss = std::stringstream {};
-		ss << "Invalid track count: " << std::to_string(track_count);
+		ss << "Invalid track count: "
+			<< std::to_string(static_cast<int>(track_count));
 
 		throw InvalidMetadataException(ss.str());
 	}
@@ -874,7 +875,7 @@ void TOCValidator::validate(const TOC &toc, const lba_count_t leadout)
 {
 	TOCValidator::validate_leadout(leadout);
 
-	auto last_offset { toc.offset(toc.track_count()) };
+	auto last_offset { toc.offset(toc.total_tracks()) };
 	TOCValidator::have_min_dist(last_offset, leadout);
 }
 
@@ -893,7 +894,7 @@ void TOCValidator::check_legal_range(const lba_count_t offset, const TrackNo t)
 	{
 		auto ss = std::stringstream {};
 		ss << "Offset " << std::to_string(offset)
-			<< " for track " << std::to_string(t);
+			<< " for track " << std::to_string(static_cast<int>(t));
 
 		if (offset > static_cast<int64_t>(MAX_OFFSET_99))
 		{

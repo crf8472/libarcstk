@@ -42,21 +42,6 @@ using lba_count_t = int32_t;
 
 
 /**
- * \brief Type to represent track numbers.
- *
- * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
- * TrackNo. Hence, a TrackNo is not suitable to represent a track count.
- *
- * A validation check is not provided, though.
- *
- * The intention of this typedef is to provide a marker for 1-based track
- * numbers in the interface. It is not encouraged to use this type in client
- * code.
- */
-using TrackNo = int;
-
-
-/**
  * \brief Constants related to the CDDA format.
  */
 struct CDDA_t final
@@ -106,7 +91,7 @@ struct CDDA_t final
 	/**
 	 * \brief Maximal valid track count is 99.
 	 */
-	const TrackNo MAX_TRACKCOUNT { 99 };
+	const int MAX_TRACKCOUNT { 99 };
 
 	/**
 	 * \brief Redbook maximal value for a valid LBA frame index is 449.999.
@@ -117,7 +102,7 @@ struct CDDA_t final
 	const lba_count_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
-	 * \brief Redbook maximal valid offset value is 359.999 LBA frames. 
+	 * \brief Redbook maximal valid offset value is 359.999 LBA frames.
 	 *
 	 * Redbook defines 79:59.74 (MSF) (+leadin+leadout) as maximal play
 	 * duration. This is equivalent to 360.000 frames, thus the maximal valid
@@ -148,7 +133,27 @@ struct CDDA_t final
 /**
  * \brief Global instance of the CDDA constants.
  */
-extern const CDDA_t CDDA;
+extern const CDDA_t CDDA; // FIXME Avoid a static global instance, just static
+
+
+/**
+ * \brief Type to represent 1-based track numbers.
+ *
+ * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
+ * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
+ * tracks or a counter for tracks.
+ *
+ * The intention of this typedef is to provide a marker for parameters that
+ * expect 1-based track numbers instead of 0-based track indices. TrackNo will
+ * not occurr as a return type in the API.
+ *
+ * A validation check is not provided, though. Every function that accepts a
+ * TrackNo will in fact accept 0 but will then either throw or return a default
+ * error value.
+ *
+ * It is not encouraged to use TrackNo in client code.
+ */
+using TrackNo = int;
 
 /** @} */
 
@@ -252,7 +257,7 @@ public:
 	 *
 	 * \return Track count of this medium
 	 */
-	TrackNo track_count() const noexcept;
+	int track_count() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 1.
@@ -333,7 +338,7 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
 /**
  * \brief Table of contents of a compact disc.
  *
- * A TOC contains the number of tracks, their offsets and optionally their
+ * A TOC contains the total number of tracks, their offsets and optionally their
  * lengths, their filenames and the index of the leadout frame. Offsets and
  * lengths are represented in LBA frames.
  *
@@ -397,11 +402,11 @@ public:
 	~TOC() noexcept;
 
 	/**
-	 * \brief Return the number of tracks.
+	 * \brief Return the total number of tracks.
 	 *
 	 * \return Number of tracks
 	 */
-	TrackNo track_count() const noexcept;
+	int total_tracks() const noexcept;
 
 	/**
 	 * \brief Return the offset of the 1-based specified track in frames, i.e.
@@ -451,7 +456,7 @@ public:
 	 * \brief Return the leadout frame LBA address.
 	 *
 	 * Should be either 0 if unknown, or, if known, equal to the sum of
-	 * <tt>offset(track_count())</tt> and <tt>length(track_count())</tt>.
+	 * <tt>offset(total_tracks())</tt> and <tt>length(total_tracks())</tt>.
 	 *
 	 * \return The leadout frame index
 	 */
@@ -784,7 +789,7 @@ private:
 	 * the following 3 numbers:
 	 * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
 	 * second chunk (16 bits): total seconds count
-	 * third chunk (8 bits):   number of tracks
+	 * third chunk (8 bits):   total number of tracks
 	 *
 	 * \param[in] offsets     Offsets (in LBA frames) of each track
 	 * \param[in] leadout     Leadout LBA frame
@@ -883,7 +888,7 @@ using IsFilenameContainer =
  * TOC is therefore not guaranteed to be
  * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
- * Value \c offsets.size() is assumed to be the number of total tracks.
+ * Value \c offsets.size() is assumed to be the total number of tracks.
  *
  * \tparam LBAContainer      Container type of the offsets container
  * \tparam FilenameContainer Container type of the optional filename container
@@ -949,7 +954,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 	using ::arcstk::details::TOCBuilder;
 
 	return TOCBuilder::build(
-			track_count,
+			static_cast<int>(track_count),
 			std::forward<LBAContainer>(offsets),
 			leadout,
 			std::forward<FilenameContainer>(files));
@@ -963,7 +968,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
  * be 0. The returned TOC is therefore not guaranteed to be
  * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
  *
- * Value \c offsets.size() is assumed to be the number of total tracks.
+ * Value \c offsets.size() is assumed to be the total number of tracks.
  *
  * Value \c offsets.size() and \c lengths.size() must be equal.
  *
@@ -1036,7 +1041,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 	using ::arcstk::details::TOCBuilder;
 
 	return TOCBuilder::build(
-			track_count,
+			static_cast<int>(track_count),
 			std::forward<LBAContainer1>(offsets),
 			std::forward<LBAContainer2>(lengths),
 			std::forward<FilenameContainer>(files));

@@ -1035,8 +1035,8 @@ TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
 		);
 
 
-		CHECK ( toc0->track_count() == 15 );
-		CHECK ( toc0->leadout()     == 253038 );
+		CHECK ( toc0->total_tracks() == 15 );
+		CHECK ( toc0->leadout()      == 253038 );
 
 		CHECK_THROWS ( toc0->offset(0)  == 0 );
 
@@ -1081,8 +1081,8 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 				40152, 14798, 11952, 8463, 18935 }
 		);
 
-		CHECK ( toc1->track_count() == 15 );
-		CHECK ( toc1->leadout()     == 253038 );
+		CHECK ( toc1->total_tracks() == 15 );
+		CHECK ( toc1->leadout()      == 253038 );
 
 		CHECK_THROWS ( toc1->offset(0)  ==      0 );
 
@@ -1140,8 +1140,8 @@ TEST_CASE ( "TOCBuilder: build with lengths and files",
 		);
 
 
-		CHECK ( toc2->track_count() == 15 );
-		CHECK ( toc2->leadout()     == 0 ); // missing !
+		CHECK ( toc2->total_tracks() == 15 );
+		CHECK ( toc2->leadout()      == 0 ); // missing !
 
 		CHECK_THROWS ( toc2->offset(0)  ==      0 );
 

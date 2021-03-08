@@ -278,7 +278,7 @@ public: /* methods */
 	 *
 	 * \return The track that contains this partition
 	 */
-	TrackNo track() const;
+	int track() const;
 
 	/**
 	 * \brief Number of samples in this partition.
@@ -352,7 +352,7 @@ private:
 	 * \brief 1-based number of the track of which the samples in the partition
 	 * are part of
 	 */
-	const TrackNo track_;
+	const int track_;
 
 };
 

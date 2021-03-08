@@ -569,7 +569,7 @@ TEST_CASE ( "Checksums", "[calculate] [checksums]" )
 
 	SECTION ( "range-based for with const ref read access succeeds" )
 	{
-		int i = 0;
+		unsigned i = 0;
 
 		for (const auto& track : checksums)
 		{
@@ -702,7 +702,7 @@ TEST_CASE ( "Calculation Constructors", "[calculate] [calculation]" )
 
 	auto ctx { arcstk::make_context(toc) };
 
-	CHECK ( ctx->track_count() == 3 );
+	CHECK ( ctx->total_tracks() == 3 );
 	CHECK ( ctx->offset(0) ==  12 );
 	CHECK ( ctx->offset(1) == 433 );
 	CHECK ( ctx->offset(2) == 924 );
@@ -797,7 +797,7 @@ TEST_CASE ( "Calculation context", "[calculate] [calculation]" )
 
 		auto ctx { arcstk::make_context(toc, "bar") };
 
-		CHECK ( ctx->track_count() == 3 );
+		CHECK ( ctx->total_tracks() == 3 );
 		CHECK ( ctx->offset(0) ==  12 );
 		CHECK ( ctx->offset(1) == 433 );
 		CHECK ( ctx->offset(2) == 924 );
@@ -1023,7 +1023,7 @@ TEST_CASE ( "Calculation Update in multitrack", "[calculate] [calculation]" )
 
 	auto ctx { arcstk::make_context(toc) };
 
-	CHECK ( ctx->track_count() == 3 );
+	CHECK ( ctx->total_tracks() == 3 );
 	CHECK ( ctx->offset(0) ==  12 );
 	CHECK ( ctx->offset(1) == 433 );
 	CHECK ( ctx->offset(2) == 924 );
@@ -1364,7 +1364,7 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 
 		CHECK ( sctx->filename() == std::string() );
 
-		CHECK ( sctx->track_count() == 1 );
+		CHECK ( sctx->total_tracks() == 1 );
 
 		CHECK ( sctx->offset(0) == 0 );
 		CHECK ( sctx->offset(1) == 0 );
@@ -1450,7 +1450,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK_THROWS ( toc->filename(16)       );
 
 		CHECK ( toc->leadout() == 253038 );
-		CHECK ( toc->track_count() == 15 );
+		CHECK ( toc->total_tracks() == 15 );
 		CHECK ( toc->complete() );
 
 		auto mctx = arcstk::make_context(toc);
@@ -1469,7 +1469,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( audiosize.total_samples()  == 148786344 );
 		CHECK ( audiosize.total_pcm_bytes() == 595145376 );
 
-		CHECK ( mctx->track_count() == 15 );
+		CHECK ( mctx->total_tracks() == 15 );
 
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
@@ -1625,7 +1625,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( mctx->track(137652564) == 15);
 
 		CHECK ( mctx->track(148783403) == 15);
-		CHECK ( mctx->track(148783404) > mctx->track_count() );
+		CHECK ( mctx->track(148783404) > mctx->total_tracks() );
 	}
 
 
@@ -1686,7 +1686,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK_THROWS ( toc->filename(16)       );
 
 		CHECK ( toc->leadout() == 253038 );
-		CHECK ( toc->track_count() == 15 );
+		CHECK ( toc->total_tracks() == 15 );
 		CHECK ( toc->complete() );
 
 		auto mctx = arcstk::make_context(toc);
@@ -1705,7 +1705,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( audiosize.total_samples()  == 148786344 );
 		CHECK ( audiosize.total_pcm_bytes() == 595145376 );
 
-		CHECK ( mctx->track_count() == 15 );
+		CHECK ( mctx->total_tracks() == 15 );
 
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
@@ -1857,7 +1857,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( mctx->track(137652564) == 15);
 
 		CHECK ( mctx->track(148783403) == 15);
-		CHECK ( mctx->track(148783404) > mctx->track_count() );
+		CHECK ( mctx->track(148783404) > mctx->total_tracks() );
 	}
 
 
@@ -1907,7 +1907,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK_THROWS ( toc->filename(19)       );
 
 		CHECK ( toc->leadout() == 332075 );
-		CHECK ( toc->track_count() == 18 );
+		CHECK ( toc->total_tracks() == 18 );
 		CHECK ( toc->complete() );
 
 
@@ -1927,7 +1927,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( audiosize.total_samples()  == 195260100 );
 		CHECK ( audiosize.total_pcm_bytes() == 781040400 );
 
-		CHECK ( mctx->track_count() == 18 );
+		CHECK ( mctx->total_tracks() == 18 );
 
 		CHECK ( mctx->offset( 0) ==      0 );
 		CHECK ( mctx->offset( 1) ==  29042 );
@@ -2091,7 +2091,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 
 		CHECK ( mctx->track(195257158) == 18);
 		CHECK ( mctx->track(195257159) == 18);
-		CHECK ( mctx->track(195257160) > mctx->track_count());
+		CHECK ( mctx->track(195257160) > mctx->total_tracks());
 	}
 
 
@@ -2110,7 +2110,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 				33523, 4580, 27185, 28737, 3350, 19665, 28272, -1}
 		);
 
-		CHECK ( toc->track_count() == 18 );
+		CHECK ( toc->total_tracks() == 18 );
 
 		CHECK_THROWS ( toc->offset( 0)    );
 		CHECK ( toc->offset( 1) ==      0 );
@@ -2159,7 +2159,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK        ( toc->filename(18) == "" );
 		CHECK_THROWS ( toc->filename(19)       );
 
-		CHECK ( toc->track_count() == 18 );
+		CHECK ( toc->total_tracks() == 18 );
 		CHECK ( not toc->complete() );
 		CHECK ( toc->leadout() == 0 ); // unknown due to last length unknown
 
@@ -2179,7 +2179,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 		CHECK ( audiosize.total_samples()  == 0 );
 		CHECK ( audiosize.total_pcm_bytes() == 0 );
 
-		CHECK ( mctx->track_count() == 18 );
+		CHECK ( mctx->total_tracks() == 18 );
 
 		CHECK ( mctx->offset( 0) ==      0 );
 		CHECK ( mctx->offset( 1) ==  29042 );
@@ -2344,7 +2344,7 @@ TEST_CASE ( "MultitrackCalcContext", "[calculate] [calccontext] [multitrack]" )
 //
 //		CHECK ( mctx->track(195257158) == 18);
 //		CHECK ( mctx->track(195257159) == 18);
-//		CHECK ( mctx->track(195257160) > mctx->track_count());
+//		CHECK ( mctx->track(195257160) > mctx->total_tracks());
 	}
 }
 
@@ -2373,7 +2373,7 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 		CHECK ( mctx->audio_size().total_pcm_bytes() == 595145376 );
 		CHECK ( mctx->filename() == std::string() );
 
-		CHECK ( mctx->track_count() == 15 );
+		CHECK ( mctx->total_tracks() == 15 );
 
 		CHECK ( mctx->offset(0)  ==     33 );
 		CHECK ( mctx->offset(1)  ==   5225 );
@@ -2427,7 +2427,7 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 		CHECK ( ctx_copy->audio_size().total_samples()  == 148786344 );
 		CHECK ( ctx_copy->audio_size().total_pcm_bytes() == 595145376 );
 
-		CHECK ( ctx_copy->track_count() == 15 );
+		CHECK ( ctx_copy->total_tracks() == 15 );
 
 		CHECK ( ctx_copy->offset(0)  ==     33 );
 		CHECK ( ctx_copy->offset(1)  ==   5225 );
@@ -2579,7 +2579,7 @@ TEST_CASE ("MultitrackCalcContext::clone()",
 		CHECK ( ctx_copy->track(137652564) == 15);
 
 		CHECK ( ctx_copy->track(148783403) == 15);
-		CHECK ( ctx_copy->track(148783404) > ctx_copy->track_count() );
+		CHECK ( ctx_copy->track(148783404) > ctx_copy->total_tracks() );
 	}
 }
 

@@ -81,17 +81,22 @@ template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
+	// FIXME TrackNo::validate(t);
+
+	const auto track = static_cast<int>(t);
+
 	// Range check
-	if (t < 1 or static_cast<decltype(c.size())>(t) > c.size())
+	if (track < 1 or static_cast<decltype(c.size())>(track) > c.size())
 	{
 		auto message = std::stringstream {};
-		message << "Track " << t << " is out of range (yields index "
-			<< (t - 1) << " but max index is " << (c.size() - 1) << ")";
+		message << "Track " << track << " is out of range (yields index "
+			<< (track - 1) << " but max index is " << (c.size() - 1)
+			<< ")";
 
 		throw std::out_of_range(message.str());
 	}
 
-	return *(std::next(std::begin(c), t - 1));
+	return *(std::next(std::begin(c), track - 1));
 }
 
 /**
@@ -179,9 +184,9 @@ public:
 	inline Impl(TOC::Impl &&rhs) noexcept;
 
 	/**
-	 * \brief Implements TOC::track_count()
+	 * \brief Implements TOC::total_tracks()
 	 */
-	inline TrackNo track_count() const noexcept;
+	inline int total_tracks() const noexcept;
 
 	/**
 	 * \brief Implements TOC::offset(const uint8_t) const
@@ -219,7 +224,6 @@ public:
 	 * \param[in] leadout The new leadout to update the TOC with
 	 */
 	inline void update(const lba_count_t leadout) noexcept;
-
 
 private:
 
@@ -262,7 +266,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	TrackNo track_count_;
+	int track_count_;
 
 	/**
 	 * \brief Track offsets (in frames)
@@ -322,11 +326,11 @@ TOC::Impl::Impl(const TrackNo track_count,
 
 bool TOC::Impl::has_track(const TrackNo track) const noexcept
 {
-	return track >= 1 and track <= this->track_count();
+	return track >= 1 and track <= this->total_tracks();
 }
 
 
-TrackNo TOC::Impl::track_count() const noexcept
+int TOC::Impl::total_tracks() const noexcept
 {
 	return track_count_;
 }
@@ -335,6 +339,9 @@ TrackNo TOC::Impl::track_count() const noexcept
 lba_count_t TOC::Impl::offset(const TrackNo track) const
 {
 	return details::get_track(offsets_, track);
+
+	// While length or filename may be missing, an offset _MUST_ be present,
+	// thus we do not catch anything for a normalized return value.
 }
 
 
@@ -346,7 +353,7 @@ lba_count_t TOC::Impl::parsed_length(const TrackNo track) const
 	} catch (const std::out_of_range &e)
 	{
 		// If track is valid, don't throw, even if lengths_ is empty
-		if (has_track(track))
+		if (has_track(static_cast<int>(track)))
 		{
 			return 0;
 		} else {
@@ -552,7 +559,7 @@ private:
 	 *
 	 * \throw InvalidMetadataException If the track count is not valid
 	 */
-	inline static TrackNo build_track_count(const TrackNo track_count);
+	inline static int build_track_count(const TrackNo track_count);
 
 	/**
 	 * \brief Service method: Builds validated offsets for a TOC object.
@@ -749,7 +756,7 @@ void TOCBuilder::update(TOC &toc, const lba_count_t leadout)
 }
 
 
-TrackNo TOCBuilder::build_track_count(const TrackNo track_count)
+int TOCBuilder::build_track_count(const TrackNo track_count)
 {
 	TOCValidator::validate_trackcount(track_count);
 

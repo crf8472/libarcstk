@@ -68,7 +68,7 @@ private:
 
 	std::string do_filename() const noexcept override;
 
-	// do_track_count()
+	// do_total_tracks()
 	// do_is_multi_track()
 
 	sample_count_t do_first_relevant_sample(const TrackNo) const noexcept
@@ -82,8 +82,8 @@ private:
 	sample_count_t do_last_relevant_sample_no_parms() const noexcept override;
 
 	// do_track(const sample_count_t)
-	// do_offset(const uint8_t)
-	// do_length(const uint8_t)
+	// do_offset(const int)
+	// do_length(const int)
 	// do_id()
 	// do_skips_front()
 	// do_skips_back()
@@ -220,7 +220,7 @@ public:
 
 private:
 
-	uint8_t do_track_count() const noexcept final;
+	int do_total_tracks() const noexcept final;
 
 	bool do_is_multi_track() const noexcept final;
 
@@ -234,11 +234,11 @@ private:
 
 	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
 
-	TrackNo do_track(const sample_count_t smpl) const noexcept final;
+	int do_track(const sample_count_t smpl) const noexcept final;
 
-	lba_count_t do_offset(const uint8_t track) const noexcept final;
+	lba_count_t do_offset(const int track) const noexcept final;
 
-	lba_count_t do_length(const uint8_t track) const noexcept final;
+	lba_count_t do_length(const int track) const noexcept final;
 
 	ARId do_id() const noexcept final;
 
@@ -355,7 +355,7 @@ private:
 
 	void do_hook_post_set_audio_size() noexcept final;
 
-	uint8_t do_track_count() const noexcept final;
+	int do_total_tracks() const noexcept final;
 
 	bool do_is_multi_track() const noexcept final;
 
@@ -369,11 +369,11 @@ private:
 
 	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
 
-	TrackNo do_track(const sample_count_t smpl) const noexcept final;
+	int do_track(const sample_count_t smpl) const noexcept final;
 
-	lba_count_t do_offset(const uint8_t track) const noexcept final;
+	lba_count_t do_offset(const int track) const noexcept final;
 
-	lba_count_t do_length(const uint8_t track) const noexcept final;
+	lba_count_t do_length(const int track) const noexcept final;
 
 	ARId do_id() const noexcept final;
 

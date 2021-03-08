@@ -2193,7 +2193,7 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 	std::vector<char> id(BLOCK_HEADER_BYTES * sizeof(char));
 	std::vector<char> triplet(TRIPLET_BYTES * sizeof(char));
 
-	auto track_count = TrackNo { 0 };
+	auto track_count = 0;
 	auto discId1 = uint32_t { 0 };
 	auto discId2 = uint32_t { 0 };
 	auto cddbId = uint32_t { 0 };

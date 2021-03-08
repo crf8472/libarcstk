@@ -10,7 +10,7 @@
 
 #include <array>                  // for array
 #include <chrono>                 // for milliseconds, duration_cast, operator-
-#include <cstdint>                // for uint32_t, uint_fast32_t, uint8_t
+#include <cstdint>                // for uint32_t, uint_fast32_t
 #include <initializer_list>       // for initializer_list
 #include <iomanip>                // for operator<<, setfill, setw
 #include <iterator>               // for distance
@@ -47,13 +47,11 @@ using arcstk::v_1_0_0::details::Partition;
 using arcstk::v_1_0_0::details::Partitioner;
 using arcstk::v_1_0_0::details::MultitrackPartitioner;
 using arcstk::v_1_0_0::details::SingletrackPartitioner;
-//using arcstk::v_1_0_0::details::CalcContextBase; // unused
 using arcstk::v_1_0_0::details::CalcState;
-//using arcstk::v_1_0_0::details::CalcStateARCSBase; // unused
 using arcstk::v_1_0_0::details::CalcStateV1;
 using arcstk::v_1_0_0::details::CalcStateV1andV2;
 
-const Checksum EmptyChecksum = Checksum(0); // defines emptyness for Checksum
+const Checksum EmptyChecksum = 0; // defines emptyness for Checksum
 
 namespace
 {
@@ -338,9 +336,9 @@ std::string CalcContext::filename() const noexcept
 }
 
 
-uint8_t CalcContext::track_count() const noexcept
+int CalcContext::total_tracks() const noexcept
 {
-	return this->do_track_count();
+	return this->do_total_tracks();
 }
 
 
@@ -376,19 +374,19 @@ sample_count_t CalcContext::last_relevant_sample() const noexcept
 }
 
 
-TrackNo CalcContext::track(const sample_count_t smpl) const noexcept
+int CalcContext::track(const sample_count_t smpl) const noexcept
 {
 	return this->do_track(smpl);
 }
 
 
-lba_count_t CalcContext::offset(const uint8_t track) const noexcept
+lba_count_t CalcContext::offset(const int track) const noexcept
 {
 	return this->do_offset(track);
 }
 
 
-lba_count_t CalcContext::length(const uint8_t track) const noexcept
+lba_count_t CalcContext::length(const int track) const noexcept
 {
 	return this->do_length(track);
 }
@@ -501,7 +499,7 @@ bool Partition::ends_track() const
 }
 
 
-TrackNo Partition::track() const
+int Partition::track() const
 {
 	return track_;
 }
@@ -629,11 +627,11 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 		chunk_first_smpl = context.first_relevant_sample(1);
 	}
 
-	// Will be track_count+1 if 1st sample is beyond global last relevant sample
+	// Will be total_tracks+1 if 1st sample is beyond global last relevant sample
 	// This entails that the loop is not entered for irrelevant partitions
-	auto track = TrackNo { context.track(chunk_first_smpl) };
+	auto track = context.track(chunk_first_smpl);
 
-	// If track > track_count this is global last sample
+	// If track > total_tracks this is global last sample
 	auto chunk_last_smpl = sample_count_t {
 		context.last_relevant_sample(track) };
 
@@ -642,7 +640,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 	auto starts_track = bool { false } ;
 	auto ends_track   = bool { false } ;
 
-	const auto last_track = uint8_t { context.track_count() };
+	const auto last_track = context.total_tracks();
 
 
 	// Now construct all partitions except the last (that needs clipping) in a
@@ -895,7 +893,7 @@ sample_count_t CalcContextBase::do_last_relevant_sample(const TrackNo /*t*/)
 sample_count_t CalcContextBase::do_last_relevant_sample_no_parms()
 	const noexcept
 {
-	return this->last_relevant_sample(this->track_count());
+	return this->last_relevant_sample(this->total_tracks());
 }
 
 
@@ -967,7 +965,7 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 }
 
 
-uint8_t SingletrackCalcContext::do_track_count() const noexcept
+int SingletrackCalcContext::do_total_tracks() const noexcept
 {
 	return 1;
 }
@@ -980,63 +978,57 @@ bool SingletrackCalcContext::do_is_multi_track() const noexcept
 
 
 sample_count_t SingletrackCalcContext::do_first_relevant_sample(
-		const TrackNo track) const noexcept
+		const TrackNo /* track */) const noexcept
 {
-	// Illegal track request?
-	if (track > CDDA.MAX_TRACKCOUNT)
-	{
-		return 0;
-	}
+	// It is not necessary to bounds-check the TrackNo since we do not intend
+	// to throw. We just return the first relevant sample on every input except.
 
-	// First block will always start with the very first 32 bit PCM sample
-	if (track == 0)
-	{
-		return 0;
-	}
+	// Note especially that 0 is returned iff track == 0 since the first block
+	// will always start with the very first 32 bit PCM sample.
 
 	// We have no offsets and the track parameter is irrelevant. Hence iff the
 	// request adresses track 1 and skipping applies, the correct constant is
 	// provided, otherwise the result is always 0.
 
-	return this->skips_front() and track == 1 ? this->num_skip_front() : 0;
+	return this->skips_front() /* and track == 1 */
+		? this->num_skip_front()
+		: 0;
 }
 
 
 sample_count_t SingletrackCalcContext::do_last_relevant_sample(
-		const TrackNo track) const noexcept
+		const TrackNo /* track */) const noexcept
 {
-	// Illegal track request?
-	if (track > CDDA.MAX_TRACKCOUNT)
-	{
-		return this->audio_size().total_samples() - 1;
-	}
+	// It is not necessary to bounds-check the TrackNo since we do not intend
+	// to throw. We just return the physical last sample on every input except
+	// for value 1.
 
 	// We have no offsets and the track parameter is irrelevant. Hence iff the
 	// request adresses the last track and skipping applies, the correct
 	// constant is provided, otherwise the result is always the last known
 	// sample.
 
-	return this->skips_back() and track == this->track_count() /* == 1 */
+	return this->skips_back() /* and track == this->total_tracks() */ /* == 1 */
 		? this->audio_size().total_samples() - 1 - this->num_skip_back()
 		: this->audio_size().total_samples() - 1;
 }
 
 
-TrackNo SingletrackCalcContext::do_track(const sample_count_t /* smpl */) const
+int SingletrackCalcContext::do_track(const sample_count_t /* smpl */) const
 noexcept
 {
 	return 1;
 }
 
 
-lba_count_t SingletrackCalcContext::do_offset(const uint8_t /* track */) const
+lba_count_t SingletrackCalcContext::do_offset(const int /* track */) const
 noexcept
 {
 	return 0;
 }
 
 
-lba_count_t SingletrackCalcContext::do_length(const uint8_t /* track */) const
+lba_count_t SingletrackCalcContext::do_length(const int /* track */) const
 noexcept
 {
 	return 0;
@@ -1140,9 +1132,9 @@ void MultitrackCalcContext::do_hook_post_set_audio_size() noexcept
 }
 
 
-uint8_t MultitrackCalcContext::do_track_count() const noexcept
+int MultitrackCalcContext::do_total_tracks() const noexcept
 {
-	return toc().track_count();
+	return toc().total_tracks();
 }
 
 
@@ -1155,88 +1147,93 @@ bool MultitrackCalcContext::do_is_multi_track() const noexcept
 sample_count_t MultitrackCalcContext::do_first_relevant_sample(
 		const TrackNo track) const noexcept
 {
-	// Illegal track request?
-	if (track > CDDA.MAX_TRACKCOUNT)
-	{
-		return 0;
-	}
-
-	// First block will always start with the very first 32 bit PCM sample
-	if (track == 0)
-	{
-		return 0;
-	}
-
-	// Invalid track requested?
-	if (track > this->track_count())
-	{
-		return 0;
-	}
-
 	// We have offsets, so we respect the corresponding offset to any track.
+
+	sample_count_t offset = 0;
+
+	try
+	{
+		offset = toc().offset(track);
+
+		// Note that this will throw for track == 0 and for any other unknown
+		// track in the TOC
+
+	} catch (const std::exception &e)
+	{
+		ARCS_LOG_WARNING << "First relevant sample for unknown track "
+			<< static_cast<int>(track) << " requested, returned 0.";
+
+		return 0;
+	}
 
 	// Skipping applies at most for track 1, so we add the appropriate constant.
 	if (this->skips_front() and track == 1)
 	{
-		return toc().offset(1) * CDDA.SAMPLES_PER_FRAME + this->num_skip_front();
+		return offset * CDDA.SAMPLES_PER_FRAME + this->num_skip_front();
 	}
 
 	// Standard multi track case: just the first sample of the track
-	return toc().offset(track) * CDDA.SAMPLES_PER_FRAME;
+	return offset * CDDA.SAMPLES_PER_FRAME;
 }
 
 
 sample_count_t MultitrackCalcContext::do_last_relevant_sample(
 		const TrackNo track) const noexcept
 {
-	// Illegal track request?
-	if (track > CDDA.MAX_TRACKCOUNT)
+	// Return last relevant sample of last track for any track number
+	// greater than the last track
+
+	if (track >= this->total_tracks())
 	{
-		return this->audio_size().total_samples() - 1;
+		return this->skips_back()
+			? this->audio_size().total_samples() - 1 - this->num_skip_back()
+			: this->audio_size().total_samples() - 1;
 	}
 
-	// Invalid track requested?
-	if (track > this->track_count())
-	{
-		// Return the last relevant sample respecting skipping
-		return this->audio_size().total_samples() - 1
-			- (this->skips_back() ? this->num_skip_back() : 0 );
-	}
+	// We have offsets, so we respect the corresponding offset to any track
 
-	// We have offsets, so we respect the corresponding offset to any track.
+	sample_count_t next_offset = 0;
 
-	if (this->skips_back() and track == this->track_count())
+	try
 	{
-		return this->audio_size().total_samples() - 1 - this->num_skip_back();
+		next_offset = toc().offset(track + 1);
+
+		// Note that this will throw for track == 0 and for any other unknown
+		// track in the TOC
+
+	} catch (const std::exception &e)
+	{
+		ARCS_LOG_WARNING << "Offset for unknown track "
+			<< static_cast<int>(track) + 1 << " requested, returned 0.";
+
+		return 0;
 	}
 
 	// Ensure result 0 for previous track's offset 0
-	return toc().offset(track + 1)
-		? toc().offset(track + 1) * CDDA.SAMPLES_PER_FRAME - 1
-		: 0;
+	return next_offset ? next_offset * CDDA.SAMPLES_PER_FRAME - 1 : 0;
 }
 
 
-TrackNo MultitrackCalcContext::do_track(const sample_count_t smpl)
+int MultitrackCalcContext::do_track(const sample_count_t smpl)
 	const noexcept
 {
 	if (this->audio_size().total_samples() == 0)
 	{
-		return 0;
+		return 0; // FIXME throw ?
 	}
 
 	// Sample beyond last track?
 	if (this->audio_size().total_samples() - smpl < 1)
 	{
 		// This will return an invalid track number
-		// Caller has to check result for <= track_count() for a valid result
+		// Caller has to check result for <= total_tracks() for a valid result
 		return CDDA.MAX_TRACKCOUNT + 1;
 	}
 
-	const auto last_track { this->track_count() };
+	const auto last_track { this->total_tracks() };
 
 	// Increase track number while sample is smaller than track's last relevant
-	auto track = TrackNo { 0 };
+	auto track = 0;
 	for (sample_count_t last_sample_trk { this->last_relevant_sample(track) } ;
 			smpl > last_sample_trk and track <= last_track ;
 			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
@@ -1245,13 +1242,13 @@ TrackNo MultitrackCalcContext::do_track(const sample_count_t smpl)
 }
 
 
-lba_count_t MultitrackCalcContext::do_offset(const uint8_t track) const noexcept
+lba_count_t MultitrackCalcContext::do_offset(const int track) const noexcept
 {
-	return track < this->track_count() ? toc().offset(track + 1) : 0;
+	return track < this->total_tracks() ? toc().offset(track + 1) : 0;
 }
 
 
-lba_count_t MultitrackCalcContext::do_length(const uint8_t track) const noexcept
+lba_count_t MultitrackCalcContext::do_length(const int track) const noexcept
 {
 	// We define track i as the sample sequence whose first frame is LBA
 	// offset[i] and whose last frame is LBA offset[i+1] - 1.
@@ -1270,14 +1267,14 @@ lba_count_t MultitrackCalcContext::do_length(const uint8_t track) const noexcept
 	//	return 0;
 	//}
 
-	if (track >= this->track_count())
+	if (track >= this->total_tracks())
 	{
 		return 0;
 	}
 
 	// Offsets are set, but last length / leadout is unknown
 
-	if (track == this->track_count() - 1)
+	if (track == this->total_tracks() - 1)
 	{
 		// We derive the length of the last track.
 		// The last track has no trailing gap, therefore just subtracting
@@ -1427,7 +1424,7 @@ public:
 
 	void save(const TrackNo track) noexcept final;
 
-	int track_count() const noexcept final;
+	int total_tracks() const noexcept final;
 
 	checksum::type type() const noexcept final;
 
@@ -1453,7 +1450,7 @@ protected:
 	 *
 	 * \return The Checksum for this track
 	 */
-	Checksum find(const uint8_t track) const noexcept;
+	Checksum find(const int track) const noexcept;
 
 	/**
 	 * \brief Worker: compose a ChecksumSet from a single Checksum
@@ -1485,7 +1482,7 @@ private:
 	/**
 	 * \brief Internal representation of the calculated ARCS values
 	 */
-	std::unordered_map<TrackNo, uint32_t> arcss_;
+	std::unordered_map<int, uint32_t> arcss_;
 };
 
 
@@ -1522,7 +1519,7 @@ void CalcStateV1::save(const TrackNo track) noexcept
 }
 
 
-int CalcStateV1::track_count() const noexcept
+int CalcStateV1::total_tracks() const noexcept
 {
 	return arcss_.size();
 }
@@ -1582,7 +1579,7 @@ void CalcStateV1::init(const uint32_t mult) noexcept
 }
 
 
-Checksum CalcStateV1::find(const uint8_t track) const noexcept
+Checksum CalcStateV1::find(const int track) const noexcept
 {
 	const auto value { arcss_.find(track) };
 
@@ -1631,7 +1628,7 @@ public:
 
 	void save(const TrackNo track) noexcept final;
 
-	int track_count() const noexcept final;
+	int total_tracks() const noexcept final;
 
 	checksum::type type() const noexcept final;
 
@@ -1650,7 +1647,7 @@ public:
 
 protected:
 
-	ChecksumSet find(const uint8_t track) const noexcept;
+	ChecksumSet find(const int track) const noexcept;
 
 
 private:
@@ -1684,7 +1681,7 @@ private:
 	/**
 	 * \brief Internal representation of the calculated ARCS values
 	 */
-	std::unordered_map<TrackNo, std::pair<uint32_t, uint32_t>> arcss_;
+	std::unordered_map<int, std::pair<uint32_t, uint32_t>> arcss_;
 };
 
 
@@ -1733,7 +1730,7 @@ void CalcStateV1andV2::save(const TrackNo track) noexcept
 }
 
 
-int CalcStateV1andV2::track_count() const noexcept
+int CalcStateV1andV2::total_tracks() const noexcept
 {
 	return arcss_.size();
 }
@@ -1795,7 +1792,7 @@ void CalcStateV1andV2::init(const uint32_t mult) noexcept
 }
 
 
-ChecksumSet CalcStateV1andV2::find(const uint8_t track) const noexcept
+ChecksumSet CalcStateV1andV2::find(const int track) const noexcept
 {
 	const auto value { arcss_.find(track) };
 
@@ -2417,15 +2414,15 @@ Checksums Calculation::Impl::result() const noexcept
 		return Checksums(0);
 	}
 
-	auto track_count { state_->track_count() };
+	auto total_tracks { state_->total_tracks() };
 
 	auto checksums { std::make_unique<Checksums::Impl>(
-			static_cast<Checksums::size_type>(track_count)) };
+			static_cast<Checksums::size_type>(total_tracks)) };
 
 	// Collect checksums for all tracks (for singletrack+multitrack)
 	
 	const auto shift = context_->is_multi_track() ? 0 : 1;
-	for (auto i = uint8_t { 0 }; i < track_count; ++i)
+	for (auto i = 0; i < total_tracks; ++i)
 	{
 	 	auto track = ChecksumSet { context_->length(i) };
 	 	track.merge(state_->result(i - shift + 1));
@@ -2439,7 +2436,7 @@ Checksums Calculation::Impl::result() const noexcept
 //	{
 //		// multitrack
 //
-//		for (auto i = uint8_t { 0 }; i < track_count; ++i)
+//		for (auto i = int { 0 }; i < total_tracks; ++i)
 //		{
 //			auto track = ChecksumSet { context_->length(i) };
 //
@@ -2604,7 +2601,8 @@ void Calculation::Impl::log_partition(const uint16_t i,
 
 	ARCS_LOG_DEBUG << "    Samples " << chunk_first_smpl_idx
 			<< " - "              << chunk_last_smpl_idx
-			<< " (Track "         << std::to_string(chunk.track()) << ", "
+			<< " (Track "         << std::to_string(chunk.track())
+			<< ", "
 			<< (chunk.ends_track()
 				? (chunk_starts_track
 					? "complete"
