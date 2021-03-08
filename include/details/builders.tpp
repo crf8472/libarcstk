@@ -66,7 +66,8 @@ using FilenameContainer =
  * to <tt>t - 1</tt> and then the container is accessed.
  *
  * The Container is required to yield its number of elements by member function
- * size() and to provide begin().
+ * size() and to provide begin(). The iterator provided by begin() has to
+ * support dereferencing by operator \*.
  *
  * \tparam Container Container type with \c size() and <tt>begin()</tt>
  *
@@ -75,28 +76,25 @@ using FilenameContainer =
  *
  * \return The value for track \c t in the \c Container
  *
- * \throw std::out_of_range If either <tt>t < 1</tt> or <tt>t > Container.size()</tt>
+ * \throw std::out_of_range If either <tt>t < 1</tt> or
+ *                          <tt>t > Container.size()</tt>
  */
 template <typename Container,
 		typename = hasSize<Container>, typename = hasBegin<Container> >
 inline decltype(auto) get_track(Container&& c, const TrackNo t)
 {
-	// FIXME TrackNo::validate(t);
+	const auto index = t - 1;
 
-	const auto track = static_cast<int>(t);
-
-	// Range check
-	if (track < 1 or static_cast<decltype(c.size())>(track) > c.size())
+	if (index < 0 or static_cast<decltype(c.size())>(index) >= c.size())
 	{
 		auto message = std::stringstream {};
-		message << "Track " << track << " is out of range (yields index "
-			<< (track - 1) << " but max index is " << (c.size() - 1)
-			<< ")";
+		message << "Track " << t << " is out of range (yields index "
+			<< index << " but max index is " << (c.size() - 1) << ")";
 
 		throw std::out_of_range(message.str());
 	}
 
-	return *(std::next(std::begin(c), track - 1));
+	return *(std::next(std::begin(c), index));
 }
 
 /**

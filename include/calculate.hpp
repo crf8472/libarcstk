@@ -79,7 +79,7 @@ inline namespace v_1_0_0
  *
  * SampleInputIterator wraps the concrete iterator of the input sample sequence
  * so any class with a compatible iterator can be used for generating the audio
- * input..
+ * input.
  *
  * AudioSize represents the size of the audio input in frames, samples or bytes.
  *
