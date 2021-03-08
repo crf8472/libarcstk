@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 			// Ok, no!  So, this must be the last block.  Check!
 
 			const auto samples_in_block {
-					ints_in_block / arcstk::CDDA.NUMBER_OF_CHANNELS };
+					ints_in_block / arcstk::CDDA::NUMBER_OF_CHANNELS };
 			const auto samples_expected { samples_total - samples_read };
 
 			if (samples_in_block != samples_expected)
@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 		// Count PCM 32 bit stereo samples processed.
 		samples_read += sequence.size();
 		// We could also compute the number of samples ourselves:
-		// buffer.size() / static_cast<unsigned int>(CDDA.NUMBER_OF_CHANNELS)
+		// buffer.size() / static_cast<unsigned int>(CDDA::NUMBER_OF_CHANNELS)
 
 		// Note: since libsndfile has told us the total sample count, we were
 		// able to configure the context with the correct leadout.
