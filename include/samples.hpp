@@ -352,6 +352,9 @@ namespace details
 /**
  * \internal
  * \brief Abstract base class for SampleSequences.
+ *
+ * Provides the iterators, size(), bounds check and a service method to
+ * combine to 16bit integer to a 32bit integer.
  */
 template <typename T, bool is_planar, typename>
 class SampleSequenceImplBase
@@ -368,7 +371,7 @@ public:
 
 
 	/**
-	 * \brief Iterator pointing behind to the beginning.
+	 * \brief Obtain an iterator pointing to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
@@ -378,7 +381,7 @@ public:
 	}
 
 	/**
-	 * \brief Iterator pointing behind the end.
+	 * \brief Obtain an iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
@@ -389,7 +392,7 @@ public:
 	}
 
 	/**
-	 * \brief Iterator pointing behind to the beginning.
+	 * \brief Obtain an iterator pointing to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
@@ -399,7 +402,7 @@ public:
 	}
 
 	/**
-	 * \brief Iterator pointing behind the end.
+	 * \brief Obtain an iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
@@ -410,7 +413,7 @@ public:
 	}
 
 	/**
-	 * \brief Iterator pointing behind to the beginning.
+	 * \brief Obtain an iterator pointing to the beginning.
 	 *
 	 * \return Iterator pointing to the beginning of the SampleSequence
 	 */
@@ -420,7 +423,7 @@ public:
 	}
 
 	/**
-	 * \brief Iterator pointing behind the end.
+	 * \brief Obtain an iterator pointing behind the end.
 	 *
 	 * \return Iterator pointing behind the end of the SampleSequence
 	 */
@@ -504,7 +507,7 @@ protected:
 	}
 
 	/**
-	 * \brief Convert two integers to a PCM 32 bit sample.
+	 * \brief Combine two 16 bit integers to a PCM 32 bit sample.
 	 *
 	 * \param[in] higher The higher 16 bit
 	 * \param[in] lower  The lower 16 bit
@@ -522,7 +525,7 @@ protected:
 	}
 
 	/**
-	 * \brief Returns amount that \c index exceeds <tt>size() - 1</tt>.
+	 * \brief Return amount that \c index exceeds <tt>size() - 1</tt>.
 	 *
 	 * 0 means that \c index is within legal access bounds.
 	 *
@@ -536,7 +539,7 @@ protected:
 	}
 
 	/**
-	 * \brief Performs bounds check.
+	 * \brief Perform bounds check.
 	 *
 	 * \param[in] index Index to check
 	 *
