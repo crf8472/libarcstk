@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 	// order, where the 16 bit sample for the left channel makes the start.
 	// Libarcstk is not interested in those details, so we provide the samples
 	// via a SampleSequence that abstracts the concrete format away:
-	arcstk::SampleSequence<int16_t, false> sequence;
+	arcstk::InterleavedSamples<int16_t> sequence;
 	// NOTE: These prerequisites are just provided by libsndfile at this
 	// site in the code. In production code, you would of course verify
 	// things... If the channel order is switched, the sample format is
