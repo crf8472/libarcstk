@@ -38,22 +38,22 @@ namespace details
  * \brief std::true_type iff T can represent LBA frame amounts, otherwise
  * std::false_type.
  *
- * An "LBA type" holds amounts of LBA frames, that means it must be able to
- * express CDDA::MAX_OFFSET which excludes types with less than 32 bits width.
+ * An "LBA type" holds amounts of LBA frames, that means it must be a numeric
+ * type that is able to express CDDA::MAX_OFFSET which excludes types with less
+ * than 32 bits width.
  *
  * Furthermore, it should be possible to perform at least addition of the types.
- * (Ref-types and pointer types would have to be dereferenced for that. This
- * may be added in the future.)
+ * (References and pointers to compatible base types would have to be
+ * dereferenced for that and are therefore excluded.)
  *
  * The intention is to include exactly the non-ref, non-pointer variants of
- * short, int, long and long long.
+ * at least int, long and long long and their respective unsigned types.
  *
  * \tparam T Type to test for LBA facility
  */
 template <typename T>
 struct is_lba_type : public std::integral_constant<bool,
 	std::is_integral<T>::value   && // TODO C++17: is_integral_v
-	std::is_arithmetic<T>::value && // TODO C++17: is_arithmetic_v
 	sizeof(T) >= 4>
 {
 	// empty
@@ -63,10 +63,10 @@ struct is_lba_type : public std::integral_constant<bool,
 /**
  * \brief Abstracted YES/NO values for SFINAE
  */
-struct sfinae_values
+struct sfinae
 {
 	using yes = char;
-	using no  = yes[2];
+	using no  = yes[2]; // yes and no must differ in size
 };
 
 
@@ -77,33 +77,28 @@ struct sfinae_values
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_lba_value_type : private sfinae_values
+struct has_lba_value_type
 {
 private:
 
-	// choose to return "yes" in case value_type is an lba type
+	// choose this in case is_lba_type<S::value_type>
 	template<typename S,
 		std::enable_if_t<is_lba_type<typename S::value_type>::value, int> = 0>
-	static yes & test(typename S::value_type*);
+	static sfinae::yes& test(typename S::value_type*);
 
-	// "no" otherwise
-	template<typename S> static no  & test(...);
-
+	// choose this otherwise
+	template<typename S>
+	static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types with an integral value_type, otherwise false.
+	 * \brief TRUE for types with is_lba_type<value_type>, otherwise false.
 	 */
-	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
+	// Commented out: The "old" C++98 way without decltype
+	//	sizeof(test<T>(nullptr)) == sizeof(sfinae::yes);
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
@@ -116,31 +111,25 @@ public:
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_const_iterator : private sfinae_values
+struct has_const_iterator
 {
 private:
 
-	// choose to return "yes" in case const_iterator is defined
-	template <typename S> static yes & test(typename S::const_iterator*);
+	// choose this in case S::const_iterator is defined
+	template <typename S>
+	static sfinae::yes& test(typename S::const_iterator*);
 
-	// "no" otherwise
-	template <typename S> static no  & test(...);
-
+	// choose this otherwise
+	template <typename S>
+	static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types with a const_iterator, otherwise false.
+	 * \brief TRUE for types with has_const_iterator<T>, otherwise false.
 	 */
-	static const bool value = sizeof(test<T>(nullptr)) == sizeof(yes);
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
@@ -153,37 +142,31 @@ public:
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_size : private sfinae_values
+struct has_size
 {
 private:
 
-	// choose to return "yes" in case size is defined
-	template <typename S> static yes & test(
+	// choose this in case S::size is defined
+	template <typename S>
+	static sfinae::yes& test(
 		typename std::enable_if<std::is_same<
-			decltype(static_cast<typename S::size_type (S::*)() const>
-				(&S::size)),
+			decltype(
+				static_cast<typename S::size_type(S::*)() const>(&S::size)),
 			typename S::size_type(S::*)() const>::value,
-			void>::type*
+		void>::type*
 	);
 
-	// "no" otherwise
-	template <typename S> static no  & test(...);
-
+	// choose this otherwise
+	template <typename S>
+	static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types with a size, otherwise false.
+	 * \brief TRUE for types with has_size<T>, otherwise false.
 	 */
-	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
@@ -196,37 +179,30 @@ public:
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_begin : private sfinae_values
+struct has_begin
 {
 private:
 
-	// begin(): choose to return "yes" in case begin() const is defined
-	template <typename S> static yes & test(
+	// choose this in case S::begin const is defined
+	template <typename S>
+	static sfinae::yes& test(
 		typename std::enable_if<std::is_same<
-			decltype(static_cast<typename S::const_iterator (S::*)() const>
+			decltype(static_cast<typename S::const_iterator(S::*)() const>
 				(&S::begin)),
 			typename S::const_iterator(S::*)() const>::value,
-			void>::type*
+		void>::type*
 	);
 
-	// "no" otherwise
-	template <typename S> static no  & test(...);
-
+	// choose this otherwise
+	template <typename S> static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types with begin() const, otherwise false.
+	 * \brief TRUE for types with has_begin<T>, otherwise false.
 	 */
-	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
@@ -239,37 +215,31 @@ public:
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_end : private sfinae_values
+struct has_end
 {
 private:
 
-	// end(): choose to return "yes" in case end() const is defined
-	template <typename S> static yes & test(
+	// choose this in case S::end const is defined
+	template <typename S>
+	static sfinae::yes& test(
 		typename std::enable_if<std::is_same<
-			decltype(static_cast<typename S::const_iterator (S::*)() const>
+			decltype(static_cast<typename S::const_iterator(S::*)() const>
 				(&S::end)),
 			typename S::const_iterator(S::*)() const>::value,
-			void>::type*
+		void>::type*
 	);
 
-	// "no" otherwise
-	template <typename S> static no & test(...);
-
+	// choose this otherwise
+	template <typename S>
+	static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types with end() const, otherwise false.
+	 * \brief TRUE for types with has_end<T>, otherwise false.
 	 */
-	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
@@ -336,34 +306,27 @@ struct is_filename_type<std::wstring> : public std::true_type { /* empty */ };
  * \tparam T Input type to test
  */
 template <typename T>
-struct has_filename_value_type : private sfinae_values
+struct has_filename_value_type
 {
 private:
 
-	// choose to return "yes" in case S::value_type can represent filenames
+	// choose this in case S::value_type can represent filenames
 	template<typename S,
 		std::enable_if_t<is_filename_type<typename S::value_type>::value, int>
 			= 0>
-	static yes & test(typename S::value_type*);
+	static sfinae::yes& test(typename S::value_type*);
 
-	// "no" otherwise
-	template<typename S> static no  & test(...);
-
+	// choose this otherwise
+	template<typename S>
+	static sfinae::no& test(...);
 
 public:
 
 	/**
-	 * \brief Result value
-	 *
-	 * Will be TRUE for types whose value_type is std::string, otherwise false.
+	 * \brief TRUE for types with has_end<T>, otherwise false.
 	 */
-	static const auto value = bool { sizeof(test<T>(nullptr)) == sizeof(yes) };
-
-	/**
-	 * \brief Input type
-	 */
-	using type = T;
-
+	static const bool value =
+		! std::is_same<decltype(test<T>(nullptr)), sfinae::no&>::value;
 
 	// ignore
 	void gcc_suppress_warning_wctor_dtor_privacy();
