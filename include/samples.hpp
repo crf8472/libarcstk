@@ -40,24 +40,44 @@ inline namespace v_1_0_0
 using sample_type = uint32_t;
 
 /**
- * \brief A sequence of samples represented by signed integral types.
+ * \brief A sequence of samples represented by 16 or 32 bit integral types.
  *
- * A SampleSequence is a compatibility wrapper for passing sample sequences of
- * virtually any signed integral format to Calculation::update(). SampleSequence
- * instances provide converting access to the samples. The wrapped data is not
- * altered.
+ * Calculation expects an update represented by two
+ * iterators that enumerate the audio input as a sequence of 32 bit unsigned
+ * integers of which each represents a pair 16-bit stereo PCM samples.
+ * SampleSequence is a read-only compatibility wrapper for passing sample
+ * buffers of an integral sample format with 16 or 32 bit width to
+ * Calculation::update() in this expected update format.
  *
- * The sequence is compatible to sample sequences that represent their samples
- * by integral types of either 16 or 32 bit that may or may not be signed.
- * When wrapping the original data in a SampleSequence, it must be correctly
- * declared as either interleaved or planar.
+ * The use of a SampleSequence for providing the updates is optional, the caller
+ * may decide to provide the required sample format completely without using
+ * SampleSequence.
  *
- * The channel ordering can be either left/right or right/left.
+ * When wrapping the original audio data in a SampleSequence, it must be
+ * correctly declared as either interleaved or planar. It is furthermore
+ * required to know the size of the input and its channel ordering. If no
+ * channel ordering is specified, the default is LEFT/RIGHT.
  *
- * The interface of SampleSequence is very simple: an existing amount of samples
- * is adapted by the use of wrap() or wrap_bytes(). Random access is provided by
- * operator[] (without bounds check) or at() (providing bounds check). A
- * SampleSequence provides also access via iterators.
+ * A SampleSequence can wrap integer buffers of type T by member function
+ * wrap_int_buffer(). Regardless for which T the SampleSequence is instantiated,
+ * it will always be able to also wrap byte buffers by function
+ * wrap_byte_buffer(). While wrap_int_buffer() expects samples of type T,
+ * wrap_byte_buffer() accepts a uint8_t typed buffer and converts those bytes to
+ * T.
+ *
+ * A SampleSequence instance can be reused by just calling wrap_int_buffer() or
+ * wrap_byte_buffer() a second time. While channel ordering and size can be
+ * changed, it is not possible to correctly wrap samples that are not
+ * represented by type T.
+ *
+ * Random reading access is provided by operator[] (without bounds check) or
+ * at() (providing bounds check). A SampleSequence provides also access via
+ * iterators.
+ *
+ * The caller is responsible for the lifetime of the wrapped sample buffer:
+ * SampleSequence will only provide a compatibility layer, it will not erase
+ * the wrapped buffers. A SampleSequence can therefore safely be destroyed
+ * without affecting the wrapped buffer.
  *
  * \attention
  * For convenience, this template is not intended to be used directly. Instead,
@@ -353,6 +373,8 @@ namespace details
  * \internal
  * \brief Abstract base class for SampleSequences.
  *
+ * \details
+ *
  * Provides the iterators, size(), bounds check and a service method to
  * combine to 16bit integer to a 32bit integer.
  */
@@ -444,6 +466,36 @@ public:
 	}
 
 	/**
+	 * \brief Get number of left channel (0 or 1).
+	 *
+	 * \return Number of the left channel
+	 */
+	size_type left_channel() const
+	{
+		return left_;
+	}
+
+	/**
+	 * \brief Get number of right channel (0 or 1).
+	 *
+	 * \return Number of the right channel
+	 */
+	size_type right_channel() const
+	{
+		return right_;
+	}
+
+	/**
+	 * \brief Get channel ordering flag, \c TRUE means left is 0 and right is 1.
+	 *
+	 * \return Channel ordering flag.
+	 */
+	bool channel_ordering() const
+	{
+		return left_ == 0 and right_ == 1;
+	}
+
+	/**
 	 * \brief Return the size of the template argument type in bytes.
 	 *
 	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
@@ -459,9 +511,24 @@ protected:
 
 	/**
 	 * \brief Protected default constructor.
+	 *
+	 * Establishes a size of 0 and a LEFT_RIGHT channel ordering.
 	 */
 	SampleSequenceImplBase()
-		: size_ { 0 }
+		: SampleSequenceImplBase{ true }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Protected constructor.
+	 *
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequenceImplBase(const bool left0_right1)
+		: size_  { 0 }
+		, left_  { get_left_channel(left0_right1)  }
+		, right_ { get_right_channel(left0_right1) }
 	{
 		// empty
 	}
@@ -558,6 +625,41 @@ protected:
 	}
 
 	/**
+	 * \brief Obtain the number of the left channel from the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 *
+	 * \return 0 in case of \c TRUE, otherwise 1
+	 */
+	size_type get_left_channel(const bool channel_ordering) const
+	{
+		return channel_ordering ? 0 : 1;
+	}
+
+	/**
+	 * \brief Obtain the number of the right channel from the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 *
+	 * \return 1 in case of \c TRUE, otherwise 0
+	 */
+	size_type get_right_channel(const bool channel_ordering) const
+	{
+		return channel_ordering ? 1 : 0;
+	}
+
+	/**
+	 * \brief Set the channel ordering according to the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 */
+	void set_channel_ordering(const bool channel_ordering)
+	{
+		left_  = this->get_left_channel(channel_ordering);
+		right_ = this->get_right_channel(channel_ordering);
+	}
+
+	/**
 	 * \brief Pointer to actual SampleSequence.
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
@@ -569,6 +671,16 @@ private:
 	 * \brief State: Number of 16 bit samples in this sequence.
 	 */
 	size_type size_;
+
+	/**
+	 * \brief State: Number of the left channel
+	 */
+	size_type left_;
+
+	/**
+	 * \brief State: Number of the right channel
+	 */
+	size_type right_;
 };
 
 } // namespace details
@@ -580,6 +692,8 @@ private:
 /**
  * \internal
  * \brief A planar sequence of samples.
+ *
+ * \details
  *
  * This class is intended to be used by its alias PlanarSamples<T>.
  *
@@ -611,6 +725,18 @@ public: /* member functions */
 	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
 
 	/**
+	 * \brief Constructor for a sequence with specified channel ordering.
+	 *
+	 * \param[in] left0_right1 The channel ordering
+	 */
+	SampleSequence(const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ {}
+	{
+		// empty
+	}
+
+	/**
 	 * \brief Constructor.
 	 *
 	 * Indicates channel ordering left:0, right:1. Equivalent to
@@ -625,47 +751,151 @@ public: /* member functions */
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of T's per buffer
+	 * \param[in] left0_right1 Channel ordering
 	 */
-	SampleSequence(bool left0_right1)
-		: buffer_ {}
-		, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-		, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+	SampleSequence(const T* buffer0, const T* buffer1, const size_type size,
+			const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ {}
 	{
-		// empty
+		this->wrap_int_buffer(buffer0, buffer1, size, left0_right1);
 	}
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence.
+	 * \brief Constructor.
 	 *
-	 * This function does essentially the same as wrap() but converts a
-	 * sequence of uint8_t values by reinterpreting the samples as instances
-	 * of type T. However, wrap() expects samples of type T.
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of T's per buffer
+	 */
+	SampleSequence(const T* buffer0, const T* buffer1, const size_type size)
+		: Base(true)
+		, buffer_ {}
+	{
+		this->wrap_int_buffer(buffer0, buffer1, size, true);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size, const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ {}
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 */
+	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size)
+		: Base(true)
+		, buffer_ {}
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size, true);
+	}
+
+	/**
+	 * \brief Rewrap the specified integer buffers into this sample sequence.
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
-	 * \param[in] size    Number of bytes per buffer
+	 * \param[in] size    Number of T's per buffer
+	 * \param[in] left0_right1 Channel ordering
 	 */
-	void wrap_bytes(const uint8_t *buffer0, const uint8_t *buffer1,
-			const size_type size)
+	void wrap_int_buffer(const T* buffer0, const T* buffer1,
+			const size_type size, const bool left0_right1)
 	{
-		buffer_[left_ ] = reinterpret_cast<const T *>(buffer0),
-		buffer_[right_] = reinterpret_cast<const T *>(buffer1),
-		this->set_size((size * sizeof(uint8_t)) / sizeof(T));
+		buffer_[this->left_channel()]  = buffer0;
+		buffer_[this->right_channel()] = buffer1;
+
+		this->set_size(size);
+		this->set_channel_ordering(left0_right1);
 	}
 
 	/**
-	 * \brief Rewrap the specified buffers into this sample sequence.
+	 * \brief Rewrap the specified integer buffers into this sample sequence.
+	 *
+	 * The current channel ordering is used.
 	 *
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
 	 */
-	void wrap(const T* buffer0, const T* buffer1, const size_type size)
+	void wrap_int_buffer(const T* buffer0, const T* buffer1,
+			const size_type size)
 	{
-		buffer_[left_ ] = buffer0;
-		buffer_[right_] = buffer1;
-		this->set_size(size);
+		this->wrap_int_buffer(buffer0, buffer1, size, this->channel_ordering());
+	}
+
+	/**
+	 * \brief Rewrap the specified byte buffers into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size, const bool left0_right1)
+	{
+		buffer_[this->left_channel()]  = reinterpret_cast<const T *>(buffer0),
+		buffer_[this->right_channel()] = reinterpret_cast<const T *>(buffer1),
+
+		this->set_size((size * sizeof(uint8_t)) / sizeof(T));
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified byte buffers into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * The current channel ordering is used.
+	 *
+	 * \param[in] buffer0 Buffer for channel 0
+	 * \param[in] buffer1 Buffer for channel 1
+	 * \param[in] size    Number of bytes per buffer
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size)
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size,
+				this->channel_ordering());
 	}
 
 	/**
@@ -682,7 +912,8 @@ public: /* member functions */
 	 */
 	value_type operator [] (const size_type index) const
 	{
-		return this->combine(buffer_[right_][index], buffer_[left_][index]);
+		return this->combine(buffer_[this->right_channel()][index],
+				buffer_[this->left_channel()][index]);
 		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
 
 		// NOTE:
@@ -726,16 +957,6 @@ private:
 	 * \brief Internal planar buffer of 16 bit samples for two channels.
 	 */
 	std::array<const T*, 2> buffer_;
-
-	/**
-	 * \brief Number of the left channel
-	 */
-	const size_type left_;
-
-	/**
-	 * \brief Number of the right channel
-	 */
-	const size_type right_;
 };
 
 
@@ -776,6 +997,18 @@ public: /* member functions */
 	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
 
 	/**
+	 * \brief Constructor for a sequence with specified channel ordering.
+	 *
+	 * \param[in] left0_right1 The channel ordering
+	 */
+	SampleSequence(const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
+	{
+		// empty
+	}
+
+	/**
 	 * \brief Constructor.
 	 *
 	 * Indicates channel ordering left:0, right:1.
@@ -791,42 +1024,145 @@ public: /* member functions */
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] left0_right1 TRUE indicates that left channel is 0, right is 1
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of T's per buffer
+	 * \param[in] left0_right1 Channel ordering
 	 */
-	SampleSequence(bool left0_right1)
-		: buffer_ {}
-		, left_  { static_cast<size_type>(left0_right1 ? 0 : 1) }
-		, right_ { static_cast<size_type>(left0_right1 ? 1 : 0) }
+	SampleSequence(const T* buffer, const size_type size,
+			const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
 	{
-		// empty
+		this->wrap_int_buffer(buffer, size, left0_right1);
 	}
 
 	/**
-	 * \brief Rewrap the specified buffer into this sample sequence.
+	 * \brief Constructor.
 	 *
-	 * This function does essentially the same as wrap() but converts a
-	 * sequence of uint8_t instances by reinterpreting the samples as instances
-	 * of type T. However, wrap() expects samples of type T.
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
 	 *
-	 * \param[in] buffer Buffer for channel 0
-	 * \param[in] size   Number of bytes in buffer
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of T's per buffer
 	 */
-	void wrap_bytes(const uint8_t *buffer, const size_type size)
+	SampleSequence(const T* buffer, const size_type size)
+		: Base(true)
+		, buffer_ { nullptr }
 	{
-		buffer_ = reinterpret_cast<const T*>(buffer),
-		this->set_size((size * sizeof(uint8_t) / 2/* channels */) / sizeof(T));
+		this->wrap_int_buffer(buffer, size, true);
 	}
 
 	/**
-	 * \brief Rewrap the specified buffer into this sample sequence.
+	 * \brief Constructor.
 	 *
-	 * \param[in] buffer Interleaved buffer
-	 * \param[in] size   Number of T's in the buffer
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
 	 */
-	void wrap(const T* buffer, const size_type size)
+	SampleSequence(const uint8_t *buffer, const size_type size,
+			const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
+	{
+		this->wrap_byte_buffer(buffer, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of bytes per buffer
+	 */
+	SampleSequence(const uint8_t *buffer, const size_type size)
+		: Base(true)
+		, buffer_ { nullptr }
+	{
+		this->wrap_byte_buffer(buffer, size, true);
+	}
+
+	/**
+	 * \brief Rewrap the specified typed buffer into this sample sequence.
+	 *
+	 * Wraps the specified buffer, that must be of the same type as the
+	 * specified sample sequence.
+	 *
+	 * \param[in] buffer       Interleaved buffer
+	 * \param[in] size         Number of T's in the buffer
+	 * \param[in] left0_right1 \c TRUE for left == 0, right == 1, otherwise
+	 *                         \c FALSE
+	 */
+	void wrap_int_buffer(const T* buffer, const size_type size,
+			bool left0_right1)
 	{
 		buffer_ = buffer;
+
 		this->set_size(size / 2/* channels */);
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified typed buffer into this sample sequence.
+	 *
+	 * Wraps the specified buffer, that must be of the same type as the
+	 * specified sample sequence.
+	 *
+	 * The current channel ordering is reused.
+	 *
+	 * \param[in] buffer       Interleaved buffer
+	 * \param[in] size         Number of T's in the buffer
+	 */
+	void wrap_int_buffer(const T *buffer, const size_type size)
+	{
+		this->wrap_int_buffer(buffer, size, this->channel_ordering());
+	}
+
+	/**
+	 * \brief Rewrap the specified raw byte buffer into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * \param[in] buffer       Buffer for channel 0
+	 * \param[in] size         Number of bytes in buffer
+	 * \param[in] left0_right1 \c TRUE for left == 0, right == 1, otherwise
+	 *                         \c FALSE
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer, const size_type size,
+			bool left0_right1)
+	{
+		buffer_ = reinterpret_cast<const T*>(buffer);
+
+		this->set_size((size * sizeof(uint8_t) / 2/* channels */) / sizeof(T));
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified raw byte buffer into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * The current channel ordering is reused.
+	 *
+	 * \param[in] buffer       Buffer for channel 0
+	 * \param[in] size         Number of bytes in buffer
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer, const size_type size)
+	{
+		this->wrap_byte_buffer(buffer, size, this->channel_ordering());
 	}
 
 	/**
@@ -843,8 +1179,8 @@ public: /* member functions */
 	 */
 	value_type operator [] (const size_type index) const
 	{
-		return this->combine(buffer_[2 * index + right_],
-				buffer_[2 * index + left_]);
+		return this->combine(buffer_[2 * index + this->right_channel()],
+				buffer_[2 * index + this->left_channel()]);
 		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
 
 		// NOTE:
@@ -888,16 +1224,6 @@ private:
 	 * \brief Internal interleaved buffer of 16 bit samples for two channels.
 	 */
 	const T * buffer_;
-
-	/**
-	 * \brief Number of the left channel
-	 */
-	const size_type left_;
-
-	/**
-	 * \brief Number of the right channel
-	 */
-	const size_type right_;
 };
 
 /**
