@@ -66,9 +66,9 @@ using sample_type = uint32_t;
  * T.
  *
  * A SampleSequence instance can be reused by just calling wrap_int_buffer() or
- * wrap_byte_buffer() a second time. While channel ordering and size can be
- * changed, it is not possible to correctly wrap samples that are not
- * represented by type T.
+ * wrap_byte_buffer() on the existing instance. While channel ordering, size
+ * and the actual sample buffers can be changed, it is not possible to correctly
+ * wrap samples that are not represented by type T.
  *
  * Random reading access is provided by operator[] (without bounds check) or
  * at() (providing bounds check). A SampleSequence provides also access via
@@ -82,6 +82,10 @@ using sample_type = uint32_t;
  * \attention
  * For convenience, this template is not intended to be used directly. Instead,
  * use one of the templates PlanarSamples or InterleavedSamples.
+ *
+ * \tparam T          The sample type to read
+ * \tparam is_planar  \c TRUE indicates two planar buffers while \c FALSE
+ *                    indicates an interleaved buffer
  *
  * \see PlanarSamples
  * \see InterleavedSamples
