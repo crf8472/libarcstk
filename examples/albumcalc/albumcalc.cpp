@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
 			<< " (" << (buffer.size() / 2) << " samples)" << std::endl;
 
 		// Wrap buffer in a reusable SampleSequence
-		sequence.wrap(&buffer[0], buffer.size());
+		sequence.wrap_int_buffer(&buffer[0], buffer.size());
 
 		// Count PCM 32 bit stereo samples processed.
 		samples_read += sequence.size();
