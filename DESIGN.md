@@ -27,7 +27,7 @@ and perhaps by other languages at some point.
 ## Macros
 
 - Avoid new macros whenever possible. Macros are the natural solution for
-  inclusion guards. Avoid them for any other use. Using a macros when you could
+  inclusion guards. Avoid them for any other use. Using a macro when you could
   use a constant is considered a bug.
 
 
@@ -52,19 +52,17 @@ and perhaps by other languages at some point.
 - Avoid new globals whenever possible. (Providing a constant is usually not a
   reason for a global: this can also be a static member of a class/struct or a
   function just returning the constant.)
-- Make it a member of a class except for good reasons (e.g. in case of
-  operators, service functions, builder functions or if encapsulation is better
-  supported by making it a non-member non-friend.).
 
 
 ## Types
 
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
 - Use STL data types whenever possible: std::string instead of foo::myStr.
-- Prefer smart pointers over raw pointers. Use C++14's ``std::make_unique``
-  (except when initialization is positively to be avoided).
+- Prefer smart pointers over raw pointers. Prefer to use C++14's
+  ``std::make_unique`` if possible.
 - Use non-owning raw pointers sparingly, except for very good reasons.
-- Prefer ``using A = foo::A`` over ``typedef foo::A A``.
+- Prefer ``using``-declaratives over classical ``typedef``'s:
+  ``using A = foo::A`` instead of ``typedef foo::A A``.
 - Prefer choosing the minimal possible scope for a using declarative. Avoid
   any declarative of the form ``using namespace foo`` except for good reasons.
 - Prefer the form ``auto foo { expr }`` for auto-typed and ``auto foo = type
@@ -78,11 +76,8 @@ and perhaps by other languages at some point.
   accessors and mutators instead. Also trivial accessors and mutators are ok.
 - Classes in exported header files should be Pimpls. The forward declaration
   and the opaque pointer in the Pimpl class are ``private``.
-- A class declaration contains only declaration of its members, but not their
-  inline implementation. (Inlining is no reason, static is no reason. Inline
-  non-member friend functions are an accepted exception.)
-- The definition ``= default`` has to be in the source file not in the header
-  since it is an implementation detail.
+- A non-template class declaration contains only declaration of its members, but
+  not their inline implementation. (Inlining is no reason, static is no reason.)
 - The definition ``= delete`` has to be in the header not in the source file
   since it is part of the API.
 
@@ -95,8 +90,8 @@ and perhaps by other languages at some point.
 - When it is arcstk-global, it should have ``extern`` linkage to avoid
   unnecessary instances.
 - What is declared and used only within a ``.cpp`` file must have internal
-  linkage, usually by putting it an unnamed namespace. Avoid the ``static``
-  qualifier for defining linkage.
+  linkage, usually by putting it in an unnamed namespace. Avoid the ``static``
+  qualifier for only defining linkage.
 
 
 ## Header files
@@ -104,10 +99,14 @@ and perhaps by other languages at some point.
 - Any header file only declares symbols that are intentionally part of its API.
   Symbols in a header may not exist "by accident" or for "technical reasons".
   If you absolutely must provide a symbol in a header that is not considered
-  part of the public API enclose it in a namespace ``details``. Of course
-  forward declared implementation pointers are ok.
+  part of the public API enclose it in the namespace ``arcstk::details``.
+  Of course forward declared implementation pointers are ok.
 - Non-public files (such as .tpp files with template implementations) reside
   in a directory ``details`` within the top-level include directory.
+- If it is not part of the public API but needs to be tested, move it to a
+  separate header in the source directory and include that by the test class.
+  Prefix the header filename with the name of the doxygen module the header
+  contributes to followed by an underscore ``_``.
 
 
 ## Dependencies
@@ -122,9 +121,5 @@ and perhaps by other languages at some point.
 - If it does anything non-trivial, add a unit test for it.
 - Keep one testcase file per module, since the modules are of moderate size and
   compiling tests is expensive.
-- If it is not part of the public API but needs to be tested, move it to a
-  separate header, that is included to a non-public namespace at its actual site
-  and included "as-if-public" by the test class. Give it the same name as the
-  public header it belongs to, suffixed by ``_details``.
 
 [1]: https://herbsutter.com/2013/08/12/gotw-94-solution-aaa-style-almost-always-auto/

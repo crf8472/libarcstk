@@ -15,10 +15,10 @@ libarcstk.
 
 - Variable naming style is lower_snake_case: ``sample_seq``,
   ``first_idx``, etc.
-- Class names are UpperCamelCase: ``FileReader``, ``SampleBuffer``, etc.
+- Class names are UpperCamelCase: ``AudioSize``, ``ContentHandler``, etc.
 - Non-public class member variables are suffixed with an underscore:
   ``config_``, ``handler_``, etc.
-- Namespace names are lower case ASCII-letters (``[a-z]``)
+- Namespace names consist of lower case ASCII-letters (``[a-z]``)
 - Macro names are upper case ASCII-letters and may contain underscores
   (``[A-Z_]``)
 
@@ -31,8 +31,7 @@ libarcstk.
   the functions in the logging API).
 - Usual way for template definitions is to reside in a separate .tpp file that
   is included by the .hpp file
-- Avoid inline definitions in the class body. An exception may be when very
-  short inline friend functions are required, e.g. for operator ==
+- Avoid inline definitions in the body of non-template classes.
 - For templates, use ``typename`` for sites where base types are allowed and use
   ``class`` for sites where own class definitions are required.
 
@@ -56,8 +55,8 @@ libarcstk.
 
 # Compiler feedback
 
-- Eliminate *all* compiler warnings from your code. (``CMakeLists.txt`` will
-  define for you what to warn about when compiling.)
+- Eliminate *all* compiler warnings for *all* supported compilers from your
+  code. (``CMakeLists.txt`` declares the compilers to support.)
 
 
 # Documentation Comments
@@ -71,12 +70,15 @@ libarcstk.
 - Implementation classes and their members may or may not have documentation
   comments.
 - If something involves a value, make the unit of the value maximally clear
-  (bad: ``frame_size``, ``samples`` - good: ``bytes_per_frame``,
-  ``total_samples``).
+  (good: ``bytes_per_frame``, ``total_samples`` - ``bad: ``frame_size``,
+  ``samples``).
+- For input, you may also use ``using`` declarations to hint on further
+  restrictions of types, e.g. TrackNo transports a hint that values from 1-99
+  are actually valid input while underlying type may accept more values.
 - If something involves an index, make maximally clear whether the index is
   1-based or 0-based or whatever its base may be.
-- Use Doxygens ``\todo`` tags only for issues that are about to change API,
-  not for mere implementation issues.
+- Use Doxygens ``\todo`` tags sparingly and only for issues that are about to
+  change the API, not for mere implementation issues.
 
 
 # Non-documentation Comments
@@ -102,8 +104,8 @@ libarcstk.
 - Libarcstk project files have unix line endings (== line feed,``0x0A``).
   Whatever your git is configured to checkout, ensure that your git commits unix
   line endings.
-- Ensure that every source file you modify has a unix line ending (a blank line)
-  at the end of the file.
 - Libarcstk project files are encoded UTF-8. Whatever your git is configured to
   checkout, ensure that your git commits UTF-8 encoded characters.
+- Ensure that every source file you modify has a unix line ending (a blank line)
+  at the end of the file.
 
