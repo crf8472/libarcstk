@@ -18,7 +18,6 @@ Libarcstk supports the following tasks:
 Libarcstk provides:
 
 - An API for working with AccurateRip checksums and ids
-- Conservative OO API (intended to be usable from other languages)
 - Builds on Linux (and presumably/untested on *BSD)
 - Reasonably fast
 

@@ -13,6 +13,7 @@ major issues.
 
 ## Buildtime dependencies
 
+
 ### Mandatory Buildtime Dependencies
 
 - C++-14-compliant-compiler with C++ standard library
@@ -25,10 +26,10 @@ major issues.
 - git - for testing: to clone test framework [Catch2][2] as an external project
   when running the unit tests. You also need git if you want to build the
   documentation with [m.css][3] (instead of stock doxygen).
-- Doxygen - for documentation: to build the API documentation in HTML or LaTeX
+- Doxygen - for documentation: to build the API documentation in HTML
   (graphviz/dot is not required)
-- Python (with virtualenv) - for documentation: to build the documentation with
-  [m.css][3]
+- Python (with virtualenv) - for documentation: to build the documentation in
+  HTML styled with [m.css][3]
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
 - [include-what-you-use][1] - for development: easily find unused ``include``s
@@ -76,6 +77,9 @@ If your actual compiler is not g++ and you want to use your installed g++:
 
 Then, delete all contents of directory ``build`` (which contains metadata from
 the previous compiler) to start off cleanly.
+
+	$ cd ..
+	$ rm -rf build
 
 CMake-reconfigure the project to have the change take effect:
 
@@ -174,9 +178,10 @@ use your real compiler again, you have to reconfigure the project.
 
 The tool may log some warnings about unknown compile switches when you have
 selected g++ as your actual compiler. This is just because there are some
-switches configured for g++ that are unknown to clang. The warnings can be
-ignored. To avoid them [switch to clang++](#trying-a-different-compiler) before
-configuring with ``-DIWYU=ON``.
+switches configured for your actual compiler that are unknown to the tool. The
+warnings can be ignored. To avoid them
+[switch to clang++](#trying-a-different-compiler), then configure the project
+with ``-DIWYU=ON`` and run the build again.
 
 
 ### Package maintainers
@@ -205,11 +210,10 @@ specific modifications to the compiler default settings. Therefore, you have to
 carefully inspect the build process (e.g. by using ``$ make VERBOSE=1``) to
 verify which compiler settings are actually used.
 
-By default, the release-build of libarcstkdec uses -O3. If you intend to change
+By default, the release-build of libarcstk uses -O3. If you intend to change
 that, locate the paragraph ``Compiler Specific Settings`` in
 [CMakeLists.txt](./CMakeLists.txt) in the root directory and adjust the
-settings to your needs.
-
+settings to your requirements.
 
 
 ## Configure switches
@@ -226,7 +230,7 @@ settings to your needs.
 |                    |CMAKE_BUILD_TYPE=Debug                          |OFF    |
 |                    |CMAKE_BUILD_TYPE=Release                        |ON     |
 |WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)              |OFF    |
-|USE_MCSS            |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) when building the documentation  |OFF    |
+|USE_MCSS            |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) when building the documentation. Implies WITH_DOCS=ON  |OFF    |
 
 
 
@@ -236,9 +240,17 @@ When you configure the project, switch ``-DWITH_DOCS=ON`` is required to prepare
 building the documentation. Only this configuration option will create the
 target ``doc`` that can be used to build the documentation.
 
-Doxygen is required for building the documentation. The documentation can be
-build as a set of static HTML pages (recommended) or as a PDF manual using
-LaTeX (experimental, very alpha).
+Doxygen is required for building the documentation.
+
+The documentation can be build as a set of static HTML pages (recommended) or as
+a PDF manual using LaTeX (experimental, very alpha).
+
+If you decide to build HTML, you may choose either the stock HTML output of
+doxygen or the HTML output styled by m.css. Doxygen's stock HTML output is
+stable but looks outdated. The m.css-styled output is much, much more
+user-friendly, clean and fit for documentation of modern C++. On the other hand
+it is more cutting edge and therefore not as stable as doxygen's stock HTML
+output. Credits for the amazing m.css tool go to [mozra][3].
 
 
 ### Quickstart: Doxygen Stock HTML
@@ -275,10 +287,11 @@ This APIdoc can be built locally by the following steps:
 	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=ON ..
 	$ cmake --build . --target doc
 
-CMake then builds a local python sandbox with ``virtualenv``, installs jinja2
-and Pygments in it, then clones [m.css][3], and then runs m.css which internally
-runs doxygen. Maybe it needs finetuning for some environments I did not foresee.
-(It is completely untested on Windows and may not work.)
+CMake then creates a local python sandbox in ``build`` with ``virtualenv``,
+installs jinja2 and Pygments in it, then clones [m.css][3], and then runs m.css
+which internally runs doxygen. Maybe this process needs finetuning for some
+environments I did not foresee. (It is completely untested on Windows and may
+not work.)
 
 Documentation is generated in ``build/generated-docs/mcss`` and you can
 load ``build/generated-docs/mcss/html/index.html`` in your browser.
