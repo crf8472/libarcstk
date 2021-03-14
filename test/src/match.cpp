@@ -12,7 +12,7 @@
 
 
 /**
- * \file match.cpp Fixtures for classes in module "match"
+ * \file Fixtures for classes in module "match"
  */
 
 

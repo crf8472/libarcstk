@@ -18,7 +18,7 @@
 
 
 /**
- * \file parse.cpp Fixtures for \ref ARTriplet, \ref ARBlock, \ref ARParser and handlers
+ * \file Fixtures for \ref ARTriplet, \ref ARBlock, \ref ARParser and handlers
  */
 
 

@@ -15,7 +15,7 @@
 
 
 /**
- * \file identifier.cpp Fixtures for classes in module 'identifier'
+ * \file Fixtures for classes in module 'identifier'
  */
 
 

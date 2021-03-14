@@ -18,7 +18,7 @@
 
 
 /**
- * \file calculate.cpp Fixtures for classes in module calculate
+ * \file Fixtures for classes in module calculate
  */
 
 

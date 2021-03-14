@@ -12,7 +12,7 @@
 
 
 /**
- * \file samplesequence.cpp Fixtures for SampleSequence
+ * \file Fixtures for SampleSequence
  */
 
 
@@ -46,7 +46,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 				std::ifstream::in | std::ifstream::binary);
 	} catch (const std::ifstream::failure& f)
 	{
-		FAIL ("Could not open test data file calculation-test-01.bin");
+		FAIL ("Could not open test data file samplesequence-test-01.bin");
 	}
 
 	std::vector<uint8_t> bytes(
