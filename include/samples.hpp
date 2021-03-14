@@ -154,7 +154,7 @@ class SampleIterator final
 
 public:
 
-	SampleIterator& operator = (const SampleIterator &rhs) = delete;
+	SampleIterator& operator = (const SampleIterator &rhs) = default;
 
 
 	using iterator_category = std::input_iterator_tag;
