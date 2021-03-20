@@ -68,7 +68,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	CHECK ( bytes[1022] == 0x71 );
 	CHECK ( bytes[1023] == 0x15 );
 
-	SECTION ("Subscript in16_t interleaved sequence")
+	SECTION ("Subscript in16_t interleaved sequence access works as expected")
 	{
 		InterleavedSamples<int16_t> sequence;
 
@@ -133,7 +133,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[255] == 0x1571DD6D );
 	}
 
-	SECTION ("Iterate in16_t interleaved sequence")
+	SECTION ("Iterating over a in16_t interleaved sequence works as expected")
 	{
 		InterleavedSamples<int16_t> sequence;
 
@@ -282,7 +282,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
 
-		InterleavedSamples<int16_t>::size_type index = 0;
+		decltype( sequence )::size_type index = 0;
 		for (const auto& sample : sequence)
 		{
 			CHECK ( sample == sequence[index] );
