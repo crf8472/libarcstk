@@ -185,6 +185,33 @@ public:
 
 	/**
 	 * \internal
+	 * \brief Return a pointer to the SampleSequence.
+	 *
+	 * Pointer to the SampleSequence the iterator relates to.
+	 *
+	 * \return A pointer to the SampleSequence.
+	 */
+	const SampleSequence<T, is_planar>* sequence() const
+	{
+		return seq_;
+	}
+
+	/**
+	 * \internal
+	 * \brief Return the iterator position.
+	 *
+	 * Beginning of the sequence is 0 and a legal position is a positive integer
+	 * that is smaller than the size() of the sequence.
+	 *
+	 * \return Iterator position relative to the beginning.
+	 */
+	difference_type pos() const
+	{
+		return pos_;
+	}
+
+	/**
+	 * \internal
 	 * \brief Dereference operator.
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
