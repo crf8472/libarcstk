@@ -155,26 +155,38 @@ class SampleIterator final
 public:
 
 	SampleIterator& operator = (const SampleIterator &rhs) = default;
+	// User-declare this to avoid -Wdeprecated-copy firing
 
 
-	using iterator_category = std::input_iterator_tag;
+	using iterator_category = std::bidirectional_iterator_tag;
 
 	using value_type        = sample_type;
 
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
 
-	using pointer           = typename std::conditional<is_const,
-			const value_type*, value_type*>::type;
+	using pointer           = const value_type*;
 
-	using reference         = typename std::conditional<is_const,
-			const value_type&, value_type&>::type;
+	using reference         = const value_type&;
+
+	/**
+	 * \brief Default constructor.
+	 *
+	 * Inititalizes a SampleIterator pointing to \c nullptr on position \c 0.
+	 */
+	SampleIterator()
+		: seq_ { nullptr }
+		, pos_ { 0 }
+	{
+		// empty
+	}
 
 	/**
 	 * \internal
-	 * \brief Construct const_iterator from iterator.
+	 * \brief Construct a constant SampleIterator from a non-constant
+	 * SampleIterator.
 	 *
-	 * \param[in] rhs The iterator to construct a const_iterator
+	 * \param[in] rhs The non-constant SampleIterator
 	 */
 	SampleIterator(const SampleIterator<T, is_planar, false> &rhs)
 		: seq_ { rhs.seq_ } // works due to friendship

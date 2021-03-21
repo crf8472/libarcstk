@@ -56,17 +56,17 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	in.close();
 
-	CHECK ( bytes.size() == 1024 );
+	REQUIRE ( bytes.size() == 1024 );
 
-	CHECK ( bytes[   0] == 0xA5 );
-	CHECK ( bytes[   1] == 0xC2 );
-	CHECK ( bytes[   2] == 0x11 );
-	CHECK ( bytes[   3] == 0xC7 );
+	REQUIRE ( bytes[   0] == 0xA5 );
+	REQUIRE ( bytes[   1] == 0xC2 );
+	REQUIRE ( bytes[   2] == 0x11 );
+	REQUIRE ( bytes[   3] == 0xC7 );
 	// ... all bytes between
-	CHECK ( bytes[1020] == 0x6D );
-	CHECK ( bytes[1021] == 0xDD );
-	CHECK ( bytes[1022] == 0x71 );
-	CHECK ( bytes[1023] == 0x15 );
+	REQUIRE ( bytes[1020] == 0x6D );
+	REQUIRE ( bytes[1021] == 0xDD );
+	REQUIRE ( bytes[1022] == 0x71 );
+	REQUIRE ( bytes[1023] == 0x15 );
 
 	SECTION ("Subscript in16_t interleaved sequence access works as expected")
 	{
@@ -963,6 +963,48 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[126] == 0xABA8E966 );
 		CHECK ( sequence[127] == 0xDD6D28EF );
 	}
+}
+
+
+TEST_CASE ( "SampleIterator increment and decrement",
+		"[samplesequence] [iterator]" )
+{
+	using arcstk::PlanarSamples;
+	using arcstk::InterleavedSamples;
+
+	// Load example samples
+
+	std::ifstream in;
+	in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+	try
+	{
+		in.open("samplesequence-test-01.bin",
+				std::ifstream::in | std::ifstream::binary);
+	} catch (const std::ifstream::failure& f)
+	{
+		FAIL ("Could not open test data file samplesequence-test-01.bin");
+	}
+
+	std::vector<uint8_t> bytes(
+			(std::istreambuf_iterator<char>(in)),
+			std::istreambuf_iterator<char>()
+	);
+
+	in.close();
+
+	REQUIRE ( bytes.size() == 1024 );
+
+	REQUIRE ( bytes[   0] == 0xA5 );
+	REQUIRE ( bytes[   1] == 0xC2 );
+	REQUIRE ( bytes[   2] == 0x11 );
+	REQUIRE ( bytes[   3] == 0xC7 );
+	// ... all bytes between
+	REQUIRE ( bytes[1020] == 0x6D );
+	REQUIRE ( bytes[1021] == 0xDD );
+	REQUIRE ( bytes[1022] == 0x71 );
+	REQUIRE ( bytes[1023] == 0x15 );
+
 
 	SECTION ("Iterator Equality")
 	{
@@ -1004,6 +1046,31 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( begin_other != begin2 );
 	}
 
+	SECTION ("Iterator is default constructible")
+	{
+		using arcstk::SampleIterator;
+
+		SampleIterator<int16_t,  true,  false> iterator1;
+		SampleIterator<int16_t,  false, false> iterator2;
+		SampleIterator<int16_t,  true,  true>  iterator3;
+		SampleIterator<int16_t,  false, true>  iterator4;
+
+		SampleIterator<uint16_t, true,  false> iterator5;
+		SampleIterator<uint16_t, false, false> iterator6;
+		SampleIterator<uint16_t, true,  true>  iterator7;
+		SampleIterator<uint16_t, false, true>  iterator8;
+
+		SampleIterator<int32_t,  true,  false> iterator9;
+		SampleIterator<int32_t,  false, false> iterator10;
+		SampleIterator<int32_t,  true,  true>  iterator11;
+		SampleIterator<int32_t,  false, true>  iterator12;
+
+		SampleIterator<uint32_t, true,  false> iterator13;
+		SampleIterator<uint32_t, false, false> iterator14;
+		SampleIterator<uint32_t, true,  true>  iterator15;
+		SampleIterator<uint32_t, false, true>  iterator16;
+	}
+
 	SECTION ("Iterator is destructible")
 	{
 		using arcstk::SampleIterator;
@@ -1016,10 +1083,11 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		auto pointer = new SampleIterator<uint32_t, false, false>(
 				sequence.begin());
+
 		delete pointer;
 	}
 
-	SECTION ("Iterator Copy constructor")
+	SECTION ("Iterator Copy Constructor")
 	{
 		using arcstk::SampleIterator;
 
@@ -1066,6 +1134,96 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		//CHECK ( not(const_copy3 != sequence.begin()) );
 	}
 
+	SECTION ("Iterator Copy Assignment")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		auto const_begin { sequence.cbegin() };
+		auto const_end   { sequence.cend() };
+
+		REQUIRE ( const_begin != const_end );
+
+
+		SampleIterator<uint32_t, false, true> const_it;
+
+		const_it = const_begin;
+
+		CHECK ( const_it == const_begin );
+		CHECK ( const_it != const_end   );
+
+		const_it = const_end;
+
+		CHECK ( const_it != const_begin );
+		CHECK ( const_it == const_end   );
+	}
+
+	SECTION ("Iterator Move constructor")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		auto const_begin { sequence.cbegin() };
+		auto const_end   { sequence.cend() };
+
+		REQUIRE ( const_begin != const_end );
+
+
+		auto const_it1(std::move(const_begin)); // TODO Tests copy-or-move
+
+		CHECK ( const_it1 == sequence.cbegin() );
+
+		auto const_it2(std::move(const_end));
+
+		CHECK ( const_it2 == sequence.end() );
+	}
+
+	SECTION ("Iterator Move Assignment")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+		REQUIRE ( sequence.size() == sequence.end() - sequence.begin() );
+
+		auto const_begin { sequence.cbegin() };
+		auto const_end   { sequence.cend() };
+
+		REQUIRE ( const_begin != const_end );
+
+		auto const_it = sequence.cbegin();
+
+
+		const_it = std::move(const_end); // TODO Tests copy-or-move
+
+		CHECK ( const_it == sequence.cend() );
+
+		const_it = std::move(const_begin);
+
+		CHECK ( const_it == sequence.cbegin() );
+	}
+
 	SECTION ("Iterator Swap")
 	{
 		using arcstk::SampleIterator;
@@ -1098,6 +1256,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
+		CHECK ( sequence.size() == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( sequence.empty() );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
@@ -1105,7 +1264,11 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( sequence.size() == 256 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
+		CHECK ( sequence.size() == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( not sequence.empty() );
+
+		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
+		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
 	}
 
 	SECTION ("Iterator 32 bit begin and end")
@@ -1115,6 +1278,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( sequence.size() == 0 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
+		CHECK ( sequence.size() == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( sequence.empty() );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
@@ -1122,12 +1286,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( sequence.size() == 128 );
 		CHECK ( sequence.size() == sequence.end() - sequence.begin() );
+		CHECK ( sequence.size() == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( not sequence.empty() );
 
-		CHECK ( *sequence.begin() == 0xD9DBC2A5 );
+		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
+		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
 	}
 
-	SECTION ("Iterator increment begins on beginning and ends on end")
+	SECTION ("Iterator prefix increment begins on beginning and ends on end")
 	{
 		using arcstk::SampleIterator;
 
@@ -1165,6 +1331,202 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( *(++ptr) == 0xDD6DABA8 );
 
 		CHECK ( ++ptr == sequence.end() );
+	}
+
+	SECTION ("Iterator std::next begins on beginning and ends on end")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+
+		auto ptr = std::begin(sequence);
+
+		// begin: first 10 samples
+		CHECK ( *ptr  == 0x9ECCC2A5 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x65DC4D95 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x0C0F979D );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x84699BD5 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xF5F6F9E6 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xE6EAC2DA );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x8E86AA07 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x60F6FA60 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x4A1FF5A5 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x5BCA0129 );
+
+		ptr += 109;
+
+		// end: last 10 samples
+		CHECK ( *ptr  == 0xE6791252 ); // 118
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xE46ECE70 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x352BB52A );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x59952BDA );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x31C575C7 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xA419E185 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xA7ED30D6 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0x363FBB36 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xE0EBE817 );
+
+		ptr = std::next(ptr);
+		CHECK ( *ptr == 0xDD6DABA8 );
+
+		ptr = std::next(ptr);
+		CHECK ( ptr == sequence.end() );
+	}
+
+	SECTION ("Iterator prefix decrement begins on end and ends on beginning")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+
+		auto ptr = std::end(sequence);
+
+		// end: last 10 samples
+		CHECK ( *(--ptr) == 0xDD6DABA8 );
+		CHECK ( *(--ptr) == 0xE0EBE817 );
+		CHECK ( *(--ptr) == 0x363FBB36 );
+		CHECK ( *(--ptr) == 0xA7ED30D6 );
+		CHECK ( *(--ptr) == 0xA419E185 );
+		CHECK ( *(--ptr) == 0x31C575C7 );
+		CHECK ( *(--ptr) == 0x59952BDA );
+		CHECK ( *(--ptr) == 0x352BB52A );
+		CHECK ( *(--ptr) == 0xE46ECE70 );
+		CHECK ( *(--ptr) == 0xE6791252 ); // 118
+
+		ptr -= 108;
+
+		// begin: first 10 samples
+		CHECK ( *(--ptr) == 0x5BCA0129 );
+		CHECK ( *(--ptr) == 0x4A1FF5A5 );
+		CHECK ( *(--ptr) == 0x60F6FA60 );
+		CHECK ( *(--ptr) == 0x8E86AA07 );
+		CHECK ( *(--ptr) == 0xE6EAC2DA );
+		CHECK ( *(--ptr) == 0xF5F6F9E6 );
+		CHECK ( *(--ptr) == 0x84699BD5 );
+		CHECK ( *(--ptr) == 0x0C0F979D );
+		CHECK ( *(--ptr) == 0x65DC4D95 );
+		CHECK ( *(--ptr) == 0x9ECCC2A5 );
+
+		CHECK ( ptr == sequence.begin() );
+	}
+
+	SECTION ("Iterator std::prev begins on end and ends on beginning")
+	{
+		using arcstk::SampleIterator;
+
+		InterleavedSamples<uint32_t> sequence;
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( sequence.size() == 128 );
+
+		// Position on last element
+		auto ptr = std::prev(std::end(sequence));
+
+		// end: last 10 samples
+		CHECK ( *ptr == 0xDD6DABA8 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xE0EBE817 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x363FBB36 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xA7ED30D6 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xA419E185 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x31C575C7 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x59952BDA );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x352BB52A );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xE46ECE70 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xE6791252 ); // 118
+
+		ptr -= 108;
+
+		// begin: first 10 samples
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x5BCA0129 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x4A1FF5A5 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x60F6FA60 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x8E86AA07 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xE6EAC2DA );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0xF5F6F9E6 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x84699BD5 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x0C0F979D );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x65DC4D95 );
+
+		ptr = std::prev(ptr);
+		CHECK ( *ptr == 0x9ECCC2A5 );
+
+		CHECK ( ptr == sequence.begin() );
 	}
 }
 
