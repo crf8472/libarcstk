@@ -774,7 +774,7 @@ public: /* member functions */
 	 */
 	SampleSequence(const bool left0_right1)
 		: Base(left0_right1)
-		, buffer_ {}
+		, buffer_ { nullptr }
 	{
 		// empty
 	}
