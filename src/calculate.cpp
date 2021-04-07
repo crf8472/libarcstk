@@ -2616,6 +2616,9 @@ checksum::type Calculation::Impl::type() const noexcept
 void Calculation::Impl::update_audiosize(const AudioSize &audiosize) noexcept
 {
 	context_->set_audio_size(audiosize);
+
+	ARCS_LOG_INFO << "Update total number of samples to: "
+		<< context_->audio_size().total_samples();
 }
 
 
