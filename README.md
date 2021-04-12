@@ -5,7 +5,7 @@
 [![Latest](https://img.shields.io/badge/dynamic/json.svg?url=https://codeberg.org/api/v1/repos/tristero/libarcstk/releases&label=latest&query=$.0.name&color=yellowgreen)](https://codeberg.org/tristero/libarcstk/releases)
 
 
-## What libarcstk is
+## What libarcstk does
 
 Libarcstk supports the following tasks:
 
@@ -35,7 +35,7 @@ Checksums" or "ARCS"s for short.
   can probably do that for you.)
 - Libarcstk offers no network facilities and is not supposed to do so. The
   actual HTTP request for fetching the reference values from AccurateRip is
-  better performed by the HTTP networking client of your choice.
+  better performed by the HTTP client of your choice.
 
 
 
@@ -58,13 +58,11 @@ build switches.
 
 - Consult the [example applications](./examples/README.md) in the examples
   folder. They illustrate the supported usecases.
-- [Build the API documentation](BUILD.md#user-content-building-the-api-documentation) and
-  view it in a browser or [read it online][1].
-- For local ARCS calculation, also check whether [libarcsdec][2] is helpful. Its
+- [Build the API documentation](BUILD.md#user-content-building-the-api-documentation)
+  and view it in a browser or [read it online][1].
+- For local ARCS calculation, also check whether [libarcsdec][2] is useful. Its
   target is to read virtually any lossless audio format by a uniform
   API that is really simple to use.
-- As soon as I manage to write a quickstart tutorial, it will be found in the
-  Wiki.
 
 
 
