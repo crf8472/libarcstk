@@ -1354,7 +1354,6 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 	using arcstk::make_empty_arid;
 
 	const auto empty_default_arid = make_empty_arid();
-	const auto SAMPLE_TYPE_MAX_VALUE = std::numeric_limits<sample_t>::max();
 
 	SECTION ( "Construction without parameters is correct" )
 	{
@@ -1387,12 +1386,12 @@ TEST_CASE ( "SingletrackCalcContext", "[calculate] [calccontext]" )
 		CHECK ( sctx->first_relevant_sample(99)  == 0 );
 		CHECK ( sctx->first_relevant_sample(255) == 0 );
 
-		CHECK ( sctx->last_relevant_sample()    == SAMPLE_TYPE_MAX_VALUE );
+		CHECK ( sctx->last_relevant_sample()    < 0 );
 
-		CHECK ( sctx->last_relevant_sample(0)   == SAMPLE_TYPE_MAX_VALUE );
-		CHECK ( sctx->last_relevant_sample(1)   == SAMPLE_TYPE_MAX_VALUE );
-		CHECK ( sctx->last_relevant_sample(99)  == SAMPLE_TYPE_MAX_VALUE );
-		CHECK ( sctx->last_relevant_sample(255) == SAMPLE_TYPE_MAX_VALUE );
+		CHECK ( sctx->last_relevant_sample(0)   < 0 );
+		CHECK ( sctx->last_relevant_sample(1)   < 0 );
+		CHECK ( sctx->last_relevant_sample(99)  < 0 );
+		CHECK ( sctx->last_relevant_sample(255) < 0 );
 
 		CHECK ( sctx->track(0) == 1 );
 		CHECK ( sctx->track(std::numeric_limits<sample_count_t>::max()) == 1);
