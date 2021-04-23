@@ -80,7 +80,7 @@ build switches.
 
 ## Bugs
 
-- Never tested with CD images containing data tracks.
+- Checksumming CD images containing data tracks is untested and broken.
 
 [1]: https://pages.codeberg.org/tristero/libarcstk
 [2]: https://codeberg.org/tristero/libarcsdec
