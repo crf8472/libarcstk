@@ -30,9 +30,9 @@ Checksums" or "ARCS"s for short.
 ## What libarcstk does not
 
 - Libarcstk does not rip CDs
-- Libarcstk does not offer to read, buffer or decode any audio data. You have to
-  provide the samples on your own. (But note that there is [libarcsdec][2] than
-  can probably do that for you.)
+- Libarcstk does not offer to read or decode any audio data. You have to
+  provide the samples on your own. (Note that there is [libarcsdec][2] that
+  can possibly do that for you.)
 - Libarcstk offers no network facilities and is not supposed to do so. The
   actual HTTP request for fetching the reference values from AccurateRip is
   better performed by the HTTP client of your choice.
