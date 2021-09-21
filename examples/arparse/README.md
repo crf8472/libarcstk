@@ -7,7 +7,7 @@ provided as a file or as piped command line input.
 
 ## Requirements
 
-- libarcstk
+- The compiled libarcstk shared object file: ../../build/libarcstk.so
 
 
 ## Build

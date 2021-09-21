@@ -9,7 +9,7 @@ can only verify entire albums.
 
 Dependencies for building and running:
 
-- libarcstk
+- The compiled libarcstk shared object file: ../../build/libarcstk.so
 
 Install a http-client like ``curl`` if you want to send actual queries to
 AccurateRip.

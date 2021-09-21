@@ -4,8 +4,8 @@ libarcstk comes with 4 mini examples for what can be done with libarcstk and how
 this is to be done. Each of the examples refers to one of the main modules of
 libarcstk.
 
-The aim of the examples is demonstration. If you are interested in using
-libarcstk, the author feels you should have some code to start with.
+The aim of the examples is demonstration, not productive use. Backup any file
+you intend to use as input for the example applications!
 
 Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
@@ -15,8 +15,8 @@ as a single audio file along with its metadata (as a CUESheet) is to be
 processed. This restriction keeps the examples reasonably small. Of course,
 libarcstk can also process single audio files representing specific tracks or a
 set of audio files that represent an album or parts of an album. For this use
-cases, there is currently no example provided but it should not be that hard to
-figure out.
+cases, there is currently no example provided but given the examples and the API
+documentation it should not be that hard to figure out how to do it.
 
 - [albumid](./albumid/README.md) - Demonstrates how to derive the
   AccurateRip-ID of a ripped album. With this id, libarcstk also provides the
@@ -37,5 +37,5 @@ figure out.
 ## Disclaimer
 
 Note that despite the example applications may provide some useful functions,
-they are _not_ hardened for production use. They should be considered as local
-demonstrations, _not_ as tools!
+they are rudimentary implemented and in no way hardened for production use. They
+are mere local demonstrations. Do not use them as tools!

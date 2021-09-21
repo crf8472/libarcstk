@@ -10,9 +10,9 @@ done using libcue, the decoding of the audio samples is done using libsndfile.
 
 Dependencies for building and running:
 
-- libarcstk
 - libcue >= 2.0.0 (For parsing the CUESheet)
 - libsndfile >= 1.0.17 (For decoding the audio data)
+- The compiled libarcstk shared object file: ../../build/libarcstk.so
 
 
 ## Build
