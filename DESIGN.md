@@ -2,7 +2,7 @@
 
 
 I used the project to improve my C++ knowledge while achieving the solution of a
-real task.When it eventually grew to a certain point, I thought that I could
+real task. When it eventually grew to a certain point, I felt that I could
 share it. This decision motivated me to reflect my API design. I noted the
 following points mainly as a log for myself. Libarcstk is at least intended to
 obey these requirements.
