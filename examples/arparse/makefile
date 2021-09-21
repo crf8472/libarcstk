@@ -10,7 +10,7 @@ PROJECT := arparse
 	$(CXX) -c $(CFLAGS) -O3 $<
 
 $(PROJECT) : $(PROJECT).o
-	$(CXX) $(CFLAGS) $< -larcstk -o $@
+	$(CXX) $(CFLAGS) $< -o $@ ../../build/libarcstk.so
 
 clean:
 	rm -f *.o $(PROJECT)

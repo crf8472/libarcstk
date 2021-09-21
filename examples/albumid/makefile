@@ -10,7 +10,7 @@ PROJECT := albumid
 	$(CXX) -c $(CFLAGS) -O3 $<
 
 $(PROJECT) : $(PROJECT).o
-	$(CXX) $(CFLAGS) $< -lcue -lsndfile -larcstk -o $@
+	$(CXX) $(CFLAGS) $< -o $@ ../../build/libarcstk.so -lcue -lsndfile
 
 clean:
 	rm -f *.o $(PROJECT)
