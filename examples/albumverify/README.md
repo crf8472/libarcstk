@@ -9,7 +9,7 @@ can only verify entire albums.
 
 Dependencies for building and running:
 
-- The compiled libarcstk shared object file: ../../build/libarcstk.so
+- The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
 
 Install a http-client like ``curl`` if you want to send actual queries to
 AccurateRip.
@@ -32,7 +32,7 @@ For removing all compiled and temporary files, just use
 
 Use it like:
 
-	$ ./albumverify --id=<ARId of the album> --arcs2=0x1,0x2,0x3,... <name_of_response_file>
+	$ ./albumverify --id=<ARId of the album> --arcs2=0x1,0x2,0x3,... <response_file.bin>
 
 albumverify expects two mandatory parameters:
 
@@ -42,11 +42,8 @@ albumverify expects two mandatory parameters:
   numbers, representing the actual local checksums that are to be verified.
   You have to declare ARCSv1 values by using ``--arcs1`` and ARCSv2 values by
   using ``--arcs2``. The values may or may not be prefixed by "0x".
-- The ``<name_of_the_response_file>`` is interpreted as a file holding the
-  binary response of an AccurateRip request. It is optional since you can also
-  pipe the binary input directly to ``albumverify``. If you are not sure how to
-  provide this input, you may consult the
-  [arparse example](../arparse/README.md).
+- The ``<response_file.bin>`` is expected to be a file holding the
+  binary response of an AccurateRip request.
 
 
 ## Example data
@@ -60,8 +57,8 @@ version with deviating values for tracks 6, 12 and 15 resides in
 On Linux these input data can be verified against the values from AccurateRip as
 follows:
 
-	$ curl -s "$(tail -1 < example_arid.txt)" > response.txt
-	$./albumverify --id=$(head -1 < example_arid.txt) --arcs2="$(xargs < example_sums_ok.txt | tr ' ' ',')" response.txt
+	$ curl -s "$(tail -1 < example_arid.txt)" > response.bin
+	$ ./albumverify --id=$(head -1 < example_arid.txt) --arcs2="$(xargs < example_sums_ok.txt | tr ' ' ',')" response.bin
 
 To see the output for a partial failing verify, replace ``example_sums_ok.txt``
 by ``example_sums_fail.txt`` in the example above.
