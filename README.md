@@ -56,13 +56,14 @@ build switches.
 
 ## How to Use
 
-- Consult the [example applications](./examples/README.md) in the examples
-  folder. They illustrate the supported usecases.
-- [Build the API documentation](BUILD.md#user-content-building-the-api-documentation)
-  and view it in a browser or [read it online][1].
+- Each supported usecase is illustrated by a corresponding [example
+  application](./examples/README.md) in the ``examples/`` folder.
+- [Build the API
+  documentation](BUILD.md#user-content-building-the-api-documentation) and view
+  it in a browser or [read it online][1].
 - For local ARCS calculation, also check whether [libarcsdec][2] is useful. Its
-  target is to read virtually any lossless audio format by a uniform
-  API that is really simple to use.
+  target is to read virtually any lossless audio format by a uniform API that is
+  really simple to use.
 
 
 
