@@ -32,6 +32,7 @@ set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (OUTPUT_INDEX      "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
+set (CONFPY            "${CMAKE_CURRENT_BINARY_DIR}/conf.py" )
 
 set (MCSS_REPO_URL       "https://github.com/mosra/m.css.git" )
 set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
@@ -55,7 +56,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 
 	FetchContent_Declare (m_css
 		GIT_REPOSITORY    "${MCSS_REPO_URL}"
-		#GIT_TAG          ... use always HEAD of master
+		#GIT_TAG          ... use always HEAD of default branch
 		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
 	)
 
@@ -82,7 +83,7 @@ else() ## No FetchContent module available
 
 	ExternalProject_Add (mcss_provide
 		GIT_REPOSITORY    ${MCSS_REPO_URL}
-		#GIT_TAG          ... use always HEAD of master
+		#GIT_TAG          ... use always HEAD of default branch
 		GIT_SHALLOW       true
 		GIT_PROGRESS      true
 		TIMEOUT           10
@@ -118,6 +119,7 @@ add_dependencies (mcss_doc mcss_requirements )
 ## --- Prepare Doxygen XML generation
 
 configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py" "${CONFPY}" @ONLY )
 
 if (DOXYGEN_PREFERS_SEPARATE )
 
@@ -132,7 +134,7 @@ if (DOXYGEN_PREFERS_SEPARATE )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
-		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${DOXYFILE}"
+		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${CONFPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
 		DEPENDS "${OUTPUT_INDEX}"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
@@ -145,7 +147,7 @@ else()
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
-		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${DOXYFILE}"
+		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${CONFYPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
 		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
 				"${DOC_DOXYFILE_BASE}"
