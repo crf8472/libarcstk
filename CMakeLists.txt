@@ -17,7 +17,7 @@ project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 ## --- Setup Version Information
 
 set (PROJECT_BRIEF_DESC
-	"A library to calculate and verify AccurateRip checksums and ids" )
+	"Toolkit to calculate and verify AccurateRip checksums and ids" )
 
 set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}/" )
 
