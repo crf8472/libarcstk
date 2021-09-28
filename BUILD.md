@@ -24,8 +24,8 @@ major issues.
 ### Optional Buildtime Dependencies
 
 - git - for testing: to clone test framework [Catch2][2] as an external project
-  when running the unit tests. You also need git if you want to build the
-  documentation with [m.css][3] (instead of stock doxygen).
+  when running the unit tests. For building the documentation with
+  [m.css][3] (instead of stock doxygen) to clone m.css.
 - Doxygen - for documentation: to build the API documentation in HTML
   (graphviz/dot is not required)
 - Python (with virtualenv) - for documentation: to build the documentation in
@@ -57,7 +57,7 @@ We describe the build configuration for the following profiles:
   for some target system).
 
 
-### Trying a different compiler
+### Using a different compiler
 
 Libarcstk is tested to compile with clang++ as well as with g++.
 
@@ -75,7 +75,7 @@ If your actual compiler is not g++ and you want to use your installed g++:
 	$ export CC=$(which gcc)
 	$ export CXX=$(which g++)
 
-Then, delete all contents of directory ``build`` (which contains metadata from
+Then, delete your directory ``build`` (which contains metadata from
 the previous compiler) to start off cleanly.
 
 	$ cd ..
@@ -106,18 +106,18 @@ not getting in your way:
 This will install the following files to your system:
 
 - the shared object libarcstk.so.x.y.z (along with a symbolic link
-  ``libarcstk.so``) in the standard library location (e.g. /usr/local/lib)
-- the eight public header files ``calculate.hpp``, ``identifier.hpp``,
+  ``libarcstk.so``) in the standard library location (e.g. ``/usr/local/lib``)
+- the 8 public header files ``calculate.hpp``, ``identifier.hpp``,
   ``logging.hpp``, ``match.hpp``, ``parse.hpp``, ``policies.hpp``,
   ``samples.hpp`` and ``version.hpp`` in the standard include location
-  (e.g. /usr/local/include).
-- the two exported non-API template headers builder.tpp and validate.tpp in
-  folder ``details'' below the location where the public headers are
-- the four cmake packaging files ``libarcstk-config.cmake``,
+  (e.g. ``/usr/local/include``).
+- the 2 exported non-API template headers ``builder.tpp`` and ``validate.tpp``
+  in folder ``details`` below the location where the public headers are
+- the 4 cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
   ``libarcstk-targets-release.cmake`` that allow other projects to simply import
   libarcstk's exported cmake targets
-- the pkg-config configuration file libarcstk.pc
+- the pkg-config configuration file ``libarcstk.pc``
 
 You can change the install location by calling cmake with the
 ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` switch.
@@ -180,7 +180,7 @@ The tool may log some warnings about unknown compile switches when you have
 selected g++ as your actual compiler. This is just because there are some
 switches configured for your actual compiler that are unknown to the tool. The
 warnings can be ignored. To avoid them
-[switch to clang++](#trying-a-different-compiler), then configure the project
+[switch to clang++](#using-a-different-compiler), then configure the project
 with ``-DIWYU=ON`` and run the build again.
 
 
