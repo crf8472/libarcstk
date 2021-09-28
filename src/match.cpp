@@ -457,7 +457,7 @@ void DefaultMatchBase::set_flag(const int offset, const bool value)
 
 void DefaultMatchBase::validate_block(int b) const
 {
-	if (blocks_ - b < 1)
+	if (b >= blocks_)
 	{
 		auto msg = std::stringstream {};
 		msg << "Block index " << b << " too big, only " << blocks_
@@ -470,7 +470,7 @@ void DefaultMatchBase::validate_block(int b) const
 
 void DefaultMatchBase::validate_track(int t) const
 {
-	if (tracks_per_block_ - t < 1)
+	if (t >= tracks_per_block_)
 	{
 		auto msg = std::stringstream {};
 		msg << "Track index " << t << " too big, only " << tracks_per_block_

@@ -1568,7 +1568,7 @@ int MultitrackCalcContext::do_track(const sample_count_t smpl)
 	}
 
 	// Sample beyond last track?
-	if (this->audio_size().total_samples() - smpl < 1)
+	if (smpl >= this->audio_size().total_samples())
 	{
 		// This will return an invalid track number
 		// Caller has to check result for <= total_tracks() for a valid result
@@ -2624,7 +2624,7 @@ void Calculation::Impl::update_audiosize(const AudioSize &audiosize) noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	return (this->samples_expected() - this->samples_processed()) < 1;
+	return this->samples_processed() >= this->samples_expected();
 
 	// Calculation is not complete only while there are less samples processed
 	// than expected.
