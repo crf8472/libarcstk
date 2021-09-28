@@ -61,7 +61,8 @@ set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 
 ## --- Generate documentation output directory
 
-file (MAKE_DIRECTORY "${DOC_GEN_DIR}" )
+add_custom_target(create_doc_output_dir ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_DIRECTORY})
 
 
 
@@ -107,6 +108,7 @@ configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 ## HTML output that gives as this nice, cosy feeling of the Nineties.
 
 add_custom_target (doc )
+add_dependencies (doc create_doc_output_dir )
 
 
 ## --- If some thirdparty documentation tool was requested, use it
