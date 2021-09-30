@@ -90,8 +90,7 @@ exhale_args = {
     "containmentFolder":     "./api",
     "rootFileName":          "library_root.rst",
     "rootFileTitle":         "@PROJECT_NAME@ API",
-    #"doxygenStripFromPath":  "@PROJECT_INCLUDE_DIR@",
-    "doxygenStripFromPath":  "../../../../",
+    "doxygenStripFromPath":  "../../../../", # doxygen's STRIP_FROM_PATH
     # optional
     "createTreeView":        True, # TIP: if using the sphinx-bootstrap-theme,
                                    # you need
