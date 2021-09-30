@@ -48,9 +48,3 @@ arparse expects the filename as parameter, just like:
 
 For more information, read the comments in [arparse.cpp](./arparse.cpp).
 
-Note: the 'parse' application of [arcs-tools][1] contains
-[a parser subclass that can parse from stdin](https://codeberg.org/tristero/arcs-tools/src/branch/master/src/tools-parse.hpp).
-
-
-[1]: https://pages.codeberg.org/tristero/arcs-tools
-
