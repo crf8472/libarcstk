@@ -43,6 +43,8 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 
 add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
 
+add_dependencies (mcss_doc doc_prerequisites ) ## Ensure everything is in place
+
 
 ## --- Define m.css to be checked out/updated while configuring
 
@@ -153,7 +155,6 @@ else()
 				"${DOC_DOXYFILE_BASE}"
 				"${DOXYFILE_TEMPLATE}"
 				"${DOXYFILE}"
-				${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM

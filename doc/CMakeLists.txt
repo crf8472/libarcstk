@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 3.7 )
 
 
-find_package (Doxygen 1.8.0 ) #COMPONENTS REQUIRED dot )
+find_package (Doxygen 1.8.0 )
 
 
 message (STATUS
@@ -59,13 +59,6 @@ set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 
 
 
-## --- Generate documentation output directory
-
-add_custom_target(create_doc_output_dir ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_DIRECTORY})
-
-
-
 ## --- Build internal docs if requested
 
 if (WITH_INTERNAL_DOCS)
@@ -91,12 +84,30 @@ endif (WITH_INTERNAL_DOCS)
 
 
 
+## --- Generate documentation output directory
+
+add_custom_command(
+	OUTPUT  ${DOC_GEN_DIR}
+	PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_GEN_DIR}" )
+
+
+
 ## --- Configure doxyfile and static texts
 
 configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 
-configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
+add_custom_command (
+	OUTPUT  ${DOC_MAINPAGE}
+	PRE_BUILD
+	COMMAND ${CMAKE_COMMAND}
+		-D DOC_TEXTS_SOURCE_DIR="${DOC_TEXTS_SOURCE_DIR}"
+		-D DOC_TEXTS_GEN_DIR="${DOC_TEXTS_GEN_DIR}"
+		-P ${PROJECT_CMAKE_DIR}/update_mainpagemd.cmake
+)
 
+## Add THIS target as a dependency in all subdirectories
+add_custom_target (doc_prerequisites DEPENDS ${DOC_GEN_DIR} ${DOC_SOURCES} )
 
 
 ## --- Activate requested documentation targets
@@ -108,7 +119,6 @@ configure_file ("${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md" "${DOC_MAINPAGE}" @ONLY )
 ## HTML output that gives as this nice, cosy feeling of the Nineties.
 
 add_custom_target (doc )
-add_dependencies (doc create_doc_output_dir )
 
 
 ## --- If some thirdparty documentation tool was requested, use it
@@ -261,7 +271,9 @@ if (NOT SKIP_DOXYGEN_HTML )
 		"${DOC_OUTPUT_MAINPAGE}"
 	) ## This will produce HTML but call deduplication needlessly
 
-	add_custom_target (plain_doc DEPENDS "${DOC_OUTPUT_MAINPAGE}" )
+	add_custom_target (plain_doc
+		DEPENDS "${DOC_GEN_DIR}" "${DOC_OUTPUT_MAINPAGE}" )
+
 	add_dependencies  (plain_doc plain_doxygen )
 
 	add_dependencies  (doc plain_doc )

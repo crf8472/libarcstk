@@ -1,0 +1,56 @@
+#include "version.hpp"
+
+#include <string>
+
+namespace arcstk
+{
+
+const std::string LIBARCSTK_NAME = "@LIB_NAME@";
+
+const int LIBARCSTK_VERSION_MAJOR = @LIB_VERSION_MAJOR@;
+
+const int LIBARCSTK_VERSION_MINOR = @LIB_VERSION_MINOR@;
+
+const int LIBARCSTK_VERSION_PATCH = @LIB_VERSION_PATCH@;
+
+const std::string LIBARCSTK_VERSION_SUFFIX = "@LIB_VERSION_SUFFIX@";
+
+const std::string LIBARCSTK_VERSION = "@LIB_VERSION_STRING@";
+
+const std::string LIBARCSTK_GIT_VERSION = "@GIT_VERSION_STRING@";
+
+
+/**
+ * \brief Compares specified version to actual version
+ *
+ * \param[in] major Major version number to test
+ * \param[in] minor Minor version number to test
+ * \param[in] patch Patch level number to test
+ *
+ * \return TRUE if actual version is at least specified version
+ */
+bool api_version_is_at_least(const int major, const int minor, const int patch)
+{
+	if (LIBARCSTK_VERSION_MAJOR > major)
+	{
+		return true;
+	}
+
+	if (LIBARCSTK_VERSION_MINOR > minor)
+	{
+		return LIBARCSTK_VERSION_MAJOR == major;
+	}
+
+	if (LIBARCSTK_VERSION_PATCH > patch)
+	{
+		return LIBARCSTK_VERSION_MINOR == minor;
+	}
+
+	return  LIBARCSTK_VERSION_MAJOR == major
+		and LIBARCSTK_VERSION_MINOR == minor
+		and LIBARCSTK_VERSION_PATCH == patch;
+}
+
+/** @} */
+
+} // namespace arcstk

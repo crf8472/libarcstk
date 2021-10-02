@@ -92,6 +92,9 @@ set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 ## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 
+## "Source directory for cmake scripts"
+set (PROJECT_CMAKE_DIR        "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
+
 ## "Target directory for generated sources and configuration"
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
@@ -133,15 +136,21 @@ endif (IWYU)
 file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 
 
-
 ## --- Configure CMake controlled files
 
-## Version header
-
-configure_file (
-	"${PROJECT_INCLUDE_DIR}/version.hpp_in"
-	"${PROJECT_BUILD_SOURCE_DIR}/version.hpp"
-	@ONLY
+## Update version.cpp on buildtime
+add_custom_target (update_version_cpp
+	COMMAND ${CMAKE_COMMAND}
+		-D LIB_NAME=${PROJECT_NAME}
+		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+		-D LIB_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+		-D LIB_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+		-D LIB_VERSION_SUFFIX=${PROJECT_VERSION_SUFFIX}
+		-D LIB_VERSION_STRING=${PROJECT_VERSION_STRING}
+		-D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
+		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
+		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
 )
 
 
@@ -155,7 +164,7 @@ list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/parse.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/policies.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_BUILD_SOURCE_DIR}/version.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/version.hpp" )
 
 set (PRIVATE_HEADERS )
 list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
@@ -170,7 +179,8 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
 	"${PROJECT_SOURCE_DIR}/parse.cpp"
-	"${PROJECT_SOURCE_DIR}/samples.cpp" )
+	"${PROJECT_SOURCE_DIR}/samples.cpp"
+	"${PROJECT_SOURCE_DIR}/version.cpp.in" )
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
@@ -180,12 +190,16 @@ target_include_directories (${PROJECT_NAME}
 		"${PROJECT_BUILD_SOURCE_DIR}" )
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
+	CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
 	CXX_STANDARD   14
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
 	PRIVATE_HEADER "${PRIVATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
+
+## Update version.cpp on every build
+add_dependencies (${PROJECT_NAME} update_version_cpp )
 
 
 ## --- Install binary and exported header files
@@ -380,53 +394,6 @@ endif (WITH_NATIVE )
 message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 
-## --- Ensure version info + current commit is available
-
-find_package (Git QUIET REQUIRED )
-
-## Run git with specified command options
-## return $git_exit_code and $git_output
-macro (RunGit )
-
-	execute_process(COMMAND
-		"${GIT_EXECUTABLE}" ${ARGV}
-		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		RESULT_VARIABLE git_exit_code
-		OUTPUT_VARIABLE git_output
-		ERROR_QUIET
-		OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-	if (git_exit_code EQUAL 0 )
-		set (GIT_STATE TRUE )
-	else()
-		set (GIT_STATE FALSE )
-	endif()
-endmacro()
-
-
-set(git_object HEAD)
-
-RunGit ("describe" "--always" "${git_object}")
-
-if (GIT_STATE )
-	set (PROJECT_GIT_DESCRIBE ${git_output} )
-endif()
-
-RunGit ("rev-parse" "${git_object}" )
-
-if (GIT_STATE )
-	set (PROJECT_GIT_COMMIT "${git_output}" )
-endif()
-
-
-set_property(GLOBAL APPEND
-	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
-)
-
-message (STATUS "Git describe: ${PROJECT_GIT_DESCRIBE}" )
-message (STATUS "Git commit id: ${PROJECT_GIT_COMMIT}" )
-
-
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
 
 option (WITH_TESTS "Build unit tests" OFF )
@@ -469,7 +436,4 @@ else (WITH_DOCS )
 
 	message (STATUS "Build without documentation")
 endif (WITH_DOCS )
-
-unset (PROJECT_GIT_DESCRIBE )
-unset (PROJECT_GIT_COMMIT )
 

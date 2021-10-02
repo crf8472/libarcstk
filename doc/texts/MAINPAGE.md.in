@@ -45,7 +45,6 @@ Build and install to just use the API:
 
 \section Version
 
-This documentation was generated from commit
-[@PROJECT_GIT_DESCRIBE@]
-(https://codeberg.org/tristero/libarcstk/commit/@PROJECT_GIT_COMMIT@).
+This documentation was generated from [this commit]
+(https://codeberg.org/tristero/libarcstk/commit/@GIT_COMMIT_ID@).
 
