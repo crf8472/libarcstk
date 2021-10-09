@@ -12,6 +12,8 @@
 
 namespace arcstk
 {
+namespace v_1_0_0
+{
 
 /**
  * \addtogroup logging
@@ -66,6 +68,7 @@ bool api_version_is_at_least(const int major, const int minor, const int patch);
 
 /** @} */
 
+} // namespace v_1_0_0
 } // namespace arcstk
 
 #endif

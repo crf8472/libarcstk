@@ -139,7 +139,9 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 ## --- Configure CMake controlled files
 
 ## Update version.cpp on buildtime
-add_custom_target (update_version_cpp
+add_custom_command (
+	OUTPUT ${PROJECT_BUILD_SOURCE_DIR}/version.cpp
+	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
 		-D LIB_NAME=${PROJECT_NAME}
 		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
@@ -180,7 +182,7 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
 	"${PROJECT_SOURCE_DIR}/parse.cpp"
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
-	"${PROJECT_SOURCE_DIR}/version.cpp.in" )
+	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
@@ -199,7 +201,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
 ## Update version.cpp on every build
-add_dependencies (${PROJECT_NAME} update_version_cpp )
+#add_dependencies (${PROJECT_NAME} update_version_cpp )
 
 
 ## --- Install binary and exported header files
