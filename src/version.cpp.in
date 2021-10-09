@@ -35,24 +35,22 @@ const std::string LIBARCSTK_GIT_VERSION = "@GIT_VERSION_STRING@";
  */
 bool api_version_is_at_least(const int major, const int minor, const int patch)
 {
-	if (LIBARCSTK_VERSION_MAJOR > major)
+	if (LIBARCSTK_VERSION_MAJOR < major)
 	{
-		return true;
+		return false;
 	}
 
-	if (LIBARCSTK_VERSION_MINOR > minor)
+	if (LIBARCSTK_VERSION_MINOR < minor)
 	{
-		return LIBARCSTK_VERSION_MAJOR == major;
+		return LIBARCSTK_VERSION_MAJOR > major;
 	}
 
-	if (LIBARCSTK_VERSION_PATCH > patch)
+	if (LIBARCSTK_VERSION_PATCH < patch)
 	{
-		return LIBARCSTK_VERSION_MINOR == minor;
+		return LIBARCSTK_VERSION_MINOR > minor;
 	}
 
-	return  LIBARCSTK_VERSION_MAJOR == major
-		and LIBARCSTK_VERSION_MINOR == minor
-		and LIBARCSTK_VERSION_PATCH == patch;
+	return true;
 }
 
 /** @} */
