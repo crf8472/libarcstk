@@ -153,6 +153,7 @@ add_custom_command (
 		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
 		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
 		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
+	DEPENDS ${PROJECT_SOURCE_DIR}/version.cpp.in
 )
 
 
