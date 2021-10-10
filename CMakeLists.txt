@@ -101,6 +101,9 @@ set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
+## Commented out, but kept as reference for now
+#set_property ( DIRECTORY APPEND
+#	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
@@ -190,7 +193,6 @@ target_include_directories (${PROJECT_NAME}
 		"${PROJECT_BUILD_SOURCE_DIR}" )
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
-	CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index"
 	CXX_STANDARD   14
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
 	PRIVATE_HEADER "${PRIVATE_HEADERS}"
