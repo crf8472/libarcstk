@@ -32,7 +32,7 @@ execute_process (
 
 ## Did running git work?
 if (GIT_EXIT_CODE EQUAL 0 )
-	message (STATUS "Git supposes commit: ${GIT_VERSION_STRING}" )
+	message (STATUS "Git supposes commit: ${GIT_COMMIT_ID}" )
 else()
 	message (WARNING "Failed to run git log" )
 endif()

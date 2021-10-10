@@ -86,7 +86,7 @@ endif (WITH_INTERNAL_DOCS)
 
 ## --- Generate documentation output directory
 
-add_custom_command(
+add_custom_command (
 	OUTPUT  ${DOC_GEN_DIR}
 	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_GEN_DIR}" )
@@ -104,9 +104,13 @@ add_custom_command (
 		-D DOC_TEXTS_SOURCE_DIR="${DOC_TEXTS_SOURCE_DIR}"
 		-D DOC_TEXTS_GEN_DIR="${DOC_TEXTS_GEN_DIR}"
 		-P ${PROJECT_CMAKE_DIR}/update_mainpagemd.cmake
-)
+	DEPENDS ${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md.in )
 
-## Add THIS target as a dependency in all subdirectories
+
+## --- Target summing up all prequisites
+##
+## When adding a generator target in a subdirectory, add THIS target as a
+## dependency to it as it is done in doc/thirdparty/mcss/CMakeLists.txt.
 add_custom_target (doc_prerequisites DEPENDS ${DOC_GEN_DIR} ${DOC_SOURCES} )
 
 
