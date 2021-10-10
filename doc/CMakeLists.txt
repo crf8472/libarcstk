@@ -46,42 +46,6 @@ set (DOC_DOXYFILE_BASE    "${DOC_BINARY_DIR}/Doxyfile-base" )
 ## Define the target name and location of the base Doxyfile to be included
 set (DOC_DOXYFILE_BASE_TEMPLATE "${PROJECT_DOC_DIR}/Doxyfile.in" )
 
-## CMake controlled values in the Doxyfile base template
-set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}" )
-string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH
-	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
-string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
-	"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
-string (REPLACE ";" " " DOXYGEN_INPUT
-	"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_GEN_DIR}" )
-set (DOXYGEN_FILE_PATTERNS "*.hpp *.md" )
-set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
-
-
-
-## --- Build internal docs if requested
-
-if (WITH_INTERNAL_DOCS)
-
-	message (STATUS "Will build documentation also for internal APIs" )
-
-	set (DOXYGEN_INTERNAL_DOCS "YES" )
-	set (DOXYGEN_INPUT
-		"${DOXYGEN_INPUT} ${PROJECT_SOURCE_DIR}" )
-	set (DOXYGEN_STRIP_FROM_PATH
-		"${DOXYGEN_STRIP_FROM_PATH} ${PROJECT_SOURCE_DIR}/" )
-	set (DOXYGEN_STRIP_FROM_INC_PATH
-		"${DOXYGEN_STRIP_FROM_INC_PATH} ${PROJECT_SOURCE_DIR}/" )
-
-	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
-	set (DOC_SOURCES ${DOC_SOURCES} ${PRIVATE_HEADERS} )
-
-else ()
-
-	set (DOXYGEN_INTERNAL_DOCS "NO" )
-
-endif (WITH_INTERNAL_DOCS)
-
 
 
 ## --- Generate documentation output directory
@@ -89,29 +53,105 @@ endif (WITH_INTERNAL_DOCS)
 add_custom_command (
 	OUTPUT  ${DOC_GEN_DIR}
 	PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_GEN_DIR}" )
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DOC_GEN_DIR} )
 
 
 
-## --- Configure doxyfile and static texts
+## --- Generate base doxyfile
 
-configure_file ("${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
+## Set CMake controlled values in the Doxyfile base template
 
+set (DOXYGEN_OUTPUT_DIRECTORY       "${DOC_GEN_DIR}" )
+set (DOXYGEN_FILE_PATTERNS          "*.hpp *.md" )
+set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
+
+
+## Build internal docs if requested
+
+if (WITH_INTERNAL_DOCS)
+
+	message (STATUS "Will build documentation also for internal APIs" )
+
+	set (DOXYGEN_STRIP_FROM_PATH
+		"${DOXYGEN_STRIP_FROM_PATH} ${PROJECT_SOURCE_DIR}/" )
+
+	set (DOXYGEN_STRIP_FROM_INC_PATH
+		"${DOXYGEN_STRIP_FROM_INC_PATH} ${PROJECT_SOURCE_DIR}/" )
+
+	set (DOXYGEN_INTERNAL_DOCS "YES" )
+
+	set (DOXYGEN_INPUT "${DOXYGEN_INPUT} ${PROJECT_SOURCE_DIR}" )
+
+	## Not passed to doxygen, cmake only
+	set (DOC_SOURCES ${DOC_SOURCES} ${PRIVATE_HEADERS} )
+
+	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
+
+else ()
+
+	string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH
+		"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
+
+	string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
+		"${PROJECT_INCLUDE_DIR}/;${PROJECT_BUILD_SOURCE_DIR}/" )
+
+	set (DOXYGEN_INTERNAL_DOCS "NO" )
+
+	string (REPLACE ";" " " DOXYGEN_INPUT
+		"${PROJECT_INCLUDE_DIR};${PROJECT_BUILD_SOURCE_DIR};${DOC_TEXTS_GEN_DIR}" )
+
+endif (WITH_INTERNAL_DOCS)
+
+
+## Add rule to build base Doxyfile
+
+#configure_file ( ${DOC_DOXYFILE_BASE_TEMPLATE} ${DOC_DOXYFILE_BASE} @ONLY )
+
+## Recreate base Doxyfile at buildtime.
 add_custom_command (
-	OUTPUT  ${DOC_MAINPAGE}
+	OUTPUT ${DOC_DOXYFILE_BASE}
 	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
-		-D DOC_TEXTS_SOURCE_DIR="${DOC_TEXTS_SOURCE_DIR}"
-		-D DOC_TEXTS_GEN_DIR="${DOC_TEXTS_GEN_DIR}"
+		-D PROJECT_NAME=${PROJECT_NAME}
+		-D PROJECT_VERSION_STRING=${PROJECT_VERSION_STRING}
+		-D PROJECT_BRIEF_DESC=${PROJECT_BRIEF_DESC}
+		-D DOXYGEN_OUTPUT_DIRECTORY=${DOXYGEN_OUTPUT_DIRECTORY}
+		-D DOXYGEN_STRIP_FROM_PATH=${DOXYGEN_STRIP_FROM_PATH}
+		-D DOXYGEN_STRIP_FROM_INC_PATH=${DOXYGEN_STRIP_FROM_INC_PATH}
+		-D DOXYGEN_INTERNAL_DOCS=${DOXYGEN_INTERNAL_DOCS}
+		-D PROJECT_LOG_DIR=${PROJECT_LOG_DIR}
+		-D DOXYGEN_INPUT=${DOXYGEN_INPUT}
+		-D DOXYGEN_FILE_PATTERNS=${DOXYGEN_FILE_PATTERNS}
+		-D DOXYGEN_USE_MDFILE_AS_MAINPAGE=${DOXYGEN_USE_MDFILE_AS_MAINPAGE}
+		-D _INFILE=${DOC_DOXYFILE_BASE_TEMPLATE}
+		-D _OUTFILE=${DOC_DOXYFILE_BASE}
+		-P ${PROJECT_CMAKE_DIR}/configure_file.cmake
+	DEPENDS ${DOC_GEN_DIR} ${DOC_DOXYFILE_BASE_TEMPLATE} )
+
+
+
+## --- Generate static mainpage
+
+add_custom_command (
+	OUTPUT ${DOC_MAINPAGE}
+	PRE_BUILD
+	COMMAND ${CMAKE_COMMAND}
+		-D DOC_TEXTS_SOURCE_DIR=${DOC_TEXTS_SOURCE_DIR}
+		-D DOC_TEXTS_GEN_DIR=${DOC_TEXTS_GEN_DIR}
 		-P ${PROJECT_CMAKE_DIR}/update_mainpagemd.cmake
-	DEPENDS ${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md.in )
+	DEPENDS ${DOC_GEN_DIR} ${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md.in )
+
 
 
 ## --- Target summing up all prequisites
 ##
+## Output directory, Doxyfile-base and MAINPAGE.md.
+##
 ## When adding a generator target in a subdirectory, add THIS target as a
 ## dependency to it as it is done in doc/thirdparty/mcss/CMakeLists.txt.
-add_custom_target (doc_prerequisites DEPENDS ${DOC_GEN_DIR} ${DOC_SOURCES} )
+add_custom_target (doc_prerequisites
+	DEPENDS ${DOC_DOXYFILE_BASE} ${DOC_SOURCES} )
+
 
 
 ## --- Activate requested documentation targets
@@ -228,9 +268,9 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE DOXYTEMPLATE INDEXFILE )
 	add_custom_command (
 		OUTPUT  "${INDEXFILE}"
 		COMMAND Doxygen::doxygen "${DOXYFILE}"
-		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
+		DEPENDS #"${DOC_DOXYFILE_BASE_TEMPLATE}"
 				"${DOC_DOXYFILE_BASE}"
-				"${DOXYTEMPLATE}"
+				#"${DOXYTEMPLATE}"
 				"${DOXYFILE}"
 				${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"

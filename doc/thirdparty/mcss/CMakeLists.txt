@@ -41,9 +41,7 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
 
-add_custom_target (mcss_doc DEPENDS "${OUTPUT_MAINPAGE}" )
-
-add_dependencies (mcss_doc doc_prerequisites ) ## Ensure everything is in place
+add_custom_target (mcss_doc DEPENDS ${OUTPUT_MAINPAGE} )
 
 
 ## --- Define m.css to be checked out/updated while configuring
@@ -118,10 +116,10 @@ add_requirements_target (mcss_requirements
 add_dependencies (mcss_doc mcss_requirements )
 
 
-## --- Prepare Doxygen XML generation
+## --- Build rule for running m.css
 
-configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
-configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py" "${CONFPY}" @ONLY )
+configure_file ("${DOXYFILE_TEMPLATE}"                "${DOXYFILE}" @ONLY )
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py" "${CONFPY}"   @ONLY )
 
 if (DOXYGEN_PREFERS_SEPARATE )
 
@@ -138,7 +136,7 @@ if (DOXYGEN_PREFERS_SEPARATE )
 		OUTPUT  "${OUTPUT_MAINPAGE}"
 		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${CONFPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
-		DEPENDS "${OUTPUT_INDEX}"
+		DEPENDS "${OUTPUT_INDEX}" ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
@@ -151,15 +149,17 @@ else()
 		OUTPUT  "${OUTPUT_MAINPAGE}"
 		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${CONFYPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
-		DEPENDS "${DOC_DOXYFILE_BASE_TEMPLATE}"
-				"${DOC_DOXYFILE_BASE}"
-				"${DOXYFILE_TEMPLATE}"
+		DEPENDS "${DOC_DOXYFILE_BASE}"
 				"${DOXYFILE}"
+				${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
 	)
 endif()
 
-add_dependencies  (doc mcss_doc )
+## Claim prerequisites for mcss_doc
+add_dependencies (mcss_doc doc_prerequisites )
+
+add_dependencies (doc mcss_doc )
 
