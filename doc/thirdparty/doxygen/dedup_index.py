@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+## Applies dedup_index.xsl on an input XML file.
+
+## This is intended to be called by a CMake target to deduplicate the compounds
+## in doxygen's index.xml in a dedicated build step.
+
 import sys
 import lxml.etree as ET
 
