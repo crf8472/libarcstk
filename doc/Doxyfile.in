@@ -1,5 +1,11 @@
 # vim:set ft=conf
 
+## Base configuration for doxygen.
+##
+## Can be used as a standalone config for doxygen or to be included by
+## another doxyfile that adds generator-specific configuration.
+## See e.g. doc/thirdparty/mcss/Doxyfile.in.
+
 PROJECT_NAME           = "@PROJECT_NAME@"
 PROJECT_NUMBER         = "@PROJECT_VERSION_STRING@"
 PROJECT_BRIEF          = "@PROJECT_BRIEF_DESC@"
@@ -8,7 +14,7 @@ OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
 STRIP_FROM_PATH        = @DOXYGEN_STRIP_FROM_PATH@
 STRIP_FROM_INC_PATH    = @DOXYGEN_STRIP_FROM_INC_PATH@
 
-# Define every m.css markup macro empty
+# Base configuration: define every m.css markup macro empty
 ALIASES                = \
     "m_div{1}=" \
     "m_enddiv=" \
