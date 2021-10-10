@@ -30,11 +30,15 @@ TEST_CASE ( "functions", "[version]" )
 	{
 		CHECK (  api_version_is_at_least(0, 0, 0) );
 		CHECK (  api_version_is_at_least(0, 0, 1) );
-		CHECK (  api_version_is_at_least(0, 1, 0) );
+		CHECK (  api_version_is_at_least(0, 0, 2) );
+		CHECK (  api_version_is_at_least(0, 1, 0) ); // <= this version
 		CHECK ( !api_version_is_at_least(0, 1, 1) );
+		CHECK ( !api_version_is_at_least(0, 2, 0) );
+		CHECK ( !api_version_is_at_least(0, 2, 1) );
 		CHECK ( !api_version_is_at_least(1, 0, 0) );
 		CHECK ( !api_version_is_at_least(1, 1, 0) );
 		CHECK ( !api_version_is_at_least(1, 1, 1) );
+		CHECK ( !api_version_is_at_least(2, 1, 1) );
 	}
 }
 
