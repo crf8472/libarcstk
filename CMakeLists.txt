@@ -142,7 +142,9 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 ## --- Configure CMake controlled files
 
 ## Update version.cpp on buildtime
-add_custom_target (update_version_cpp
+add_custom_command (
+	OUTPUT ${PROJECT_BUILD_SOURCE_DIR}/version.cpp
+	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
 		-D LIB_NAME=${PROJECT_NAME}
 		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
@@ -154,6 +156,7 @@ add_custom_target (update_version_cpp
 		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
 		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
 		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index
 )
 
 
@@ -201,7 +204,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
 ## Update version.cpp on every build
-add_dependencies (${PROJECT_NAME} update_version_cpp )
+#add_dependencies (${PROJECT_NAME} update_version_cpp )
 
 
 ## --- Install binary and exported header files
