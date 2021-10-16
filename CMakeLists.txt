@@ -101,9 +101,11 @@ set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
-## Commented out, but kept as reference for now
-#set_property ( DIRECTORY APPEND
-#	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
+
+set_property (DIRECTORY APPEND
+	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
+## This updates version.cpp when index changes, but not after generated
+## file was removed. After removing file, project must be configured to proceed.
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
@@ -139,25 +141,49 @@ endif (IWYU)
 file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 
 
+
 ## --- Configure CMake controlled files
 
-## Update version.cpp on buildtime
-add_custom_command (
-	OUTPUT ${PROJECT_BUILD_SOURCE_DIR}/version.cpp
-	PRE_BUILD
-	COMMAND ${CMAKE_COMMAND}
-		-D LIB_NAME=${PROJECT_NAME}
-		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-		-D LIB_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-		-D LIB_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-		-D LIB_VERSION_SUFFIX=${PROJECT_VERSION_SUFFIX}
-		-D LIB_VERSION_STRING=${PROJECT_VERSION_STRING}
-		-D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
-		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
-		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
-	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index
+find_package (Git QUIET REQUIRED )
+
+## Run git to update info
+execute_process (
+	COMMAND ${GIT_EXECUTABLE} describe --always HEAD
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	RESULT_VARIABLE GIT_EXIT_CODE
+	OUTPUT_VARIABLE GIT_VERSION_STRING
+	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+## Did running git work?
+if (GIT_EXIT_CODE EQUAL 0 )
+	message (STATUS "git describe HEAD: ${GIT_VERSION_STRING}" )
+else()
+	message (WARNING "Failed to run git describe --always HEAD" )
+endif()
+
+## This presupposes having CMAKE_CONFIGURE_DEPENDS set to .git/index
+configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
+	${PROJECT_BUILD_SOURCE_DIR}/version.cpp
+	@ONLY )
+
+## Update version.cpp on buildtime
+#add_custom_command (
+#	OUTPUT ${PROJECT_BUILD_SOURCE_DIR}/version.cpp
+#	PRE_BUILD
+#	COMMAND ${CMAKE_COMMAND}
+#		-D LIB_NAME=${PROJECT_NAME}
+#		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+#		-D LIB_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+#		-D LIB_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+#		-D LIB_VERSION_SUFFIX=${PROJECT_VERSION_SUFFIX}
+#		-D LIB_VERSION_STRING=${PROJECT_VERSION_STRING}
+#		-D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+#		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
+#		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
+#		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
+#	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index
+#)
 
 
 ## --- Specify Exported Headers
@@ -263,8 +289,8 @@ if (NOT SKIP_INSTALL_ALL )
 
 		write_basic_package_version_file (
 			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
-			VERSION			${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
-			COMPATIBILITY	SameMajorVersion
+			VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
+			COMPATIBILITY  SameMajorVersion
 		)
 
 		install (FILES
