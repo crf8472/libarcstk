@@ -103,7 +103,7 @@ set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 ## Commented out, but kept as reference for now
 #set_property ( DIRECTORY APPEND
-#	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
+#	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
