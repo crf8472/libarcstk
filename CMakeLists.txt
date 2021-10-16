@@ -203,9 +203,6 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
-## Update version.cpp on every build
-#add_dependencies (${PROJECT_NAME} update_version_cpp )
-
 
 ## --- Install binary and exported header files
 
