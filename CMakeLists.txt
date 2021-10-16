@@ -101,11 +101,10 @@ set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
-
+## Trigger configuration phase whenever git index changes
 set_property (DIRECTORY APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
-## This updates version.cpp when index changes, but not after generated
-## file was removed. After removing file, project must be configured to proceed.
+
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
@@ -142,7 +141,7 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 
 
 
-## --- Configure CMake controlled files
+## --- Update version.cpp with info from git
 
 find_package (Git QUIET REQUIRED )
 
@@ -166,24 +165,6 @@ endif()
 configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 	${PROJECT_BUILD_SOURCE_DIR}/version.cpp
 	@ONLY )
-
-## Update version.cpp on buildtime
-#add_custom_command (
-#	OUTPUT ${PROJECT_BUILD_SOURCE_DIR}/version.cpp
-#	PRE_BUILD
-#	COMMAND ${CMAKE_COMMAND}
-#		-D LIB_NAME=${PROJECT_NAME}
-#		-D LIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-#		-D LIB_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-#		-D LIB_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-#		-D LIB_VERSION_SUFFIX=${PROJECT_VERSION_SUFFIX}
-#		-D LIB_VERSION_STRING=${PROJECT_VERSION_STRING}
-#		-D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-#		-D PROJECT_BUILD_SOURCE_DIR=${PROJECT_BUILD_SOURCE_DIR}
-#		-D PROJECT_CMAKE_DIR=${PROJECT_CMAKE_DIR}
-#		-P ${PROJECT_CMAKE_DIR}/update_versioncpp.cmake
-#	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index
-#)
 
 
 ## --- Specify Exported Headers
