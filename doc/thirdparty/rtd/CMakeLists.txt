@@ -79,16 +79,14 @@ add_dependencies  (doc rtd_doc )
 set (EXHALE_EXECUTES_DOXYGEN "True" )
 
 
-if (DOXYGEN_XML_NEEDS_DEDUP )
+if (DOXYGEN_NEEDS_XML_DEDUP )
 
 	# --- Run doxygen in a separate target and make exhale depend on its output
 
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_doxygen_target (rtd_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
-		"${OUTPUT_INDEX}"
-	)
+	add_doxygen_target (rtd_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
 
 	add_dependencies (rtd_doc rtd_doxygen )
 

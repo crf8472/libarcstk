@@ -121,14 +121,14 @@ add_dependencies (mcss_doc mcss_requirements )
 configure_file ("${DOXYFILE_TEMPLATE}"                "${DOXYFILE}" @ONLY )
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py" "${CONFPY}"   @ONLY )
 
-if (DOXYGEN_PREFERS_SEPARATE )
+
+
+if (DOXYGEN_NEEDS_XML_DEDUP )
 
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (mcss_doxygen "${DOXYFILE}" "${DOXYFILE_TEMPLATE}"
-		"${OUTPUT_INDEX}"
-	)
+	add_doxygen_target (mcss_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
 
 	add_dependencies (mcss_doc mcss_doxygen )
 
@@ -147,7 +147,7 @@ else()
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
-		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${CONFYPY}"
+		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${CONFPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
 		DEPENDS "${DOC_DOXYFILE_BASE}"
 				"${DOXYFILE}"
