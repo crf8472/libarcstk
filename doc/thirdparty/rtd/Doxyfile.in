@@ -1,4 +1,4 @@
-## Include the base Doxyfile of the libarcstk project
+## Include the base Doxyfile
 
 @INCLUDE = @DOC_DOXYFILE_BASE@
 

@@ -56,6 +56,5 @@ VERBATIM_HEADERS       = NO
 #GENERATE_LATEX         = YES # default
 COMPACT_LATEX          = YES
 
-#HAVE_DOT               = @DOXYGEN_HAVE_DOT@ # unused
 GROUP_GRAPHS           = NO
 
