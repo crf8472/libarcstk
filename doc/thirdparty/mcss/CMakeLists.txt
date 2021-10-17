@@ -1,23 +1,27 @@
 ## CMake file for m.css
 ##
 ## Use HTML5/CSS3 from m.css for generating HTML from Doxygen XML output
-
+##
 ## Prerequisites from parent:
-## - 'doc' target must exist
-## - Variables: DOC_GEN_DIR, DOC_COMMENT
+## - Targets: 'doc'
+## - Variables: DOC_GEN_DIR, DOC_COMMENT, DOXYGEN_NEEDS_XML_DEDUP,
+##              DOXYGEN_VERSION (from find_package)
+##
+## Provides:
+## - Targets: 'mcss_doc'
 
 if (WIN32 )
 
 	message (FATAL_ERROR
-		"M.CSS support is currently not available for Windows" )
+		"m.css support is currently not available for Windows" )
 endif()
 
 
 cmake_minimum_required (VERSION 3.0.2 )
 
-find_package (Git REQUIRED )
-
 message (STATUS "Will build documentation with m.css" )
+
+find_package (Git REQUIRED )
 
 
 
@@ -73,6 +77,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 		endif (NOT m_css_POPULATED )
 	endif()
 
+	set (MCSS_SOURCE_DIR "${m_css_SOURCE_DIR}" )
 	set (MCSS_CMD "${m_css_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 else() ## No FetchContent module available
@@ -81,14 +86,14 @@ else() ## No FetchContent module available
 
 	include (ExternalProject )
 
-	ExternalProject_Add (mcss_provide
+	ExternalProject_Add (mcss_download
 		GIT_REPOSITORY    ${MCSS_REPO_URL}
 		#GIT_TAG          ... use always HEAD of default branch
 		GIT_SHALLOW       true
 		GIT_PROGRESS      true
 		TIMEOUT           10
 		# DOWNLOAD_COMMAND use default
-		PATCH_COMMDAND    ""
+		PATCH_COMMAND     ""
 		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND     ""
@@ -97,14 +102,60 @@ else() ## No FetchContent module available
 		LOG_DOWNLOAD      ON
 	)
 
-	ExternalProject_Get_Property (mcss_provide SOURCE_DIR )
+	ExternalProject_Get_Property (mcss_download SOURCE_DIR )
 
+	set (MCSS_SOURCE_DIR "${SOURCE_DIR}" )
 	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
-
-	add_dependencies (mcss_doc mcss_provide )
 
 	unset(SOURCE_DIR )
 endif()
+
+
+## Patch m.css for doxygen >= 1.9.0
+if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.9.0 )
+
+	add_custom_command (
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched
+		PRE_BUILD
+		COMMAND ${GIT_EXECUTABLE}
+		ARGS    apply ${CMAKE_CURRENT_SOURCE_DIR}/mcss-doxygen19x.patch
+		COMMAND ${CMAKE_COMMAND}
+		ARGS    -E touch ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched
+		WORKING_DIRECTORY ${MCSS_SOURCE_DIR}
+		COMMENT "Patch m.css for use with doxygen ${DOXYGEN_VERSION}"
+	)
+
+	add_custom_target (mcss_patch
+		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched )
+endif()
+
+
+if (TARGET mcss_download ) ## ExternalProjectAdd
+
+	if (TARGET mcss_patch )
+
+		add_dependencies (mcss_patch mcss_download )
+		add_dependencies (mcss_doc mcss_patch )
+	else()
+
+		add_dependencies (mcss_doc mcss_download )
+	endif()
+else() ## FetchContent
+
+	if (TARGET mcss_patch )
+
+		add_dependencies (mcss_doc mcss_patch )
+	endif()
+endif()
+
+
+## Create Doxyfile for m.css
+configure_file ("${DOXYFILE_TEMPLATE}"  "${DOXYFILE}"  @ONLY )
+
+
+## Create conf.py for m.css
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"  "${CONFPY}"  @ONLY )
+
 
 
 ## --- Set up python environment
@@ -116,12 +167,8 @@ add_requirements_target (mcss_requirements
 add_dependencies (mcss_doc mcss_requirements )
 
 
+
 ## --- Build rule for running m.css
-
-configure_file ("${DOXYFILE_TEMPLATE}"                "${DOXYFILE}" @ONLY )
-configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py" "${CONFPY}"   @ONLY )
-
-
 
 if (DOXYGEN_NEEDS_XML_DEDUP )
 
@@ -136,7 +183,7 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 		OUTPUT  "${OUTPUT_MAINPAGE}"
 		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${CONFPY}"
 				2> "${PROJECT_LOG_DIR}/MCSS.log"
-		DEPENDS "${OUTPUT_INDEX}" ${DOC_SOURCES}
+		DEPENDS ${OUTPUT_INDEX} ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
@@ -157,9 +204,6 @@ else()
 		VERBATIM
 	)
 endif()
-
-## Claim prerequisites for mcss_doc
-add_dependencies (mcss_doc doc_prerequisites )
 
 add_dependencies (doc mcss_doc )
 
