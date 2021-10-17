@@ -1,3 +1,4 @@
+// vim:ft=cpp
 #ifndef __LIBARCSTK_VERSION_HPP__
 #include "version.hpp"
 #endif

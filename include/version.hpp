@@ -1,4 +1,3 @@
-// vim:ft=cpp
 #ifndef __LIBARCSTK_VERSION_HPP__
 #define __LIBARCSTK_VERSION_HPP__
 
