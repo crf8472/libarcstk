@@ -38,7 +38,7 @@ XML_NS_MEMB_FILE_SCOPE = YES # 1.8.15
 
 # For m.css specific options see https://mcss.mosra.cz/documentation/doxygen/#configuration
 
-##! M_MAIN_PROJECT_URL = "@PROJECT_URL@"
+##! M_MAIN_PROJECT_URL = "@PROJECT_URL@/"
 ##! M_LINKS_NAVBAR1    = modules
 ##! M_LINKS_NAVBAR2    = namespaces annotated files
 

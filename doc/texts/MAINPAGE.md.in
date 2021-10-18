@@ -3,7 +3,7 @@
 
 \section Home
 
-See the project home [on codeberg.org](https://codeberg.org/tristero/libarcstk).
+See the [project repository](@PROJECT_URL@/).
 
 
 \section features Features
@@ -34,7 +34,7 @@ Libarcstk supports the following tasks for working with AccurateRip checksums:
 
 Build and install to just use the API:
 
-	$ git clone https://codeberg.org/tristero/libarcstk
+	$ git clone @PROJECT_URL@.git
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -45,6 +45,6 @@ Build and install to just use the API:
 
 \section Version
 
-This documentation was generated from [@GIT_VERSION_STRING@]
-(https://codeberg.org/tristero/libarcstk/commit/@GIT_COMMIT_ID@).
+This documentation was generated from commit
+[@GIT_VERSION_STRING@](@PROJECT_URL@/commit/@GIT_COMMIT_ID@).
 

@@ -19,7 +19,7 @@ project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 set (PROJECT_BRIEF_DESC
 	"Toolkit to calculate and verify AccurateRip checksums and ids" )
 
-set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}/" )
+set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}" )
 
 set (PROJECT_VERSION_SUFFIX "rc.2" )
 
@@ -132,6 +132,22 @@ if (GIT_EXIT_CODE EQUAL 0 )
 	message (STATUS "git describe HEAD: ${GIT_VERSION_STRING}" )
 else()
 	message (WARNING "Failed to run git describe --always HEAD" )
+endif()
+
+## Run 'git rev-parse'
+execute_process (
+	COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	RESULT_VARIABLE GIT_EXIT_CODE
+	OUTPUT_VARIABLE GIT_COMMIT_ID
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+## Did running git work?
+if (GIT_EXIT_CODE EQUAL 0 )
+	message (STATUS "git rev-parse HEAD: ${GIT_COMMIT_ID}" )
+else()
+	message (WARNING "Failed to run git rev-parse HEAD" )
 endif()
 
 ## This presupposes having CMAKE_CONFIGURE_DEPENDS set to .git/index
