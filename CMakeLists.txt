@@ -47,17 +47,25 @@ if (NOT CMAKE_BUILD_TYPE )
 	set (CMAKE_BUILD_TYPE "${PROJECT_DEFAULT_BUILD_TYPE}"
 		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
 
-	message (STATUS "No build type specified, set to default" )
+	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
 
 endif (NOT CMAKE_BUILD_TYPE )
 
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
+
+
+## --- Global settings
+
+## Trigger configuration phase whenever git index changes
+set_property (DIRECTORY APPEND
+	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
+
+
 set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
 
 
-
-## --- Abort release-builds on big endian platforms
+## Abort release-builds on big endian platforms
 
 include (TestBigEndian)
 
@@ -92,46 +100,11 @@ set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 ## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 
-## "Source directory for cmake scripts"
-set (PROJECT_CMAKE_DIR        "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
-
 ## "Target directory for generated sources and configuration"
 set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
-
-## Trigger configuration phase whenever git index changes
-set_property (DIRECTORY APPEND
-	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
-
-
-
-## --- Optional: Add include-what-you-use support (default: OFF)
-
-option (IWYU "Don't compile, check headers with include-what-you-use" OFF )
-if (IWYU)
-
-	message (STATUS "Program include-what-you-use requested" )
-	find_program (IWYU_BINARY NAMES include-what-you-use iwyu )
-
-	if (IWYU_BINARY )
-
-		## Set for all subsequent targets
-		set (CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_BINARY} )
-
-		## Commented out: Set for specific targets only
-		#set_property(TARGET ${TARGET_NAME}
-		#	PROPERTY CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-
-		message (STATUS "Program include-what-you-use found: ${IWYU_BINARY}" )
-
-	else (IWYU_BINARY )
-
-		message (FATAL_ERROR "Program include-what-you-use not found" )
-
-	endif (IWYU_BINARY )
-endif (IWYU)
 
 
 
@@ -221,27 +194,22 @@ if (NOT SKIP_INSTALL_ALL )
 
 	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
 
-
 	install (TARGETS ${PROJECT_NAME}
 		EXPORT "${PROJECT_EXPORT_SET}"
-		LIBRARY
-			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-		PUBLIC_HEADER
-			DESTINATION
+		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+		PUBLIC_HEADER DESTINATION
 				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
-		PRIVATE_HEADER
-			DESTINATION
+		PRIVATE_HEADER DESTINATION
 				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}/details" )
 
 	install (EXPORT ${PROJECT_EXPORT_SET}
 		NAMESPACE libarcstk::
-		DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
-	)
+		DESTINATION "${INSTALL_CMAKECONFIG_DIR}" )
 
 
 	if (NOT SKIP_INSTALL_FILES )
 
-		# Support pkgconfig
+		## Support pkgconfig
 
 		configure_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
@@ -253,7 +221,7 @@ if (NOT SKIP_INSTALL_ALL )
 			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
 
 
-		# Support CMake Packaging
+		## Support CMake Packaging
 
 		include (CMakePackageConfigHelpers )
 
@@ -264,7 +232,6 @@ if (NOT SKIP_INSTALL_ALL )
 		configure_package_config_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
 			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
-			#PATH_VARS INSTALL_INCLUDE_DIR INSTALL_LIBRARY_DIR ## TODO Required?
 			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 		)
 
@@ -285,6 +252,7 @@ if (NOT SKIP_INSTALL_ALL )
 endif (NOT SKIP_INSTALL_ALL)
 
 
+
 ## --- BUILD_TYPE specific settings
 
 option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
@@ -300,7 +268,7 @@ endif ()
 
 ## g++: Warnings
 set (PROJECT_CXX_GNU_FLAGS_WARNINGS
-	-Wpedantic -Wall -Wextra -Weffc++
+	-Wall -Wextra -Wpedantic -Weffc++
 	-Wold-style-cast
 	-Wsuggest-override
 	-Wcast-align
@@ -326,7 +294,7 @@ set (PROJECT_CXX_GNU_FLAGS_WARNINGS
 	)
 
 ## g++: Optimize flags
-set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE   -march=native -mtune=generic )
+set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE  -march=native -mtune=generic )
 
 
 ## clang++: Warnings
@@ -335,7 +303,7 @@ set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE   -march=native -mtune=generic )
 ## flags. Some are just on by default. The following list is intended to contain
 ## only those flags that are off by default and no compatibility flags.
 set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
-	-Wpedantic -Wall -Wextra -Weffc++
+	-Wall -Wextra -Wpedantic -Weffc++
 	-Wold-style-cast
 	-Wcast-align
 	-Wcast-qual
@@ -353,7 +321,7 @@ set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
 set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE -march=native -mtune=generic )
 
 
-## Select compiler specific settings
+## Compiler: apply specific flags
 
 if (CMAKE_COMPILER_IS_GNUCXX ) ## for g++
 
@@ -403,6 +371,7 @@ endif (WITH_NATIVE )
 message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
 
 
+
 ## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
 
 option (WITH_TESTS "Build unit tests" OFF )
@@ -419,9 +388,6 @@ if (WITH_TESTS)
 	## Add tests
 	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/test )
 
-else ()
-
-	message (STATUS "Build without tests" )
 endif (WITH_TESTS)
 
 
@@ -434,15 +400,36 @@ option (USE_MCSS           "Build documentation using m.css"              OFF )
 ## Auto-activate WITH_DOCS if settings for documentation are present
 if (WITH_INTERNAL_DOCS OR USE_MCSS )
 
-	set (WITH_DOCS ON )
+	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
 endif()
 
 ## Process configuration for building the documentation
 if (WITH_DOCS )
 
 	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/doc )
-else (WITH_DOCS )
-
-	message (STATUS "Build without documentation")
 endif (WITH_DOCS )
+
+
+
+## --- Optional: Add include-what-you-use support (default: OFF)
+
+option (IWYU "Don't compile, check headers with include-what-you-use" OFF )
+if (IWYU )
+
+	message (STATUS "Program include-what-you-use requested" )
+	find_program (IWYU_BINARY NAMES include-what-you-use iwyu )
+
+	if (IWYU_BINARY )
+
+		## Set for all subsequent targets
+		set (CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_BINARY} )
+
+		message (STATUS "Program include-what-you-use found: ${IWYU_BINARY}" )
+
+	else (IWYU_BINARY )
+
+		message (FATAL_ERROR "Program include-what-you-use not found" )
+
+	endif (IWYU_BINARY )
+endif (IWYU )
 
