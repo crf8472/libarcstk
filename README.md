@@ -69,13 +69,13 @@ build switches.
 
 ## Current Limitations
 
-- No production release yet - will be 1.0.0
+- No production release yet - will be 1.0.0.
 - API is not considered stable before 1.0.0 (may change any time in any way
-  while major release number is 0)
+  while major release number is 0).
 - Supports only little endian plattforms. Release-build on big endian plattforms
   is therefore ruled out by cmake.
 - Never built, installed or tested on Windows or Mac OS X, but it is intended to
-  support these platforms in the future
+  support these platforms in the future.
 
 
 
