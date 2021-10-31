@@ -4,11 +4,11 @@ cmake_minimum_required (VERSION 3.9.6 )
 
 ## Set variables corresponding to unspecified versions to the empty string
 ## Required for specifying the project version along with the name in project()
-cmake_policy (SET CMP0048 NEW)
+cmake_policy (SET CMP0048 NEW )
 
 ## Support new IN_LIST if() operator
-## Required for FindDoxygen.cmake
-cmake_policy (SET CMP0057 NEW)
+## Required by FindDoxygen.cmake
+cmake_policy (SET CMP0057 NEW )
 
 
 project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
@@ -118,7 +118,7 @@ file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
 
 find_package (Git QUIET REQUIRED )
 
-## Run git to update info
+## Run 'git describe'
 execute_process (
 	COMMAND ${GIT_EXECUTABLE} describe --always HEAD
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -129,7 +129,7 @@ execute_process (
 
 ## Did running git work?
 if (GIT_EXIT_CODE EQUAL 0 )
-	message (STATUS "git describe HEAD: ${GIT_VERSION_STRING}" )
+	message (STATUS "git describe --always HEAD: ${GIT_VERSION_STRING}" )
 else()
 	message (WARNING "Failed to run git describe --always HEAD" )
 endif()
@@ -186,8 +186,8 @@ add_library (${PROJECT_NAME} SHARED
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
-		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
 		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
+		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
 	PRIVATE
 		"${PROJECT_BUILD_SOURCE_DIR}" )
 
@@ -235,7 +235,6 @@ if (NOT SKIP_INSTALL_ALL )
 
 		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
 			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
-
 
 		## Support CMake Packaging
 
