@@ -13,6 +13,8 @@ cmake_policy (SET CMP0057 NEW )
 
 project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 
+get_directory_property (HAS_PARENT PARENT_DIRECTORY )
+
 
 ## --- Setup Version Information
 
@@ -156,6 +158,7 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 	@ONLY )
 
 
+
 ## --- Specify Exported Headers
 
 set (INTERFACE_HEADERS )
@@ -198,85 +201,6 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
-
-
-## --- Install binary and exported header files
-
-if (NOT SKIP_INSTALL_ALL )
-
-	set (INSTALL_CMAKECONFIG_DIR
-		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
-		CACHE PATH "Installation directory for cmake package files" )
-
-	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
-
-	install (TARGETS ${PROJECT_NAME}
-		EXPORT "${PROJECT_EXPORT_SET}"
-		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-		PUBLIC_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
-		PRIVATE_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}/details" )
-
-	install (EXPORT ${PROJECT_EXPORT_SET}
-		NAMESPACE libarcstk::
-		DESTINATION "${INSTALL_CMAKECONFIG_DIR}" )
-
-
-	if (NOT SKIP_INSTALL_FILES )
-
-		## Support pkgconfig
-
-		configure_file (
-			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-			"${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
-			@ONLY
-		)
-
-		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
-			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
-
-		## Support CMake Packaging
-
-		include (CMakePackageConfigHelpers )
-
-		set (PROJECT_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
-
-		set (PROJECT_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
-
-		configure_package_config_file (
-			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
-			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
-		)
-
-		write_basic_package_version_file (
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
-			VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
-			COMPATIBILITY  SameMajorVersion
-		)
-
-		install (FILES
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
-			DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
-		)
-
-	endif ()
-
-endif (NOT SKIP_INSTALL_ALL)
-
-
-
-## --- BUILD_TYPE specific settings
-
-option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
-
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-
-	set (WITH_NATIVE ON CACHE BOOL
-			"Release: Force platform specific optimization" FORCE )
-endif ()
 
 
 ## --- Compiler Specific Settings
@@ -366,24 +290,135 @@ endif()
 
 target_compile_options (${PROJECT_NAME} PUBLIC ${PROJECT_CXX_FLAGS_WARNINGS} )
 
-message (STATUS "Warning Flags: ${PROJECT_CXX_FLAGS_WARNINGS}" )
 
+## Compiler: Add optimization flags (always in the same way)
 
-## Compiler: Activate Optimizations (default ON for Release, otherwise OFF)
-
-if (WITH_NATIVE )
+macro (add_cxx_flags_optimize )
 
 	message (STATUS "Build with platform specific optimization")
 
 	target_compile_options (${PROJECT_NAME}
-		PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+			PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+endmacro()
+
+
+## Compiler: Activate Optimizations (default ON for Release, otherwise OFF)
+
+option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+
+	set (WITH_NATIVE ON CACHE BOOL
+			"Release: Force platform specific optimization" FORCE )
+endif ()
+
+if (WITH_NATIVE )
+
+	add_cxx_flags_optimize()
 else()
 
 	message (STATUS "Build without platform specific optimization")
 
 endif (WITH_NATIVE )
 
-message (STATUS "Optimization Flags: ${PROJECT_CXX_FLAGS_OPTIMIZE}" )
+get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
+
+message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
+
+
+
+## --- If sourced by a parent CMakeLists.txt skip all optional targets
+
+if (HAS_PARENT )
+
+	message (STATUS "Compiled by a parent project, skip tests and docs" )
+
+##  Commented out for now (needs testing)
+##
+#	## If sourced by a parent project, releases are always compiled with
+#	## optimization.
+#
+#	if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#
+#		add_cxx_flags_optimize()
+#	endif()
+#
+#	get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
+#
+#	message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
+#
+#	return()
+else()
+
+	message (STATUS "Compiled without parent project" )
+endif()
+
+
+
+## --- Install binary and exported header files
+
+if (NOT SKIP_INSTALL_ALL )
+
+	set (INSTALL_CMAKECONFIG_DIR
+		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
+		CACHE PATH "Installation directory for cmake package files" )
+
+	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
+
+	install (TARGETS ${PROJECT_NAME}
+		EXPORT "${PROJECT_EXPORT_SET}"
+		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+		PUBLIC_HEADER DESTINATION
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
+		PRIVATE_HEADER DESTINATION
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}/details" )
+
+	install (EXPORT ${PROJECT_EXPORT_SET}
+		NAMESPACE libarcstk::
+		DESTINATION "${INSTALL_CMAKECONFIG_DIR}" )
+
+	if (NOT SKIP_INSTALL_FILES )
+
+		## Support pkgconfig
+
+		configure_file (
+			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
+			"${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
+			@ONLY
+		)
+
+		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
+
+		## Support CMake Packaging
+
+		include (CMakePackageConfigHelpers )
+
+		set (PROJECT_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
+
+		set (PROJECT_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
+
+		configure_package_config_file (
+			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
+			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
+			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
+		)
+
+		write_basic_package_version_file (
+			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
+			VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
+			COMPATIBILITY  SameMajorVersion
+		)
+
+		install (FILES
+			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
+			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
+			DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
+		)
+
+	endif ()
+
+endif (NOT SKIP_INSTALL_ALL)
 
 
 
