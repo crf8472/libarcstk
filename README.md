@@ -2,7 +2,7 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
-[![Latest](https://img.shields.io/badge/dynamic/json.svg?url=https://codeberg.org/api/v1/repos/tristero/libarcstk/releases&label=latest&query=$.0.name&color=yellowgreen)](https://codeberg.org/tristero/libarcstk/releases)
+[![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
 
 ## What libarcstk does
@@ -83,5 +83,5 @@ build switches.
 
 - Checksumming CD images containing data tracks is untested and broken.
 
-[1]: https://pages.codeberg.org/tristero/libarcstk
-[2]: https://codeberg.org/tristero/libarcsdec
+[1]: https://crf8472.github.io/libarcstk/
+[2]: https://github.com/crf8472/libarcsdec/

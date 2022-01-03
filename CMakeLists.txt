@@ -21,7 +21,7 @@ get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 set (PROJECT_BRIEF_DESC
 	"Toolkit to calculate and verify AccurateRip checksums and ids" )
 
-set (PROJECT_URL "https://codeberg.org/tristero/${PROJECT_NAME}" )
+set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
 set (PROJECT_VERSION_SUFFIX "rc.2" )
 
