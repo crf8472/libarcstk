@@ -108,45 +108,10 @@ else() ## No FetchContent module available
 	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 	unset(SOURCE_DIR )
+
+	add_dependencies (mcss_doc mcss_download )
 endif()
 
-
-## Patch m.css for doxygen >= 1.9.0
-if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.9.0 )
-
-	add_custom_command (
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched
-		PRE_BUILD
-		COMMAND ${GIT_EXECUTABLE}
-		ARGS    apply ${CMAKE_CURRENT_SOURCE_DIR}/mcss-doxygen19x.patch
-		COMMAND ${CMAKE_COMMAND}
-		ARGS    -E touch ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched
-		WORKING_DIRECTORY ${MCSS_SOURCE_DIR}
-		COMMENT "Patch m.css for use with doxygen ${DOXYGEN_VERSION}"
-	)
-
-	add_custom_target (mcss_patch
-		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/mcss.patched )
-endif()
-
-
-if (TARGET mcss_download ) ## ExternalProjectAdd
-
-	if (TARGET mcss_patch )
-
-		add_dependencies (mcss_patch mcss_download )
-		add_dependencies (mcss_doc mcss_patch )
-	else()
-
-		add_dependencies (mcss_doc mcss_download )
-	endif()
-else() ## FetchContent
-
-	if (TARGET mcss_patch )
-
-		add_dependencies (mcss_doc mcss_patch )
-	endif()
-endif()
 
 
 ## Create Doxyfile for m.css
