@@ -57,7 +57,7 @@ build switches.
 ## How to Use
 
 - Each supported usecase is illustrated by a corresponding [example
-  application](./examples/README.md) in the ``examples/`` folder.
+  application](./examples/) in the ``examples/`` folder.
 - [Build the API
   documentation](BUILD.md#user-content-building-the-api-documentation) and view
   it in a browser or [read it online][1].
