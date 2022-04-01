@@ -768,7 +768,15 @@ std::vector<lba_count_t> TOCBuilder::build_offsets(
 		const TrackNo track_count,
 		const lba_count_t leadout)
 {
-	TOCValidator::validate(track_count, offsets, leadout);
+	try {
+
+		TOCValidator::validate(track_count, offsets, leadout);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
+	}
 
 	// Convert offsets to lba_count_t
 

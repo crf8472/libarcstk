@@ -71,7 +71,15 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 
 	if (leadout_val > 0)
 	{
-		TOCValidator::validate(toc, leadout_val);
+		try {
+
+			TOCValidator::validate(toc, leadout_val);
+
+		} catch (const NonstandardMetadataException &nsm)
+		{
+			// Do not throw NonstandardMetadataException for now
+			// since we accept non-standard metadata
+		}
 	} else
 	{
 		leadout_val = toc.leadout();
@@ -480,7 +488,15 @@ bool TOC::complete() const noexcept
 
 void TOC::update(const lba_count_t leadout)
 {
-	details::TOCValidator::validate(*this, leadout);
+	try {
+
+		details::TOCValidator::validate(*this, leadout);
+
+	} catch (const NonstandardMetadataException &nsm)
+	{
+		// Do not throw NonstandardMetadataException for now
+		// since we accept non-standard metadata
+	}
 
 	impl_->update(leadout);
 }
