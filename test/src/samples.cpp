@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 
 #include <algorithm>         // for max
 #include <cstdint>           // for int16_t, uint8_t, uint32_t, int32_t, uin...

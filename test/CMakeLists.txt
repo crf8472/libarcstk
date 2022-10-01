@@ -31,7 +31,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.13.0" )
 	"${CMAKE_BINARY_DIR}/thirdparty/catch2/catch2-prefix/src/catch2/single_include/" )
 else ()
 
-	target_link_libraries (catch2_main Catch2::Catch2 )
+	target_link_libraries (catch2_main PRIVATE Catch2::Catch2 )
 endif ()
 
 
@@ -52,7 +52,8 @@ foreach (_testcase ${TEST_SETS} )
 		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ) ## generated sources
 
 	target_link_libraries (${_testcase}_test
-		Catch2::Catch2    ## Catch2
+		PRIVATE
+		Catch2::Catch2WithMain ## Catch2
 		${PROJECT_NAME} ) ## compiled libarcstk lib
 
 

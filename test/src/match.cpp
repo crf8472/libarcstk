@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"

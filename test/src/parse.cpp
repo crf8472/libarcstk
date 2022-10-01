@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 
 #include <fstream>           // for ifstream
 #include <memory>            // for make_unique, unique_ptr
