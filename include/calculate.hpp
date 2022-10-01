@@ -7,6 +7,7 @@
  * \brief Public API for \link calc calculating AccurateRip checksums\endlink.
  */
 
+#include <array>                 // for array
 #include <cstdint>               // for uint32_t, int64_t
 #include <initializer_list>      // for initializer_list
 #include <iterator>              // for input_iterator_tag
