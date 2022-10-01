@@ -17,8 +17,8 @@ TEST_CASE ( "constants", "[version]" )
 	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION_MAJOR  == 0 );
 	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION_MINOR  == 1 );
 	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION_PATCH  == 0 );
-	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION_SUFFIX == "rc.2" );
-	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION        == "0.1.0-rc.2" );
+	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION_SUFFIX == "rc.3" );
+	CHECK ( arcstk::v_1_0_0::LIBARCSTK_VERSION        == "0.1.0-rc.3" );
 }
 
 
