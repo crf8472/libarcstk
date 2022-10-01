@@ -1,6 +1,6 @@
 //
 // Example for calculating AccurateRip id and specific query URL of an album,
-// represented by a CUESheet and a single losslessly encoded audio file.
+// represented by a CueSheet and a single losslessly encoded audio file.
 //
 
 #include <cstdint>   // for uint32_t etc.
@@ -11,7 +11,7 @@
 #include <string>    // for string
 
 extern "C" {
-#include <libcue/libcue.h>        // libcue for parsing the CUEsheet
+#include <libcue/libcue.h>        // libcue for parsing the Cuesheet
 }
 #include <sndfile.hh>             // libsndfile for reading the audio file
 
@@ -36,12 +36,12 @@ extern "C" {
 
 
 /**
- * \brief Parse a CUEsheet and return offsets and implicitly the track count.
+ * \brief Parse a Cuesheet and return offsets and implicitly the track count.
  *
  * This method is implemented without any use of libarcstk. It just has to be
- * available for parsing the CUESheet.
+ * available for parsing the CueSheet.
  *
- * @param[in] cuefilename Name of the CUEsheet file to parse
+ * @param[in] cuefilename Name of the Cuesheet file to parse
  *
  * @return STL-like container with a size_type holding offsets
  */
@@ -51,22 +51,22 @@ auto parse_cuesheet(const std::string &cuefilename)
 
 	if (!f)
 	{
-		std::cerr << "Failed to open CUEsheet: " << cuefilename << std::endl;
-		throw std::runtime_error("Failed to open CUEsheet");
+		std::cerr << "Failed to open Cuesheet: " << cuefilename << std::endl;
+		throw std::runtime_error("Failed to open Cuesheet");
 	}
 
 	::Cd* cdinfo = ::cue_parse_file(f);
 
 	if (std::fclose(f))
 	{
-		std::cerr << "Failed to close CUEsheet: " << cuefilename << std::endl;
+		std::cerr << "Failed to close Cuesheet: " << cuefilename << std::endl;
 	}
 	f = nullptr;
 
 	if (!cdinfo)
 	{
-		std::cerr << "Failed to parse CUEsheet: " << cuefilename << std::endl;
-		throw std::runtime_error("Failed to parse CUEsheet");
+		std::cerr << "Failed to parse Cuesheet: " << cuefilename << std::endl;
+		throw std::runtime_error("Failed to parse Cuesheet");
 	}
 
 	const auto track_count = ::cd_get_ntrack(cdinfo);
@@ -145,14 +145,14 @@ int main(int argc, char* argv[])
 	// 3. the leadout frame
 
 	// We derive 1. total number of tracks and 2. actual track offsets from
-	// parsing the CUEsheet.  We skip the details here for libarcstk does not
+	// parsing the Cuesheet.  We skip the details here for libarcstk does not
 	// provide this functionality and the author just did a quick hack with
 	// libcue.  (Just consult the implementation of function parse_cuesheet()
 	// if you are interested in the details, but this is libcue, not libarcstk.)
 	const auto offsets { parse_cuesheet(cuefilename) };
 	// Skip santiy checks and everything you could do with try/catch ...
 
-	// Two completed, one to go.  Since the CUEsheet usually does not know the
+	// Two completed, one to go.  Since the Cuesheet usually does not know the
 	// length of the last track, we have to derive the leadout frame from the
 	// audio data.  We could do this quite convenient by using libarcstk's
 	// AudioReader::acquire_size() method.  But thanks to libsndfile, this is

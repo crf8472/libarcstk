@@ -2,7 +2,7 @@
 
 This example application demonstrates how libarcstk is used to calculate
 AccurateRip checksums for each track of an album. The album is provided as a
-single audio file accompanied by a CUESheet. The parsing of the CUESheet is
+single audio file accompanied by a Cuesheet. The parsing of the Cuesheet is
 done using libcue, the decoding of the audio samples is done using libsndfile.
 
 
@@ -10,7 +10,7 @@ done using libcue, the decoding of the audio samples is done using libsndfile.
 
 Dependencies for building and running:
 
-- libcue >= 2.0.0 (For parsing the CUESheet)
+- libcue >= 2.0.0 (For parsing the Cuesheet)
 - libsndfile >= 1.0.17 (For decoding the audio data)
 - The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
 

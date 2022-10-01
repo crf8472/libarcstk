@@ -6,7 +6,7 @@ AccurateRip request id of a already ripped album.
 
 ## Requirements
 
-- libcue >= 2.0.0 (For parsing the CUESheet)
+- libcue >= 2.0.0 (For parsing the Cuesheet)
 - libsndfile >= 1.0.17 (For decoding the audio data)
 - The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
 

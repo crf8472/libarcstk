@@ -1,6 +1,6 @@
 //
 // Example for calculating AccurateRip checksums from each track of an album,
-// represented by a CUESheet and a single losslessly encoded audio file.
+// represented by a Cuesheet and a single losslessly encoded audio file.
 //
 
 #include <cstdint>   // for uint32_t etc.
@@ -39,7 +39,7 @@ extern "C" {
  * \brief Parse a CUEsheet and return offsets and implicitly the track count.
  *
  * This method is implemented without any use of libarcstk. It just has to be
- * available for parsing the CUESheet.
+ * available for parsing the Cuesheet.
  *
  * @param[in] cuefilename Name of the CUEsheet file to parse
  *

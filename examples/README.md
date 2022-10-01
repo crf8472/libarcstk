@@ -11,7 +11,7 @@ Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
 
 Note: The example applications do only target situations where an entire album
-as a single audio file along with its metadata (as a CUESheet) is to be
+as a single audio file along with its metadata (as a Cuesheet) is to be
 processed. This restriction keeps the examples reasonably small. Of course,
 libarcstk can also process single audio files representing specific tracks or a
 set of audio files that represent an album or parts of an album. For this use
