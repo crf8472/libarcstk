@@ -169,6 +169,9 @@ using TrackNo = int;
  * a valid TOC. If the validation fails, an InvalidMetadataException is
  * thrown.
  *
+ * An InvalidMetadataException indicates that no valid TOC can be constructed
+ * from the input provided.
+ *
  * A NonstandardMetadataException indicates that the input is not conforming to
  * the redbook standard. This exception can occurr in the internal validation
  * mechanism but is currently not used in the public API.
@@ -339,17 +342,18 @@ bool operator == (const TOC &lhs, const TOC &rhs) noexcept;
  * A TOC is an object constructed from parsed data. It is therefore not
  * modifiable.
  *
- * \link TOC TOCs\endlink can exclusively be built by two build functions
+ * \link TOC TOCs\endlink can exclusively be built by build functions
  * called make_toc().
- * Both functions guarantee to provide either a valid TOC or to throw an
- * InvalidMetadataException. This entails that any concrete
- * TOC provides strong guarantees regarding the consistency of its content.
+ * Those functions guarantee to provide either a valid TOC or to throw an
+ * InvalidMetadataException. This entails that any concrete TOC provides the
+ * guarantee that its content is consistent.
  *
  * Although an existing TOC is therefore always valid it might \em not be
- * complete().
+ * complete() i.e. it may lack information about the absolute size of the audio
+ * part and therefore no leadout information.
  *
- * In some cases it may be sensible to construct an incomplete TOC, i.e. a TOC
- * without a leadout frame. Some toc formats (as for example CUESheet) may not
+ * In some cases it may be reasonable to construct an incomplete TOC, i.e. a TOC
+ * without a leadout offset. Some toc formats (as for example CueSheet) may not
  * provide the leadout but the parsed metadata is required. In this case, the
  * leadout can be obtained from the actual audio data. However, also an
  * incomplete TOC may never be inconsistent.
@@ -495,6 +499,8 @@ private:
 
 /**
  * \brief Reports invalid metadata for building a TOC.
+ *
+ * This exception indicates that no TOC can be build.
  */
 class InvalidMetadataException final : public std::logic_error
 {
@@ -520,11 +526,8 @@ public:
  * \brief Reports metadata violating the redbook standard.
  *
  * Violating the redbook standard is usually not a problem for calculating
- * checksums. A common case are unusual total lengths, as for example up to 99
- * minutes.
- *
- * Nonstandard metadata values are usually not an impediment for calculating
- * ARCSs.
+ * AccurateRip checksums. A common case are unusual total lengths, as for example
+ * up to 99 minutes per disc.
  *
  * \attention
  * This exception occurrs only internally in the current API version, but is
@@ -610,7 +613,7 @@ std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
 
 
 /**
- * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
+ * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId.
  *
  * The implementation of make_empty_arid() defines emptiness for ARIds.
  *
@@ -626,7 +629,7 @@ namespace toc
 {
 
 /**
- * \brief Extract the offsets from a TOC to an iterable container
+ * \brief Extract the offsets from a TOC to an iterable container.
  *
  * \param[in] toc The TOC to get the offsets from
  *
@@ -998,7 +1001,7 @@ std::unique_ptr<TOC> make_toc(LBAContainer1&& offsets,
 
 
 /**
- * \brief Create a TOC from the specified information.
+ * \brief Create a TOC by track count, offsets, lengths and optional filenames.
  *
  * The input data is validated but the length of the last track is allowed to
  * be 0. The returned TOC is therefore not guaranteed to be
@@ -1043,7 +1046,7 @@ std::unique_ptr<TOC> make_toc(const TrackNo track_count,
 
 
 /**
- * \brief Create an object by track_count, offsets and leadout.
+ * \brief Create an ARId by track_count, offsets and leadout.
  *
  * \tparam LBAContainer  Container type of the offsets container
  *
