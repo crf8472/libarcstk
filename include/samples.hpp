@@ -154,9 +154,6 @@ class SampleIterator final
 
 public:
 
-	SampleIterator& operator = (const SampleIterator &rhs) = default;
-	// User-declare this to avoid -Wdeprecated-copy firing
-
 
 	using iterator_category = std::bidirectional_iterator_tag;
 
@@ -194,6 +191,24 @@ public:
 	{
 		// empty
 	}
+
+	/**
+	 * \internal
+	 * \brief Construct a constant SampleIterator from a non-constant
+	 * SampleIterator.
+	 *
+	 * \param[in] rhs The non-constant SampleIterator
+	 */
+	SampleIterator& operator = (const SampleIterator<T, is_planar, false> &rhs)
+	{
+		seq_ = rhs.seq_;
+		pos_ = rhs.pos_;
+		return *this;
+	}
+	// Note: prior versions of g++ and clang++ accepted the following:
+	//SampleIterator& operator = (const SampleIterator &rhs) = default;
+	// but since this lets -Wdeprecated-copy fire at least on clang++ 14 we had
+	// to define the nonconst-to-const assignment operator explicitely.
 
 	/**
 	 * \internal

@@ -167,7 +167,9 @@ std::ostream& operator << (std::ostream& out, const Checksum &c);
  *
  * A Checksum has a converting constructor for its value_type, thus every
  * parameter that expects a checksum can be assigned a value of type value_type
- * instead of a Checksum.
+ * instead of a Checksum. Some compilers will do the conversion with other
+ * numerical types but issue a warning if a conversion from signed to unsigned
+ * types is required (e.g. -Wsign-conversion).
  *
  * Operator << is overloaded for printing Checksums to streams. The Checksum
  * will then occurr in its standard layout: as a hexadecimal number without the
@@ -332,9 +334,12 @@ public:
 		return *this;
 	}
 
-	// Defining an assignment operator leads to -Wdeprecated-copy firing
-	// and we do not need any
-	ChecksumMapIterator& operator = (const ChecksumMapIterator &rhs) = delete;
+
+	ChecksumMapIterator& operator = (const ChecksumMapIterator<K, false> &rhs)
+	{
+		it_ = rhs.it_;
+		return *this;
+	}
 
 
 	friend bool operator == (const ChecksumMapIterator &lhs,
