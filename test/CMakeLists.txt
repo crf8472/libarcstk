@@ -20,6 +20,31 @@ list (APPEND TEST_SETS samples )
 list (APPEND TEST_SETS version )
 
 
+## Adjust compile options for tests.
+## (g++ issues many warnings when compiling Catch2 v3.x tests)
+
+set (TEST_CXX_FLAGS_WARNINGS ${PROJECT_CXX_FLAGS_WARNINGS} )
+
+
+## Remove flags from g++ that pollute the output
+
+if (CMAKE_COMPILER_IS_GNUCXX )
+
+	## Remove some flags from the actual compile options, if they are present
+	list (APPEND GNUCXX_IGNORE_FLAGS
+		-Weffc++
+		-Wctor-dtor-privacy
+		-Wuseless-cast
+	)
+
+	foreach (_flag ${GNUCXX_IGNORE_FLAGS} )
+		message (STATUS
+			"Ignore compile flag ${_flag} when compiling Catch2-tests with g++" )
+		list (REMOVE_ITEM TEST_CXX_FLAGS_WARNINGS ${_flag} )
+	endforeach()
+endif()
+
+
 ## Provide main object file
 
 add_library (catch2_main OBJECT "${MAIN_TEST_CPP}" )
@@ -34,10 +59,26 @@ else ()
 	target_link_libraries (catch2_main PRIVATE Catch2::Catch2 )
 endif ()
 
+target_compile_options (catch2_main PUBLIC ${TEST_CXX_FLAGS_WARNINGS} )
+target_compile_options (catch2_main PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+
+#get_target_property(COMP_FLAGS_MAIN catch2_main COMPILE_OPTIONS)
+#message (STATUS "COMPILE_OPTIONS for catch2_main: ${COMP_FLAGS_MAIN}")
+
 
 ## Add common configuration for all testsuites (catch2 + project dependencies)
 
 foreach (_testcase ${TEST_SETS} )
+
+	set_property (
+		SOURCE "${TEST_SOURCE_DIR}/${_testcase}.cpp"
+		APPEND
+		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS_WARNINGS}
+	)
+
+	#get_property(COMP_FLAGS SOURCE "${TEST_SOURCE_DIR}/${_testcase}.cpp"
+	#	PROPERTY COMPILE_OPTIONS )
+	#message (STATUS "COMPILE_OPTIONS for ${_testcase}.cpp: ${COMP_FLAGS}")
 
 	## Define an executable for each single testfile
 	add_executable (${_testcase}_test
@@ -56,6 +97,8 @@ foreach (_testcase ${TEST_SETS} )
 		Catch2::Catch2WithMain ## Catch2
 		${PROJECT_NAME} ) ## compiled libarcstk lib
 
+	target_compile_options (${_testcase}_test
+		PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 
 	## Add test to ctest set
 	add_test (
