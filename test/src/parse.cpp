@@ -47,9 +47,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 	{
 		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
 
-		CHECK ( triplet.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet.arcs()          == 0xABCDEF00U );
 		CHECK ( triplet.confidence()    == 100 );
-		CHECK ( triplet.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet.arcs_valid() );
 		CHECK ( triplet.confidence_valid() );
@@ -61,9 +61,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 
 	SECTION ( "Construct incomplete ARTriplet" )
 	{
-		CHECK ( triplet0.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet0.arcs()          == 0xABCDEF00U );
 		CHECK ( triplet0.confidence()    == 100 );
-		CHECK ( triplet0.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet0.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet0.arcs_valid() );
 		CHECK ( triplet0.confidence_valid() );
@@ -72,9 +72,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet0.empty() );
 
 
-		CHECK ( triplet1.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet1.arcs()          == 0xABCDEF01U );
 		CHECK ( triplet1.confidence()    == 101 );
-		CHECK ( triplet1.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet1.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet1.arcs_valid() );
 		CHECK ( not triplet1.confidence_valid() );
@@ -83,9 +83,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet1.empty() );
 
 
-		CHECK ( triplet2.arcs()          == 0xABCDEF02 );
+		CHECK ( triplet2.arcs()          == 0xABCDEF02U );
 		CHECK ( triplet2.confidence()    == 102 );
-		CHECK ( triplet2.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet2.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( not triplet2.arcs_valid() );
 		CHECK ( triplet2.confidence_valid() );
@@ -94,9 +94,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet2.empty() );
 
 
-		CHECK ( triplet3.arcs()          == 0xABCDEF03 );
+		CHECK ( triplet3.arcs()          == 0xABCDEF03U );
 		CHECK ( triplet3.confidence()    == 103 );
-		CHECK ( triplet3.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet3.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet3.arcs_valid() );
 		CHECK ( triplet3.confidence_valid() );
@@ -105,9 +105,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet3.empty() );
 
 
-		CHECK ( triplet4.arcs()          == 0xABCDEF04 );
+		CHECK ( triplet4.arcs()          == 0xABCDEF04U );
 		CHECK ( triplet4.confidence()    == 104 );
-		CHECK ( triplet4.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet4.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet4.arcs_valid() );
 		CHECK ( not triplet4.confidence_valid() );
@@ -116,9 +116,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet4.empty() );
 
 
-		CHECK ( triplet5.arcs()          == 0xABCDEF05 );
+		CHECK ( triplet5.arcs()          == 0xABCDEF05U );
 		CHECK ( triplet5.confidence()    == 105 );
-		CHECK ( triplet5.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet5.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( not triplet5.arcs_valid() );
 		CHECK ( triplet5.confidence_valid() );
@@ -127,9 +127,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet5.empty() );
 
 
-		CHECK ( triplet6.arcs()          == 0xABCDEF06 );
+		CHECK ( triplet6.arcs()          == 0xABCDEF06U );
 		CHECK ( triplet6.confidence()    == 106 );
-		CHECK ( triplet6.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet6.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( not triplet6.arcs_valid() );
 		CHECK ( not triplet6.confidence_valid() );
@@ -138,9 +138,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		CHECK ( not triplet6.empty() );
 
 
-		CHECK ( triplet7.arcs()          == 0xABCDEF07 );
+		CHECK ( triplet7.arcs()          == 0xABCDEF07U );
 		CHECK ( triplet7.confidence()    == 107 );
-		CHECK ( triplet7.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet7.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( not triplet7.arcs_valid() );
 		CHECK ( not triplet7.confidence_valid() );
@@ -163,9 +163,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
 		ARTriplet triplet_copy(triplet);
 
-		CHECK ( triplet_copy.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet_copy.arcs()          == 0xABCDEF00U );
 		CHECK ( triplet_copy.confidence()    == 100 );
-		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet_copy.arcs_valid() );
 		CHECK ( triplet_copy.confidence_valid() );
@@ -181,9 +181,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 	{
 		ARTriplet triplet_copy(triplet1);
 
-		CHECK ( triplet_copy.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet_copy.arcs()          == 0xABCDEF01U );
 		CHECK ( triplet_copy.confidence()    == 101 );
-		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet_copy.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet_copy.arcs_valid() );
 		CHECK ( not triplet_copy.confidence_valid() );
@@ -208,9 +208,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		ARTriplet triplet { 0xABCDEF00, 100, 0x0023BFCC };
 		ARTriplet triplet_moved( std::move(triplet) );
 
-		CHECK ( triplet_moved.arcs()          == 0xABCDEF00 );
+		CHECK ( triplet_moved.arcs()          == 0xABCDEF00U );
 		CHECK ( triplet_moved.confidence()    == 100 );
-		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( triplet_moved.arcs_valid() );
 		CHECK ( triplet_moved.confidence_valid() );
@@ -225,9 +225,9 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 		ARTriplet triplet { 0xABCDEF01, 101, 0x0023BFCC, false, true, false };
 		ARTriplet triplet_moved( std::move(triplet) );
 
-		CHECK ( triplet_moved.arcs()          == 0xABCDEF01 );
+		CHECK ( triplet_moved.arcs()          == 0xABCDEF01U );
 		CHECK ( triplet_moved.confidence()    == 101 );
-		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCC );
+		CHECK ( triplet_moved.frame450_arcs() == 0x0023BFCCU );
 
 		CHECK ( not triplet_moved.arcs_valid() );
 		CHECK ( triplet_moved.confidence_valid() );
@@ -301,16 +301,16 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 
 		swap(tripletA, tripletB);
 
-		CHECK ( tripletA.arcs()          == 0xABCDEF02 );
+		CHECK ( tripletA.arcs()          == 0xABCDEF02U );
 		CHECK ( tripletA.confidence()    == 102 );
-		CHECK ( tripletA.frame450_arcs() == 0x0023BFDD );
+		CHECK ( tripletA.frame450_arcs() == 0x0023BFDDU );
 		CHECK ( tripletA.arcs_valid() );
 		CHECK ( tripletA.confidence_valid() );
 		CHECK ( tripletA.frame450_arcs_valid() );
 
-		CHECK ( tripletB.arcs()          == 0xABCDEF01 );
+		CHECK ( tripletB.arcs()          == 0xABCDEF01U );
 		CHECK ( tripletB.confidence()    == 101 );
-		CHECK ( tripletB.frame450_arcs() == 0x0023BFCC );
+		CHECK ( tripletB.frame450_arcs() == 0x0023BFCCU );
 		CHECK ( tripletB.arcs_valid() );
 		CHECK ( tripletB.confidence_valid() );
 		CHECK ( tripletB.frame450_arcs_valid() );
@@ -324,16 +324,16 @@ TEST_CASE ( "ARTriplet", "[parse] [artriplet]" )
 
 		swap(tripletA, tripletB);
 
-		CHECK ( tripletA.arcs()          == 0xABCDEF02 );
+		CHECK ( tripletA.arcs()          == 0xABCDEF02U );
 		CHECK ( tripletA.confidence()    == 102 );
-		CHECK ( tripletA.frame450_arcs() == 0x0023BFDD );
+		CHECK ( tripletA.frame450_arcs() == 0x0023BFDDU );
 		CHECK ( tripletA.arcs_valid() );
 		CHECK ( tripletA.confidence_valid() );
 		CHECK ( tripletA.frame450_arcs_valid() );
 
-		CHECK ( tripletB.arcs()          == 0xABCDEF01 );
+		CHECK ( tripletB.arcs()          == 0xABCDEF01U );
 		CHECK ( tripletB.confidence()    == 101 );
-		CHECK ( tripletB.frame450_arcs() == 0x0023BFCC );
+		CHECK ( tripletB.frame450_arcs() == 0x0023BFCCU );
 		CHECK ( not tripletB.arcs_valid() );
 		CHECK ( not tripletB.confidence_valid() );
 		CHECK ( not tripletB.frame450_arcs_valid() );
@@ -390,21 +390,21 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 	REQUIRE ( block.size()     == 15 );
 
-	REQUIRE ( block[ 0].arcs() == 0x98B10E0F );
-	REQUIRE ( block[ 1].arcs() == 0x475F57E9 );
-	REQUIRE ( block[ 2].arcs() == 0x7304F1C4 );
-	REQUIRE ( block[ 3].arcs() == 0xF2472287 );
-	REQUIRE ( block[ 4].arcs() == 0x881BC504 );
-	REQUIRE ( block[ 5].arcs() == 0xBB94BFD4 );
-	REQUIRE ( block[ 6].arcs() == 0xF9CAEE76 );
-	REQUIRE ( block[ 7].arcs() == 0xF9F60BC1 );
-	REQUIRE ( block[ 8].arcs() == 0x2C736302 );
-	REQUIRE ( block[ 9].arcs() == 0x1C955978 );
-	REQUIRE ( block[10].arcs() == 0xFDA6D833 );
-	REQUIRE ( block[11].arcs() == 0x3A57E5D1 );
-	REQUIRE ( block[12].arcs() == 0x6ED5F3E7 );
-	REQUIRE ( block[13].arcs() == 0x4A5C3872 );
-	REQUIRE ( block[14].arcs() == 0x5FE8B032 );
+	REQUIRE ( block[ 0].arcs() == 0x98B10E0FU );
+	REQUIRE ( block[ 1].arcs() == 0x475F57E9U );
+	REQUIRE ( block[ 2].arcs() == 0x7304F1C4U );
+	REQUIRE ( block[ 3].arcs() == 0xF2472287U );
+	REQUIRE ( block[ 4].arcs() == 0x881BC504U );
+	REQUIRE ( block[ 5].arcs() == 0xBB94BFD4U );
+	REQUIRE ( block[ 6].arcs() == 0xF9CAEE76U );
+	REQUIRE ( block[ 7].arcs() == 0xF9F60BC1U );
+	REQUIRE ( block[ 8].arcs() == 0x2C736302U );
+	REQUIRE ( block[ 9].arcs() == 0x1C955978U );
+	REQUIRE ( block[10].arcs() == 0xFDA6D833U );
+	REQUIRE ( block[11].arcs() == 0x3A57E5D1U );
+	REQUIRE ( block[12].arcs() == 0x6ED5F3E7U );
+	REQUIRE ( block[13].arcs() == 0x4A5C3872U );
+	REQUIRE ( block[14].arcs() == 0x5FE8B032U );
 
 
 	SECTION ( "Copy construct ARBlock" )
@@ -418,21 +418,21 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 		CHECK ( block_copy.size()     == 15 );
 
-		CHECK ( block_copy[ 0].arcs() == 0x98B10E0F );
-		CHECK ( block_copy[ 1].arcs() == 0x475F57E9 );
-		CHECK ( block_copy[ 2].arcs() == 0x7304F1C4 );
-		CHECK ( block_copy[ 3].arcs() == 0xF2472287 );
-		CHECK ( block_copy[ 4].arcs() == 0x881BC504 );
-		CHECK ( block_copy[ 5].arcs() == 0xBB94BFD4 );
-		CHECK ( block_copy[ 6].arcs() == 0xF9CAEE76 );
-		CHECK ( block_copy[ 7].arcs() == 0xF9F60BC1 );
-		CHECK ( block_copy[ 8].arcs() == 0x2C736302 );
-		CHECK ( block_copy[ 9].arcs() == 0x1C955978 );
-		CHECK ( block_copy[10].arcs() == 0xFDA6D833 );
-		CHECK ( block_copy[11].arcs() == 0x3A57E5D1 );
-		CHECK ( block_copy[12].arcs() == 0x6ED5F3E7 );
-		CHECK ( block_copy[13].arcs() == 0x4A5C3872 );
-		CHECK ( block_copy[14].arcs() == 0x5FE8B032 );
+		CHECK ( block_copy[ 0].arcs() == 0x98B10E0FU );
+		CHECK ( block_copy[ 1].arcs() == 0x475F57E9U );
+		CHECK ( block_copy[ 2].arcs() == 0x7304F1C4U );
+		CHECK ( block_copy[ 3].arcs() == 0xF2472287U );
+		CHECK ( block_copy[ 4].arcs() == 0x881BC504U );
+		CHECK ( block_copy[ 5].arcs() == 0xBB94BFD4U );
+		CHECK ( block_copy[ 6].arcs() == 0xF9CAEE76U );
+		CHECK ( block_copy[ 7].arcs() == 0xF9F60BC1U );
+		CHECK ( block_copy[ 8].arcs() == 0x2C736302U );
+		CHECK ( block_copy[ 9].arcs() == 0x1C955978U );
+		CHECK ( block_copy[10].arcs() == 0xFDA6D833U );
+		CHECK ( block_copy[11].arcs() == 0x3A57E5D1U );
+		CHECK ( block_copy[12].arcs() == 0x6ED5F3E7U );
+		CHECK ( block_copy[13].arcs() == 0x4A5C3872U );
+		CHECK ( block_copy[14].arcs() == 0x5FE8B032U );
 	}
 
 
@@ -447,21 +447,21 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 		CHECK ( block_moved.size()     == 15 );
 
-		CHECK ( block_moved[ 0].arcs() == 0x98B10E0F );
-		CHECK ( block_moved[ 1].arcs() == 0x475F57E9 );
-		CHECK ( block_moved[ 2].arcs() == 0x7304F1C4 );
-		CHECK ( block_moved[ 3].arcs() == 0xF2472287 );
-		CHECK ( block_moved[ 4].arcs() == 0x881BC504 );
-		CHECK ( block_moved[ 5].arcs() == 0xBB94BFD4 );
-		CHECK ( block_moved[ 6].arcs() == 0xF9CAEE76 );
-		CHECK ( block_moved[ 7].arcs() == 0xF9F60BC1 );
-		CHECK ( block_moved[ 8].arcs() == 0x2C736302 );
-		CHECK ( block_moved[ 9].arcs() == 0x1C955978 );
-		CHECK ( block_moved[10].arcs() == 0xFDA6D833 );
-		CHECK ( block_moved[11].arcs() == 0x3A57E5D1 );
-		CHECK ( block_moved[12].arcs() == 0x6ED5F3E7 );
-		CHECK ( block_moved[13].arcs() == 0x4A5C3872 );
-		CHECK ( block_moved[14].arcs() == 0x5FE8B032 );
+		CHECK ( block_moved[ 0].arcs() == 0x98B10E0FU );
+		CHECK ( block_moved[ 1].arcs() == 0x475F57E9U );
+		CHECK ( block_moved[ 2].arcs() == 0x7304F1C4U );
+		CHECK ( block_moved[ 3].arcs() == 0xF2472287U );
+		CHECK ( block_moved[ 4].arcs() == 0x881BC504U );
+		CHECK ( block_moved[ 5].arcs() == 0xBB94BFD4U );
+		CHECK ( block_moved[ 6].arcs() == 0xF9CAEE76U );
+		CHECK ( block_moved[ 7].arcs() == 0xF9F60BC1U );
+		CHECK ( block_moved[ 8].arcs() == 0x2C736302U );
+		CHECK ( block_moved[ 9].arcs() == 0x1C955978U );
+		CHECK ( block_moved[10].arcs() == 0xFDA6D833U );
+		CHECK ( block_moved[11].arcs() == 0x3A57E5D1U );
+		CHECK ( block_moved[12].arcs() == 0x6ED5F3E7U );
+		CHECK ( block_moved[13].arcs() == 0x4A5C3872U );
+		CHECK ( block_moved[14].arcs() == 0x5FE8B032U );
 	}
 
 
@@ -579,63 +579,63 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 		{
 			if ( i == 0)
 			{
-				CHECK ( triplet.arcs() == 0x98B10E0F );
+				CHECK ( triplet.arcs() == 0x98B10E0FU );
 			} else
 			if ( i == 1)
 			{
-				CHECK ( triplet.arcs() == 0x475F57E9 );
+				CHECK ( triplet.arcs() == 0x475F57E9U );
 			} else
 			if ( i == 2)
 			{
-				CHECK ( triplet.arcs() == 0x7304F1C4 );
+				CHECK ( triplet.arcs() == 0x7304F1C4U );
 			} else
 			if ( i == 3)
 			{
-				CHECK ( triplet.arcs() == 0xF2472287 );
+				CHECK ( triplet.arcs() == 0xF2472287U );
 			} else
 			if ( i == 4)
 			{
-				CHECK ( triplet.arcs() == 0x881BC504 );
+				CHECK ( triplet.arcs() == 0x881BC504U );
 			} else
 			if ( i == 5)
 			{
-				CHECK ( triplet.arcs() == 0xBB94BFD4 );
+				CHECK ( triplet.arcs() == 0xBB94BFD4U );
 			} else
 			if ( i == 6)
 			{
-				CHECK ( triplet.arcs() == 0xF9CAEE76 );
+				CHECK ( triplet.arcs() == 0xF9CAEE76U );
 			} else
 			if ( i == 7)
 			{
-				CHECK ( triplet.arcs() == 0xF9F60BC1 );
+				CHECK ( triplet.arcs() == 0xF9F60BC1U );
 			} else
 			if ( i == 8)
 			{
-				CHECK ( triplet.arcs() == 0x2C736302 );
+				CHECK ( triplet.arcs() == 0x2C736302U );
 			} else
 			if ( i == 9)
 			{
-				CHECK ( triplet.arcs() == 0x1C955978 );
+				CHECK ( triplet.arcs() == 0x1C955978U );
 			} else
 			if ( i == 10)
 			{
-				CHECK ( triplet.arcs() == 0xFDA6D833 );
+				CHECK ( triplet.arcs() == 0xFDA6D833U );
 			} else
 			if ( i == 11)
 			{
-				CHECK ( triplet.arcs() == 0x3A57E5D1 );
+				CHECK ( triplet.arcs() == 0x3A57E5D1U );
 			} else
 			if ( i == 12)
 			{
-				CHECK ( triplet.arcs() == 0x6ED5F3E7 );
+				CHECK ( triplet.arcs() == 0x6ED5F3E7U );
 			} else
 			if ( i == 13)
 			{
-				CHECK ( triplet.arcs() == 0x4A5C3872 );
+				CHECK ( triplet.arcs() == 0x4A5C3872U );
 			} else
 			if ( i == 14)
 			{
-				CHECK ( triplet.arcs() == 0x5FE8B032 );
+				CHECK ( triplet.arcs() == 0x5FE8B032U );
 			}
 
 			++i;
@@ -654,63 +654,63 @@ TEST_CASE ( "ARBlock", "[parse] [arblock]" )
 
 			if ( j == 0)
 			{
-				CHECK ( triplet.arcs() == 0x98B10E0F );
+				CHECK ( triplet.arcs() == 0x98B10E0FU );
 			} else
 			if ( j == 1)
 			{
-				CHECK ( triplet.arcs() == 0x475F57E9 );
+				CHECK ( triplet.arcs() == 0x475F57E9U );
 			} else
 			if ( j == 2)
 			{
-				CHECK ( triplet.arcs() == 0x7304F1C4 );
+				CHECK ( triplet.arcs() == 0x7304F1C4U );
 			} else
 			if ( j == 3)
 			{
-				CHECK ( triplet.arcs() == 0xF2472287 );
+				CHECK ( triplet.arcs() == 0xF2472287U );
 			} else
 			if ( j == 4)
 			{
-				CHECK ( triplet.arcs() == 0x881BC504 );
+				CHECK ( triplet.arcs() == 0x881BC504U );
 			} else
 			if ( j == 5)
 			{
-				CHECK ( triplet.arcs() == 0xBB94BFD4 );
+				CHECK ( triplet.arcs() == 0xBB94BFD4U );
 			} else
 			if ( j == 6)
 			{
-				CHECK ( triplet.arcs() == 0xF9CAEE76 );
+				CHECK ( triplet.arcs() == 0xF9CAEE76U );
 			} else
 			if ( j == 7)
 			{
-				CHECK ( triplet.arcs() == 0xF9F60BC1 );
+				CHECK ( triplet.arcs() == 0xF9F60BC1U );
 			} else
 			if ( j == 8)
 			{
-				CHECK ( triplet.arcs() == 0x2C736302 );
+				CHECK ( triplet.arcs() == 0x2C736302U );
 			} else
 			if ( j == 9)
 			{
-				CHECK ( triplet.arcs() == 0x1C955978 );
+				CHECK ( triplet.arcs() == 0x1C955978U );
 			} else
 			if ( j == 10)
 			{
-				CHECK ( triplet.arcs() == 0xFDA6D833 );
+				CHECK ( triplet.arcs() == 0xFDA6D833U );
 			} else
 			if ( j == 11)
 			{
-				CHECK ( triplet.arcs() == 0x3A57E5D1 );
+				CHECK ( triplet.arcs() == 0x3A57E5D1U );
 			} else
 			if ( j == 12)
 			{
-				CHECK ( triplet.arcs() == 0x6ED5F3E7 );
+				CHECK ( triplet.arcs() == 0x6ED5F3E7U );
 			} else
 			if ( j == 13)
 			{
-				CHECK ( triplet.arcs() == 0x4A5C3872 );
+				CHECK ( triplet.arcs() == 0x4A5C3872U );
 			} else
 			if ( j == 14)
 			{
-				CHECK ( triplet.arcs() == 0x5FE8B032 );
+				CHECK ( triplet.arcs() == 0x5FE8B032U );
 			}
 
 			++j;
@@ -753,21 +753,21 @@ TEST_CASE ( "ARResponse", "[parse] [arresponse]" )
 
 	REQUIRE ( block1.size()     == 15 );
 
-	REQUIRE ( block1[ 0].arcs() == 0x98B10E0F );
-	REQUIRE ( block1[ 1].arcs() == 0x475F57E9 );
-	REQUIRE ( block1[ 2].arcs() == 0x7304F1C4 );
-	REQUIRE ( block1[ 3].arcs() == 0xF2472287 );
-	REQUIRE ( block1[ 4].arcs() == 0x881BC504 );
-	REQUIRE ( block1[ 5].arcs() == 0xBB94BFD4 );
-	REQUIRE ( block1[ 6].arcs() == 0xF9CAEE76 );
-	REQUIRE ( block1[ 7].arcs() == 0xF9F60BC1 );
-	REQUIRE ( block1[ 8].arcs() == 0x2C736302 );
-	REQUIRE ( block1[ 9].arcs() == 0x1C955978 );
-	REQUIRE ( block1[10].arcs() == 0xFDA6D833 );
-	REQUIRE ( block1[11].arcs() == 0x3A57E5D1 );
-	REQUIRE ( block1[12].arcs() == 0x6ED5F3E7 );
-	REQUIRE ( block1[13].arcs() == 0x4A5C3872 );
-	REQUIRE ( block1[14].arcs() == 0x5FE8B032 );
+	REQUIRE ( block1[ 0].arcs() == 0x98B10E0FU );
+	REQUIRE ( block1[ 1].arcs() == 0x475F57E9U );
+	REQUIRE ( block1[ 2].arcs() == 0x7304F1C4U );
+	REQUIRE ( block1[ 3].arcs() == 0xF2472287U );
+	REQUIRE ( block1[ 4].arcs() == 0x881BC504U );
+	REQUIRE ( block1[ 5].arcs() == 0xBB94BFD4U );
+	REQUIRE ( block1[ 6].arcs() == 0xF9CAEE76U );
+	REQUIRE ( block1[ 7].arcs() == 0xF9F60BC1U );
+	REQUIRE ( block1[ 8].arcs() == 0x2C736302U );
+	REQUIRE ( block1[ 9].arcs() == 0x1C955978U );
+	REQUIRE ( block1[10].arcs() == 0xFDA6D833U );
+	REQUIRE ( block1[11].arcs() == 0x3A57E5D1U );
+	REQUIRE ( block1[12].arcs() == 0x6ED5F3E7U );
+	REQUIRE ( block1[13].arcs() == 0x4A5C3872U );
+	REQUIRE ( block1[14].arcs() == 0x5FE8B032U );
 
 	ARBlock block2( /* id */ { 13, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
@@ -1037,41 +1037,41 @@ TEST_CASE ( "DefaultContentHandler", "[parse] [defaulthandler]" )
 		CHECK ( result[0].size() == 5 );
 		CHECK ( result[0].id()   == ARId { 5, 123, 456, 789 } );
 
-		CHECK ( result[0][0].arcs()          == 12345 );
-		CHECK ( result[0][0].confidence()    ==    20 );
-		CHECK ( result[0][0].frame450_arcs() == 45551 );
-		CHECK ( result[0][1].arcs()          == 23456 );
-		CHECK ( result[0][1].confidence()    ==    20 );
-		CHECK ( result[0][1].frame450_arcs() == 56677 );
-		CHECK ( result[0][2].arcs()          == 34567 );
-		CHECK ( result[0][2].confidence()    ==    21 );
-		CHECK ( result[0][2].frame450_arcs() == 65599 );
-		CHECK ( result[0][3].arcs()          == 45678 );
-		CHECK ( result[0][3].confidence()    ==    21 );
-		CHECK ( result[0][3].frame450_arcs() == 43322 );
-		CHECK ( result[0][4].arcs()          == 56789 );
-		CHECK ( result[0][4].confidence()    ==    21 );
-		CHECK ( result[0][4].frame450_arcs() == 45533 );
+		CHECK ( result[0][0].arcs()          == 12345U );
+		CHECK ( result[0][0].confidence()    ==    20U );
+		CHECK ( result[0][0].frame450_arcs() == 45551U );
+		CHECK ( result[0][1].arcs()          == 23456U );
+		CHECK ( result[0][1].confidence()    ==    20U );
+		CHECK ( result[0][1].frame450_arcs() == 56677U );
+		CHECK ( result[0][2].arcs()          == 34567U );
+		CHECK ( result[0][2].confidence()    ==    21U );
+		CHECK ( result[0][2].frame450_arcs() == 65599U );
+		CHECK ( result[0][3].arcs()          == 45678U );
+		CHECK ( result[0][3].confidence()    ==    21U );
+		CHECK ( result[0][3].frame450_arcs() == 43322U );
+		CHECK ( result[0][4].arcs()          == 56789U );
+		CHECK ( result[0][4].confidence()    ==    21U );
+		CHECK ( result[0][4].frame450_arcs() == 45533U );
 
 		// block 1
 		CHECK ( result[1].size() == 5 );
 		CHECK ( result[1].id()   == ARId { 5, 123, 456, 789 } );
 
-		CHECK ( result[1][0].arcs()          == 23456 );
-		CHECK ( result[1][0].confidence()    ==    20 );
-		CHECK ( result[1][0].frame450_arcs() == 45551 );
-		CHECK ( result[1][1].arcs()          == 34567 );
-		CHECK ( result[1][1].confidence()    ==    20 );
-		CHECK ( result[1][1].frame450_arcs() == 56677 );
-		CHECK ( result[1][2].arcs()          == 45678 );
-		CHECK ( result[1][2].confidence()    ==    21 );
-		CHECK ( result[1][2].frame450_arcs() == 65599 );
-		CHECK ( result[1][3].arcs()          == 56789 );
-		CHECK ( result[1][3].confidence()    ==    21 );
-		CHECK ( result[1][3].frame450_arcs() == 43322 );
-		CHECK ( result[1][4].arcs()          == 67890 );
-		CHECK ( result[1][4].confidence()    ==    21 );
-		CHECK ( result[1][4].frame450_arcs() == 45533 );
+		CHECK ( result[1][0].arcs()          == 23456U );
+		CHECK ( result[1][0].confidence()    ==    20U );
+		CHECK ( result[1][0].frame450_arcs() == 45551U );
+		CHECK ( result[1][1].arcs()          == 34567U );
+		CHECK ( result[1][1].confidence()    ==    20U );
+		CHECK ( result[1][1].frame450_arcs() == 56677U );
+		CHECK ( result[1][2].arcs()          == 45678U );
+		CHECK ( result[1][2].confidence()    ==    21U );
+		CHECK ( result[1][2].frame450_arcs() == 65599U );
+		CHECK ( result[1][3].arcs()          == 56789U );
+		CHECK ( result[1][3].confidence()    ==    21U );
+		CHECK ( result[1][3].frame450_arcs() == 43322U );
+		CHECK ( result[1][4].arcs()          == 67890U );
+		CHECK ( result[1][4].confidence()    ==    21U );
+		CHECK ( result[1][4].frame450_arcs() == 45533U );
 	}
 }
 
