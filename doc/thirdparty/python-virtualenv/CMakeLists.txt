@@ -56,7 +56,7 @@ add_custom_command(
 ## fell back to python 2.7 which caused the m.css run to fail on some enconding
 ## issue.
 
-add_custom_target (python-virtualenv DEPENDS "${ENV_DIR}" )
+add_custom_target (libarcstk_python-virtualenv DEPENDS "${ENV_DIR}" )
 
 ## Export variables used in parent CMakeLists.txt
 set (PYTHON_ENV_AVAILABLE "YES"                   PARENT_SCOPE )
@@ -86,6 +86,6 @@ macro (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
 	add_custom_target (${UPDATE_TARGET} DEPENDS "${STAMP_FILE}" )
 	unset (STAMP_FILE )
 
-	add_dependencies (${UPDATE_TARGET} python-virtualenv )
+	add_dependencies (${UPDATE_TARGET} libarcstk_python-virtualenv )
 endmacro()
 

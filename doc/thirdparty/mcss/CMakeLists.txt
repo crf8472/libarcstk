@@ -8,7 +8,7 @@
 ##              DOXYGEN_VERSION (from find_package)
 ##
 ## Provides:
-## - Targets: 'mcss_doc'
+## - Targets: 'libarcstk_mcss_doc'
 
 if (WIN32 )
 
@@ -45,7 +45,7 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
 
-add_custom_target (mcss_doc DEPENDS ${OUTPUT_MAINPAGE} )
+add_custom_target (libarcstk_mcss_doc DEPENDS ${OUTPUT_MAINPAGE} )
 
 
 ## --- Define m.css to be checked out/updated while configuring
@@ -109,7 +109,7 @@ else() ## No FetchContent module available
 
 	unset(SOURCE_DIR )
 
-	add_dependencies (mcss_doc mcss_download )
+	add_dependencies (libarcstk_mcss_doc mcss_download )
 endif()
 
 
@@ -125,11 +125,11 @@ configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"  "${CONFPY}"  @ONLY )
 
 ## --- Set up python environment
 
-add_requirements_target (mcss_requirements
+add_requirements_target (libarcstk_mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies (mcss_doc mcss_requirements )
+add_dependencies (libarcstk_mcss_doc libarcstk_mcss_requirements )
 
 
 
@@ -140,9 +140,9 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (mcss_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_mcss_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
 
-	add_dependencies (mcss_doc mcss_doxygen )
+	add_dependencies (libarcstk_mcss_doc libarcstk_mcss_doxygen )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
@@ -170,5 +170,5 @@ else()
 	)
 endif()
 
-add_dependencies (doc mcss_doc )
+add_dependencies (libarcstk_doc libarcstk_mcss_doc )
 

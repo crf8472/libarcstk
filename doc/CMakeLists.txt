@@ -57,7 +57,7 @@ add_custom_command (
 	ARGS    -E make_directory ${DOC_GEN_DIR} )
 
 
-add_custom_target (create_output_dir DEPENDS ${DOC_GEN_DIR} )
+add_custom_target (libarcstk_create_output_dir DEPENDS ${DOC_GEN_DIR} )
 
 
 ## --- Generate base doxyfile
@@ -127,7 +127,7 @@ configure_file (${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md.in ${DOC_MAINPAGE} @ONLY )
 ## As a fallback, we provide target 'doc_plain' that generates doxygen's stock
 ## HTML output that gives as this nice, cosy feeling of the Nineties.
 
-add_custom_target (doc )
+add_custom_target (libarcstk_doc )
 
 
 ## --- If some thirdparty documentation tool was requested, use it
@@ -188,7 +188,7 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 
 	if (PYTHON_ENV_AVAILABLE )
 
-		add_requirements_target (doxygen_requirements
+		add_requirements_target (libarcstk_doxygen_requirements
 			"${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/doxygen/requirements.txt"
 		)
 
@@ -221,7 +221,7 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 
 		## Setup doxygen run target
 		add_custom_target (${DOXY_TARGET}_run DEPENDS ${INDEXFILE} )
-		add_dependencies  (${DOXY_TARGET}_run create_output_dir )
+		add_dependencies  (${DOXY_TARGET}_run libarcstk_create_output_dir )
 
 		set (STAMP_FILE ${INDEXFILE}.deduplicated )
 
@@ -242,7 +242,8 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 		add_dependencies  (${DOXY_TARGET}_dedup ${DOXY_TARGET}_run )
 		if (PYTHON_ENV_AVAILABLE )
 
-			add_dependencies  (${DOXY_TARGET}_dedup doxygen_requirements )
+			add_dependencies  (${DOXY_TARGET}_dedup
+				libarcstk_doxygen_requirements )
 		endif()
 
 		## Setup doxygen target
@@ -253,7 +254,7 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 	else()
 
 		add_custom_target (${DOXY_TARGET} DEPENDS ${INDEXFILE} )
-		add_dependencies  (${DOXY_TARGET} create_output_dir )
+		add_dependencies  (${DOXY_TARGET} libarcstk_create_output_dir )
 	endif()
 endmacro()
 
@@ -266,7 +267,7 @@ endforeach()
 
 
 
-## --- If no generator is requested, target 'doc' just produces stock HTML
+## --- If no generator is requested, just produce stock HTML
 
 if (NOT LOAD_GENERATORS )
 
@@ -283,10 +284,19 @@ if (NOT LOAD_GENERATORS )
 		VERBATIM
 	)
 
-	add_custom_target (plain_doc DEPENDS ${DOC_OUTPUT_MAINPAGE} )
-	add_dependencies  (plain_doc create_output_dir )
+	add_custom_target (libarcstk_plain_doc DEPENDS ${DOC_OUTPUT_MAINPAGE} )
+	add_dependencies  (libarcstk_plain_doc libarcstk_create_output_dir )
 
-	add_dependencies  (doc plain_doc )
+	add_dependencies  (libarcstk_doc libarcstk_plain_doc )
 
 endif()
+
+
+## --- If some parent defined a 'doc' target, otherwise define it autonomously
+
+if (NOT TARGET doc)
+	add_custom_target (doc )
+endif()
+
+add_dependencies (doc libarcstk_doc )
 
