@@ -308,7 +308,7 @@ macro (add_cxx_flags_optimize )
 	message (STATUS "Build with platform specific optimization")
 
 	target_compile_options (${PROJECT_NAME}
-			PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+			PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 endmacro()
 
 
