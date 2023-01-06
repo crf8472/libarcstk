@@ -88,7 +88,7 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 
 	add_doxygen_target (libarcstk_rtd_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
 
-	add_dependencies (rtd_doc rtd_doxygen )
+	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_doxygen )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}" "${SPHINX_LIBRARY_ROOT_PAGE}"
