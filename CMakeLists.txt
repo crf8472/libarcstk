@@ -337,30 +337,17 @@ message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
 
 
 
-## --- If sourced by a parent CMakeLists.txt skip all optional targets
+## --- If sourced by a parent CMakeLists.txt do some extra settings
 
 if (HAS_PARENT )
 
-	message (STATUS "Compiled by a parent project, skip tests and docs" )
+	message (STATUS "libarcstk is compiled by a parent project" )
 
-##  Commented out for now (needs testing)
-##
-#	## If sourced by a parent project, releases are always compiled with
-#	## optimization.
-#
-#	if (CMAKE_BUILD_TYPE STREQUAL "Release")
-#
-#		add_cxx_flags_optimize()
-#	endif()
-#
-#	get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
-#
-#	message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
-#
-#	return()
+	## Use this in the PARENT to check whether add_subdirectory was executed
+	set (LIBARCSTK_ADDED  TRUE  PARENT_SCOPE )
 else()
 
-	message (STATUS "Compiled without parent project" )
+	message (STATUS "libarcstk is compiled without parent project" )
 endif()
 
 
