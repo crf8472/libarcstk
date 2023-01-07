@@ -4,6 +4,10 @@ libarcstk comes with 4 mini examples for what can be done with libarcstk and how
 this is to be done. Each of the examples refers to one of the main modules of
 libarcstk.
 
+Building the examples requires libarcstk to have been successfully build (e.g.
+the .so-file residing in build/.). If you do not have g++ installed, adjust the
+Makefiles to your compiler before building the examples.
+
 The aim of the examples is demonstration, not productive use. Backup any file
 you intend to use as input for the example applications!
 

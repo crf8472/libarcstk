@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 {
 	if (argc != 2)
 	{
-		std::cout << "Arguments: " << argc << std::endl;
 		std::cout << "Usage: arparse <response_file_name>" << std::endl;
 		return EXIT_SUCCESS;
 	}
