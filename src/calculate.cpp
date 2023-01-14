@@ -2768,13 +2768,13 @@ Checksums Calculation::Impl::result() const noexcept
 			static_cast<Checksums::size_type>(total_tracks)) };
 
 	// Collect checksums for all tracks (for singletrack+multitrack)
-	
+
 	const auto shift = context_->is_multi_track() ? 0 : 1;
 	for (auto i = 0; i < total_tracks; ++i)
 	{
-	 	auto track = ChecksumSet { context_->length(i) };
-	 	track.merge(state_->result(i - shift + 1));
-	 	checksums->append(track);
+		auto track = ChecksumSet { context_->length(i) };
+		track.merge(state_->result(i - shift + 1));
+		checksums->append(track);
 	}
 
 // NOTE: Commented out, old implementation: collect checksums while
