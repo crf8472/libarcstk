@@ -2,6 +2,13 @@
 
 cmake_minimum_required (VERSION 3.7 )
 
+## Always link library files by full path when a full path is given to the
+## target_link_libraries() command.
+cmake_policy (SET CMP0003 NEW )
+
+## Link libraries by full path even in implicit directories.
+cmake_policy (SET CMP0060 NEW )
+
 
 ## Global settings
 
@@ -45,27 +52,6 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 endif()
 
 
-## Provide main object file
-
-add_library (libarcstk_catch2_main OBJECT "${MAIN_TEST_CPP}" )
-set_property (TARGET libarcstk_catch2_main PROPERTY CXX_STANDARD 14 )
-
-if (${CMAKE_VERSION} VERSION_LESS "3.13.0" )
-
-	target_include_directories (libarcstk_catch2_main PUBLIC
-	"${CMAKE_BINARY_DIR}/thirdparty/catch2/catch2-prefix/src/catch2/single_include/" )
-else ()
-
-	target_link_libraries (libarcstk_catch2_main PRIVATE Catch2::Catch2 )
-endif ()
-
-target_compile_options (libarcstk_catch2_main
-	PUBLIC ${TEST_CXX_FLAGS_WARNINGS} )
-
-target_compile_options (libarcstk_catch2_main
-	PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
-
-
 ## Add common configuration for all testsuites (catch2 + project dependencies)
 
 foreach (_testcase ${TEST_SETS} )
@@ -76,29 +62,29 @@ foreach (_testcase ${TEST_SETS} )
 		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS_WARNINGS}
 	)
 
-	#get_property(COMP_FLAGS SOURCE "${TEST_SOURCE_DIR}/${_testcase}.cpp"
-	#	PROPERTY COMPILE_OPTIONS )
-	#message (STATUS "COMPILE_OPTIONS for ${_testcase}.cpp: ${COMP_FLAGS}")
-
 	## Define an executable for each single testfile
-	add_executable (${_testcase}_test
-		$<TARGET_OBJECTS:libarcstk_catch2_main>
-		"${TEST_SOURCE_DIR}/${_testcase}.cpp" )
+	add_executable (${_testcase}_test "${TEST_SOURCE_DIR}/${_testcase}.cpp" )
 
 	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 14 )
 
 	target_include_directories (${_testcase}_test
-		PRIVATE ${PROJECT_INCLUDE_DIR}        ## public headers
-		PRIVATE ${PROJECT_SOURCE_DIR}         ## private headers (*_details.hpp)
-		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ) ## generated sources
+		PRIVATE ${PROJECT_INCLUDE_DIR}      ## public headers
+		PRIVATE ${PROJECT_SOURCE_DIR}       ## private headers (*_details.hpp)
+		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ## generated sources
+	)
 
 	target_link_libraries (${_testcase}_test
 		PRIVATE
-		Catch2::Catch2WithMain ## Catch2
-		${PROJECT_NAME} ) ## compiled libarcstk lib
+		Catch2::Catch2WithMain
+		-Wl,--disable-new-dtags  ## set RPATH instead of RUNPATH
+		${PROJECT_NAME} ## libarcstk from build-tree, 0003 and 0060 are used
+	)
+	## Setting the RPATH forces loading the libarcstk.so from the build tree,
+	## even if a system-wide libarcstk is installed. Using RUNPATH instead of
+	## RPATH causes the testcase to load the system-wide libfile.
 
 	target_compile_options (${_testcase}_test
-		PUBLIC ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 
 	## Add test to ctest set
 	add_test (
