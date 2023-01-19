@@ -2,9 +2,10 @@
 
 cmake_minimum_required (VERSION 3.12 )
 
+## Support IN_LIST if() operator required by FindDoxygen.cmake
+cmake_policy (SET CMP0057 NEW )
 
 find_package (Doxygen 1.8.0 )
-
 
 message (STATUS
 	"Note: to build documentation do 'cmake --build . --target doc'" )

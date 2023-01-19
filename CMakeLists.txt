@@ -6,10 +6,6 @@ cmake_minimum_required (VERSION 3.9.6 )
 ## Required for specifying the project version along with the name in project()
 cmake_policy (SET CMP0048 NEW )
 
-## Support new IN_LIST if() operator
-## Required by FindDoxygen.cmake
-cmake_policy (SET CMP0057 NEW )
-
 
 project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
 
