@@ -92,7 +92,7 @@ set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 ## "Root directory for public/exported headers"
-set (PROJECT_INCLUDE_DIR      "${CMAKE_CURRENT_BINARY_DIR}/include/arcstk" )
+set (PROJECT_INCLUDE_DIR      "${PROJECT_BINARY_DIR}/include/arcstk" )
 
 ## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
