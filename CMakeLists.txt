@@ -59,12 +59,9 @@ set_property (DIRECTORY APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
 
 
-set (CMAKE_CXX_EXTENSIONS OFF ) ## use -std=c++14 instead of std=gnu++14
-
-
 ## Abort release-builds on big endian platforms
 
-include (TestBigEndian)
+include (TestBigEndian )
 
 TEST_BIG_ENDIAN (IS_BIG_ENDIAN )
 
