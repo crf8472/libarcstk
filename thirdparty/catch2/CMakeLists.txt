@@ -38,7 +38,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 	)
 
 	## --- Load Catch2 CMake config
-	add_subdirectory (${SOURCE_DIR} ${BINARY_DIR} )
+	add_subdirectory ("${SOURCE_DIR}" "${BINARY_DIR}" )
 
 	unset (SOURCE_DIR )
 	unset (BINARY_DIR )
