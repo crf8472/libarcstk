@@ -204,7 +204,7 @@ if (HAS_PARENT )
 		INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	)
 
-	## Provide a namespaced target also When added by add_subdirectory
+	## Provide a namespaced target also when added by add_subdirectory
 	add_library (${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME} )
 endif()
 
@@ -213,7 +213,8 @@ target_include_directories (${PROJECT_NAME}
 		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
 		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
 	PRIVATE
-		"${PROJECT_BUILD_SOURCE_DIR}" )
+		"${PROJECT_BUILD_SOURCE_DIR}" ## for generated headers
+	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
@@ -226,6 +227,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
 
 add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
+
 
 
 ## --- Compiler Specific Settings
