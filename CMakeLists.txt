@@ -86,7 +86,7 @@ endif()
 ## --- Project Directory Layout
 
 ## "Root directory for out-of-source build"
-set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
+set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_BINARY_DIR}" )
 
 ## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
