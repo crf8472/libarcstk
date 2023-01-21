@@ -119,7 +119,7 @@ add_custom_target (libarcstk_create_include_dir
 
 ## Create build-tree include directory (symlink)
 ## This is useful for finding the includes when used as a subproject.
-add_custom_target (libarcstk_link_to_headers ALL
+add_custom_target (libarcstk_link_to_headers
 	COMMAND ${CMAKE_COMMAND} -E create_symlink
 	${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_INCLUDE_DIR} )
 
@@ -199,6 +199,11 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
 
 if (HAS_PARENT )
+	## Make project's includes available to PARENT
+	target_include_directories (${PROJECT_NAME}
+		INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+	)
+
 	## Provide a namespaced target also When added by add_subdirectory
 	add_library (${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME} )
 endif()
@@ -212,11 +217,15 @@ target_include_directories (${PROJECT_NAME}
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   14
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF ## use -std=c++14 instead of std=gnu++14
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
 	PRIVATE_HEADER "${PRIVATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
+
+add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 
 
 ## --- Compiler Specific Settings
