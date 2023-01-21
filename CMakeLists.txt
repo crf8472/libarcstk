@@ -88,11 +88,11 @@ endif()
 ## "Root directory for out-of-source build"
 set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/build" )
 
-## "Root directory for public/exported headers"
-set (PROJECT_INCLUDE_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/include" )
-
 ## "Root directory for sources"
 set (PROJECT_SOURCE_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+
+## "Root directory for public/exported headers"
+set (PROJECT_INCLUDE_DIR      "${CMAKE_CURRENT_BINARY_DIR}/include/arcstk" )
 
 ## "Target directory for non-cmake logs"
 set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
@@ -105,9 +105,25 @@ set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 
 
-## --- Create Log directory
+## --- Create build-tree directories
 
-file (MAKE_DIRECTORY ${PROJECT_LOG_DIR} )
+## Log directory
+
+add_custom_target (libarcstk_create_log_dir ALL
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_LOG_DIR} )
+
+add_custom_target (libarcstk_create_include_dir
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/include )
+
+## include directory + link
+
+## Create build-tree include directory (symlink)
+## This is useful for finding the includes when used as a subproject.
+add_custom_target (libarcstk_link_to_headers ALL
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
+	${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_INCLUDE_DIR} )
+
+add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
 
 
 
@@ -181,6 +197,11 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/parse.cpp"
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
 	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
+
+if (HAS_PARENT )
+	## Provide a namespaced target also When added by add_subdirectory
+	add_library (${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME} )
+endif()
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
@@ -330,21 +351,6 @@ endif (WITH_NATIVE )
 get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
 
 message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
-
-
-
-## --- If sourced by a parent CMakeLists.txt do some extra settings
-
-if (HAS_PARENT )
-
-	message (STATUS "libarcstk is compiled by a parent project" )
-
-	## Use this in the PARENT to check whether add_subdirectory was executed
-	set (LIBARCSTK_ADDED  TRUE  PARENT_SCOPE )
-else()
-
-	message (STATUS "libarcstk is compiled without parent project" )
-endif()
 
 
 
