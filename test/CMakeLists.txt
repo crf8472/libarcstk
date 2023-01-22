@@ -10,10 +10,7 @@ cmake_policy (SET CMP0003 NEW )
 cmake_policy (SET CMP0060 NEW )
 
 
-## Global settings
-
 set (TEST_SOURCE_DIR "src" )
-set (MAIN_TEST_CPP   "${TEST_SOURCE_DIR}/main.test.cpp" )
 
 
 ## Define testsuites
