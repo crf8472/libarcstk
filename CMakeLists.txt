@@ -469,6 +469,8 @@ endif (WITH_DOCS )
 
 
 ## --- Optional: Add include-what-you-use support (default: OFF)
+## TODO CXX_INCLUDE_WHAT_YOU_USE has to be set to TRUE when the target is
+## created
 
 option (IWYU "Don't compile, check headers with include-what-you-use" OFF )
 if (IWYU )
