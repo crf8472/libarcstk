@@ -7,3 +7,5 @@
  * \brief The main file for the Catch2 tester binary
  */
 
+// empty
+
