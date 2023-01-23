@@ -19,8 +19,8 @@ if (${CMAKE_VERSION} VERSION_LESS "3.11.0" ) ## No FetchContent module available
 		catch2
 		GIT_REPOSITORY    ${CATCH2_REPO_URL}
 		GIT_TAG           ${CATCH2_VERSION_TAG}
-		GIT_SHALLOW       true
-		GIT_PROGRESS      true
+		GIT_SHALLOW       ON
+		GIT_PROGRESS      ON
 		TIMEOUT           10
 		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
 		CONFIGURE_COMMAND ""
@@ -65,7 +65,7 @@ else()
 		endif()
 	else()
 
-		FetchContent_MakeAvailable(catch2)
+		FetchContent_MakeAvailable (catch2 )
 	endif()
 
 endif()
