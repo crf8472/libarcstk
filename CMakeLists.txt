@@ -439,8 +439,10 @@ if (WITH_TESTS)
 
 	enable_testing()
 
-	## Add Catch2 test framework
-	add_subdirectory (thirdparty/catch2 EXCLUDE_FROM_ALL )
+	## Add Catch2 test framework if it is not already present
+	if (NOT TARGET Catch2::Catch2 )
+		add_subdirectory (thirdparty/catch2 EXCLUDE_FROM_ALL )
+	endif()
 
 	## Add tests
 	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/test )
