@@ -77,7 +77,8 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 
 		} catch (const NonstandardMetadataException &nsm)
 		{
-			// Do not throw NonstandardMetadataException for now
+			ARCS_LOG_WARNING << "Metadata is nonstandard: " << nsm.what();
+			// Do not propagate NonstandardMetadataException for now
 			// since we accept non-standard metadata
 		}
 	} else
@@ -494,7 +495,9 @@ void TOC::update(const lba_count_t leadout)
 
 	} catch (const NonstandardMetadataException &nsm)
 	{
-		// Do not throw NonstandardMetadataException for now
+		ARCS_LOG_WARNING << "Update will make Metadata non-standard: "
+			<< nsm.what();
+		// Do not propagate NonstandardMetadataException for now
 		// since we accept non-standard metadata
 	}
 
