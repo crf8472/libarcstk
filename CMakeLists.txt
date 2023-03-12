@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.9.6 )
 cmake_policy (SET CMP0048 NEW )
 
 
-project (libarcstk VERSION 0.1.0 LANGUAGES CXX )
+project (libarcstk VERSION 0.1.1 LANGUAGES CXX )
 
 get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
@@ -19,7 +19,7 @@ set (PROJECT_BRIEF_DESC
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
-set (PROJECT_VERSION_SUFFIX "" )
+set (PROJECT_VERSION_SUFFIX "beta.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
