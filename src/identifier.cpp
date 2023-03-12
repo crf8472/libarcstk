@@ -640,14 +640,14 @@ bool operator == (const ARId &lhs, const ARId &rhs) noexcept
 
 
 InvalidMetadataException::InvalidMetadataException(const std::string &what_arg)
-	: std::logic_error { what_arg }
+	: std::runtime_error { what_arg }
 {
 	// empty
 }
 
 
 InvalidMetadataException::InvalidMetadataException(const char *what_arg)
-	: std::logic_error { what_arg }
+	: std::runtime_error { what_arg }
 {
 	// empty
 }
@@ -658,14 +658,14 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 
 NonstandardMetadataException::NonstandardMetadataException(
 		const std::string &what_arg)
-	: std::logic_error { what_arg }
+	: std::runtime_error { what_arg }
 {
 	// empty
 }
 
 
 NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
-	: std::logic_error { what_arg }
+	: std::runtime_error { what_arg }
 {
 	// empty
 }

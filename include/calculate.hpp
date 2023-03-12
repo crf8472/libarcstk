@@ -15,7 +15,7 @@
 #include <memory>                // for unique_ptr, swap, make_unique
 #include <set>                   // for set
 #include <sstream>               // for swap, ptrdiff_t, size_t
-#include <stdexcept>             // for logic_error
+#include <stdexcept>             // for domain_error, out_of_range
 #include <string>                // for string
 #include <type_traits>           // for declval, decay_t, enable_if_t, is_same
 #include <typeinfo>              // for type_info

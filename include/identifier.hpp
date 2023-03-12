@@ -10,7 +10,7 @@
 #include <cstdint>               // for uint32_t, int32_t, uint64_t
 #include <initializer_list>      // for initializer_list
 #include <memory>                // for unique_ptr
-#include <stdexcept>             // for logic_error
+#include <stdexcept>             // for runtime_error
 #include <string>                // for string
 #include <type_traits>           // for enable_if_t
 #include <utility>               // for forward
@@ -502,7 +502,7 @@ private:
  *
  * This exception indicates that no TOC can be build.
  */
-class InvalidMetadataException final : public std::logic_error
+class InvalidMetadataException final : public std::runtime_error
 {
 public:
 
@@ -526,14 +526,14 @@ public:
  * \brief Reports metadata violating the redbook standard.
  *
  * Violating the redbook standard is usually not a problem for calculating
- * AccurateRip checksums. A common case are unusual total lengths, as for example
- * up to 99 minutes per disc.
+ * AccurateRip checksums. A common case are unusual total lengths, as for
+ * example up to 99 minutes per disc.
  *
  * \attention
  * This exception occurrs only internally in the current API version, but is
  * never thrown to the client. This may change in future versions.
  */
-class NonstandardMetadataException final : public std::logic_error
+class NonstandardMetadataException final : public std::runtime_error
 {
 public:
 
