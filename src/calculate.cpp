@@ -657,7 +657,7 @@ bool AudioSize::Impl::equals(const AudioSize::Impl &rhs) const noexcept
 // CalcContext
 
 
-void CalcContext::set_audio_size(const AudioSize &audio_size) noexcept
+void CalcContext::set_audio_size(const AudioSize &audio_size)
 {
 	this->do_set_audio_size(audio_size);
 }
@@ -1173,7 +1173,7 @@ CalcContextBase::CalcContextBase(const std::string &filename,
 CalcContextBase::~CalcContextBase() noexcept = default;
 
 
-void CalcContextBase::do_set_audio_size(const AudioSize &audio_size) noexcept
+void CalcContextBase::do_set_audio_size(const AudioSize &audio_size)
 {
 	audiosize_ = audio_size;
 
@@ -1181,7 +1181,7 @@ void CalcContextBase::do_set_audio_size(const AudioSize &audio_size) noexcept
 }
 
 
-void CalcContextBase::do_hook_post_set_audio_size() noexcept
+void CalcContextBase::do_hook_post_set_audio_size()
 {
 	// empty
 }
@@ -1467,7 +1467,7 @@ MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
 }
 
 
-void MultitrackCalcContext::do_hook_post_set_audio_size() noexcept
+void MultitrackCalcContext::do_hook_post_set_audio_size()
 {
 	if (this->audio_size().leadout_frame() != this->toc().leadout())
 	{
@@ -1666,7 +1666,7 @@ bool MultitrackCalcContext::do_skips_back() const noexcept
 }
 
 
-void MultitrackCalcContext::set_toc(const TOC &toc) noexcept
+void MultitrackCalcContext::set_toc(const TOC &toc)
 {
 	// NOTE: Leadout will be 0 if TOC is not complete.
 
@@ -2400,7 +2400,7 @@ public:
 	/**
 	 * \brief Implements Calculation::update_audiosize(const AudioSize &audiosize).
 	 */
-	void update_audiosize(const AudioSize &audiosize) noexcept;
+	void update_audiosize(const AudioSize &audiosize);
 
 	/**
 	 * \brief Implements Calculation::complete().
@@ -2613,7 +2613,7 @@ checksum::type Calculation::Impl::type() const noexcept
 }
 
 
-void Calculation::Impl::update_audiosize(const AudioSize &audiosize) noexcept
+void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
 {
 	context_->set_audio_size(audiosize);
 
@@ -3148,7 +3148,7 @@ void Calculation::update(SampleInputIterator begin, SampleInputIterator end)
 }
 
 
-void Calculation::update_audiosize(const AudioSize &audiosize) noexcept
+void Calculation::update_audiosize(const AudioSize &audiosize)
 {
 	impl_->update_audiosize(audiosize);
 }

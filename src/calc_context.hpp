@@ -60,7 +60,7 @@ public:
 
 private:
 
-	void do_set_audio_size(const AudioSize &audio_size) noexcept override;
+	void do_set_audio_size(const AudioSize &audio_size) override;
 
 	const AudioSize& do_audio_size() const noexcept override;
 
@@ -100,7 +100,7 @@ private:
 	/**
 	 * \brief Hook called after set_audio_size() is finished.
 	 */
-	virtual void do_hook_post_set_audio_size() noexcept;
+	virtual void do_hook_post_set_audio_size();
 
 
 protected:
@@ -348,12 +348,12 @@ public:
 	 *
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
-	void set_toc(const TOC &toc) noexcept;
+	void set_toc(const TOC &toc);
 
 
 private:
 
-	void do_hook_post_set_audio_size() noexcept final;
+	void do_hook_post_set_audio_size() final;
 
 	int do_total_tracks() const noexcept final;
 

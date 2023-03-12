@@ -1165,7 +1165,7 @@ public:
 	 *
 	 * \param[in] audio_size AudioSize
 	 */
-	void set_audio_size(const AudioSize &audio_size) noexcept;
+	void set_audio_size(const AudioSize &audio_size);
 
 	/**
 	 * \brief Return the size of the referenced audio file
@@ -1425,7 +1425,7 @@ private:
 	 *
 	 * \param[in] audio_size AudioSize
 	 */
-	virtual void do_set_audio_size(const AudioSize &audio_size) noexcept
+	virtual void do_set_audio_size(const AudioSize &audio_size)
 	= 0;
 
 	/**
@@ -1956,7 +1956,7 @@ public:
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
-	void update_audiosize(const AudioSize &audiosize) noexcept;
+	void update_audiosize(const AudioSize &audiosize);
 
 	/**
 	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise \c FALSE.
