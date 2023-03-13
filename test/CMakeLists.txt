@@ -21,7 +21,7 @@ list (APPEND TEST_SETS identifier )
 list (APPEND TEST_SETS match )
 list (APPEND TEST_SETS parse )
 list (APPEND TEST_SETS samples )
-list (APPEND TEST_SETS version )
+list (APPEND TEST_SETS tk_version )
 
 
 ## Adjust compile options for tests.
