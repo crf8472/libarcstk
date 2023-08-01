@@ -744,7 +744,7 @@ public: /* functions */
 	 *
 	 * \return \c TRUE if the AudioSize is 0
 	 */
-	bool null() const noexcept;
+	bool null() const noexcept; // TODO Should be named 'zero'
 
 
 	AudioSize& operator = (AudioSize rhs);
