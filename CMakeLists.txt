@@ -19,7 +19,7 @@ set (PROJECT_BRIEF_DESC
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
-set (PROJECT_VERSION_SUFFIX "beta.1" )
+set (PROJECT_VERSION_SUFFIX "beta.2" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
