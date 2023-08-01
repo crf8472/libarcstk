@@ -2304,7 +2304,8 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 
 			cddbId  = le_bytes_to_uint32(id[9], id[10], id[11], id[12]);
 
-			ARCS_LOG_DEBUG << "New block starts with id: "
+			ARCS_LOG(DEBUG1) << "New block (" << track_count
+				<< " tracks) starts. ID: "
 				<< ARId(track_count, discId1, discId2, cddbId).filename();
 
 			content_handler_->id(track_count, discId1, discId2, cddbId);
@@ -2404,8 +2405,7 @@ uint32_t ARStreamParser::Impl::parse_stream_worker(std::istream &in)
 
 	content_handler_->end_input();
 
-	ARCS_LOG_DEBUG << "Parsing completed.";
-	ARCS_LOG_INFO  << "Parsed " << byte_counter << " bytes";
+	ARCS_LOG(DEBUG1)  << "Parsed " << byte_counter << " bytes";
 
 	return byte_counter;
 }
