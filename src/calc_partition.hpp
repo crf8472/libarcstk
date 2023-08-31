@@ -10,6 +10,8 @@
  */
 
 #include <vector>   // for vector
+#include <memory>   // for unique_ptr
+
 
 namespace arcstk
 {
