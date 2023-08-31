@@ -12,11 +12,11 @@ namespace v_1_0_0
 
 const std::string LIBARCSTK_NAME = "@PROJECT_NAME@";
 
-const int LIBARCSTK_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
+const int LIBARCSTK_VERSION_MAJOR = std::stoi("@PROJECT_VERSION_MAJOR@");
 
-const int LIBARCSTK_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
+const int LIBARCSTK_VERSION_MINOR = std::stoi("@PROJECT_VERSION_MINOR@");
 
-const int LIBARCSTK_VERSION_PATCH = @PROJECT_VERSION_PATCH@;
+const int LIBARCSTK_VERSION_PATCH = std::stoi("@PROJECT_VERSION_PATCH@");
 
 const std::string LIBARCSTK_VERSION_SUFFIX = "@PROJECT_VERSION_SUFFIX@";
 
@@ -53,8 +53,6 @@ bool api_version_is_at_least(const int major, const int minor, const int patch)
 
 	return true;
 }
-
-/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk
