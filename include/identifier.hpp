@@ -133,6 +133,8 @@ struct CDDA final
 /**
  * \brief Type to represent 1-based track numbers.
  *
+ * A signed integer type.
+ *
  * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
  * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
  * tracks or a counter for tracks.

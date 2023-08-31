@@ -9,9 +9,13 @@
  * \brief Internal APIs for checksum calculation
  */
 
+// the only public interface
+
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
+
+// internal interfaces
 
 #ifndef __LIBARCSTK_CALC_PARTITION_HPP__
 #include "calc_partition.hpp"
