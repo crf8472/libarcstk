@@ -585,17 +585,6 @@ protected:
 private:
 
 	/**
-	 * \brief Create a Match object.
-	 *
-	 * \param[in] refblocks Number of blocks in reference input
-	 * \param[in] tracks    Number of tracks per block
-	 *
-	 * \return Match object for internal use.
-	 */
-	std::unique_ptr<Match> create_match(const int refblocks,
-			const std::size_t tracks) const;
-
-	/**
 	 * \brief Create an empty instance of a concrete MatcherBase subclass.
 	 *
 	 * The concrete subclass should override this to create an instance of
@@ -745,8 +734,151 @@ private:
 };
 
 
+/**
+ * \brief Provide unified access method to checksum containers.
+ *
+ * A checksum container contains several blocks of checksums an in every block a
+ * sequence of checksums. A single checksum is accessed by a block index in
+ * combination with the index of the checksum within the block.
+ */
+class ChecksumSource
+{
+	virtual std::string do_id(const int block_idx) const
+	= 0;
+
+	virtual Checksum do_checksum(const int block_idx, const int idx) const
+	= 0;
+
+	virtual int do_confidence(const int block_idx, const int idx) const
+	= 0;
+
+	virtual std::size_t do_size(const int block_idx) const
+	= 0;
+
+	virtual std::size_t do_size() const
+	= 0;
+
+public:
+
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~ChecksumSource() noexcept = default;
+
+	/**
+	 * \brief Read id in section with the specified \c block_idx.
+	 */
+	std::string id(const int block_idx) const
+	{
+		return this->do_id(block_idx);
+	}
+
+	/**
+	 * \brief Read checksum \c idx in section with the specified \c block_idx.
+	 */
+	Checksum checksum(const int block_idx, const int idx) const
+	{
+		return this->do_checksum(block_idx, idx);
+	}
+
+	/**
+	 * \brief Read confidence \c idx in section with the specified \c block_idx.
+	 */
+	int confidence(const int block_idx, const int idx) const
+	{
+		return this->do_confidence(block_idx, idx);
+	}
+
+	/**
+	 * \brief Read id in section with the specified \c block_idx.
+	 */
+	std::size_t size(const int block_idx) const
+	{
+		return this->do_size(block_idx);
+	}
+
+	/**
+	 * \brief Number of blocks.
+	 *
+	 * Greatest legal block is size() - 1.
+	 */
+	std::size_t size() const
+	{
+		return this->do_size();
+	}
+};
+
+
+/**
+ * \brief Wrap a checksum container in a ChecksumSource.
+ */
+template <typename T>
+class GetChecksum : public ChecksumSource
+{
+	/**
+	 * \brief Internal checksum source.
+	 */
+	const T* checksum_source_;
+
+protected:
+
+	/**
+	 * \brief The wrapped checksum source.
+	 *
+	 * \return The wrapped checksum source.
+	 */
+	const T* source() const
+	{
+		return checksum_source_;
+	}
+
+public:
+
+	virtual ~GetChecksum() noexcept = default;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] t The primary checksum source
+	 */
+	GetChecksum(const T* t)
+		: checksum_source_ { t }
+	{
+		// empty
+	}
+};
+
+
+/**
+ * \brief Access an ARResponse by block and index.
+ */
+class FromResponse final : public GetChecksum<ARResponse>
+{
+	using GetChecksum::GetChecksum; // ctor
+	std::string do_id(const int block_idx) const final;
+	Checksum do_checksum(const int block_idx, const int idx) const final;
+	int do_confidence(const int block_idx, const int idx) const final;
+	std::size_t do_size(const int block_idx) const final;
+	std::size_t do_size() const final;
+};
+
+
 namespace details
 {
+
+/**
+ * \internal
+ * \brief Create a match object to match a number of \c tracks against some
+ * \c tracks.
+ *
+ * \param[in] blocks Number of blocks
+ * \param[in] tracks Number of tracks per block
+ *
+ * \return Match object of the specified dimensions.
+ */
+std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
+	noexcept;
+
 
 /**
  * \internal
@@ -792,19 +924,6 @@ using IsChecksumContainer =
 
 namespace details
 {
-
-/**
- * \internal
- * \brief Create a match object to match a number of \c tracks against some
- * \c tracks.
- *
- * \param[in] blocks Number of blocks
- * \param[in] tracks Number of tracks per block
- *
- * \return Match object of the specified dimensions.
- */
-std::unique_ptr<Match> create_match(const int blocks, const std::size_t tracks)
-	noexcept;
 
 /**
  * \internal
