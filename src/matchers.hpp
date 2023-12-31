@@ -296,11 +296,6 @@ class MatchPerformer final : public MatchPerformerInterface
 	virtual bool do_matches(
 		const Checksum& actual, const Checksum& reference) const noexcept final;
 
-	//virtual std::unique_ptr<Match> do_perform(
-	//		const Checksums& actual_sums, const ARId& actual_id,
-	//		const ARResponse& ref_sums) const noexcept
-	//= 0;
-
 public:
 
 	/**
@@ -323,45 +318,11 @@ public:
 			const Checksums& actual_sums, const ARId& actual_id,
 			const ChecksumSource& ref_sums) const;
 
-	//std::unique_ptr<Match> perform(const Checksums& actual_sums,
-	//		const ARId &actual_id, const ARResponse& ref_sums) const noexcept
-	//{
-	//	return do_perform(actual_sums, actual_id, ref_sums);
-	//}
-
 private:
 
 	MatchTraversal* const traversal_;
 	MatchOrder* const order_;
 };
-
-
-/**
- * \internal
- * \brief Finds best matching block for tracks in order as passed.
- */
-/*
-class SingleBlockMatch final : public MatchPerformer
-{
-	std::unique_ptr<Match> do_perform(const Checksums &actual_sums,
-			const ARId &actual_id, const ARResponse &ref_sums) const noexcept
-		final;
-};
-*/
-
-
-/**
- * \internal
- * \brief Finds best matching block for tracks in random order.
- */
-/*
-class AcrossBlocksMatch final : public MatchPerformer
-{
-	std::unique_ptr<Match> do_perform(const Checksums &actual_sums,
-			const ARId &actual_id, const ARResponse &ref_sums) const noexcept
-		final;
-};
-*/
 
 } // namespace details
 

@@ -1193,9 +1193,6 @@ void Cartesian::do_perform(Match& match, const Checksums& actual_sums,
 
 	auto start_track = Checksums::size_type { 0 };
 
-	//for (auto track { block->begin() };
-	//		track != block->end() && start_track < actual_sums.size();
-	//		++track)
 	for (auto track = std::size_t { 0 };
 			track < ref_sums.size(current) && start_track < actual_sums.size();
 			++track)
@@ -1278,7 +1275,6 @@ void TraverseBlock::do_traverse(Match& match, const Checksums &actual_sums,
 	auto actual_checksum    = Checksum {};
 	auto reference_checksum = Checksum {};
 
-	//for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
 	for (auto block_i = decltype (ref_sums.size()) { 0 };
 			block_i < ref_sums.size(); ++block_i)
 	{
@@ -1333,187 +1329,8 @@ const MatchOrder* MatchPerformer::order() const
 	return order_;
 }
 
-
-// SingleBlockMatch
-
-/*
-std::unique_ptr<Match> SingleBlockMatch::do_perform(
-			const Checksums &actual_sums, const ARId &actual_id,
-			const ARResponse &ref_sums) const noexcept
-{
-	// Validation is assumed to be already performed
-
-	auto match { create_match_instance(ref_sums.size(), actual_sums.size()) };
-
-	auto block_i  = int  { 0 };
-	auto bitpos   = int  { 0 };
-	auto is_v2    = bool { false };
-	auto track_j  = Checksums::size_type { 0 };
-	auto actual_checksum    = Checksum {};
-	auto reference_checksum = Checksum {};
-
-	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
-	{
-		ARCS_LOG_DEBUG << "Try to match block " << block_i
-			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
-
-		if (block->id() == actual_id)
-		{
-			bitpos = match->verify_id(block_i);
-			ARCS_LOG_DEBUG << "Id verified: " << match->id(block_i)
-				<< " (bit " << bitpos << ")";
-		}
-		else
-		{
-			ARCS_LOG_DEBUG << "Id: " << match->id(block_i)
-				<< " not verified";
-		}
-
-		track_j = 0;
-
-		for (auto track { block->begin() }; track != block->end(); ++track)
-		{
-			for (const auto& type : types)
-			{
-				is_v2 = (type == checksum::type::ARCS2);
-
-				actual_checksum    = actual_sums[track_j].get(type);
-				reference_checksum = Checksum { track->arcs() };
-
-				ARCS_LOG(DEBUG1) << "Check track "
-					<< std::setw(2) << std::setfill('0') << (track_j + 1)
-					<< ": "
-					<< actual_checksum
-					<< " to match "
-					<< reference_checksum
-					<< " (v" << (is_v2 ? "2" : "1") << ") ";
-
-				if (matches(actual_checksum, reference_checksum))
-				{
-					bitpos = match->verify_track(block_i, track_j, is_v2);
-
-					ARCS_LOG_DEBUG << "Track "
-						<< std::setw(2) << std::setfill('0') << (track_j + 1)
-						<< " v" << (is_v2 ? "2" : "1") << " verified: "
-						<< match->track(block_i, track_j, is_v2)
-						<< " (bit " << bitpos << ")";
-				}
-				else
-				{
-					ARCS_LOG_DEBUG << "Track "
-						<< std::setw(2) << std::setfill('0') << (track_j + 1)
-						<< " v" << (is_v2 ? "2" : "1") << " not verified: "
-						<< match->track(block_i, track_j, is_v2);
-				}
-			}
-
-			++track_j;
-		}
-
-		++block_i;
-	}
-
-	return match;
-}
-*/
-
-// AcrossBlocksMatch
-
-/*
-std::unique_ptr<Match> AcrossBlocksMatch::do_perform(
-			const Checksums &actual_sums, const ARId &actual_id,
-			const ARResponse &ref_sums) const noexcept
-{
-	// Validation is assumed to be already performed
-
-	auto match { create_match_instance(ref_sums.size(), actual_sums.size()) };
-
-	auto block_i = int  { 0 };
-	auto track_j = int  { 0 };
-	auto bitpos  = int  { 0 };
-	auto is_v2   = bool { false };
-	auto start_track = Checksums::size_type { 0 };
-	auto actual_checksum    = Checksum {};
-	auto reference_checksum = Checksum {};
-
-	for (auto block { ref_sums.begin() }; block != ref_sums.end(); ++block)
-	{
-		ARCS_LOG_DEBUG << "Try to match block " << block_i
-			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
-
-		if (actual_id.empty() or block->id() == actual_id)
-		{
-			bitpos = match->verify_id(block_i);
-			ARCS_LOG_DEBUG << "Id verified: " << match->id(block_i)
-				<< " (bit " << bitpos << ")";
-		}
-		else
-		{
-			ARCS_LOG_DEBUG << "Id: " << match->id(block_i)
-				<< " not verified";
-		}
-
-		track_j = 0;
-		start_track = 0;
-
-		for (auto track { block->begin() };
-				track != block->end() && start_track < actual_sums.size();
-				++track)
-		{
-			ARCS_LOG_DEBUG << "Track " << (track_j + 1);
-
-			for (const auto& actual_track : actual_sums)
-			{
-				for (const auto& type : types)
-				{
-					is_v2 = (type == checksum::type::ARCS2);
-
-					actual_checksum    = actual_track.get(type);
-					reference_checksum = Checksum { track->arcs() };
-
-					ARCS_LOG(DEBUG1) << "Check track "
-						<< std::setw(2) << std::setfill('0') << (track_j + 1)
-						<< ": "
-						<< actual_checksum
-						<< " to match "
-						<< reference_checksum
-						<< " (v" << (is_v2 ? "2" : "1") << ") ";
-
-					if (matches(actual_checksum,reference_checksum))
-					{
-						bitpos = match->verify_track(block_i, track_j, is_v2);
-
-						ARCS_LOG_DEBUG << "  >Track "
-							<< std::setw(2) << std::setfill('0')
-							<< (track_j + 1)
-							<< " v" << (is_v2 ? "2" : "1") << " verified: "
-							<< match->track(block_i, track_j, is_v2)
-							<< " (bit " << bitpos << ")"
-							<< " matches tracklist pos " << track_j;
-
-						++start_track;
-						break;
-					} else
-					{
-						ARCS_LOG_DEBUG << "Track "
-							<< std::setw(2) << std::setfill('0')
-							<< (track_j + 1)
-							<< " v" << (is_v2 ? "2" : "1") << " not verified: "
-							<< match->track(block_i, track_j, is_v2);
-					}
-				}
-			}
-
-			++track_j;
-		}
-
-		++block_i;
-	}
-
-	return match;
-}
-*/
 } // namespace details
+
 
 /**
  * \brief Matcher for matching against ARResponses.
