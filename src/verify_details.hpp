@@ -28,10 +28,18 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-class ARResponse;
-
 namespace details
 {
+
+
+/**
+ * \brief The checksum types to verify.
+ */
+constexpr std::array<checksum::type, 2> supported_checksum_types {
+	checksum::type::ARCS1,
+	checksum::type::ARCS2
+};
+
 
 /**
  * \internal
@@ -197,6 +205,36 @@ private:
 
 
 /**
+ * \brief Default implementation of a VerificationResult
+ */
+class Result final : public VerificationResult
+{
+	virtual int do_verify_id(const int b) final;
+	virtual bool do_id(const int b) const final;
+	virtual int do_verify_track(const int b, const int t, const bool v2) final;
+	virtual bool do_track(const int b, const int t, const bool v2) const final;
+	virtual int do_difference(const int b, const bool v2) const final;
+	virtual int do_total_blocks() const final;
+	virtual int do_tracks_per_block() const final;
+	virtual size_t do_size() const final;
+	virtual bool do_is_verified(const int track) const final;
+	virtual int do_total_unverified_tracks() const final;
+	virtual std::tuple<int, bool, int> do_best_block() const final;
+	virtual int do_best_block_difference() const final;
+	virtual const VerificationPolicy* do_policy() const final;
+	virtual std::unique_ptr<VerificationResult> do_clone() const final;
+
+	details::ResultBits flags_;
+	std::unique_ptr<VerificationPolicy> policy_;
+
+public:
+
+	Result(std::unique_ptr<VerificationPolicy> p);
+	void init(const int blocks, const int tracks);
+};
+
+
+/**
  * \internal
  * \brief Create a VerificationResult object of a specified size.
  *
@@ -210,82 +248,59 @@ private:
  * \return VerificationResult object of the specified dimensions.
  */
 std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks);
+		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p);
 
-
-class MatchOrder;
 
 /**
- * \brief Defines the traversal method of the reference checksums.
+ * \internal
+ * \brief Perform a verification
  *
- * The traversal method can e.g. be implemented as an iteration over a single
- * block in the ChecksumSource. Alternatively, it could be implemented as a
- * traversal over the same track in every block.
+ * \param[in]     actual_sums Actual checksums to check for
+ * \param[in]     actual_id   Actual ARId to check for
+ * \param[in]     ref_sums    Reference checksums to match against
+ * \param[in]     traversal   Traversal that defines which items to traverse
+ * \param[in]     order       Order to be applied on each traversed item
+ *
+ * \return The verification result object
  */
-class MatchTraversal
+std::unique_ptr<VerificationResult> verify_impl(
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource &ref_sums,
+		const MatchTraversal& t, const MatchOrder& o);
+
+
+/**
+ * \brief Policy that accepts track matches all in the same block.
+ */
+class StrictPolicy final : public VerificationPolicy
 {
-	virtual Checksum do_get_reference(const ChecksumSource& ref_sums,
-			const int current, const int counter) const
-	= 0;
+	virtual bool do_is_verified(const int track, const VerificationResult& r)
+		const final;
 
-	virtual std::size_t do_size(const ChecksumSource& ref_sums,
-			const int current) const
-	= 0;
+	virtual int do_total_unverified_tracks(const VerificationResult& r) const
+		final;
 
-	virtual void do_traverse(VerificationResult& match, const Checksums &actual_sums,
-		const ARId &actual_id, const ChecksumSource& ref_sums,
-		const MatchOrder& order) const
-	= 0;
-
-public:
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~MatchTraversal() noexcept = default;
-
-	/**
-	 * \brief Provide a Checksum from some current index and some counter index.
-	 *
-	 * \param[in] ref_sums The source of checksums
-	 * \param[in] current  Index of the current set
-	 * \param[in] counter  Index of the checksum within the set indexed by \c current
-	 *
-	 * \return The checksum under the specified indices
-	 */
-	Checksum get_reference(const ChecksumSource& ref_sums, const int current,
-			const int counter) const
-	{
-		return do_get_reference(ref_sums, current, counter);
-	}
-
-	/**
-	 * \brief Provide the number of checksums under the index \ current.
-	 *
-	 * \param[in] ref_sums The source of checksums
-	 * \param[in] current  Index of the current set
-	 *
-	 * \return The checksum under the specified index
-	 */
-	std::size_t size(const ChecksumSource& ref_sums, const int current) const
-	{
-		return do_size(ref_sums, current);
-	}
-
-	/**
-	 * \brief
-	 */
-	void traverse(VerificationResult& match, const Checksums& actual_sums,
-			const ARId &actual_id, const ChecksumSource& ref_sums,
-			const MatchOrder& order) const
-	{
-		do_traverse(match, actual_sums, actual_id, ref_sums, order);
-	}
+	virtual bool do_is_strict() const final;
 };
 
 
 /**
- * \brief
+ * \brief Policy that accepts track matches in any block.
+ */
+class LiberalPolicy final : public VerificationPolicy
+{
+	virtual bool do_is_verified(const int track, const VerificationResult& r)
+		const final;
+
+	virtual int do_total_unverified_tracks(const VerificationResult& r) const
+		final;
+
+	virtual bool do_is_strict() const final;
+};
+
+
+/**
+ * \brief MatchTraversal for matching tracks in the same block.
  */
 class TraverseBlock final : public MatchTraversal
 {
@@ -295,18 +310,17 @@ class TraverseBlock final : public MatchTraversal
 	virtual std::size_t do_size(const ChecksumSource& ref_sums,
 			const int current) const final;
 
-	virtual void do_traverse(VerificationResult& match, const Checksums &actual_sums,
-			const ARId &actual_id, const ChecksumSource& ref_sums,
+	virtual void do_traverse(VerificationResult& result,
+			const Checksums &actual_sums, const ARId &actual_id,
+			const ChecksumSource& ref_sums,
 			const MatchOrder& order) const final;
 
-public:
-
-	using MatchTraversal::MatchTraversal;
+	virtual std::unique_ptr<VerificationPolicy> do_get_policy() const final;
 };
 
 
 /**
- * \brief
+ * \brief MatchTraversal for matching tracks in any block.
  */
 class TraverseTracks final : public MatchTraversal
 {
@@ -316,193 +330,38 @@ class TraverseTracks final : public MatchTraversal
 	virtual std::size_t do_size(const ChecksumSource& ref_sums,
 			const int current) const final;
 
-	virtual void do_traverse(VerificationResult& match, const Checksums &actual_sums,
-			const ARId &actual_id, const ChecksumSource& ref_sums,
+	virtual void do_traverse(VerificationResult& result,
+			const Checksums &actual_sums, const ARId &actual_id,
+			const ChecksumSource& ref_sums,
 			const MatchOrder& order) const final;
 
-public:
-
-	using MatchTraversal::MatchTraversal;
-};
-
-
-class MatchPerformer;
-
-
-/**
- * \brief VerificationResult items in a single loop.
- *
- * Apply the matches in any order.
- */
-class MatchOrder
-{
-	virtual void do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int index) const
-	= 0;
-
-public:
-
-	MatchOrder();
-
-	virtual ~MatchOrder() noexcept = default;
-
-	const MatchPerformer* performer() const noexcept;
-
-	void set_performer(MatchPerformer* const performer) noexcept;
-
-	void perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int index) const
-	{
-		do_perform(match, actual_sums, ref_sums, t, index);
-	}
-
-private:
-
-	MatchPerformer* performer_;
+	virtual std::unique_ptr<VerificationPolicy> do_get_policy() const final;
 };
 
 
 /**
- * \brief
+ * \brief MatchOrder that matches the tracks in their numbered order.
  */
 class TrackOrder final : public MatchOrder
 {
-	using MatchOrder::MatchOrder;
-	virtual void do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int index) const final;
+	virtual void do_perform(VerificationResult& result,
+			const Checksums& actual_sums,
+			const ChecksumSource& ref_sums, int index,
+			const MatchTraversal& t) const final;
 };
 
 
 /**
- * \brief
+ * \brief MatchOrder that tries any order to match the tracks.
  */
 class Cartesian final : public MatchOrder
 {
-	using MatchOrder::MatchOrder;
-	virtual void do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int index) const final;
+	virtual void do_perform(VerificationResult& result,
+			const Checksums& actual_sums,
+			const ChecksumSource& ref_sums, int index,
+			const MatchTraversal& t) const final;
 };
 
-
-/**
- * \brief
- */
-class MatchPerformer
-{
-	virtual std::unique_ptr<VerificationResult> do_create_match_instance(
-		const int blocks, const std::size_t tracks) const noexcept
-	= 0;
-
-	virtual bool do_matches(
-		const ARId& actual, const ARId& reference) const noexcept
-	= 0;
-
-	virtual bool do_matches(
-		const Checksum& actual, const Checksum& reference) const noexcept
-	= 0;
-
-protected:
-
-	/**
-	 * \brief
-	 */
-	std::unique_ptr<VerificationResult> create_match_instance(
-		const int blocks, const std::size_t tracks) const noexcept
-	{
-		return do_create_match_instance(blocks, tracks);
-	}
-
-public:
-
-	/**
-	 * \brief
-	 */
-	virtual ~MatchPerformer() noexcept = default;
-
-
-	/**
-	 * \brief Implement matching an actual ARId against a reference.
-	 *
-	 * The matching is implemented by calling operator == on the input
-	 * ARId instances.
-	 *
-	 * \param[in] actual    The actual ARId to be matched
-	 * \param[in] reference The reference ARId to match
-	 *
-	 * \return TRUE if the sums match, otherwise FALSE
-	 */
-	bool matches(
-		const ARId& actual, const ARId& reference) const noexcept
-	{
-		return do_matches(actual, reference);
-	}
-
-
-	/**
-	 * \brief Implement matching an actual Checksum against a reference.
-	 *
-	 * The matching is implemented by calling operator == on the input
-	 * Checksum instances.
-	 *
-	 * \param[in] actual    The actual Checksum to be matched
-	 * \param[in] reference The reference Checksum to match
-	 *
-	 * \return TRUE if the sums match, otherwise FALSE
-	 */
-	bool matches(
-		const Checksum& actual, const Checksum& reference) const noexcept
-	{
-		return do_matches(actual, reference);
-	}
-};
-
-
-/**
- * \internal
- * \brief Actual match performing Functor.
- */
-class DefaultPerformer final : public MatchPerformer
-{
-	virtual std::unique_ptr<VerificationResult> do_create_match_instance(
-		const int blocks, const std::size_t tracks) const noexcept final;
-
-	virtual bool do_matches(
-		const ARId& actual, const ARId& reference) const noexcept final;
-
-	virtual bool do_matches(
-		const Checksum& actual, const Checksum& reference) const noexcept final;
-
-public:
-
-	/**
-	 * \brief The checksum types to verify.
-	 */
-	static constexpr std::array<checksum::type, 2> types {
-		checksum::type::ARCS1,
-		checksum::type::ARCS2
-	};
-
-	DefaultPerformer(MatchTraversal* traversal, MatchOrder* order);
-
-	virtual ~DefaultPerformer() noexcept = default;
-
-	const MatchTraversal* traversal() const;
-
-	const MatchOrder* order() const;
-
-	std::unique_ptr<VerificationResult> operator() (
-			const Checksums& actual_sums, const ARId& actual_id,
-			const ChecksumSource& ref_sums) const;
-
-private:
-
-	MatchTraversal* const traversal_;
-	MatchOrder* const order_;
-};
 
 } // namespace details
 

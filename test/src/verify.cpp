@@ -23,60 +23,125 @@
 TEST_CASE ( "Result", "[result]" )
 {
 	using arcstk::details::create_result;
+	using arcstk::details::StrictPolicy;
 
-	auto m = create_result(2, 10); // 2 block, 10 tracks each, every flag is 0
+	auto r = create_result(2, 10, std::make_unique<StrictPolicy>());
+	// 2 block, 10 tracks each, every flag is 0
 
-	REQUIRE ( m->total_blocks() == 2 );
-	REQUIRE ( m->tracks_per_block() == 10 );
-	REQUIRE ( m->size() == 42 );
+	REQUIRE ( r->total_blocks() == 2 );
+	REQUIRE ( r->tracks_per_block() == 10 );
+	REQUIRE ( r->size() == 42 );
+	REQUIRE ( r->policy()->is_strict() );
 
-	REQUIRE ( not m->id(0) );
-	REQUIRE ( not m->track(0, 0, false) );
-	REQUIRE ( not m->track(0, 1, false) );
-	REQUIRE ( not m->track(0, 2, false) );
-	REQUIRE ( not m->track(0, 3, false) );
-	REQUIRE ( not m->track(0, 4, false) );
-	REQUIRE ( not m->track(0, 5, false) );
-	REQUIRE ( not m->track(0, 6, false) );
-	REQUIRE ( not m->track(0, 7, false) );
-	REQUIRE ( not m->track(0, 8, false) );
-	REQUIRE ( not m->track(0, 9, false) );
-	REQUIRE ( not m->track(0, 0, true) );
-	REQUIRE ( not m->track(0, 1, true) );
-	REQUIRE ( not m->track(0, 2, true) );
-	REQUIRE ( not m->track(0, 3, true) );
-	REQUIRE ( not m->track(0, 4, true) );
-	REQUIRE ( not m->track(0, 5, true) );
-	REQUIRE ( not m->track(0, 6, true) );
-	REQUIRE ( not m->track(0, 7, true) );
-	REQUIRE ( not m->track(0, 8, true) );
-	REQUIRE ( not m->track(0, 9, true) );
+	REQUIRE ( not r->id(0) );
+	REQUIRE ( not r->track(0, 0, false) );
+	REQUIRE ( not r->track(0, 1, false) );
+	REQUIRE ( not r->track(0, 2, false) );
+	REQUIRE ( not r->track(0, 3, false) );
+	REQUIRE ( not r->track(0, 4, false) );
+	REQUIRE ( not r->track(0, 5, false) );
+	REQUIRE ( not r->track(0, 6, false) );
+	REQUIRE ( not r->track(0, 7, false) );
+	REQUIRE ( not r->track(0, 8, false) );
+	REQUIRE ( not r->track(0, 9, false) );
+	REQUIRE ( not r->track(0, 0, true) );
+	REQUIRE ( not r->track(0, 1, true) );
+	REQUIRE ( not r->track(0, 2, true) );
+	REQUIRE ( not r->track(0, 3, true) );
+	REQUIRE ( not r->track(0, 4, true) );
+	REQUIRE ( not r->track(0, 5, true) );
+	REQUIRE ( not r->track(0, 6, true) );
+	REQUIRE ( not r->track(0, 7, true) );
+	REQUIRE ( not r->track(0, 8, true) );
+	REQUIRE ( not r->track(0, 9, true) );
 
-	REQUIRE ( not m->id(1) );
-	REQUIRE ( not m->track(1, 0, false) );
-	REQUIRE ( not m->track(1, 1, false) );
-	REQUIRE ( not m->track(1, 2, false) );
-	REQUIRE ( not m->track(1, 3, false) );
-	REQUIRE ( not m->track(1, 4, false) );
-	REQUIRE ( not m->track(1, 5, false) );
-	REQUIRE ( not m->track(1, 6, false) );
-	REQUIRE ( not m->track(1, 7, false) );
-	REQUIRE ( not m->track(1, 8, false) );
-	REQUIRE ( not m->track(1, 9, false) );
-	REQUIRE ( not m->track(1, 0, true) );
-	REQUIRE ( not m->track(1, 1, true) );
-	REQUIRE ( not m->track(1, 2, true) );
-	REQUIRE ( not m->track(1, 3, true) );
-	REQUIRE ( not m->track(1, 4, true) );
-	REQUIRE ( not m->track(1, 5, true) );
-	REQUIRE ( not m->track(1, 6, true) );
-	REQUIRE ( not m->track(1, 7, true) );
-	REQUIRE ( not m->track(1, 8, true) );
-	REQUIRE ( not m->track(1, 9, true) );
+	REQUIRE ( not r->id(1) );
+	REQUIRE ( not r->track(1, 0, false) );
+	REQUIRE ( not r->track(1, 1, false) );
+	REQUIRE ( not r->track(1, 2, false) );
+	REQUIRE ( not r->track(1, 3, false) );
+	REQUIRE ( not r->track(1, 4, false) );
+	REQUIRE ( not r->track(1, 5, false) );
+	REQUIRE ( not r->track(1, 6, false) );
+	REQUIRE ( not r->track(1, 7, false) );
+	REQUIRE ( not r->track(1, 8, false) );
+	REQUIRE ( not r->track(1, 9, false) );
+	REQUIRE ( not r->track(1, 0, true) );
+	REQUIRE ( not r->track(1, 1, true) );
+	REQUIRE ( not r->track(1, 2, true) );
+	REQUIRE ( not r->track(1, 3, true) );
+	REQUIRE ( not r->track(1, 4, true) );
+	REQUIRE ( not r->track(1, 5, true) );
+	REQUIRE ( not r->track(1, 6, true) );
+	REQUIRE ( not r->track(1, 7, true) );
+	REQUIRE ( not r->track(1, 8, true) );
+	REQUIRE ( not r->track(1, 9, true) );
 
 
 	SECTION ( "Setting id and track flags has intended effects" )
 	{
+		r->verify_id(0);
+		r->verify_track(0, 2, false);
+		r->verify_track(0, 3, false);
+		r->verify_track(0, 9, false);
+		r->verify_track(0, 5, true);
+		r->verify_track(0, 7, true);
+		r->verify_id(1);
+		r->verify_track(1, 1, false);
+		r->verify_track(1, 4, false);
+		r->verify_track(1, 6, false);
+		r->verify_track(1, 2, true);
+		r->verify_track(1, 9, true);
+
+		CHECK ( r->id(0) );
+		CHECK ( not r->track(0, 0, false) );
+		CHECK ( not r->track(0, 1, false) );
+		CHECK (     r->track(0, 2, false) );
+		CHECK (     r->track(0, 3, false) );
+		CHECK ( not r->track(0, 4, false) );
+		CHECK ( not r->track(0, 5, false) );
+		CHECK ( not r->track(0, 6, false) );
+		CHECK ( not r->track(0, 7, false) );
+		CHECK ( not r->track(0, 8, false) );
+		CHECK (     r->track(0, 9, false) );
+		CHECK ( not r->track(0, 0, true) );
+		CHECK ( not r->track(0, 1, true) );
+		CHECK ( not r->track(0, 2, true) );
+		CHECK ( not r->track(0, 3, true) );
+		CHECK ( not r->track(0, 4, true) );
+		CHECK (     r->track(0, 5, true) );
+		CHECK ( not r->track(0, 6, true) );
+		CHECK (     r->track(0, 7, true) );
+		CHECK ( not r->track(0, 8, true) );
+		CHECK ( not r->track(0, 9, true) );
+
+		CHECK ( r->id(1) );
+		CHECK ( not r->track(1, 0, false) );
+		CHECK (     r->track(1, 1, false) );
+		CHECK ( not r->track(1, 2, false) );
+		CHECK ( not r->track(1, 3, false) );
+		CHECK (     r->track(1, 4, false) );
+		CHECK ( not r->track(1, 5, false) );
+		CHECK (     r->track(1, 6, false) );
+		CHECK ( not r->track(1, 7, false) );
+		CHECK ( not r->track(1, 8, false) );
+		CHECK ( not r->track(1, 9, false) );
+		CHECK ( not r->track(1, 0, true) );
+		CHECK ( not r->track(1, 1, true) );
+		CHECK (     r->track(1, 2, true) );
+		CHECK ( not r->track(1, 3, true) );
+		CHECK ( not r->track(1, 4, true) );
+		CHECK ( not r->track(1, 5, true) );
+		CHECK ( not r->track(1, 6, true) );
+		CHECK ( not r->track(1, 7, true) );
+		CHECK ( not r->track(1, 8, true) );
+		CHECK (     r->track(1, 9, true) );
+	}
+
+	SECTION ( "Moved Result can be manipulated as intended" )
+	{
+		auto m = std::move(r);
+
 		m->verify_id(0);
 		m->verify_track(0, 2, false);
 		m->verify_track(0, 3, false);
@@ -134,72 +199,10 @@ TEST_CASE ( "Result", "[result]" )
 		CHECK ( not m->track(1, 8, true) );
 		CHECK (     m->track(1, 9, true) );
 	}
-
-	SECTION ( "Moved Result can be manipulated as intended" )
-	{
-		auto m_moved = std::move(m);
-
-		m_moved->verify_id(0);
-		m_moved->verify_track(0, 2, false);
-		m_moved->verify_track(0, 3, false);
-		m_moved->verify_track(0, 9, false);
-		m_moved->verify_track(0, 5, true);
-		m_moved->verify_track(0, 7, true);
-		m_moved->verify_id(1);
-		m_moved->verify_track(1, 1, false);
-		m_moved->verify_track(1, 4, false);
-		m_moved->verify_track(1, 6, false);
-		m_moved->verify_track(1, 2, true);
-		m_moved->verify_track(1, 9, true);
-
-		CHECK ( m_moved->id(0) );
-		CHECK ( not m_moved->track(0, 0, false) );
-		CHECK ( not m_moved->track(0, 1, false) );
-		CHECK (     m_moved->track(0, 2, false) );
-		CHECK (     m_moved->track(0, 3, false) );
-		CHECK ( not m_moved->track(0, 4, false) );
-		CHECK ( not m_moved->track(0, 5, false) );
-		CHECK ( not m_moved->track(0, 6, false) );
-		CHECK ( not m_moved->track(0, 7, false) );
-		CHECK ( not m_moved->track(0, 8, false) );
-		CHECK (     m_moved->track(0, 9, false) );
-		CHECK ( not m_moved->track(0, 0, true) );
-		CHECK ( not m_moved->track(0, 1, true) );
-		CHECK ( not m_moved->track(0, 2, true) );
-		CHECK ( not m_moved->track(0, 3, true) );
-		CHECK ( not m_moved->track(0, 4, true) );
-		CHECK (     m_moved->track(0, 5, true) );
-		CHECK ( not m_moved->track(0, 6, true) );
-		CHECK (     m_moved->track(0, 7, true) );
-		CHECK ( not m_moved->track(0, 8, true) );
-		CHECK ( not m_moved->track(0, 9, true) );
-
-		CHECK ( m_moved->id(1) );
-		CHECK ( not m_moved->track(1, 0, false) );
-		CHECK (     m_moved->track(1, 1, false) );
-		CHECK ( not m_moved->track(1, 2, false) );
-		CHECK ( not m_moved->track(1, 3, false) );
-		CHECK (     m_moved->track(1, 4, false) );
-		CHECK ( not m_moved->track(1, 5, false) );
-		CHECK (     m_moved->track(1, 6, false) );
-		CHECK ( not m_moved->track(1, 7, false) );
-		CHECK ( not m_moved->track(1, 8, false) );
-		CHECK ( not m_moved->track(1, 9, false) );
-		CHECK ( not m_moved->track(1, 0, true) );
-		CHECK ( not m_moved->track(1, 1, true) );
-		CHECK (     m_moved->track(1, 2, true) );
-		CHECK ( not m_moved->track(1, 3, true) );
-		CHECK ( not m_moved->track(1, 4, true) );
-		CHECK ( not m_moved->track(1, 5, true) );
-		CHECK ( not m_moved->track(1, 6, true) );
-		CHECK ( not m_moved->track(1, 7, true) );
-		CHECK ( not m_moved->track(1, 8, true) );
-		CHECK (     m_moved->track(1, 9, true) );
-	}
 }
 
 
-TEST_CASE ( "Verifier", "[verifier] [verify]" )
+TEST_CASE ( "verify", "[verify]" )
 {
 	using arcstk::ARBlock;
 	using arcstk::ARId;
@@ -208,7 +211,6 @@ TEST_CASE ( "Verifier", "[verifier] [verify]" )
 	using arcstk::Checksum;
 	using arcstk::Checksums;
 	using arcstk::ChecksumSet;
-	using arcstk::Verifier;
 
 	// Construct the checksums by hand
 
@@ -381,310 +383,372 @@ TEST_CASE ( "Verifier", "[verifier] [verify]" )
 
 	const bool v1 = false;
 	const bool v2 = true;
+
+	auto t = std::unique_ptr<arcstk::MatchTraversal>();
+	auto o = std::unique_ptr<arcstk::MatchOrder>();
+
+
+	// construct strict trackorder verification result
+
+	t = std::make_unique<arcstk::details::TraverseBlock>();
+	o = std::make_unique<arcstk::details::TrackOrder>();
+	const auto stv_result = arcstk::verify(result1, id,
+			arcstk::FromResponse(&response), *t, *o);
+
+	const auto stv_best_block = stv_result->best_block();
+
+	// construct strict order-free verification result
+
+	t = std::make_unique<arcstk::details::TraverseBlock>();
+	o = std::make_unique<arcstk::details::Cartesian>();
+	const auto sov_result = arcstk::verify(result1, arcstk::EmptyARId,
+			arcstk::FromResponse(&response), *t, *o);
+
+	const auto sov_best_block = sov_result->best_block();
+
+
+	SECTION ( "Strict TrackOrder Verification is successful" )
+	{
+		CHECK ( stv_result->all_tracks_verified() );
+
+		CHECK ( stv_result->is_verified(0) );
+		CHECK ( stv_result->is_verified(1) );
+		CHECK ( stv_result->is_verified(2) );
+		CHECK ( stv_result->is_verified(3) );
+		CHECK ( stv_result->is_verified(4) );
+		CHECK ( stv_result->is_verified(5) );
+		CHECK ( stv_result->is_verified(6) );
+		CHECK ( stv_result->is_verified(7) );
+		CHECK ( stv_result->is_verified(8) );
+		CHECK ( stv_result->is_verified(9) );
+		CHECK ( stv_result->is_verified(10) );
+		CHECK ( stv_result->is_verified(11) );
+		CHECK ( stv_result->is_verified(12) );
+		CHECK ( stv_result->is_verified(13) );
+		CHECK ( stv_result->is_verified(14) );
+	}
+
+	SECTION ( "Strict TrackOrder Verification result fails on accessing"
+			" illegal track" )
+	{
+		CHECK_THROWS ( stv_result->is_verified(15) );
+	}
+
+	SECTION ( "Strict TrackOrder Verification result has correct size" )
+	{
+		CHECK ( stv_result->total_blocks() == 3 );
+		CHECK ( stv_result->tracks_per_block() == 15 );
+		CHECK ( stv_result->size() == 93 ); // 2 * blocks * tracks + blocks
+	}
+
+	SECTION ( "Strict TrackOrder Verification finds best block" )
+	{
+		CHECK ( std::get<0>(stv_best_block) == 2 );
+
+		CHECK ( std::get<1>(stv_best_block) == v2 );
+
+		CHECK ( std::get<2>(stv_best_block) == 0 );
+		CHECK ( stv_result->best_block_difference() == 0 );
+	}
+
+	SECTION ( "Strict TrackOrder Verification result has correct flags" )
+	{
+		// 0
+		CHECK ( stv_result->id(0) );
+
+		CHECK ( stv_result->track(0,  0, v1) );
+		CHECK ( stv_result->track(0,  1, v1) );
+		CHECK ( stv_result->track(0,  2, v1) );
+		CHECK ( stv_result->track(0,  3, v1) );
+		CHECK ( stv_result->track(0,  4, v1) );
+		CHECK ( stv_result->track(0,  5, v1) );
+		CHECK ( stv_result->track(0,  6, v1) );
+		CHECK ( stv_result->track(0,  7, v1) );
+		CHECK ( stv_result->track(0,  8, v1) );
+		CHECK ( stv_result->track(0,  9, v1) );
+		CHECK ( stv_result->track(0, 10, v1) );
+		CHECK ( stv_result->track(0, 11, v1) );
+		CHECK ( stv_result->track(0, 12, v1) );
+		CHECK ( stv_result->track(0, 13, v1) );
+		CHECK ( stv_result->track(0, 14, v1) );
+
+		CHECK ( not stv_result->track(0,  0, v2) );
+		CHECK ( not stv_result->track(0,  1, v2) );
+		CHECK ( not stv_result->track(0,  2, v2) );
+		CHECK ( not stv_result->track(0,  3, v2) );
+		CHECK ( not stv_result->track(0,  4, v2) );
+		CHECK ( not stv_result->track(0,  5, v2) );
+		CHECK ( not stv_result->track(0,  6, v2) );
+		CHECK ( not stv_result->track(0,  7, v2) );
+		CHECK ( not stv_result->track(0,  8, v2) );
+		CHECK ( not stv_result->track(0,  9, v2) );
+		CHECK ( not stv_result->track(0, 10, v2) );
+		CHECK ( not stv_result->track(0, 11, v2) );
+		CHECK ( not stv_result->track(0, 12, v2) );
+		CHECK ( not stv_result->track(0, 13, v2) );
+		CHECK ( not stv_result->track(0, 14, v2) );
+
+		// 1
+		CHECK ( not stv_result->id(1) );
+
+		CHECK ( not stv_result->track(1,  0, v1) );
+		CHECK ( not stv_result->track(1,  1, v1) );
+		CHECK ( not stv_result->track(1,  2, v1) );
+		CHECK ( not stv_result->track(1,  3, v1) );
+		CHECK ( not stv_result->track(1,  4, v1) );
+		CHECK ( not stv_result->track(1,  5, v1) );
+		CHECK ( not stv_result->track(1,  6, v1) );
+		CHECK ( not stv_result->track(1,  7, v1) );
+		CHECK ( not stv_result->track(1,  8, v1) );
+		CHECK ( not stv_result->track(1,  9, v1) );
+		CHECK ( not stv_result->track(1, 10, v1) );
+		CHECK ( not stv_result->track(1, 11, v1) );
+		CHECK ( not stv_result->track(1, 12, v1) );
+		CHECK ( not stv_result->track(1, 13, v1) );
+		CHECK ( not stv_result->track(1, 14, v1) );
+
+		CHECK ( stv_result->track(1,  0, v2) );
+		CHECK ( stv_result->track(1,  1, v2) );
+		CHECK ( stv_result->track(1,  2, v2) );
+		CHECK ( stv_result->track(1,  3, v2) );
+		CHECK ( stv_result->track(1,  4, v2) );
+		CHECK ( stv_result->track(1,  5, v2) );
+		CHECK ( stv_result->track(1,  6, v2) );
+		CHECK ( stv_result->track(1,  7, v2) );
+		CHECK ( stv_result->track(1,  8, v2) );
+		CHECK ( stv_result->track(1,  9, v2) );
+		CHECK ( stv_result->track(1, 10, v2) );
+		CHECK ( stv_result->track(1, 11, v2) );
+		CHECK ( stv_result->track(1, 12, v2) );
+		CHECK ( stv_result->track(1, 13, v2) );
+		CHECK ( stv_result->track(1, 14, v2) );
+
+		// 2
+		CHECK ( stv_result->id(2) );
+
+		CHECK ( not stv_result->track(2,  0, v1) );
+		CHECK ( not stv_result->track(2,  1, v1) );
+		CHECK ( not stv_result->track(2,  2, v1) );
+		CHECK ( not stv_result->track(2,  3, v1) );
+		CHECK ( not stv_result->track(2,  4, v1) );
+		CHECK ( not stv_result->track(2,  5, v1) );
+		CHECK ( not stv_result->track(2,  6, v1) );
+		CHECK ( not stv_result->track(2,  7, v1) );
+		CHECK ( not stv_result->track(2,  8, v1) );
+		CHECK ( not stv_result->track(2,  9, v1) );
+		CHECK ( not stv_result->track(2, 10, v1) );
+		CHECK ( not stv_result->track(2, 11, v1) );
+		CHECK ( not stv_result->track(2, 12, v1) );
+		CHECK ( not stv_result->track(2, 13, v1) );
+		CHECK ( not stv_result->track(2, 14, v1) );
+
+		CHECK ( stv_result->track(2,  0, v2) );
+		CHECK ( stv_result->track(2,  1, v2) );
+		CHECK ( stv_result->track(2,  2, v2) );
+		CHECK ( stv_result->track(2,  3, v2) );
+		CHECK ( stv_result->track(2,  4, v2) );
+		CHECK ( stv_result->track(2,  5, v2) );
+		CHECK ( stv_result->track(2,  6, v2) );
+		CHECK ( stv_result->track(2,  7, v2) );
+		CHECK ( stv_result->track(2,  8, v2) );
+		CHECK ( stv_result->track(2,  9, v2) );
+		CHECK ( stv_result->track(2, 10, v2) );
+		CHECK ( stv_result->track(2, 11, v2) );
+		CHECK ( stv_result->track(2, 12, v2) );
+		CHECK ( stv_result->track(2, 13, v2) );
+		CHECK ( stv_result->track(2, 14, v2) );
+
+
+		CHECK_THROWS ( stv_result->id(3) );            // illegal block
+		CHECK_THROWS ( stv_result->track(3, 14, v2) ); //         block
+		CHECK_THROWS ( stv_result->track(2, 15, v2) ); //         track
+
+
+		CHECK ( stv_result->difference(0, v1) ==  0 );
+		CHECK ( stv_result->difference(0, v2) == 15 );
+
+		CHECK ( stv_result->difference(1, v1) == 16 );
+		CHECK ( stv_result->difference(1, v2) ==  1 );
+
+		CHECK ( stv_result->difference(2, v1) == 15 );
+		CHECK ( stv_result->difference(2, v2) ==  0 );
+
+		CHECK_THROWS ( stv_result->difference(3, v1) == 0 );
+		CHECK_THROWS ( stv_result->difference(3, v2) == 0 );
+	}
+
+
+	SECTION ( "Non-Strict TrackOrder Verification is successful" )
+	{
+		CHECK ( sov_result->all_tracks_verified() );
+
+		CHECK ( sov_result->is_verified(0) );
+		CHECK ( sov_result->is_verified(1) );
+		CHECK ( sov_result->is_verified(2) );
+		CHECK ( sov_result->is_verified(3) );
+		CHECK ( sov_result->is_verified(4) );
+		CHECK ( sov_result->is_verified(5) );
+		CHECK ( sov_result->is_verified(6) );
+		CHECK ( sov_result->is_verified(7) );
+		CHECK ( sov_result->is_verified(8) );
+		CHECK ( sov_result->is_verified(9) );
+		CHECK ( sov_result->is_verified(10) );
+		CHECK ( sov_result->is_verified(11) );
+		CHECK ( sov_result->is_verified(12) );
+		CHECK ( sov_result->is_verified(13) );
+		CHECK ( sov_result->is_verified(14) );
+	}
+
+	SECTION ( "Non-Strict TrackOrder Verification result fails on accessing"
+			" illegal track" )
+	{
+		CHECK_THROWS ( sov_result->is_verified(15) );
+	}
+
+	SECTION ( "Non-Strict TrackOrder Verification result has correct size" )
+	{
+		CHECK ( sov_result->total_blocks() == 3 );
+		CHECK ( sov_result->tracks_per_block() == 15 );
+		CHECK ( sov_result->size() == 93 ); // 2 * blocks * tracks + blocks
+	}
+
+	SECTION ( "Non-Strict TrackOrder Verification finds best block" )
+	{
+		CHECK ( std::get<0>(sov_best_block) == 2 );
+
+		CHECK ( std::get<1>(sov_best_block) == v2 );
+
+		CHECK ( std::get<2>(sov_best_block) == 0 );
+		CHECK ( sov_result->best_block_difference() == 0 );
+	}
+
+	SECTION ( "Non-Strict TrackOrder Verification result has correct flags" )
+	{
+		// 0
+		CHECK ( sov_result->id(0) );
+
+		CHECK ( sov_result->track(0,  0, v1) );
+		CHECK ( sov_result->track(0,  1, v1) );
+		CHECK ( sov_result->track(0,  2, v1) );
+		CHECK ( sov_result->track(0,  3, v1) );
+		CHECK ( sov_result->track(0,  4, v1) );
+		CHECK ( sov_result->track(0,  5, v1) );
+		CHECK ( sov_result->track(0,  6, v1) );
+		CHECK ( sov_result->track(0,  7, v1) );
+		CHECK ( sov_result->track(0,  8, v1) );
+		CHECK ( sov_result->track(0,  9, v1) );
+		CHECK ( sov_result->track(0, 10, v1) );
+		CHECK ( sov_result->track(0, 11, v1) );
+		CHECK ( sov_result->track(0, 12, v1) );
+		CHECK ( sov_result->track(0, 13, v1) );
+		CHECK ( sov_result->track(0, 14, v1) );
+
+		CHECK ( not sov_result->track(0,  0, v2) );
+		CHECK ( not sov_result->track(0,  1, v2) );
+		CHECK ( not sov_result->track(0,  2, v2) );
+		CHECK ( not sov_result->track(0,  3, v2) );
+		CHECK ( not sov_result->track(0,  4, v2) );
+		CHECK ( not sov_result->track(0,  5, v2) );
+		CHECK ( not sov_result->track(0,  6, v2) );
+		CHECK ( not sov_result->track(0,  7, v2) );
+		CHECK ( not sov_result->track(0,  8, v2) );
+		CHECK ( not sov_result->track(0,  9, v2) );
+		CHECK ( not sov_result->track(0, 10, v2) );
+		CHECK ( not sov_result->track(0, 11, v2) );
+		CHECK ( not sov_result->track(0, 12, v2) );
+		CHECK ( not sov_result->track(0, 13, v2) );
+		CHECK ( not sov_result->track(0, 14, v2) );
+
+		// 1
+		CHECK ( sov_result->id(1) ); // differs from stv_result: any id is verified
+
+		CHECK ( not sov_result->track(1,  0, v1) );
+		CHECK ( not sov_result->track(1,  1, v1) );
+		CHECK ( not sov_result->track(1,  2, v1) );
+		CHECK ( not sov_result->track(1,  3, v1) );
+		CHECK ( not sov_result->track(1,  4, v1) );
+		CHECK ( not sov_result->track(1,  5, v1) );
+		CHECK ( not sov_result->track(1,  6, v1) );
+		CHECK ( not sov_result->track(1,  7, v1) );
+		CHECK ( not sov_result->track(1,  8, v1) );
+		CHECK ( not sov_result->track(1,  9, v1) );
+		CHECK ( not sov_result->track(1, 10, v1) );
+		CHECK ( not sov_result->track(1, 11, v1) );
+		CHECK ( not sov_result->track(1, 12, v1) );
+		CHECK ( not sov_result->track(1, 13, v1) );
+		CHECK ( not sov_result->track(1, 14, v1) );
+
+		CHECK ( sov_result->track(1,  0, v2) );
+		CHECK ( sov_result->track(1,  1, v2) );
+		CHECK ( sov_result->track(1,  2, v2) );
+		CHECK ( sov_result->track(1,  3, v2) );
+		CHECK ( sov_result->track(1,  4, v2) );
+		CHECK ( sov_result->track(1,  5, v2) );
+		CHECK ( sov_result->track(1,  6, v2) );
+		CHECK ( sov_result->track(1,  7, v2) );
+		CHECK ( sov_result->track(1,  8, v2) );
+		CHECK ( sov_result->track(1,  9, v2) );
+		CHECK ( sov_result->track(1, 10, v2) );
+		CHECK ( sov_result->track(1, 11, v2) );
+		CHECK ( sov_result->track(1, 12, v2) );
+		CHECK ( sov_result->track(1, 13, v2) );
+		CHECK ( sov_result->track(1, 14, v2) );
+
+		// 2
+		CHECK ( sov_result->id(2) );
+
+		CHECK ( not sov_result->track(2,  0, v1) );
+		CHECK ( not sov_result->track(2,  1, v1) );
+		CHECK ( not sov_result->track(2,  2, v1) );
+		CHECK ( not sov_result->track(2,  3, v1) );
+		CHECK ( not sov_result->track(2,  4, v1) );
+		CHECK ( not sov_result->track(2,  5, v1) );
+		CHECK ( not sov_result->track(2,  6, v1) );
+		CHECK ( not sov_result->track(2,  7, v1) );
+		CHECK ( not sov_result->track(2,  8, v1) );
+		CHECK ( not sov_result->track(2,  9, v1) );
+		CHECK ( not sov_result->track(2, 10, v1) );
+		CHECK ( not sov_result->track(2, 11, v1) );
+		CHECK ( not sov_result->track(2, 12, v1) );
+		CHECK ( not sov_result->track(2, 13, v1) );
+		CHECK ( not sov_result->track(2, 14, v1) );
+
+		CHECK ( sov_result->track(2,  0, v2) );
+		CHECK ( sov_result->track(2,  1, v2) );
+		CHECK ( sov_result->track(2,  2, v2) );
+		CHECK ( sov_result->track(2,  3, v2) );
+		CHECK ( sov_result->track(2,  4, v2) );
+		CHECK ( sov_result->track(2,  5, v2) );
+		CHECK ( sov_result->track(2,  6, v2) );
+		CHECK ( sov_result->track(2,  7, v2) );
+		CHECK ( sov_result->track(2,  8, v2) );
+		CHECK ( sov_result->track(2,  9, v2) );
+		CHECK ( sov_result->track(2, 10, v2) );
+		CHECK ( sov_result->track(2, 11, v2) );
+		CHECK ( sov_result->track(2, 12, v2) );
+		CHECK ( sov_result->track(2, 13, v2) );
+		CHECK ( sov_result->track(2, 14, v2) );
+
+
+		CHECK_THROWS ( sov_result->id(3) );            // illegal block
+		CHECK_THROWS ( sov_result->track(3, 14, v2) ); //         block
+		CHECK_THROWS ( sov_result->track(2, 15, v2) ); //         track
+
+
+		CHECK ( sov_result->difference(0, v1) ==  0 );
+		CHECK ( sov_result->difference(0, v2) == 15 );
+
+		CHECK ( sov_result->difference(1, v1) == 15 ); // differs from stv_result
+		CHECK ( sov_result->difference(1, v2) ==  0 ); // differs from stv_result
+
+		CHECK ( sov_result->difference(2, v1) == 15 );
+		CHECK ( sov_result->difference(2, v2) ==  0 );
+
+		CHECK_THROWS ( sov_result->difference(3, v1) == 0 );
+		CHECK_THROWS ( sov_result->difference(3, v2) == 0 );
+	}
+
 /*
-
-	AlbumMatcher am_diff(result1, id, response);
-
-
-	SECTION ( "AlbumMatcher Copy construct" )
-	{
-		AlbumMatcher am_diff_copy(am_diff);
-	}
-
-
-	SECTION ( "AlbumMatcher finds best match" )
-	{
-		CHECK ( am_diff.matches() );
-
-		CHECK ( am_diff.best_match() == 2 );
-		CHECK ( am_diff.best_difference() == 0 );
-		CHECK ( am_diff.best_match_is_v2() );
-	}
-
-
-	SECTION ( "AlbumMatcher's Match loads as declared" )
-	{
-		const Match* match = am_diff.match();
-
-		CHECK ( match->tracks_per_block() == 15 );
-
-		CHECK ( match->size() == 93 ); // 2 * blocks * tracks + blocks
-
-		// 0
-		CHECK ( match->id(0) );
-
-		CHECK ( match->track(0,  0, v1) );
-		CHECK ( match->track(0,  1, v1) );
-		CHECK ( match->track(0,  2, v1) );
-		CHECK ( match->track(0,  3, v1) );
-		CHECK ( match->track(0,  4, v1) );
-		CHECK ( match->track(0,  5, v1) );
-		CHECK ( match->track(0,  6, v1) );
-		CHECK ( match->track(0,  7, v1) );
-		CHECK ( match->track(0,  8, v1) );
-		CHECK ( match->track(0,  9, v1) );
-		CHECK ( match->track(0, 10, v1) );
-		CHECK ( match->track(0, 11, v1) );
-		CHECK ( match->track(0, 12, v1) );
-		CHECK ( match->track(0, 13, v1) );
-		CHECK ( match->track(0, 14, v1) );
-
-		CHECK ( not match->track(0,  0, v2) );
-		CHECK ( not match->track(0,  1, v2) );
-		CHECK ( not match->track(0,  2, v2) );
-		CHECK ( not match->track(0,  3, v2) );
-		CHECK ( not match->track(0,  4, v2) );
-		CHECK ( not match->track(0,  5, v2) );
-		CHECK ( not match->track(0,  6, v2) );
-		CHECK ( not match->track(0,  7, v2) );
-		CHECK ( not match->track(0,  8, v2) );
-		CHECK ( not match->track(0,  9, v2) );
-		CHECK ( not match->track(0, 10, v2) );
-		CHECK ( not match->track(0, 11, v2) );
-		CHECK ( not match->track(0, 12, v2) );
-		CHECK ( not match->track(0, 13, v2) );
-		CHECK ( not match->track(0, 14, v2) );
-
-		// 1
-		CHECK ( not match->id(1) );
-
-		CHECK ( not match->track(1,  0, v1) );
-		CHECK ( not match->track(1,  1, v1) );
-		CHECK ( not match->track(1,  2, v1) );
-		CHECK ( not match->track(1,  3, v1) );
-		CHECK ( not match->track(1,  4, v1) );
-		CHECK ( not match->track(1,  5, v1) );
-		CHECK ( not match->track(1,  6, v1) );
-		CHECK ( not match->track(1,  7, v1) );
-		CHECK ( not match->track(1,  8, v1) );
-		CHECK ( not match->track(1,  9, v1) );
-		CHECK ( not match->track(1, 10, v1) );
-		CHECK ( not match->track(1, 11, v1) );
-		CHECK ( not match->track(1, 12, v1) );
-		CHECK ( not match->track(1, 13, v1) );
-		CHECK ( not match->track(1, 14, v1) );
-
-		CHECK ( match->track(1,  0, v2) );
-		CHECK ( match->track(1,  1, v2) );
-		CHECK ( match->track(1,  2, v2) );
-		CHECK ( match->track(1,  3, v2) );
-		CHECK ( match->track(1,  4, v2) );
-		CHECK ( match->track(1,  5, v2) );
-		CHECK ( match->track(1,  6, v2) );
-		CHECK ( match->track(1,  7, v2) );
-		CHECK ( match->track(1,  8, v2) );
-		CHECK ( match->track(1,  9, v2) );
-		CHECK ( match->track(1, 10, v2) );
-		CHECK ( match->track(1, 11, v2) );
-		CHECK ( match->track(1, 12, v2) );
-		CHECK ( match->track(1, 13, v2) );
-		CHECK ( match->track(1, 14, v2) );
-
-		// 2
-		CHECK ( match->id(2) );
-
-		CHECK ( not match->track(2,  0, v1) );
-		CHECK ( not match->track(2,  1, v1) );
-		CHECK ( not match->track(2,  2, v1) );
-		CHECK ( not match->track(2,  3, v1) );
-		CHECK ( not match->track(2,  4, v1) );
-		CHECK ( not match->track(2,  5, v1) );
-		CHECK ( not match->track(2,  6, v1) );
-		CHECK ( not match->track(2,  7, v1) );
-		CHECK ( not match->track(2,  8, v1) );
-		CHECK ( not match->track(2,  9, v1) );
-		CHECK ( not match->track(2, 10, v1) );
-		CHECK ( not match->track(2, 11, v1) );
-		CHECK ( not match->track(2, 12, v1) );
-		CHECK ( not match->track(2, 13, v1) );
-		CHECK ( not match->track(2, 14, v1) );
-
-		CHECK ( match->track(2,  0, v2) );
-		CHECK ( match->track(2,  1, v2) );
-		CHECK ( match->track(2,  2, v2) );
-		CHECK ( match->track(2,  3, v2) );
-		CHECK ( match->track(2,  4, v2) );
-		CHECK ( match->track(2,  5, v2) );
-		CHECK ( match->track(2,  6, v2) );
-		CHECK ( match->track(2,  7, v2) );
-		CHECK ( match->track(2,  8, v2) );
-		CHECK ( match->track(2,  9, v2) );
-		CHECK ( match->track(2, 10, v2) );
-		CHECK ( match->track(2, 11, v2) );
-		CHECK ( match->track(2, 12, v2) );
-		CHECK ( match->track(2, 13, v2) );
-		CHECK ( match->track(2, 14, v2) );
-
-
-		CHECK_THROWS ( match->id(3) );            // illegal block
-		CHECK_THROWS ( match->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( match->track(2, 15, v2) ); //         track
-
-
-		CHECK ( match->difference(0, v1) ==  0 );
-		CHECK ( match->difference(0, v2) == 15 );
-
-		CHECK ( match->difference(1, v1) == 16 );
-		CHECK ( match->difference(1, v2) ==  1 );
-
-		CHECK ( match->difference(2, v1) == 15 );
-		CHECK ( match->difference(2, v2) ==  0 );
-
-		CHECK_THROWS ( match->difference(3, v1) == 0 );
-		CHECK_THROWS ( match->difference(3, v2) == 0 );
-	}
-
-
-	TracksetMatcher tsm_diff(result1, response);
-
-
-	SECTION ( "TracksetMatcher Copy construct" )
-	{
-		TracksetMatcher tsm_diff_copy(tsm_diff);
-	}
-
-
-	SECTION ( "TracksetMatcher finds best match on verifying album input" )
-	{
-		CHECK ( tsm_diff.matches() );
-
-		CHECK ( tsm_diff.best_match() == 2 );
-		CHECK ( tsm_diff.best_difference() == 0 );
-		CHECK ( tsm_diff.best_match_is_v2() );
-	}
-
-
-	SECTION ( "TracksetMatcher's Match loads as declared on album input" )
-	{
-		const Match* match = tsm_diff.match();
-
-		CHECK ( match->tracks_per_block() == 15 );
-
-		CHECK ( match->size() == 93 ); // 2 * blocks * tracks + blocks
-
-		// 0
-		CHECK ( match->id(0) );
-
-		CHECK ( match->track(0,  0, v1) );
-		CHECK ( match->track(0,  1, v1) );
-		CHECK ( match->track(0,  2, v1) );
-		CHECK ( match->track(0,  3, v1) );
-		CHECK ( match->track(0,  4, v1) );
-		CHECK ( match->track(0,  5, v1) );
-		CHECK ( match->track(0,  6, v1) );
-		CHECK ( match->track(0,  7, v1) );
-		CHECK ( match->track(0,  8, v1) );
-		CHECK ( match->track(0,  9, v1) );
-		CHECK ( match->track(0, 10, v1) );
-		CHECK ( match->track(0, 11, v1) );
-		CHECK ( match->track(0, 12, v1) );
-		CHECK ( match->track(0, 13, v1) );
-		CHECK ( match->track(0, 14, v1) );
-
-		CHECK ( not match->track(0,  0, v2) );
-		CHECK ( not match->track(0,  1, v2) );
-		CHECK ( not match->track(0,  2, v2) );
-		CHECK ( not match->track(0,  3, v2) );
-		CHECK ( not match->track(0,  4, v2) );
-		CHECK ( not match->track(0,  5, v2) );
-		CHECK ( not match->track(0,  6, v2) );
-		CHECK ( not match->track(0,  7, v2) );
-		CHECK ( not match->track(0,  8, v2) );
-		CHECK ( not match->track(0,  9, v2) );
-		CHECK ( not match->track(0, 10, v2) );
-		CHECK ( not match->track(0, 11, v2) );
-		CHECK ( not match->track(0, 12, v2) );
-		CHECK ( not match->track(0, 13, v2) );
-		CHECK ( not match->track(0, 14, v2) );
-
-		// 1
-		CHECK ( match->id(1) ); // differs from AlbumMatcher: any id is verified
-
-		CHECK ( not match->track(1,  0, v1) );
-		CHECK ( not match->track(1,  1, v1) );
-		CHECK ( not match->track(1,  2, v1) );
-		CHECK ( not match->track(1,  3, v1) );
-		CHECK ( not match->track(1,  4, v1) );
-		CHECK ( not match->track(1,  5, v1) );
-		CHECK ( not match->track(1,  6, v1) );
-		CHECK ( not match->track(1,  7, v1) );
-		CHECK ( not match->track(1,  8, v1) );
-		CHECK ( not match->track(1,  9, v1) );
-		CHECK ( not match->track(1, 10, v1) );
-		CHECK ( not match->track(1, 11, v1) );
-		CHECK ( not match->track(1, 12, v1) );
-		CHECK ( not match->track(1, 13, v1) );
-		CHECK ( not match->track(1, 14, v1) );
-
-		CHECK ( match->track(1,  0, v2) );
-		CHECK ( match->track(1,  1, v2) );
-		CHECK ( match->track(1,  2, v2) );
-		CHECK ( match->track(1,  3, v2) );
-		CHECK ( match->track(1,  4, v2) );
-		CHECK ( match->track(1,  5, v2) );
-		CHECK ( match->track(1,  6, v2) );
-		CHECK ( match->track(1,  7, v2) );
-		CHECK ( match->track(1,  8, v2) );
-		CHECK ( match->track(1,  9, v2) );
-		CHECK ( match->track(1, 10, v2) );
-		CHECK ( match->track(1, 11, v2) );
-		CHECK ( match->track(1, 12, v2) );
-		CHECK ( match->track(1, 13, v2) );
-		CHECK ( match->track(1, 14, v2) );
-
-		// 2
-		CHECK ( match->id(2) );
-
-		CHECK ( not match->track(2,  0, v1) );
-		CHECK ( not match->track(2,  1, v1) );
-		CHECK ( not match->track(2,  2, v1) );
-		CHECK ( not match->track(2,  3, v1) );
-		CHECK ( not match->track(2,  4, v1) );
-		CHECK ( not match->track(2,  5, v1) );
-		CHECK ( not match->track(2,  6, v1) );
-		CHECK ( not match->track(2,  7, v1) );
-		CHECK ( not match->track(2,  8, v1) );
-		CHECK ( not match->track(2,  9, v1) );
-		CHECK ( not match->track(2, 10, v1) );
-		CHECK ( not match->track(2, 11, v1) );
-		CHECK ( not match->track(2, 12, v1) );
-		CHECK ( not match->track(2, 13, v1) );
-		CHECK ( not match->track(2, 14, v1) );
-
-		CHECK ( match->track(2,  0, v2) );
-		CHECK ( match->track(2,  1, v2) );
-		CHECK ( match->track(2,  2, v2) );
-		CHECK ( match->track(2,  3, v2) );
-		CHECK ( match->track(2,  4, v2) );
-		CHECK ( match->track(2,  5, v2) );
-		CHECK ( match->track(2,  6, v2) );
-		CHECK ( match->track(2,  7, v2) );
-		CHECK ( match->track(2,  8, v2) );
-		CHECK ( match->track(2,  9, v2) );
-		CHECK ( match->track(2, 10, v2) );
-		CHECK ( match->track(2, 11, v2) );
-		CHECK ( match->track(2, 12, v2) );
-		CHECK ( match->track(2, 13, v2) );
-		CHECK ( match->track(2, 14, v2) );
-
-
-		CHECK_THROWS ( match->id(3) );            // illegal block
-		CHECK_THROWS ( match->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( match->track(2, 15, v2) ); //         track
-
-
-		CHECK ( match->difference(0, v1) ==  0 );
-		CHECK ( match->difference(0, v2) == 15 );
-
-		CHECK ( match->difference(1, v1) == 15 ); // differs from AlbumMatcher
-		CHECK ( match->difference(1, v2) ==  0 ); // differs from AlbumMatcher
-
-		CHECK ( match->difference(2, v1) == 15 );
-		CHECK ( match->difference(2, v2) ==  0 );
-
-		CHECK_THROWS ( match->difference(3, v1) == 0 );
-		CHECK_THROWS ( match->difference(3, v2) == 0 );
-	}
 
 	const auto refsums_v1 = std::vector<Checksum>
 	{

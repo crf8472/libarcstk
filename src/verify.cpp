@@ -87,8 +87,58 @@ std::size_t FromResponse::do_size() const
 }
 
 
+// BestBlock
+
+
+constexpr int BestBlock::MAX_DIFFERENCE;
+
+std::tuple<int, bool, int> BestBlock::operator()(
+		const VerificationResult& result) const
+{
+	ARCS_LOG(DEBUG1) << "Find best block:";
+
+	if (result.size() == 0)
+	{
+		return std::make_tuple(-1, false, -1);
+	}
+
+	auto block            = int  { -1 };
+	auto best_block_is_v2 = bool { false };
+
+	auto best_diff    = int { MAX_DIFFERENCE };
+	auto curr_diff_v1 = int { 0 };
+	auto curr_diff_v2 = int { 0 };
+
+	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	{
+		// Note: v2 matching will always be preferred over v1 matching
+
+		ARCS_LOG(DEBUG1) << "Check block " << b;
+
+		curr_diff_v1 = result.difference(b, /* v1 */false);
+		curr_diff_v2 = result.difference(b, /* v2 */true);
+
+		// Note the less-equal for v2: last match wins!
+		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
+		{
+			block      = b;
+			best_block_is_v2 = curr_diff_v2 <= curr_diff_v1;
+			best_diff  = best_block_is_v2 ? curr_diff_v2 : curr_diff_v1;
+
+			ARCS_LOG_DEBUG << "Declare block " << b << " as best match"
+				<< " (is ARCSv" << (best_block_is_v2 + 1) << ")";
+		}
+	}
+
+	return std::make_tuple(block, best_block_is_v2, best_diff);
+}
+
+
 namespace details
 {
+
+// ResultBits
+
 
 ResultBits::ResultBits()
 	: blocks_ { 0 }
@@ -277,24 +327,79 @@ void ResultBits::validate_track(int t) const
 }
 
 
-// MatchOrder
+// StrictPolicy
 
-MatchOrder::MatchOrder()
-	: performer_ { nullptr }
+
+bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
+	const
 {
-	// empty
+	auto t = best_block(r);
+	return r.track(std::get<0>(t), track, std::get<1>(t));
 }
 
 
-void MatchOrder::set_performer(MatchPerformer* const performer) noexcept
+int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
-	performer_ = performer;
+	return best_block_difference(r);
 }
 
 
-const MatchPerformer* MatchOrder::performer() const noexcept
+bool StrictPolicy::do_is_strict() const
 {
-	return performer_;
+	return true;
+}
+
+
+// LiberalPolicy
+
+
+bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
+	const
+{
+	for (auto b = 0; b < r.total_blocks(); ++b)
+	{
+		if (r.track(b, track, true) or r.track(b, track, false))
+		{
+			return true;
+		}
+	}
+	return false;
+
+}
+
+
+int LiberalPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+{
+	using size_type = details::ResultBits::size_type;
+
+	std::vector<bool> tracks(
+			static_cast<size_type>(r.tracks_per_block()), false);
+
+	// Count every track whose checksum was not matched in any block.
+
+	auto b = size_type { 0 };
+	for (auto t = size_type { 0 }; t <
+			static_cast<size_type>(r.tracks_per_block()); ++t)
+	{
+		for (b = size_type { 0 };
+				b < static_cast<size_type>(r.total_blocks()); ++b)
+		{
+			if (r.track(b, t, true) or r.track(b, t, false))
+			{
+				tracks[t] = true;
+				break;
+			}
+		}
+	}
+
+	return r.tracks_per_block() -
+		std::accumulate(tracks.begin(), tracks.end(), 0);
+}
+
+
+bool LiberalPolicy::do_is_strict() const
+{
+	return false;
 }
 
 
@@ -302,8 +407,8 @@ const MatchPerformer* MatchOrder::performer() const noexcept
 
 
 void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int current) const
+			const ChecksumSource& ref_sums, int current,
+			const MatchTraversal& t) const
 {
 	auto bitpos   = int  { 0 };
 	auto is_v2    = bool { false };
@@ -312,7 +417,7 @@ void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_s
 
 	for (auto track = std::size_t { 0 }; track < ref_sums.size(current); ++track)
 	{
-		for (const auto& type : DefaultPerformer::types)
+		for (const auto& type : supported_checksum_types)
 		{
 			is_v2 = (type == checksum::type::ARCS2);
 
@@ -328,7 +433,7 @@ void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_s
 				<< reference_checksum
 				<< " (v" << (is_v2 ? "2" : "1") << ") ";
 
-			if (performer()->matches(actual_checksum, reference_checksum))
+			if (actual_checksum == reference_checksum)
 			{
 				bitpos = match.verify_track(current, track, is_v2);
 
@@ -354,8 +459,8 @@ void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_s
 
 
 void Cartesian::do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums,
-			const MatchTraversal& t, int current) const
+			const ChecksumSource& ref_sums, int current,
+			const MatchTraversal& t) const
 {
 	auto bitpos   = int  { 0 };
 	auto is_v2    = bool { false };
@@ -372,7 +477,7 @@ void Cartesian::do_perform(VerificationResult& match, const Checksums& actual_su
 
 		for (const auto& actual_track : actual_sums)
 		{
-			for (const auto& type : DefaultPerformer::types)
+			for (const auto& type : supported_checksum_types)
 			{
 				is_v2 = (type == checksum::type::ARCS2);
 
@@ -388,7 +493,7 @@ void Cartesian::do_perform(VerificationResult& match, const Checksums& actual_su
 					<< reference_checksum
 					<< " (v" << (is_v2 ? "2" : "1") << ") ";
 
-				if (performer()->matches(actual_checksum,reference_checksum))
+				if (actual_checksum == reference_checksum)
 				{
 					bitpos = match.verify_track(current, track, is_v2);
 
@@ -416,9 +521,6 @@ void Cartesian::do_perform(VerificationResult& match, const Checksums& actual_su
 }
 
 
-// MatchTraversal
-
-
 // TraverseBlock
 
 
@@ -436,13 +538,14 @@ std::size_t TraverseBlock::do_size(const ChecksumSource& ref_sums,
 }
 
 
-void TraverseBlock::do_traverse(VerificationResult& match, const Checksums &actual_sums,
-		const ARId &actual_id, const ChecksumSource& ref_sums,
+void TraverseBlock::do_traverse(VerificationResult& result,
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource& ref_sums,
 		const MatchOrder& order) const
 {
 	// Validation is assumed to be already performed
 
-	auto bitpos = int  { 0 };
+	auto bitpos = int { 0 };
 	auto actual_checksum    = Checksum {};
 	auto reference_checksum = Checksum {};
 
@@ -454,132 +557,68 @@ void TraverseBlock::do_traverse(VerificationResult& match, const Checksums &actu
 
 		if (actual_id.empty())
 		{
-			bitpos = match.verify_id(block_i);
+			bitpos = result.verify_id(block_i);
 			ARCS_LOG_DEBUG << "Accept and ignore empty actual id for: "
-				<< match.id(block_i) << " (bit " << bitpos << ")";
+				<< result.id(block_i) << " (bit " << bitpos << ")";
 		}
 		else if (ref_sums.id(block_i) == actual_id.to_string())
 		{
-			bitpos = match.verify_id(block_i);
-			ARCS_LOG_DEBUG << "Id verified: " << match.id(block_i)
+			bitpos = result.verify_id(block_i);
+			ARCS_LOG_DEBUG << "Id verified: " << result.id(block_i)
 				<< " (bit " << bitpos << ")";
 		}
 		else
 		{
-			ARCS_LOG_DEBUG << "Id: " << match.id(block_i)
+			ARCS_LOG_DEBUG << "Id: " << result.id(block_i)
 				<< " not verified";
 		}
 
-		order.perform(match, actual_sums, ref_sums, *this, block_i);
+		order.perform(result, actual_sums, ref_sums, block_i, *this);
 	}
 }
 
 
-// DefaultPerformer
-
-
-constexpr std::array<checksum::type, 2> DefaultPerformer::types;
-
-
-std::unique_ptr<VerificationResult> DefaultPerformer::do_create_match_instance(
-		const int blocks, const std::size_t tracks) const noexcept
+std::unique_ptr<VerificationPolicy> TraverseBlock::do_get_policy() const
 {
-	return details::create_result(blocks, tracks);
-}
-
-
-bool DefaultPerformer::do_matches(const ARId &actual, const ARId &reference) const
-	noexcept
-{
-	return actual == reference;
-}
-
-
-bool DefaultPerformer::do_matches(const Checksum &actual,
-		const Checksum &reference) const noexcept
-{
-	return actual == reference;
-}
-
-
-DefaultPerformer::DefaultPerformer(MatchTraversal* traversal, MatchOrder* order)
-	: traversal_ { traversal }
-	, order_     { order     }
-{
-	order_->set_performer(this);
-}
-
-
-const MatchTraversal* DefaultPerformer::traversal() const
-{
-	return traversal_;
-}
-
-
-const MatchOrder* DefaultPerformer::order() const
-{
-	return order_;
-}
-
-
-std::unique_ptr<VerificationResult> DefaultPerformer::operator() (
-			const Checksums& actual_sums, const ARId& actual_id,
-			const ChecksumSource& ref_sums) const
-{
-	auto match { create_match_instance(ref_sums.size(), actual_sums.size()) };
-
-	traversal_->traverse(*match, actual_sums, actual_id, ref_sums, *order_);
-
-	return match;
+	return std::make_unique<StrictPolicy>();
 }
 
 } // namespace details
 
 
-// BestBlock
+// VerificationPolicy
 
 
-constexpr int BestBlock::MAX_DIFFERENCE;
-
-std::tuple<int, bool, int> BestBlock::operator()(
-		const VerificationResult& result) const
+bool VerificationPolicy::is_verified(const int track,
+		const VerificationResult& r) const
 {
-	ARCS_LOG(DEBUG1) << "Find best block:";
+	return do_is_verified(track, r);
+}
 
-	if (result.size() == 0)
-	{
-		return std::make_tuple(-1, false, -1);
-	}
 
-	auto block            = int  { -1 };
-	auto best_block_is_v2 = bool { false };
+int VerificationPolicy::total_unverified_tracks(const VerificationResult& r)
+	const
+{
+	return do_total_unverified_tracks(r);
+}
 
-	auto best_diff    = int { MAX_DIFFERENCE };
-	auto curr_diff_v1 = int { 0 };
-	auto curr_diff_v2 = int { 0 };
 
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
-	{
-		// Note: v2 matching will always be preferred over v1 matching
+bool VerificationPolicy::is_strict() const
+{
+	return do_is_strict();
+}
 
-		ARCS_LOG(DEBUG1) << "Check block " << b;
 
-		curr_diff_v1 = result.difference(b, /* v1 */false);
-		curr_diff_v2 = result.difference(b, /* v2 */true);
+std::tuple<int, bool, int> VerificationPolicy::best_block(const VerificationResult& r) const
+{
+	const BestBlock best;
+	return best(r);
+}
 
-		// Note the less-equal for v2: last match wins!
-		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
-		{
-			block      = b;
-			best_block_is_v2 = curr_diff_v2 <= curr_diff_v1;
-			best_diff  = best_block_is_v2 ? curr_diff_v2 : curr_diff_v1;
 
-			ARCS_LOG_DEBUG << "Declare block " << b << " as best match"
-				<< " (is ARCSv" << (best_block_is_v2 + 1) << ")";
-		}
-	}
-
-	return std::make_tuple(block, best_block_is_v2, best_diff);
+int VerificationPolicy::best_block_difference(const VerificationResult& r) const
+{
+	return std::get<2>(best_block(r));
 }
 
 
@@ -617,6 +656,11 @@ std::ostream& operator << (std::ostream &out, const VerificationResult &result)
 
 VerificationResult::~VerificationResult() noexcept = default;
 
+bool VerificationResult::all_tracks_verified() const
+{
+	return total_unverified_tracks() == 0;
+}
+
 int VerificationResult::verify_id(int block)
 {
 	return do_verify_id(block);
@@ -642,11 +686,6 @@ int VerificationResult::difference(int b, bool v2) const
 	return do_difference(b, v2);
 }
 
-int VerificationResult::total_unmatched_tracks() const
-{
-	return do_total_unmatched_tracks();
-}
-
 int VerificationResult::total_blocks() const
 {
 	return do_total_blocks();
@@ -662,39 +701,47 @@ size_t VerificationResult::size() const
 	return do_size();
 }
 
+bool VerificationResult::is_verified(const int track) const
+{
+	return do_is_verified(track);
+}
+
+int VerificationResult::total_unverified_tracks() const
+{
+	return do_total_unverified_tracks();
+}
+
+std::tuple<int, bool, int> VerificationResult::best_block() const
+{
+	return do_best_block();
+}
+
+int VerificationResult::best_block_difference() const
+{
+	return do_best_block_difference();
+}
+
+const VerificationPolicy* VerificationResult::policy() const
+{
+	return do_policy();
+}
+
 std::unique_ptr<VerificationResult> VerificationResult::clone() const
 {
 	return do_clone();
 }
 
 
+namespace details
+{
+
+
 // Result
 
 
-class Result final : public VerificationResult
-{
-	int do_verify_id(const int b) final;
-	bool do_id(const int b) const final;
-	int do_verify_track(const int b, const int t, const bool v2) final;
-	bool do_track(const int b, const int t, const bool v2) const final;
-	int do_difference(const int b, const bool v2) const final;
-	int do_total_unmatched_tracks() const final;
-	int do_total_blocks() const final;
-	int do_tracks_per_block() const final;
-	size_t do_size() const final;
-	std::unique_ptr<VerificationResult> do_clone() const final;
-
-	details::ResultBits flags_;
-
-public:
-
-	Result();
-	void init(const int blocks, const int tracks);
-};
-
-
-Result::Result()
-	: flags_ { details::ResultBits() }
+Result::Result(std::unique_ptr<VerificationPolicy> p)
+	: flags_  { details::ResultBits() }
+	, policy_ { std::move(p) }
 {
 	// empty
 }
@@ -743,34 +790,6 @@ int Result::do_difference(int b, bool v2) const
 }
 
 
-int Result::do_total_unmatched_tracks() const
-{
-	using size_type = details::ResultBits::size_type;
-
-	std::vector<bool> tracks(static_cast<size_type>(tracks_per_block()), false);
-
-	// Count every track whose checksum was not matched in any block.
-
-	auto b = size_type { 0 };
-	for (auto t = size_type { 0 }; t <
-			static_cast<size_type>(tracks_per_block()); ++t)
-	{
-		for (b = size_type { 0 };
-				b < static_cast<size_type>(total_blocks()); ++b)
-		{
-			if (track(b, t, true) or track(b, t, false))
-			{
-				tracks[t] = true;
-				break;
-			}
-		}
-	}
-
-	return tracks_per_block() -
-		std::accumulate(tracks.begin(), tracks.end(), 0);
-}
-
-
 int Result::do_total_blocks() const
 {
 	return flags_.blocks();
@@ -789,152 +808,118 @@ size_t Result::do_size() const
 }
 
 
+bool Result::do_is_verified(const int track) const
+{
+	return policy_->is_verified(track, *this);
+}
+
+
+int Result::do_total_unverified_tracks() const
+{
+	return policy_->total_unverified_tracks(*this);
+}
+
+
+std::tuple<int, bool, int> Result::do_best_block() const
+{
+	return policy_->best_block(*this);
+}
+
+
+int Result::do_best_block_difference() const
+{
+	return policy_->best_block_difference(*this);
+}
+
+
+const VerificationPolicy* Result::do_policy() const
+{
+	return policy_.get();
+}
+
+
 std::unique_ptr<VerificationResult> Result::do_clone() const
 {
 	return nullptr; // FIXME
 }
 
 
-namespace details
-{
-
 std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks)
+		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p)
 {
-	auto r = std::make_unique<Result>();
+	auto r = std::make_unique<Result>(std::move(p));
 	r->init(blocks, tracks);
 	return r;
 }
 
+
+std::unique_ptr<VerificationResult> verify_impl(
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource &ref_sums,
+		const MatchTraversal& t, const MatchOrder& o)
+{
+	auto r = create_result(ref_sums.size()/* total blocks */,
+			actual_sums.size()/* total tracks per block */,
+			t.get_policy());
+	t.traverse(*r, actual_sums, actual_id, ref_sums, o);
+	return r;
+}
+
+} // namespace details
+
+
+// MatchTraversal
+
+
+Checksum MatchTraversal::get_reference(const ChecksumSource& ref_sums,
+		const int current, const int counter) const
+{
+	return do_get_reference(ref_sums, current, counter);
 }
 
 
-// Verifier::Impl
-
-
-class Verifier::Impl final
+std::size_t MatchTraversal::size(const ChecksumSource& ref_sums,
+		const int current) const
 {
-public:
-
-	bool all_tracks_match() const noexcept;
-	bool is_matched(const int track) const noexcept;
-	int total_unmatched_tracks() const noexcept;
-	int best_block_difference() const noexcept;
-	std::tuple<int, bool, int> best_block() const;
-
-	/**
-	 * \brief Returns the actual VerificationResult.
-	 *
-	 * \return The actual VerificationResult
-	 */
-	const VerificationResult* result() const noexcept;
-
-	/**
-	 * \brief Clones this instance.
-	 *
-	 * \return Deep copy of this instance
-	 */
-	std::unique_ptr<Verifier> clone() const noexcept;
-
-private:
-
-	std::unique_ptr<VerificationResult> result_;
-};
-
-
-bool Verifier::Impl::all_tracks_match() const noexcept
-{
-	return total_unmatched_tracks() == 0;
-}
-
-bool Verifier::Impl::is_matched(const int track) const noexcept
-{
-	// TRUE iff <track> is matched, otherwise FALSE
-
-	//strict:
-	auto t = best_block();
-	return result_->track(std::get<0>(t), track, std::get<1>(t));
-
-	// no strict:
-	for (auto b = 0; b < result_->total_blocks(); ++b)
-	{
-		if (result_->track(b, track, true) or result_->track(b, track, false))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-int Verifier::Impl::total_unmatched_tracks() const noexcept
-{
-	// strict:
-	return best_block_difference();
-
-	// no-strict:
-	return result_->total_unmatched_tracks();
-}
-
-int Verifier::Impl::best_block_difference() const noexcept
-{
-	const auto t = best_block();
-	return result_->difference(std::get<0>(t), std::get<1>(t));
-}
-
-std::tuple<int, bool, int> Verifier::Impl::best_block() const
-{
-	const BestBlock best_block;
-	return best_block(*result_.get());
-}
-
-const VerificationResult* Verifier::Impl::result() const noexcept
-{
-	return result_.get();
-}
-
-std::unique_ptr<Verifier> Verifier::Impl::clone() const noexcept
-{
-	//result_->clone()
-	return nullptr; // FIXME
+	return do_size(ref_sums, current);
 }
 
 
-// Verifier
-
-
-bool Verifier::all_tracks_match() const noexcept
+void MatchTraversal::traverse(VerificationResult& result,
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource& ref_sums,
+		const MatchOrder& order) const
 {
-	return impl_->all_tracks_match();
+	do_traverse(result, actual_sums, actual_id, ref_sums, order);
 }
 
-bool Verifier::is_matched(const int track) const noexcept
+
+std::unique_ptr<VerificationPolicy> MatchTraversal::get_policy() const
 {
-	return impl_->is_matched(track);
+	return do_get_policy();
 }
 
-int Verifier::total_unmatched_tracks() const noexcept
+
+// MatchOrder
+
+
+void MatchOrder::perform(VerificationResult& result,
+		const Checksums& actual_sums, const ChecksumSource& ref_sums,
+		int index, const MatchTraversal& t) const
 {
-	return impl_->total_unmatched_tracks();
+	do_perform(result, actual_sums, ref_sums, index, t);
 }
 
-int Verifier::best_block_difference() const noexcept
-{
-	return impl_->best_block_difference();
-}
 
-std::tuple<int, bool, int> Verifier::best_block() const
-{
-	return impl_->best_block();
-}
+//
 
-const VerificationResult* Verifier::result() const noexcept
-{
-	return impl_->result();
-}
 
-std::unique_ptr<Verifier> Verifier::clone() const noexcept
+std::unique_ptr<VerificationResult> verify(
+		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
+		const MatchTraversal& t, const MatchOrder& o)
 {
-	return impl_->clone(); // FIXME
+	return details::verify_impl(actual_sums, actual_id, ref_sums, t, o);
 }
 
 } // namespace v_1_0_0
