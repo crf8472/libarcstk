@@ -22,7 +22,7 @@ inline namespace v_1_0_0
 
 // ChecksumSource
 
-std::string ChecksumSource::id(const int block_idx) const
+ARId ChecksumSource::id(const int block_idx) const
 {
 	return this->do_id(block_idx);
 }
@@ -51,10 +51,9 @@ std::size_t ChecksumSource::size() const
 // FromResponse
 
 
-std::string FromResponse::do_id(const int block_idx) const
+ARId FromResponse::do_id(const int block_idx) const
 {
-	return source()->at(static_cast<ARResponse::size_type>(block_idx)).id()
-			.to_string();
+	return source()->at(static_cast<ARResponse::size_type>(block_idx)).id();
 }
 
 
@@ -85,6 +84,10 @@ std::size_t FromResponse::do_size() const
 {
 	return source()->size();
 }
+
+
+namespace details
+{
 
 
 // BestBlock
@@ -133,9 +136,6 @@ std::tuple<int, bool, int> BestBlock::operator()(
 	return std::make_tuple(block, best_block_is_v2, best_diff);
 }
 
-
-namespace details
-{
 
 // ResultBits
 
@@ -333,14 +333,17 @@ void ResultBits::validate_track(int t) const
 bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
 	const
 {
-	auto t = best_block(r);
+	const auto best { details::BestBlock() };
+	const auto t = best(r);
 	return r.track(std::get<0>(t), track, std::get<1>(t));
 }
 
 
 int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
-	return best_block_difference(r);
+	const auto best { details::BestBlock() };
+	const auto t = best(r);
+	return std::get<2>(t);
 }
 
 
@@ -364,7 +367,6 @@ bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
 		}
 	}
 	return false;
-
 }
 
 
@@ -561,7 +563,7 @@ void TraverseBlock::do_traverse(VerificationResult& result,
 			ARCS_LOG_DEBUG << "Accept and ignore empty actual id for: "
 				<< result.id(block_i) << " (bit " << bitpos << ")";
 		}
-		else if (ref_sums.id(block_i) == actual_id.to_string())
+		else if (ref_sums.id(block_i) == actual_id)
 		{
 			bitpos = result.verify_id(block_i);
 			ARCS_LOG_DEBUG << "Id verified: " << result.id(block_i)
@@ -578,7 +580,7 @@ void TraverseBlock::do_traverse(VerificationResult& result,
 }
 
 
-std::unique_ptr<VerificationPolicy> TraverseBlock::do_get_policy() const
+std::unique_ptr<TrackPolicy> TraverseBlock::do_get_policy() const
 {
 	return std::make_unique<StrictPolicy>();
 }
@@ -586,39 +588,26 @@ std::unique_ptr<VerificationPolicy> TraverseBlock::do_get_policy() const
 } // namespace details
 
 
-// VerificationPolicy
+// TrackPolicy
 
 
-bool VerificationPolicy::is_verified(const int track,
+bool TrackPolicy::is_verified(const int track,
 		const VerificationResult& r) const
 {
 	return do_is_verified(track, r);
 }
 
 
-int VerificationPolicy::total_unverified_tracks(const VerificationResult& r)
+int TrackPolicy::total_unverified_tracks(const VerificationResult& r)
 	const
 {
 	return do_total_unverified_tracks(r);
 }
 
 
-bool VerificationPolicy::is_strict() const
+bool TrackPolicy::is_strict() const
 {
 	return do_is_strict();
-}
-
-
-std::tuple<int, bool, int> VerificationPolicy::best_block(const VerificationResult& r) const
-{
-	const BestBlock best;
-	return best(r);
-}
-
-
-int VerificationPolicy::best_block_difference(const VerificationResult& r) const
-{
-	return std::get<2>(best_block(r));
 }
 
 
@@ -721,7 +710,7 @@ int VerificationResult::best_block_difference() const
 	return do_best_block_difference();
 }
 
-const VerificationPolicy* VerificationResult::policy() const
+const TrackPolicy* VerificationResult::policy() const
 {
 	return do_policy();
 }
@@ -739,7 +728,7 @@ namespace details
 // Result
 
 
-Result::Result(std::unique_ptr<VerificationPolicy> p)
+Result::Result(std::unique_ptr<TrackPolicy> p)
 	: flags_  { details::ResultBits() }
 	, policy_ { std::move(p) }
 {
@@ -822,17 +811,18 @@ int Result::do_total_unverified_tracks() const
 
 std::tuple<int, bool, int> Result::do_best_block() const
 {
-	return policy_->best_block(*this);
+	const details::BestBlock best;
+	return best(*this);
 }
 
 
 int Result::do_best_block_difference() const
 {
-	return policy_->best_block_difference(*this);
+	return std::get<2>(best_block());
 }
 
 
-const VerificationPolicy* Result::do_policy() const
+const TrackPolicy* Result::do_policy() const
 {
 	return policy_.get();
 }
@@ -845,7 +835,7 @@ std::unique_ptr<VerificationResult> Result::do_clone() const
 
 
 std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p)
+		const std::size_t tracks, std::unique_ptr<TrackPolicy> p)
 {
 	auto r = std::make_unique<Result>(std::move(p));
 	r->init(blocks, tracks);
@@ -894,7 +884,7 @@ void MatchTraversal::traverse(VerificationResult& result,
 }
 
 
-std::unique_ptr<VerificationPolicy> MatchTraversal::get_policy() const
+std::unique_ptr<TrackPolicy> MatchTraversal::get_policy() const
 {
 	return do_get_policy();
 }

@@ -3,7 +3,7 @@
 
 /** \file
  *
- * \brief Public API for \link verify AccurateRip checksum verificytion \endlink.
+ * \brief Public API for \link verify AccurateRip checksum verification\endlink.
  *
  * \details
  *
@@ -35,10 +35,18 @@ class Checksums;
  * A checksum container contains several blocks of checksums an in every block a
  * sequence of checksums. A single checksum is accessed by a block index in
  * combination with the index of the checksum within the block.
+ *
+ * A type \c T can be made available as a ChecksumSource via definig a subclass
+ * \c S that inherits from GetChecksum<T>. Subclass \c S has to implement the
+ * virtual functions of ChecksumSource. It can reuse the constructor of
+ * GetChecksum<T>.
+ *
+ * \see GetChecksum
+ * \see FromResponse
  */
 class ChecksumSource
 {
-	virtual std::string do_id(const int block_idx) const
+	virtual ARId do_id(const int block_idx) const
 	= 0;
 
 	virtual Checksum do_checksum(const int block_idx, const int idx) const
@@ -62,21 +70,41 @@ public:
 
 	/**
 	 * \brief Read id in section with the specified \c block_idx.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 *
+	 * \return The id of the specified block
 	 */
-	std::string id(const int block_idx) const;
+	ARId id(const int block_idx) const;
 
 	/**
 	 * \brief Read checksum \c idx in section with the specified \c block_idx.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 * \param[in] track_idx 0-based track index to access
+	 *
+	 * \return The checksum of the specified index position
 	 */
-	Checksum checksum(const int block_idx, const int idx) const;
+	Checksum checksum(const int block_idx, const int track_idx) const;
 
 	/**
 	 * \brief Read confidence \c idx in section with the specified \c block_idx.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 * \param[in] track_idx 0-based track index to access
+	 *
+	 * \return The confidence of the specified index position
 	 */
-	int confidence(const int block_idx, const int idx) const;
+	int confidence(const int block_idx, const int track_idx) const;
 
 	/**
-	 * \brief Read id in section with the specified \c block_idx.
+	 * \brief Size of the block specified by \c block_idx.
+	 *
+	 * The number of tracks in this block is its size.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 *
+	 * \return The size of the specified block
 	 */
 	std::size_t size(const int block_idx) const;
 
@@ -84,6 +112,8 @@ public:
 	 * \brief Number of blocks.
 	 *
 	 * Greatest legal block is size() - 1.
+	 *
+	 * \return Number of blocks in this object
 	 */
 	std::size_t size() const;
 };
@@ -91,6 +121,8 @@ public:
 
 /**
  * \brief Wrap a checksum container in a ChecksumSource.
+ *
+ * \tparam T The type to wrap
  */
 template <typename T>
 class GetChecksum : public ChecksumSource
@@ -114,6 +146,9 @@ protected:
 
 public:
 
+	/**
+	 * \brief Virtual default destructor.
+	 */
 	virtual ~GetChecksum() noexcept = default;
 
 	/**
@@ -131,10 +166,12 @@ public:
 
 /**
  * \brief Access an ARResponse by block and index.
+ *
+ * Make an ARResponse available for verification.
  */
 class FromResponse final : public GetChecksum<ARResponse>
 {
-	std::string do_id(const int block_idx) const final;
+	ARId do_id(const int block_idx) const final;
 	Checksum do_checksum(const int block_idx, const int idx) const final;
 	int do_confidence(const int block_idx, const int idx) const final;
 	std::size_t do_size(const int block_idx) const final;
@@ -150,38 +187,12 @@ class VerificationResult;
 
 
 /**
- * \brief Block with smallest difference.
- */
-struct BestBlock
-{
-	/**
-	 * \brief Maximal difference that is possible between two blocks,
-	 * 99 tracks + id.
-	 */
-	static constexpr int MAX_DIFFERENCE = 100;
-
-	/**
-	 * \brief Identify best matching block, i.e. the block with the smallest
-	 * difference possible.
-	 *
-	 * If the result contains a negative value as its first value, this
-	 * indicates an error.
-	 *
-	 * The result tuple contains the block index, the ARCS type that matches and
-	 * the confidence value.
-	 */
-	std::tuple<int, bool, int> operator()(const VerificationResult& result)
-		const;
-};
-
-
-/**
- * \brief Policy for deciding whether a given track is matched or not.
+ * \brief Policy for deciding whether a given track is verified or not.
  *
  * The policy decides whether matches only count when occurring in the same
  * block.
  */
-class VerificationPolicy
+class TrackPolicy
 {
 	virtual bool do_is_verified(const int track, const VerificationResult& r)
 		const
@@ -198,7 +209,7 @@ public:
 	/**
 	 * \brief Virtual default destructor
 	 */
-	virtual ~VerificationPolicy() noexcept = default;
+	virtual ~TrackPolicy() noexcept = default;
 
 	/**
 	 * \brief
@@ -225,24 +236,6 @@ public:
 	 * \return
 	 */
 	bool is_strict() const;
-
-	/**
-	 * \brief
-	 *
-	 * \param[in] r
-	 *
-	 * \return
-	 */
-	std::tuple<int, bool, int> best_block(const VerificationResult& r) const;
-
-	/**
-	 * \brief
-	 *
-	 * \param[in] r
-	 *
-	 * \return
-	 */
-	int best_block_difference(const VerificationResult& r) const;
 };
 
 
@@ -267,7 +260,31 @@ public:
 	 */
 	virtual ~VerificationResult() noexcept;
 
+	/**
+	 * \brief TRUE iff each track is verified.
+	 *
+	 * This is shorthand for checking whether total_unverified_tracks is 0.
+	 * The verification should be flagged as accurate iff this returns TRUE.
+	 *
+	 * \return TRUE iff each track is verified otherwise FALSE
+	 */
 	bool all_tracks_verified() const;
+
+	/**
+	 * \brief Total number of unverified tracks.
+	 *
+	 * \return
+	 */
+	int total_unverified_tracks() const;
+
+	/**
+	 * \brief TRUE if specified track is verified, otherwise FALSE.
+	 *
+	 * \param[in] track 0-based track
+	 *
+	 * \return
+	 */
+	bool is_verified(const int track) const;
 
 	/**
 	 * \brief Mark the ARId of the specified block as 'matched'.
@@ -391,25 +408,12 @@ public:
 	size_t size() const;
 
 	/**
-	 * \brief
+	 * \brief Identifiy best matching block (the one with smallest difference).
 	 *
-	 * \param[in] track 0-based track
+	 * If there is more than one block with the smalles difference, choose the
+	 * first.
 	 *
-	 * \return
-	 */
-	bool is_verified(const int track) const;
-
-	/**
-	 * \brief
-	 *
-	 * \return
-	 */
-	int total_unverified_tracks() const;
-
-	/**
-	 * \brief Identifiy best matching block (smallest difference).
-	 *
-	 * \return 0-based index, ARCS version, difference
+	 * \return 0-based index, ARCS version, and difference of the best block
 	 */
 	std::tuple<int, bool, int> best_block() const;
 
@@ -425,7 +429,7 @@ public:
 	 *
 	 * \return Policy of this instance
 	 */
-	const VerificationPolicy* policy() const;
+	const TrackPolicy* policy() const;
 
 	/**
 	 * \brief Clones this instance.
@@ -435,6 +439,12 @@ public:
 	std::unique_ptr<VerificationResult> clone() const;
 
 private:
+
+	virtual int do_total_unverified_tracks() const
+	= 0;
+
+	virtual bool do_is_verified(const int track) const
+	= 0;
 
 	/**
 	 * \brief Implements \link VerificationResult::verify_id(int b) verify_id(int) \endlink.
@@ -537,19 +547,13 @@ private:
 	virtual size_t do_size() const
 	= 0;
 
-	virtual bool do_is_verified(const int track) const
-	= 0;
-
-	virtual int do_total_unverified_tracks() const
-	= 0;
-
 	virtual std::tuple<int, bool, int> do_best_block() const
 	= 0;
 
 	virtual int do_best_block_difference() const
 	= 0;
 
-	virtual const VerificationPolicy* do_policy() const
+	virtual const TrackPolicy* do_policy() const
 	= 0;
 
 	/**
@@ -587,7 +591,7 @@ class MatchTraversal
 		const MatchOrder& order) const
 	= 0;
 
-	virtual std::unique_ptr<VerificationPolicy> do_get_policy() const
+	virtual std::unique_ptr<TrackPolicy> do_get_policy() const
 	= 0;
 
 public:
@@ -634,11 +638,12 @@ public:
 		const MatchOrder& order) const;
 
 	/**
-	 * \brief
+	 * \brief Create a TrackPolicy for results creates by this Traversal.
 	 *
-	 * \return
+	 * \return TrackPolicy to interpret track verification in the result.
 	 */
-	std::unique_ptr<VerificationPolicy> get_policy() const;
+	std::unique_ptr<TrackPolicy> get_policy() const;
+
 };
 
 

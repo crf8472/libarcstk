@@ -42,6 +42,32 @@ constexpr std::array<checksum::type, 2> supported_checksum_types {
 
 
 /**
+ * \brief Block with smallest difference.
+ */
+struct BestBlock
+{
+	/**
+	 * \brief Maximal difference that is possible between two blocks,
+	 * 99 tracks + id.
+	 */
+	static constexpr int MAX_DIFFERENCE = 100;
+
+	/**
+	 * \brief Identify best matching block, i.e. the block with the smallest
+	 * difference possible.
+	 *
+	 * If the result contains a negative value as its first value, this
+	 * indicates an error.
+	 *
+	 * The result tuple contains the block index, the ARCS type that matches and
+	 * the confidence value.
+	 */
+	std::tuple<int, bool, int> operator()(const VerificationResult& result)
+		const;
+};
+
+
+/**
  * \internal
  * \brief Implementation of the actual verification result.
  */
@@ -221,15 +247,15 @@ class Result final : public VerificationResult
 	virtual int do_total_unverified_tracks() const final;
 	virtual std::tuple<int, bool, int> do_best_block() const final;
 	virtual int do_best_block_difference() const final;
-	virtual const VerificationPolicy* do_policy() const final;
+	virtual const TrackPolicy* do_policy() const final;
 	virtual std::unique_ptr<VerificationResult> do_clone() const final;
 
 	details::ResultBits flags_;
-	std::unique_ptr<VerificationPolicy> policy_;
+	std::unique_ptr<TrackPolicy> policy_;
 
 public:
 
-	Result(std::unique_ptr<VerificationPolicy> p);
+	Result(std::unique_ptr<TrackPolicy> p);
 	void init(const int blocks, const int tracks);
 };
 
@@ -248,7 +274,7 @@ public:
  * \return VerificationResult object of the specified dimensions.
  */
 std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p);
+		const std::size_t tracks, std::unique_ptr<TrackPolicy> p);
 
 
 /**
@@ -272,7 +298,7 @@ std::unique_ptr<VerificationResult> verify_impl(
 /**
  * \brief Policy that accepts track matches all in the same block.
  */
-class StrictPolicy final : public VerificationPolicy
+class StrictPolicy final : public TrackPolicy
 {
 	virtual bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
@@ -287,7 +313,7 @@ class StrictPolicy final : public VerificationPolicy
 /**
  * \brief Policy that accepts track matches in any block.
  */
-class LiberalPolicy final : public VerificationPolicy
+class LiberalPolicy final : public TrackPolicy
 {
 	virtual bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
@@ -315,7 +341,7 @@ class TraverseBlock final : public MatchTraversal
 			const ChecksumSource& ref_sums,
 			const MatchOrder& order) const final;
 
-	virtual std::unique_ptr<VerificationPolicy> do_get_policy() const final;
+	virtual std::unique_ptr<TrackPolicy> do_get_policy() const final;
 };
 
 
@@ -335,7 +361,7 @@ class TraverseTracks final : public MatchTraversal
 			const ChecksumSource& ref_sums,
 			const MatchOrder& order) const final;
 
-	virtual std::unique_ptr<VerificationPolicy> do_get_policy() const final;
+	virtual std::unique_ptr<TrackPolicy> do_get_policy() const final;
 };
 
 
