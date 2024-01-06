@@ -408,9 +408,10 @@ bool LiberalPolicy::do_is_strict() const
 // TrackOder
 
 
-void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int current,
-			const MatchTraversal& t) const
+void TrackOrder::do_perform(VerificationResult& match,
+		const Checksums& actual_sums,
+		const ChecksumSource& ref_sums, int current,
+		const MatchTraversal& t) const
 {
 	auto bitpos   = int  { 0 };
 	auto is_v2    = bool { false };
@@ -457,12 +458,13 @@ void TrackOrder::do_perform(VerificationResult& match, const Checksums& actual_s
 }
 
 
-// Cartesian
+// UnknownOrder
 
 
-void Cartesian::do_perform(VerificationResult& match, const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int current,
-			const MatchTraversal& t) const
+void UnknownOrder::do_perform(VerificationResult& match,
+		const Checksums& actual_sums,
+		const ChecksumSource& ref_sums, int current,
+		const MatchTraversal& t) const
 {
 	auto bitpos   = int  { 0 };
 	auto is_v2    = bool { false };
@@ -640,80 +642,92 @@ std::ostream& operator << (std::ostream &out, const VerificationResult &result)
 }
 
 
-// VerificationResult
-
-
 VerificationResult::~VerificationResult() noexcept = default;
+
 
 bool VerificationResult::all_tracks_verified() const
 {
 	return total_unverified_tracks() == 0;
 }
 
+
 int VerificationResult::verify_id(int block)
 {
 	return do_verify_id(block);
 }
+
 
 bool VerificationResult::id(int b) const
 {
 	return do_id(b);
 }
 
+
 int VerificationResult::verify_track(int b, int t, bool v2)
 {
 	return do_verify_track(b, t, v2);
 }
+
 
 bool VerificationResult::track(int b, int t, bool v2) const
 {
 	return do_track(b, t, v2);
 }
 
+
 int VerificationResult::difference(int b, bool v2) const
 {
 	return do_difference(b, v2);
 }
+
 
 int VerificationResult::total_blocks() const
 {
 	return do_total_blocks();
 }
 
+
 int VerificationResult::tracks_per_block() const
 {
 	return do_tracks_per_block();
 }
+
 
 size_t VerificationResult::size() const
 {
 	return do_size();
 }
 
+
 bool VerificationResult::is_verified(const int track) const
 {
 	return do_is_verified(track);
 }
+
 
 int VerificationResult::total_unverified_tracks() const
 {
 	return do_total_unverified_tracks();
 }
 
+
 std::tuple<int, bool, int> VerificationResult::best_block() const
 {
 	return do_best_block();
 }
+
 
 int VerificationResult::best_block_difference() const
 {
 	return do_best_block_difference();
 }
 
+
 const TrackPolicy* VerificationResult::policy() const
 {
 	return do_policy();
 }
+
 
 std::unique_ptr<VerificationResult> VerificationResult::clone() const
 {
@@ -901,7 +915,7 @@ void MatchOrder::perform(VerificationResult& result,
 }
 
 
-//
+// verify
 
 
 std::unique_ptr<VerificationResult> verify(
@@ -911,6 +925,114 @@ std::unique_ptr<VerificationResult> verify(
 {
 	return details::verify_impl(actual_sums, actual_id, ref_sums, t, o);
 }
+
+
+// Verifier
+
+
+Verifier::Verifier(const Checksums& actual_sums)
+	: actual_sums_ { actual_sums }
+	, is_strict_   { true        }
+{
+	// empty
+}
+
+
+void Verifier::set_strict(const bool strict)
+{
+	is_strict_ = strict;
+}
+
+
+bool Verifier::strict() const
+{
+	return is_strict_;
+}
+
+
+const Checksums& Verifier::actual_checksums() const
+{
+	return actual_sums_;
+}
+
+
+const ARId& Verifier::actual_id() const
+{
+	return do_actual_id();
+}
+
+
+std::unique_ptr<MatchTraversal> Verifier::do_create_traversal() const
+{
+	if (strict())
+	{
+		return std::make_unique<details::TraverseBlock>();
+	}
+
+	return nullptr; // FIXME
+}
+
+
+std::unique_ptr<VerificationResult> Verifier::perform(
+		const ChecksumSource& ref_sums) const
+{
+	const auto t = do_create_traversal();
+	const auto o = do_create_order();
+	return verify(actual_checksums(), actual_id(), ref_sums, *t, *o);
+}
+
+
+std::unique_ptr<VerificationResult> Verifier::perform(
+		const ARResponse& ref_sums) const
+{
+	return perform(FromResponse(&ref_sums));
+}
+
+
+const ARId& Verifier::do_actual_id() const
+{
+	return EmptyARId;
+}
+
+
+// AlbumVerifier
+
+
+AlbumVerifier::AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id)
+	: Verifier   { actual_sums }
+	, actual_id_ { actual_id   }
+{
+	// empty
+}
+
+
+std::unique_ptr<MatchOrder> AlbumVerifier::do_create_order() const
+{
+	return std::make_unique<details::TrackOrder>();
+}
+
+
+const ARId& AlbumVerifier::do_actual_id() const
+{
+	return actual_id_;
+}
+
+
+// TracksetVerifier
+
+
+TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
+	: Verifier { actual_sums }
+{
+	// empty
+}
+
+
+std::unique_ptr<MatchOrder> TracksetVerifier::do_create_order() const
+{
+	return std::make_unique<details::UnknownOrder>();
+}
+
 
 } // namespace v_1_0_0
 

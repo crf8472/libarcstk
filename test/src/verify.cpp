@@ -20,6 +20,163 @@
  */
 
 
+TEST_CASE ( "FromResponse", "[FromResponse]" )
+{
+	using arcstk::ARId;
+	using arcstk::ARBlock;
+	using arcstk::ARResponse;
+	using arcstk::FromResponse;
+
+	// Construct ARResponse by hand
+
+	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
+
+	// Define block: v1 values
+	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0x98B10E0F,  3, 0 },
+			{ 0x475F57E9,  4, 0 },
+			{ 0x7304F1C4,  5, 0 },
+			{ 0xF2472287,  6, 0 },
+			{ 0x881BC504,  7, 0 },
+			{ 0xBB94BFD4,  9, 0 },
+			{ 0xF9CAEE76, 10, 0 },
+			{ 0xF9F60BC1, 11, 0 },
+			{ 0x2C736302, 12, 0 },
+			{ 0x1C955978, 13, 0 },
+			{ 0xFDA6D833, 16, 0 },
+			{ 0x3A57E5D1, 17, 0 },
+			{ 0x6ED5F3E7, 18, 0 },
+			{ 0x4A5C3872, 21, 0 },
+			{ 0x5FE8B032, 24, 0 }
+		}
+	);
+
+	// Define block: v2 values, but different id
+	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0xB89992E5,  6, 0 },
+			{ 0x4F77EB03,  8, 0 },
+			{ 0x56582282,  7, 0 },
+			{ 0x9E2187F9,  9, 0 },
+			{ 0x6BE71E50,  2, 0 },
+			{ 0x01E7235F,  1, 0 },
+			{ 0xD8F7763C,  0, 0 },
+			{ 0x8480223E, 13, 0 },
+			{ 0x42C5061C, 16, 0 },
+			{ 0x47A70F02, 17, 0 },
+			{ 0xBABF08CC, 18, 0 },
+			{ 0x563EDCCB, 21, 0 },
+			{ 0xAB123C7C, 14, 0 },
+			{ 0xC65C20E4, 26, 0 },
+			{ 0x58FC3C3E, 28, 0 }
+		}
+	);
+
+	// Define block: v2 values same as block 2, id from block 1
+	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		{ /* triplets */
+			{ 0xB89992E5, 0, 0 },
+			{ 0x4F77EB03, 0, 0 },
+			{ 0x56582282, 0, 0 },
+			{ 0x9E2187F9, 0, 0 },
+			{ 0x6BE71E50, 0, 0 },
+			{ 0x01E7235F, 0, 0 },
+			{ 0xD8F7763C, 0, 0 },
+			{ 0x8480223E, 0, 0 },
+			{ 0x42C5061C, 0, 0 },
+			{ 0x47A70F02, 0, 0 },
+			{ 0xBABF08CC, 0, 0 },
+			{ 0x563EDCCB, 0, 0 },
+			{ 0xAB123C7C, 0, 0 },
+			{ 0xC65C20E4, 0, 0 },
+			{ 0x58FC3C3E, 0, 0 }
+		}
+	);
+
+	// TODO Check content of the block instances
+
+	ARResponse response { block0, block1, block2 };
+
+	auto r = FromResponse { &response };
+	auto r_copy_ctor = FromResponse { r }; // copy constructed
+
+	auto r_copy_ass = FromResponse { nullptr };
+
+	REQUIRE ( r_copy_ass.source() == nullptr );
+
+	r_copy_ass = r; // copy assigned
+
+	SECTION ( "ChecksumSoure of ARResponse is constructed correctly" )
+	{
+		CHECK ( &response == r.source() );
+	}
+
+	SECTION ( "ChecksumSoure of ARResponse is copy-constructed correctly" )
+	{
+		CHECK (  r_copy_ctor.source() == &response );
+		CHECK ( &r_copy_ctor          != &r );
+	}
+
+	SECTION ( "ChecksumSoure of ARResponse is copy-assigned correctly" )
+	{
+		CHECK (  r_copy_ass.source() == &response );
+		CHECK ( &r_copy_ass          != &r );
+	}
+
+	SECTION ( "Access on response data is correct" )
+	{
+		CHECK ( r.checksum(0,  0) == 0x98B10E0Fu );
+		CHECK ( r.checksum(0,  1) == 0x475F57E9u );
+		CHECK ( r.checksum(0,  2) == 0x7304F1C4u );
+		CHECK ( r.checksum(0,  3) == 0xF2472287u );
+		CHECK ( r.checksum(0,  4) == 0x881BC504u );
+		CHECK ( r.checksum(0,  5) == 0xBB94BFD4u );
+		CHECK ( r.checksum(0,  6) == 0xF9CAEE76u );
+		CHECK ( r.checksum(0,  7) == 0xF9F60BC1u );
+		CHECK ( r.checksum(0,  8) == 0x2C736302u );
+		CHECK ( r.checksum(0,  9) == 0x1C955978u );
+		CHECK ( r.checksum(0, 10) == 0xFDA6D833u );
+		CHECK ( r.checksum(0, 11) == 0x3A57E5D1u );
+		CHECK ( r.checksum(0, 12) == 0x6ED5F3E7u );
+		CHECK ( r.checksum(0, 13) == 0x4A5C3872u );
+		CHECK ( r.checksum(0, 14) == 0x5FE8B032u );
+
+		CHECK ( r.checksum(1,  0) == 0xB89992E5u );
+		CHECK ( r.checksum(1,  1) == 0x4F77EB03u );
+		CHECK ( r.checksum(1,  2) == 0x56582282u );
+		CHECK ( r.checksum(1,  3) == 0x9E2187F9u );
+		CHECK ( r.checksum(1,  4) == 0x6BE71E50u );
+		CHECK ( r.checksum(1,  5) == 0x01E7235Fu );
+		CHECK ( r.checksum(1,  6) == 0xD8F7763Cu );
+		CHECK ( r.checksum(1,  7) == 0x8480223Eu );
+		CHECK ( r.checksum(1,  8) == 0x42C5061Cu );
+		CHECK ( r.checksum(1,  9) == 0x47A70F02u );
+		CHECK ( r.checksum(1, 10) == 0xBABF08CCu );
+		CHECK ( r.checksum(1, 11) == 0x563EDCCBu );
+		CHECK ( r.checksum(1, 12) == 0xAB123C7Cu );
+		CHECK ( r.checksum(1, 13) == 0xC65C20E4u );
+		CHECK ( r.checksum(1, 14) == 0x58FC3C3Eu );
+
+		CHECK ( r.checksum(2,  0) == 0xB89992E5u );
+		CHECK ( r.checksum(2,  1) == 0x4F77EB03u );
+		CHECK ( r.checksum(2,  2) == 0x56582282u );
+		CHECK ( r.checksum(2,  3) == 0x9E2187F9u );
+		CHECK ( r.checksum(2,  4) == 0x6BE71E50u );
+		CHECK ( r.checksum(2,  5) == 0x01E7235Fu );
+		CHECK ( r.checksum(2,  6) == 0xD8F7763Cu );
+		CHECK ( r.checksum(2,  7) == 0x8480223Eu );
+		CHECK ( r.checksum(2,  8) == 0x42C5061Cu );
+		CHECK ( r.checksum(2,  9) == 0x47A70F02u );
+		CHECK ( r.checksum(2, 10) == 0xBABF08CCu );
+		CHECK ( r.checksum(2, 11) == 0x563EDCCBu );
+		CHECK ( r.checksum(2, 12) == 0xAB123C7Cu );
+		CHECK ( r.checksum(2, 13) == 0xC65C20E4u );
+		CHECK ( r.checksum(2, 14) == 0x58FC3C3Eu );
+	}
+}
+
+
 TEST_CASE ( "Result", "[result]" )
 {
 	using arcstk::details::create_result;
@@ -384,25 +541,29 @@ TEST_CASE ( "verify", "[verify]" )
 	const bool v1 = false;
 	const bool v2 = true;
 
-	auto t = std::unique_ptr<arcstk::MatchTraversal>();
-	auto o = std::unique_ptr<arcstk::MatchOrder>();
+	//auto t = std::unique_ptr<arcstk::MatchTraversal>();
+	//auto o = std::unique_ptr<arcstk::MatchOrder>();
 
 
 	// construct strict trackorder verification result
 
-	t = std::make_unique<arcstk::details::TraverseBlock>();
-	o = std::make_unique<arcstk::details::TrackOrder>();
-	const auto stv_result = arcstk::verify(result1, id,
-			arcstk::FromResponse(&response), *t, *o);
+	//t = std::make_unique<arcstk::details::TraverseBlock>();
+	//o = std::make_unique<arcstk::details::TrackOrder>();
+	//const auto stv_result = arcstk::verify(result1, id,
+	//		arcstk::FromResponse(&response), *t, *o);
+	arcstk::AlbumVerifier a(result1, id);
+	const auto stv_result = a.perform(response);
 
 	const auto stv_best_block = stv_result->best_block();
 
 	// construct strict order-free verification result
 
-	t = std::make_unique<arcstk::details::TraverseBlock>();
-	o = std::make_unique<arcstk::details::Cartesian>();
-	const auto sov_result = arcstk::verify(result1, arcstk::EmptyARId,
-			arcstk::FromResponse(&response), *t, *o);
+	//t = std::make_unique<arcstk::details::TraverseBlock>();
+	//o = std::make_unique<arcstk::details::UnknownOrder>();
+	//const auto sov_result = arcstk::verify(result1, arcstk::EmptyARId,
+	//		arcstk::FromResponse(&response), *t, *o);
+	arcstk::TracksetVerifier t(result1);
+	const auto sov_result = t.perform(response);
 
 	const auto sov_best_block = sov_result->best_block();
 

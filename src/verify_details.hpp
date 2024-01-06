@@ -42,6 +42,7 @@ constexpr std::array<checksum::type, 2> supported_checksum_types {
 
 
 /**
+ * \internal
  * \brief Block with smallest difference.
  */
 struct BestBlock
@@ -61,20 +62,24 @@ struct BestBlock
 	 *
 	 * The result tuple contains the block index, the ARCS type that matches and
 	 * the confidence value.
+	 *
+	 * \param[in] r The result to get the best block of
 	 */
-	std::tuple<int, bool, int> operator()(const VerificationResult& result)
-		const;
+	std::tuple<int, bool, int> operator()(const VerificationResult& r) const;
 };
 
 
 /**
  * \internal
- * \brief Implementation of the actual verification result.
+ * \brief Implementation of the actual result flag store.
  */
 class ResultBits
 {
 public:
 
+	/**
+	 * \brief Size type of this class.
+	 */
 	using size_type = std::size_t;
 
 	/**
@@ -85,27 +90,37 @@ public:
 	 */
 	ResultBits();
 
+	/**
+	 * \brief Number of blocks in the store.
+	 *
+	 * \return Number of blocks stored
+	 */
 	int blocks() const;
 
+	/**
+	 * \brief Total number of tracks per block.
+	 *
+	 * \return Total number of tracks per block
+	 */
 	int tracks_per_block() const;
 
+	/**
+	 * \brief Total number of flags in the store.
+	 *
+	 * \return Size of the store
+	 */
 	size_type size() const;
 
-	bool init(int blocks, int tracks);
-
 	/**
-	 * \brief Set the verification flag for the ARId of block \b to \c value.
+	 * \brief Construct a flag store for the specified number of blocks and
+	 * tracks per block.
 	 *
-	 * \param[in] b     0-based index of the block in \c response
-	 * \param[in] value New value for this flag
+	 * \param[in] blocks Number of blocks
+	 * \param[in] tracks Number of tracks per block
 	 *
-	 * \return Absolute index position to be set
-	 *
-	 * \throws Iff \c b is out of range
+	 * \return TRUE if initialization was successful
 	 */
-	int set_id(int b, bool value);
-
-	bool id(int b) const;
+	bool init(int blocks, int tracks);
 
 	/**
 	 * \brief Set the verification flag for the ARCS specified by \c b, \c t and
@@ -122,16 +137,72 @@ public:
 	 */
 	int set_track(int b, int t, bool v2, bool value);
 
+	/**
+	 * \brief Value for the specified track.
+	 *
+	 * \param[in] b     0-based index of the block in \c response
+	 * \param[in] t     0-based index of the track in \c response
+	 *
+	 * \return Value for the specified track
+	 */
 	bool track(int b, int t, bool v2) const;
 
+	/**
+	 * \brief Set the verification flag for the ARId of block \b to \c value.
+	 *
+	 * \param[in] b     0-based index of the block in \c response
+	 * \param[in] value New value for this flag
+	 *
+	 * \return Absolute index position to be set
+	 *
+	 * \throws Iff \c b is out of range
+	 */
+	int set_id(int b, bool value);
+
+	/**
+	 * \brief Value for the id of the specified block.
+	 *
+	 * \param[in] b     0-based index of the block in \c response
+	 *
+	 * \return Value for the specified track
+	 */
+	bool id(int b) const;
+
+	/**
+	 * \brief Total number of track flags in block \c b that are set to TRUE.
+	 *
+	 * \param[in] b Index of the block to count tracks in
+	 *
+	 * \return Number of tracks flagged as TRUE in specified block.
+	 */
 	size_type total_tracks_set(int b) const;
 
 protected:
 
-	void validate(int blocks, int tracks) const;
+	/**
+	 * \brief Validate position request.
+	 *
+	 * If this method does not throw, block and track index are valid
+	 *
+	 * \param[in] b     0-based index of the block in \c response
+	 * \param[in] t     0-based index of the track in \c response
+	 */
+	void validate(int b, int t) const;
 
+	/**
+	 * \brief Value of the flag with index \c i.
+	 *
+	 * \param[in] i Index to access
+	 *
+	 * \return Value of the flag with the specified absolute index.
+	 */
 	bool operator[](const int i) const;
 
+	/**
+	 * \brief Total number of flags per block.
+	 *
+	 * \return Total number of flags per block
+	 */
 	int flags_per_block() const;
 
 	/**
@@ -173,6 +244,9 @@ protected:
 
 	/**
 	 * \brief Set the flag on position \c offset to \c value.
+	 *
+	 * \param[in] offset
+	 * \param[in] value
 	 *
 	 * \return Absolute index position the operation modified
 	 */
@@ -348,7 +422,7 @@ class TraverseBlock final : public MatchTraversal
 /**
  * \brief MatchTraversal for matching tracks in any block.
  */
-class TraverseTracks final : public MatchTraversal
+class TraverseTrack final : public MatchTraversal
 {
 	virtual Checksum do_get_reference(const ChecksumSource& ref_sums,
 			const int current, const int counter) const final;
@@ -372,7 +446,7 @@ class TrackOrder final : public MatchOrder
 {
 	virtual void do_perform(VerificationResult& result,
 			const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int index,
+			const ChecksumSource& ref_sums, int current,
 			const MatchTraversal& t) const final;
 };
 
@@ -380,11 +454,11 @@ class TrackOrder final : public MatchOrder
 /**
  * \brief MatchOrder that tries any order to match the tracks.
  */
-class Cartesian final : public MatchOrder
+class UnknownOrder final : public MatchOrder
 {
 	virtual void do_perform(VerificationResult& result,
 			const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int index,
+			const ChecksumSource& ref_sums, int current,
 			const MatchTraversal& t) const final;
 };
 
