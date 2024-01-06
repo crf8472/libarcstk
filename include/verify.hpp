@@ -681,8 +681,8 @@ public:
  * \param[in] actual_sums Actual checksums to check for
  * \param[in] actual_id   Actual ARId to check for
  * \param[in] ref_sums    Reference checksums to match against
- * \param[in] traversal   Traversal that defines which items to traverse
- * \param[in] order       Order to be applied on each traversed item
+ * \param[in] t           Traversal that defines which items to traverse
+ * \param[in] o           Order to be applied on each traversed item
  *
  * \return The verification result object
  */
