@@ -18,9 +18,10 @@ set (TEST_SOURCE_DIR "src" )
 set (TEST_SETS )
 list (APPEND TEST_SETS calculate)
 list (APPEND TEST_SETS identifier )
-list (APPEND TEST_SETS match )
+#list (APPEND TEST_SETS match )
 list (APPEND TEST_SETS parse )
 list (APPEND TEST_SETS samples )
+list (APPEND TEST_SETS verify )
 list (APPEND TEST_SETS tk_version )
 
 
