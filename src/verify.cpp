@@ -20,75 +20,8 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-// ChecksumSource
-
-ARId ChecksumSource::id(const int block_idx) const
-{
-	return this->do_id(block_idx);
-}
-
-Checksum ChecksumSource::checksum(const int block_idx, const int idx) const
-{
-	return this->do_checksum(block_idx, idx);
-}
-
-int ChecksumSource::confidence(const int block_idx, const int idx) const
-{
-	return this->do_confidence(block_idx, idx);
-}
-
-std::size_t ChecksumSource::size(const int block_idx) const
-{
-	return this->do_size(block_idx);
-}
-
-std::size_t ChecksumSource::size() const
-{
-	return this->do_size();
-}
-
-
-// FromResponse
-
-
-ARId FromResponse::do_id(const int block_idx) const
-{
-	return source()->at(static_cast<ARResponse::size_type>(block_idx)).id();
-}
-
-
-Checksum FromResponse::do_checksum(const int block_idx, const int idx) const
-{
-	return
-		source()->at(static_cast<ARResponse::size_type>(block_idx))
-			.at(static_cast<ARResponse::size_type>(idx)).arcs();
-}
-
-
-int FromResponse::do_confidence(const int block_idx, const int idx) const
-{
-	return
-		static_cast<int>(
-			source()->at(static_cast<ARResponse::size_type>(block_idx))
-				.at(static_cast<ARResponse::size_type>(idx)).confidence());
-}
-
-
-std::size_t FromResponse::do_size(const int /* block_idx */) const
-{
-	return static_cast<std::size_t>(source()->tracks_per_block());
-}
-
-
-std::size_t FromResponse::do_size() const
-{
-	return source()->size();
-}
-
-
 namespace details
 {
-
 
 // BestBlock
 
@@ -327,6 +260,143 @@ void ResultBits::validate_track(int t) const
 }
 
 
+// Result
+
+
+Result::Result(std::unique_ptr<TrackPolicy> p)
+	: flags_  { ResultBits() }
+	, policy_ { std::move(p) }
+{
+	// empty
+}
+
+
+void Result::init(const int blocks, const int tracks)
+{
+	flags_.init(blocks, tracks);
+}
+
+
+int Result::do_verify_id(int b)
+{
+	return flags_.set_id(b, true);
+}
+
+
+bool Result::do_id(int b) const
+{
+	return flags_.id(b);
+}
+
+
+int Result::do_verify_track(int b, int t, bool v2)
+{
+	return flags_.set_track(b, t, v2, true);
+}
+
+
+bool Result::do_track(int b, int t, bool v2) const
+{
+	return flags_.track(b, t, v2);
+}
+
+
+int Result::do_difference(int b, bool v2) const
+{
+	auto difference = int { (id(b) ? 0 : 1) }; // also calls validate_block()
+
+	for (auto t = int { 0 }; t < flags_.tracks_per_block(); ++t)
+	{
+		difference += ( track(b, t, v2) ? 0 : 1 );
+	}
+
+	return difference;
+}
+
+
+int Result::do_total_blocks() const
+{
+	return flags_.blocks();
+}
+
+
+int Result::do_tracks_per_block() const
+{
+	return flags_.tracks_per_block();
+}
+
+
+size_t Result::do_size() const
+{
+	return flags_.size();
+}
+
+
+bool Result::do_is_verified(const int track) const
+{
+	return policy_->is_verified(track, *this);
+}
+
+
+int Result::do_total_unverified_tracks() const
+{
+	return policy_->total_unverified_tracks(*this);
+}
+
+
+std::tuple<int, bool, int> Result::do_best_block() const
+{
+	const BestBlock best;
+	return best(*this);
+}
+
+
+int Result::do_best_block_difference() const
+{
+	return std::get<2>(best_block());
+}
+
+
+const TrackPolicy* Result::do_policy() const
+{
+	return policy_.get();
+}
+
+
+std::unique_ptr<VerificationResult> Result::do_clone() const
+{
+	return nullptr; // FIXME
+}
+
+
+//
+
+
+std::unique_ptr<VerificationResult> create_result(const int blocks,
+		const std::size_t tracks, std::unique_ptr<TrackPolicy> p)
+{
+	auto r = std::make_unique<Result>(std::move(p));
+	r->init(blocks, tracks);
+	return r;
+}
+
+
+//
+
+
+std::unique_ptr<VerificationResult> verify_impl(
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource &ref_sums,
+		const MatchTraversal& t, const MatchOrder& o)
+{
+	auto r = create_result(ref_sums.size()/* total blocks */,
+			actual_sums.size()/* total tracks per block */,
+			t.get_policy());
+	t.traverse(*r, actual_sums, actual_id, ref_sums, o);
+	return r;
+}
+
+
 // StrictPolicy
 
 
@@ -403,6 +473,72 @@ bool LiberalPolicy::do_is_strict() const
 {
 	return false;
 }
+
+
+// TraverseBlock
+
+
+Checksum TraverseBlock::do_get_reference(const ChecksumSource& ref_sums,
+		const int current, const int counter) const
+{
+	return ref_sums.checksum(current, counter);
+}
+
+
+std::size_t TraverseBlock::do_size(const ChecksumSource& ref_sums,
+		const int current) const
+{
+	return ref_sums.size(current);
+}
+
+
+void TraverseBlock::do_traverse(VerificationResult& result,
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource& ref_sums,
+		const MatchOrder& order) const
+{
+	// Validation is assumed to be already performed
+
+	auto bitpos = int { 0 };
+	auto actual_checksum    = Checksum {};
+	auto reference_checksum = Checksum {};
+
+	for (auto block_i = decltype (ref_sums.size()) { 0 };
+			block_i < ref_sums.size(); ++block_i)
+	{
+		ARCS_LOG_DEBUG << "Try to match block " << block_i
+			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
+
+		if (actual_id.empty())
+		{
+			bitpos = result.verify_id(block_i);
+			ARCS_LOG_DEBUG << "Accept and ignore empty actual id for: "
+				<< result.id(block_i) << " (bit " << bitpos << ")";
+		}
+		else if (ref_sums.id(block_i) == actual_id)
+		{
+			bitpos = result.verify_id(block_i);
+			ARCS_LOG_DEBUG << "Id verified: " << result.id(block_i)
+				<< " (bit " << bitpos << ")";
+		}
+		else
+		{
+			ARCS_LOG_DEBUG << "Id: " << result.id(block_i)
+				<< " not verified";
+		}
+
+		order.perform(result, actual_sums, ref_sums, block_i, *this);
+	}
+}
+
+
+std::unique_ptr<TrackPolicy> TraverseBlock::do_get_policy() const
+{
+	return std::make_unique<StrictPolicy>();
+}
+
+
+// TODO TraverseTrack
 
 
 // TrackOder
@@ -524,70 +660,73 @@ void UnknownOrder::do_perform(VerificationResult& match,
 	} // for ref track
 }
 
-
-// TraverseBlock
-
-
-Checksum TraverseBlock::do_get_reference(const ChecksumSource& ref_sums,
-		const int current, const int counter) const
-{
-	return ref_sums.checksum(current, counter);
-}
-
-
-std::size_t TraverseBlock::do_size(const ChecksumSource& ref_sums,
-		const int current) const
-{
-	return ref_sums.size(current);
-}
-
-
-void TraverseBlock::do_traverse(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource& ref_sums,
-		const MatchOrder& order) const
-{
-	// Validation is assumed to be already performed
-
-	auto bitpos = int { 0 };
-	auto actual_checksum    = Checksum {};
-	auto reference_checksum = Checksum {};
-
-	for (auto block_i = decltype (ref_sums.size()) { 0 };
-			block_i < ref_sums.size(); ++block_i)
-	{
-		ARCS_LOG_DEBUG << "Try to match block " << block_i
-			<< " (" << block_i + 1 << "/" << ref_sums.size() << ")";
-
-		if (actual_id.empty())
-		{
-			bitpos = result.verify_id(block_i);
-			ARCS_LOG_DEBUG << "Accept and ignore empty actual id for: "
-				<< result.id(block_i) << " (bit " << bitpos << ")";
-		}
-		else if (ref_sums.id(block_i) == actual_id)
-		{
-			bitpos = result.verify_id(block_i);
-			ARCS_LOG_DEBUG << "Id verified: " << result.id(block_i)
-				<< " (bit " << bitpos << ")";
-		}
-		else
-		{
-			ARCS_LOG_DEBUG << "Id: " << result.id(block_i)
-				<< " not verified";
-		}
-
-		order.perform(result, actual_sums, ref_sums, block_i, *this);
-	}
-}
-
-
-std::unique_ptr<TrackPolicy> TraverseBlock::do_get_policy() const
-{
-	return std::make_unique<StrictPolicy>();
-}
-
 } // namespace details
+
+
+// ChecksumSource
+
+ARId ChecksumSource::id(const int block_idx) const
+{
+	return this->do_id(block_idx);
+}
+
+Checksum ChecksumSource::checksum(const int block_idx, const int idx) const
+{
+	return this->do_checksum(block_idx, idx);
+}
+
+int ChecksumSource::confidence(const int block_idx, const int idx) const
+{
+	return this->do_confidence(block_idx, idx);
+}
+
+std::size_t ChecksumSource::size(const int block_idx) const
+{
+	return this->do_size(block_idx);
+}
+
+std::size_t ChecksumSource::size() const
+{
+	return this->do_size();
+}
+
+
+// FromResponse
+
+
+ARId FromResponse::do_id(const int block_idx) const
+{
+	return source()->at(static_cast<ARResponse::size_type>(block_idx)).id();
+}
+
+
+Checksum FromResponse::do_checksum(const int block_idx, const int idx) const
+{
+	return
+		source()->at(static_cast<ARResponse::size_type>(block_idx))
+			.at(static_cast<ARResponse::size_type>(idx)).arcs();
+}
+
+
+int FromResponse::do_confidence(const int block_idx, const int idx) const
+{
+	return
+		static_cast<int>(
+			source()->at(static_cast<ARResponse::size_type>(block_idx))
+				.at(static_cast<ARResponse::size_type>(idx)).confidence());
+}
+
+
+std::size_t FromResponse::do_size(const int /* block_idx */) const
+{
+	return static_cast<std::size_t>(source()->tracks_per_block());
+}
+
+
+std::size_t FromResponse::do_size() const
+{
+	return source()->size();
+}
 
 
 // TrackPolicy
@@ -733,143 +872,6 @@ std::unique_ptr<VerificationResult> VerificationResult::clone() const
 {
 	return do_clone();
 }
-
-
-namespace details
-{
-
-
-// Result
-
-
-Result::Result(std::unique_ptr<TrackPolicy> p)
-	: flags_  { details::ResultBits() }
-	, policy_ { std::move(p) }
-{
-	// empty
-}
-
-
-void Result::init(const int blocks, const int tracks)
-{
-	flags_.init(blocks, tracks);
-}
-
-
-int Result::do_verify_id(int b)
-{
-	return flags_.set_id(b, true);
-}
-
-
-bool Result::do_id(int b) const
-{
-	return flags_.id(b);
-}
-
-
-int Result::do_verify_track(int b, int t, bool v2)
-{
-	return flags_.set_track(b, t, v2, true);
-}
-
-
-bool Result::do_track(int b, int t, bool v2) const
-{
-	return flags_.track(b, t, v2);
-}
-
-
-int Result::do_difference(int b, bool v2) const
-{
-	auto difference = int { (id(b) ? 0 : 1) }; // also calls validate_block()
-
-	for (auto t = int { 0 }; t < flags_.tracks_per_block(); ++t)
-	{
-		difference += ( track(b, t, v2) ? 0 : 1 );
-	}
-
-	return difference;
-}
-
-
-int Result::do_total_blocks() const
-{
-	return flags_.blocks();
-}
-
-
-int Result::do_tracks_per_block() const
-{
-	return flags_.tracks_per_block();
-}
-
-
-size_t Result::do_size() const
-{
-	return flags_.size();
-}
-
-
-bool Result::do_is_verified(const int track) const
-{
-	return policy_->is_verified(track, *this);
-}
-
-
-int Result::do_total_unverified_tracks() const
-{
-	return policy_->total_unverified_tracks(*this);
-}
-
-
-std::tuple<int, bool, int> Result::do_best_block() const
-{
-	const details::BestBlock best;
-	return best(*this);
-}
-
-
-int Result::do_best_block_difference() const
-{
-	return std::get<2>(best_block());
-}
-
-
-const TrackPolicy* Result::do_policy() const
-{
-	return policy_.get();
-}
-
-
-std::unique_ptr<VerificationResult> Result::do_clone() const
-{
-	return nullptr; // FIXME
-}
-
-
-std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks, std::unique_ptr<TrackPolicy> p)
-{
-	auto r = std::make_unique<Result>(std::move(p));
-	r->init(blocks, tracks);
-	return r;
-}
-
-
-std::unique_ptr<VerificationResult> verify_impl(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
-		const MatchTraversal& t, const MatchOrder& o)
-{
-	auto r = create_result(ref_sums.size()/* total blocks */,
-			actual_sums.size()/* total tracks per block */,
-			t.get_policy());
-	t.traverse(*r, actual_sums, actual_id, ref_sums, o);
-	return r;
-}
-
-} // namespace details
 
 
 // MatchTraversal

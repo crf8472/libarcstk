@@ -1,5 +1,6 @@
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#define __LIBARCSTK_VERIFY_DETAILS_HPP__
+#ifndef __LIBARCSTK_VERIFY_HPP__
+#error "Do not include verify_details.hpp, include verify.hpp instead"
+#endif
 
 /**
  * \internal
@@ -8,6 +9,9 @@
  *
  * \brief Internal API for Matcher algorithms.
  */
+
+#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
+#define __LIBARCSTK_VERIFY_DETAILS_HPP__
 
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
@@ -33,6 +37,7 @@ namespace details
 
 
 /**
+ * \internal
  * \brief The checksum types to verify.
  */
 constexpr std::array<checksum::type, 2> supported_checksum_types {
@@ -305,7 +310,8 @@ private:
 
 
 /**
- * \brief Default implementation of a VerificationResult
+ * \internal
+ * \brief Default implementation of a VerificationResult.
  */
 class Result final : public VerificationResult
 {
@@ -324,7 +330,7 @@ class Result final : public VerificationResult
 	virtual const TrackPolicy* do_policy() const final;
 	virtual std::unique_ptr<VerificationResult> do_clone() const final;
 
-	details::ResultBits flags_;
+	ResultBits flags_;
 	std::unique_ptr<TrackPolicy> policy_;
 
 public:
@@ -338,9 +344,10 @@ public:
  * \internal
  * \brief Create a VerificationResult object of a specified size.
  *
- * This is the "standard" way to instantiate an empty VerificationResult
- * object. Every implementation that creates a VerificationResult should
- * create it by this function except for good reasons.
+ * This is considered the "default" way to instantiate an empty
+ * VerificationResult object. Every implementation that creates a
+ * VerificationResult should create it by this function except for good
+ * reasons.
  *
  * \param[in] blocks Number of blocks
  * \param[in] tracks Number of tracks per block
@@ -353,7 +360,7 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
 
 /**
  * \internal
- * \brief Perform a verification
+ * \brief Implements verify().
  *
  * \param[in]     actual_sums Actual checksums to check for
  * \param[in]     actual_id   Actual ARId to check for
@@ -366,11 +373,12 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
 std::unique_ptr<VerificationResult> verify_impl(
 		const Checksums &actual_sums, const ARId &actual_id,
 		const ChecksumSource &ref_sums,
-		const MatchTraversal& t, const MatchOrder& o);
+		const MatchTraversal& traversal, const MatchOrder& order);
 
 
 /**
- * \brief Policy that accepts track matches all in the same block.
+ * \internal
+ * \brief TrackPolicy that accepts track matches in the same block as verified.
  */
 class StrictPolicy final : public TrackPolicy
 {
@@ -385,7 +393,8 @@ class StrictPolicy final : public TrackPolicy
 
 
 /**
- * \brief Policy that accepts track matches in any block.
+ * \internal
+ * \brief TrackPolicy that accepts matches in any block as verified.
  */
 class LiberalPolicy final : public TrackPolicy
 {
@@ -400,6 +409,7 @@ class LiberalPolicy final : public TrackPolicy
 
 
 /**
+ * \internal
  * \brief MatchTraversal for matching tracks in the same block.
  */
 class TraverseBlock final : public MatchTraversal
@@ -420,6 +430,7 @@ class TraverseBlock final : public MatchTraversal
 
 
 /**
+ * \internal
  * \brief MatchTraversal for matching tracks in any block.
  */
 class TraverseTrack final : public MatchTraversal
@@ -440,6 +451,7 @@ class TraverseTrack final : public MatchTraversal
 
 
 /**
+ * \internal
  * \brief MatchOrder that matches the tracks in their numbered order.
  */
 class TrackOrder final : public MatchOrder
@@ -452,7 +464,8 @@ class TrackOrder final : public MatchOrder
 
 
 /**
- * \brief MatchOrder that tries any order to match the tracks.
+ * \internal
+ * \brief MatchOrder that tries any order to match the track checksums.
  */
 class UnknownOrder final : public MatchOrder
 {
@@ -462,11 +475,9 @@ class UnknownOrder final : public MatchOrder
 			const MatchTraversal& t) const final;
 };
 
-
 } // namespace details
-
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
+

@@ -676,13 +676,21 @@ public:
 
 
 /**
- * \brief Perform a verification.
+ * \brief Worker: perform a verification.
  *
- * \param[in] actual_sums Actual checksums to check for
- * \param[in] actual_id   Actual ARId to check for
- * \param[in] ref_sums    Reference checksums to match against
- * \param[in] t           Traversal that defines which items to traverse
- * \param[in] o           Order to be applied on each traversed item
+ * The implementation uses create_result() to create a VerificationResult.
+ * It thereby uses the TrackPolicy provided by the MatchTraversal. While
+ * traversing it uses the MatchOrder passed.
+ *
+ * This can be considered the "default implementation" of a verification
+ * process.Every implementation that performs a verification should implement it
+ * by calling this function except for good reasons.
+ *
+ * \param[in]     actual_sums Actual checksums to check for
+ * \param[in]     actual_id   Actual ARId to check for
+ * \param[in]     ref_sums    Reference checksums to match against
+ * \param[in]     traversal   Traversal that defines which items to traverse
+ * \param[in]     order       Order to be applied on each traversed item
  *
  * \return The verification result object
  */
