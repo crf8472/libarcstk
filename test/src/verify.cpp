@@ -1767,8 +1767,8 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		CHECK ( std::get<1>(stv_best_block) == v2 );
 
-		CHECK ( std::get<2>(stv_best_block) == 1 ); // TODO Match also ARId
-		CHECK ( stv_result->best_block_difference() == 1 );
+		CHECK ( std::get<2>(stv_best_block) == 0 );
+		CHECK ( stv_result->best_block_difference() == 0 );
 	}
 
 	SECTION ( "Strict Album Verification result has correct flags" )
@@ -1809,7 +1809,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( not stv_result->track(0, 14, v2) );
 
 		// 1
-		CHECK ( not stv_result->id(1) );
+		CHECK ( not stv_result->id(1) ); // different id! nothing verifies!
 
 		CHECK ( not stv_result->track(1,  0, v1) );
 		CHECK ( not stv_result->track(1,  1, v1) );
@@ -1827,21 +1827,21 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( not stv_result->track(1, 13, v1) );
 		CHECK ( not stv_result->track(1, 14, v1) );
 
-		CHECK ( stv_result->track(1,  0, v2) );
-		CHECK ( stv_result->track(1,  1, v2) );
-		CHECK ( stv_result->track(1,  2, v2) );
-		CHECK ( stv_result->track(1,  3, v2) );
-		CHECK ( stv_result->track(1,  4, v2) );
-		CHECK ( stv_result->track(1,  5, v2) );
-		CHECK ( stv_result->track(1,  6, v2) );
-		CHECK ( stv_result->track(1,  7, v2) );
-		CHECK ( stv_result->track(1,  8, v2) );
-		CHECK ( stv_result->track(1,  9, v2) );
-		CHECK ( stv_result->track(1, 10, v2) );
-		CHECK ( stv_result->track(1, 11, v2) );
-		CHECK ( stv_result->track(1, 12, v2) );
-		CHECK ( stv_result->track(1, 13, v2) );
-		CHECK ( stv_result->track(1, 14, v2) );
+		CHECK ( not stv_result->track(1,  0, v2) );
+		CHECK ( not stv_result->track(1,  1, v2) );
+		CHECK ( not stv_result->track(1,  2, v2) );
+		CHECK ( not stv_result->track(1,  3, v2) );
+		CHECK ( not stv_result->track(1,  4, v2) );
+		CHECK ( not stv_result->track(1,  5, v2) );
+		CHECK ( not stv_result->track(1,  6, v2) );
+		CHECK ( not stv_result->track(1,  7, v2) );
+		CHECK ( not stv_result->track(1,  8, v2) );
+		CHECK ( not stv_result->track(1,  9, v2) );
+		CHECK ( not stv_result->track(1, 10, v2) );
+		CHECK ( not stv_result->track(1, 11, v2) );
+		CHECK ( not stv_result->track(1, 12, v2) );
+		CHECK ( not stv_result->track(1, 13, v2) );
+		CHECK ( not stv_result->track(1, 14, v2) );
 
 		// 2
 		CHECK ( stv_result->id(2) );
@@ -1884,16 +1884,14 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK_THROWS ( stv_result->track(2, 15, v2) ); //         track
 
 
-		/*
 		CHECK ( stv_result->difference(0, v1) ==  0 );
 		CHECK ( stv_result->difference(0, v2) == 15 );
 
 		CHECK ( stv_result->difference(1, v1) == 16 );
-		CHECK ( stv_result->difference(1, v2) ==  1 );
+		CHECK ( stv_result->difference(1, v2) == 16 );
 
 		CHECK ( stv_result->difference(2, v1) == 15 );
 		CHECK ( stv_result->difference(2, v2) ==  0 );
-		*/
 
 		CHECK_THROWS ( stv_result->difference(3, v1) == 0 );
 		CHECK_THROWS ( stv_result->difference(3, v2) == 0 );
@@ -2308,8 +2306,8 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		CHECK ( std::get<1>(sov_best_block) == v2 );
 
-		CHECK ( std::get<2>(sov_best_block) == 1 ); // TODO Match ARId
-		CHECK ( sov_result->best_block_difference() == 1 );
+		CHECK ( std::get<2>(sov_best_block) == 0 );
+		CHECK ( sov_result->best_block_difference() == 0 );
 	}
 
 	SECTION ( "Non-Strict TrackOrder Verification result has correct flags" )
@@ -2424,7 +2422,6 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 		CHECK_THROWS ( sov_result->track(3, 14, v2) ); //         block
 		CHECK_THROWS ( sov_result->track(2, 15, v2) ); //         track
 
-/*
 		CHECK ( sov_result->difference(0, v1) ==  0 );
 		CHECK ( sov_result->difference(0, v2) == 15 );
 
@@ -2433,7 +2430,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		CHECK ( sov_result->difference(2, v1) == 15 );
 		CHECK ( sov_result->difference(2, v2) ==  0 );
-*/
+
 		CHECK_THROWS ( sov_result->difference(3, v1) == 0 );
 		CHECK_THROWS ( sov_result->difference(3, v2) == 0 );
 	}

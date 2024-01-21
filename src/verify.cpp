@@ -871,14 +871,43 @@ int TrackTraversal::do_end_counter(const ChecksumSource& source) const
 // SourceTraversal
 
 
+void SourceTraversal::perform_ids(VerificationResult& result,
+	const ARId &actual_id, const ChecksumSource& ref_sums) const
+{
+	if (actual_id == EmptyARId)
+	{
+		// No actual ARId passed, set every id to 'verified'
+
+		for (auto b = ChecksumSource::size_type { 0 }; b < ref_sums.size(); ++b)
+		{
+			result.verify_id(b);
+		}
+	} else
+	{
+		// Actually verify ids
+
+		for (auto b = ChecksumSource::size_type { 0 }; b < ref_sums.size(); ++b)
+		{
+			if (actual_id == ref_sums.id(b))
+			{
+				result.verify_id(b);
+			}
+		}
+	}
+}
+
+
 void SourceTraversal::perform_current(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
+		const Checksums &actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	for (auto it = traversal.begin(); it != traversal.end(); ++it)
 	{
-		order.perform(result, actual_sums, *it, traversal.current_block(it),
+		if (result.id(traversal.current_block(it))) // ARId matched?
+		{
+			order.perform(result, actual_sums, *it, traversal.current_block(it),
 				traversal.current_track(it));
+		}
 	}
 }
 
@@ -888,12 +917,17 @@ void SourceTraversal::perform(VerificationResult& result,
 	const ChecksumSource& ref_sums,
 	TraversalPolicy& t, const MatchPolicy& m) const
 {
-	t.set_source(ref_sums);
+	perform_ids(result, actual_id, ref_sums);
+	// Always done once per block, regardless of traversal
 
+	// From here on, result can be checked for whether the current block is
+	// is actually considered relevant by its id.
+
+	t.set_source(ref_sums);
 	for (auto current = int { 0 }; current < t.end_current(); ++current)
 	{
 		t.set_current(current);
-		perform_current(result, actual_sums, actual_id, t, m);
+		perform_current(result, actual_sums, t, m);
 	}
 }
 

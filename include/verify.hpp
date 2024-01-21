@@ -76,6 +76,8 @@ class ChecksumSource
 
 public:
 
+	using size_type = std::size_t;
+
 	/**
 	 * \brief Virtual default destructor.
 	 */
@@ -121,7 +123,7 @@ public:
 	 *
 	 * \return The size of the specified block
 	 */
-	std::size_t size(const int block_idx) const;
+	size_type size(const int block_idx) const;
 
 	/**
 	 * \brief Number of blocks.
@@ -130,7 +132,7 @@ public:
 	 *
 	 * \return Number of blocks in this object
 	 */
-	std::size_t size() const;
+	size_type size() const;
 };
 
 

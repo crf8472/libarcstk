@@ -663,8 +663,11 @@ class FindOrderPolicy final : public MatchPolicy
  */
 class SourceTraversal final
 {
+	void perform_ids(VerificationResult& result, const ARId &actual_id,
+		const ChecksumSource& ref_sums) const;
+
 	void perform_current(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
+		const Checksums &actual_sums,
 		const TraversalPolicy& t, const MatchPolicy& m) const;
 
 public:
