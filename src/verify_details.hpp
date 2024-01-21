@@ -26,6 +26,9 @@
 #include "logging.hpp"
 #endif
 
+#include <iterator> // for std::input_iterator_tag
+#include <cstddef>  // for std::ptrdiff_t
+#include <utility>  // for std::swap
 
 namespace arcstk
 {
@@ -71,6 +74,67 @@ struct BestBlock
 	 * \param[in] r The result to get the best block of
 	 */
 	std::tuple<int, bool, int> operator()(const VerificationResult& r) const;
+};
+
+
+/**
+ * \brief Policy for deciding whether a given track is verified or not.
+ *
+ * The policy decides whether matches only count when occurring in the same
+ * block.
+ */
+class TrackPolicy
+{
+	virtual bool do_is_verified(const int track, const VerificationResult& r)
+		const
+	= 0;
+
+	virtual int do_total_unverified_tracks(const VerificationResult& r) const
+	= 0;
+
+	virtual bool do_is_strict() const
+	= 0;
+
+public:
+
+	/**
+	 * \brief Virtual default destructor
+	 */
+	virtual ~TrackPolicy() noexcept = default;
+
+	/**
+	 * \brief TRUE if this instance qualifies the given track as verified.
+	 *
+	 * The policy may interpret the result data to decide whether \c track is
+	 * verified or not.
+	 *
+	 * \param[in] track The track to check for
+	 * \param[in] r     The result to interpret
+	 *
+	 * \return TRUE if the track counts as verified, otherwise FALSE.
+	 */
+	bool is_verified(const int track, const VerificationResult& r) const;
+
+	/**
+	 * \brief Total number of unverified tracks in the result.
+	 *
+	 * \param[in] r The result to interpret
+	 *
+	 * \return Total number of unverified tracks
+	 */
+	int total_unverified_tracks(const VerificationResult& r) const;
+
+	/**
+	 * \brief TRUE iff this policy is strict.
+	 *
+	 * A strict policy will count a track as verified iff its checksum
+	 * in the best block will match the actual checksum. Matching checksums
+	 * in other blocks will be ignored by a strict policy but respected by a
+	 * non-strict policy.
+	 *
+	 * \return TRUE iff this policy is strict.
+	 */
+	bool is_strict() const;
 };
 
 
@@ -327,7 +391,7 @@ class Result final : public VerificationResult
 	virtual int do_total_unverified_tracks() const final;
 	virtual std::tuple<int, bool, int> do_best_block() const final;
 	virtual int do_best_block_difference() const final;
-	virtual const TrackPolicy* do_policy() const final;
+	virtual bool do_strict() const final;
 	virtual std::unique_ptr<VerificationResult> do_clone() const final;
 
 	ResultBits flags_;
@@ -337,6 +401,278 @@ public:
 
 	Result(std::unique_ptr<TrackPolicy> p);
 	void init(const int blocks, const int tracks);
+	const TrackPolicy* policy() const;
+};
+
+
+/**
+ * \brief Access ChecksumSource by a 'current' and 'counter' index.
+ */
+class Selector
+{
+	virtual const Checksum& do_get(const ChecksumSource& source,
+			const int current, const int counter) const
+	= 0;
+
+public:
+
+	virtual ~Selector() noexcept = default;
+
+	const Checksum& get(const ChecksumSource& s, const int current,
+			const int counter) const;
+};
+
+
+/**
+ * \brief Current == block, counter == track
+ */
+class BlockSelector final : public Selector
+{
+	virtual const Checksum& do_get(const ChecksumSource& s, const int block,
+			const int track) const final;
+};
+
+
+/**
+ * \brief Current == track, counter == block
+ */
+class TrackSelector final : public Selector
+{
+	virtual const Checksum& do_get(const ChecksumSource& s, const int track,
+			const int block) const final;
+};
+
+
+/**
+ * \brief Iterates a ChecksumSource by track.
+ */
+class SourceIterator
+{
+public:
+
+	using iterator_category = std::input_iterator_tag;
+	using value_type        = Checksum;
+	using difference_type   = std::ptrdiff_t;
+	using reference         = const value_type&;
+	using pointer           = const value_type*;
+
+public:
+
+	SourceIterator(const ChecksumSource& sums, const int current,
+			const int counter, const Selector& selector);
+
+	virtual ~SourceIterator() noexcept = default;
+
+	int counter() const;
+	int current() const;
+
+	reference operator * () const; // dereferncing
+
+	pointer operator -> () const; // dereferncing
+
+	SourceIterator& operator ++ (); // prefix increment
+
+	SourceIterator operator ++ (int); // postfix increment
+
+	friend bool operator == (const SourceIterator& lhs, const SourceIterator&
+			rhs)
+	{
+		return lhs.source_  == rhs.source_
+			&& lhs.current_ == rhs.current_
+			&& lhs.counter_ == rhs.counter_;
+	}
+
+	friend bool operator != (const SourceIterator& lhs, const SourceIterator&
+			rhs)
+	{
+		return not(lhs == rhs);
+	}
+
+	friend void swap(SourceIterator& lhs, SourceIterator& rhs)
+	{
+		using std::swap;
+
+		swap(lhs.source_,  rhs.source_);
+		swap(lhs.current_, rhs.current_);
+		swap(lhs.counter_, rhs.counter_);
+	}
+
+private:
+
+	const Selector* selector_;
+	const ChecksumSource* source_;
+	int current_;
+	int counter_;
+};
+
+
+/**
+ * \internal
+ * \brief Policy for traversals
+ */
+class TraversalPolicy
+{
+public:
+
+	using iterator       = const SourceIterator;
+	using const_iterator = const SourceIterator;
+
+private:
+
+	const std::unique_ptr<Selector> selector_;
+	const ChecksumSource* source_;
+	int current_;
+
+	virtual std::unique_ptr<TrackPolicy> create_track_policy() const
+	= 0;
+	virtual const_iterator do_begin() const
+	= 0;
+	virtual const_iterator do_end() const
+	= 0;
+	virtual Checksums::size_type do_current_block(const SourceIterator& i) const
+	= 0;
+	virtual Checksums::size_type do_current_track(const SourceIterator& i) const
+	= 0;
+	virtual int do_end_current(const ChecksumSource& source) const
+	= 0;
+	virtual int do_end_counter(const ChecksumSource& source) const
+	= 0;
+
+protected:
+
+	TraversalPolicy(std::unique_ptr<Selector> selector);
+
+	const Selector& selector() const;
+
+	void check_source_for_null() const;
+
+public:
+
+	virtual ~TraversalPolicy() noexcept = default;
+
+	const ChecksumSource* source() const;
+	void set_source(const ChecksumSource& source);
+	int current() const;
+	void set_current(const int current);
+
+	int end_current() const;
+	int end_counter() const;
+
+	const_iterator begin() const;
+	const_iterator end()   const;
+	Checksums::size_type current_block(const SourceIterator& i) const;
+	Checksums::size_type current_track(const SourceIterator& i) const;
+
+	std::unique_ptr<TrackPolicy> get_policy() const;
+};
+
+
+/**
+ * \brief Traverse tracks in a single block.
+ */
+class BlockTraversal final : public TraversalPolicy
+{
+	std::unique_ptr<TrackPolicy> create_track_policy() const final;
+	const_iterator do_begin() const final;
+	const_iterator do_end() const final;
+	Checksums::size_type do_current_block(const SourceIterator& i) const final;
+	Checksums::size_type do_current_track(const SourceIterator& i) const final;
+	int do_end_current(const ChecksumSource& source) const final;
+	int do_end_counter(const ChecksumSource& source) const final;
+
+public:
+
+	BlockTraversal();
+};
+
+
+/**
+ * \brief Traverse values for a single track in all blocks.
+ */
+class TrackTraversal final : public TraversalPolicy
+{
+	std::unique_ptr<TrackPolicy> create_track_policy() const final;
+	const_iterator do_begin() const final;
+	const_iterator do_end() const final;
+	Checksums::size_type do_current_block(const SourceIterator& i) const final;
+	Checksums::size_type do_current_track(const SourceIterator& i) const final;
+	int do_end_current(const ChecksumSource& source) const final;
+	int do_end_counter(const ChecksumSource& source) const final;
+
+public:
+
+	TrackTraversal();
+};
+
+
+/**
+ * \brief
+ */
+class MatchPolicy
+{
+	virtual void do_perform(VerificationResult& result,
+			const Checksums &actual_sums, const Checksum& ref,
+			const int block, const Checksums::size_type track) const
+	= 0;
+
+protected:
+
+	void check_match(VerificationResult& result,
+			const ChecksumSet& actual, const Checksum& ref,
+			const int block, const Checksums::size_type track) const;
+
+public:
+
+	virtual ~MatchPolicy() noexcept = default;
+
+	void perform(VerificationResult& result, const Checksums &actual_sums,
+			const Checksum& ref, const int block,
+			const Checksums::size_type track) const;
+};
+
+
+/**
+ * \brief
+ */
+class TrackOrderPolicy final : public MatchPolicy
+{
+	void do_perform(VerificationResult& result,
+			const Checksums &actual_sums, const Checksum& ref,
+			const int block, const Checksums::size_type track) const final;
+};
+
+
+/**
+ * \brief
+ */
+class FindOrderPolicy final : public MatchPolicy
+{
+	void do_perform(VerificationResult& result,
+			const Checksums &actual_sums, const Checksum& ref,
+			const int block, const Checksums::size_type track) const final;
+};
+
+
+/**
+ * \internal
+ * \brief Defines the traversal method of the reference checksums.
+ *
+ * The traversal method can e.g. be implemented as an iteration over a single
+ * block in the ChecksumSource. Alternatively, it could be implemented as a
+ * traversal over the same track in every block.
+ */
+class SourceTraversal final
+{
+	void perform_current(VerificationResult& result,
+		const Checksums &actual_sums, const ARId &actual_id,
+		const TraversalPolicy& t, const MatchPolicy& m) const;
+
+public:
+
+	void perform(VerificationResult& result,
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource& ref_sums,
+		TraversalPolicy& t, const MatchPolicy& p) const;
 };
 
 
@@ -359,8 +695,15 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
 
 
 /**
- * \internal
- * \brief Implements verify().
+ * \brief Worker: perform a verification.
+ *
+ * The implementation uses create_result() to create a VerificationResult.
+ * It thereby uses the TrackPolicy provided by the MatchTraversal. While
+ * traversing it uses the MatchOrder passed.
+ *
+ * This can be considered the "default implementation" of a verification
+ * process.Every implementation that performs a verification should implement it
+ * by calling this function except for good reasons.
  *
  * \param[in]     actual_sums Actual checksums to check for
  * \param[in]     actual_id   Actual ARId to check for
@@ -370,10 +713,10 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
  *
  * \return The verification result object
  */
-std::unique_ptr<VerificationResult> verify_impl(
+std::unique_ptr<VerificationResult> verify(
 		const Checksums &actual_sums, const ARId &actual_id,
 		const ChecksumSource &ref_sums,
-		const MatchTraversal& traversal, const MatchOrder& order);
+		TraversalPolicy& traversal, const MatchPolicy& order);
 
 
 /**
@@ -410,72 +753,116 @@ class LiberalPolicy final : public TrackPolicy
 
 /**
  * \internal
- * \brief MatchTraversal for matching tracks in the same block.
+ * \brief Base class for Verifiers
  */
-class TraverseBlock final : public MatchTraversal
+class VerifierBase
 {
-	virtual Checksum do_get_reference(const ChecksumSource& ref_sums,
-			const int current, const int counter) const final;
+	virtual const ARId& do_actual_id() const;
 
-	virtual std::size_t do_size(const ChecksumSource& ref_sums,
-			const int current) const final;
+	virtual std::unique_ptr<MatchPolicy> do_create_order() const
+	= 0;
 
-	virtual void do_traverse(VerificationResult& result,
-			const Checksums &actual_sums, const ARId &actual_id,
-			const ChecksumSource& ref_sums,
-			const MatchOrder& order) const final;
+protected:
 
-	virtual std::unique_ptr<TrackPolicy> do_get_policy() const final;
+	/**
+	 * \brief
+	 *
+	 * \param[in] actual_sums Actual checksums to check for
+	 */
+	VerifierBase(const Checksums& actual_sums);
+
+public:
+
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~VerifierBase() noexcept = default;
+
+	/**
+	 * \brief
+	 *
+	 * \return
+	 */
+	const ARId& actual_id() const;
+
+	/**
+	 * \brief
+	 *
+	 * \return
+	 */
+	const Checksums& actual_checksums() const;
+
+	/**
+	 * \brief
+	 *
+	 * \return
+	 */
+	bool strict() const;
+
+	/**
+	 * \brief
+	 *
+	 * \param[in] strict
+	 */
+	void set_strict(const bool strict);
+
+	/**
+	 * \brief Perform a verification.
+	 *
+	 * \param[in] ref_sums    Reference checksums to match against
+	 *
+	 * \return The verification result
+	 */
+	std::unique_ptr<VerificationResult> perform(const ChecksumSource& ref_sums)
+		const;
+
+private:
+
+	const Checksums& actual_sums_;
+	bool is_strict_;
 };
 
-
-/**
- * \internal
- * \brief MatchTraversal for matching tracks in any block.
- */
-class TraverseTrack final : public MatchTraversal
-{
-	virtual Checksum do_get_reference(const ChecksumSource& ref_sums,
-			const int current, const int counter) const final;
-
-	virtual std::size_t do_size(const ChecksumSource& ref_sums,
-			const int current) const final;
-
-	virtual void do_traverse(VerificationResult& result,
-			const Checksums &actual_sums, const ARId &actual_id,
-			const ChecksumSource& ref_sums,
-			const MatchOrder& order) const final;
-
-	virtual std::unique_ptr<TrackPolicy> do_get_policy() const final;
-};
-
-
-/**
- * \internal
- * \brief MatchOrder that matches the tracks in their numbered order.
- */
-class TrackOrder final : public MatchOrder
-{
-	virtual void do_perform(VerificationResult& result,
-			const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int current,
-			const MatchTraversal& t) const final;
-};
-
-
-/**
- * \internal
- * \brief MatchOrder that tries any order to match the track checksums.
- */
-class UnknownOrder final : public MatchOrder
-{
-	virtual void do_perform(VerificationResult& result,
-			const Checksums& actual_sums,
-			const ChecksumSource& ref_sums, int current,
-			const MatchTraversal& t) const final;
-};
 
 } // namespace details
+
+
+class AlbumVerifier::Impl : public details::VerifierBase
+{
+	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
+
+	virtual const ARId& do_actual_id() const final;
+
+public:
+
+	/**
+	 * \brief
+	 *
+	 * \param[in] actual_sums Actual checksums to check for
+	 * \param[in] actual_id   Actual ARId to check for
+	 */
+	Impl(const Checksums& actual_sums, const ARId& actual_id);
+
+private:
+
+	const ARId& actual_id_;
+
+};
+
+
+class TracksetVerifier::Impl : public details::VerifierBase
+{
+	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
+
+public:
+
+	/**
+	 * \brief
+	 *
+	 * \param[in] actual_sums Actual checksums to check for
+	 */
+	Impl(const Checksums& actual_sums);
+};
+
 } // namespace v_1_0_0
 } // namespace arcstk
 
