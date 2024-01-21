@@ -57,13 +57,15 @@ class Checksums;
  */
 class ChecksumSource
 {
-	virtual ARId do_id(const int block_idx) const
+	virtual const ARId& do_id(const int block_idx) const
 	= 0;
 
-	virtual Checksum do_checksum(const int block_idx, const int idx) const
+	virtual const Checksum& do_checksum(const int block_idx, const int idx)
+		const
 	= 0;
 
-	virtual int do_confidence(const int block_idx, const int idx) const
+	virtual const uint32_t& do_confidence(const int block_idx, const int idx)
+		const
 	= 0;
 
 	virtual std::size_t do_size(const int block_idx) const
@@ -86,7 +88,7 @@ public:
 	 *
 	 * \return The id of the specified block
 	 */
-	ARId id(const int block_idx) const;
+	const ARId& id(const int block_idx) const;
 
 	/**
 	 * \brief Read checksum \c idx in section with the specified \c block_idx.
@@ -96,7 +98,8 @@ public:
 	 *
 	 * \return The checksum of the specified index position
 	 */
-	Checksum checksum(const int block_idx, const int track_idx) const;
+	const Checksum& checksum(const int block_idx, const int track_idx)
+		const;
 
 	/**
 	 * \brief Read confidence \c idx in section with the specified \c block_idx.
@@ -106,7 +109,8 @@ public:
 	 *
 	 * \return The confidence of the specified index position
 	 */
-	int confidence(const int block_idx, const int track_idx) const;
+	const uint32_t& confidence(const int block_idx, const int track_idx)
+		const;
 
 	/**
 	 * \brief Size of the block specified by \c block_idx.
@@ -204,9 +208,11 @@ public:
  */
 class FromResponse final : public ChecksumSourceOf<ARResponse>
 {
-	ARId do_id(const int block_idx) const final;
-	Checksum do_checksum(const int block_idx, const int idx) const final;
-	int do_confidence(const int block_idx, const int idx) const final;
+	const ARId& do_id(const int block_idx) const final;
+	const Checksum& do_checksum(const int block_idx, const int idx) const
+		final;
+	const uint32_t& do_confidence(const int block_idx, const int idx) const
+		final;
 	std::size_t do_size(const int block_idx) const final;
 	std::size_t do_size() const final;
 
@@ -218,67 +224,6 @@ public:
 
 
 class VerificationResult;
-
-
-/**
- * \brief Policy for deciding whether a given track is verified or not.
- *
- * The policy decides whether matches only count when occurring in the same
- * block.
- */
-class TrackPolicy
-{
-	virtual bool do_is_verified(const int track, const VerificationResult& r)
-		const
-	= 0;
-
-	virtual int do_total_unverified_tracks(const VerificationResult& r) const
-	= 0;
-
-	virtual bool do_is_strict() const
-	= 0;
-
-public:
-
-	/**
-	 * \brief Virtual default destructor
-	 */
-	virtual ~TrackPolicy() noexcept = default;
-
-	/**
-	 * \brief TRUE if this instance qualifies the given track as verified.
-	 *
-	 * The policy may interpret the result data to decide whether \c track is
-	 * verified or not.
-	 *
-	 * \param[in] track The track to check for
-	 * \param[in] r     The result to interpret
-	 *
-	 * \return TRUE if the track counts as verified, otherwise FALSE.
-	 */
-	bool is_verified(const int track, const VerificationResult& r) const;
-
-	/**
-	 * \brief Total number of unverified tracks in the result.
-	 *
-	 * \param[in] r The result to interpret
-	 *
-	 * \return Total number of unverified tracks
-	 */
-	int total_unverified_tracks(const VerificationResult& r) const;
-
-	/**
-	 * \brief TRUE iff this policy is strict.
-	 *
-	 * A strict policy will count a track as verified iff its checksum
-	 * in the best block will match the actual checksum. Matching checksums
-	 * in other blocks will be ignored by a strict policy but respected by a
-	 * non-strict policy.
-	 *
-	 * \return TRUE iff this policy is strict.
-	 */
-	bool is_strict() const;
-};
 
 
 /**
@@ -487,11 +432,11 @@ public:
 	int best_block_difference() const;
 
 	/**
-	 * \brief The policy of this instance.
+	 * \brief TRUE iff verification obeys a strict policy.
 	 *
-	 * \return Policy of this instance
+	 * \return TRUE iff verification obeys a strict policy, otherwise FALSE.
 	 */
-	const TrackPolicy* policy() const;
+	bool strict() const;
 
 	/**
 	 * \brief Clones this instance.
@@ -538,7 +483,7 @@ private:
 	virtual int do_best_block_difference() const
 	= 0;
 
-	virtual const TrackPolicy* do_policy() const
+	virtual bool do_strict() const
 	= 0;
 
 	virtual std::unique_ptr<VerificationResult> do_clone() const
@@ -546,181 +491,26 @@ private:
 };
 
 
-class MatchOrder;
-
-/**
- * \brief Defines the traversal method of the reference checksums.
- *
- * The traversal method can e.g. be implemented as an iteration over a single
- * block in the ChecksumSource. Alternatively, it could be implemented as a
- * traversal over the same track in every block.
- */
-class MatchTraversal
-{
-	virtual Checksum do_get_reference(const ChecksumSource& ref_sums,
-			const int current, const int counter) const
-	= 0;
-
-	virtual std::size_t do_size(const ChecksumSource& ref_sums,
-			const int current) const
-	= 0;
-
-	virtual void do_traverse(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource& ref_sums,
-		const MatchOrder& order) const
-	= 0;
-
-	virtual std::unique_ptr<TrackPolicy> do_get_policy() const
-	= 0;
-
-public:
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~MatchTraversal() noexcept = default;
-
-	/**
-	 * \brief Provide a Checksum from some current index and some counter index.
-	 *
-	 * \param[in] ref_sums The source of checksums
-	 * \param[in] current  Index of the current set in \c ref_sums
-	 * \param[in] counter  Index position within the set indexed by \c current
-	 *
-	 * \return The checksum under the specified indices
-	 */
-	Checksum get_reference(const ChecksumSource& ref_sums, const int current,
-			const int counter) const;
-
-	/**
-	 * \brief Provide the number of checksums under the index \c current.
-	 *
-	 * \param[in] ref_sums The source of checksums
-	 * \param[in] current  Index of the current set in \c ref_sums
-	 *
-	 * \return The checksum under the specified index
-	 */
-	std::size_t size(const ChecksumSource& ref_sums, const int current) const;
-
-	/**
-	 * \brief Apply the actual traversal logic to \c ref_sums.
-	 *
-	 * \param[in,out] result      The result object to store the match results
-	 * \param[in]     actual_sums Actual checksums to check for
-	 * \param[in]     actual_id   Actual ARId to check for
-	 * \param[in]     ref_sums    Reference checksums to match against
-	 * \param[in]     order       Order to be applied on each traversed item
-	 */
-	void traverse(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource& ref_sums,
-		const MatchOrder& order) const;
-
-	/**
-	 * \brief Create a TrackPolicy for results creates by this Traversal.
-	 *
-	 * Whether a track is considered to be verified or not depends on the
-	 * concrete match that produced the verification flag in the respective
-	 * result position. Therefore, the result must know the traversal logic
-	 * for the tracks when accessing the flags.
-	 *
-	 * \return TrackPolicy to interpret track verification in the result.
-	 */
-	std::unique_ptr<TrackPolicy> get_policy() const;
-};
-
-
-/**
- * \brief Order to match items during a single loop in a traversal.
- *
- * Defines the order in which the actual checksums are to be matched against
- * a current set of reference values.
- */
-class MatchOrder
-{
-	virtual void do_perform(VerificationResult& result,
-			const Checksums& actual_sums, const ChecksumSource& ref_sums,
-			int index, const MatchTraversal& t) const
-	= 0;
-
-public:
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~MatchOrder() noexcept = default;
-
-	/**
-	 * \brief Apply the order to index position \c current in \c ref_sums.
-	 *
-	 * The checksums of \c actual_sums will be matched against the checksums
-	 * of \c index in \c ref_sums in the order defined by this instance.
-	 * This may be just the order the tracks appear in \c actual_sums or any
-	 * other this instance defines.
-	 *
-	 * Traversal \c t will decide which checksums from \c ref_sums are to
-	 * select, especially if \c current is interpreted as a block or a track
-	 * index in \c ref_sums.
-	 *
-	 * \param[in,out] result      The result object to store the match results
-	 * \param[in]     actual_sums Actual checksums to check for
-	 * \param[in]     ref_sums    Reference checksums to match against
-	 * \param[in]     current     Index of the current set in \c ref_sums
-	 * \param[in]     t           The traversal to interpret \c index
-	 */
-	void perform(VerificationResult& result,
-			const Checksums& actual_sums, const ChecksumSource& ref_sums,
-			int current, const MatchTraversal& t) const;
-};
-
-
-/**
- * \brief Worker: perform a verification.
- *
- * The implementation uses create_result() to create a VerificationResult.
- * It thereby uses the TrackPolicy provided by the MatchTraversal. While
- * traversing it uses the MatchOrder passed.
- *
- * This can be considered the "default implementation" of a verification
- * process.Every implementation that performs a verification should implement it
- * by calling this function except for good reasons.
- *
- * \param[in]     actual_sums Actual checksums to check for
- * \param[in]     actual_id   Actual ARId to check for
- * \param[in]     ref_sums    Reference checksums to match against
- * \param[in]     traversal   Traversal that defines which items to traverse
- * \param[in]     order       Order to be applied on each traversed item
- *
- * \return The verification result object
- */
-std::unique_ptr<VerificationResult> verify(
-		const Checksums& actual_sums, const ARId& actual_id,
-		const ChecksumSource& ref_sums,
-		const MatchTraversal& t, const MatchOrder& o);
-
-
-
 /**
  * \brief Service class for performing a verification.
  */
 class Verifier
 {
-	virtual const ARId& do_actual_id() const;
-
-	virtual std::unique_ptr<MatchTraversal> do_create_traversal() const;
-
-	virtual std::unique_ptr<MatchOrder> do_create_order() const
+	virtual const ARId& do_actual_id() const
 	= 0;
 
-protected:
+	virtual const Checksums& do_actual_checksums() const
+	= 0;
 
-	/**
-	 * \brief
-	 *
-	 * \param[in] actual_sums Actual checksums to check for
-	 */
-	Verifier(const Checksums& actual_sums);
+	virtual bool do_strict() const
+	= 0;
+
+	virtual void do_set_strict(const bool strict)
+	= 0;
+
+	virtual std::unique_ptr<VerificationResult> do_perform(
+			const ChecksumSource& ref_sums) const
+	= 0;
 
 public:
 
@@ -732,16 +522,9 @@ public:
 	/**
 	 * \brief
 	 *
-	 * \param[in] strict
-	 */
-	void set_strict(const bool strict);
-
-	/**
-	 * \brief
-	 *
 	 * \return
 	 */
-	bool strict() const;
+	const ARId& actual_id() const;
 
 	/**
 	 * \brief
@@ -755,7 +538,14 @@ public:
 	 *
 	 * \return
 	 */
-	const ARId& actual_id() const;
+	bool strict() const;
+
+	/**
+	 * \brief
+	 *
+	 * \param[in] strict
+	 */
+	void set_strict(const bool strict);
 
 	/**
 	 * \brief Perform a verification.
@@ -776,11 +566,6 @@ public:
 	 */
 	std::unique_ptr<VerificationResult> perform(const ARResponse& ref_sums)
 		const;
-
-private:
-
-	const Checksums& actual_sums_;
-	bool is_strict_;
 };
 
 
@@ -801,9 +586,15 @@ private:
  */
 class AlbumVerifier final : public Verifier
 {
-	virtual std::unique_ptr<MatchOrder> do_create_order() const final;
+	class Impl;
+	std::unique_ptr<Impl> impl_;
 
 	virtual const ARId& do_actual_id() const final;
+	virtual const Checksums& do_actual_checksums() const final;
+	virtual bool do_strict() const final;
+	virtual void do_set_strict(const bool strict) final;
+	virtual std::unique_ptr<VerificationResult> do_perform(
+			const ChecksumSource& ref_sums) const final;
 
 public:
 
@@ -814,10 +605,6 @@ public:
 	 * \param[in] actual_id   Actual ARId to check for
 	 */
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
-
-private:
-
-	const ARId& actual_id_;
 };
 
 
@@ -838,9 +625,17 @@ private:
  *
  * \see AlbumVerifier
  */
-class TracksetVerifier : public Verifier
+class TracksetVerifier final : public Verifier
 {
-	virtual std::unique_ptr<MatchOrder> do_create_order() const final;
+	class Impl;
+	std::unique_ptr<Impl> impl_;
+
+	virtual const ARId& do_actual_id() const final;
+	virtual const Checksums& do_actual_checksums() const final;
+	virtual bool do_strict() const final;
+	virtual void do_set_strict(const bool strict) final;
+	virtual std::unique_ptr<VerificationResult> do_perform(
+			const ChecksumSource& ref_sums) const final;
 
 public:
 
