@@ -180,21 +180,21 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	Checksum arcs() const noexcept;
+	const Checksum& arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this triplet.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	uint32_t confidence() const noexcept;
+	const uint32_t& confidence() const noexcept;
 
 	/**
 	 * \brief The ARCS of frame 450 of the particular track in this triplet.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	Checksum frame450_arcs() const noexcept;
+	const Checksum& frame450_arcs() const noexcept;
 
 	/**
 	 * \brief Validity flag for the track ARCS in this triplet.
@@ -1094,7 +1094,7 @@ private:
  * AccurateRip response.
  *
  * Protected service function parse_stream() is provided as a building block
- * for subclasses to implement the parsing. 
+ * for subclasses to implement the parsing.
  *
  * Concrete subclasses are responsible for implementing functions do_parse()
  * and on_catched_exception().

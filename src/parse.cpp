@@ -69,21 +69,21 @@ public:
 	 *
 	 * \return ARCS value in this triplet
 	 */
-	Checksum arcs() const noexcept;
+	const Checksum& arcs() const noexcept;
 
 	/**
 	 * \brief The confidence value in this ARTripletImpl.
 	 *
 	 * \return Confidence in this triplet
 	 */
-	uint32_t confidence() const noexcept;
+	const uint32_t& confidence() const noexcept;
 
 	/**
 	 * \brief ARCS of frame 450 of the particular track in this ARTripletImpl.
 	 *
 	 * \return Frame450 ARCS in this triplet
 	 */
-	Checksum frame450_arcs() const noexcept;
+	const Checksum& frame450_arcs() const noexcept;
 
 	/**
 	 * \brief The track ARCS in this ARTripletImpl.
@@ -253,21 +253,21 @@ ARTripletImpl::ARTripletImpl(const ARTripletImpl &rhs) = default;
 ARTripletImpl::ARTripletImpl(ARTripletImpl &&rhs) noexcept = default;
 
 
-Checksum ARTripletImpl::arcs() const noexcept
+const Checksum& ARTripletImpl::arcs() const noexcept
 {
-	return Checksum{arcs_};
+	return arcs_;
 }
 
 
-uint32_t ARTripletImpl::confidence() const noexcept
+const uint32_t& ARTripletImpl::confidence() const noexcept
 {
 	return confidence_;
 }
 
 
-Checksum ARTripletImpl::frame450_arcs() const noexcept
+const Checksum& ARTripletImpl::frame450_arcs() const noexcept
 {
-	return Checksum{frame450_arcs_};
+	return frame450_arcs_;
 }
 
 
@@ -789,19 +789,19 @@ ARTriplet::ARTriplet(ARTriplet &&rhs) noexcept = default;
 ARTriplet::~ARTriplet() noexcept = default;
 
 
-Checksum ARTriplet::arcs() const noexcept
+const Checksum& ARTriplet::arcs() const noexcept
 {
 	return impl_->arcs();
 }
 
 
-uint32_t ARTriplet::confidence() const noexcept
+const uint32_t& ARTriplet::confidence() const noexcept
 {
 	return impl_->confidence();
 }
 
 
-Checksum ARTriplet::frame450_arcs() const noexcept
+const Checksum& ARTriplet::frame450_arcs() const noexcept
 {
 	return impl_->frame450_arcs();
 }
