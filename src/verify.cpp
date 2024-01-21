@@ -261,6 +261,107 @@ void ResultBits::validate_track(int t) const
 }
 
 
+// TrackPolicy
+
+
+bool TrackPolicy::is_verified(const int track,
+		const VerificationResult& r) const
+{
+	return do_is_verified(track, r);
+}
+
+
+int TrackPolicy::total_unverified_tracks(const VerificationResult& r)
+	const
+{
+	return do_total_unverified_tracks(r);
+}
+
+
+bool TrackPolicy::is_strict() const
+{
+	return do_is_strict();
+}
+
+
+// StrictPolicy
+
+
+bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
+	const
+{
+	const auto best { details::BestBlock() };
+	const auto t = best(r);
+	return r.track(std::get<0>(t), track, std::get<1>(t));
+}
+
+
+int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+{
+	const auto best { details::BestBlock() };
+	const auto t = best(r);
+	return std::get<2>(t);
+}
+
+
+bool StrictPolicy::do_is_strict() const
+{
+	return true;
+}
+
+
+// LiberalPolicy
+
+
+bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
+	const
+{
+	for (auto b = 0; b < r.total_blocks(); ++b)
+	{
+		if (r.track(b, track, true) or r.track(b, track, false))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+int LiberalPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+{
+	using size_type = details::ResultBits::size_type;
+
+	std::vector<bool> tracks(
+			static_cast<size_type>(r.tracks_per_block()), false);
+
+	// Count every track whose checksum was not matched in any block.
+
+	auto b = size_type { 0 };
+	for (auto t = size_type { 0 }; t <
+			static_cast<size_type>(r.tracks_per_block()); ++t)
+	{
+		for (b = size_type { 0 };
+				b < static_cast<size_type>(r.total_blocks()); ++b)
+		{
+			if (r.track(b, t, true) or r.track(b, t, false))
+			{
+				tracks[t] = true;
+				break;
+			}
+		}
+	}
+
+	return r.tracks_per_block() -
+		std::accumulate(tracks.begin(), tracks.end(), 0);
+}
+
+
+bool LiberalPolicy::do_is_strict() const
+{
+	return false;
+}
+
+
 // Result
 
 
@@ -388,125 +489,6 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
 }
 
 
-// verify
-
-
-std::unique_ptr<VerificationResult> verify(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
-		TraversalPolicy& t, const MatchPolicy& m)
-{
-	auto r = create_result(ref_sums.size()/* total blocks */,
-			actual_sums.size()/* total tracks per block */,
-			t.get_policy());
-
-	const auto traversal = std::make_unique<SourceTraversal>();
-	traversal->perform(*r, actual_sums, actual_id, ref_sums, t, m);
-	return r;
-}
-
-
-// StrictPolicy
-
-
-bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
-	const
-{
-	const auto best { details::BestBlock() };
-	const auto t = best(r);
-	return r.track(std::get<0>(t), track, std::get<1>(t));
-}
-
-
-int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
-{
-	const auto best { details::BestBlock() };
-	const auto t = best(r);
-	return std::get<2>(t);
-}
-
-
-bool StrictPolicy::do_is_strict() const
-{
-	return true;
-}
-
-
-// LiberalPolicy
-
-
-bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
-	const
-{
-	for (auto b = 0; b < r.total_blocks(); ++b)
-	{
-		if (r.track(b, track, true) or r.track(b, track, false))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-int LiberalPolicy::do_total_unverified_tracks(const VerificationResult& r) const
-{
-	using size_type = details::ResultBits::size_type;
-
-	std::vector<bool> tracks(
-			static_cast<size_type>(r.tracks_per_block()), false);
-
-	// Count every track whose checksum was not matched in any block.
-
-	auto b = size_type { 0 };
-	for (auto t = size_type { 0 }; t <
-			static_cast<size_type>(r.tracks_per_block()); ++t)
-	{
-		for (b = size_type { 0 };
-				b < static_cast<size_type>(r.total_blocks()); ++b)
-		{
-			if (r.track(b, t, true) or r.track(b, t, false))
-			{
-				tracks[t] = true;
-				break;
-			}
-		}
-	}
-
-	return r.tracks_per_block() -
-		std::accumulate(tracks.begin(), tracks.end(), 0);
-}
-
-
-bool LiberalPolicy::do_is_strict() const
-{
-	return false;
-}
-
-
-// TrackPolicy
-
-
-bool TrackPolicy::is_verified(const int track,
-		const VerificationResult& r) const
-{
-	return do_is_verified(track, r);
-}
-
-
-int TrackPolicy::total_unverified_tracks(const VerificationResult& r)
-	const
-{
-	return do_total_unverified_tracks(r);
-}
-
-
-bool TrackPolicy::is_strict() const
-{
-	return do_is_strict();
-}
-
-
 // Selector
 
 
@@ -514,6 +496,12 @@ const Checksum& Selector::get(const ChecksumSource& s, const int current,
 		const int counter) const
 {
 	return do_get(s, current, counter);
+}
+
+
+std::unique_ptr<Selector> Selector::clone() const
+{
+	return do_clone();
 }
 
 
@@ -527,6 +515,12 @@ const Checksum& BlockSelector::do_get(const ChecksumSource& s, const int block,
 }
 
 
+std::unique_ptr<Selector> BlockSelector::do_clone() const
+{
+	return std::make_unique<BlockSelector>();
+}
+
+
 // TrackSelector
 
 
@@ -534,6 +528,12 @@ const Checksum& TrackSelector::do_get(const ChecksumSource& s, const int track,
 			const int block) const
 {
 	return s.checksum(block, track);
+}
+
+
+std::unique_ptr<Selector> TrackSelector::do_clone() const
+{
+	return std::make_unique<TrackSelector>();
 }
 
 
@@ -601,81 +601,34 @@ SourceIterator SourceIterator::operator ++ (int) // postfix increment
 }
 
 
-// MatchPolicy
-
-
-void MatchPolicy::perform(VerificationResult& result,
-		const Checksums& actual_sums, const Checksum& ref,
-		const int block, const Checksums::size_type track) const
-{
-	do_perform(result, actual_sums, ref, block, track);
-}
-
-
-void MatchPolicy::check_match(VerificationResult& result,
-		const ChecksumSet& actual, const Checksum& ref,
-		const int block, const Checksums::size_type track) const
-{
-	for (const auto& type : actual.types())
-	{
-		const bool is_v2 = (type == arcstk::checksum::type::ARCS2);
-
-		if (ref == actual.get(type))
-		{
-			const auto bitpos = result.verify_track(block, track, is_v2);
-
-			ARCS_LOG_DEBUG << "Track "
-				<< std::setw(2) << std::setfill('0') << (track + 1)
-				<< " v" << (is_v2 ? "2" : "1") << " verified: "
-				<< result.track(block, track, is_v2)
-				<< " (bit " << bitpos << ")";
-		} else
-		{
-			ARCS_LOG_DEBUG << "Track "
-				<< std::setw(2) << std::setfill('0') << (track + 1)
-				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
-				<< result.track(block, track, is_v2);
-		}
-	}
-}
-
-
-// TrackOrderPolicy
-
-
-void TrackOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
-		const int block, const Checksums::size_type track) const
-{
-	check_match(result, actual_sums.at(track), ref, block, track);
-}
-
-
-// FindOrderPolicy
-
-
-void FindOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
-		const int block, const Checksums::size_type /* track */) const
-{
-	auto t = Checksums::size_type { 0 };
-	for (const auto& set : actual_sums)
-	{
-		check_match(result, set, ref, block, t);
-		++t;
-	}
-}
-
-
 // TraversalPolicy
 
 
 TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
-	: selector_ { std::move(selector) }
-	, source_   { nullptr }
+	: source_   { nullptr }
+	, selector_ { std::move(selector) }
 	, current_  { 0 }
 {
 	// empty
+}
+
+
+TraversalPolicy::TraversalPolicy(const TraversalPolicy& rhs)
+	: source_   { rhs.source_ }
+	, selector_ { rhs.selector_->clone() }
+	, current_  { rhs.current_ }
+{
+	// empty
+}
+
+
+TraversalPolicy& TraversalPolicy::operator = (const TraversalPolicy& rhs)
+{
+	source_   = rhs.source_;
+	selector_ = rhs.selector_->clone();
+	current_  = rhs.current_;
+
+	return *this;
 }
 
 
@@ -732,13 +685,15 @@ void TraversalPolicy::set_current(const int current)
 
 TraversalPolicy::const_iterator TraversalPolicy::begin() const
 {
-	return do_begin();
+	check_source_for_null();
+	return SourceIterator(*source(), current(), 0, selector());
 }
 
 
 TraversalPolicy::const_iterator TraversalPolicy::end() const
 {
-	return do_end();
+	check_source_for_null();
+	return SourceIterator(*source(), current(), end_counter(), selector());
 }
 
 
@@ -760,6 +715,12 @@ std::unique_ptr<TrackPolicy> TraversalPolicy::get_policy() const
 }
 
 
+std::unique_ptr<Selector> TraversalPolicy::get_selector() const
+{
+	return create_selector();
+}
+
+
 // BlockTraversal
 
 
@@ -776,17 +737,9 @@ std::unique_ptr<TrackPolicy> BlockTraversal::create_track_policy() const
 }
 
 
-TraversalPolicy::const_iterator BlockTraversal::do_begin() const
+std::unique_ptr<Selector> BlockTraversal::create_selector() const
 {
-	check_source_for_null();
-	return SourceIterator(*source(), current(), 0, selector());
-}
-
-
-TraversalPolicy::const_iterator BlockTraversal::do_end() const
-{
-	check_source_for_null();
-	return SourceIterator(*source(), current(), end_counter(), selector());
+	return std::make_unique<BlockSelector>();
 }
 
 
@@ -830,17 +783,9 @@ std::unique_ptr<TrackPolicy> TrackTraversal::create_track_policy() const
 }
 
 
-TraversalPolicy::const_iterator TrackTraversal::do_begin() const
+std::unique_ptr<Selector> TrackTraversal::create_selector() const
 {
-	check_source_for_null();
-	return SourceIterator(*source(), current(), 0, selector());
-}
-
-
-TraversalPolicy::const_iterator TrackTraversal::do_end() const
-{
-	check_source_for_null();
-	return SourceIterator(*source(), current(), end_counter(), selector());
+	return std::make_unique<TrackSelector>();
 }
 
 
@@ -868,17 +813,85 @@ int TrackTraversal::do_end_counter(const ChecksumSource& source) const
 }
 
 
+// MatchPolicy
+
+
+void MatchPolicy::perform(VerificationResult& result,
+		const Checksums& actual_sums, const Checksum& ref,
+		const int block, const Checksums::size_type track) const
+{
+	do_perform(result, actual_sums, ref, block, track);
+}
+
+
+void MatchPolicy::perform_match(VerificationResult& result,
+		const ChecksumSet& actual, const Checksum& ref,
+		const int block, const Checksums::size_type track) const
+{
+	for (const auto& type : actual.types())
+	{
+		const bool is_v2 = (type == arcstk::checksum::type::ARCS2);
+
+		if (ref == actual.get(type))
+		{
+			const auto bitpos = result.verify_track(block, track, is_v2);
+
+			ARCS_LOG_DEBUG << "Track "
+				<< std::setw(2) << std::setfill('0') << (track + 1)
+				<< " v" << (is_v2 ? "2" : "1") << " verified: "
+				<< result.track(block, track, is_v2)
+				<< " (bit " << bitpos << ")";
+		} else
+		{
+			ARCS_LOG_DEBUG << "Track "
+				<< std::setw(2) << std::setfill('0') << (track + 1)
+				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
+				<< result.track(block, track, is_v2);
+		}
+	}
+}
+
+
+// TrackOrderPolicy
+
+
+void TrackOrderPolicy::do_perform(VerificationResult& result,
+		const Checksums &actual_sums, const Checksum& ref,
+		const int block, const Checksums::size_type track) const
+{
+	perform_match(result, actual_sums.at(track), ref, block, track);
+}
+
+
+// FindOrderPolicy
+
+
+void FindOrderPolicy::do_perform(VerificationResult& result,
+		const Checksums &actual_sums, const Checksum& ref,
+		const int block, const Checksums::size_type /* track */) const
+{
+	auto t = Checksums::size_type { 0 };
+	for (const auto& set : actual_sums)
+	{
+		perform_match(result, set, ref, block, t);
+		++t;
+	}
+}
+
+
 // SourceTraversal
 
 
 void SourceTraversal::perform_ids(VerificationResult& result,
 	const ARId &actual_id, const ChecksumSource& ref_sums) const
 {
+	using size_type = ChecksumSource::size_type;
+
 	if (actual_id == EmptyARId)
 	{
 		// No actual ARId passed, set every id to 'verified'
 
-		for (auto b = ChecksumSource::size_type { 0 }; b < ref_sums.size(); ++b)
+		for (auto b = size_type { 0 }; b < ref_sums.size(); ++b)
 		{
 			result.verify_id(b);
 		}
@@ -886,7 +899,7 @@ void SourceTraversal::perform_ids(VerificationResult& result,
 	{
 		// Actually verify ids
 
-		for (auto b = ChecksumSource::size_type { 0 }; b < ref_sums.size(); ++b)
+		for (auto b = size_type { 0 }; b < ref_sums.size(); ++b)
 		{
 			if (actual_id == ref_sums.id(b))
 			{
@@ -929,6 +942,24 @@ void SourceTraversal::perform(VerificationResult& result,
 		t.set_current(current);
 		perform_current(result, actual_sums, t, m);
 	}
+}
+
+
+// verify
+
+
+std::unique_ptr<VerificationResult> verify(
+		const Checksums &actual_sums, const ARId &actual_id,
+		const ChecksumSource &ref_sums,
+		TraversalPolicy& t, const MatchPolicy& m)
+{
+	auto r = create_result(ref_sums.size()/* total blocks */,
+			actual_sums.size()/* total tracks per block */,
+			t.get_policy());
+
+	const auto traversal = std::make_unique<SourceTraversal>();
+	traversal->perform(*r, actual_sums, actual_id, ref_sums, t, m);
+	return r;
 }
 
 

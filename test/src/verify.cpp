@@ -445,11 +445,11 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 
 	SECTION ( "BlockSelector gets Checksum by <block, track>" )
 	{
-		CHECK ( b.get(r, 0, 13) == 0x4A5C3872 );
-		CHECK ( b.get(r, 1,  2) == 0x56582282 );
-		CHECK ( b.get(r, 1,  7) == 0x8480223E );
-		CHECK ( b.get(r, 2,  0) == 0xB89992E5 );
-		CHECK ( b.get(r, 2, 14) == 0x58FC3C3E );
+		CHECK ( b.get(r, 0, 13) == 0x4A5C3872u );
+		CHECK ( b.get(r, 1,  2) == 0x56582282u );
+		CHECK ( b.get(r, 1,  7) == 0x8480223Eu );
+		CHECK ( b.get(r, 2,  0) == 0xB89992E5u );
+		CHECK ( b.get(r, 2, 14) == 0x58FC3C3Eu );
 	}
 }
 
@@ -536,9 +536,9 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 
 	SECTION ( "TrackSelector gets Checksum by <track, block>" )
 	{
-		CHECK ( t.get(r, 14, 0) == 0x5FE8B032 );
-		CHECK ( t.get(r,  7, 1) == 0x8480223E );
-		CHECK ( t.get(r,  1, 2) == 0x4F77EB03 );
+		CHECK ( t.get(r, 14, 0) == 0x5FE8B032u );
+		CHECK ( t.get(r,  7, 1) == 0x8480223Eu );
+		CHECK ( t.get(r,  1, 2) == 0x4F77EB03u );
 	}
 }
 
@@ -636,21 +636,21 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 
 	SECTION ( "SourceIterator does correct forward iteration over block" )
 	{
-		CHECK (    *b  == 0x98B10E0F );
-		CHECK ( *(++b) == 0x475F57E9 );
-		CHECK ( *(++b) == 0x7304F1C4 );
-		CHECK ( *(++b) == 0xF2472287 );
-		CHECK ( *(++b) == 0x881BC504 );
-		CHECK ( *(++b) == 0xBB94BFD4 );
-		CHECK ( *(++b) == 0xF9CAEE76 );
-		CHECK ( *(++b) == 0xF9F60BC1 );
-		CHECK ( *(++b) == 0x2C736302 );
-		CHECK ( *(++b) == 0x1C955978 );
-		CHECK ( *(++b) == 0xFDA6D833 );
-		CHECK ( *(++b) == 0x3A57E5D1 );
-		CHECK ( *(++b) == 0x6ED5F3E7 );
-		CHECK ( *(++b) == 0x4A5C3872 );
-		CHECK ( *(++b) == 0x5FE8B032 );
+		CHECK (    *b  == 0x98B10E0Fu );
+		CHECK ( *(++b) == 0x475F57E9u );
+		CHECK ( *(++b) == 0x7304F1C4u );
+		CHECK ( *(++b) == 0xF2472287u );
+		CHECK ( *(++b) == 0x881BC504u );
+		CHECK ( *(++b) == 0xBB94BFD4u );
+		CHECK ( *(++b) == 0xF9CAEE76u );
+		CHECK ( *(++b) == 0xF9F60BC1u );
+		CHECK ( *(++b) == 0x2C736302u );
+		CHECK ( *(++b) == 0x1C955978u );
+		CHECK ( *(++b) == 0xFDA6D833u );
+		CHECK ( *(++b) == 0x3A57E5D1u );
+		CHECK ( *(++b) == 0x6ED5F3E7u );
+		CHECK ( *(++b) == 0x4A5C3872u );
+		CHECK ( *(++b) == 0x5FE8B032u );
 
 		CHECK ( b.current() ==  0 ); // block
 		CHECK ( b.counter() == 14 );
