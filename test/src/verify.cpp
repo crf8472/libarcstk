@@ -1333,7 +1333,7 @@ TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 }
 
 
-TEST_CASE ( "details::SourceTraversal", "[sourcetraversal]" )
+TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 {
 	using arcstk::ARId;
 	using arcstk::ARBlock;
@@ -1413,8 +1413,8 @@ TEST_CASE ( "details::SourceTraversal", "[sourcetraversal]" )
 
 	auto ref_sums = FromResponse { &response };
 
-	using arcstk::details::SourceTraversal;
-	auto verifier = std::make_unique<SourceTraversal>();
+	using arcstk::details::Verification;
+	auto v = std::make_unique<Verification>();
 
 	SECTION ("Strict verification by track order finds best block")
 	{
@@ -1516,7 +1516,7 @@ TEST_CASE ( "details::SourceTraversal", "[sourcetraversal]" )
 		REQUIRE ( result->tracks_per_block() == 15 );
 		REQUIRE ( result->size() == 3 + 2 * 3 * 15 );
 
-		verifier->perform(*result, actual_sums, id, ref_sums, *traversal, *order);
+		v->perform(*result, actual_sums, id, ref_sums, *traversal, *order);
 
 		CHECK ( std::get<0>(result->best_block()) == 1 );
 		// Best is 1, the v2 block, but 0, the v1 block, also matches entirely!
@@ -1667,10 +1667,10 @@ TEST_CASE ( "details::SourceTraversal", "[sourcetraversal]" )
 		REQUIRE ( t_result->size() == 3 + 2 * 3 * 15 );
 
 		// b_result is result of BlockTraversal
-		verifier->perform(*b_result, actual_sums, id, ref_sums, *block, *order);
+		v->perform(*b_result, actual_sums, id, ref_sums, *block, *order);
 
 		// t_result is result of TrackTraversal
-		verifier->perform(*t_result, actual_sums, id, ref_sums, *track, *order);
+		v->perform(*t_result, actual_sums, id, ref_sums, *track, *order);
 
 		// BlockTraversal:
 		// There is no single block that matches all tracks, hence some tracks

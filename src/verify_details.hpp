@@ -939,7 +939,7 @@ class FindOrderPolicy final : public MatchPolicy
  *
  * \see verify
  */
-class SourceTraversal final
+class Verification final
 {
 	void perform_ids(VerificationResult& result, const ARId &actual_id,
 		const ChecksumSource& ref_sums) const;

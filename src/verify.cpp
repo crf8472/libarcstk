@@ -878,10 +878,10 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 }
 
 
-// SourceTraversal
+// Verification
 
 
-void SourceTraversal::perform_ids(VerificationResult& result,
+void Verification::perform_ids(VerificationResult& result,
 	const ARId &actual_id, const ChecksumSource& ref_sums) const
 {
 	using size_type = ChecksumSource::size_type;
@@ -909,7 +909,7 @@ void SourceTraversal::perform_ids(VerificationResult& result,
 }
 
 
-void SourceTraversal::perform_current(VerificationResult& result,
+void Verification::perform_current(VerificationResult& result,
 		const Checksums &actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
@@ -924,10 +924,10 @@ void SourceTraversal::perform_current(VerificationResult& result,
 }
 
 
-void SourceTraversal::perform(VerificationResult& result,
+void Verification::perform(VerificationResult& result,
 	const Checksums &actual_sums, const ARId &actual_id,
 	const ChecksumSource& ref_sums,
-	TraversalPolicy& t, const MatchPolicy& m) const
+	TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	perform_ids(result, actual_id, ref_sums);
 	// Always done once per block, regardless of traversal
@@ -935,11 +935,11 @@ void SourceTraversal::perform(VerificationResult& result,
 	// From here on, result can be checked for whether the current block is
 	// is actually considered relevant by its id.
 
-	t.set_source(ref_sums);
-	for (auto current = int { 0 }; current < t.end_current(); ++current)
+	traversal.set_source(ref_sums);
+	for (auto c = int { 0 }; c < traversal.end_current(); ++c)
 	{
-		t.set_current(current);
-		perform_current(result, actual_sums, t, m);
+		traversal.set_current(c);
+		perform_current(result, actual_sums, traversal, order);
 	}
 }
 
@@ -950,14 +950,17 @@ void SourceTraversal::perform(VerificationResult& result,
 std::unique_ptr<VerificationResult> verify(
 		const Checksums &actual_sums, const ARId &actual_id,
 		const ChecksumSource &ref_sums,
-		TraversalPolicy& t, const MatchPolicy& m)
+		TraversalPolicy& traversal, const MatchPolicy& order)
 {
 	auto r = create_result(ref_sums.size()/* total blocks */,
 			actual_sums.size()/* total tracks per block */,
-			t.get_policy());
+			traversal.get_policy());
 
-	const auto traversal = std::make_unique<SourceTraversal>();
-	traversal->perform(*r, actual_sums, actual_id, ref_sums, t, m);
+	const Verification v{};
+	// Verification has no members so its instantiation does not
+	// require extra memory.
+	v.perform(*r, actual_sums, actual_id, ref_sums, traversal, order);
+
 	return r;
 }
 
@@ -1268,7 +1271,6 @@ AlbumVerifier::Impl::Impl(const Checksums& actual_sums, const ARId& actual_id)
 std::unique_ptr<details::MatchPolicy> AlbumVerifier::Impl::do_create_order()
 	const
 {
-	//return std::make_unique<details::TrackOrder>();
 	return std::make_unique<details::TrackOrderPolicy>();
 }
 
@@ -1336,7 +1338,6 @@ std::unique_ptr<details::MatchPolicy> TracksetVerifier::Impl::do_create_order()
 	const
 {
 	return std::make_unique<details::FindOrderPolicy>();
-	//return std::make_unique<details::UnknownOrder>();
 }
 
 
@@ -1358,7 +1359,6 @@ const ARId& TracksetVerifier::do_actual_id() const
 
 const Checksums& TracksetVerifier::do_actual_checksums() const
 {
-
 	return impl_->actual_checksums();
 }
 

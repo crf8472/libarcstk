@@ -641,6 +641,11 @@ class TracksetVerifier final : public Verifier
 
 public:
 
+	/**
+	 * \brief
+	 *
+	 * \param[in] actual_sums Actual checksums to check for
+	 */
 	TracksetVerifier(const Checksums& actual_sums);
 };
 
