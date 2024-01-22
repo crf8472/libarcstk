@@ -71,7 +71,7 @@ struct BestBlock final
 	 *
 	 * \param[in] r The result to get the best block of
 	 */
-	std::tuple<int, bool, int> operator()(const VerificationResult& r) const;
+	std::tuple<int, bool, int> from(const VerificationResult& r) const;
 };
 
 

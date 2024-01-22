@@ -29,7 +29,7 @@ namespace details
 
 constexpr int BestBlock::MAX_DIFFERENCE;
 
-std::tuple<int, bool, int> BestBlock::operator()(
+std::tuple<int, bool, int> BestBlock::from(
 		const VerificationResult& result) const
 {
 	ARCS_LOG(DEBUG1) << "Find best block:";
@@ -290,16 +290,14 @@ bool TrackPolicy::is_strict() const
 bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
 	const
 {
-	const auto best { details::BestBlock() };
-	const auto t = best(r);
+	const auto t = r.best_block();
 	return r.track(std::get<0>(t), track, std::get<1>(t));
 }
 
 
 int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
-	const auto best { details::BestBlock() };
-	const auto t = best(r);
+	const auto t = r.best_block();
 	// Do not count a non-matching id as unverified track
 	return std::get<2>(t) - !r.id(std::get<0>(t));
 }
@@ -449,8 +447,8 @@ int Result::do_total_unverified_tracks() const
 
 std::tuple<int, bool, int> Result::do_best_block() const
 {
-	const BestBlock best;
-	return best(*this);
+	static const BestBlock best;
+	return best.from(*this);
 }
 
 
