@@ -1783,45 +1783,45 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 24, 0 },
-			{ 0x4F77EB03, 24, 0 },
-			{ 0x56582282, 24, 0 },
-			{ 0x9E2187F9, 24, 0 },
-			{ 0x6BE71E50, 24, 0 },
-			{ 0x01E7235F, 24, 0 },
-			{ 0xD8F7763C, 24, 0 },
-			{ 0x8480223E, 24, 0 },
-			{ 0x42C5061C, 24, 0 },
-			{ 0x47A70F02, 24, 0 },
-			{ 0xBABF08CC, 24, 0 },
-			{ 0x563EDCCB, 24, 0 },
-			{ 0xAB123C7C, 24, 0 },
-			{ 0xC65C20E4, 24, 0 },
-			{ 0x58FC3C3E, 24, 0 }
+			{ 0xB89992E5,  6, 0 },
+			{ 0x4F77EB03,  8, 0 },
+			{ 0x56582282,  7, 0 },
+			{ 0x9E2187F9,  9, 0 },
+			{ 0x6BE71E50,  2, 0 },
+			{ 0x01E7235F,  1, 0 },
+			{ 0xD8F7763C,  0, 0 },
+			{ 0x8480223E, 13, 0 },
+			{ 0x42C5061C, 16, 0 },
+			{ 0x47A70F02, 17, 0 },
+			{ 0xBABF08CC, 18, 0 },
+			{ 0x563EDCCB, 21, 0 },
+			{ 0xAB123C7C, 14, 0 },
+			{ 0xC65C20E4, 26, 0 },
+			{ 0x58FC3C3E, 28, 0 }
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 24, 0 },
-			{ 0x4F77EB03, 24, 0 },
-			{ 0x56582282, 24, 0 },
-			{ 0x9E2187F9, 24, 0 },
-			{ 0x6BE71E50, 24, 0 },
-			{ 0x01E7235F, 24, 0 },
-			{ 0xD8F7763C, 24, 0 },
-			{ 0x8480223E, 24, 0 },
-			{ 0x42C5061C, 24, 0 },
-			{ 0x47A70F02, 24, 0 },
-			{ 0xBABF08CC, 24, 0 },
-			{ 0x563EDCCB, 24, 0 },
-			{ 0xAB123C7C, 24, 0 },
-			{ 0xC65C20E4, 24, 0 },
-			{ 0x58FC3C3E, 24, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -1836,104 +1836,104 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	REQUIRE ( response[1] == block1 );
 	REQUIRE ( response[2] == block2 );
 
+	// From: "Bach: Organ Concertos", Simon Preston, DGG
+	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
+	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
+
+	ChecksumSet track01( 5192);
+	track01.insert(type::ARCS2, Checksum(0xB89992E5));
+	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
+
+	ChecksumSet track02( 2165);
+	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+	track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+	ChecksumSet track03(15885);
+	track03.insert(type::ARCS2, Checksum(0x56582282));
+	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
+
+	ChecksumSet track04(12228);
+	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+	track04.insert(type::ARCS1, Checksum(0xF2472287));
+
+	ChecksumSet track05(13925);
+	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+	track05.insert(type::ARCS1, Checksum(0x881BC504));
+
+	ChecksumSet track06(19513);
+	track06.insert(type::ARCS2, Checksum(0x01E7235F));
+	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
+
+	ChecksumSet track07(18155);
+	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
+
+	ChecksumSet track08(18325);
+	track08.insert(type::ARCS2, Checksum(0x8480223E));
+	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
+
+	ChecksumSet track09(33075);
+	track09.insert(type::ARCS2, Checksum(0x42C5061C));
+	track09.insert(type::ARCS1, Checksum(0x2C736302));
+
+	ChecksumSet track10(18368);
+	track10.insert(type::ARCS2, Checksum(0x47A70F02));
+	track10.insert(type::ARCS1, Checksum(0x1C955978));
+
+	ChecksumSet track11(40152);
+	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
+	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
+
+	ChecksumSet track12(14798);
+	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
+
+	ChecksumSet track13(11952);
+	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
+
+	ChecksumSet track14( 8463);
+	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
+
+	ChecksumSet track15(18935);
+	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
+
+	Checksums actual_sums {
+		track01,
+		track02,
+		track03,
+		track04,
+		track05,
+		track06,
+		track07,
+		track08,
+		track09,
+		track10,
+		track11,
+		track12,
+		track13,
+		track14,
+		track15
+	};
+
+	REQUIRE ( actual_sums.size() == 15 );
+
+	arcstk::AlbumVerifier a(actual_sums, id);
+
+	REQUIRE ( a.strict() );
+	REQUIRE ( a.actual_id() == id );
+	REQUIRE ( a.actual_checksums() == actual_sums );
 
 	// common constants
 
 	const bool v1 = false;
 	const bool v2 = true;
 
-	SECTION ( "Strict verification is correct for matching block" )
+
+	SECTION ( "Strict track order verification yields best block" )
 	{
-		// From: "Bach: Organ Concertos", Simon Preston, DGG
-		// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
-		// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
-		ChecksumSet track01( 5192);
-		track01.insert(type::ARCS2, Checksum(0xB89992E5));
-		track01.insert(type::ARCS1, Checksum(0x98B10E0F));
-
-		ChecksumSet track02( 2165);
-		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
-		track02.insert(type::ARCS1, Checksum(0x475F57E9));
-
-		ChecksumSet track03(15885);
-		track03.insert(type::ARCS2, Checksum(0x56582282));
-		track03.insert(type::ARCS1, Checksum(0x7304F1C4));
-
-		ChecksumSet track04(12228);
-		track04.insert(type::ARCS2, Checksum(0x9E2187F9));
-		track04.insert(type::ARCS1, Checksum(0xF2472287));
-
-		ChecksumSet track05(13925);
-		track05.insert(type::ARCS2, Checksum(0x6BE71E50));
-		track05.insert(type::ARCS1, Checksum(0x881BC504));
-
-		ChecksumSet track06(19513);
-		track06.insert(type::ARCS2, Checksum(0x01E7235F));
-		track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
-
-		ChecksumSet track07(18155);
-		track07.insert(type::ARCS2, Checksum(0xD8F7763C));
-		track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
-
-		ChecksumSet track08(18325);
-		track08.insert(type::ARCS2, Checksum(0x8480223E));
-		track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
-
-		ChecksumSet track09(33075);
-		track09.insert(type::ARCS2, Checksum(0x42C5061C));
-		track09.insert(type::ARCS1, Checksum(0x2C736302));
-
-		ChecksumSet track10(18368);
-		track10.insert(type::ARCS2, Checksum(0x47A70F02));
-		track10.insert(type::ARCS1, Checksum(0x1C955978));
-
-		ChecksumSet track11(40152);
-		track11.insert(type::ARCS2, Checksum(0xBABF08CC));
-		track11.insert(type::ARCS1, Checksum(0xFDA6D833));
-
-		ChecksumSet track12(14798);
-		track12.insert(type::ARCS2, Checksum(0x563EDCCB));
-		track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
-
-		ChecksumSet track13(11952);
-		track13.insert(type::ARCS2, Checksum(0xAB123C7C));
-		track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
-
-		ChecksumSet track14( 8463);
-		track14.insert(type::ARCS2, Checksum(0xC65C20E4));
-		track14.insert(type::ARCS1, Checksum(0x4A5C3872));
-
-		ChecksumSet track15(18935);
-		track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
-		track15.insert(type::ARCS1, Checksum(0x5FE8B032));
-
-		Checksums actual_sums {
-			track01,
-			track02,
-			track03,
-			track04,
-			track05,
-			track06,
-			track07,
-			track08,
-			track09,
-			track10,
-			track11,
-			track12,
-			track13,
-			track14,
-			track15
-		};
-
-		REQUIRE ( actual_sums.size() == 15 );
-
-		arcstk::AlbumVerifier a(actual_sums, id);
-
-		REQUIRE ( a.strict() );
-		REQUIRE ( a.actual_id() == id );
-		REQUIRE ( a.actual_checksums() == actual_sums );
-
 		const auto result = a.perform(response);
 		const auto best_block = result->best_block();
 
@@ -1962,7 +1962,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( result->is_verified(14) );
 		CHECK_THROWS ( result->is_verified(15) );
 
-		CHECK ( std::get<0>(best_block) == 2 );
+		CHECK ( std::get<0>(best_block) == 1 );
 		CHECK ( std::get<1>(best_block) == v2 );
 		CHECK ( std::get<2>(best_block) == 0 );
 		CHECK ( result->best_block_difference() == 0 );
@@ -2003,7 +2003,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( not result->track(0, 14, v2) );
 
 		// 1
-		CHECK ( not result->id(1) ); // different id! nothing verifies!
+		CHECK ( result->id(1) );
 
 		CHECK ( not result->track(1,  0, v1) );
 		CHECK ( not result->track(1,  1, v1) );
@@ -2021,24 +2021,24 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( not result->track(1, 13, v1) );
 		CHECK ( not result->track(1, 14, v1) );
 
-		CHECK ( not result->track(1,  0, v2) );
-		CHECK ( not result->track(1,  1, v2) );
-		CHECK ( not result->track(1,  2, v2) );
-		CHECK ( not result->track(1,  3, v2) );
-		CHECK ( not result->track(1,  4, v2) );
-		CHECK ( not result->track(1,  5, v2) );
-		CHECK ( not result->track(1,  6, v2) );
-		CHECK ( not result->track(1,  7, v2) );
-		CHECK ( not result->track(1,  8, v2) );
-		CHECK ( not result->track(1,  9, v2) );
-		CHECK ( not result->track(1, 10, v2) );
-		CHECK ( not result->track(1, 11, v2) );
-		CHECK ( not result->track(1, 12, v2) );
-		CHECK ( not result->track(1, 13, v2) );
-		CHECK ( not result->track(1, 14, v2) );
+		CHECK ( result->track(1,  0, v2) );
+		CHECK ( result->track(1,  1, v2) );
+		CHECK ( result->track(1,  2, v2) );
+		CHECK ( result->track(1,  3, v2) );
+		CHECK ( result->track(1,  4, v2) );
+		CHECK ( result->track(1,  5, v2) );
+		CHECK ( result->track(1,  6, v2) );
+		CHECK ( result->track(1,  7, v2) );
+		CHECK ( result->track(1,  8, v2) );
+		CHECK ( result->track(1,  9, v2) );
+		CHECK ( result->track(1, 10, v2) );
+		CHECK ( result->track(1, 11, v2) );
+		CHECK ( result->track(1, 12, v2) );
+		CHECK ( result->track(1, 13, v2) );
+		CHECK ( result->track(1, 14, v2) );
 
 		// 2
-		CHECK ( result->id(2) );
+		CHECK ( not result->id(2) ); // different id! nothing verifies!
 
 		CHECK ( not result->track(2,  0, v1) );
 		CHECK ( not result->track(2,  1, v1) );
@@ -2056,21 +2056,21 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( not result->track(2, 13, v1) );
 		CHECK ( not result->track(2, 14, v1) );
 
-		CHECK ( result->track(2,  0, v2) );
-		CHECK ( result->track(2,  1, v2) );
-		CHECK ( result->track(2,  2, v2) );
-		CHECK ( result->track(2,  3, v2) );
-		CHECK ( result->track(2,  4, v2) );
-		CHECK ( result->track(2,  5, v2) );
-		CHECK ( result->track(2,  6, v2) );
-		CHECK ( result->track(2,  7, v2) );
-		CHECK ( result->track(2,  8, v2) );
-		CHECK ( result->track(2,  9, v2) );
-		CHECK ( result->track(2, 10, v2) );
-		CHECK ( result->track(2, 11, v2) );
-		CHECK ( result->track(2, 12, v2) );
-		CHECK ( result->track(2, 13, v2) );
-		CHECK ( result->track(2, 14, v2) );
+		CHECK ( not result->track(2,  0, v2) );
+		CHECK ( not result->track(2,  1, v2) );
+		CHECK ( not result->track(2,  2, v2) );
+		CHECK ( not result->track(2,  3, v2) );
+		CHECK ( not result->track(2,  4, v2) );
+		CHECK ( not result->track(2,  5, v2) );
+		CHECK ( not result->track(2,  6, v2) );
+		CHECK ( not result->track(2,  7, v2) );
+		CHECK ( not result->track(2,  8, v2) );
+		CHECK ( not result->track(2,  9, v2) );
+		CHECK ( not result->track(2, 10, v2) );
+		CHECK ( not result->track(2, 11, v2) );
+		CHECK ( not result->track(2, 12, v2) );
+		CHECK ( not result->track(2, 13, v2) );
+		CHECK ( not result->track(2, 14, v2) );
 
 		CHECK_THROWS ( result->id(3) );            // illegal block
 		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
@@ -2079,11 +2079,172 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 		CHECK ( result->difference(0, v1) ==  0 );
 		CHECK ( result->difference(0, v2) == 15 );
 
-		CHECK ( result->difference(1, v1) == 16 );
-		CHECK ( result->difference(1, v2) == 16 );
+		CHECK ( result->difference(1, v1) == 15 );
+		CHECK ( result->difference(1, v2) ==  0 );
 
-		CHECK ( result->difference(2, v1) == 15 );
-		CHECK ( result->difference(2, v2) ==  0 );
+		CHECK ( result->difference(2, v1) == 16 );
+		CHECK ( result->difference(2, v2) == 16 );
+
+		CHECK_THROWS ( result->difference(3, v1) == 0 );
+		CHECK_THROWS ( result->difference(3, v2) == 0 );
+	}
+
+	SECTION ( "Non-strict track order verification is correct" )
+	{
+		a.set_strict(false);
+
+		REQUIRE ( not a.strict() );
+
+		const auto result = a.perform(response);
+		const auto best_block = result->best_block();
+
+		REQUIRE ( not a.strict() );
+
+		CHECK ( result->total_blocks() == 3 );
+		CHECK ( result->tracks_per_block() == 15 );
+		CHECK ( result->size() == 93 ); // blocks + 2 * blocks * tracks
+
+		CHECK ( result->all_tracks_verified() );
+
+		CHECK ( result->is_verified(0) );
+		CHECK ( result->is_verified(1) );
+		CHECK ( result->is_verified(2) );
+		CHECK ( result->is_verified(3) );
+		CHECK ( result->is_verified(4) );
+		CHECK ( result->is_verified(5) );
+		CHECK ( result->is_verified(6) );
+		CHECK ( result->is_verified(7) );
+		CHECK ( result->is_verified(8) );
+		CHECK ( result->is_verified(9) );
+		CHECK ( result->is_verified(10) );
+		CHECK ( result->is_verified(11) );
+		CHECK ( result->is_verified(12) );
+		CHECK ( result->is_verified(13) );
+		CHECK ( result->is_verified(14) );
+		CHECK_THROWS ( result->is_verified(15) );
+
+		CHECK ( std::get<0>(best_block) == 1 );
+		CHECK ( std::get<1>(best_block) == v2 );
+		CHECK ( std::get<2>(best_block) == 0 );
+		CHECK ( result->best_block_difference() == 0 );
+
+		// 0
+		CHECK ( result->id(0) );
+
+		CHECK ( result->track(0,  0, v1) );
+		CHECK ( result->track(0,  1, v1) );
+		CHECK ( result->track(0,  2, v1) );
+		CHECK ( result->track(0,  3, v1) );
+		CHECK ( result->track(0,  4, v1) );
+		CHECK ( result->track(0,  5, v1) );
+		CHECK ( result->track(0,  6, v1) );
+		CHECK ( result->track(0,  7, v1) );
+		CHECK ( result->track(0,  8, v1) );
+		CHECK ( result->track(0,  9, v1) );
+		CHECK ( result->track(0, 10, v1) );
+		CHECK ( result->track(0, 11, v1) );
+		CHECK ( result->track(0, 12, v1) );
+		CHECK ( result->track(0, 13, v1) );
+		CHECK ( result->track(0, 14, v1) );
+
+		CHECK ( not result->track(0,  0, v2) );
+		CHECK ( not result->track(0,  1, v2) );
+		CHECK ( not result->track(0,  2, v2) );
+		CHECK ( not result->track(0,  3, v2) );
+		CHECK ( not result->track(0,  4, v2) );
+		CHECK ( not result->track(0,  5, v2) );
+		CHECK ( not result->track(0,  6, v2) );
+		CHECK ( not result->track(0,  7, v2) );
+		CHECK ( not result->track(0,  8, v2) );
+		CHECK ( not result->track(0,  9, v2) );
+		CHECK ( not result->track(0, 10, v2) );
+		CHECK ( not result->track(0, 11, v2) );
+		CHECK ( not result->track(0, 12, v2) );
+		CHECK ( not result->track(0, 13, v2) );
+		CHECK ( not result->track(0, 14, v2) );
+
+		// 1
+		CHECK ( result->id(1) );
+
+		CHECK ( not result->track(1,  0, v1) );
+		CHECK ( not result->track(1,  1, v1) );
+		CHECK ( not result->track(1,  2, v1) );
+		CHECK ( not result->track(1,  3, v1) );
+		CHECK ( not result->track(1,  4, v1) );
+		CHECK ( not result->track(1,  5, v1) );
+		CHECK ( not result->track(1,  6, v1) );
+		CHECK ( not result->track(1,  7, v1) );
+		CHECK ( not result->track(1,  8, v1) );
+		CHECK ( not result->track(1,  9, v1) );
+		CHECK ( not result->track(1, 10, v1) );
+		CHECK ( not result->track(1, 11, v1) );
+		CHECK ( not result->track(1, 12, v1) );
+		CHECK ( not result->track(1, 13, v1) );
+		CHECK ( not result->track(1, 14, v1) );
+
+		CHECK ( result->track(1,  0, v2) );
+		CHECK ( result->track(1,  1, v2) );
+		CHECK ( result->track(1,  2, v2) );
+		CHECK ( result->track(1,  3, v2) );
+		CHECK ( result->track(1,  4, v2) );
+		CHECK ( result->track(1,  5, v2) );
+		CHECK ( result->track(1,  6, v2) );
+		CHECK ( result->track(1,  7, v2) );
+		CHECK ( result->track(1,  8, v2) );
+		CHECK ( result->track(1,  9, v2) );
+		CHECK ( result->track(1, 10, v2) );
+		CHECK ( result->track(1, 11, v2) );
+		CHECK ( result->track(1, 12, v2) );
+		CHECK ( result->track(1, 13, v2) );
+		CHECK ( result->track(1, 14, v2) );
+
+		// 2
+		CHECK ( not result->id(2) ); // different id! nothing verifies!
+
+		CHECK ( not result->track(2,  0, v1) );
+		CHECK ( not result->track(2,  1, v1) );
+		CHECK ( not result->track(2,  2, v1) );
+		CHECK ( not result->track(2,  3, v1) );
+		CHECK ( not result->track(2,  4, v1) );
+		CHECK ( not result->track(2,  5, v1) );
+		CHECK ( not result->track(2,  6, v1) );
+		CHECK ( not result->track(2,  7, v1) );
+		CHECK ( not result->track(2,  8, v1) );
+		CHECK ( not result->track(2,  9, v1) );
+		CHECK ( not result->track(2, 10, v1) );
+		CHECK ( not result->track(2, 11, v1) );
+		CHECK ( not result->track(2, 12, v1) );
+		CHECK ( not result->track(2, 13, v1) );
+		CHECK ( not result->track(2, 14, v1) );
+
+		CHECK ( not result->track(2,  0, v2) );
+		CHECK ( not result->track(2,  1, v2) );
+		CHECK ( not result->track(2,  2, v2) );
+		CHECK ( not result->track(2,  3, v2) );
+		CHECK ( not result->track(2,  4, v2) );
+		CHECK ( not result->track(2,  5, v2) );
+		CHECK ( not result->track(2,  6, v2) );
+		CHECK ( not result->track(2,  7, v2) );
+		CHECK ( not result->track(2,  8, v2) );
+		CHECK ( not result->track(2,  9, v2) );
+		CHECK ( not result->track(2, 10, v2) );
+		CHECK ( not result->track(2, 11, v2) );
+		CHECK ( not result->track(2, 12, v2) );
+		CHECK ( not result->track(2, 13, v2) );
+		CHECK ( not result->track(2, 14, v2) );
+
+		CHECK_THROWS ( result->id(3) );            // illegal block
+		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
+
+		CHECK ( result->difference(0, v1) ==  0 );
+		CHECK ( result->difference(0, v2) == 15 );
+
+		CHECK ( result->difference(1, v1) == 15 );
+		CHECK ( result->difference(1, v2) ==  0 );
+
+		CHECK ( result->difference(2, v1) == 16 );
+		CHECK ( result->difference(2, v2) == 16 );
 
 		CHECK_THROWS ( result->difference(3, v1) == 0 );
 		CHECK_THROWS ( result->difference(3, v2) == 0 );
