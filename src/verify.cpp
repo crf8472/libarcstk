@@ -52,8 +52,8 @@ std::tuple<int, bool, int> BestBlock::operator()(
 
 		ARCS_LOG(DEBUG1) << "Check block " << b;
 
-		curr_diff_v1 = result.difference(b, /* v1 */false);
-		curr_diff_v2 = result.difference(b, /* v2 */true);
+		curr_diff_v1 = result.difference(b, false/*v1*/);
+		curr_diff_v2 = result.difference(b, true/*v2*/);
 
 		// Note the less-equal for v2: last match wins!
 		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
@@ -300,7 +300,8 @@ int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
 	const auto best { details::BestBlock() };
 	const auto t = best(r);
-	return std::get<2>(t);
+	// Do not count a non-matching id as unverified track
+	return std::get<2>(t) - !r.id(std::get<0>(t));
 }
 
 

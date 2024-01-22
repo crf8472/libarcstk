@@ -52,8 +52,8 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -73,24 +73,24 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -158,21 +158,21 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 		CHECK ( r.checksum(1, 13) == 0xC65C20E4u );
 		CHECK ( r.checksum(1, 14) == 0x58FC3C3Eu );
 
-		CHECK ( r.checksum(2,  0) == 0xB89992E5u );
-		CHECK ( r.checksum(2,  1) == 0x4F77EB03u );
-		CHECK ( r.checksum(2,  2) == 0x56582282u );
-		CHECK ( r.checksum(2,  3) == 0x9E2187F9u );
-		CHECK ( r.checksum(2,  4) == 0x6BE71E50u );
-		CHECK ( r.checksum(2,  5) == 0x01E7235Fu );
-		CHECK ( r.checksum(2,  6) == 0xD8F7763Cu );
-		CHECK ( r.checksum(2,  7) == 0x8480223Eu );
-		CHECK ( r.checksum(2,  8) == 0x42C5061Cu );
-		CHECK ( r.checksum(2,  9) == 0x47A70F02u );
-		CHECK ( r.checksum(2, 10) == 0xBABF08CCu );
-		CHECK ( r.checksum(2, 11) == 0x563EDCCBu );
-		CHECK ( r.checksum(2, 12) == 0xAB123C7Cu );
-		CHECK ( r.checksum(2, 13) == 0xC65C20E4u );
-		CHECK ( r.checksum(2, 14) == 0x58FC3C3Eu );
+		CHECK ( r.checksum(2,  0) == 0xC89192E5u );
+		CHECK ( r.checksum(2,  1) == 0x4F78EB03u );
+		CHECK ( r.checksum(2,  2) == 0x56582281u );
+		CHECK ( r.checksum(2,  3) == 0x0E2187F9u );
+		CHECK ( r.checksum(2,  4) == 0x2BE71E50u );
+		CHECK ( r.checksum(2,  5) == 0x01E7235Du );
+		CHECK ( r.checksum(2,  6) == 0xD8F6763Cu );
+		CHECK ( r.checksum(2,  7) == 0x8480331Eu );
+		CHECK ( r.checksum(2,  8) == 0x42F5061Cu );
+		CHECK ( r.checksum(2,  9) == 0x47D70F02u );
+		CHECK ( r.checksum(2, 10) == 0xBABF08AAu );
+		CHECK ( r.checksum(2, 11) == 0x563EFECBu );
+		CHECK ( r.checksum(2, 12) == 0xAB123C9Cu );
+		CHECK ( r.checksum(2, 13) == 0xB65C20E4u );
+		CHECK ( r.checksum(2, 14) == 0x68FC3C3Eu );
 	}
 }
 
@@ -195,6 +195,7 @@ TEST_CASE ( "details::Result", "[result]" )
 	REQUIRE ( r->strict() );
 
 	REQUIRE ( not r->id(0) );
+
 	REQUIRE ( not r->track(0, 0, false) );
 	REQUIRE ( not r->track(0, 1, false) );
 	REQUIRE ( not r->track(0, 2, false) );
@@ -205,6 +206,7 @@ TEST_CASE ( "details::Result", "[result]" )
 	REQUIRE ( not r->track(0, 7, false) );
 	REQUIRE ( not r->track(0, 8, false) );
 	REQUIRE ( not r->track(0, 9, false) );
+
 	REQUIRE ( not r->track(0, 0, true) );
 	REQUIRE ( not r->track(0, 1, true) );
 	REQUIRE ( not r->track(0, 2, true) );
@@ -217,6 +219,7 @@ TEST_CASE ( "details::Result", "[result]" )
 	REQUIRE ( not r->track(0, 9, true) );
 
 	REQUIRE ( not r->id(1) );
+
 	REQUIRE ( not r->track(1, 0, false) );
 	REQUIRE ( not r->track(1, 1, false) );
 	REQUIRE ( not r->track(1, 2, false) );
@@ -227,6 +230,7 @@ TEST_CASE ( "details::Result", "[result]" )
 	REQUIRE ( not r->track(1, 7, false) );
 	REQUIRE ( not r->track(1, 8, false) );
 	REQUIRE ( not r->track(1, 9, false) );
+
 	REQUIRE ( not r->track(1, 0, true) );
 	REQUIRE ( not r->track(1, 1, true) );
 	REQUIRE ( not r->track(1, 2, true) );
@@ -255,6 +259,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		r->verify_track(1, 9, true);
 
 		CHECK ( r->id(0) );
+
 		CHECK ( not r->track(0, 0, false) );
 		CHECK ( not r->track(0, 1, false) );
 		CHECK (     r->track(0, 2, false) );
@@ -265,6 +270,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not r->track(0, 7, false) );
 		CHECK ( not r->track(0, 8, false) );
 		CHECK (     r->track(0, 9, false) );
+
 		CHECK ( not r->track(0, 0, true) );
 		CHECK ( not r->track(0, 1, true) );
 		CHECK ( not r->track(0, 2, true) );
@@ -277,6 +283,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not r->track(0, 9, true) );
 
 		CHECK ( r->id(1) );
+
 		CHECK ( not r->track(1, 0, false) );
 		CHECK (     r->track(1, 1, false) );
 		CHECK ( not r->track(1, 2, false) );
@@ -287,6 +294,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not r->track(1, 7, false) );
 		CHECK ( not r->track(1, 8, false) );
 		CHECK ( not r->track(1, 9, false) );
+
 		CHECK ( not r->track(1, 0, true) );
 		CHECK ( not r->track(1, 1, true) );
 		CHECK (     r->track(1, 2, true) );
@@ -317,6 +325,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		m->verify_track(1, 9, true);
 
 		CHECK ( m->id(0) );
+
 		CHECK ( not m->track(0, 0, false) );
 		CHECK ( not m->track(0, 1, false) );
 		CHECK (     m->track(0, 2, false) );
@@ -327,6 +336,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not m->track(0, 7, false) );
 		CHECK ( not m->track(0, 8, false) );
 		CHECK (     m->track(0, 9, false) );
+
 		CHECK ( not m->track(0, 0, true) );
 		CHECK ( not m->track(0, 1, true) );
 		CHECK ( not m->track(0, 2, true) );
@@ -339,6 +349,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not m->track(0, 9, true) );
 
 		CHECK ( m->id(1) );
+
 		CHECK ( not m->track(1, 0, false) );
 		CHECK (     m->track(1, 1, false) );
 		CHECK ( not m->track(1, 2, false) );
@@ -349,6 +360,7 @@ TEST_CASE ( "details::Result", "[result]" )
 		CHECK ( not m->track(1, 7, false) );
 		CHECK ( not m->track(1, 8, false) );
 		CHECK ( not m->track(1, 9, false) );
+
 		CHECK ( not m->track(1, 0, true) );
 		CHECK ( not m->track(1, 1, true) );
 		CHECK (     m->track(1, 2, true) );
@@ -397,8 +409,8 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -418,24 +430,24 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -446,10 +458,13 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 	SECTION ( "BlockSelector gets Checksum by <block, track>" )
 	{
 		CHECK ( b.get(r, 0, 13) == 0x4A5C3872u );
+
 		CHECK ( b.get(r, 1,  2) == 0x56582282u );
 		CHECK ( b.get(r, 1,  7) == 0x8480223Eu );
-		CHECK ( b.get(r, 2,  0) == 0xB89992E5u );
-		CHECK ( b.get(r, 2, 14) == 0x58FC3C3Eu );
+		CHECK ( b.get(r, 1, 14) == 0x58FC3C3Eu );
+
+		CHECK ( b.get(r, 2,  0) == 0xC89192E5u );
+		CHECK ( b.get(r, 2, 14) == 0x68FC3C3Eu );
 	}
 }
 
@@ -488,8 +503,8 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -509,24 +524,24 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -537,8 +552,10 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 	SECTION ( "TrackSelector gets Checksum by <track, block>" )
 	{
 		CHECK ( t.get(r, 14, 0) == 0x5FE8B032u );
+
 		CHECK ( t.get(r,  7, 1) == 0x8480223Eu );
-		CHECK ( t.get(r,  1, 2) == 0x4F77EB03u );
+
+		CHECK ( t.get(r,  1, 2) == 0x4F78EB03u );
 	}
 }
 
@@ -577,8 +594,8 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -598,24 +615,24 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -624,45 +641,45 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 	const auto block = BlockSelector {};
 	const auto track = TrackSelector {};
 
-	auto b = SourceIterator(r, 0, 0, block);
+	auto b = SourceIterator(r, 1, 0, block);
 
-	REQUIRE ( b.current() == 0 );
+	REQUIRE ( b.current() == 1 );
 	REQUIRE ( b.counter() == 0 );
 
-	auto t = SourceIterator(r, 0, 0, track);
+	auto t = SourceIterator(r, 3, 0, track);
 
-	REQUIRE ( t.current() == 0 );
+	REQUIRE ( t.current() == 3 );
 	REQUIRE ( t.counter() == 0 );
 
 	SECTION ( "SourceIterator does correct forward iteration over block" )
 	{
-		CHECK (    *b  == 0x98B10E0Fu );
-		CHECK ( *(++b) == 0x475F57E9u );
-		CHECK ( *(++b) == 0x7304F1C4u );
-		CHECK ( *(++b) == 0xF2472287u );
-		CHECK ( *(++b) == 0x881BC504u );
-		CHECK ( *(++b) == 0xBB94BFD4u );
-		CHECK ( *(++b) == 0xF9CAEE76u );
-		CHECK ( *(++b) == 0xF9F60BC1u );
-		CHECK ( *(++b) == 0x2C736302u );
-		CHECK ( *(++b) == 0x1C955978u );
-		CHECK ( *(++b) == 0xFDA6D833u );
-		CHECK ( *(++b) == 0x3A57E5D1u );
-		CHECK ( *(++b) == 0x6ED5F3E7u );
-		CHECK ( *(++b) == 0x4A5C3872u );
-		CHECK ( *(++b) == 0x5FE8B032u );
+		CHECK (    *b  == 0xB89992E5u );
+		CHECK ( *(++b) == 0x4F77EB03u );
+		CHECK ( *(++b) == 0x56582282u );
+		CHECK ( *(++b) == 0x9E2187F9u );
+		CHECK ( *(++b) == 0x6BE71E50u );
+		CHECK ( *(++b) == 0x01E7235Fu );
+		CHECK ( *(++b) == 0xD8F7763Cu );
+		CHECK ( *(++b) == 0x8480223Eu );
+		CHECK ( *(++b) == 0x42C5061Cu );
+		CHECK ( *(++b) == 0x47A70F02u );
+		CHECK ( *(++b) == 0xBABF08CCu );
+		CHECK ( *(++b) == 0x563EDCCBu );
+		CHECK ( *(++b) == 0xAB123C7Cu );
+		CHECK ( *(++b) == 0xC65C20E4u );
+		CHECK ( *(++b) == 0x58FC3C3Eu );
 
-		CHECK ( b.current() ==  0 ); // block
+		CHECK ( b.current() ==  1 ); // block
 		CHECK ( b.counter() == 14 );
 	}
 
 	SECTION ( "SourceIterator does correct forward iteration over track" )
 	{
-		CHECK (    *t  == 0x98B10E0F );
-		CHECK ( *(++t) == 0xB89992E5 );
-		CHECK ( *(++t) == 0xB89992E5 );
+		CHECK (    *t  == 0xF2472287u );
+		CHECK ( *(++t) == 0x9E2187F9u );
+		CHECK ( *(++t) == 0x0E2187F9u );
 
-		CHECK ( t.current() == 0 ); // track
+		CHECK ( t.current() == 3 ); // track
 		CHECK ( t.counter() == 2 );
 	}
 }
@@ -700,8 +717,8 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -721,24 +738,24 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -851,8 +868,8 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -872,24 +889,24 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
@@ -929,18 +946,18 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 
 		CHECK (     i->value() == 0xF2472287 );
 		CHECK ( (++i)->value() == 0x9E2187F9 );
-		CHECK ( (++i)->value() == 0x9E2187F9 );
+		CHECK ( (++i)->value() == 0x0E2187F9 );
 
 		CHECK ( i.current() == 3 ); // 0-based track
 		CHECK ( i.counter() == 2 );
 
-		//CHECK ( ++i == track_end );
-		//CHECK ( i.counter() == 3 );
+		CHECK ( ++i == track_end );
+		CHECK ( i.counter() == 3 );
 	}
 }
 
 
-TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy]" )
+TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 {
 	using arcstk::details::TrackOrderPolicy;
 
@@ -1062,8 +1079,10 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy]" )
 	auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
-	REQUIRE ( !result->all_tracks_verified() );
 	REQUIRE ( result->difference(0, true) == 16);
+	REQUIRE ( result->total_unverified_tracks() == 15 );
+
+	REQUIRE ( !result->all_tracks_verified() );
 	REQUIRE ( !result->is_verified(0) );
 	REQUIRE ( !result->is_verified(1) );
 	REQUIRE ( !result->is_verified(2) );
@@ -1090,10 +1109,24 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy]" )
 		++track;
 	}
 
+	SECTION ( "TrackOrderPolicy counts verified tracks correctly" )
+	{
+		REQUIRE ( not result->id(0) );
+
+		CHECK ( result->difference(0, true) == 1);
+		CHECK ( result->total_unverified_tracks() == 0 );
+		CHECK ( result->all_tracks_verified() );
+	}
+
 	SECTION ( "TrackOrderPolicy traverses actual checksums in track order" )
 	{
-		//CHECK ( result->all_tracks_verified() );
-		CHECK ( result->difference(0, true) == 1); // id does not match
+		result->verify_id(0);
+
+		REQUIRE ( result->id(0) );
+
+		CHECK ( result->difference(0, true) == 0);
+		CHECK ( result->total_unverified_tracks() == 0 );
+		CHECK ( result->all_tracks_verified() );
 
 		CHECK ( result->is_verified(0) );
 		CHECK ( result->is_verified(1) );
@@ -1236,8 +1269,9 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy]" )
 	auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
-	REQUIRE ( !result->all_tracks_verified() );
 	REQUIRE ( result->difference(0, true) == 16);
+
+	REQUIRE ( !result->all_tracks_verified() );
 	REQUIRE ( !result->is_verified(0) );
 	REQUIRE ( !result->is_verified(1) );
 	REQUIRE ( !result->is_verified(2) );
@@ -1264,10 +1298,21 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy]" )
 		++track;
 	}
 
+	SECTION ( "FindOrderPolicy counts verified tracks correctly" )
+	{
+		REQUIRE ( not result->id(0) );
+
+		CHECK ( result->difference(0, true) == 1);
+		CHECK ( result->total_unverified_tracks() == 0 );
+		CHECK ( result->all_tracks_verified() );
+	}
+
 	SECTION ( "FindOrderPolicy finds order in actual checksums" )
 	{
-		//CHECK ( result->all_tracks_verified() );
-		CHECK ( result->difference(0, true) == 1); // id does not match
+		CHECK ( result->difference(0, true) == 1); // id was not matched
+
+		CHECK ( result->total_unverified_tracks() == 0 );
+		CHECK ( result->all_tracks_verified() );
 
 		CHECK ( result->is_verified(0) );
 		CHECK ( result->is_verified(1) );
@@ -1288,16 +1333,17 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy]" )
 }
 
 
-TEST_CASE ( "Verification", "[verification]" )
+TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
 {
-	using arcstk::details::TrackOrderPolicy;
 
 	using arcstk::ARId;
 	using arcstk::ARBlock;
 	using arcstk::ARResponse;
 	using arcstk::FromResponse;
 
-	ARId actual_id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
+	// Construct ARResponse by hand
+
+	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
 	// Define block: v1 values
 	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
@@ -1320,8 +1366,8 @@ TEST_CASE ( "Verification", "[verification]" )
 		}
 	);
 
-	// Define block: v2 values, but different id
-	ARBlock block1( /* id */ { 1523, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: v2 values, id from block 1
+	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -1341,47 +1387,387 @@ TEST_CASE ( "Verification", "[verification]" )
 		}
 	);
 
-	// Define block: v2 values same as block 2, id from block 1
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	// Define block: different id, slightly different values than block 1
+	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
-			{ 0xB89992E5, 0, 0 },
-			{ 0x4F77EB03, 0, 0 },
-			{ 0x56582282, 0, 0 },
-			{ 0x9E2187F9, 0, 0 },
-			{ 0x6BE71E50, 0, 0 },
-			{ 0x01E7235F, 0, 0 },
-			{ 0xD8F7763C, 0, 0 },
-			{ 0x8480223E, 0, 0 },
-			{ 0x42C5061C, 0, 0 },
-			{ 0x47A70F02, 0, 0 },
-			{ 0xBABF08CC, 0, 0 },
-			{ 0x563EDCCB, 0, 0 },
-			{ 0xAB123C7C, 0, 0 },
-			{ 0xC65C20E4, 0, 0 },
-			{ 0x58FC3C3E, 0, 0 }
+			{ 0xC89192E5, 0, 0 },
+			{ 0x4F78EB03, 0, 0 },
+			{ 0x56582281, 0, 0 },
+			{ 0x0E2187F9, 0, 0 },
+			{ 0x2BE71E50, 0, 0 },
+			{ 0x01E7235D, 0, 0 },
+			{ 0xD8F6763C, 0, 0 },
+			{ 0x8480331E, 0, 0 },
+			{ 0x42F5061C, 0, 0 },
+			{ 0x47D70F02, 0, 0 },
+			{ 0xBABF08AA, 0, 0 },
+			{ 0x563EFECB, 0, 0 },
+			{ 0xAB123C9C, 0, 0 },
+			{ 0xB65C20E4, 0, 0 },
+			{ 0x68FC3C3E, 0, 0 }
 		}
 	);
 
-	const auto response = ARResponse { block0, block1, block2 };
+	// TODO Check content of the block instances
 
-	REQUIRE ( response.size() == 3 );
-	REQUIRE ( response[0] == block0 );
-	REQUIRE ( response[1] == block1 );
-	REQUIRE ( response[2] == block2 );
+	ARResponse response { block0, block1, block2 };
 
-	const auto ref_sums = FromResponse { &response };
+	auto ref_sums = FromResponse { &response };
 
+	using arcstk::details::SourceTraversal;
+	auto verifier = std::make_unique<SourceTraversal>();
+
+	SECTION ("Strict verification by track order finds best block")
+	{
+		using arcstk::Checksum;
+		using arcstk::ChecksumSet;
+		using arcstk::Checksums;
+		using arcstk::checksum::type;
+
+		ChecksumSet track01( 5192);
+		track01.insert(type::ARCS2, Checksum(0xB89992E5));
+		track01.insert(type::ARCS1, Checksum(0x98B10E0F));
+
+		ChecksumSet track02( 2165);
+		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+		ChecksumSet track03(15885);
+		track03.insert(type::ARCS2, Checksum(0x56582282));
+		track03.insert(type::ARCS1, Checksum(0x7304F1C4));
+
+		ChecksumSet track04(12228);
+		track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+		track04.insert(type::ARCS1, Checksum(0xF2472287));
+
+		ChecksumSet track05(13925);
+		track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+		track05.insert(type::ARCS1, Checksum(0x881BC504));
+
+		ChecksumSet track06(19513);
+		track06.insert(type::ARCS2, Checksum(0x01E7235F));
+		track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
+
+		ChecksumSet track07(18155);
+		track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+		track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
+
+		ChecksumSet track08(18325);
+		track08.insert(type::ARCS2, Checksum(0x8480223E));
+		track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
+
+		ChecksumSet track09(33075);
+		track09.insert(type::ARCS2, Checksum(0x42C5061C));
+		track09.insert(type::ARCS1, Checksum(0x2C736302));
+
+		ChecksumSet track10(18368);
+		track10.insert(type::ARCS2, Checksum(0x47A70F02));
+		track10.insert(type::ARCS1, Checksum(0x1C955978));
+
+		ChecksumSet track11(40152);
+		track11.insert(type::ARCS2, Checksum(0xBABF08CC));
+		track11.insert(type::ARCS1, Checksum(0xFDA6D833));
+
+		ChecksumSet track12(14798);
+		track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+		track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
+
+		ChecksumSet track13(11952);
+		track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+		track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
+
+		ChecksumSet track14( 8463);
+		track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+		track14.insert(type::ARCS1, Checksum(0x4A5C3872));
+
+		ChecksumSet track15(18935);
+		track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+		track15.insert(type::ARCS1, Checksum(0x5FE8B032));
+
+		Checksums actual_sums { // v1 matches block0, v2 matches block1
+			track01,
+			track02,
+			track03,
+			track04,
+			track05,
+			track06,
+			track07,
+			track08,
+			track09,
+			track10,
+			track11,
+			track12,
+			track13,
+			track14,
+			track15
+		};
+
+		REQUIRE ( actual_sums.size() == 15 );
+
+		using arcstk::details::BlockTraversal;
+		using arcstk::details::TrackOrderPolicy;
+
+		const auto order = std::make_unique<TrackOrderPolicy>();
+
+		auto traversal = std::make_unique<BlockTraversal>();
+		auto result = arcstk::details::create_result(ref_sums.size(),
+			actual_sums.size(), traversal->get_policy());
+
+		REQUIRE ( result->total_blocks() == 3 );
+		REQUIRE ( result->tracks_per_block() == 15 );
+		REQUIRE ( result->size() == 3 + 2 * 3 * 15 );
+
+		verifier->perform(*result, actual_sums,
+				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+				ref_sums, *traversal, *order);
+
+		CHECK ( std::get<0>(result->best_block()) == 1 );
+		// Best is 1, the v2 block, but 0, the v1 block, also matches entirely!
+
+		CHECK ( result->best_block_difference() == 0 );
+
+		CHECK ( result->total_unverified_tracks() == 0 );
+		CHECK ( result->all_tracks_verified() );
+
+		CHECK ( result->is_verified(0) );
+		CHECK ( result->is_verified(1) );
+		CHECK ( result->is_verified(2) );
+		CHECK ( result->is_verified(3) );
+		CHECK ( result->is_verified(4) );
+		CHECK ( result->is_verified(5) );
+		CHECK ( result->is_verified(6) );
+		CHECK ( result->is_verified(7) );
+		CHECK ( result->is_verified(8) );
+		CHECK ( result->is_verified(9) );
+		CHECK ( result->is_verified(10) );
+		CHECK ( result->is_verified(11) );
+		CHECK ( result->is_verified(12) );
+		CHECK ( result->is_verified(13) );
+		CHECK ( result->is_verified(14) );
+
+		CHECK ( result->id(0) );
+		CHECK ( result->difference(0, false) == 0);
+		CHECK ( result->difference(0, true)  == 15);
+
+		CHECK ( result->id(1) );
+		CHECK ( result->difference(1, true)  == 0);
+		CHECK ( result->difference(1, false) == 15);
+
+		CHECK ( not result->id(2) );
+		CHECK ( result->difference(2, true)  == 16); // id does not match either
+		CHECK ( result->difference(2, false) == 16);
+	}
+
+	SECTION ("Verification by track order is correct")
+	{
+		using arcstk::Checksum;
+		using arcstk::ChecksumSet;
+		using arcstk::Checksums;
+		using arcstk::checksum::type;
+
+		ChecksumSet track01( 5192);
+		track01.insert(type::ARCS2, Checksum(0xB89992E5));
+		track01.insert(type::ARCS1, Checksum(0xFFFFFFFF)); // mismatch
+
+		ChecksumSet track02( 2165);
+		track02.insert(type::ARCS2, Checksum(0xFFFFFFFF)); // mismatch
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+		ChecksumSet track03(15885);
+		track03.insert(type::ARCS2, Checksum(0xFFFFFFFF)); // mismatch
+		track03.insert(type::ARCS1, Checksum(0x7304F1C4));
+
+		ChecksumSet track04(12228);
+		track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+		track04.insert(type::ARCS1, Checksum(0xF2472287));
+
+		ChecksumSet track05(13925);
+		track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+		track05.insert(type::ARCS1, Checksum(0x881BC504));
+
+		ChecksumSet track06(19513);
+		track06.insert(type::ARCS2, Checksum(0xFFFFFFFF)); // mismatch
+		track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
+
+		ChecksumSet track07(18155);
+		track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+		track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
+
+		ChecksumSet track08(18325);
+		track08.insert(type::ARCS2, Checksum(0x8480223E));
+		track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
+
+		ChecksumSet track09(33075);
+		track09.insert(type::ARCS2, Checksum(0x42C5061C));
+		track09.insert(type::ARCS1, Checksum(0x2C736302));
+
+		ChecksumSet track10(18368);
+		track10.insert(type::ARCS2, Checksum(0x47A70F02));
+		track10.insert(type::ARCS1, Checksum(0xFFFFFFFF)); // mismatch
+
+		ChecksumSet track11(40152);
+		track11.insert(type::ARCS2, Checksum(0xFFFFFFFF)); // mismatch
+		track11.insert(type::ARCS1, Checksum(0xFDA6D833));
+
+		ChecksumSet track12(14798);
+		track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+		track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
+
+		ChecksumSet track13(11952);
+		track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+		track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
+
+		ChecksumSet track14( 8463);
+		track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+		track14.insert(type::ARCS1, Checksum(0x4A5C3872));
+
+		ChecksumSet track15(18935);
+		track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+		track15.insert(type::ARCS1, Checksum(0xFFFFFFFF)); // mismatch
+
+		Checksums actual_sums { // no single block matches each track
+			track01,
+			track02,
+			track03,
+			track04,
+			track05,
+			track06,
+			track07,
+			track08,
+			track09,
+			track10,
+			track11,
+			track12,
+			track13,
+			track14,
+			track15
+		};
+
+		REQUIRE ( actual_sums.size() == 15 );
+
+		using arcstk::details::BlockTraversal;
+		using arcstk::details::TrackTraversal;
+		using arcstk::details::TrackOrderPolicy;
+
+		const auto order = std::make_unique<TrackOrderPolicy>();
+
+		// strict version matching one block
+		auto b_traversal = std::make_unique<BlockTraversal>();
+		auto b_result = arcstk::details::create_result(ref_sums.size(),
+			actual_sums.size(), b_traversal->get_policy());
+
+		REQUIRE ( b_result->total_blocks() == 3 );
+		REQUIRE ( b_result->tracks_per_block() == 15 );
+		REQUIRE ( b_result->size() == 3 + 2 * 3 * 15 );
+
+		// non-strict version just matching every track in at least one block
+		auto t_traversal = std::make_unique<TrackTraversal>();
+		auto t_result = arcstk::details::create_result(ref_sums.size(),
+			actual_sums.size(), t_traversal->get_policy());
+
+		REQUIRE ( t_result->total_blocks() == 3 );
+		REQUIRE ( t_result->tracks_per_block() == 15 );
+		REQUIRE ( t_result->size() == 3 + 2 * 3 * 15 );
+
+		// b_result is result of BlockTraversal
+		verifier->perform(*b_result, actual_sums,
+				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+				ref_sums, *b_traversal, *order);
+
+		// t_result is result of TrackTraversal
+		verifier->perform(*t_result, actual_sums,
+				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+				ref_sums, *t_traversal, *order);
+
+		// There is no single block that matches all tracks, hence some tracks
+		// got verified and others won't!
+
+		CHECK ( std::get<0>(b_result->best_block()) == 0 ); // 0 is the v1 block
+		CHECK ( b_result->best_block_difference() == 3 );
+
+		CHECK ( b_result->total_unverified_tracks() == 3 );
+		CHECK ( not b_result->all_tracks_verified() );
+
+		CHECK ( not b_result->is_verified(0) ); // mismatch v1
+		CHECK ( b_result->is_verified(1) );
+		CHECK ( b_result->is_verified(2) );
+		CHECK ( b_result->is_verified(3) );
+		CHECK ( b_result->is_verified(4) );
+		CHECK ( b_result->is_verified(5) );
+		CHECK ( b_result->is_verified(6) );
+		CHECK ( b_result->is_verified(7) );
+		CHECK ( b_result->is_verified(8) );
+		CHECK ( not b_result->is_verified(9) ); // mismatch v1
+		CHECK ( b_result->is_verified(10) );
+		CHECK ( b_result->is_verified(11) );
+		CHECK ( b_result->is_verified(12) );
+		CHECK ( b_result->is_verified(13) );
+		CHECK ( not b_result->is_verified(14) ); // mismatch v1
+
+		CHECK ( b_result->id(0) );
+		CHECK ( b_result->difference(0, false) == 3); // total v1 mismatches
+		CHECK ( b_result->difference(0, true)  == 15);
+
+		CHECK ( b_result->id(1) );
+		CHECK ( b_result->difference(1, true)  == 4);  // total v2 mismatches
+		CHECK ( b_result->difference(1, false) == 15);
+
+		CHECK ( not b_result->id(2) );
+		CHECK ( b_result->difference(2, true)  == 16); // id does not match either
+		CHECK ( b_result->difference(2, false) == 16);
+
+		// There is no single block that matches all tracks, but all tracks
+		// got verified!
+
+		CHECK ( t_result->total_unverified_tracks() == 0 );
+		CHECK ( t_result->all_tracks_verified() );
+
+		CHECK ( t_result->is_verified(0) );
+		CHECK ( t_result->is_verified(1) );
+		CHECK ( t_result->is_verified(2) );
+		CHECK ( t_result->is_verified(3) );
+		CHECK ( t_result->is_verified(4) );
+		CHECK ( t_result->is_verified(5) );
+		CHECK ( t_result->is_verified(6) );
+		CHECK ( t_result->is_verified(7) );
+		CHECK ( t_result->is_verified(8) );
+		CHECK ( t_result->is_verified(9) );
+		CHECK ( t_result->is_verified(10) );
+		CHECK ( t_result->is_verified(11) );
+		CHECK ( t_result->is_verified(12) );
+		CHECK ( t_result->is_verified(13) );
+		CHECK ( t_result->is_verified(14) );
+
+		CHECK ( t_result->id(0) );
+		CHECK ( t_result->difference(0, false) ==  3); // total v1 mismatches
+		CHECK ( t_result->difference(0, true)  == 15);
+
+		CHECK ( t_result->id(1) );
+		CHECK ( t_result->difference(1, true)  ==  4);  // total v2 mismatches
+		CHECK ( t_result->difference(1, false) == 15);
+
+		CHECK ( not t_result->id(2) );
+		CHECK ( t_result->difference(2, true)  == 16); // id does not match either
+		CHECK ( t_result->difference(2, false) == 16);
+	}
+}
+
+
+TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
+{
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
+	using arcstk::ARId;
+	using arcstk::ARBlock;
+	using arcstk::ARResponse;
+	using arcstk::checksum::type;
 
 	// Construct the checksums by hand
 
 	// From: "Bach: Organ Concertos", Simon Preston, DGG
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
-	using arcstk::checksum::type;
 
 	ChecksumSet track01( 5192);
 	track01.insert(type::ARCS2, Checksum(0xB89992E5));
@@ -1462,165 +1848,6 @@ TEST_CASE ( "Verification", "[verification]" )
 	};
 
 	REQUIRE ( actual_sums.size() == 15 );
-
-	//
-
-	const auto track_order =
-		std::make_unique<arcstk::details::TrackOrderPolicy>();
-
-	using arcstk::details::BlockTraversal;
-	using arcstk::details::SourceTraversal;
-	using arcstk::details::TrackPolicy;
-
-	auto block_traversal = std::make_unique<BlockTraversal>();
-
-	REQUIRE ( block_traversal->current() == 0 );
-	REQUIRE ( block_traversal->get_policy()->is_strict() );
-
-	auto result = arcstk::details::create_result(3, 15,
-			block_traversal->get_policy());
-
-	REQUIRE ( result->size() == 3 + 2 * 3 * 15 );
-
-	block_traversal->set_source(ref_sums);
-
-	REQUIRE ( block_traversal->source() == &ref_sums );
-	REQUIRE ( block_traversal->current() == 0 );
-	REQUIRE ( block_traversal->end_current() == 3 );
-	REQUIRE ( block_traversal->current_block(block_traversal->begin()) == 0 );
-	REQUIRE ( block_traversal->current_track(block_traversal->begin()) == 0 );
-
-	const auto stop = block_traversal->end().counter();
-
-	REQUIRE ( stop == 15 );
-
-	//const SourceTraversal traversal;
-	for (auto current = int { 0 }; current < 3; ++current)
-	{
-		block_traversal->set_current(current);
-
-		REQUIRE ( block_traversal->source() == &ref_sums );
-		REQUIRE ( block_traversal->current() == current );
-
-		for (auto it = block_traversal->begin(); it != block_traversal->end(); ++it)
-		{
-			REQUIRE ( it != block_traversal->end() );
-			REQUIRE ( it.current() == current );
-			REQUIRE ( block_traversal->current_block(it) < 3);
-			REQUIRE ( block_traversal->current_track(it) < 15);
-
-			track_order->perform(*result, actual_sums, *it,
-					block_traversal->current_block(it),
-					block_traversal->current_track(it));
-		}
-	}
-
-	/*
-	traversal.perform(*result, actual_sums, actual_id, ref_sums,
-			*block_traversal, *track_order);
-	*/
-}
-
-
-// TODO details::FindOrderPolicy
-// TODO details::SourceTraversal
-
-
-TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
-{
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
-	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::checksum::type;
-
-	// Construct the checksums by hand
-
-	// From: "Bach: Organ Concertos", Simon Preston, DGG
-	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
-	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
-	ChecksumSet track01( 5192);
-	track01.insert(type::ARCS2, Checksum(0xB89992E5));
-	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
-
-	ChecksumSet track02( 2165);
-	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
-	track02.insert(type::ARCS1, Checksum(0x475F57E9));
-
-	ChecksumSet track03(15885);
-	track03.insert(type::ARCS2, Checksum(0x56582282));
-	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
-
-	ChecksumSet track04(12228);
-	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
-	track04.insert(type::ARCS1, Checksum(0xF2472287));
-
-	ChecksumSet track05(13925);
-	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
-	track05.insert(type::ARCS1, Checksum(0x881BC504));
-
-	ChecksumSet track06(19513);
-	track06.insert(type::ARCS2, Checksum(0x01E7235F));
-	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
-
-	ChecksumSet track07(18155);
-	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
-	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
-
-	ChecksumSet track08(18325);
-	track08.insert(type::ARCS2, Checksum(0x8480223E));
-	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
-
-	ChecksumSet track09(33075);
-	track09.insert(type::ARCS2, Checksum(0x42C5061C));
-	track09.insert(type::ARCS1, Checksum(0x2C736302));
-
-	ChecksumSet track10(18368);
-	track10.insert(type::ARCS2, Checksum(0x47A70F02));
-	track10.insert(type::ARCS1, Checksum(0x1C955978));
-
-	ChecksumSet track11(40152);
-	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
-	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
-
-	ChecksumSet track12(14798);
-	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
-	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
-
-	ChecksumSet track13(11952);
-	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
-	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
-
-	ChecksumSet track14( 8463);
-	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
-	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
-
-	ChecksumSet track15(18935);
-	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
-	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
-
-	Checksums result1 {
-		track01,
-		track02,
-		track03,
-		track04,
-		track05,
-		track06,
-		track07,
-		track08,
-		track09,
-		track10,
-		track11,
-		track12,
-		track13,
-		track14,
-		track15
-	};
-
-	REQUIRE ( result1.size() == 15 );
 
 
 	// Construct ARResponse by hand
@@ -1716,12 +1943,13 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 	//t = std::make_unique<arcstk::details::TraverseBlock>();
 	//o = std::make_unique<arcstk::details::TrackOrder>();
-	//const auto stv_result = arcstk::verify(result1, id,
+	//const auto stv_result = arcstk::verify(actual_sums, id,
 	//		arcstk::FromResponse(&response), *t, *o);
-	arcstk::AlbumVerifier a(result1, id);
+	arcstk::AlbumVerifier a(actual_sums, id);
+
 	REQUIRE ( a.strict() );
 	REQUIRE ( a.actual_id() == id );
-	REQUIRE ( a.actual_checksums() == result1 );
+	REQUIRE ( a.actual_checksums() == actual_sums );
 
 	const auto stv_result = a.perform(response);
 	const auto stv_best_block = stv_result->best_block();
