@@ -1147,7 +1147,7 @@ TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 }
 
 
-TEST_CASE ( "FindOrderPolicy", "[findorderpolicy]" )
+TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 {
 	using arcstk::details::FindOrderPolicy;
 
@@ -1333,9 +1333,8 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy]" )
 }
 
 
-TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
+TEST_CASE ( "details::SourceTraversal", "[sourcetraversal]" )
 {
-
 	using arcstk::ARId;
 	using arcstk::ARBlock;
 	using arcstk::ARResponse;
@@ -1517,9 +1516,7 @@ TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
 		REQUIRE ( result->tracks_per_block() == 15 );
 		REQUIRE ( result->size() == 3 + 2 * 3 * 15 );
 
-		verifier->perform(*result, actual_sums,
-				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
-				ref_sums, *traversal, *order);
+		verifier->perform(*result, actual_sums, id, ref_sums, *traversal, *order);
 
 		CHECK ( std::get<0>(result->best_block()) == 1 );
 		// Best is 1, the v2 block, but 0, the v1 block, also matches entirely!
@@ -1652,33 +1649,30 @@ TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
 		const auto order = std::make_unique<TrackOrderPolicy>();
 
 		// strict version matching one block
-		auto b_traversal = std::make_unique<BlockTraversal>();
+		auto block = std::make_unique<BlockTraversal>();
 		auto b_result = arcstk::details::create_result(ref_sums.size(),
-			actual_sums.size(), b_traversal->get_policy());
+			actual_sums.size(), block->get_policy());
 
 		REQUIRE ( b_result->total_blocks() == 3 );
 		REQUIRE ( b_result->tracks_per_block() == 15 );
 		REQUIRE ( b_result->size() == 3 + 2 * 3 * 15 );
 
 		// non-strict version just matching every track in at least one block
-		auto t_traversal = std::make_unique<TrackTraversal>();
+		auto track = std::make_unique<TrackTraversal>();
 		auto t_result = arcstk::details::create_result(ref_sums.size(),
-			actual_sums.size(), t_traversal->get_policy());
+			actual_sums.size(), track->get_policy());
 
 		REQUIRE ( t_result->total_blocks() == 3 );
 		REQUIRE ( t_result->tracks_per_block() == 15 );
 		REQUIRE ( t_result->size() == 3 + 2 * 3 * 15 );
 
 		// b_result is result of BlockTraversal
-		verifier->perform(*b_result, actual_sums,
-				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
-				ref_sums, *b_traversal, *order);
+		verifier->perform(*b_result, actual_sums, id, ref_sums, *block, *order);
 
 		// t_result is result of TrackTraversal
-		verifier->perform(*t_result, actual_sums,
-				{ 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
-				ref_sums, *t_traversal, *order);
+		verifier->perform(*t_result, actual_sums, id, ref_sums, *track, *order);
 
+		// BlockTraversal:
 		// There is no single block that matches all tracks, hence some tracks
 		// got verified and others won't!
 
@@ -1716,6 +1710,7 @@ TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
 		CHECK ( b_result->difference(2, true)  == 16); // id does not match either
 		CHECK ( b_result->difference(2, false) == 16);
 
+		// TrackTraversal:
 		// There is no single block that matches all tracks, but all tracks
 		// got verified!
 
@@ -1755,100 +1750,13 @@ TEST_CASE ( "SourceTraversal", "[sourcetraversal]" )
 
 TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 {
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
 	using arcstk::ARId;
 	using arcstk::ARBlock;
 	using arcstk::ARResponse;
 	using arcstk::checksum::type;
-
-	// Construct the checksums by hand
-
-	// From: "Bach: Organ Concertos", Simon Preston, DGG
-	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
-	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
-	ChecksumSet track01( 5192);
-	track01.insert(type::ARCS2, Checksum(0xB89992E5));
-	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
-
-	ChecksumSet track02( 2165);
-	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
-	track02.insert(type::ARCS1, Checksum(0x475F57E9));
-
-	ChecksumSet track03(15885);
-	track03.insert(type::ARCS2, Checksum(0x56582282));
-	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
-
-	ChecksumSet track04(12228);
-	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
-	track04.insert(type::ARCS1, Checksum(0xF2472287));
-
-	ChecksumSet track05(13925);
-	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
-	track05.insert(type::ARCS1, Checksum(0x881BC504));
-
-	ChecksumSet track06(19513);
-	track06.insert(type::ARCS2, Checksum(0x01E7235F));
-	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
-
-	ChecksumSet track07(18155);
-	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
-	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
-
-	ChecksumSet track08(18325);
-	track08.insert(type::ARCS2, Checksum(0x8480223E));
-	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
-
-	ChecksumSet track09(33075);
-	track09.insert(type::ARCS2, Checksum(0x42C5061C));
-	track09.insert(type::ARCS1, Checksum(0x2C736302));
-
-	ChecksumSet track10(18368);
-	track10.insert(type::ARCS2, Checksum(0x47A70F02));
-	track10.insert(type::ARCS1, Checksum(0x1C955978));
-
-	ChecksumSet track11(40152);
-	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
-	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
-
-	ChecksumSet track12(14798);
-	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
-	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
-
-	ChecksumSet track13(11952);
-	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
-	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
-
-	ChecksumSet track14( 8463);
-	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
-	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
-
-	ChecksumSet track15(18935);
-	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
-	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
-
-	Checksums actual_sums {
-		track01,
-		track02,
-		track03,
-		track04,
-		track05,
-		track06,
-		track07,
-		track08,
-		track09,
-		track10,
-		track11,
-		track12,
-		track13,
-		track14,
-		track15
-	};
-
-	REQUIRE ( actual_sums.size() == 15 );
-
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
 
 	// Construct ARResponse by hand
 
@@ -1919,10 +1827,9 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 	// TODO Check content of the block instances
 
-	ARResponse response { block0, block1, block2 };
+	auto response = ARResponse { block0, block1, block2 };
 
 	// TODO Check content of the ARResponse
-
 
 	REQUIRE ( response.size() == 3 );
 	REQUIRE ( response[0] == block0 );
@@ -1935,380 +1842,264 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	const bool v1 = false;
 	const bool v2 = true;
 
-	//auto t = std::unique_ptr<arcstk::MatchTraversal>();
-	//auto o = std::unique_ptr<arcstk::MatchOrder>();
-
-
-	// construct strict trackorder verification result
-
-	//t = std::make_unique<arcstk::details::TraverseBlock>();
-	//o = std::make_unique<arcstk::details::TrackOrder>();
-	//const auto stv_result = arcstk::verify(actual_sums, id,
-	//		arcstk::FromResponse(&response), *t, *o);
-	arcstk::AlbumVerifier a(actual_sums, id);
-
-	REQUIRE ( a.strict() );
-	REQUIRE ( a.actual_id() == id );
-	REQUIRE ( a.actual_checksums() == actual_sums );
-
-	const auto stv_result = a.perform(response);
-	const auto stv_best_block = stv_result->best_block();
-
-
-	SECTION ( "Strict Album Verification is successful" )
+	SECTION ( "Strict verification is correct for matching block" )
 	{
-		//CHECK ( stv_result->all_tracks_verified() );
+		// From: "Bach: Organ Concertos", Simon Preston, DGG
+		// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
+		// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
-		CHECK ( stv_result->is_verified(0) );
-		CHECK ( stv_result->is_verified(1) );
-		CHECK ( stv_result->is_verified(2) );
-		CHECK ( stv_result->is_verified(3) );
-		CHECK ( stv_result->is_verified(4) );
-		CHECK ( stv_result->is_verified(5) );
-		CHECK ( stv_result->is_verified(6) );
-		CHECK ( stv_result->is_verified(7) );
-		CHECK ( stv_result->is_verified(8) );
-		CHECK ( stv_result->is_verified(9) );
-		CHECK ( stv_result->is_verified(10) );
-		CHECK ( stv_result->is_verified(11) );
-		CHECK ( stv_result->is_verified(12) );
-		CHECK ( stv_result->is_verified(13) );
-		CHECK ( stv_result->is_verified(14) );
-	}
+		ChecksumSet track01( 5192);
+		track01.insert(type::ARCS2, Checksum(0xB89992E5));
+		track01.insert(type::ARCS1, Checksum(0x98B10E0F));
 
-	SECTION ( "Strict Album Verification result fails on accessing"
-			" illegal track" )
-	{
-		CHECK_THROWS ( stv_result->is_verified(15) );
-	}
+		ChecksumSet track02( 2165);
+		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
 
-	SECTION ( "Strict Album Verification result has correct size" )
-	{
-		CHECK ( stv_result->total_blocks() == 3 );
-		CHECK ( stv_result->tracks_per_block() == 15 );
-		CHECK ( stv_result->size() == 93 ); // 2 * blocks * tracks + blocks
-	}
+		ChecksumSet track03(15885);
+		track03.insert(type::ARCS2, Checksum(0x56582282));
+		track03.insert(type::ARCS1, Checksum(0x7304F1C4));
 
-	SECTION ( "Strict Album Verification finds best block" )
-	{
-		CHECK ( std::get<0>(stv_best_block) == 2 );
+		ChecksumSet track04(12228);
+		track04.insert(type::ARCS2, Checksum(0x9E2187F9));
+		track04.insert(type::ARCS1, Checksum(0xF2472287));
 
-		CHECK ( std::get<1>(stv_best_block) == v2 );
+		ChecksumSet track05(13925);
+		track05.insert(type::ARCS2, Checksum(0x6BE71E50));
+		track05.insert(type::ARCS1, Checksum(0x881BC504));
 
-		CHECK ( std::get<2>(stv_best_block) == 0 );
-		CHECK ( stv_result->best_block_difference() == 0 );
-	}
+		ChecksumSet track06(19513);
+		track06.insert(type::ARCS2, Checksum(0x01E7235F));
+		track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
 
-	SECTION ( "Strict Album Verification result has correct flags" )
-	{
+		ChecksumSet track07(18155);
+		track07.insert(type::ARCS2, Checksum(0xD8F7763C));
+		track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
+
+		ChecksumSet track08(18325);
+		track08.insert(type::ARCS2, Checksum(0x8480223E));
+		track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
+
+		ChecksumSet track09(33075);
+		track09.insert(type::ARCS2, Checksum(0x42C5061C));
+		track09.insert(type::ARCS1, Checksum(0x2C736302));
+
+		ChecksumSet track10(18368);
+		track10.insert(type::ARCS2, Checksum(0x47A70F02));
+		track10.insert(type::ARCS1, Checksum(0x1C955978));
+
+		ChecksumSet track11(40152);
+		track11.insert(type::ARCS2, Checksum(0xBABF08CC));
+		track11.insert(type::ARCS1, Checksum(0xFDA6D833));
+
+		ChecksumSet track12(14798);
+		track12.insert(type::ARCS2, Checksum(0x563EDCCB));
+		track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
+
+		ChecksumSet track13(11952);
+		track13.insert(type::ARCS2, Checksum(0xAB123C7C));
+		track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
+
+		ChecksumSet track14( 8463);
+		track14.insert(type::ARCS2, Checksum(0xC65C20E4));
+		track14.insert(type::ARCS1, Checksum(0x4A5C3872));
+
+		ChecksumSet track15(18935);
+		track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
+		track15.insert(type::ARCS1, Checksum(0x5FE8B032));
+
+		Checksums actual_sums {
+			track01,
+			track02,
+			track03,
+			track04,
+			track05,
+			track06,
+			track07,
+			track08,
+			track09,
+			track10,
+			track11,
+			track12,
+			track13,
+			track14,
+			track15
+		};
+
+		REQUIRE ( actual_sums.size() == 15 );
+
+		arcstk::AlbumVerifier a(actual_sums, id);
+
+		REQUIRE ( a.strict() );
+		REQUIRE ( a.actual_id() == id );
+		REQUIRE ( a.actual_checksums() == actual_sums );
+
+		const auto result = a.perform(response);
+		const auto best_block = result->best_block();
+
+		REQUIRE ( a.strict() );
+
+		CHECK ( result->total_blocks() == 3 );
+		CHECK ( result->tracks_per_block() == 15 );
+		CHECK ( result->size() == 93 ); // blocks + 2 * blocks * tracks
+
+		CHECK ( result->all_tracks_verified() );
+
+		CHECK ( result->is_verified(0) );
+		CHECK ( result->is_verified(1) );
+		CHECK ( result->is_verified(2) );
+		CHECK ( result->is_verified(3) );
+		CHECK ( result->is_verified(4) );
+		CHECK ( result->is_verified(5) );
+		CHECK ( result->is_verified(6) );
+		CHECK ( result->is_verified(7) );
+		CHECK ( result->is_verified(8) );
+		CHECK ( result->is_verified(9) );
+		CHECK ( result->is_verified(10) );
+		CHECK ( result->is_verified(11) );
+		CHECK ( result->is_verified(12) );
+		CHECK ( result->is_verified(13) );
+		CHECK ( result->is_verified(14) );
+		CHECK_THROWS ( result->is_verified(15) );
+
+		CHECK ( std::get<0>(best_block) == 2 );
+		CHECK ( std::get<1>(best_block) == v2 );
+		CHECK ( std::get<2>(best_block) == 0 );
+		CHECK ( result->best_block_difference() == 0 );
+
 		// 0
-		CHECK ( stv_result->id(0) );
+		CHECK ( result->id(0) );
 
-		CHECK ( stv_result->track(0,  0, v1) );
-		CHECK ( stv_result->track(0,  1, v1) );
-		CHECK ( stv_result->track(0,  2, v1) );
-		CHECK ( stv_result->track(0,  3, v1) );
-		CHECK ( stv_result->track(0,  4, v1) );
-		CHECK ( stv_result->track(0,  5, v1) );
-		CHECK ( stv_result->track(0,  6, v1) );
-		CHECK ( stv_result->track(0,  7, v1) );
-		CHECK ( stv_result->track(0,  8, v1) );
-		CHECK ( stv_result->track(0,  9, v1) );
-		CHECK ( stv_result->track(0, 10, v1) );
-		CHECK ( stv_result->track(0, 11, v1) );
-		CHECK ( stv_result->track(0, 12, v1) );
-		CHECK ( stv_result->track(0, 13, v1) );
-		CHECK ( stv_result->track(0, 14, v1) );
+		CHECK ( result->track(0,  0, v1) );
+		CHECK ( result->track(0,  1, v1) );
+		CHECK ( result->track(0,  2, v1) );
+		CHECK ( result->track(0,  3, v1) );
+		CHECK ( result->track(0,  4, v1) );
+		CHECK ( result->track(0,  5, v1) );
+		CHECK ( result->track(0,  6, v1) );
+		CHECK ( result->track(0,  7, v1) );
+		CHECK ( result->track(0,  8, v1) );
+		CHECK ( result->track(0,  9, v1) );
+		CHECK ( result->track(0, 10, v1) );
+		CHECK ( result->track(0, 11, v1) );
+		CHECK ( result->track(0, 12, v1) );
+		CHECK ( result->track(0, 13, v1) );
+		CHECK ( result->track(0, 14, v1) );
 
-		CHECK ( not stv_result->track(0,  0, v2) );
-		CHECK ( not stv_result->track(0,  1, v2) );
-		CHECK ( not stv_result->track(0,  2, v2) );
-		CHECK ( not stv_result->track(0,  3, v2) );
-		CHECK ( not stv_result->track(0,  4, v2) );
-		CHECK ( not stv_result->track(0,  5, v2) );
-		CHECK ( not stv_result->track(0,  6, v2) );
-		CHECK ( not stv_result->track(0,  7, v2) );
-		CHECK ( not stv_result->track(0,  8, v2) );
-		CHECK ( not stv_result->track(0,  9, v2) );
-		CHECK ( not stv_result->track(0, 10, v2) );
-		CHECK ( not stv_result->track(0, 11, v2) );
-		CHECK ( not stv_result->track(0, 12, v2) );
-		CHECK ( not stv_result->track(0, 13, v2) );
-		CHECK ( not stv_result->track(0, 14, v2) );
+		CHECK ( not result->track(0,  0, v2) );
+		CHECK ( not result->track(0,  1, v2) );
+		CHECK ( not result->track(0,  2, v2) );
+		CHECK ( not result->track(0,  3, v2) );
+		CHECK ( not result->track(0,  4, v2) );
+		CHECK ( not result->track(0,  5, v2) );
+		CHECK ( not result->track(0,  6, v2) );
+		CHECK ( not result->track(0,  7, v2) );
+		CHECK ( not result->track(0,  8, v2) );
+		CHECK ( not result->track(0,  9, v2) );
+		CHECK ( not result->track(0, 10, v2) );
+		CHECK ( not result->track(0, 11, v2) );
+		CHECK ( not result->track(0, 12, v2) );
+		CHECK ( not result->track(0, 13, v2) );
+		CHECK ( not result->track(0, 14, v2) );
 
 		// 1
-		CHECK ( not stv_result->id(1) ); // different id! nothing verifies!
+		CHECK ( not result->id(1) ); // different id! nothing verifies!
 
-		CHECK ( not stv_result->track(1,  0, v1) );
-		CHECK ( not stv_result->track(1,  1, v1) );
-		CHECK ( not stv_result->track(1,  2, v1) );
-		CHECK ( not stv_result->track(1,  3, v1) );
-		CHECK ( not stv_result->track(1,  4, v1) );
-		CHECK ( not stv_result->track(1,  5, v1) );
-		CHECK ( not stv_result->track(1,  6, v1) );
-		CHECK ( not stv_result->track(1,  7, v1) );
-		CHECK ( not stv_result->track(1,  8, v1) );
-		CHECK ( not stv_result->track(1,  9, v1) );
-		CHECK ( not stv_result->track(1, 10, v1) );
-		CHECK ( not stv_result->track(1, 11, v1) );
-		CHECK ( not stv_result->track(1, 12, v1) );
-		CHECK ( not stv_result->track(1, 13, v1) );
-		CHECK ( not stv_result->track(1, 14, v1) );
+		CHECK ( not result->track(1,  0, v1) );
+		CHECK ( not result->track(1,  1, v1) );
+		CHECK ( not result->track(1,  2, v1) );
+		CHECK ( not result->track(1,  3, v1) );
+		CHECK ( not result->track(1,  4, v1) );
+		CHECK ( not result->track(1,  5, v1) );
+		CHECK ( not result->track(1,  6, v1) );
+		CHECK ( not result->track(1,  7, v1) );
+		CHECK ( not result->track(1,  8, v1) );
+		CHECK ( not result->track(1,  9, v1) );
+		CHECK ( not result->track(1, 10, v1) );
+		CHECK ( not result->track(1, 11, v1) );
+		CHECK ( not result->track(1, 12, v1) );
+		CHECK ( not result->track(1, 13, v1) );
+		CHECK ( not result->track(1, 14, v1) );
 
-		CHECK ( not stv_result->track(1,  0, v2) );
-		CHECK ( not stv_result->track(1,  1, v2) );
-		CHECK ( not stv_result->track(1,  2, v2) );
-		CHECK ( not stv_result->track(1,  3, v2) );
-		CHECK ( not stv_result->track(1,  4, v2) );
-		CHECK ( not stv_result->track(1,  5, v2) );
-		CHECK ( not stv_result->track(1,  6, v2) );
-		CHECK ( not stv_result->track(1,  7, v2) );
-		CHECK ( not stv_result->track(1,  8, v2) );
-		CHECK ( not stv_result->track(1,  9, v2) );
-		CHECK ( not stv_result->track(1, 10, v2) );
-		CHECK ( not stv_result->track(1, 11, v2) );
-		CHECK ( not stv_result->track(1, 12, v2) );
-		CHECK ( not stv_result->track(1, 13, v2) );
-		CHECK ( not stv_result->track(1, 14, v2) );
+		CHECK ( not result->track(1,  0, v2) );
+		CHECK ( not result->track(1,  1, v2) );
+		CHECK ( not result->track(1,  2, v2) );
+		CHECK ( not result->track(1,  3, v2) );
+		CHECK ( not result->track(1,  4, v2) );
+		CHECK ( not result->track(1,  5, v2) );
+		CHECK ( not result->track(1,  6, v2) );
+		CHECK ( not result->track(1,  7, v2) );
+		CHECK ( not result->track(1,  8, v2) );
+		CHECK ( not result->track(1,  9, v2) );
+		CHECK ( not result->track(1, 10, v2) );
+		CHECK ( not result->track(1, 11, v2) );
+		CHECK ( not result->track(1, 12, v2) );
+		CHECK ( not result->track(1, 13, v2) );
+		CHECK ( not result->track(1, 14, v2) );
 
 		// 2
-		CHECK ( stv_result->id(2) );
+		CHECK ( result->id(2) );
 
-		CHECK ( not stv_result->track(2,  0, v1) );
-		CHECK ( not stv_result->track(2,  1, v1) );
-		CHECK ( not stv_result->track(2,  2, v1) );
-		CHECK ( not stv_result->track(2,  3, v1) );
-		CHECK ( not stv_result->track(2,  4, v1) );
-		CHECK ( not stv_result->track(2,  5, v1) );
-		CHECK ( not stv_result->track(2,  6, v1) );
-		CHECK ( not stv_result->track(2,  7, v1) );
-		CHECK ( not stv_result->track(2,  8, v1) );
-		CHECK ( not stv_result->track(2,  9, v1) );
-		CHECK ( not stv_result->track(2, 10, v1) );
-		CHECK ( not stv_result->track(2, 11, v1) );
-		CHECK ( not stv_result->track(2, 12, v1) );
-		CHECK ( not stv_result->track(2, 13, v1) );
-		CHECK ( not stv_result->track(2, 14, v1) );
+		CHECK ( not result->track(2,  0, v1) );
+		CHECK ( not result->track(2,  1, v1) );
+		CHECK ( not result->track(2,  2, v1) );
+		CHECK ( not result->track(2,  3, v1) );
+		CHECK ( not result->track(2,  4, v1) );
+		CHECK ( not result->track(2,  5, v1) );
+		CHECK ( not result->track(2,  6, v1) );
+		CHECK ( not result->track(2,  7, v1) );
+		CHECK ( not result->track(2,  8, v1) );
+		CHECK ( not result->track(2,  9, v1) );
+		CHECK ( not result->track(2, 10, v1) );
+		CHECK ( not result->track(2, 11, v1) );
+		CHECK ( not result->track(2, 12, v1) );
+		CHECK ( not result->track(2, 13, v1) );
+		CHECK ( not result->track(2, 14, v1) );
 
-		CHECK ( stv_result->track(2,  0, v2) );
-		CHECK ( stv_result->track(2,  1, v2) );
-		CHECK ( stv_result->track(2,  2, v2) );
-		CHECK ( stv_result->track(2,  3, v2) );
-		CHECK ( stv_result->track(2,  4, v2) );
-		CHECK ( stv_result->track(2,  5, v2) );
-		CHECK ( stv_result->track(2,  6, v2) );
-		CHECK ( stv_result->track(2,  7, v2) );
-		CHECK ( stv_result->track(2,  8, v2) );
-		CHECK ( stv_result->track(2,  9, v2) );
-		CHECK ( stv_result->track(2, 10, v2) );
-		CHECK ( stv_result->track(2, 11, v2) );
-		CHECK ( stv_result->track(2, 12, v2) );
-		CHECK ( stv_result->track(2, 13, v2) );
-		CHECK ( stv_result->track(2, 14, v2) );
+		CHECK ( result->track(2,  0, v2) );
+		CHECK ( result->track(2,  1, v2) );
+		CHECK ( result->track(2,  2, v2) );
+		CHECK ( result->track(2,  3, v2) );
+		CHECK ( result->track(2,  4, v2) );
+		CHECK ( result->track(2,  5, v2) );
+		CHECK ( result->track(2,  6, v2) );
+		CHECK ( result->track(2,  7, v2) );
+		CHECK ( result->track(2,  8, v2) );
+		CHECK ( result->track(2,  9, v2) );
+		CHECK ( result->track(2, 10, v2) );
+		CHECK ( result->track(2, 11, v2) );
+		CHECK ( result->track(2, 12, v2) );
+		CHECK ( result->track(2, 13, v2) );
+		CHECK ( result->track(2, 14, v2) );
 
+		CHECK_THROWS ( result->id(3) );            // illegal block
+		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
 
-		CHECK_THROWS ( stv_result->id(3) );            // illegal block
-		CHECK_THROWS ( stv_result->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( stv_result->track(2, 15, v2) ); //         track
+		CHECK ( result->difference(0, v1) ==  0 );
+		CHECK ( result->difference(0, v2) == 15 );
 
+		CHECK ( result->difference(1, v1) == 16 );
+		CHECK ( result->difference(1, v2) == 16 );
 
-		CHECK ( stv_result->difference(0, v1) ==  0 );
-		CHECK ( stv_result->difference(0, v2) == 15 );
+		CHECK ( result->difference(2, v1) == 15 );
+		CHECK ( result->difference(2, v2) ==  0 );
 
-		CHECK ( stv_result->difference(1, v1) == 16 );
-		CHECK ( stv_result->difference(1, v2) == 16 );
-
-		CHECK ( stv_result->difference(2, v1) == 15 );
-		CHECK ( stv_result->difference(2, v2) ==  0 );
-
-		CHECK_THROWS ( stv_result->difference(3, v1) == 0 );
-		CHECK_THROWS ( stv_result->difference(3, v2) == 0 );
+		CHECK_THROWS ( result->difference(3, v1) == 0 );
+		CHECK_THROWS ( result->difference(3, v2) == 0 );
 	}
-
-/*
-
-	const auto refsums_v1 = std::vector<Checksum>
-	{
-			Checksum(0x98B10E0F),
-			Checksum(0x475F57E9),
-			Checksum(0x7304F1C4),
-			Checksum(0xF2472287),
-			Checksum(0x881BC504),
-			Checksum(0xBB94BFD4),
-			Checksum(0xF9CAEE76),
-			Checksum(0xF9F60BC1),
-			Checksum(0x2C736302),
-			Checksum(0x1C955978),
-			Checksum(0xFDA6D833),
-			Checksum(0x3A57E5D1),
-			Checksum(0x6ED5F3E7),
-			Checksum(0x4A5C3872),
-			Checksum(0x5FE8B032)
-	};
-
-	REQUIRE ( refsums_v1.size() == 15 );
-	REQUIRE ( refsums_v1.size() == result1.size() );
-
-	const auto refsums_v2 = std::vector<Checksum>
-	{
-			Checksum(0xB89992E5),
-			Checksum(0x4F77EB03),
-			Checksum(0x56582282),
-			Checksum(0x9E2187F9),
-			Checksum(0x6BE71E50),
-			Checksum(0x01E7235F),
-			Checksum(0xD8F7763C),
-			Checksum(0x8480223E),
-			Checksum(0x42C5061C),
-			Checksum(0x47A70F02),
-			Checksum(0xBABF08CC),
-			Checksum(0x563EDCCB),
-			Checksum(0xAB123C7C),
-			Checksum(0xC65C20E4),
-			Checksum(0x58FC3C3E)
-	};
-
-	REQUIRE ( refsums_v2.size() == 15 );
-	REQUIRE ( refsums_v2.size() == result1.size() );
-
-	auto lm_diff_v1 = ListMatcher(result1, refsums_v1); // expected to NOT match
-
-	auto lm_diff_v2 = ListMatcher(result1, refsums_v2); // expected to match
-
-	SECTION ( "ListMatcher Copy construct" )
-	{
-		ListMatcher lm_diff_copy(lm_diff_v2);
-	}
-
-	SECTION ( "ListMatcher finds best match on verifying album input" )
-	{
-		CHECK ( lm_diff_v2.matches() );
-
-		CHECK ( lm_diff_v2.best_match() == 0 );
-		CHECK ( lm_diff_v2.best_difference() == 0 );
-		CHECK ( lm_diff_v2.best_match_is_v2() );
-	}
-
-	SECTION ( "ListMatcher's v1 Match loads as declared on album input" )
-	{
-		const Match* match = lm_diff_v1.match();
-
-		CHECK ( match->tracks_per_block() == 15 );
-
-		CHECK ( match->size() == 31 );
-
-		// block 0 (only block)
-		CHECK ( match->id(0) );
-
-		CHECK ( match->track(0,  0, v1) );
-		CHECK ( match->track(0,  1, v1) );
-		CHECK ( match->track(0,  2, v1) );
-		CHECK ( match->track(0,  3, v1) );
-		CHECK ( match->track(0,  4, v1) );
-		CHECK ( match->track(0,  5, v1) );
-		CHECK ( match->track(0,  6, v1) );
-		CHECK ( match->track(0,  7, v1) );
-		CHECK ( match->track(0,  8, v1) );
-		CHECK ( match->track(0,  9, v1) );
-		CHECK ( match->track(0, 10, v1) );
-		CHECK ( match->track(0, 11, v1) );
-		CHECK ( match->track(0, 12, v1) );
-		CHECK ( match->track(0, 13, v1) );
-		CHECK ( match->track(0, 14, v1) );
-
-		CHECK ( not match->track(0,  0, v2) );
-		CHECK ( not match->track(0,  1, v2) );
-		CHECK ( not match->track(0,  2, v2) );
-		CHECK ( not match->track(0,  3, v2) );
-		CHECK ( not match->track(0,  4, v2) );
-		CHECK ( not match->track(0,  5, v2) );
-		CHECK ( not match->track(0,  6, v2) );
-		CHECK ( not match->track(0,  7, v2) );
-		CHECK ( not match->track(0,  8, v2) );
-		CHECK ( not match->track(0,  9, v2) );
-		CHECK ( not match->track(0, 10, v2) );
-		CHECK ( not match->track(0, 11, v2) );
-		CHECK ( not match->track(0, 12, v2) );
-		CHECK ( not match->track(0, 13, v2) );
-		CHECK ( not match->track(0, 14, v2) );
-
-
-		CHECK_THROWS ( match->id(2) );            // illegal block
-		CHECK_THROWS ( match->difference(1, v1) == 0 );
-		CHECK_THROWS ( match->difference(1, v2) == 0 );
-		CHECK_THROWS ( match->track(1, 14, v2) ); //         block
-		CHECK_THROWS ( match->track(0, 15, v2) ); //         track
-
-		CHECK ( match->difference(0, v2) == 15 );
-		CHECK ( match->difference(0, v1) ==  0 );
-	}
-
-	SECTION ( "ListMatcher's v2 Match loads as declared on album input" )
-	{
-		const Match* match = lm_diff_v2.match();
-
-		CHECK ( match->tracks_per_block() == 15 );
-
-		CHECK ( match->size() == 31 );
-
-		// block 0 (only block)
-		CHECK ( match->id(0) );
-
-		CHECK ( not match->track(0,  0, v1) );
-		CHECK ( not match->track(0,  1, v1) );
-		CHECK ( not match->track(0,  2, v1) );
-		CHECK ( not match->track(0,  3, v1) );
-		CHECK ( not match->track(0,  4, v1) );
-		CHECK ( not match->track(0,  5, v1) );
-		CHECK ( not match->track(0,  6, v1) );
-		CHECK ( not match->track(0,  7, v1) );
-		CHECK ( not match->track(0,  8, v1) );
-		CHECK ( not match->track(0,  9, v1) );
-		CHECK ( not match->track(0, 10, v1) );
-		CHECK ( not match->track(0, 11, v1) );
-		CHECK ( not match->track(0, 12, v1) );
-		CHECK ( not match->track(0, 13, v1) );
-		CHECK ( not match->track(0, 14, v1) );
-
-		CHECK ( match->track(0,  0, v2) );
-		CHECK ( match->track(0,  1, v2) );
-		CHECK ( match->track(0,  2, v2) );
-		CHECK ( match->track(0,  3, v2) );
-		CHECK ( match->track(0,  4, v2) );
-		CHECK ( match->track(0,  5, v2) );
-		CHECK ( match->track(0,  6, v2) );
-		CHECK ( match->track(0,  7, v2) );
-		CHECK ( match->track(0,  8, v2) );
-		CHECK ( match->track(0,  9, v2) );
-		CHECK ( match->track(0, 10, v2) );
-		CHECK ( match->track(0, 11, v2) );
-		CHECK ( match->track(0, 12, v2) );
-		CHECK ( match->track(0, 13, v2) );
-		CHECK ( match->track(0, 14, v2) );
-
-
-		CHECK_THROWS ( match->id(2) );            // illegal block
-		CHECK_THROWS ( match->difference(1, v1) == 0 );
-		CHECK_THROWS ( match->difference(1, v2) == 0 );
-		CHECK_THROWS ( match->track(1, 14, v2) ); //         block
-		CHECK_THROWS ( match->track(0, 15, v2) ); //         track
-
-		CHECK ( match->difference(0, v1) == 15 );
-		CHECK ( match->difference(0, v2) ==  0 );
-	}
-*/
 }
 
 
 TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 {
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
 	using arcstk::ARId;
 	using arcstk::ARBlock;
 	using arcstk::ARResponse;
 	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
 
 	// Construct the checksums by hand
 
