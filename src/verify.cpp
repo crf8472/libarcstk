@@ -965,25 +965,25 @@ VerifierBase::VerifierBase(const Checksums& actual_sums)
 }
 
 
-const ARId& VerifierBase::actual_id() const
+const ARId& VerifierBase::actual_id() const noexcept
 {
 	return do_actual_id();
 }
 
 
-const Checksums& VerifierBase::actual_checksums() const
+const Checksums& VerifierBase::actual_checksums() const noexcept
 {
 	return actual_sums_;
 }
 
 
-bool VerifierBase::strict() const
+bool VerifierBase::strict() const noexcept
 {
 	return is_strict_;
 }
 
 
-void VerifierBase::set_strict(const bool strict)
+void VerifierBase::set_strict(const bool strict) noexcept
 {
 	is_strict_ = strict;
 }
@@ -992,25 +992,28 @@ void VerifierBase::set_strict(const bool strict)
 std::unique_ptr<VerificationResult> VerifierBase::perform(
 			const ChecksumSource& ref_sums) const
 {
-	auto t = std::unique_ptr<TraversalPolicy>();
-	if (strict())
-	{
-		t = std::make_unique<BlockTraversal>();
-	} else
-	{
-		t = std::make_unique<TrackTraversal>();
-	}
-
 	const auto o = do_create_order();
+	auto t = do_create_traversal();
 	return verify(actual_checksums(), actual_id(), ref_sums, *t, *o);
 }
 
 
-const ARId& VerifierBase::do_actual_id() const
+const ARId& VerifierBase::do_actual_id() const noexcept
 {
 	return EmptyARId;
 }
 
+
+std::unique_ptr<TraversalPolicy> VerifierBase::do_create_traversal() const
+{
+	if (strict())
+	{
+		return std::make_unique<BlockTraversal>();
+	} else
+	{
+		return std::make_unique<TrackTraversal>();
+	}
+}
 
 } // namespace details
 
@@ -1208,25 +1211,25 @@ std::unique_ptr<VerificationResult> VerificationResult::clone() const
 // Verifier
 
 
-const ARId& Verifier::actual_id() const
+const ARId& Verifier::actual_id() const noexcept
 {
 	return do_actual_id();
 }
 
 
-const Checksums& Verifier::actual_checksums() const
+const Checksums& Verifier::actual_checksums() const noexcept
 {
 	return do_actual_checksums();
 }
 
 
-bool Verifier::strict() const
+bool Verifier::strict() const noexcept
 {
 	return do_strict();
 }
 
 
-void Verifier::set_strict(const bool strict)
+void Verifier::set_strict(const bool strict) noexcept
 {
 	do_set_strict(strict);
 }
@@ -1264,7 +1267,7 @@ std::unique_ptr<details::MatchPolicy> AlbumVerifier::Impl::do_create_order()
 }
 
 
-const ARId& AlbumVerifier::Impl::do_actual_id() const
+const ARId& AlbumVerifier::Impl::do_actual_id() const noexcept
 {
 	return actual_id_;
 }
@@ -1281,26 +1284,26 @@ AlbumVerifier::AlbumVerifier(const Checksums& actual_sums,
 }
 
 
-const ARId& AlbumVerifier::do_actual_id() const
+const ARId& AlbumVerifier::do_actual_id() const noexcept
 {
 	return impl_->actual_id();
 }
 
 
-const Checksums& AlbumVerifier::do_actual_checksums() const
+const Checksums& AlbumVerifier::do_actual_checksums() const noexcept
 {
 
 	return impl_->actual_checksums();
 }
 
 
-bool AlbumVerifier::do_strict() const
+bool AlbumVerifier::do_strict() const noexcept
 {
 	return impl_->strict();
 }
 
 
-void AlbumVerifier::do_set_strict(const bool strict)
+void AlbumVerifier::do_set_strict(const bool strict) noexcept
 {
 	return impl_->set_strict(strict);
 }
@@ -1340,25 +1343,25 @@ TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
 }
 
 
-const ARId& TracksetVerifier::do_actual_id() const
+const ARId& TracksetVerifier::do_actual_id() const noexcept
 {
 	return impl_->actual_id();
 }
 
 
-const Checksums& TracksetVerifier::do_actual_checksums() const
+const Checksums& TracksetVerifier::do_actual_checksums() const noexcept
 {
 	return impl_->actual_checksums();
 }
 
 
-bool TracksetVerifier::do_strict() const
+bool TracksetVerifier::do_strict() const noexcept
 {
 	return impl_->strict();
 }
 
 
-void TracksetVerifier::do_set_strict(const bool strict)
+void TracksetVerifier::do_set_strict(const bool strict) noexcept
 {
 	return impl_->set_strict(strict);
 }

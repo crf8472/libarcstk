@@ -206,13 +206,12 @@ public:
 /**
  * \brief Access an ARResponse by block and index.
  *
- * Make an ARResponse available for verification.
+ * Make ARResponse instances available for verification.
  */
 class FromResponse final : public ChecksumSourceOf<ARResponse>
 {
 	const ARId& do_id(const int block_idx) const final;
-	const Checksum& do_checksum(const int block_idx, const int idx) const
-		final;
+	const Checksum& do_checksum(const int block_idx, const int idx) const final;
 	const uint32_t& do_confidence(const int block_idx, const int idx) const
 		final;
 	std::size_t do_size(const int block_idx) const final;
@@ -234,16 +233,15 @@ class VerificationResult;
 std::ostream& operator << (std::ostream&, const VerificationResult& r);
 
 
-/**
- * \brief Interface: Result of a verification process.
+/** \brief Interface: Result of a verification process.
  *
  * \details
  *
  * A VerificationResult is the result of a complete matching of actual Checksums
  * against a ChecksumSource of referene checksums.
  *
- * It holds the result of any matching operation between a pair of Checksums
- * that was performed. Access to each of these results is provided in terms of
+ * It holds the result of any verification task of any reference track value.
+ * Access to each of these results is provided in terms of
  * <tt>block:track:version</tt>. The <tt>block</tt> and <tt>track</tt> address
  * components are integers, that refer to the respective 0-based block and
  * 0-based track in the ChecksumSource. The <tt>version</tt> is a boolean that
@@ -252,10 +250,8 @@ std::ostream& operator << (std::ostream&, const VerificationResult& r);
  * The result contains also the track-based interpretation of the flags, i.e.
  * whether a given track is considered to be verified or not.
  */
-class VerificationResult
-{
-	friend std::ostream& operator << (std::ostream&,
-			const VerificationResult &match);
+class VerificationResult { friend std::ostream& operator << (std::ostream&,
+		const VerificationResult &match);
 
 public:
 
@@ -405,7 +401,7 @@ public:
 	 *
 	 * \note
 	 * The size of a VerificationResult with a number \f$b\f$ of total_blocks()
-	 * and \f$t\f$ tracks_p:er_block() is \f$b * (2 * t + 1)\f$. The coefficient
+	 * and \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$. The coefficient
 	 * \f$2\f$ is required since each block is matched against ARCSv1 and
 	 * ARCSv2 sums. The \f$+1\f$ is required since the ARId of each block
 	 * contributes an additional verification flag to the VerificationResult.
@@ -495,19 +491,24 @@ private:
 
 /**
  * \brief Service class for performing a verification.
+ *
+ * Subclasses of verifiers can implement specialized policies for strictness
+ * and match order.
+ *
+ * A Verifier is \c strict() by default.
  */
 class Verifier
 {
-	virtual const ARId& do_actual_id() const
+	virtual const ARId& do_actual_id() const noexcept
 	= 0;
 
-	virtual const Checksums& do_actual_checksums() const
+	virtual const Checksums& do_actual_checksums() const noexcept
 	= 0;
 
-	virtual bool do_strict() const
+	virtual bool do_strict() const noexcept
 	= 0;
 
-	virtual void do_set_strict(const bool strict)
+	virtual void do_set_strict(const bool strict) noexcept
 	= 0;
 
 	virtual std::unique_ptr<VerificationResult> do_perform(
@@ -522,37 +523,37 @@ public:
 	virtual ~Verifier() noexcept = default;
 
 	/**
-	 * \brief
+	 * \brief Actual ARId.
 	 *
-	 * \return
+	 * \return Actual ARId.
 	 */
-	const ARId& actual_id() const;
+	const ARId& actual_id() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief Actual Checksums.
 	 *
-	 * \return
+	 * \return Actual Checksums.
 	 */
-	const Checksums& actual_checksums() const;
+	const Checksums& actual_checksums() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief TRUE iff verification is peformed by a strict policy.
 	 *
-	 * \return
+	 * \return TRUE iff verification is peformed by a strict policy.
 	 */
-	bool strict() const;
+	bool strict() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief Activate or deactivate strict verification.
 	 *
-	 * \param[in] strict
+	 * \param[in] strict Activate strict verification by \c TRUE.
 	 */
-	void set_strict(const bool strict);
+	void set_strict(const bool strict) noexcept;
 
 	/**
 	 * \brief Perform a verification.
 	 *
-	 * \param[in] ref_sums    Reference checksums to match against
+	 * \param[in] ref_sums Reference checksums to match against
 	 *
 	 * \return The verification result
 	 */
@@ -562,7 +563,7 @@ public:
 	/**
 	 * \brief Perform a verification.
 	 *
-	 * \param[in] ref_sums    Reference checksums to match against
+	 * \param[in] ref_sums Reference checksums to match against
 	 *
 	 * \return The verification result
 	 */
@@ -572,7 +573,7 @@ public:
 
 
 /**
- * \brief Verify an album track list.
+ * \brief Verify a list of checksums accompanied by a TOC.
  *
  * \details
  *
@@ -580,9 +581,9 @@ public:
  * in each block of the ChecksumSource. Additonally checks the input id for
  * identity with the ARId of each respective block in the ARResponse.
  *
- * AlbumVerifier is the Verifier class suitable for easy matching of entire album
- * rips. Checksum lists whose ARId does not match have a difference of at least
- * \c 1.
+ * AlbumVerifier is the Verifier class suitable for easy matching of entire
+ * album rips. Checksum lists whose ARId does not match have a difference of at
+ * least \c 1.
  *
  * \see TracksetVerifier
  */
@@ -591,10 +592,10 @@ class AlbumVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
-	virtual const ARId& do_actual_id() const final;
-	virtual const Checksums& do_actual_checksums() const final;
-	virtual bool do_strict() const final;
-	virtual void do_set_strict(const bool strict) final;
+	virtual const ARId& do_actual_id() const noexcept final;
+	virtual const Checksums& do_actual_checksums() const noexcept final;
+	virtual bool do_strict() const noexcept final;
+	virtual void do_set_strict(const bool strict) noexcept final;
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
 
@@ -611,17 +612,27 @@ public:
 
 
 /**
- * \brief Verify an arbitrary set of Checksums.
+ * \brief Verify a set of checksums without a TOC.
  *
  * \details
  *
  * Find any match of any actual Checksum in the reference. This targets the
- * situation where a subset of tracks from the same album are tried to be
- * matched, but the subset may be incomplete and the order of the tracks might
- * not be known.
+ * situation where a set of tracks is to be matched that actually forms an album
+ * but there is no TOC present. This means that there is also no ARId known
+ * and maybe not even the actual order of tracks.
+ *
+ * The AlbumVerifier is less ressource-consuming since it has to perform only a
+ * single match for every reference value. It is therefore recommended to use
+ * AlbumVerifier in any case where a TOC is available.
+ *
+ * The TracksetVerifier requires that the set of actual checksums and the blocks
+ * of the ChecksumSource have the same cardinality. This means intuitively that
+ * the number of tracks in local input as well as in the reference must be the
+ * same. The verification of only some tracks against a superset of references
+ * is not supported.
  *
  * \note
- * The TracksetMatcher is a generalization of the AlbumVerifier. The
+ * The TracksetVerifier is a generalization of the AlbumVerifier. The
  * AlbumVerifier adds the restriction that the order of tracks in the reference
  * must be matched too.
  *
@@ -632,17 +643,17 @@ class TracksetVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
-	virtual const ARId& do_actual_id() const final;
-	virtual const Checksums& do_actual_checksums() const final;
-	virtual bool do_strict() const final;
-	virtual void do_set_strict(const bool strict) final;
+	virtual const ARId& do_actual_id() const noexcept final;
+	virtual const Checksums& do_actual_checksums() const noexcept final;
+	virtual bool do_strict() const noexcept final;
+	virtual void do_set_strict(const bool strict) noexcept final;
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
 
 public:
 
 	/**
-	 * \brief
+	 * \brief Constructor.
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */

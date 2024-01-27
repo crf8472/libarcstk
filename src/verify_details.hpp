@@ -983,7 +983,9 @@ std::unique_ptr<VerificationResult> verify(
  */
 class VerifierBase
 {
-	virtual const ARId& do_actual_id() const;
+	virtual const ARId& do_actual_id() const noexcept;
+
+	virtual std::unique_ptr<TraversalPolicy> do_create_traversal() const;
 
 	virtual std::unique_ptr<MatchPolicy> do_create_order() const
 	= 0;
@@ -1005,37 +1007,37 @@ public:
 	virtual ~VerifierBase() noexcept = default;
 
 	/**
-	 * \brief
+	 * \brief Actual ARId to be used when verifying.
 	 *
-	 * \return
+	 * \return Actual ARId.
 	 */
-	const ARId& actual_id() const;
+	const ARId& actual_id() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief The actual checksums to be verified.
 	 *
-	 * \return
+	 * \return The actual checksums to be verified.
 	 */
-	const Checksums& actual_checksums() const;
+	const Checksums& actual_checksums() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief TRUE iff this instances performs verification strictly.
 	 *
-	 * \return
+	 * \return TRUE iff verification method is strict
 	 */
-	bool strict() const;
+	bool strict() const noexcept;
 
 	/**
-	 * \brief
+	 * \brief Turn on or off strict verification.
 	 *
-	 * \param[in] strict
+	 * \param[in] strict Activate or deactivate strictness
 	 */
-	void set_strict(const bool strict);
+	void set_strict(const bool strict) noexcept;
 
 	/**
 	 * \brief Perform a verification.
 	 *
-	 * \param[in] ref_sums    Reference checksums to match against
+	 * \param[in] ref_sums Reference checksums to match against
 	 *
 	 * \return The verification result
 	 */
@@ -1044,7 +1046,14 @@ public:
 
 private:
 
+	/**
+	 * \brief Actual checksums to be verified.
+	 */
 	const Checksums& actual_sums_;
+
+	/**
+	 * \brief Flag to indicate strictness.
+	 */
 	bool is_strict_;
 };
 
@@ -1060,12 +1069,12 @@ class AlbumVerifier::Impl : public details::VerifierBase
 {
 	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 
-	virtual const ARId& do_actual_id() const final;
+	virtual const ARId& do_actual_id() const noexcept final;
 
 public:
 
 	/**
-	 * \brief
+	 * \brief Constructor.
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 * \param[in] actual_id   Actual ARId to check for
@@ -1074,14 +1083,16 @@ public:
 
 private:
 
+	/**
+	 * \brief Internal actual ARId.
+	 */
 	const ARId& actual_id_;
-
 };
 
 
 /**
  * \internal
- * \brief Implementation of an TracksetVerifier.
+ * \brief Implementation of a TracksetVerifier.
  */
 class TracksetVerifier::Impl : public details::VerifierBase
 {
@@ -1090,7 +1101,7 @@ class TracksetVerifier::Impl : public details::VerifierBase
 public:
 
 	/**
-	 * \brief
+	 * \brief Constructor.
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
