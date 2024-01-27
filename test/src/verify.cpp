@@ -1990,6 +1990,9 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( a.strict() );
 
+
+		CHECK ( result->strict() );
+
 		// block 0
 		CHECK ( result->id(0) );
 
@@ -2199,6 +2202,8 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
+
+		CHECK ( not result->strict() );
 
 		// block 0
 		CHECK ( result->id(0) );
@@ -2593,6 +2598,9 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( t.strict() );
 
+
+		CHECK ( result->strict() );
+
 		// 0
 		CHECK ( result->id(0) ); // only mismatches
 
@@ -2803,6 +2811,9 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 		const auto result = t.perform(response);
 
 		REQUIRE ( not t.strict() );
+
+
+		CHECK ( not result->strict() );
 
 		// 0
 		CHECK ( result->id(0) ); // only mismatches
