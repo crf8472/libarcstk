@@ -1081,6 +1081,11 @@ public:
 	 */
 	Impl(const Checksums& actual_sums, const ARId& actual_id);
 
+	/**
+	 * \brief Default destructor
+	 */
+	~Impl() noexcept = default;
+
 private:
 
 	/**
@@ -1106,6 +1111,11 @@ public:
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
 	Impl(const Checksums& actual_sums);
+
+	/**
+	 * \brief Default destructor
+	 */
+	~Impl() noexcept = default;
 };
 
 } // namespace v_1_0_0

@@ -608,6 +608,11 @@ public:
 	 * \param[in] actual_id   Actual ARId to check for
 	 */
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
+
+	/**
+	 * \brief Default destructor:
+	 */
+	~AlbumVerifier() noexcept;
 };
 
 
@@ -658,6 +663,11 @@ public:
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
 	TracksetVerifier(const Checksums& actual_sums);
+
+	/**
+	 * \brief Default destructor:
+	 */
+	~TracksetVerifier() noexcept;
 };
 
 

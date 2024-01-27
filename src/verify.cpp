@@ -1284,6 +1284,9 @@ AlbumVerifier::AlbumVerifier(const Checksums& actual_sums,
 }
 
 
+AlbumVerifier::~AlbumVerifier() noexcept = default;
+
+
 const ARId& AlbumVerifier::do_actual_id() const noexcept
 {
 	return impl_->actual_id();
@@ -1341,6 +1344,9 @@ TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
 {
 	// empty
 }
+
+
+TracksetVerifier::~TracksetVerifier() noexcept = default;
 
 
 const ARId& TracksetVerifier::do_actual_id() const noexcept
