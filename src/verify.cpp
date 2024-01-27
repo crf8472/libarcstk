@@ -7,7 +7,6 @@
 #endif
 
 #include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
-#include <numeric>        // for accumulate
 
 #ifndef __LIBARCSTK_PARSE_HPP__
 #include "parse.hpp"
@@ -284,6 +283,25 @@ bool TrackPolicy::is_strict() const
 }
 
 
+int TrackPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+{
+	using size_type = details::ResultBits::size_type;
+
+	const auto total_tracks = static_cast<size_type>(r.tracks_per_block());
+	auto total_unverified = r.tracks_per_block();
+
+	for (auto t = size_type { 0 }; t < total_tracks; ++t)
+	{
+		if (is_verified(t, r))
+		{
+			--total_unverified;
+		}
+	}
+
+	return total_unverified;
+}
+
+
 // StrictPolicy
 
 
@@ -323,35 +341,6 @@ bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
 		}
 	}
 	return false;
-}
-
-
-int LiberalPolicy::do_total_unverified_tracks(const VerificationResult& r) const
-{
-	using size_type = details::ResultBits::size_type;
-
-	std::vector<bool> tracks(
-			static_cast<size_type>(r.tracks_per_block()), false);
-
-	// Count every track whose checksum was not matched in any block.
-
-	auto b = size_type { 0 };
-	for (auto t = size_type { 0 }; t <
-			static_cast<size_type>(r.tracks_per_block()); ++t)
-	{
-		for (b = size_type { 0 };
-				b < static_cast<size_type>(r.total_blocks()); ++b)
-		{
-			if (r.track(b, t, true) or r.track(b, t, false))
-			{
-				tracks[t] = true;
-				break;
-			}
-		}
-	}
-
-	return r.tracks_per_block() -
-		std::accumulate(tracks.begin(), tracks.end(), 0);
 }
 
 

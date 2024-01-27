@@ -321,8 +321,7 @@ class TrackPolicy
 		const
 	= 0;
 
-	virtual int do_total_unverified_tracks(const VerificationResult& r) const
-	= 0;
+	virtual int do_total_unverified_tracks(const VerificationResult& r) const;
 
 	virtual bool do_is_strict() const
 	= 0;
@@ -392,9 +391,6 @@ class LiberalPolicy final : public TrackPolicy
 {
 	virtual bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
-
-	virtual int do_total_unverified_tracks(const VerificationResult& r) const
-		final;
 
 	virtual bool do_is_strict() const final;
 };
