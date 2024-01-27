@@ -1748,8 +1748,155 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 }
 
 
-// TODO details::StrictPolicy
-// TODO details::LiberalPolicy
+TEST_CASE ( "details::StrictPolicy", "[strictpolicy]" )
+{
+	using arcstk::details::create_result;
+	using arcstk::details::StrictPolicy;
+
+	auto result = create_result(4, 8, std::make_unique<StrictPolicy>());
+
+	REQUIRE ( result->total_blocks() == 4 );
+	REQUIRE ( result->tracks_per_block() == 8 );
+	REQUIRE ( result->size() == 68 );
+	REQUIRE ( result->strict() );
+
+	result->verify_id(0);
+	result->verify_id(1);
+	result->verify_id(2);
+	result->verify_id(3);
+
+	result->verify_track(0, 2, false); // v1
+	result->verify_track(0, 6, true); // v2
+	result->verify_track(0, 5, true);
+
+	result->verify_track(1, 1, false); // v1
+	result->verify_track(1, 4, false);
+	result->verify_track(1, 2, false);
+	result->verify_track(1, 5, true); // v2
+
+	result->verify_track(2, 2, false); // v1
+	result->verify_track(2, 4, true); // v2
+	result->verify_track(2, 5, true);
+
+	result->verify_track(3, 5, false); // v1
+	result->verify_track(3, 2, false);
+	result->verify_track(3, 4, true); // v2
+	result->verify_track(3, 6, true);
+
+	// Best block is 1 with best_diff in v1 type, hence 1,2 and 4 are verified.
+	// Tracks 0,3,5,6 and 7 are not verified.
+
+	REQUIRE ( result->strict() );
+	REQUIRE ( std::get<0>(result->best_block()) == 1 );
+	// FIXME best_block should yield 3, since 3 has more v2 matches than 1)
+
+	REQUIRE ( result->total_unverified_tracks() == 5 );
+
+	REQUIRE ( not result->is_verified(0) );
+	REQUIRE (     result->is_verified(1) );
+	REQUIRE (     result->is_verified(2) );
+	REQUIRE ( not result->is_verified(3) );
+	REQUIRE (     result->is_verified(4) );
+	REQUIRE ( not result->is_verified(5) );
+	REQUIRE ( not result->is_verified(6) );
+	REQUIRE ( not result->is_verified(7) );
+
+
+	SECTION( "is_verified() yields verified tracks correctly" )
+	{
+		const auto policy = std::make_unique<StrictPolicy>();
+
+		CHECK ( not policy->is_verified(0, *result) );
+		CHECK (     policy->is_verified(1, *result) );
+		CHECK (     policy->is_verified(2, *result) );
+		CHECK ( not policy->is_verified(3, *result) );
+		CHECK (     policy->is_verified(4, *result) );
+		CHECK ( not policy->is_verified(5, *result) );
+		CHECK ( not policy->is_verified(6, *result) );
+		CHECK ( not policy->is_verified(7, *result) );
+	}
+
+	SECTION( "total_unverified_tracks() counts unverified tracks correctly" )
+	{
+		const auto policy = std::make_unique<StrictPolicy>();
+
+		CHECK ( policy->total_unverified_tracks(*result) == 5 );
+	}
+}
+
+
+TEST_CASE ( "details::LiberalPolicy", "[liberalpolicy]" )
+{
+	using arcstk::details::create_result;
+	using arcstk::details::LiberalPolicy;
+
+	auto result = create_result(4, 8, std::make_unique<LiberalPolicy>());
+
+	REQUIRE ( result->total_blocks() == 4 );
+	REQUIRE ( result->tracks_per_block() == 8 );
+	REQUIRE ( result->size() == 68 );
+	REQUIRE ( not result->strict() );
+
+	result->verify_id(0);
+	result->verify_id(1);
+	result->verify_id(2);
+	result->verify_id(3);
+
+	result->verify_track(0, 2, false); // v1
+	result->verify_track(0, 6, true); // v2
+	result->verify_track(0, 5, true);
+
+	result->verify_track(1, 1, false); // v1
+	result->verify_track(1, 4, false);
+	result->verify_track(1, 2, false);
+	result->verify_track(1, 5, true); // v2
+
+	result->verify_track(2, 2, false); // v1
+	result->verify_track(2, 4, true); // v2
+	result->verify_track(2, 5, true);
+
+	result->verify_track(3, 5, false); // v1
+	result->verify_track(3, 2, false);
+	result->verify_track(3, 4, true); // v2
+	result->verify_track(3, 6, true);
+
+	// Tracks 0,3 and 7 are not verified.
+
+	REQUIRE ( not result->strict() );
+
+	REQUIRE ( not result->is_verified(0) );
+	REQUIRE ( result->is_verified(1) );
+	REQUIRE ( result->is_verified(2) );
+	REQUIRE ( not result->is_verified(3) );
+	REQUIRE ( result->is_verified(4) );
+	REQUIRE ( result->is_verified(5) );
+	REQUIRE ( result->is_verified(6) );
+	REQUIRE ( not result->is_verified(7) );
+	REQUIRE ( result->total_unverified_tracks() == 3 );
+
+	SECTION( "is_verified() yields verified tracks correctly" )
+	{
+		const auto policy = std::make_unique<LiberalPolicy>();
+
+		CHECK ( not policy->is_verified(0, *result) );
+		CHECK ( policy->is_verified(1, *result) );
+		CHECK ( policy->is_verified(2, *result) );
+		CHECK ( not policy->is_verified(3, *result) );
+		CHECK ( policy->is_verified(4, *result) );
+		CHECK ( policy->is_verified(5, *result) );
+		CHECK ( policy->is_verified(6, *result) );
+		CHECK ( not policy->is_verified(7, *result) );
+	}
+
+	SECTION( "total_unverified_tracks() counts unverified tracks correctly" )
+	{
+		const auto policy = std::make_unique<LiberalPolicy>();
+
+		CHECK ( policy->total_unverified_tracks(*result) == 3 );
+	}
+}
+
+
 // TODO details::VerifierBase
 
 
