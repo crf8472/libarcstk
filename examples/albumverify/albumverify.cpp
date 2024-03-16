@@ -13,16 +13,16 @@
 #include <string>    // for string
 
 #ifndef __LIBARCSTK_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
-#include <arcstk/match.hpp>
+#include "match.hpp"
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include <arcstk/calculate.hpp>      // for arcstk::Checksums
+#include "calculate.hpp"      // for arcstk::Checksums
 #endif
 #ifndef __LIBARCSTK_PARSE_HPP__
-#include <arcstk/parse.hpp>          // for arcstk::ARResponse
+#include "parse.hpp"          // for arcstk::ARResponse
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include <arcstk/logging.hpp>
+#include "logging.hpp"
 #endif
 
 
@@ -182,7 +182,8 @@ int main(int argc, char* argv[])
 	if (argc < 3 or argc > 4)
 	{
 		std::cout <<
-			"Usage: albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <file.bin>"
+			"Usage: "
+			"albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <dbar_file.bin>"
 			<< std::endl;
 
 		return EXIT_SUCCESS;
