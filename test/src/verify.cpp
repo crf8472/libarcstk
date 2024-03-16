@@ -1,5 +1,9 @@
 #include "catch2/catch_test_macros.hpp"
 
+#ifndef __LIBARCSTK_DBAR_HPP__
+#include "dbar.hpp"
+#endif
+
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
@@ -10,9 +14,6 @@
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_PARSE_HPP__
-#include "parse.hpp"
-#endif
 
 
 /**
@@ -20,19 +21,14 @@
  */
 
 
-TEST_CASE ( "FromResponse", "[FromResponse]" )
+TEST_CASE ( "DBARSource", "[dbarsource]" )
 {
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	// Construct ARResponse by hand
-
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -49,11 +45,8 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -70,11 +63,8 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -91,40 +81,38 @@ TEST_CASE ( "FromResponse", "[FromResponse]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	// TODO Check content of the block instances
+	REQUIRE ( dBAR.size() == 3 );
 
-	ARResponse response { block0, block1, block2 };
+	auto r = DBARSource { &dBAR };
+	auto r_copy_ctor = DBARSource { r }; // copy constructed
 
-	auto r = FromResponse { &response };
-	auto r_copy_ctor = FromResponse { r }; // copy constructed
-
-	auto r_copy_ass = FromResponse { nullptr };
+	auto r_copy_ass = DBARSource { nullptr };
 
 	REQUIRE ( r_copy_ass.source() == nullptr );
 
 	r_copy_ass = r; // copy assigned
 
-	SECTION ( "ChecksumSoure of ARResponse is constructed correctly" )
+	SECTION ( "ChecksumSoure of DBAR is constructed correctly" )
 	{
-		CHECK ( &response == r.source() );
+		CHECK ( &dBAR == r.source() );
 	}
 
-	SECTION ( "ChecksumSoure of ARResponse is copy-constructed correctly" )
+	SECTION ( "ChecksumSoure of DBAR is copy-constructed correctly" )
 	{
-		CHECK (  r_copy_ctor.source() == &response );
+		CHECK (  r_copy_ctor.source() == &dBAR );
 		CHECK ( &r_copy_ctor          != &r );
 	}
 
-	SECTION ( "ChecksumSoure of ARResponse is copy-assigned correctly" )
+	SECTION ( "ChecksumSoure of DBAR is copy-assigned correctly" )
 	{
-		CHECK (  r_copy_ass.source() == &response );
+		CHECK (  r_copy_ass.source() == &dBAR );
 		CHECK ( &r_copy_ass          != &r );
 	}
 
-	SECTION ( "Access on response data is correct" )
+	SECTION ( "Access on DBAR data is correct" )
 	{
 		CHECK ( r.checksum(0,  0) == 0x98B10E0Fu );
 		CHECK ( r.checksum(0,  1) == 0x475F57E9u );
@@ -378,18 +366,12 @@ TEST_CASE ( "details::Result", "[result]" )
 TEST_CASE ( "details::BlockSelector", "[blockselector]")
 {
 	using arcstk::details::BlockSelector;
-
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	// Construct ARResponse by hand
-
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -406,11 +388,8 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -427,11 +406,8 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -448,12 +424,29 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	const auto response = ARResponse { block0, block1, block2 };
-	const auto r = FromResponse { &response };
+	const auto r = DBARSource { &dBAR };
 	const auto b = BlockSelector {};
+
+//  Commented out: Values for testing the index calculation
+//
+//	SECTION ( "Indices" )
+//	{
+//		auto dbar = dBAR.impl(); // get the DBARObject
+//
+//		CHECK ( dbar->total_tracks_accumulated(0) ==  0 );
+//		CHECK ( dbar->total_tracks_accumulated(1) == 15 );
+//		CHECK ( dbar->total_tracks_accumulated(2) == 30 );
+//
+//		CHECK ( dbar->arcs_idx(0, 13) == 29 );
+//		CHECK ( dbar->arcs_idx(1,  2) == 40 );
+//		CHECK ( dbar->arcs_idx(1,  7) == 50 );
+//		CHECK ( dbar->arcs_idx(1, 14) == 64 );
+//		CHECK ( dbar->arcs_idx(2,  0) == 69 );
+//		CHECK ( dbar->arcs_idx(2, 14) == 97 );
+//	}
 
 	SECTION ( "BlockSelector gets Checksum by <block, track>" )
 	{
@@ -472,18 +465,12 @@ TEST_CASE ( "details::BlockSelector", "[blockselector]")
 TEST_CASE ( "details::TrackSelector", "[trackselector]")
 {
 	using arcstk::details::TrackSelector;
-
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	// Construct ARResponse by hand
-
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -500,11 +487,8 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -521,11 +505,8 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -542,19 +523,16 @@ TEST_CASE ( "details::TrackSelector", "[trackselector]")
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	const auto response = ARResponse { block0, block1, block2 };
-	const auto r = FromResponse { &response };
+	const auto r = DBARSource { &dBAR };
 	const auto t = TrackSelector {};
 
 	SECTION ( "TrackSelector gets Checksum by <track, block>" )
 	{
 		CHECK ( t.get(r, 14, 0) == 0x5FE8B032u );
-
 		CHECK ( t.get(r,  7, 1) == 0x8480223Eu );
-
 		CHECK ( t.get(r,  1, 2) == 0x4F78EB03u );
 	}
 }
@@ -565,16 +543,12 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 	using arcstk::details::SourceIterator;
 	using arcstk::details::BlockSelector;
 	using arcstk::details::TrackSelector;
-
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -591,11 +565,8 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -612,11 +583,8 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -633,11 +601,10 @@ TEST_CASE( "details::SourceIterator", "[sourceiterator]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	const auto response = ARResponse { block0, block1, block2 };
-	const auto r = FromResponse { &response };
+	const auto r = DBARSource { &dBAR };
 	const auto block = BlockSelector {};
 	const auto track = TrackSelector {};
 
@@ -690,14 +657,11 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 	using arcstk::details::BlockTraversal;
 
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -714,11 +678,8 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -735,11 +696,8 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -756,17 +714,15 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	const auto response = ARResponse { block0, block1, block2 };
+	REQUIRE ( dBAR.size() == 3 );
+	//REQUIRE ( dBAR[0] == dbar.block(0) );
+	//REQUIRE ( dBAR[1] == dbar.block(1) );
+	//REQUIRE ( dBAR[2] == dbar.block(2) );
 
-	REQUIRE ( response.size() == 3 );
-	REQUIRE ( response[0] == block0 );
-	REQUIRE ( response[1] == block1 );
-	REQUIRE ( response[2] == block2 );
-
-	const auto r = FromResponse { &response };
+	const auto r = DBARSource { &dBAR };
 	BlockTraversal b;
 
 	REQUIRE ( b.get_policy()->is_strict() );
@@ -790,25 +746,26 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 
 	SECTION ( "BlockTraversal traverses current() correctly" )
 	{
-		auto i = block_start;
+		auto i = b.begin();
+
 		CHECK ( i.current() == 1 ); // block
 		CHECK ( i.counter() == 0 ); // track
 
-		CHECK (     i->value() == 0xB89992E5 );
-		CHECK ( (++i)->value() == 0x4F77EB03 );
-		CHECK ( (++i)->value() == 0x56582282 );
-		CHECK ( (++i)->value() == 0x9E2187F9 );
-		CHECK ( (++i)->value() == 0x6BE71E50 );
-		CHECK ( (++i)->value() == 0x01E7235F );
-		CHECK ( (++i)->value() == 0xD8F7763C );
-		CHECK ( (++i)->value() == 0x8480223E );
-		CHECK ( (++i)->value() == 0x42C5061C );
-		CHECK ( (++i)->value() == 0x47A70F02 );
-		CHECK ( (++i)->value() == 0xBABF08CC );
-		CHECK ( (++i)->value() == 0x563EDCCB );
-		CHECK ( (++i)->value() == 0xAB123C7C );
-		CHECK ( (++i)->value() == 0xC65C20E4 );
-		CHECK ( (++i)->value() == 0x58FC3C3E );
+		CHECK (     *i == 0xB89992E5 );
+		CHECK ( *(++i) == 0x4F77EB03 );
+		CHECK ( *(++i) == 0x56582282 );
+		CHECK ( *(++i) == 0x9E2187F9 );
+		CHECK ( *(++i) == 0x6BE71E50 );
+		CHECK ( *(++i) == 0x01E7235F );
+		CHECK ( *(++i) == 0xD8F7763C );
+		CHECK ( *(++i) == 0x8480223E );
+		CHECK ( *(++i) == 0x42C5061C );
+		CHECK ( *(++i) == 0x47A70F02 );
+		CHECK ( *(++i) == 0xBABF08CC );
+		CHECK ( *(++i) == 0x563EDCCB );
+		CHECK ( *(++i) == 0xAB123C7C );
+		CHECK ( *(++i) == 0xC65C20E4 );
+		CHECK ( *(++i) == 0x58FC3C3E );
 
 		CHECK ( i.current() ==  1 ); // block
 		CHECK ( i.counter() == 14 ); // track
@@ -839,16 +796,12 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal]" )
 TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 {
 	using arcstk::details::TrackTraversal;
-
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::DBAR;
+	using arcstk::DBARSource;
 
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -865,11 +818,8 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -886,11 +836,8 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -907,18 +854,16 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	const auto response = ARResponse { block0, block1, block2 };
+	REQUIRE ( dBAR.size() == 3 );
+	//REQUIRE ( dBAR[0] == block0 );
+	//REQUIRE ( dBAR[1] == block1 );
+	//REQUIRE ( dBAR[2] == block2 );
 
-	REQUIRE ( response.size() == 3 );
-	REQUIRE ( response[0] == block0 );
-	REQUIRE ( response[1] == block1 );
-	REQUIRE ( response[2] == block2 );
-
-	const auto r = FromResponse { &response };
-	TrackTraversal t;
+	const auto r = DBARSource { &dBAR };
+	auto t = TrackTraversal {};
 
 	REQUIRE ( not t.get_policy()->is_strict() );
 
@@ -931,22 +876,22 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 	REQUIRE ( t.current_block(t.begin()) == 0 );
 	REQUIRE ( t.current_track(t.begin()) == 3 );
 
-	auto track_start = t.begin();
+	const auto track_start = t.begin();
 	REQUIRE ( track_start.counter() == 0 );
 
-	auto track_end = t.end();
+	const auto track_end = t.end();
 	REQUIRE ( track_end.counter() == 3 );
 
 
 	SECTION ( "TrackTraversal traverses current() correctly" )
 	{
-		auto i = track_start;
+		auto i = t.begin();
 		CHECK ( i.current() == 3 ); // 0-based track
 		CHECK ( i.counter() == 0 );
 
-		CHECK (     i->value() == 0xF2472287 );
-		CHECK ( (++i)->value() == 0x9E2187F9 );
-		CHECK ( (++i)->value() == 0x0E2187F9 );
+		CHECK (     *i == 0xF2472287 );
+		CHECK ( *(++i) == 0x9E2187F9 );
+		CHECK ( *(++i) == 0x0E2187F9 );
 
 		CHECK ( i.current() == 3 ); // 0-based track
 		CHECK ( i.counter() == 2 );
@@ -960,17 +905,15 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal]" )
 TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 {
 	using arcstk::details::TrackOrderPolicy;
-
-	// Construct the checksums by hand
-
-	// From: "Bach: Organ Concertos", Simon Preston, DGG
-	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
-	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
 	using arcstk::Checksum;
 	using arcstk::ChecksumSet;
 	using arcstk::Checksums;
 	using arcstk::checksum::type;
+	using arcstk::DBARTriplet;
+
+	// From: "Bach: Organ Concertos", Simon Preston, DGG
+	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
+	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
 	ChecksumSet track01( 5192);
 	track01.insert(type::ARCS2, Checksum(0xB89992E5));
@@ -1052,10 +995,7 @@ TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 
 	REQUIRE ( actual_sums.size() == 15 );
 
-
-	using arcstk::ARBlock;
-	ARBlock block( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
-		{ /* triplets */
+	std::vector<DBARTriplet> block = {
 			{ 0xB89992E5, 0, 0 },
 			{ 0x4F77EB03, 0, 0 },
 			{ 0x56582282, 0, 0 },
@@ -1071,12 +1011,9 @@ TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 			{ 0xAB123C7C, 0, 0 },
 			{ 0xC65C20E4, 0, 0 },
 			{ 0x58FC3C3E, 0, 0 }
-		}
-	);
+	};
 
-	//
-
-	auto result = arcstk::details::create_result(3, 15,
+	const auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
 	REQUIRE ( result->difference(0, true) == 16);
@@ -1149,18 +1086,17 @@ TEST_CASE ( "details::TrackOrderPolicy", "[trackorderpolicy]" )
 
 TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 {
-	using arcstk::details::FindOrderPolicy;
-
-	// Construct the checksums by hand
-
-	// From: "Bach: Organ Concertos", Simon Preston, DGG
-	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
-	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
-
 	using arcstk::Checksum;
 	using arcstk::ChecksumSet;
 	using arcstk::Checksums;
 	using arcstk::checksum::type;
+	using arcstk::DBAR;
+	using arcstk::DBARTriplet;
+	using arcstk::details::FindOrderPolicy;
+
+	// From: "Bach: Organ Concertos", Simon Preston, DGG
+	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
+	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
 	ChecksumSet track01( 5192);
 	track01.insert(type::ARCS2, Checksum(0xB89992E5));
@@ -1243,9 +1179,7 @@ TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 	REQUIRE ( actual_sums.size() == 15 );
 
 
-	using arcstk::ARBlock;
-	ARBlock block( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
-		{ /* triplets */
+	std::vector<DBARTriplet> block = {
 			{ 0xB89992E5, 0, 0 },
 			{ 0x4F77EB03, 0, 0 },
 			{ 0x56582282, 0, 0 },
@@ -1261,12 +1195,9 @@ TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 			{ 0xAB123C7C, 0, 0 },
 			{ 0xC65C20E4, 0, 0 },
 			{ 0x58FC3C3E, 0, 0 }
-		}
-	);
+	};
 
-	//
-
-	auto result = arcstk::details::create_result(3, 15,
+	const auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
 	REQUIRE ( result->difference(0, true) == 16);
@@ -1336,16 +1267,21 @@ TEST_CASE ( "details::FindOrderPolicy", "[findorderpolicy]" )
 TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 {
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
-	using arcstk::FromResponse;
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
+	using arcstk::DBAR;
+	using arcstk::details::BlockTraversal;
+	using arcstk::details::TrackOrderPolicy;
+	using arcstk::details::TrackTraversal;
+	using arcstk::details::Verification;
+	using arcstk::DBARSource;
 
-	// Construct ARResponse by hand
+	const auto id = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0 },
 			{ 0x475F57E9,  4, 0 },
@@ -1362,11 +1298,8 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 			{ 0x6ED5F3E7, 18, 0 },
 			{ 0x4A5C3872, 21, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -1383,11 +1316,8 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -1404,25 +1334,15 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	// TODO Check content of the block instances
+	const auto ref_sums = DBARSource { &dBAR };
 
-	ARResponse response { block0, block1, block2 };
-
-	auto ref_sums = FromResponse { &response };
-
-	using arcstk::details::Verification;
 	auto v = std::make_unique<Verification>();
 
 	SECTION ("Strict verification by track order finds best block")
 	{
-		using arcstk::Checksum;
-		using arcstk::ChecksumSet;
-		using arcstk::Checksums;
-		using arcstk::checksum::type;
-
 		ChecksumSet track01( 5192);
 		track01.insert(type::ARCS2, Checksum(0xB89992E5));
 		track01.insert(type::ARCS1, Checksum(0x98B10E0F));
@@ -1503,13 +1423,11 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 
 		REQUIRE ( actual_sums.size() == 15 );
 
-		using arcstk::details::BlockTraversal;
-		using arcstk::details::TrackOrderPolicy;
-
 		const auto order = std::make_unique<TrackOrderPolicy>();
 
 		auto traversal = std::make_unique<BlockTraversal>();
-		auto result = arcstk::details::create_result(ref_sums.size(),
+
+		const auto result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), traversal->get_policy());
 
 		REQUIRE ( result->total_blocks() == 3 );
@@ -1557,11 +1475,6 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 
 	SECTION ("Verification by track order is correct")
 	{
-		using arcstk::Checksum;
-		using arcstk::ChecksumSet;
-		using arcstk::Checksums;
-		using arcstk::checksum::type;
-
 		ChecksumSet track01( 5192);
 		track01.insert(type::ARCS2, Checksum(0xB89992E5));
 		track01.insert(type::ARCS1, Checksum(0xFFFFFFFF)); // mismatch
@@ -1642,15 +1555,11 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 
 		REQUIRE ( actual_sums.size() == 15 );
 
-		using arcstk::details::BlockTraversal;
-		using arcstk::details::TrackTraversal;
-		using arcstk::details::TrackOrderPolicy;
-
 		const auto order = std::make_unique<TrackOrderPolicy>();
 
 		// strict version matching one block
 		auto block = std::make_unique<BlockTraversal>();
-		auto b_result = arcstk::details::create_result(ref_sums.size(),
+		const auto b_result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), block->get_policy());
 
 		REQUIRE ( b_result->total_blocks() == 3 );
@@ -1659,7 +1568,7 @@ TEST_CASE ( "details::Verification", "[sourcetraversal]" )
 
 		// non-strict version just matching every track in at least one block
 		auto track = std::make_unique<TrackTraversal>();
-		auto t_result = arcstk::details::create_result(ref_sums.size(),
+		const auto t_result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), track->get_policy());
 
 		REQUIRE ( t_result->total_blocks() == 3 );
@@ -1903,15 +1812,17 @@ TEST_CASE ( "details::LiberalPolicy", "[liberalpolicy]" )
 TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 {
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
+	using arcstk::AlbumVerifier;
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
+	using arcstk::DBAR;
 
-	// Construct ARResponse by hand
+	const auto id = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: v1 values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F, 24, 0 },
 			{ 0x475F57E9, 24, 0 },
@@ -1928,11 +1839,8 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 			{ 0x6ED5F3E7, 24, 0 },
 			{ 0x4A5C3872, 24, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values, id from block 1
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -1949,11 +1857,8 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
-
-	// Define block: different id, slightly different values than block 1
-	ARBlock block2( /* id */ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
+		} },
+		{ { 23, 0x001F9177, 0x024BE24E, 0xFF0D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -1970,25 +1875,12 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
+		} }
+	};
 
-	// TODO Check content of the block instances
+	// TODO Check content of the DBAR
 
-	auto response = ARResponse { block0, block1, block2 };
-
-	// TODO Check content of the ARResponse
-
-	REQUIRE ( response.size() == 3 );
-	REQUIRE ( response[0] == block0 );
-	REQUIRE ( response[1] == block1 );
-	REQUIRE ( response[2] == block2 );
-
-
-	using arcstk::checksum::type;
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
+	REQUIRE ( dBAR.size() == 3 );
 
 	// From: "Bach: Organ Concertos", Simon Preston, DGG
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
@@ -2075,7 +1967,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	REQUIRE ( actual_sums.size() == 15 );
 
 	// Represents verification in track order, maybe either strict or non-strict
-	arcstk::AlbumVerifier a(actual_sums, id);
+	AlbumVerifier a {actual_sums, id};
 
 	// Check defaults
 	REQUIRE ( a.strict() );
@@ -2093,7 +1985,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	{
 		REQUIRE ( a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( a.strict() );
 
@@ -2115,7 +2007,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	{
 		REQUIRE ( a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( a.strict() );
 
@@ -2133,7 +2025,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	{
 		REQUIRE ( a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( a.strict() );
 
@@ -2250,7 +2142,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	{
 		REQUIRE ( a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 		const auto best_block = result->best_block();
 
 		REQUIRE ( a.strict() );
@@ -2266,7 +2158,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 	{
 		REQUIRE ( a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( a.strict() );
 
@@ -2299,7 +2191,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( not a.strict() );
 
@@ -2324,7 +2216,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( not a.strict() );
 
@@ -2345,7 +2237,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( not a.strict() );
 
@@ -2464,7 +2356,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 		const auto best_block = result->best_block();
 
 		REQUIRE ( not a.strict() );
@@ -2481,7 +2373,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 
 		REQUIRE ( not a.strict() );
 
-		const auto result = a.perform(response);
+		const auto result = a.perform(dBAR);
 
 		REQUIRE ( not a.strict() );
 
@@ -2510,15 +2402,15 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier]" )
 TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 {
 	using arcstk::ARId;
-	using arcstk::ARBlock;
-	using arcstk::ARResponse;
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Checksums;
+	using arcstk::DBAR;
+	using arcstk::TracksetVerifier;
 
-	// Construct ARResponse by hand
-
-	ARId id { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
-
-	// Define block: mismatching values
-	ARBlock block0( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+	const auto dBAR = DBAR {
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xC89192E5, 0, 0 },
 			{ 0x4F78EB03, 0, 0 },
@@ -2535,11 +2427,8 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 			{ 0xAB123C9C, 0, 0 },
 			{ 0xB65C20E4, 0, 0 },
 			{ 0x68FC3C3E, 0, 0 }
-		}
-	);
-
-	// Define block: v1 values
-	ARBlock block1( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0x98B10E0F, 24, 0 },
 			{ 0x475F57E9, 24, 0 },
@@ -2556,11 +2445,8 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 			{ 0x6ED5F3E7, 24, 0 },
 			{ 0x4A5C3872, 24, 0 },
 			{ 0x5FE8B032, 24, 0 }
-		}
-	);
-
-	// Define block: v2 values (best block is last on traversal)
-	ARBlock block2( /* id */ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+		} },
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
 		{ /* triplets */
 			{ 0xB89992E5,  6, 0 },
 			{ 0x4F77EB03,  8, 0 },
@@ -2577,25 +2463,10 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 			{ 0xAB123C7C, 14, 0 },
 			{ 0xC65C20E4, 26, 0 },
 			{ 0x58FC3C3E, 28, 0 }
-		}
-	);
+		} }
+	};
 
-	// TODO Check content of the block instances
-
-	ARResponse response { block0, block1, block2 };
-
-	// TODO Check content of the ARResponse
-
-	REQUIRE ( response.size() == 3 );
-	REQUIRE ( response[0] == block0 );
-	REQUIRE ( response[1] == block1 );
-	REQUIRE ( response[2] == block2 );
-
-
-	using arcstk::checksum::type;
-	using arcstk::Checksum;
-	using arcstk::ChecksumSet;
-	using arcstk::Checksums;
+	REQUIRE ( dBAR.size() == 3 );
 
 	// From: "Bach: Organ Concertos", Simon Preston, DGG
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
@@ -2682,7 +2553,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	REQUIRE ( actual_sums.size() == 15 );
 
 
-	arcstk::TracksetVerifier t(actual_sums);
+	TracksetVerifier t { actual_sums };
 
 	REQUIRE ( t.strict() );
 	REQUIRE ( t.actual_id() == arcstk::EmptyARId);
@@ -2698,7 +2569,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	{
 		REQUIRE ( t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( t.strict() );
 
@@ -2722,7 +2593,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	{
 		REQUIRE ( t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( t.strict() );
 
@@ -2741,7 +2612,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	{
 		REQUIRE ( t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( t.strict() );
 
@@ -2858,7 +2729,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	{
 		REQUIRE ( t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 		const auto best_block = result->best_block();
 
 		REQUIRE ( t.strict() );
@@ -2875,7 +2746,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 	{
 		REQUIRE ( t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( t.strict() );
 
@@ -2909,7 +2780,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( not t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( not t.strict() );
 
@@ -2934,7 +2805,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( not t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( not t.strict() );
 
@@ -2955,7 +2826,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( not t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( not t.strict() );
 
@@ -3074,7 +2945,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( not t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 		const auto best_block = result->best_block();
 
 		REQUIRE ( not t.strict() );
@@ -3093,7 +2964,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier]" )
 
 		REQUIRE ( not t.strict() );
 
-		const auto result = t.perform(response);
+		const auto result = t.perform(dBAR);
 
 		REQUIRE ( not t.strict() );
 

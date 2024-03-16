@@ -12,17 +12,17 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCSTK_VERIFY_HPP__     // libarcstk: match Checksums and DBAR
-#include "verify.hpp"
-#endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"      // for arcstk::Checksums
-#endif
-#ifndef __LIBARCSTK_PARSE_HPP__
-#include "parse.hpp"          // for arcstk::ARResponse
-#endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
 #include "logging.hpp"
+#endif
+#ifndef __LIBARCSTK_DBAR_HPP__
+#include "dbar.hpp"                  // for DBAR
+#endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"             // for Checksums
+#endif
+#ifndef __LIBARCSTK_VERIFY_HPP__     // libarcstk: match Checksums and DBAR
+#include "verify.hpp"
 #endif
 
 
@@ -144,35 +144,17 @@ arcstk::Checksums parse_input_arcs(const char* list,
  *
  * @return Parsed ARResponse
  *
- * @throws std::runtime_error If filename is empty
+ * @throws std::runtime_error           If filename is empty
+ * @throws arcstk::StreamParseException If parsing fails
  */
-arcstk::ARResponse parse_match_arcs(const std::string &filename)
+arcstk::DBAR parse_match_arcs(const std::string &filename)
 {
 	if (filename.empty())
 	{
 		throw std::runtime_error("Filename must not be empty!");
 	}
 
-	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
-	arcstk::ARResponse response_data;
-	content_hdlr->set_object(response_data);
-
-	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
-
-	std::unique_ptr<arcstk::ARStreamParser> parser;
-
-	std::ifstream file;
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	file.open(filename, std::ifstream::in | std::ifstream::binary);
-
-	parser = std::make_unique<arcstk::ARParser>(file);
-
-	parser->set_content_handler(std::move(content_hdlr));
-	parser->set_error_handler(std::move(error_hdlr));
-
-	parser->parse(); // This may throw!
-
-	return response_data;
+	return arcstk::load_file(filename);
 }
 
 
@@ -182,7 +164,7 @@ int main(int argc, char* argv[])
 	if (argc < 3 or argc > 4)
 	{
 		std::cout <<
-			"Usage: albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <file.bin>"
+			"Usage: albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <dbar_file.bin>"
 			<< std::endl;
 
 		return EXIT_SUCCESS;
@@ -218,7 +200,7 @@ int main(int argc, char* argv[])
 	{
 		filename = std::string(argv[3]);
 	}
-	const arcstk::ARResponse arcss { parse_match_arcs(filename) };
+	const arcstk::DBAR dBAR { parse_match_arcs(filename) };
 
 	// Now the interesting part: peform the match.
 	// The AlbumVerifier class targets situations in which you have a list of
@@ -228,7 +210,7 @@ int main(int argc, char* argv[])
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
 	// arcstk::TracksetVerifier
-	const auto result { verifier.perform(arcstk::FromResponse(&arcss)) };
+	const auto result { verifier.perform(dBAR) };
 	const auto best = result->best_block();
 
 	// Inform about the result
@@ -258,7 +240,7 @@ int main(int argc, char* argv[])
 
 	std::cout << "TRACK   MINE      THEIRS\n";
 
-	for (const auto& track : arcss[block])
+	for (const auto& track : dBAR.block(block))
 	{
 		// The match object stores flags for every check that the matcher
 		// has performed. Thus, the result of the matching can be queried on the

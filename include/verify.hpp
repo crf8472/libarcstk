@@ -25,9 +25,9 @@ inline namespace v_1_0_0
 {
 
 class ARId;
-class ARResponse;
 class Checksum;
 class Checksums;
+class DBAR;
 
 /**
  * \defgroup verify AccurateRip Checksum Verification
@@ -40,43 +40,52 @@ class Checksums;
  */
 
 /**
- * \brief Provide unified access method to checksum containers.
+ * \brief Interface: unified access to checksum containers.
  *
- * A checksum container contains several blocks of checksums an in every block
- * an ARId and an ordered sequence of checksums. A single checksum is accessed
- * by a block index in combination with the index of the checksum within the
- * block.
+ * A checksum container contains several blocks while each block consists of an
+ * ARId and an ordered sequence of checksums. A single checksum is accessed by a
+ * block index in combination with the index of the checksum within the block.
  *
  * A type \c T can be made available as a ChecksumSource via definig a subclass
- * \c S that inherits from ChecksumSourceOf<T>. Subclass \c S has to implement
- * the virtual functions of ChecksumSource. It can reuse the constructor of
- * ChecksumSourceOf<T>.
+ * of ChecksumSourceOf<T>.
  *
  * \see ChecksumSourceOf
- * \see FromResponse
+ * \see DBARSource
  */
 class ChecksumSource
 {
-	virtual const ARId& do_id(const int block_idx) const
+public:
+
+	using size_type = std::size_t;
+
+private:
+
+	virtual ARId do_id(const size_type block_idx) const
 	= 0;
 
-	virtual const Checksum& do_checksum(const int block_idx, const int idx)
+	virtual Checksum do_checksum(const size_type block_idx, const size_type idx)
 		const
 	= 0;
 
-	virtual const uint32_t& do_confidence(const int block_idx, const int idx)
-		const
+	virtual const uint32_t& do_arcs_value(const size_type block_idx,
+		const size_type track_idx) const
 	= 0;
 
-	virtual std::size_t do_size(const int block_idx) const
+	virtual const uint32_t& do_confidence(const size_type block_idx,
+		const size_type idx) const
+	= 0;
+
+	virtual const uint32_t& do_frame450_arcs_value(const size_type block_idx,
+			const size_type track_idx) const
+	= 0;
+
+	virtual std::size_t do_size(const size_type block_idx) const
 	= 0;
 
 	virtual std::size_t do_size() const
 	= 0;
 
 public:
-
-	using size_type = std::size_t;
 
 	/**
 	 * \brief Virtual default destructor.
@@ -90,18 +99,29 @@ public:
 	 *
 	 * \return The id of the specified block
 	 */
-	const ARId& id(const int block_idx) const;
+	ARId id(const size_type block_idx) const;
 
 	/**
-	 * \brief Read checksum \c idx in section with the specified \c block_idx.
+	 * \brief Read checksum on the specified position.
+	 *
+	 * Note that the wrapping of the ARCS value involves a copy.
 	 *
 	 * \param[in] block_idx 0-based block index to access
 	 * \param[in] track_idx 0-based track index to access
 	 *
 	 * \return The checksum of the specified index position
 	 */
-	const Checksum& checksum(const int block_idx, const int track_idx)
-		const;
+	Checksum checksum(const size_type block_idx, const size_type track_idx) const;
+
+	/**
+	 * \brief Return the ARCS value on the specified position.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 * \param[in] track_idx 0-based track index to access
+	 *
+	 * \return The ARCS value of the specified index position
+	 */
+	const uint32_t& arcs_value(const size_type block_idx, const size_type track_idx) const;
 
 	/**
 	 * \brief Read confidence \c idx in section with the specified \c block_idx.
@@ -111,8 +131,18 @@ public:
 	 *
 	 * \return The confidence of the specified index position
 	 */
-	const uint32_t& confidence(const int block_idx, const int track_idx)
-		const;
+	const unsigned& confidence(const size_type block_idx, const size_type track_idx) const;
+
+	/**
+	 * \brief Return the ARCS value of frame 450 on the specified position.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 * \param[in] track_idx 0-based track index to access
+	 *
+	 * \return The ARCS value of frame 450 of the specified index position
+	 */
+	const uint32_t& frame450_arcs_value(const size_type block_idx,
+			const size_type track_idx) const;
 
 	/**
 	 * \brief Size of the block specified by \c block_idx.
@@ -123,7 +153,7 @@ public:
 	 *
 	 * \return The size of the specified block
 	 */
-	size_type size(const int block_idx) const;
+	size_type size(const size_type block_idx) const;
 
 	/**
 	 * \brief Number of blocks.
@@ -139,7 +169,13 @@ public:
 /**
  * \brief Wrap a checksum container in a ChecksumSource.
  *
+ * A type \c T can be made available as a ChecksumSource via definig a subclass
+ * of ChecksumSourceOf<T>. The subclass has to implement the virtual functions
+ * of ChecksumSource. It can reuse the constructor of ChecksumSourceOf<T>.
+ *
  * \tparam T The type to wrap
+ *
+ * \see DBARSource
  */
 template <typename T>
 class ChecksumSourceOf : public ChecksumSource
@@ -204,17 +240,24 @@ public:
 
 
 /**
- * \brief Access an ARResponse by block and index.
+ * \brief Access DBAR as a ChecksumSource.
  *
- * Make ARResponse instances available for verification.
+ * Make DBAR instances available for verification.
  */
-class FromResponse final : public ChecksumSourceOf<ARResponse>
+class DBARSource final : public ChecksumSourceOf<DBAR>
 {
-	const ARId& do_id(const int block_idx) const final;
-	const Checksum& do_checksum(const int block_idx, const int idx) const final;
-	const uint32_t& do_confidence(const int block_idx, const int idx) const
-		final;
-	std::size_t do_size(const int block_idx) const final;
+	ARId do_id(const size_type block_idx) const final;
+	Checksum do_checksum(const size_type block_idx,
+			const size_type idx) const final;
+
+	const uint32_t& do_arcs_value(const size_type block_idx,
+			const size_type idx) const final;
+	const unsigned& do_confidence(const size_type block_idx,
+			const size_type idx) const final;
+	const uint32_t& do_frame450_arcs_value(const size_type block_idx,
+			const size_type idx) const final;
+
+	std::size_t do_size(const size_type block_idx) const final;
 	std::size_t do_size() const final;
 
 public:
@@ -225,8 +268,6 @@ public:
 
 
 class VerificationResult;
-
-
 /**
  * \brief Print a VerificationResult to a stream
  */
@@ -250,8 +291,52 @@ std::ostream& operator << (std::ostream&, const VerificationResult& r);
  * The result contains also the track-based interpretation of the flags, i.e.
  * whether a given track is considered to be verified or not.
  */
-class VerificationResult { friend std::ostream& operator << (std::ostream&,
-		const VerificationResult &match);
+class VerificationResult
+{
+	virtual int do_total_unverified_tracks() const
+	= 0;
+
+	virtual bool do_is_verified(const int track) const
+	= 0;
+
+	virtual int do_verify_track(const int b, const int t, const bool v2)
+	= 0;
+
+	virtual bool do_track(const int b, const int t, const bool v2) const
+	= 0;
+
+	virtual int do_verify_id(const int b)
+	= 0;
+
+	virtual bool do_id(const int b) const
+	= 0;
+
+	virtual int do_difference(const int b, const bool v2) const
+	= 0;
+
+	virtual int do_total_blocks() const
+	= 0;
+
+	virtual int do_tracks_per_block() const
+	= 0;
+
+	virtual size_t do_size() const
+	= 0;
+
+	virtual std::tuple<int, bool, int> do_best_block() const
+	= 0;
+
+	virtual int do_best_block_difference() const
+	= 0;
+
+	virtual bool do_strict() const
+	= 0;
+
+	virtual std::unique_ptr<VerificationResult> do_clone() const
+	= 0;
+
+	friend std::ostream& operator << (std::ostream&,
+			const VerificationResult &match);
 
 public:
 
@@ -364,9 +449,10 @@ public:
 	 * The concrete difference value may depend on the implementation. For
 	 * example, consider an album with 15 tracks. A block of reference checksums
 	 * with each track not matching and a non-matching ARId will be a assigned
-	 * a difference of 16 by a strict TrackPolicy when respecting the ARId.
-	 * When ignoring the ARId and it does not contribute to the difference.
-	 * In this case, the exact same block will have a difference of only 15.
+	 * a difference of 16 by a strict result interpretation when respecting the
+	 * ARId. When ignoring the ARId (a non-strict interpretation) it does not
+	 * contribute to the difference. In this case, the exact same block will
+	 * have a difference of only 15.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
 	 * \param[in] v2 Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
@@ -442,55 +528,11 @@ public:
 	 * \return Deep copy of this instance.
 	 */
 	std::unique_ptr<VerificationResult> clone() const;
-
-private:
-
-	virtual int do_total_unverified_tracks() const
-	= 0;
-
-	virtual bool do_is_verified(const int track) const
-	= 0;
-
-	virtual int do_verify_track(const int b, const int t, const bool v2)
-	= 0;
-
-	virtual bool do_track(const int b, const int t, const bool v2) const
-	= 0;
-
-	virtual int do_verify_id(const int b)
-	= 0;
-
-	virtual bool do_id(const int b) const
-	= 0;
-
-	virtual int do_difference(const int b, const bool v2) const
-	= 0;
-
-	virtual int do_total_blocks() const
-	= 0;
-
-	virtual int do_tracks_per_block() const
-	= 0;
-
-	virtual size_t do_size() const
-	= 0;
-
-	virtual std::tuple<int, bool, int> do_best_block() const
-	= 0;
-
-	virtual int do_best_block_difference() const
-	= 0;
-
-	virtual bool do_strict() const
-	= 0;
-
-	virtual std::unique_ptr<VerificationResult> do_clone() const
-	= 0;
 };
 
 
 /**
- * \brief Service class for performing a verification.
+ * \brief Interface: perform a verification.
  *
  * Subclasses of verifiers can implement specialized policies for strictness
  * and match order.
@@ -567,23 +609,23 @@ public:
 	 *
 	 * \return The verification result
 	 */
-	std::unique_ptr<VerificationResult> perform(const ARResponse& ref_sums)
-		const;
+	std::unique_ptr<VerificationResult> perform(const DBAR& ref_sums) const;
 };
 
 
 /**
- * \brief Verify a list of checksums accompanied by a TOC.
+ * \brief Verifier for a list of checksums accompanied by a TOC.
  *
  * \details
  *
- * Tries to match each position \c i in the actual Checksums with position \c i
- * in each block of the ChecksumSource. Additonally checks the input id for
- * identity with the ARId of each respective block in the ARResponse.
+ * Tries to match each position \c i in the actual Checksums exclusively with
+ * position \c i in each block of the ChecksumSource. Additonally checks the
+ * input id for identity with the ARId of each respective block in the DBAR
+ * object. Actual checksum lists whose ARId does not match have a difference of
+ * at least \c 1.
  *
  * AlbumVerifier is the Verifier class suitable for easy matching of entire
- * album rips. Checksum lists whose ARId does not match have a difference of at
- * least \c 1.
+ * album rips.
  *
  * \see TracksetVerifier
  */
@@ -602,7 +644,7 @@ class AlbumVerifier final : public Verifier
 public:
 
 	/**
-	 * \brief
+	 * \brief Constructor for actual input sums and their ARId.
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 * \param[in] actual_id   Actual ARId to check for
@@ -617,7 +659,7 @@ public:
 
 
 /**
- * \brief Verify a set of checksums without a TOC.
+ * \brief Verifier for a set of checksums without a TOC.
  *
  * \details
  *
@@ -626,20 +668,20 @@ public:
  * but there is no TOC present. This means that there is also no ARId known
  * and maybe not even the actual order of tracks.
  *
- * The AlbumVerifier is less ressource-consuming since it has to perform only a
- * single match for every reference value. It is therefore recommended to use
- * AlbumVerifier in any case where a TOC is available.
- *
- * The TracksetVerifier requires that the set of actual checksums and the blocks
+ * TracksetVerifier requires that the set of actual checksums and the blocks
  * of the ChecksumSource have the same cardinality. This means intuitively that
  * the number of tracks in local input as well as in the reference must be the
  * same. The verification of only some tracks against a superset of references
  * is not supported.
  *
+ * The AlbumVerifier is less ressource-consuming since it has to perform only a
+ * single match for every reference value. It is therefore recommended to use
+ * AlbumVerifier in any case where a TOC is available.
+ *
  * \note
- * The TracksetVerifier is a generalization of the AlbumVerifier. The
- * AlbumVerifier adds the restriction that the order of tracks in the reference
- * must be matched too.
+ * TracksetVerifier is a generalization of the AlbumVerifier. AlbumVerifier adds
+ * the restriction that the order of tracks in the reference must be matched
+ * too.
  *
  * \see AlbumVerifier
  */
@@ -674,7 +716,6 @@ public:
 /** @} */
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif

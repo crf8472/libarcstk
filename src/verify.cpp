@@ -8,8 +8,8 @@
 
 #include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
 
-#ifndef __LIBARCSTK_PARSE_HPP__
-#include "parse.hpp"
+#ifndef __LIBARCSTK_DBAR_HPP__
+#include "dbar.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -108,7 +108,7 @@ bool ResultBits::init(int blocks, int tracks)
 	} catch (const std::exception& e)
 	{
 		//std::cerr << e.what();
-		return false;
+		return false; // TODO Log something
 	}
 
 	blocks_ = blocks;
@@ -127,7 +127,7 @@ int ResultBits::set_id(int b, bool value)
 {
 	this->validate_block(b);
 
-	const auto offset { index(b) };
+	const auto offset { block_offset(b) };
 	set_flag(offset, value);
 
 	return offset;
@@ -138,7 +138,7 @@ bool ResultBits::id(int b) const
 {
 	this->validate_block(b);
 
-	return this->operator[](index(b));
+	return this->operator[](block_offset(b));
 }
 
 
@@ -168,8 +168,8 @@ ResultBits::size_type ResultBits::total_tracks_set(int b) const
 {
 	auto count = size_type { 0 };
 
-	const auto end_block = index(b) + 1 + 2 * tracks_per_block();
-	for (auto i = index(b) + 1; i <= end_block; ++i)
+	const auto end_block = block_offset(b) + 1 + 2 * tracks_per_block();
+	for (auto i = block_offset(b) + 1; i <= end_block; ++i)
 	{
 		count += this->operator[](i);
 	}
@@ -206,18 +206,16 @@ int ResultBits::flags_per_block() const
 }
 
 
-int ResultBits::index(int b) const
-{
-	//return b * (2 * tracks_per_block_ + 1);
-	return b * flags_per_block();
-}
-
-
 int ResultBits::index(int b, int t, bool v2) const
 {
 	// b and t are 0-based
-	return index(b) + //track_offset(t, v2);
-		(t + 1 + (v2 ? tracks_per_block_ : 0));
+	return block_offset(b) + track_offset(t, v2);
+}
+
+
+int ResultBits::block_offset(int b) const
+{
+	return b * flags_per_block();
 }
 
 
@@ -229,7 +227,7 @@ int ResultBits::track_offset(int t, bool v2) const
 
 void ResultBits::set_flag(const int offset, const bool value)
 {
-	auto pos = flag_.begin() + offset;
+	auto pos = flag_.begin() + offset; // TODO Work with index instead?
 	*pos = value;
 }
 
@@ -260,30 +258,30 @@ void ResultBits::validate_track(int t) const
 }
 
 
-// TrackPolicy
+// VerificationPolicy
 
 
-bool TrackPolicy::is_verified(const int track,
+bool VerificationPolicy::is_verified(const int track,
 		const VerificationResult& r) const
 {
 	return do_is_verified(track, r);
 }
 
 
-int TrackPolicy::total_unverified_tracks(const VerificationResult& r)
+int VerificationPolicy::total_unverified_tracks(const VerificationResult& r)
 	const
 {
 	return do_total_unverified_tracks(r);
 }
 
 
-bool TrackPolicy::is_strict() const
+bool VerificationPolicy::is_strict() const
 {
 	return do_is_strict();
 }
 
 
-int TrackPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
 	using size_type = details::ResultBits::size_type;
 
@@ -353,7 +351,7 @@ bool LiberalPolicy::do_is_strict() const
 // Result
 
 
-Result::Result(std::unique_ptr<TrackPolicy> p)
+Result::Result(std::unique_ptr<VerificationPolicy> p)
 	: flags_  { ResultBits() }
 	, policy_ { std::move(p) }
 {
@@ -453,7 +451,7 @@ bool Result::do_strict() const
 }
 
 
-const TrackPolicy* Result::policy() const
+const VerificationPolicy* Result::policy() const
 {
 	return policy_.get();
 }
@@ -469,7 +467,7 @@ std::unique_ptr<VerificationResult> Result::do_clone() const
 
 
 std::unique_ptr<VerificationResult> create_result(const int blocks,
-		const std::size_t tracks, std::unique_ptr<TrackPolicy> p)
+		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p)
 {
 	auto r = std::make_unique<Result>(std::move(p));
 	r->init(blocks, tracks);
@@ -480,8 +478,9 @@ std::unique_ptr<VerificationResult> create_result(const int blocks,
 // Selector
 
 
-const Checksum& Selector::get(const ChecksumSource& s, const int current,
-		const int counter) const
+const uint32_t& Selector::get(const ChecksumSource& s,
+		const ChecksumSource::size_type current,
+		const ChecksumSource::size_type counter) const
 {
 	return do_get(s, current, counter);
 }
@@ -496,10 +495,11 @@ std::unique_ptr<Selector> Selector::clone() const
 // BlockSelector
 
 
-const Checksum& BlockSelector::do_get(const ChecksumSource& s, const int block,
-			const int track) const
+const uint32_t& BlockSelector::do_get(const ChecksumSource& s,
+		const ChecksumSource::size_type block,
+		const ChecksumSource::size_type track) const
 {
-	return s.checksum(block, track);
+	return s.arcs_value(block, track);
 }
 
 
@@ -512,10 +512,11 @@ std::unique_ptr<Selector> BlockSelector::do_clone() const
 // TrackSelector
 
 
-const Checksum& TrackSelector::do_get(const ChecksumSource& s, const int track,
-			const int block) const
+const uint32_t& TrackSelector::do_get(const ChecksumSource& s,
+		const ChecksumSource::size_type track,
+		const ChecksumSource::size_type block) const
 {
-	return s.checksum(block, track);
+	return s.arcs_value(block, track);
 }
 
 
@@ -528,8 +529,9 @@ std::unique_ptr<Selector> TrackSelector::do_clone() const
 // SourceIterator
 
 
-SourceIterator::SourceIterator(const ChecksumSource& source, const int current,
-			const int counter, const Selector& selector)
+SourceIterator::SourceIterator(const ChecksumSource& source,
+		const ChecksumSource::size_type current,
+		const ChecksumSource::size_type counter, const Selector& selector)
 	: selector_ { &selector }
 	, source_   { &source }
 	, current_  { current }
@@ -539,13 +541,13 @@ SourceIterator::SourceIterator(const ChecksumSource& source, const int current,
 }
 
 
-int SourceIterator::counter() const
+ChecksumSource::size_type SourceIterator::counter() const
 {
 	return counter_;
 }
 
 
-int SourceIterator::current() const
+ChecksumSource::size_type SourceIterator::current() const
 {
 	return current_;
 }
@@ -626,13 +628,13 @@ const Selector& TraversalPolicy::selector() const
 }
 
 
-int TraversalPolicy::end_current() const
+ChecksumSource::size_type TraversalPolicy::end_current() const
 {
 	return do_end_current(*source_);
 }
 
 
-int TraversalPolicy::end_counter() const
+ChecksumSource::size_type TraversalPolicy::end_counter() const
 {
 	return do_end_counter(*source_);
 }
@@ -659,13 +661,13 @@ void TraversalPolicy::set_source(const ChecksumSource& source)
 }
 
 
-int TraversalPolicy::current() const
+ChecksumSource::size_type TraversalPolicy::current() const
 {
 	return current_;
 }
 
 
-void TraversalPolicy::set_current(const int current)
+void TraversalPolicy::set_current(const ChecksumSource::size_type current)
 {
 	current_ = current;
 }
@@ -697,7 +699,7 @@ Checksums::size_type TraversalPolicy::current_track(const SourceIterator& i) con
 }
 
 
-std::unique_ptr<TrackPolicy> TraversalPolicy::get_policy() const
+std::unique_ptr<VerificationPolicy> TraversalPolicy::get_policy() const
 {
 	return create_track_policy();
 }
@@ -719,7 +721,7 @@ BlockTraversal::BlockTraversal()
 }
 
 
-std::unique_ptr<TrackPolicy> BlockTraversal::create_track_policy() const
+std::unique_ptr<VerificationPolicy> BlockTraversal::create_track_policy() const
 {
 	return std::make_unique<StrictPolicy>();
 }
@@ -733,23 +735,23 @@ std::unique_ptr<Selector> BlockTraversal::create_selector() const
 
 Checksums::size_type BlockTraversal::do_current_block(const SourceIterator& i) const
 {
-	return static_cast<Checksums::size_type>(i.current());
+	return i.current();
 }
 
 
 Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i) const
 {
-	return static_cast<Checksums::size_type>(i.counter());
+	return i.counter();
 }
 
 
-int BlockTraversal::do_end_current(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_current(const ChecksumSource& source) const
 {
 	return source.size(); // number of blocks in source
 }
 
 
-int BlockTraversal::do_end_counter(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_counter(const ChecksumSource& source) const
 {
 	return source.size(0); // number of tracks per block in source
 }
@@ -765,7 +767,7 @@ TrackTraversal::TrackTraversal()
 }
 
 
-std::unique_ptr<TrackPolicy> TrackTraversal::create_track_policy() const
+std::unique_ptr<VerificationPolicy> TrackTraversal::create_track_policy() const
 {
 	return std::make_unique<LiberalPolicy>();
 }
@@ -777,25 +779,29 @@ std::unique_ptr<Selector> TrackTraversal::create_selector() const
 }
 
 
-Checksums::size_type TrackTraversal::do_current_block(const SourceIterator& i) const
+Checksums::size_type TrackTraversal::do_current_block(const SourceIterator& i)
+	const
 {
-	return static_cast<Checksums::size_type>(i.counter());
+	return i.counter();
 }
 
 
-Checksums::size_type TrackTraversal::do_current_track(const SourceIterator& i) const
+Checksums::size_type TrackTraversal::do_current_track(const SourceIterator& i)
+	const
 {
-	return static_cast<Checksums::size_type>(i.current());
+	return i.current();
 }
 
 
-int TrackTraversal::do_end_current(const ChecksumSource& source) const
+ChecksumSource::size_type TrackTraversal::do_end_current(
+	const ChecksumSource& source) const
 {
 	return source.size(0); // traverses same track over all blocks
 }
 
 
-int TrackTraversal::do_end_counter(const ChecksumSource& source) const
+ChecksumSource::size_type TrackTraversal::do_end_counter(
+	const ChecksumSource& source) const
 {
 	return source.size(); // traverses same track over all blocks
 }
@@ -925,7 +931,8 @@ void Verification::perform(VerificationResult& result,
 	// is actually considered relevant by its id.
 
 	traversal.set_source(ref_sums);
-	for (auto c = int { 0 }; c < traversal.end_current(); ++c)
+	for (auto c = ChecksumSource::size_type { 0 };
+			c < traversal.end_current(); ++c)
 	{
 		traversal.set_current(c);
 		perform_current(result, actual_sums, traversal, order);
@@ -1021,23 +1028,40 @@ std::unique_ptr<TraversalPolicy> VerifierBase::do_create_traversal() const
 // ChecksumSource
 
 
-const ARId& ChecksumSource::id(const int block_idx) const
+ARId ChecksumSource::id(const ChecksumSource::size_type block_idx) const
 {
 	return this->do_id(block_idx);
 }
 
-const Checksum& ChecksumSource::checksum(const int block_idx, const int idx) const
+Checksum ChecksumSource::checksum(
+		const ChecksumSource::size_type block_idx,
+		const ChecksumSource::size_type idx) const
 {
 	return this->do_checksum(block_idx, idx);
 }
 
-const uint32_t& ChecksumSource::confidence(const int block_idx, const int idx)
-	const
+const uint32_t& ChecksumSource::arcs_value(
+		const ChecksumSource::size_type block_idx,
+		const ChecksumSource::size_type idx) const
+{
+	return this->do_arcs_value(block_idx, idx);
+}
+
+const uint32_t& ChecksumSource::confidence(
+		const ChecksumSource::size_type block_idx,
+		const ChecksumSource::size_type idx) const
 {
 	return this->do_confidence(block_idx, idx);
 }
 
-std::size_t ChecksumSource::size(const int block_idx) const
+const uint32_t& ChecksumSource::frame450_arcs_value(
+		const ChecksumSource::size_type block_idx,
+		const ChecksumSource::size_type idx) const
+{
+	return this->do_arcs_value(block_idx, idx);
+}
+
+std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx) const
 {
 	return this->do_size(block_idx);
 }
@@ -1048,39 +1072,55 @@ std::size_t ChecksumSource::size() const
 }
 
 
-// FromResponse
+// DBARSource
 
 
-const ARId& FromResponse::do_id(const int block_idx) const
+ARId DBARSource::do_id(const ChecksumSource::size_type block_idx) const
 {
-	return source()->at(static_cast<ARResponse::size_type>(block_idx)).id();
+	return source()->block(static_cast<DBAR::size_type>(block_idx)).id();
 }
 
 
-const Checksum& FromResponse::do_checksum(const int block_idx, const int idx)
-	const
+Checksum DBARSource::do_checksum(const ChecksumSource::size_type block_idx,
+		const ChecksumSource::size_type idx) const
 {
 	return
-		source()->at(static_cast<ARResponse::size_type>(block_idx))
-			.at(static_cast<ARResponse::size_type>(idx)).arcs();
+		source()->block(static_cast<DBAR::size_type>(block_idx))
+			.triplet(static_cast<DBAR::size_type>(idx)).arcs();
 }
 
 
-const uint32_t& FromResponse::do_confidence(const int block_idx, const int idx)
+const uint32_t& DBARSource::do_arcs_value(
+		const ChecksumSource::size_type block,
+		const ChecksumSource::size_type track) const
+{
+	return source()->arcs_value(block, track);
+}
+
+
+const unsigned& DBARSource::do_confidence(const ChecksumSource::size_type block,
+		const ChecksumSource::size_type track) const
+{
+	return source()->confidence_value(block, track);
+}
+
+
+const uint32_t& DBARSource::do_frame450_arcs_value(
+		const ChecksumSource::size_type block,
+		const ChecksumSource::size_type track) const
+{
+	return source()->frame450_arcs_value(block, track);
+}
+
+
+std::size_t DBARSource::do_size(const ChecksumSource::size_type /* block_idx */)
 	const
 {
-	return source()->at(static_cast<ARResponse::size_type>(block_idx))
-				.at(static_cast<ARResponse::size_type>(idx)).confidence();
+	return source()->block(0).size();
 }
 
 
-std::size_t FromResponse::do_size(const int /* block_idx */) const
-{
-	return static_cast<std::size_t>(source()->tracks_per_block());
-}
-
-
-std::size_t FromResponse::do_size() const
+std::size_t DBARSource::do_size() const
 {
 	return source()->size();
 }
@@ -1242,10 +1282,10 @@ std::unique_ptr<VerificationResult> Verifier::perform(
 }
 
 
-std::unique_ptr<VerificationResult> Verifier::perform(
-		const ARResponse& ref_sums) const
+std::unique_ptr<VerificationResult> Verifier::perform(const DBAR& ref_sums)
+	const
 {
-	return do_perform(FromResponse{ &ref_sums });
+	return do_perform(DBARSource{ &ref_sums });
 }
 
 
@@ -1254,7 +1294,7 @@ std::unique_ptr<VerificationResult> Verifier::perform(
 
 AlbumVerifier::Impl::Impl(const Checksums& actual_sums, const ARId& actual_id)
 	: details::VerifierBase { actual_sums }
-	, actual_id_ { actual_id   }
+	, actual_id_ { actual_id }
 {
 	// empty
 }
@@ -1381,6 +1421,5 @@ std::unique_ptr<VerificationResult> TracksetVerifier::do_perform(
 
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 

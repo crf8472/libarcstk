@@ -24,16 +24,11 @@ namespace details
  * \brief Base class template for a sequence container that can be appended to,
  * but provides only read iterators.
  *
- * ARBlock and ARResponse are implemented in terms of this. The reason is to
- * hide the iterator types of the STL-container used for implementation to the
- * outside world.
+ * The reason is to hide the iterator types of the STL-container used for
+ * implementation to the outside world.
  *
- * The sequence must be appendable since ARBlock and ARResponse are objects
- * constructed by parsing. There is no strong guarantee that the expected number
- * of elements will be parsed in the input. The class has to be robust against
- * this kind of problem. Hence the sequence must allow to append more elements
- * than expected. On the other hand, since the content of this instance are
- * parsed values, it is not required to provide write access via iterators.
+ * Since the content of this instance are parsed values, it is not required to
+ * provide write access via iterators.
  *
  * One could consider a type erasing iterator container, like it is used
  * in module 'calculate' but it seems to be less effort to just use raw

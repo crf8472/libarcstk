@@ -2,15 +2,14 @@
 // Example for parsing the binary AccurateRip query response to plaintext.
 //
 
-#include <cstdint>   // for uint32_t etc.
 #include <fstream>   // for ifstream
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCSTK_PARSE_HPP__      // libarcstk: parse AccurateRip responses
-#include "parse.hpp"
+#ifndef __LIBARCSTK_DBAR_HPP__       // libarcstk: parse AccurateRip responses
+#include "dbar.hpp"
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
 #include "identifier.hpp"
@@ -27,6 +26,69 @@
 // SOLUTION, NOT AS A TOOL.
 // ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
 
+using arcstk::DBAR;
+using arcstk::StreamParseException;
+
+/**
+ * A sophisticated way to read from a file via stream.
+ *
+ * Provides fine granular control over the input stream.
+ */
+DBAR load_sophisticated(const std::string& filename)
+{
+	// This example shows a way with fine granular control over the input
+	// stream.
+
+	// Open file if file is readable.
+
+	std::ifstream stream;
+	stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	try
+	{
+		stream.open(filename, std::ifstream::in | std::ifstream::binary);
+	}
+	catch (const std::ifstream::failure& f)
+	{
+		throw std::runtime_error(
+			std::string("Failed to open file '") + filename +
+			std::string("', got: ") + typeid(f).name() +
+			std::string(", message: ") + f.what());
+	}
+
+	// Perform parsing
+
+	using arcstk::DBARBuilder;
+	using arcstk::DBARBlock;
+	using arcstk::parse_stream;
+
+	DBARBuilder builder;
+	try {
+
+		const auto total_bytes { parse_stream(stream, &builder, nullptr) };
+		std::cout << "Read " << total_bytes << " bytes" << '\n';
+		stream.close();
+
+	} catch (const StreamParseException& e)
+	{
+		stream.close();
+		throw;
+	}
+	// ... normally you would also catch other possible exceptions, we just
+	// concentrate on libarcstk.
+
+	return builder.result();
+}
+
+/**
+ * A simple way to read from a file.
+ */
+DBAR load_simple(const std::string& filename)
+{
+	// This shows a very simple way to parse a file with reasonable defaults.
+
+	return arcstk::load_file(filename);
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -36,68 +98,35 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	// Use the default parser content handler that just returns the parsed
-	// content as an object
-	auto content_hdlr { std::make_unique<arcstk::DefaultContentHandler>() };
-	// Of course you could just write a content handler that prints every parsed
-	// entitity instead of constructing an object from it. Or you could
-	// construct an entirely different object.
+	DBAR dBAR;
 
-	arcstk::ARResponse response_data;
-	content_hdlr->set_object(response_data);
-
-	// Use the standard error handler that just throws an exception on invalid
-	// input.
-	auto error_hdlr { std::make_unique<arcstk::DefaultErrorHandler>() };
-
-	// Open file if file is readable
-	const std::string infilename { argv[1] };
-	std::ifstream infile;
-	infile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try
-	{
-		infile.open(infilename, std::ifstream::in | std::ifstream::binary);
-	}
-	catch (const std::ifstream::failure& f)
-	{
-		throw std::runtime_error(
-			std::string("Failed to open file '") + infilename +
-			std::string("', got: ") + typeid(f).name() +
-			std::string(", message: ") + f.what());
-	}
+	{   // Try each of them:
 
-	// Create parser and register handlers
-	arcstk::ARParser parser { infile };
-	parser.set_content_handler(std::move(content_hdlr));
-	parser.set_error_handler(std::move(error_hdlr));
+		dBAR = load_sophisticated(argv[1]);
+		//dBAR = load_simple(argv[1]);
 
-	// Finally, run parser
-	try {
-		parser.parse();
-	} catch (const arcstk::StreamReadException& e)
+	} catch(const StreamParseException& e)
 	{
 		std::cerr << e.what();
-
 		return EXIT_FAILURE;
 	}
-	// ... normally you would also catch other possible exceptions, we just
-	// concentrate on libarcstk.
 
-	std::cout << "  ARCS   Conf. Frame450" << std::endl;
-	std::cout << "-----------------------" << std::endl;
+	std::cout << "  ARCS   Conf. Frame450" << '\n';
+	std::cout << "-----------------------" << '\n';
 
 	// Save current cout settings
 	const auto prev_cout_settings { std::cout.flags() };
 
 	// Traverse the response data and print every parsed entity
 	auto block_counter { 1 };
-	for (const auto& block : response_data)
+	for (const auto& block : dBAR)
 	{
 		std::cout << "Block: " << block_counter << "/"
-			<< response_data.size() << std::endl;
+			<< dBAR.size() << '\n';
 
 		// Print the header of this block (which is the AccurateRip id)
-		std::cout << "ID: " << block.id().to_string() << std::endl;
+		std::cout << "ID: " << block.id().url() << std::endl;
 
 		for (const auto& triplet : block)
 		{

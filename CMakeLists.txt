@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.9.6 )
 cmake_policy (SET CMP0048 NEW )
 
 
-project (libarcstk VERSION 0.1.1 LANGUAGES CXX )
+project (libarcstk VERSION 0.2.0 LANGUAGES CXX )
 
 get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
@@ -19,7 +19,7 @@ set (PROJECT_BRIEF_DESC
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
-set (PROJECT_VERSION_SUFFIX "beta.2" )
+set (PROJECT_VERSION_SUFFIX "alpha.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
@@ -171,9 +171,9 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 
 set (INTERFACE_HEADERS )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/dbar.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/parse.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/policies.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/verify.hpp" )
@@ -188,9 +188,9 @@ list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
 
 add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
+	"${PROJECT_SOURCE_DIR}/dbar.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
-	"${PROJECT_SOURCE_DIR}/parse.cpp"
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
 	"${PROJECT_SOURCE_DIR}/verify.cpp"
 	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
