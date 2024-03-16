@@ -17,13 +17,13 @@ extern "C" {
 
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__ // libarcstk: calculate ARCSs
-#include <arcstk/calculate.hpp>
+#include "calculate.hpp"
 #endif
 #ifndef __LIBARCSTK_SAMPLES_HPP__   // libarcstk: normalize input samples
-#include <arcstk/samples.hpp>
+#include "samples.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__   // libarcstk: log what you do
-#include <arcstk/logging.hpp>
+#include "logging.hpp"
 #endif
 
 

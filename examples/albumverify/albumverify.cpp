@@ -12,17 +12,17 @@
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 
-#ifndef __LIBARCSTK_MATCH_HPP__      // libarcstk: match Checksums and ARResponse
-#include <arcstk/match.hpp>
+#ifndef __LIBARCSTK_VERIFY_HPP__     // libarcstk: match Checksums and DBAR
+#include "verify.hpp"
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include <arcstk/calculate.hpp>      // for arcstk::Checksums
+#include "calculate.hpp"      // for arcstk::Checksums
 #endif
 #ifndef __LIBARCSTK_PARSE_HPP__
-#include <arcstk/parse.hpp>          // for arcstk::ARResponse
+#include "parse.hpp"          // for arcstk::ARResponse
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include <arcstk/logging.hpp>
+#include "logging.hpp"
 #endif
 
 
@@ -221,36 +221,37 @@ int main(int argc, char* argv[])
 	const arcstk::ARResponse arcss { parse_match_arcs(filename) };
 
 	// Now the interesting part: peform the match.
-	// The AlbumMatcher class targets situations in which you have a list of
+	// The AlbumVerifier class targets situations in which you have a list of
 	// checksums and you _know_ in which order they form the album. Therefore
-	// AlbumMatcher is the device of choice here.
-	arcstk::AlbumMatcher matcher { checksums, arid, arcss };
+	// AlbumVerifier is the device of choice here.
+	arcstk::AlbumVerifier verifier { checksums, arid };
 	// It may also be the case that you have just some tracks of an album or you
 	// cannot be sure about the order. In this case, you would use the
-	// arcstk::TracksetMatcher.
+	// arcstk::TracksetVerifier
+	const auto result { verifier.perform(arcstk::FromResponse(&arcss)) };
+	const auto best = result->best_block();
 
 	// Inform about the result
 	std::cout << "RESULT: ";
-	if (matcher.matches())
+	if (result->all_tracks_verified())
 	{
 		std::cout << "Response contains a total match in block "
-			<< matcher.best_match()
-			<< ", which is of type ARCSv" << (matcher.best_match_is_v2() + 1)
-			<< "." << std::endl;
+			<< std::get<0>(best)
+			<< ", which is of type ARCSv" << (std::get<1>(best) + 1)
+			<< "." << '\n';
 	} else
 	{
 		std::cout << "No total match. Best block is "
-			<< matcher.best_match()
-			<< ", which is of type ARCSv" << (matcher.best_match_is_v2() + 1)
-			<< " with difference " << matcher.best_difference()
-			<< std::endl;
+			<< std::get<0>(best)
+			<< ", which is of type ARCSv" << (std::get<1>(best) + 1)
+			<< " with difference " << std::get<2>(best)
+			<< '\n';
 	}
 
 	// And now print the gory details
 
-	auto match    { matcher.match() };
-	auto block    { matcher.best_match() };
-	auto trackno  { 0 };
+	const auto block     { std::get<0>(best) };
+	auto trackno         { 0 };
 	auto is_match = bool { false };
 
 	auto prev_settings { std::cout.flags() };
@@ -263,7 +264,7 @@ int main(int argc, char* argv[])
 		// has performed. Thus, the result of the matching can be queried on the
 		// match object by just giving the coordinate block/track/version.
 		is_match =
-			match->track(block, trackno, type == arcstk::checksum::type::ARCS2);
+			result->track(block, trackno, type == arcstk::checksum::type::ARCS2);
 
 		std::cout << " " << std::dec << std::setw(2) << std::setfill('0')
 			<< (trackno + 1) << ":  ";

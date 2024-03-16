@@ -17,13 +17,13 @@ extern "C" {
 
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__ // libarcstk: calculate ARCSs
-#include <arcstk/calculate.hpp>
+#include "calculate.hpp"
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
-#include <arcstk/identifier.hpp>
+#include "identifier.hpp"
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__   // libarcstk: log what you do
-#include <arcstk/logging.hpp>
+#include "logging.hpp"
 #endif
 
 
