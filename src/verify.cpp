@@ -52,7 +52,7 @@ std::tuple<int, bool, int> BestBlock::from(
 		ARCS_LOG(DEBUG1) << "Check block " << b;
 
 		curr_diff_v1 = result.difference(b, false/*v1*/);
-		curr_diff_v2 = result.difference(b, true/*v2*/);
+		curr_diff_v2 = result.difference(b, true /*v2*/);
 
 		// Note the less-equal for v2: last match wins!
 		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
@@ -830,14 +830,14 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		{
 			const auto bitpos = result.verify_track(block, track, is_v2);
 
-			ARCS_LOG_DEBUG << "Track "
+			ARCS_LOG(DEBUG1) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " verified: "
 				<< result.track(block, track, is_v2)
 				<< " (bit " << bitpos << ")";
 		} else
 		{
-			ARCS_LOG_DEBUG << "Track "
+			ARCS_LOG(DEBUG1) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
 				<< result.track(block, track, is_v2);

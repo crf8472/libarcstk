@@ -165,7 +165,41 @@ TEST_CASE ( "DBARSource", "[dbarsource]" )
 }
 
 
-// TODO details::BestBlock
+TEST_CASE ( "details::BestBlock", "[bestblock]" )
+{
+	using arcstk::details::BestBlock;
+	using arcstk::details::create_result;
+	using arcstk::details::StrictPolicy;
+
+	auto r = create_result(4, 15, std::make_unique<StrictPolicy>());
+
+	r->verify_id(0);
+	r->verify_track(0,  1, true);
+	r->verify_track(0,  2, true);
+	r->verify_track(0,  3, true);
+	r->verify_track(0,  4, true);
+	r->verify_track(0,  5, true);
+	r->verify_track(0,  6, true);
+	r->verify_track(0,  7, true);
+	r->verify_track(0,  8, true);
+	r->verify_track(0,  9, true);
+	r->verify_track(0, 10, true);
+	r->verify_track(0, 11, true);
+	r->verify_track(0, 12, true);
+	r->verify_track(0, 13, true);
+	r->verify_track(0, 14, true);
+
+	const auto get_best_block = BestBlock{};
+
+	const auto best_block = get_best_block.from(*r);
+
+	SECTION ( "Best block is found correctly" )
+	{
+		CHECK ( std::get<0>(best_block) == 0 );
+	}
+}
+
+
 // TODO details::ResultBits
 
 
