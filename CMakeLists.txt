@@ -110,13 +110,24 @@ set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 ## Log directory
 
-add_custom_target (libarcstk_create_log_dir ALL
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_LOG_DIR} )
+add_custom_command (
+	OUTPUT  ${PROJECT_LOG_DIR}
+	PRE_BUILD
+	COMMAND ${CMAKE_COMMAND}
+	ARGS    -E make_directory ${PROJECT_LOG_DIR} )
 
-add_custom_target (libarcstk_create_include_dir
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/include )
+add_custom_target (libarcstk_create_log_dir ALL DEPENDS ${PROJECT_LOG_DIR} )
 
 ## include directory + link
+
+add_custom_command (
+	OUTPUT  ${PROJECT_BINARY_DIR}/include
+	PRE_BUILD
+	COMMAND ${CMAKE_COMMAND}
+	ARGS    -E make_directory ${PROJECT_BINARY_DIR}/include )
+
+add_custom_target (libarcstk_create_include_dir
+	DEPENDS ${PROJECT_BINARY_DIR}/include )
 
 ## Create build-tree include directory (symlink)
 ## This is useful for finding the includes when used as a subproject.
@@ -174,18 +185,18 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 ## --- Specify Exported Headers
 
 set (INTERFACE_HEADERS )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/calculate.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/dbar.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/identifier.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/logging.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/policies.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/samples.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/verify.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_DIR}/version.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/identifier.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/logging.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/policies.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/samples.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/verify.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/version.hpp" )
 
 set (PRIVATE_HEADERS )
-list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/builders.tpp" )
-list (APPEND PRIVATE_HEADERS "${PROJECT_INCLUDE_DIR}/details/validate.tpp" )
+list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/builders.tpp" )
+list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/validate.tpp" )
 
 
 ## --- Add and configure project target
@@ -280,7 +291,7 @@ set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
 	-Wundef
 	-Wunused
 	-Wzero-as-null-pointer-constant
-	# -- clang specific --
+	# -- clang++ specific --
 	-Winconsistent-missing-destructor-override
 	)
 
@@ -297,8 +308,8 @@ if (CMAKE_COMPILER_IS_GNUCXX ) ## for g++
 	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
 	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
 
-elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"       ## for clang
-		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"       ## for clang++
+		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
 
 	message (STATUS "Select compile flags for clang++" )
 
@@ -337,7 +348,7 @@ macro (add_cxx_flags_optimize )
 	message (STATUS "Build with platform specific optimization")
 
 	target_compile_options (${PROJECT_NAME}
-			PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
+		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 endmacro()
 
 
@@ -356,7 +367,7 @@ if (WITH_NATIVE )
 	add_cxx_flags_optimize()
 else()
 
-	message (STATUS "Build without platform specific optimization")
+	message (STATUS "Build without platform specific optimization" )
 
 endif (WITH_NATIVE )
 
