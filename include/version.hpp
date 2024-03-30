@@ -11,11 +11,15 @@
 
 namespace arcstk
 {
-namespace v_1_0_0
+
+inline namespace v_1_0_0
 {
 
 /**
- * \addtogroup logging
+ * \defgroup version Version information
+ *
+ * \brief Access version information and check version
+ *
  * @{
  */
 
