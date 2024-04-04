@@ -225,7 +225,7 @@ target_include_directories (${PROJECT_NAME}
 		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
 		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
 	PRIVATE
-		"${PROJECT_BUILD_SOURCE_DIR}" ## for generated headers
+		"${PROJECT_BUILD_SOURCE_DIR}" ## for generated sources
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
