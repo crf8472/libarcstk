@@ -314,10 +314,10 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 	}
 	catch (const std::ifstream::failure& f)
 	{
-		file.close();
+		//file.close(); // TODO Commented out: no close when open failed
 
 		throw std::runtime_error(std::string{
-			"Failed to open file '" + filename + "', got message: " + f.what()
+			"Failed to open file '" + filename + "'. Message: " + f.what()
 		});
 	}
 
