@@ -16,7 +16,7 @@
 #include "identifier.hpp"
 #endif
 
-#include <string>                 // for string
+#include <string>  // for string
 
 namespace arcstk
 {
@@ -42,23 +42,30 @@ const auto EmptyString = std::string { };
  * CalcContext::first_relevant_sample() as well as
  * CalcContext::last_relevant_sample().
  */
-class CalcContextBase : virtual public arcstk::v_1_0_0::CalcContext
+class CalcContextBase : virtual public CalcContext
 {
-public:
+	/**
+	 * \brief Internal representation of the AudioSize of the current audiofile
+	 */
+	AudioSize audiosize_;
 
 	/**
-	 * \brief Construct with skip configuration.
-	 *
-	 * \param[in] filename       The audio file to process
-	 * \param[in] num_skip_front Amount of samples to skip at the beginning
-	 * \param[in] num_skip_back  Amount of samples to skip at the end
+	 * \brief Internal representation of the audiofilename
 	 */
-	CalcContextBase(const std::string &filename,
-			const sample_count_t num_skip_front,
-			const sample_count_t num_skip_back);
+	std::string filename_;
+
+	/**
+	 * \brief Number of samples to skip at beginning of first track if requested
+	 */
+	sample_count_t num_skip_front_;
+
+	/**
+	 * \brief Number of samples to skip at end of last track if requested
+	 */
+	sample_count_t num_skip_back_;
 
 
-private:
+	// CalcContext
 
 	void do_set_audio_size(const AudioSize &audio_size) override;
 
@@ -97,11 +104,13 @@ private:
 
 	// do_clone()
 
+
+	// CalcContextBase
+
 	/**
 	 * \brief Hook called after set_audio_size() is finished.
 	 */
 	virtual void do_hook_post_set_audio_size();
-
 
 protected:
 
@@ -121,28 +130,18 @@ protected:
 	 */
 	bool equals(const CalcContextBase &rhs) const noexcept;
 
-
-private:
-
-	/**
-	 * \brief Internal representation of the AudioSize of the current audiofile
-	 */
-	AudioSize audiosize_;
+public:
 
 	/**
-	 * \brief Internal representation of the audiofilename
+	 * \brief Construct with skip configuration.
+	 *
+	 * \param[in] filename       The audio file to process
+	 * \param[in] num_skip_front Amount of samples to skip at the beginning
+	 * \param[in] num_skip_back  Amount of samples to skip at the end
 	 */
-	std::string filename_;
-
-	/**
-	 * \brief Number of samples to skip at beginning of first track if requested
-	 */
-	sample_count_t num_skip_front_;
-
-	/**
-	 * \brief Number of samples to skip at end of last track if requested
-	 */
-	sample_count_t num_skip_back_;
+	CalcContextBase(const std::string &filename,
+			const sample_count_t num_skip_front,
+			const sample_count_t num_skip_back);
 };
 
 
@@ -165,6 +164,46 @@ bool operator == (const SingletrackCalcContext &lhs,
 class SingletrackCalcContext final : public CalcContextBase
 								   , public Comparable<SingletrackCalcContext>
 {
+	/**
+	 * \brief State: indicates whether to skip the front samples
+	 */
+	bool skip_front_;
+
+	/**
+	 * \brief State: indicates whether to skip the back samples
+	 */
+	bool skip_back_;
+
+
+	// CalcContext
+
+	int do_total_tracks() const noexcept final;
+
+	bool do_is_multi_track() const noexcept final;
+
+	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
+		final;
+
+	// do_first_relevant_sample_no_parms() is implemented in CalcContextBase
+
+	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
+		final;
+
+	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
+
+	int do_track(const sample_count_t smpl) const noexcept final;
+
+	lba_count_t do_offset(const int track) const noexcept final;
+
+	lba_count_t do_length(const int track) const noexcept final;
+
+	ARId do_id() const noexcept final;
+
+	bool do_skips_front() const noexcept final;
+
+	bool do_skips_back() const noexcept final;
+
+	std::unique_ptr<CalcContext> do_clone() const noexcept final;
 
 public:
 
@@ -216,9 +255,34 @@ public:
 	 * \param[in] skip TRUE skips the last 2940 samples of the last track
 	 */
 	void set_skip_back(const bool skip) noexcept;
+};
 
 
-private:
+// forward declaration for operator ==
+class MultitrackCalcContext;
+
+bool operator == (const MultitrackCalcContext &lhs,
+		const MultitrackCalcContext &rhs) noexcept;
+
+
+/**
+ * \internal
+ * \ingroup calc
+ *
+ * \brief CalcContext for multitrack mode.
+ *
+ * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
+ * actual filename. It always skips the front and back samples.
+ */
+class MultitrackCalcContext final : public CalcContextBase
+								  , public Comparable<MultitrackCalcContext>
+{
+	/**
+	 * \brief TOC representation
+	 */
+	TOC toc_;
+
+	// CalcContext
 
 	int do_total_tracks() const noexcept final;
 
@@ -248,37 +312,11 @@ private:
 
 	std::unique_ptr<CalcContext> do_clone() const noexcept final;
 
-	/**
-	 * \brief State: indicates whether to skip the front samples
-	 */
-	bool skip_front_;
 
-	/**
-	 * \brief State: indicates whether to skip the back samples
-	 */
-	bool skip_back_;
-};
+	// CalcContextBase
 
+	void do_hook_post_set_audio_size() final;
 
-// forward declaration for operator ==
-class MultitrackCalcContext;
-
-bool operator == (const MultitrackCalcContext &lhs,
-		const MultitrackCalcContext &rhs) noexcept;
-
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief CalcContext for multitrack mode.
- *
- * A MultitrackCalcContext is a CalcContext derived from a TOC and an optional
- * actual filename. It always skips the front and back samples.
- */
-class MultitrackCalcContext final : public CalcContextBase
-								  , public Comparable<MultitrackCalcContext>
-{
 public:
 
 	friend bool operator == (const MultitrackCalcContext &lhs,
@@ -349,50 +387,10 @@ public:
 	 * \param[in] toc The TOC information to use for the audio input
 	 */
 	void set_toc(const TOC &toc);
-
-
-private:
-
-	void do_hook_post_set_audio_size() final;
-
-	int do_total_tracks() const noexcept final;
-
-	bool do_is_multi_track() const noexcept final;
-
-	sample_count_t do_first_relevant_sample(const TrackNo track) const noexcept
-		final;
-
-	// do_first_relevant_sample_no_parms() is implemented in CalcContextBase
-
-	sample_count_t do_last_relevant_sample(const TrackNo track) const noexcept
-		final;
-
-	// do_last_relevant_sample_no_parms() is implemented in CalcContextBase
-
-	int do_track(const sample_count_t smpl) const noexcept final;
-
-	lba_count_t do_offset(const int track) const noexcept final;
-
-	lba_count_t do_length(const int track) const noexcept final;
-
-	ARId do_id() const noexcept final;
-
-	bool do_skips_front() const noexcept final;
-
-	bool do_skips_back() const noexcept final;
-
-	std::unique_ptr<CalcContext> do_clone() const noexcept final;
-
-	/**
-	 * \brief TOC representation
-	 */
-	TOC toc_;
 };
 
 } // namespace details
-
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
