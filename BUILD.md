@@ -32,7 +32,6 @@ major issues.
   HTML styled with [m.css][3]
 - LaTeX (TeXLive for instance) - for documentation: to build the documentation
   in LaTeX
-- [include-what-you-use][1] - for development: easily find unused ``include``s
 
 
 ## Building the library
@@ -164,12 +163,12 @@ pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
 #### Find unused header includes
 
 From time to time, I tend to mess up the includes. So for mere personal use, I
-configured a workflow for identifying unused includes that can be removed.
+use IWYU for identifying unused includes that can be removed.
 
 CMake brings some support for Google's tool [include-what-you-use][1]. If you
-have installed this tool, you can just use CMake to call it on the project:
+have installed IWYU, you can just use CMake to call it on the project:
 
-	$ cmake -DCMAKE_BUILD_TYPE=Debug -DIWYU=ON ..
+	$ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=$(type -p include-what-you-use) ..
 	$ cmake --build . 2>iwuy.txt
 
 This runs every source file through inlcude-what-you-use instead of the actual
@@ -181,7 +180,10 @@ selected g++ as your actual compiler. This is just because there are some
 switches configured for your actual compiler that are unknown to the tool. The
 warnings can be ignored. To avoid them
 [switch to clang++](#using-a-different-compiler), then configure the project
-with ``-DIWYU=ON`` and run the build again.
+with ``-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=...`` pointing to the IWYU-binary and
+run the build again. (Note that if you have the binary in the path, you do not
+need to specify a path. Otherwise, it is recommended to specify an absolute
+path.)
 
 
 ### Package maintainers
