@@ -42,7 +42,7 @@ inline namespace v_1_0_0
 {
 
 /**
- * \defgroup calc Checksum Calculation
+ * \defgroup calc AccurateRip Checksum Calculation
  *
  * \brief Public API for \link Calculation checksum calculation \endlink.
  *
@@ -1154,7 +1154,7 @@ public:
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~CalcContext() noexcept
-	= 0;
+	= default;
 
 	/**
 	 * \brief Inform about the AudioSize of the current file.
@@ -1416,7 +1416,6 @@ public:
 	 * \return A clone of this instance
 	 */
 	std::unique_ptr<CalcContext> clone() const noexcept;
-
 
 private:
 
