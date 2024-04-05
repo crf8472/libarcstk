@@ -85,7 +85,8 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~Partitioner() noexcept;
+	virtual ~Partitioner() noexcept
+	= default;
 
 	/**
 	 * \brief Generates partitioning of the range of samples in accordance to a
@@ -103,23 +104,18 @@ public:
 			const CalcContext &context) const;
 
 	/**
-	 * \brief Clone this Partitioner object.
+	 * \brief Deep copy of this instance.
 	 *
-	 * A clone is a deep copy, i.e. the result of the cloning will be a
-	 * different object with the exact same state.
-	 *
-	 * \return A deep copy of the instance
+	 * \return A deep copy of this instance
 	 */
-	virtual std::unique_ptr<Partitioner> clone() const
-	= 0;
-
+	std::unique_ptr<Partitioner> clone() const;
 
 protected:
 
 	/**
 	 * \brief Index of the last sample of the block.
 	 *
-	 * \param[in] offset       Offset of the sample block
+	 * \param[in] offset          Offset of the sample block
 	 * \param[in] psample_count_t Number of samples in the partition
 	 *
 	 * \return Index of the last physical sample in the block
@@ -150,10 +146,9 @@ protected:
 			const psample_count_t &end_offset,
 			const psample_count_t &first,
 			const psample_count_t &last,
-			const bool         &starts_track,
-			const bool         &ends_track,
-			const ptrackno_t   &track) const;
-
+			const bool            &starts_track,
+			const bool            &ends_track,
+			const ptrackno_t      &track) const;
 
 private:
 
@@ -171,6 +166,9 @@ private:
 			const psample_count_t number_of_samples,
 			const CalcContext &context) const
 	= 0;
+
+	virtual std::unique_ptr<Partitioner> do_clone() const
+	= 0;
 };
 
 
@@ -179,10 +177,7 @@ private:
  */
 class MultitrackPartitioner final : public Partitioner
 {
-public:
-
-	std::unique_ptr<Partitioner> clone() const override;
-
+	std::unique_ptr<Partitioner> do_clone() const final;
 
 private:
 
@@ -213,10 +208,7 @@ private:
  */
 class SingletrackPartitioner final : public Partitioner
 {
-public:
-
-	std::unique_ptr<Partitioner> clone() const override;
-
+	std::unique_ptr<Partitioner> do_clone() const final;
 
 private:
 
@@ -258,73 +250,8 @@ class Partition final
 
 	friend Partitioner;
 
-
-public: /* methods */
-
-	/**
-	 * \brief Relative offset of the first sample in the partition.
-	 *
-	 * \return Relative offset of the first sample in the partition.
-	 */
-	psample_count_t begin_offset() const;
-
-	/**
-	 * \brief Relative offset of the last sample in the partition + 1.
-	 *
-	 * \return Relative offset of the last sample in the partition + 1.
-	 */
-	psample_count_t end_offset() const;
-
-	/**
-	 * \brief Returns global index of the first sample in the partition.
-	 *
-	 * \return Global index of the first sample in this partition
-	 */
-	psample_count_t first_sample_idx() const;
-
-	/**
-	 * \brief Returns global index of the last sample in the partition.
-	 *
-	 * \return Global index of the last sample in this partition
-	 */
-	psample_count_t last_sample_idx() const;
-
-	/**
-	 * \brief Returns TRUE iff the first sample of this partition is also the
-	 * first sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition starts a track
-	 */
-	bool starts_track() const;
-
-	/**
-	 * \brief Returns TRUE if the last sample of this partition is also the last
-	 * sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition ends a track
-	 */
-	bool ends_track() const;
-
-	/**
-	 * \brief The track of which the samples in the partition are part of.
-	 *
-	 * \return The track that contains this partition
-	 */
-	int track() const;
-
-	/**
-	 * \brief Number of samples in this partition.
-	 *
-	 * \return Number of samples in this partition
-	 */
-	psample_count_t size() const;
-
-
-private:
-
 	// NOTE: There is no default constructor since Partition have constant
 	// elements that cannot be default initialized
-
 
 	/**
 	 * \brief Constructor.
@@ -386,6 +313,65 @@ private:
 	 */
 	const int track_;
 
+public:
+
+	/**
+	 * \brief Relative offset of the first sample in the partition.
+	 *
+	 * \return Relative offset of the first sample in the partition.
+	 */
+	psample_count_t begin_offset() const;
+
+	/**
+	 * \brief Relative offset of the last sample in the partition + 1.
+	 *
+	 * \return Relative offset of the last sample in the partition + 1.
+	 */
+	psample_count_t end_offset() const;
+
+	/**
+	 * \brief Returns global index of the first sample in the partition.
+	 *
+	 * \return Global index of the first sample in this partition
+	 */
+	psample_count_t first_sample_idx() const;
+
+	/**
+	 * \brief Returns global index of the last sample in the partition.
+	 *
+	 * \return Global index of the last sample in this partition
+	 */
+	psample_count_t last_sample_idx() const;
+
+	/**
+	 * \brief Returns TRUE iff the first sample of this partition is also the
+	 * first sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition starts a track
+	 */
+	bool starts_track() const;
+
+	/**
+	 * \brief Returns TRUE if the last sample of this partition is also the last
+	 * sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition ends a track
+	 */
+	bool ends_track() const;
+
+	/**
+	 * \brief The track of which the samples in the partition are part of.
+	 *
+	 * \return The track that contains this partition
+	 */
+	int track() const;
+
+	/**
+	 * \brief Number of samples in this partition.
+	 *
+	 * \return Number of samples in this partition
+	 */
+	psample_count_t size() const;
 };
 
 
@@ -397,6 +383,16 @@ private:
  */
 class Interval final
 {
+	/**
+	 * \brief First number in interval
+	 */
+	const psample_count_t a_;
+
+	/**
+	 * \brief Last number in interval
+	 */
+	const psample_count_t b_;
+
 public:
 
 	/**
@@ -416,25 +412,10 @@ public:
 	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
 	 */
 	bool contains(const psample_count_t i) const;
-
-
-private:
-
-	/**
-	 * \brief First number in interval
-	 */
-	const psample_count_t a_;
-
-	/**
-	 * \brief Last number in interval
-	 */
-	const psample_count_t b_;
 };
 
 } // namespace details
-
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif

@@ -881,9 +881,6 @@ bool Interval::contains(const sample_count_t i) const
 // Partitioner
 
 
-Partitioner::~Partitioner() noexcept = default;
-
-
 Partitioning Partitioner::create_partitioning(
 		const sample_count_t offset,
 		const sample_count_t number_of_samples,
@@ -901,10 +898,16 @@ Partitioning Partitioner::create_partitioning(
 	{
 		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
 
-		return Partitioning();
+		return Partitioning{};
 	}
 
 	return this->do_create_partitioning(offset, number_of_samples, context);
+}
+
+
+std::unique_ptr<Partitioner> Partitioner::clone() const
+{
+	return do_clone();
 }
 
 
@@ -924,15 +927,15 @@ Partition Partitioner::create_partition(
 		const bool         &ends_track,
 		const TrackNo      &track) const
 {
-	return Partition(begin_offset, end_offset, first, last, starts_track,
-			ends_track, track);
+	return Partition{begin_offset, end_offset, first, last, starts_track,
+			ends_track, track};
 }
 
 
 // MultitrackPartitioner
 
 
-std::unique_ptr<Partitioner> MultitrackPartitioner::clone() const
+std::unique_ptr<Partitioner> MultitrackPartitioner::do_clone() const
 {
 	return std::make_unique<MultitrackPartitioner>(*this);
 }
@@ -945,7 +948,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 {
 	const auto total_samples = sample_count_t { number_of_samples };
 
-	Interval sample_block {
+	const Interval sample_block {
 		offset, this->last_sample_idx(offset, total_samples)
 	};
 
@@ -1076,7 +1079,7 @@ Partitioning MultitrackPartitioner::do_create_partitioning(
 // SingletrackPartitioner
 
 
-std::unique_ptr<Partitioner> SingletrackPartitioner::clone() const
+std::unique_ptr<Partitioner> SingletrackPartitioner::do_clone() const
 {
 	return std::make_unique<SingletrackPartitioner>(*this);
 }
@@ -3063,12 +3066,6 @@ bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept
 {
 	return lhs.total_pcm_bytes() < rhs.total_pcm_bytes();
 }
-
-
-// CalcContext
-
-
-CalcContext::~CalcContext() noexcept = default;
 
 
 // Calculation
