@@ -237,9 +237,42 @@ private:
 namespace details
 {
 
-// forward declaration for ChecksumMapIterator
-template <typename K>
-class ChecksumMap; // IWYU pragma keep
+/**
+ * \brief Functor to wrap an existing const_iterator.
+ *
+ * \tparam I Type of the const_iterator instance to wrap
+ * \tparam T Value type whose const_iterator should be used for wrapping
+ */
+template<typename I, typename T>
+class MakeConstIterator
+{
+public:
+
+	auto operator()(I&& iterator_instance) const -> typename T::const_iterator
+	{
+		using ConstIterator = typename T::const_iterator;
+		return ConstIterator(std::forward<I>(iterator_instance));
+	}
+};
+
+
+/**
+ * \brief Functor to wrap an existing iterator.
+ *
+ * \tparam I Type of the const_iterator instance to wrap
+ * \tparam T Value type whose const_iterator should be used for wrapping
+ */
+template<typename I, typename T>
+class MakeIterator
+{
+public:
+
+	auto operator()(I&& iterator_instance) const -> typename T::iterator
+	{
+		using NonconstIterator = typename T::iterator;
+		return NonconstIterator(std::forward<I>(iterator_instance));
+	}
+};
 
 
 /**
@@ -265,9 +298,9 @@ class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
 	// private members of iterator (and vice versa)
 	friend ChecksumMapIterator<K, not is_const>;
 
-	// ChecksumMap shall exclusively construct iterators by their private
-	// constructor
-	friend ChecksumMap<K>;
+	// Exclusively construct iterators by their private constructor
+	template<typename I, typename T> friend class MakeConstIterator;
+	template<typename I, typename T> friend class MakeIterator;
 
 public:
 

@@ -171,7 +171,7 @@ TEST_CASE ( "Checksum", "[calculate]" )
 	}
 }
 
-
+/*
 TEST_CASE ( "ChecksumMap", "[calculate] [checksumset]" )
 {
 	using arcstk::checksum::type;
@@ -241,7 +241,7 @@ TEST_CASE ( "ChecksumMap", "[calculate] [checksumset]" )
 		CHECK ( *track01.find(type::ARCS1) == Checksum(0x475F57E9) );
 	}
 }
-
+*/
 
 TEST_CASE ( "ChecksumSet", "[calculate] [checksumset]" )
 {
@@ -325,13 +325,6 @@ TEST_CASE ( "ChecksumSet", "[calculate] [checksumset]" )
 	}
 
 
-	SECTION ( "get(type)" )
-	{
-		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
-	}
-
-
 	SECTION ( "erase(type)" )
 	{
 		track01.erase(type::ARCS1);
@@ -351,6 +344,44 @@ TEST_CASE ( "ChecksumSet", "[calculate] [checksumset]" )
 
 		CHECK ( not track01.contains(type::ARCS2) );
 		CHECK ( not track01.contains(type::ARCS1) );
+	}
+
+
+	SECTION ( "get(type)" )
+	{
+		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	}
+
+
+	SECTION ( "merge(rhs) present does nothing" )
+	{
+		ChecksumSet track02;
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+
+		track01.merge(track02); // does nothing, since both types are present
+
+		CHECK ( track01.size() == 2 );
+		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	}
+
+
+	SECTION ( "merge(rhs) new elements works" )
+	{
+		ChecksumSet track02;
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+
+		ChecksumSet track03;
+		track03.insert(type::ARCS1, Checksum(0xB89992E5));
+
+		track03.merge(track02); // Inserts ARCSv2 but leaves ARCSv1 untouched
+
+		CHECK ( track03.size() == 2 );
+		CHECK ( track03.get(type::ARCS1) == Checksum(0xB89992E5) );
+		CHECK ( track03.get(type::ARCS2) == Checksum(0x4F77EB03) );
 	}
 
 

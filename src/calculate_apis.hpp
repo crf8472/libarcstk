@@ -26,9 +26,6 @@
 #ifndef __LIBARCSTK_CALC_STATE_HPP__
 #include "calc_state.hpp"
 #endif
-#ifndef __LIBARCSTK_CALC_CHECKSUMMAP_HPP__
-#include "calc_checksummap.hpp"
-#endif
 
 #endif
 
