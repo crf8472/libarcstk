@@ -576,7 +576,7 @@ TEST_CASE ( "Checksums", "[calculate] [checksums]" )
 	}
 
 
-	SECTION ( "at() read succeeds" )
+	SECTION ( "at() read succeeds on all legal positions" )
 	{
 		CHECK ( checksums.at( 0) == track01 );
 		CHECK ( checksums.at( 1) == track02 );
@@ -593,7 +593,11 @@ TEST_CASE ( "Checksums", "[calculate] [checksums]" )
 		CHECK ( checksums.at(12) == track13 );
 		CHECK ( checksums.at(13) == track14 );
 		CHECK ( checksums.at(14) == track15 );
+	}
 
+
+	SECTION ( "at() throws accessing illegal positions" )
+	{
 		CHECK_THROWS ( checksums.at(15) );
 	}
 

@@ -8,14 +8,14 @@
  */
 
 #include <array>                 // for array
+#include <cstddef>               // for ptrdiff_t, size_t
 #include <cstdint>               // for uint32_t, int64_t
 #include <initializer_list>      // for initializer_list
 #include <iterator>              // for input_iterator_tag
 #include <map>                   // for map
 #include <memory>                // for unique_ptr, swap, make_unique
 #include <set>                   // for set
-#include <sstream>               // for swap, ptrdiff_t, size_t
-#include <stdexcept>             // for domain_error, out_of_range
+#include <ostream>               // for ostream
 #include <string>                // for string
 #include <type_traits>           // for declval, decay_t, enable_if_t, is_same
 #include <typeinfo>              // for type_info
@@ -238,6 +238,19 @@ namespace details
 {
 
 /**
+ * \internal Get the iterator or const_iterator type of a container type.
+ *
+ * \tparam C        Container type to get iterator types from
+ * \tparam is_const If TRUE, get C::const_iterator, otherwise C::iterator
+ */
+template <typename C, bool is_const>
+using IteratorType = typename std::conditional<is_const,
+			typename C::const_iterator,
+			typename C::iterator
+		>::type;
+
+
+/**
  * \brief Functor to wrap an existing const_iterator.
  *
  * \tparam I Type of the const_iterator instance to wrap
@@ -248,10 +261,12 @@ class MakeConstIterator
 {
 public:
 
-	auto operator()(I&& iterator_instance) const -> typename T::const_iterator
+	// TODO Use IteratorType
+	using type = typename T::const_iterator;
+
+	auto operator()(I&& iterator_instance) const -> type
 	{
-		using ConstIterator = typename T::const_iterator;
-		return ConstIterator(std::forward<I>(iterator_instance));
+		return type(std::forward<I>(iterator_instance));
 	}
 };
 
@@ -259,19 +274,97 @@ public:
 /**
  * \brief Functor to wrap an existing iterator.
  *
- * \tparam I Type of the const_iterator instance to wrap
- * \tparam T Value type whose const_iterator should be used for wrapping
+ * \tparam I Type of the iterator instance to wrap
+ * \tparam T Value type whose iterator should be used for wrapping
  */
 template<typename I, typename T>
 class MakeIterator
 {
 public:
 
-	auto operator()(I&& iterator_instance) const -> typename T::iterator
+	// TODO Use IteratorType
+	using type = typename T::iterator;
+
+	auto operator()(I&& iterator_instance) const -> type
 	{
-		using NonconstIterator = typename T::iterator;
-		return NonconstIterator(std::forward<I>(iterator_instance));
+		return type(std::forward<I>(iterator_instance));
 	}
+};
+
+
+/**
+ * \brief Abstract base class for a wrapping iterator.
+ *
+ * \tparam I        Iterator type to wrap.
+ * \tparam is_const If TRUE create a const_iterator
+ */
+template<typename I, bool is_const>
+class IteratorWrapper
+{
+public:
+
+	using value_type = typename I::value_type;
+
+	using difference_type   = std::ptrdiff_t;
+
+	using pointer   = typename std::conditional<is_const,
+		const value_type*, value_type*>::type;
+
+	using reference = typename std::conditional<is_const,
+		const value_type&, value_type&>::type;
+
+	virtual ~IteratorWrapper() noexcept = default;
+
+	// Assign a non-const iterator to a const_interator.
+	IteratorWrapper& operator = (const IteratorWrapper<I, false> &rhs)
+	{
+		it_ = rhs.it_;
+		return *this;
+	}
+
+	IteratorWrapper& operator ++ () // prefix increment
+	{
+		++it_;
+		return *this;
+	}
+
+	IteratorWrapper operator ++ (int) // postfix increment
+	{
+		IteratorWrapper tmp { *this };
+		++(*this);
+		return tmp;
+	}
+
+	friend bool operator == (const IteratorWrapper& lhs,
+			const IteratorWrapper& rhs)
+	{
+		return lhs.it_ == rhs.it_;
+	}
+
+	friend void swap(const IteratorWrapper& lhs,
+			const IteratorWrapper& rhs)
+	{
+		using std::swap;
+		swap(lhs.it_, rhs.it_);
+	}
+
+protected:
+
+	// Called by subclass
+	explicit IteratorWrapper(const I& it)
+		: it_ { it }
+	{
+		// empty
+	}
+
+	auto wrapped_iterator() -> I&
+	{
+		return it_;
+	}
+
+private:
+
+	I it_;
 };
 
 
@@ -390,7 +483,6 @@ public:
 		swap(lhs.it_, rhs.it_);
 	}
 
-
 private:
 
 	/**
@@ -417,7 +509,7 @@ private:
 	 *
 	 * \param[in] it iterator of the wrapped type
 	 */
-	explicit ChecksumMapIterator(const WrappedIteratorType &it)
+	explicit ChecksumMapIterator(const WrappedIteratorType& it)
 		: it_ { it }
 	{
 		// empty
@@ -445,6 +537,8 @@ bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs);
 class ChecksumSet final : public Comparable<ChecksumSet>
 {
 public:
+
+	using value_type = Checksum;
 
 	using const_iterator = details::ChecksumMapIterator<checksum::type, true>;
 
@@ -579,8 +673,8 @@ public:
 	 * be left unmodified.
 	 *
 	 * The pair returned contains an iterator to the inserted Checksum and a
-	 * bool that is \c TRUE iff the insertion was successful. If the insertion was
-	 * not successful, the value \c FALSE is returned for the bool and the
+	 * bool that is \c TRUE iff the insertion was successful. If the insertion
+	 * was not successful, the value \c FALSE is returned for the bool and the
 	 * iterator will point to the element that prevented the insertion.
 	 *
 	 * \param[in] type     The key to use
@@ -1694,6 +1788,78 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 // forward declaration for operator == and swap()
 class Checksums; // IWYU pragma keep
 
+
+namespace details
+{
+
+/**
+ * \internal Iterator type for Checksums.
+ *
+ * \tparam C         Container type to iterate over
+ * \tparam is_const  If TRUE, make instance a const_iterator, otherwise not
+ */
+template <typename C, bool is_const, typename I = IteratorType<C, is_const>>
+class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
+								public Comparable<ChecksumsIteratorImpl<C, is_const>>
+{
+	// Befriend the converse version of the type: const_iterator can access
+	// private members of iterator (and vice versa)
+	friend ChecksumsIteratorImpl<C, not is_const>;
+
+	// Exclusively construct iterators by their private constructor
+	template<typename, typename> friend class MakeConstIterator;
+	template<typename, typename> friend class MakeIterator;
+
+	// Declaration required
+	using IteratorWrapper<I, is_const>::wrapped_iterator;
+
+public:
+
+	using value_type = ChecksumSet;
+
+	using reference = typename IteratorWrapper<I, is_const>::reference;
+	using pointer   = typename IteratorWrapper<I, is_const>::pointer;
+
+	/**
+	 * \brief Iterator category
+	 *
+	 * A ChecksumsIteratorImpl has only std::input_iterator_tag since to any
+	 * higher-level iterator tag it would have to be default constructible.
+	 */
+	using iterator_category = std::input_iterator_tag;
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A ChecksumSet representing a track
+	 */
+	reference operator * ()
+	{
+		return *wrapped_iterator();
+	}
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A ChecksumSet representing a track
+	 */
+	pointer operator -> ()
+	{
+		return &wrapped_iterator();
+	}
+
+private:
+
+	explicit ChecksumsIteratorImpl(const I& it)
+		: IteratorWrapper<I, is_const>{ it }
+	{
+		// empty
+	}
+};
+
+} // namespace details
+
+
 void swap(Checksums &lhs, Checksums &rhs) noexcept;
 
 bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
@@ -1701,22 +1867,23 @@ bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
 /**
  * \brief The result of a Calculation, an iterable list of
  * \link ChecksumSet ChecksumSets \endlink.
+ *
+ * A Checksums instance represents all calculated checksums of an input, i.e. an
+ * album or a track list.
  */
 class Checksums final
 {
 public:
 
-	using iterator = ChecksumSet*;
+	using value_type = ChecksumSet;
 
-	using const_iterator = const ChecksumSet*;
+	using storage_type = std::vector<value_type>;
+
+	using iterator = details::ChecksumsIteratorImpl<storage_type, false>;
+
+	using const_iterator = details::ChecksumsIteratorImpl<storage_type, true>;
 
 	using size_type = std::size_t;
-
-
-	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
-
-	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
-		noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -1752,12 +1919,16 @@ public:
 	 */
 	Checksums(const Checksums &rhs);
 
+	Checksums& operator = (Checksums rhs);
+
 	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The Checksums to move
 	 */
 	Checksums(Checksums &&rhs) noexcept;
+
+	Checksums& operator = (Checksums &&rhs) noexcept;
 
 	/**
 	 * \brief Default destructor
@@ -1776,38 +1947,38 @@ public:
 	 *
 	 * \return Pointer to the first ChecksumSet
 	 */
-	iterator begin() noexcept;
+	iterator begin();
 
 	/**
 	 * \brief Obtain a pointer pointing behind the last ChecksumSet.
 	 *
 	 * \return Pointer pointing behind the last ChecksumSet
 	 */
-	iterator end() noexcept;
+	iterator end();
 
 	/**
 	 * \copydoc cbegin()
 	 */
-	const_iterator begin() const noexcept;
+	const_iterator begin() const;
 
 	/**
 	 * \copydoc cend()
 	 */
-	const_iterator end() const noexcept;
+	const_iterator end() const;
 
 	/**
 	 * \brief Obtain a const_iterator pointing to first ChecksumSet.
 	 *
 	 * \return const_iterator pointing to first ChecksumSet
 	 */
-	const_iterator cbegin() const noexcept;
+	const_iterator cbegin() const;
 
 	/**
 	 * \brief Obtain a const_iterator pointing behind last ChecksumSet.
 	 *
 	 * \return const_iterator pointing behind last ChecksumSet
 	 */
-	const_iterator cend() const noexcept;
+	const_iterator cend() const;
 
 	/**
 	 * \brief The ChecksumSet with the specified 0-based index \c index.
@@ -1849,9 +2020,10 @@ public:
 	size_type size() const noexcept;
 
 
-	Checksums& operator = (Checksums rhs);
+	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
+		noexcept;
 
-	Checksums& operator = (Checksums &&rhs) noexcept;
+	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
 
 private:
 
