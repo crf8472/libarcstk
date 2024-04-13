@@ -271,7 +271,6 @@ public:
 };
 
 
-
 /**
  * \brief Abstract base class for a wrapping iterator.
  *
@@ -724,18 +723,18 @@ namespace details
 {
 
 /**
- * \internal Iterator type for Checksums.
+ * \internal Iterator type for non-associative object containers.
  *
- * \tparam C         Container type to iterate over
+ * \tparam C         Non-associative container type to iterate over
  * \tparam is_const  If TRUE, make instance a const_iterator, otherwise not
  */
 template <typename C, bool is_const, typename I = IteratorType<C, is_const>>
-class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
-								public Comparable<ChecksumsIteratorImpl<C, is_const>>
+class ObjectIterator :	public IteratorWrapper<I, is_const>,
+								public Comparable<ObjectIterator<C, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
-	friend ChecksumsIteratorImpl<C, not is_const>;
+	friend ObjectIterator<C, not is_const>;
 
 	// Exclusively construct iterators by their private constructor
 	template<typename, typename, bool> friend class MakeIterator;
@@ -745,7 +744,10 @@ class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
 
 public:
 
-	using value_type = ChecksumSet;
+	/**
+	 * \brief Value type of this iterator.
+	 */
+	using value_type = typename C::value_type;
 
 	using reference = typename IteratorWrapper<I, is_const>::reference;
 	using pointer   = typename IteratorWrapper<I, is_const>::pointer;
@@ -753,7 +755,7 @@ public:
 	/**
 	 * \brief Iterator category
 	 *
-	 * A ChecksumsIteratorImpl has only std::input_iterator_tag since to any
+	 * A ObjectIterator has only std::input_iterator_tag since to any
 	 * higher-level iterator tag it would have to be default constructible.
 	 */
 	using iterator_category = std::input_iterator_tag;
@@ -780,7 +782,7 @@ public:
 
 private:
 
-	explicit ChecksumsIteratorImpl(const I& it)
+	explicit ObjectIterator(const I& it)
 		: IteratorWrapper<I, is_const>{ it }
 	{
 		// empty
@@ -807,11 +809,15 @@ public:
 
 	using value_type = ChecksumSet;
 
+private:
+
 	using storage_type = std::vector<value_type>;
 
-	using iterator = details::ChecksumsIteratorImpl<storage_type, false>;
+public:
 
-	using const_iterator = details::ChecksumsIteratorImpl<storage_type, true>;
+	using iterator = details::ObjectIterator<storage_type, false>;
+
+	using const_iterator = details::ObjectIterator<storage_type, true>;
 
 	using size_type = std::size_t;
 
