@@ -314,6 +314,19 @@ public:
 		return tmp;
 	}
 
+	IteratorWrapper& operator -- () // prefix decrement
+	{
+		--it_;
+		return *this;
+	}
+
+	IteratorWrapper operator -- (int) // postfix decrement
+	{
+		IteratorWrapper tmp { *this };
+		--(*this);
+		return tmp;
+	}
+
 	friend bool operator == (const IteratorWrapper& lhs,
 			const IteratorWrapper& rhs)
 	{
