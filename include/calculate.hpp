@@ -737,6 +737,267 @@ private:
 };
 
 
+// forward declaration for operator == and swap()
+class Checksums; // IWYU pragma keep
+
+
+namespace details
+{
+
+/**
+ * \internal Iterator type for Checksums.
+ *
+ * \tparam C         Container type to iterate over
+ * \tparam is_const  If TRUE, make instance a const_iterator, otherwise not
+ */
+template <typename C, bool is_const, typename I = IteratorType<C, is_const>>
+class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
+								public Comparable<ChecksumsIteratorImpl<C, is_const>>
+{
+	// Befriend the converse version of the type: const_iterator can access
+	// private members of iterator (and vice versa)
+	friend ChecksumsIteratorImpl<C, not is_const>;
+
+	// Exclusively construct iterators by their private constructor
+	template<typename, typename> friend class MakeConstIterator;
+	template<typename, typename> friend class MakeIterator;
+
+	// Declaration required
+	using IteratorWrapper<I, is_const>::wrapped_iterator;
+
+public:
+
+	using value_type = ChecksumSet;
+
+	using reference = typename IteratorWrapper<I, is_const>::reference;
+	using pointer   = typename IteratorWrapper<I, is_const>::pointer;
+
+	/**
+	 * \brief Iterator category
+	 *
+	 * A ChecksumsIteratorImpl has only std::input_iterator_tag since to any
+	 * higher-level iterator tag it would have to be default constructible.
+	 */
+	using iterator_category = std::input_iterator_tag;
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A ChecksumSet representing a track
+	 */
+	reference operator * ()
+	{
+		return *wrapped_iterator();
+	}
+
+	/**
+	 * \brief Dereference operator
+	 *
+	 * \return A ChecksumSet representing a track
+	 */
+	pointer operator -> ()
+	{
+		return &wrapped_iterator();
+	}
+
+private:
+
+	explicit ChecksumsIteratorImpl(const I& it)
+		: IteratorWrapper<I, is_const>{ it }
+	{
+		// empty
+	}
+};
+
+} // namespace details
+
+
+void swap(Checksums &lhs, Checksums &rhs) noexcept;
+
+bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
+
+/**
+ * \brief The result of a Calculation, an iterable list of
+ * \link ChecksumSet ChecksumSets \endlink.
+ *
+ * A Checksums instance represents all calculated checksums of an input, i.e. an
+ * album or a track list.
+ */
+class Checksums final
+{
+public:
+
+	using value_type = ChecksumSet;
+
+	using storage_type = std::vector<value_type>;
+
+	using iterator = details::ChecksumsIteratorImpl<storage_type, false>;
+
+	using const_iterator = details::ChecksumsIteratorImpl<storage_type, true>;
+
+	using size_type = std::size_t;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] size Number of elements
+	 */
+	explicit Checksums(size_type size);
+
+	// forward declaration for Checksums::Impl
+	class Impl;
+
+	/**
+	 * \internal
+	 * \brief Construct with custom implementation
+	 *
+	 * \param[in] impl The implementation of this instance
+	 */
+	Checksums(std::unique_ptr<Impl> impl);
+
+	/**
+	 * \brief Constructor
+	 *
+	 * This constructor is intended for testing purposes only.
+	 *
+	 * \param[in] tracks Sequence of track checksums
+	 */
+	Checksums(std::initializer_list<ChecksumSet> tracks);
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The Checksums to copy
+	 */
+	Checksums(const Checksums &rhs);
+
+	Checksums& operator = (Checksums rhs);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The Checksums to move
+	 */
+	Checksums(Checksums &&rhs) noexcept;
+
+	Checksums& operator = (Checksums &&rhs) noexcept;
+
+	/**
+	 * \brief Default destructor
+	 */
+	~Checksums() noexcept;
+
+	/**
+	 * \brief Append a track's checksums
+	 *
+	 * \param[in] checksums The checksums of a track
+	 */
+	void append(const ChecksumSet &checksums);
+
+	/**
+	 * \brief Obtain a pointer to the first ChecksumSet.
+	 *
+	 * \return Pointer to the first ChecksumSet
+	 */
+	iterator begin();
+
+	/**
+	 * \brief Obtain a pointer pointing behind the last ChecksumSet.
+	 *
+	 * \return Pointer pointing behind the last ChecksumSet
+	 */
+	iterator end();
+
+	/**
+	 * \copydoc cbegin()
+	 */
+	const_iterator begin() const;
+
+	/**
+	 * \copydoc cend()
+	 */
+	const_iterator end() const;
+
+	/**
+	 * \brief Obtain a const_iterator pointing to first ChecksumSet.
+	 *
+	 * \return const_iterator pointing to first ChecksumSet
+	 */
+	const_iterator cbegin() const;
+
+	/**
+	 * \brief Obtain a const_iterator pointing behind last ChecksumSet.
+	 *
+	 * \return const_iterator pointing behind last ChecksumSet
+	 */
+	const_iterator cend() const;
+
+	/**
+	 * \brief The ChecksumSet with the specified 0-based index \c index.
+	 *
+	 * \details
+	 *
+	 * Bounds checking is performed. If \c index is illegal, an exception is
+	 * thrown.
+	 *
+	 * \see \link Checksums::operator [](const size_type index) const
+	 * operator[]\endlink
+	 *
+	 * \param[in] index Index of the ChecksumSet to read
+	 *
+	 * \return ChecksumSet at index \c index.
+	 *
+	 * \throws std::out_of_range Iff \c index >= Checksums::size()
+	 */
+	const ChecksumSet& at(const size_type index) const;
+
+	/**
+	 * \brief The ChecksumSet with the specified \c index.
+	 *
+	 * No bounds checking is performed. For index based access with bounds
+	 * checking, see
+	 * \link Checksums::at(const size_type index) const at()\endlink.
+	 *
+	 * \param[in] index The 0-based index of the ChecksumSet to return
+	 *
+	 * \return ChecksumSet at the specified index
+	 */
+	const ChecksumSet& operator [] (const size_type index) const;
+
+	/**
+	 * \brief Return the total number of elements.
+	 *
+	 * \return Total number of elements
+	 */
+	size_type size() const noexcept;
+
+
+	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
+		noexcept;
+
+	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
+
+private:
+
+	/**
+	 * \brief Private implementation of Checksums.
+	 */
+	std::unique_ptr<Checksums::Impl> impl_;
+};
+
+
+/**
+ * \brief Global instance of an empty Checksum.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * Checksum can be avoided when a reference instance is at hand.
+ *
+ * This instance defines emptyness for checksums since Checksum::empty()
+ * just compares the instance with this instance.
+ */
+extern const Checksum EmptyChecksum;
+
+
 /**
  * \brief Type to represent amounts of PCM 32 bit samples.
  *
@@ -1784,266 +2045,6 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
-
-// forward declaration for operator == and swap()
-class Checksums; // IWYU pragma keep
-
-
-namespace details
-{
-
-/**
- * \internal Iterator type for Checksums.
- *
- * \tparam C         Container type to iterate over
- * \tparam is_const  If TRUE, make instance a const_iterator, otherwise not
- */
-template <typename C, bool is_const, typename I = IteratorType<C, is_const>>
-class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
-								public Comparable<ChecksumsIteratorImpl<C, is_const>>
-{
-	// Befriend the converse version of the type: const_iterator can access
-	// private members of iterator (and vice versa)
-	friend ChecksumsIteratorImpl<C, not is_const>;
-
-	// Exclusively construct iterators by their private constructor
-	template<typename, typename> friend class MakeConstIterator;
-	template<typename, typename> friend class MakeIterator;
-
-	// Declaration required
-	using IteratorWrapper<I, is_const>::wrapped_iterator;
-
-public:
-
-	using value_type = ChecksumSet;
-
-	using reference = typename IteratorWrapper<I, is_const>::reference;
-	using pointer   = typename IteratorWrapper<I, is_const>::pointer;
-
-	/**
-	 * \brief Iterator category
-	 *
-	 * A ChecksumsIteratorImpl has only std::input_iterator_tag since to any
-	 * higher-level iterator tag it would have to be default constructible.
-	 */
-	using iterator_category = std::input_iterator_tag;
-
-	/**
-	 * \brief Dereference operator
-	 *
-	 * \return A ChecksumSet representing a track
-	 */
-	reference operator * ()
-	{
-		return *wrapped_iterator();
-	}
-
-	/**
-	 * \brief Dereference operator
-	 *
-	 * \return A ChecksumSet representing a track
-	 */
-	pointer operator -> ()
-	{
-		return &wrapped_iterator();
-	}
-
-private:
-
-	explicit ChecksumsIteratorImpl(const I& it)
-		: IteratorWrapper<I, is_const>{ it }
-	{
-		// empty
-	}
-};
-
-} // namespace details
-
-
-void swap(Checksums &lhs, Checksums &rhs) noexcept;
-
-bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept;
-
-/**
- * \brief The result of a Calculation, an iterable list of
- * \link ChecksumSet ChecksumSets \endlink.
- *
- * A Checksums instance represents all calculated checksums of an input, i.e. an
- * album or a track list.
- */
-class Checksums final
-{
-public:
-
-	using value_type = ChecksumSet;
-
-	using storage_type = std::vector<value_type>;
-
-	using iterator = details::ChecksumsIteratorImpl<storage_type, false>;
-
-	using const_iterator = details::ChecksumsIteratorImpl<storage_type, true>;
-
-	using size_type = std::size_t;
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] size Number of elements
-	 */
-	explicit Checksums(size_type size);
-
-	// forward declaration for Checksums::Impl
-	class Impl;
-
-	/**
-	 * \internal
-	 * \brief Construct with custom implementation
-	 *
-	 * \param[in] impl The implementation of this instance
-	 */
-	Checksums(std::unique_ptr<Impl> impl);
-
-	/**
-	 * \brief Constructor
-	 *
-	 * This constructor is intended for testing purposes only.
-	 *
-	 * \param[in] tracks Sequence of track checksums
-	 */
-	Checksums(std::initializer_list<ChecksumSet> tracks);
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The Checksums to copy
-	 */
-	Checksums(const Checksums &rhs);
-
-	Checksums& operator = (Checksums rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The Checksums to move
-	 */
-	Checksums(Checksums &&rhs) noexcept;
-
-	Checksums& operator = (Checksums &&rhs) noexcept;
-
-	/**
-	 * \brief Default destructor
-	 */
-	~Checksums() noexcept;
-
-	/**
-	 * \brief Append a track's checksums
-	 *
-	 * \param[in] checksums The checksums of a track
-	 */
-	void append(const ChecksumSet &checksums);
-
-	/**
-	 * \brief Obtain a pointer to the first ChecksumSet.
-	 *
-	 * \return Pointer to the first ChecksumSet
-	 */
-	iterator begin();
-
-	/**
-	 * \brief Obtain a pointer pointing behind the last ChecksumSet.
-	 *
-	 * \return Pointer pointing behind the last ChecksumSet
-	 */
-	iterator end();
-
-	/**
-	 * \copydoc cbegin()
-	 */
-	const_iterator begin() const;
-
-	/**
-	 * \copydoc cend()
-	 */
-	const_iterator end() const;
-
-	/**
-	 * \brief Obtain a const_iterator pointing to first ChecksumSet.
-	 *
-	 * \return const_iterator pointing to first ChecksumSet
-	 */
-	const_iterator cbegin() const;
-
-	/**
-	 * \brief Obtain a const_iterator pointing behind last ChecksumSet.
-	 *
-	 * \return const_iterator pointing behind last ChecksumSet
-	 */
-	const_iterator cend() const;
-
-	/**
-	 * \brief The ChecksumSet with the specified 0-based index \c index.
-	 *
-	 * \details
-	 *
-	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
-	 *
-	 * \see \link Checksums::operator [](const size_type index) const
-	 * operator[]\endlink
-	 *
-	 * \param[in] index Index of the ChecksumSet to read
-	 *
-	 * \return ChecksumSet at index \c index.
-	 *
-	 * \throws std::out_of_range Iff \c index >= Checksums::size()
-	 */
-	const ChecksumSet& at(const size_type index) const;
-
-	/**
-	 * \brief The ChecksumSet with the specified \c index.
-	 *
-	 * No bounds checking is performed. For index based access with bounds
-	 * checking, see
-	 * \link Checksums::at(const size_type index) const at()\endlink.
-	 *
-	 * \param[in] index The 0-based index of the ChecksumSet to return
-	 *
-	 * \return ChecksumSet at the specified index
-	 */
-	const ChecksumSet& operator [] (const size_type index) const;
-
-	/**
-	 * \brief Return the total number of elements.
-	 *
-	 * \return Total number of elements
-	 */
-	size_type size() const noexcept;
-
-
-	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
-		noexcept;
-
-	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
-
-private:
-
-	/**
-	 * \brief Private implementation of Checksums.
-	 */
-	std::unique_ptr<Checksums::Impl> impl_;
-};
-
-
-/**
- * \brief Global instance of an empty Checksum.
- *
- * This is for convenience since in most cases, the creation of an empty
- * Checksum can be avoided when a reference instance is at hand.
- *
- * This instance defines emptyness for checksums since Checksum::empty()
- * just compares the instance with this instance.
- */
-extern const Checksum EmptyChecksum;
 
 
 /**
