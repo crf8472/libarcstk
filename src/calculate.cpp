@@ -4,8 +4,17 @@
  * \brief Implementation of the checksum calculation API
  */
 
-#ifndef __LIBARCSTK_CALCULATE_APIS_HPP__
-#include "calculate_apis.hpp"
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_PARTITION_HPP__
+#include "calc_partition.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_CONTEXT_HPP__
+#include "calc_context.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_STATE_HPP__
+#include "calc_state.hpp"
 #endif
 
 #include <algorithm>              // for transform
@@ -34,6 +43,9 @@
 #include "logging.hpp"
 #endif
 
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"
+#endif
 
 namespace arcstk
 {
