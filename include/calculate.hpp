@@ -251,45 +251,25 @@ using IteratorType = typename std::conditional<is_const,
 
 
 /**
- * \brief Functor to wrap an existing const_iterator.
- *
- * \tparam I Type of the const_iterator instance to wrap
- * \tparam T Value type whose const_iterator should be used for wrapping
- */
-template<typename I, typename T>
-class MakeConstIterator
-{
-public:
-
-	// TODO Use IteratorType
-	using type = typename T::const_iterator;
-
-	auto operator()(I&& iterator_instance) const -> type
-	{
-		return type(std::forward<I>(iterator_instance));
-	}
-};
-
-
-/**
  * \brief Functor to wrap an existing iterator.
  *
  * \tparam I Type of the iterator instance to wrap
  * \tparam T Value type whose iterator should be used for wrapping
+ * \tparam is_const If TRUE, construct a const_iterator, otherwise not
  */
-template<typename I, typename T>
+template<typename I, typename T, bool is_const>
 class MakeIterator
 {
 public:
 
-	// TODO Use IteratorType
-	using type = typename T::iterator;
+	using type = IteratorType<T, is_const>;
 
 	auto operator()(I&& iterator_instance) const -> type
 	{
 		return type(std::forward<I>(iterator_instance));
 	}
 };
+
 
 
 /**
@@ -392,8 +372,7 @@ class ChecksumMapIterator : public Comparable<ChecksumMapIterator<K, is_const>>
 	friend ChecksumMapIterator<K, not is_const>;
 
 	// Exclusively construct iterators by their private constructor
-	template<typename I, typename T> friend class MakeConstIterator;
-	template<typename I, typename T> friend class MakeIterator;
+	template<typename, typename, bool> friend class MakeIterator;
 
 public:
 
@@ -759,8 +738,7 @@ class ChecksumsIteratorImpl :	public IteratorWrapper<I, is_const>,
 	friend ChecksumsIteratorImpl<C, not is_const>;
 
 	// Exclusively construct iterators by their private constructor
-	template<typename, typename> friend class MakeConstIterator;
-	template<typename, typename> friend class MakeIterator;
+	template<typename, typename, bool> friend class MakeIterator;
 
 	// Declaration required
 	using IteratorWrapper<I, is_const>::wrapped_iterator;

@@ -346,7 +346,8 @@ std::pair<ChecksumSet::iterator, bool> ChecksumSet::Impl::insert(
 	auto pos_and_res { checksums_.insert({ type, checksum }) };
 
 	using it_type = decltype( pos_and_res.first );
-	const auto create = details::MakeIterator<it_type, ChecksumSet> {};
+	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
+
 	return { create(std::move(pos_and_res.first)), pos_and_res.second };
 }
 
@@ -477,7 +478,7 @@ ChecksumSet::const_iterator ChecksumSet::cbegin() const
 	auto it { impl_->cbegin() };
 
 	using it_type = decltype( it );
-	const auto create = details::MakeConstIterator<it_type, ChecksumSet>{};
+	const auto create = details::MakeIterator<it_type, ChecksumSet, true>{};
 	return create(std::move(it));
 }
 
@@ -487,7 +488,7 @@ ChecksumSet::const_iterator ChecksumSet::cend() const
 	auto it { impl_->cend() };
 
 	using it_type = decltype( it );
-	const auto create = details::MakeConstIterator<it_type, ChecksumSet>{};
+	const auto create = details::MakeIterator<it_type, ChecksumSet, true>{};
 	return create(std::move(it));
 }
 
@@ -509,7 +510,7 @@ ChecksumSet::iterator ChecksumSet::begin()
 	auto it { impl_->begin() };
 
 	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet>{};
+	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
 	return create(std::move(it));
 }
 
@@ -519,7 +520,7 @@ ChecksumSet::iterator ChecksumSet::end()
 	auto it { impl_->end() };
 
 	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet>{};
+	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
 	return create(std::move(it));
 }
 
@@ -761,7 +762,7 @@ void Checksums::append(const ChecksumSet &checksum)
 Checksums::iterator Checksums::begin()
 {
 	auto it { impl_->begin() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums>{};
+	const auto create = details::MakeIterator<decltype( it ), Checksums, false>{};
 	return create(std::move(it));
 }
 
@@ -769,7 +770,7 @@ Checksums::iterator Checksums::begin()
 Checksums::iterator Checksums::end()
 {
 	auto it { impl_->end() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums>{};
+	const auto create = details::MakeIterator<decltype( it ), Checksums, false>{};
 	return create(std::move(it));
 }
 
@@ -789,7 +790,7 @@ Checksums::const_iterator Checksums::end() const
 Checksums::const_iterator Checksums::cbegin() const
 {
 	auto it { impl_->cbegin() };
-	const auto create = details::MakeConstIterator<decltype( it ), Checksums>{};
+	const auto create = details::MakeIterator<decltype( it ), Checksums, true>{};
 	return create(std::move(it));
 }
 
@@ -797,7 +798,7 @@ Checksums::const_iterator Checksums::cbegin() const
 Checksums::const_iterator Checksums::cend() const
 {
 	auto it { impl_->cend() };
-	const auto create = details::MakeConstIterator<decltype( it ), Checksums>{};
+	const auto create = details::MakeIterator<decltype( it ), Checksums, true>{};
 	return create(std::move(it));
 }
 
