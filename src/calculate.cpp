@@ -153,114 +153,42 @@ std::ostream& operator << (std::ostream& out, const Checksum &c)
  */
 class ChecksumSet::Impl final
 {
+	using storage_type = std::map<checksum::type, Checksum>;
+
+	storage_type set_;
+
 public:
 
-	using map_type = std::map<checksum::type, Checksum>;
-
-	using map_value_type = map_type::value_type;
-
-	using size_type = std::size_t;
-
-	using iterator = ChecksumSet::iterator;
-
+	using iterator       = ChecksumSet::iterator;
 	using const_iterator = ChecksumSet::const_iterator;
+	using size_type      = std::size_t;
 
-	/**
-	 * \brief Constructor
-	 *
-	 * \param[in] length Length (in LBA frames) of this track
-	 */
 	explicit Impl(const lba_count_t length);
 
-	/**
-	 * \brief Implements ChecksumSet::contains().
-	 *
-	 * \param[in] type
-	 *
-	 * \return
-	 */
-	bool contains(const checksum::type &type) const;
+	lba_count_t length() const noexcept;
 
-	/**
-	 * \brief Implements ChecksumSet::erase().
-	 *
-	 * \param[in] type
-	 *
-	 * \return
-	 */
-	void erase(const checksum::type &type);
+	size_type size() const noexcept;
+	bool empty() const noexcept;
 
-	/**
-	 * \brief Implements ChecksumSet::clear().
-	 */
+	bool contains(const checksum::type& type) const;
+
+	std::pair<ChecksumSet::iterator, bool> insert(const checksum::type type,
+			const Checksum& checksum);
+	void merge(const Impl& rhs);
+
+	void erase(const checksum::type& type);
 	void clear();
 
-	/**
-	 * \brief Implements ChecksumSet::get().
-	 *
-	 * \param[in] type
-	 *
-	 * \return
-	 */
 	Checksum get(const checksum::type type) const;
-
-	/**
-	 * \brief Implements ChecksumSet::types().
-	 *
-	 * \return
-	 */
 	std::set<checksum::type> types() const;
-
-	/**
-	 * \brief Implements ChecksumSet::insert().
-	 *
-	 * \param[in] type
-	 * \param[in] checksum
-	 *
-	 * \return
-	 */
-	std::pair<ChecksumSet::iterator, bool> insert(
-		const checksum::type type, const Checksum &checksum);
-
-	/**
-	 * \brief Implements ChecksumSet::merge(const ChecksumSet &)
-	 *
-	 * \param[in] rhs
-	 */
-	void merge(const Impl &rhs);
-
-	/**
-	 * \brief Implements ChecksumSet::size().
-	 *
-	 * \return Number of checksums in set.
-	 */
-	size_type size() const noexcept;
-
-	/**
-	 * \brief Implements ChecksumSet::empty().
-	 *
-	 * \return TRUE iff set contains no checksums, otherwise FALSE
-	 */
-	bool empty() const noexcept;
 
 	auto cbegin() const;
 	auto cend() const;
 	auto begin();
 	auto end();
 
-	/**
-	 * \brief Implements ChecksumSet::length().
-	 *
-	 * \return Length of this track in LBA frames
-	 */
-	lba_count_t length() const noexcept;
-
-	/**
-	 * \brief Equality
-	 *
-	 * \param[in] rhs The instance to compare
-	 */
-	bool equals(const Impl &rhs) const;
+	bool equals(const Impl& rhs) const noexcept;
+	void swap(Impl& rhs) noexcept;
 
 private:
 
@@ -268,11 +196,6 @@ private:
 	 * \brief Internal representation of the length (in frames).
 	 */
 	lba_count_t length_;
-
-	/**
-	 * \brief Internal representation of the checksums.
-	 */
-	map_type checksums_;
 };
 
 
@@ -280,70 +203,42 @@ private:
 
 
 ChecksumSet::Impl::Impl(const lba_count_t length)
-	: length_     { length    }
-	, checksums_  { /*empty*/ }
+	: set_  { /*empty*/ }
+	, length_     { length    }
 {
 	// empty
+}
+
+
+lba_count_t ChecksumSet::Impl::length() const noexcept
+{
+	return length_;
+}
+
+
+ChecksumSet::size_type ChecksumSet::Impl::size() const noexcept
+{
+	return set_.size();
+}
+
+
+bool ChecksumSet::Impl::empty() const noexcept
+{
+	return set_.empty();
 }
 
 
 bool ChecksumSet::Impl::contains(const checksum::type &type) const
 {
 	using std::end;
-	return checksums_.find(type) != end(checksums_);
-}
-
-
-void ChecksumSet::Impl::erase(const checksum::type &type)
-{
-	checksums_.erase(type);
-}
-
-
-void ChecksumSet::Impl::clear()
-{
-	checksums_.clear();
-}
-
-
-Checksum ChecksumSet::Impl::get(const checksum::type type) const
-{
-	using std::end;
-
-	auto rc { checksums_.find(type) };
-
-	if (rc == end(checksums_))
-	{
-		return EmptyChecksum;
-	}
-
-	return rc->second;
-}
-
-
-std::set<checksum::type> ChecksumSet::Impl::types() const
-{
-	auto keys { std::set<checksum::type>{} };
-
-	using std::begin;
-	using std::end;
-
-	std::transform(begin(checksums_), end(checksums_),
-		std::inserter(keys, begin(keys)),
-		[](const map_value_type &pair)
-		{
-			return pair.first;
-		}
-	);
-
-	return keys;
+	return set_.find(type) != end(set_);
 }
 
 
 std::pair<ChecksumSet::iterator, bool> ChecksumSet::Impl::insert(
 		const checksum::type type, const Checksum &checksum)
 {
-	auto pos_and_res { checksums_.insert({ type, checksum }) };
+	auto pos_and_res { set_.insert({ type, checksum }) };
 
 	using it_type = decltype( pos_and_res.first );
 	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
@@ -368,60 +263,95 @@ void ChecksumSet::Impl::merge(const Impl &rhs)
 	}
 
 	#if __cplusplus >= 201703L
-		checksums_.merge(rhs.checksums_);
+		set_.merge(rhs.set_);
 	#else
 		using std::begin;
 		using std::end;
-		checksums_.insert(begin(rhs.checksums_), end(rhs.checksums_));
+		set_.insert(begin(rhs.set_), end(rhs.set_));
 	#endif
 }
 
 
-ChecksumSet::size_type ChecksumSet::Impl::size() const noexcept
+void ChecksumSet::Impl::erase(const checksum::type &type)
 {
-	return checksums_.size();
+	set_.erase(type);
 }
 
 
-bool ChecksumSet::Impl::empty() const noexcept
+void ChecksumSet::Impl::clear()
 {
-	return checksums_.empty();
+	set_.clear();
+}
+
+
+Checksum ChecksumSet::Impl::get(const checksum::type type) const
+{
+	using std::end;
+
+	auto rc { set_.find(type) };
+
+	if (rc == end(set_))
+	{
+		return EmptyChecksum;
+	}
+
+	return rc->second;
+}
+
+
+std::set<checksum::type> ChecksumSet::Impl::types() const
+{
+	auto keys { std::set<checksum::type>{} };
+
+	using std::begin;
+	using std::end;
+
+	std::transform(begin(set_), end(set_),
+		std::inserter(keys, begin(keys)),
+		[](const storage_type::value_type &pair)
+		{
+			return pair.first;
+		}
+	);
+
+	return keys;
 }
 
 
 auto ChecksumSet::Impl::cbegin() const
 {
-	return checksums_.cbegin();
+	return set_.cbegin();
 }
 
 
 auto ChecksumSet::Impl::cend() const
 {
-	return checksums_.cend();
+	return set_.cend();
 }
 
 
 auto ChecksumSet::Impl::begin()
 {
-	return checksums_.begin();
+	return set_.begin();
 }
 
 
 auto ChecksumSet::Impl::end()
 {
-	return checksums_.end();
+	return set_.end();
 }
 
 
-lba_count_t ChecksumSet::Impl::length() const noexcept
+bool ChecksumSet::Impl::equals(const Impl &rhs) const noexcept
 {
-	return length_;
+	return length_ == rhs.length_ and set_ == rhs.set_;
 }
 
 
-bool ChecksumSet::Impl::equals(const Impl &rhs) const
+void ChecksumSet::Impl::swap(Impl &rhs) noexcept
 {
-	return length_ == rhs.length_ and checksums_ == rhs.checksums_;
+	using std::swap;
+	swap(set_, rhs.set_);
 }
 
 
@@ -592,31 +522,27 @@ ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
  */
 class Checksums::Impl final
 {
+	using storage_type = std::vector<ChecksumSet>;
 
-	std::vector<ChecksumSet> sets_;
-
-	using storage_type = decltype(sets_);
+	storage_type sets_;
 
 public:
 
-	using iterator = storage_type::iterator;
+	using iterator       = storage_type::iterator; // TODO Checksums::iterator
+	using const_iterator = storage_type::const_iterator;// TODO Checksums::const_iterator
+	using size_type      = storage_type::size_type;
 
-	using const_iterator = storage_type::const_iterator;
-
-	using size_type = storage_type::size_type;
-
-	Impl(const size_type size);
-
+	explicit Impl(const size_type size);
 	Impl(std::initializer_list<ChecksumSet> tracks);
 
 	size_type size() const noexcept;
+	bool empty() const noexcept;
 
 	void append(const ChecksumSet& s);
 	void append(ChecksumSet&& s);
 
 	const ChecksumSet& operator[](const size_type i) const;
 	ChecksumSet& operator[](const size_type i);
-
 	const ChecksumSet& at(const size_type i) const;
 
 	const_iterator cbegin() const;
@@ -646,6 +572,12 @@ Checksums::Impl::Impl(std::initializer_list<ChecksumSet> tracks)
 Checksums::Impl::size_type Checksums::Impl::size() const noexcept
 {
 	return sets_.size();
+}
+
+
+bool Checksums::Impl::empty() const noexcept
+{
+	return sets_.empty();
 }
 
 

@@ -743,7 +743,7 @@ namespace details
  */
 template <typename C, bool is_const, typename I = IteratorType<C, is_const>>
 class ObjectIterator :	public IteratorWrapper<I, is_const>,
-								public Comparable<ObjectIterator<C, is_const>>
+						public Comparable<ObjectIterator<C, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
