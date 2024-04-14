@@ -4,8 +4,8 @@
  * \brief Implementation of the new checksum calculation API
  */
 
-#ifndef __LIBARCSTK_CALCULATE2_HPP__
-#include "calculate2.hpp"
+#ifndef __LIBARCSTK_CALCULATE2_DETAILS_HPP__
+#include "calculate2_details.hpp"
 #endif
 
 #include <string>      // for vector
@@ -17,6 +17,26 @@ inline namespace v_1_0_0
 {
 namespace details
 {
+
+
+void Subtotals::reset()
+{
+	Subtotals s;  // use default construction for reset to initial values
+	swap(*this, s);
+}
+
+
+void swap(Subtotals& lhs, Subtotals& rhs) noexcept
+{
+	using std::swap;
+	swap(lhs.multiplier,  rhs.multiplier);
+	swap(lhs.update,      rhs.update);
+	swap(lhs.subtotal_v1, rhs.subtotal_v1);
+	swap(lhs.subtotal_v2, rhs.subtotal_v2);
+}
+
+
+// CalcCounters
 
 
 sample_count_t CalcCounters::sample_offset() const

@@ -6,8 +6,8 @@
 
 #include <fstream>                // for ifstream, operator|, ios_base::failure
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate2.hpp"
+#ifndef __LIBARCSTK_CALCULATE2_DETAILS_HPP__
+#include "calculate2_details.hpp"
 #endif
 #ifndef __LIBARCSTK_CALC_PARTITION_HPP__
 #include "calc_partition.hpp"
@@ -28,7 +28,8 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		arcstk::details::Updatable<type::ARCS1> state {};
+		arcstk::details::Updatable<type::ARCS1> state{};
+		REQUIRE ( state.types() == std::set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
 
@@ -99,9 +100,11 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)) );
 	}
 
+
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
 		arcstk::details::Updatable<type::ARCS2> state {};
+		REQUIRE ( state.types() == std::set<type>{ type::ARCS2 } );
 
 		// Initialize Buffer
 
@@ -172,9 +175,11 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)) );
 	}
 
+
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
 		arcstk::details::Updatable<type::ARCS1,type::ARCS2> state {};
+		REQUIRE ( state.types() == std::set<type>{ type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
 
@@ -250,6 +255,7 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
 		arcstk::details::Updatable<type::ARCS1,type::ARCS2> state {};
+		REQUIRE ( state.types() == std::set<type>{ type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
 

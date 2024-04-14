@@ -58,116 +58,128 @@ public:
 static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 
 
+struct Subtotals
+{
+	uint_fast64_t multiplier  = 1;
+	uint_fast64_t update      = 0;
+	uint_fast32_t subtotal_v1 = 0;
+	uint_fast32_t subtotal_v2 = 0;
+
+	void reset();
+
+	friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept;
+};
+
+
+
 /**
  * \brief Interface for updating a calculation state.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
-class Updatable
+class UpdatableBase
 {
+	Subtotals s_;
+
+protected:
+
+	Subtotals& s()
+	{
+		return s_;
+	}
+
 public:
 
-	template<class B, class E>
-	void update(const B& start, const E& stop);
-	ChecksumSet value();
-	void reset();
+	void reset()
+	{
+		s_ = Subtotals{};
+	}
+
+	std::set<checksum::type> types() const
+	{
+		return { T1, T2... };
+	}
 };
 
-template<>
-class Updatable<checksum::type::ARCS1>
-{
-	uint_fast64_t multiplier_ = 1;
-	uint_fast32_t subtotal_   = 0;
 
+/**
+ * \brief Updatable state of subtotals.
+ */
+template<enum checksum::type T1, enum checksum::type... T2>
+class Updatable final : public UpdatableBase<T1, T2...>
+{
+	// empty
+};
+
+
+template<>
+class Updatable<checksum::type::ARCS1> final
+								: public UpdatableBase<checksum::type::ARCS1>
+{
 public:
 
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++multiplier_)
+		for (auto pos = start; pos != stop; ++pos, ++s().multiplier)
 		{
-			subtotal_ += (multiplier_ * (*pos)) & LOWER_32_BITS_;
+			s().subtotal_v1 += (s().multiplier * (*pos)) & LOWER_32_BITS_;
 		}
 	}
 
 	ChecksumSet value()
 	{
-		return { 0, {{ checksum::type::ARCS1, subtotal_ }} };
-	}
-
-	void reset()
-	{
-		multiplier_  = 1;
-		subtotal_    = 0;
+		return { 0, {{ checksum::type::ARCS1, s().subtotal_v1 }} };
 	}
 };
 
-template<>
-class Updatable<checksum::type::ARCS2>
-{
-	uint_fast64_t multiplier_ = 1;
-	uint_fast64_t update64_   = 0;
-	uint_fast32_t subtotal_   = 0;
 
+template<>
+class Updatable<checksum::type::ARCS2> final
+								: public UpdatableBase<checksum::type::ARCS2>
+{
 public:
 
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++multiplier_)
+		for (auto pos = start; pos != stop; ++pos, ++s().multiplier)
 		{
-			update64_ = multiplier_ * (*pos);
-			subtotal_ += (update64_ & LOWER_32_BITS_) + (update64_ >> 32u);
+			s().update = s().multiplier * (*pos);
+			s().subtotal_v2 +=
+				(s().update & LOWER_32_BITS_) + (s().update >> 32u);
 		}
 	}
 
 	ChecksumSet value()
 	{
-		return { 0, {{ checksum::type::ARCS2, subtotal_ }} };
-	}
-
-	void reset()
-	{
-		multiplier_  = 1;
-		subtotal_    = 0;
-		update64_    = 0;
+		return { 0, {{ checksum::type::ARCS2, s().subtotal_v2 }} };
 	}
 };
 
-template<>
-class Updatable<checksum::type::ARCS1,checksum::type::ARCS2>
-{
-	uint_fast64_t multiplier_  = 1;
-	uint_fast64_t update64_    = 0;
-	uint_fast32_t subtotal_v1_ = 0;
-	uint_fast32_t subtotal_v2_ = 0;
 
+template<>
+class Updatable<checksum::type::ARCS1,checksum::type::ARCS2> final
+			: public UpdatableBase<checksum::type::ARCS1,checksum::type::ARCS2>
+{ // TODO Order of args in parameter pack??
 public:
 
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++multiplier_)
+		for (auto pos = start; pos != stop; ++pos, ++s().multiplier)
 		{
-			update64_ = multiplier_ * (*pos);
-			subtotal_v1_ += update64_ & LOWER_32_BITS_;
-			subtotal_v2_ += update64_ >> 32u;
+			s().update = s().multiplier * (*pos);
+			s().subtotal_v1 += s().update & LOWER_32_BITS_;
+			s().subtotal_v2 += s().update >> 32u;
 		}
 	}
 
 	ChecksumSet value()
 	{
 		return { 0, {
-			{ checksum::type::ARCS1, subtotal_v1_ },
-			{ checksum::type::ARCS2, subtotal_v1_ + subtotal_v2_ },
+			{ checksum::type::ARCS1, s().subtotal_v1 },
+			{ checksum::type::ARCS2, s().subtotal_v1 + s().subtotal_v2 },
 		} };
-	}
-
-	void reset()
-	{
-		multiplier_  = 1;
-		subtotal_v1_ = 0;
-		subtotal_v2_ = 0;
-		update64_    = 0;
 	}
 };
 
