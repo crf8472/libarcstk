@@ -186,6 +186,7 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 
 set (INTERFACE_HEADERS )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate2.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/identifier.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/logging.hpp" )
@@ -203,6 +204,7 @@ list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/validate.tpp"
 
 add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
+	"${PROJECT_SOURCE_DIR}/calculate2.cpp"
 	"${PROJECT_SOURCE_DIR}/dbar.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"

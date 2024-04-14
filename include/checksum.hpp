@@ -9,7 +9,7 @@
 
 #include <array>    // for array
 #include <cstdint>  // for uint32_t, int32_t
-#include <map>      // for map
+#include <unordered_map> // for unordered_map
 #include <memory>   // for unique_ptr
 #include <set>      // for set
 #include <vector>   // for vector
@@ -193,7 +193,7 @@ std::ostream& operator << (std::ostream& out, const Checksum& c);
  */
 class ChecksumSet final : public Comparable<ChecksumSet>
 {
-	using storage_type = std::map<checksum::type, Checksum>;
+	using storage_type = std::unordered_map<checksum::type, Checksum>;
 
 	/**
 	 * \internal
@@ -209,7 +209,7 @@ class ChecksumSet final : public Comparable<ChecksumSet>
 
 public:
 
-	using value_type     = storage_type::mapped_type;
+	using value_type     = storage_type::value_type;
 	using iterator       = storage_type::iterator;
 	using const_iterator = storage_type::const_iterator;
 	using size_type      = storage_type::size_type;
@@ -225,6 +225,17 @@ public:
 	 * \param[in] length Length in LBA frames of the track
 	 */
 	explicit ChecksumSet(const lba_count_t length);
+
+	/**
+	 * \brief Constructor
+	 *
+	 * This constructor is intended for testing purposes only.
+	 *
+	 * \param[in] length Track length
+	 * \param[in] sums   Sequence of checksums
+	 */
+	ChecksumSet(const lba_count_t length,
+			std::initializer_list<value_type> sums);
 
 	/**
 	 * \brief Length (in LBA frames) of this track.

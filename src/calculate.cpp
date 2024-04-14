@@ -151,14 +151,22 @@ std::ostream& operator << (std::ostream& out, const Checksum &c)
 
 
 ChecksumSet::ChecksumSet()
-	: set_     { /*empty*/ }
-	, length_  { 0 }
+	: ChecksumSet { 0 }
 {
 	// empty
 }
 
+
 ChecksumSet::ChecksumSet(const lba_count_t length)
-	: set_     { /*empty*/ }
+	: ChecksumSet { length, { /* empty */ } }
+{
+	// empty
+}
+
+
+ChecksumSet::ChecksumSet(const lba_count_t length,
+		std::initializer_list<value_type> checksums)
+	: set_     { checksums }
 	, length_  { length    }
 {
 	// empty
