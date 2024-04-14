@@ -3205,8 +3205,6 @@ std::string type_name(const type t)
 
 
 } // namespace checksum
-
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
