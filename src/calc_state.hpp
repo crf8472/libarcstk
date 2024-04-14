@@ -496,11 +496,8 @@ auto make(const T state_type, X&&... x) -> std::unique_ptr<CalcState>
 }
 
 } // namespace state
-
 } // namespace details
-
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
