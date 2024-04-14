@@ -8,14 +8,23 @@
 #include <utility>                // for move
 #include <vector>                 // for vector
 
-#ifndef __LIBARCSTK_CALCULATE_APIS_HPP__
-#include "calculate_apis.hpp"
-#endif
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
 
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_PARTITION_HPP__
+#include "calc_partition.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_CONTEXT_HPP__
+#include "calc_context.hpp"
+#endif
+#ifndef __LIBARCSTK_CALC_STATE_HPP__
+#include "calc_state.hpp"
+#endif
 
 /**
  * \file Fixtures for classes in module calculate

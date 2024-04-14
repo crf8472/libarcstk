@@ -266,8 +266,8 @@ TEST_CASE ( "ChecksumSet", "[checksum] [checksumset]" )
 
 		CHECK ( it != track01.end() );
 
-		CHECK ( not (*it).empty() );
-		CHECK ( not it->empty() );
+		CHECK ( not (*it).second.empty() );
+		CHECK ( not it->second.empty() );
 	}
 
 
@@ -277,8 +277,8 @@ TEST_CASE ( "ChecksumSet", "[checksum] [checksumset]" )
 
 		CHECK ( cit != track01.cend() );
 
-		CHECK ( not (*cit).empty() );
-		CHECK ( not cit->empty() );
+		CHECK ( not (*cit).second.empty() );
+		CHECK ( not cit->second.empty() );
 	}
 
 

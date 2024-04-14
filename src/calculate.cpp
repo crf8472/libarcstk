@@ -130,9 +130,6 @@ Checksum& Checksum::operator = (const Checksum::value_type rhs)
 }
 
 
-// Checksum operators
-
-
 bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 {
 	return lhs.value() == rhs.value();
@@ -154,112 +151,94 @@ std::ostream& operator << (std::ostream& out, const Checksum &c)
 }
 
 
-// ChecksumSet::Impl
-
-
-/**
- * \internal
- * \brief Private implementation of ChecksumSet.
- *
- * \see ChecksumSet
- */
-class ChecksumSet::Impl final
-{
-	using storage_type = std::map<checksum::type, Checksum>;
-
-	storage_type set_;
-
-public:
-
-	using iterator       = ChecksumSet::iterator;
-	using const_iterator = ChecksumSet::const_iterator;
-	using size_type      = std::size_t;
-
-	explicit Impl(const lba_count_t length);
-
-	lba_count_t length() const noexcept;
-
-	size_type size() const noexcept;
-	bool empty() const noexcept;
-
-	bool contains(const checksum::type& type) const;
-
-	std::pair<ChecksumSet::iterator, bool> insert(const checksum::type type,
-			const Checksum& checksum);
-	void merge(const Impl& rhs);
-
-	void erase(const checksum::type& type);
-	void clear();
-
-	Checksum get(const checksum::type type) const;
-	std::set<checksum::type> types() const;
-
-	auto cbegin() const;
-	auto cend() const;
-	auto begin();
-	auto end();
-
-	bool equals(const Impl& rhs) const noexcept;
-	void swap(Impl& rhs) noexcept;
-
-private:
-
-	/**
-	 * \brief Internal representation of the length (in frames).
-	 */
-	lba_count_t length_;
-};
-
-
 /** @} */
 
 
-ChecksumSet::Impl::Impl(const lba_count_t length)
-	: set_  { /*empty*/ }
-	, length_     { length    }
+// ChecksumSet
+
+
+ChecksumSet::ChecksumSet()
+	: set_     { /*empty*/ }
+	, length_  { 0 }
+{
+	// empty
+}
+
+ChecksumSet::ChecksumSet(const lba_count_t length)
+	: set_     { /*empty*/ }
+	, length_  { length    }
 {
 	// empty
 }
 
 
-lba_count_t ChecksumSet::Impl::length() const noexcept
+lba_count_t ChecksumSet::length() const noexcept
 {
 	return length_;
 }
 
 
-ChecksumSet::size_type ChecksumSet::Impl::size() const noexcept
+ChecksumSet::size_type ChecksumSet::size() const noexcept
 {
 	return set_.size();
 }
 
 
-bool ChecksumSet::Impl::empty() const noexcept
+bool ChecksumSet::empty() const noexcept
 {
 	return set_.empty();
 }
 
 
-bool ChecksumSet::Impl::contains(const checksum::type &type) const
+bool ChecksumSet::contains(const checksum::type &type) const
 {
 	using std::end;
 	return set_.find(type) != end(set_);
 }
 
 
-std::pair<ChecksumSet::iterator, bool> ChecksumSet::Impl::insert(
-		const checksum::type type, const Checksum &checksum)
+Checksum ChecksumSet::get(const checksum::type type) const
 {
-	auto pos_and_res { set_.insert({ type, checksum }) };
+	using std::end;
 
-	using it_type = decltype( pos_and_res.first );
-	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
+	auto rc { set_.find(type) };
 
-	return { create(std::move(pos_and_res.first)), pos_and_res.second };
+	if (rc == end(set_))
+	{
+		return EmptyChecksum;
+	}
+
+	return rc->second;
 }
 
 
-void ChecksumSet::Impl::merge(const Impl &rhs)
+std::set<checksum::type> ChecksumSet::types() const
+{
+	auto keys { std::set<checksum::type>{} };
+
+	using std::begin;
+	using std::end;
+
+	std::transform(begin(set_), end(set_),
+		std::inserter(keys, begin(keys)),
+		[](const storage_type::value_type &pair)
+		{
+			return pair.first;
+		}
+	);
+
+	return keys;
+}
+
+
+std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
+		const checksum::type type, const Checksum &checksum)
+{
+	return set_.insert({ type, checksum });
+}
+
+
+void ChecksumSet::merge(const ChecksumSet& rhs)
 {
 	if (this->length() != 0 and rhs.length() != 0)
 	{
@@ -284,509 +263,174 @@ void ChecksumSet::Impl::merge(const Impl &rhs)
 }
 
 
-void ChecksumSet::Impl::erase(const checksum::type &type)
+void ChecksumSet::erase(const checksum::type &type)
 {
 	set_.erase(type);
 }
 
 
-void ChecksumSet::Impl::clear()
+void ChecksumSet::clear()
 {
 	set_.clear();
 }
 
 
-Checksum ChecksumSet::Impl::get(const checksum::type type) const
-{
-	using std::end;
-
-	auto rc { set_.find(type) };
-
-	if (rc == end(set_))
-	{
-		return EmptyChecksum;
-	}
-
-	return rc->second;
-}
-
-
-std::set<checksum::type> ChecksumSet::Impl::types() const
-{
-	auto keys { std::set<checksum::type>{} };
-
-	using std::begin;
-	using std::end;
-
-	std::transform(begin(set_), end(set_),
-		std::inserter(keys, begin(keys)),
-		[](const storage_type::value_type &pair)
-		{
-			return pair.first;
-		}
-	);
-
-	return keys;
-}
-
-
-auto ChecksumSet::Impl::cbegin() const
+ChecksumSet::const_iterator ChecksumSet::cbegin() const
 {
 	return set_.cbegin();
 }
 
 
-auto ChecksumSet::Impl::cend() const
+ChecksumSet::const_iterator ChecksumSet::cend() const
 {
 	return set_.cend();
 }
 
 
-auto ChecksumSet::Impl::begin()
+ChecksumSet::const_iterator ChecksumSet::begin() const
 {
 	return set_.begin();
 }
 
 
-auto ChecksumSet::Impl::end()
+ChecksumSet::const_iterator ChecksumSet::end() const
 {
 	return set_.end();
 }
 
 
-bool ChecksumSet::Impl::equals(const Impl &rhs) const noexcept
-{
-	return length_ == rhs.length_ and set_ == rhs.set_;
-}
-
-
-void ChecksumSet::Impl::swap(Impl &rhs) noexcept
-{
-	using std::swap;
-	swap(set_, rhs.set_);
-}
-
-
-bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs)
-{
-	return lhs.impl_->equals(*rhs.impl_);
-}
-
-
-// ChecksumSet
-
-
-ChecksumSet::ChecksumSet()
-	: impl_ { std::make_unique<ChecksumSet::Impl>(0) }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(const lba_count_t length)
-	: impl_ { std::make_unique<ChecksumSet::Impl>(length) }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(const ChecksumSet &rhs)
-	: impl_ { std::make_unique<ChecksumSet::Impl>(*rhs.impl_) }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(ChecksumSet &&rhs) noexcept = default;
-
-
-ChecksumSet::~ChecksumSet() noexcept = default;
-
-
-ChecksumSet::size_type ChecksumSet::size() const
-{
-	return impl_->size();
-}
-
-
-bool ChecksumSet::empty() const
-{
-	return impl_->empty();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::cbegin() const
-{
-	auto it { impl_->cbegin() };
-
-	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet, true>{};
-	return create(std::move(it));
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::cend() const
-{
-	auto it { impl_->cend() };
-
-	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet, true>{};
-	return create(std::move(it));
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::begin() const
-{
-	return this->cbegin();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::end() const
-{
-	return this->cend();
-}
-
-
 ChecksumSet::iterator ChecksumSet::begin()
 {
-	auto it { impl_->begin() };
-
-	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
-	return create(std::move(it));
+	return set_.begin();
 }
 
 
 ChecksumSet::iterator ChecksumSet::end()
 {
-	auto it { impl_->end() };
-
-	using it_type = decltype( it );
-	const auto create = details::MakeIterator<it_type, ChecksumSet, false>{};
-	return create(std::move(it));
+	return set_.end();
 }
 
 
-lba_count_t ChecksumSet::length() const noexcept
+bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs) noexcept
 {
-	return impl_->length();
+	return lhs.length_ == rhs.length_ and lhs.set_ == rhs.set_;
 }
 
 
-bool ChecksumSet::contains(const checksum::type &type) const
-{
-	return impl_->contains(type);
-}
-
-
-void ChecksumSet::erase(const checksum::type &type)
-{
-	impl_->erase(type);
-
-}
-
-
-void ChecksumSet::clear()
-{
-	impl_->clear();
-}
-
-
-Checksum ChecksumSet::get(const checksum::type type) const
-{
-	return impl_->get(type);
-}
-
-
-std::set<checksum::type> ChecksumSet::types() const
-{
-	return impl_->types();
-}
-
-
-std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
-		const checksum::type type, const Checksum &checksum)
-{
-	return impl_->insert(type, checksum);
-}
-
-
-void ChecksumSet::merge(const ChecksumSet &rhs)
-{
-	impl_->merge(*rhs.impl_);
-}
-
-
-ChecksumSet& ChecksumSet::operator = (const ChecksumSet &rhs)
-{
-	impl_ = std::make_unique<ChecksumSet::Impl>(*rhs.impl_);
-	return *this;
-}
-
-
-// Checksums::Impl
-
-/**
- * \internal
- * \brief Private implementation of Checksums.
- *
- * \see Checksums
- */
-class Checksums::Impl final
-{
-	using storage_type = std::vector<ChecksumSet>;
-
-	storage_type sets_;
-
-public:
-
-	using iterator       = storage_type::iterator; // TODO Checksums::iterator
-	using const_iterator = storage_type::const_iterator;// TODO Checksums::const_iterator
-	using size_type      = storage_type::size_type;
-
-	explicit Impl(const size_type size);
-	Impl(std::initializer_list<ChecksumSet> tracks);
-
-	size_type size() const noexcept;
-	bool empty() const noexcept;
-
-	void append(const ChecksumSet& s);
-	void append(ChecksumSet&& s);
-
-	const ChecksumSet& operator[](const size_type i) const;
-	ChecksumSet& operator[](const size_type i);
-	const ChecksumSet& at(const size_type i) const;
-
-	const_iterator cbegin() const;
-	const_iterator cend() const;
-	iterator begin();
-	iterator end();
-
-	bool equals(const Impl& rhs) const;
-	void swap(Impl& rhs);
-};
-
-
-Checksums::Impl::Impl(const size_type size)
-	: sets_ { /*empty*/ }
-{
-	sets_.reserve(size);
-}
-
-
-Checksums::Impl::Impl(std::initializer_list<ChecksumSet> tracks)
-	: sets_ { tracks }
-{
-	// empty
-}
-
-
-Checksums::Impl::size_type Checksums::Impl::size() const noexcept
-{
-	return sets_.size();
-}
-
-
-bool Checksums::Impl::empty() const noexcept
-{
-	return sets_.empty();
-}
-
-
-void Checksums::Impl::append(const ChecksumSet& s)
-{
-	sets_.push_back(s);
-}
-
-
-void Checksums::Impl::append(ChecksumSet&& s)
-{
-	sets_.emplace_back(std::move(s));
-}
-
-
-const ChecksumSet& Checksums::Impl::operator[](const size_type i) const
-{
-	return sets_[i];
-}
-
-
-ChecksumSet& Checksums::Impl::operator[](const size_type i)
-{
-	return sets_[i];
-}
-
-
-const ChecksumSet& Checksums::Impl::at(const size_type i) const
-{
-	return sets_.at(i);
-}
-
-
-Checksums::Impl::const_iterator Checksums::Impl::cbegin() const
-{
-	return sets_.cbegin();
-}
-
-
-Checksums::Impl::const_iterator Checksums::Impl::cend() const
-{
-	return sets_.cend();
-}
-
-
-Checksums::Impl::iterator Checksums::Impl::begin()
-{
-	return sets_.begin();
-}
-
-
-Checksums::Impl::iterator Checksums::Impl::end()
-{
-	return sets_.end();
-}
-
-
-bool Checksums::Impl::equals(const Checksums::Impl& rhs) const
-{
-	return sets_ == rhs.sets_;
-}
-
-
-void Checksums::Impl::swap(Checksums::Impl& rhs)
+void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
 {
 	using std::swap;
-	swap(sets_, rhs.sets_);
+	swap(lhs.length_, rhs.length_);
+	swap(lhs.set_,    rhs.set_);
 }
 
 
 // Checksums
 
 
-Checksums::Checksums(size_type size)
-	: impl_ { std::make_unique<Checksums::Impl>(size) }
+Checksums::Checksums()
+	: sets_ { /*empty*/ }
 {
-	// empty
+	sets_.reserve(10);
 }
 
 
-Checksums::Checksums(std::unique_ptr<Checksums::Impl> impl)
-	: impl_ { std::move(impl) }
+Checksums::Checksums(const size_type size)
+	: sets_ { /*empty*/ }
 {
-	// empty
+	sets_.reserve(size);
 }
 
 
 Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
-	: impl_ { std::make_unique<Checksums::Impl>(tracks) }
+	: sets_ { tracks }
 {
 	// empty
-}
-
-
-Checksums::Checksums(const Checksums &rhs)
-	: impl_ { std::make_unique<Checksums::Impl>(*rhs.impl_) }
-{
-	// empty
-}
-
-
-Checksums::Checksums(Checksums &&rhs) noexcept = default;
-
-
-Checksums::~Checksums() noexcept = default;
-
-
-void Checksums::append(const ChecksumSet &checksum)
-{
-	impl_->append(checksum);
-}
-
-
-Checksums::iterator Checksums::begin()
-{
-	auto it { impl_->begin() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums, false>{};
-	return create(std::move(it));
-}
-
-
-Checksums::iterator Checksums::end()
-{
-	auto it { impl_->end() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums, false>{};
-	return create(std::move(it));
-}
-
-
-Checksums::const_iterator Checksums::begin() const
-{
-	return cbegin();
-}
-
-
-Checksums::const_iterator Checksums::end() const
-{
-	return cend();
-}
-
-
-Checksums::const_iterator Checksums::cbegin() const
-{
-	auto it { impl_->cbegin() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums, true>{};
-	return create(std::move(it));
-}
-
-
-Checksums::const_iterator Checksums::cend() const
-{
-	auto it { impl_->cend() };
-	const auto create = details::MakeIterator<decltype( it ), Checksums, true>{};
-	return create(std::move(it));
-}
-
-
-const ChecksumSet& Checksums::at(const Checksums::size_type index) const
-{
-	return impl_->at(index);
-}
-
-
-const ChecksumSet& Checksums::operator [] (const Checksums::size_type index)
-	const
-{
-	return impl_->operator[](index);
 }
 
 
 Checksums::size_type Checksums::size() const noexcept
 {
-	return impl_->size();
+	return sets_.size();
 }
 
 
-Checksums& Checksums::operator = (Checksums rhs)
+bool Checksums::empty() const noexcept
+{
+	return sets_.empty();
+}
+
+
+void Checksums::append(const ChecksumSet& s)
+{
+	sets_.push_back(s);
+}
+
+
+void Checksums::append(ChecksumSet&& s)
+{
+	sets_.emplace_back(std::move(s));
+}
+
+
+const ChecksumSet& Checksums::at(const size_type i) const
+{
+	return sets_.at(i);
+}
+
+
+const ChecksumSet& Checksums::operator[](const size_type i) const
+{
+	return sets_[i];
+}
+
+
+Checksums::const_iterator Checksums::cbegin() const
+{
+	return sets_.cbegin();
+}
+
+
+Checksums::const_iterator Checksums::cend() const
+{
+	return sets_.cend();
+}
+
+
+Checksums::const_iterator Checksums::begin() const
+{
+	return sets_.begin();
+}
+
+
+Checksums::const_iterator Checksums::end() const
+{
+	return sets_.end();
+}
+
+
+Checksums::iterator Checksums::begin()
+{
+	return sets_.begin();
+}
+
+
+Checksums::iterator Checksums::end()
+{
+	return sets_.end();
+}
+
+
+void swap(Checksums& lhs, Checksums& rhs) noexcept
 {
 	using std::swap;
-
-	swap(*this, rhs); // unqualified call, finds friend swap() via ADL
-	return *this;
-}
-
-
-Checksums& Checksums::operator = (Checksums &&rhs) noexcept = default;
-
-
-void swap(Checksums &lhs, Checksums &rhs) noexcept
-{
-	lhs.impl_->swap(*rhs.impl_);
+	swap(lhs.sets_, rhs.sets_);
 }
 
 
 bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
 {
-	return lhs.impl_->equals(*rhs.impl_);
+	return lhs.sets_ == rhs.sets_;
 }
 
 
@@ -2980,8 +2624,8 @@ Checksums Calculation::Impl::result() const noexcept
 
 	auto total_tracks { state_->total_tracks() };
 
-	auto checksums { std::make_unique<Checksums::Impl>(
-			static_cast<Checksums::size_type>(total_tracks)) };
+	auto checksums = Checksums { // TODO This cast should not be required!
+		static_cast<Checksums::size_type>(total_tracks) };
 
 	// Collect checksums for all tracks (for singletrack+multitrack)
 
@@ -2990,7 +2634,7 @@ Checksums Calculation::Impl::result() const noexcept
 	{
 		auto track = ChecksumSet { context_->length(i) };
 		track.merge(state_->result(i - shift + 1));
-		checksums->append(track);
+		checksums.append(track);
 	}
 
 // NOTE: Commented out, old implementation: collect checksums while
@@ -3019,7 +2663,7 @@ Checksums Calculation::Impl::result() const noexcept
 //		checksums->append(track);
 //	}
 
-	if (checksums->size() == 0)
+	if (checksums.empty())
 	{
 		ARCS_LOG_WARNING << "Calculation result is empty.";
 
@@ -3028,7 +2672,7 @@ Checksums Calculation::Impl::result() const noexcept
 
 	// Logging
 	{
-		auto types = checksums->at(0).types();
+		auto types = checksums.at(0).types();
 
 		if (not types.empty())
 		{
@@ -3047,7 +2691,7 @@ Checksums Calculation::Impl::result() const noexcept
 		}
 	}
 
-	return Checksums(std::move(checksums));
+	return checksums;
 }
 
 
