@@ -136,11 +136,15 @@ public:
 	 */
 	bool empty() const noexcept;
 
+	explicit operator bool() const noexcept;
+
 	// Assignment operator for value_type instances
 	Checksum& operator = (const value_type rhs);
 
-	friend bool operator == (const Checksum &lhs, const Checksum &rhs)
+	friend bool operator == (const Checksum& lhs, const Checksum& rhs)
 		noexcept;
+
+	friend void swap(Checksum& lhs, Checksum& rhs) noexcept;
 
 private:
 
@@ -152,10 +156,31 @@ private:
 
 
 /**
+ * \brief Provide a string representation of a Checksum.
+ *
+ * \param[in] c Checksum to represent as string
+ *
+ * \return String representation of the checksum
+ */
+std::string to_string(const Checksum& c);
+
+
+/**
  * \internal
  * \brief Overload operator << for outputting Checksums.
+ *
+ * Note: This is the default layout for printing ARCSs:
+ * - hexadecimal representation
+ * - without the '0x' base indicator
+ * - uppercase letters
+ * - leading zeros filling the width up to 8 digits.
+ *
+ * \param[in] out Stream to print to
+ * \param[in] c   Checksum to print
+ *
+ * \return Reference to the stream
  */
-std::ostream& operator << (std::ostream& out, const Checksum &c);
+std::ostream& operator << (std::ostream& out, const Checksum& c);
 
 
 /**
@@ -228,7 +253,7 @@ public:
 	 *
 	 * \return \c TRUE iff \c type is present in the instance, otherwise \c FALSE
 	 */
-	bool contains(const checksum::type &type) const;
+	bool contains(const checksum::type& type) const;
 
 	/**
 	 * \brief Return the \ref Checksum for the specified \c type
@@ -266,7 +291,7 @@ public:
 	 * \return Pair with an iterator to the inserted value and a status flag
 	 */
 	std::pair<iterator, bool> insert(const checksum::type type,
-			const Checksum &checksum);
+			const Checksum& checksum);
 
 	/**
 	 * \brief Merge the elements of another instance into this instance.
@@ -282,7 +307,7 @@ public:
 	 *
 	 * \throws domain_error If \c rhs.length() != \c length() and both are != 0
 	 */
-	void merge(const ChecksumSet &rhs);
+	void merge(const ChecksumSet& rhs);
 
 	/**
 	 * \brief Erases the Checksum with the given type.
@@ -292,7 +317,7 @@ public:
 	 *
 	 * \param[in] type The type to erase
 	 */
-	void erase(const checksum::type &type);
+	void erase(const checksum::type& type);
 
 	/**
 	 * \brief Erases all \link Checksum Checksums\endlink contained in the
@@ -340,10 +365,10 @@ public:
 	 */
 	iterator end();
 
-	friend bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs)
+	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
 		noexcept;
 
-	friend void swap(ChecksumSet &lhs, ChecksumSet &rhs) noexcept;
+	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept;
 };
 
 
@@ -488,10 +513,10 @@ public:
 	iterator end();
 
 
-	friend bool operator == (const Checksums &lhs, const Checksums &rhs)
+	friend bool operator == (const Checksums& lhs, const Checksums& rhs)
 		noexcept;
 
-	friend void swap(Checksums &lhs, Checksums &rhs) noexcept;
+	friend void swap(Checksums& lhs, Checksums& rhs) noexcept;
 };
 
 

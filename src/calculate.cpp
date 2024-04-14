@@ -69,31 +69,6 @@ using arcstk::v_1_0_0::details::CalcStateV1andV2;
 const Checksum EmptyChecksum = 0; // defines emptyness for Checksum
 
 
-namespace
-{
-
-/**
- * \internal
- * \brief Number of samples to be skipped before the end of the last track.
- *
- * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
- * = 2940 samples. We derive the number of samples to be skipped at the
- * start of the first track by just subtracting 1 from this constant.
- */
-constexpr sample_count_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
-
-/**
- * \internal
- * \brief Number of samples to be skipped after the start of the first track.
- *
- * There are 5 frames - 1 sample to be skipped, i.e.
- * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
- */
-constexpr sample_count_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
-
-} // namespace
-
-
 // Checksum
 
 
@@ -123,6 +98,12 @@ bool Checksum::empty() const noexcept
 }
 
 
+Checksum::operator bool() const noexcept
+{
+	return !empty();
+}
+
+
 Checksum& Checksum::operator = (const Checksum::value_type rhs)
 {
 	value_ = rhs;
@@ -136,15 +117,27 @@ bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
 }
 
 
+void swap(Checksum& lhs, Checksum& rhs) noexcept
+{
+	using std::swap;
+	swap(lhs.value_, rhs.value_);
+}
+
+
+std::string to_string(const Checksum& c)
+{
+	auto stream = std::ostringstream {};
+	stream << c;
+	return stream.str();
+}
+
+
 std::ostream& operator << (std::ostream& out, const Checksum &c)
 {
-	std::ios_base::fmtflags prev_settings = out.flags();
+	auto prev_settings = std::ios_base::fmtflags { out.flags() };
 
 	out << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
 		<< c.value();
-	// NOTE: This is the default layout for printing ARCSs:
-	// uppercase letters with leading zeros filling the width up to 8 digits
-	// and without the '0x' base indicator.
 
 	out.flags(prev_settings);
 	return out;
@@ -421,16 +414,16 @@ Checksums::iterator Checksums::end()
 }
 
 
+bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
+{
+	return lhs.sets_ == rhs.sets_;
+}
+
+
 void swap(Checksums& lhs, Checksums& rhs) noexcept
 {
 	using std::swap;
 	swap(lhs.sets_, rhs.sets_);
-}
-
-
-bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
-{
-	return lhs.sets_ == rhs.sets_;
 }
 
 
@@ -789,6 +782,31 @@ std::unique_ptr<CalcContext> CalcContext::clone() const noexcept
 {
 	return this->do_clone();
 }
+
+
+namespace
+{
+
+/**
+ * \internal
+ * \brief Number of samples to be skipped before the end of the last track.
+ *
+ * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
+ * = 2940 samples. We derive the number of samples to be skipped at the
+ * start of the first track by just subtracting 1 from this constant.
+ */
+constexpr sample_count_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
+
+/**
+ * \internal
+ * \brief Number of samples to be skipped after the start of the first track.
+ *
+ * There are 5 frames - 1 sample to be skipped, i.e.
+ * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
+ */
+constexpr sample_count_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
+
+} // namespace
 
 
 namespace details
