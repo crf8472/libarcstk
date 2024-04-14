@@ -1323,7 +1323,7 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
 		const bool skip_front, const bool skip_back)
-	: CalcContextBase { filename, 2939, 2940 }
+	: CalcContextBase { filename, NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK }
 	, skip_front_ { skip_front }
 	, skip_back_  { skip_back }
 {
