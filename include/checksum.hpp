@@ -27,6 +27,9 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+/** \addtogroup calc */
+/** @{ */
+
 /**
  * \brief Everything regarding operation with Checksums.
  */
@@ -531,6 +534,7 @@ public:
  */
 extern const Checksum EmptyChecksum;
 
+/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk
