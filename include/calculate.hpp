@@ -1138,7 +1138,6 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
 
-
 /**
  * \brief Checksum calculation for a requested checksum::type.
  *
@@ -1403,7 +1402,6 @@ inline SampleInputIterator operator + (const sample_count_t amount,
 }
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
