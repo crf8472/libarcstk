@@ -35,16 +35,30 @@
 # log files
 *.log
 
+# ---> CMake
+
 # build
 build/*
 compile_commands.json
 
+# ---> clang++
+
+# clangd cache
+.cache
+
 # clang files
 .clangd/*
+
+# ---> vim
 
 # vim intermediate files
 *.swp
 *.swo
+
+# vim/neovim default session file
+Session.vim
+
+# ---> Tools
 
 # valgrind report files
 cachegrind.*
@@ -53,7 +67,4 @@ callgrind.*
 # kdevelop metafiles
 .kdev4/*
 libarcstk.kdev4
-
-# clangd cache
-.cache
 
