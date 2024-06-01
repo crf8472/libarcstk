@@ -205,6 +205,12 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 		set (PYTHON_CMD )
 
 	endif (PYTHON_ENV_AVAILABLE )
+else()
+	if (NOT LOAD_GENERATORS )
+		message (STATUS "No index deduplication since no generators requested" )
+	else()
+		message (STATUS "Doxygen version does not require index deduplication" )
+	endif()
 endif()
 
 
