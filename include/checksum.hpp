@@ -227,9 +227,19 @@ public:
 	explicit ChecksumSet(const lba_count_t length);
 
 	/**
+	 * \brief Constructor.
+	 *
+	 * Override the length of an existing ChecksumSet.
+	 *
+	 * \param[in] length Track length
+	 * \param[in] rhs    Existing set
+	 */
+	ChecksumSet(const lba_count_t length, ChecksumSet&& rhs);
+
+	/**
 	 * \brief Constructor
 	 *
-	 * This constructor is intended for testing purposes only.
+	 * This constructor is intended for testing purposes.
 	 *
 	 * \param[in] length Track length
 	 * \param[in] sums   Sequence of checksums

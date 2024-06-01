@@ -15,6 +15,9 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"             // for Comparable
+#endif
 
 #include <string>  // for string
 

@@ -164,6 +164,14 @@ ChecksumSet::ChecksumSet(const lba_count_t length)
 }
 
 
+ChecksumSet::ChecksumSet(const lba_count_t length, ChecksumSet&& rhs)
+	: set_     { std::move(rhs.set_) }
+	, length_  { length }
+{
+	// empty
+}
+
+
 ChecksumSet::ChecksumSet(const lba_count_t length,
 		std::initializer_list<value_type> checksums)
 	: set_     { checksums }
@@ -693,18 +701,6 @@ std::string CalcContext::filename() const noexcept
 }
 
 
-int CalcContext::total_tracks() const noexcept
-{
-	return this->do_total_tracks();
-}
-
-
-bool CalcContext::is_multi_track() const noexcept
-{
-	return this->do_is_multi_track();
-}
-
-
 sample_count_t CalcContext::first_relevant_sample(const TrackNo track) const
 	noexcept
 {
@@ -728,6 +724,12 @@ sample_count_t CalcContext::last_relevant_sample(const TrackNo track) const
 sample_count_t CalcContext::last_relevant_sample() const noexcept
 {
 	return this->do_last_relevant_sample_no_parms();
+}
+
+
+int CalcContext::total_tracks() const noexcept
+{
+	return this->do_total_tracks();
 }
 
 
@@ -776,6 +778,12 @@ sample_count_t CalcContext::num_skip_front() const noexcept
 sample_count_t CalcContext::num_skip_back() const noexcept
 {
 	return this->do_num_skip_back();
+}
+
+
+bool CalcContext::is_multi_track() const noexcept
+{
+	return this->do_is_multi_track();
 }
 
 
