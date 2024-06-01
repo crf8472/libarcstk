@@ -25,7 +25,9 @@ find_package (Git REQUIRED )
 
 
 if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.9.7 )
-	message (FATAL "m.css does currently not support doxygen versions > 1.9.6")
+	message (FATAL_ERROR
+		"Doxygen version is ${DOXYGEN_VERSION} "
+		"but m.css does currently not support doxygen versions > 1.9.6")
 else()
 	message (STATUS "m.css uses doxygen version ${DOXYGEN_VERSION}" )
 endif()
