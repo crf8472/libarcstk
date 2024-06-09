@@ -1,18 +1,18 @@
-#ifndef __LIBARCSTK_CHECKSUM_HPP___
-#define __LIBARCSTK_CHECKSUM_HPP___
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#define __LIBARCSTK_CHECKSUM_HPP__
 
 /**
  * \file
  *
- * \brief
+ * \brief Representation for checksums, their aggregates and their types.
  */
 
-#include <array>    // for array
-#include <cstdint>  // for uint32_t, int32_t
+#include <array>         // for array
+#include <cstdint>       // for uint32_t, int32_t
 #include <unordered_map> // for unordered_map
-#include <memory>   // for unique_ptr
-#include <set>      // for set
-#include <vector>   // for vector
+#include <memory>        // for unique_ptr
+#include <set>           // for set
+#include <vector>        // for vector
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"
@@ -29,50 +29,6 @@ inline namespace v_1_0_0
 
 /** \addtogroup calc */
 /** @{ */
-
-/**
- * \brief Everything regarding operation with Checksums.
- */
-namespace checksum
-{
-
-/**
- * \brief Pre-defined checksum types.
- */
-enum class type : unsigned int
-{
-	ARCS1   = 1,
-	ARCS2   = 2
-	//THIRD_TYPE  = 4,
-	//FOURTH_TYPE = 8 ...
-};
-
-
-/**
- * \brief Iterable sequence of all predefined checksum types.
- *
- * The order of the types is identical to the total order of numeric values the
- * types have in enum class checksum::type.
- */
-static const std::array<type, 2> types = {
-	type::ARCS1,
-	type::ARCS2
-	// type::THIRD_TYPE,
-	// type::FOURTH_TYPE ...
-};
-
-
-/**
- * \brief Obtain the name of a checksum::type.
- *
- * \param[in] t Type to get name of
- *
- * \return Name of type \c t
- */
-std::string type_name(const type t);
-
-} // namespace checksum
-
 
 /**
  * \brief An AccurateRip checksum for a single file or track.
@@ -159,16 +115,6 @@ private:
 
 
 /**
- * \brief Provide a string representation of a Checksum.
- *
- * \param[in] c Checksum to represent as string
- *
- * \return String representation of the checksum
- */
-std::string to_string(const Checksum& c);
-
-
-/**
  * \internal
  * \brief Overload operator << for outputting Checksums.
  *
@@ -187,13 +133,100 @@ std::ostream& operator << (std::ostream& out, const Checksum& c);
 
 
 /**
+ * \brief Provide a string representation of a Checksum.
+ *
+ * \param[in] c Checksum to represent as string
+ *
+ * \return String representation of the checksum
+ */
+std::string to_string(const Checksum& c);
+
+
+/**
+ * \brief Global instance of an empty Checksum.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * Checksum can be avoided when a reference instance is at hand.
+ *
+ * This instance defines emptyness for checksums since Checksum::empty()
+ * just compares the instance with this instance.
+ */
+extern const Checksum EmptyChecksum;
+
+
+/**
+ * \brief Everything regarding operation with Checksums.
+ */
+namespace checksum
+{
+
+/**
+ * \brief Pre-defined checksum types.
+ */
+enum class type : unsigned int
+{
+	ARCS1   = 1,
+	ARCS2   = 2
+	//THIRD_TYPE  = 4,
+	//FOURTH_TYPE = 8 ...
+};
+
+
+/**
+ * \brief Iterable sequence of all predefined checksum types.
+ *
+ * The order of the types is identical to the total order of numeric values the
+ * types have in enum class checksum::type.
+ */
+static const std::array<type, 2> types = {
+	type::ARCS1,
+	type::ARCS2
+	// type::THIRD_TYPE,
+	// type::FOURTH_TYPE ...
+};
+
+
+/**
+ * \brief Obtain the name of a checksum::type.
+ *
+ * \param[in] t Type to get name of
+ *
+ * \return Name of type \c t
+ */
+std::string type_name(const type t);
+
+} // namespace checksum
+
+
+/**
  * \brief A set of Checksum instances of different types for a single track.
  *
- * The ChecksumSet represents the calculation result for a single track.
+ * The ChecksumSet represents the calculation result for a single track. It also
+ * holds optionally the track length as number of LBA frames for convenience.
+ * The length may be zero which counts as "unknown".
  */
 class ChecksumSet final : public Comparable<ChecksumSet>
 {
-	using storage_type = std::unordered_map<checksum::type, Checksum>;
+public:
+
+	/**
+	 * \brief Value type of the ChecksumSet.
+	 */
+	using value_type = Checksum;
+
+private:
+
+	/**
+	 * \internal
+	 * \brief Key type of the internal type map.
+	 */
+	using key_type = checksum::type;
+
+	/**
+	 * \internal
+	 * \brief Type of the internal storage of the ChecksumSet.
+	 */
+	using storage_type = std::unordered_map<key_type, value_type>;
 
 	/**
 	 * \internal
@@ -203,15 +236,25 @@ class ChecksumSet final : public Comparable<ChecksumSet>
 
 	/**
 	 * \internal
-	 * \brief Track length.
+	 * \brief Track length as number of LBA frames.
 	 */
 	lba_count_t length_;
 
 public:
 
-	using value_type     = storage_type::value_type;
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
 	using iterator       = storage_type::iterator;
+
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
 	using const_iterator = storage_type::const_iterator;
+
+	/**
+	 * \brief Size type (unsigned integral type)
+	 */
 	using size_type      = storage_type::size_type;
 
 	/**
@@ -242,10 +285,11 @@ public:
 	 * This constructor is intended for testing purposes.
 	 *
 	 * \param[in] length Track length
-	 * \param[in] sums   Sequence of checksums
+	 * \param[in] sums   Sequence of checksums represented as type-value pairs
 	 */
 	ChecksumSet(const lba_count_t length,
-			std::initializer_list<value_type> sums);
+			std::initializer_list<
+				std::pair<const checksum::type, value_type>> sums);
 
 	/**
 	 * \brief Length (in LBA frames) of this track.
@@ -389,6 +433,14 @@ public:
 	 */
 	iterator end();
 
+	/**
+	 * \brief A ChecksumSet converts to bool iff it is non-empty.
+	 *
+	 * \return TRUE iff !empty().
+	 */
+	explicit operator bool() const noexcept;
+
+
 	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
 		noexcept;
 
@@ -401,28 +453,71 @@ public:
  * \link ChecksumSet ChecksumSets \endlink.
  *
  * A Checksums instance represents all calculated checksums of an input, i.e. an
- * album or a track list.
+ * album or a track list. Each of the contained
+ * \link ChecksumSet ChecksumSets \endlink represents a track.
+ *
+ * Checksums are an ordered container, thus iterating the instance will
+ * enumerate the tracks in the order they appeared during calculation, i.e.
+ * element 0 of the Checksums represents track 1 and so on.
  */
 class Checksums final : public Comparable<Checksums>
 {
-	using storage_type = std::vector<ChecksumSet>;
+public:
 
+	/**
+	 * \brief Value type of the Checksums.
+	 *
+	 * This represents a set of checksums for a single track.
+	 */
+	using value_type = ChecksumSet;
+
+private:
+
+	/**
+	 * \internal
+	 * \brief Type of the internal storage of the Checksums.
+	 */
+	using storage_type = std::vector<value_type>;
+
+	/**
+	 * \internal
+	 * \brief Internal storage of the ChecksumSet.
+	 */
 	storage_type sets_;
 
 public:
 
-	using value_type     = storage_type::value_type;
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
 	using iterator       = storage_type::iterator;
+
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
 	using const_iterator = storage_type::const_iterator;
+
+	/**
+	 * \brief Size type (unsigned integral type)
+	 */
 	using size_type      = storage_type::size_type;
 
 	/**
+	 * \brief Default size of a Checksums instance.
+	 */
+	const size_type default_size  = 10;
+
+	/**
 	 * \brief Default constructor.
+	 *
+	 * Reserves a capacity of <tt>default_size</tt> elements.
 	 */
 	Checksums();
 
 	/**
 	 * \brief Constructor.
+	 *
+	 * Reserves a capacity of <tt>size</tt> elements.
 	 *
 	 * \param[in] size Number of elements
 	 */
@@ -458,7 +553,9 @@ public:
 	 * \details
 	 *
 	 * Bounds checking is performed. If \c index is illegal, an exception is
-	 * thrown.
+	 * thrown. For index based access with no bounds checking see
+	 * \link Checksums::operator [](const size_type index) const
+	 * operator[]\endlink.
 	 *
 	 * \see \link Checksums::operator [](const size_type index) const
 	 * operator[]\endlink
@@ -478,6 +575,8 @@ public:
 	 * checking, see
 	 * \link Checksums::at(const size_type index) const at()\endlink.
 	 *
+	 * \see \link Checksums::at(const size_type index) const at()\endlink.
+	 *
 	 * \param[in] index The 0-based index of the ChecksumSet to return
 	 *
 	 * \return ChecksumSet at the specified index
@@ -485,14 +584,14 @@ public:
 	const ChecksumSet& operator [] (const size_type index) const;
 
 	/**
-	 * \brief Append a track's checksums
+	 * \brief Append a track's checksums by copy.
 	 *
 	 * \param[in] checksums The checksums of a track
 	 */
 	void append(const ChecksumSet& checksums);
 
 	/**
-	 * \brief Append a track's checksums
+	 * \brief Append a track's checksums by in-place move construction.
 	 *
 	 * \param[in] checksums The checksums of a track
 	 */
@@ -543,19 +642,7 @@ public:
 	friend void swap(Checksums& lhs, Checksums& rhs) noexcept;
 };
 
-
-/**
- * \brief Global instance of an empty Checksum.
- *
- * This is for convenience since in most cases, the creation of an empty
- * Checksum can be avoided when a reference instance is at hand.
- *
- * This instance defines emptyness for checksums since Checksum::empty()
- * just compares the instance with this instance.
- */
-extern const Checksum EmptyChecksum;
-
-/** @} */
+/** @} */ // group calc
 
 } // namespace v_1_0_0
 } // namespace arcstk

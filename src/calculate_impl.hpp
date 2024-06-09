@@ -3,17 +3,18 @@
 /**
  * \file
  *
- * \brief Implementations of calculate2.hpp that depend on the public header.
+ * \brief Implementations of calculate.hpp that depend on the public header.
  */
 
 #include <cstdint>  // for uint32_t, int32_t
 #include <memory>   // for unique_ptr
+#include <string>   // for string
 
-#ifndef __LIBARCSTK_CALCULATE2_HPP__
-#include "calculate2.hpp"
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE2_DETAILS_HPP__
-#include "calculate2_details.hpp"
+#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
+#include "calculate_details.hpp"
 #endif
 
 namespace arcstk
@@ -22,9 +23,6 @@ inline namespace v_1_0_0
 {
 namespace details
 {
-
-using calc::CalcContext; // TODO Remove
-using calc::AudioSize;   // TODO Remove
 
 
 /**
@@ -451,18 +449,17 @@ public:
 
 
 /**
+ * \brief Updates a calculation.
  *
  * \tparam B Type of the iterator pointing to the start position
  * \tparam E Type of the iterator pointing to the stop position
  *
- * \param[in] start Iterator pointing to first sample in block
- * \param[in] stop  Iterator pointing to last sample in block
- * \param[in] last_sample Index of the leadout or last sample expected
+ * \param[in]     start         Iterator pointing to first sample in block
+ * \param[in]     stop          Iterator pointing to last sample in block
+ * \param[in]     last_sample   Index of the leadout or last sample expected
+ * \param[in,out] state         Current calculation state
+ * \param[in]     partitioner   Partition provider
  * \param[in,out] result_buffer Collect the results
- * \param[in,out] state Current calculation state
- * \param[in] context
- * \param[in] partitioner
- * \param[in,out] state
  */
 template<class B, class E>
 void calc_update(B& start, E& stop, const int32_t last_sample,

@@ -1,842 +1,411 @@
 /**
  * \file
  *
- * \brief Implementation of the checksum calculation API
+ * \brief Implementation of the new checksum calculation API
  */
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_CALC_PARTITION_HPP__
-#include "calc_partition.hpp"
+#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
+#include "calculate_impl.hpp"
 #endif
-#ifndef __LIBARCSTK_CALC_CONTEXT_HPP__
-#include "calc_context.hpp"
+#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
+#include "calculate_details.hpp"
 #endif
-#ifndef __LIBARCSTK_CALC_STATE_HPP__
-#include "calc_state.hpp"
-#endif
-
-#include <algorithm>              // for transform
-#include <array>                  // for array
-#include <chrono>                 // for milliseconds, duration_cast, operator-
-#include <cstdint>                // for uint32_t, uint_fast32_t
-#include <initializer_list>       // for initializer_list
-#include <iomanip>                // for operator<<, setfill, setw
-#include <iterator>               // for distance
-#include <limits>                 // for numeric_limits
-#include <map>                    // for map
-#include <memory>                 // for unique_ptr, make_unique, unique_ptr...
-#include <set>                    // for set
-#include <sstream>                // for operator<<, basic_ostream, basic_os...
-#include <stdexcept>              // for overflow_error, invalid_argument, ...
-#include <string>                 // for char_traits, operator<<, string
-#include <type_traits>            // for __underlying_type_impl<>::type, und...
-#include <unordered_map>          // for unordered_map, operator==, _Node_co...
-#include <utility>                // for pair, move, make_pair, swap
-#include <vector>                 // for vector
-
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
+#ifndef __LIBARCSTK_ACCURATERIP_HPP__
+#include "accuraterip.hpp"
 #endif
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"
-#endif
+#include <cstdint>     // for int32_t
+#include <string>      // for to_string
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
 
-using arcstk::v_1_0_0::details::Interval;
-using arcstk::v_1_0_0::details::Partition;
-using arcstk::v_1_0_0::details::Partitioner;
-using arcstk::v_1_0_0::details::MultitrackPartitioner;
-using arcstk::v_1_0_0::details::SingletrackPartitioner;
-using arcstk::v_1_0_0::details::CalcState;
-using arcstk::v_1_0_0::details::CalcStateV1;
-using arcstk::v_1_0_0::details::CalcStateV1andV2;
-
-
-/// \internal \addtogroup calcImpl
-/// @{
-
-
-const Checksum EmptyChecksum = 0; // defines emptyness for Checksum
-
-
-// Checksum
-
-
-Checksum::Checksum()
-	: value_ { EmptyChecksum.value() }
-{
-	// empty
-}
-
-
-Checksum::Checksum(const Checksum::value_type value)
-	: value_ { value }
-{
-	// empty
-}
-
-
-Checksum::value_type Checksum::value() const noexcept
-{
-	return value_;
-}
-
-
-bool Checksum::empty() const noexcept
-{
-	return value_ == EmptyChecksum.value_;
-}
-
-
-Checksum::operator bool() const noexcept
-{
-	return !empty();
-}
-
-
-Checksum& Checksum::operator = (const Checksum::value_type rhs)
-{
-	value_ = rhs;
-	return *this;
-}
-
-
-bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
-{
-	return lhs.value() == rhs.value();
-}
-
-
-void swap(Checksum& lhs, Checksum& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.value_, rhs.value_);
-}
-
-
-std::string to_string(const Checksum& c)
-{
-	auto stream = std::ostringstream {};
-	stream << c;
-	return stream.str();
-}
-
-
-std::ostream& operator << (std::ostream& out, const Checksum &c)
-{
-	auto prev_settings = std::ios_base::fmtflags { out.flags() };
-
-	out << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
-		<< c.value();
-
-	out.flags(prev_settings);
-	return out;
-}
-
-
-/** @} */
-
-
-// ChecksumSet
-
-
-ChecksumSet::ChecksumSet()
-	: ChecksumSet { 0 }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(const lba_count_t length)
-	: ChecksumSet { length, { /* empty */ } }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(const lba_count_t length, ChecksumSet&& rhs)
-	: set_     { std::move(rhs.set_) }
-	, length_  { length }
-{
-	// empty
-}
-
-
-ChecksumSet::ChecksumSet(const lba_count_t length,
-		std::initializer_list<value_type> checksums)
-	: set_     { checksums }
-	, length_  { length    }
-{
-	// empty
-}
-
-
-lba_count_t ChecksumSet::length() const noexcept
-{
-	return length_;
-}
-
-
-ChecksumSet::size_type ChecksumSet::size() const noexcept
-{
-	return set_.size();
-}
-
-
-bool ChecksumSet::empty() const noexcept
-{
-	return set_.empty();
-}
-
-
-bool ChecksumSet::contains(const checksum::type &type) const
-{
-	using std::end;
-	return set_.find(type) != end(set_);
-}
-
-
-Checksum ChecksumSet::get(const checksum::type type) const
-{
-	using std::end;
-
-	auto rc { set_.find(type) };
-
-	if (rc == end(set_))
-	{
-		return EmptyChecksum;
-	}
-
-	return rc->second;
-}
-
-
-std::set<checksum::type> ChecksumSet::types() const
-{
-	auto keys { std::set<checksum::type>{} };
-
-	using std::begin;
-	using std::end;
-
-	std::transform(begin(set_), end(set_),
-		std::inserter(keys, begin(keys)),
-		[](const storage_type::value_type &pair)
-		{
-			return pair.first;
-		}
-	);
-
-	return keys;
-}
-
-
-std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
-		const checksum::type type, const Checksum &checksum)
-{
-	return set_.insert({ type, checksum });
-}
-
-
-void ChecksumSet::merge(const ChecksumSet& rhs)
-{
-	if (this->length() != 0 and rhs.length() != 0)
-	{
-		// A set with no length may be merged without constraint
-		// but a non-zero length of different value indicates merge
-		// of different tracks.
-
-		if (this->length() != rhs.length())
-		{
-			throw std::domain_error(
-					"Refuse to merge checksums of different track");
-		}
-	}
-
-	#if __cplusplus >= 201703L
-		set_.merge(rhs.set_);
-	#else
-		using std::begin;
-		using std::end;
-		set_.insert(begin(rhs.set_), end(rhs.set_));
-	#endif
-}
-
-
-void ChecksumSet::erase(const checksum::type &type)
-{
-	set_.erase(type);
-}
-
-
-void ChecksumSet::clear()
-{
-	set_.clear();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::cbegin() const
-{
-	return set_.cbegin();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::cend() const
-{
-	return set_.cend();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::begin() const
-{
-	return set_.begin();
-}
-
-
-ChecksumSet::const_iterator ChecksumSet::end() const
-{
-	return set_.end();
-}
-
-
-ChecksumSet::iterator ChecksumSet::begin()
-{
-	return set_.begin();
-}
-
-
-ChecksumSet::iterator ChecksumSet::end()
-{
-	return set_.end();
-}
-
-
-bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs) noexcept
-{
-	return lhs.length_ == rhs.length_ and lhs.set_ == rhs.set_;
-}
-
-
-void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.length_, rhs.length_);
-	swap(lhs.set_,    rhs.set_);
-}
-
-
-// Checksums
-
-
-Checksums::Checksums()
-	: sets_ { /*empty*/ }
-{
-	sets_.reserve(10);
-}
-
-
-Checksums::Checksums(const size_type size)
-	: sets_ { /*empty*/ }
-{
-	sets_.reserve(size);
-}
-
-
-Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
-	: sets_ { tracks }
-{
-	// empty
-}
-
-
-Checksums::size_type Checksums::size() const noexcept
-{
-	return sets_.size();
-}
-
-
-bool Checksums::empty() const noexcept
-{
-	return sets_.empty();
-}
-
-
-void Checksums::append(const ChecksumSet& s)
-{
-	sets_.push_back(s);
-}
-
-
-void Checksums::append(ChecksumSet&& s)
-{
-	sets_.emplace_back(std::move(s));
-}
-
-
-const ChecksumSet& Checksums::at(const size_type i) const
-{
-	return sets_.at(i);
-}
-
-
-const ChecksumSet& Checksums::operator[](const size_type i) const
-{
-	return sets_[i];
-}
-
-
-Checksums::const_iterator Checksums::cbegin() const
-{
-	return sets_.cbegin();
-}
-
-
-Checksums::const_iterator Checksums::cend() const
-{
-	return sets_.cend();
-}
-
-
-Checksums::const_iterator Checksums::begin() const
-{
-	return sets_.begin();
-}
-
-
-Checksums::const_iterator Checksums::end() const
-{
-	return sets_.end();
-}
-
-
-Checksums::iterator Checksums::begin()
-{
-	return sets_.begin();
-}
-
-
-Checksums::iterator Checksums::end()
-{
-	return sets_.end();
-}
-
-
-bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
-{
-	return lhs.sets_ == rhs.sets_;
-}
-
-
-void swap(Checksums& lhs, Checksums& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.sets_, rhs.sets_);
-}
-
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief Private implementation of AudioSize.
- *
- * \see AudioSize
- */
-class AudioSize::Impl final
-{
-
-public:
-
-	/**
-	 * \brief Constructor
-	 */
-	Impl() noexcept;
-
-	/**
-	 * \brief Constructor
-	 *
-	 * \param[in] value Absolute size
-	 * \param[in] unit  The unit of the declaring value
-	 */
-	Impl(const long int value, const AudioSize::UNIT unit) noexcept;
-
-	/**
-	 * \brief Implements AudioSize::set_leadout_frame(const uint32_t leadout)
-	 */
-	void set_total_frames(const lba_count_t leadout) noexcept;
-
-	/**
-	 * \brief Implements AudioSize::leadout_frame() const
-	 */
-	lba_count_t total_frames() const noexcept;
-
-	/**
-	 * \brief Implements AudioSize::set_total_samples(const sample_count_t smpl_count)
-	 */
-	void set_total_samples(const sample_count_t smpl_count) noexcept;
-
-	/**
-	 * \brief Implements AudioSize::total_samples() const
-	 */
-	sample_count_t total_samples() const noexcept;
-
-	/**
-	 * \brief Implements AudioSize::set_total_pcm_bytes(const uint32_t byte_count)
-	 */
-	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
-
-	/**
-	 * \brief Implements AudioSize::total_pcm_bytes() const
-	 */
-	uint32_t total_pcm_bytes() const noexcept;
-
-	/**
-	 * \brief Equality
-	 *
-	 * \param[in] rhs The instance to compare
-	 */
-	bool equals(const AudioSize::Impl &rhs) const noexcept;
-
-private:
-
-	/**
-	 * \brief Convert \c value to the corrsponding number of bytes.
-	 *
-	 * \param[in] value Value to convert
-	 * \param[in] unit  Unit of the value
-	 *
-	 * \return The equivalent number of bytes.
-	 *
-	 * \throw std::overflow_error If value is bigger than the legal unit maximum
-	 * \throw std::underflow_error If value is negative
-	 */
-	static uint32_t to_bytes(const long int value, const AudioSize::UNIT unit);
-
-	/**
-	 * \brief Convert \c frame_count to the corrsponding number of bytes.
-	 *
-	 * \param[in] frame_count Number of LBA frames to convert
-	 *
-	 * \return The equivalent number of bytes.
-	 *
-	 * \throw std::overflow_error If value is bigger than the legal unit maximum
-	 */
-	static uint32_t frames_to_bytes(const lba_count_t frame_count);
-
-	/**
-	 * \brief Convert \c frame_count to the corrsponding number of bytes.
-	 *
-	 * \param[in] sample_count_t Number of PCM 32 bit samples to convert
-	 *
-	 * \return The equivalent number of bytes.
-	 *
-	 * \throw std::overflow_error If value is bigger than the legal unit maximum
-	 */
-	static uint32_t samples_to_bytes(const sample_count_t sample_count);
-
-	/**
-	 * \brief Data: Total number of pcm sample bytes in the audio file.
-	 */
-	uint32_t total_pcm_bytes_;
-};
-
-
-AudioSize::Impl::Impl() noexcept
-	: total_pcm_bytes_ { 0 }
-{
-	// empty
-}
-
-
-AudioSize::Impl::Impl(const long int value, const AudioSize::UNIT unit) noexcept
-	: total_pcm_bytes_ { to_bytes(value, unit) }
-{
-	// empty
-}
-
-
-uint32_t AudioSize::Impl::to_bytes(const long int value,
-		const AudioSize::UNIT unit)
-{
-	if (value < 0)
-	{
-		auto ss = std::stringstream {};
-		ss << "Cannot construct AudioSize from negative value: "
-			<< std::to_string(value);
-
-		throw std::underflow_error(ss.str());
-	}
-
-	if (value > std::numeric_limits<uint32_t>::max())
-	{
-		auto ss = std::stringstream {};
-		ss << "Value too big for AudioSize: " << std::to_string(value);
-
-		throw std::overflow_error(ss.str());
-	}
-
-	if (AudioSize::UNIT::FRAMES == unit)
-	{
-		return AudioSize::Impl::frames_to_bytes(value);
-	}
-	else if (AudioSize::UNIT::SAMPLES == unit)
-	{
-		return AudioSize::Impl::samples_to_bytes(value);
-	}
-
-	return value;
-}
-
-
-uint32_t AudioSize::Impl::frames_to_bytes(const lba_count_t frame_count)
-{
-	if (frame_count > static_cast<lba_count_t>(CDDA::MAX_BLOCK_ADDRESS))
-	{
-		auto ss = std::stringstream {};
-		ss << "Frame count too big for AudioSize: "
-			<< std::to_string(frame_count);
-
-		throw std::overflow_error(ss.str());
-	}
-
-	return static_cast<uint32_t>(frame_count * CDDA::BYTES_PER_FRAME);
-}
-
-
-uint32_t AudioSize::Impl::samples_to_bytes(const sample_count_t smpl_count)
-{
-	static const sample_count_t MAX_SAMPLES {
-		CDDA::SAMPLES_PER_FRAME * CDDA::MAX_BLOCK_ADDRESS };
-
-	if (smpl_count > MAX_SAMPLES)
-	{
-		auto ss = std::stringstream {};
-		ss << "Sample count too big for AudioSize: "
-			<< std::to_string(smpl_count);
-
-		throw std::overflow_error(ss.str());
-	}
-
-	return static_cast<uint32_t>(smpl_count * CDDA::BYTES_PER_SAMPLE);
-}
-
-
-void AudioSize::Impl::set_total_frames(const lba_count_t frame_count) noexcept
-{
-	this->set_total_pcm_bytes(this->frames_to_bytes(frame_count));
-}
-
-
-lba_count_t AudioSize::Impl::total_frames() const noexcept
-{
-	return static_cast<lba_count_t>(
-		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA::BYTES_PER_FRAME));
-}
-
-
-void AudioSize::Impl::set_total_samples(const sample_count_t smpl_count) noexcept
-{
-	this->set_total_pcm_bytes(this->samples_to_bytes(smpl_count));
-}
-
-
-sample_count_t AudioSize::Impl::total_samples() const noexcept
-{
-	return static_cast<sample_count_t>(
-		this->total_pcm_bytes() / static_cast<uint32_t>(CDDA::BYTES_PER_SAMPLE));
-}
-
-
-void AudioSize::Impl::set_total_pcm_bytes(const uint32_t byte_count) noexcept
-{
-	total_pcm_bytes_ = byte_count;
-}
-
-
-uint32_t AudioSize::Impl::total_pcm_bytes() const noexcept
-{
-	return total_pcm_bytes_;
-}
-
-
-bool AudioSize::Impl::equals(const AudioSize::Impl &rhs) const noexcept
-{
-	return total_pcm_bytes_ == rhs.total_pcm_bytes_;
-}
-
-
-// CalcContext
-
-
-void CalcContext::set_audio_size(const AudioSize &audio_size)
-{
-	this->do_set_audio_size(audio_size);
-}
-
-
-const AudioSize& CalcContext::audio_size() const noexcept
-{
-	return this->do_audio_size();
-}
-
-
-void CalcContext::set_filename(const std::string &filename) noexcept
-{
-	this->do_set_filename(filename);
-}
-
-
-std::string CalcContext::filename() const noexcept
-{
-	return this->do_filename();
-}
-
-
-sample_count_t CalcContext::first_relevant_sample(const TrackNo track) const
-	noexcept
-{
-	return this->do_first_relevant_sample(track);
-}
-
-
-sample_count_t CalcContext::first_relevant_sample() const noexcept
-{
-	return this->do_first_relevant_sample_no_parms();
-}
-
-
-sample_count_t CalcContext::last_relevant_sample(const TrackNo track) const
-	noexcept
-{
-	return this->do_last_relevant_sample(track);
-}
-
-
-sample_count_t CalcContext::last_relevant_sample() const noexcept
-{
-	return this->do_last_relevant_sample_no_parms();
-}
-
-
-int CalcContext::total_tracks() const noexcept
-{
-	return this->do_total_tracks();
-}
-
-
-int CalcContext::track(const sample_count_t smpl) const noexcept
-{
-	return this->do_track(smpl);
-}
-
-
-lba_count_t CalcContext::offset(const int track) const noexcept
-{
-	return this->do_offset(track);
-}
-
-
-lba_count_t CalcContext::length(const int track) const noexcept
-{
-	return this->do_length(track);
-}
-
-
-ARId CalcContext::id() const noexcept
-{
-	return this->do_id();
-}
-
-
-bool CalcContext::skips_front() const noexcept
-{
-	return this->do_skips_front();
-}
-
-
-bool CalcContext::skips_back() const noexcept
-{
-	return this->do_skips_back();
-}
-
-
-sample_count_t CalcContext::num_skip_front() const noexcept
-{
-	return this->do_num_skip_front();
-}
-
-
-sample_count_t CalcContext::num_skip_back() const noexcept
-{
-	return this->do_num_skip_back();
-}
-
-
-bool CalcContext::is_multi_track() const noexcept
-{
-	return this->do_is_multi_track();
-}
-
-
-void CalcContext::notify_skips(const sample_count_t num_skip_front,
-		const sample_count_t num_skip_back) noexcept
-{
-	this->do_notify_skips(num_skip_front, num_skip_back);
-}
-
-
-std::unique_ptr<CalcContext> CalcContext::clone() const noexcept
-{
-	return this->do_clone();
-}
-
-
-namespace
-{
-
-/**
- * \internal
- * \brief Number of samples to be skipped before the end of the last track.
- *
- * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
- * = 2940 samples. We derive the number of samples to be skipped at the
- * start of the first track by just subtracting 1 from this constant.
- */
-constexpr sample_count_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
-
-/**
- * \internal
- * \brief Number of samples to be skipped after the start of the first track.
- *
- * There are 5 frames - 1 sample to be skipped, i.e.
- * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
- */
-constexpr sample_count_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
-
-} // namespace
-
 
 namespace details
 {
+
+
+// calculate_details.hpp
+
+
+int32_t frames2samples(const int32_t frames)
+{
+	return frames * CDDA::SAMPLES_PER_FRAME;
+}
+
+int32_t samples2frames(const int32_t samples)
+{
+	return samples / CDDA::SAMPLES_PER_FRAME;
+}
+
+int32_t frames2bytes(const int32_t frames)
+{
+	return frames * CDDA::BYTES_PER_FRAME;
+}
+
+int32_t bytes2frames(const int32_t bytes)
+{
+	return bytes / CDDA::BYTES_PER_FRAME;
+}
+
+int32_t samples2bytes(const int32_t samples)
+{
+	return samples * CDDA::BYTES_PER_SAMPLE;
+}
+
+int32_t bytes2samples(const int32_t bytes)
+{
+	return bytes / CDDA::BYTES_PER_SAMPLE;
+}
+
+bool is_valid_track_number(const TrackNo track)
+{
+	return 0 < track && track <= 99;
+}
+
+bool is_valid_track(const TrackNo track, const TOC& toc)
+{
+	return 0 < track && track <= toc.total_tracks();
+}
+
+TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total)
+{
+	if (sample > s_total || sample > toc.leadout())
+	{
+		return 0;
+	}
+
+	auto t = TrackNo { 1 };
+	for (auto o = toc.offset(t); sample < o; o = toc.offset(++t)) {/*empty*/}
+
+	return t;
+}
+
+
+//
+
+
+int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
+		const Interval<int32_t> bounds)
+{
+	int32_t frames = 0;
+
+	try {
+
+		frames = toc.offset(track);
+
+	} catch (const std::exception& e) // TODO throw?
+	{
+		ARCS_LOG_WARNING << "Offset for unknown track " << track
+			<< " requested, returned 0.";
+
+		return 0;
+	}
+
+	if (1 == track)
+	{
+		return frames2samples(frames) + bounds.lower();
+	}
+
+	return frames2samples(frames);
+}
+
+
+int32_t last_relevant_sample(const TrackNo track,
+		const TOC& toc, const Interval<int32_t> bounds)
+{
+	if (!toc.complete())
+	{
+		// TODO throw?
+		return 0;
+	}
+
+	// TODO Validity check for TrackNo and TrackNo + 1
+	if (!is_valid_track(track, toc))
+	{
+		// TODO throw?
+		return 0;
+	}
+
+	if (track >= toc.total_tracks())
+	{
+		return last_relevant_sample(bounds, toc.leadout());
+	}
+
+	const TrackNo next_track = track + 1;
+	int32_t frames = 0;
+
+	try {
+
+		frames = toc.offset(next_track);
+
+	} catch (const std::exception& e) // TODO throw?
+	{
+		ARCS_LOG_WARNING << "Offset for unknown track " << next_track
+			<< " requested, returned 0.";
+
+		return 0;
+	}
+
+	return !frames ? 0 : last_relevant_sample(bounds, frames);
+}
+
+
+int32_t last_relevant_sample(const Interval<int32_t> bounds,
+		const int32_t total_frames)
+{
+	// return this->skips_back()
+	// 	? this->audio_size().total_samples() - 1 - this->num_skip_back()
+	// 	: this->audio_size().total_samples() - 1;
+
+	const auto total_samples { frames2samples(total_frames) };
+
+	if (bounds.upper() >= total_samples)
+	{
+		return total_samples;
+	}
+
+	if (bounds.upper() == 0) /* no skip */
+	{
+		return total_samples - 1;
+	}
+
+	return total_samples - (total_samples - bounds.upper()) - 1;
+}
+
+
+// Partitioner
+
+
+Partitioning Partitioner::create_partitioning(
+		const int32_t offset,
+		const int32_t total_samples_in_block,
+		const Interval<int32_t>& total_bounds,
+		const TOC* toc) const
+{
+	const Interval<int32_t> sample_block {
+		/* first sample in block */ offset,
+		/* last sample in block */  offset + total_samples_in_block - 1
+	};
+
+	// If the sample block does not contain any relevant samples,
+	// just return an empty partitioning.
+
+	if (sample_block.upper() < total_bounds.lower()
+			|| sample_block.lower() > total_bounds.upper())
+	{
+		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
+
+		return Partitioning{};
+	}
+
+	if (!toc)
+	{
+		// No TOC? => Fallback to a single track partitioning
+		return do_create_partitioning(sample_block, total_bounds);
+	}
+
+	return do_create_partitioning(sample_block, total_bounds, *toc);
+}
+
+
+std::unique_ptr<Partitioner> Partitioner::clone() const
+{
+	return do_clone();
+}
+
+
+Partition Partitioner::create_partition(
+		const int32_t &begin_offset,
+		const int32_t &end_offset,
+		const int32_t &first,
+		const int32_t &last,
+		const bool    &starts_track,
+		const bool    &ends_track,
+		const TrackNo &track) const
+{
+	return Partition{begin_offset, end_offset, first, last, starts_track,
+			ends_track, track};
+}
+
+
+// TrackPartitioner
+
+
+Partitioning TrackPartitioner::do_create_partitioning(
+			const Interval<int32_t>& sample_block,
+			const Interval<int32_t>& total_bounds,
+			const TOC& toc) const
+{
+	auto chunk_first_smpl = sample_block.contains(total_bounds.lower())
+		? total_bounds.lower()
+		: sample_block.lower();
+
+	// If the sample index range of this block contains the last relevant
+	// sample, set this as the last sample in block instead of the last
+	// physical sample
+
+	const auto block_last_smpl = sample_block.contains(total_bounds.lower())
+		? total_bounds.lower()
+		: sample_block.lower();
+
+	// Will be total_tracks+1 if 1st sample is beyond global last relevant sample
+	// This entails that the loop is not entered for irrelevant partitions
+	auto curr_track = track(chunk_first_smpl, toc, total_bounds.upper());
+
+	// If track > total_tracks this is global last sample
+	auto chunk_last_smpl = int32_t {
+		//context.last_relevant_sample(curr_track) };
+		last_relevant_sample(curr_track, toc, total_bounds) };
+
+
+	auto begin_offset = int32_t { 0 } ;
+	auto end_offset   = int32_t { 0 } ;
+	auto starts_track = bool { false } ;
+	auto ends_track   = bool { false } ;
+
+	const auto last_track = toc.total_tracks();
+
+
+	// Now construct all partitions except the last (that needs clipping) in a
+	// loop
+
+	Partitioning chunks{};
+	chunks.reserve(10);
+
+	while (chunk_last_smpl < block_last_smpl and curr_track <= last_track)
+	{
+		//ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
+		ends_track   =
+			(chunk_last_smpl == last_relevant_sample(curr_track, toc, total_bounds));
+
+		starts_track =
+			//(chunk_first_smpl == context.first_relevant_sample(track));
+			(chunk_first_smpl == first_relevant_sample(curr_track, toc, total_bounds));
+
+		begin_offset = chunk_first_smpl - sample_block.lower();
+
+		end_offset   = chunk_last_smpl  - sample_block.lower() + 1;
+
+		chunks.emplace_back(
+			this->create_partition(
+				begin_offset,
+				end_offset,
+				chunk_first_smpl,
+				chunk_last_smpl,
+				starts_track,
+				ends_track,
+				curr_track
+			)
+		);
+
+		ARCS_LOG(DEBUG1) << "  Create chunk: " << chunk_first_smpl
+				<< " - " << chunk_last_smpl;
+
+		++curr_track;
+
+		chunk_first_smpl = chunk_last_smpl + 1;
+		chunk_last_smpl  = last_relevant_sample(curr_track, toc, total_bounds);
+	} // while
+
+
+	// If the loop has finished or was never entered, the last partition has to
+	// be prepared
+
+
+	// Clip last partition to block end if necessary
+
+	if (chunk_last_smpl > block_last_smpl)
+	{
+		chunk_last_smpl = block_last_smpl;
+
+		using std::to_string;
+		ARCS_LOG(DEBUG1) << "  Block ends within track "
+			<< to_string(curr_track)
+			<< ", clip last sample to: " << chunk_last_smpl;
+	}
+
+	// Prepare last partition
+
+	starts_track =
+		(chunk_first_smpl == first_relevant_sample(curr_track, toc, total_bounds));
+
+	ends_track   =
+		(chunk_last_smpl == last_relevant_sample(curr_track, toc, total_bounds));
+
+	begin_offset = chunk_first_smpl - sample_block.lower();
+
+	end_offset   = chunk_last_smpl  - sample_block.lower() + 1;
+
+	ARCS_LOG(DEBUG1) << "  Create last chunk: " << chunk_first_smpl
+				<< " - " << chunk_last_smpl;
+
+	chunks.emplace_back(
+		this->create_partition(
+			begin_offset,
+			end_offset,
+			chunk_first_smpl,
+			chunk_last_smpl,
+			starts_track,
+			ends_track,
+			curr_track
+		)
+	);
+
+	chunks.shrink_to_fit();
+
+	return chunks;
+}
+
+
+Partitioning TrackPartitioner::do_create_partitioning(
+			const Interval<int32_t>& sample_block,
+			const Interval<int32_t>& bounds) const
+{
+	// Create a single partition spanning the entire block of samples,
+	// but respect skipping samples at front or back.
+
+	const auto chunk_first_smpl = sample_block.contains(bounds.lower())
+		? bounds.lower()
+		: sample_block.lower();
+
+	const auto chunk_last_smpl = sample_block.contains(bounds.upper())
+		? bounds.upper()
+		: sample_block.upper();
+
+	return {
+		this->create_partition(
+			/* begin offset */  { chunk_first_smpl - sample_block.lower() },
+			/* end offset */    { chunk_last_smpl  - sample_block.lower() + 1 },
+			/* chunk first */   chunk_first_smpl,
+			/* chunk last */    chunk_last_smpl,
+			/* starts track */  { chunk_first_smpl == bounds.lower() },
+			/* ends track */    { chunk_last_smpl  == bounds.upper() },
+			/* invalid track */ 0
+		)
+	};
+}
+
+
+std::unique_ptr<Partitioner> TrackPartitioner::do_clone() const
+{
+	return std::make_unique<TrackPartitioner>(*this);
+}
 
 
 // Partition
 
 
 Partition::Partition(
-		const sample_count_t &begin_offset,
-		const sample_count_t &end_offset,
-		const sample_count_t &first,
-		const sample_count_t &last,
+		const int32_t &begin_offset,
+		const int32_t &end_offset,
+		const int32_t &first,
+		const int32_t &last,
 		const bool     &starts_track,
 		const bool     &ends_track,
 		const TrackNo  &track
@@ -853,25 +422,25 @@ Partition::Partition(
 }
 
 
-sample_count_t Partition::begin_offset() const
+int32_t Partition::begin_offset() const
 {
 	return begin_offset_;
 }
 
 
-sample_count_t Partition::end_offset() const
+int32_t Partition::end_offset() const
 {
 	return end_offset_;
 }
 
 
-sample_count_t Partition::first_sample_idx() const
+int32_t Partition::first_sample_idx() const
 {
 	return first_sample_idx_;
 }
 
 
-sample_count_t Partition::last_sample_idx() const
+int32_t Partition::last_sample_idx() const
 {
 	return last_sample_idx_;
 }
@@ -895,482 +464,189 @@ int Partition::track() const
 }
 
 
-sample_count_t Partition::size() const
+std::size_t Partition::size() const
 {
-	return last_sample_idx() - first_sample_idx() + 1;
+	return static_cast<std::size_t>(last_sample_idx() - first_sample_idx() + 1);
 }
 
 
-// Interval
+// CalculationState
 
 
-Interval::Interval(const sample_count_t a, const sample_count_t b)
-	: a_ { a }
-	, b_ { b }
+// calculate_impl.hpp
+
+
+bool within_bounds(const int32_t value, const AudioSize::UNIT unit)
 {
-	// empty
-}
+	using std::to_string;
 
-
-bool Interval::contains(const sample_count_t i) const
-{
-	if (a_ <= b_)
+	if (value < 0)
 	{
-		return a_ <= i and i <= b_;
+		auto ss = std::stringstream {};
+		ss << "Cannot construct AudioSize from negative value: "
+			<< to_string(value);
+		throw std::underflow_error(ss.str());
 	}
 
-	return a_ >= i and i >= b_;
-}
-
-
-// Partitioner
-
-
-Partitioning Partitioner::create_partitioning(
-		const sample_count_t offset,
-		const sample_count_t number_of_samples,
-		const CalcContext &context) const
-{
-	// If the sample block does not contain any relevant samples,
-	// just return an empty partition list
-
-	const auto block_end { last_sample_idx(offset, number_of_samples) };
-
-	const auto first_smpl { context.first_relevant_sample(1) };
-	// avoids -Wstrict-overflow firing in if-clause
-
-	if (block_end < first_smpl or offset > context.last_relevant_sample())
+	if (value > AudioSize::max(unit))
 	{
-		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
-
-		return Partitioning{};
+		auto ss = std::stringstream {};
+		ss << "Value too big for maximum: " << to_string(value);
+		throw std::overflow_error(ss.str());
 	}
 
-	return this->do_create_partitioning(offset, number_of_samples, context);
+	return true;
 }
 
 
-std::unique_ptr<Partitioner> Partitioner::clone() const
+int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 {
-	return do_clone();
-}
+	using UNIT = AudioSize::UNIT;
 
-
-sample_count_t Partitioner::last_sample_idx(const sample_count_t offset,
-		const sample_count_t sample_count) const
-{
-	return offset + sample_count - 1;
-}
-
-
-Partition Partitioner::create_partition(
-		const sample_count_t     &begin_offset,
-		const sample_count_t     &end_offset,
-		const sample_count_t     &first,
-		const sample_count_t     &last,
-		const bool         &starts_track,
-		const bool         &ends_track,
-		const TrackNo      &track) const
-{
-	return Partition{begin_offset, end_offset, first, last, starts_track,
-			ends_track, track};
-}
-
-
-// MultitrackPartitioner
-
-
-std::unique_ptr<Partitioner> MultitrackPartitioner::do_clone() const
-{
-	return std::make_unique<MultitrackPartitioner>(*this);
-}
-
-
-Partitioning MultitrackPartitioner::do_create_partitioning(
-		const sample_count_t offset,
-		const sample_count_t number_of_samples,
-		const CalcContext &context) const
-{
-	const auto total_samples = sample_count_t { number_of_samples };
-
-	const Interval sample_block {
-		offset, this->last_sample_idx(offset, total_samples)
-	};
-
-	// If the sample index range of this block contains the last relevant
-	// sample, set this as the last sample in block instead of the last
-	// physical sample
-
-	auto block_last_smpl = sample_count_t {
-		this->last_sample_idx(offset, total_samples) };
-
-	if (sample_block.contains(context.last_relevant_sample()))
+	switch (unit)
 	{
-		block_last_smpl = context.last_relevant_sample();
+		case UNIT::FRAMES:  return frames2bytes(value);
+		case UNIT::SAMPLES: return samples2bytes(value);
+		default:            return value;
 	}
 
-	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first partition instead of
-	// the first physical sample
+	return value;
+}
 
-	auto chunk_first_smpl = sample_count_t { offset };
 
-	if (sample_block.contains(context.first_relevant_sample(1)))
+int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
+{
+	using UNIT = AudioSize::UNIT;
+
+	switch (unit)
 	{
-		chunk_first_smpl = context.first_relevant_sample(1);
+		case UNIT::FRAMES:  return bytes2frames(value);
+		case UNIT::SAMPLES: return bytes2samples(value);
+		default:            return value;
 	}
 
-	// Will be total_tracks+1 if 1st sample is beyond global last relevant sample
-	// This entails that the loop is not entered for irrelevant partitions
-	auto track = context.track(chunk_first_smpl);
-
-	// If track > total_tracks this is global last sample
-	auto chunk_last_smpl = sample_count_t {
-		context.last_relevant_sample(track) };
-
-	auto begin_offset = sample_count_t { 0 } ;
-	auto end_offset   = sample_count_t { 0 } ;
-	auto starts_track = bool { false } ;
-	auto ends_track   = bool { false } ;
-
-	const auto last_track = context.total_tracks();
-
-
-	// Now construct all partitions except the last (that needs clipping) in a
-	// loop
-
-	Partitioning chunks{};
-	chunks.reserve(10);
-
-	while (chunk_last_smpl < block_last_smpl and track <= last_track)
-	{
-		ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
-
-		starts_track =
-			(chunk_first_smpl == context.first_relevant_sample(track));
-
-		begin_offset = chunk_first_smpl - offset;
-
-		end_offset   = chunk_last_smpl  - offset + 1;
-
-		chunks.push_back(
-			this->create_partition(
-				begin_offset,
-				end_offset,
-				chunk_first_smpl,
-				chunk_last_smpl,
-				starts_track,
-				ends_track,
-				track
-			)
-		);
-
-		ARCS_LOG(DEBUG1) << "  Create chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-		++track;
-
-		chunk_first_smpl = chunk_last_smpl + 1;
-		chunk_last_smpl  = context.last_relevant_sample(track);
-	} // while
-
-
-	// If the loop has finished or was never entered, the last partition has to
-	// be prepared
-
-
-	// Clip last partition to block end if necessary
-
-	if (chunk_last_smpl > block_last_smpl)
-	{
-		chunk_last_smpl = block_last_smpl;
-
-		ARCS_LOG(DEBUG1) << "  Block ends within track "
-			<< std::to_string(track)
-			<< ", clip last sample to: " << chunk_last_smpl;
-	}
-
-	// Prepare last partition
-
-	starts_track = (chunk_first_smpl == context.first_relevant_sample(track));
-
-	ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
-
-	begin_offset = chunk_first_smpl - offset;
-
-	end_offset   = chunk_last_smpl  - offset + 1;
-
-	ARCS_LOG(DEBUG1) << "  Create last chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-	chunks.push_back(
-		this->create_partition(
-			begin_offset,
-			end_offset,
-			chunk_first_smpl,
-			chunk_last_smpl,
-			starts_track,
-			ends_track,
-			track
-		)
-	);
-
-	chunks.shrink_to_fit();
-
-	return chunks;
+	return value;
 }
 
 
-// SingletrackPartitioner
+// CalcContextImplBase
 
 
-std::unique_ptr<Partitioner> SingletrackPartitioner::do_clone() const
-{
-	return std::make_unique<SingletrackPartitioner>(*this);
-}
-
-
-Partitioning SingletrackPartitioner::do_create_partitioning(
-		const sample_count_t offset,
-		const sample_count_t number_of_samples,
-		const CalcContext &context) const
-{
-	const auto total_samples = sample_count_t { number_of_samples };
-
-	Interval sample_block {
-		offset, this->last_sample_idx(offset, total_samples)
-	};
-
-	// If the sample index range of this block contains the last relevant
-	// sample, set this as the last sample in block instead of the last
-	// physical sample
-
-	auto chunk_last_smpl = sample_count_t {
-		this->last_sample_idx(offset, total_samples) };
-
-	if (sample_block.contains(context.last_relevant_sample()))
-	{
-		chunk_last_smpl = context.last_relevant_sample();
-	}
-
-	// If the sample index range of this block contains the first relevant
-	// sample, set this as the first sample of the first partition instead of
-	// the first physical sample
-
-	auto chunk_first_smpl = sample_count_t { offset };
-
-	if (sample_block.contains(context.first_relevant_sample(1)))
-	{
-		chunk_first_smpl = context.first_relevant_sample(1);
-	}
-
-	// Create a single partition spanning the entire sample block, but respect
-	// skipping samples at front or back
-
-	// Is this the last partition in the current track?
-
-	const bool ends_track {
-		chunk_last_smpl == context.last_relevant_sample()
-	};
-
-	// Is this the first partition of the current track in the current block?
-
-	const bool starts_track {
-		chunk_first_smpl == context.first_relevant_sample(1)
-	};
-
-	// Determine first sample in partition (easy for singletrack: 0)
-
-	const auto begin_offset = sample_count_t { chunk_first_smpl - offset };
-
-	// Determine last sample in partition (easy for singletrack: total_samples)
-
-	const auto end_offset = sample_count_t { chunk_last_smpl - offset + 1 };
-
-	Partitioning chunks;
-	chunks.push_back(
-		this->create_partition(
-			begin_offset,
-			end_offset,
-			chunk_first_smpl,
-			chunk_last_smpl,
-			starts_track,
-			ends_track,
-			0
-		));
-
-	return chunks;
-}
-
-
-// CalcContextBase
-
-
-CalcContextBase::CalcContextBase(const std::string &filename,
-		const sample_count_t num_skip_front,
-		const sample_count_t num_skip_back)
-	: audiosize_ { AudioSize() }
-	, filename_ { filename }
-	, num_skip_front_ { num_skip_front }
-	, num_skip_back_ { num_skip_back }
-{
-	// empty
-}
-
-
-CalcContextBase::~CalcContextBase() noexcept = default;
-
-
-void CalcContextBase::do_set_audio_size(const AudioSize &audio_size)
-{
-	audiosize_ = audio_size;
-
-	this->do_hook_post_set_audio_size();
-}
-
-
-void CalcContextBase::do_hook_post_set_audio_size()
-{
-	// empty
-}
-
-
-bool CalcContextBase::equals(const CalcContextBase &rhs) const noexcept
-{
-	return audiosize_ == rhs.audiosize_
-		and filename_ == rhs.filename_
-		and num_skip_front_ == rhs.num_skip_front_
-		and num_skip_back_ == rhs.num_skip_back_;
-}
-
-
-const AudioSize& CalcContextBase::do_audio_size() const noexcept
-{
-	return audiosize_;
-}
-
-
-void CalcContextBase::do_set_filename(const std::string &filename) noexcept
-{
-	filename_ = filename;
-}
-
-
-std::string CalcContextBase::do_filename() const noexcept
+std::string CalcContextImplBase::do_filename() const noexcept
 {
 	return filename_;
 }
 
 
-sample_count_t CalcContextBase::do_first_relevant_sample(const TrackNo /*t*/)
-	const noexcept
+void CalcContextImplBase::do_set_filename(const std::string& filename) noexcept
 {
-	return 0; // no functionality, just to be overriden
+	filename_ = filename;
 }
 
 
-sample_count_t CalcContextBase::do_first_relevant_sample_no_parms()
-	const noexcept
+const AudioSize& CalcContextImplBase::do_audio_size() const noexcept
 {
-	return this->first_relevant_sample(1);
+	return audiosize_;
 }
 
 
-sample_count_t CalcContextBase::do_last_relevant_sample(const TrackNo /*t*/)
-	const noexcept
+void CalcContextImplBase::do_set_audio_size(const AudioSize& audio_size)
 {
-	return 0; // no functionality, just to be overriden
+	audiosize_ = audio_size;
+	do_hook_post_set_audio_size();
 }
 
 
-sample_count_t CalcContextBase::do_last_relevant_sample_no_parms()
-	const noexcept
+int32_t CalcContextImplBase::do_first_relevant_sample(const TrackNo /*t*/) const
+	noexcept
 {
-	return this->last_relevant_sample(this->total_tracks());
+	return 0;
 }
 
 
-sample_count_t CalcContextBase::do_num_skip_front() const noexcept
+int32_t CalcContextImplBase::do_first_relevant_sample_no_parms() const noexcept
+{
+	return first_relevant_sample(1);
+}
+
+
+int32_t CalcContextImplBase::do_last_relevant_sample(const TrackNo /*t*/) const
+	noexcept
+{
+	return 0;
+}
+
+
+int32_t CalcContextImplBase::do_last_relevant_sample_no_parms() const noexcept
+{
+	return last_relevant_sample(this->total_tracks());
+}
+
+
+int32_t CalcContextImplBase::do_num_skip_front() const noexcept
 {
 	return num_skip_front_;
 }
 
 
-sample_count_t CalcContextBase::do_num_skip_back() const noexcept
+int32_t CalcContextImplBase::do_num_skip_back() const noexcept
 {
 	return num_skip_back_;
 }
 
 
-void CalcContextBase::do_notify_skips(const sample_count_t num_skip_front,
-		const sample_count_t num_skip_back) noexcept
+void CalcContextImplBase::do_notify_skips(const int32_t num_skip_front,
+		const int32_t num_skip_back) noexcept
 {
 	num_skip_front_ = num_skip_front;
-	num_skip_back_  = num_skip_back;
-
 	ARCS_LOG_DEBUG << "Set context front skip: " << num_skip_front_;
+
+	num_skip_back_  = num_skip_back;
 	ARCS_LOG_DEBUG << "Set context back skip:  " << num_skip_back_;
 }
 
 
-// operators for SingletrackCalcContexts
-
-
-bool operator == (const SingletrackCalcContext &lhs,
-		const SingletrackCalcContext &rhs) noexcept
+void CalcContextImplBase::do_hook_post_set_audio_size()
 {
-	return lhs.equals(rhs)
-		and lhs.skip_front_ == rhs.skip_front_
-		and lhs.skip_back_  == rhs.skip_back_;
+	// empty
+}
+
+
+bool CalcContextImplBase::base_equals(const CalcContextImplBase& rhs) const
+	noexcept
+{
+	return filename_       == rhs.filename_
+		&& audiosize_      == rhs.audiosize_
+		&& num_skip_front_ == rhs.num_skip_front_
+		&& num_skip_back_  == rhs.num_skip_back_;
+}
+
+
+void CalcContextImplBase::base_swap(CalcContextImplBase& rhs) noexcept
+{
+	using std::swap;
+	swap(filename_,       rhs.filename_);
+	swap(audiosize_,      rhs.audiosize_);
+	swap(num_skip_front_, rhs.num_skip_front_);
+	swap(num_skip_back_,  rhs.num_skip_back_);
+}
+
+
+CalcContextImplBase::CalcContextImplBase(const std::string& filename,
+		const int32_t num_skip_front, const int32_t num_skip_back)
+	: audiosize_      { AudioSize{}    }
+	, filename_       { filename       }
+	, num_skip_front_ { num_skip_front }
+	, num_skip_back_  { num_skip_back  }
+{
+	// empty
 }
 
 
 // SingletrackCalcContext
 
 
-SingletrackCalcContext::SingletrackCalcContext(const std::string &filename)
-	: CalcContextBase { filename, 0, 0 }
-	, skip_front_ { false }
-	, skip_back_  { false }
-{
-	// empty
-}
-
-
-SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
-		const bool skip_front, const bool skip_back)
-	: CalcContextBase { filename, NUM_SKIP_SAMPLES_FRONT, NUM_SKIP_SAMPLES_BACK }
-	, skip_front_ { skip_front }
-	, skip_back_  { skip_back }
-{
-	// empty
-}
-
-
-SingletrackCalcContext::SingletrackCalcContext(const std::string &filename,
-		const bool skip_front, const sample_count_t num_skip_front,
-		const bool skip_back,  const sample_count_t num_skip_back)
-	: CalcContextBase { filename, num_skip_front, num_skip_back }
-	, skip_front_ { skip_front }
-	, skip_back_  { skip_back }
-{
-	// empty
-}
-
-
-int SingletrackCalcContext::do_total_tracks() const noexcept
-{
-	return 1;
-}
-
-
-bool SingletrackCalcContext::do_is_multi_track() const noexcept
-{
-	return false;
-}
-
-
-sample_count_t SingletrackCalcContext::do_first_relevant_sample(
+int32_t SingletrackCalcContext::do_first_relevant_sample(
 		const TrackNo /* track */) const noexcept
 {
 	// It is not necessary to bounds-check the TrackNo since we do not intend
@@ -1389,7 +665,7 @@ sample_count_t SingletrackCalcContext::do_first_relevant_sample(
 }
 
 
-sample_count_t SingletrackCalcContext::do_last_relevant_sample(
+int32_t SingletrackCalcContext::do_last_relevant_sample(
 		const TrackNo /* track */) const noexcept
 {
 	// It is not necessary to bounds-check the TrackNo since we do not intend
@@ -1407,7 +683,31 @@ sample_count_t SingletrackCalcContext::do_last_relevant_sample(
 }
 
 
-int SingletrackCalcContext::do_track(const sample_count_t /* smpl */) const
+bool SingletrackCalcContext::do_skips_front() const noexcept
+{
+	return skip_front_;
+}
+
+
+bool SingletrackCalcContext::do_skips_back() const noexcept
+{
+	return skip_back_;
+}
+
+
+bool SingletrackCalcContext::do_is_multi_track() const noexcept
+{
+	return false;
+}
+
+
+int SingletrackCalcContext::do_total_tracks() const noexcept
+{
+	return 1;
+}
+
+
+int SingletrackCalcContext::do_track(const int32_t /* smpl */) const
 noexcept
 {
 	return 1;
@@ -1428,33 +728,9 @@ noexcept
 }
 
 
-ARId SingletrackCalcContext::do_id() const noexcept
+ARId SingletrackCalcContext::do_id() const
 {
 	return *(make_empty_arid());
-}
-
-
-bool SingletrackCalcContext::do_skips_front() const noexcept
-{
-	return skip_front_;
-}
-
-
-void SingletrackCalcContext::set_skip_front(const bool skip) noexcept
-{
-	skip_front_ = skip;
-}
-
-
-bool SingletrackCalcContext::do_skips_back() const noexcept
-{
-	return skip_back_;
-}
-
-
-void SingletrackCalcContext::set_skip_back(const bool skip) noexcept
-{
-	skip_back_ = skip;
 }
 
 
@@ -1464,94 +740,90 @@ std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const noexcept
 }
 
 
-// operators for MultitrackCalcContexts
-
-
-bool operator == (const MultitrackCalcContext &lhs,
-		const MultitrackCalcContext &rhs) noexcept
+bool SingletrackCalcContext::do_equals(const CalcContext& rhs) const noexcept
 {
-	return lhs.equals(rhs) and lhs.toc_ == rhs.toc_;
+	const SingletrackCalcContext* ctx =
+		dynamic_cast<const SingletrackCalcContext*>(&rhs);
+
+    return ctx != nullptr && *this == *ctx;
+}
+
+/*
+SingletrackCalcContext::SingletrackCalcContext(const std::string& filename)
+	: SingletrackCalcContext { filename, false, NUM_SKIP_SAMPLES_FRONT,
+		false, NUM_SKIP_SAMPLES_BACK }
+{
+	// empty
+}
+
+
+SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
+		const bool skip_front, const bool skip_back)
+	: SingletrackCalcContext { filename, skip_front, NUM_SKIP_SAMPLES_FRONT,
+		skip_back, NUM_SKIP_SAMPLES_BACK }
+{
+	// empty
+}
+*/
+
+SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
+		const bool skip_front, const int32_t num_skip_front,
+		const bool skip_back,  const int32_t num_skip_back)
+	: CalcContextImplBase { filename, num_skip_front, num_skip_back }
+	, skip_front_ { skip_front }
+	, skip_back_  { skip_back }
+{
+	// empty
+}
+
+
+void SingletrackCalcContext::set_skip_front(const bool is_skipped) noexcept
+{
+	skip_front_ = is_skipped;
+}
+
+
+void SingletrackCalcContext::set_skip_back(const bool is_skipped) noexcept
+{
+	skip_back_ = is_skipped;
+}
+
+
+bool operator == (const SingletrackCalcContext& lhs,
+		const SingletrackCalcContext& rhs) noexcept
+{
+	return lhs.base_equals(rhs)
+		&& lhs.skip_front_ == rhs.skip_front_
+		&& lhs.skip_back_  == rhs.skip_back_;
+}
+
+
+void swap(SingletrackCalcContext& lhs, SingletrackCalcContext& rhs) noexcept
+{
+	lhs.base_swap(rhs);
+
+	using std::swap;
+	swap(lhs.skip_front_, rhs.skip_front_);
+	swap(lhs.skip_back_,  rhs.skip_back_);
 }
 
 
 // MultitrackCalcContext
 
 
-MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
-		const std::string &filename)
-	: CalcContextBase { filename, 0, 0 }
-	, toc_ { toc }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-		const std::string &filename)
-	: CalcContextBase { filename, 0, 0 }
-	, toc_ { *toc }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const TOC &toc,
-		const sample_count_t num_skip_front,
-		const sample_count_t num_skip_back, const std::string &filename)
-	: CalcContextBase { filename, num_skip_front, num_skip_back }
-	, toc_ { toc }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC> &toc,
-		const sample_count_t num_skip_front,
-		const sample_count_t num_skip_back, const std::string &filename)
-	: CalcContextBase { filename, num_skip_front, num_skip_back }
-	, toc_ { *toc }
-{
-	this->set_toc(toc_);
-}
-
-
-void MultitrackCalcContext::do_hook_post_set_audio_size()
-{
-	if (this->audio_size().leadout_frame() != this->toc().leadout())
-	{
-		details::TOCBuilder builder;
-		builder.update(toc_, this->audio_size().leadout_frame());
-	}
-}
-
-
-int MultitrackCalcContext::do_total_tracks() const noexcept
-{
-	return toc().total_tracks();
-}
-
-
-bool MultitrackCalcContext::do_is_multi_track() const noexcept
-{
-	return true;
-}
-
-
-sample_count_t MultitrackCalcContext::do_first_relevant_sample(
+int32_t MultitrackCalcContext::do_first_relevant_sample(
 		const TrackNo track) const noexcept
 {
 	// We have offsets, so we respect the corresponding offset to any track.
 
-	sample_count_t offset = 0;
+	int32_t offset = 0;
 
 	try
 	{
 		offset = toc().offset(track);
+		// This will throw for track == 0 and for any unknown track in the TOC
 
-		// Note that this will throw for track == 0 and for any other unknown
-		// track in the TOC
-
-	} catch (const std::exception &e)
+	} catch (const std::exception& e)
 	{
 		ARCS_LOG_WARNING << "First relevant sample for unknown track "
 			<< static_cast<int>(track) << " requested, returned 0.";
@@ -1570,7 +842,7 @@ sample_count_t MultitrackCalcContext::do_first_relevant_sample(
 }
 
 
-sample_count_t MultitrackCalcContext::do_last_relevant_sample(
+int32_t MultitrackCalcContext::do_last_relevant_sample(
 		const TrackNo track) const noexcept
 {
 	// Return last relevant sample of last track for any track number
@@ -1585,7 +857,7 @@ sample_count_t MultitrackCalcContext::do_last_relevant_sample(
 
 	// We have offsets, so we respect the corresponding offset to any track
 
-	sample_count_t next_offset = 0;
+	int32_t next_offset = 0;
 
 	try
 	{
@@ -1594,7 +866,7 @@ sample_count_t MultitrackCalcContext::do_last_relevant_sample(
 		// Note that this will throw for track == 0 and for any other unknown
 		// track in the TOC
 
-	} catch (const std::exception &e)
+	} catch (const std::exception& e)
 	{
 		ARCS_LOG_WARNING << "Offset for unknown track "
 			<< static_cast<int>(track) + 1 << " requested, returned 0.";
@@ -1607,7 +879,31 @@ sample_count_t MultitrackCalcContext::do_last_relevant_sample(
 }
 
 
-int MultitrackCalcContext::do_track(const sample_count_t smpl)
+bool MultitrackCalcContext::do_skips_front() const noexcept
+{
+	return true;
+}
+
+
+bool MultitrackCalcContext::do_skips_back() const noexcept
+{
+	return true;
+}
+
+
+bool MultitrackCalcContext::do_is_multi_track() const noexcept
+{
+	return true;
+}
+
+
+int MultitrackCalcContext::do_total_tracks() const noexcept
+{
+	return toc().total_tracks();
+}
+
+
+int MultitrackCalcContext::do_track(const int32_t smpl)
 	const noexcept
 {
 	if (this->audio_size().total_samples() == 0)
@@ -1627,7 +923,7 @@ int MultitrackCalcContext::do_track(const sample_count_t smpl)
 
 	// Increase track number while sample is smaller than track's last relevant
 	auto track = 0;
-	for (sample_count_t last_sample_trk { this->last_relevant_sample(track) } ;
+	for (int32_t last_sample_trk { this->last_relevant_sample(track) } ;
 			smpl > last_sample_trk and track <= last_track ;
 			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
 
@@ -1682,7 +978,7 @@ lba_count_t MultitrackCalcContext::do_length(const int track) const noexcept
 }
 
 
-ARId MultitrackCalcContext::do_id() const noexcept
+ARId MultitrackCalcContext::do_id() const
 {
 	std::unique_ptr<ARId> id;
 
@@ -1702,22 +998,77 @@ ARId MultitrackCalcContext::do_id() const noexcept
 }
 
 
-bool MultitrackCalcContext::do_skips_front() const noexcept
+std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const noexcept
 {
-	return true;
+	return std::make_unique<MultitrackCalcContext>(*this);
 }
 
 
-bool MultitrackCalcContext::do_skips_back() const noexcept
+bool MultitrackCalcContext::do_equals(const CalcContext& rhs) const noexcept
 {
-	return true;
+	const MultitrackCalcContext* ctx =
+		dynamic_cast<const MultitrackCalcContext*>(&rhs);
+
+    return ctx != nullptr && *this == *ctx;
 }
 
 
-void MultitrackCalcContext::set_toc(const TOC &toc)
+void MultitrackCalcContext::do_hook_post_set_audio_size()
+{
+	if (audio_size().leadout_frame() != toc().leadout())
+	{
+		details::TOCBuilder builder;
+		builder.update(toc_, audio_size().leadout_frame());
+	}
+}
+
+
+MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC>& toc,
+		const std::string& filename)
+	: MultitrackCalcContext { toc, 0, 0, filename }
+{
+	this->set_toc(toc_);
+}
+
+
+MultitrackCalcContext::MultitrackCalcContext(const TOC& toc,
+		const std::string& filename)
+	: MultitrackCalcContext { toc, 0, 0, filename }
+{
+	this->set_toc(toc_);
+}
+
+
+MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC>& toc,
+		const int32_t num_skip_front,
+		const int32_t num_skip_back, const std::string& filename)
+	: MultitrackCalcContext { *toc, num_skip_front, num_skip_back, filename }
+{
+	this->set_toc(toc_);
+}
+
+
+MultitrackCalcContext::MultitrackCalcContext(const TOC& toc,
+		const int32_t num_skip_front,
+		const int32_t num_skip_back, const std::string& filename)
+	: CalcContextImplBase { filename, num_skip_front, num_skip_back }
+	, toc_ { toc }
+{
+	this->set_toc(toc_);
+}
+
+
+const TOC& MultitrackCalcContext::toc() const noexcept
+{
+	return toc_;
+}
+
+
+void MultitrackCalcContext::set_toc(const TOC& toc)
 {
 	// NOTE: Leadout will be 0 if TOC is not complete.
 
+	// FIXME AudioSize constructed with no bounds check
 	this->set_audio_size(AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
 	// Commented out: without conversion
 	//AudioSize audiosize;
@@ -1728,1499 +1079,382 @@ void MultitrackCalcContext::set_toc(const TOC &toc)
 }
 
 
-const TOC& MultitrackCalcContext::toc() const noexcept
+bool operator == (const MultitrackCalcContext& lhs,
+		const MultitrackCalcContext& rhs) noexcept
 {
-	return toc_;
+	return lhs.base_equals(rhs) && lhs.toc_ == rhs.toc_;
 }
 
 
-std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const noexcept
+void swap(MultitrackCalcContext& lhs, MultitrackCalcContext& rhs) noexcept
 {
-	return std::make_unique<MultitrackCalcContext>(*this);
+	lhs.base_swap(rhs);
+
+	using std::swap;
+	swap(lhs.toc_, rhs.toc_);
 }
 
 
-// CalcState
+// CalcCounters
 
 
-CalcState::~CalcState() noexcept = default;
-
-
-// CalcStateARCSBase
-
-
-CalcStateARCSBase::CalcStateARCSBase()
-	: actual_skip_front_ { 0 }
-	, actual_skip_back_  { 0 }
+int32_t CalculationState::sample_offset() const
 {
-	// empty
+	return sample_offset_.value();
 }
 
-
-CalcStateARCSBase::~CalcStateARCSBase() noexcept = default;
-
-
-void CalcStateARCSBase::init_with_skip() noexcept
+void CalculationState::increment_sample_offset(const int32_t amount)
 {
-	actual_skip_front_ = NUM_SKIP_SAMPLES_FRONT;
-	actual_skip_back_  = NUM_SKIP_SAMPLES_BACK;
-
-	this->init(1 + NUM_SKIP_SAMPLES_FRONT);
+	sample_offset_.increment(amount);
 }
 
-
-void CalcStateARCSBase::init_without_skip() noexcept
+std::chrono::milliseconds CalculationState::proc_time_elapsed() const
 {
-	actual_skip_front_ = 0;
-	actual_skip_back_  = 0;
-
-	this->init(1);
+	return proc_time_elapsed_.value();
 }
 
-
-sample_count_t CalcStateARCSBase::num_skip_front() const noexcept
+void CalculationState::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
 {
-	return actual_skip_front_;
+	proc_time_elapsed_.increment(amount);
 }
 
-
-sample_count_t CalcStateARCSBase::num_skip_back() const noexcept
+ChecksumSet CalculationState::current_value() const
 {
-	return actual_skip_back_;
-}
-
-
-void CalcStateARCSBase::update(SampleInputIterator begin,
-		SampleInputIterator end)
-{
-	ARCS_LOG_DEBUG << "    First multiplier is: " << this->mult();
-	this->do_update(begin, end);
-	ARCS_LOG_DEBUG << "    Last multiplier was: " << (this->mult() - 1);
-}
-
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief CalcState for calculation of ARCSv1.
- */
-class CalcStateV1 final : public CalcStateARCSBase
-{
-
-public:
-
-	/**
-	 * \brief Default constructor.
-	 */
-	CalcStateV1();
-
-	void save(const TrackNo track) noexcept final;
-
-	int total_tracks() const noexcept final;
-
-	checksum::type type() const noexcept final;
-
-	ChecksumSet result(const TrackNo track) const noexcept final;
-
-	ChecksumSet result() const noexcept final;
-
-	void reset() noexcept final;
-
-	void wipe() noexcept final;
-
-	uint32_t mult() const noexcept final;
-
-	std::unique_ptr<CalcState> clone() const noexcept final;
-
-
-protected:
-
-	/**
-	 * \brief Worker: find Checksum for specified track or 0
-	 *
-	 * \param[in] track Track number or 0
-	 *
-	 * \return The Checksum for this track
-	 */
-	Checksum find(const int track) const noexcept;
-
-	/**
-	 * \brief Worker: compose a ChecksumSet from a single Checksum
-	 *
-	 * \param[in] checksum The Checksum
-	 *
-	 * \return The ChecksumSet containing \c checksum
-	 */
-	ChecksumSet compose(const Checksum &checksum) const noexcept;
-
-
-private:
-
-	void init(const uint32_t mult) noexcept final;
-
-	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
-
-	/**
-	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
-	 * on the first sample after the pregap of the first track.
-	 */
-	uint_fast64_t multiplier_;
-
-	/**
-	 * \brief State: subtotal of ARCS v1 (accumulates lower bits of each product).
-	 */
-	uint_fast32_t subtotal_v1_;
-
-	/**
-	 * \brief Internal representation of the calculated ARCS values
-	 */
-	std::unordered_map<int, uint32_t> arcss_;
-};
-
-
-CalcStateV1::CalcStateV1()
-	: multiplier_ { 1 }
-	, subtotal_v1_ { 0 }
-	, arcss_ {}
-{
-	// empty
-}
-
-
-void CalcStateV1::do_update(SampleInputIterator &begin,
-		SampleInputIterator &end)
-{
-	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
-	{
-		subtotal_v1_ += (multiplier_ * (*pos)) & LOWER_32_BITS_;
-	}
-}
-
-
-void CalcStateV1::save(const TrackNo track) noexcept
-{
-	const auto rc { arcss_.insert(std::make_pair(track, subtotal_v1_)) };
-
-	if (not rc.second)
-	{
-		ARCS_LOG_WARNING << "Checksum for track "
-			<< std::to_string(track) << " was not saved";
-	}
-
-	this->reset();
-}
-
-
-int CalcStateV1::total_tracks() const noexcept
-{
-	return arcss_.size();
-}
-
-
-checksum::type CalcStateV1::type() const noexcept
-{
-	return checksum::type::ARCS1;
-}
-
-
-ChecksumSet CalcStateV1::result(const TrackNo track) const noexcept
-{
-	const auto arcs1_value { this->find(track) };
-	return compose(arcs1_value);
-}
-
-
-ChecksumSet CalcStateV1::result() const noexcept
-{
-	const auto arcs1_value { this->find(0) };
-	return compose(arcs1_value);
-}
-
-
-void CalcStateV1::reset() noexcept
-{
-	multiplier_  = 1;
-	subtotal_v1_ = 0;
-}
-
-
-void CalcStateV1::wipe() noexcept
-{
-	this->reset();
-	arcss_.clear();
-}
-
-
-uint32_t CalcStateV1::mult() const noexcept
-{
-	return multiplier_;
-}
-
-
-std::unique_ptr<CalcState> CalcStateV1::clone() const noexcept
-{
-	return std::make_unique<CalcStateV1>(*this);
-}
-
-
-void CalcStateV1::init(const uint32_t mult) noexcept
-{
-	this->wipe();
-
-	multiplier_ = mult;
-}
-
-
-Checksum CalcStateV1::find(const int track) const noexcept
-{
-	const auto value { arcss_.find(track) };
-
-	if (value == arcss_.end())
-	{
-		return Checksum{};
-	}
-
-	return Checksum { value->second };
-}
-
-
-ChecksumSet CalcStateV1::compose(const Checksum &checksum) const noexcept
-{
-	ChecksumSet checksums;
-
-	const auto rc { checksums.insert(checksum::type::ARCS1, checksum) };
-
-	if (not rc.second)
-	{
-		ARCS_LOG_WARNING << "Could not insert value for type "
-			<< checksum::type_name(checksum::type::ARCS1);
-
-		return ChecksumSet{};
-	}
-
-	return checksums;
-}
-
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief CalcState for calculation of ARCSv2 and ARCSv1.
- */
-class CalcStateV1andV2 final : public CalcStateARCSBase
-{
-
-public:
-
-	/**
-	 * \brief Default constructor
-	 */
-	CalcStateV1andV2();
-
-	void save(const TrackNo track) noexcept final;
-
-	int total_tracks() const noexcept final;
-
-	checksum::type type() const noexcept final;
-
-	ChecksumSet result(const TrackNo track) const noexcept final;
-
-	ChecksumSet result() const noexcept final;
-
-	void reset() noexcept final;
-
-	void wipe() noexcept final;
-
-	uint32_t mult() const noexcept final;
-
-	std::unique_ptr<CalcState> clone() const noexcept final;
-
-
-protected:
-
-	ChecksumSet find(const int track) const noexcept;
-
-
-private:
-
-	void init(const uint32_t mult) noexcept final;
-
-	void do_update(SampleInputIterator &begin, SampleInputIterator &end) final;
-
-	/**
-	 * \brief The multiplier to compute the ARCS values v1 and v2. Starts with 1
-	 * on the first sample after the pregap of the first track.
-	 */
-	uint_fast64_t multiplier_;
-
-	/**
-	 * \brief State: subtotal of ARCS v1 (accumulates lower bits of each product).
-	 */
-	uint_fast32_t subtotal_v1_;
-
-	/**
-	 * \brief State: subtotal of ARCS v2 (accumulates higher bits of each product).
-	 * The ARCS v2 is the sum of subtotal_v1_ and subtotal_v2_.
-	 */
-	uint_fast32_t subtotal_v2_;
-
-	/**
-	 * \brief State: product of sample and index multiplier
-	 */
-	uint_fast64_t update64_;
-
-	/**
-	 * \brief Internal representation of the calculated ARCS values
-	 */
-	std::unordered_map<int, std::pair<uint32_t, uint32_t>> arcss_;
-};
-
-
-CalcStateV1andV2::CalcStateV1andV2()
-	: multiplier_ { 1 }
-	, subtotal_v1_ { 0 }
-	, subtotal_v2_ { 0 }
-	, update64_ { 0 }
-	, arcss_ {}
-{
-	// empty
-}
-
-
-void CalcStateV1andV2::do_update(SampleInputIterator &begin,
-		SampleInputIterator &end)
-{
-	for (auto pos = begin; pos != end; ++pos, ++multiplier_)
-	{
-		update64_ = multiplier_ * (*pos);
-		subtotal_v1_ +=  update64_ & LOWER_32_BITS_;
-		subtotal_v2_ += (update64_ >> 32u);
-	}
-}
-
-
-void CalcStateV1andV2::save(const TrackNo track) noexcept
-{
-	const auto rc { arcss_.insert(
-		std::make_pair(
-			track,
-			std::make_pair(
-				subtotal_v1_,
-				subtotal_v1_ + subtotal_v2_
-			)
-		)
-	) } ;
-
-	if (not rc.second)
-	{
-		ARCS_LOG_WARNING << "Checksum for track "
-			<< std::to_string(track) << " was not saved";
-	}
-
-	this->reset();
-}
-
-
-int CalcStateV1andV2::total_tracks() const noexcept
-{
-	return arcss_.size();
-}
-
-
-checksum::type CalcStateV1andV2::type() const noexcept
-{
-	return checksum::type::ARCS2;
-}
-
-
-ChecksumSet CalcStateV1andV2::result(const TrackNo track) const noexcept
-{
-	return this->find(track);
-}
-
-
-ChecksumSet CalcStateV1andV2::result() const noexcept
-{
-	return this->find(0);
-}
-
-
-void CalcStateV1andV2::reset() noexcept
-{
-	multiplier_  = 1;
-	subtotal_v1_ = 0;
-	subtotal_v2_ = 0;
-
-	// For completeness. Value does not affect updating
-	update64_ = 0;
-}
-
-
-void CalcStateV1andV2::wipe() noexcept
-{
-	this->reset();
-	arcss_.clear();
-}
-
-
-uint32_t CalcStateV1andV2::mult() const noexcept
-{
-	return multiplier_;
-}
-
-
-std::unique_ptr<CalcState> CalcStateV1andV2::clone() const noexcept
-{
-	return std::make_unique<CalcStateV1andV2>(*this);
-}
-
-
-void CalcStateV1andV2::init(const uint32_t mult) noexcept
-{
-	this->wipe();
-
-	multiplier_ = mult;
-}
-
-
-ChecksumSet CalcStateV1andV2::find(const int track) const noexcept
-{
-	const auto value { arcss_.find(track) };
-
-	if (value == arcss_.end())
-	{
-		return ChecksumSet{};
-	}
-
-	ChecksumSet sums;
-
-	const auto rc_v2 {
-		sums.insert(checksum::type::ARCS2, Checksum { value->second.second })
-	};
-
-	if (not rc_v2.second)
-	{
-		ARCS_LOG_WARNING << "Insertion to result failed for type "
-			<< checksum::type_name(checksum::type::ARCS2);
-	}
-
-	const auto rc_v1 {
-		sums.insert(checksum::type::ARCS1, Checksum { value->second.first })
-	};
-
-	if (not rc_v1.second)
-	{
-		ARCS_LOG_WARNING << "Insertion to result failed for type "
-			<< checksum::type_name(checksum::type::ARCS1);
-	}
-
-	return sums;
+	return internal_state_.value();
 }
 
 } // namespace details
 
 
-/**
- * \internal
- * \ingroup calc
- *
- * \brief Private implementation of Calculation.
- *
- * This class is not intended as a base class for inheritance.
- *
- * \see Calculation
- */
-class Calculation::Impl final
-{
-
-public:
-
-	/**
-	 * \brief Constructor with type and context.
-	 *
-	 * \param[in] type Checksum Type
-	 * \param[in] ctx  Context
-	 */
-	Impl(const checksum::type type, std::unique_ptr<CalcContext> ctx);
-
-	/**
-	 * \brief Constructor with context and checksum::type::ARCS2.
-	 *
-	 * \param[in] ctx Context
-	 */
-	explicit Impl(std::unique_ptr<CalcContext> ctx);
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param rhs The Calculation::Impl to copy
-	 */
-	Impl(const Impl &rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param rhs The Calculation::Impl to move
-	 */
-	Impl(Impl &&rhs) noexcept = default;
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~Impl() noexcept = default;
-
-	/**
-	 * \brief Implements Calculation::set_context().
-	 */
-	void set_context(std::unique_ptr<CalcContext> context) noexcept;
-
-	/**
-	 * \brief Implements Calculation::context().
-	 */
-	const CalcContext& context() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::type()
-	 */
-	checksum::type type() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::update()
-	 */
-	void update(SampleInputIterator &begin, SampleInputIterator &end);
-
-	/**
-	 * \brief Implements Calculation::update_audiosize(const AudioSize &audiosize).
-	 */
-	void update_audiosize(const AudioSize &audiosize);
-
-	/**
-	 * \brief Implements Calculation::complete().
-	 */
-	bool complete() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::samples_expected().
-	 */
-	int64_t samples_expected() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::samples_processed().
-	 */
-	int64_t samples_processed() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::samples_todo().
-	 */
-	int64_t samples_todo() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::result().
-	 */
-	Checksums result() const noexcept;
-
-	/**
-	 * \brief Set the Partitioner for this instance.
-	 *
-	 * \param[in] partitioner The Partitioner for this instance
-	 */
-	void set_partitioner(std::unique_ptr<Partitioner> partitioner) noexcept;
-
-	/**
-	 * \brief Read the Partitioner of this instance.
-	 *
-	 * \return The Partitioner of this instance
-	 */
-	const Partitioner& partitioner() const noexcept;
-
-	/**
-	 * \brief Read the state of this instance.
-	 *
-	 * \return the CalcState of this instance to read
-	 */
-	const CalcState& state() const noexcept;
-
-	/**
-	 * \brief Implements Calculation::set_type()
-	 */
-	void set_type(const checksum::type type);
-
-
-	Impl& operator = (const Impl &rhs);
-
-	Impl& operator = (Impl &&rhs) noexcept;
-
-
-protected:
-
-	/**
-	 * \brief Initializes state according to context (multi- or singletrack) and
-	 * transfers the skipping amounts back to the context.
-	 */
-	void sync_state_and_context();
-
-	/**
-	 * \brief Set \c context as new context or, if nullptr, the default context.
-	 *
-	 * \param[in] ctx The new context, if non-empty
-	 */
-	void set_context_or_default(std::unique_ptr<CalcContext> ctx) noexcept;
-
-	/**
-	 * \brief Log statistics about a Partition.
-	 *
-	 * \param[in] i     Chunk counter
-	 * \param[in] n     Number of chunks in block
-	 * \param[in] chunk Chunk to log
-	 */
-	void log_partition(const uint16_t i, const uint16_t n,
-			const Partition &chunk) const noexcept;
-
-
-private:
-
-	/**
-	 * \brief State: 1-based global index of the sample to be processed as next.
-	 */
-	sample_count_t smpl_offset_;
-
-	/**
-	 * \brief Internal stream context.
-	 */
-	std::unique_ptr<CalcContext> context_;
-
-	/**
-	 * \brief Internal computation state.
-	 */
-	std::unique_ptr<CalcState> state_;
-
-	/**
-	 * \brief Internal partitioner
-	 */
-	std::unique_ptr<Partitioner> partitioner_;
-
-	/**
-	 * \brief Accumulated time elapsed by processing blocks
-	 */
-	std::chrono::milliseconds proc_time_elapsed_;
-};
-
-
-Calculation::Impl::Impl(const checksum::type type,
-		std::unique_ptr<CalcContext> ctx)
-	: smpl_offset_ { 0 }
-	, context_ { nullptr }
-	, state_ { nullptr }
-	, partitioner_ { nullptr }
-	, proc_time_elapsed_ { std::chrono::milliseconds::zero() }
-{
-	this->set_type(type);
-	this->set_context_or_default(std::move(ctx));
-}
-
-
-Calculation::Impl::Impl(std::unique_ptr<CalcContext> ctx)
-	: smpl_offset_ { 0 }
-	, context_ { nullptr }
-	, state_ { std::make_unique<CalcStateV1andV2>() } // default
-	, partitioner_ { nullptr }
-	, proc_time_elapsed_ { std::chrono::milliseconds::zero() }
-{
-	this->set_context_or_default(std::move(ctx));
-}
-
-
-Calculation::Impl::Impl(const Impl& rhs)
-	: smpl_offset_ { rhs.smpl_offset_ }
-	, context_ { rhs.context_->clone() }
-	, state_ { rhs.state_->clone() }
-	, partitioner_ { rhs.partitioner_->clone() }
-	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
-{
-	// empty
-}
-
-
-void Calculation::Impl::set_context(std::unique_ptr<CalcContext> context)
-noexcept
-{
-	if (!context)
-	{
-		return;
-	}
-
-	this->context_ = std::move(context);
-	this->smpl_offset_ = 0;
-
-	this->sync_state_and_context();
-
-	// Initialize partitioners for multi- or singletrack mode
-
-	if (context_->is_multi_track())
-	{
-		this->set_partitioner(std::make_unique<MultitrackPartitioner>());
-	} else
-	{
-		this->set_partitioner(std::make_unique<SingletrackPartitioner>());
-	}
-}
-
-
-const CalcContext& Calculation::Impl::context() const noexcept
-{
-	return *context_;
-}
-
-
-void Calculation::Impl::set_type(const checksum::type type)
-{
-	ARCS_LOG_DEBUG << "Requested checksum type: " << checksum::type_name(type);
-
-	try
-	{
-		state_ = details::state::make(type);
-
-		ARCS_LOG_DEBUG << "Instantiated state for type: "
-			<< checksum::type_name(state_->type());
-
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_ERROR << e.what();
-
-		auto msg = std::stringstream {};
-		msg << "Could not load CalcState for requested type "
-			<< checksum::type_name(type) << ": ";
-		msg << e.what();
-
-		throw std::invalid_argument(msg.str());
-	}
-
-	this->sync_state_and_context();
-}
-
-
-checksum::type Calculation::Impl::type() const noexcept
-{
-	return state_->type();
-}
-
-
-void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
-{
-	context_->set_audio_size(audiosize);
-
-	ARCS_LOG_INFO << "Update total number of samples to: "
-		<< context_->audio_size().total_samples();
-}
-
-
-bool Calculation::Impl::complete() const noexcept
-{
-	return this->samples_processed() >= this->samples_expected();
-
-	// Calculation is not complete only while there are less samples processed
-	// than expected.
-
-	// smpl_offset_ will "stop" on the correct value only iff
-	// the size of the last input block processed (which may have a smaller size
-	// than its predecessors) was accurately set before passing the block to
-	// update().
-	// One could do:
-	// return this->smpl_offset_ == context().audio_size().total_samples();
-	// but this would mean that the calculation is not complete when more
-	// samples were processed than expected. (Nonetheless, this may or may not
-	// indicate an actual error.) But in a sense, the calculation is completed
-	// as soon as the number of estimated samples is processed.
-}
-
-
-void Calculation::Impl::update(SampleInputIterator &begin,
-		SampleInputIterator &end)
-{
-	const auto samples_in_block     { std::distance(begin, end) };
-	const auto last_sample_in_block { smpl_offset_ + samples_in_block - 1 };
-
-	ARCS_LOG_DEBUG << "  Offset:  " << smpl_offset_ << " samples";
-	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block << " samples";
-	ARCS_LOG_DEBUG << "  Indices: " <<
-		smpl_offset_ << " - " << last_sample_in_block;
-
-	// Create a partitioning following the track bounds in this block
-
-	auto partitioning {
-		partitioner_->create_partitioning(smpl_offset_, samples_in_block,
-				context())
-	};
-
-	ARCS_LOG_DEBUG << "  Partitions:  " << partitioning.size();
-
-	const bool is_last_relevant_block {
-		Interval(smpl_offset_, last_sample_in_block).contains(
-			context().last_relevant_sample())
-	};
-
-
-	// Update the internal CalcState with each partition in this partitioning
-
-	auto partition_counter = uint16_t { 0 };
-	auto relevant_samples_counter = sample_count_t { 0 };
-
-	const auto start_time { std::chrono::steady_clock::now() };
-	for (const auto& partition : partitioning)
-	{
-		++partition_counter;
-		relevant_samples_counter += partition.size();
-
-		this->log_partition(partition_counter, partitioning.size(), partition);
-
-		// Update the calculation state with the current partition/chunk
-
-		state_->update(SampleInputIterator { begin + partition.begin_offset() },
-				SampleInputIterator { begin + partition.end_offset() });
-
-		// If the current partition ends a track, save the ARCSs for this track
-
-		if (partition.ends_track())
-		{
-			state_->save(partition.track());
-
-			ARCS_LOG_DEBUG << "    Completed track: "
-				<< std::to_string(partition.track());
-		}
-	}
-	smpl_offset_ += samples_in_block;
-	const auto end_time { std::chrono::steady_clock::now() };
-
-
-	// Do the logging
-
-	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
-			<< relevant_samples_counter;
-
-	{
-		const auto block_time_elapsed {
-			std::chrono::duration_cast<std::chrono::milliseconds>
-				(end_time - start_time)
-		};
-
-		proc_time_elapsed_ += block_time_elapsed;
-
-		ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
-			<<	block_time_elapsed.count();
-	}
-
-	if (is_last_relevant_block)
-	{
-		ARCS_LOG(DEBUG1) << "Calculation complete.";
-		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
-			this->samples_processed();
-		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
-			this->samples_expected();
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
-			<< proc_time_elapsed_.count();
-	}
-}
-
-
-int64_t Calculation::Impl::samples_expected() const noexcept
-{
-	return context().audio_size().total_samples();
-}
-
-
-int64_t Calculation::Impl::samples_processed() const noexcept
-{
-	return smpl_offset_;
-}
-
-
-int64_t Calculation::Impl::samples_todo() const noexcept
-{
-	return this->samples_expected() - this->samples_processed();
-}
-
-
-Checksums Calculation::Impl::result() const noexcept
-{
-	if (not context_)
-	{
-		ARCS_LOG_WARNING << "Calculation has no context.";
-		return Checksums(0);
-	}
-
-	if (not state_)
-	{
-		ARCS_LOG_WARNING << "Calculation has no state.";
-		return Checksums(0);
-	}
-
-	auto total_tracks { state_->total_tracks() };
-
-	auto checksums = Checksums { // TODO This cast should not be required!
-		static_cast<Checksums::size_type>(total_tracks) };
-
-	// Collect checksums for all tracks (for singletrack+multitrack)
-
-	const auto shift = context_->is_multi_track() ? 0 : 1;
-	for (auto i = 0; i < total_tracks; ++i)
-	{
-		auto track = ChecksumSet { context_->length(i) };
-		track.merge(state_->result(i - shift + 1));
-		checksums.append(track);
-	}
-
-// NOTE: Commented out, old implementation: collect checksums while
-// distinguishing between multitrack and singletrack.
-//
-//	if (context_->is_multi_track())
-//	{
-//		// multitrack
-//
-//		for (auto i = int { 0 }; i < total_tracks; ++i)
-//		{
-//			auto track = ChecksumSet { context_->length(i) };
-//
-//			track.merge(state_->result(i + 1));
-//
-//			checksums->append(track);
-//		}
-//	} else
-//	{
-//		// singletrack
-//
-//		auto track = ChecksumSet { context_->audio_size().leadout_frame() };
-//
-//		track.merge(state_->result()); // alias for result(0)
-//
-//		checksums->append(track);
-//	}
-
-	if (checksums.empty())
-	{
-		ARCS_LOG_WARNING << "Calculation result is empty.";
-
-		return Checksums{};
-	}
-
-	// Logging
-	{
-		auto types = checksums.at(0).types();
-
-		if (not types.empty())
-		{
-			auto tstream = std::stringstream { };
-			for (const auto& type : types)
-			{
-				tstream << checksum::type_name(type) << ",";
-			}
-			auto typelist = tstream.str();
-			typelist.pop_back();
-
-			ARCS_LOG_DEBUG << "Checksum types in result: " << typelist;
-		} else
-		{
-			ARCS_LOG_DEBUG << "No checksum types in result";
-		}
-	}
-
-	return checksums;
-}
-
-
-void Calculation::Impl::set_partitioner(
-			std::unique_ptr<Partitioner> partitioner) noexcept
-{
-	partitioner_ = std::move(partitioner);
-}
-
-
-const Partitioner& Calculation::Impl::partitioner() const noexcept
-{
-	return *partitioner_;
-}
-
-
-const CalcState& Calculation::Impl::state() const noexcept
-{
-	return *state_;
-}
-
-
-Calculation::Impl& Calculation::Impl::operator = (const Calculation::Impl& rhs)
-{
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	// This needs deep copies of each and every member
-
-	// First ensure that copying suceeds before changing internal state
-
-	auto context_copy     { rhs.context_->clone()     };
-	auto state_copy       { rhs.state_->clone()       };
-	auto partitioner_copy { rhs.partitioner_->clone() };
-
-	// No exception so far, do the assignments
-
-	this->context_           = std::move(context_copy);
-	this->state_             = std::move(state_copy);
-	this->partitioner_       = std::move(partitioner_copy);
-	this->smpl_offset_       = rhs.smpl_offset_;
-	this->proc_time_elapsed_ = rhs.proc_time_elapsed_;
-
-	return *this;
-}
-
-
-Calculation::Impl& Calculation::Impl::operator = (
-			Calculation::Impl &&rhs) noexcept = default;
-
-
-void Calculation::Impl::sync_state_and_context()
-{
-	if (not context_ or not state_)
-	{
-		return;
-	}
-
-	// notify state about skipping requirements
-
-	if (context_->skips_front())
-	{
-		ARCS_LOG(DEBUG1) << "Init with skip";
-
-		state_->init_with_skip();
-
-		ARCS_LOG(DEBUG1) << "State init front skip: "
-			<< state_->num_skip_front();
-		ARCS_LOG(DEBUG1) << "State init back skip: "
-			<< state_->num_skip_back();
-
-	} else
-	{
-		ARCS_LOG(DEBUG1) << "Init without skip";
-
-		state_->init_without_skip();
-	}
-
-	// notify context about skipping amounts
-
-	context_->notify_skips(state_->num_skip_front(), state_->num_skip_back());
-}
-
-
-void Calculation::Impl::set_context_or_default(std::unique_ptr<CalcContext> ctx)
-noexcept
-{
-	this->set_context(std::move(ctx));
-
-	if (not context_)
-	{
-		this->set_context(
-			std::make_unique<details::SingletrackCalcContext>(
-				details::EmptyString));
-	}
-}
-
-
-void Calculation::Impl::log_partition(const uint16_t i,
-		const uint16_t n, const Partition &chunk) const noexcept
-{
-	ARCS_LOG_DEBUG << "  CHUNK " << i << "/" << n;
-
-	const auto chunk_first_smpl_idx = sample_count_t { chunk.first_sample_idx() };
-	const auto chunk_last_smpl_idx = sample_count_t { chunk.last_sample_idx()  };
-
-	const sample_count_t samples_in_chunk {
-		chunk_last_smpl_idx - chunk_first_smpl_idx + 1
-		// chunk_first_smpl_idx counts as relevant therefore + 1
-	};
-
-	const auto chunk_starts_track = bool { chunk.starts_track() };
-
-	ARCS_LOG_DEBUG << "    Samples " << chunk_first_smpl_idx
-			<< " - "              << chunk_last_smpl_idx
-			<< " (Track "         << std::to_string(chunk.track())
-			<< ", "
-			<< (chunk.ends_track()
-				? (chunk_starts_track
-					? "complete"
-					: "last part")
-				: (chunk_starts_track
-					? "first part"
-					: "intermediate part"))
-			<< ")";
-
-	ARCS_LOG_DEBUG << "    Number of relevant samples in chunk:  "
-		<< samples_in_chunk;
-}
-
-
-// .hpp
+// calculate.hpp
 
 
 // AudioSize
 
 
-AudioSize::AudioSize() noexcept
-	: impl_ { std::make_unique<AudioSize::Impl>() }
-{
-	//empty
-}
-
-
-AudioSize::AudioSize(const long int value, const UNIT unit) noexcept
-	: impl_ { std::make_unique<AudioSize::Impl>(value, unit) }
+AudioSize::AudioSize()
+	: AudioSize { 0, AudioSize::UNIT::BYTES }
 {
 	// empty
 }
 
 
-AudioSize::AudioSize(const AudioSize &rhs)
-	: impl_ { std::make_unique<AudioSize::Impl>(*rhs.impl_) }
+AudioSize::AudioSize(const int32_t value, const AudioSize::UNIT unit)
+	: total_pcm_bytes_ { details::to_bytes(value, unit) }
 {
-	//empty
+	// empty
 }
 
 
-AudioSize::AudioSize(AudioSize &&rhs) noexcept = default;
-
-
-AudioSize::~AudioSize() noexcept = default;
-
-
-void AudioSize::set_leadout_frame(const lba_count_t leadout) noexcept
+int32_t AudioSize::leadout_frame() const
 {
-	impl_->set_total_frames(leadout);
+	return total_frames();
 }
 
 
-lba_count_t AudioSize::leadout_frame() const noexcept
+int32_t AudioSize::total_frames() const
 {
-	return impl_->total_frames();
+	return read_as(AudioSize::UNIT::FRAMES);
 }
 
 
-void AudioSize::set_total_samples(const sample_count_t smpl_count) noexcept
+void AudioSize::set_total_frames(const int32_t frame_count)
 {
-	impl_->set_total_samples(smpl_count);
+	set_value(frame_count, AudioSize::UNIT::FRAMES);
 }
 
 
-sample_count_t AudioSize::total_samples() const noexcept
+int32_t AudioSize::total_samples() const
 {
-	return impl_->total_samples();
+	return read_as(AudioSize::UNIT::SAMPLES);
 }
 
 
-void AudioSize::set_total_pcm_bytes(const uint32_t byte_count) noexcept
+void AudioSize::set_total_samples(const int32_t sample_count)
 {
-	impl_->set_total_pcm_bytes(byte_count);
+	set_value(sample_count, AudioSize::UNIT::SAMPLES);
 }
 
 
-uint32_t AudioSize::total_pcm_bytes() const noexcept
+int32_t AudioSize::total_pcm_bytes() const noexcept
 {
-	return impl_->total_pcm_bytes();
+	return read_as(AudioSize::UNIT::BYTES);
 }
 
 
-bool AudioSize::null() const noexcept
+void AudioSize::set_total_pcm_bytes(const int32_t byte_count) noexcept
 {
-	return 0 == impl_->total_pcm_bytes();
+	set_value(byte_count, AudioSize::UNIT::BYTES);
 }
 
 
-AudioSize& AudioSize::operator = (AudioSize rhs)
+bool AudioSize::zero() const noexcept
 {
-	std::swap(*impl_, *rhs.impl_);
-	return *this;
+	return 0 == total_pcm_bytes();
 }
 
 
-AudioSize& AudioSize::operator = (AudioSize &&rhs) noexcept = default;
-
-
-// operators for AudioSize
-
-
-bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept
+int32_t AudioSize::max(const UNIT unit) noexcept
 {
-	return lhs.impl_->equals(*rhs.impl_);
+	static constexpr int32_t error_value { 0 };
+
+	switch (unit)
+	{
+		case UNIT::FRAMES:
+			return CDDA::MAX_BLOCK_ADDRESS;
+
+		case UNIT::SAMPLES:
+			return CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME;
+
+		case UNIT::BYTES:
+			return CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_FRAME;
+
+		default:
+			return error_value;
+	}
+
+	return error_value;
 }
 
 
-bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept
+void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
+{
+	if (details::within_bounds(value, unit))
+	{
+		total_pcm_bytes_ = details::to_bytes(value, unit);
+	}
+}
+
+
+int32_t AudioSize::read_as(const AudioSize::UNIT unit) const
+{
+	return details::from_bytes(total_pcm_bytes_, unit);
+}
+
+
+void swap(AudioSize& lhs, AudioSize& rhs) noexcept
+{
+	using std::swap;
+	swap(lhs.total_pcm_bytes_, rhs.total_pcm_bytes_);
+}
+
+
+AudioSize::operator bool() const noexcept
+{
+	return !zero();
+}
+
+
+bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept
+{
+	return lhs.total_pcm_bytes() == rhs.total_pcm_bytes();
+}
+
+
+bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 {
 	return lhs.total_pcm_bytes() < rhs.total_pcm_bytes();
 }
 
 
-// Calculation
+// CalcContext
 
 
-Calculation::Calculation(const checksum::type type,
-		std::unique_ptr<CalcContext> ctx)
-	: impl_ { std::make_unique<Calculation::Impl>(type, std::move(ctx)) }
+std::string CalcContext::filename() const noexcept
 {
-	// empty
+	return this->do_filename();
 }
 
 
-Calculation::Calculation(std::unique_ptr<CalcContext> ctx)
-	: impl_ { std::make_unique<Calculation::Impl>(std::move(ctx)) }
+void CalcContext::set_filename(const std::string& filename)
 {
-	// empty
+	this->do_set_filename(filename);
 }
 
 
-Calculation::Calculation(const Calculation &rhs)
-	: impl_ { std::make_unique<Calculation::Impl>(*rhs.impl_) }
+const AudioSize& CalcContext::audio_size() const noexcept
 {
-	// empty
+	return this->do_audio_size();
 }
 
 
-Calculation::Calculation(Calculation &&rhs) noexcept = default;
-
-
-Calculation::~Calculation() noexcept = default;
-
-
-void Calculation::set_context(std::unique_ptr<CalcContext> context) noexcept
+void CalcContext::set_audio_size(const AudioSize& audio_size)
 {
-	impl_->set_context(std::move(context));
+	this->do_set_audio_size(audio_size);
 }
 
 
-const CalcContext& Calculation::context() const noexcept
+int32_t CalcContext::first_relevant_sample(const TrackNo track) const
+	noexcept
 {
-	return impl_->context();
+	return this->do_first_relevant_sample(track);
 }
 
 
-void Calculation::set_type(const checksum::type type)
+int32_t CalcContext::first_relevant_sample() const noexcept
 {
-	impl_->set_type(type);
+	return this->do_first_relevant_sample_no_parms();
 }
 
 
-checksum::type Calculation::type() const noexcept
+int32_t CalcContext::last_relevant_sample(const TrackNo track) const
+	noexcept
 {
-	return impl_->type();
+	return this->do_last_relevant_sample(track);
 }
 
 
-void Calculation::update(SampleInputIterator begin, SampleInputIterator end)
+int32_t CalcContext::last_relevant_sample() const noexcept
 {
-	ARCS_LOG_DEBUG << "PROCESS BLOCK";
-
-	if (end == begin)
-	{
-		ARCS_LOG_WARNING << "No samples to update calculation. Return";
-		return;
-	}
-
-	if (impl_->context().audio_size().total_pcm_bytes() == 0)
-	{
-		ARCS_LOG_ERROR << "Context says there are 0 bytes to process";
-		return;
-	}
-
-	impl_->update(begin, end);
-
-	ARCS_LOG_DEBUG << "END BLOCK";
+	return this->do_last_relevant_sample_no_parms();
 }
 
 
-void Calculation::update_audiosize(const AudioSize &audiosize)
+bool CalcContext::skips_front() const noexcept
 {
-	impl_->update_audiosize(audiosize);
+	return this->do_skips_front();
 }
 
 
-bool Calculation::complete() const noexcept
+bool CalcContext::skips_back() const noexcept
 {
-	return impl_->complete();
+	return this->do_skips_back();
 }
 
 
-int64_t Calculation::samples_expected() const noexcept
+int32_t CalcContext::num_skip_front() const noexcept
 {
-	return impl_->samples_expected();
+	return this->do_num_skip_front();
 }
 
 
-int64_t Calculation::samples_processed() const noexcept
+int32_t CalcContext::num_skip_back() const noexcept
 {
-	return impl_->samples_processed();
+	return this->do_num_skip_back();
 }
 
 
-int64_t Calculation::samples_todo() const noexcept
+bool CalcContext::is_multi_track() const noexcept
 {
-	return impl_->samples_todo();
+	return this->do_is_multi_track();
 }
 
 
-Checksums Calculation::result() const noexcept
+void CalcContext::notify_skips(const int32_t num_skip_front,
+		const int32_t num_skip_back) noexcept
 {
-	return impl_->result();
+	this->do_notify_skips(num_skip_front, num_skip_back);
 }
 
 
-Calculation& Calculation::operator = (Calculation rhs)
+int CalcContext::total_tracks() const noexcept
 {
-	if (this == &rhs)
-	{
-		return *this;
-	}
-
-	impl_ = std::make_unique<Calculation::Impl>(*rhs.impl_);
-	return *this;
+	return this->do_total_tracks();
 }
 
 
-Calculation& Calculation::operator = (Calculation &&rhs) noexcept = default;
+int CalcContext::track(const int32_t smpl) const noexcept
+{
+	return this->do_track(smpl);
+}
 
 
+lba_count_t CalcContext::offset(const int track) const noexcept
+{
+	return this->do_offset(track);
+}
 
-// make_context (bool, bool, audiofile)
+
+lba_count_t CalcContext::length(const int track) const noexcept
+{
+	return this->do_length(track);
+}
 
 
-std::unique_ptr<CalcContext> make_context(const bool &skip_front,
-		const bool &skip_back)
+ARId CalcContext::id() const
+{
+	return this->do_id();
+}
+
+
+std::unique_ptr<CalcContext> CalcContext::clone() const noexcept
+{
+	return this->do_clone();
+}
+
+
+bool CalcContext::equals(const CalcContext& rhs) const noexcept
+{
+	return this->do_equals(rhs);
+}
+
+
+// make_context (bool, bool)
+
+
+std::unique_ptr<CalcContext> make_context(const bool& skip_front,
+		const bool& skip_back)
 {
 	return make_context(skip_front, skip_back, details::EmptyString);
 }
 
 
-std::unique_ptr<CalcContext> make_context(const bool &skip_front,
-		const bool &skip_back,
-		const std::string &audiofilename)
+// make_context (bool, bool, audiofile)
+
+
+std::unique_ptr<CalcContext> make_context(const bool& skip_front,
+		const bool& skip_back,
+		const std::string& audiofilename)
 {
 	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
-			skip_front, NUM_SKIP_SAMPLES_FRONT,
-			skip_back,  NUM_SKIP_SAMPLES_BACK);
+			skip_front, details::NUM_SKIP_SAMPLES_FRONT,
+			skip_back,  details::NUM_SKIP_SAMPLES_BACK);
+}
+
+
+// make_context (TOC)
+
+
+std::unique_ptr<CalcContext> make_context(const TOC& toc)
+{
+	return make_context(toc, details::EmptyString);
 }
 
 
 // make_context (TOC, audiofile)
 
 
-std::unique_ptr<CalcContext> make_context(const TOC &toc)
-{
-	return make_context(toc, details::EmptyString);
-}
-
-
-std::unique_ptr<CalcContext> make_context(const TOC &toc,
-		const std::string &audiofilename)
+std::unique_ptr<CalcContext> make_context(const TOC& toc,
+		const std::string& audiofilename)
 {
 	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::MultitrackCalcContext>(toc,
-			NUM_SKIP_SAMPLES_FRONT,
-			NUM_SKIP_SAMPLES_BACK,
+			details::NUM_SKIP_SAMPLES_FRONT,
+			details::NUM_SKIP_SAMPLES_BACK,
 			audiofilename);
 }
 
 
-std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc)
+// make_context (unique_ptr<TOC>)
+
+
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc)
 {
 	return make_context(toc, details::EmptyString);
 }
 
 
-std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
-		const std::string &audiofilename)
+// make_context (unique_ptr<TOC>, audiofilename)
+
+
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc,
+		const std::string& audiofilename)
 {
 	return make_context(*toc, audiofilename);
 }
 
-
-namespace checksum
-{
-
-/**
- * \internal
- *
- * \brief Implementation details of namespace checksum
- */
-namespace details
-{
-
-/**
- * \internal
- *
- * \brief Checksum type names.
- *
- * The order of names in this aggregate must match the order of types in
- * enum class checksum::type, otherwise function type_name() will fail.
- */
-static const std::array<std::string, 2> names {
-	"ARCSv1",
-	"ARCSv2",
-	// "THIRD_TYPE" ,
-	// "FOURTH_TYPE" ...
-};
-
-/**
- * \internal
- *
- * \brief Creates a hexadecimal string representation of a 32bit checksum.
- *
- * \param[in] checksum The Checksum to represent
- * \param[in] upper    TRUE indicates to print digits A-F in uppercase
- * \param[in] base     TRUE indicates to print base '0x'
- *
- * \return A hexadecimal representation of the \c checksum as a string
- */
-std::string to_hex_str(const Checksum &checksum, const bool upper,
-		const bool base);
-
-/**
- * \internal
- *
- * \brief Return the numeric value of a >=C++11 enum class value
- *
- * \return The numeric constant of an enum class value
- */
-template <typename E>
-auto as_integral_value(E const value)
-		-> typename std::underlying_type<E>::type
-{
-	return static_cast<typename std::underlying_type<E>::type>(value);
-}
-
-
-std::string to_hex_str(const Checksum &checksum, const bool upper,
-		const bool base)
-{
-	auto ss = std::stringstream {};
-	ss << std::hex
-		<< (base  ? std::showbase  : std::noshowbase  )
-		<< (upper ? std::uppercase : std::nouppercase )
-		<< std::setw(8) << std::setfill('0')
-		<< checksum.value();
-	return ss.str();
-}
-
-} // namespace checksum::details
-
-
-std::string type_name(const type t)
-{
-	using details::names;
-
-	return names.at(std::log2(details::as_integral_value(t)));
-}
-
-
-} // namespace checksum
 } // namespace v_1_0_0
 } // namespace arcstk
 

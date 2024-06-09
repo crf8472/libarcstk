@@ -4,280 +4,22 @@
 /**
  * \file
  *
- * \brief Public API for \link calc calculating AccurateRip checksums\endlink.
+ * \brief Calculation interface.
  */
 
-#include <cstddef>               // for ptrdiff_t, size_t
-#include <cstdint>               // for uint32_t, int64_t
-#include <initializer_list>      // for initializer_list
-#include <iterator>              // for input_iterator_tag
-#include <memory>                // for unique_ptr, swap, make_unique
-#include <ostream>               // for ostream
-#include <string>                // for string
-#include <type_traits>           // for declval, decay_t, enable_if_t, is_same
-#include <typeinfo>              // for type_info
-#include <utility>               // for move
-
+#include <cstdint>   // for int32_t
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"
+#include "checksum.hpp"             // for Checksum, ChecksumSet, Checksums
 #endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"
+#include "policies.hpp"             // for Comparable, TotallyOrdered
 #endif
 
-/**
- * \brief libarcstk main namespace
- */
 namespace arcstk
 {
-
-/**
- * \brief API version 1.0.0
- */
 inline namespace v_1_0_0
 {
-
-class ARId; // IWYU pragma keep
-class TOC;  // IWYU pragma keep
-
-/**
- * \defgroup calc AccurateRip Checksum Calculation
- *
- * \brief Public API for \link Calculation checksum calculation \endlink.
- *
- * An API to calculate different types of checksums for CDDA conforming audio
- * tracks.
- *
- * A Calculation represents a (stateful) concrete checksum calculation that
- * must be configured with a CalcContext specific to the input audio file
- * and a checksum::type that specifies the calculation algorithm. The input
- * of the audio file must be represented as a succession of iterable
- * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink
- * and the Calculation is sequentially updated with these sequences in
- * order. After the last update, the Calculation returns the calculation result
- * on request. The calculated Checksums are represented as an iterable aggregate
- * of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
- *
- * A Checksum refers to a particular track and a particular checksum::type.
- *
- * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
- * of different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink
- * of the same track.
- *
- * Checksums represent a calculation result for all requested checksum
- * types and all tracks of the audio input.
- * It is an aggregation of the
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of
- * an respective audio input. Depending on the input, it can represent either
- * an entire album or a single track.
- *
- * Considering the input of a Calculation, a CalcContext represents the per-file
- * metadata information that is used during calculation. The CalcContext informs
- * the Calculation about technical aspects like the encoding of the samples and
- * the channel order, and as well about semantic aspects like the precise track
- * bounds and the total number of samples.
- *
- * SampleInputIterator wraps the concrete iterator of the input sample sequence
- * so any class with a compatible iterator can be used for generating the audio
- * input.
- *
- * AudioSize represents the size of the audio input in frames, samples or bytes.
- *
- * The CDDA constants provide some CDDA-related constants that are frequently
- * reused throughout the code.
- *
- * @{
- */
-
-/**
- * \brief Type to represent amounts of PCM 32 bit samples.
- *
- * A signed integer of at least 32 bit length.
- *
- * The type is required to express the maximum sample count in a medium, which
- * is MAX_BLOCK_ADDRESS * SAMPLES_PER_FRAME == 264.599.412 samples.
- *
- * The type is intended to perform arithmetic operations on it.
- */
-using sample_count_t = int32_t;
-
-
-// forward declaration for operator ==
-class AudioSize; // IWYU pragma keep
-
-bool operator == (const AudioSize &lhs, const AudioSize &rhs) noexcept;
-
-bool operator < (const AudioSize &lhs, const AudioSize &rhs) noexcept;
-
-/**
- * \brief Uniform access to the size of the input audio information.
- *
- * Some decoders provide the number of frames, others the number of samples and
- * maybe in some situations just the number of bytes of the sample stream is
- * known. To avoid implementing the appropriate conversion for each decoder,
- * AudioSize provides an interface for uniform representation to this
- * information. Any of the informations provided will determine all of the
- * others.
- */
-class AudioSize final : public TotallyOrdered<AudioSize>
-{
-public: /* types */
-
-	/**
-	 * \brief Distinguish units for size declaration
-	 */
-	enum class UNIT
-	{
-		SAMPLES, FRAMES, BYTES
-	};
-
-public: /* functions */
-
-	friend bool operator == (const AudioSize &lhs, const AudioSize &rhs)
-		noexcept;
-
-	/**
-	 * \brief Constructor.
-	 */
-	AudioSize() noexcept;
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] value Size value
-	 * \param[in] unit  Unit for \c value
-	 */
-	AudioSize(const long int value, const UNIT unit) noexcept;
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The AudioSize to copy
-	 */
-	AudioSize(const AudioSize &rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The AudioSize to move
-	 */
-	AudioSize(AudioSize &&rhs) noexcept;
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~AudioSize() noexcept;
-
-	/**
-	 * \brief Set the 1-based index of the LBA leadout frame.
-	 *
-	 * This also determines the total number of PCM samples and the number of
-	 * PCM bytes.
-	 *
-	 * \param[in] leadout LBA leadout frame
-	 */
-	void set_leadout_frame(const lba_count_t leadout) noexcept;
-
-	/**
-	 * \brief Return the LBA leadout frame.
-	 *
-	 * \return LBA leadout frame
-	 */
-	lba_count_t leadout_frame() const noexcept;
-
-	/**
-	 * \brief Set the total number of 32 bit PCM samples.
-	 *
-	 * This also determines the leadout frame and the number of PCM bytes.
-	 *
-	 * \param[in] smpl_count Total number of 32 bit PCM samples
-	 */
-	void set_total_samples(const sample_count_t smpl_count) noexcept;
-
-	/**
-	 * \brief Return the total number of 32 bit PCM samples.
-	 *
-	 * \return The total number of 32 bit PCM samples
-	 */
-	sample_count_t total_samples() const noexcept;
-
-	/**
-	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
-	 *
-	 * This also determines the leadout frame and the total number of 32 bit PCM
-	 * samples.
-	 *
-	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
-	 */
-	void set_total_pcm_bytes(const uint32_t byte_count) noexcept;
-
-	/**
-	 * \brief Return the total number of bytes holding 32 bit PCM samples.
-	 *
-	 * \return The total number of bytes holding 32 bit PCM samples
-	 */
-	uint32_t total_pcm_bytes() const noexcept;
-
-	/**
-	 * \brief Return \c TRUE if the AudioSize is 0.
-	 *
-	 * \return \c TRUE if the AudioSize is 0
-	 */
-	bool null() const noexcept; // TODO Should be named 'zero'
-
-
-	AudioSize& operator = (AudioSize rhs);
-
-	AudioSize& operator = (AudioSize &&rhs) noexcept;
-
-
-private:
-
-	// forward declaration for AudioSize::Impl
-	class Impl;
-
-	/**
-	 * \brief Private implementation of AudioSize.
-	 */
-	std::unique_ptr<AudioSize::Impl> impl_;
-};
-
-
-/**
- * \internal
- * \brief Implementation details of API version 1.0.0
- */
-namespace details
-{
-
-/**
- * \internal
- *
- * \brief Get value_type of Iterator.
- *
- * \tparam Iterator Iterator type to test
- */
-template<typename Iterator>
-using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
-// This is SFINAE compatible and respects bare pointers, which would not
-// have been respected when using std::iterator_traits<Iterator>::value_type.
-// Nonetheless I am not quite sure whether bare pointers indeed should be used
-// in this context.
-
-
-/**
- * \internal
- *
- * \brief Check a given Iterator whether it iterates over type T.
- *
- * \tparam Iterator Iterator type to test
- * \tparam T        Type to test for
- */
-template<typename Iterator, typename T>
-using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
-
-} // namespace details
 
 
 /**
@@ -293,316 +35,173 @@ using sample_t = uint32_t;
 
 
 /**
- * \internal
- * \brief Defined iff \c Iterator is an iterator over \c sample_t.
+ * \brief Uniform access to the size of the input audio information.
  *
- * \tparam Iterator Iterator type to test
+ * Some decoders provide the number of frames, others the number of samples and
+ * maybe in some situations just the number of bytes of the sample stream is
+ * known. To avoid implementing the appropriate conversion for each decoder,
+ * AudioSize provides an interface for uniform representation to this
+ * information. Any of the informations provided will determine all of the
+ * others.
+ *
+ * An AudioSize converts to TRUE if it is greater than 0. An AudioSize of 0
+ * converts to FALSE.
  */
-template<typename Iterator>
-using IsSampleIterator = std::enable_if_t<
-		details::is_iterator_over<Iterator, sample_t>::value>;
-
-
-// forward declaration for operator == and binary ops
-class SampleInputIterator; // IWYU pragma keep
-
-bool operator == (const SampleInputIterator &lhs,
-		const SampleInputIterator &rhs) noexcept;
-
-SampleInputIterator operator + (SampleInputIterator lhs,
-		const sample_count_t amount) noexcept;
-
-/**
- * \brief Type erasing interface for iterators over PCM 32 bit samples.
- *
- * Wraps the concrete iterator to be passed to
- * \link Calculation::update() update \endlink a Calculation.
- * This allows to pass in fact iterators of any type to a Calculation.
- *
- * SampleInputIterator can wrap any iterator with a value_type of uint32_t
- * except instances of itself, e.g. it can not be "nested".
- *
- * The type erasure interface only ensures that (most of) the requirements of a
- * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
- * LegacyInputIterator</A> are met. Those requirements are sufficient for
- * \link Calculation::update() updating \endlink a Calculation.
- *
- * Although SampleInputIterator is intended to provide the functionality of
- * an input iterator, it does not provide operator->() and does
- * therefore not completely fulfill the requirements for a LegacyInputIterator.
- *
- * SampleInputIterator provides iteration over values of type
- * \link arcstk::v_1_0_0::sample_t sample_t\endlink which is defined as a
- * primitve type. Since samples therefore do not have members, operator -> would
- * not provide any reasonable function.
- *
- * \see Calculation::update()
- */
-class SampleInputIterator final : public Comparable<SampleInputIterator>
+class AudioSize final : TotallyOrdered<AudioSize>
 {
-public:
-
-	friend bool operator == (const SampleInputIterator &lhs,
-			const SampleInputIterator &rhs) noexcept;
-
-	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const sample_count_t amount) noexcept;
-
 	/**
-	 * \brief Iterator category is std::input_iterator_tag.
+	 * \brief Data: Total number of pcm sample bytes in the audio file.
 	 */
-	using iterator_category = std::input_iterator_tag;
-
-	/**
-	 * \brief The type this iterator enumerates.
-	 */
-	using value_type = sample_t;
-
-	/**
-	 * \brief Same as value_type, *not* a reference type.
-	 */
-	using reference = sample_t;
-
-	/**
-	 * \brief Defined as void due to absence of operator ->.
-	 */
-	using pointer = void;
-	// Note: Should be const value_type* when operator-> is provided
-
-	/**
-	 * \brief Pointer difference type.
-	 */
-	using difference_type = std::ptrdiff_t;
-
-
-private:
-
-	/// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
-
-	/**
-	 * \internal
-	 * \brief Internal interface to the type-erased object.
-	 */
-	struct Concept
-	{
-		/**
-		 * \brief Virtual default destructor.
-		 */
-		virtual ~Concept() noexcept
-		= default;
-
-		/**
-		 * \brief Preincrements the iterator.
-		 */
-		virtual void preincrement() noexcept
-		= 0;
-
-		/**
-		 * \brief Advances iterator by \c n positions
-		 *
-		 * \param[in] n Number of positions to advance
-		 */
-		virtual void advance(const sample_count_t n) noexcept
-		= 0;
-
-		/**
-		 * \brief Reference to the actual value under the iterator.
-		 *
-		 * \return Reference to actual value.
-		 */
-		virtual reference dereference() noexcept
-		= 0;
-
-		/**
-		 * \brief Returns \c TRUE if \c rhs is equal to the instance.
-		 *
-		 * \param[in] rhs The instance to test for equality
-		 *
-		 * \return \c TRUE if \c rhs is equal to the instance, otherwise \c FALSE
-		 */
-		virtual bool equals(const Concept &rhs) const noexcept
-		= 0;
-
-		/**
-		 * \brief Returns RTTI.
-		 *
-		 * \return Runtime type information of this instance
-		 */
-		virtual const std::type_info& type() const noexcept
-		= 0;
-
-		/**
-		 * \brief Returns a deep copy of the instance
-		 *
-		 * \return A deep copy of the instance
-		 */
-		virtual std::unique_ptr<Concept> clone() const noexcept
-		= 0;
-	};
-
-
-	/**
-	 * \internal
-	 * \brief Internal object representation
-	 *
-	 * \tparam Iterator The iterator type to wrap
-	 */
-	template<class Iterator>
-	struct Model : Concept
-	{
-		explicit Model(Iterator iterator)
-			: iterator_(iterator)
-		{
-			// empty
-		}
-
-		void preincrement() noexcept final
-		{
-			++iterator_;
-		}
-
-		void advance(const sample_count_t n) noexcept final
-		{
-			std::advance(iterator_, n);
-		}
-
-		reference dereference() noexcept final
-		{
-			return *iterator_;
-		}
-
-		bool equals(const Concept &rhs) const noexcept final
-		{
-			return iterator_ == static_cast<const Model&>(rhs).iterator_;
-		}
-
-		const std::type_info& type() const noexcept final
-		{
-			return typeid(iterator_);
-		}
-
-		std::unique_ptr<Concept> clone() const noexcept final
-		{
-			return std::make_unique<Model>(*this);
-		}
-
-		friend void swap(Model &lhs, Model &rhs) noexcept
-		{
-			using std::swap;
-
-			swap(lhs.iterator_, rhs.iterator_);
-		}
-
-		private:
-
-			/**
-			 * \brief The type-erased iterator instance.
-			 */
-			Iterator iterator_;
-	};
-
-	/// \endcond
-
+	int32_t total_pcm_bytes_;
 
 public:
 
 	/**
-	 * \brief Converting constructor.
-	 *
-	 * \tparam Iterator The iterator type to wrap
-	 *
-	 * \param[in] i Instance of an iterator over \c sample_t
+	 * \brief Units for size declaration
 	 */
-	template <class Iterator, typename = IsSampleIterator<Iterator> >
-	SampleInputIterator(const Iterator &i)
-		: object_ { std::make_unique<Model<Iterator>>(std::move(i)) }
+	enum class UNIT
 	{
-		// empty
-	}
+		SAMPLES, FRAMES, BYTES
+	};
 
 	/**
-	 * \brief Copy constructor.
+	 * \brief Constructor.
 	 *
-	 * \param[in] rhs Instance to copy
+	 * Constructs an AudioSize of zero().
 	 */
-	SampleInputIterator(const SampleInputIterator& rhs);
+	AudioSize();
 
 	/**
-	 * \brief Move constructor.
+	 * \brief Constructor.
 	 *
-	 * \param[in] rhs Instance to move
+	 * \param[in] value Size value
+	 * \param[in] unit  Unit for \c value
 	 */
-	SampleInputIterator(SampleInputIterator&& rhs) noexcept;
+	AudioSize(const int32_t value, const UNIT unit);
+	// FIXME This allows setting a value without a bounds check
 
 	/**
-	 * \brief Destructor
+	 * \brief Return the LBA leadout frame.
+	 *
+	 * Note that the number is 1-based.
+	 *
+	 * \return LBA leadout frame
 	 */
-	~SampleInputIterator() noexcept;
+	int32_t leadout_frame() const;
 
 	/**
-	 * \brief Dereferences the iterator to the sample pointed to.
+	 * \brief Return the total number of LBA frames.
 	 *
-	 * \return A sample_t sample, returned by value
-	 */
-	reference operator * () const noexcept; // required by LegacyIterator
-
-	/* *
-	 * \brief Access members of the underlying referee
+	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS which is a value of
+	 * 449.999 LBA frames on a disc.
 	 *
-	 * \return A pointer to the underlying referee
+	 * \return Total number of LBA frames
 	 */
-	pointer operator -> () const noexcept; // required by LegacyInpuIterator
+	int32_t total_frames() const;
 
 	/**
-	 * \brief Pre-increment iterator.
+	 * \brief Set the total number of LBA frames.
 	 *
-	 * \return Incremented iterator
+	 * \param[in] frame_count Total number of LBA frames
+	 *
+	 * \throw std::underflow_error If value is negative
+	 * \throw std::overflow_error  If value is greater than the unit maximum
 	 */
-	SampleInputIterator& operator ++ () noexcept; // required by LegacyIterator
+	void set_total_frames(const int32_t frame_count);
 
 	/**
-	 * \brief Post-increment iterator.
+	 * \brief Return the total number of 32 bit PCM samples.
 	 *
-	 * \return Iterator representing the state befor the increment
+	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME
+	 * which is a value of 264.599.412 stereo samples on a disc.
+	 *
+	 * \return The total number of 32 bit PCM samples
 	 */
-	SampleInputIterator operator ++ (int) noexcept;
-	// required by LegacyInputIterator
+	int32_t total_samples() const;
+
+	/**
+	 * \brief Set the total number of 32 bit PCM samples.
+	 *
+	 * This also determines the leadout frame and the number of PCM bytes.
+	 *
+	 * \param[in] sample_count Total number of 32 bit PCM samples
+	 *
+	 * \throw std::underflow_error If value is negative
+	 * \throw std::overflow_error  If value is greater than the unit maximum
+	 */
+	void set_total_samples(const int32_t sample_count);
+
+	/**
+	 * \brief Return the total number of bytes holding 32 bit PCM samples.
+	 *
+	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_SAMPLE which
+	 * is a value of 1.058.397.648 bytes on a disc.
+	 *
+	 * \return The total number of bytes holding 32 bit PCM samples
+	 */
+	int32_t total_pcm_bytes() const noexcept;
+
+	/**
+	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
+	 *
+	 * This also determines the leadout frame and the total number of 32 bit PCM
+	 * samples.
+	 *
+	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
+	 *
+	 * \throw std::underflow_error If value is negative
+	 * \throw std::overflow_error  If value is greater than the unit maximum
+	 */
+	void set_total_pcm_bytes(const int32_t byte_count) noexcept;
+
+	/**
+	 * \brief Return \c TRUE if the AudioSize is 0.
+	 *
+	 * \return \c TRUE if the AudioSize is 0
+	 */
+	bool zero() const noexcept;
+
+	/**
+	 * \brief Return maximum size for the specified unit.
+	 */
+	static int32_t max(const UNIT unit) noexcept;
 
 
-	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept;
-	// required by LegacyIterator
+	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept;
 
-	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
-		noexcept
-	{
-		using std::swap;
-
-		swap(lhs.object_, rhs.object_);
-	} // required by LegacyIterator
-
+	explicit operator bool() const noexcept;
 
 private:
 
 	/**
-	 * \brief Internal representation of wrapped object
+	 * \brief Set the internal value, possibly converting from \c unit.
+	 *
+	 * \param[in] value Value to set
+	 * \param[in] unit  Unit to convert to bytes from
 	 */
-	std::unique_ptr<Concept> object_;
+	void set_value(const int32_t value, AudioSize::UNIT unit);
+
+	/**
+	 * \brief Get internal size in the specified unit.
+	 *
+	 * \param[in] unit  Unit to convert bytes amount to
+	 */
+	int32_t read_as(const AudioSize::UNIT unit) const;
 };
 
+bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
-SampleInputIterator operator + (const sample_count_t amount,
-		SampleInputIterator rhs) noexcept;
+bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 
 /**
  * \brief Interface for information about the current audio input.
  *
- * CalcContext provides the metadata that is required to perform the Calculation
- * correctly.
+ * The CalcContext provides the metadata required to perform the Calculation.
  *
- * The CalcContext determines whether the input is single- or multitrack and
- * whether it has to skip samples on the beginning of the first or the end of
- * the last track.
+ * The CalcContext determines whether the input is interpreted as single- or
+ * multitrack and whether it has to skip samples on the beginning of the first
+ * or the end of the last track.
  *
  * CalcContext also provides service methods for identifying the first and
  * last sample of a track relevant for Calculation or to get the track for a
@@ -633,19 +232,21 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~CalcContext() noexcept
-	= default;
+	virtual ~CalcContext() noexcept = default;
 
 	/**
-	 * \brief Inform about the AudioSize of the current file.
+	 * \brief Name of current audio file.
 	 *
-	 * This contains the information about the leadout frame. This information
-	 * must be known before Calculation::update is called on the last
-	 * block.
-	 *
-	 * \param[in] audio_size AudioSize
+	 * \return Name of the audio file that is currently processed
 	 */
-	void set_audio_size(const AudioSize &audio_size);
+	std::string filename() const noexcept;
+
+	/**
+	 * \brief Set the name of the current audio file.
+	 *
+	 * \param[in] filename Name of the audio file that is to be processed
+	 */
+	void set_filename(const std::string& filename);
 
 	/**
 	 * \brief Return the size of the referenced audio file
@@ -654,19 +255,159 @@ public:
 	 */
 	const AudioSize& audio_size() const noexcept;
 
-	/**
-	 * \brief Set the name of the current audio file.
-	 *
-	 * \param[in] filename Name of the audio file that is to be processed
-	 */
-	void set_filename(const std::string &filename) noexcept;
+	// TODO AudioSize audio_size() const noexcept;
 
 	/**
-	 * \brief Name of current audio file.
+	 * \brief Set the AudioSize of the context.
 	 *
-	 * \return Name of the audio file that is currently processed
+	 * This contains the information about the leadout frame. This information
+	 * must be known before Calculation::update is called on the last
+	 * block.
+	 *
+	 * \param[in] audio_size AudioSize
 	 */
-	std::string filename() const noexcept;
+	void set_audio_size(const AudioSize& audio_size);
+
+	/**
+	 * \brief Get 0-based index of the first relevant sample of the specified
+	 * 1-based track.
+	 *
+	 * Note that parameter \c track is 1-based, which means that
+	 * \c first_relevant_sample(2) returns the first 0-based sample of the
+	 * actual track 2 (and not track 3).
+	 *
+	 * \param[in] track The 1-based track number
+	 *
+	 * \return Index of the first sample contributing to the track's ARCS
+	 */
+	int32_t first_relevant_sample(const TrackNo track) const noexcept;
+
+	/**
+	 * \brief Get 0-based index of the first relevant sample of the current
+	 * audio input.
+	 *
+	 * Which sample is actually the first relevant one depends on
+	 * <ul>
+	 *   <li>the offset of the first track and</li>
+	 *   <li>whether samples in the beginning of the first track are to be
+	 *       skipped.</li>
+	 * </ul>
+	 *
+	 * Always equivalent with
+	 * @link CalcContext::first_relevant_sample() first_relevant_sample(1) @endlink.
+	 *
+	 * \return Index of the first sample contributing to the first track's ARCS
+	 */
+	int32_t first_relevant_sample() const noexcept;
+
+	/**
+	 * \brief Get 0-based index of the last relevant sample of the specified
+	 * 1-based track.
+	 *
+	 * Note that parameter \c track is 1-based, which means that
+	 * last_relevant_sample(2) returns the last 0-based sample of the actual
+	 * track 2 (and not track 3).
+	 *
+	 * If no offsets are set, the output will always be identical to
+	 * @link CalcContext::last_relevant_sample() last_relevant_sample() @endlink.
+	 *
+	 * For <tt>track == 0</tt>, the last sample of the offset before track 1 is
+	 * returned. This may of course be 0 iff the offset of track 1 is 0.
+	 *
+	 * \param[in] track 1-based track number, accepts 0 as offset of track 1
+	 *
+	 * \return Index of last sample contributing to the specified track's ARCS
+	 */
+	int32_t last_relevant_sample(const TrackNo track) const noexcept;
+
+	/**
+	 * \brief Get 0-based index of the last relevant sample of the current
+	 * audio input.
+	 *
+	 * Which sample is actually the last relevant one depends on whether
+	 * samples in the end of the last track are to be skipped.
+	 *
+	 * Always equivalent with
+	 * @link CalcContext::last_relevant_sample(const TrackNo track) const last_relevant_sample(this->total_tracks()) @endlink.
+	 *
+	 * \return Index of the last sample contributing to the last track's ARCS
+	 */
+	int32_t last_relevant_sample() const noexcept;
+
+	/**
+	 * \brief Returns \c TRUE iff this context will skip the first 2939 samples of
+	 * the first track.
+	 *
+	 * \return \c TRUE iff context will signal to skip the first samples.
+	 */
+	bool skips_front() const noexcept;
+
+	/**
+	 * \brief Returns \c TRUE iff this context will skip the last 2940 samples
+	 * (5 LBA frames) of the last track.
+	 *
+	 * \return \c TRUE iff context will signal to skip the last samples.
+	 */
+	bool skips_back() const noexcept;
+
+	/**
+	 * \brief Returns the amount of samples to skip at the beginning of the
+	 * first track.
+	 *
+	 * If the audio input contains only one track, this track is the first track.
+	 *
+	 * The value is either 2939 or 0.
+	 *
+	 * The skipping is only active iff this instance skips_front().
+	 *
+	 * \return The number of samples to skip at the beginning of the first track
+	 */
+	int32_t num_skip_front() const noexcept;
+
+	/**
+	 * \brief Returns the amount of samples to skip at the end of the last
+	 * track.
+	 *
+	 * If the audio input contains only one track, this track is the last track.
+	 *
+	 * The value is either 2940 or 0.
+	 *
+	 * The skipping is only active iff this instance skips_back().
+	 *
+	 * \return The number of samples to skip at the end of the last track
+	 */
+	int32_t num_skip_back() const noexcept;
+
+	/**
+	 * \brief Returns \c TRUE if this instances indicates a processing for multiple
+	 * tracks on a single input file.
+	 *
+	 * If this is \c FALSE, no chunks will be available. Multitrack mode is
+	 * activated by setting a TOC.
+	 *
+	 * \attention
+	 * Note that this is independent from <tt>total_tracks()</tt>. A
+	 * TOC containing only one track would have a CalcContext in
+	 * which <tt>total_tracks()</tt> is \c 1 but <tt>is_multi_track()</tt> is
+	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
+	 * while <tt>total_tracks()</tt> just provides information about the TOC.
+	 *
+	 * \return \c TRUE if this context specifies multitrack mode, otherwise \c FALSE
+	 */
+	bool is_multi_track() const noexcept;
+
+	/**
+	 * \brief Notify the instance about configured skipping amounts at the
+	 * beginning of the first track and the end of the last track.
+	 *
+	 * Whether actual skipping takes place can be determined by
+	 * skips_front() and skips_back().
+	 *
+	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
+	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
+	 */
+	void notify_skips(const int32_t num_skip_front,
+			const int32_t num_skip_back) noexcept;
 
 	/**
 	 * \brief Convenience method: Total number of tracks.
@@ -688,90 +429,6 @@ public:
 	int total_tracks() const noexcept;
 
 	/**
-	 * \brief Returns \c TRUE if this instances indicates a processing for multiple
-	 * tracks on a single input file.
-	 *
-	 * If this is \c FALSE, no chunks will be available. Multitrack mode is
-	 * activated by setting a TOC.
-	 *
-	 * \attention
-	 * Note that this is independent from <tt>total_tracks()</tt>. A
-	 * TOC containing only one track would have a CalcContext in
-	 * which <tt>total_tracks()</tt> is \c 1 but <tt>is_multi_track()</tt> is
-	 * \c TRUE. Method <tt>is_multi_track()</tt> specifies the processing mode
-	 * while <tt>total_tracks()</tt> just provides information about the TOC.
-	 *
-	 * \return \c TRUE if this context specifies multitrack mode, otherwise \c FALSE
-	 */
-	bool is_multi_track() const noexcept;
-
-	/**
-	 * \brief Get 0-based index of the first relevant sample of the specified
-	 * 1-based track.
-	 *
-	 * Note that parameter \c track is 1-based, which means that
-	 * \c first_relevant_sample(2) returns the first 0-based sample of the
-	 * actual track 2 (and not track 3).
-	 *
-	 * \param[in] track The 1-based track number
-	 *
-	 * \return Index of the first sample contributing to the track's ARCS
-	 */
-	sample_count_t first_relevant_sample(const TrackNo track) const noexcept;
-
-	/**
-	 * \brief Get 0-based index of the first relevant sample of the current
-	 * audio input.
-	 *
-	 * Which sample is actually the first relevant one depends on
-	 * <ul>
-	 *   <li>the offset of the first track and</li>
-	 *   <li>whether samples in the beginning of the first track are to be
-	 *       skipped.</li>
-	 * </ul>
-	 *
-	 * Always equivalent with
-	 * @link CalcContext::first_relevant_sample() first_relevant_sample(1) @endlink.
-	 *
-	 * \return Index of the first sample contributing to the first track's ARCS
-	 */
-	sample_count_t first_relevant_sample() const noexcept;
-
-	/**
-	 * \brief Get 0-based index of the last relevant sample of the specified
-	 * 1-based track.
-	 *
-	 * Note that parameter \c track is 1-based, which means that
-	 * last_relevant_sample(2) returns the last 0-based sample of the actual
-	 * track 2 (and not track 3).
-	 *
-	 * If no offsets are set, the output will always be identical to
-	 * @link CalcContext::last_relevant_sample() last_relevant_sample() @endlink.
-	 *
-	 * For <tt>track == 0</tt>, the last sample of the offset before track 1 is
-	 * returned. This may of course be 0 iff the offset of track 1 is 0.
-	 *
-	 * \param[in] track 1-based track number, accepts 0 as offset of track 1
-	 *
-	 * \return Index of last sample contributing to the specified track's ARCS
-	 */
-	sample_count_t last_relevant_sample(const TrackNo track) const noexcept;
-
-	/**
-	 * \brief Get 0-based index of the last relevant sample of the current
-	 * audio input.
-	 *
-	 * Which sample is actually the last relevant one depends on whether
-	 * samples in the end of the last track are to be skipped.
-	 *
-	 * Always equivalent with
-	 * @link CalcContext::last_relevant_sample(const TrackNo track) const last_relevant_sample(this->total_tracks()) @endlink.
-	 *
-	 * \return Index of the last sample contributing to the last track's ARCS
-	 */
-	sample_count_t last_relevant_sample() const noexcept;
-
-	/**
 	 * \brief Returns 1-based track number of the track containing the specified
 	 * 0-based sample.
 	 *
@@ -788,7 +445,7 @@ public:
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	int track(const sample_count_t smpl) const noexcept;
+	int track(const int32_t smpl) const noexcept;
 
 	/**
 	 * \brief Return the offset of the specified 0-based track from the TOC.
@@ -828,64 +485,7 @@ public:
 	 *
 	 * \return The ARId of the current medium
 	 */
-	ARId id() const noexcept;
-
-	/**
-	 * \brief Returns \c TRUE iff this context will skip the first 2939 samples of
-	 * the first track.
-	 *
-	 * \return \c TRUE iff context will signal to skip the first samples.
-	 */
-	bool skips_front() const noexcept;
-
-	/**
-	 * \brief Returns \c TRUE iff this context will skip the last 2940 samples
-	 * (5 LBA frames) of the last track.
-	 *
-	 * \return \c TRUE iff context will signal to skip the last samples.
-	 */
-	bool skips_back() const noexcept;
-
-	/**
-	 * \brief Returns the amount of samples to skip at the beginning of the
-	 * first track.
-	 *
-	 * If the audio input contains only one track, this track is the first track.
-	 *
-	 * The value is either 2939 or 0.
-	 *
-	 * The skipping is already active if this instance skips_front().
-	 *
-	 * \return The number of samples to skip at the beginning of the first track
-	 */
-	sample_count_t num_skip_front() const noexcept;
-
-	/**
-	 * \brief Returns the amount of samples to skip at the end of the last
-	 * track.
-	 *
-	 * If the audio input contains only one track, this track is the last track.
-	 *
-	 * The value is either 2940 or 0.
-	 *
-	 * The skipping is already active if this instance skips_back().
-	 *
-	 * \return The number of samples to skip at the end of the last track
-	 */
-	sample_count_t num_skip_back() const noexcept;
-
-	/**
-	 * \brief Notifies the instance about configured skipping amounts at the
-	 * beginning of the first track and the end of the last track.
-	 *
-	 * Whether actual skipping takes place can be determined by
-	 * skips_front() and skips_back().
-	 *
-	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
-	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
-	 */
-	void notify_skips(const sample_count_t num_skip_front,
-			const sample_count_t num_skip_back) noexcept;
+	ARId id() const;
 
 	/**
 	 * \brief Clone this CalcContext object.
@@ -897,22 +497,23 @@ public:
 	 */
 	std::unique_ptr<CalcContext> clone() const noexcept;
 
+	/**
+	 * \brief TRUE iff \c rhs is equal to this instance..
+	 *
+	 * \param[in] rhs Right hand side of equality comparison
+	 *
+	 * \return TRUE iff \c rhs is equal to this instance, otherwise FALSE
+	 */
+	bool equals(const CalcContext& rhs) const noexcept;
+
 private:
 
 	/**
-	 * \brief Implements set_audio_size(const AudioSize &audio_size).
+	 * \brief Implements filename() const.
 	 *
-	 * \param[in] audio_size AudioSize
+	 * \return Name of the audio file that is currently processed
 	 */
-	virtual void do_set_audio_size(const AudioSize &audio_size)
-	= 0;
-
-	/**
-	 * \brief Implements audio_size() const.
-	 *
-	 * \return The total number of bytes of the PCM samples
-	 */
-	virtual const AudioSize& do_audio_size() const noexcept
+	virtual std::string do_filename() const noexcept
 	= 0;
 
 	/**
@@ -924,19 +525,89 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements filename() const.
+	 * \brief Implements audio_size() const.
 	 *
-	 * \return Name of the audio file that is currently processed
+	 * \return The total number of bytes of the PCM samples
 	 */
-	virtual std::string do_filename() const noexcept
+	virtual const AudioSize& do_audio_size() const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements total_tracks() const.
+	 * \brief Implements set_audio_size(const AudioSize &audio_size).
 	 *
-	 * \return The number of tracks represented in this file
+	 * \param[in] audio_size AudioSize
 	 */
-	virtual int do_total_tracks() const noexcept
+	virtual void do_set_audio_size(const AudioSize &audio_size)
+	= 0;
+
+	/**
+	 * \brief Implements first_relevant_sample(const TrackNo track) const.
+	 *
+	 * \param[in] track The 1-based track number
+	 *
+	 * \return Index of the first sample contributing to the track's ARCS
+	 */
+	virtual int32_t do_first_relevant_sample(const TrackNo track) const
+	noexcept
+	= 0;
+
+	/**
+	 * \brief Implements first_relevant_sample() const.
+	 *
+	 * \return Index of the first sample contributing to the first track's ARCS
+	 */
+	virtual int32_t do_first_relevant_sample_no_parms() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements last_relevant_sample(const TrackNo track) const.
+	 *
+	 * \param[in] track 1-based track number, accepts 0 as offset of track 1
+	 *
+	 * \return Index of last sample contributing to the specified track's ARCS
+	 */
+	virtual int32_t do_last_relevant_sample(const TrackNo track) const
+	noexcept
+	= 0;
+
+	/**
+	 * \brief Implements last_relevant_sample() const.
+	 *
+	 * \return Index of the last sample contributing to the last track's ARCS
+	 */
+	virtual int32_t do_last_relevant_sample_no_parms() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements skips_front() const.
+	 *
+	 * \return \c TRUE iff context will signal to skip the first samples.
+	 */
+	virtual bool do_skips_front() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements skips_back() const.
+	 *
+	 * \return \c TRUE iff context will signal to skip the last samples.
+	 */
+	virtual bool do_skips_back() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements num_skip_front() const.
+	 *
+	 * \return The number of samples to skip at the beginning of the first track
+	 */
+	virtual int32_t do_num_skip_front() const noexcept
+	= 0;
+
+	/**
+	 * \brief Implements num_skip_back() const.
+	 *
+	 * \return The number of samples to skip at the end of the last track
+	 */
+	virtual int32_t do_num_skip_back() const noexcept
 	= 0;
 
 	/**
@@ -948,51 +619,32 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements first_relevant_sample(const TrackNo track) const.
+	 * \brief Implements notify_skips(const int32_t num_skip_front, const int32_t num_skip_back).
 	 *
-	 * \param[in] track The 1-based track number
-	 *
-	 * \return Index of the first sample contributing to the track's ARCS
+	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
+	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
 	 */
-	virtual sample_count_t do_first_relevant_sample(const TrackNo track) const
-	noexcept
+	virtual void do_notify_skips(const int32_t num_skip_front,
+			const int32_t num_skip_back) noexcept
+	= 0;
+
+
+	/**
+	 * \brief Implements total_tracks() const.
+	 *
+	 * \return The number of tracks represented in this file
+	 */
+	virtual int do_total_tracks() const noexcept
 	= 0;
 
 	/**
-	 * \brief Implements first_relevant_sample() const.
-	 *
-	 * \return Index of the first sample contributing to the first track's ARCS
-	 */
-	virtual sample_count_t do_first_relevant_sample_no_parms() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements last_relevant_sample(const TrackNo track) const.
-	 *
-	 * \param[in] track 1-based track number, accepts 0 as offset of track 1
-	 *
-	 * \return Index of last sample contributing to the specified track's ARCS
-	 */
-	virtual sample_count_t do_last_relevant_sample(const TrackNo track) const
-	noexcept
-	= 0;
-
-	/**
-	 * \brief Implements last_relevant_sample() const.
-	 *
-	 * \return Index of the last sample contributing to the last track's ARCS
-	 */
-	virtual sample_count_t do_last_relevant_sample_no_parms() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements track(const sample_count_t smpl) const.
+	 * \brief Implements track(const int32_t smpl) const.
 	 *
 	 * \param[in] smpl The sample to get the track for
 	 *
 	 * \return Track number of the track containing sample \c smpl
 	 */
-	virtual int do_track(const sample_count_t smpl) const noexcept
+	virtual int do_track(const int32_t smpl) const noexcept
 	= 0;
 
 	/**
@@ -1020,49 +672,7 @@ private:
 	 *
 	 * \return The ARId of the current medium
 	 */
-	virtual ARId do_id() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements skips_front() const.
-	 *
-	 * \return \c TRUE iff context will signal to skip the first samples.
-	 */
-	virtual bool do_skips_front() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements skips_back() const.
-	 *
-	 * \return \c TRUE iff context will signal to skip the last samples.
-	 */
-	virtual bool do_skips_back() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements num_skip_front() const.
-	 *
-	 * \return The number of samples to skip at the beginning of the first track
-	 */
-	virtual sample_count_t do_num_skip_front() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements num_skip_back() const.
-	 *
-	 * \return The number of samples to skip at the end of the last track
-	 */
-	virtual sample_count_t do_num_skip_back() const noexcept
-	= 0;
-
-	/**
-	 * \brief Implements notify_skips(const sample_count_t num_skip_front, const sample_count_t num_skip_back).
-	 *
-	 * \param[in] num_skip_front Actual amount of skipped samples at the beginning
-	 * \param[in] num_skip_back  Actual amount of skipped samples at the end
-	 */
-	virtual void do_notify_skips(const sample_count_t num_skip_front,
-			const sample_count_t num_skip_back) noexcept
+	virtual ARId do_id() const
 	= 0;
 
 	/**
@@ -1072,7 +682,11 @@ private:
 	 */
 	virtual std::unique_ptr<CalcContext> do_clone() const noexcept
 	= 0;
+
+	virtual bool do_equals(const CalcContext& rhs) const noexcept
+	= 0;
 };
+
 
 /**
  * \brief Create a CalcContext from two skip flags.
@@ -1137,269 +751,7 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
-
-/**
- * \brief Checksum calculation for a requested checksum::type.
- *
- * \attention
- * Calculation is a stateful object. It is designed to be updated with a
- * sequence of chunks of the actual audio input. Thereafter, it will provide
- * the caller with a Checksums instance that represents the result.
- *
- * To calculate the checksum for a given entirety of samples, an appropriate
- * CalcContext must be set and, optionally, a request for the checksum
- * types to calculate.
- *
- * The CalcContext is optionally configured with a TOC (for multitrack
- * calculation) and configures the track bounds, if any. If the input is
- * processed as a single track, the CalcContext configures whether it is
- * the first or last track or an intermediate track.
- *
- * \attention
- * After having called update() for the first time, it is not supported to alter
- * the CalcContext before Calculation is complete(). Otherwise, the result()
- * will be probably incorrect.
- *
- * Requesting the checksum types determines whether ARCSsv1 only or ARCSsv1
- * and ARCSsv2 are calculated. The checksum type can be skipped in which case
- * Calculation will use ARCSv2 as default.
- *
- * After context and requested types are set, update() must be called for each
- * subsequent sample block until all samples declared in the CalcContext have
- * been processed. After the last call of update(), a call of complete() can
- * do a sanity check of the result().
- *
- * Note that at least before processing the last block, the total number of
- * samples must be known to the Calculation instance. The instance must be
- * informed about this value either early in the process by the TOC, or,
- * in case the TOC is incomplete, by a callback call of
- * Calculation::update_audiosize() as soon as the total number of input samples
- * is known. The caller is responsible for informing Calculation about the total
- * number of input samples before the last call of update().
- */
-class Calculation final
-{
-public:
-
-	/**
-	 * \brief Construct calculation for specified checksum type and context.
-	 *
-	 * \param[in] type The checksum type to calculate
-	 * \param[in] ctx The context for this calculation
-	 */
-	Calculation(const checksum::type type, std::unique_ptr<CalcContext> ctx);
-
-	/**
-	 * \brief Construct calculation for specified context with
-	 * checksum::type::ARCS2.
-	 *
-	 * \param[in] ctx The context for this calculation
-	 */
-	explicit Calculation(std::unique_ptr<CalcContext> ctx);
-
-	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The Calculation to copy
-	 */
-	Calculation(const Calculation& rhs);
-
-	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The Calculation to move
-	 */
-	Calculation(Calculation &&rhs) noexcept;
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~Calculation() noexcept;
-
-	/**
-	 * \brief Set the stream context for the current stream of samples.
-	 *
-	 * \param[in] context The CalcContext for this instance
-	 */
-	void set_context(std::unique_ptr<CalcContext> context) noexcept;
-
-	/**
-	 * \brief Read the CalcContext of this instance.
-	 *
-	 * \return The CalcContext of this instance
-	 */
-	const CalcContext& context() const noexcept;
-
-	/**
-	 * \brief Returns current type requested.
-	 *
-	 * \return A disjunction of all requested types.
-	 */
-	checksum::type type() const noexcept;
-
-	/**
-	 * \brief Update the calculation with a sequence of samples.
-	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
-	 */
-	void update(SampleInputIterator begin, SampleInputIterator end);
-
-	/**
-	 * \brief Updates the instance with a new AudioSize.
-	 *
-	 * This must be done before the last call of update().
-	 *
-	 * \param[in] audiosize The updated AudioSize
-	 */
-	void update_audiosize(const AudioSize &audiosize);
-
-	/**
-	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise \c FALSE.
-	 *
-	 * \c FALSE indicates that the instance expects more updates. If the instance
-	 * returns \c TRUE it is safe to call result().
-	 *
-	 * \return \c TRUE if the Calculation is completed, otherwise \c FALSE
-	 */
-	bool complete() const noexcept;
-
-	/**
-	 * \brief Returns the total number of expected PCM 32 bit samples.
-	 *
-	 * This is just for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples expected.
-	 */
-	int64_t samples_expected() const noexcept;
-
-	/**
-	 * \brief Returns the total number for PCM 32 bit samples yet processed.
-	 *
-	 * This is just for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples processed.
-	 */
-	int64_t samples_processed() const noexcept;
-
-	/**
-	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
-	 * processed.
-	 *
-	 * This value is equivalent to samples_expected() - samples_processed().
-	 *
-	 * This is just for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples yet to process.
-	 */
-	int64_t samples_todo() const noexcept;
-
-	/**
-	 * \brief Acquire the resulting Checksums.
-	 *
-	 * \return The computed Checksums
-	 */
-	Checksums result() const noexcept;
-
-
-	Calculation& operator = (Calculation rhs);
-
-	Calculation& operator = (Calculation &&rhs) noexcept;
-
-
-private:
-
-	/**
-	 * \brief Request a checksum type or set of checksum types.
-	 *
-	 * \param[in] type Type to request
-	 */
-	void set_type(const checksum::type type);
-
-
-	// forward declaration for Calculation::Impl
-	class Impl;
-
-	/**
-	 * \brief Private implementation of Calculation.
-	 */
-	std::unique_ptr<Calculation::Impl> impl_;
-};
-
-/** @} */
-
-
-inline SampleInputIterator::SampleInputIterator(const SampleInputIterator& rhs)
-	: object_ { rhs.object_->clone() }
-{
-	// empty
-}
-
-
-inline SampleInputIterator::SampleInputIterator(SampleInputIterator&& rhs)
-noexcept
-	: object_ { std::move(rhs.object_) }
-{
-	// empty
-}
-
-
-inline SampleInputIterator::~SampleInputIterator() noexcept = default;
-
-
-inline SampleInputIterator::reference SampleInputIterator::operator * () const
-noexcept
-{
-	return object_->dereference();
-}
-
-
-inline SampleInputIterator& SampleInputIterator::operator ++ () noexcept
-{
-	object_->preincrement();
-	return *this;
-}
-
-
-inline SampleInputIterator SampleInputIterator::operator ++ (int) noexcept
-{
-	SampleInputIterator prev_val(*this);
-	object_->preincrement();
-	return prev_val;
-}
-
-
-inline SampleInputIterator& SampleInputIterator::operator = (
-		SampleInputIterator rhs) noexcept
-{
-	swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
-	return *this;
-}
-
-
-// operators SampleInputIterator
-
-
-inline bool operator == (const SampleInputIterator &lhs,
-		const SampleInputIterator &rhs) noexcept
-{
-	return lhs.object_->equals(*rhs.object_);
-}
-
-
-inline SampleInputIterator operator + (SampleInputIterator lhs,
-		const sample_count_t amount) noexcept
-{
-	lhs.object_->advance(amount);
-	return lhs;
-}
-
-
-inline SampleInputIterator operator + (const sample_count_t amount,
-		SampleInputIterator rhs) noexcept
-{
-	return rhs + amount;
-}
+// TODO Calculation
 
 } // namespace v_1_0_0
 } // namespace arcstk

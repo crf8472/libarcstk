@@ -7,7 +7,9 @@
  */
 #include <chrono>        // for milliseconds, duration-cast, operator-
 #include <cstdint>       // for uint32_t, int32_t
+#include <memory>        // for memory
 #include <unordered_map> // for unordered_map
+#include <vector>        // for vector
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
@@ -33,6 +35,9 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+class TOC; // avoid include
+
 namespace details
 {
 
@@ -41,7 +46,7 @@ namespace details
  * \ingroup calc
  * \brief Default argument for empty strings, avoid creating temporary objects
  */
-const auto EmptyString = std::string { };
+const auto EmptyString = std::string {/* empty */};
 
 /**
  * \brief Convert amount of frames to the equivalent amount of samples.
@@ -213,8 +218,6 @@ int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
 
 int32_t last_relevant_sample(const TrackNo track, const TOC& toc,
 		const Interval<int32_t> bounds);
-int32_t last_relevant_sample(const TrackNo track, const TOC& toc,
-		const Interval<int32_t> bounds, const int32_t total_frames);
 int32_t last_relevant_sample(const Interval<int32_t> bounds,
 		const int32_t total_frames);
 
@@ -533,7 +536,7 @@ class CalculationState
 	Counter<int32_t> sample_offset_;
 	Counter<TrackNo> current_track_;
 	Counter<std::chrono::milliseconds> proc_time_elapsed_;
-	calc::Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
+	Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
 
 public:
 

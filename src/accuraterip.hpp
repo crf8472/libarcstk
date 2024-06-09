@@ -21,11 +21,11 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
-namespace calc
+namespace details
 {
 
-namespace // anonymous
-{
+//namespace // anonymous
+//{
 
 /**
  * \internal
@@ -46,7 +46,7 @@ constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
  */
 constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
-} // namespace
+//} // namespace
 
 
 /**
@@ -204,7 +204,7 @@ public:
 	}
 };
 
-} // namespace calc
+} // namespace details
 } // namespace v_1_0_0
 } // namespace arcstk
 

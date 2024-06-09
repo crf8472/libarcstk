@@ -17,7 +17,6 @@ set (TEST_SOURCE_DIR "src" )
 
 set (TEST_SETS )
 list (APPEND TEST_SETS calculate  )
-list (APPEND TEST_SETS calculate2 )
 list (APPEND TEST_SETS checksum   )
 list (APPEND TEST_SETS dbar       )
 list (APPEND TEST_SETS identifier )
