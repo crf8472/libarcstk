@@ -429,26 +429,23 @@ class PartitionProvider
 
 public:
 
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] context     CalcContext to use
+	 * \param[in] partitioner Partitioner to use
+	 */
 	PartitionProvider(const CalcContext& context,
-			const Partitioner& partitioner)
-		: context_     { &context }
-		, partitioner_ { &partitioner }
-	{
-		// empty
-	}
+			const Partitioner& partitioner);
 
 	/**
 	 * \brief Provide a partitioning.
+	 *
+	 * \param[in] s_offset Current sample offset
+	 * \param[in] s_total  Total samples
 	 */
-	Partitioning operator()(const int32_t s_offset, const int32_t s_total) const
-	{
-		return partitioner_->create_partitioning(s_offset, s_total,
-			{
-				context_->first_relevant_sample(),
-				context_->last_relevant_sample()
-			}
-		);
-	}
+	Partitioning operator()(const int32_t s_offset, const int32_t s_total)
+		const;
 };
 
 
@@ -462,14 +459,14 @@ public:
  * \param[in]     stop          Iterator pointing to last sample in block
  * \param[in]     last_sample   Index of the leadout or last sample expected
  * \param[in,out] state         Current calculation state
- * \param[in]     partitioner   Partition provider
  * \param[in,out] result_buffer Collect the results
+ * \param[in]     partitioner   Partition provider
  */
 template<class B, class E>
 void calc_update(B& start, E& stop, const int32_t last_sample,
+		const PartitionProvider& partitioner,
 		CalculationState& state,
-		ChecksumBuffer& result_buffer,
-		const PartitionProvider& partitioner)
+		ChecksumBuffer& result_buffer)
 
 {
 	const auto samples_in_block     { std::distance(start, stop) };
@@ -518,8 +515,7 @@ void calc_update(B& start, E& stop, const int32_t last_sample,
 		if (partition.ends_track())
 		{
 			//state->save(partition.track());
-			result_buffer.insert(partition.track(),
-					{ state.current_value() });
+			result_buffer.insert(partition.track(), { state.current_value() });
 
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
@@ -530,7 +526,7 @@ void calc_update(B& start, E& stop, const int32_t last_sample,
 	const auto end_time { std::chrono::steady_clock::now() };
 
 
-	// Do the logging
+	// Perform logging
 
 	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
 			<< relevant_samples_counter;

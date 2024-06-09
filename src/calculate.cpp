@@ -1128,6 +1128,32 @@ void swap(MultitrackCalcContext& lhs, MultitrackCalcContext& rhs) noexcept
 	swap(lhs.toc_, rhs.toc_);
 }
 
+
+// PartitionProvider
+
+
+PartitionProvider::PartitionProvider(const CalcContext& context,
+		const Partitioner& partitioner)
+	: context_     { &context }
+	, partitioner_ { &partitioner }
+{
+		// empty
+}
+
+
+Partitioning PartitionProvider::operator()(const int32_t s_offset,
+		const int32_t s_total) const
+{
+	return partitioner_->create_partitioning(s_offset, s_total,
+		{
+			context_->first_relevant_sample(),
+			context_->last_relevant_sample()
+		}
+	);
+}
+
+
+
 } // namespace details
 
 
