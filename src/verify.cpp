@@ -1,18 +1,26 @@
+/**
+ * \file
+ *
+ * \brief Implementation of the checksum verification API
+ */
+
+#include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
 #include <stdexcept>
+
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"                   // for Checksums
+#endif
+#ifndef __LIBARCSTK_DBAR_HPP__
+#include "dbar.hpp"                       // for DBAR
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
 #ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
 #include "verify_details.hpp"
-#endif
-
-#include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
-
-#ifndef __LIBARCSTK_DBAR_HPP__
-#include "dbar.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
 #endif
 
 namespace arcstk

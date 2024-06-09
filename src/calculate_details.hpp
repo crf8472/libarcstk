@@ -1,31 +1,15 @@
-#ifndef __LIBARCSTK_CALCULATE2_DETAILS_HPP__
-#define __LIBARCSTK_CALCULATE2_DETAILS_HPP__
+#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
+#define __LIBARCSTK_CALCULATE_DETAILS_HPP__
 /**
  * \file
  *
- * \brief Calculation interface.
+ * \brief Implementation details of the calculation interface.
  */
 #include <chrono>        // for milliseconds, duration-cast, operator-
-#include <cstdint>       // for uint32_t, int32_t
+#include <cstdint>       // for int32_t
 #include <memory>        // for memory
-#include <unordered_map> // for unordered_map
+#include <string>        // for string
 #include <vector>        // for vector
-
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
-#endif
-#ifndef __LIBARCSTK_ACCURATERIP_HPP__
-#include "accuraterip.hpp"
-#endif
-#ifndef __LIBARCSTK_CALC_PARTITION_HPP__
-//#include "calc_partition.hpp"            // for Partiioner
-#endif
-#ifndef __LIBARCSTK_CALC_CONTEXT_HPP__
-//#include "calc_context.hpp"              // for CalcContext
-#endif
-#ifndef __LIBARCSTK_CALC_STATE_HPP__
-//#include "calc_state.hpp"                // for CalcState
-#endif
 
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -36,7 +20,9 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-class TOC; // avoid include
+// avoid includes
+class TOC;
+class ChecksumSet;
 
 namespace details
 {
@@ -529,29 +515,94 @@ public:
 
 
 /**
- * \brief Calculation progress.
+ * \brief Calculation state.
+ *
+ * \details
+ *
+ * The calculation state is a storage wrapper for the current calculation state.
  */
 class CalculationState
 {
+	/**
+	 * \internal
+	 * \brief Internal 0-based sample offset.
+	 */
 	Counter<int32_t> sample_offset_;
+
+	/**
+	 * \internal
+	 * \brief Current track.
+	 */
 	Counter<TrackNo> current_track_;
+
+	/**
+	 * \brief Time elapsed by updating.
+	 */
 	Counter<std::chrono::milliseconds> proc_time_elapsed_;
-	Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
+
+	//Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
+
+protected:
+
+	/**
+	 * \brief Service function to save the amount of time elapsed during update.
+	 *
+	 * \param[in] amount Amount of milliseconds elapsed
+	 */
+	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
 
 public:
 
+	/**
+	 * \brief Current 0-based sample offset.
+	 *
+	 * Can be interpreted as "start index" for the next update.
+	 *
+	 * \return The current sample index offset
+	 */
 	int32_t sample_offset() const;
-	void increment_sample_offset(const int32_t amount);
 
-	std::chrono::milliseconds proc_time_elapsed() const;
-	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
+	/**
+	 * \brief The current track number.
+	 *
+	 * \return The number of the current track
+	 */
+	Counter<TrackNo> current_track() const;
 
+	/**
+	 * \brief Current subtotal values for checksum calculation.
+	 *
+	 * \return Current subtotals
+	 */
 	ChecksumSet current_value() const;
 
+	/**
+	 * \brief Amount of milliseconds elapsed so far by calculation.
+	 *
+	 * \return Amount of milliseconds elapsed so far by calculation.
+	 */
+	std::chrono::milliseconds proc_time_elapsed() const;
+
+	/**
+	 * \brief Increment the current sample offset.
+	 *
+	 * \param[in] amount Amount of time to update the state.
+	 */
+	void increment_sample_offset(const int32_t amount);
+
+	/**
+	 * \brief Perform an update of the calculation.
+	 *
+	 * \tparam B Type of iterator pointing to start position
+	 * \tparam E Type of iterator pointing to stop position
+	 *
+	 * \param[in] start Iterator pointint to start position
+	 * \param[in] end   Iterator pointint to stop position
+	 */
 	template<class B, class E>
 	void update(B& start, E& stop)
 	{
-		internal_state_.update(start, stop);
+		//internal_state_.update(start, stop);
 	}
 };
 

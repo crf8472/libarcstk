@@ -1,5 +1,11 @@
 #include "catch2/catch_test_macros.hpp"
 
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"
+#endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"
+#endif
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"
 #endif
@@ -11,9 +17,6 @@
 #include "verify_details.hpp"
 #endif
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
 
 
 /**

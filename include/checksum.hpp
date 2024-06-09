@@ -12,6 +12,7 @@
 #include <unordered_map> // for unordered_map
 #include <memory>        // for unique_ptr
 #include <set>           // for set
+#include <utility>       // for pair
 #include <vector>        // for vector
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
@@ -270,19 +271,7 @@ public:
 	explicit ChecksumSet(const lba_count_t length);
 
 	/**
-	 * \brief Constructor.
-	 *
-	 * Override the length of an existing ChecksumSet.
-	 *
-	 * \param[in] length Track length
-	 * \param[in] rhs    Existing set
-	 */
-	ChecksumSet(const lba_count_t length, ChecksumSet&& rhs);
-
-	/**
-	 * \brief Constructor
-	 *
-	 * This constructor is intended for testing purposes.
+	 * \brief Constructor for a known set of typed Checksums.
 	 *
 	 * \param[in] length Track length
 	 * \param[in] sums   Sequence of checksums represented as type-value pairs
@@ -290,6 +279,7 @@ public:
 	ChecksumSet(const lba_count_t length,
 			std::initializer_list<
 				std::pair<const checksum::type, value_type>> sums);
+	//NOTE We do not expose key_type. If key is not of key_type, it just breaks.
 
 	/**
 	 * \brief Length (in LBA frames) of this track.

@@ -1,20 +1,24 @@
-#ifndef __LIBARCSTK_CALCULATE2_IMPL_HPP__
-#define __LIBARCSTK_CALCULATE2_IMPL_HPP__
+#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
+#define __LIBARCSTK_CALCULATE_IMPL_HPP__
 /**
  * \file
  *
  * \brief Implementations of calculate.hpp that depend on the public header.
  */
 
-#include <cstdint>  // for uint32_t, int32_t
-#include <memory>   // for unique_ptr
-#include <string>   // for string
+#include <cstdint>       // for uint32_t, int32_t
+#include <memory>        // for unique_ptr
+#include <unordered_map> // for unordered_map
+#include <string>        // for string
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
+#endif
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"  // for TOC
 #endif
 
 namespace arcstk
@@ -238,7 +242,7 @@ public:
 	 *
 	 * \param[in] filename Name of the audio file
 	 */
-	//explicit SingletrackCalcContext(const std::string& filename);
+	explicit SingletrackCalcContext(const std::string& filename);
 
 	/**
 	 * \brief Constructor.
@@ -247,8 +251,8 @@ public:
 	 * \param[in] skip_front Indicate whether to skip samples at the beginning
 	 * \param[in] skip_back  Indicate whether to skip samples at the end
 	 */
-	// SingletrackCalcContext(const std::string& filename,
-	// 		const bool skip_front, const bool skip_back);
+	SingletrackCalcContext(const std::string& filename,
+			const bool skip_front, const bool skip_back);
 
 	/**
 	 * \brief Constructor.

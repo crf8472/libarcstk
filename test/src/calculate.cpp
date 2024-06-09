@@ -1463,7 +1463,7 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		arcstk::details::Updatable<type::ARCS1> state{};
+		arcstk::accuraterip::Updatable<type::ARCS1> state{};
 		REQUIRE ( state.types() == std::set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
@@ -1538,7 +1538,7 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		arcstk::details::Updatable<type::ARCS2> state {};
+		arcstk::accuraterip::Updatable<type::ARCS2> state {};
 		REQUIRE ( state.types() == std::set<type>{ type::ARCS2 } );
 
 		// Initialize Buffer
@@ -1613,7 +1613,7 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		arcstk::details::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
 		REQUIRE ( state.types() == std::set<type>{ type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
@@ -1689,7 +1689,7 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		arcstk::details::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
 		REQUIRE ( state.types() == std::set<type>{ type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
@@ -1791,7 +1791,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with MultiTrackContext", "[update]" )
 /*
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		arcstk::details::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
 
 		// Initialize Buffer
 

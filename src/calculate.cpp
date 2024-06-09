@@ -4,14 +4,17 @@
  * \brief Implementation of the new checksum calculation API
  */
 
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"    // for ARId, CDDA, lba_count_t
+#endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
-#include "calculate_impl.hpp"
-#endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
+#endif
+#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
+#include "calculate_impl.hpp"
 #endif
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
@@ -473,6 +476,35 @@ std::size_t Partition::size() const
 // CalculationState
 
 
+int32_t CalculationState::sample_offset() const
+{
+	return sample_offset_.value();
+}
+
+void CalculationState::increment_sample_offset(const int32_t amount)
+{
+	sample_offset_.increment(amount);
+}
+
+std::chrono::milliseconds CalculationState::proc_time_elapsed() const
+{
+	return proc_time_elapsed_.value();
+}
+
+void CalculationState::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	proc_time_elapsed_.increment(amount);
+}
+
+arcstk::ChecksumSet CalculationState::current_value() const
+{
+	// TODO Implement
+	return arcstk::ChecksumSet{};
+	//return internal_state_.value();
+}
+
+
 // calculate_impl.hpp
 
 
@@ -748,10 +780,11 @@ bool SingletrackCalcContext::do_equals(const CalcContext& rhs) const noexcept
     return ctx != nullptr && *this == *ctx;
 }
 
-/*
+
 SingletrackCalcContext::SingletrackCalcContext(const std::string& filename)
-	: SingletrackCalcContext { filename, false, NUM_SKIP_SAMPLES_FRONT,
-		false, NUM_SKIP_SAMPLES_BACK }
+	: SingletrackCalcContext { filename,
+		false, accuraterip::NUM_SKIP_SAMPLES_FRONT,
+		false, accuraterip::NUM_SKIP_SAMPLES_BACK }
 {
 	// empty
 }
@@ -759,12 +792,13 @@ SingletrackCalcContext::SingletrackCalcContext(const std::string& filename)
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
 		const bool skip_front, const bool skip_back)
-	: SingletrackCalcContext { filename, skip_front, NUM_SKIP_SAMPLES_FRONT,
-		skip_back, NUM_SKIP_SAMPLES_BACK }
+	: SingletrackCalcContext { filename,
+		skip_front, accuraterip::NUM_SKIP_SAMPLES_FRONT,
+		skip_back,  accuraterip::NUM_SKIP_SAMPLES_BACK }
 {
 	// empty
 }
-*/
+
 
 SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
 		const bool skip_front, const int32_t num_skip_front,
@@ -1094,36 +1128,6 @@ void swap(MultitrackCalcContext& lhs, MultitrackCalcContext& rhs) noexcept
 	swap(lhs.toc_, rhs.toc_);
 }
 
-
-// CalcCounters
-
-
-int32_t CalculationState::sample_offset() const
-{
-	return sample_offset_.value();
-}
-
-void CalculationState::increment_sample_offset(const int32_t amount)
-{
-	sample_offset_.increment(amount);
-}
-
-std::chrono::milliseconds CalculationState::proc_time_elapsed() const
-{
-	return proc_time_elapsed_.value();
-}
-
-void CalculationState::increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
-{
-	proc_time_elapsed_.increment(amount);
-}
-
-ChecksumSet CalculationState::current_value() const
-{
-	return internal_state_.value();
-}
-
 } // namespace details
 
 
@@ -1233,6 +1237,12 @@ int32_t AudioSize::read_as(const AudioSize::UNIT unit) const
 }
 
 
+AudioSize::operator bool() const noexcept
+{
+	return !zero();
+}
+
+
 void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 {
 	using std::swap;
@@ -1240,10 +1250,7 @@ void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 }
 
 
-AudioSize::operator bool() const noexcept
-{
-	return !zero();
-}
+//
 
 
 bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept
@@ -1409,8 +1416,8 @@ std::unique_ptr<CalcContext> make_context(const bool& skip_front,
 {
 	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
-			skip_front, details::NUM_SKIP_SAMPLES_FRONT,
-			skip_back,  details::NUM_SKIP_SAMPLES_BACK);
+			skip_front, accuraterip::NUM_SKIP_SAMPLES_FRONT,
+			skip_back,  accuraterip::NUM_SKIP_SAMPLES_BACK);
 }
 
 
@@ -1431,8 +1438,8 @@ std::unique_ptr<CalcContext> make_context(const TOC& toc,
 {
 	// NOTE: ARCS specific values, since ARCS2 is default checksum type
 	return std::make_unique<details::MultitrackCalcContext>(toc,
-			details::NUM_SKIP_SAMPLES_FRONT,
-			details::NUM_SKIP_SAMPLES_BACK,
+			accuraterip::NUM_SKIP_SAMPLES_FRONT,
+			accuraterip::NUM_SKIP_SAMPLES_BACK,
 			audiofilename);
 }
 
@@ -1454,6 +1461,7 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc,
 {
 	return make_context(*toc, audiofilename);
 }
+
 
 } // namespace v_1_0_0
 } // namespace arcstk

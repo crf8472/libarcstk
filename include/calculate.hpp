@@ -8,12 +8,10 @@
  */
 
 #include <cstdint>   // for int32_t
+#include <memory>    // for unique_ptr
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"             // for Checksum, ChecksumSet, Checksums
-#endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"             // for Comparable, TotallyOrdered
+#include "policies.hpp"             // for TotallyOrdered
 #endif
 
 namespace arcstk
@@ -33,6 +31,11 @@ inline namespace v_1_0_0
  */
 using sample_t = uint32_t;
 
+// avoid includes
+using TrackNo = int;         // TODO TrackNo also defined in identifier.hpp
+using lba_count_t = int32_t; // TODO lba_count_t also defined in identifier.hpp
+class ARId;
+class TOC;
 
 /**
  * \brief Uniform access to the size of the input audio information.
@@ -166,10 +169,15 @@ public:
 	 */
 	static int32_t max(const UNIT unit) noexcept;
 
+	/**
+	 * \brief Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
+	 */
+	explicit operator bool() const noexcept;
+
 
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept;
-
-	explicit operator bool() const noexcept;
 
 private:
 

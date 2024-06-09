@@ -6,7 +6,8 @@
  * \brief AccurateRip Checksum specific implementations.
  */
 
-#include <cstdint>  // for uint32_t, int32_t
+#include <cstdint>  // for uint_fast32_t, uint_fast64_t, int32_t
+#include <set>      // for set
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
@@ -21,11 +22,8 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
-namespace details
+namespace accuraterip
 {
-
-//namespace // anonymous
-//{
 
 /**
  * \internal
@@ -50,7 +48,7 @@ constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
 
 /**
- * \brief Interface for updating a calculation state.
+ * \brief Interface for updating a calculation state holding subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class UpdatableBase
@@ -88,8 +86,6 @@ protected:
 		}
 	};
 
-protected:
-
 	/**
 	 * \internal
 	 * \brief Internal subtotals.
@@ -124,6 +120,8 @@ public:
 
 /**
  * \brief Updatable state of subtotals.
+ *
+ * Default implementation is empty.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class Updatable final : public UpdatableBase<T1, T2...>
@@ -204,7 +202,7 @@ public:
 	}
 };
 
-} // namespace details
+} // namespace accuraterip
 } // namespace v_1_0_0
 } // namespace arcstk
 

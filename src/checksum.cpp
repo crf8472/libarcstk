@@ -5,8 +5,10 @@
  */
 
 #include <algorithm>  // for transform
+#include <array>      // for array
 #include <cmath>      // for log2
 #include <iomanip>    // for setfill, setw
+#include <unordered_map> // for unordered_map
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
@@ -107,6 +109,7 @@ void print_hex(const Checksum& checksum, const bool upper,
 } // namespace checksum::details
 
 /** @} */    /* group calcImpl ends here */
+
 } // namespace checksum
 
 
@@ -186,8 +189,8 @@ auto as_integral_value(E const value)
 
 
 } // namespace checksum::details
-/** @} */    /* group calcImpl ends here */
 
+/** @} */    /* group calcImpl ends here */
 
 std::string type_name(const type t)
 {
@@ -195,7 +198,6 @@ std::string type_name(const type t)
 
 	return names.at(std::log2(details::as_integral_value(t)));
 }
-
 
 } // namespace checksum
 
@@ -219,7 +221,8 @@ ChecksumSet::ChecksumSet(const lba_count_t length)
 
 ChecksumSet::ChecksumSet(const lba_count_t length,
 		std::initializer_list<
-			std::pair<const ChecksumSet::key_type, ChecksumSet::value_type>> checksums)
+			std::pair<const ChecksumSet::key_type,
+			                ChecksumSet::value_type>> checksums)
 	: set_     ( checksums )
 	, length_  { length    }
 {
