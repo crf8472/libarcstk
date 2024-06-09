@@ -416,6 +416,9 @@ public:
 };
 
 
+/**
+ * \brief Buffer for resulting checksums.
+ */
 using ChecksumBuffer = std::unordered_map<TrackNo, ChecksumSet>;
 
 
@@ -458,9 +461,9 @@ public:
  * \param[in]     start         Iterator pointing to first sample in block
  * \param[in]     stop          Iterator pointing to last sample in block
  * \param[in]     last_sample   Index of the leadout or last sample expected
+ * \param[in]     partitioner   Partition provider
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Collect the results
- * \param[in]     partitioner   Partition provider
  */
 template<class B, class E>
 void calc_update(B& start, E& stop, const int32_t last_sample,
