@@ -19,6 +19,12 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+// avoid includes
+using TrackNo = int;         // TODO TrackNo also defined in identifier.hpp
+using lba_count_t = int32_t; // TODO lba_count_t also defined in identifier.hpp
+class ARId;
+class TOC;
+
 
 /**
  * \brief Type to represent a 32 bit PCM stereo sample.
@@ -31,11 +37,6 @@ inline namespace v_1_0_0
  */
 using sample_t = uint32_t;
 
-// avoid includes
-using TrackNo = int;         // TODO TrackNo also defined in identifier.hpp
-using lba_count_t = int32_t; // TODO lba_count_t also defined in identifier.hpp
-class ARId;
-class TOC;
 
 /**
  * \brief Uniform access to the size of the input audio information.
