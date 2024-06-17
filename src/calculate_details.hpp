@@ -234,6 +234,16 @@ public:
 };
 
 
+/**
+ * \brief Return the offsets converted to sample indices.
+ *
+ * \param[in] toc TOC to get offsets from
+ *
+ * \return List of offsets with each value converted from LBA frames to samples
+ */
+std::vector<int32_t> get_offset_sample_indices(const TOC& toc);
+
+
 // Forward Declaration Required for Partitioner
 class Partition;
 
@@ -243,7 +253,6 @@ class Partition;
  * \brief Partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
-
 
 /**
  * \brief Create a partitioning for an interval in a legal range by a sequence
@@ -277,18 +286,30 @@ public:
 	 *
 	 * \param[in] total_samples Total number of samples expected in input
 	 */
-	Partitioner(const int32_t total_samples);
+	//Partitioner(const int32_t total_samples);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Initializes with zero skip at front and back.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] skip_front    Amount of samples to skip at front
+	 * \param[in] skip_back     Amount of samples to skip at back
+	 */
+	//Partitioner(const int32_t total_samples,
+	//	const int32_t skip_front, const int32_t skip_back);
 
 	/**
 	 * \brief Constructor.
 	 *
 	 * \param[in] total_samples Total number of samples expected in input
-	 * \param[in] points        List of splitting points
 	 * \param[in] skip_front    Amount of samples to skip at front
 	 * \param[in] skip_back     Amount of samples to skip at back
+	 * \param[in] points        List of splitting points
 	 */
-	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
-			const int32_t skip_front, const int32_t skip_back);
+	Partitioner(const int32_t total_samples, const int32_t skip_front,
+			const int32_t skip_back, const std::vector<int32_t>& points);
 
 	/**
 	 * \brief Virtual default destructor.
@@ -350,37 +371,6 @@ public:
 	 */
 	std::unique_ptr<Partitioner> clone() const;
 
-protected:
-
-	/**
-	 * \brief Creates a Partition.
-	 *
-	 * This method is the exclusive way to create
-	 * @link Partition Partitions @endlink. It is provided to all Partitioners.
-	 *
-	 * \todo begin_offset and last_offset seem redundant to first and last
-	 *
-	 * \param[in] begin_offset Local index of the first sample in the partition
-	 * \param[in] end_offset   Local index of the last sample in the partition
-	 * \param[in] first        Global index of the first sample in the partition
-	 * \param[in] last         Global index of the last sample in the partition
-	 * \param[in] starts_track TRUE iff this partition starts its track
-	 * \param[in] ends_track   TRUE iff this partition ends its track
-	 * \param[in] track        Number of the track that contains the partition
-	 *
-	 * \return A Partition as specified
-	 */
-	/*
-	Partition create_partition(
-			const int32_t &begin_offset,
-			const int32_t &end_offset,
-			const int32_t &first,
-			const int32_t &last,
-			const bool    &starts_track,
-			const bool    &ends_track,
-			const TrackNo &track) const;
-	*/
-
 private:
 
 	/**
@@ -418,11 +408,6 @@ private:
 	int32_t total_samples_;
 
 	/**
-	 * \brief Internal splitting points.
-	 */
-	std::vector<int32_t> points_;
-
-	/**
 	 * \brief Internal amount of samples to skip at front.
 	 */
 	int32_t skip_front_;
@@ -431,6 +416,11 @@ private:
 	 * \brief Internal amount of samples to skip at back.
 	 */
 	int32_t skip_back_;
+
+	/**
+	 * \brief Internal splitting points.
+	 */
+	std::vector<int32_t> points_;
 };
 
 
@@ -450,19 +440,12 @@ class TrackPartitioner final : public Partitioner
 
 	virtual std::unique_ptr<Partitioner> do_clone() const final;
 
-	/**
-	 * \brief TOC to use.
-	 *
-	 * The track bounds will also mark the bounds of Partitions.
-	 */
-	const TOC* toc_;
-
 public:
 
-	TrackPartitioner(const int32_t total_samples, const TOC* toc);
-
-	TrackPartitioner(const int32_t total_samples, const int32_t skip_front,
-			const int32_t skip_back, const TOC* toc);
+	TrackPartitioner(const int32_t total_samples,
+		const int32_t skip_front,
+		const int32_t skip_back,
+		const TOC& toc);
 };
 
 

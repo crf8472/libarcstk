@@ -20,6 +20,7 @@
 #include "accuraterip.hpp"
 #endif
 
+#include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
 #include <string>      // for to_string
 
@@ -182,7 +183,24 @@ int32_t last_relevant_sample(const Interval<int32_t> bounds,
 }
 
 
-// create_partitioning
+// get_offset_sample_indices
+
+
+std::vector<int32_t> get_offset_sample_indices(const TOC& toc)
+{
+	auto points { toc::get_offsets(toc) };
+
+	using std::begin;
+	using std::end;
+
+	std::transform(begin(points), end(points), begin(points),
+			[](const int32_t i){ return frames2samples(i); } );
+
+	return points;
+}
+
+
+// get_partitioning
 
 
 Partitioning get_partitioning(
@@ -190,162 +208,83 @@ Partitioning get_partitioning(
 		const Interval<int32_t>&    legal,
 		const std::vector<int32_t>& points)
 {
-	auto chunk_first_smpl = interval.contains(legal.lower())
-		? legal.lower()
-		: interval.lower();
+	const auto real_lower = std::max(
+			{ legal.lower(), interval.lower(), points[0] });
 
-	// If the sample index range of this block contains the last relevant
-	// sample, set this as the last sample in block instead of the last
-	// physical sample
+	const auto real_upper = std::min(legal.upper(), interval.upper());
 
-	const auto block_last_smpl = interval.contains(legal.lower())
-		? legal.lower()
-		: interval.lower();
+	// Both, real_lower and real_upper lie in segments between two of points[].
+	// Identify those segments.
 
-	// Will be total_tracks+1 if 1st sample is beyond global last relevant sample
-	// This entails that the loop is not entered for irrelevant partitions
-	auto curr_track = TrackNo { points.size() + 1 };
-	if (chunk_first_smpl <= legal.upper())
+	auto b = std::size_t { 0 };
+	auto e = std::size_t { 0 };
+	for (const auto& p : points)
 	{
-		curr_track = 0;
-		for (const auto& p : points)
-		{
-			if (chunk_first_smpl > frames2samples(p)) { ++curr_track; };
+		if (real_lower >= p) { ++b; };
+		if (real_upper >= p) { ++e; } else break;
+	}
+
+	if (b > e)  { /* TODO throw; */ return {}; }
+
+	// Now, b-1 and e-1 are the indices of segments in which the bounds lie.
+	// All segments between these two, i.e. in the interval [b+1,e-2] can be
+	// just read off of points[].
+
+	// Add first partition
+	auto partitions = std::vector<Partition> {
+		Partition { real_lower, points[b],
+			real_lower, points[b] - 1, /* redundant */
+			real_lower == points[b - 1], true, static_cast<TrackNo>(b)
 		}
-	}
-	//auto curr_track = track(chunk_first_smpl, toc, legal.upper());
+	};
 
-	// If track > total_tracks this is global last sample
-	auto chunk_last_smpl = int32_t { frames2samples(points[curr_track]) - 1 };
-	//context.last_relevant_sample(curr_track) };
-	//last_relevant_sample(curr_track, toc, legal) };
-	if (chunk_last_smpl > legal.upper())
+	if (b == e) { return partitions; }
+
+	// Add further partitions
+	for (auto i { b }; i < e - 1; ++i)
 	{
-		chunk_last_smpl = legal.upper();
-	}
-
-	auto begin_offset = int32_t { 0 } ;
-	auto end_offset   = int32_t { 0 } ;
-	auto starts_track = bool { false } ;
-	auto ends_track   = bool { false } ;
-
-	//const auto last_track = toc.total_tracks();
-	const auto last_track = points.size(); // == total tracks
-
-
-	// Now construct all partitions except the last (that needs clipping) in a
-	// loop
-
-	Partitioning chunks{};
-	chunks.reserve(10);
-
-	while (chunk_last_smpl < block_last_smpl and curr_track <= last_track)
-	{
-		//ends_track   = (chunk_last_smpl == context.last_relevant_sample(track));
-		ends_track   = chunk_last_smpl == frames2samples(points[curr_track]) - 1;
-			//(chunk_last_smpl == last_relevant_sample(
-				//curr_track, toc, legal));
-
-		starts_track = chunk_first_smpl ==
-			frames2samples(points[curr_track - 1]);
-			//(chunk_first_smpl == context.first_relevant_sample(track));
-			//(chunk_first_smpl == first_relevant_sample(
-				//curr_track, toc, legal));
-
-		begin_offset = chunk_first_smpl - interval.lower();
-
-		end_offset   = chunk_last_smpl  - interval.lower() + 1;
-
-		chunks.emplace_back(
-			Partition {
-				begin_offset,
-				end_offset,
-				chunk_first_smpl,
-				chunk_last_smpl,
-				starts_track,
-				ends_track,
-				curr_track
-			}
+		partitions.emplace_back(points[i], points[i + 1],
+			points[i], points[i + 1] - 1, /* redundant */
+			true, true, i + 1
 		);
-
-		ARCS_LOG(DEBUG1) << "  Create chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-		++curr_track;
-
-		chunk_first_smpl = chunk_last_smpl + 1;
-		chunk_last_smpl  = frames2samples(points[curr_track]);
-		//chunk_last_smpl  = last_relevant_sample(curr_track, toc, legal);
-	} // while
-
-
-	// If the loop has finished or was never entered, the last partition has to
-	// be prepared
-
-
-	// Clip last partition to block end if necessary
-
-	if (chunk_last_smpl > block_last_smpl)
-	{
-		chunk_last_smpl = block_last_smpl;
-
-		using std::to_string;
-		ARCS_LOG(DEBUG1) << "  Block ends within track "
-			<< to_string(curr_track)
-			<< ", clip last sample to: " << chunk_last_smpl;
 	}
 
-	// Prepare last partition
-
-	starts_track = chunk_first_smpl == points[curr_track - 1];
-		//(chunk_first_smpl == first_relevant_sample(curr_track, toc, legal));
-
-	ends_track   = chunk_last_smpl == points[curr_track] - 1;
-		//(chunk_last_smpl == last_relevant_sample(curr_track, toc, legal));
-
-	begin_offset = chunk_first_smpl - interval.lower();
-
-	end_offset   = chunk_last_smpl  - interval.lower() + 1;
-
-	ARCS_LOG(DEBUG1) << "  Create last chunk: " << chunk_first_smpl
-				<< " - " << chunk_last_smpl;
-
-	chunks.emplace_back(
-		Partition {
-			begin_offset,
-			end_offset,
-			chunk_first_smpl,
-			chunk_last_smpl,
-			starts_track,
-			ends_track,
-			curr_track
-		}
+	// Add last partition
+	partitions.emplace_back(points[e - 1], real_upper,
+		points[e - 1], real_upper - 1, /* redundant */
+		true, real_upper == points[e], static_cast<TrackNo>(e)
 	);
 
-	chunks.shrink_to_fit();
-
-	return chunks;
-
+	return partitions;
 }
 
 
 // Partitioner
 
-
+/*
 Partitioner::Partitioner(const int32_t total_samples)
-	: Partitioner{total_samples, {}, 0, 0}
+	: Partitioner { total_samples, 0, 0, {} }
 {
 	// empty
 }
 
 
 Partitioner::Partitioner(const int32_t total_samples,
-		const std::vector<int32_t>& points, const int32_t skip_front,
-		const int32_t skip_back)
+		const int32_t skip_front, const int32_t skip_back)
+	: Partitioner { total_samples, skip_front, skip_back, {} }
+{
+	// empty
+}
+*/
+
+Partitioner::Partitioner(const int32_t total_samples,
+		const int32_t skip_front,
+		const int32_t skip_back,
+		const std::vector<int32_t>& points)
 	: total_samples_ { total_samples }
-	, points_        { points        }
 	, skip_front_    { skip_front    }
 	, skip_back_     { skip_back     }
+	, points_        { points        }
 {
 	// empty
 }
@@ -355,33 +294,31 @@ Partitioning Partitioner::create_partitioning(
 		const int32_t offset,
 		const int32_t total_samples_in_block) const
 {
-	const Interval<int32_t> sample_block {
+	const Interval<int32_t> interval {
 		/* first phys. sample in block */ offset,
 		/* last  phys. sample in block */ offset + total_samples_in_block - 1
 	};
 
-	const Interval<int32_t> relevant_interval {
+	const Interval<int32_t> legal {
 		skip_front(),
-		total_samples_ - skip_back()
+		total_samples() - skip_back()
 	};
 
 	// If the sample block does not contain any relevant samples,
 	// just return an empty partitioning.
 
-	if (sample_block.upper() < relevant_interval.lower()
-			|| sample_block.lower() > relevant_interval.upper())
+	if (interval.upper() < legal.lower() || interval.lower() > legal.upper())
 	{
 		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
-
-		return Partitioning{};
+		return Partitioning {};
 	}
 
 	if (points_.empty())
 	{
-		return do_create_partitioning(sample_block, relevant_interval);
+		return do_create_partitioning(interval, legal);
 	}
 
-	return do_create_partitioning(sample_block, relevant_interval, points_);
+	return do_create_partitioning(interval, legal, points_);
 }
 
 
@@ -418,65 +355,50 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 // TrackPartitioner
 
 
-TrackPartitioner::TrackPartitioner(const int32_t total_samples, const TOC* toc)
-	: TrackPartitioner { total_samples, 0, 0, toc }
-{
-	// empty
-}
-
-
 TrackPartitioner::TrackPartitioner(const int32_t total_samples,
-		const int32_t skip_front, const int32_t skip_back, const TOC* toc)
-	: Partitioner { total_samples, {}, skip_front, skip_back }
+		const int32_t skip_front, const int32_t skip_back, const TOC& toc)
+	: Partitioner {
+		total_samples,
+		skip_front,
+		skip_back,
+		get_offset_sample_indices(toc)
+	}
 {
 	// empty
 }
 
 
 Partitioning TrackPartitioner::do_create_partitioning(
-		const Interval<int32_t>&    sample_block,
-		const Interval<int32_t>&    relevant_interval,
-		const std::vector<int32_t>& points) const
-		//	const TOC& toc) const
+		const Interval<int32_t>&    interval, /* block of samples */
+		const Interval<int32_t>&    legal,    /* legal range of samples */
+		const std::vector<int32_t>& points    /* track points */ )  const
 {
-	return get_partitioning(sample_block, relevant_interval, points);
+	return get_partitioning(interval, legal, points);
 }
 
 
 Partitioning TrackPartitioner::do_create_partitioning(
-			const Interval<int32_t>& sample_block,
-			const Interval<int32_t>& bounds) const
+			const Interval<int32_t>& interval,
+			const Interval<int32_t>& legal) const
 {
 	// Create a single partition spanning the entire block of samples,
 	// but respect skipping samples at front or back.
 
-	const auto chunk_first_smpl = sample_block.contains(bounds.lower())
-		? bounds.lower()
-		: sample_block.lower();
+	const auto chunk_first = interval.contains(legal.lower())
+		? legal.lower()
+		: interval.lower();
 
-	const auto chunk_last_smpl = sample_block.contains(bounds.upper())
-		? bounds.upper()
-		: sample_block.upper();
-
-	//return {
-		//this->create_partition(
-			/* begin offset */  //{ chunk_first_smpl - sample_block.lower() },
-			/* end offset */    //{ chunk_last_smpl  - sample_block.lower() + 1 },
-			/* chunk first */   //chunk_first_smpl,
-			/* chunk last */    //chunk_last_smpl,
-			/* starts track */  //{ chunk_first_smpl == bounds.lower() },
-			/* ends track */    //{ chunk_last_smpl  == bounds.upper() },
-			/* invalid track */ //0
-		//)
-	//};
+	const auto chunk_last = interval.contains(legal.upper())
+		? legal.upper()
+		: interval.upper();
 
 	return { Partition {
-		/* begin offset */  { chunk_first_smpl - sample_block.lower() },
-		/* end offset */    { chunk_last_smpl  - sample_block.lower() + 1 },
-		/* chunk first */   chunk_first_smpl,
-		/* chunk last */    chunk_last_smpl,
-		/* starts track */  { chunk_first_smpl == bounds.lower() },
-		/* ends track */    { chunk_last_smpl  == bounds.upper() },
+		/* begin offset */  { chunk_first - interval.lower()     },
+		/* end offset */    { chunk_last  - interval.lower() + 1 },
+		/* chunk first */   chunk_first, // redundant
+		/* chunk last */    chunk_last,  // redundant
+		/* starts track */  { chunk_first == legal.lower() },
+		/* ends track */    { chunk_last  == legal.upper() },
 		/* invalid track */ 0
 	}};
 }
@@ -556,7 +478,7 @@ int Partition::track() const
 
 std::size_t Partition::size() const
 {
-	return static_cast<std::size_t>(last_sample_idx() - first_sample_idx() + 1);
+	return static_cast<std::size_t>(end_offset() - begin_offset());
 }
 
 
