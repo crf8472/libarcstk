@@ -246,6 +246,16 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
+ * \brief Create a partitioning for an interval in a legal range by a sequence
+ * of points.
+ */
+Partitioning get_partitioning(
+		const Interval<int32_t>&    interval,
+		const Interval<int32_t>&    legal,
+		const std::vector<int32_t>& points);
+
+
+/**
  * \internal
  * \ingroup calc
  *
@@ -261,6 +271,26 @@ class Partitioner
 public:
 
 	/**
+	 * \brief Constructor.
+	 *
+	 * Initializes with zero skip at front and back.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 */
+	Partitioner(const int32_t total_samples);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
+	 * \param[in] skip_front    Amount of samples to skip at front
+	 * \param[in] skip_back     Amount of samples to skip at back
+	 */
+	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
+			const int32_t skip_front, const int32_t skip_back);
+
+	/**
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~Partitioner() noexcept
@@ -269,18 +299,49 @@ public:
 	/**
 	 * \brief Generates partitioning of the range of samples.
 	 *
-	 * \param[in] offset  Offset of the first sample
+	 * \param[in] offset                 Offset of the first sample
 	 * \param[in] total_samples_in_block Number of samples in the block
-	 * \param[in] bounds  Index of first and last sample of all blocks
-	 * \param[in] toc     TOC
 	 *
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
 			const int32_t offset,
-			const int32_t total_samples_in_block,
-			const Interval<int32_t>& bounds,
-			const TOC* toc = nullptr) const;
+			const int32_t total_samples_in_block) const;
+
+	/**
+	 * \brief Total number of samples.
+	 *
+	 * \return Total number of samples
+	 */
+	int32_t total_samples() const;
+
+	/**
+	 * \brief Set total number of samples.
+	 *
+	 * Maybe necessary when reading the last block reveals a different number of
+	 * samples than expected.
+	 *
+	 * \param[in] total_samples Total number of samples
+	 */
+	void set_total_samples(const int32_t total_samples);
+
+	/**
+	 * \brief Amount of samples to skip at front.
+	 *
+	 * This amount of samples at front will not be part of any partition.
+	 *
+	 * \return Amount of samples to skip at front
+	 */
+	int32_t skip_front() const;
+
+	/**
+	 * \brief Amount of samples to skip at back.
+	 *
+	 * This amount of samples at back will not be part of any partition.
+	 *
+	 * \return Amount of samples to skip at back
+	 */
+	int32_t skip_back() const;
 
 	/**
 	 * \brief Deep copy of this instance.
@@ -309,6 +370,7 @@ protected:
 	 *
 	 * \return A Partition as specified
 	 */
+	/*
 	Partition create_partition(
 			const int32_t &begin_offset,
 			const int32_t &end_offset,
@@ -317,41 +379,58 @@ protected:
 			const bool    &starts_track,
 			const bool    &ends_track,
 			const TrackNo &track) const;
+	*/
 
 private:
 
 	/**
 	 * \brief Implements Partitioner::create_partitioning() with a TOC.
 	 *
-	 * \param[in] offset  Offset of the first sample
-	 * \param[in] total_samples_in_block Number of samples in the block
-	 * \param[in] bounds  Index of first and last sample of all blocks
-	 * \param[in] toc     TOC
+	 * \param[in] interval Interval to build partitions from
+	 * \param[in] toc      TOC
 	 *
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-			const Interval<int32_t>& block,
-			const Interval<int32_t>& total_bounds,
-			const TOC& toc) const
+		const Interval<int32_t>&    sample_block,
+		const Interval<int32_t>&    relevant_interval,
+		const std::vector<int32_t>& points) const
 	= 0;
 
 	/**
 	 * \brief Implements Partitioner::create_partitioning() without a TOC.
 	 *
-	 * \param[in] offset  Offset of the first sample
-	 * \param[in] total_samples_in_block Number of samples in the block
-	 * \param[in] bounds  Index of first and last sample of all blocks
+	 * \param[in] interval Interval to build partitions from
 	 *
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-			const Interval<int32_t>& block,
-			const Interval<int32_t>& total_bounds) const
+		const Interval<int32_t>& sample_block,
+		const Interval<int32_t>& relevant_interval) const
 	= 0;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const
 	= 0;
+
+	/**
+	 * \brief Total number of samples expected.
+	 */
+	int32_t total_samples_;
+
+	/**
+	 * \brief Internal splitting points.
+	 */
+	std::vector<int32_t> points_;
+
+	/**
+	 * \brief Internal amount of samples to skip at front.
+	 */
+	int32_t skip_front_;
+
+	/**
+	 * \brief Internal amount of samples to skip at back.
+	 */
+	int32_t skip_back_;
 };
 
 
@@ -361,15 +440,29 @@ private:
 class TrackPartitioner final : public Partitioner
 {
 	virtual Partitioning do_create_partitioning(
-			const Interval<int32_t>& block,
-			const Interval<int32_t>& bounds,
-			const TOC& toc) const final;
+		const Interval<int32_t>&    sample_block,
+		const Interval<int32_t>&    relevant_interval,
+		const std::vector<int32_t>& points) const final;
 
 	virtual Partitioning do_create_partitioning(
-			const Interval<int32_t>& block,
-			const Interval<int32_t>& bounds) const final;
+		const Interval<int32_t>& sample_block,
+		const Interval<int32_t>& relevant_interval) const final;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const final;
+
+	/**
+	 * \brief TOC to use.
+	 *
+	 * The track bounds will also mark the bounds of Partitions.
+	 */
+	const TOC* toc_;
+
+public:
+
+	TrackPartitioner(const int32_t total_samples, const TOC* toc);
+
+	TrackPartitioner(const int32_t total_samples, const int32_t skip_front,
+			const int32_t skip_back, const TOC* toc);
 };
 
 
@@ -391,28 +484,6 @@ class Partition final
 
 	// NOTE: There is no default constructor since Partition have constant
 	// elements that cannot be default initialized
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \todo begin_offset and last_offset seem redundant to first and last
-	 *
-	 * \param[in] begin_offset Local index of the first sample in the partition
-	 * \param[in] end_offset   Local index of the last sample in the partition
-	 * \param[in] first        Global index of the first sample in the partition
-	 * \param[in] last         Global index of the last sample in the partition
-	 * \param[in] starts_track TRUE iff this partition starts its track
-	 * \param[in] ends_track   TRUE iff this partition ends its track
-	 * \param[in] track        Number of the track that contains the partition
-	 */
-	Partition(
-			const int32_t &begin_offset,
-			const int32_t &end_offset,
-			const int32_t &first,
-			const int32_t &last,
-			const bool    &starts_track,
-			const bool    &ends_track,
-			const TrackNo &track);
 
 	/**
 	 * \brief Relative offset of the first sample in this partition
@@ -453,6 +524,28 @@ class Partition final
 	const TrackNo track_;
 
 public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \todo begin_offset and last_offset seem redundant to first and last
+	 *
+	 * \param[in] begin_offset Local index of the first sample in the partition
+	 * \param[in] end_offset   Local index of the last sample in the partition
+	 * \param[in] first        Global index of the first sample in the partition
+	 * \param[in] last         Global index of the last sample in the partition
+	 * \param[in] starts_track TRUE iff this partition starts its track
+	 * \param[in] ends_track   TRUE iff this partition ends its track
+	 * \param[in] track        Number of the track that contains the partition
+	 */
+	Partition(
+			const int32_t &begin_offset,
+			const int32_t &end_offset,
+			const int32_t &first,
+			const int32_t &last,
+			const bool    &starts_track,
+			const bool    &ends_track,
+			const TrackNo &track);
 
 	/**
 	 * \brief Relative offset of the first sample in the partition.
@@ -530,19 +623,26 @@ class CalculationState
 	Counter<int32_t> sample_offset_;
 
 	/**
+	 * \brief Time elapsed by updating.
+	 */
+	Counter<std::chrono::milliseconds> proc_time_elapsed_;
+
+	/**
 	 * \internal
 	 * \brief Current track.
 	 */
 	Counter<TrackNo> current_track_;
 
-	/**
-	 * \brief Time elapsed by updating.
-	 */
-	Counter<std::chrono::milliseconds> proc_time_elapsed_;
-
 	//Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
 
 protected:
+
+	/**
+	 * \brief Increment the current sample offset.
+	 *
+	 * \param[in] amount Amount of time to update the state.
+	 */
+	void increment_sample_offset(const int32_t amount);
 
 	/**
 	 * \brief Service function to save the amount of time elapsed during update.
@@ -563,11 +663,11 @@ public:
 	int32_t sample_offset() const;
 
 	/**
-	 * \brief The current track number.
+	 * \brief Amount of milliseconds elapsed so far by calculation.
 	 *
-	 * \return The number of the current track
+	 * \return Amount of milliseconds elapsed so far by calculation.
 	 */
-	Counter<TrackNo> current_track() const;
+	std::chrono::milliseconds proc_time_elapsed() const;
 
 	/**
 	 * \brief Current subtotal values for checksum calculation.
@@ -577,18 +677,11 @@ public:
 	ChecksumSet current_value() const;
 
 	/**
-	 * \brief Amount of milliseconds elapsed so far by calculation.
+	 * \brief The current track number.
 	 *
-	 * \return Amount of milliseconds elapsed so far by calculation.
+	 * \return The number of the current track
 	 */
-	std::chrono::milliseconds proc_time_elapsed() const;
-
-	/**
-	 * \brief Increment the current sample offset.
-	 *
-	 * \param[in] amount Amount of time to update the state.
-	 */
-	void increment_sample_offset(const int32_t amount);
+	Counter<TrackNo> current_track() const;
 
 	/**
 	 * \brief Perform an update of the calculation.
@@ -596,8 +689,31 @@ public:
 	 * \tparam B Type of iterator pointing to start position
 	 * \tparam E Type of iterator pointing to stop position
 	 *
-	 * \param[in] start Iterator pointint to start position
-	 * \param[in] end   Iterator pointint to stop position
+	 * \param[in] start Iterator pointing to start position
+	 * \param[in] end   Iterator pointing to stop position
+	 */
+	template<class B, class E>
+	void update(B& start, E& stop)
+	{
+		//internal_state_.update(start, stop);
+	}
+};
+
+
+class Algorithm
+{
+	// first and last relevant sample belong HERE, not in context
+
+public:
+
+	/**
+	 * \brief Perform an update of the calculation.
+	 *
+	 * \tparam B Type of iterator pointing to start position
+	 * \tparam E Type of iterator pointing to stop position
+	 *
+	 * \param[in] start Iterator pointing to start position
+	 * \param[in] end   Iterator pointing to stop position
 	 */
 	template<class B, class E>
 	void update(B& start, E& stop)
