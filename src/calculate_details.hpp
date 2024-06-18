@@ -89,6 +89,15 @@ int32_t samples2bytes(const int32_t samples);
 int32_t bytes2samples(const int32_t bytes);
 
 /**
+ * \brief Return the offsets converted to sample indices.
+ *
+ * \param[in] toc TOC to get offsets from
+ *
+ * \return List of offsets with each value converted from LBA frames to samples
+ */
+std::vector<int32_t> get_offset_sample_indices(const TOC& toc);
+
+/**
  * \brief Check wheter \c t is a valid track number.
  *
  * A valid track number is an integer greater or equal to 1 and
@@ -111,7 +120,7 @@ bool is_valid_track_number(const TrackNo t);
 bool is_valid_track(const TrackNo track, const TOC& toc);
 
 /**
- * \brief Check whether the specified TOC has the specified track.
+ * \brief Return the track for the specified 0-based sample index.
  *
  * If the TOC has no leadout, samples with indices greater than the offset of
  * the last track will always be verified as part of the last track.
@@ -119,14 +128,14 @@ bool is_valid_track(const TrackNo track, const TOC& toc);
  * If the specified sample index is greater than \c s_total or the leadout of
  * the TOC, the resulting track number will not be valid.
  *
- * \param[in] track   The track number to validate
- * \param[in] toc     The TOC to validate the track against
- * \param[in] s_total Total number of samples
+ * \param[in] track         The track number to validate
+ * \param[in] toc           The TOC to validate the track against
+ * \param[in] total_samples Total number of samples
  *
- * \return TRUE iff \c toc contains \c track, otherwise FALSE.
+ * \return Number of the track with the specified sample index or an invalid
+ * track
  */
 TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total);
-
 
 /**
  * \internal
@@ -198,14 +207,42 @@ public:
 	}
 };
 
-
+/**
+ * \brief Return the first sample of the specified track that lies in bounds.
+ *
+ * \param[in] track  The track to get the first sample of
+ * \param[in] toc    The TOC to read the sample from
+ * \param[in] bounds The legal interval of samples to consider
+ *
+ * \return Index of the first sample within bounds
+ */
 int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
-		const Interval<int32_t> bounds);
+		const Interval<int32_t>& bounds);
 
+/**
+ * \brief Return the last sample of the specified track that lies in bounds.
+ *
+ * \param[in] track  The track to get the first sample of
+ * \param[in] toc    The TOC to read the sample from
+ * \param[in] bounds The legal interval of samples to consider
+ *
+ * \return Index of the last sample within bounds
+ */
 int32_t last_relevant_sample(const TrackNo track, const TOC& toc,
-		const Interval<int32_t> bounds);
-int32_t last_relevant_sample(const Interval<int32_t> bounds,
-		const int32_t total_frames);
+		const Interval<int32_t>& bounds);
+
+/**
+ * \brief Return the highest value of the amount that lies within the bounds.
+ *
+ * In case !is_valid_track(track, toc) or toc is not complete or track is the
+ * last track the return value is 0.
+ *
+ * \param[in] bounds Bounds to respect
+ * \param[in] amount Amount to respect
+ *
+ * \return The higher of bounds.upper() or amount
+ */
+int32_t last_in_bounds(const Interval<int32_t>& bounds, const int32_t amount);
 
 
 /**
@@ -232,16 +269,6 @@ public:
 		value_ += amount;
 	}
 };
-
-
-/**
- * \brief Return the offsets converted to sample indices.
- *
- * \param[in] toc TOC to get offsets from
- *
- * \return List of offsets with each value converted from LBA frames to samples
- */
-std::vector<int32_t> get_offset_sample_indices(const TOC& toc);
 
 
 // Forward Declaration Required for Partitioner
@@ -549,14 +576,14 @@ public:
 	 *
 	 * \return Global index of the first sample in this partition
 	 */
-	int32_t first_sample_idx() const;
+	//int32_t first_sample_idx() const;
 
 	/**
 	 * \brief Returns global index of the last sample in the partition.
 	 *
 	 * \return Global index of the last sample in this partition
 	 */
-	int32_t last_sample_idx() const;
+	//int32_t last_sample_idx() const;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the

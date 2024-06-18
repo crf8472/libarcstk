@@ -42,148 +42,35 @@ int32_t frames2samples(const int32_t frames)
 	return frames * CDDA::SAMPLES_PER_FRAME;
 }
 
+
 int32_t samples2frames(const int32_t samples)
 {
 	return samples / CDDA::SAMPLES_PER_FRAME;
 }
+
 
 int32_t frames2bytes(const int32_t frames)
 {
 	return frames * CDDA::BYTES_PER_FRAME;
 }
 
+
 int32_t bytes2frames(const int32_t bytes)
 {
 	return bytes / CDDA::BYTES_PER_FRAME;
 }
+
 
 int32_t samples2bytes(const int32_t samples)
 {
 	return samples * CDDA::BYTES_PER_SAMPLE;
 }
 
+
 int32_t bytes2samples(const int32_t bytes)
 {
 	return bytes / CDDA::BYTES_PER_SAMPLE;
 }
-
-bool is_valid_track_number(const TrackNo track)
-{
-	return 0 < track && track <= 99;
-}
-
-bool is_valid_track(const TrackNo track, const TOC& toc)
-{
-	return 0 < track && track <= toc.total_tracks();
-}
-
-TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total)
-{
-	if (sample > s_total || sample > toc.leadout())
-	{
-		return 0;
-	}
-
-	auto t = TrackNo { 1 };
-	for (auto o = toc.offset(t); sample < o; o = toc.offset(++t)) {/*empty*/}
-
-	return t;
-}
-
-
-//
-
-
-int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
-		const Interval<int32_t> bounds)
-{
-	int32_t frames = 0;
-
-	try {
-
-		frames = toc.offset(track);
-
-	} catch (const std::exception& e) // TODO throw?
-	{
-		ARCS_LOG_WARNING << "Offset for unknown track " << track
-			<< " requested, returned 0.";
-
-		return 0;
-	}
-
-	if (1 == track)
-	{
-		return frames2samples(frames) + bounds.lower();
-	}
-
-	return frames2samples(frames);
-}
-
-
-int32_t last_relevant_sample(const TrackNo track,
-		const TOC& toc, const Interval<int32_t> bounds)
-{
-	if (!toc.complete())
-	{
-		// TODO throw?
-		return 0;
-	}
-
-	// TODO Validity check for TrackNo and TrackNo + 1
-	if (!is_valid_track(track, toc))
-	{
-		// TODO throw?
-		return 0;
-	}
-
-	if (track >= toc.total_tracks())
-	{
-		return last_relevant_sample(bounds, toc.leadout());
-	}
-
-	const TrackNo next_track = track + 1;
-	int32_t frames = 0;
-
-	try {
-
-		frames = toc.offset(next_track);
-
-	} catch (const std::exception& e) // TODO throw?
-	{
-		ARCS_LOG_WARNING << "Offset for unknown track " << next_track
-			<< " requested, returned 0.";
-
-		return 0;
-	}
-
-	return !frames ? 0 : last_relevant_sample(bounds, frames);
-}
-
-
-int32_t last_relevant_sample(const Interval<int32_t> bounds,
-		const int32_t total_frames)
-{
-	// return this->skips_back()
-	// 	? this->audio_size().total_samples() - 1 - this->num_skip_back()
-	// 	: this->audio_size().total_samples() - 1;
-
-	const auto total_samples { frames2samples(total_frames) };
-
-	if (bounds.upper() >= total_samples)
-	{
-		return total_samples;
-	}
-
-	if (bounds.upper() == 0) /* no skip */
-	{
-		return total_samples - 1;
-	}
-
-	return total_samples - (total_samples - bounds.upper()) - 1;
-}
-
-
-// get_offset_sample_indices
 
 
 std::vector<int32_t> get_offset_sample_indices(const TOC& toc)
@@ -197,6 +84,146 @@ std::vector<int32_t> get_offset_sample_indices(const TOC& toc)
 			[](const int32_t i){ return frames2samples(i); } );
 
 	return points;
+}
+
+
+bool is_valid_track_number(const TrackNo track)
+{
+	return 0 < track && track <= 99;
+}
+
+
+bool is_valid_track(const TrackNo track, const TOC& toc)
+{
+	return 0 < track && track <= toc.total_tracks();
+}
+
+
+TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total)
+{
+	const auto offsets { get_offset_sample_indices(toc) };
+
+	if (sample > s_total
+			|| sample > frames2samples(toc.leadout()) || sample < offsets[0])
+	{
+		return 0;
+	}
+
+	const auto tracks  { static_cast<std::size_t>(toc.total_tracks()) };
+	auto t = decltype( offsets )::size_type { 0 };
+	while (t < tracks && sample >= offsets[t]) { ++t; };
+
+	return static_cast<TrackNo>(t);
+}
+
+
+int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
+		const Interval<int32_t>& bounds)
+{
+	static const int32_t INVALID = 0;
+
+	// TODO Validity check for TrackNo and TrackNo + 1
+	if (!is_valid_track(track, toc))
+	{
+		// TODO throw?
+		return INVALID;
+	}
+
+	auto frames = int32_t { 0 };
+
+	try {
+
+		frames = toc.offset(track);
+
+	} catch (const std::exception& e) // TODO throw?
+	{
+		ARCS_LOG_WARNING << "Offset for unknown track " << track
+			<< " requested, returned 0.";
+
+		return INVALID;
+	}
+
+	if (!frames)
+	{
+		return INVALID;
+	}
+
+	const auto samples { frames2samples(frames) };
+
+	if (1 == track)
+	{
+		return samples + bounds.lower(); // FIXME This is not bounds!!
+		// THIS would be bounds:
+		// return bounds.contain(samples) ? samples : bounds.lower();
+	}
+
+	return samples;
+}
+
+
+int32_t last_relevant_sample(const TrackNo track,
+		const TOC& toc, const Interval<int32_t>& bounds)
+{
+	static const int32_t INVALID = 0;
+
+	if (!toc.complete())
+	{
+		// TODO throw?
+		return INVALID;
+	}
+
+	// TODO Validity check for TrackNo and TrackNo + 1
+	if (!is_valid_track(track, toc))
+	{
+		// TODO throw?
+		return INVALID;
+	}
+
+	if (track >= toc.total_tracks())
+	{
+		return last_in_bounds(bounds, frames2samples(toc.leadout()));
+	}
+
+	const auto next_track = TrackNo { track + 1 };
+	auto frames = int32_t { 0 };
+
+	try {
+
+		frames = toc.offset(next_track);
+
+	} catch (const std::exception& e) // TODO throw?
+	{
+		ARCS_LOG_WARNING << "Offset for unknown track " << next_track
+			<< " requested, returned 0.";
+
+		return INVALID;
+	}
+
+	return !frames ? INVALID :
+		last_in_bounds(bounds, frames2samples(frames) - 1);
+}
+
+
+int32_t last_in_bounds(const Interval<int32_t>& bounds, const int32_t amount)
+{
+	// return this->skips_back()
+	// 	? this->audio_size().total_samples() - 1 - this->num_skip_back()
+	// 	: this->audio_size().total_samples() - 1;
+
+	//const auto total_samples { frames2samples(total_frames) - 1 };
+
+	if (bounds.upper() >= amount)
+	{
+		return amount;
+	}
+
+	if (bounds.upper() == 0) /* no skip */
+	{
+		return amount;
+	}
+
+	//return total_samples - (total_samples - bounds.upper()) - 1;
+	return bounds.upper();
 }
 
 
@@ -445,7 +472,7 @@ int32_t Partition::end_offset() const
 	return end_offset_;
 }
 
-
+/*
 int32_t Partition::first_sample_idx() const
 {
 	return first_sample_idx_;
@@ -456,7 +483,7 @@ int32_t Partition::last_sample_idx() const
 {
 	return last_sample_idx_;
 }
-
+*/
 
 bool Partition::starts_track() const
 {
@@ -1153,14 +1180,14 @@ PartitionProvider::PartitionProvider(const CalcContext& context,
 Partitioning PartitionProvider::operator()(const int32_t s_offset,
 		const int32_t s_total) const
 {
-	/*
-	return partitioner_->create_partitioning(s_offset, s_total,
+	return partitioner_->create_partitioning(s_offset, s_total
+			/* ,
 		{
 			context_->first_relevant_sample(),
 			context_->last_relevant_sample()
 		}
+		*/
 	);
-	*/
 }
 
 
