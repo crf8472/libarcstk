@@ -245,32 +245,6 @@ int32_t last_relevant_sample(const TrackNo track, const TOC& toc,
 int32_t last_in_bounds(const Interval<int32_t>& bounds, const int32_t amount);
 
 
-/**
- * \brief Class template for an incrementable and readable counter..
- *
- * \tparam T Type with definition of +=
- */
-template<typename T>
-class Counter final
-{
-	T value_;
-
-public:
-
-	using type = T;
-
-	T value() const
-	{
-		return value_;
-	}
-
-	void increment(T amount)
-	{
-		value_ += amount;
-	}
-};
-
-
 // Forward Declaration Required for Partitioner
 class Partition;
 
@@ -280,6 +254,7 @@ class Partition;
  * \brief Partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
+
 
 /**
  * \brief Create a partitioning for an interval in a legal range by a sequence
@@ -614,6 +589,32 @@ public:
 	 * \return Number of samples in this partition
 	 */
 	std::size_t size() const;
+};
+
+
+/**
+ * \brief Class template for an incrementable and readable counter..
+ *
+ * \tparam T Type with definition of +=
+ */
+template<typename T>
+class Counter final
+{
+	T value_;
+
+public:
+
+	using type = T;
+
+	T value() const
+	{
+		return value_;
+	}
+
+	void increment(T amount)
+	{
+		value_ += amount;
+	}
 };
 
 
