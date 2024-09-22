@@ -4,8 +4,6 @@
  * \file Fixtures for classes in module calculate2
  */
 
-#include <fstream>                // for ifstream, operator|, ios_base::failure
-
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif

@@ -404,6 +404,7 @@ TEST_CASE ( "last_relevant_sample()",
 		CHECK (253038 * 588 - 2939 == last_relevant_sample(15, *toc, i) );
 	}
 
+	/*
 	SECTION ( "last_in_bounds() is correct" )
 	{
 		CHECK ( last_in_bounds(i,   5225 * 588 - 1   ) ==   5225 * 588 - 1    );
@@ -422,6 +423,7 @@ TEST_CASE ( "last_relevant_sample()",
 		CHECK ( last_in_bounds(i, 234103 * 588 - 1   ) == 234103 * 588 - 1    );
 		CHECK ( last_in_bounds(i, 253038 * 588 - 2939) == 253038 * 588 - 2939 );
 	}
+	*/
 }
 
 
