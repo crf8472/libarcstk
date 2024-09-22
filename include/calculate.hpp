@@ -7,11 +7,18 @@
  * \brief Calculation interface.
  */
 
-#include <cstdint>   // for int32_t
-#include <memory>    // for unique_ptr
+#include <cstdint>          // for int32_t
+#include <memory>           // for unique_ptr
+#include <unordered_map>    // for unordered_map
 
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"             // for Checksum
+#endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"             // for TotallyOrdered
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
 #endif
 
 namespace arcstk
@@ -737,6 +744,11 @@ std::unique_ptr<CalcContext> make_context(const bool &skip_front,
 std::unique_ptr<CalcContext> make_context(const TOC &toc);
 
 /**
+ * \copydoc arcstk::v_1_0_0::make_context(const TOC&)
+ */
+std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
+
+/**
  * \brief Create a CalcContext from an audio filename and a TOC.
  *
  * The file will not be opened, it is just declared as part of the metadata.
@@ -750,17 +762,598 @@ std::unique_ptr<CalcContext> make_context(const TOC &toc,
 		const std::string &audiofilename);
 
 /**
- * \copydoc arcstk::v_1_0_0::make_context(const TOC&)
- */
-std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc);
-
-/**
  * \copydoc arcstk::v_1_0_0::make_context(const TOC&, const std::string&)
  */
 std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC> &toc,
 		const std::string &audiofilename);
 
-// TODO Calculation
+
+/**
+ * \internal
+ *
+ * \brief Get value_type of Iterator.
+ *
+ * \tparam Iterator Iterator type to test
+ */
+template<typename Iterator>
+using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
+// This is SFINAE compatible and respects bare pointers, which would not
+// have been respected when using std::iterator_traits<Iterator>::value_type.
+// Nonetheless I am not quite sure whether bare pointers indeed should be used
+// in this context.
+
+
+/**
+ * \internal
+ *
+ * \brief Check a given Iterator whether it iterates over type T.
+ *
+ * \tparam Iterator Iterator type to test
+ * \tparam T        Type to test for
+ */
+template<typename Iterator, typename T>
+using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
+
+
+/**
+ * \brief Type to represent a 32 bit PCM stereo sample.
+ *
+ * An unsigned integer of 32 bit length.
+ *
+ * The type is not intended to do arithmetic operations on it.
+ *
+ * Bitwise operators are required to work as on unsigned types.
+ */
+using sample_t = uint32_t;
+
+
+/**
+ * \internal
+ * \brief Defined iff \c Iterator is an iterator over \c sample_t.
+ *
+ * \tparam Iterator Iterator type to test
+ */
+template<typename Iterator>
+using IsSampleIterator =
+	std::enable_if_t<is_iterator_over<Iterator, sample_t>::value>;
+
+
+// forward declaration for operator == and binary ops
+class SampleInputIterator; // IWYU pragma keep
+
+bool operator == (const SampleInputIterator &lhs,
+		const SampleInputIterator &rhs) noexcept;
+
+SampleInputIterator operator + (SampleInputIterator lhs,
+		const int32_t amount) noexcept;
+
+/**
+ * \brief Type erasing interface for iterators over PCM 32 bit samples.
+ *
+ * Wraps the concrete iterator to be passed to
+ * \link Calculation::update() update \endlink a Calculation.
+ * This allows to pass in fact iterators of any type to a Calculation.
+ *
+ * SampleInputIterator can wrap any iterator with a value_type of uint32_t
+ * except instances of itself, e.g. it can not be "nested".
+ *
+ * The type erasure interface only ensures that (most of) the requirements of a
+ * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
+ * LegacyInputIterator</A> are met. Those requirements are sufficient for
+ * \link Calculation::update() updating \endlink a Calculation.
+ *
+ * Although SampleInputIterator is intended to provide the functionality of
+ * an input iterator, it does not provide operator->() and does
+ * therefore not completely fulfill the requirements for a LegacyInputIterator.
+ *
+ * SampleInputIterator provides iteration over values of type
+ * \link arcstk::v_1_0_0::sample_t sample_t\endlink which is defined as a
+ * primitve type. Since samples therefore do not have members, operator -> would
+ * not provide any reasonable function.
+ *
+ * \see Calculation::update()
+ */
+class SampleInputIterator final : public Comparable<SampleInputIterator>
+{
+public:
+
+	friend bool operator == (const SampleInputIterator &lhs,
+			const SampleInputIterator &rhs) noexcept;
+
+	friend SampleInputIterator operator + (SampleInputIterator lhs,
+			const int32_t amount) noexcept;
+
+	/**
+	 * \brief Iterator category is std::input_iterator_tag.
+	 */
+	using iterator_category = std::input_iterator_tag;
+
+	/**
+	 * \brief The type this iterator enumerates.
+	 */
+	using value_type = sample_t;
+
+	/**
+	 * \brief Same as value_type, *not* a reference type.
+	 */
+	using reference = sample_t;
+
+	/**
+	 * \brief Defined as void due to absence of operator ->.
+	 */
+	using pointer = void;
+	// Note: Should be const value_type* when operator-> is provided
+
+	/**
+	 * \brief Pointer difference type.
+	 */
+	using difference_type = std::ptrdiff_t;
+
+
+private:
+
+	/// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
+
+	/**
+	 * \internal
+	 * \brief Internal interface to the type-erased object.
+	 */
+	struct Concept
+	{
+		/**
+		 * \brief Virtual default destructor.
+		 */
+		virtual ~Concept() noexcept
+		= default;
+
+		/**
+		 * \brief Preincrements the iterator.
+		 */
+		virtual void preincrement() noexcept
+		= 0;
+
+		/**
+		 * \brief Advances iterator by \c n positions
+		 *
+		 * \param[in] n Number of positions to advance
+		 */
+		virtual void advance(const int32_t n) noexcept
+		= 0;
+
+		/**
+		 * \brief Reference to the actual value under the iterator.
+		 *
+		 * \return Reference to actual value.
+		 */
+		virtual reference dereference() noexcept
+		= 0;
+
+		/**
+		 * \brief Returns \c TRUE if \c rhs is equal to the instance.
+		 *
+		 * \param[in] rhs The instance to test for equality
+		 *
+		 * \return \c TRUE if \c rhs is equal to the instance, otherwise \c FALSE
+		 */
+		virtual bool equals(const Concept &rhs) const noexcept
+		= 0;
+
+		/**
+		 * \brief Returns RTTI.
+		 *
+		 * \return Runtime type information of this instance
+		 */
+		virtual const std::type_info& type() const noexcept
+		= 0;
+
+		/**
+		 * \brief Returns a deep copy of the instance
+		 *
+		 * \return A deep copy of the instance
+		 */
+		virtual std::unique_ptr<Concept> clone() const noexcept
+		= 0;
+	};
+
+
+	/**
+	 * \internal
+	 * \brief Internal object representation
+	 *
+	 * \tparam Iterator The iterator type to wrap
+	 */
+	template<class Iterator>
+	struct Model : Concept
+	{
+		explicit Model(Iterator iterator)
+			: iterator_(iterator)
+		{
+			// empty
+		}
+
+		void preincrement() noexcept final
+		{
+			++iterator_;
+		}
+
+		void advance(const int32_t n) noexcept final
+		{
+			std::advance(iterator_, n);
+		}
+
+		reference dereference() noexcept final
+		{
+			return *iterator_;
+		}
+
+		bool equals(const Concept &rhs) const noexcept final
+		{
+			return iterator_ == static_cast<const Model&>(rhs).iterator_;
+		}
+
+		const std::type_info& type() const noexcept final
+		{
+			return typeid(iterator_);
+		}
+
+		std::unique_ptr<Concept> clone() const noexcept final
+		{
+			return std::make_unique<Model>(*this);
+		}
+
+		friend void swap(Model &lhs, Model &rhs) noexcept
+		{
+			using std::swap;
+
+			swap(lhs.iterator_, rhs.iterator_);
+		}
+
+		private:
+
+			/**
+			 * \brief The type-erased iterator instance.
+			 */
+			Iterator iterator_;
+	};
+
+	/// \endcond
+
+
+public:
+
+	/**
+	 * \brief Converting constructor.
+	 *
+	 * \tparam Iterator The iterator type to wrap
+	 *
+	 * \param[in] i Instance of an iterator over \c sample_t
+	 */
+	template <class Iterator, typename = IsSampleIterator<Iterator> >
+	SampleInputIterator(const Iterator &i) // FIXME Do not move a const ref
+		: object_ { std::make_unique<Model<Iterator>>(std::move(i)) }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to copy
+	 */
+	SampleInputIterator(const SampleInputIterator& rhs);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to move
+	 */
+	SampleInputIterator(SampleInputIterator&& rhs) noexcept;
+
+	/**
+	 * \brief Destructor
+	 */
+	~SampleInputIterator() noexcept;
+
+	/**
+	 * \brief Dereferences the iterator to the sample pointed to.
+	 *
+	 * \return A sample_t sample, returned by value
+	 */
+	reference operator * () const noexcept; // required by LegacyIterator
+
+	/* *
+	 * \brief Access members of the underlying referee
+	 *
+	 * \return A pointer to the underlying referee
+	 */
+	pointer operator -> () const noexcept; // required by LegacyInpuIterator
+
+	/**
+	 * \brief Pre-increment iterator.
+	 *
+	 * \return Incremented iterator
+	 */
+	SampleInputIterator& operator ++ () noexcept; // required by LegacyIterator
+
+	/**
+	 * \brief Post-increment iterator.
+	 *
+	 * \return Iterator representing the state befor the increment
+	 */
+	SampleInputIterator operator ++ (int) noexcept;
+	// required by LegacyInputIterator
+
+
+	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept;
+	// required by LegacyIterator
+
+	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
+		noexcept
+	{
+		using std::swap;
+
+		swap(lhs.object_, rhs.object_);
+	} // required by LegacyIterator
+
+
+private:
+
+	/**
+	 * \brief Internal representation of wrapped object
+	 */
+	std::unique_ptr<Concept> object_;
+};
+
+
+SampleInputIterator operator + (const int32_t amount,
+		SampleInputIterator rhs) noexcept;
+
+
+/**
+ * \brief Buffer for resulting checksums.
+ */
+using ChecksumBuffer = std::unordered_map<TrackNo, ChecksumSet>;
+
+
+/**
+ * \brief Checksum calculation algorithm.
+ */
+class Algorithm
+{
+public:
+
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~Algorithm() noexcept = default;
+
+	/**
+	 * \brief Update with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 */
+	void update(SampleInputIterator begin, SampleInputIterator end);
+
+	/**
+	 * \brief Return the result of the algorithm.
+	 *
+	 * \return Calculation result.
+	 */
+	ChecksumBuffer result() const;
+
+	/**
+	 * \brief Types of checksums the algorithm calculates.
+	 *
+	 * \return Checksum types calculated by this algorithm
+	 */
+	std::set<checksum::type> types() const;
+
+private:
+
+	/**
+	 * \brief Update with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 */
+	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
+	= 0;
+
+	/**
+	 * \brief Return the result of the algorithm.
+	 *
+	 * \return Calculation result.
+	 */
+	virtual ChecksumBuffer do_result() const
+	= 0;
+
+	/**
+	 * \brief Types of checksums the algorithm calculates.
+	 *
+	 * \return Checksum types calculated by this algorithm
+	 */
+	virtual std::set<checksum::type> do_types() const
+	= 0;
+};
+
+
+class Calculation;
+
+
+/**
+ * \brief Builds calculation instances.
+ */
+class CalculationBuilder
+{
+	/**
+	 * \brief Create a Calculation.
+	 *
+	 * \param[in] types       Checksum types to calculate
+	 *
+	 * \return Checksums calculated.
+	 */
+	static std::unique_ptr<Calculation> create(
+		const std::vector<checksum::type>& types);
+
+};
+
+
+/**
+ * \brief Current state of a Calculation.
+ */
+class CalculationState
+{
+
+public:
+
+	virtual ~CalculationState() noexcept = default;
+
+	/**
+	 * \brief The current track number.
+	 *
+	 * The calculation currently calculates the Checksums for this track.
+	 *
+	 * \return The number of the current track
+	 */
+	TrackNo current_track() const;
+
+	/**
+	 * \brief Current 0-based sample offset.
+	 *
+	 * Can be interpreted as "start index" for the next update.
+	 *
+	 * \return The current sample index offset
+	 */
+	int32_t sample_offset() const;
+
+	/**
+	 * \brief Returns the total number of initially expected PCM 32 bit samples.
+	 *
+	 * This value is equivalent to samples_processed() + samples_todo(). It will
+	 * always remain constant for the given instance.
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples expected.
+	 */
+	int64_t samples_expected() const noexcept;
+
+	/**
+	 * \brief Returns the total number for PCM 32 bit samples yet processed.
+	 *
+	 * This value is equivalent to samples_expected() - samples_todo().
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples processed.
+	 */
+	int64_t samples_processed() const noexcept;
+
+	/**
+	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
+	 * processed.
+	 *
+	 * This value is equivalent to samples_expected() - samples_processed().
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples yet to process.
+	 */
+	int64_t samples_todo() const noexcept;
+
+	/**
+	 * \brief Amount of milliseconds elapsed so far by processing.
+	 *
+	 * This includes the time of reading as well as of calculation.
+	 *
+	 * \return Amount of milliseconds elapsed so far by processing.
+	 */
+	std::chrono::milliseconds proc_time_elapsed() const;
+};
+
+
+/**
+ * \brief Calculates checksums.
+ */
+class Calculation final
+{
+	class Impl;
+	std::unique_ptr<Impl> impl_;
+	/*
+	// Public input for construction:
+	Algorithm*        algorithm_;
+
+	// Internal input for construction:
+	Partitioner*      partitioner_;
+
+	// constructed, controlled and destroyed by calculation:
+	std::unique_ptr<ChecksumBuffer>   result_buffer_;
+	std::unique_ptr<CalculationState> state_;
+	*/
+
+public:
+
+	Calculation(const Algorithm& algorithm);
+
+	/**
+	 * \brief Returns the CalculationState of this Calculation.
+	 *
+	 * \return Current state of this Calculation.
+	 */
+	const CalculationState& state() const noexcept;
+
+	/**
+	 * \brief Returns the algorithm used by this Calculation.
+	 *
+	 * \return Algorithm used by this Calculation.
+	 */
+	const Algorithm& algorithm() const noexcept;
+
+	/**
+	 * \brief Returns the types requested to this Calculation.
+	 *
+	 * Convenience function for <tt>mycalculation.algorithm().types()</tt>.
+	 *
+	 * \return All requested types.
+	 */
+	std::vector<checksum::type> types() const noexcept;
+
+	/**
+	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise
+	 * \c FALSE.
+	 *
+	 * If the instance returns \c TRUE it is safe to call result(). Value
+	 * \c FALSE indicates that the instance expects more updates.
+	 *
+	 * \return \c TRUE if the Calculation is completed, otherwise \c FALSE
+	 */
+	bool complete() const noexcept;
+
+	/**
+	 * \brief Update with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 */
+	void update(SampleInputIterator begin, SampleInputIterator end);
+
+	/**
+	 * \brief Updates the instance with a new AudioSize.
+	 *
+	 * This can be done safely at any time before the last call of update().
+	 *
+	 * \param[in] audiosize The updated AudioSize
+	 */
+	void update_audiosize(const AudioSize &audiosize);
+
+	/**
+	 * \brief Acquire the resulting Checksums.
+	 *
+	 * \return The computed Checksums
+	 */
+	Checksums result() const noexcept;
+};
 
 } // namespace v_1_0_0
 } // namespace arcstk
