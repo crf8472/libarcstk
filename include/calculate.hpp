@@ -827,6 +827,9 @@ bool operator == (const SampleInputIterator &lhs,
 SampleInputIterator operator + (SampleInputIterator lhs,
 		const int32_t amount) noexcept;
 
+SampleInputIterator operator + (const int32_t amount,
+		SampleInputIterator rhs) noexcept;
+
 /**
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
@@ -858,10 +861,19 @@ class SampleInputIterator final : public Comparable<SampleInputIterator>
 public:
 
 	friend bool operator == (const SampleInputIterator &lhs,
-			const SampleInputIterator &rhs) noexcept;
+			const SampleInputIterator &rhs) noexcept
+	{
+		return lhs.object_->equals(*rhs.object_);
+	}
 
 	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const int32_t amount) noexcept;
+			const int32_t amount) noexcept
+	{
+		lhs.object_->advance(amount);
+		return lhs;
+	}
+
+	// operator + (amount, rhs) is not a friend
 
 	/**
 	 * \brief Iterator category is std::input_iterator_tag.
@@ -1040,26 +1052,37 @@ public:
 	 *
 	 * \param[in] rhs Instance to copy
 	 */
-	SampleInputIterator(const SampleInputIterator& rhs);
+	SampleInputIterator(const SampleInputIterator& rhs)
+		: object_ { rhs.object_->clone() }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs Instance to move
 	 */
-	SampleInputIterator(SampleInputIterator&& rhs) noexcept;
+	SampleInputIterator(SampleInputIterator&& rhs) noexcept
+		: object_ { std::move(rhs.object_) }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Destructor
 	 */
-	~SampleInputIterator() noexcept;
+	~SampleInputIterator() noexcept = default;
 
 	/**
 	 * \brief Dereferences the iterator to the sample pointed to.
 	 *
 	 * \return A sample_t sample, returned by value
 	 */
-	reference operator * () const noexcept; // required by LegacyIterator
+	reference operator * () const noexcept // required by LegacyIterator
+	{
+		return object_->dereference();
+	}
 
 	/* *
 	 * \brief Access members of the underlying referee
@@ -1067,24 +1090,40 @@ public:
 	 * \return A pointer to the underlying referee
 	 */
 	pointer operator -> () const noexcept; // required by LegacyInpuIterator
+	// TODO implement
 
 	/**
 	 * \brief Pre-increment iterator.
 	 *
 	 * \return Incremented iterator
 	 */
-	SampleInputIterator& operator ++ () noexcept; // required by LegacyIterator
+	SampleInputIterator& operator ++ () noexcept // required by LegacyIterator
+	{
+		object_->preincrement();
+		return *this;
+	}
 
 	/**
 	 * \brief Post-increment iterator.
 	 *
 	 * \return Iterator representing the state befor the increment
 	 */
-	SampleInputIterator operator ++ (int) noexcept;
+	SampleInputIterator operator ++ (int) noexcept
+	{
+		SampleInputIterator prev_val(*this);
+		object_->preincrement();
+		return prev_val;
+	}
 	// required by LegacyInputIterator
 
-
-	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept;
+	/**
+	 * \brief Copy assignment.
+	 */
+	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
+	{
+		swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
+		return *this;
+	}
 	// required by LegacyIterator
 
 	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
@@ -1103,10 +1142,6 @@ private:
 	 */
 	std::unique_ptr<Concept> object_;
 };
-
-
-SampleInputIterator operator + (const int32_t amount,
-		SampleInputIterator rhs) noexcept;
 
 
 /**
@@ -1178,36 +1213,25 @@ private:
 };
 
 
-class Calculation;
-
-
-/**
- * \brief Builds calculation instances.
- */
-class CalculationBuilder
-{
-	/**
-	 * \brief Create a Calculation.
-	 *
-	 * \param[in] types       Checksum types to calculate
-	 *
-	 * \return Checksums calculated.
-	 */
-	static std::unique_ptr<Calculation> create(
-		const std::vector<checksum::type>& types);
-
-};
-
-
 /**
  * \brief Current state of a Calculation.
  */
 class CalculationState
 {
-
 public:
 
+	/**
+	 * \brief Virtual default destructor.
+	 */
 	virtual ~CalculationState() noexcept = default;
+
+	/**
+	 * \brief Return the current subtotals corresponding to the offset.
+	 *
+	 * \return Current subtotals.
+	 */
+	virtual ChecksumSet current_value() const
+	= 0;
 
 	/**
 	 * \brief The current track number.
@@ -1216,7 +1240,8 @@ public:
 	 *
 	 * \return The number of the current track
 	 */
-	TrackNo current_track() const;
+	virtual TrackNo current_track() const
+	= 0;
 
 	/**
 	 * \brief Current 0-based sample offset.
@@ -1225,7 +1250,8 @@ public:
 	 *
 	 * \return The current sample index offset
 	 */
-	int32_t sample_offset() const;
+	virtual int32_t sample_offset() const noexcept
+	= 0;
 
 	/**
 	 * \brief Returns the total number of initially expected PCM 32 bit samples.
@@ -1237,7 +1263,8 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples expected.
 	 */
-	int64_t samples_expected() const noexcept;
+	virtual int64_t samples_expected() const noexcept
+	= 0;
 
 	/**
 	 * \brief Returns the total number for PCM 32 bit samples yet processed.
@@ -1248,7 +1275,8 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int64_t samples_processed() const noexcept;
+	virtual int64_t samples_processed() const noexcept
+	= 0;
 
 	/**
 	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
@@ -1260,7 +1288,8 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples yet to process.
 	 */
-	int64_t samples_todo() const noexcept;
+	virtual int64_t samples_todo() const noexcept
+	= 0;
 
 	/**
 	 * \brief Amount of milliseconds elapsed so far by processing.
@@ -1269,7 +1298,24 @@ public:
 	 *
 	 * \return Amount of milliseconds elapsed so far by processing.
 	 */
-	std::chrono::milliseconds proc_time_elapsed() const;
+	virtual std::chrono::milliseconds proc_time_elapsed() const noexcept
+	= 0;
+
+	/**
+	 * \brief Update the calculation state with an contigous amount of samples.
+	 *
+	 * \param[in] start First sample of update
+	 * \param[in] stop  Sample behind last sample of update
+	 */
+	virtual void update(SampleInputIterator start, SampleInputIterator stop)
+	= 0;
+
+	/**
+	 * \brief Increment the amount of time elapsed.
+	 */
+	virtual void increment_proc_time_elapsed(
+			const std::chrono::milliseconds amount)
+	= 0;
 };
 
 
@@ -1294,6 +1340,11 @@ class Calculation final
 
 public:
 
+	/**
+	 * \brief Create a calculation instance.
+	 *
+	 * \param[in] algorithm The algorithm to use for calculating
+	 */
 	Calculation(const Algorithm& algorithm);
 
 	/**

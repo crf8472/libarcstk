@@ -28,20 +28,6 @@ inline namespace v_1_0_0
 namespace details
 {
 
-
-/**
- * \brief Check whether \c value is within the bounds of \c unit..
- *
- * \param[in] value Value to convert
- * \param[in] unit  Unit of the value
- *
- * \throw std::underflow_error If value is negative
- * \throw std::overflow_error  If value is bigger than the unit maximum
- *
- * \return TRUE iff <tt>0 <= value <= AudioSize::max(unit)</tt>
- */
-bool within_bounds(const int32_t value, const AudioSize::UNIT unit);
-
 /**
  * \brief Convert \c value to the corrsponding number of bytes.
  *
@@ -417,43 +403,51 @@ public:
 
 
 /**
- * \brief Buffer for resulting checksums.
+ * \brief Calculation state.
+ *
+ * \details
+ *
+ * The calculation state is a storage wrapper for the current calculation state.
  */
-using ChecksumBuffer = std::unordered_map<TrackNo, ChecksumSet>;
-
-
-/**
- * \brief Provides chunks of a block.
- */
-class PartitionProvider
+class CalculationStateImpl final : public CalculationState
 {
-	const CalcContext* context_;
-	const Partitioner* partitioner_;
+	/**
+	 * \internal
+	 * \brief Internal 0-based sample offset.
+	 */
+	Counter<int32_t> sample_offset_;
+
+	/**
+	 * \brief Time elapsed by updating.
+	 */
+	Counter<std::chrono::milliseconds> proc_time_elapsed_;
+
+	/**
+	 * \internal
+	 * \brief Current track.
+	 */
+	Counter<int> current_track_;
 
 public:
 
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] context     CalcContext to use
-	 * \param[in] partitioner Partitioner to use
-	 */
-	PartitionProvider(const CalcContext& context,
-			const Partitioner& partitioner);
+	CalculationStateImpl();
+	~CalculationStateImpl() noexcept final = default;
+	ChecksumSet current_value() const final;
+	TrackNo current_track() const final;
+	int32_t sample_offset() const noexcept final;
+	int64_t samples_expected() const noexcept final;
+	int64_t samples_processed() const noexcept final;
+	int64_t samples_todo() const noexcept final;
+	std::chrono::milliseconds proc_time_elapsed() const noexcept final;
 
-	/**
-	 * \brief Provide a partitioning.
-	 *
-	 * \param[in] s_offset Current sample offset
-	 * \param[in] s_total  Total samples
-	 */
-	Partitioning operator()(const int32_t s_offset, const int32_t s_total)
-		const;
+	void update(SampleInputIterator start, SampleInputIterator stop) final;
+	void increment_proc_time_elapsed(const std::chrono::milliseconds amount)
+		final;
 };
 
 
 /**
- * \brief Updates a calculation.
+ * \brief Updates a calculation process by a sample block.
  *
  * \tparam B Type of the iterator pointing to the start position
  * \tparam E Type of the iterator pointing to the stop position
@@ -465,38 +459,43 @@ public:
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Collect the results
  */
-template<class B, class E>
-void calc_update(B& start, E& stop, const int32_t last_sample,
-		const PartitionProvider& partitioner,
+void calc_update(SampleInputIterator start, SampleInputIterator stop,
+		const int32_t last_sample,
+		const Partitioner& partitioner,
+		CalculationState& state,
+		ChecksumBuffer& result_buffer);
+
+void calc_update(SampleInputIterator start, SampleInputIterator stop,
+		const int32_t last_sample,
+		const Partitioner& partitioner,
 		CalculationState& state,
 		ChecksumBuffer& result_buffer)
-
 {
 	const auto samples_in_block     { std::distance(start, stop) };
 	const auto last_sample_in_block {
-		state.sample_offset() + samples_in_block - 1 };
+		state.sample_offset() + samples_in_block - 1/* stop is behind last*/ };
 
 	ARCS_LOG_DEBUG << "  Offset:  " << state.sample_offset() << " samples";
-	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block << " samples";
+	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block      << " samples";
 	ARCS_LOG_DEBUG << "  Indices: " <<
 		state.sample_offset() << " - " << last_sample_in_block;
 
 	// Create a partitioning following the track bounds in this block
 
-	auto partitioning { partitioner(state.sample_offset(), samples_in_block) };
+	auto partitioning { partitioner.create_partitioning(
+			state.sample_offset(), samples_in_block) };
 
 	ARCS_LOG_DEBUG << "  Partitions:  " << partitioning.size();
 
 	const bool is_last_relevant_block {
-		Interval<int32_t>(state.sample_offset(), last_sample_in_block).contains(
-				last_sample)
+		Interval<int32_t>(state.sample_offset(), last_sample_in_block)
+			.contains(last_sample)
 	};
-
 
 	// Update the CalcState with each partition in this partitioning
 
 	auto partition_counter = uint16_t { 0 };
-	auto relevant_samples_counter = int32_t { 0 };
+	auto relevant_samples_counter = std::size_t { 0 };
 
 	const auto start_time { std::chrono::steady_clock::now() };
 	for (const auto& partition : partitioning)
@@ -504,11 +503,8 @@ void calc_update(B& start, E& stop, const int32_t last_sample,
 		++partition_counter;
 		relevant_samples_counter += partition.size();
 
-		//this->log_partition(partition_counter, partitioning.size(), partition);
 		ARCS_LOG_DEBUG << "  Partition " << partition_counter << "/" <<
 			partitioning.size();
-
-		// Update the calculation state with the current partition/chunk
 
 		state.update(start + partition.begin_offset(),
 				stop + partition.end_offset());
@@ -518,44 +514,36 @@ void calc_update(B& start, E& stop, const int32_t last_sample,
 		if (partition.ends_track())
 		{
 			//state->save(partition.track());
-			result_buffer.insert(partition.track(), { state.current_value() });
+			result_buffer.insert({ partition.track(), state.current_value() });
 
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
 		}
 	}
-	//smpl_offset += samples_in_block;
-	state.increment_sample_offset(samples_in_block);
-	const auto end_time { std::chrono::steady_clock::now() };
 
-
-	// Perform logging
+	//state.increment_sample_offset(samples_in_block); // done within state
+	const auto block_time_elapsed {
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now() - start_time)
+	};
+	state.increment_proc_time_elapsed(block_time_elapsed);
 
 	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
 			<< relevant_samples_counter;
 
-	{
-		const auto block_time_elapsed {
-			std::chrono::duration_cast<std::chrono::milliseconds>
-				(end_time - start_time)
-		};
-
-		state.increment_proc_time_elapsed(block_time_elapsed);
-
-		ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
-			<<	block_time_elapsed.count();
-	}
-
+	ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
+			<<	state.proc_time_elapsed().count();
 
 	if (is_last_relevant_block)
 	{
 		ARCS_LOG(DEBUG1) << "Calculation complete.";
-		// ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
-		// 	this->samples_processed();
-		// ARCS_LOG(DEBUG1) << "Total samples declared: " <<
-		// 	this->samples_expected();
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
-			<< state.proc_time_elapsed().count();
+
+		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
+			state.samples_processed();
+		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
+			state.samples_expected();
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
+			state.proc_time_elapsed().count();
 	}
 }
 

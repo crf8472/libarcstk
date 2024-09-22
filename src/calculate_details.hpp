@@ -107,7 +107,7 @@ std::vector<int32_t> get_offset_sample_indices(const TOC& toc);
  *
  * \return TRUE iff \c t is a valid track number, otherwise FALSE.
  */
-bool is_valid_track_number(const TrackNo t);
+bool is_valid_track_number(const int t);
 
 /**
  * \brief Check whether the specified TOC has the specified track.
@@ -117,7 +117,7 @@ bool is_valid_track_number(const TrackNo t);
  *
  * \return TRUE iff \c toc contains \c track, otherwise FALSE.
  */
-bool is_valid_track(const TrackNo track, const TOC& toc);
+bool is_valid_track(const int track, const TOC& toc);
 
 /**
  * \brief Return the track for the specified 0-based sample index.
@@ -135,7 +135,7 @@ bool is_valid_track(const TrackNo track, const TOC& toc);
  * \return Number of the track with the specified sample index or an invalid
  * track
  */
-TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total);
+int track(const int32_t sample, const TOC& toc, const int32_t s_total);
 
 /**
  * \internal
@@ -207,6 +207,7 @@ public:
 	}
 };
 
+
 /**
  * \brief Return the first sample of the specified track that lies in bounds.
  *
@@ -216,8 +217,9 @@ public:
  *
  * \return Index of the first sample within bounds
  */
-int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
+int32_t first_relevant_sample(const int track, const TOC& toc,
 		const Interval<int32_t>& bounds);
+
 
 /**
  * \brief Return the last sample of the specified track that lies in bounds.
@@ -228,21 +230,8 @@ int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
  *
  * \return Index of the last sample within bounds
  */
-int32_t last_relevant_sample(const TrackNo track, const TOC& toc,
+int32_t last_relevant_sample(const int track, const TOC& toc,
 		const Interval<int32_t>& bounds);
-
-/**
- * \brief Return the highest value of the amount that lies within the bounds.
- *
- * In case !is_valid_track(track, toc) or toc is not complete or track is the
- * last track the return value is 0.
- *
- * \param[in] bounds Bounds to respect
- * \param[in] amount Amount to respect
- *
- * \return The higher of bounds.upper() or amount
- */
-int32_t last_in_bounds(const Interval<int32_t>& bounds, const int32_t amount);
 
 
 // Forward Declaration Required for Partitioner
@@ -444,6 +433,14 @@ class TrackPartitioner final : public Partitioner
 
 public:
 
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples to partition
+	 * \param[in] skip_front    Flag to indicate skipping of samples at front
+	 * \param[in] skip_back     Flag to indicate skipping of samples at back
+	 * \param[in] TOC           Partition bounds
+	 */
 	TrackPartitioner(const int32_t total_samples,
 		const int32_t skip_front,
 		const int32_t skip_back,
@@ -506,7 +503,7 @@ class Partition final
 	 * \brief 1-based number of the track of which the samples in the partition
 	 * are part of
 	 */
-	const TrackNo track_;
+	const int track_;
 
 public:
 
@@ -530,7 +527,7 @@ public:
 			const int32_t &last,
 			const bool    &starts_track,
 			const bool    &ends_track,
-			const TrackNo &track);
+			const int     &track);
 
 	/**
 	 * \brief Relative offset of the first sample in the partition.
@@ -545,20 +542,6 @@ public:
 	 * \return Relative offset of the last sample in the partition + 1.
 	 */
 	int32_t end_offset() const;
-
-	/**
-	 * \brief Returns global index of the first sample in the partition.
-	 *
-	 * \return Global index of the first sample in this partition
-	 */
-	//int32_t first_sample_idx() const;
-
-	/**
-	 * \brief Returns global index of the last sample in the partition.
-	 *
-	 * \return Global index of the last sample in this partition
-	 */
-	//int32_t last_sample_idx() const;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the
@@ -581,7 +564,7 @@ public:
 	 *
 	 * \return The track that contains this partition
 	 */
-	TrackNo track() const;
+	int track() const;
 
 	/**
 	 * \brief Number of samples in this partition.
@@ -606,7 +589,7 @@ public:
 
 	using type = T;
 
-	T value() const
+	T value() const noexcept
 	{
 		return value_;
 	}
@@ -614,122 +597,6 @@ public:
 	void increment(T amount)
 	{
 		value_ += amount;
-	}
-};
-
-
-/**
- * \brief Calculation state.
- *
- * \details
- *
- * The calculation state is a storage wrapper for the current calculation state.
- */
-class CalculationState
-{
-	/**
-	 * \internal
-	 * \brief Internal 0-based sample offset.
-	 */
-	Counter<int32_t> sample_offset_;
-
-	/**
-	 * \brief Time elapsed by updating.
-	 */
-	Counter<std::chrono::milliseconds> proc_time_elapsed_;
-
-	/**
-	 * \internal
-	 * \brief Current track.
-	 */
-	Counter<TrackNo> current_track_;
-
-	//Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
-
-protected:
-
-	/**
-	 * \brief Increment the current sample offset.
-	 *
-	 * \param[in] amount Amount of time to update the state.
-	 */
-	void increment_sample_offset(const int32_t amount);
-
-	/**
-	 * \brief Service function to save the amount of time elapsed during update.
-	 *
-	 * \param[in] amount Amount of milliseconds elapsed
-	 */
-	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
-
-public:
-
-	/**
-	 * \brief Current 0-based sample offset.
-	 *
-	 * Can be interpreted as "start index" for the next update.
-	 *
-	 * \return The current sample index offset
-	 */
-	int32_t sample_offset() const;
-
-	/**
-	 * \brief Amount of milliseconds elapsed so far by calculation.
-	 *
-	 * \return Amount of milliseconds elapsed so far by calculation.
-	 */
-	std::chrono::milliseconds proc_time_elapsed() const;
-
-	/**
-	 * \brief Current subtotal values for checksum calculation.
-	 *
-	 * \return Current subtotals
-	 */
-	ChecksumSet current_value() const;
-
-	/**
-	 * \brief The current track number.
-	 *
-	 * \return The number of the current track
-	 */
-	Counter<TrackNo> current_track() const;
-
-	/**
-	 * \brief Perform an update of the calculation.
-	 *
-	 * \tparam B Type of iterator pointing to start position
-	 * \tparam E Type of iterator pointing to stop position
-	 *
-	 * \param[in] start Iterator pointing to start position
-	 * \param[in] end   Iterator pointing to stop position
-	 */
-	template<class B, class E>
-	void update(B& start, E& stop)
-	{
-		//internal_state_.update(start, stop);
-	}
-};
-
-
-class Algorithm
-{
-	// first and last relevant sample belong HERE, not in context
-
-public:
-
-	/**
-	 * \brief Perform an update of the calculation.
-	 *
-	 * \tparam B Type of iterator pointing to start position
-	 * \tparam E Type of iterator pointing to stop position
-	 *
-	 * \param[in] start Iterator pointing to start position
-	 * \param[in] end   Iterator pointing to stop position
-	 */
-	template<class B, class E>
-	void update(B& start, E& stop)
-	{
-		//internal_state_.update(start, stop);
 	}
 };
 

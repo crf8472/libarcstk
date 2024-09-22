@@ -87,19 +87,19 @@ std::vector<int32_t> get_offset_sample_indices(const TOC& toc)
 }
 
 
-bool is_valid_track_number(const TrackNo track)
+bool is_valid_track_number(const int track)
 {
 	return 0 < track && track <= 99;
 }
 
 
-bool is_valid_track(const TrackNo track, const TOC& toc)
+bool is_valid_track(const int track, const TOC& toc)
 {
 	return 0 < track && track <= toc.total_tracks();
 }
 
 
-TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total)
+int track(const int32_t sample, const TOC& toc, const int32_t s_total)
 {
 	const auto offsets { get_offset_sample_indices(toc) };
 
@@ -117,7 +117,7 @@ TrackNo track(const int32_t sample, const TOC& toc, const int32_t s_total)
 }
 
 
-int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
+int32_t first_relevant_sample(const int track, const TOC& toc,
 		const Interval<int32_t>& bounds)
 {
 	static const int32_t INVALID = 0;
@@ -161,7 +161,7 @@ int32_t first_relevant_sample(const TrackNo track, const TOC& toc,
 }
 
 
-int32_t last_relevant_sample(const TrackNo track,
+int32_t last_relevant_sample(const int track,
 		const TOC& toc, const Interval<int32_t>& bounds)
 {
 	static const int32_t INVALID = 0;
@@ -181,7 +181,8 @@ int32_t last_relevant_sample(const TrackNo track,
 
 	if (track >= toc.total_tracks())
 	{
-		return last_in_bounds(bounds, frames2samples(toc.leadout()));
+		//return last_in_bounds(bounds, frames2samples(toc.leadout()));
+		return std::min(bounds.upper(), frames2samples(toc.leadout()));
 	}
 
 	const auto next_track = TrackNo { track + 1 };
@@ -200,30 +201,9 @@ int32_t last_relevant_sample(const TrackNo track,
 	}
 
 	return !frames ? INVALID :
-		last_in_bounds(bounds, frames2samples(frames) - 1);
-}
-
-
-int32_t last_in_bounds(const Interval<int32_t>& bounds, const int32_t amount)
-{
-	// return this->skips_back()
-	// 	? this->audio_size().total_samples() - 1 - this->num_skip_back()
-	// 	: this->audio_size().total_samples() - 1;
-
-	//const auto total_samples { frames2samples(total_frames) - 1 };
-
-	if (bounds.upper() >= amount)
-	{
-		return amount;
-	}
-
-	if (bounds.upper() == 0) /* no skip */
-	{
-		return amount;
-	}
-
-	//return total_samples - (total_samples - bounds.upper()) - 1;
-	return bounds.upper();
+		/* Last sample of previous track, if in bounds */
+		//last_in_bounds(bounds, frames2samples(frames) - 1);
+		std::min(bounds.upper(), frames2samples(frames) - 1);
 }
 
 
@@ -509,62 +489,7 @@ std::size_t Partition::size() const
 }
 
 
-// CalculationState
-
-
-int32_t CalculationState::sample_offset() const
-{
-	return sample_offset_.value();
-}
-
-void CalculationState::increment_sample_offset(const int32_t amount)
-{
-	sample_offset_.increment(amount);
-}
-
-std::chrono::milliseconds CalculationState::proc_time_elapsed() const
-{
-	return proc_time_elapsed_.value();
-}
-
-void CalculationState::increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
-{
-	proc_time_elapsed_.increment(amount);
-}
-
-arcstk::ChecksumSet CalculationState::current_value() const
-{
-	// TODO Implement
-	return arcstk::ChecksumSet{};
-	//return internal_state_.value();
-}
-
-
 // calculate_impl.hpp
-
-
-bool within_bounds(const int32_t value, const AudioSize::UNIT unit)
-{
-	using std::to_string;
-
-	if (value < 0)
-	{
-		auto ss = std::stringstream {};
-		ss << "Cannot construct AudioSize from negative value: "
-			<< to_string(value);
-		throw std::underflow_error(ss.str());
-	}
-
-	if (value > AudioSize::max(unit))
-	{
-		auto ss = std::stringstream {};
-		ss << "Value too big for maximum: " << to_string(value);
-		throw std::overflow_error(ss.str());
-	}
-
-	return true;
-}
 
 
 int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
@@ -1165,31 +1090,71 @@ void swap(MultitrackCalcContext& lhs, MultitrackCalcContext& rhs) noexcept
 }
 
 
-// PartitionProvider
+// CalculationStateImpl
 
 
-PartitionProvider::PartitionProvider(const CalcContext& context,
-		const Partitioner& partitioner)
-	: context_     { &context }
-	, partitioner_ { &partitioner }
+ChecksumSet CalculationStateImpl::current_value() const
 {
-		// empty
+	// TODO Implement
+	return arcstk::ChecksumSet{};
 }
 
 
-Partitioning PartitionProvider::operator()(const int32_t s_offset,
-		const int32_t s_total) const
+TrackNo CalculationStateImpl::current_track() const
 {
-	return partitioner_->create_partitioning(s_offset, s_total
-			/* ,
-		{
-			context_->first_relevant_sample(),
-			context_->last_relevant_sample()
-		}
-		*/
-	);
+	// TODO Implement
+	return 1;
 }
 
+
+int32_t CalculationStateImpl::sample_offset() const noexcept
+{
+	return sample_offset_.value();
+}
+
+
+int64_t CalculationStateImpl::samples_expected() const noexcept
+{
+	// TODO Implement
+	return 1;
+}
+
+
+int64_t CalculationStateImpl::samples_processed() const noexcept
+{
+	// TODO Implement
+	return 1;
+}
+
+
+int64_t CalculationStateImpl::samples_todo() const noexcept
+{
+	// TODO Implement
+	return 1;
+}
+
+
+std::chrono::milliseconds CalculationStateImpl::proc_time_elapsed() const
+	noexcept
+{
+	return proc_time_elapsed_.value();
+}
+
+
+void CalculationStateImpl::update(SampleInputIterator start,
+		SampleInputIterator stop)
+{
+	// TODO Implement
+
+	sample_offset_.increment(std::distance(start, stop));
+}
+
+
+void CalculationStateImpl::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	proc_time_elapsed_.increment(amount);
+}
 
 
 } // namespace details
@@ -1288,10 +1253,25 @@ int32_t AudioSize::max(const UNIT unit) noexcept
 
 void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
 {
-	if (details::within_bounds(value, unit))
+	if (not details::Interval<int32_t>(0, AudioSize::max(unit)).contains(value))
 	{
-		total_pcm_bytes_ = details::to_bytes(value, unit);
+		using std::to_string;
+
+		if (value > AudioSize::max(unit))
+		{
+			auto ss = std::stringstream {};
+			ss << "Value too big for maximum: " << to_string(value);
+			throw std::overflow_error(ss.str());
+		} else // value < 0
+		{
+			auto ss = std::stringstream {};
+			ss << "Cannot set AudioSize to negative value: "
+				<< to_string(value);
+			throw std::underflow_error(ss.str());
+		}
 	}
+
+	total_pcm_bytes_ = details::to_bytes(value, unit);
 }
 
 
@@ -1526,6 +1506,41 @@ std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc,
 	return make_context(*toc, audiofilename);
 }
 
+
+// SampleInputIterator
+
+
+inline SampleInputIterator operator + (const int32_t amount,
+		SampleInputIterator rhs) noexcept
+{
+	return rhs + amount;
+}
+
+
+// Algorithm
+
+
+void Algorithm::update(SampleInputIterator begin, SampleInputIterator end)
+{
+	this->do_update(begin, end);
+}
+
+
+ChecksumBuffer Algorithm::result() const
+{
+	return this->do_result();
+}
+
+
+std::set<checksum::type> Algorithm::types() const
+{
+	return this->do_types();
+}
+
+
+// Calculation
+
+// TODO
 
 } // namespace v_1_0_0
 } // namespace arcstk
