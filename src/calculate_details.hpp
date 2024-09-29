@@ -240,9 +240,16 @@ class Partition;
 
 /**
  * \internal
- * \brief Partitioning of a range of samples.
+ * \brief Type of the partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
+
+
+/**
+ * \internal
+ * \brief Type of a list of split points within a range of samples.
+ */
+using SplitPoints = std::vector<int32_t>;
 
 
 /**
@@ -295,12 +302,12 @@ public:
 	 * \brief Constructor.
 	 *
 	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
 	 * \param[in] skip_front    Amount of samples to skip at front
 	 * \param[in] skip_back     Amount of samples to skip at back
-	 * \param[in] points        List of splitting points
 	 */
-	Partitioner(const int32_t total_samples, const int32_t skip_front,
-			const int32_t skip_back, const std::vector<int32_t>& points);
+	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
+			const int32_t skip_front, const int32_t skip_back);
 
 	/**
 	 * \brief Virtual default destructor.
@@ -399,6 +406,11 @@ private:
 	int32_t total_samples_;
 
 	/**
+	 * \brief Internal splitting points.
+	 */
+	std::vector<int32_t> points_;
+
+	/**
 	 * \brief Internal amount of samples to skip at front.
 	 */
 	int32_t skip_front_;
@@ -407,12 +419,31 @@ private:
 	 * \brief Internal amount of samples to skip at back.
 	 */
 	int32_t skip_back_;
-
-	/**
-	 * \brief Internal splitting points.
-	 */
-	std::vector<int32_t> points_;
 };
+
+
+/**
+ * \brief Create a partitioner for a possibly incomplete TOC.
+ *
+ * \param[in] toc          The TOC to get a Partitioner for.
+ * \param[in] total_frames The total number of frames in the expected input.
+ *
+ * \return Partitioner for the specified TOC.
+ */
+std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
+		const int32_t total_frames);
+
+
+/**
+ * \brief Create a partitioner for a complete TOC.
+ *
+ * \param[in] toc The TOC to get a Partitioner for.
+ *
+ * \return Partitioner for the specified TOC.
+ *
+ * \throws Iff toc.complete() is FALSE
+ */
+std::unique_ptr<Partitioner> make_partitioner(const TOC& toc);
 
 
 /**
@@ -433,18 +464,9 @@ class TrackPartitioner final : public Partitioner
 
 public:
 
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] total_samples Total number of samples to partition
-	 * \param[in] skip_front    Flag to indicate skipping of samples at front
-	 * \param[in] skip_back     Flag to indicate skipping of samples at back
-	 * \param[in] TOC           Partition bounds
-	 */
 	TrackPartitioner(const int32_t total_samples,
-		const int32_t skip_front,
-		const int32_t skip_back,
-		const TOC& toc);
+			const std::vector<int32_t>& points,
+			const int32_t skip_front, const int32_t skip_back);
 };
 
 
@@ -576,7 +598,7 @@ public:
 
 
 /**
- * \brief Class template for an incrementable and readable counter..
+ * \brief Class template for an incrementable and readable counter.
  *
  * \tparam T Type with definition of +=
  */
@@ -588,6 +610,12 @@ class Counter final
 public:
 
 	using type = T;
+
+	Counter(const T& value) // Convert a value to a counter
+		: value_ { value }
+	{
+		// empty
+	}
 
 	T value() const noexcept
 	{

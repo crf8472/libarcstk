@@ -404,26 +404,6 @@ TEST_CASE ( "last_relevant_sample()",
 		CHECK (253038 * 588 - 2939 == last_relevant_sample(15, *toc, i) );
 	}
 
-	/*
-	SECTION ( "last_in_bounds() is correct" )
-	{
-		CHECK ( last_in_bounds(i,   5225 * 588 - 1   ) ==   5225 * 588 - 1    );
-		CHECK ( last_in_bounds(i,   7390 * 588 - 1   ) ==   7390 * 588 - 1    );
-		CHECK ( last_in_bounds(i,  23380 * 588 - 1   ) ==  23380 * 588 - 1    );
-		CHECK ( last_in_bounds(i,  35608 * 588 - 1   ) ==  35608 * 588 - 1    );
-		CHECK ( last_in_bounds(i,  49820 * 588 - 1   ) ==  49820 * 588 - 1    );
-		CHECK ( last_in_bounds(i,  69508 * 588 - 1   ) ==  69508 * 588 - 1    );
-		CHECK ( last_in_bounds(i,  87733 * 588 - 1   ) ==  87733 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 106333 * 588 - 1   ) == 106333 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 139495 * 588 - 1   ) == 139495 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 157863 * 588 - 1   ) == 157863 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 198495 * 588 - 1   ) == 198495 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 213368 * 588 - 1   ) == 213368 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 225320 * 588 - 1   ) == 225320 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 234103 * 588 - 1   ) == 234103 * 588 - 1    );
-		CHECK ( last_in_bounds(i, 253038 * 588 - 2939) == 253038 * 588 - 2939 );
-	}
-	*/
 }
 
 
@@ -448,14 +428,14 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 		225320 * 588,
 		234103 * 588
 	};
-	// leadout 253038
+	// leadout 253038 * 588 == 148786344
 
 
 	SECTION ( "Partitioning with TOC in 1 block is correct" )
 	{
 		auto p { arcstk::details::get_partitioning(
-				{ /* use samples in one block  */    0, 148786344 },
-				{ /* use accuraterip algorithm */ 2940, 148786344 - 2939 },
+				{ /* use samples in one block  */    0, 253038 * 588        },
+				{ /* use accuraterip algorithm */ 2940, 253038 * 588 - 2939 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
 					    33 * 588,
 					  5225 * 588,

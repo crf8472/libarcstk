@@ -14,7 +14,7 @@
 #endif
 
 
-TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
+TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 {
 	// using arcstk::AudioSize;
 	using arcstk::checksum::type;
@@ -326,15 +326,16 @@ TEST_CASE ( "Updating ARCS v1+v2 without CalcContext", "[update]" )
 }
 
 
-TEST_CASE ( "Updating ARCS v1+v2 with MultiTrackContext", "[update]" )
-{
+//TEST_CASE ( "Updating ARCS v1+v2 with MultiTrackContext", "[update]" )
+//{
+/*
 	using arcstk::details::TOCBuilder;
 	using arcstk::make_context;
 
 	auto toc { TOCBuilder::build(
-		3, /* track count */
-		{ 12, 433, 924 }, /* offsets */
-		1233 /* leadout */
+		3, // track count
+		{ 12, 433, 924 }, // offsets
+		1233 // leadout
 	)};
 
 	auto mtcx { make_context(toc) };
@@ -349,6 +350,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with MultiTrackContext", "[update]" )
 	CHECK ( mtcx->skips_back() );
 	CHECK ( mtcx->num_skip_front() == 2939 );
 	CHECK ( mtcx->num_skip_back()  == 2940 );
+*/
 
 /*
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
@@ -521,5 +523,5 @@ TEST_CASE ( "Updating ARCS v1+v2 with MultiTrackContext", "[update]" )
 		CHECK ( 0xDD95CE6C == (track3.get(type::ARCS1)).value());
 	}
 */
-}
+//}
 

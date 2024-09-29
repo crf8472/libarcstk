@@ -211,7 +211,7 @@ public:
 
 class AccurateRipAlgorithm : public Algorithm
 {
-
+	// empty
 };
 
 

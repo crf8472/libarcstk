@@ -285,13 +285,13 @@ Partitioner::Partitioner(const int32_t total_samples,
 */
 
 Partitioner::Partitioner(const int32_t total_samples,
+		const std::vector<int32_t>& points,
 		const int32_t skip_front,
-		const int32_t skip_back,
-		const std::vector<int32_t>& points)
+		const int32_t skip_back)
 	: total_samples_ { total_samples }
+	, points_        { points        }
 	, skip_front_    { skip_front    }
 	, skip_back_     { skip_back     }
-	, points_        { points        }
 {
 	// empty
 }
@@ -359,17 +359,46 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 }
 
 
+// make_partitioner
+
+
+std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
+		const int32_t total_frames)
+{
+	if (total_frames <= 0)
+	{
+		if (toc.complete())
+		{
+			return make_partitioner(toc);
+		}
+
+		// TODO throw
+	}
+
+	return std::make_unique<TrackPartitioner>(frames2samples(total_frames),
+			get_offset_sample_indices(toc), true, true);
+}
+
+
+std::unique_ptr<Partitioner> make_partitioner(const TOC& toc)
+{
+	if (!toc.complete())
+	{
+		// TODO throw
+	}
+
+	return std::make_unique<TrackPartitioner>(frames2samples(toc.leadout()),
+			get_offset_sample_indices(toc), true, true);
+}
+
+
 // TrackPartitioner
 
 
 TrackPartitioner::TrackPartitioner(const int32_t total_samples,
-		const int32_t skip_front, const int32_t skip_back, const TOC& toc)
-	: Partitioner {
-		total_samples,
-		skip_front,
-		skip_back,
-		get_offset_sample_indices(toc)
-	}
+			const std::vector<int32_t>& points,
+			const int32_t skip_front, const int32_t skip_back)
+	: Partitioner(total_samples, points, skip_front, skip_back)
 {
 	// empty
 }
@@ -452,18 +481,6 @@ int32_t Partition::end_offset() const
 	return end_offset_;
 }
 
-/*
-int32_t Partition::first_sample_idx() const
-{
-	return first_sample_idx_;
-}
-
-
-int32_t Partition::last_sample_idx() const
-{
-	return last_sample_idx_;
-}
-*/
 
 bool Partition::starts_track() const
 {
@@ -522,638 +539,159 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 }
 
 
-// CalcContextImplBase
-
-
-std::string CalcContextImplBase::do_filename() const noexcept
-{
-	return filename_;
-}
-
-
-void CalcContextImplBase::do_set_filename(const std::string& filename) noexcept
-{
-	filename_ = filename;
-}
-
-
-const AudioSize& CalcContextImplBase::do_audio_size() const noexcept
-{
-	return audiosize_;
-}
-
-
-void CalcContextImplBase::do_set_audio_size(const AudioSize& audio_size)
-{
-	audiosize_ = audio_size;
-	do_hook_post_set_audio_size();
-}
-
-
-int32_t CalcContextImplBase::do_first_relevant_sample(const TrackNo /*t*/) const
-	noexcept
-{
-	return 0;
-}
-
-
-int32_t CalcContextImplBase::do_first_relevant_sample_no_parms() const noexcept
-{
-	return first_relevant_sample(1);
-}
-
-
-int32_t CalcContextImplBase::do_last_relevant_sample(const TrackNo /*t*/) const
-	noexcept
-{
-	return 0;
-}
-
-
-int32_t CalcContextImplBase::do_last_relevant_sample_no_parms() const noexcept
-{
-	return last_relevant_sample(this->total_tracks());
-}
-
-
-int32_t CalcContextImplBase::do_num_skip_front() const noexcept
-{
-	return num_skip_front_;
-}
-
-
-int32_t CalcContextImplBase::do_num_skip_back() const noexcept
-{
-	return num_skip_back_;
-}
-
-
-void CalcContextImplBase::do_notify_skips(const int32_t num_skip_front,
-		const int32_t num_skip_back) noexcept
-{
-	num_skip_front_ = num_skip_front;
-	ARCS_LOG_DEBUG << "Set context front skip: " << num_skip_front_;
-
-	num_skip_back_  = num_skip_back;
-	ARCS_LOG_DEBUG << "Set context back skip:  " << num_skip_back_;
-}
-
-
-void CalcContextImplBase::do_hook_post_set_audio_size()
-{
-	// empty
-}
-
-
-bool CalcContextImplBase::base_equals(const CalcContextImplBase& rhs) const
-	noexcept
-{
-	return filename_       == rhs.filename_
-		&& audiosize_      == rhs.audiosize_
-		&& num_skip_front_ == rhs.num_skip_front_
-		&& num_skip_back_  == rhs.num_skip_back_;
-}
-
-
-void CalcContextImplBase::base_swap(CalcContextImplBase& rhs) noexcept
-{
-	using std::swap;
-	swap(filename_,       rhs.filename_);
-	swap(audiosize_,      rhs.audiosize_);
-	swap(num_skip_front_, rhs.num_skip_front_);
-	swap(num_skip_back_,  rhs.num_skip_back_);
-}
-
-
-CalcContextImplBase::CalcContextImplBase(const std::string& filename,
-		const int32_t num_skip_front, const int32_t num_skip_back)
-	: audiosize_      { AudioSize{}    }
-	, filename_       { filename       }
-	, num_skip_front_ { num_skip_front }
-	, num_skip_back_  { num_skip_back  }
-{
-	// empty
-}
-
-
-// SingletrackCalcContext
-
-
-int32_t SingletrackCalcContext::do_first_relevant_sample(
-		const TrackNo /* track */) const noexcept
-{
-	// It is not necessary to bounds-check the TrackNo since we do not intend
-	// to throw. We just return the first relevant sample on every input except.
-
-	// Note especially that 0 is returned iff track == 0 since the first block
-	// will always start with the very first 32 bit PCM sample.
-
-	// We have no offsets and the track parameter is irrelevant. Hence iff the
-	// request adresses track 1 and skipping applies, the correct constant is
-	// provided, otherwise the result is always 0.
-
-	return this->skips_front() /* and track == 1 */
-		? this->num_skip_front()
-		: 0;
-}
-
-
-int32_t SingletrackCalcContext::do_last_relevant_sample(
-		const TrackNo /* track */) const noexcept
-{
-	// It is not necessary to bounds-check the TrackNo since we do not intend
-	// to throw. We just return the physical last sample on every input except
-	// for value 1.
-
-	// We have no offsets and the track parameter is irrelevant. Hence iff the
-	// request adresses the last track and skipping applies, the correct
-	// constant is provided, otherwise the result is always the last known
-	// sample.
-
-	return this->skips_back() /* and track == this->total_tracks() */ /* == 1 */
-		? this->audio_size().total_samples() - 1 - this->num_skip_back()
-		: this->audio_size().total_samples() - 1;
-}
-
-
-bool SingletrackCalcContext::do_skips_front() const noexcept
-{
-	return skip_front_;
-}
-
-
-bool SingletrackCalcContext::do_skips_back() const noexcept
-{
-	return skip_back_;
-}
-
-
-bool SingletrackCalcContext::do_is_multi_track() const noexcept
-{
-	return false;
-}
-
-
-int SingletrackCalcContext::do_total_tracks() const noexcept
-{
-	return 1;
-}
-
-
-int SingletrackCalcContext::do_track(const int32_t /* smpl */) const
-noexcept
-{
-	return 1;
-}
-
-
-lba_count_t SingletrackCalcContext::do_offset(const int /* track */) const
-noexcept
-{
-	return 0;
-}
-
-
-lba_count_t SingletrackCalcContext::do_length(const int /* track */) const
-noexcept
-{
-	return 0;
-}
-
-
-ARId SingletrackCalcContext::do_id() const
-{
-	return *(make_empty_arid());
-}
-
-
-std::unique_ptr<CalcContext> SingletrackCalcContext::do_clone() const noexcept
-{
-	return std::make_unique<SingletrackCalcContext>(*this);
-}
-
-
-bool SingletrackCalcContext::do_equals(const CalcContext& rhs) const noexcept
-{
-	const SingletrackCalcContext* ctx =
-		dynamic_cast<const SingletrackCalcContext*>(&rhs);
-
-    return ctx != nullptr && *this == *ctx;
-}
-
-
-SingletrackCalcContext::SingletrackCalcContext(const std::string& filename)
-	: SingletrackCalcContext { filename,
-		false, accuraterip::NUM_SKIP_SAMPLES_FRONT,
-		false, accuraterip::NUM_SKIP_SAMPLES_BACK }
-{
-	// empty
-}
-
-
-SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
-		const bool skip_front, const bool skip_back)
-	: SingletrackCalcContext { filename,
-		skip_front, accuraterip::NUM_SKIP_SAMPLES_FRONT,
-		skip_back,  accuraterip::NUM_SKIP_SAMPLES_BACK }
-{
-	// empty
-}
-
-
-SingletrackCalcContext::SingletrackCalcContext(const std::string& filename,
-		const bool skip_front, const int32_t num_skip_front,
-		const bool skip_back,  const int32_t num_skip_back)
-	: CalcContextImplBase { filename, num_skip_front, num_skip_back }
-	, skip_front_ { skip_front }
-	, skip_back_  { skip_back }
-{
-	// empty
-}
-
-
-void SingletrackCalcContext::set_skip_front(const bool is_skipped) noexcept
-{
-	skip_front_ = is_skipped;
-}
-
-
-void SingletrackCalcContext::set_skip_back(const bool is_skipped) noexcept
-{
-	skip_back_ = is_skipped;
-}
-
-
-bool operator == (const SingletrackCalcContext& lhs,
-		const SingletrackCalcContext& rhs) noexcept
-{
-	return lhs.base_equals(rhs)
-		&& lhs.skip_front_ == rhs.skip_front_
-		&& lhs.skip_back_  == rhs.skip_back_;
-}
-
-
-void swap(SingletrackCalcContext& lhs, SingletrackCalcContext& rhs) noexcept
-{
-	lhs.base_swap(rhs);
-
-	using std::swap;
-	swap(lhs.skip_front_, rhs.skip_front_);
-	swap(lhs.skip_back_,  rhs.skip_back_);
-}
-
-
-// MultitrackCalcContext
-
-
-int32_t MultitrackCalcContext::do_first_relevant_sample(
-		const TrackNo track) const noexcept
-{
-	// We have offsets, so we respect the corresponding offset to any track.
-
-	int32_t offset = 0;
-
-	try
-	{
-		offset = toc().offset(track);
-		// This will throw for track == 0 and for any unknown track in the TOC
-
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_WARNING << "First relevant sample for unknown track "
-			<< static_cast<int>(track) << " requested, returned 0.";
-
-		return 0;
-	}
-
-	// Skipping applies at most for track 1, so we add the appropriate constant.
-	if (this->skips_front() and track == 1)
-	{
-		return offset * CDDA::SAMPLES_PER_FRAME + this->num_skip_front();
-	}
-
-	// Standard multi track case: just the first sample of the track
-	return offset * CDDA::SAMPLES_PER_FRAME;
-}
-
-
-int32_t MultitrackCalcContext::do_last_relevant_sample(
-		const TrackNo track) const noexcept
-{
-	// Return last relevant sample of last track for any track number
-	// greater than the last track
-
-	if (track >= this->total_tracks())
-	{
-		return this->skips_back()
-			? this->audio_size().total_samples() - 1 - this->num_skip_back()
-			: this->audio_size().total_samples() - 1;
-	}
-
-	// We have offsets, so we respect the corresponding offset to any track
-
-	int32_t next_offset = 0;
-
-	try
-	{
-		next_offset = toc().offset(track + 1);
-
-		// Note that this will throw for track == 0 and for any other unknown
-		// track in the TOC
-
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_WARNING << "Offset for unknown track "
-			<< static_cast<int>(track) + 1 << " requested, returned 0.";
-
-		return 0;
-	}
-
-	// Ensure result 0 for previous track's offset 0
-	return next_offset ? next_offset * CDDA::SAMPLES_PER_FRAME - 1 : 0;
-}
-
-
-bool MultitrackCalcContext::do_skips_front() const noexcept
-{
-	return true;
-}
-
-
-bool MultitrackCalcContext::do_skips_back() const noexcept
-{
-	return true;
-}
-
-
-bool MultitrackCalcContext::do_is_multi_track() const noexcept
-{
-	return true;
-}
-
-
-int MultitrackCalcContext::do_total_tracks() const noexcept
-{
-	return toc().total_tracks();
-}
-
-
-int MultitrackCalcContext::do_track(const int32_t smpl)
-	const noexcept
-{
-	if (this->audio_size().total_samples() == 0)
-	{
-		return 0; // FIXME throw ?
-	}
-
-	// Sample beyond last track?
-	if (smpl >= this->audio_size().total_samples())
-	{
-		// This will return an invalid track number
-		// Caller has to check result for <= total_tracks() for a valid result
-		return CDDA::MAX_TRACKCOUNT + 1;
-	}
-
-	const auto last_track { this->total_tracks() };
-
-	// Increase track number while sample is smaller than track's last relevant
-	auto track = 0;
-	for (int32_t last_sample_trk { this->last_relevant_sample(track) } ;
-			smpl > last_sample_trk and track <= last_track ;
-			++track, last_sample_trk = this->last_relevant_sample(track)) { } ;
-
-	return track;
-}
-
-
-lba_count_t MultitrackCalcContext::do_offset(const int track) const noexcept
-{
-	return track < this->total_tracks() ? toc().offset(track + 1) : 0;
-}
-
-
-lba_count_t MultitrackCalcContext::do_length(const int track) const noexcept
-{
-	// We define track i as the sample sequence whose first frame is LBA
-	// offset[i] and whose last frame is LBA offset[i+1] - 1.
-	//
-	// This approach appends gaps between track i and i+1 as trailing
-	// samples to track i. This normalization is required for computing ARCS
-	// and it is the reason why we not just use the lengths parsed from the
-	// metafile but let the context normalize them.
-	//
-	// The lengths reported by this function may differ from the lengths derived
-	// from a CUEsheet or other TOC information which may have been computed by
-	// 3rd party software.
-
-	//if (offsets_.empty())
-	//{
-	//	return 0;
-	//}
-
-	if (track >= this->total_tracks())
-	{
-		return 0;
-	}
-
-	// Offsets are set, but last length / leadout is unknown
-
-	if (track == this->total_tracks() - 1)
-	{
-		// We derive the length of the last track.
-		// The last track has no trailing gap, therefore just subtracting
-		// is consistent with appending trailing gaps to the previous track.
-
-		return this->audio_size().leadout_frame()
-			? this->audio_size().leadout_frame() - toc().offset(track + 1)
-			: 0 ;
-	}
-
-	return toc().offset(track + 2) - toc().offset(track + 1);
-}
-
-
-ARId MultitrackCalcContext::do_id() const
-{
-	std::unique_ptr<ARId> id;
-
-	try
-	{
-		id = make_arid(toc(), this->audio_size().leadout_frame());
-
-	} catch (const InvalidMetadataException& e)
-	{
-		ARCS_LOG_WARNING << "Could not build ARId, cause: '" << e.what()
-			<< "', will build empty ARId instead";
-
-		id = make_empty_arid();
-	}
-
-	return *id;
-}
-
-
-std::unique_ptr<CalcContext> MultitrackCalcContext::do_clone() const noexcept
-{
-	return std::make_unique<MultitrackCalcContext>(*this);
-}
-
-
-bool MultitrackCalcContext::do_equals(const CalcContext& rhs) const noexcept
-{
-	const MultitrackCalcContext* ctx =
-		dynamic_cast<const MultitrackCalcContext*>(&rhs);
-
-    return ctx != nullptr && *this == *ctx;
-}
-
-
-void MultitrackCalcContext::do_hook_post_set_audio_size()
-{
-	if (audio_size().leadout_frame() != toc().leadout())
-	{
-		details::TOCBuilder builder;
-		builder.update(toc_, audio_size().leadout_frame());
-	}
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC>& toc,
-		const std::string& filename)
-	: MultitrackCalcContext { toc, 0, 0, filename }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const TOC& toc,
-		const std::string& filename)
-	: MultitrackCalcContext { toc, 0, 0, filename }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const std::unique_ptr<TOC>& toc,
-		const int32_t num_skip_front,
-		const int32_t num_skip_back, const std::string& filename)
-	: MultitrackCalcContext { *toc, num_skip_front, num_skip_back, filename }
-{
-	this->set_toc(toc_);
-}
-
-
-MultitrackCalcContext::MultitrackCalcContext(const TOC& toc,
-		const int32_t num_skip_front,
-		const int32_t num_skip_back, const std::string& filename)
-	: CalcContextImplBase { filename, num_skip_front, num_skip_back }
-	, toc_ { toc }
-{
-	this->set_toc(toc_);
-}
-
-
-const TOC& MultitrackCalcContext::toc() const noexcept
-{
-	return toc_;
-}
-
-
-void MultitrackCalcContext::set_toc(const TOC& toc)
-{
-	// NOTE: Leadout will be 0 if TOC is not complete.
-
-	// FIXME AudioSize constructed with no bounds check
-	this->set_audio_size(AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
-	// Commented out: without conversion
-	//AudioSize audiosize;
-	//audiosize.set_leadout_frame(toc.leadout());
-	//this->set_audio_size(audiosize);
-
-	toc_ = toc;
-}
-
-
-bool operator == (const MultitrackCalcContext& lhs,
-		const MultitrackCalcContext& rhs) noexcept
-{
-	return lhs.base_equals(rhs) && lhs.toc_ == rhs.toc_;
-}
-
-
-void swap(MultitrackCalcContext& lhs, MultitrackCalcContext& rhs) noexcept
-{
-	lhs.base_swap(rhs);
-
-	using std::swap;
-	swap(lhs.toc_, rhs.toc_);
-}
-
-
 // CalculationStateImpl
 
 
-ChecksumSet CalculationStateImpl::current_value() const
+CalculationStateImpl::CalculationStateImpl()
+	: CalculationStateImpl(nullptr)
 {
-	// TODO Implement
-	return arcstk::ChecksumSet{};
+	// empty
 }
 
 
-TrackNo CalculationStateImpl::current_track() const
+CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
+	: total_samples_expected_  { 0 }
+	, sample_offset_           { 0 }
+	, proc_time_elapsed_       { std::chrono::duration<int64_t, std::milli>(1) }
+	, algorithm_               { algorithm }
 {
-	// TODO Implement
-	return 1;
+	// empty
 }
 
 
-int32_t CalculationStateImpl::sample_offset() const noexcept
+ChecksumSet CalculationStateImpl::do_current_subtotal() const
 {
-	return sample_offset_.value();
+	return algorithm_->result();
 }
 
 
-int64_t CalculationStateImpl::samples_expected() const noexcept
+void CalculationStateImpl::do_set_samples_expected(const int32_t s)
 {
-	// TODO Implement
-	return 1;
+	total_samples_expected_ = s;
 }
 
 
-int64_t CalculationStateImpl::samples_processed() const noexcept
+int32_t CalculationStateImpl::do_samples_expected() const noexcept
 {
-	// TODO Implement
-	return 1;
+	return total_samples_expected_;
 }
 
 
-int64_t CalculationStateImpl::samples_todo() const noexcept
+int32_t CalculationStateImpl::do_samples_processed() const noexcept
 {
-	// TODO Implement
-	return 1;
+	return sample_offset_.value() + 1; // +1 since index is 0-based
 }
 
 
-std::chrono::milliseconds CalculationStateImpl::proc_time_elapsed() const
+std::chrono::milliseconds CalculationStateImpl::do_proc_time_elapsed() const
 	noexcept
 {
 	return proc_time_elapsed_.value();
 }
 
 
-void CalculationStateImpl::update(SampleInputIterator start,
+void CalculationStateImpl::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
 	// TODO Implement
-
-	sample_offset_.increment(std::distance(start, stop));
 }
 
 
-void CalculationStateImpl::increment_proc_time_elapsed(
+void CalculationStateImpl::do_increment_proc_time_elapsed(
 		const std::chrono::milliseconds amount)
 {
 	proc_time_elapsed_.increment(amount);
+}
+
+
+void CalculationStateImpl::do_advance(const int32_t amount)
+{
+	sample_offset_.increment(amount);
+}
+
+
+//
+
+
+void calc_update(SampleInputIterator start, SampleInputIterator stop,
+		//const int32_t last_sample,
+		const Partitioner& partitioner,
+		CalculationState& state,
+		ChecksumBuffer& result_buffer)
+{
+	const auto samples_in_block     { std::distance(start, stop) };
+	const auto last_sample_in_block {
+		state.samples_processed() + samples_in_block - 1/* stop is behind last*/ };
+
+	ARCS_LOG_DEBUG << "  Offset:  " << state.samples_processed() << " samples";
+	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block      << " samples";
+	ARCS_LOG_DEBUG << "  Indices: " <<
+		state.samples_processed() << " - " << last_sample_in_block;
+
+	// Create a partitioning following the track bounds in this block
+
+	auto partitioning { partitioner.create_partitioning(
+			state.samples_processed(), samples_in_block) };
+
+	ARCS_LOG_DEBUG << "  Partitions:  " << partitioning.size();
+
+	const bool is_last_relevant_block {
+		Interval<int32_t>(state.samples_processed(), last_sample_in_block)
+			.contains(/* last sample */partitioner.total_samples())
+	};
+
+	// Update the CalcState with each partition in this partitioning
+
+	auto partition_counter = uint16_t { 0 };
+	auto relevant_samples_counter = std::size_t { 0 };
+
+	const auto start_time { std::chrono::steady_clock::now() };
+	for (const auto& partition : partitioning)
+	{
+		++partition_counter;
+		relevant_samples_counter += partition.size();
+
+		ARCS_LOG_DEBUG << "  Partition " << partition_counter << "/" <<
+			partitioning.size();
+
+		state.update(start + partition.begin_offset(),
+				stop + partition.end_offset());
+
+		// If the current partition ends a track, save the ARCSs for this track
+
+		if (partition.ends_track())
+		{
+			//state.save(partition.track());
+			result_buffer.insert(
+					{ partition.track(), state.current_subtotal() });
+
+			ARCS_LOG_DEBUG << "    Completed track: "
+				<< std::to_string(partition.track());
+		}
+	}
+	const auto block_time_elapsed {
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now() - start_time)
+	};
+	state.increment_proc_time_elapsed(block_time_elapsed);
+
+	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
+			<< relevant_samples_counter;
+
+	ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
+			<<	state.proc_time_elapsed().count();
+
+	if (is_last_relevant_block)
+	{
+		ARCS_LOG(DEBUG1) << "Calculation complete.";
+
+		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
+			state.samples_processed();
+		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
+			state.samples_expected();
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
+			state.proc_time_elapsed().count();
+	}
 }
 
 
@@ -1309,204 +847,6 @@ bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 }
 
 
-// CalcContext
-
-
-std::string CalcContext::filename() const noexcept
-{
-	return this->do_filename();
-}
-
-
-void CalcContext::set_filename(const std::string& filename)
-{
-	this->do_set_filename(filename);
-}
-
-
-const AudioSize& CalcContext::audio_size() const noexcept
-{
-	return this->do_audio_size();
-}
-
-
-void CalcContext::set_audio_size(const AudioSize& audio_size)
-{
-	this->do_set_audio_size(audio_size);
-}
-
-
-int32_t CalcContext::first_relevant_sample(const TrackNo track) const
-	noexcept
-{
-	return this->do_first_relevant_sample(track);
-}
-
-
-int32_t CalcContext::first_relevant_sample() const noexcept
-{
-	return this->do_first_relevant_sample_no_parms();
-}
-
-
-int32_t CalcContext::last_relevant_sample(const TrackNo track) const
-	noexcept
-{
-	return this->do_last_relevant_sample(track);
-}
-
-
-int32_t CalcContext::last_relevant_sample() const noexcept
-{
-	return this->do_last_relevant_sample_no_parms();
-}
-
-
-bool CalcContext::skips_front() const noexcept
-{
-	return this->do_skips_front();
-}
-
-
-bool CalcContext::skips_back() const noexcept
-{
-	return this->do_skips_back();
-}
-
-
-int32_t CalcContext::num_skip_front() const noexcept
-{
-	return this->do_num_skip_front();
-}
-
-
-int32_t CalcContext::num_skip_back() const noexcept
-{
-	return this->do_num_skip_back();
-}
-
-
-bool CalcContext::is_multi_track() const noexcept
-{
-	return this->do_is_multi_track();
-}
-
-
-void CalcContext::notify_skips(const int32_t num_skip_front,
-		const int32_t num_skip_back) noexcept
-{
-	this->do_notify_skips(num_skip_front, num_skip_back);
-}
-
-
-int CalcContext::total_tracks() const noexcept
-{
-	return this->do_total_tracks();
-}
-
-
-int CalcContext::track(const int32_t smpl) const noexcept
-{
-	return this->do_track(smpl);
-}
-
-
-lba_count_t CalcContext::offset(const int track) const noexcept
-{
-	return this->do_offset(track);
-}
-
-
-lba_count_t CalcContext::length(const int track) const noexcept
-{
-	return this->do_length(track);
-}
-
-
-ARId CalcContext::id() const
-{
-	return this->do_id();
-}
-
-
-std::unique_ptr<CalcContext> CalcContext::clone() const noexcept
-{
-	return this->do_clone();
-}
-
-
-bool CalcContext::equals(const CalcContext& rhs) const noexcept
-{
-	return this->do_equals(rhs);
-}
-
-
-// make_context (bool, bool)
-
-
-std::unique_ptr<CalcContext> make_context(const bool& skip_front,
-		const bool& skip_back)
-{
-	return make_context(skip_front, skip_back, details::EmptyString);
-}
-
-
-// make_context (bool, bool, audiofile)
-
-
-std::unique_ptr<CalcContext> make_context(const bool& skip_front,
-		const bool& skip_back,
-		const std::string& audiofilename)
-{
-	// NOTE: ARCS specific values, since ARCS2 is default checksum type
-	return std::make_unique<details::SingletrackCalcContext>(audiofilename,
-			skip_front, accuraterip::NUM_SKIP_SAMPLES_FRONT,
-			skip_back,  accuraterip::NUM_SKIP_SAMPLES_BACK);
-}
-
-
-// make_context (TOC)
-
-
-std::unique_ptr<CalcContext> make_context(const TOC& toc)
-{
-	return make_context(toc, details::EmptyString);
-}
-
-
-// make_context (TOC, audiofile)
-
-
-std::unique_ptr<CalcContext> make_context(const TOC& toc,
-		const std::string& audiofilename)
-{
-	// NOTE: ARCS specific values, since ARCS2 is default checksum type
-	return std::make_unique<details::MultitrackCalcContext>(toc,
-			accuraterip::NUM_SKIP_SAMPLES_FRONT,
-			accuraterip::NUM_SKIP_SAMPLES_BACK,
-			audiofilename);
-}
-
-
-// make_context (unique_ptr<TOC>)
-
-
-std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc)
-{
-	return make_context(toc, details::EmptyString);
-}
-
-
-// make_context (unique_ptr<TOC>, audiofilename)
-
-
-std::unique_ptr<CalcContext> make_context(const std::unique_ptr<TOC>& toc,
-		const std::string& audiofilename)
-{
-	return make_context(*toc, audiofilename);
-}
-
-
 // SampleInputIterator
 
 
@@ -1526,21 +866,247 @@ void Algorithm::update(SampleInputIterator begin, SampleInputIterator end)
 }
 
 
-ChecksumBuffer Algorithm::result() const
+ChecksumSet Algorithm::result() const
 {
 	return this->do_result();
 }
 
 
-std::set<checksum::type> Algorithm::types() const
+std::vector<checksum::type> Algorithm::types() const
 {
 	return this->do_types();
 }
 
 
+// CalculationState
+
+
+CalculationState::CalculationState(Algorithm* const /* algorithm */)
+{
+	// empty
+}
+
+
+ChecksumSet CalculationState::current_subtotal() const
+{
+	return do_current_subtotal();
+}
+
+
+void CalculationState::set_samples_expected(const int32_t total_expected)
+{
+	return do_set_samples_expected(total_expected);
+}
+
+
+int32_t CalculationState::samples_expected() const noexcept
+{
+	return do_samples_expected();
+}
+
+
+int32_t CalculationState::samples_processed() const noexcept
+{
+	return do_samples_processed();
+}
+
+
+std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
+{
+	return do_proc_time_elapsed();
+}
+
+
+void CalculationState::update(SampleInputIterator start,
+		SampleInputIterator stop)
+{
+	do_update(start, stop);
+	do_advance(std::distance(start, stop));
+}
+
+
+void CalculationState::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	do_increment_proc_time_elapsed(amount);
+}
+
+
+// make_calculation
+
+
+std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
+		const TOC& toc, const AudioSize size)
+{
+	if (size.zero())
+	{
+		if (toc.complete())
+		{
+			return make_calculation(algorithm, toc);
+		}
+
+		// TODO throw
+	}
+
+	// TODO Check whether size is greater-or-equal than start of last track +
+	// minimum track size and throw iff not
+
+	return std::make_unique<Calculation>(algorithm, toc, size);
+}
+
+
+std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
+		const TOC& toc)
+{
+	if (!toc.complete())
+	{
+		// TODO throw
+	}
+
+	return std::make_unique<Calculation>(algorithm, toc,
+			AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
+}
+
+
 // Calculation
 
-// TODO
+
+Calculation::Calculation(Algorithm& algorithm, const TOC& toc,
+		const AudioSize& size)
+	:impl_ { std::make_unique<Impl>(&algorithm, toc, size) }
+{
+	// empty
+}
+
+
+const Algorithm& Calculation::algorithm() const noexcept
+{
+	return impl_->algorithm();
+}
+
+
+std::vector<checksum::type> Calculation::types() const noexcept
+{
+	return algorithm().types();
+}
+
+
+int32_t Calculation::samples_expected() const noexcept
+{
+	return impl_->samples_expected();
+}
+
+
+int32_t Calculation::samples_processed() const noexcept
+{
+	return impl_->samples_processed();
+}
+
+
+int32_t Calculation::samples_todo() const noexcept
+{
+	return impl_->samples_todo();
+}
+
+
+std::chrono::milliseconds Calculation::proc_time_elapsed() const noexcept
+{
+	return impl_->proc_time_elapsed();
+}
+
+
+bool Calculation::complete() const noexcept
+{
+	return impl_->complete();
+}
+
+
+void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
+{
+	impl_->update(start, stop);
+}
+
+
+void Calculation::update_audiosize(const AudioSize &audiosize)
+{
+	impl_->update_audiosize(audiosize);
+}
+
+
+Checksums Calculation::result() const noexcept
+{
+	return impl_->result();
+}
+
+
+// Calculation::Impl
+
+
+Calculation::Impl::Impl(const Algorithm* algorithm, const TOC& toc,
+		const AudioSize& size)
+	: algorithm_     { algorithm }
+	, partitioner_   { details::make_partitioner(toc, size.total_frames()) }
+	                   // TODO make_partitioner throws!
+	, result_buffer_ { std::make_unique<ChecksumBuffer>() }
+	, state_         { std::make_unique<details::CalculationStateImpl>() }
+{
+	// empty
+}
+
+
+const Algorithm& Calculation::Impl::algorithm() const noexcept
+{
+	return *algorithm_;
+}
+
+
+int64_t Calculation::Impl::samples_expected() const noexcept
+{
+	return state_->samples_expected();
+}
+
+
+int64_t Calculation::Impl::samples_processed() const noexcept
+{
+	return state_->samples_processed();
+}
+
+
+int64_t Calculation::Impl::samples_todo() const noexcept
+{
+	return state_->samples_expected() - state_->samples_processed();
+}
+
+
+std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
+{
+	return state_->proc_time_elapsed();
+}
+
+
+bool Calculation::Impl::complete() const noexcept
+{
+	// TODO
+}
+
+
+void Calculation::Impl::update(SampleInputIterator begin, SampleInputIterator end)
+{
+	calc_update(begin, end, *partitioner_, *state_, *result_buffer_);
+}
+
+
+void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
+{
+	state_->set_samples_expected(audiosize.total_samples());
+}
+
+
+Checksums Calculation::Impl::result() const noexcept
+{
+	// TODO Implement
+}
+
 
 } // namespace v_1_0_0
 } // namespace arcstk
