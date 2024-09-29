@@ -254,12 +254,15 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	SECTION ("Parametized construction is as declared")
 	{
 		CHECK ( std::is_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value );
+				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				);
 
 		CHECK ( not std::is_trivially_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value );
+				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				);
 		CHECK ( not std::is_nothrow_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value );
+				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				);
 	}
 
 
