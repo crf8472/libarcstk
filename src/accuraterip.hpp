@@ -117,7 +117,7 @@ public:
 	/**
 	 * \brief Return the checksum types this instance calculates.
 	 */
-	std::set<checksum::type> types() const
+	std::vector<checksum::type> types() const
 	{
 		return { T1, T2... };
 	}
@@ -209,31 +209,45 @@ public:
 };
 
 
-class AccurateRipAlgorithm : public Algorithm
+/**
+ * \brief Implement AccurateRip algorithm variants.
+ */
+template<enum checksum::type T1, enum checksum::type... T2>
+class AccurateRipAlgorithm final : public Algorithm
 {
-	// empty
+	/**
+	 * \brief Internal updatable state.
+	 */
+	Updatable<T1, T2...> internal_state_;
+
+
+	void do_update(SampleInputIterator begin, SampleInputIterator end) final
+	{
+		return internal_state_.update(begin, end);
+	}
+
+	ChecksumSet do_result() const final
+	{
+		return internal_state_.value();
+	}
+
+	std::vector<checksum::type> do_types() const final
+	{
+		return internal_state_.types();
+	}
+
+protected:
+
+	// TODO set requested length and provide ChecksumSet with length
 };
 
 
-class AccurateRipV1 : public AccurateRipAlgorithm
-{
-	Updatable<checksum::type::ARCS1> internal_state_;
+// Use concrete AccurateRip algorithms
 
-};
-
-
-class AccurateRipV2 : public AccurateRipAlgorithm
-{
-	Updatable<checksum::type::ARCS2> internal_state_;
-
-};
-
-
-class AccurateRipV1V2 : public AccurateRipAlgorithm
-{
-	Updatable<checksum::type::ARCS1,checksum::type::ARCS2> internal_state_;
-
-};
+using AccurateRipV1   = AccurateRipAlgorithm<checksum::type::ARCS1>;
+using AccurateRipV2   = AccurateRipAlgorithm<checksum::type::ARCS2>;
+using AccurateRipV1V2 =
+			AccurateRipAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
 } // namespace accuraterip
 } // namespace v_1_0_0

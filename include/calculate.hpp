@@ -80,7 +80,7 @@ public:
 	 *
 	 * Constructs an AudioSize of zero().
 	 */
-	AudioSize();
+	AudioSize() noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -88,7 +88,7 @@ public:
 	 * \param[in] value Size value
 	 * \param[in] unit  Unit for \c value
 	 */
-	AudioSize(const int32_t value, const UNIT unit);
+	AudioSize(const int32_t value, const UNIT unit) noexcept;
 	// FIXME This allows setting a value without a bounds check
 
 	/**
@@ -587,12 +587,6 @@ private:
 
 
 /**
- * \brief Buffer for resulting checksums.
- */
-using ChecksumBuffer = std::unordered_map<TrackNo, ChecksumSet>;
-
-
-/**
  * \brief Checksum calculation algorithm.
  */
 class Algorithm
@@ -656,105 +650,6 @@ private:
 
 
 /**
- * \brief Current state of a Calculation.
- */
-class CalculationState
-{
-	virtual ChecksumSet do_current_subtotal() const
-	= 0;
-
-	virtual void do_set_samples_expected(const int32_t total_expected)
-	= 0;
-
-	virtual int32_t do_samples_expected() const noexcept
-	= 0;
-
-	virtual int32_t do_samples_processed() const noexcept
-	= 0;
-
-	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept
-	= 0;
-
-	virtual void do_update(SampleInputIterator start, SampleInputIterator stop)
-	= 0;
-
-	virtual void do_increment_proc_time_elapsed(
-			const std::chrono::milliseconds amount)
-	= 0;
-
-	/**
-	 * \brief Advance calculation state by the specified amount of samples.
-	 *
-	 * \param[in] amount Amount of samples to advance
-	 */
-	virtual void do_advance(const int32_t amount)
-	= 0;
-
-public:
-
-	CalculationState() = default;
-
-	explicit CalculationState(Algorithm* const algorithm);
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~CalculationState() noexcept = default;
-
-	ChecksumSet current_subtotal() const;
-
-	void set_samples_expected(const int32_t total_expected);
-
-	/**
-	 * \brief Returns the total number of initially expected PCM 32 bit samples.
-	 *
-	 * This value is equivalent to samples_processed() + samples_todo(). It will
-	 * always remain constant for the given instance.
-	 *
-	 * Intended for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples expected.
-	 */
-	int32_t samples_expected() const noexcept;
-
-	/**
-	 * \brief Returns the total number for PCM 32 bit samples yet processed.
-	 *
-	 * This value is equivalent to samples_expected() - samples_todo().
-	 *
-	 * Intended for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples processed.
-	 */
-	int32_t samples_processed() const noexcept;
-
-	/**
-	 * \brief Amount of milliseconds elapsed so far by processing.
-	 *
-	 * This includes the time of reading as well as of calculation.
-	 *
-	 * \return Amount of milliseconds elapsed so far by processing.
-	 */
-	std::chrono::milliseconds proc_time_elapsed() const noexcept;
-
-	/**
-	 * \brief Update the calculation state with an contigous amount of samples.
-	 *
-	 * \param[in] start First sample of update
-	 * \param[in] stop  Sample behind last sample of update
-	 */
-	void update(SampleInputIterator start, SampleInputIterator stop);
-
-	/**
-	 * \brief Increment the amount of time elapsed.
-	 *
-	 * \param[in] amount Amount of milliseconds to advance
-	 */
-	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
-};
-
-
-/**
  * \brief Calculates checksums.
  */
 class Calculation final
@@ -771,14 +666,15 @@ public:
 	 * \param[in] toc       TOC to perform calculation for
 	 * \param[in] size      Total size of the audio input
 	 */
-	Calculation(Algorithm& algorithm, const TOC& toc, const AudioSize& size);
+	Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
+			const AudioSize& size);
 
 	/**
 	 * \brief Returns the algorithm used by this Calculation.
 	 *
 	 * \return Algorithm used by this Calculation.
 	 */
-	const Algorithm& algorithm() const noexcept;
+	const Algorithm* algorithm() const noexcept;
 
 	/**
 	 * \brief Returns the types requested to this Calculation.
@@ -880,8 +776,9 @@ public:
  * \param[in] toc          TOC to perform calculation for
  * \param[in] size         Total size of the audio input
  */
-std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
-		const TOC& toc, const AudioSize size);
+std::unique_ptr<Calculation> make_calculation(
+		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
+		const AudioSize size);
 
 
 /**
@@ -892,8 +789,8 @@ std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          Complete TOC to perform calculation for
  */
-std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
-		const TOC& toc);
+std::unique_ptr<Calculation> make_calculation(
+		std::unique_ptr<Algorithm> algorithm, const TOC& toc);
 
 } // namespace v_1_0_0
 } // namespace arcstk

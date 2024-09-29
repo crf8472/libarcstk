@@ -539,6 +539,48 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 }
 
 
+// CalculationState
+
+
+CalculationState::CalculationState(Algorithm* const /* algorithm */)
+{
+	// empty
+}
+
+
+ChecksumSet CalculationState::current_subtotal() const
+{
+	return do_current_subtotal();
+}
+
+
+int32_t CalculationState::samples_processed() const noexcept
+{
+	return do_samples_processed();
+}
+
+
+std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
+{
+	return do_proc_time_elapsed();
+}
+
+
+void CalculationState::update(SampleInputIterator start,
+		SampleInputIterator stop)
+{
+	do_update(start, stop);
+	do_advance(std::distance(start, stop));
+}
+
+
+void CalculationState::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	do_increment_proc_time_elapsed(amount);
+}
+
+
 // CalculationStateImpl
 
 
@@ -550,9 +592,8 @@ CalculationStateImpl::CalculationStateImpl()
 
 
 CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
-	: total_samples_expected_  { 0 }
-	, sample_offset_           { 0 }
-	, proc_time_elapsed_       { std::chrono::duration<int64_t, std::milli>(1) }
+	: sample_offset_           { 0 }
+	, proc_time_elapsed_       { std::chrono::duration<int64_t, std::milli>(0) }
 	, algorithm_               { algorithm }
 {
 	// empty
@@ -565,21 +606,10 @@ ChecksumSet CalculationStateImpl::do_current_subtotal() const
 }
 
 
-void CalculationStateImpl::do_set_samples_expected(const int32_t s)
-{
-	total_samples_expected_ = s;
-}
-
-
-int32_t CalculationStateImpl::do_samples_expected() const noexcept
-{
-	return total_samples_expected_;
-}
-
-
 int32_t CalculationStateImpl::do_samples_processed() const noexcept
 {
-	return sample_offset_.value() + 1; // +1 since index is 0-based
+	//return sample_offset_.value() + 1; // +1 since index is 0-based
+	return sample_offset_.value();
 }
 
 
@@ -593,7 +623,7 @@ std::chrono::milliseconds CalculationStateImpl::do_proc_time_elapsed() const
 void CalculationStateImpl::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	// TODO Implement
+	sample_offset_.increment(std::distance(start, stop));
 }
 
 
@@ -610,14 +640,13 @@ void CalculationStateImpl::do_advance(const int32_t amount)
 }
 
 
-//
+// calc_update
 
 
 void calc_update(SampleInputIterator start, SampleInputIterator stop,
-		//const int32_t last_sample,
 		const Partitioner& partitioner,
-		CalculationState& state,
-		ChecksumBuffer& result_buffer)
+		CalculationState&  state,
+		Checksums&         result_buffer)
 {
 	const auto samples_in_block     { std::distance(start, stop) };
 	const auto last_sample_in_block {
@@ -661,9 +690,7 @@ void calc_update(SampleInputIterator start, SampleInputIterator stop,
 
 		if (partition.ends_track())
 		{
-			//state.save(partition.track());
-			result_buffer.insert(
-					{ partition.track(), state.current_subtotal() });
+			result_buffer.append(state.current_subtotal());
 
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
@@ -688,7 +715,7 @@ void calc_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
 			state.samples_processed();
 		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
-			state.samples_expected();
+			partitioner.total_samples();
 		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
 			state.proc_time_elapsed().count();
 	}
@@ -704,14 +731,14 @@ void calc_update(SampleInputIterator start, SampleInputIterator stop,
 // AudioSize
 
 
-AudioSize::AudioSize()
+AudioSize::AudioSize() noexcept
 	: AudioSize { 0, AudioSize::UNIT::BYTES }
 {
 	// empty
 }
 
 
-AudioSize::AudioSize(const int32_t value, const AudioSize::UNIT unit)
+AudioSize::AudioSize(const int32_t value, const AudioSize::UNIT unit) noexcept
 	: total_pcm_bytes_ { details::to_bytes(value, unit) }
 {
 	// empty
@@ -878,71 +905,18 @@ std::vector<checksum::type> Algorithm::types() const
 }
 
 
-// CalculationState
-
-
-CalculationState::CalculationState(Algorithm* const /* algorithm */)
-{
-	// empty
-}
-
-
-ChecksumSet CalculationState::current_subtotal() const
-{
-	return do_current_subtotal();
-}
-
-
-void CalculationState::set_samples_expected(const int32_t total_expected)
-{
-	return do_set_samples_expected(total_expected);
-}
-
-
-int32_t CalculationState::samples_expected() const noexcept
-{
-	return do_samples_expected();
-}
-
-
-int32_t CalculationState::samples_processed() const noexcept
-{
-	return do_samples_processed();
-}
-
-
-std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
-{
-	return do_proc_time_elapsed();
-}
-
-
-void CalculationState::update(SampleInputIterator start,
-		SampleInputIterator stop)
-{
-	do_update(start, stop);
-	do_advance(std::distance(start, stop));
-}
-
-
-void CalculationState::increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
-{
-	do_increment_proc_time_elapsed(amount);
-}
-
-
 // make_calculation
 
 
-std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
-		const TOC& toc, const AudioSize size)
+std::unique_ptr<Calculation> make_calculation(
+		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
+		const AudioSize size)
 {
 	if (size.zero())
 	{
 		if (toc.complete())
 		{
-			return make_calculation(algorithm, toc);
+			return make_calculation(std::move(algorithm), toc);
 		}
 
 		// TODO throw
@@ -951,19 +925,19 @@ std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
 	// TODO Check whether size is greater-or-equal than start of last track +
 	// minimum track size and throw iff not
 
-	return std::make_unique<Calculation>(algorithm, toc, size);
+	return std::make_unique<Calculation>(std::move(algorithm), toc, size);
 }
 
 
-std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
-		const TOC& toc)
+std::unique_ptr<Calculation> make_calculation(
+		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
 {
 	if (!toc.complete())
 	{
 		// TODO throw
 	}
 
-	return std::make_unique<Calculation>(algorithm, toc,
+	return std::make_unique<Calculation>(std::move(algorithm), toc,
 			AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
 }
 
@@ -971,15 +945,15 @@ std::unique_ptr<Calculation> make_calculation(Algorithm& algorithm,
 // Calculation
 
 
-Calculation::Calculation(Algorithm& algorithm, const TOC& toc,
+Calculation::Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
 		const AudioSize& size)
-	:impl_ { std::make_unique<Impl>(&algorithm, toc, size) }
+	:impl_ { std::make_unique<Impl>(std::move(algorithm), toc, size) }
 {
 	// empty
 }
 
 
-const Algorithm& Calculation::algorithm() const noexcept
+const Algorithm* Calculation::algorithm() const noexcept
 {
 	return impl_->algorithm();
 }
@@ -987,7 +961,7 @@ const Algorithm& Calculation::algorithm() const noexcept
 
 std::vector<checksum::type> Calculation::types() const noexcept
 {
-	return algorithm().types();
+	return algorithm()->types();
 }
 
 
@@ -1042,27 +1016,28 @@ Checksums Calculation::result() const noexcept
 // Calculation::Impl
 
 
-Calculation::Impl::Impl(const Algorithm* algorithm, const TOC& toc,
+Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
 		const AudioSize& size)
-	: algorithm_     { algorithm }
+	: algorithm_     { std::move(algorithm) }
 	, partitioner_   { details::make_partitioner(toc, size.total_frames()) }
 	                   // TODO make_partitioner throws!
-	, result_buffer_ { std::make_unique<ChecksumBuffer>() }
-	, state_         { std::make_unique<details::CalculationStateImpl>() }
+	, state_         {
+		std::make_unique<details::CalculationStateImpl>(algorithm_.get()) }
+	, result_buffer_ { std::make_unique<Checksums>() }
 {
 	// empty
 }
 
 
-const Algorithm& Calculation::Impl::algorithm() const noexcept
+const Algorithm* Calculation::Impl::algorithm() const noexcept
 {
-	return *algorithm_;
+	return algorithm_.get();
 }
 
 
 int64_t Calculation::Impl::samples_expected() const noexcept
 {
-	return state_->samples_expected();
+	return partitioner_->total_samples();
 }
 
 
@@ -1074,7 +1049,7 @@ int64_t Calculation::Impl::samples_processed() const noexcept
 
 int64_t Calculation::Impl::samples_todo() const noexcept
 {
-	return state_->samples_expected() - state_->samples_processed();
+	return samples_expected() - samples_processed();
 }
 
 
@@ -1086,25 +1061,26 @@ std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	// TODO
+	return state_->samples_processed() >= partitioner_->total_samples();
 }
 
 
-void Calculation::Impl::update(SampleInputIterator begin, SampleInputIterator end)
+void Calculation::Impl::update(SampleInputIterator start,
+		SampleInputIterator stop)
 {
-	calc_update(begin, end, *partitioner_, *state_, *result_buffer_);
+	calc_update(start, stop, *partitioner_, *state_, *result_buffer_);
 }
 
 
 void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
 {
-	state_->set_samples_expected(audiosize.total_samples());
+	partitioner_->set_total_samples(audiosize.total_samples());
 }
 
 
 Checksums Calculation::Impl::result() const noexcept
 {
-	// TODO Implement
+	return *result_buffer_;
 }
 
 
