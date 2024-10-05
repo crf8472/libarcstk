@@ -51,23 +51,14 @@ int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
 
 /**
  * \brief Current state of a Calculation.
+ *
+ * A CalculationState provides the relevant counters for samples and time. It
+ * updates the algorithm and provides the current subtotal.
  */
 class CalculationState
 {
-	virtual ChecksumSet do_current_subtotal() const
-	= 0;
 
 	virtual int32_t do_samples_processed() const noexcept
-	= 0;
-
-	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept
-	= 0;
-
-	virtual void do_update(SampleInputIterator start, SampleInputIterator stop)
-	= 0;
-
-	virtual void do_increment_proc_time_elapsed(
-			const std::chrono::milliseconds amount)
 	= 0;
 
 	/**
@@ -78,18 +69,38 @@ class CalculationState
 	virtual void do_advance(const int32_t amount)
 	= 0;
 
+	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept
+	= 0;
+
+	virtual void do_increment_proc_time_elapsed(
+			const std::chrono::milliseconds amount)
+	= 0;
+
+	virtual void do_update(SampleInputIterator start, SampleInputIterator stop)
+	= 0;
+
+	virtual ChecksumSet do_current_subtotal() const
+	= 0;
+
 public:
 
-	CalculationState() = default;
+	/**
+	 * \brief Default constructor.
+	 */
+	CalculationState()
+	= default;
 
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] algorithm The update algorithm to be used.
+	 */
 	explicit CalculationState(Algorithm* const algorithm);
 
 	/**
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~CalculationState() noexcept = default;
-
-	ChecksumSet current_subtotal() const;
 
 	/**
 	 * \brief Returns the total number for PCM 32 bit samples yet processed.
@@ -112,6 +123,13 @@ public:
 	std::chrono::milliseconds proc_time_elapsed() const noexcept;
 
 	/**
+	 * \brief Increment the amount of time elapsed.
+	 *
+	 * \param[in] amount Amount of milliseconds to advance
+	 */
+	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
+
+	/**
 	 * \brief Update the calculation state with an contigous amount of samples.
 	 *
 	 * \param[in] start First sample of update
@@ -120,19 +138,16 @@ public:
 	void update(SampleInputIterator start, SampleInputIterator stop);
 
 	/**
-	 * \brief Increment the amount of time elapsed.
+	 * \brief Current subtotal as provided by the Algorithm.
 	 *
-	 * \param[in] amount Amount of milliseconds to advance
+	 * \return Current subtotal.
 	 */
-	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
+	ChecksumSet current_subtotal() const;
 };
 
 
 /**
  * \brief Updates a calculation process by a sample block.
- *
- * \tparam B Type of the iterator pointing to the start position
- * \tparam E Type of the iterator pointing to the stop position
  *
  * \param[in]     start         Iterator pointing to first sample in block
  * \param[in]     stop          Iterator pointing to last sample in block
@@ -140,7 +155,7 @@ public:
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Collect the results
  */
-void calc_update(SampleInputIterator start, SampleInputIterator stop,
+void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer);
@@ -152,40 +167,35 @@ void calc_update(SampleInputIterator start, SampleInputIterator stop,
 #pragma GCC diagnostic ignored "-Weffc++"
 
 /**
- * \brief Calculation state.
- *
- * \details
- *
- * The calculation state is a storage wrapper for the current calculation state.
+ * \brief Default implementation of a CalculationState.
  */
 class CalculationStateImpl final : public CalculationState
 {
 	/**
-	 * \internal
 	 * \brief Internal 0-based sample offset.
 	 */
 	Counter<int32_t> sample_offset_;
 
 	/**
-	 * \internal
 	 * \brief Time elapsed by updating.
 	 */
 	Counter<std::chrono::milliseconds> proc_time_elapsed_;
 
 	/**
-	 * \internal
 	 * \brief Algorithm to caculate updates.
 	 */
 	Algorithm* algorithm_;
 
 
-	ChecksumSet do_current_subtotal()  const final;
-	int32_t     do_samples_processed() const noexcept final;
+	int32_t do_samples_processed() const noexcept final;
+	void    do_advance(const int32_t amount) final;
+
 	std::chrono::milliseconds do_proc_time_elapsed() const noexcept final;
-	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
 	void do_increment_proc_time_elapsed(const std::chrono::milliseconds amount)
 		final;
-	void do_advance(const int32_t amount) final;
+
+	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
+	ChecksumSet do_current_subtotal()  const final;
 
 public:
 
@@ -205,11 +215,11 @@ public:
  */
 class Calculation::Impl
 {
-	// Public input for construction:
+	// Public input for construction of the Calculation instance:
 	std::unique_ptr<Algorithm>                  algorithm_;
 
 	// Internal input for construction:
-	// constructed, controlled and destroyed by calculation:
+	// constructed, controlled and destroyed by the Calculation instance:
 	const std::unique_ptr<details::Partitioner> partitioner_;
 	std::unique_ptr<details::CalculationState>  state_;
 	std::unique_ptr<Checksums>                  result_buffer_;
@@ -228,11 +238,9 @@ public:
 
 	const Algorithm* algorithm() const noexcept;
 
-	int64_t samples_expected() const noexcept;
+	int32_t samples_expected() const noexcept;
 
-	int64_t samples_processed() const noexcept;
-
-	int64_t samples_todo() const noexcept;
+	int32_t samples_processed() const noexcept;
 
 	std::chrono::milliseconds proc_time_elapsed() const noexcept;
 
@@ -240,7 +248,7 @@ public:
 
 	void update(SampleInputIterator begin, SampleInputIterator end);
 
-	void update_audiosize(const AudioSize &audiosize);
+	void update(const AudioSize &audiosize);
 
 	Checksums result() const noexcept;
 };

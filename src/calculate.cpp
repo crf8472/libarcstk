@@ -640,10 +640,10 @@ void CalculationStateImpl::do_advance(const int32_t amount)
 }
 
 
-// calc_update
+// perform_update
 
 
-void calc_update(SampleInputIterator start, SampleInputIterator stop,
+void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer)
@@ -979,7 +979,7 @@ int32_t Calculation::samples_processed() const noexcept
 
 int32_t Calculation::samples_todo() const noexcept
 {
-	return impl_->samples_todo();
+	return samples_expected() - samples_processed();
 }
 
 
@@ -1001,9 +1001,9 @@ void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
 }
 
 
-void Calculation::update_audiosize(const AudioSize &audiosize)
+void Calculation::update(const AudioSize &audiosize)
 {
-	impl_->update_audiosize(audiosize);
+	impl_->update(audiosize);
 }
 
 
@@ -1035,21 +1035,15 @@ const Algorithm* Calculation::Impl::algorithm() const noexcept
 }
 
 
-int64_t Calculation::Impl::samples_expected() const noexcept
+int32_t Calculation::Impl::samples_expected() const noexcept
 {
 	return partitioner_->total_samples();
 }
 
 
-int64_t Calculation::Impl::samples_processed() const noexcept
+int32_t Calculation::Impl::samples_processed() const noexcept
 {
 	return state_->samples_processed();
-}
-
-
-int64_t Calculation::Impl::samples_todo() const noexcept
-{
-	return samples_expected() - samples_processed();
 }
 
 
@@ -1061,18 +1055,18 @@ std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	return state_->samples_processed() >= partitioner_->total_samples();
+	return this->samples_processed() >= partitioner_->total_samples();
 }
 
 
 void Calculation::Impl::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	calc_update(start, stop, *partitioner_, *state_, *result_buffer_);
+	perform_update(start, stop, *partitioner_, *state_, *result_buffer_);
 }
 
 
-void Calculation::Impl::update_audiosize(const AudioSize &audiosize)
+void Calculation::Impl::update(const AudioSize &audiosize)
 {
 	partitioner_->set_total_samples(audiosize.total_samples());
 }

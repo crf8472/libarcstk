@@ -605,23 +605,44 @@ public:
 template<typename T>
 class Counter final
 {
+	/**
+	 * \brief Internal counter value.
+	 */
 	T value_;
 
 public:
 
+	/**
+	 * \brief Type of the counter value.
+	 */
 	using type = T;
 
-	Counter(const T& value) // Convert a value to a counter
+	/**
+	 * \brief Converting constructor for a counter.
+	 *
+	 * \param[in] value Start value
+	 */
+	Counter(const T& value)
 		: value_ { value }
 	{
 		// empty
 	}
 
+	/**
+	 * \brief Counter value.
+	 *
+	 * \return Current value of the Counter
+	 */
 	T value() const noexcept
 	{
 		return value_;
 	}
 
+	/**
+	 * \brief Increment the counter by the specified amount.
+	 *
+	 * \param[in] amount Amount to increment the Counter.
+	 */
 	void increment(T amount)
 	{
 		value_ += amount;
