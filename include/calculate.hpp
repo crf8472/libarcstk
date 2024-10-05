@@ -650,10 +650,37 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 
 /**
+ * \brief Reports insufficient input for successfully completing a Calculation.
+ *
+ * This exception indicates that an incomplete TOC was passed without also
+ * passing a corresponding valid AudioSize.
+ */
+class InsufficientCalculationInputException final : public std::runtime_error
+{
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InsufficientCalculationInputException(const std::string &what_arg);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InsufficientCalculationInputException(const char *what_arg);
+};
+
+
+/**
  * \brief Calculates checksums.
  */
 class Calculation final
 {
+	// Private implementation
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
@@ -661,6 +688,10 @@ public:
 
 	/**
 	 * \brief Create a calculation instance.
+	 *
+	 * Parameter <tt>size</tt> is ignored iff <tt>toc.complete()</tt> and
+	 * <tt>size.zero()</tt> are both TRUE. Otherwise <tt>size</tt> overwrites
+	 * the size information of the TOC.
 	 *
 	 * \param[in] algorithm The algorithm to use for calculating
 	 * \param[in] toc       TOC to perform calculation for
@@ -681,7 +712,7 @@ public:
 	 *
 	 * Convenience function for <tt>mycalculation.algorithm().types()</tt>.
 	 *
-	 * \return All requested types.
+	 * \return All requested Checksum types.
 	 */
 	std::vector<checksum::type> types() const noexcept;
 
@@ -769,8 +800,9 @@ public:
 /**
  * \brief Create a calculation.
  *
- * If the <tt>size</tt> is zero and <tt>toc</tt> is complete,
- * <tt>toc.leadout()</tt> is considered as the total audio size.
+ * Parameter <tt>size</tt> is ignored iff <tt>toc.complete()</tt> and
+ * <tt>size.zero()</tt> are both TRUE. Otherwise <tt>size</tt> overwrites the
+ * size information of the TOC.
  *
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          TOC to perform calculation for
@@ -778,14 +810,18 @@ public:
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize size);
+		const AudioSize& size);
 
 
 /**
  * \brief Create a calculation for a complete TOC.
  *
+ * If the TOC is not complete,
+ *
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          Complete TOC to perform calculation for
+ *
+ * \throws
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc);

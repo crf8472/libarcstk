@@ -240,7 +240,7 @@ Partitioning get_partitioning(
 	// Add first partition
 	auto partitions = std::vector<Partition> {
 		Partition { real_lower, points[b],
-			real_lower, points[b] - 1, /* redundant */
+			//real_lower, points[b] - 1, /* redundant */
 			real_lower == points[b - 1], true, static_cast<TrackNo>(b)
 		}
 	};
@@ -251,14 +251,14 @@ Partitioning get_partitioning(
 	for (auto i { b }; i < e - 1; ++i)
 	{
 		partitions.emplace_back(points[i], points[i + 1],
-			points[i], points[i + 1] - 1, /* redundant */
+			//points[i], points[i + 1] - 1, /* redundant */
 			true, true, i + 1
 		);
 	}
 
 	// Add last partition
 	partitions.emplace_back(points[e - 1], real_upper,
-		points[e - 1], real_upper - 1, /* redundant */
+		//points[e - 1], real_upper - 1, /* redundant */
 		true, real_upper == points[e], static_cast<TrackNo>(e)
 	);
 
@@ -431,8 +431,8 @@ Partitioning TrackPartitioner::do_create_partitioning(
 	return { Partition {
 		/* begin offset */  { chunk_first - interval.lower()     },
 		/* end offset */    { chunk_last  - interval.lower() + 1 },
-		/* chunk first */   chunk_first, // redundant
-		/* chunk last */    chunk_last,  // redundant
+		/* chunk first */   //chunk_first, // redundant
+		/* chunk last */    //chunk_last,  // redundant
 		/* starts track */  { chunk_first == legal.lower() },
 		/* ends track */    { chunk_last  == legal.upper() },
 		/* invalid track */ 0
@@ -452,16 +452,16 @@ std::unique_ptr<Partitioner> TrackPartitioner::do_clone() const
 Partition::Partition(
 		const int32_t &begin_offset,
 		const int32_t &end_offset,
-		const int32_t &first,
-		const int32_t &last,
+		//const int32_t &first,
+		//const int32_t &last,
 		const bool     &starts_track,
 		const bool     &ends_track,
 		const TrackNo  &track
 	)
 	: begin_offset_ { begin_offset }
 	, end_offset_ { end_offset }
-	, first_sample_idx_ { first }
-	, last_sample_idx_ { last }
+	//, first_sample_idx_ { first }
+	//, last_sample_idx_ { last }
 	, starts_track_ { starts_track }
 	, ends_track_ { ends_track }
 	, track_ { track }
@@ -910,20 +910,41 @@ std::vector<checksum::type> Algorithm::types() const
 
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize size)
+		const AudioSize& size)
 {
 	if (size.zero())
 	{
-		if (toc.complete())
-		{
-			return make_calculation(std::move(algorithm), toc);
-		}
-
-		// TODO throw
+		return make_calculation(std::move(algorithm), toc);
 	}
 
-	// TODO Check whether size is greater-or-equal than start of last track +
-	// minimum track size and throw iff not
+	// TODO Checks should be already implemented in identifier.cpp
+
+	if (size.total_frames() > CDDA::MAX_OFFSET)
+	{
+		throw InsufficientCalculationInputException(
+				"Cannot build Calculation with max input size exceeded: "
+				" should be at most "
+				+ std::to_string(CDDA::MAX_OFFSET)
+				+ " frames but is "
+				+ std::to_string(size.total_frames())
+				+ " frames"
+		);
+	}
+
+	const auto last_track_len {
+		size.total_frames() - toc.offset(toc.total_tracks()) };
+
+	if (last_track_len < CDDA::MIN_TRACK_LEN_FRAMES)
+	{
+		throw InsufficientCalculationInputException(
+				"Cannot build Calculation because last track is too short: "
+				" should be at least "
+				+ std::to_string(CDDA::MIN_TRACK_LEN_FRAMES)
+				+ " frames but is only "
+				+ std::to_string(last_track_len)
+				+ " frames"
+		);
+	}
 
 	return std::make_unique<Calculation>(std::move(algorithm), toc, size);
 }
@@ -934,11 +955,33 @@ std::unique_ptr<Calculation> make_calculation(
 {
 	if (!toc.complete())
 	{
-		// TODO throw
+		throw InsufficientCalculationInputException(
+				"Cannot build a Calculation with an incomplete TOC "
+				"and no completing AudioSize"
+		);
 	}
 
 	return std::make_unique<Calculation>(std::move(algorithm), toc,
 			AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
+}
+
+
+//
+
+
+InsufficientCalculationInputException::InsufficientCalculationInputException(
+		const std::string &what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
+}
+
+
+InsufficientCalculationInputException::InsufficientCalculationInputException(
+		const char* what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
 }
 
 
@@ -1055,7 +1098,7 @@ std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	return this->samples_processed() >= partitioner_->total_samples();
+	return this->samples_processed() >= this->samples_expected();
 }
 
 

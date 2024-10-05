@@ -161,7 +161,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		Checksums&         result_buffer);
 
 
-//
+// CalculationStateImpl
+
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
@@ -177,30 +178,42 @@ class CalculationStateImpl final : public CalculationState
 	Counter<int32_t> sample_offset_;
 
 	/**
-	 * \brief Time elapsed by updating.
+	 * \brief Internal time elapsed by updating.
 	 */
 	Counter<std::chrono::milliseconds> proc_time_elapsed_;
 
 	/**
-	 * \brief Algorithm to caculate updates.
+	 * \brief Internal Algorithm to caculate updates.
 	 */
 	Algorithm* algorithm_;
 
 
+	// Overrides of CalculationState
+
 	int32_t do_samples_processed() const noexcept final;
 	void    do_advance(const int32_t amount) final;
-
 	std::chrono::milliseconds do_proc_time_elapsed() const noexcept final;
 	void do_increment_proc_time_elapsed(const std::chrono::milliseconds amount)
-		final;
-
-	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
-	ChecksumSet do_current_subtotal()  const final;
+			final;
+	void do_update(SampleInputIterator start, SampleInputIterator stop)
+			final;
+	ChecksumSet do_current_subtotal() const final;
 
 public:
 
+	/**
+	 * \brief Default Constructor.
+	 */
 	CalculationStateImpl();
+
+	/**
+	 * \brief Constructor with Algorithm.
+	 */
 	explicit CalculationStateImpl(Algorithm* const algorithm);
+
+	/**
+	 * \brief Destructor.
+	 */
 	~CalculationStateImpl() noexcept final = default;
 };
 

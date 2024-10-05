@@ -220,6 +220,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::Algorithm;
 	using arcstk::TOC;
 	using arcstk::AudioSize;
+	using arcstk::make_calculation;
 	using arcstk::accuraterip::AccurateRipV1V2;
 	using arcstk::checksum::type;
 
@@ -297,6 +298,132 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( std::is_move_constructible<Calculation>::value );
 
 		CHECK ( std::is_nothrow_move_constructible<Calculation>::value );
+	}
+
+
+	SECTION ("make_calculation() with incomplete TOC and legal size succeeds")
+	{
+		using arcstk::checksum::type;
+
+		const auto toc_1 = arcstk::details::TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// lengths
+			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
+		);
+
+		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
+
+		const auto algo_types = algorithmV1V2->types();
+
+		const auto sz = AudioSize { 253038, AudioSize::UNIT::FRAMES };
+
+		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1, sz ) };
+
+		CHECK ( calc->samples_expected()  == 253038 * 588 );
+		CHECK ( calc->samples_processed() == 0 );
+		CHECK ( calc->samples_todo()      == 253038 * 588 );
+		CHECK ( calc->proc_time_elapsed().count() == 0 );
+		CHECK ( not calc->complete() );
+		CHECK ( calc->result().empty() );
+
+		//CHECK ( calc->algorithm() == *algorithmV1V2 );
+		CHECK ( calc->types() == algo_types );
+	}
+
+
+	SECTION ("make_calculation() with incomplete TOC and illegal sizes fails")
+	{
+		using arcstk::checksum::type;
+		using arcstk::CDDA;
+
+		const auto toc_1 = arcstk::details::TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// lengths
+			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
+		);
+
+
+		const auto size_too_big = AudioSize { // bigger than allowed MAX
+			CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };
+
+		const auto size_too_small = AudioSize { // smaller than allowed MIN
+			CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
+
+		const auto size_zero = AudioSize { // only legal iff TOC is complete
+			0, AudioSize::UNIT::FRAMES };
+
+
+		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+					*toc_1, size_too_big) );
+
+		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+					*toc_1, size_too_small) );
+
+		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+					*toc_1, size_zero) );
+	}
+
+
+	SECTION ("make_calculation() with complete TOC succeeds")
+	{
+		using arcstk::checksum::type;
+
+		const auto toc_1 = arcstk::details::TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// leadout
+			253038
+		);
+
+		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
+
+		const auto algo_types = algorithmV1V2->types();
+
+		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1) };
+
+		CHECK ( calc->samples_expected()  == 253038 * 588 );
+		CHECK ( calc->samples_processed() == 0 );
+		CHECK ( calc->samples_todo()      == 253038 * 588 );
+		CHECK ( calc->proc_time_elapsed().count() == 0 );
+		CHECK ( not calc->complete() );
+		CHECK ( calc->result().empty() );
+
+		//CHECK ( calc->algorithm() == *algorithmV1V2 );
+		CHECK ( calc->types() == algo_types );
+	}
+
+
+	SECTION ("make_calculation() with incomplete TOC fails")
+	{
+		using arcstk::checksum::type;
+
+		const auto toc_1 = arcstk::details::TOCBuilder::build(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 },
+			// lengths
+			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
+		);
+
+		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
+
+		CHECK_THROWS ( make_calculation(std::move(algorithmV1V2), *toc_1) );
 	}
 }
 

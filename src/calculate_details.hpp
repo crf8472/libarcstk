@@ -502,12 +502,12 @@ class Partition final
 	/**
 	 * \brief Global (absolute) index of the first sample in this partition
 	 */
-	const int32_t first_sample_idx_;
+	//const int32_t first_sample_idx_;
 
 	/**
 	 * \brief Global (absolute) index of the last sample in this partition
 	 */
-	const int32_t last_sample_idx_;
+	//const int32_t last_sample_idx_;
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
@@ -545,8 +545,8 @@ public:
 	Partition(
 			const int32_t &begin_offset,
 			const int32_t &end_offset,
-			const int32_t &first,
-			const int32_t &last,
+			//const int32_t &first,
+			//const int32_t &last,
 			const bool    &starts_track,
 			const bool    &ends_track,
 			const int     &track);

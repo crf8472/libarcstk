@@ -681,7 +681,7 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 	}
 }
 
-
+/*
 TEST_CASE ( "Partition", "[partitioner]" )
 {
 	// TODO Implement
@@ -698,7 +698,7 @@ TEST_CASE ( "CalculationState", "[calculationstate]" )
 {
 	// TODO Implement
 }
-
+*/
 
 TEST_CASE ( "Interval", "[calculate_details]" )
 {
@@ -752,9 +752,11 @@ TEST_CASE ( "Counter", "[calculate_details]" )
 {
 	using arcstk::details::Counter;
 
+	/*
 	SECTION ( "increment() is correct" )
 	{
 		// TODO Implement
 	}
+	*/
 }
 
