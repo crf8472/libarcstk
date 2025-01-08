@@ -494,14 +494,14 @@ public:
 	 *
 	 * \return Pointer to the first Checksum
 	 */
-	iterator begin();
+	iterator begin(); // TODO noexcept ?
 
 	/**
 	 * \brief Obtain a pointer pointing behind the last Checksum.
 	 *
 	 * \return Pointer pointing behind the last Checksum
 	 */
-	iterator end();
+	iterator end(); // TODO noexcept ?
 
 	/**
 	 * \brief Length (in LBA frames) of this track.
