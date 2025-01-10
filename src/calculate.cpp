@@ -905,6 +905,23 @@ std::vector<checksum::type> Algorithm::types() const
 }
 
 
+// get_algorithms
+
+
+std::vector<Algorithm> get_algorithms(const std::vector<checksum::type>& types)
+{
+	if (types.empty()/* default */ || types.size() > 1/* all known types*/)
+	{
+		return { AccurateRipV1V2{} };
+	}
+
+	// Manually check for the requested type
+	// TODO Manual check does not scale. OK only for the current 3 algorithms.
+	return types[0] == checksum::type::ARCS1 ? { AccurateRipV1{} } :
+			{ AccurateRipV2{} };
+}
+
+
 // make_calculation
 
 

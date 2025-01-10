@@ -473,6 +473,18 @@ private:
 
 
 /**
+ * \brief Get algorithms to calculate the requested types.
+ *
+ * Each of the algorithms has to be applied by a separate Calculation.
+ *
+ * \param[in] types The requested types
+ *
+ * \return The set of algorithms
+ */
+std::vector<Algorithm> get_algorithms(const std::vector<checksum::type>& types);
+
+
+/**
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, others the number of samples and
