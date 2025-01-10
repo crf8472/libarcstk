@@ -34,18 +34,6 @@ class TOC;
 
 
 /**
- * \brief Type to represent a 32 bit PCM stereo sample.
- *
- * An unsigned integer of 32 bit length.
- *
- * The type is not intended to do arithmetic operations on it.
- *
- * Bitwise operators are required to work as on unsigned types.
- */
-using sample_t = uint32_t;
-
-
-/**
  * \internal
  *
  * \brief Get value_type of Iterator.

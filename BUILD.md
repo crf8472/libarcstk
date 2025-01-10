@@ -162,28 +162,27 @@ pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
 
 #### Find unused header includes
 
-From time to time, I tend to mess up the includes. So for mere personal use, I
-use IWYU for identifying unused includes that can be removed.
+From time to time, I tend to mess up the includes and like to check for unused
+includes that can be removed.
 
-CMake brings some support for Google's tool [include-what-you-use][1]. If you
-have installed IWYU, you can just use CMake to call it on the project:
+CMake brings some support for Google's tool [include-what-you-use][1]. If it is
+available in the PATH, CMake can use it on the project:
 
 	$ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=$(type -p include-what-you-use) ..
 	$ cmake --build . 2>iwuy.txt
 
 This runs every source file through inlcude-what-you-use instead of the actual
-compiler and writes the resulting analysis to file ``iwyu.txt``. If you want to
-use your real compiler again, you have to reconfigure the project.
+compiler and writes the resulting analysis to file ``iwyu.txt``. If a real
+compiler is to be used again, the project has to be reconfigured.
 
 The tool may log some warnings about unknown compile switches when you have
 selected g++ as your actual compiler. This is just because there are some
 switches configured for your actual compiler that are unknown to the tool. The
 warnings can be ignored. To avoid them
 [switch to clang++](#using-a-different-compiler), then configure the project
-with ``-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=...`` pointing to the IWYU-binary and
-run the build again. (Note that if you have the binary in the path, you do not
-need to specify a path. Otherwise, it is recommended to specify an absolute
-path.)
+with ``-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=...`` pointing to the include...-binary
+and run the build again. If include-what-you-use is not in the PATH it is
+recommended to specify its location as an absolute path.
 
 
 ### Package maintainers
@@ -225,7 +224,6 @@ settings to your requirements.
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix     |plattform defined|
 |CMAKE_EXPORT_COMPILE_COMMANDS|Rebuilds a [compilation database](#deep-language-support-in-your-editor) when configuring |OFF    |
-|IWYU                |Use [include-what-you-use](#find-unused-header-includes) on compiling           |OFF    |
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                     |OFF    |
 |WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs   |OFF    |
 |WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-on-off) on compiling |       |

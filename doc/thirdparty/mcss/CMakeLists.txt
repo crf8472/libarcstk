@@ -24,6 +24,14 @@ message (STATUS "Will build documentation with m.css" )
 find_package (Git REQUIRED )
 
 
+if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.9.7 )
+	message (FATAL_ERROR
+		"Doxygen version is ${DOXYGEN_VERSION} "
+		"but m.css does currently not support doxygen versions > 1.9.6")
+else()
+	message (STATUS "m.css uses doxygen version ${DOXYGEN_VERSION}" )
+endif()
+
 
 ## --- Overwrite default values from parent
 
@@ -154,6 +162,9 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 		VERBATIM
 	)
 else()
+
+	add_dependencies (libarcstk_mcss_doc
+		libarcstk_create_output_dir libarcstk_create_log_dir )
 
 	## Doxygen is called by m.css.
 
