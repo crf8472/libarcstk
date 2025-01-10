@@ -112,7 +112,6 @@ set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 add_custom_command (
 	OUTPUT  ${PROJECT_LOG_DIR}
-	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
 	ARGS    -E make_directory ${PROJECT_LOG_DIR} )
 
@@ -122,7 +121,6 @@ add_custom_target (libarcstk_create_log_dir ALL DEPENDS ${PROJECT_LOG_DIR} )
 
 add_custom_command (
 	OUTPUT  ${PROJECT_BINARY_DIR}/include
-	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
 	ARGS    -E make_directory ${PROJECT_BINARY_DIR}/include )
 
