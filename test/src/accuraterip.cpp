@@ -25,8 +25,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		//arcstk::accuraterip::Updatable<type::ARCS1> state{};
-		arcstk::accuraterip::AccurateRipV1 algo {};
+		arcstk::accuraterip::V1 algo {};
 		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
@@ -101,7 +100,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		arcstk::accuraterip::Updatable<type::ARCS2> state {};
+		arcstk::accuraterip::details::Updatable<type::ARCS2> state {};
 		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
 
 		// Initialize Buffer
@@ -176,7 +175,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::details::Updatable<type::ARCS1,type::ARCS2> state {};
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
 
@@ -253,7 +252,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::details::Updatable<type::ARCS1,type::ARCS2> state {};
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
 

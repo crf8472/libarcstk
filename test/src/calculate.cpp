@@ -1,4 +1,3 @@
-#include "accuraterip.hpp"
 #include "catch2/catch_test_macros.hpp"
 
 /**
@@ -7,6 +6,9 @@
 
 #include <type_traits>
 
+#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#include "algorithms.hpp"
+#endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
@@ -221,7 +223,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::TOC;
 	using arcstk::AudioSize;
 	using arcstk::make_calculation;
-	using arcstk::accuraterip::AccurateRipV1V2;
+	using arcstk::AccurateRipV1V2;
 	using arcstk::checksum::type;
 
 

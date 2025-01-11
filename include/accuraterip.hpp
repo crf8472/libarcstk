@@ -30,6 +30,8 @@ inline namespace v_1_0_0
 {
 namespace accuraterip
 {
+namespace details
+{
 
 /**
  * \internal
@@ -213,7 +215,7 @@ public:
  * \brief Implement AccurateRip algorithm variants.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
-class AccurateRipAlgorithm final : public Algorithm
+class ARCSAlgorithm final : public Algorithm
 {
 	/**
 	 * \brief Internal updatable state.
@@ -241,13 +243,12 @@ protected:
 	// TODO set requested length and provide ChecksumSet with length
 };
 
+} // namespace details
 
-// Use concrete AccurateRip algorithms
-
-using AccurateRipV1   = AccurateRipAlgorithm<checksum::type::ARCS1>;
-using AccurateRipV2   = AccurateRipAlgorithm<checksum::type::ARCS2>;
-using AccurateRipV1V2 =
-			AccurateRipAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
+using V1 = details::ARCSAlgorithm<checksum::type::ARCS1>;
+using V2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
+using V1and2 =
+	details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
 } // namespace accuraterip
 } // namespace v_1_0_0

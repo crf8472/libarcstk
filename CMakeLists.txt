@@ -183,6 +183,8 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 ## --- Specify Exported Headers
 
 set (INTERFACE_HEADERS )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/accuraterip.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/algorithms.hpp" )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp"  )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/checksum.hpp"   )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp"       )
