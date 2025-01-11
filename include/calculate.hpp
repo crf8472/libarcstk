@@ -441,7 +441,7 @@ public:
 	 *
 	 * \return Checksum types calculated by this algorithm
 	 */
-	std::vector<checksum::type> types() const;
+	std::unordered_set<checksum::type> types() const;
 
 private:
 
@@ -467,21 +467,9 @@ private:
 	 *
 	 * \return Checksum types calculated by this algorithm
 	 */
-	virtual std::vector<checksum::type> do_types() const
+	virtual std::unordered_set<checksum::type> do_types() const
 	= 0;
 };
-
-
-/**
- * \brief Get algorithms to calculate the requested types.
- *
- * Each of the algorithms has to be applied by a separate Calculation.
- *
- * \param[in] types The requested types
- *
- * \return The set of algorithms
- */
-std::vector<Algorithm> get_algorithms(const std::vector<checksum::type>& types);
 
 
 /**
@@ -714,7 +702,7 @@ public:
 	 *
 	 * \return All requested Checksum types.
 	 */
-	std::vector<checksum::type> types() const noexcept;
+	std::unordered_set<checksum::type> types() const noexcept;
 
 	/**
 	 * \brief Returns the total number of initially expected PCM 32 bit samples.

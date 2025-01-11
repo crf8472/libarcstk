@@ -270,7 +270,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	SECTION ("Parametized construction is correct")
 	{
 		CHECK ( calculation.algorithm()->types() ==
-				std::vector<type> { type::ARCS1, type::ARCS2 } );
+				std::unordered_set<type> { type::ARCS1, type::ARCS2 } );
 
 		CHECK ( calculation.samples_expected() == 148786344 );
 

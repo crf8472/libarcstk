@@ -117,7 +117,7 @@ public:
 	/**
 	 * \brief Return the checksum types this instance calculates.
 	 */
-	std::vector<checksum::type> types() const
+	std::unordered_set<checksum::type> types() const
 	{
 		return { T1, T2... };
 	}
@@ -231,7 +231,7 @@ class AccurateRipAlgorithm final : public Algorithm
 		return internal_state_.value();
 	}
 
-	std::vector<checksum::type> do_types() const final
+	std::unordered_set<checksum::type> do_types() const final
 	{
 		return internal_state_.types();
 	}

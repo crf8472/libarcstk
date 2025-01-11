@@ -899,26 +899,9 @@ ChecksumSet Algorithm::result() const
 }
 
 
-std::vector<checksum::type> Algorithm::types() const
+std::unordered_set<checksum::type> Algorithm::types() const
 {
 	return this->do_types();
-}
-
-
-// get_algorithms
-
-
-std::vector<Algorithm> get_algorithms(const std::vector<checksum::type>& types)
-{
-	if (types.empty()/* default */ || types.size() > 1/* all known types*/)
-	{
-		return { AccurateRipV1V2{} };
-	}
-
-	// Manually check for the requested type
-	// TODO Manual check does not scale. OK only for the current 3 algorithms.
-	return types[0] == checksum::type::ARCS1 ? { AccurateRipV1{} } :
-			{ AccurateRipV2{} };
 }
 
 
@@ -1019,7 +1002,7 @@ const Algorithm* Calculation::algorithm() const noexcept
 }
 
 
-std::vector<checksum::type> Calculation::types() const noexcept
+std::unordered_set<checksum::type> Calculation::types() const noexcept
 {
 	return algorithm()->types();
 }
