@@ -28,11 +28,8 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
-
-
 namespace details
 {
-
 
 // calculate_details.hpp
 
@@ -378,7 +375,7 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
 		const Interval<int32_t>& calc_range)
 {
-	return make_partitioner(size, {}, calc_range);
+	return make_partitioner(size, {/* empty */}, calc_range);
 }
 
 
@@ -435,19 +432,15 @@ std::unique_ptr<Partitioner> TrackPartitioner::do_clone() const
 Partition::Partition(
 		const int32_t &begin_offset,
 		const int32_t &end_offset,
-		//const int32_t &first,
-		//const int32_t &last,
-		const bool     &starts_track,
-		const bool     &ends_track,
-		const TrackNo  &track
+		const bool    &starts_track,
+		const bool    &ends_track,
+		const TrackNo &track
 	)
 	: begin_offset_ { begin_offset }
-	, end_offset_ { end_offset }
-	//, first_sample_idx_ { first }
-	//, last_sample_idx_ { last }
+	, end_offset_   { end_offset   }
 	, starts_track_ { starts_track }
-	, ends_track_ { ends_track }
-	, track_ { track }
+	, ends_track_   { ends_track   }
+	, track_        { track        }
 {
 	// empty
 }
@@ -704,7 +697,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	}
 }
 
-
 } // namespace details
 
 
@@ -899,6 +891,9 @@ Algorithm::Algorithm()
 }
 
 
+Algorithm::~Algorithm() noexcept = default;
+
+
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
@@ -935,6 +930,12 @@ std::unordered_set<checksum::type> Algorithm::types() const
 }
 
 
+std::unique_ptr<Algorithm> Algorithm::clone() const
+{
+	return this->do_clone();
+}
+
+
 // InsufficientCalculationInputException
 
 
@@ -966,6 +967,49 @@ Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
 {
 	// empty
 }
+
+
+Calculation::Impl::Impl(const Impl& rhs)
+	: settings_      { rhs.settings_ }
+	, partitioner_   { /*TODO*/ }
+	, result_buffer_ { /*TODO*/ }
+	, algorithm_     { /*TODO*/ }
+	, state_         { /*TODO*/ }
+{
+	// empty
+}
+
+
+Calculation::Impl& Calculation::Impl::operator=(const Impl& rhs)
+{
+	// FIXME Implement copy assignment operator for Calculation::Impl
+	return *this;
+}
+
+
+Calculation::Impl::Impl(Impl&& rhs) noexcept
+	: settings_      { std::move(rhs.settings_)      }
+	, partitioner_   { std::move(rhs.partitioner_)   }
+	, result_buffer_ { std::move(rhs.result_buffer_) }
+	, algorithm_     { std::move(rhs.algorithm_)     }
+	, state_         { std::move(rhs.state_)         }
+{
+	// empty
+}
+
+
+Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
+{
+	settings_      = std::move(rhs.settings_);
+	partitioner_   = std::move(rhs.partitioner_);
+	result_buffer_ = std::move(rhs.result_buffer_);
+	algorithm_     = std::move(rhs.algorithm_);
+	state_         = std::move(rhs.state_);
+	return *this;
+}
+
+
+Calculation::Impl::~Impl() noexcept = default;
 
 
 void Calculation::Impl::init(const Settings& settings, const TOC& toc)
@@ -1079,10 +1123,35 @@ Calculation::Calculation(const Settings& settings,
 }
 
 
-Calculation::Calculation(Calculation&& rhs)
+Calculation::Calculation(const Calculation& rhs)
+	:impl_ { nullptr } // FIXME Implement copy constructor
+{
+	// empty
+}
+
+
+Calculation& Calculation::operator=(const Calculation& rhs)
+{
+	// see: http://www.gotw.ca/gotw/059.htm
+	// FIXME implement
+	return *this;
+}
+
+
+Calculation::Calculation(Calculation&& rhs) noexcept
 	:impl_ { std::move(rhs.impl_) }
 {
 	// empty
+}
+
+
+Calculation::~Calculation() noexcept = default;
+
+
+Calculation& Calculation::operator=(Calculation&& rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 

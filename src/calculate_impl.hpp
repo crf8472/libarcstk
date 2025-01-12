@@ -6,10 +6,8 @@
  * \brief Implementations of calculate.hpp that depend on the public header.
  */
 
-#include <cstdint>       // for uint32_t, int32_t
+#include <cstdint>       // for int32_t
 #include <memory>        // for unique_ptr
-#include <unordered_map> // for unordered_map
-#include <string>        // for string
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
@@ -146,21 +144,6 @@ public:
 };
 
 
-/**
- * \brief Updates a calculation process by a sample block.
- *
- * \param[in]     start         Iterator pointing to first sample in block
- * \param[in]     stop          Iterator pointing to last sample in block
- * \param[in]     partitioner   Partition provider
- * \param[in,out] state         Current calculation state
- * \param[in,out] result_buffer Collect the results
- */
-void perform_update(SampleInputIterator start, SampleInputIterator stop,
-		const Partitioner& partitioner,
-		CalculationState&  state,
-		Checksums&         result_buffer);
-
-
 // CalculationStateImpl
 
 
@@ -220,15 +203,28 @@ public:
 #pragma GCC diagnostic pop
 
 
+/**
+ * \brief Updates a calculation process by a sample block.
+ *
+ * \param[in]     start         Iterator pointing to first sample in block
+ * \param[in]     stop          Iterator pointing to last sample in block
+ * \param[in]     partitioner   Partition provider
+ * \param[in,out] state         Current calculation state
+ * \param[in,out] result_buffer Collect the results
+ */
+void perform_update(SampleInputIterator start, SampleInputIterator stop,
+		const Partitioner& partitioner,
+		CalculationState&  state,
+		Checksums&         result_buffer);
+
 } // namespace details
 
 
 /**
  * \brief Private implementation of a Calculation.
  */
-class Calculation::Impl
+class Calculation::Impl final
 {
-	// Public input for construction of the Calculation instance:
 	Settings                                    settings_;
 	std::unique_ptr<details::Partitioner>       partitioner_;
 	std::unique_ptr<Checksums>                  result_buffer_;
@@ -244,7 +240,13 @@ public:
 	 */
 	Impl(std::unique_ptr<Algorithm> algorithm);
 
-	~Impl() = default;
+	Impl(const Impl& rhs);
+	Impl& operator=(const Impl& rhs);
+
+	Impl(Impl&& rhs) noexcept;
+	Impl& operator=(Impl&& rhs) noexcept;
+
+	~Impl() noexcept;
 
 	void init(const Settings& s, const TOC& toc);
 

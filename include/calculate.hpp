@@ -641,12 +641,15 @@ class Algorithm
 {
 public:
 
+	/**
+	 * \brief Default constructor.
+	 */
 	Algorithm();
 
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~Algorithm() noexcept = default;
+	virtual ~Algorithm() noexcept;
 
 	/**
 	 * \brief Configure the algorithm with settings.
@@ -697,6 +700,13 @@ public:
 	 */
 	std::unordered_set<checksum::type> types() const;
 
+	/**
+	 * \brief Clone this instance..
+	 *
+	 * \return Deep copy of the instance
+	 */
+	std::unique_ptr<Algorithm> clone() const;
+
 private:
 
 	/**
@@ -736,6 +746,9 @@ private:
 	 * \return Checksum types calculated by this algorithm
 	 */
 	virtual std::unordered_set<checksum::type> do_types() const
+	= 0;
+
+	virtual std::unique_ptr<Algorithm> do_clone() const
 	= 0;
 
 	/**
@@ -792,12 +805,28 @@ public:
 	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
 			const AudioSize& size, const std::vector<int32_t>& points);
 
-	Calculation(Calculation&& rhs);
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs Instance to be copied
+	 */
+	explicit Calculation(const Calculation& rhs);
+
+	Calculation& operator=(const Calculation& rhs);
+
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to be moved
+	 */
+	explicit Calculation(Calculation&& rhs) noexcept;
+
+	Calculation& operator=(Calculation&& rhs) noexcept;
 
 	/**
 	 * \brief Default destructor.
 	 */
-	~Calculation() = default;
+	~Calculation() noexcept;
 
 	/**
 	 * \brief Configure the algorithm with settings.

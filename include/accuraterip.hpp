@@ -279,6 +279,11 @@ class ARCSAlgorithm final : public Algorithm
 		return internal_state_.types();
 	}
 
+	std::unique_ptr<Algorithm> do_clone() const final
+	{
+		return std::make_unique<ARCSAlgorithm>(*this);
+	}
+
 protected:
 
 	// TODO set requested length and provide ChecksumSet with length
