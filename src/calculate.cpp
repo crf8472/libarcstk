@@ -304,8 +304,6 @@ Partitioner::Partitioner(const int32_t total_samples,
 	: total_samples_ { total_samples }
 	, points_        { points        }
 	, legal_         { legal         }
-	//, skip_front_    { legal.lower() }
-	//, skip_back_     { total_samples - legal.upper() }
 {
 	// empty
 }
@@ -355,23 +353,12 @@ void Partitioner::set_total_samples(const int32_t total_samples)
 	total_samples_ = total_samples;
 }
 
-/*
-int32_t Partitioner::skip_front() const
-{
-	return skip_front_;
-}
-
-
-int32_t Partitioner::skip_back() const
-{
-	return skip_back_;
-}
-*/
 
 Interval<int32_t> Partitioner::legal_range() const
 {
 	return legal_;
 }
+
 
 const std::vector<int32_t>& Partitioner::points() const
 {
@@ -387,22 +374,6 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 
 // make_partitioner
 
-/*
-std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
-		const Interval<int32_t>& calc_range)
-{
-	if (!toc.complete())
-	{
-		// TODO Use specific exception type
-		throw std::runtime_error(
-				"Cannot create a partitioner for an incomplete TOC");
-	}
-
-	//return make_partitioner(frames2samples(toc.leadout()), calc_range,
-	return make_partitioner(AudioSize{ toc.leadout(), AudioSize::UNIT::FRAMES },
-			get_offset_sample_indices(toc), calc_range);
-}
-*/
 
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
 		const Interval<int32_t>& calc_range)
@@ -964,27 +935,7 @@ std::unordered_set<checksum::type> Algorithm::types() const
 }
 
 
-// make_calculation
-
-
-std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
-{
-	if (!toc.complete())
-	{
-		throw InsufficientCalculationInputException(
-				"Cannot build a Calculation with an incomplete TOC"
-		);
-	}
-
-	return std::make_unique<Calculation>(Settings::Context::ALBUM,
-		std::move(algorithm),
-		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
-		details::get_offset_sample_indices(toc));
-}
-
-
-//
+// InsufficientCalculationInputException
 
 
 InsufficientCalculationInputException::InsufficientCalculationInputException(
@@ -1000,103 +951,6 @@ InsufficientCalculationInputException::InsufficientCalculationInputException(
 	: std::runtime_error { what_arg }
 {
 	// empty
-}
-
-
-// Calculation
-
-
-Calculation::Calculation(const Settings& settings,
-		std::unique_ptr<Algorithm> algorithm, const AudioSize& size,
-		const std::vector<int32_t>& points)
-	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
-{
-	impl_->init(settings, size, points);
-}
-
-
-Calculation::Calculation(Calculation&& rhs)
-	:impl_ { std::move(rhs.impl_) }
-{
-	// empty
-}
-
-
-void Calculation::set_settings(const Settings& s) noexcept
-{
-	impl_->set_settings(s);
-}
-
-
-Settings Calculation::settings() const noexcept
-{
-	return impl_->settings();
-}
-
-
-void Calculation::set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept
-{
-	impl_->set_algorithm(std::move(algorithm));
-}
-
-
-const Algorithm* Calculation::algorithm() const noexcept
-{
-	return impl_->algorithm();
-}
-
-
-std::unordered_set<checksum::type> Calculation::types() const noexcept
-{
-	return algorithm()->types();
-}
-
-
-int32_t Calculation::samples_expected() const noexcept
-{
-	return impl_->samples_expected();
-}
-
-
-int32_t Calculation::samples_processed() const noexcept
-{
-	return impl_->samples_processed();
-}
-
-
-int32_t Calculation::samples_todo() const noexcept
-{
-	return samples_expected() - samples_processed();
-}
-
-
-std::chrono::milliseconds Calculation::proc_time_elapsed() const noexcept
-{
-	return impl_->proc_time_elapsed();
-}
-
-
-bool Calculation::complete() const noexcept
-{
-	return impl_->complete();
-}
-
-
-void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
-{
-	impl_->update(start, stop);
-}
-
-
-void Calculation::update(const AudioSize &audiosize)
-{
-	impl_->update(audiosize);
-}
-
-
-Checksums Calculation::result() const noexcept
-{
-	return impl_->result();
 }
 
 
@@ -1210,6 +1064,123 @@ void Calculation::Impl::update(const AudioSize &audiosize)
 Checksums Calculation::Impl::result() const noexcept
 {
 	return *result_buffer_;
+}
+
+
+// Calculation
+
+
+Calculation::Calculation(const Settings& settings,
+		std::unique_ptr<Algorithm> algorithm, const AudioSize& size,
+		const std::vector<int32_t>& points)
+	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
+{
+	impl_->init(settings, size, points);
+}
+
+
+Calculation::Calculation(Calculation&& rhs)
+	:impl_ { std::move(rhs.impl_) }
+{
+	// empty
+}
+
+
+void Calculation::set_settings(const Settings& s) noexcept
+{
+	impl_->set_settings(s);
+}
+
+
+Settings Calculation::settings() const noexcept
+{
+	return impl_->settings();
+}
+
+
+void Calculation::set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept
+{
+	impl_->set_algorithm(std::move(algorithm));
+}
+
+
+const Algorithm* Calculation::algorithm() const noexcept
+{
+	return impl_->algorithm();
+}
+
+
+std::unordered_set<checksum::type> Calculation::types() const noexcept
+{
+	return algorithm()->types();
+}
+
+
+int32_t Calculation::samples_expected() const noexcept
+{
+	return impl_->samples_expected();
+}
+
+
+int32_t Calculation::samples_processed() const noexcept
+{
+	return impl_->samples_processed();
+}
+
+
+int32_t Calculation::samples_todo() const noexcept
+{
+	return samples_expected() - samples_processed();
+}
+
+
+std::chrono::milliseconds Calculation::proc_time_elapsed() const noexcept
+{
+	return impl_->proc_time_elapsed();
+}
+
+
+bool Calculation::complete() const noexcept
+{
+	return impl_->complete();
+}
+
+
+void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
+{
+	impl_->update(start, stop);
+}
+
+
+void Calculation::update(const AudioSize &audiosize)
+{
+	impl_->update(audiosize);
+}
+
+
+Checksums Calculation::result() const noexcept
+{
+	return impl_->result();
+}
+
+
+// make_calculation
+
+
+std::unique_ptr<Calculation> make_calculation(
+		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
+{
+	if (!toc.complete())
+	{
+		throw InsufficientCalculationInputException(
+				"Cannot build a Calculation with an incomplete TOC"
+		);
+	}
+
+	return std::make_unique<Calculation>(Settings::Context::ALBUM,
+		std::move(algorithm),
+		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
+		details::get_offset_sample_indices(toc));
 }
 
 
