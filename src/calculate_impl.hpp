@@ -244,26 +244,7 @@ public:
 	 */
 	Impl(std::unique_ptr<Algorithm> algorithm);
 
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] algorithm The algorithm to use for calculating
-	 * \param[in] toc       TOC to perform calculation for
-	 * \param[in] size      Optional total size of the audio input
-	 */
-	//Impl(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-	//		const AudioSize& size);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] algorithm  The algorithm to use for calculating
-	 * \param[in] size       Total size of the audio input
-	 * \param[in] skip_front Skip samples at front
-	 * \param[in] skip_back  Skip samples at back
-	 */
-	//Impl(std::unique_ptr<Algorithm> algorithm,
-	//	const AudioSize& size, bool skip_front, bool skip_back);
+	~Impl() = default;
 
 	void init(const Settings& s, const TOC& toc);
 

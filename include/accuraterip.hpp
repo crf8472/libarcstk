@@ -116,6 +116,12 @@ protected:
 
 public:
 
+	UpdatableBase()
+		: state_ { /* default */ }
+	{
+		// empty
+	}
+
 	/**
 	 * \brief Reset the instance to its initial state.
 	 */
@@ -278,6 +284,12 @@ protected:
 	// TODO set requested length and provide ChecksumSet with length
 
 public:
+
+	ARCSAlgorithm()
+		: internal_state_ { /* default */ }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Set multiplier to a new value.

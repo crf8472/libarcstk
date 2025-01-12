@@ -634,6 +634,8 @@ constexpr bool operator | (const Settings::Context lhs,
 	return static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief Checksum calculation algorithm.
@@ -641,6 +643,8 @@ constexpr bool operator | (const Settings::Context lhs,
 class Algorithm
 {
 public:
+
+	Algorithm();
 
 	/**
 	 * \brief Virtual default destructor.
@@ -743,6 +747,8 @@ private:
 	const Settings* settings_;
 };
 
+#pragma GCC diagnostic pop
+
 
 /**
  * \brief Reports insufficient input for successfully completing a Calculation.
@@ -775,10 +781,6 @@ public:
  */
 class Calculation final
 {
-	// Private implementation
-	class Impl;
-	std::unique_ptr<Impl> impl_;
-
 public:
 
 	/**
@@ -794,14 +796,9 @@ public:
 			const AudioSize& size, const std::vector<int32_t>& points);
 
 	/**
-	 * \brief Create a calculation instance.
-	 *
-	 * If not <tt>toc.complete()</tt> then first update will throw.
-	 *
-	 * \param[in] algorithm The algorithm to use for calculating
-	 * \param[in] toc       TOC to perform calculation for
+	 * \brief Default destructor.
 	 */
-	//Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc);
+	~Calculation() = default;
 
 	/**
 	 * \brief Configure the algorithm with settings.
@@ -921,6 +918,12 @@ public:
 	 * \return The computed Checksums
 	 */
 	Checksums result() const noexcept;
+
+private:
+
+	// Private implementation
+	class Impl;
+	std::unique_ptr<Impl> impl_;
 };
 
 

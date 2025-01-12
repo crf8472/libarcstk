@@ -899,6 +899,13 @@ inline SampleInputIterator operator + (const int32_t amount,
 // Algorithm
 
 
+Algorithm::Algorithm()
+	:settings_ { nullptr }
+{
+	// empty
+}
+
+
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
@@ -937,48 +944,6 @@ std::unordered_set<checksum::type> Algorithm::types() const
 
 // make_calculation
 
-/*
-std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize& size)
-{
-	if (size.zero())
-	{
-		return make_calculation(std::move(algorithm), toc);
-	}
-
-	// TODO Checks should be already implemented in identifier.cpp
-
-	if (size.total_frames() > CDDA::MAX_OFFSET)
-	{
-		throw InsufficientCalculationInputException(
-				"Cannot build Calculation with max input size exceeded: "
-				" should be at most "
-				+ std::to_string(CDDA::MAX_OFFSET)
-				+ " frames but is "
-				+ std::to_string(size.total_frames())
-				+ " frames"
-		);
-	}
-
-	const auto last_track_len {
-		size.total_frames() - toc.offset(toc.total_tracks()) };
-
-	if (last_track_len < CDDA::MIN_TRACK_LEN_FRAMES)
-	{
-		throw InsufficientCalculationInputException(
-				"Cannot build Calculation because last track is too short: "
-				" should be at least "
-				+ std::to_string(CDDA::MIN_TRACK_LEN_FRAMES)
-				+ " frames but is only "
-				+ std::to_string(last_track_len)
-				+ " frames"
-		);
-	}
-
-	return std::make_unique<Calculation>(std::move(algorithm), toc, size);
-}
-*/
 
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
@@ -986,8 +951,7 @@ std::unique_ptr<Calculation> make_calculation(
 	if (!toc.complete())
 	{
 		throw InsufficientCalculationInputException(
-				"Cannot build a Calculation with an incomplete TOC "
-				"and no completing AudioSize"
+				"Cannot build a Calculation with an incomplete TOC"
 		);
 	}
 
@@ -995,9 +959,6 @@ std::unique_ptr<Calculation> make_calculation(
 		std::move(algorithm),
 		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
 		details::get_offset_sample_indices(toc));
-
-	//return std::make_unique<Calculation>(std::move(algorithm), toc,
-	//		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
 }
 
 
@@ -1030,16 +991,6 @@ Calculation::Calculation(const Settings& settings,
 {
 	impl_->init(settings, size, points);
 }
-
-
-// TODO Make this a delegating constructor
-/*
-Calculation::Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc)
-	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
-{
-	impl_->init(Settings::Context::ALBUM, toc);
-}
-*/
 
 
 void Calculation::set_settings(const Settings& s) noexcept
