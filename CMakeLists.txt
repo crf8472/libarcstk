@@ -1,6 +1,6 @@
 ## Root CMake file for libarcstk
 
-cmake_minimum_required (VERSION 3.9.6 )
+cmake_minimum_required (VERSION 3.10 )
 
 ## Set variables corresponding to unspecified versions to the empty string
 ## Required for specifying the project version along with the name in project()
