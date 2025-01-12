@@ -896,6 +896,28 @@ inline SampleInputIterator operator + (const int32_t amount,
 }
 
 
+// Settings
+
+
+Settings::Settings(const Context& c)
+	: context_ { c }
+{
+	// empty
+}
+
+
+void Settings::set_context(const Context c)
+{
+	context_ = c;
+}
+
+
+Settings::Context Settings::context() const
+{
+	return context_;
+}
+
+
 // Algorithm
 
 
@@ -990,6 +1012,13 @@ Calculation::Calculation(const Settings& settings,
 	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
 {
 	impl_->init(settings, size, points);
+}
+
+
+Calculation::Calculation(Calculation&& rhs)
+	:impl_ { std::move(rhs.impl_) }
+{
+	// empty
 }
 
 

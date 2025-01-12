@@ -597,10 +597,7 @@ public:
 	 *
 	 * \param[in] c Context for a calculation
 	 */
-	Settings(const Context& c)
-	{
-		context_ = c;
-	}
+	Settings(const Context& c);
 
 	/**
 	 * \brief Set context for this algorithm.
@@ -795,6 +792,8 @@ public:
 	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
 			const AudioSize& size, const std::vector<int32_t>& points);
 
+	Calculation(Calculation&& rhs);
+
 	/**
 	 * \brief Default destructor.
 	 */
@@ -925,22 +924,6 @@ private:
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 };
-
-
-/**
- * \brief Create a calculation.
- *
- * Parameter <tt>size</tt> is ignored iff <tt>toc.complete()</tt> and
- * <tt>size.zero()</tt> are both TRUE. Otherwise <tt>size</tt> overwrites the
- * size information of the TOC.
- *
- * \param[in] algorithm    The algorithm to use for calculating
- * \param[in] toc          TOC to perform calculation for
- * \param[in] size         Total size of the audio input
- */
-//std::unique_ptr<Calculation> make_calculation(
-//		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-//		const AudioSize& size);
 
 
 /**

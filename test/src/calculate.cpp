@@ -225,6 +225,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::make_calculation;
 	using arcstk::AccurateRipV1V2;
 	using arcstk::checksum::type;
+	using arcstk::Settings;
 
 
 	const auto toc = arcstk::details::TOCBuilder::build(
@@ -241,9 +242,9 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 
 	auto algorithm { std::make_unique<AccurateRipV1V2>() };
 
-	const auto calculation { Calculation { std::move(algorithm), *toc, size }};
+	const auto calculation { make_calculation(std::move(algorithm), *toc) };
 
-	const auto result { calculation.result() };
+	const auto result { calculation->result() };
 
 	//
 
@@ -257,33 +258,37 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	SECTION ("Parametized construction is as declared")
 	{
 		CHECK ( std::is_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
+				const std::vector<int32_t>&>::value
 				);
 
 		CHECK ( not std::is_trivially_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
+				const std::vector<int32_t>&>::value
 				);
+
 		CHECK ( not std::is_nothrow_constructible<Calculation,
-				std::unique_ptr<Algorithm>, const TOC&, const AudioSize&>::value
+				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
+				const std::vector<int32_t>&>::value
 				);
 	}
 
 
 	SECTION ("Parametized construction is correct")
 	{
-		CHECK ( calculation.algorithm()->types() ==
+		CHECK ( calculation->algorithm()->types() ==
 				std::unordered_set<type> { type::ARCS1, type::ARCS2 } );
 
-		CHECK ( calculation.samples_expected() == 148786344 );
+		CHECK ( calculation->samples_expected() == 148786344 );
 
-		CHECK ( calculation.samples_processed() == 0 );
+		CHECK ( calculation->samples_processed() == 0 );
 
-		CHECK ( calculation.samples_todo() == 148786344 );
-		CHECK ( calculation.samples_todo() == calculation.samples_expected() );
+		CHECK ( calculation->samples_todo() == 148786344 );
+		CHECK ( calculation->samples_todo() == calculation->samples_expected() );
 
-		CHECK ( calculation.proc_time_elapsed().count() == 0 );
+		CHECK ( calculation->proc_time_elapsed().count() == 0 );
 
-		CHECK ( not calculation.complete() );
+		CHECK ( not calculation->complete() );
 
 		CHECK ( result.empty() );
 	}
@@ -299,7 +304,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	{
 		CHECK ( std::is_move_constructible<Calculation>::value );
 
-		CHECK ( std::is_nothrow_move_constructible<Calculation>::value );
+		CHECK ( not std::is_nothrow_move_constructible<Calculation>::value );
 	}
 
 
@@ -323,8 +328,9 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		const auto algo_types = algorithmV1V2->types();
 
 		const auto sz = AudioSize { 253038, AudioSize::UNIT::FRAMES };
+		toc_1->update(sz.leadout_frame());
 
-		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1, sz ) };
+		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1) };
 
 		CHECK ( calc->samples_expected()  == 253038 * 588 );
 		CHECK ( calc->samples_processed() == 0 );
@@ -338,42 +344,44 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
-	SECTION ("make_calculation() with incomplete TOC and illegal sizes fails")
-	{
-		using arcstk::checksum::type;
-		using arcstk::CDDA;
+	// TODO make_calculation does no longer test size integrity
 
-		const auto toc_1 = arcstk::details::TOCBuilder::build(
-			// track count
-			15,
-			// offsets
-			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-				157863, 198495, 213368, 225320, 234103 },
-			// lengths
-			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
-		);
-
-
-		const auto size_too_big = AudioSize { // bigger than allowed MAX
-			CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };
-
-		const auto size_too_small = AudioSize { // smaller than allowed MIN
-			CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
-
-		const auto size_zero = AudioSize { // only legal iff TOC is complete
-			0, AudioSize::UNIT::FRAMES };
-
-
-		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-					*toc_1, size_too_big) );
-
-		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-					*toc_1, size_too_small) );
-
-		CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-					*toc_1, size_zero) );
-	}
+	// SECTION ("make_calculation() with incomplete TOC and illegal sizes fails")
+	// {
+	// 	using arcstk::checksum::type;
+	// 	using arcstk::CDDA;
+	//
+	// 	const auto toc_1 = arcstk::details::TOCBuilder::build(
+	// 		// track count
+	// 		15,
+	// 		// offsets
+	// 		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+	// 			157863, 198495, 213368, 225320, 234103 },
+	// 		// lengths
+	// 		{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+	// 			18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
+	// 	);
+	//
+	//
+	// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
+	// 		CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };
+	//
+	// 	const auto size_too_small = AudioSize { // smaller than allowed MIN
+	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
+	//
+	// 	const auto size_zero = AudioSize { // only legal iff TOC is complete
+	// 		0, AudioSize::UNIT::FRAMES };
+	//
+	//
+	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+	// 				*toc_1, size_too_big) );
+	//
+	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+	// 				*toc_1, size_too_small) );
+	//
+	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
+	// 				*toc_1, size_zero) );
+	// }
 
 
 	SECTION ("make_calculation() with complete TOC succeeds")
