@@ -19,6 +19,7 @@
 #include "calculate_impl.hpp"
 #endif
 
+#include <vector> // for vector
 
 // AudioSize
 
@@ -434,6 +435,15 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
 
 		CHECK_THROWS ( make_calculation(std::move(algorithmV1V2), *toc_1) );
+	}
+
+
+	SECTION ("Putting Calculation in a vector succeeds")
+	{
+		auto calculations = std::vector<Calculation>();
+		calculations.reserve(5);
+
+		CHECK ( calculations.capacity() == 5 );
 	}
 }
 
