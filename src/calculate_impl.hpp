@@ -229,25 +229,57 @@ public:
 class Calculation::Impl
 {
 	// Public input for construction of the Calculation instance:
-	std::unique_ptr<Algorithm>                  algorithm_;
-
-	// Internal input for construction:
-	// constructed, controlled and destroyed by the Calculation instance:
-	const std::unique_ptr<details::Partitioner> partitioner_;
-	std::unique_ptr<details::CalculationState>  state_;
+	Settings                                    settings_;
+	std::unique_ptr<details::Partitioner>       partitioner_;
 	std::unique_ptr<Checksums>                  result_buffer_;
+	std::unique_ptr<Algorithm>                  algorithm_;
+	std::unique_ptr<details::CalculationState>  state_;
 
 public:
 
 	/**
 	 * \brief Constructor.
 	 *
+	 * \param[in] algorithm The algorithm to use in update()
+	 */
+	Impl(std::unique_ptr<Algorithm> algorithm);
+
+	/**
+	 * \brief Constructor.
+	 *
 	 * \param[in] algorithm The algorithm to use for calculating
 	 * \param[in] toc       TOC to perform calculation for
-	 * \param[in] size      Total size of the audio input
+	 * \param[in] size      Optional total size of the audio input
 	 */
-	Impl(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-			const AudioSize& size);
+	//Impl(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
+	//		const AudioSize& size);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] algorithm  The algorithm to use for calculating
+	 * \param[in] size       Total size of the audio input
+	 * \param[in] skip_front Skip samples at front
+	 * \param[in] skip_back  Skip samples at back
+	 */
+	//Impl(std::unique_ptr<Algorithm> algorithm,
+	//	const AudioSize& size, bool skip_front, bool skip_back);
+
+	void init(const Settings& s, const TOC& toc);
+
+	void init(const Settings& s, const AudioSize& size,
+		const std::vector<int32_t>& points);
+
+	std::unique_ptr<details::CalculationStateImpl> init_state(
+		Algorithm* algorithm);
+
+	std::unique_ptr<Checksums> init_buffer();
+
+	void set_settings(const Settings& s) noexcept;
+
+	const Settings& settings() const noexcept;
+
+	void set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept;
 
 	const Algorithm* algorithm() const noexcept;
 

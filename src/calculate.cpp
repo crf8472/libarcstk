@@ -210,11 +210,14 @@ int32_t last_relevant_sample(const int track,
 // get_partitioning
 
 
-Partitioning get_partitioning(
-		const Interval<int32_t>&    interval,
-		const Interval<int32_t>&    legal,
-		const std::vector<int32_t>& points)
+Partitioning get_partitioning(const Interval<int32_t>& interval,
+		const Interval<int32_t>& legal, const std::vector<int32_t>& points)
 {
+	if (points.empty())
+	{
+		return get_partitioning(interval, legal);
+	}
+
 	const auto real_lower = std::max(
 			{ legal.lower(), interval.lower(), points[0] });
 
@@ -266,156 +269,8 @@ Partitioning get_partitioning(
 }
 
 
-// Partitioner
-
-/*
-Partitioner::Partitioner(const int32_t total_samples)
-	: Partitioner { total_samples, 0, 0, {} }
-{
-	// empty
-}
-
-
-Partitioner::Partitioner(const int32_t total_samples,
-		const int32_t skip_front, const int32_t skip_back)
-	: Partitioner { total_samples, skip_front, skip_back, {} }
-{
-	// empty
-}
-*/
-
-Partitioner::Partitioner(const int32_t total_samples,
-		const std::vector<int32_t>& points,
-		const int32_t skip_front,
-		const int32_t skip_back)
-	: total_samples_ { total_samples }
-	, points_        { points        }
-	, skip_front_    { skip_front    }
-	, skip_back_     { skip_back     }
-{
-	// empty
-}
-
-
-Partitioning Partitioner::create_partitioning(
-		const int32_t offset,
-		const int32_t total_samples_in_block) const
-{
-	const Interval<int32_t> interval {
-		/* first phys. sample in block */ offset,
-		/* last  phys. sample in block */ offset + total_samples_in_block - 1
-	};
-
-	const Interval<int32_t> legal {
-		skip_front(),
-		total_samples() - skip_back()
-	};
-
-	// If the sample block does not contain any relevant samples,
-	// just return an empty partitioning.
-
-	if (interval.upper() < legal.lower() || interval.lower() > legal.upper())
-	{
-		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
-		return Partitioning {};
-	}
-
-	if (points_.empty())
-	{
-		return do_create_partitioning(interval, legal);
-	}
-
-	return do_create_partitioning(interval, legal, points_);
-}
-
-
-int32_t Partitioner::total_samples() const
-{
-	return total_samples_;
-}
-
-
-void Partitioner::set_total_samples(const int32_t total_samples)
-{
-	total_samples_ = total_samples;
-}
-
-
-int32_t Partitioner::skip_front() const
-{
-	return skip_front_;
-}
-
-
-int32_t Partitioner::skip_back() const
-{
-	return skip_back_;
-}
-
-
-std::unique_ptr<Partitioner> Partitioner::clone() const
-{
-	return do_clone();
-}
-
-
-// make_partitioner
-
-
-std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
-		const int32_t total_frames)
-{
-	if (total_frames <= 0)
-	{
-		if (toc.complete())
-		{
-			return make_partitioner(toc);
-		}
-
-		// TODO throw
-	}
-
-	return std::make_unique<TrackPartitioner>(frames2samples(total_frames),
-			get_offset_sample_indices(toc), true, true);
-}
-
-
-std::unique_ptr<Partitioner> make_partitioner(const TOC& toc)
-{
-	if (!toc.complete())
-	{
-		// TODO throw
-	}
-
-	return std::make_unique<TrackPartitioner>(frames2samples(toc.leadout()),
-			get_offset_sample_indices(toc), true, true);
-}
-
-
-// TrackPartitioner
-
-
-TrackPartitioner::TrackPartitioner(const int32_t total_samples,
-			const std::vector<int32_t>& points,
-			const int32_t skip_front, const int32_t skip_back)
-	: Partitioner(total_samples, points, skip_front, skip_back)
-{
-	// empty
-}
-
-
-Partitioning TrackPartitioner::do_create_partitioning(
-		const Interval<int32_t>&    interval, /* block of samples */
-		const Interval<int32_t>&    legal,    /* legal range of samples */
-		const std::vector<int32_t>& points    /* track points */ )  const
-{
-	return get_partitioning(interval, legal, points);
-}
-
-
-Partitioning TrackPartitioner::do_create_partitioning(
-			const Interval<int32_t>& interval,
-			const Interval<int32_t>& legal) const
+Partitioning get_partitioning(const Interval<int32_t>& interval,
+		const Interval<int32_t>& legal)
 {
 	// Create a single partition spanning the entire block of samples,
 	// but respect skipping samples at front or back.
@@ -437,6 +292,163 @@ Partitioning TrackPartitioner::do_create_partitioning(
 		/* ends track */    { chunk_last  == legal.upper() },
 		/* invalid track */ 0
 	}};
+}
+
+
+// Partitioner
+
+
+Partitioner::Partitioner(const int32_t total_samples,
+		const std::vector<int32_t>& points,
+		const Interval<int32_t>& legal)
+	: total_samples_ { total_samples }
+	, points_        { points        }
+	, legal_         { legal         }
+	//, skip_front_    { legal.lower() }
+	//, skip_back_     { total_samples - legal.upper() }
+{
+	// empty
+}
+
+
+Partitioning Partitioner::create_partitioning(
+		const int32_t offset,
+		const int32_t total_samples_in_block) const
+{
+	const Interval<int32_t> current_interval {
+		/* first phys. sample in block */ offset,
+		/* last  phys. sample in block */ offset + total_samples_in_block - 1
+	};
+
+	// const Interval<int32_t> legal {
+	// 	skip_front(),
+	// 	total_samples() - skip_back()
+	// };
+
+	// If the sample block does not contain any relevant samples,
+	// just return an empty partitioning.
+
+	if (current_interval.upper() < legal_range().lower() ||
+			current_interval.lower() > legal_range().upper())
+	{
+		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
+		return Partitioning {};
+	}
+
+	if (points().empty())
+	{
+		return do_create_partitioning(current_interval, legal_range());
+	}
+
+	return do_create_partitioning(current_interval, legal_range(), points());
+}
+
+
+int32_t Partitioner::total_samples() const
+{
+	return total_samples_;
+}
+
+
+void Partitioner::set_total_samples(const int32_t total_samples)
+{
+	total_samples_ = total_samples;
+}
+
+/*
+int32_t Partitioner::skip_front() const
+{
+	return skip_front_;
+}
+
+
+int32_t Partitioner::skip_back() const
+{
+	return skip_back_;
+}
+*/
+
+Interval<int32_t> Partitioner::legal_range() const
+{
+	return legal_;
+}
+
+const std::vector<int32_t>& Partitioner::points() const
+{
+	return points_;
+}
+
+
+std::unique_ptr<Partitioner> Partitioner::clone() const
+{
+	return do_clone();
+}
+
+
+// make_partitioner
+
+/*
+std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
+		const Interval<int32_t>& calc_range)
+{
+	if (!toc.complete())
+	{
+		// TODO Use specific exception type
+		throw std::runtime_error(
+				"Cannot create a partitioner for an incomplete TOC");
+	}
+
+	//return make_partitioner(frames2samples(toc.leadout()), calc_range,
+	return make_partitioner(AudioSize{ toc.leadout(), AudioSize::UNIT::FRAMES },
+			get_offset_sample_indices(toc), calc_range);
+}
+*/
+
+std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
+		const Interval<int32_t>& calc_range)
+{
+	return make_partitioner(size, {}, calc_range);
+}
+
+
+std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
+		const std::vector<int32_t>& points, const Interval<int32_t>& calc_range)
+{
+	// TODO Check calc_range
+	// if calc_range.lower() < 1, use 1 as lower
+	// if calc_range.upper() > size, use size as upper
+
+	return std::make_unique<TrackPartitioner>(size.total_samples(), points,
+			calc_range);
+}
+
+
+// TrackPartitioner
+
+
+TrackPartitioner::TrackPartitioner(const int32_t total_samples,
+			const std::vector<int32_t>& points,
+			const Interval<int32_t>&    legal)
+	: Partitioner(total_samples, points, legal)
+{
+	// empty
+}
+
+
+Partitioning TrackPartitioner::do_create_partitioning(
+		const Interval<int32_t>&    interval,     /* block of samples */
+		const Interval<int32_t>&    legal,        /* legal range of samples */
+		const std::vector<int32_t>& points) const /* track points */
+{
+	return get_partitioning(interval, legal, points);
+}
+
+
+Partitioning TrackPartitioner::do_create_partitioning(
+			const Interval<int32_t>& interval,
+			const Interval<int32_t>& legal) const
+{
+	return get_partitioning(interval, legal);
 }
 
 
@@ -887,6 +899,24 @@ inline SampleInputIterator operator + (const int32_t amount,
 // Algorithm
 
 
+void Algorithm::set_settings(const Settings* s) noexcept
+{
+	settings_ = s;
+}
+
+
+const Settings* Algorithm::settings() const noexcept
+{
+	return settings_;
+}
+
+
+std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size) const
+{
+	return this->do_range(size);
+}
+
+
 void Algorithm::update(SampleInputIterator begin, SampleInputIterator end)
 {
 	this->do_update(begin, end);
@@ -907,7 +937,7 @@ std::unordered_set<checksum::type> Algorithm::types() const
 
 // make_calculation
 
-
+/*
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
 		const AudioSize& size)
@@ -948,7 +978,7 @@ std::unique_ptr<Calculation> make_calculation(
 
 	return std::make_unique<Calculation>(std::move(algorithm), toc, size);
 }
-
+*/
 
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
@@ -961,8 +991,13 @@ std::unique_ptr<Calculation> make_calculation(
 		);
 	}
 
-	return std::make_unique<Calculation>(std::move(algorithm), toc,
-			AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
+	return std::make_unique<Calculation>(Settings::Context::ALBUM,
+		std::move(algorithm),
+		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
+		details::get_offset_sample_indices(toc));
+
+	//return std::make_unique<Calculation>(std::move(algorithm), toc,
+	//		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES });
 }
 
 
@@ -988,11 +1023,40 @@ InsufficientCalculationInputException::InsufficientCalculationInputException(
 // Calculation
 
 
-Calculation::Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize& size)
-	:impl_ { std::make_unique<Impl>(std::move(algorithm), toc, size) }
+Calculation::Calculation(const Settings& settings,
+		std::unique_ptr<Algorithm> algorithm, const AudioSize& size,
+		const std::vector<int32_t>& points)
+	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
 {
-	// empty
+	impl_->init(settings, size, points);
+}
+
+
+// TODO Make this a delegating constructor
+/*
+Calculation::Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc)
+	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
+{
+	impl_->init(Settings::Context::ALBUM, toc);
+}
+*/
+
+
+void Calculation::set_settings(const Settings& s) noexcept
+{
+	impl_->set_settings(s);
+}
+
+
+Settings Calculation::settings() const noexcept
+{
+	return impl_->settings();
+}
+
+
+void Calculation::set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept
+{
+	impl_->set_algorithm(std::move(algorithm));
 }
 
 
@@ -1059,16 +1123,64 @@ Checksums Calculation::result() const noexcept
 // Calculation::Impl
 
 
-Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize& size)
-	: algorithm_     { std::move(algorithm) }
-	, partitioner_   { details::make_partitioner(toc, size.total_frames()) }
-	                   // TODO make_partitioner throws!
-	, state_         {
-		std::make_unique<details::CalculationStateImpl>(algorithm_.get()) }
-	, result_buffer_ { std::make_unique<Checksums>() }
+Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
+	: settings_      { Settings::Context::ALBUM /* just to have a default */ }
+	, partitioner_   { nullptr /* requires concrete input data */ }
+	, result_buffer_ { std::move(init_buffer()) }
+	, algorithm_     { std::move(algorithm) }
+	, state_         { std::move(init_state(algorithm_.get()))  }
 {
 	// empty
+}
+
+
+void Calculation::Impl::init(const Settings& settings, const TOC& toc)
+{
+	this->init(settings, AudioSize{ toc.leadout(), AudioSize::UNIT::FRAMES },
+			details::get_offset_sample_indices(toc));
+}
+
+
+void Calculation::Impl::init(const Settings& s, const AudioSize& size,
+		const std::vector<int32_t>& points)
+{
+	this->set_settings(s);
+	partitioner_ = details::make_partitioner(size, points,
+			details::Interval<int32_t> { algorithm_->range(size) });
+}
+
+
+std::unique_ptr<details::CalculationStateImpl> Calculation::Impl::init_state(
+		Algorithm* algorithm)
+{
+	return std::make_unique<details::CalculationStateImpl>(algorithm);
+}
+
+
+std::unique_ptr<Checksums> Calculation::Impl::init_buffer()
+{
+	return std::make_unique<Checksums>();
+}
+
+
+void Calculation::Impl::set_settings(const Settings& s) noexcept
+{
+	settings_ = s;
+	algorithm_->set_settings(&settings());
+}
+
+
+const Settings& Calculation::Impl::settings() const noexcept
+{
+	return settings_;
+}
+
+
+void Calculation::Impl::set_algorithm(std::unique_ptr<Algorithm> a) noexcept
+{
+	algorithm_     = std::move(a);
+	state_         = init_state(algorithm_.get());
+	result_buffer_ = init_buffer();
 }
 
 

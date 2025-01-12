@@ -21,6 +21,7 @@ inline namespace v_1_0_0
 {
 
 // avoid includes
+class AudioSize;
 class TOC;
 class ChecksumSet;
 
@@ -141,7 +142,7 @@ int track(const int32_t sample, const TOC& toc, const int32_t s_total);
  * \internal
  * \ingroup calc
  *
- * \brief A closed interval of non-negative 32 bit sized integers.
+ * \brief A closed interval <tt>[a,b]</tt>.
  *
  * \tparam T Type with definition of <=
  */
@@ -169,6 +170,17 @@ public:
 	Interval(const T a, const T b)
 		: a_ { a }
 		, b_ { b }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor for <tt>[a,b]</tt>.
+	 *
+	 * \param[in] pair Pair of bounds in closed interval
+	 */
+	explicit Interval(const std::pair<T,T>& pair)
+		: Interval { pair.first, pair.second }
 	{
 		// empty
 	}
@@ -261,6 +273,13 @@ Partitioning get_partitioning(
 		const Interval<int32_t>&    legal,
 		const std::vector<int32_t>& points);
 
+/**
+ * \brief Create a single partition for an interval in a legal range.
+ */
+Partitioning get_partitioning(
+		const Interval<int32_t>&    interval,
+		const Interval<int32_t>&    legal);
+
 
 /**
  * \internal
@@ -297,6 +316,16 @@ public:
 	 */
 	//Partitioner(const int32_t total_samples,
 	//	const int32_t skip_front, const int32_t skip_back);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
+	 * \param[in] legal         Legal range of calculation
+	 */
+	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
+			const Interval<int32_t>& legal);
 
 	/**
 	 * \brief Constructor.
@@ -351,7 +380,7 @@ public:
 	 *
 	 * \return Amount of samples to skip at front
 	 */
-	int32_t skip_front() const;
+	//int32_t skip_front() const;
 
 	/**
 	 * \brief Amount of samples to skip at back.
@@ -360,7 +389,23 @@ public:
 	 *
 	 * \return Amount of samples to skip at back
 	 */
-	int32_t skip_back() const;
+	//int32_t skip_back() const;
+
+	/**
+	 * \brief Legal range to occurr in partitions.
+	 *
+	 * The physical range of input samples may be bigger.
+	 *
+	 * \return The legal range of samples to be partitioned.
+	 */
+	Interval<int32_t> legal_range() const;
+
+	/**
+	 * \brief Partitioning bounds.
+	 *
+	 * \return Points to separate partitions.
+	 */
+	const std::vector<int32_t>& points() const;
 
 	/**
 	 * \brief Deep copy of this instance.
@@ -374,27 +419,29 @@ private:
 	/**
 	 * \brief Implements Partitioner::create_partitioning() with a TOC.
 	 *
-	 * \param[in] interval Interval to build partitions from
-	 * \param[in] toc      TOC
+	 * \param[in] current_interval Interval to build partitions from
+	 * \param[in] legal_range      Legal interval to process
+	 * \param[in] points           Splitting points
 	 *
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>&    sample_block,
-		const Interval<int32_t>&    relevant_interval,
+		const Interval<int32_t>&    current_interval,
+		const Interval<int32_t>&    legal_range,
 		const std::vector<int32_t>& points) const
 	= 0;
 
 	/**
 	 * \brief Implements Partitioner::create_partitioning() without a TOC.
 	 *
-	 * \param[in] interval Interval to build partitions from
+	 * \param[in] current_interval Interval to build partitions from
+	 * \param[in] legal_range      Legal interval to process
 	 *
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>& sample_block,
-		const Interval<int32_t>& relevant_interval) const
+		const Interval<int32_t>& current_interval,
+		const Interval<int32_t>& legal_range) const
 	= 0;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const
@@ -413,37 +460,60 @@ private:
 	/**
 	 * \brief Internal amount of samples to skip at front.
 	 */
-	int32_t skip_front_;
+	//int32_t skip_front_;
 
 	/**
 	 * \brief Internal amount of samples to skip at back.
 	 */
-	int32_t skip_back_;
+	//int32_t skip_back_;
+
+	/**
+	 * \brief Legal range of partitioning.
+	 */
+	Interval<int32_t> legal_;
 };
-
-
-/**
- * \brief Create a partitioner for a possibly incomplete TOC.
- *
- * \param[in] toc          The TOC to get a Partitioner for.
- * \param[in] total_frames The total number of frames in the expected input.
- *
- * \return Partitioner for the specified TOC.
- */
-std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
-		const int32_t total_frames);
 
 
 /**
  * \brief Create a partitioner for a complete TOC.
  *
- * \param[in] toc The TOC to get a Partitioner for.
+ * \param[in] toc        The TOC to get a Partitioner for.
+ * \param[in] calc_range The legal range for partitioning.
  *
  * \return Partitioner for the specified TOC.
  *
  * \throws Iff toc.complete() is FALSE
  */
-std::unique_ptr<Partitioner> make_partitioner(const TOC& toc);
+//std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
+//		const Interval<int32_t>& calc_range);
+
+
+/**
+ * \brief Create a partitioner for a closed input interval.
+ *
+ * The concrete interval is [1;size.total_samples()].
+ *
+ * \param[in] size       Upper bound for the closed input interval.
+ * \param[in] calc_range The legal range for partitioning.
+ *
+ * \return Partitioner for the specified interval.
+ */
+std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
+		const Interval<int32_t>& calc_range);
+
+
+/**
+ * \brief Create a partitioner for a closed input interval.
+ *
+ * \param[in] size       Upper bound for the closed input interval.
+ * \param[in] calc_range The legal range for partitioning.
+ * \param[in] points     The splitting points for the partitions.
+ *
+ * \return Partitioner for the specified interval.
+ */
+std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
+		const std::vector<int32_t>& points,
+		const Interval<int32_t>& calc_range);
 
 
 /**
@@ -466,7 +536,7 @@ public:
 
 	TrackPartitioner(const int32_t total_samples,
 			const std::vector<int32_t>& points,
-			const int32_t skip_front, const int32_t skip_back);
+			const Interval<int32_t>&    legal);
 };
 
 

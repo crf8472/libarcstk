@@ -81,6 +81,17 @@ protected:
 			swap(*this, s);
 		}
 
+		/**
+		 * \internal
+		 * \brief Set multiplier to a new value.
+		 *
+		 * \param[in] m New value for multiplier
+		 */
+		void set_multiplier(const uint_fast64_t m)
+		{
+			multiplier = m;
+		}
+
 		friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 		{
 			using std::swap;
@@ -111,6 +122,16 @@ public:
 	void reset()
 	{
 		state_.reset();
+	}
+
+	/**
+	 * \brief Set multiplier to a new value.
+	 *
+	 * \param[in] m New value for multiplier
+	 */
+	void set_multiplier(const uint_fast64_t m)
+	{
+		state_.set_multiplier(m);
 	}
 
 	/**
@@ -219,6 +240,23 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> internal_state_;
 
+	std::pair<int32_t, int32_t> do_range(const AudioSize& size) const final
+	{
+		int32_t lower = 1;
+		int32_t upper = size.total_samples();
+
+		if (Settings::Context::FIRST_TRACK | this->settings()->context())
+		{
+			lower += NUM_SKIP_SAMPLES_FRONT;
+		}
+
+		if (Settings::Context::LAST_TRACK | this->settings()->context())
+		{
+			upper -= NUM_SKIP_SAMPLES_BACK;
+		}
+
+		return { lower, upper };
+	}
 
 	void do_update(SampleInputIterator begin, SampleInputIterator end) final
 	{
@@ -238,6 +276,18 @@ class ARCSAlgorithm final : public Algorithm
 protected:
 
 	// TODO set requested length and provide ChecksumSet with length
+
+public:
+
+	/**
+	 * \brief Set multiplier to a new value.
+	 *
+	 * \param[in] m New value for multiplier
+	 */
+	void set_multiplier(const uint_fast64_t m)
+	{
+		internal_state_.set_multiplier(m);
+	}
 };
 
 } // namespace details

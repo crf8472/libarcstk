@@ -410,69 +410,6 @@ private:
 
 
 /**
- * \brief Checksum calculation algorithm.
- */
-class Algorithm
-{
-public:
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~Algorithm() noexcept = default;
-
-	/**
-	 * \brief Update with a sequence of samples.
-	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
-	 */
-	void update(SampleInputIterator begin, SampleInputIterator end);
-
-	/**
-	 * \brief Return the result of the algorithm.
-	 *
-	 * \return Calculation result.
-	 */
-	ChecksumSet result() const;
-
-	/**
-	 * \brief Types of checksums the algorithm calculates.
-	 *
-	 * \return Checksum types calculated by this algorithm
-	 */
-	std::unordered_set<checksum::type> types() const;
-
-private:
-
-	/**
-	 * \brief Update with a sequence of samples.
-	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
-	 */
-	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
-	= 0;
-
-	/**
-	 * \brief Return the result of the algorithm.
-	 *
-	 * \return Calculation result.
-	 */
-	virtual ChecksumSet do_result() const
-	= 0;
-
-	/**
-	 * \brief Types of checksums the algorithm calculates.
-	 *
-	 * \return Checksum types calculated by this algorithm
-	 */
-	virtual std::unordered_set<checksum::type> do_types() const
-	= 0;
-};
-
-
-/**
  * \brief Uniform access to the size of the input audio information.
  *
  * Some decoders provide the number of frames, others the number of samples and
@@ -638,6 +575,176 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 
 /**
+ * \brief Settings for a calculation.
+ */
+class Settings final
+{
+public:
+
+	/**
+	 * \brief Context description.
+	 */
+	enum class Context : unsigned char
+	{
+		NONE        = 0, // shorthand for "!(FIRST_TRACK | LAST_TRACK)"
+		FIRST_TRACK = 1,
+		LAST_TRACK  = 2,
+		ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
+	};
+
+	/**
+	 * \brief Converting constructor.
+	 *
+	 * \param[in] c Context for a calculation
+	 */
+	Settings(const Context& c)
+	{
+		context_ = c;
+	}
+
+	/**
+	 * \brief Set context for this algorithm.
+	 *
+	 * \param[in] c Context to set on this instance
+	 */
+	void set_context(const Context c);
+
+	/**
+	 * \brief Current context of this algorithm.
+	 *
+	 * \return Context of this instance
+	 */
+	Context context() const;
+
+private:
+
+	/**
+	 * \brief Internal context, default is ALBUM.
+	 */
+	Context context_ { Context::ALBUM };
+};
+
+
+constexpr bool operator | (const Settings::Context lhs, const
+		Settings::Context rhs);
+
+constexpr bool operator | (const Settings::Context lhs,
+		const Settings::Context rhs)
+{
+	return static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs);
+}
+
+
+/**
+ * \brief Checksum calculation algorithm.
+ */
+class Algorithm
+{
+public:
+
+	/**
+	 * \brief Virtual default destructor.
+	 */
+	virtual ~Algorithm() noexcept = default;
+
+	/**
+	 * \brief Configure the algorithm with settings.
+	 *
+	 * \param[in] s Settings to use on this instance
+	 */
+	void set_settings(const Settings* s) noexcept;
+
+	/**
+	 * \brief Return the settings of this instance.
+	 *
+	 * \return Settings of this instance
+	 */
+	const Settings* settings() const noexcept;
+
+	/**
+	 * \brief Determine the legal range of samples for the calculation performed
+	 * on the input amount.
+	 *
+	 * The algorithm may request to process only a part of the input - e.g. it
+	 * may skip an amount of samples at the beginning and at the end.
+	 *
+	 * \param[in] size The input size of samples to process
+	 *
+	 * \return Input range of 1-based sample indices to use for calculation.
+	 */
+	std::pair<int32_t,int32_t> range(const AudioSize& size) const;
+
+	/**
+	 * \brief Update with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 */
+	void update(SampleInputIterator begin, SampleInputIterator end);
+
+	/**
+	 * \brief Return the result of the algorithm.
+	 *
+	 * \return Calculation result.
+	 */
+	ChecksumSet result() const;
+
+	/**
+	 * \brief Types of checksums the algorithm calculates.
+	 *
+	 * \return Checksum types calculated by this algorithm
+	 */
+	std::unordered_set<checksum::type> types() const;
+
+private:
+
+	/**
+	 * \brief Determine the legal range of samples for the calculation performed
+	 * on the input amount.
+	 *
+	 * The algorithm may request to process only a part of the input - e.g. it
+	 * may skip an amount of samples at the beginning and at the end.
+	 *
+	 * \param[in] size The input size of samples to process
+	 *
+	 * \return Input range of 1-based sample indices to use for calculation.
+	 */
+	virtual std::pair<int32_t, int32_t> do_range(const AudioSize& size) const
+	= 0;
+
+	/**
+	 * \brief Update with a sequence of samples.
+	 *
+	 * \param[in] begin Iterator pointing to the first sample of the sequence
+	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 */
+	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
+	= 0;
+
+	/**
+	 * \brief Return the result of the algorithm.
+	 *
+	 * \return Calculation result.
+	 */
+	virtual ChecksumSet do_result() const
+	= 0;
+
+	/**
+	 * \brief Types of checksums the algorithm calculates.
+	 *
+	 * \return Checksum types calculated by this algorithm
+	 */
+	virtual std::unordered_set<checksum::type> do_types() const
+	= 0;
+
+	/**
+	 * \brief Internal settings of the algorithm.
+	 */
+	const Settings* settings_;
+};
+
+
+/**
  * \brief Reports insufficient input for successfully completing a Calculation.
  *
  * This exception indicates that an incomplete TOC was passed without also
@@ -677,19 +784,51 @@ public:
 	/**
 	 * \brief Create a calculation instance.
 	 *
-	 * Parameter <tt>size</tt> is ignored iff <tt>toc.complete()</tt> and
-	 * <tt>size.zero()</tt> are both TRUE. Otherwise <tt>size</tt> overwrites
-	 * the size information of the TOC.
+	 * If <tt>size.zero()</tt>, then first update will throw.
+	 *
+	 * \param[in] settings  The settings for the calculation
+	 * \param[in] algorithm The algorithm to use for calculating
+	 * \param[in] size      Size of the expected input
+	 */
+	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
+			const AudioSize& size, const std::vector<int32_t>& points);
+
+	/**
+	 * \brief Create a calculation instance.
+	 *
+	 * If not <tt>toc.complete()</tt> then first update will throw.
 	 *
 	 * \param[in] algorithm The algorithm to use for calculating
 	 * \param[in] toc       TOC to perform calculation for
-	 * \param[in] size      Total size of the audio input
 	 */
-	Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-			const AudioSize& size);
+	//Calculation(std::unique_ptr<Algorithm> algorithm, const TOC& toc);
 
 	/**
-	 * \brief Returns the algorithm used by this Calculation.
+	 * \brief Configure the algorithm with settings.
+	 *
+	 * \param[in] s Settings to use on this instance
+	 */
+	void set_settings(const Settings& s) noexcept;
+
+	/**
+	 * \brief Return the settings of this instance.
+	 *
+	 * \return Settings of this instance
+	 */
+	Settings settings() const noexcept;
+
+	/**
+	 * \brief Set the algorithm instance to use.
+	 *
+	 * Note that the algorithm is stateful and may therefore not be shared
+	 * between calculations.
+	 *
+	 * \param[in] algorithm Algorithm to use on update
+	 */
+	void set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept;
+
+	/**
+	 * \brief Returns the algorithm instance used by this Calculation.
 	 *
 	 * \return Algorithm used by this Calculation.
 	 */
@@ -796,20 +935,18 @@ public:
  * \param[in] toc          TOC to perform calculation for
  * \param[in] size         Total size of the audio input
  */
-std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
-		const AudioSize& size);
+//std::unique_ptr<Calculation> make_calculation(
+//		std::unique_ptr<Algorithm> algorithm, const TOC& toc,
+//		const AudioSize& size);
 
 
 /**
  * \brief Create a calculation for a complete TOC.
  *
- * If the TOC is not complete,
- *
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          Complete TOC to perform calculation for
  *
- * \throws
+ * \throws If the TOC is not complete.
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc);
