@@ -131,7 +131,7 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 		CHECK ( std::is_nothrow_copy_constructible<AudioSize>::value );
 	}
 
-	// Copy construction correct?
+	// TODO Copy construction correct?
 
 	SECTION ("Move construction is as declared")
 	{
@@ -139,6 +139,8 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 		CHECK ( std::is_nothrow_move_constructible<AudioSize>::value );
 	}
+
+	// TODO Move construction correct?
 
 	SECTION ("Maximum values are correct")
 	{
@@ -214,6 +216,59 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 }
 
 
+// Context
+
+
+TEST_CASE ( "Context", "[calculate] [context]" )
+{
+	using arcstk::Context;
+
+	SECTION ( "Constants behave as expected" )
+	{
+		CHECK ((Context::FIRST_TRACK | Context::NONE) == Context::FIRST_TRACK);
+		CHECK ((Context::LAST_TRACK  | Context::NONE) == Context::LAST_TRACK);
+		CHECK ((Context::ALBUM       | Context::NONE) == Context::ALBUM);
+
+		CHECK ((Context::FIRST_TRACK | Context::LAST_TRACK)  == Context::ALBUM);
+		CHECK ((Context::FIRST_TRACK | Context::ALBUM)       == Context::ALBUM);
+
+		CHECK ((Context::LAST_TRACK  | Context::FIRST_TRACK) == Context::ALBUM);
+		CHECK ((Context::LAST_TRACK  | Context::ALBUM)       == Context::ALBUM);
+
+		CHECK ((Context::ALBUM       | Context::LAST_TRACK)  == Context::ALBUM);
+		CHECK ((Context::ALBUM       | Context::FIRST_TRACK) == Context::ALBUM);
+	}
+
+	SECTION ( "any() is correct" )
+	{
+		CHECK ( not any(Context::NONE) );
+
+		CHECK ( any(Context::FIRST_TRACK) );
+		CHECK ( any(Context::LAST_TRACK) );
+		CHECK ( any(Context::ALBUM) );
+	}
+}
+
+
+// CalculationStateImpl
+
+
+TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
+{
+	using arcstk::Algorithm;
+	using arcstk::AccurateRipV1V2;
+	using arcstk::details::CalculationStateImpl;
+
+	auto algorithm { std::make_unique<AccurateRipV1V2>() };
+	auto impl { CalculationStateImpl { algorithm.get() } };
+
+	SECTION ("Construction is successful")
+	{
+		CHECK ( impl.algorithm() == algorithm.get() );
+	}
+}
+
+
 // Calculation
 
 
@@ -256,6 +311,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( not std::is_nothrow_default_constructible<Calculation>::value );
 	}
 
+
 	SECTION ("Parametized construction is as declared")
 	{
 		CHECK ( std::is_constructible<Calculation,
@@ -295,9 +351,11 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
-	SECTION ("Copy construction is prohibited")
+	SECTION ("Copy construction is as declared")
 	{
-		CHECK ( not std::is_copy_constructible<Calculation>::value );
+		CHECK ( std::is_copy_constructible<Calculation>::value );
+
+		CHECK ( not std::is_nothrow_copy_constructible<Calculation>::value );
 	}
 
 
@@ -305,84 +363,24 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	{
 		CHECK ( std::is_move_constructible<Calculation>::value );
 
-		CHECK ( not std::is_nothrow_move_constructible<Calculation>::value );
+		CHECK ( std::is_nothrow_move_constructible<Calculation>::value );
 	}
 
 
-	SECTION ("make_calculation() with incomplete TOC and legal size succeeds")
+	SECTION ("Putting Calculation in a vector succeeds")
 	{
-		using arcstk::checksum::type;
+		auto calculations = std::vector<Calculation>();
+		calculations.reserve(5);
 
-		const auto toc_1 = arcstk::details::TOCBuilder::build(
-			// track count
-			15,
-			// offsets
-			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-				157863, 198495, 213368, 225320, 234103 },
-			// lengths
-			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
-		);
-
-		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
-
-		const auto algo_types = algorithmV1V2->types();
-
-		const auto sz = AudioSize { 253038, AudioSize::UNIT::FRAMES };
-		toc_1->update(sz.leadout_frame());
-
-		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1) };
-
-		CHECK ( calc->samples_expected()  == 253038 * 588 );
-		CHECK ( calc->samples_processed() == 0 );
-		CHECK ( calc->samples_todo()      == 253038 * 588 );
-		CHECK ( calc->proc_time_elapsed().count() == 0 );
-		CHECK ( not calc->complete() );
-		CHECK ( calc->result().empty() );
-
-		//CHECK ( calc->algorithm() == *algorithmV1V2 );
-		CHECK ( calc->types() == algo_types );
+		CHECK ( calculations.capacity() == 5 );
 	}
 
 
-	// TODO make_calculation does no longer test size integrity
-
-	// SECTION ("make_calculation() with incomplete TOC and illegal sizes fails")
-	// {
-	// 	using arcstk::checksum::type;
-	// 	using arcstk::CDDA;
-	//
-	// 	const auto toc_1 = arcstk::details::TOCBuilder::build(
-	// 		// track count
-	// 		15,
-	// 		// offsets
-	// 		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-	// 			157863, 198495, 213368, 225320, 234103 },
-	// 		// lengths
-	// 		{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-	// 			18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
-	// 	);
-	//
-	//
 	// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
 	// 		CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };
 	//
 	// 	const auto size_too_small = AudioSize { // smaller than allowed MIN
 	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
-	//
-	// 	const auto size_zero = AudioSize { // only legal iff TOC is complete
-	// 		0, AudioSize::UNIT::FRAMES };
-	//
-	//
-	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-	// 				*toc_1, size_too_big) );
-	//
-	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-	// 				*toc_1, size_too_small) );
-	//
-	// 	CHECK_THROWS ( make_calculation(std::make_unique<AccurateRipV1V2>(),
-	// 				*toc_1, size_zero) );
-	// }
 
 
 	SECTION ("make_calculation() with complete TOC succeeds")
@@ -412,7 +410,6 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( not calc->complete() );
 		CHECK ( calc->result().empty() );
 
-		//CHECK ( calc->algorithm() == *algorithmV1V2 );
 		CHECK ( calc->types() == algo_types );
 	}
 
@@ -435,15 +432,6 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
 
 		CHECK_THROWS ( make_calculation(std::move(algorithmV1V2), *toc_1) );
-	}
-
-
-	SECTION ("Putting Calculation in a vector succeeds")
-	{
-		auto calculations = std::vector<Calculation>();
-		calculations.reserve(5);
-
-		CHECK ( calculations.capacity() == 5 );
 	}
 }
 

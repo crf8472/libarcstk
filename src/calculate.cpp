@@ -518,10 +518,16 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 // CalculationState
 
 
+CalculationState::CalculationState() = default;
+
+
 CalculationState::CalculationState(Algorithm* const /* algorithm */)
 {
 	// empty
 }
+
+
+CalculationState::~CalculationState() noexcept = default;
 
 
 ChecksumSet CalculationState::current_subtotal() const
@@ -557,6 +563,18 @@ void CalculationState::increment_proc_time_elapsed(
 }
 
 
+std::unique_ptr<CalculationState> CalculationState::clone() const
+{
+	return do_clone();
+}
+
+
+std::unique_ptr<CalculationState> CalculationState::clone_to(Algorithm* a) const
+{
+	return do_clone_to(a);
+}
+
+
 // CalculationStateImpl
 
 
@@ -568,9 +586,9 @@ CalculationStateImpl::CalculationStateImpl()
 
 
 CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
-	: sample_offset_           { 0 }
-	, proc_time_elapsed_       { std::chrono::duration<int64_t, std::milli>(0) }
-	, algorithm_               { algorithm }
+	: sample_offset_     { 0 }
+	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
+	, algorithm_         { algorithm }
 {
 	// empty
 }
@@ -599,6 +617,7 @@ std::chrono::milliseconds CalculationStateImpl::do_proc_time_elapsed() const
 void CalculationStateImpl::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
+	algorithm_->update(start, stop);
 	sample_offset_.increment(std::distance(start, stop));
 }
 
@@ -613,6 +632,27 @@ void CalculationStateImpl::do_increment_proc_time_elapsed(
 void CalculationStateImpl::do_advance(const int32_t amount)
 {
 	sample_offset_.increment(amount);
+}
+
+
+std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
+{
+	return raw_clone();
+}
+
+
+std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
+		Algorithm* a) const
+{
+	auto cloned { raw_clone() };
+	cloned->algorithm_ = a;
+	return cloned;
+}
+
+
+std::unique_ptr<CalculationStateImpl> CalculationStateImpl::raw_clone() const
+{
+	return std::make_unique<CalculationStateImpl>(*this);
 }
 
 
@@ -859,6 +899,15 @@ inline SampleInputIterator operator + (const int32_t amount,
 }
 
 
+// Context
+
+
+bool any(const Context& rhs) noexcept
+{
+	return rhs != Context::NONE;
+}
+
+
 // Settings
 
 
@@ -960,21 +1009,21 @@ InsufficientCalculationInputException::InsufficientCalculationInputException(
 
 Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
 	: settings_      { Context::ALBUM /* just to have a default */ }
-	, partitioner_   { nullptr /* requires concrete input data */ }
-	, result_buffer_ { std::move(init_buffer()) }
-	, algorithm_     { std::move(algorithm) }
-	, state_         { std::move(init_state(algorithm_.get()))  }
+	, partitioner_   { nullptr /* requires concrete input data */  }
+	, result_buffer_ { std::move(init_buffer())                    }
+	, algorithm_     { std::move(algorithm)                        }
+	, state_         { std::move(init_state(algorithm_.get()))     }
 {
 	// empty
 }
 
 
 Calculation::Impl::Impl(const Impl& rhs)
-	: settings_      { rhs.settings_ }
-	, partitioner_   { /*TODO*/ }
-	, result_buffer_ { /*TODO*/ }
-	, algorithm_     { /*TODO*/ }
-	, state_         { /*TODO*/ }
+	: settings_      { rhs.settings_                                    }
+	, partitioner_   { rhs.partitioner_->clone()                        }
+	, result_buffer_ { std::make_unique<Checksums>(*rhs.result_buffer_) }
+	, algorithm_     { rhs.algorithm_->clone()                          }
+	, state_         { rhs.state_->clone_to(algorithm_.get())           }
 {
 	// empty
 }
@@ -982,7 +1031,13 @@ Calculation::Impl::Impl(const Impl& rhs)
 
 Calculation::Impl& Calculation::Impl::operator=(const Impl& rhs)
 {
-	// FIXME Implement copy assignment operator for Calculation::Impl
+	// FIXME Implement copy assignment without code duplication
+	// see: http://www.gotw.ca/gotw/059.htm
+	settings_      = rhs.settings_;
+	partitioner_   = rhs.partitioner_->clone();
+	result_buffer_ = std::make_unique<Checksums>(*rhs.result_buffer_);
+	algorithm_     = rhs.algorithm_->clone();
+	state_         = rhs.state_->clone_to(algorithm_.get());
 	return *this;
 }
 
@@ -992,7 +1047,7 @@ Calculation::Impl::Impl(Impl&& rhs) noexcept
 	, partitioner_   { std::move(rhs.partitioner_)   }
 	, result_buffer_ { std::move(rhs.result_buffer_) }
 	, algorithm_     { std::move(rhs.algorithm_)     }
-	, state_         { std::move(rhs.state_)         }
+	, state_         { std::move(rhs.state_)         } // FIXME pointer to algo
 {
 	// empty
 }
@@ -1000,11 +1055,13 @@ Calculation::Impl::Impl(Impl&& rhs) noexcept
 
 Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
 {
+	// FIXME Implement move assignment without code duplication
+	// see: http://www.gotw.ca/gotw/059.htm
 	settings_      = std::move(rhs.settings_);
 	partitioner_   = std::move(rhs.partitioner_);
 	result_buffer_ = std::move(rhs.result_buffer_);
 	algorithm_     = std::move(rhs.algorithm_);
-	state_         = std::move(rhs.state_);
+	state_         = std::move(rhs.state_); // FIXME pointer to algo
 	return *this;
 }
 
@@ -1029,7 +1086,7 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 
 
 std::unique_ptr<details::CalculationStateImpl> Calculation::Impl::init_state(
-		Algorithm* algorithm)
+		Algorithm* const algorithm)
 {
 	return std::make_unique<details::CalculationStateImpl>(algorithm);
 }
@@ -1124,7 +1181,7 @@ Calculation::Calculation(const Settings& settings,
 
 
 Calculation::Calculation(const Calculation& rhs)
-	:impl_ { nullptr } // FIXME Implement copy constructor
+	:impl_ { std::make_unique<Calculation::Impl>(*rhs.impl_) }
 {
 	// empty
 }
@@ -1132,8 +1189,7 @@ Calculation::Calculation(const Calculation& rhs)
 
 Calculation& Calculation::operator=(const Calculation& rhs)
 {
-	// see: http://www.gotw.ca/gotw/059.htm
-	// FIXME implement
+	impl_ = std::make_unique<Calculation::Impl>(*rhs.impl_);
 	return *this;
 }
 
@@ -1145,14 +1201,14 @@ Calculation::Calculation(Calculation&& rhs) noexcept
 }
 
 
-Calculation::~Calculation() noexcept = default;
-
-
 Calculation& Calculation::operator=(Calculation&& rhs) noexcept
 {
 	impl_ = std::move(rhs.impl_);
 	return *this;
 }
+
+
+Calculation::~Calculation() noexcept = default;
 
 
 void Calculation::set_settings(const Settings& s) noexcept

@@ -585,14 +585,27 @@ enum class Context : unsigned char
 	ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
 };
 
-constexpr bool operator | (const Context lhs, const Context rhs);
+constexpr Context operator | (const Context lhs, const Context rhs);
 
-constexpr bool operator | (const Context lhs, const Context rhs)
+constexpr Context operator | (const Context lhs, const Context rhs)
 {
-	return static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs);
+	return static_cast<Context>(
+			static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
 }
 
 // TODO Other bitwise operators for Context
+
+constexpr bool operator == (const Context lhs, const Context rhs);
+
+constexpr bool operator == (const Context lhs, const Context rhs)
+{
+	return static_cast<unsigned char>(lhs) == static_cast<unsigned char>(rhs);
+}
+
+/**
+ * \brief Returns TRUE iff rhs != Context::NONE
+ */
+bool any(const Context& rhs) noexcept;
 
 
 /**

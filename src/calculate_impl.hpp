@@ -80,13 +80,18 @@ class CalculationState
 	virtual ChecksumSet do_current_subtotal() const
 	= 0;
 
+	virtual std::unique_ptr<CalculationState> do_clone() const
+	= 0;
+
+	virtual std::unique_ptr<CalculationState> do_clone_to(Algorithm* a) const
+	= 0;
+
 public:
 
 	/**
 	 * \brief Default constructor.
 	 */
-	CalculationState()
-	= default;
+	CalculationState();
 
 	/**
 	 * \brief Constructor.
@@ -98,7 +103,7 @@ public:
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~CalculationState() noexcept = default;
+	virtual ~CalculationState() noexcept;
 
 	/**
 	 * \brief Returns the total number for PCM 32 bit samples yet processed.
@@ -141,6 +146,9 @@ public:
 	 * \return Current subtotal.
 	 */
 	ChecksumSet current_subtotal() const;
+
+	std::unique_ptr<CalculationState> clone() const;
+	std::unique_ptr<CalculationState> clone_to(Algorithm* a) const;
 };
 
 
@@ -181,6 +189,10 @@ class CalculationStateImpl final : public CalculationState
 	void do_update(SampleInputIterator start, SampleInputIterator stop)
 			final;
 	ChecksumSet do_current_subtotal() const final;
+	std::unique_ptr<CalculationState> do_clone() const final;
+	std::unique_ptr<CalculationState> do_clone_to(Algorithm* a) const final;
+
+	std::unique_ptr<CalculationStateImpl> raw_clone() const;
 
 public:
 
@@ -238,7 +250,7 @@ public:
 	 *
 	 * \param[in] algorithm The algorithm to use in update()
 	 */
-	Impl(std::unique_ptr<Algorithm> algorithm);
+	explicit Impl(std::unique_ptr<Algorithm> algorithm);
 
 	Impl(const Impl& rhs);
 	Impl& operator=(const Impl& rhs);
@@ -248,15 +260,19 @@ public:
 
 	~Impl() noexcept;
 
+	// Impl specific
+
 	void init(const Settings& s, const TOC& toc);
 
 	void init(const Settings& s, const AudioSize& size,
 		const std::vector<int32_t>& points);
 
 	std::unique_ptr<details::CalculationStateImpl> init_state(
-		Algorithm* algorithm);
+		Algorithm* const algorithm);
 
 	std::unique_ptr<Checksums> init_buffer();
+
+	// Calculation
 
 	void set_settings(const Settings& s) noexcept;
 
