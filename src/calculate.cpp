@@ -518,10 +518,28 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 // CalculationState
 
 
-CalculationState::CalculationState() = default;
+CalculationState::CalculationState(Algorithm* const algorithm)
+	: sample_offset_     { 0 }
+	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
+	, algorithm_         { algorithm }
+{
+	// empty
+}
 
 
-CalculationState::CalculationState(Algorithm* const /* algorithm */)
+CalculationState::CalculationState(const CalculationState& rhs)
+	: sample_offset_     { rhs.sample_offset_     }
+	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
+	, algorithm_         { rhs.algorithm_         }
+{
+	// empty
+}
+
+
+CalculationState::CalculationState(CalculationState&& rhs) noexcept
+	: sample_offset_     { std::move(rhs.sample_offset_)     }
+	, proc_time_elapsed_ { std::move(rhs.proc_time_elapsed_) }
+	, algorithm_         { std::move(rhs.algorithm_)         }
 {
 	// empty
 }
@@ -530,9 +548,45 @@ CalculationState::CalculationState(Algorithm* const /* algorithm */)
 CalculationState::~CalculationState() noexcept = default;
 
 
-ChecksumSet CalculationState::current_subtotal() const
+int32_t CalculationState::do_samples_processed() const noexcept
 {
-	return do_current_subtotal();
+	//return sample_offset_.value() + 1; // +1 since index is 0-based
+	return sample_offset_.value();
+}
+
+
+void CalculationState::do_advance(const int32_t amount)
+{
+	sample_offset_.increment(amount);
+}
+
+
+std::chrono::milliseconds CalculationState::do_proc_time_elapsed() const
+	noexcept
+{
+	return proc_time_elapsed_.value();
+}
+
+
+void CalculationState::do_increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	proc_time_elapsed_.increment(amount);
+}
+
+
+void CalculationState::do_update(SampleInputIterator start,
+		SampleInputIterator stop)
+{
+	auto amount { std::distance(start, stop) };
+	algorithm_->update(start, stop);
+	sample_offset_.increment(amount);
+}
+
+
+ChecksumSet CalculationState::do_current_subtotal() const
+{
+	return algorithm_->result();
 }
 
 
@@ -542,9 +596,22 @@ int32_t CalculationState::samples_processed() const noexcept
 }
 
 
+const Algorithm* CalculationState::algorithm() const noexcept
+{
+	return algorithm_;
+}
+
+
 std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
 {
 	return do_proc_time_elapsed();
+}
+
+
+void CalculationState::increment_proc_time_elapsed(
+		const std::chrono::milliseconds amount)
+{
+	do_increment_proc_time_elapsed(amount);
 }
 
 
@@ -556,10 +623,9 @@ void CalculationState::update(SampleInputIterator start,
 }
 
 
-void CalculationState::increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
+ChecksumSet CalculationState::current_subtotal() const
 {
-	do_increment_proc_time_elapsed(amount);
+	return do_current_subtotal();
 }
 
 
@@ -575,64 +641,46 @@ std::unique_ptr<CalculationState> CalculationState::clone_to(Algorithm* a) const
 }
 
 
+void CalculationState::set_algorithm(Algorithm* const algorithm) noexcept
+{
+	algorithm_ = algorithm;
+}
+
+
+void swap(CalculationState& lhs, CalculationState& rhs) noexcept
+{
+	using std::swap;
+	swap(lhs.sample_offset_,     rhs.sample_offset_    );
+	swap(lhs.proc_time_elapsed_, rhs.proc_time_elapsed_);
+	swap(lhs.algorithm_,         rhs.algorithm_        );
+}
+
+
 // CalculationStateImpl
 
 
-CalculationStateImpl::CalculationStateImpl()
-	: CalculationStateImpl(nullptr)
-{
-	// empty
-}
-
-
 CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
-	: sample_offset_     { 0 }
-	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
-	, algorithm_         { algorithm }
+	: CalculationState{ algorithm }
 {
 	// empty
 }
 
 
-ChecksumSet CalculationStateImpl::do_current_subtotal() const
+CalculationStateImpl::CalculationStateImpl(const CalculationStateImpl& rhs)
+	: CalculationState(rhs)
 {
-	return algorithm_->result();
+	// empty
 }
 
 
-int32_t CalculationStateImpl::do_samples_processed() const noexcept
+CalculationStateImpl::CalculationStateImpl(CalculationStateImpl&& rhs) noexcept
+	: CalculationState(std::move(rhs))
 {
-	//return sample_offset_.value() + 1; // +1 since index is 0-based
-	return sample_offset_.value();
+	// empty
 }
 
 
-std::chrono::milliseconds CalculationStateImpl::do_proc_time_elapsed() const
-	noexcept
-{
-	return proc_time_elapsed_.value();
-}
-
-
-void CalculationStateImpl::do_update(SampleInputIterator start,
-		SampleInputIterator stop)
-{
-	algorithm_->update(start, stop);
-	sample_offset_.increment(std::distance(start, stop));
-}
-
-
-void CalculationStateImpl::do_increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
-{
-	proc_time_elapsed_.increment(amount);
-}
-
-
-void CalculationStateImpl::do_advance(const int32_t amount)
-{
-	sample_offset_.increment(amount);
-}
+CalculationStateImpl::~CalculationStateImpl() noexcept = default;
 
 
 std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
@@ -642,10 +690,10 @@ std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
 
 
 std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
-		Algorithm* a) const
+		Algorithm* algorithm) const
 {
 	auto cloned { raw_clone() };
-	cloned->algorithm_ = a;
+	cloned->set_algorithm(algorithm);
 	return cloned;
 }
 
@@ -653,6 +701,36 @@ std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
 std::unique_ptr<CalculationStateImpl> CalculationStateImpl::raw_clone() const
 {
 	return std::make_unique<CalculationStateImpl>(*this);
+}
+
+
+CalculationStateImpl& CalculationStateImpl::operator = (
+		const CalculationStateImpl& rhs)
+{
+	auto tmp { CalculationStateImpl(rhs) };
+
+	using std::swap;
+	swap(*this, tmp);
+	return *this;
+}
+
+
+CalculationStateImpl& CalculationStateImpl::operator = (
+		CalculationStateImpl&& rhs) noexcept
+{
+	auto tmp { std::move(rhs) };
+
+	using std::swap;
+	swap(*this, tmp);
+	return *this;
+}
+
+
+void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs) noexcept
+{
+	using std::swap;
+	swap(static_cast<CalculationState&>(lhs),
+			static_cast<CalculationState&>(rhs));
 }
 
 

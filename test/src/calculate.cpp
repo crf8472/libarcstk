@@ -4,7 +4,8 @@
  * \file Fixtures for classes in module calculate
  */
 
-#include <type_traits>
+#include <chrono>
+#include <numeric>      // for iota
 
 #ifndef __LIBARCSTK_ALGORITHMS_HPP__
 #include "algorithms.hpp"
@@ -259,12 +260,90 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 	using arcstk::AccurateRipV1V2;
 	using arcstk::details::CalculationStateImpl;
 
-	auto algorithm { std::make_unique<AccurateRipV1V2>() };
-	auto impl { CalculationStateImpl { algorithm.get() } };
+	using std::begin;
+	using std::end;
 
-	SECTION ("Construction is successful")
+	auto algorithm { std::make_unique<AccurateRipV1V2>() };
+	auto impl1 { CalculationStateImpl { algorithm.get() } };
+
 	{
-		CHECK ( impl.algorithm() == algorithm.get() );
+		auto dummy_data = std::vector<uint32_t>(1000000);
+		std::iota(begin(dummy_data), end(dummy_data), 1);
+
+		const auto start_time { std::chrono::steady_clock::now() };
+		impl1.update(begin(dummy_data), end(dummy_data));
+		const auto time_elapsed {
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::steady_clock::now() - start_time)
+		};
+
+		impl1.increment_proc_time_elapsed(time_elapsed);
+	}
+
+
+	SECTION ("Construction is correct")
+	{
+		auto impl { CalculationStateImpl { algorithm.get() } };
+
+		CHECK ( impl.algorithm()         == algorithm.get() );
+		CHECK ( impl.samples_processed() == 0 );
+	}
+
+
+	SECTION ("Copy construction is as declared")
+	{
+		CHECK ( std::is_copy_constructible<CalculationStateImpl>::value );
+
+		CHECK ( not
+			std::is_nothrow_copy_constructible<CalculationStateImpl>::value );
+	}
+
+
+	SECTION ("Move construction is as declared")
+	{
+		CHECK ( std::is_move_constructible<CalculationStateImpl>::value );
+
+		CHECK ( std::is_nothrow_move_constructible<CalculationStateImpl>::value );
+	}
+
+
+	SECTION ("Copy construction is correct")
+	{
+		auto impl2 { impl1 };
+
+		CHECK ( impl2.algorithm()         == algorithm.get() );
+		CHECK ( impl2.samples_processed() == 2000000 );
+		CHECK ( impl2.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+	}
+
+
+	SECTION ("Move construction is correct")
+	{
+		auto impl3 { std::move(impl1) };
+
+		CHECK ( impl3.algorithm()         == algorithm.get() );
+		CHECK ( impl3.samples_processed() == 2000000 );
+		CHECK ( impl3.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+	}
+
+
+	SECTION ("update() counts the amount of samples processed")
+	{
+		CHECK ( impl1.samples_processed() == 2000000 );
+	}
+
+
+	SECTION ("increment_proc_time_elapsed() updates time counter")
+	{
+		CHECK ( impl1.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+	}
+
+
+	SECTION ("current_subtotal() returns the subtotals")
+	{
+		auto checksums { impl1.current_subtotal() };
+
+		CHECK ( checksums.size() == 2 );
 	}
 }
 
@@ -275,6 +354,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 {
 	using arcstk::Calculation;
+	using arcstk::Context;
 	using arcstk::Algorithm;
 	using arcstk::TOC;
 	using arcstk::AudioSize;
@@ -296,11 +376,13 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 
 	const auto size { AudioSize { 253038, AudioSize::UNIT::FRAMES } };
 
-	auto algorithm { std::make_unique<AccurateRipV1V2>() };
+	auto calculation { Calculation(Context::ALBUM,
+			std::make_unique<AccurateRipV1V2>(),
+			size, arcstk::toc::get_offsets(toc)) };
 
-	const auto calculation { make_calculation(std::move(algorithm), *toc) };
+	const auto algorithm { calculation.algorithm() };
 
-	const auto result { calculation->result() };
+	const auto result { calculation.result() };
 
 	//
 
@@ -333,19 +415,20 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 
 	SECTION ("Parametized construction is correct")
 	{
-		CHECK ( calculation->algorithm()->types() ==
+		CHECK ( calculation.algorithm() == algorithm );
+		CHECK ( calculation.algorithm()->types() ==
 				std::unordered_set<type> { type::ARCS1, type::ARCS2 } );
 
-		CHECK ( calculation->samples_expected() == 148786344 );
+		CHECK ( calculation.samples_expected() == 148786344 );
 
-		CHECK ( calculation->samples_processed() == 0 );
+		CHECK ( calculation.samples_processed() == 0 );
 
-		CHECK ( calculation->samples_todo() == 148786344 );
-		CHECK ( calculation->samples_todo() == calculation->samples_expected() );
+		CHECK ( calculation.samples_todo() == 148786344 );
+		CHECK ( calculation.samples_todo() == calculation.samples_expected() );
 
-		CHECK ( calculation->proc_time_elapsed().count() == 0 );
+		CHECK ( calculation.proc_time_elapsed().count() == 0 );
 
-		CHECK ( not calculation->complete() );
+		CHECK ( not calculation.complete() );
 
 		CHECK ( result.empty() );
 	}
@@ -359,6 +442,32 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
+	SECTION ("Copy construction is correct")
+	{
+		auto c2 { calculation };
+
+		// Algorithm instance is cloned when constructing c2
+		CHECK ( c2.algorithm() != calculation.algorithm() );
+		CHECK ( c2.algorithm() != algorithm );
+
+		CHECK ( c2.algorithm()->types() ==
+				std::unordered_set<type> { type::ARCS1, type::ARCS2 } );
+
+		CHECK ( c2.samples_expected() == 148786344 );
+
+		CHECK ( c2.samples_processed() == 0 );
+
+		CHECK ( c2.samples_todo() == 148786344 );
+		CHECK ( c2.samples_todo() == calculation.samples_expected() );
+
+		CHECK ( c2.proc_time_elapsed().count() == 0 );
+
+		CHECK ( not c2.complete() );
+
+		CHECK ( c2.result().empty() );
+	}
+
+
 	SECTION ("Move construction is as declared")
 	{
 		CHECK ( std::is_move_constructible<Calculation>::value );
@@ -367,14 +476,38 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
-	SECTION ("Putting Calculation in a vector succeeds")
+	SECTION ("Move construction is correct")
+	{
+		auto c3 { std::move(calculation) };
+
+		// Algorithm instance is moved when constructing c2
+		CHECK ( c3.algorithm() == algorithm );
+
+		CHECK ( c3.algorithm()->types() ==
+				std::unordered_set<type> { type::ARCS1, type::ARCS2 } );
+
+		CHECK ( c3.samples_expected() == 148786344 );
+
+		CHECK ( c3.samples_processed() == 0 );
+
+		CHECK ( c3.samples_todo() == 148786344 );
+		CHECK ( c3.samples_todo() == c3.samples_expected() );
+
+		CHECK ( c3.proc_time_elapsed().count() == 0 );
+
+		CHECK ( not c3.complete() );
+
+		CHECK ( c3.result().empty() );
+	}
+
+
+	SECTION ("Instantiating a vector<Calculation> succeeds")
 	{
 		auto calculations = std::vector<Calculation>();
 		calculations.reserve(5);
 
 		CHECK ( calculations.capacity() == 5 );
 	}
-
 
 	// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
 	// 		CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };

@@ -47,6 +47,9 @@ int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept;
 int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+
 /**
  * \brief Current state of a Calculation.
  *
@@ -55,30 +58,39 @@ int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
  */
 class CalculationState
 {
+	/**
+	 * \brief Internal 0-based sample offset.
+	 */
+	Counter<int32_t> sample_offset_;
 
-	virtual int32_t do_samples_processed() const noexcept
-	= 0;
+	/**
+	 * \brief Internal time elapsed by updating.
+	 */
+	Counter<std::chrono::milliseconds> proc_time_elapsed_;
+
+	/**
+	 * \brief Internal Algorithm to caculate updates.
+	 */
+	Algorithm* algorithm_;
+
+
+	virtual int32_t do_samples_processed() const noexcept;
 
 	/**
 	 * \brief Advance calculation state by the specified amount of samples.
 	 *
 	 * \param[in] amount Amount of samples to advance
 	 */
-	virtual void do_advance(const int32_t amount)
-	= 0;
+	virtual void do_advance(const int32_t amount);
 
-	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept
-	= 0;
+	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept;
 
 	virtual void do_increment_proc_time_elapsed(
-			const std::chrono::milliseconds amount)
-	= 0;
+			const std::chrono::milliseconds amount);
 
-	virtual void do_update(SampleInputIterator start, SampleInputIterator stop)
-	= 0;
+	virtual void do_update(SampleInputIterator start, SampleInputIterator stop);
 
-	virtual ChecksumSet do_current_subtotal() const
-	= 0;
+	virtual ChecksumSet do_current_subtotal() const;
 
 	virtual std::unique_ptr<CalculationState> do_clone() const
 	= 0;
@@ -117,6 +129,13 @@ public:
 	int32_t samples_processed() const noexcept;
 
 	/**
+	 * \brief Returns the algorithm instance used by the state.
+	 *
+	 * \return Algorithm instance used by thi state
+	 */
+	const Algorithm* algorithm() const noexcept;
+
+	/**
 	 * \brief Amount of milliseconds elapsed so far by processing.
 	 *
 	 * This includes the time of reading as well as of calculation.
@@ -149,46 +168,29 @@ public:
 
 	std::unique_ptr<CalculationState> clone() const;
 	std::unique_ptr<CalculationState> clone_to(Algorithm* a) const;
+
+	friend void swap(CalculationState& lhs, CalculationState& rhs) noexcept;
+
+protected:
+
+	explicit CalculationState(const CalculationState& rhs);
+
+	explicit CalculationState(CalculationState&& rhs) noexcept;
+
+	void set_algorithm(Algorithm* const algorithm) noexcept;
 };
+
+#pragma GCC diagnostic pop
 
 
 // CalculationStateImpl
 
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief Default implementation of a CalculationState.
  */
 class CalculationStateImpl final : public CalculationState
 {
-	/**
-	 * \brief Internal 0-based sample offset.
-	 */
-	Counter<int32_t> sample_offset_;
-
-	/**
-	 * \brief Internal time elapsed by updating.
-	 */
-	Counter<std::chrono::milliseconds> proc_time_elapsed_;
-
-	/**
-	 * \brief Internal Algorithm to caculate updates.
-	 */
-	Algorithm* algorithm_;
-
-
-	// Overrides of CalculationState
-
-	int32_t do_samples_processed() const noexcept final;
-	void    do_advance(const int32_t amount) final;
-	std::chrono::milliseconds do_proc_time_elapsed() const noexcept final;
-	void do_increment_proc_time_elapsed(const std::chrono::milliseconds amount)
-			final;
-	void do_update(SampleInputIterator start, SampleInputIterator stop)
-			final;
-	ChecksumSet do_current_subtotal() const final;
 	std::unique_ptr<CalculationState> do_clone() const final;
 	std::unique_ptr<CalculationState> do_clone_to(Algorithm* a) const final;
 
@@ -197,22 +199,26 @@ class CalculationStateImpl final : public CalculationState
 public:
 
 	/**
-	 * \brief Default Constructor.
-	 */
-	CalculationStateImpl();
-
-	/**
 	 * \brief Constructor with Algorithm.
 	 */
 	explicit CalculationStateImpl(Algorithm* const algorithm);
 
+	explicit CalculationStateImpl(const CalculationStateImpl& rhs);
+
+	CalculationStateImpl& operator = (const CalculationStateImpl& rhs);
+
+	explicit CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
+
+	CalculationStateImpl& operator = (CalculationStateImpl&& rhs) noexcept;
+
 	/**
 	 * \brief Destructor.
 	 */
-	~CalculationStateImpl() noexcept final = default;
-};
+	~CalculationStateImpl() noexcept final;
 
-#pragma GCC diagnostic pop
+	friend void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs)
+		noexcept;
+};
 
 
 /**
