@@ -575,22 +575,32 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 
 /**
+ * \brief Calculation mode.
+ */
+enum class Context : unsigned char
+{
+	NONE        = 0, // shorthand for "!(FIRST_TRACK | LAST_TRACK)"
+	FIRST_TRACK = 1,
+	LAST_TRACK  = 2,
+	ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
+};
+
+constexpr bool operator | (const Context lhs, const Context rhs);
+
+constexpr bool operator | (const Context lhs, const Context rhs)
+{
+	return static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs);
+}
+
+// TODO Other bitwise operators for Context
+
+
+/**
  * \brief Settings for a calculation.
  */
 class Settings final
 {
 public:
-
-	/**
-	 * \brief Context description.
-	 */
-	enum class Context : unsigned char
-	{
-		NONE        = 0, // shorthand for "!(FIRST_TRACK | LAST_TRACK)"
-		FIRST_TRACK = 1,
-		LAST_TRACK  = 2,
-		ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
-	};
 
 	/**
 	 * \brief Converting constructor.
@@ -621,15 +631,6 @@ private:
 	Context context_ { Context::ALBUM };
 };
 
-
-constexpr bool operator | (const Settings::Context lhs, const
-		Settings::Context rhs);
-
-constexpr bool operator | (const Settings::Context lhs,
-		const Settings::Context rhs)
-{
-	return static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs);
-}
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
@@ -709,42 +710,15 @@ public:
 
 private:
 
-	/**
-	 * \brief Determine the legal range of samples for the calculation performed
-	 * on the input amount.
-	 *
-	 * The algorithm may request to process only a part of the input - e.g. it
-	 * may skip an amount of samples at the beginning and at the end.
-	 *
-	 * \param[in] size The input size of samples to process
-	 *
-	 * \return Input range of 1-based sample indices to use for calculation.
-	 */
-	virtual std::pair<int32_t, int32_t> do_range(const AudioSize& size) const
+	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size) const
 	= 0;
 
-	/**
-	 * \brief Update with a sequence of samples.
-	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
-	 */
 	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
 	= 0;
 
-	/**
-	 * \brief Return the result of the algorithm.
-	 *
-	 * \return Calculation result.
-	 */
 	virtual ChecksumSet do_result() const
 	= 0;
 
-	/**
-	 * \brief Types of checksums the algorithm calculates.
-	 *
-	 * \return Checksum types calculated by this algorithm
-	 */
 	virtual std::unordered_set<checksum::type> do_types() const
 	= 0;
 

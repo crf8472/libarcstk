@@ -251,12 +251,12 @@ class ARCSAlgorithm final : public Algorithm
 		int32_t lower = 1;
 		int32_t upper = size.total_samples();
 
-		if (Settings::Context::FIRST_TRACK | this->settings()->context())
+		if (Context::FIRST_TRACK | this->settings()->context())
 		{
 			lower += NUM_SKIP_SAMPLES_FRONT;
 		}
 
-		if (Settings::Context::LAST_TRACK | this->settings()->context())
+		if (Context::LAST_TRACK | this->settings()->context())
 		{
 			upper -= NUM_SKIP_SAMPLES_BACK;
 		}

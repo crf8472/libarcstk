@@ -875,7 +875,7 @@ void Settings::set_context(const Context c)
 }
 
 
-Settings::Context Settings::context() const
+Context Settings::context() const
 {
 	return context_;
 }
@@ -959,7 +959,7 @@ InsufficientCalculationInputException::InsufficientCalculationInputException(
 
 
 Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
-	: settings_      { Settings::Context::ALBUM /* just to have a default */ }
+	: settings_      { Context::ALBUM /* just to have a default */ }
 	, partitioner_   { nullptr /* requires concrete input data */ }
 	, result_buffer_ { std::move(init_buffer()) }
 	, algorithm_     { std::move(algorithm) }
@@ -1246,7 +1246,7 @@ std::unique_ptr<Calculation> make_calculation(
 		);
 	}
 
-	return std::make_unique<Calculation>(Settings::Context::ALBUM,
+	return std::make_unique<Calculation>(Context::ALBUM,
 		std::move(algorithm),
 		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
 		details::get_offset_sample_indices(toc));
