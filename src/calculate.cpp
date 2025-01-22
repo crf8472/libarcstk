@@ -769,8 +769,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		CalculationState&  state,
 		Checksums&         result_buffer)
 {
-	const auto start_pos            { state.current_offset() };
-	const auto samples_in_block     { std::distance(start, stop) - 1 };
+	const auto start_pos        { state.current_offset() };
+	const auto samples_in_block { std::distance(start, stop) - 1 };
 
 	const auto last_sample_in_block { start_pos + samples_in_block };
 
