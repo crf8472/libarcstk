@@ -802,35 +802,40 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		CalculationState&  state,
 		Checksums&         result_buffer)
 {
+	const auto start_pos            { state.current_offset() };
 	const auto samples_in_block     { std::distance(start, stop) };
-	const auto last_sample_in_block {
-		state.current_offset() + samples_in_block /* - 1 stop is behind last*/ };
+
+	const auto last_sample_in_block { start_pos + samples_in_block };
 
 	ARCS_LOG_DEBUG << "  Offset:  " << state.current_offset() << " samples";
 	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block       << " samples";
-	ARCS_LOG_DEBUG << "  Indices: " <<
-		state.current_offset() << " - " << last_sample_in_block;
+	ARCS_LOG_DEBUG << "  Indices: " << start_pos << " - " << last_sample_in_block;
 
 	// Create a partitioning following the track bounds in this block
 
 	const auto partitioning { partitioner.create_partitioning(
-			state.current_offset(), samples_in_block) };
+			start_pos, samples_in_block) };
+
+	const auto diff { partitioning.front().begin_offset() - start_pos };
+	if (diff > 0)
+	{
+		state.advance(diff);
+	}
 
 	ARCS_LOG_DEBUG << "  Use partitions:  " << partitioning.size();
 
 	const bool is_last_relevant_block {
-		Interval<int32_t>(state.current_offset(), last_sample_in_block)
+		Interval<int32_t>(start_pos, last_sample_in_block)
 			.contains(partitioner.legal_range().upper()/* last rel. sample */)
 	};
 
-	// Update the CalcState with each partition in this partitioning
+	// Update the state with each partition in this partitioning
 
 	auto partition_counter = uint16_t { 0 };
 	auto relevant_samples_counter = std::size_t { 0 };
 
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
-	auto start_pos    { state.current_offset() };
 	//auto partition_done   = bool { false };
 	//auto last_sample_seen = bool { false };
 
@@ -846,7 +851,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		offset_first = partition.begin_offset() - start_pos;
 		offset_last  = partition.end_offset()   - start_pos;
 
-		ARCS_LOG_DEBUG << "    position: " << start_pos;
 		ARCS_LOG_DEBUG << "    first: " << start_pos + offset_first;
 		ARCS_LOG_DEBUG << "    last:  " << start_pos + offset_last;
 
@@ -863,14 +867,13 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		//if ((partition.ends_track() && partition_done) || last_sample_seen )
 		if (partition.ends_track())
 		{
-			result_buffer.append(state.current_subtotal());
-
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
 
 			ARCS_LOG_DEBUG << "    Checksum (v2):   "
 				<< state.current_subtotal().get(checksum::type::ARCS2);
 
+			result_buffer.append(state.current_subtotal());
 			state.track_finished();
 		}
 	}
