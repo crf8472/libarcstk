@@ -312,7 +312,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 		auto impl2 { impl1 };
 
 		CHECK ( impl2.algorithm()         == algorithm.get() );
-		CHECK ( impl2.samples_processed() == 2000000 );
+		CHECK ( impl2.samples_processed() == 1000000 );
 		CHECK ( impl2.proc_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
 
@@ -322,14 +322,14 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 		auto impl3 { std::move(impl1) };
 
 		CHECK ( impl3.algorithm()         == algorithm.get() );
-		CHECK ( impl3.samples_processed() == 2000000 );
+		CHECK ( impl3.samples_processed() == 1000000 );
 		CHECK ( impl3.proc_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
 
 
 	SECTION ("update() counts the amount of samples processed")
 	{
-		CHECK ( impl1.samples_processed() == 2000000 );
+		CHECK ( impl1.samples_processed() == 1000000 );
 	}
 
 
