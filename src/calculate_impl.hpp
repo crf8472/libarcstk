@@ -59,9 +59,14 @@ int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
 class CalculationState
 {
 	/**
-	 * \brief Internal 0-based sample offset.
+	 * \brief Internal 0-based current sample offset.
 	 */
-	Counter<int32_t> sample_offset_;
+	Counter<int32_t> current_offset_;
+
+	/**
+	 * \brief Internal 0-based counter for samples processed.
+	 */
+	Counter<int32_t> samples_processed_;
 
 	/**
 	 * \brief Internal time elapsed by updating.
@@ -73,6 +78,8 @@ class CalculationState
 	 */
 	Algorithm* algorithm_;
 
+
+	virtual int32_t do_current_offset() const noexcept;
 
 	virtual int32_t do_samples_processed() const noexcept;
 
@@ -116,6 +123,10 @@ public:
 	 * \brief Virtual default destructor.
 	 */
 	virtual ~CalculationState() noexcept;
+
+	int32_t current_offset() const noexcept;
+
+	void advance(const int32_t amount);
 
 	/**
 	 * \brief Returns the total number for PCM 32 bit samples yet processed.
@@ -267,8 +278,6 @@ public:
 	~Impl() noexcept;
 
 	// Impl specific
-
-	void init(const Settings& s, const TOC& toc);
 
 	void init(const Settings& s, const AudioSize& size,
 		const std::vector<int32_t>& points);

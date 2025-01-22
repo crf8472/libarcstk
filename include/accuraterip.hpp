@@ -92,6 +92,7 @@ protected:
 			multiplier = m;
 		}
 
+
 		friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 		{
 			using std::swap;
@@ -116,6 +117,9 @@ protected:
 
 public:
 
+	/**
+	 * \brief Default constructor.
+	 */
 	UpdatableBase()
 		: state_ { /* default */ }
 	{
@@ -131,6 +135,16 @@ public:
 	}
 
 	/**
+	 * \brief Current Multiplier of this instance.
+	 *
+	 * \return Current multiplier
+	 */
+	uint_fast64_t multiplier() const
+	{
+		return state_.multiplier;
+	}
+
+	/**
 	 * \brief Set multiplier to a new value.
 	 *
 	 * \param[in] m New value for multiplier
@@ -142,6 +156,8 @@ public:
 
 	/**
 	 * \brief Return the checksum types this instance calculates.
+	 *
+	 * \return Set of types calculated by this instance
 	 */
 	std::unordered_set<checksum::type> types() const
 	{
@@ -181,6 +197,11 @@ public:
 	{
 		return { 0, {{ checksum::type::ARCS1, state_.subtotal_v1 }} };
 	}
+
+	std::string id_string() const
+	{
+		return "v1";
+	}
 };
 
 
@@ -196,14 +217,19 @@ public:
 		for (auto pos = start; pos != stop; ++pos, ++state_.multiplier)
 		{
 			state_.update = state_.multiplier * (*pos);
-			state_.subtotal_v2 +=
-				(state_.update & LOWER_32_BITS_) + (state_.update >> 32u);
+			state_.subtotal_v1 += state_.update & LOWER_32_BITS_;
+			state_.subtotal_v2 += (state_.update >> 32u);
 		}
 	}
 
 	ChecksumSet value() const
 	{
-		return { 0, {{ checksum::type::ARCS2, state_.subtotal_v2 }} };
+		return { 0, {{ checksum::type::ARCS2, state_.subtotal_v1 + state_.subtotal_v2 }} };
+	}
+
+	std::string id_string() const
+	{
+		return "v2";
 	}
 };
 
@@ -221,7 +247,7 @@ public:
 		{
 			state_.update       = state_.multiplier * (*pos);
 			state_.subtotal_v1 += state_.update & LOWER_32_BITS_;
-			state_.subtotal_v2 += state_.update >> 32u;
+			state_.subtotal_v2 += (state_.update >> 32u);
 		}
 	}
 
@@ -231,6 +257,11 @@ public:
 			{ checksum::type::ARCS1, state_.subtotal_v1 },
 			{ checksum::type::ARCS2, state_.subtotal_v1 + state_.subtotal_v2 },
 		} };
+	}
+
+	std::string id_string() const
+	{
+		return "v1+2";
 	}
 };
 
@@ -246,27 +277,44 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> internal_state_;
 
-	std::pair<int32_t, int32_t> do_range(const AudioSize& size) const final
+	/**
+	 * \brief Set multiplier to a new value.
+	 *
+	 * \param[in] m New value for multiplier
+	 */
+	void set_multiplier(const uint_fast64_t m)
 	{
-		int32_t lower = 1;
-		int32_t upper = size.total_samples();
+		ARCS_LOG_DEBUG << "Set multiplier to " << m;
+		internal_state_.set_multiplier(m);
+	}
+
+	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
+			const std::vector<int32_t>& points) const final
+	{
+		int32_t from = 0;
+		int32_t to   = size.total_samples() - 1;
+
+		if (!points.empty())
+		{
+			from += points[0];
+		}
 
 		if (any(Context::FIRST_TRACK | this->settings()->context()))
 		{
-			lower += NUM_SKIP_SAMPLES_FRONT;
+			from += NUM_SKIP_SAMPLES_FRONT;
 		}
 
-		if (any(Context::LAST_TRACK | this->settings()->context()))
+		if (any(Context::LAST_TRACK  | this->settings()->context()))
 		{
-			upper -= NUM_SKIP_SAMPLES_BACK;
+			to -= NUM_SKIP_SAMPLES_BACK;
 		}
 
-		return { lower, upper };
+		return { from, to };
 	}
 
 	void do_update(SampleInputIterator begin, SampleInputIterator end) final
 	{
-		return internal_state_.update(begin, end);
+		internal_state_.update(begin, end);
 	}
 
 	ChecksumSet do_result() const final
@@ -284,8 +332,6 @@ class ARCSAlgorithm final : public Algorithm
 		return std::make_unique<ARCSAlgorithm>(*this);
 	}
 
-protected:
-
 	// TODO set requested length and provide ChecksumSet with length
 
 public:
@@ -294,16 +340,19 @@ public:
 		: internal_state_ { /* default */ }
 	{
 		// empty
+		ARCS_LOG_DEBUG << "Algorithm is AccurateRip "
+			<< internal_state_.id_string();
 	}
 
-	/**
-	 * \brief Set multiplier to a new value.
-	 *
-	 * \param[in] m New value for multiplier
-	 */
-	void set_multiplier(const uint_fast64_t m)
+	uint_fast64_t multiplier() const
 	{
-		internal_state_.set_multiplier(m);
+		return internal_state_.multiplier();
+	}
+
+	void do_set_current_sample_index(const int32_t& m) noexcept final
+	{
+		if (m < 0) { /* TODO throw */ };
+		set_multiplier(static_cast<uint_fast64_t>(m));
 	}
 };
 

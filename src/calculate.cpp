@@ -208,16 +208,35 @@ int32_t last_relevant_sample(const int track,
 
 
 Partitioning get_partitioning(const Interval<int32_t>& interval,
-		const Interval<int32_t>& legal, const std::vector<int32_t>& points)
+		const Interval<int32_t>& legal,
+		const std::vector<int32_t>& points)
 {
 	if (points.empty())
 	{
 		return get_partitioning(interval, legal);
 	}
 
-	const auto real_lower = std::max(
-			{ legal.lower(), interval.lower(), points[0] });
+	using std::begin;
+	using std::end;
 
+	//std::vector<int32_t> points{0};
+	//std::copy(cbegin(offset_points) + 1, cend(offset_points),
+	//		std::back_inserter(points));
+
+	//std::vector<int32_t> points{};
+	//std::copy(cbegin(offset_points), cend(offset_points),
+	//		std::back_inserter(points));
+
+	{
+		std::stringstream stream;
+		for (const auto& p : points)
+		{
+			stream << std::to_string(p) << ", ";
+		}
+		ARCS_LOG_DEBUG << "  Use points: " << stream.str();
+	}
+
+	const auto real_lower = std::max(legal.lower(), interval.lower());
 	const auto real_upper = std::min(legal.upper(), interval.upper());
 
 	// Both, real_lower and real_upper lie in segments between two of points[].
@@ -231,36 +250,41 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 		if (real_upper >= p) { ++e; } else break;
 	}
 
-	if (b > e)  { /* TODO throw; */ return {}; }
+	// Now, b-1 and e-1 are the indices of the tracks/segments in which the
+	// bounds lie. All segments between these two, i.e. in the interval
+	// [b+1,e-2] can be just read off of points[].
 
-	// Now, b-1 and e-1 are the indices of segments in which the bounds lie.
-	// All segments between these two, i.e. in the interval [b+1,e-2] can be
-	// just read off of points[].
-
-	// Add first partition
+	// Add first partition: from real lower to the start of the subsequent
+	// track. Of course this ends a track.
 	auto partitions = std::vector<Partition> {
-		Partition { real_lower, points[b],
-			//real_lower, points[b] - 1, /* redundant */
+		Partition { real_lower, points[b] - (b != 0),
 			real_lower == points[b - 1], true, static_cast<TrackNo>(b)
 		}
 	};
 
+	// If the interval does not span over any values, we are done now.
 	if (b == e) { return partitions; }
 
-	// Add further partitions
+	// Add further partitions, this is just from point i to point i + 1.
 	for (auto i { b }; i < e - 1; ++i)
 	{
-		partitions.emplace_back(points[i], points[i + 1],
-			//points[i], points[i + 1] - 1, /* redundant */
-			true, true, i + 1
-		);
+		partitions.emplace_back(points[i], points[i + 1] - 1, true, true, i + 1);
 	}
 
-	// Add last partition
+	// Add last partition: from the beginning of the track that contains the
+	// upper bound to the real upper bound.
 	partitions.emplace_back(points[e - 1], real_upper,
-		//points[e - 1], real_upper - 1, /* redundant */
-		true, real_upper == points[e], static_cast<TrackNo>(e)
+		true, (e == points.size() || real_upper == points[e]),
+		static_cast<TrackNo>(e)
 	);
+
+	{
+		for (const auto& p : partitions)
+		{
+			ARCS_LOG_DEBUG << p.begin_offset() << " - " << p.end_offset() <<
+				", track: " << p.track();
+		}
+	}
 
 	return partitions;
 }
@@ -519,7 +543,8 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 
 
 CalculationState::CalculationState(Algorithm* const algorithm)
-	: sample_offset_     { 0 }
+	: current_offset_    { 0 }
+	, samples_processed_ { 0 }
 	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
 	, algorithm_         { algorithm }
 {
@@ -528,7 +553,8 @@ CalculationState::CalculationState(Algorithm* const algorithm)
 
 
 CalculationState::CalculationState(const CalculationState& rhs)
-	: sample_offset_     { rhs.sample_offset_     }
+	: current_offset_    { rhs.current_offset_    }
+	, samples_processed_ { rhs.samples_processed_ }
 	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
 	, algorithm_         { rhs.algorithm_         }
 {
@@ -537,7 +563,8 @@ CalculationState::CalculationState(const CalculationState& rhs)
 
 
 CalculationState::CalculationState(CalculationState&& rhs) noexcept
-	: sample_offset_     { std::move(rhs.sample_offset_)     }
+	: current_offset_    { std::move(rhs.current_offset_)    }
+	, samples_processed_ { std::move(rhs.samples_processed_) }
 	, proc_time_elapsed_ { std::move(rhs.proc_time_elapsed_) }
 	, algorithm_         { std::move(rhs.algorithm_)         }
 {
@@ -548,16 +575,22 @@ CalculationState::CalculationState(CalculationState&& rhs) noexcept
 CalculationState::~CalculationState() noexcept = default;
 
 
-int32_t CalculationState::do_samples_processed() const noexcept
+int32_t CalculationState::do_current_offset() const noexcept
 {
-	//return sample_offset_.value() + 1; // +1 since index is 0-based
-	return sample_offset_.value();
+	//return current_offset_.value() + 1; // +1 since index is 0-based
+	return current_offset_.value();
 }
 
 
 void CalculationState::do_advance(const int32_t amount)
 {
-	sample_offset_.increment(amount);
+	current_offset_.increment(amount);
+}
+
+
+int32_t CalculationState::do_samples_processed() const noexcept
+{
+	return samples_processed_.value();
 }
 
 
@@ -578,15 +611,25 @@ void CalculationState::do_increment_proc_time_elapsed(
 void CalculationState::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	auto amount { std::distance(start, stop) };
 	algorithm_->update(start, stop);
-	sample_offset_.increment(amount);
 }
 
 
 ChecksumSet CalculationState::do_current_subtotal() const
 {
 	return algorithm_->result();
+}
+
+
+int32_t CalculationState::current_offset() const noexcept
+{
+	return do_current_offset();
+}
+
+
+void CalculationState::advance(const int32_t amount)
+{
+	do_advance(amount);
 }
 
 
@@ -618,8 +661,12 @@ void CalculationState::increment_proc_time_elapsed(
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	do_update(start, stop);
-	do_advance(std::distance(start, stop));
+	auto amount { std::distance(start, stop) };
+	ARCS_LOG_DEBUG << "Amount processed: " << amount;
+	do_update(start, stop); // TODO try and update counter in catch
+	samples_processed_.increment(amount);
+
+	advance(amount);
 }
 
 
@@ -650,9 +697,10 @@ void CalculationState::set_algorithm(Algorithm* const algorithm) noexcept
 void swap(CalculationState& lhs, CalculationState& rhs) noexcept
 {
 	using std::swap;
-	swap(lhs.sample_offset_,     rhs.sample_offset_    );
-	swap(lhs.proc_time_elapsed_, rhs.proc_time_elapsed_);
-	swap(lhs.algorithm_,         rhs.algorithm_        );
+	swap(lhs.current_offset_,    rhs.current_offset_    );
+	swap(lhs.samples_processed_, rhs.samples_processed_ );
+	swap(lhs.proc_time_elapsed_, rhs.proc_time_elapsed_ );
+	swap(lhs.algorithm_,         rhs.algorithm_         );
 }
 
 
@@ -744,29 +792,34 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 {
 	const auto samples_in_block     { std::distance(start, stop) };
 	const auto last_sample_in_block {
-		state.samples_processed() + samples_in_block - 1/* stop is behind last*/ };
+		state.current_offset() + samples_in_block /* - 1 stop is behind last*/ };
 
-	ARCS_LOG_DEBUG << "  Offset:  " << state.samples_processed() << " samples";
-	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block      << " samples";
+	ARCS_LOG_DEBUG << "  Offset:  " << state.current_offset() << " samples";
+	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block       << " samples";
 	ARCS_LOG_DEBUG << "  Indices: " <<
-		state.samples_processed() << " - " << last_sample_in_block;
+		state.current_offset() << " - " << last_sample_in_block;
 
 	// Create a partitioning following the track bounds in this block
 
-	auto partitioning { partitioner.create_partitioning(
-			state.samples_processed(), samples_in_block) };
+	const auto partitioning { partitioner.create_partitioning(
+			state.current_offset(), samples_in_block) };
 
-	ARCS_LOG_DEBUG << "  Partitions:  " << partitioning.size();
+	ARCS_LOG_DEBUG << "  Use partitions:  " << partitioning.size();
 
 	const bool is_last_relevant_block {
-		Interval<int32_t>(state.samples_processed(), last_sample_in_block)
-			.contains(/* last sample */partitioner.total_samples())
+		Interval<int32_t>(state.current_offset(), last_sample_in_block)
+			.contains(partitioner.legal_range().upper()/* last rel. sample */)
 	};
 
 	// Update the CalcState with each partition in this partitioning
 
 	auto partition_counter = uint16_t { 0 };
 	auto relevant_samples_counter = std::size_t { 0 };
+
+	auto offset_first { 0 };
+	auto offset_last  { 0 };
+	//auto partition_done   = bool { false };
+	//auto last_sample_seen = bool { false };
 
 	const auto start_time { std::chrono::steady_clock::now() };
 	for (const auto& partition : partitioning)
@@ -777,17 +830,34 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG_DEBUG << "  Partition " << partition_counter << "/" <<
 			partitioning.size();
 
-		state.update(start + partition.begin_offset(),
-				stop + partition.end_offset());
+		offset_first = partition.begin_offset() - state.current_offset();
+		offset_last  = partition.end_offset()   - state.current_offset();
+
+		// ARCS_LOG_DEBUG << "    p begin: " << partition.begin_offset();
+		// ARCS_LOG_DEBUG << "    p end:   " << partition.end_offset();
+		ARCS_LOG_DEBUG << "    first: " << state.current_offset() + offset_first;
+		ARCS_LOG_DEBUG << "    last:  " << state.current_offset() + offset_last;
+
+		state.update(start + offset_first, start + offset_last + 1);
 
 		// If the current partition ends a track, save the ARCSs for this track
 
+		//partition_done   = bool { state.current_offset() ==
+		//	partition.end_offset() }; // TODO Really necessary?
+
+		//last_sample_seen = bool {
+		//	state.current_offset() >= partitioner.legal_range().upper() };
+
+		//if ((partition.ends_track() && partition_done) || last_sample_seen )
 		if (partition.ends_track())
 		{
 			result_buffer.append(state.current_subtotal());
 
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
+
+			ARCS_LOG_DEBUG << "    Checksum (v2):   "
+				<< state.current_subtotal().get(checksum::type::ARCS2);
 		}
 	}
 	const auto block_time_elapsed {
@@ -806,9 +876,11 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	{
 		ARCS_LOG(DEBUG1) << "Calculation complete.";
 
-		ARCS_LOG(DEBUG1) << "Total samples counted:  " <<
-			state.samples_processed();
-		ARCS_LOG(DEBUG1) << "Total samples declared: " <<
+		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
+			state.samples_processed() <<
+			" (from " << partitioner.legal_range().lower() /* FIXME or offset 1!*/<<
+			" to "    << partitioner.legal_range().upper() << ")";
+		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
 			partitioner.total_samples();
 		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
 			state.proc_time_elapsed().count();
@@ -1021,6 +1093,12 @@ Algorithm::Algorithm()
 Algorithm::~Algorithm() noexcept = default;
 
 
+void Algorithm::set_current_sample_index(const int32_t& s) noexcept
+{
+	do_set_current_sample_index(s);
+}
+
+
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
@@ -1033,9 +1111,10 @@ const Settings* Algorithm::settings() const noexcept
 }
 
 
-std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size) const
+std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
+		const std::vector<int32_t>& points) const
 {
-	return this->do_range(size);
+	return this->do_range(size, points);
 }
 
 
@@ -1147,19 +1226,47 @@ Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
 Calculation::Impl::~Impl() noexcept = default;
 
 
-void Calculation::Impl::init(const Settings& settings, const TOC& toc)
-{
-	this->init(settings, AudioSize{ toc.leadout(), AudioSize::UNIT::FRAMES },
-			details::get_offset_sample_indices(toc));
-}
-
-
 void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 		const std::vector<int32_t>& points)
 {
 	this->set_settings(s);
-	partitioner_ = details::make_partitioner(size, points,
-			details::Interval<int32_t> { algorithm_->range(size) });
+
+	// debug only
+	{
+		std::stringstream stream;
+		for (const auto& p : points)
+		{
+			stream << std::to_string(p) << ", ";
+		}
+		ARCS_LOG_DEBUG << "Init Calculation with points " << stream.str()
+			<< "and size " << size.total_samples();
+	}
+
+	const auto algo_range = algorithm_->range(size, points);
+	ARCS_LOG_DEBUG << "Algorithm over range: " << algo_range.first <<
+		" - " << algo_range.second;
+
+	if (!points.empty())
+	{
+		// Advance to index before next sample
+		//state_->advance(algo_range.first);
+		//ARCS_LOG_DEBUG << "Advance sample counter to " <<
+		//	state_->current_offset();
+
+		// Increment to first multiplier that is to be used
+		algorithm_->set_current_sample_index(2940);
+	}
+
+	const auto interval = details::Interval<int32_t> {
+		algo_range.first, algo_range.second
+	};
+
+	ARCS_LOG_DEBUG << "Calculation interval is [" << interval.lower() << "," <<
+		interval.upper() << "]";
+	ARCS_LOG_DEBUG << "Start on 0-based sample index "
+		<< state_->current_offset();
+
+	partitioner_ = details::make_partitioner(size, points, interval);
 }
 
 
@@ -1205,6 +1312,7 @@ const Algorithm* Calculation::Impl::algorithm() const noexcept
 
 int32_t Calculation::Impl::samples_expected() const noexcept
 {
+	// Expected total number of input samples
 	return partitioner_->total_samples();
 }
 
@@ -1223,7 +1331,14 @@ std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	return this->samples_processed() >= this->samples_expected();
+	//const auto trailing_irrelevant =
+	//	this->samples_expected() - partitioner_->legal_range().upper();
+
+	//return state_->current_offset() + trailing_irrelevant >= this->samples_expected();
+
+	ARCS_LOG_DEBUG << "Current offset: " << state_->current_offset();
+	ARCS_LOG_DEBUG << "Partitioner legal upper: " << partitioner_->legal_range().upper();
+	return state_->current_offset() >= partitioner_->legal_range().upper();
 }
 
 

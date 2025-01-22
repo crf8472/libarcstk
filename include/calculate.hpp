@@ -665,6 +665,8 @@ public:
 	 */
 	virtual ~Algorithm() noexcept;
 
+	void set_current_sample_index(const int32_t& s) noexcept;
+
 	/**
 	 * \brief Configure the algorithm with settings.
 	 *
@@ -686,11 +688,13 @@ public:
 	 * The algorithm may request to process only a part of the input - e.g. it
 	 * may skip an amount of samples at the beginning and at the end.
 	 *
-	 * \param[in] size The input size of samples to process
+	 * \param[in] size   The input size of samples to process
+	 * \param[in] points The offset points in number of PCM samples
 	 *
 	 * \return Input range of 1-based sample indices to use for calculation.
 	 */
-	std::pair<int32_t,int32_t> range(const AudioSize& size) const;
+	std::pair<int32_t,int32_t> range(const AudioSize& size,
+			const std::vector<int32_t>& points) const;
 
 	/**
 	 * \brief Update with a sequence of samples.
@@ -723,7 +727,11 @@ public:
 
 private:
 
-	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size) const
+	virtual void do_set_current_sample_index(const int32_t& s) noexcept
+	= 0;
+
+	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
+			const std::vector<int32_t>& points) const
 	= 0;
 
 	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)

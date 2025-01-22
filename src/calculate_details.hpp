@@ -299,27 +299,6 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Initializes with zero skip at front and back.
-	 *
-	 * \param[in] total_samples Total number of samples expected in input
-	 */
-	//Partitioner(const int32_t total_samples);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Initializes with zero skip at front and back.
-	 *
-	 * \param[in] total_samples Total number of samples expected in input
-	 * \param[in] skip_front    Amount of samples to skip at front
-	 * \param[in] skip_back     Amount of samples to skip at back
-	 */
-	//Partitioner(const int32_t total_samples,
-	//	const int32_t skip_front, const int32_t skip_back);
-
-	/**
-	 * \brief Constructor.
-	 *
 	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] points        List of splitting points
 	 * \param[in] legal         Legal range of calculation
@@ -372,24 +351,6 @@ public:
 	 * \param[in] total_samples Total number of samples
 	 */
 	void set_total_samples(const int32_t total_samples);
-
-	/**
-	 * \brief Amount of samples to skip at front.
-	 *
-	 * This amount of samples at front will not be part of any partition.
-	 *
-	 * \return Amount of samples to skip at front
-	 */
-	//int32_t skip_front() const;
-
-	/**
-	 * \brief Amount of samples to skip at back.
-	 *
-	 * This amount of samples at back will not be part of any partition.
-	 *
-	 * \return Amount of samples to skip at back
-	 */
-	//int32_t skip_back() const;
 
 	/**
 	 * \brief Legal range to occurr in partitions.
@@ -458,34 +419,10 @@ private:
 	std::vector<int32_t> points_;
 
 	/**
-	 * \brief Internal amount of samples to skip at front.
-	 */
-	//int32_t skip_front_;
-
-	/**
-	 * \brief Internal amount of samples to skip at back.
-	 */
-	//int32_t skip_back_;
-
-	/**
 	 * \brief Legal range of partitioning.
 	 */
 	Interval<int32_t> legal_;
 };
-
-
-/**
- * \brief Create a partitioner for a complete TOC.
- *
- * \param[in] toc        The TOC to get a Partitioner for.
- * \param[in] calc_range The legal range for partitioning.
- *
- * \return Partitioner for the specified TOC.
- *
- * \throws Iff toc.complete() is FALSE
- */
-//std::unique_ptr<Partitioner> make_partitioner(const TOC& toc,
-//		const Interval<int32_t>& calc_range);
 
 
 /**
@@ -568,16 +505,6 @@ class Partition final
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
 	const int32_t end_offset_;
-
-	/**
-	 * \brief Global (absolute) index of the first sample in this partition
-	 */
-	//const int32_t first_sample_idx_;
-
-	/**
-	 * \brief Global (absolute) index of the last sample in this partition
-	 */
-	//const int32_t last_sample_idx_;
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
