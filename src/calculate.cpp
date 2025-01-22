@@ -237,8 +237,8 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 	// Add first partition: from real lower to the start of the subsequent
 	// track. Of course this ends a track.
 	auto partitions = std::vector<Partition> {
-		Partition { real_lower, points[b] - (b != 0),
-			real_lower == points[b - 1], true, static_cast<TrackNo>(b)
+		Partition { real_lower, points[b] - 1, //(b != 0)
+			real_lower == points[b - 1], true, static_cast<TrackNo>(b) // == 0
 		}
 	};
 
@@ -783,10 +783,14 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	const auto partitioning { partitioner.create_partitioning(
 			start_pos, samples_in_block) };
 
-	const auto diff { partitioning.front().begin_offset() - start_pos };
-	if (diff > 0)
+	// If we skipped some samples at the beginning, advance the state by this
+	// amount so that current_sample() will be correct on subsequent call.
 	{
-		state.advance(diff);
+		const auto diff { partitioning.front().begin_offset() - start_pos };
+		if (diff > 0)
+		{
+			state.advance(diff);
+		}
 	}
 
 	ARCS_LOG_DEBUG << "  Use partitions:  " << partitioning.size();
