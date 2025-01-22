@@ -216,26 +216,6 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 		return get_partitioning(interval, legal);
 	}
 
-	using std::begin;
-	using std::end;
-
-	//std::vector<int32_t> points{0};
-	//std::copy(cbegin(offset_points) + 1, cend(offset_points),
-	//		std::back_inserter(points));
-
-	//std::vector<int32_t> points{};
-	//std::copy(cbegin(offset_points), cend(offset_points),
-	//		std::back_inserter(points));
-
-	{
-		std::stringstream stream;
-		for (const auto& p : points)
-		{
-			stream << std::to_string(p) << ", ";
-		}
-		ARCS_LOG_DEBUG << "  Use points: " << stream.str();
-	}
-
 	const auto real_lower = std::max(legal.lower(), interval.lower());
 	const auto real_upper = std::min(legal.upper(), interval.upper());
 
@@ -277,14 +257,6 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 		true, (e == points.size() || real_upper == points[e]),
 		static_cast<TrackNo>(e)
 	);
-
-	{
-		for (const auto& p : partitions)
-		{
-			ARCS_LOG_DEBUG << p.begin_offset() << " - " << p.end_offset() <<
-				", track: " << p.track();
-		}
-	}
 
 	return partitions;
 }
@@ -336,13 +308,8 @@ Partitioning Partitioner::create_partitioning(
 {
 	const Interval<int32_t> current_interval {
 		/* first phys. sample in block */ offset,
-		/* last  phys. sample in block */ offset + total_samples_in_block - 1
+		/* last  phys. sample in block */ offset + total_samples_in_block
 	};
-
-	// const Interval<int32_t> legal {
-	// 	skip_front(),
-	// 	total_samples() - skip_back()
-	// };
 
 	// If the sample block does not contain any relevant samples,
 	// just return an empty partitioning.
@@ -803,7 +770,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		Checksums&         result_buffer)
 {
 	const auto start_pos            { state.current_offset() };
-	const auto samples_in_block     { std::distance(start, stop) };
+	const auto samples_in_block     { std::distance(start, stop) - 1 };
 
 	const auto last_sample_in_block { start_pos + samples_in_block };
 
