@@ -217,14 +217,15 @@ public:
 		for (auto pos = start; pos != stop; ++pos, ++state_.multiplier)
 		{
 			state_.update = state_.multiplier * (*pos);
-			state_.subtotal_v1 += state_.update & LOWER_32_BITS_;
-			state_.subtotal_v2 += (state_.update >> 32u);
+
+			state_.subtotal_v2 +=
+				(state_.update & LOWER_32_BITS_) + (state_.update >> 32u);
 		}
 	}
 
 	ChecksumSet value() const
 	{
-		return { 0, {{ checksum::type::ARCS2, state_.subtotal_v1 + state_.subtotal_v2 }} };
+		return { 0, {{ checksum::type::ARCS2, state_.subtotal_v2 }} };
 	}
 
 	std::string id_string() const
