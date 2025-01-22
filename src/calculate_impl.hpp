@@ -99,6 +99,8 @@ class CalculationState
 
 	virtual ChecksumSet do_current_subtotal() const;
 
+	virtual void do_track_finished();
+
 	virtual std::unique_ptr<CalculationState> do_clone() const
 	= 0;
 
@@ -176,6 +178,11 @@ public:
 	 * \return Current subtotal.
 	 */
 	ChecksumSet current_subtotal() const;
+
+	/**
+	 * \brief Mark track as finished.
+	 */
+	void track_finished();
 
 	std::unique_ptr<CalculationState> clone() const;
 	std::unique_ptr<CalculationState> clone_to(Algorithm* a) const;

@@ -704,6 +704,8 @@ public:
 	 */
 	void update(SampleInputIterator begin, SampleInputIterator end);
 
+	void track_finished();
+
 	/**
 	 * \brief Return the result of the algorithm.
 	 *
@@ -735,6 +737,9 @@ private:
 	= 0;
 
 	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
+	= 0;
+
+	virtual void do_track_finished()
 	= 0;
 
 	virtual ChecksumSet do_result() const

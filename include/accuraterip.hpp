@@ -77,8 +77,9 @@ protected:
 		 */
 		void reset()
 		{
-			Subtotals s;
-			swap(*this, s);
+			update      = 0;
+			subtotal_v1 = 0;
+			subtotal_v2 = 0;
 		}
 
 		/**
@@ -91,7 +92,6 @@ protected:
 		{
 			multiplier = m;
 		}
-
 
 		friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 		{
@@ -312,9 +312,18 @@ class ARCSAlgorithm final : public Algorithm
 		return { from, to };
 	}
 
-	void do_update(SampleInputIterator begin, SampleInputIterator end) final
+	void do_update(SampleInputIterator start, SampleInputIterator stop) final
 	{
-		internal_state_.update(begin, end);
+		ARCS_LOG_DEBUG << "  1st mult:  " << multiplier();
+		internal_state_.update(start, stop);
+		ARCS_LOG_DEBUG << "  last mult: " << multiplier() - 1;
+	}
+
+	void do_track_finished() final
+	{
+		ARCS_LOG_DEBUG << "Reset subtotals";
+		internal_state_.reset();
+		set_multiplier(1);
 	}
 
 	ChecksumSet do_result() const final

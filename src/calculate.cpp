@@ -621,6 +621,12 @@ ChecksumSet CalculationState::do_current_subtotal() const
 }
 
 
+void CalculationState::do_track_finished()
+{
+	algorithm_->track_finished();
+}
+
+
 int32_t CalculationState::current_offset() const noexcept
 {
 	return do_current_offset();
@@ -667,6 +673,12 @@ void CalculationState::update(SampleInputIterator start,
 	samples_processed_.increment(amount);
 
 	advance(amount);
+}
+
+
+void CalculationState::track_finished()
+{
+	this->do_track_finished();
 }
 
 
@@ -818,6 +830,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
+	auto start_pos    { state.current_offset() };
 	//auto partition_done   = bool { false };
 	//auto last_sample_seen = bool { false };
 
@@ -830,13 +843,12 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG_DEBUG << "  Partition " << partition_counter << "/" <<
 			partitioning.size();
 
-		offset_first = partition.begin_offset() - state.current_offset();
-		offset_last  = partition.end_offset()   - state.current_offset();
+		offset_first = partition.begin_offset() - start_pos;
+		offset_last  = partition.end_offset()   - start_pos;
 
-		// ARCS_LOG_DEBUG << "    p begin: " << partition.begin_offset();
-		// ARCS_LOG_DEBUG << "    p end:   " << partition.end_offset();
-		ARCS_LOG_DEBUG << "    first: " << state.current_offset() + offset_first;
-		ARCS_LOG_DEBUG << "    last:  " << state.current_offset() + offset_last;
+		ARCS_LOG_DEBUG << "    position: " << start_pos;
+		ARCS_LOG_DEBUG << "    first: " << start_pos + offset_first;
+		ARCS_LOG_DEBUG << "    last:  " << start_pos + offset_last;
 
 		state.update(start + offset_first, start + offset_last + 1);
 
@@ -858,6 +870,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 			ARCS_LOG_DEBUG << "    Checksum (v2):   "
 				<< state.current_subtotal().get(checksum::type::ARCS2);
+
+			state.track_finished();
 		}
 	}
 	const auto block_time_elapsed {
@@ -1124,6 +1138,12 @@ void Algorithm::update(SampleInputIterator begin, SampleInputIterator end)
 }
 
 
+void Algorithm::track_finished()
+{
+	this->do_track_finished();
+}
+
+
 ChecksumSet Algorithm::result() const
 {
 	return this->do_result();
@@ -1263,8 +1283,6 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 
 	ARCS_LOG_DEBUG << "Calculation interval is [" << interval.lower() << "," <<
 		interval.upper() << "]";
-	ARCS_LOG_DEBUG << "Start on 0-based sample index "
-		<< state_->current_offset();
 
 	partitioner_ = details::make_partitioner(size, points, interval);
 }
