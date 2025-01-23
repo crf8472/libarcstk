@@ -732,6 +732,9 @@ private:
 	virtual void do_set_current_sample_index(const int32_t& s) noexcept
 	= 0;
 
+	virtual void do_setup(const Settings* s)
+	= 0;
+
 	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
 			const std::vector<int32_t>& points) const
 	= 0;

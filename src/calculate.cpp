@@ -841,9 +841,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
 
-			ARCS_LOG_DEBUG << "    Checksum (v2):   "
-				<< state.current_subtotal().get(checksum::type::ARCS2);
-
 			result_buffer.append(state.current_subtotal());
 			state.track_finished();
 		}
@@ -1090,6 +1087,7 @@ void Algorithm::set_current_sample_index(const int32_t& s) noexcept
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
+	do_setup(s);
 }
 
 
@@ -1223,7 +1221,7 @@ Calculation::Impl::~Impl() noexcept = default;
 void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 		const std::vector<int32_t>& points)
 {
-	this->set_settings(s);
+	this->set_settings(s); // also sets up Algorithm
 
 	// debug only
 	{
@@ -1240,16 +1238,11 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 	ARCS_LOG_DEBUG << "Algorithm over range: " << algo_range.first <<
 		" - " << algo_range.second;
 
-	if (!points.empty())
-	{
-		// Advance to index before next sample
-		//state_->advance(algo_range.first);
-		//ARCS_LOG_DEBUG << "Advance sample counter to " <<
-		//	state_->current_offset();
-
+	//if (!points.empty())
+	//{
 		// Increment to first multiplier that is to be used
-		algorithm_->set_current_sample_index(2940);
-	}
+		//algorithm_->set_current_sample_index(2940);
+	//}
 
 	const auto interval = details::Interval<int32_t> {
 		algo_range.first, algo_range.second

@@ -278,6 +278,16 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> internal_state_;
 
+	void do_setup(const Settings* s) final
+	{
+		if (!s) return;
+
+		if (any(Context::FIRST_TRACK | s->context()))
+		{
+			this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
+		}
+	}
+
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
