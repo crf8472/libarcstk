@@ -1223,30 +1223,9 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 {
 	this->set_settings(s); // also sets up Algorithm
 
-	// debug only
-	{
-		std::stringstream stream;
-		for (const auto& p : points)
-		{
-			stream << std::to_string(p) << ", ";
-		}
-		ARCS_LOG_DEBUG << "Init Calculation with points " << stream.str()
-			<< "and size " << size.total_samples();
-	}
-
-	const auto algo_range = algorithm_->range(size, points);
-	ARCS_LOG_DEBUG << "Algorithm over range: " << algo_range.first <<
-		" - " << algo_range.second;
-
-	//if (!points.empty())
-	//{
-		// Increment to first multiplier that is to be used
-		//algorithm_->set_current_sample_index(2940);
-	//}
-
-	const auto interval = details::Interval<int32_t> {
-		algo_range.first, algo_range.second
-	};
+	const auto interval { details::Interval<int32_t> {
+		algorithm_->range(size, points)
+	}};
 
 	ARCS_LOG_DEBUG << "Calculation interval is [" << interval.lower() << "," <<
 		interval.upper() << "]";
