@@ -665,8 +665,6 @@ public:
 	 */
 	virtual ~Algorithm() noexcept;
 
-	void set_current_sample_index(const int32_t& s) noexcept;
-
 	/**
 	 * \brief Configure the algorithm with settings.
 	 *
@@ -728,9 +726,6 @@ public:
 	std::unique_ptr<Algorithm> clone() const;
 
 private:
-
-	virtual void do_set_current_sample_index(const int32_t& s) noexcept
-	= 0;
 
 	virtual void do_setup(const Settings* s)
 	= 0;

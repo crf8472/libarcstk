@@ -634,11 +634,9 @@ void CalculationState::increment_proc_time_elapsed(
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	auto amount { std::distance(start, stop) };
-	ARCS_LOG_DEBUG << "Amount processed: " << amount;
+	const auto amount { std::distance(start, stop) };
 	do_update(start, stop); // TODO try and update counter in catch
 	samples_processed_.increment(amount);
-
 	advance(amount);
 }
 
@@ -793,7 +791,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		}
 	}
 
-	ARCS_LOG_DEBUG << "  Use partitions:  " << partitioning.size();
+	ARCS_LOG_DEBUG << "  Partitions: " << partitioning.size();
 
 	const bool is_last_relevant_block {
 		Interval<int32_t>(start_pos, last_sample_in_block)
@@ -807,35 +805,32 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
-	//auto partition_done   = bool { false };
-	//auto last_sample_seen = bool { false };
 
 	const auto start_time { std::chrono::steady_clock::now() };
+
 	for (const auto& partition : partitioning)
 	{
 		++partition_counter;
 		relevant_samples_counter += partition.size();
 
-		ARCS_LOG_DEBUG << "  Partition " << partition_counter << "/" <<
+		ARCS_LOG_DEBUG << "  PARTITION " << partition_counter << "/" <<
 			partitioning.size();
 
 		offset_first = partition.begin_offset() - start_pos;
 		offset_last  = partition.end_offset()   - start_pos;
 
-		ARCS_LOG_DEBUG << "    first: " << start_pos + offset_first;
-		ARCS_LOG_DEBUG << "    last:  " << start_pos + offset_last;
+		ARCS_LOG_DEBUG << "    Samples " << start_pos + offset_first << " - "
+			<< start_pos + offset_last
+			<< " (Track " << partition.track() << ", "
+			<< (partition.starts_track()
+					? (partition.ends_track() ? "complete"  : "first part")
+					: (partition.ends_track() ? "last part" : "mid part"))
+			<< ")";
+		ARCS_LOG_DEBUG << "    Relevant samples total: " << partition.size();
 
 		state.update(start + offset_first, start + offset_last + 1);
 
 		// If the current partition ends a track, save the ARCSs for this track
-
-		//partition_done   = bool { state.current_offset() ==
-		//	partition.end_offset() }; // TODO Really necessary?
-
-		//last_sample_seen = bool {
-		//	state.current_offset() >= partitioner.legal_range().upper() };
-
-		//if ((partition.ends_track() && partition_done) || last_sample_seen )
 		if (partition.ends_track())
 		{
 			ARCS_LOG_DEBUG << "    Completed track: "
@@ -845,6 +840,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 			state.track_finished();
 		}
 	}
+
 	const auto block_time_elapsed {
 		std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::steady_clock::now() - start_time)
@@ -1078,12 +1074,6 @@ Algorithm::Algorithm()
 Algorithm::~Algorithm() noexcept = default;
 
 
-void Algorithm::set_current_sample_index(const int32_t& s) noexcept
-{
-	do_set_current_sample_index(s);
-}
-
-
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
@@ -1108,9 +1098,9 @@ std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
 }
 
 
-void Algorithm::update(SampleInputIterator begin, SampleInputIterator end)
+void Algorithm::update(SampleInputIterator start, SampleInputIterator stop)
 {
-	this->do_update(begin, end);
+	this->do_update(start, stop);
 }
 
 
@@ -1299,13 +1289,6 @@ std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
 
 bool Calculation::Impl::complete() const noexcept
 {
-	//const auto trailing_irrelevant =
-	//	this->samples_expected() - partitioner_->legal_range().upper();
-
-	//return state_->current_offset() + trailing_irrelevant >= this->samples_expected();
-
-	ARCS_LOG_DEBUG << "Current offset: " << state_->current_offset();
-	ARCS_LOG_DEBUG << "Partitioner legal upper: " << partitioner_->legal_range().upper();
 	return state_->current_offset() >= partitioner_->legal_range().upper();
 }
 
@@ -1313,7 +1296,11 @@ bool Calculation::Impl::complete() const noexcept
 void Calculation::Impl::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
+	ARCS_LOG_DEBUG << "PROCESS BLOCK";
+
 	perform_update(start, stop, *partitioner_, *state_, *result_buffer_);
+
+	ARCS_LOG_DEBUG << "END BLOCK";
 }
 
 

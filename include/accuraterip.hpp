@@ -283,6 +283,7 @@ class ARCSAlgorithm final : public Algorithm
 		if (any(Context::FIRST_TRACK | s->context()))
 		{
 			this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
+			ARCS_LOG_DEBUG << "  Multiplier: " << this->multiplier();
 		}
 	}
 
@@ -293,7 +294,6 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	void set_multiplier(const uint_fast64_t m)
 	{
-		ARCS_LOG_DEBUG << "Set multiplier to " << m;
 		internal_state_.set_multiplier(m);
 	}
 
@@ -305,32 +305,38 @@ class ARCSAlgorithm final : public Algorithm
 
 		if (!points.empty())
 		{
-			from += points[0];
+			from += points[0]; // start on first offset
 		}
 
 		if (any(Context::FIRST_TRACK | this->settings()->context()))
 		{
 			from += NUM_SKIP_SAMPLES_FRONT;
+
+			ARCS_LOG_DEBUG << "  Skip first " << from << " samples";
 		}
 
 		if (any(Context::LAST_TRACK  | this->settings()->context()))
 		{
 			to -= NUM_SKIP_SAMPLES_BACK;
+
+			ARCS_LOG_DEBUG << "  Skip last " << NUM_SKIP_SAMPLES_BACK
+				<< " samples";
 		}
+
+		ARCS_LOG_DEBUG << "  Interval: " << from << " - " << to;
 
 		return { from, to };
 	}
 
 	void do_update(SampleInputIterator start, SampleInputIterator stop) final
 	{
-		ARCS_LOG_DEBUG << "  1st mult:  " << multiplier();
+		ARCS_LOG_DEBUG << "    First multiplier: " << multiplier();
 		internal_state_.update(start, stop);
-		ARCS_LOG_DEBUG << "  last mult: " << multiplier() - 1;
+		ARCS_LOG_DEBUG << "    Last multiplier:  " << multiplier() - 1;
 	}
 
 	void do_track_finished() final
 	{
-		ARCS_LOG_DEBUG << "Reset subtotals";
 		internal_state_.reset();
 		set_multiplier(1);
 	}
@@ -365,12 +371,6 @@ public:
 	uint_fast64_t multiplier() const
 	{
 		return internal_state_.multiplier();
-	}
-
-	void do_set_current_sample_index(const int32_t& m) noexcept final
-	{
-		if (m < 0) { /* TODO throw */ };
-		set_multiplier(static_cast<uint_fast64_t>(m));
 	}
 };
 
