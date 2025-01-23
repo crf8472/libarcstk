@@ -381,8 +381,20 @@ public:
 
 } // namespace details
 
+
+/**
+ * \brief AccurateRip v1 algorithm.
+ */
 using V1 = details::ARCSAlgorithm<checksum::type::ARCS1>;
+
+/**
+ * \brief AccurateRip v2 algorithm.
+ */
 using V2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
+
+/**
+ * \brief AccurateRip v2 algorithm implementation that also provides v1.
+ */
 using V1and2 =
 	details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
