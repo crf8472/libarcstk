@@ -236,6 +236,12 @@ lba_count_t ChecksumSet::length() const noexcept
 }
 
 
+void ChecksumSet::set_length(const lba_count_t l) noexcept
+{
+	length_ = l;
+}
+
+
 ChecksumSet::size_type ChecksumSet::size() const noexcept
 {
 	return set_.size();

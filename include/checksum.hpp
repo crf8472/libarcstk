@@ -288,6 +288,8 @@ public:
 	 */
 	lba_count_t length() const noexcept;
 
+	void set_length(const lba_count_t l) noexcept;
+
 	/**
 	 * \brief Returns the number of elements contained in the instance.
 	 *
