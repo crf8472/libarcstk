@@ -280,8 +280,6 @@ class ARCSAlgorithm final : public Algorithm
 
 	void do_setup(const Settings* s) final
 	{
-		if (!s) return;
-
 		if (any(Context::FIRST_TRACK | s->context()))
 		{
 			this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);

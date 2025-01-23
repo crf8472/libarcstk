@@ -1087,7 +1087,11 @@ void Algorithm::set_current_sample_index(const int32_t& s) noexcept
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
-	do_setup(s);
+
+	if (s)
+	{
+		do_setup(s);
+	}
 }
 
 
