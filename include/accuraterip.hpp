@@ -107,7 +107,7 @@ protected:
 	 * \internal
 	 * \brief Internal subtotals.
 	 */
-	Subtotals state_;
+	Subtotals st_;
 
 	/**
 	 * \internal
@@ -121,7 +121,7 @@ public:
 	 * \brief Default constructor.
 	 */
 	UpdatableBase()
-		: state_ { /* default */ }
+		: st_ { /* default */ }
 	{
 		// empty
 	}
@@ -131,7 +131,7 @@ public:
 	 */
 	void reset()
 	{
-		state_.reset();
+		st_.reset();
 	}
 
 	/**
@@ -141,7 +141,7 @@ public:
 	 */
 	uint_fast64_t multiplier() const
 	{
-		return state_.multiplier;
+		return st_.multiplier;
 	}
 
 	/**
@@ -151,7 +151,7 @@ public:
 	 */
 	void set_multiplier(const uint_fast64_t m)
 	{
-		state_.set_multiplier(m);
+		st_.set_multiplier(m);
 	}
 
 	/**
@@ -187,15 +187,15 @@ public:
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++state_.multiplier)
+		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
 		{
-			state_.subtotal_v1 += state_.multiplier * (*pos) & LOWER_32_BITS_;
+			st_.subtotal_v1 += st_.multiplier * (*pos) & LOWER_32_BITS_;
 		}
 	}
 
 	ChecksumSet value() const
 	{
-		return { 0, {{ checksum::type::ARCS1, state_.subtotal_v1 }} };
+		return { 0, {{ checksum::type::ARCS1, st_.subtotal_v1 }} };
 	}
 
 	std::string id_string() const
@@ -214,18 +214,18 @@ public:
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++state_.multiplier)
+		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
 		{
-			state_.update = state_.multiplier * (*pos);
+			st_.update = st_.multiplier * (*pos);
 
-			state_.subtotal_v2 +=
-				(state_.update & LOWER_32_BITS_) + (state_.update >> 32u);
+			st_.subtotal_v2 +=
+				(st_.update & LOWER_32_BITS_) + (st_.update >> 32u);
 		}
 	}
 
 	ChecksumSet value() const
 	{
-		return { 0, {{ checksum::type::ARCS2, state_.subtotal_v2 }} };
+		return { 0, {{ checksum::type::ARCS2, st_.subtotal_v2 }} };
 	}
 
 	std::string id_string() const
@@ -244,19 +244,19 @@ public:
 	template<class B, class E>
 	void update(const B& start, const E& stop)
 	{
-		for (auto pos = start; pos != stop; ++pos, ++state_.multiplier)
+		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
 		{
-			state_.update       = state_.multiplier * (*pos);
-			state_.subtotal_v1 += state_.update & LOWER_32_BITS_;
-			state_.subtotal_v2 += (state_.update >> 32u);
+			st_.update       = st_.multiplier * (*pos);
+			st_.subtotal_v1 += st_.update & LOWER_32_BITS_;
+			st_.subtotal_v2 += (st_.update >> 32u);
 		}
 	}
 
 	ChecksumSet value() const
 	{
 		return { 0, {
-			{ checksum::type::ARCS1, state_.subtotal_v1 },
-			{ checksum::type::ARCS2, state_.subtotal_v1 + state_.subtotal_v2 },
+			{ checksum::type::ARCS1, st_.subtotal_v1 },
+			{ checksum::type::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
 		} };
 	}
 
@@ -276,25 +276,16 @@ class ARCSAlgorithm final : public Algorithm
 	/**
 	 * \brief Internal updatable state.
 	 */
-	Updatable<T1, T2...> internal_state_;
+	Updatable<T1, T2...> state_;
 
 	void do_setup(const Settings* s) final
 	{
 		if (any(Context::FIRST_TRACK | s->context()))
 		{
 			this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
-			ARCS_LOG_DEBUG << "  Multiplier: " << this->multiplier();
-		}
-	}
 
-	/**
-	 * \brief Set multiplier to a new value.
-	 *
-	 * \param[in] m New value for multiplier
-	 */
-	void set_multiplier(const uint_fast64_t m)
-	{
-		internal_state_.set_multiplier(m);
+			ARCS_LOG_DEBUG << "  Initialize multiplier: " << this->multiplier();
+		}
 	}
 
 	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
@@ -308,11 +299,14 @@ class ARCSAlgorithm final : public Algorithm
 			from += points[0]; // start on first offset
 		}
 
+		ARCS_LOG_DEBUG << "  Start on sample offset " << from;
+
 		if (any(Context::FIRST_TRACK | this->settings()->context()))
 		{
 			from += NUM_SKIP_SAMPLES_FRONT;
 
-			ARCS_LOG_DEBUG << "  Skip first " << from << " samples";
+			ARCS_LOG_DEBUG << "  Then skip " << NUM_SKIP_SAMPLES_FRONT
+				<< " samples";
 		}
 
 		if (any(Context::LAST_TRACK  | this->settings()->context()))
@@ -331,24 +325,26 @@ class ARCSAlgorithm final : public Algorithm
 	void do_update(SampleInputIterator start, SampleInputIterator stop) final
 	{
 		ARCS_LOG_DEBUG << "    First multiplier: " << multiplier();
-		internal_state_.update(start, stop);
+
+		state_.update(start, stop);
+
 		ARCS_LOG_DEBUG << "    Last multiplier:  " << multiplier() - 1;
 	}
 
 	void do_track_finished() final
 	{
-		internal_state_.reset();
+		state_.reset();
 		set_multiplier(1);
 	}
 
 	ChecksumSet do_result() const final
 	{
-		return internal_state_.value();
+		return state_.value();
 	}
 
 	std::unordered_set<checksum::type> do_types() const final
 	{
-		return internal_state_.types();
+		return state_.types();
 	}
 
 	std::unique_ptr<Algorithm> do_clone() const final
@@ -358,19 +354,28 @@ class ARCSAlgorithm final : public Algorithm
 
 	// TODO set requested length and provide ChecksumSet with length
 
+	/**
+	 * \brief Set multiplier to a new value.
+	 *
+	 * \param[in] m New value for multiplier
+	 */
+	void set_multiplier(const uint_fast64_t m)
+	{
+		state_.set_multiplier(m);
+	}
+
 public:
 
 	ARCSAlgorithm()
-		: internal_state_ { /* default */ }
+		: state_ { /* default */ }
 	{
 		// empty
-		ARCS_LOG_DEBUG << "Algorithm is AccurateRip "
-			<< internal_state_.id_string();
+		ARCS_LOG_DEBUG << "Algorithm is AccurateRip " << state_.id_string();
 	}
 
 	uint_fast64_t multiplier() const
 	{
-		return internal_state_.multiplier();
+		return state_.multiplier();
 	}
 };
 

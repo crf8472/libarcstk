@@ -609,7 +609,7 @@ bool any(const Context& rhs) noexcept;
 
 
 /**
- * \brief Settings for a calculation.
+ * \brief Settings for a Calculation.
  */
 class Settings final
 {
@@ -697,11 +697,17 @@ public:
 	/**
 	 * \brief Update with a sequence of samples.
 	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 * \param[in] start Iterator pointing to the first sample of the sequence
+	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
 	 */
-	void update(SampleInputIterator begin, SampleInputIterator end);
+	void update(SampleInputIterator start, SampleInputIterator stop);
 
+	/**
+	 * \brief Mark current track as finished.
+	 *
+	 * What the instance has to do whenever a track is finished can be
+	 * implemented in this hook.
+	 */
 	void track_finished();
 
 	/**
@@ -794,11 +800,12 @@ public:
 	/**
 	 * \brief Create a calculation instance.
 	 *
-	 * If <tt>size.zero()</tt>, then first update will throw.
+	 * If <tt>size.zero()</tt>, then first <tt>update()</tt> will throw.
 	 *
 	 * \param[in] settings  The settings for the calculation
 	 * \param[in] algorithm The algorithm to use for calculating
 	 * \param[in] size      Size of the expected input
+	 * \param[in] points    Track offsets (as samples)
 	 */
 	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
 			const AudioSize& size, const std::vector<int32_t>& points);
@@ -924,10 +931,10 @@ public:
 	/**
 	 * \brief Update with a sequence of samples.
 	 *
-	 * \param[in] begin Iterator pointing to the first sample of the sequence
-	 * \param[in] end   Iterator pointing behind the last sample of the sequence
+	 * \param[in] start Iterator pointing to the first sample of the sequence
+	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
 	 */
-	void update(SampleInputIterator begin, SampleInputIterator end);
+	void update(SampleInputIterator start, SampleInputIterator stop);
 
 	/**
 	 * \brief Updates the instance with a new AudioSize.
@@ -954,7 +961,7 @@ private:
 
 
 /**
- * \brief Create a calculation for a complete TOC.
+ * \brief Create a calculation from a complete TOC.
  *
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          Complete TOC to perform calculation for
