@@ -21,7 +21,26 @@ namespace details
 {
 
 
+// UpdatableAPI
+
+
+ChecksumSet UpdatableAPI::value() const
+{
+	return do_value();
+}
+
+
+std::string UpdatableAPI::id_string() const
+{
+	return do_id_string();
+}
+
+
 // UpdatableBase
+
+
+template <enum checksum::type T1, enum checksum::type... T2>
+UpdatableBase<T1, T2...>::~UpdatableBase() noexcept = default;
 
 
 template <enum checksum::type T1, enum checksum::type... T2>
@@ -65,13 +84,13 @@ std::unordered_set<checksum::type> UpdatableBase<T1, T2...>::types() const
 // Updatable <ARCS1>
 
 
-ChecksumSet Updatable<checksum::type::ARCS1>::value() const
+ChecksumSet Updatable<checksum::type::ARCS1>::do_value() const
 {
 	return { 0, {{ checksum::type::ARCS1, st_.subtotal_v1 }} };
 }
 
 
-std::string Updatable<checksum::type::ARCS1>::id_string() const
+std::string Updatable<checksum::type::ARCS1>::do_id_string() const
 {
 	return "v1";
 }
@@ -80,13 +99,13 @@ std::string Updatable<checksum::type::ARCS1>::id_string() const
 // Updatable <ARCS2>
 
 
-ChecksumSet Updatable<checksum::type::ARCS2>::value() const
+ChecksumSet Updatable<checksum::type::ARCS2>::do_value() const
 {
 	return { 0, {{ checksum::type::ARCS2, st_.subtotal_v2 }} };
 }
 
 
-std::string Updatable<checksum::type::ARCS2>::id_string() const
+std::string Updatable<checksum::type::ARCS2>::do_id_string() const
 {
 	return "v2";
 }
@@ -95,7 +114,7 @@ std::string Updatable<checksum::type::ARCS2>::id_string() const
 // Updatable <ARCS1, ARCS2>
 
 
-ChecksumSet Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::value()
+ChecksumSet Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::do_value()
 	const
 {
 	return { 0, {
@@ -105,7 +124,7 @@ ChecksumSet Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::value()
 }
 
 
-std::string Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::id_string()
+std::string Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::do_id_string()
 	const
 {
 	return "v1+2";

@@ -55,12 +55,7 @@ constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 template<enum checksum::type T1, enum checksum::type... T2>
 class UpdatableBase
 {
-protected:
-
-	~UpdatableBase() noexcept = default;
-
 	/**
-	 * \internal
 	 * \brief Values of a calculation state.
 	 */
 	struct Subtotals
@@ -80,14 +75,19 @@ protected:
 		}
 	};
 
+protected:
+
 	/**
-	 * \internal
+	 * \brief Protected virtual default destructor.
+	 */
+	~UpdatableBase() noexcept;
+
+	/**
 	 * \brief Internal subtotals.
 	 */
 	Subtotals st_;
 
 	/**
-	 * \internal
 	 * \brief Helper for masking the lower 32 bits of a sample.
 	 */
 	static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
@@ -130,8 +130,17 @@ public:
 /**
  * \brief Base class for public member functions for Updatables.
  */
-struct UpdatableAPI
+class UpdatableAPI
 {
+
+	virtual ChecksumSet do_value() const
+	= 0;
+
+	virtual std::string do_id_string() const
+	= 0;
+
+public:
+
 	/**
 	 * \brief Virtual public destructor.
 	 */
@@ -140,14 +149,12 @@ struct UpdatableAPI
 	/**
 	 * \brief Get the current updated value from the Updatable.
 	 */
-	virtual ChecksumSet value() const
-	= 0;
+	ChecksumSet value() const;
 
 	/**
 	 * \brief Get the ID string from the Updatable.
 	 */
-	virtual std::string id_string() const
-	= 0;
+	std::string id_string() const;
 };
 
 
@@ -181,8 +188,8 @@ public:
 	}
 
 	// UpdatableAPI
-	ChecksumSet value()     const final;
-	std::string id_string() const final;
+	ChecksumSet do_value()     const final;
+	std::string do_id_string() const final;
 };
 
 
@@ -207,8 +214,8 @@ public:
 	}
 
 	// UpdatableAPI
-	ChecksumSet value()     const final;
-	std::string id_string() const final;
+	ChecksumSet do_value()     const final;
+	std::string do_id_string() const final;
 };
 
 
@@ -232,8 +239,8 @@ public:
 	}
 
 	// UpdatableAPI
-	ChecksumSet value()     const final;
-	std::string id_string() const final;
+	ChecksumSet do_value()     const final;
+	std::string do_id_string() const final;
 };
 
 
