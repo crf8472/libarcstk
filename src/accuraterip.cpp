@@ -35,7 +35,9 @@ UpdatableBase<T1, T2...>::UpdatableBase()
 template <enum checksum::type T1, enum checksum::type... T2>
 void UpdatableBase<T1, T2...>::reset()
 {
-	st_.reset();
+	st_.update      = 0;
+	st_.subtotal_v1 = 0;
+	st_.subtotal_v2 = 0;
 }
 
 
@@ -49,7 +51,7 @@ uint_fast64_t UpdatableBase<T1, T2...>::multiplier() const
 template <enum checksum::type T1, enum checksum::type... T2>
 void UpdatableBase<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
-	st_.set_multiplier(m);
+	st_.multiplier = m;
 }
 
 
@@ -57,6 +59,56 @@ template <enum checksum::type T1, enum checksum::type... T2>
 std::unordered_set<checksum::type> UpdatableBase<T1, T2...>::types() const
 {
 	return { T1, T2... };
+}
+
+
+// Updatable <ARCS1>
+
+
+ChecksumSet Updatable<checksum::type::ARCS1>::value() const
+{
+	return { 0, {{ checksum::type::ARCS1, st_.subtotal_v1 }} };
+}
+
+
+std::string Updatable<checksum::type::ARCS1>::id_string() const
+{
+	return "v1";
+}
+
+
+// Updatable <ARCS2>
+
+
+ChecksumSet Updatable<checksum::type::ARCS2>::value() const
+{
+	return { 0, {{ checksum::type::ARCS2, st_.subtotal_v2 }} };
+}
+
+
+std::string Updatable<checksum::type::ARCS2>::id_string() const
+{
+	return "v2";
+}
+
+
+// Updatable <ARCS1, ARCS2>
+
+
+ChecksumSet Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::value()
+	const
+{
+	return { 0, {
+		{ checksum::type::ARCS1, st_.subtotal_v1 },
+		{ checksum::type::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
+	} };
+}
+
+
+std::string Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::id_string()
+	const
+{
+	return "v1+2";
 }
 
 

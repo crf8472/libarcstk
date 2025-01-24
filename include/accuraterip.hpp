@@ -57,6 +57,8 @@ class UpdatableBase
 {
 protected:
 
+	~UpdatableBase() noexcept = default;
+
 	/**
 	 * \internal
 	 * \brief Values of a calculation state.
@@ -67,28 +69,6 @@ protected:
 		uint_fast64_t update      = 0;  // update factor
 		uint_fast32_t subtotal_v1 = 0;  // subtotal for ARCSv1
 		uint_fast32_t subtotal_v2 = 0;  // subtotal for ARCSv2
-
-		/**
-		 * \internal
-		 * \brief Reset all subtotals to their initial state.
-		 */
-		void reset()
-		{
-			update      = 0;
-			subtotal_v1 = 0;
-			subtotal_v2 = 0;
-		}
-
-		/**
-		 * \internal
-		 * \brief Set multiplier to a new value.
-		 *
-		 * \param[in] m New value for multiplier
-		 */
-		void set_multiplier(const uint_fast64_t m)
-		{
-			multiplier = m;
-		}
 
 		friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 		{
@@ -148,6 +128,30 @@ public:
 
 
 /**
+ * \brief Base class for public member functions for Updatables.
+ */
+struct UpdatableAPI
+{
+	/**
+	 * \brief Virtual public destructor.
+	 */
+	virtual ~UpdatableAPI() noexcept = default;
+
+	/**
+	 * \brief Get the current updated value from the Updatable.
+	 */
+	virtual ChecksumSet value() const
+	= 0;
+
+	/**
+	 * \brief Get the ID string from the Updatable.
+	 */
+	virtual std::string id_string() const
+	= 0;
+};
+
+
+/**
  * \brief Updatable state of subtotals.
  *
  * Default implementation is empty.
@@ -159,9 +163,11 @@ class Updatable final : public UpdatableBase<T1, T2...>
 };
 
 
+// full specialization for ARCS1
 template <>
 class Updatable<checksum::type::ARCS1> final
-								: public UpdatableBase<checksum::type::ARCS1>
+								: public UpdatableAPI
+								, public UpdatableBase<checksum::type::ARCS1>
 {
 public:
 
@@ -174,21 +180,17 @@ public:
 		}
 	}
 
-	ChecksumSet value() const
-	{
-		return { 0, {{ checksum::type::ARCS1, st_.subtotal_v1 }} };
-	}
-
-	std::string id_string() const
-	{
-		return "v1";
-	}
+	// UpdatableAPI
+	ChecksumSet value()     const final;
+	std::string id_string() const final;
 };
 
 
+// full specialization for ARCS2
 template <>
 class Updatable<checksum::type::ARCS2> final
-								: public UpdatableBase<checksum::type::ARCS2>
+								: public UpdatableAPI
+								, public UpdatableBase<checksum::type::ARCS2>
 {
 public:
 
@@ -204,21 +206,17 @@ public:
 		}
 	}
 
-	ChecksumSet value() const
-	{
-		return { 0, {{ checksum::type::ARCS2, st_.subtotal_v2 }} };
-	}
-
-	std::string id_string() const
-	{
-		return "v2";
-	}
+	// UpdatableAPI
+	ChecksumSet value()     const final;
+	std::string id_string() const final;
 };
 
 
+// full specialization for ARCS1+ARCS2
 template <>
 class Updatable<checksum::type::ARCS1,checksum::type::ARCS2> final
-			: public UpdatableBase<checksum::type::ARCS1,checksum::type::ARCS2>
+			: public UpdatableAPI
+			, public UpdatableBase<checksum::type::ARCS1,checksum::type::ARCS2>
 { // TODO Order of args in parameter pack??
 public:
 
@@ -233,18 +231,9 @@ public:
 		}
 	}
 
-	ChecksumSet value() const
-	{
-		return { 0, {
-			{ checksum::type::ARCS1, st_.subtotal_v1 },
-			{ checksum::type::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
-		} };
-	}
-
-	std::string id_string() const
-	{
-		return "v1+2";
-	}
+	// UpdatableAPI
+	ChecksumSet value()     const final;
+	std::string id_string() const final;
 };
 
 
@@ -266,6 +255,8 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	void set_multiplier(const uint_fast64_t m);
 
+
+	// Algorithm
 
 	void do_setup(const Settings* s) final;
 
