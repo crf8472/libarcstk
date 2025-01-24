@@ -12,11 +12,7 @@
 #include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
-
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
+#include "calculate.hpp"                 // for Algorithm
 #endif
 
 
@@ -128,11 +124,10 @@ public:
 
 
 /**
- * \brief Base class for public member functions for Updatables.
+ * \brief Abstract base class for public member functions for Updatables.
  */
 class UpdatableAPI
 {
-
 	virtual ChecksumSet do_value() const
 	= 0;
 

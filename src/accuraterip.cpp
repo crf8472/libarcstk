@@ -7,6 +7,9 @@
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
 #endif
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
 
 #include <cstdint>     // for uint_fast32_t, uint_fast64_t, int32_t
 #include <vector>      // for string
