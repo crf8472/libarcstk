@@ -23,7 +23,7 @@
 #include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
 #include <stdexcept>   // for invalid_argument
-#include <string>      // for to_string
+#include <sstream>     // for stringstream
 
 namespace arcstk
 {
@@ -71,146 +71,12 @@ int32_t bytes2samples(const int32_t bytes)
 }
 
 
-std::vector<int32_t> get_offset_sample_indices(const TOC& toc)
-{
-	auto points { toc::get_offsets(toc) };
-
-	using std::begin;
-	using std::end;
-
-	std::transform(begin(points), end(points), begin(points),
-			[](const int32_t i){ return frames2samples(i); } );
-
-	return points;
-}
-
-
-bool is_valid_track_number(const int track)
-{
-	return 0 < track && track <= 99;
-}
-
-
-bool is_valid_track(const int track, const TOC& toc)
-{
-	return 0 < track && track <= toc.total_tracks();
-}
-
-
-int track(const int32_t sample, const TOC& toc, const int32_t s_total)
-{
-	const auto offsets { get_offset_sample_indices(toc) };
-
-	if (sample > s_total
-			|| sample > frames2samples(toc.leadout()) || sample < offsets[0])
-	{
-		return 0;
-	}
-
-	const auto tracks  { static_cast<std::size_t>(toc.total_tracks()) };
-	auto t = decltype( offsets )::size_type { 0 };
-	while (t < tracks && sample >= offsets[t]) { ++t; };
-
-	return static_cast<TrackNo>(t);
-}
-
-
-int32_t first_relevant_sample(const int track, const TOC& toc,
-		const Interval<int32_t>& bounds)
-{
-	static const int32_t INVALID = 0;
-
-	// TODO Validity check for TrackNo and TrackNo + 1
-	if (!is_valid_track(track, toc))
-	{
-		// TODO throw?
-		return INVALID;
-	}
-
-	auto frames = int32_t { 0 };
-
-	try {
-
-		frames = toc.offset(track);
-
-	} catch (const std::exception& e) // TODO throw?
-	{
-		ARCS_LOG_WARNING << "Offset for unknown track " << track
-			<< " requested, returned 0.";
-
-		return INVALID;
-	}
-
-	if (!frames)
-	{
-		return INVALID;
-	}
-
-	const auto samples { frames2samples(frames) };
-
-	if (1 == track)
-	{
-		return samples + bounds.lower(); // FIXME This is not bounds!!
-		// THIS would be bounds:
-		// return bounds.contain(samples) ? samples : bounds.lower();
-	}
-
-	return samples;
-}
-
-
-int32_t last_relevant_sample(const int track,
-		const TOC& toc, const Interval<int32_t>& bounds)
-{
-	static const int32_t INVALID = 0;
-
-	if (!toc.complete())
-	{
-		// TODO throw?
-		return INVALID;
-	}
-
-	// TODO Validity check for TrackNo and TrackNo + 1
-	if (!is_valid_track(track, toc))
-	{
-		// TODO throw?
-		return INVALID;
-	}
-
-	if (track >= toc.total_tracks())
-	{
-		//return last_in_bounds(bounds, frames2samples(toc.leadout()));
-		return std::min(bounds.upper(), frames2samples(toc.leadout()));
-	}
-
-	const auto next_track = TrackNo { track + 1 };
-	auto frames = int32_t { 0 };
-
-	try {
-
-		frames = toc.offset(next_track);
-
-	} catch (const std::exception& e) // TODO throw?
-	{
-		ARCS_LOG_WARNING << "Offset for unknown track " << next_track
-			<< " requested, returned 0.";
-
-		return INVALID;
-	}
-
-	return !frames ? INVALID :
-		/* Last sample of previous track, if in bounds */
-		//last_in_bounds(bounds, frames2samples(frames) - 1);
-		std::min(bounds.upper(), frames2samples(frames) - 1);
-}
-
-
 // get_partitioning
 
 
-Partitioning get_partitioning(const Interval<int32_t>& interval,
-		const Interval<int32_t>& legal,
-		const std::vector<int32_t>& points)
+Partitioning get_partitioning(const SampleRange& interval,
+		const SampleRange& legal,
+		const Points& points)
 {
 	if (points.empty())
 	{
@@ -263,8 +129,8 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 }
 
 
-Partitioning get_partitioning(const Interval<int32_t>& interval,
-		const Interval<int32_t>& legal)
+Partitioning get_partitioning(const SampleRange& interval,
+		const SampleRange& legal)
 {
 	// Create a single partition spanning the entire block of samples,
 	// but respect skipping samples at front or back.
@@ -292,9 +158,8 @@ Partitioning get_partitioning(const Interval<int32_t>& interval,
 // Partitioner
 
 
-Partitioner::Partitioner(const int32_t total_samples,
-		const std::vector<int32_t>& points,
-		const Interval<int32_t>& legal)
+Partitioner::Partitioner(const int32_t total_samples, const Points& points,
+		const SampleRange& legal)
 	: total_samples_ { total_samples }
 	, points_        { points        }
 	, legal_         { legal         }
@@ -303,11 +168,14 @@ Partitioner::Partitioner(const int32_t total_samples,
 }
 
 
+Partitioner::~Partitioner() noexcept = default;
+
+
 Partitioning Partitioner::create_partitioning(
 		const int32_t offset,
 		const int32_t total_samples_in_block) const
 {
-	const Interval<int32_t> current_interval {
+	const SampleRange current_interval {
 		/* first phys. sample in block */ offset,
 		/* last  phys. sample in block */ offset + total_samples_in_block
 	};
@@ -322,12 +190,12 @@ Partitioning Partitioner::create_partitioning(
 		return Partitioning {};
 	}
 
-	if (points().empty())
+	if (points_.empty())
 	{
 		return do_create_partitioning(current_interval, legal_range());
 	}
 
-	return do_create_partitioning(current_interval, legal_range(), points());
+	return do_create_partitioning(current_interval, legal_range(), points_);
 }
 
 
@@ -343,13 +211,13 @@ void Partitioner::set_total_samples(const int32_t total_samples)
 }
 
 
-Interval<int32_t> Partitioner::legal_range() const
+SampleRange Partitioner::legal_range() const
 {
 	return legal_;
 }
 
 
-const std::vector<int32_t>& Partitioner::points() const
+Points Partitioner::points() const
 {
 	return points_;
 }
@@ -365,14 +233,15 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 
 
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const Interval<int32_t>& calc_range)
+		const SampleRange& calc_range) noexcept
 {
 	return make_partitioner(size, {/* empty */}, calc_range);
 }
 
 
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const std::vector<int32_t>& points, const Interval<int32_t>& calc_range)
+		const Points& points, const SampleRange& calc_range)
+		noexcept
 {
 	// TODO Check calc_range
 	// if calc_range.lower() < 1, use 1 as lower
@@ -387,8 +256,8 @@ std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
 
 
 TrackPartitioner::TrackPartitioner(const int32_t total_samples,
-			const std::vector<int32_t>& points,
-			const Interval<int32_t>&    legal)
+			const Points& points,
+			const SampleRange&    legal)
 	: Partitioner(total_samples, points, legal)
 {
 	// empty
@@ -396,17 +265,17 @@ TrackPartitioner::TrackPartitioner(const int32_t total_samples,
 
 
 Partitioning TrackPartitioner::do_create_partitioning(
-		const Interval<int32_t>&    interval,     /* block of samples */
-		const Interval<int32_t>&    legal,        /* legal range of samples */
-		const std::vector<int32_t>& points) const /* track points */
+		const SampleRange&    interval,     /* block of samples */
+		const SampleRange&    legal,        /* legal range of samples */
+		const Points& points) const /* track points */
 {
 	return get_partitioning(interval, legal, points);
 }
 
 
 Partitioning TrackPartitioner::do_create_partitioning(
-			const Interval<int32_t>& interval,
-			const Interval<int32_t>& legal) const
+			const SampleRange& interval,
+			const SampleRange& legal) const
 {
 	return get_partitioning(interval, legal);
 }
@@ -471,6 +340,24 @@ int Partition::track() const
 std::size_t Partition::size() const
 {
 	return static_cast<std::size_t>(end_offset() - begin_offset());
+}
+
+
+// get_offset_sample_indices
+
+
+Points get_offset_sample_indices(const TOC& toc)
+{
+	auto points { toc::get_offsets(toc) };
+
+	using std::cbegin;
+	using std::cend;
+	using std::begin;
+
+	std::transform(cbegin(points), cend(points), begin(points),
+			[](const int32_t i){ return frames2samples(i); } );
+
+	return points;
 }
 
 
@@ -545,7 +432,6 @@ CalculationState::~CalculationState() noexcept = default;
 
 int32_t CalculationState::do_current_offset() const noexcept
 {
-	//return current_offset_.value() + 1; // +1 since index is 0-based
 	return current_offset_.value();
 }
 
@@ -795,7 +681,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	ARCS_LOG_DEBUG << "  Partitions: " << partitioning.size();
 
 	const bool is_last_relevant_block {
-		Interval<int32_t>(start_pos, last_sample_in_block)
+		SampleRange(start_pos, last_sample_in_block)
 			.contains(partitioner.legal_range().upper()/* last rel. sample */)
 	};
 
@@ -965,7 +851,7 @@ int32_t AudioSize::max(const UNIT unit) noexcept
 
 void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
 {
-	if (not details::Interval<int32_t>(0, AudioSize::max(unit)).contains(value))
+	if (not details::SampleRange(0, AudioSize::max(unit)).contains(value))
 	{
 		using std::to_string;
 
@@ -1093,7 +979,7 @@ const Settings* Algorithm::settings() const noexcept
 
 
 std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
-		const std::vector<int32_t>& points) const
+		const Points& points) const
 {
 	return this->do_range(size, points);
 }
@@ -1195,11 +1081,11 @@ Calculation::Impl::~Impl() noexcept = default;
 
 
 void Calculation::Impl::init(const Settings& s, const AudioSize& size,
-		const std::vector<int32_t>& points)
+		const Points& points)
 {
 	this->set_settings(s); // also sets up Algorithm
 
-	const auto interval { details::Interval<int32_t> {
+	const auto interval { details::SampleRange {
 		algorithm_->range(size, points)
 	}};
 
@@ -1303,7 +1189,7 @@ Checksums Calculation::Impl::result() const noexcept
 
 Calculation::Calculation(const Settings& settings,
 		std::unique_ptr<Algorithm> algorithm, const AudioSize& size,
-		const std::vector<int32_t>& points)
+		const Points& points)
 	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
 {
 	impl_->init(settings, size, points);

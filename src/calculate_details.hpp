@@ -29,13 +29,6 @@ namespace details
 {
 
 /**
- * \internal
- * \ingroup calc
- * \brief Default argument for empty strings, avoid creating temporary objects
- */
-const auto EmptyString = std::string {/* empty */};
-
-/**
  * \brief Convert amount of frames to the equivalent amount of samples.
  *
  * \param[in] frames Amount of frames to convert
@@ -88,55 +81,6 @@ int32_t samples2bytes(const int32_t samples);
  * \return Amount of samples equivalent to \c bytes
  */
 int32_t bytes2samples(const int32_t bytes);
-
-/**
- * \brief Return the offsets converted to sample indices.
- *
- * \param[in] toc TOC to get offsets from
- *
- * \return List of offsets with each value converted from LBA frames to samples
- */
-std::vector<int32_t> get_offset_sample_indices(const TOC& toc);
-
-/**
- * \brief Check wheter \c t is a valid track number.
- *
- * A valid track number is an integer greater or equal to 1 and
- * less or equal to 99.
- *
- * \param[in] t The number to validate
- *
- * \return TRUE iff \c t is a valid track number, otherwise FALSE.
- */
-bool is_valid_track_number(const int t);
-
-/**
- * \brief Check whether the specified TOC has the specified track.
- *
- * \param[in] track The track number to validate
- * \param[in] toc   The TOC to validate the track against
- *
- * \return TRUE iff \c toc contains \c track, otherwise FALSE.
- */
-bool is_valid_track(const int track, const TOC& toc);
-
-/**
- * \brief Return the track for the specified 0-based sample index.
- *
- * If the TOC has no leadout, samples with indices greater than the offset of
- * the last track will always be verified as part of the last track.
- *
- * If the specified sample index is greater than \c s_total or the leadout of
- * the TOC, the resulting track number will not be valid.
- *
- * \param[in] track         The track number to validate
- * \param[in] toc           The TOC to validate the track against
- * \param[in] total_samples Total number of samples
- *
- * \return Number of the track with the specified sample index or an invalid
- * track
- */
-int track(const int32_t sample, const TOC& toc, const int32_t s_total);
 
 /**
  * \internal
@@ -221,29 +165,9 @@ public:
 
 
 /**
- * \brief Return the first sample of the specified track that lies in bounds.
- *
- * \param[in] track  The track to get the first sample of
- * \param[in] toc    The TOC to read the sample from
- * \param[in] bounds The legal interval of samples to consider
- *
- * \return Index of the first sample within bounds
+ * \brief Range of samples.
  */
-int32_t first_relevant_sample(const int track, const TOC& toc,
-		const Interval<int32_t>& bounds);
-
-
-/**
- * \brief Return the last sample of the specified track that lies in bounds.
- *
- * \param[in] track  The track to get the first sample of
- * \param[in] toc    The TOC to read the sample from
- * \param[in] bounds The legal interval of samples to consider
- *
- * \return Index of the last sample within bounds
- */
-int32_t last_relevant_sample(const int track, const TOC& toc,
-		const Interval<int32_t>& bounds);
+using SampleRange = Interval<int32_t>;
 
 
 // Forward Declaration Required for Partitioner
@@ -258,27 +182,20 @@ using Partitioning = std::vector<Partition>;
 
 
 /**
- * \internal
- * \brief Type of a list of split points within a range of samples.
- */
-using SplitPoints = std::vector<int32_t>;
-
-
-/**
  * \brief Create a partitioning for an interval in a legal range by a sequence
  * of points.
  */
 Partitioning get_partitioning(
-		const Interval<int32_t>&    interval,
-		const Interval<int32_t>&    legal,
-		const std::vector<int32_t>& points);
+		const SampleRange& interval,
+		const SampleRange& legal,
+		const Points& points);
 
 /**
  * \brief Create a single partition for an interval in a legal range.
  */
 Partitioning get_partitioning(
-		const Interval<int32_t>&    interval,
-		const Interval<int32_t>&    legal);
+		const SampleRange& interval,
+		const SampleRange& legal);
 
 
 /**
@@ -303,25 +220,13 @@ public:
 	 * \param[in] points        List of splitting points
 	 * \param[in] legal         Legal range of calculation
 	 */
-	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
-			const Interval<int32_t>& legal);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] total_samples Total number of samples expected in input
-	 * \param[in] points        List of splitting points
-	 * \param[in] skip_front    Amount of samples to skip at front
-	 * \param[in] skip_back     Amount of samples to skip at back
-	 */
-	Partitioner(const int32_t total_samples, const std::vector<int32_t>& points,
-			const int32_t skip_front, const int32_t skip_back);
+	Partitioner(const int32_t total_samples, const Points& points,
+			const SampleRange& legal);
 
 	/**
 	 * \brief Virtual default destructor.
 	 */
-	virtual ~Partitioner() noexcept
-	= default;
+	virtual ~Partitioner() noexcept;
 
 	/**
 	 * \brief Generates partitioning of the range of samples.
@@ -359,14 +264,14 @@ public:
 	 *
 	 * \return The legal range of samples to be partitioned.
 	 */
-	Interval<int32_t> legal_range() const;
+	SampleRange legal_range() const;
 
 	/**
 	 * \brief Partitioning bounds.
 	 *
 	 * \return Points to separate partitions.
 	 */
-	const std::vector<int32_t>& points() const;
+	Points points() const;
 
 	/**
 	 * \brief Deep copy of this instance.
@@ -387,9 +292,9 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>&    current_interval,
-		const Interval<int32_t>&    legal_range,
-		const std::vector<int32_t>& points) const
+		const SampleRange& current_interval,
+		const SampleRange& legal_range,
+		const Points& points) const
 	= 0;
 
 	/**
@@ -401,8 +306,8 @@ private:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>& current_interval,
-		const Interval<int32_t>& legal_range) const
+		const SampleRange& current_interval,
+		const SampleRange& legal_range) const
 	= 0;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const
@@ -416,12 +321,12 @@ private:
 	/**
 	 * \brief Internal splitting points.
 	 */
-	std::vector<int32_t> points_;
+	Points points_;
 
 	/**
 	 * \brief Legal range of partitioning.
 	 */
-	Interval<int32_t> legal_;
+	SampleRange legal_;
 };
 
 
@@ -436,7 +341,7 @@ private:
  * \return Partitioner for the specified interval.
  */
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const Interval<int32_t>& calc_range);
+		const SampleRange& calc_range) noexcept;
 
 
 /**
@@ -449,8 +354,7 @@ std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
  * \return Partitioner for the specified interval.
  */
 std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const std::vector<int32_t>& points,
-		const Interval<int32_t>& calc_range);
+		const Points& points, const SampleRange& calc_range) noexcept;
 
 
 /**
@@ -459,26 +363,31 @@ std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
 class TrackPartitioner final : public Partitioner
 {
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>&    sample_block,
-		const Interval<int32_t>&    relevant_interval,
-		const std::vector<int32_t>& points) const final;
+		const SampleRange& sample_block,
+		const SampleRange& relevant_interval,
+		const Points& points) const final;
 
 	virtual Partitioning do_create_partitioning(
-		const Interval<int32_t>& sample_block,
-		const Interval<int32_t>& relevant_interval) const final;
+		const SampleRange& sample_block,
+		const SampleRange& relevant_interval) const final;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const final;
 
 public:
 
-	TrackPartitioner(const int32_t total_samples,
-			const std::vector<int32_t>& points,
-			const Interval<int32_t>&    legal);
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
+	 * \param[in] legal         Legal range of calculation
+	 */
+	TrackPartitioner(const int32_t total_samples, const Points& points,
+			const SampleRange& legal);
 };
 
 
 /**
- * \internal
  * \ingroup calc
  *
  * \brief A contigous part of a sequence of samples.
@@ -529,12 +438,8 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * \todo begin_offset and last_offset seem redundant to first and last
-	 *
 	 * \param[in] begin_offset Local index of the first sample in the partition
 	 * \param[in] end_offset   Local index of the last sample in the partition
-	 * \param[in] first        Global index of the first sample in the partition
-	 * \param[in] last         Global index of the last sample in the partition
 	 * \param[in] starts_track TRUE iff this partition starts its track
 	 * \param[in] ends_track   TRUE iff this partition ends its track
 	 * \param[in] track        Number of the track that contains the partition
@@ -542,8 +447,6 @@ public:
 	Partition(
 			const int32_t &begin_offset,
 			const int32_t &end_offset,
-			//const int32_t &first,
-			//const int32_t &last,
 			const bool    &starts_track,
 			const bool    &ends_track,
 			const int     &track);
@@ -645,6 +548,15 @@ public:
 		value_ += amount;
 	}
 };
+
+/**
+ * \brief Return the offsets converted to sample indices.
+ *
+ * \param[in] toc TOC to get offsets from
+ *
+ * \return List of offsets with each value converted from LBA frames to samples
+ */
+Points get_offset_sample_indices(const TOC& toc);
 
 } // namespace details
 } // namespace v_1_0_0

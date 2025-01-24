@@ -83,11 +83,6 @@ class CalculationState
 
 	virtual int32_t do_samples_processed() const noexcept;
 
-	/**
-	 * \brief Advance calculation state by the specified amount of samples.
-	 *
-	 * \param[in] amount Amount of samples to advance
-	 */
 	virtual void do_advance(const int32_t amount);
 
 	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept;
@@ -126,8 +121,20 @@ public:
 	 */
 	virtual ~CalculationState() noexcept;
 
+	/**
+	 * \brief Offset of the current sample.
+	 *
+	 * This sample is not yet processed but will be the next sample to process.
+	 *
+	 * \return Current sample
+	 */
 	int32_t current_offset() const noexcept;
 
+	/**
+	 * \brief Advance by some amount to a higher current offset.
+	 *
+	 * \param[in] amount Amount (in samples) to advance
+	 */
 	void advance(const int32_t amount);
 
 	/**
@@ -184,17 +191,36 @@ public:
 	 */
 	void track_finished();
 
+	/**
+	 * \brief Clone this instance.
+	 *
+	 * \return Deep copy of this instance.
+	 */
 	std::unique_ptr<CalculationState> clone() const;
+
+	/**
+	 * \brief Clone this instance but use another Algorithm instance.
+	 *
+	 * \return Deep copy of this instance with another Algorithm instance.
+	 */
 	std::unique_ptr<CalculationState> clone_to(Algorithm* a) const;
+
 
 	friend void swap(CalculationState& lhs, CalculationState& rhs) noexcept;
 
 protected:
 
 	explicit CalculationState(const CalculationState& rhs);
+	// no copy assingment operator
 
 	explicit CalculationState(CalculationState&& rhs) noexcept;
+	// no move assingment operator
 
+	/**
+	 * \brief Set the Algorithm of this instance.
+	 *
+	 * \param[in] algorithm Algorithm instance to set
+	 */
 	void set_algorithm(Algorithm* const algorithm) noexcept;
 };
 
@@ -209,30 +235,52 @@ protected:
  */
 class CalculationStateImpl final : public CalculationState
 {
+	/**
+	 * \brief Clone this instance.
+	 *
+	 * \return Deep copy of this instance
+	 */
 	std::unique_ptr<CalculationState> do_clone() const final;
+
+	/**
+	 * \brief Clone this instance and use another Algorithm instance.
+	 *
+	 * \param[in] a Algorithm instance to set to the deep copy
+	 *
+	 * \return Deep copy of this instance
+	 */
 	std::unique_ptr<CalculationState> do_clone_to(Algorithm* a) const final;
 
+	/**
+	 * \brief Only clone the base class part.
+	 */
 	std::unique_ptr<CalculationStateImpl> raw_clone() const;
 
 public:
 
 	/**
 	 * \brief Constructor with Algorithm.
+	 *
+	 * \param[in] algorithm Algorithm instance to set
 	 */
 	explicit CalculationStateImpl(Algorithm* const algorithm);
+
 
 	explicit CalculationStateImpl(const CalculationStateImpl& rhs);
 
 	CalculationStateImpl& operator = (const CalculationStateImpl& rhs);
 
+
 	explicit CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
 
 	CalculationStateImpl& operator = (CalculationStateImpl&& rhs) noexcept;
+
 
 	/**
 	 * \brief Destructor.
 	 */
 	~CalculationStateImpl() noexcept final;
+
 
 	friend void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs)
 		noexcept;
@@ -243,10 +291,10 @@ public:
  * \brief Updates a calculation process by a sample block.
  *
  * \param[in]     start         Iterator pointing to first sample in block
- * \param[in]     stop          Iterator pointing to last sample in block
+ * \param[in]     stop          Iterator pointing behind last sample in block
  * \param[in]     partitioner   Partition provider
  * \param[in,out] state         Current calculation state
- * \param[in,out] result_buffer Collect the results
+ * \param[in,out] result_buffer Buffer for collecting results
  */
 void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const Partitioner& partitioner,
@@ -282,16 +330,38 @@ public:
 	Impl(Impl&& rhs) noexcept;
 	Impl& operator=(Impl&& rhs) noexcept;
 
+	/**
+	 * \brief Default destructor.
+	 */
 	~Impl() noexcept;
 
 	// Impl specific
 
+	/**
+	 * \brief Initialize the instance.
+	 *
+	 * \param[in] s      Settings for this instance
+	 * \param[in] size   Total size of the expected input
+	 * \param[in] points Track offsets (as sample indices)
+	 */
 	void init(const Settings& s, const AudioSize& size,
 		const std::vector<int32_t>& points);
 
+	/**
+	 * \brief Initializing worker to create the internal state.
+	 *
+	 * \param[in] algorithm Algorithm instance to initialize the state with
+	 *
+	 * \return Initialized CalculationState instance
+	 */
 	std::unique_ptr<details::CalculationStateImpl> init_state(
 		Algorithm* const algorithm);
 
+	/**
+	 * \brief Initializing worker to create the internal result buffer.
+	 *
+	 * \return Initialized Checksums instance
+	 */
 	std::unique_ptr<Checksums> init_buffer();
 
 	// Calculation

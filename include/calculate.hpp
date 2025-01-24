@@ -12,7 +12,7 @@
 #include <unordered_set>    // for unordered_set
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"             // for Checksum, Checksums
+#include "checksum.hpp"             // for ChecksumSet, Checksums
 #endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"             // for TotallyOrdered
@@ -651,6 +651,12 @@ private:
  * The set is iterable and duplicate-free.
  */
 using ChecksumtypeSet = std::unordered_set<checksum::type>;
+
+
+/**
+ * \brief Type of a list of split points within a range of samples.
+ */
+using Points = std::vector<int32_t>;
 
 
 #pragma GCC diagnostic push

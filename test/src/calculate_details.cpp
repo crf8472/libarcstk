@@ -7,6 +7,11 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"    // for TrackNo
 #endif
+
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"                // for Points
+#endif
+
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif
@@ -131,279 +136,6 @@ TEST_CASE ( "Unit conversions", "[calculate_details]" )
 
 		CHECK ( bytes2frames(595145376) == 253038 );
 	}
-}
-
-
-TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
-{
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	SECTION ( "is correct" )
-	{
-		const auto points = arcstk::details::get_offset_sample_indices(*toc);
-
-		CHECK ( points.size() == 15 );
-
-		CHECK ( points[ 0] ==     19404 );
-		CHECK ( points[ 1] ==   3072300 );
-		CHECK ( points[ 2] ==   4345320 );
-		CHECK ( points[ 3] ==  13747440 );
-		CHECK ( points[ 4] ==  20937504 );
-		CHECK ( points[ 5] ==  29294160 );
-		CHECK ( points[ 6] ==  40870704 );
-		CHECK ( points[ 7] ==  51587004 );
-		CHECK ( points[ 8] ==  62523804 );
-		CHECK ( points[ 9] ==  82023060 );
-		CHECK ( points[10] ==  92823444 );
-		CHECK ( points[11] == 116715060 );
-		CHECK ( points[12] == 125460384 );
-		CHECK ( points[13] == 132488160 );
-		CHECK ( points[14] == 137652564 );
-	}
-}
-
-
-TEST_CASE ( "is_valid_track_number()", "[is_valid_track_number]" )
-{
-	using arcstk::details::is_valid_track_number;
-	using arcstk::TrackNo;
-
-	SECTION ( "is correct" )
-	{
-		for (TrackNo t = -1; t <= -99; --t)
-		{
-			CHECK ( ! is_valid_track_number(t) );
-		}
-
-		CHECK ( ! is_valid_track_number(0) );
-
-		// Only values in interval [1,99] are valid, everything else is invalid
-		for (TrackNo t = 1; t <= 99; ++t)
-		{
-			CHECK ( is_valid_track_number(t) );
-		}
-
-		CHECK ( ! is_valid_track_number(100) );
-		CHECK ( ! is_valid_track_number(101) );
-		CHECK ( ! is_valid_track_number(102) );
-
-		CHECK ( ! is_valid_track_number(500) );
-
-		CHECK ( ! is_valid_track_number(1000) );
-	}
-}
-
-
-TEST_CASE ( "is_valid_track()", "[is_valid_track]" )
-{
-	using arcstk::details::is_valid_track;
-	using arcstk::TrackNo;
-
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	SECTION ( "is correct" )
-	{
-		for (TrackNo t = 1; t <= 15; ++t)
-		{
-			CHECK ( is_valid_track(t, *toc) );
-		}
-
-		for (TrackNo t = 16; t <= 99; ++t)
-		{
-			CHECK ( ! is_valid_track(t, *toc) );
-		}
-	}
-}
-
-
-TEST_CASE ( "track()", "[track]" )
-{
-	using arcstk::details::is_valid_track;
-	using arcstk::details::track;
-	using arcstk::TrackNo;
-
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	SECTION ( "is correct" )
-	{
-		CHECK ( ! is_valid_track(track(         0, *toc, 148786344), *toc) );
-
-		CHECK ( ! is_valid_track(track(     19403, *toc, 148786344), *toc) );
-		CHECK (  0 ==            track(     19403, *toc, 148786344)  );
-		CHECK (  1 ==            track(     19404, *toc, 148786344)  );
-		CHECK (  1 ==            track(     19405, *toc, 148786344)  );
-
-		CHECK (  1 ==            track(   3072299, *toc, 148786344)  );
-		CHECK (  2 ==            track(   3072300, *toc, 148786344)  );
-		CHECK (  2 ==            track(   3072301, *toc, 148786344)  );
-
-		CHECK (  2 ==            track(   4345319, *toc, 148786344)  );
-		CHECK (  3 ==            track(   4345320, *toc, 148786344)  );
-		CHECK (  3 ==            track(   4345321, *toc, 148786344)  );
-
-		CHECK (  3 ==            track(  13747439, *toc, 148786344)  );
-		CHECK (  4 ==            track(  13747440, *toc, 148786344)  );
-		CHECK (  4 ==            track(  13747441, *toc, 148786344)  );
-
-		CHECK (  4 ==            track(  20937503, *toc, 148786344)  );
-		CHECK (  5 ==            track(  20937504, *toc, 148786344)  );
-		CHECK (  5 ==            track(  20937505, *toc, 148786344)  );
-
-		CHECK (  5 ==            track(  29294159, *toc, 148786344)  );
-		CHECK (  6 ==            track(  29294160, *toc, 148786344)  );
-		CHECK (  6 ==            track(  29294161, *toc, 148786344)  );
-
-		CHECK (  6 ==            track(  40870703, *toc, 148786344)  );
-		CHECK (  7 ==            track(  40870704, *toc, 148786344)  );
-		CHECK (  7 ==            track(  40870705, *toc, 148786344)  );
-
-		CHECK (  7 ==            track(  51587003, *toc, 148786344)  );
-		CHECK (  8 ==            track(  51587004, *toc, 148786344)  );
-		CHECK (  8 ==            track(  51587005, *toc, 148786344)  );
-
-		CHECK (  8 ==            track(  62523803, *toc, 148786344)  );
-		CHECK (  9 ==            track(  62523804, *toc, 148786344)  );
-		CHECK (  9 ==            track(  62523805, *toc, 148786344)  );
-
-		CHECK (  9 ==            track(  82023059, *toc, 148786344)  );
-		CHECK ( 10 ==            track(  82023060, *toc, 148786344)  );
-		CHECK ( 10 ==            track(  82023061, *toc, 148786344)  );
-
-		CHECK ( 10 ==            track(  92823443, *toc, 148786344)  );
-		CHECK ( 11 ==            track(  92823444, *toc, 148786344)  );
-		CHECK ( 11 ==            track(  92823445, *toc, 148786344)  );
-
-		CHECK ( 11 ==            track( 116715059, *toc, 148786344)  );
-		CHECK ( 12 ==            track( 116715060, *toc, 148786344)  );
-		CHECK ( 12 ==            track( 116715061, *toc, 148786344)  );
-
-		CHECK ( 12 ==            track( 125460383, *toc, 148786344)  );
-		CHECK ( 13 ==            track( 125460384, *toc, 148786344)  );
-		CHECK ( 13 ==            track( 125460385, *toc, 148786344)  );
-
-		CHECK ( 13 ==            track( 132488159, *toc, 148786344)  );
-		CHECK ( 14 ==            track( 132488160, *toc, 148786344)  );
-		CHECK ( 14 ==            track( 132488161, *toc, 148786344)  );
-
-		CHECK ( 14 ==            track( 137652563, *toc, 148786344)  );
-		CHECK ( 15 ==            track( 137652564, *toc, 148786344)  );
-		CHECK ( 15 ==            track( 137652565, *toc, 148786344)  );
-
-		CHECK ( 15 ==            track( 148786343, *toc, 148786344)  );
-		CHECK ( 15 ==            track( 148786344, *toc, 148786344)  );
-
-		CHECK ( ! is_valid_track(track( 148786345, *toc, 148786344), *toc) );
-	}
-}
-
-
-TEST_CASE ( "first_relevant_sample()", "[first_relevant_sample]" )
-{
-	using arcstk::details::first_relevant_sample;
-
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	// Define the AccurateRip interval with excluding the first 5 frames
-	const auto i {
-		arcstk::details::Interval<int32_t>( 2940, 253038 * 588 - 2939 )};
-
-	SECTION ( "is correct" )
-	{
-		// The first relevant sample is the first physical sample with the
-		// exception of the first track, where 5 frames are excluded.
-
-		CHECK (2940 + 33 * 588 == first_relevant_sample( 1, *toc, i) );
-		CHECK (     5225 * 588 == first_relevant_sample( 2, *toc, i) );
-		CHECK (     7390 * 588 == first_relevant_sample( 3, *toc, i) );
-		CHECK (    23380 * 588 == first_relevant_sample( 4, *toc, i) );
-		CHECK (    35608 * 588 == first_relevant_sample( 5, *toc, i) );
-		CHECK (    49820 * 588 == first_relevant_sample( 6, *toc, i) );
-		CHECK (    69508 * 588 == first_relevant_sample( 7, *toc, i) );
-		CHECK (    87733 * 588 == first_relevant_sample( 8, *toc, i) );
-		CHECK (   106333 * 588 == first_relevant_sample( 9, *toc, i) );
-		CHECK (   139495 * 588 == first_relevant_sample(10, *toc, i) );
-		CHECK (   157863 * 588 == first_relevant_sample(11, *toc, i) );
-		CHECK (   198495 * 588 == first_relevant_sample(12, *toc, i) );
-		CHECK (   213368 * 588 == first_relevant_sample(13, *toc, i) );
-		CHECK (   225320 * 588 == first_relevant_sample(14, *toc, i) );
-		CHECK (   234103 * 588 == first_relevant_sample(15, *toc, i) );
-	}
-}
-
-
-TEST_CASE ( "last_relevant_sample()",
-		"[last_relevant_sample] [last_in_bounds]" )
-{
-	using arcstk::details::last_relevant_sample;
-
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
-		// leadout
-		253038
-	);
-
-	// Define the AccurateRip interval with excluding the first 5 frames
-	const auto i {
-		arcstk::details::Interval<int32_t>( 2940, 253038 * 588 - 2939 )};
-
-	SECTION ( "is correct" )
-	{
-		// The last relevant sample is the last physical sample with the
-		// exception of the last track, where 2939 samples are excluded.
-
-		CHECK (  5225 * 588 -    1 == last_relevant_sample( 1, *toc, i) );
-		CHECK (  7390 * 588 -    1 == last_relevant_sample( 2, *toc, i) );
-		CHECK ( 23380 * 588 -    1 == last_relevant_sample( 3, *toc, i) );
-		CHECK ( 35608 * 588 -    1 == last_relevant_sample( 4, *toc, i) );
-		CHECK ( 49820 * 588 -    1 == last_relevant_sample( 5, *toc, i) );
-		CHECK ( 69508 * 588 -    1 == last_relevant_sample( 6, *toc, i) );
-		CHECK ( 87733 * 588 -    1 == last_relevant_sample( 7, *toc, i) );
-		CHECK (106333 * 588 -    1 == last_relevant_sample( 8, *toc, i) );
-		CHECK (139495 * 588 -    1 == last_relevant_sample( 9, *toc, i) );
-		CHECK (157863 * 588 -    1 == last_relevant_sample(10, *toc, i) );
-		CHECK (198495 * 588 -    1 == last_relevant_sample(11, *toc, i) );
-		CHECK (213368 * 588 -    1 == last_relevant_sample(12, *toc, i) );
-		CHECK (225320 * 588 -    1 == last_relevant_sample(13, *toc, i) );
-		CHECK (234103 * 588 -    1 == last_relevant_sample(14, *toc, i) );
-		CHECK (253038 * 588 - 2939 == last_relevant_sample(15, *toc, i) );
-	}
-
 }
 
 
@@ -772,5 +504,42 @@ TEST_CASE ( "Counter", "[calculate_details]" )
 		// TODO Implement
 	}
 	*/
+}
+
+
+TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
+{
+	const auto toc = arcstk::details::TOCBuilder::build(
+		// track count
+		15,
+		// offsets
+		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 },
+		// leadout
+		253038
+	);
+
+	SECTION ( "is correct" )
+	{
+		const auto points = arcstk::details::get_offset_sample_indices(*toc);
+
+		CHECK ( points.size() == 15 );
+
+		CHECK ( points[ 0] ==     19404 );
+		CHECK ( points[ 1] ==   3072300 );
+		CHECK ( points[ 2] ==   4345320 );
+		CHECK ( points[ 3] ==  13747440 );
+		CHECK ( points[ 4] ==  20937504 );
+		CHECK ( points[ 5] ==  29294160 );
+		CHECK ( points[ 6] ==  40870704 );
+		CHECK ( points[ 7] ==  51587004 );
+		CHECK ( points[ 8] ==  62523804 );
+		CHECK ( points[ 9] ==  82023060 );
+		CHECK ( points[10] ==  92823444 );
+		CHECK ( points[11] == 116715060 );
+		CHECK ( points[12] == 125460384 );
+		CHECK ( points[13] == 132488160 );
+		CHECK ( points[14] == 137652564 );
+	}
 }
 
