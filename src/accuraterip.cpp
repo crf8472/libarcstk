@@ -8,7 +8,7 @@
 #include "accuraterip.hpp"
 #endif
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"              // for checksum::type, ChecksumSet
+#include "checksum.hpp"              // for type, ChecksumSet
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -25,6 +25,8 @@ namespace accuraterip
 {
 namespace details
 {
+
+using cstype = checksum::type; // for Readability
 
 
 // UpdatableAPI
@@ -45,11 +47,11 @@ std::string UpdatableAPI::id_string() const
 // UpdatableBase
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 UpdatableBase<T1, T2...>::~UpdatableBase() noexcept = default;
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 UpdatableBase<T1, T2...>::UpdatableBase()
 	: st_ { /* default */ }
 {
@@ -57,7 +59,7 @@ UpdatableBase<T1, T2...>::UpdatableBase()
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void UpdatableBase<T1, T2...>::reset()
 {
 	st_.update      = 0;
@@ -66,22 +68,22 @@ void UpdatableBase<T1, T2...>::reset()
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 uint_fast64_t UpdatableBase<T1, T2...>::multiplier() const
 {
 	return st_.multiplier;
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void UpdatableBase<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
 	st_.multiplier = m;
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
-std::unordered_set<checksum::type> UpdatableBase<T1, T2...>::types() const
+template <cstype T1, cstype... T2>
+std::unordered_set<cstype> UpdatableBase<T1, T2...>::types() const
 {
 	return { T1, T2... };
 }
@@ -90,13 +92,13 @@ std::unordered_set<checksum::type> UpdatableBase<T1, T2...>::types() const
 // Updatable <ARCS1>
 
 
-ChecksumSet Updatable<checksum::type::ARCS1>::do_value() const
+ChecksumSet Updatable<cstype::ARCS1>::do_value() const
 {
-	return { 0, {{ checksum::type::ARCS1, st_.subtotal_v1 }} };
+	return { 0, {{ cstype::ARCS1, st_.subtotal_v1 }} };
 }
 
 
-std::string Updatable<checksum::type::ARCS1>::do_id_string() const
+std::string Updatable<cstype::ARCS1>::do_id_string() const
 {
 	return "v1";
 }
@@ -105,13 +107,13 @@ std::string Updatable<checksum::type::ARCS1>::do_id_string() const
 // Updatable <ARCS2>
 
 
-ChecksumSet Updatable<checksum::type::ARCS2>::do_value() const
+ChecksumSet Updatable<cstype::ARCS2>::do_value() const
 {
-	return { 0, {{ checksum::type::ARCS2, st_.subtotal_v2 }} };
+	return { 0, {{ cstype::ARCS2, st_.subtotal_v2 }} };
 }
 
 
-std::string Updatable<checksum::type::ARCS2>::do_id_string() const
+std::string Updatable<cstype::ARCS2>::do_id_string() const
 {
 	return "v2";
 }
@@ -120,17 +122,17 @@ std::string Updatable<checksum::type::ARCS2>::do_id_string() const
 // Updatable <ARCS1, ARCS2>
 
 
-ChecksumSet Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::do_value()
+ChecksumSet Updatable<cstype::ARCS1, cstype::ARCS2>::do_value()
 	const
 {
 	return { 0, {
-		{ checksum::type::ARCS1, st_.subtotal_v1 },
-		{ checksum::type::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
+		{ cstype::ARCS1, st_.subtotal_v1 },
+		{ cstype::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
 	} };
 }
 
 
-std::string Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::do_id_string()
+std::string Updatable<cstype::ARCS1, cstype::ARCS2>::do_id_string()
 	const
 {
 	return "v1+2";
@@ -140,7 +142,7 @@ std::string Updatable<checksum::type::ARCS1, checksum::type::ARCS2>::do_id_strin
 // ARCSAlgorithm
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 	: state_ { /* default */ }
 {
@@ -149,21 +151,21 @@ ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 uint_fast64_t ARCSAlgorithm<T1, T2...>::multiplier() const
 {
 	return state_.multiplier();
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
 	state_.set_multiplier(m);
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 {
 	if (any(Context::FIRST_TRACK | s->context()))
@@ -175,7 +177,7 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 		const AudioSize& size,
 		const std::vector<int32_t>& points) const
@@ -212,7 +214,7 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
@@ -224,7 +226,7 @@ void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_track_finished()
 {
 	state_.reset();
@@ -232,21 +234,21 @@ void ARCSAlgorithm<T1, T2...>::do_track_finished()
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 ChecksumSet ARCSAlgorithm<T1, T2...>::do_result() const
 {
 	return state_.value();
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
-std::unordered_set<checksum::type> ARCSAlgorithm<T1, T2...>::do_types() const
+template <cstype T1, cstype... T2>
+std::unordered_set<cstype> ARCSAlgorithm<T1, T2...>::do_types() const
 {
 	return state_.types();
 }
 
 
-template <enum checksum::type T1, enum checksum::type... T2>
+template <cstype T1, cstype... T2>
 std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 {
 	return std::make_unique<ARCSAlgorithm>(*this);
@@ -257,33 +259,33 @@ std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 
 
 template
-class UpdatableBase<checksum::type::ARCS1>;
+class UpdatableBase<cstype::ARCS1>;
 
 template
-class UpdatableBase<checksum::type::ARCS2>;
+class UpdatableBase<cstype::ARCS2>;
 
 template
-class UpdatableBase<checksum::type::ARCS1, checksum::type::ARCS2>;
-
-
-template
-class Updatable<checksum::type::ARCS1>;
-
-template
-class Updatable<checksum::type::ARCS2>;
-
-template
-class Updatable<checksum::type::ARCS1, checksum::type::ARCS2>;
+class UpdatableBase<cstype::ARCS1, cstype::ARCS2>;
 
 
 template
-class ARCSAlgorithm<checksum::type::ARCS1>;
+class Updatable<cstype::ARCS1>;
 
 template
-class ARCSAlgorithm<checksum::type::ARCS2>;
+class Updatable<cstype::ARCS2>;
 
 template
-class ARCSAlgorithm<checksum::type::ARCS1, checksum::type::ARCS2>;
+class Updatable<cstype::ARCS1, cstype::ARCS2>;
+
+
+template
+class ARCSAlgorithm<cstype::ARCS1>;
+
+template
+class ARCSAlgorithm<cstype::ARCS2>;
+
+template
+class ARCSAlgorithm<cstype::ARCS1, cstype::ARCS2>;
 
 } // namespace details
 
