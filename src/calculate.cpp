@@ -1003,7 +1003,7 @@ ChecksumSet Algorithm::result() const
 }
 
 
-std::unordered_set<checksum::type> Algorithm::types() const
+ChecksumtypeSet Algorithm::types() const
 {
 	return this->do_types();
 }
@@ -1251,7 +1251,7 @@ const Algorithm* Calculation::algorithm() const noexcept
 }
 
 
-std::unordered_set<checksum::type> Calculation::types() const noexcept
+ChecksumtypeSet Calculation::types() const noexcept
 {
 	return algorithm()->types();
 }
@@ -1311,16 +1311,16 @@ Checksums Calculation::result() const noexcept
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
 {
-	if (!toc.complete())
+	auto leadout = AudioSize{};
+
+	if (toc.complete())
 	{
-		throw std::invalid_argument(
-				"Cannot construct a Calculation from an incomplete TOC"
-		);
+		leadout = AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES };
 	}
 
 	return std::make_unique<Calculation>(Context::ALBUM,
 		std::move(algorithm),
-		AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES },
+		leadout,
 		details::get_offset_sample_indices(toc));
 }
 

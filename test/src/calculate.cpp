@@ -547,7 +547,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
-	SECTION ("make_calculation() with incomplete TOC fails")
+	SECTION ("make_calculation() with incomplete TOC succeeds")
 	{
 		using arcstk::checksum::type;
 
@@ -564,7 +564,10 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 
 		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
 
-		CHECK_THROWS ( make_calculation(std::move(algorithmV1V2), *toc_1) );
+		auto c { make_calculation(std::move(algorithmV1V2), *toc_1) };
+
+		CHECK ( c->types() ==
+				std::unordered_set<type>{ type::ARCS1, type::ARCS2 } );
 	}
 }
 

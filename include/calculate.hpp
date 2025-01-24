@@ -763,7 +763,7 @@ private:
 	virtual ChecksumSet do_result() const
 	= 0;
 
-	virtual std::unordered_set<checksum::type> do_types() const
+	virtual ChecksumtypeSet do_types() const
 	= 0;
 
 	virtual std::unique_ptr<Algorithm> do_clone() const
@@ -949,12 +949,13 @@ private:
 
 
 /**
- * \brief Create a calculation from a complete TOC.
+ * \brief Create a calculation from a TOC.
+ *
+ * If the TOC is not complete, the Calculation must be updated with the correct
+ * total number of input samples.
  *
  * \param[in] algorithm    The algorithm to use for calculating
  * \param[in] toc          Complete TOC to perform calculation for
- *
- * \throws If the TOC is not complete.
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const TOC& toc);
