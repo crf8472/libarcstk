@@ -9,7 +9,7 @@
 #include <cstdint>  // for uint_fast32_t, uint_fast64_t, int32_t
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
+#include "checksum.hpp"                  // for checksum::type, ChecksumSet
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"                 // for Algorithm

@@ -7,6 +7,9 @@
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
 #endif
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"              // for checksum::type, ChecksumSet
+#endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
