@@ -22,6 +22,7 @@
 
 #include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
+#include <stdexcept>   // for invalid_argument
 #include <string>      // for to_string
 
 namespace arcstk
@@ -826,7 +827,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 					? (partition.ends_track() ? "complete"  : "first part")
 					: (partition.ends_track() ? "last part" : "mid part"))
 			<< ")";
-		ARCS_LOG_DEBUG << "    Relevant samples total: " << partition.size();
+		ARCS_LOG_DEBUG << "    Samples total: " << partition.size();
 
 		state.update(start + offset_first, start + offset_last + 1);
 
@@ -845,11 +846,11 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::steady_clock::now() - start_time)
 	};
+
 	state.increment_proc_time_elapsed(block_time_elapsed);
 
 	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
 			<< relevant_samples_counter;
-
 	ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
 			<<	state.proc_time_elapsed().count();
 
@@ -859,7 +860,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
 			state.samples_processed() <<
-			" (from " << partitioner.legal_range().lower() /* FIXME or offset 1!*/<<
+			" (from " << partitioner.legal_range().lower() <<
 			" to "    << partitioner.legal_range().upper() << ")";
 		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
 			partitioner.total_samples();
@@ -1125,25 +1126,6 @@ std::unordered_set<checksum::type> Algorithm::types() const
 std::unique_ptr<Algorithm> Algorithm::clone() const
 {
 	return this->do_clone();
-}
-
-
-// InsufficientCalculationInputException
-
-
-InsufficientCalculationInputException::InsufficientCalculationInputException(
-		const std::string &what_arg)
-	: std::runtime_error { what_arg }
-{
-	// empty
-}
-
-
-InsufficientCalculationInputException::InsufficientCalculationInputException(
-		const char* what_arg)
-	: std::runtime_error { what_arg }
-{
-	// empty
 }
 
 
@@ -1445,8 +1427,8 @@ std::unique_ptr<Calculation> make_calculation(
 {
 	if (!toc.complete())
 	{
-		throw InsufficientCalculationInputException(
-				"Cannot build a Calculation with an incomplete TOC"
+		throw std::invalid_argument(
+				"Cannot construct a Calculation from an incomplete TOC"
 		);
 	}
 

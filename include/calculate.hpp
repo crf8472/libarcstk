@@ -9,7 +9,7 @@
 
 #include <cstdint>          // for int32_t
 #include <memory>           // for unique_ptr
-#include <unordered_map>    // for unordered_map
+#include <unordered_set>    // for unordered_set
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"             // for Checksum, Checksums
@@ -645,6 +645,14 @@ private:
 };
 
 
+/**
+ * \brief Set of checksum types.
+ *
+ * The set is iterable and duplicate-free.
+ */
+using ChecksumtypeSet = std::unordered_set<checksum::type>;
+
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 
@@ -722,7 +730,7 @@ public:
 	 *
 	 * \return Checksum types calculated by this algorithm
 	 */
-	std::unordered_set<checksum::type> types() const;
+	ChecksumtypeSet types() const;
 
 	/**
 	 * \brief Clone this instance..
@@ -762,32 +770,6 @@ private:
 };
 
 #pragma GCC diagnostic pop
-
-
-/**
- * \brief Reports insufficient input for successfully completing a Calculation.
- *
- * This exception indicates that an incomplete TOC was passed without also
- * passing a corresponding valid AudioSize.
- */
-class InsufficientCalculationInputException final : public std::runtime_error
-{
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InsufficientCalculationInputException(const std::string &what_arg);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit InsufficientCalculationInputException(const char *what_arg);
-};
 
 
 /**
@@ -871,7 +853,7 @@ public:
 	 *
 	 * \return All requested Checksum types.
 	 */
-	std::unordered_set<checksum::type> types() const noexcept;
+	ChecksumtypeSet types() const noexcept;
 
 	/**
 	 * \brief Returns the total number of initially expected PCM 32 bit samples.
