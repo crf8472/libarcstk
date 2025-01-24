@@ -7,7 +7,6 @@
  */
 
 #include <cstdint>  // for uint_fast32_t, uint_fast64_t, int32_t
-#include <set>      // for set
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                  // for Checksum, ChecksumSet, Checksums
@@ -38,7 +37,7 @@ namespace details
  * = 2940 samples. We derive the number of samples to be skipped at the
  * start of the first track by just subtracting 1 from this constant.
  */
-constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
+constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
 /**
  * \internal
@@ -48,8 +47,6 @@ constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples*/;
  * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
  */
 constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
-
-//} // namespace
 
 
 /**
@@ -120,49 +117,33 @@ public:
 	/**
 	 * \brief Default constructor.
 	 */
-	UpdatableBase()
-		: st_ { /* default */ }
-	{
-		// empty
-	}
+	UpdatableBase();
 
 	/**
 	 * \brief Reset the instance to its initial state.
 	 */
-	void reset()
-	{
-		st_.reset();
-	}
+	void reset();
 
 	/**
 	 * \brief Current Multiplier of this instance.
 	 *
 	 * \return Current multiplier
 	 */
-	uint_fast64_t multiplier() const
-	{
-		return st_.multiplier;
-	}
+	uint_fast64_t multiplier() const;
 
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m)
-	{
-		st_.set_multiplier(m);
-	}
+	void set_multiplier(const uint_fast64_t m);
 
 	/**
 	 * \brief Return the checksum types this instance calculates.
 	 *
 	 * \return Set of types calculated by this instance
 	 */
-	std::unordered_set<checksum::type> types() const
-	{
-		return { T1, T2... };
-	}
+	std::unordered_set<checksum::type> types() const;
 };
 
 
@@ -178,13 +159,13 @@ class Updatable final : public UpdatableBase<T1, T2...>
 };
 
 
-template<>
+template <>
 class Updatable<checksum::type::ARCS1> final
 								: public UpdatableBase<checksum::type::ARCS1>
 {
 public:
 
-	template<class B, class E>
+	template <class B, class E>
 	void update(const B& start, const E& stop)
 	{
 		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
@@ -205,7 +186,7 @@ public:
 };
 
 
-template<>
+template <>
 class Updatable<checksum::type::ARCS2> final
 								: public UpdatableBase<checksum::type::ARCS2>
 {
@@ -235,7 +216,7 @@ public:
 };
 
 
-template<>
+template <>
 class Updatable<checksum::type::ARCS1,checksum::type::ARCS2> final
 			: public UpdatableBase<checksum::type::ARCS1,checksum::type::ARCS2>
 { // TODO Order of args in parameter pack??
@@ -278,105 +259,42 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> state_;
 
-	void do_setup(const Settings* s) final
-	{
-		if (any(Context::FIRST_TRACK | s->context()))
-		{
-			this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
-
-			ARCS_LOG_DEBUG << "  Initialize multiplier: " << this->multiplier();
-		}
-	}
-
-	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
-			const std::vector<int32_t>& points) const final
-	{
-		int32_t from = 0;
-		int32_t to   = size.total_samples() - 1;
-
-		if (!points.empty())
-		{
-			from += points[0]; // start on first offset
-		}
-
-		ARCS_LOG_DEBUG << "  Start on sample offset " << from;
-
-		if (any(Context::FIRST_TRACK | this->settings()->context()))
-		{
-			from += NUM_SKIP_SAMPLES_FRONT;
-
-			ARCS_LOG_DEBUG << "  Then skip " << NUM_SKIP_SAMPLES_FRONT
-				<< " samples";
-		}
-
-		if (any(Context::LAST_TRACK  | this->settings()->context()))
-		{
-			to -= NUM_SKIP_SAMPLES_BACK;
-
-			ARCS_LOG_DEBUG << "  Skip last " << NUM_SKIP_SAMPLES_BACK
-				<< " samples";
-		}
-
-		ARCS_LOG_DEBUG << "  Interval: " << from << " - " << to;
-
-		return { from, to };
-	}
-
-	void do_update(SampleInputIterator start, SampleInputIterator stop) final
-	{
-		ARCS_LOG_DEBUG << "    First multiplier: " << multiplier();
-
-		state_.update(start, stop);
-
-		ARCS_LOG_DEBUG << "    Last multiplier:  " << multiplier() - 1;
-	}
-
-	void do_track_finished() final
-	{
-		state_.reset();
-		set_multiplier(1);
-	}
-
-	ChecksumSet do_result() const final
-	{
-		return state_.value();
-	}
-
-	std::unordered_set<checksum::type> do_types() const final
-	{
-		return state_.types();
-	}
-
-	std::unique_ptr<Algorithm> do_clone() const final
-	{
-		return std::make_unique<ARCSAlgorithm>(*this);
-	}
-
-	// TODO set requested length and provide ChecksumSet with length
-
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m)
-	{
-		state_.set_multiplier(m);
-	}
+	void set_multiplier(const uint_fast64_t m);
+
+
+	void do_setup(const Settings* s) final;
+
+	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
+			const std::vector<int32_t>& points) const final;
+
+	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
+
+	void do_track_finished() final;
+
+	ChecksumSet do_result() const final;
+
+	std::unordered_set<checksum::type> do_types() const final;
+
+	std::unique_ptr<Algorithm> do_clone() const final;
 
 public:
 
-	ARCSAlgorithm()
-		: state_ { /* default */ }
-	{
-		// empty
-		ARCS_LOG_DEBUG << "Algorithm is AccurateRip " << state_.id_string();
-	}
+	/**
+	 * \brief Default constructor.
+	 */
+	ARCSAlgorithm();
 
-	uint_fast64_t multiplier() const
-	{
-		return state_.multiplier();
-	}
+	/**
+	 * \brief Current multiplier.
+	 *
+	 * \return Current multiplier
+	 */
+	uint_fast64_t multiplier() const;
 };
 
 } // namespace details

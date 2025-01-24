@@ -203,6 +203,7 @@ list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/validate.tpp"
 ## --- Add and configure project target
 
 add_library (${PROJECT_NAME} SHARED
+	"${PROJECT_SOURCE_DIR}/accuraterip.cpp"
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
 	"${PROJECT_SOURCE_DIR}/checksum.cpp"
 	"${PROJECT_SOURCE_DIR}/dbar.cpp"
