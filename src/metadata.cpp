@@ -740,6 +740,41 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets)
 	return make_toc(0, offsets);
 }
 
+
+// InvalidMetadataException
+
+
+InvalidMetadataException::InvalidMetadataException(const std::string &what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
+}
+
+
+InvalidMetadataException::InvalidMetadataException(const char *what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
+}
+
+
+// NonstandardMetadataException
+
+
+NonstandardMetadataException::NonstandardMetadataException(
+		const std::string &what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
+}
+
+
+NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
+	: std::runtime_error { what_arg }
+{
+	// empty
+}
+
 } // namespace v_1_0_0
 } // namespace arcstk
 

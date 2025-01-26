@@ -496,6 +496,62 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
  */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
 
+
+/**
+ * \brief Reports invalid metadata for building a TOC.
+ *
+ * This exception indicates that no TOC can be build.
+ */
+class InvalidMetadataException final : public std::runtime_error
+{
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InvalidMetadataException(const std::string &what_arg);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit InvalidMetadataException(const char *what_arg);
+};
+
+
+/**
+ * \brief Reports metadata violating the redbook standard.
+ *
+ * Violating the redbook standard is usually not a problem for calculating
+ * AccurateRip checksums. A common case are unusual total lengths, as for
+ * example up to 99 minutes per disc.
+ *
+ * \attention
+ * This exception occurrs only internally in the current API version, but is
+ * never thrown to the client. This may change in future versions.
+ */
+class NonstandardMetadataException final : public std::runtime_error
+{
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit NonstandardMetadataException(const std::string &what_arg);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 */
+	explicit NonstandardMetadataException(const char *what_arg);
+};
+
 } // namespace v_1_0_0
 } // namespace arcstk
 
