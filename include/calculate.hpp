@@ -30,6 +30,31 @@ inline namespace v_1_0_0
 class ToC;
 
 
+/** \defgroup calc Checksum calculation
+ *
+ * SampleInputIterator
+ *
+ * Context, Settings
+ *
+ * Algorithm
+ *
+ * Calculation
+ *
+ * @{
+ */
+
+/**
+ * \brief Type to represent a 32 bit PCM stereo sample.
+ *
+ * An unsigned integer of 32 bit length.
+ *
+ * The type is not intended to do arithmetic operations on it.
+ *
+ * Bitwise operators are required to work as on unsigned types.
+ */
+using sample_t = uint32_t;
+
+
 /**
  * \internal
  *
@@ -58,18 +83,6 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 
 /**
- * \brief Type to represent a 32 bit PCM stereo sample.
- *
- * An unsigned integer of 32 bit length.
- *
- * The type is not intended to do arithmetic operations on it.
- *
- * Bitwise operators are required to work as on unsigned types.
- */
-using sample_t = uint32_t;
-
-
-/**
  * \internal
  * \brief Defined iff \c Iterator is an iterator over \c sample_t.
  *
@@ -86,11 +99,11 @@ class SampleInputIterator; // IWYU pragma keep
 bool operator == (const SampleInputIterator &lhs,
 		const SampleInputIterator &rhs) noexcept;
 
-SampleInputIterator operator + (SampleInputIterator lhs,
-		const int32_t amount) noexcept;
+SampleInputIterator operator + (SampleInputIterator lhs, const int32_t amount)
+	noexcept;
 
-SampleInputIterator operator + (const int32_t amount,
-		SampleInputIterator rhs) noexcept;
+SampleInputIterator operator + (const int32_t amount, SampleInputIterator rhs)
+	noexcept;
 
 /**
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
@@ -495,7 +508,7 @@ using Points = std::vector<AudioSize>;
 #pragma GCC diagnostic ignored "-Weffc++"
 
 /**
- * \brief Checksum calculation algorithm.
+ * \brief Checksum calculation algorithm interface.
  */
 class Algorithm
 {
@@ -791,6 +804,8 @@ private:
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const ToC& toc);
+
+/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk

@@ -338,6 +338,28 @@ public:
 
 
 /**
+ * \brief Type to represent 1-based track numbers.
+ *
+ * A signed integer type.
+ *
+ * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
+ * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
+ * tracks or a counter for tracks.
+ *
+ * The intention of this typedef is to provide a marker for parameters that
+ * expect 1-based track numbers instead of 0-based track indices. TrackNo will
+ * not occurr as a return type in the API.
+ *
+ * A validation check is not provided, though. Every function that accepts a
+ * TrackNo will in fact accept 0 but will then either throw or return a default
+ * error value.
+ *
+ * It is not encouraged to use TrackNo in client code.
+ */
+using TrackNo = int;
+
+
+/**
  * \ingroup calc
  *
  * \brief A contigous part of a sequence of samples.
@@ -399,7 +421,7 @@ public:
 			const int32_t &end_offset,
 			const bool    &starts_track,
 			const bool    &ends_track,
-			const int     &track);
+			const TrackNo &track);
 
 	/**
 	 * \brief Relative offset of the first sample in the partition.

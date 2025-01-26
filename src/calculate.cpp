@@ -14,20 +14,12 @@
 #include "calculate_impl.hpp"
 #endif
 
-#ifndef __LIBARCSTK_ACCURATERIP_HPP__
-#include "accuraterip.hpp"
-#endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"    // for ARId
-#endif
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"      // for CDDA, AudioSize
+#include "metadata.hpp"      // for AudioSize, ToC, CDDA
 #endif
 
 #include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
-#include <stdexcept>   // for invalid_argument
-#include <sstream>     // for stringstream
 
 namespace arcstk
 {

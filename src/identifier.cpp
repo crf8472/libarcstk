@@ -36,75 +36,13 @@ inline namespace v_1_0_0
 
 const ARId EmptyARId = *make_empty_arid();
 
+
+// identifier_details.hpp
+
 namespace details
 {
 
-// ARIdBuilder
-
-
-std::unique_ptr<ARId> ARIdBuilder::build(const ToC &toc,
-		const AudioSize leadout)
-{
-	return build_worker(toc, leadout);
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build(const ToC &toc)
-{
-	return build_worker(toc, AudioSize{});
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
-{
-	try
-	{
-		return std::make_unique<ARId>(0, 0, 0, 0);
-		// This site defines emptyness for ARIds, it used by make_empty_arid()
-
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_ERROR << "Exception while creating empty ARId: " << e.what();
-	}
-
-	return nullptr;
-}
-
-
-std::unique_ptr<ARId> ARIdBuilder::build_worker(const ToC &toc,
-		const AudioSize leadout)
-{
-	// Override ToC leadout with optional non-null extra leadout
-
-	auto leadout_val = int32_t { leadout.total_frames() };
-
-	if (leadout_val > 0)
-	{
-		try {
-
-			//TOCValidator::validate(toc, leadout_val);
-
-		} catch (const NonstandardMetadataException &nsm)
-		{
-			ARCS_LOG_WARNING << "Metadata is nonstandard: " << nsm.what();
-			// Do not propagate NonstandardMetadataException for now
-			// since we accept non-standard metadata
-		}
-	} else
-	{
-		leadout_val = toc.leadout().total_frames();
-	}
-
-	const auto offsets { toc.offsets() };
-	const auto offset_frames { to_frames(offsets) };
-
-	return std::make_unique<ARId>(
-			toc.total_tracks(),
-			disc_id_1(offset_frames, leadout_val),
-			disc_id_2(offset_frames, leadout_val),
-			cddb_id  (offset_frames, leadout_val)
-	);
-}
+const std::string AR_URL_PREFIX { "http://www.accuraterip.com/accuraterip/" };
 
 
 uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
@@ -144,11 +82,16 @@ uint32_t disc_id_2(const std::vector<int32_t>& offsets, const int32_t leadout)
 
 uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout)
 {
+	const auto fps { static_cast<uint32_t>(CDDA::FRAMES_PER_SEC) };
+
+
 	const auto start_audio = uint32_t { offsets.empty()
 		? 0
 		: static_cast<uint32_t>(offsets.front()) };
 
-	const auto fps { static_cast<uint32_t>(CDDA::FRAMES_PER_SEC) };
+	const auto total_seconds = uint32_t {
+		static_cast<uint32_t>(leadout) / fps  -  start_audio / fps };
+			//static_cast<uint32_t>(offsets[0]) / fps };
 
 	auto accum = uint32_t { 0 };
 	for (const auto& o : offsets)
@@ -157,12 +100,10 @@ uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout)
 	}
 	accum %= 255; // normalize to 1 byte
 
-	const auto total_seconds = uint32_t {
-		static_cast<uint32_t>(leadout) / fps  -  start_audio / fps };
-			//static_cast<uint32_t>(offsets[0]) / fps };
 
 	// since 0 <= offsets.size <= 99 narrowing is no problem
 	const auto track_count = static_cast<uint32_t>(offsets.size());
+
 
 	return (accum << 24u) | (total_seconds << 8u) | track_count;
 }
@@ -174,7 +115,83 @@ uint64_t sum_digits(const uint32_t number) noexcept
 }
 
 
-// identifier_details.hpp
+std::string construct_filename(const int track_count,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept
+{
+	auto ss = std::stringstream {};
+
+	auto dec_flags = std::ios_base::fmtflags { ss.flags() };
+	dec_flags &= ~ss.basefield;
+	dec_flags &= ~ss.adjustfield;
+	dec_flags |= ss.right;
+	dec_flags |= ss.dec;
+
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
+	hex_flags &= ~ss.basefield;
+	hex_flags &= ~ss.adjustfield;
+	hex_flags |= ss.right;
+	hex_flags |= ss.hex;
+
+	ss.flags(dec_flags);
+	ss << "dBAR" << '-' << std::setw(3) << std::setfill('0') << track_count;
+
+	ss.flags(hex_flags);
+	ss << std::nouppercase
+	   << '-' << std::setw(8) << std::setfill('0') << id_1
+	   << '-' << std::setw(8) << std::setfill('0') << id_2
+	   << '-' << std::setw(8) << std::setfill('0') << cddb_id
+	   << ".bin";
+
+	return ss.str();
+}
+
+
+std::string construct_url(const int track_count,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept
+{
+	auto ss = std::stringstream {};
+
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
+	hex_flags &= ~ss.basefield;
+	hex_flags &= ~ss.adjustfield;
+	hex_flags |= ss.right;
+	hex_flags |= ss.hex;
+
+	ss.flags(hex_flags);
+	ss << AR_URL_PREFIX
+	   << std::setw(1) << (id_1       & 0xFu)
+	   << '/'          << (id_1 >> 4u & 0xFu)
+	   << '/'          << (id_1 >> 8u & 0xFu)
+	   << '/' << construct_filename(track_count, id_1, id_2, cddb_id);
+
+	return ss.str();
+}
+
+
+std::string construct_id(const int track_count,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept
+{
+	auto id = std::stringstream {};
+
+	id << std::dec
+		<< std::setw(3) << std::setfill('0') << track_count
+		<< "-"
+		<< std::hex << std::nouppercase
+		<< std::setw(8) << std::setfill('0') << id_1
+		<< "-"
+		<< std::setw(8) << std::setfill('0') << id_2
+		<< "-"
+		<< std::setw(8) << std::setfill('0') << cddb_id;
+
+	return id.str();
+}
+
 
 // TODO Do this generically
 std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets)
@@ -197,41 +214,6 @@ std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets)
 } // namespace details
 
 
-std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
-		const int32_t leadout)
-{
-	return std::make_unique<ARId>(
-			offsets.size(),
-			details::disc_id_1(offsets, leadout),
-			details::disc_id_2(offsets, leadout),
-			details::cddb_id  (offsets, leadout)
-	);
-}
-
-
-std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
-		const AudioSize& leadout)
-{
-	const auto offset_frames { details::to_frames(offsets) };
-	const auto leadout_frame { leadout.total_frames() };
-
-	return make_arid(offset_frames, leadout_frame);
-}
-
-
-std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
-{
-	return make_arid(toc.offsets(), leadout);
-}
-
-
-std::unique_ptr<ARId> make_arid(const ToC& toc)
-{
-	return make_arid(toc.offsets(), toc.leadout());
-}
-
-
-
 /**
  * \internal
  * \ingroup id
@@ -248,13 +230,11 @@ public:
 	/**
 	 * \brief URL prefix for accessing AccurateRip
 	 */
-	const std::string AR_URL_PREFIX {
-		"http://www.accuraterip.com/accuraterip/" };
 
 	/**
 	 * \brief Implements ARId::ARId().
 	 */
-	Impl(const TrackNo track_count,
+	Impl(const int track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -294,53 +274,17 @@ public:
 	 */
 	bool empty() const noexcept;
 
-	/**
-	 * \brief Implements ARId::to_string()
-	 */
+
 	std::string to_string() const noexcept;
 
-	/**
-	 * \brief Implements ARId::operator == (const ARId &rhs) const
-	 */
-	bool equals(const Impl &rhs) const noexcept;
 
-
-protected:
-
-	/**
-	 * \brief Service method: Compute the AccurateRip response filename
-	 *
-	 * Used by ARId::Impl::filename().
-	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] id_1          Id 1 of this medium
-	 * \param[in] id_2          Id 2 of this medium
-	 * \param[in] cddb_id       CDDB id of this medium
-	 *
-	 * \return AccurateRip response filename
-	 */
-	std::string construct_filename(const TrackNo track_count,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id) const noexcept;
-
-	/**
-	 * \brief Service method: Compute the AccurateRip request URL
-	 *
-	 * Used by ARId::Impl::url().
-	 *
-	 * \param[in] track_count   Number of tracks in this medium
-	 * \param[in] id_1          Id 1 of this medium
-	 * \param[in] id_2          Id 2 of this medium
-	 * \param[in] cddb_id       CDDB id of this medium
-	 *
-	 * \return AccurateRip request URL
-	 */
-	std::string construct_url(const TrackNo track_count,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id) const noexcept;
-
+	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
+	{
+		return lhs.track_count_ == rhs.track_count_
+			&& lhs.disc_id1_    == rhs.disc_id1_
+			&& lhs.disc_id2_    == rhs.disc_id2_
+			&& lhs.cddb_id_     == rhs.cddb_id_;
+	}
 
 private:
 
@@ -366,7 +310,7 @@ private:
 };
 
 
-ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
+ARId::Impl::Impl(const int track_count, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id)
 	: track_count_ { track_count }
 	, disc_id1_    { id_1 }
@@ -379,13 +323,13 @@ ARId::Impl::Impl(const TrackNo track_count, const uint32_t id_1,
 
 std::string ARId::Impl::url() const noexcept
 {
-	return this->construct_url(track_count_, disc_id1_, disc_id2_, cddb_id_);
+	return details::construct_url(track_count_, disc_id1_, disc_id2_, cddb_id_);
 }
 
 
 std::string ARId::Impl::filename() const noexcept
 {
-	return this->construct_filename(track_count_, disc_id1_, disc_id2_,
+	return details::construct_filename(track_count_, disc_id1_, disc_id2_,
 			cddb_id_);
 }
 
@@ -416,98 +360,20 @@ uint32_t ARId::Impl::cddb_id() const noexcept
 
 bool ARId::Impl::empty() const noexcept
 {
-	return this->equals(*EmptyARId.impl_);
+	return *EmptyARId.impl_ == *this;
 }
 
 
 std::string ARId::Impl::to_string() const noexcept
 {
-	auto id = std::stringstream {};
-
-	id << std::dec
-		<< std::setw(3) << std::setfill('0') << this->track_count()
-		<< "-"
-		<< std::hex << std::nouppercase
-		<< std::setw(8) << std::setfill('0') << this->disc_id_1()
-		<< "-"
-		<< std::setw(8) << std::setfill('0') << this->disc_id_2()
-		<< "-"
-		<< std::setw(8) << std::setfill('0') << this->cddb_id();
-
-	return id.str();
-}
-
-
-bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
-{
-	return track_count_ == rhs.track_count_
-		&& disc_id1_    == rhs.disc_id1_
-		&& disc_id2_    == rhs.disc_id2_
-		&& cddb_id_     == rhs.cddb_id_;
-}
-
-
-std::string ARId::Impl::construct_filename(const TrackNo track_count,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) const noexcept
-{
-	auto ss = std::stringstream {};
-
-	auto dec_flags = std::ios_base::fmtflags { ss.flags() };
-	dec_flags &= ~ss.basefield;
-	dec_flags &= ~ss.adjustfield;
-	dec_flags |= ss.right;
-	dec_flags |= ss.dec;
-
-	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
-	hex_flags &= ~ss.basefield;
-	hex_flags &= ~ss.adjustfield;
-	hex_flags |= ss.right;
-	hex_flags |= ss.hex;
-
-	ss.flags(dec_flags);
-	ss << "dBAR" << '-' << std::setw(3) << std::setfill('0') << track_count;
-
-	ss.flags(hex_flags);
-	ss << std::nouppercase
-	   << '-' << std::setw(8) << std::setfill('0') << id_1
-	   << '-' << std::setw(8) << std::setfill('0') << id_2
-	   << '-' << std::setw(8) << std::setfill('0') << cddb_id
-	   << ".bin";
-
-	return ss.str();
-}
-
-
-std::string ARId::Impl::construct_url(const TrackNo track_count,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) const noexcept
-{
-	auto ss = std::stringstream {};
-
-	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
-	hex_flags &= ~ss.basefield;
-	hex_flags &= ~ss.adjustfield;
-	hex_flags |= ss.right;
-	hex_flags |= ss.hex;
-
-	ss.flags(hex_flags);
-	ss << AR_URL_PREFIX
-	   << std::setw(1) << (id_1       & 0xFu)
-	   << '/'          << (id_1 >> 4u & 0xFu)
-	   << '/'          << (id_1 >> 8u & 0xFu)
-	   << '/' << this->construct_filename(track_count, id_1, id_2, cddb_id);
-
-	return ss.str();
+	return details::construct_id(track_count_, disc_id1_, disc_id2_, cddb_id_);
 }
 
 
 // ARId
 
 
-ARId::ARId(const TrackNo track_count,
+ARId::ARId(const int track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id)
@@ -568,19 +434,13 @@ uint32_t ARId::cddb_id() const noexcept
 
 std::string ARId::prefix() const noexcept
 {
-	return impl_->AR_URL_PREFIX;
+	return details::AR_URL_PREFIX;
 }
 
 
 bool ARId::empty() const noexcept
 {
 	return impl_->empty();
-}
-
-
-std::string ARId::to_string() const noexcept
-{
-	return impl_->to_string();
 }
 
 
@@ -600,12 +460,56 @@ ARId& ARId::operator = (const ARId &rhs)
 ARId& ARId::operator = (ARId &&rhs) noexcept = default;
 
 
-// operators ARId
-
-
-bool operator == (const ARId &lhs, const ARId &rhs) noexcept
+bool operator == (const ARId& lhs, const ARId& rhs) noexcept
 {
-	return &lhs == &rhs or lhs.impl_->equals(*rhs.impl_);
+	return &lhs == &rhs || *lhs.impl_ == *rhs.impl_;
+}
+
+
+std::string to_string(const ARId& id) noexcept
+{
+	return details::construct_id(
+			id.track_count(),
+			id.disc_id_1(),
+			id.disc_id_2(),
+			id.cddb_id());
+}
+
+
+// make_arid
+
+
+std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
+		const int32_t leadout)
+{
+	return std::make_unique<ARId>(
+			offsets.size(),
+			details::disc_id_1(offsets, leadout),
+			details::disc_id_2(offsets, leadout),
+			details::cddb_id  (offsets, leadout)
+	);
+}
+
+
+std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
+		const AudioSize& leadout)
+{
+	const auto offset_frames { details::to_frames(offsets) };
+	const auto leadout_frame { leadout.total_frames() };
+
+	return make_arid(offset_frames, leadout_frame);
+}
+
+
+std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
+{
+	return make_arid(toc.offsets(), leadout);
+}
+
+
+std::unique_ptr<ARId> make_arid(const ToC& toc)
+{
+	return make_arid(toc.offsets(), toc.leadout());
 }
 
 // make_empty_arid
@@ -613,7 +517,7 @@ bool operator == (const ARId &lhs, const ARId &rhs) noexcept
 
 std::unique_ptr<ARId> make_empty_arid() noexcept
 {
-	return details::ARIdBuilder::build_empty_id();
+	return std::make_unique<ARId>(0, 0, 0, 0);
 }
 
 } // namespace v_1_0_0

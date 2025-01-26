@@ -19,6 +19,29 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+/** \defgroup meta Compact Disc and Audio Metadata
+ *
+ * A ToC is the table of content information from a compact disc. It contains
+ * the track offsets and the leadout of the compact disc.
+ *
+ * An AudioSize is a representation of an amount of audio information that can
+ * be evaluated as frames, samples or bytes. Passing AudioSize objects helps to
+ * avoid calculating with the wrong unit, e.g. w/ samples when frames are
+ * required.
+ *
+ * CDDA provides a set of cdda related constants that are used on validating and
+ * parsing audio information.
+ *
+ * An InvalidMetadataException indicates that no valid ToC can be constructed
+ * from the input provided.
+ *
+ * A NonstandardMetadataException indicates that the input is not conforming to
+ * the redbook standard. This exception can occurr in the internal validation
+ * mechanism but is currently not used in the public API.
+ *
+ * @{
+ */
+
 /**
  * \brief Constants related to the CDDA format.
  */
@@ -551,6 +574,8 @@ public:
 	 */
 	explicit NonstandardMetadataException(const char *what_arg);
 };
+
+/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk

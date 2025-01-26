@@ -29,27 +29,6 @@ inline namespace v_1_0_0
 class AudioSize;
 class ToC;
 
-/**
- * \brief Type to represent 1-based track numbers.
- *
- * A signed integer type.
- *
- * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
- * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
- * tracks or a counter for tracks.
- *
- * The intention of this typedef is to provide a marker for parameters that
- * expect 1-based track numbers instead of 0-based track indices. TrackNo will
- * not occurr as a return type in the API.
- *
- * A validation check is not provided, though. Every function that accepts a
- * TrackNo will in fact accept 0 but will then either throw or return a default
- * error value.
- *
- * It is not encouraged to use TrackNo in client code.
- */
-using TrackNo = int;
-
 
 /** \defgroup id AccurateRip IDs
  *
@@ -61,29 +40,8 @@ using TrackNo = int;
  * convenience, functions make_arid() construct the ARId of an album by its
  * TOC.
  *
- * A TOC is the validated table of content information from a compact disc.
- * \link TOC TOCs\endlink are exclusively constructed by functions make_toc()
- * that try to validate the information used to construct the TOC. The
- * validation recognizes inconsistent input data that cannot form
- * a valid TOC. If the validation fails, an InvalidMetadataException is
- * thrown.
- *
- * An InvalidMetadataException indicates that no valid TOC can be constructed
- * from the input provided.
- *
- * A NonstandardMetadataException indicates that the input is not conforming to
- * the redbook standard. This exception can occurr in the internal validation
- * mechanism but is currently not used in the public API.
- *
  * @{
  */
-
-
-// forward declaration for operator==
-class ARId; // IWYU pragma keep
-
-bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
-
 
 /**
  * \brief AccurateRip-Identifier of a compact disc.
@@ -112,7 +70,7 @@ public:
 	 * \param[in] id_2        Id 2 of this medium
 	 * \param[in] cddb_id     CDDB id of this medium
 	 */
-	ARId(const TrackNo track_count,
+	ARId(const int track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -196,30 +154,18 @@ public:
 	 */
 	bool empty() const noexcept;
 
-	/**
-	 * \brief Return a default string representation of this ARId.
-	 *
-	 * \return Default string representation of this ARId
-	 */
-	std::string to_string() const noexcept; // FIXME Write to_string()
-
 private:
 
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 };
 
-
 /**
- * \brief Global instance of an empty ARId.
+ * \brief Create a string representation of the ARId.
  *
- * This is for convenience since in most cases, the creation of an empty
- * ARId can be avoided when a reference instance is at hand.
- *
- * The instance is created using make_empty_arid().
+ * \return The actual AccurateRip ID as a string
  */
-extern const ARId EmptyARId;
-
+std::string to_string(const ARId& id) noexcept;
 
 /**
  * \brief Create an ARId from the toc data.
@@ -288,11 +234,33 @@ std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout);
 std::unique_ptr<ARId> make_arid(const ToC& toc);
 
 /**
- * \brief Create an \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId.
+ * \brief Global instance of an empty ARId.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * ARId can be avoided when a reference instance is at hand.
+ *
+ * The instance is created using make_empty_arid().
+ */
+extern const ARId EmptyARId;
+
+/**
+ * \brief Safely create an
+ * \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId.
  *
  * The implementation of make_empty_arid() defines emptiness for ARIds.
  *
- * \return An \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId
+ * An empty ARId has the invalid value 0 for the track count and also 0
+ * for disc id 1, disc id 2 and cddb id. An empty ARId is not a valid
+ * description of a CDDA medium.
+ *
+ * Building an empty ARId also provides the possibility to just provide an
+ * ARId on sites where an ARId is required without having to test for null.
+ *
+ * It may help provide an uniforming implementation of cases where
+ * an ARId in fact is expected but cannot be provided due to missing
+ * data, e.g. when processing single tracks without knowing the offset.
+ *
+ * \return An empty ARId
  */
 std::unique_ptr<ARId> make_empty_arid() noexcept;
 
