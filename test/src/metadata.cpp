@@ -193,3 +193,408 @@ TEST_CASE ( "ToC", "[metadata]" )
 	}
 }
 
+// Check whether this may be of use
+/*
+TEST_CASE ( "toc::get_offsets", "[identifier]" )
+{
+	using arcstk::make_toc;
+
+	SECTION ( "Returns correct offsets from TOC" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = make_toc(
+			// leadout
+			253038,
+			// offsets
+			std::vector<arcstk::int32_t>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// filenames
+			std::vector<std::string>{ "file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file" }
+		);
+
+		auto offsets = get_offsets(*toc0);
+
+		CHECK ( offsets.size() == 15 );
+
+		CHECK ( offsets[ 0] ==     33 );
+		CHECK ( offsets[ 1] ==   5225 );
+		CHECK ( offsets[ 2] ==   7390 );
+		CHECK ( offsets[ 3] ==  23380 );
+		CHECK ( offsets[ 4] ==  35608 );
+		CHECK ( offsets[ 5] ==  49820 );
+		CHECK ( offsets[ 6] ==  69508 );
+		CHECK ( offsets[ 7] ==  87733 );
+		CHECK ( offsets[ 8] == 106333 );
+		CHECK ( offsets[ 9] == 139495 );
+		CHECK ( offsets[10] == 157863 );
+		CHECK ( offsets[11] == 198495 );
+		CHECK ( offsets[12] == 213368 );
+		CHECK ( offsets[13] == 225320 );
+		CHECK ( offsets[14] == 234103 );
+	}
+}
+
+
+TEST_CASE ( "toc::get_filenames", "[identifier]" )
+{
+	using arcstk::toc::get_filenames;
+
+	using arcstk::details::TOCBuilder;
+
+	SECTION ( "Returns empty list when TOC does not contain filenames" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = make_toc(
+			// track count
+			15,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 },
+			// leadout
+			253038
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.empty() );
+	}
+
+	SECTION ( "Returns list of size track_count when TOC contains 1 filename" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = make_toc(
+			// track count
+			15,
+			// offsets
+			std::vector<arcstk::int32_t>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// leadout
+			253038,
+			// filenames
+			std::vector<std::string>{ "file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file",
+			"file", "file", "file", "file", "file" }
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.size() == 15 );
+	}
+
+	SECTION ( "Returns list of size track_count when TOC contains"
+			" multiple filenames" )
+	{
+		// "Bach: Organ Concertos", Simon Preston, DGG
+		auto toc0 = make_toc(
+			// track count
+			15,
+			// offsets
+			std::vector<arcstk::int32_t>{ 33, 5225, 7390, 23380, 35608, 49820,
+			69508, 87733, 106333, 139495, 157863, 198495, 213368, 225320,
+			234103 },
+			// leadout
+			253038,
+			// filenames
+			std::vector<std::string>{ "file1", "file2", "file3", "file4",
+			"file5", "file6", "file7", "file8", "file9", "file10",
+			"file11", "file12", "file13", "file14", "file15" }
+		);
+
+		auto fnames = get_filenames(*toc0);
+
+		CHECK ( fnames.size() == 15 );
+	}
+}
+*/
+
+
+// TEST_CASE ( "get_track", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::get_track;
+//
+// 	auto container1 = std::vector<uint32_t>{ 0, 1, 2, 3, 4, 5 };
+// 	auto container2 = std::list<uint32_t>  { 0, 1, 2, 3, 4, 5 };
+// 	auto container3 = std::list<int32_t>   { 0, 1, 2, 3, 4, 5 };
+//
+// 	CHECK_THROWS ( get_track(container1, 0) );
+// 	CHECK_THROWS ( get_track(container1, 7) );
+//
+// 	CHECK ( get_track(container1, 1) == 0 );
+// 	CHECK ( get_track(container1, 2) == 1 );
+// 	CHECK ( get_track(container1, 3) == 2 );
+// 	CHECK ( get_track(container1, 4) == 3 );
+// 	CHECK ( get_track(container1, 5) == 4 );
+// 	CHECK ( get_track(container1, 6) == 5 );
+//
+// 	CHECK_THROWS ( get_track(container2, 0) );
+// 	CHECK_THROWS ( get_track(container2, 7) );
+//
+// 	CHECK ( get_track(container2, 1) == 0 );
+// 	CHECK ( get_track(container2, 2) == 1 );
+// 	CHECK ( get_track(container2, 3) == 2 );
+// 	CHECK ( get_track(container2, 4) == 3 );
+// 	CHECK ( get_track(container2, 5) == 4 );
+// 	CHECK ( get_track(container2, 6) == 5 );
+//
+// 	CHECK_THROWS ( get_track(container3, 0) );
+// 	CHECK_THROWS ( get_track(container3, 7) );
+//
+// 	CHECK ( get_track(container3, 1) == 0 );
+// 	CHECK ( get_track(container3, 2) == 1 );
+// 	CHECK ( get_track(container3, 3) == 2 );
+// 	CHECK ( get_track(container3, 4) == 3 );
+// 	CHECK ( get_track(container3, 5) == 4 );
+// 	CHECK ( get_track(container3, 6) == 5 );
+// }
+//
+//
+// TEST_CASE ( "calculate_leadout", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::calculate_leadout;
+//
+// 	auto offsets1 = std::vector<uint32_t>{ 33, 69163, 87321 };
+// 	auto lengths1 = std::vector<uint32_t>{ 69130, 18158, 49123 };
+//
+// 	// identical to 1 except offset[0] is 0
+// 	auto offsets2 = std::vector<uint32_t>{ 0, 69163, 87321 };
+// 	auto lengths2 = std::vector<uint32_t>{ 69163, 18158, 49123 };
+//
+// 	// identical to 2 except length[2] is different
+// 	auto offsets3 = std::list<uint32_t>{ 0, 69163, 87321 };
+// 	auto lengths3 = std::list<uint32_t>{ 69163, 18158, 21002 };
+//
+// 	auto leadout1 = calculate_leadout(lengths1, offsets1);
+// 	auto leadout2 = calculate_leadout(lengths2, offsets2);
+// 	auto leadout3 = calculate_leadout(lengths3, offsets3);
+//
+// 	CHECK ( leadout1 == 136444 );
+// 	CHECK ( leadout2 == 136444 );
+// 	CHECK ( leadout3 == 108323 );
+// }
+//
+//
+// TEST_CASE ( "is_lba_type", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::is_lba_type;
+//
+// 	SECTION( "is_lba_type", "[identifier] [make_toc]" )
+// 	{
+// 		CHECK ( is_lba_type<int>::value  );
+// 		CHECK ( is_lba_type<long>::value  );
+// 		CHECK ( is_lba_type<long long>::value  );
+//
+// 		CHECK ( is_lba_type<unsigned>::value  );
+// 		CHECK ( is_lba_type<unsigned long>::value  );
+// 		CHECK ( is_lba_type<unsigned long long>::value  );
+//
+// 		CHECK ( is_lba_type<uint32_t>::value );
+// 		CHECK ( is_lba_type<int32_t>::value  );
+//
+// 		CHECK ( not is_lba_type<uint32_t*>::value );
+// 		CHECK ( not is_lba_type<int32_t*>::value  );
+//
+// 		CHECK ( not is_lba_type<uint16_t>::value );
+// 		CHECK ( not is_lba_type<int16_t>::value  );
+//
+// 		CHECK ( not is_lba_type<char>::value  );
+// 		CHECK ( not is_lba_type<bool>::value  );
+// 		CHECK ( not is_lba_type<std::string>::value  );
+//
+// 		CHECK ( not is_lba_type<std::vector<int32_t>>::value  );
+// 		CHECK ( not is_lba_type<std::vector<uint32_t>>::value );
+// 		CHECK ( not is_lba_type<std::list<int32_t>>::value    );
+// 		CHECK ( not is_lba_type<std::list<uint32_t>>::value   );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_lba_value_type", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_lba_value_type;
+//
+// 	SECTION ( "has_lba_value_type for some std containers" )
+// 	{
+// 		CHECK ( has_lba_value_type<std::vector<int32_t>>::value  );
+// 		CHECK ( has_lba_value_type<std::vector<uint32_t>>::value );
+// 		CHECK ( has_lba_value_type<std::list<int32_t>>::value    );
+// 		CHECK ( has_lba_value_type<std::list<uint32_t>>::value   );
+//
+// 		CHECK ( not has_lba_value_type<std::vector<char>>::value );
+// 		CHECK ( not has_lba_value_type<char>::value              );
+// 		CHECK ( not has_lba_value_type<int>::value               );
+// 		CHECK ( not has_lba_value_type<bool>::value              );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_const_iterator", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_const_iterator;
+//
+// 	SECTION ( "has_const_iterator for some std containers" )
+// 	{
+// 		CHECK ( has_const_iterator<std::vector<char>>::value     );
+// 		CHECK ( has_const_iterator<std::vector<int32_t>>::value  );
+// 		CHECK ( has_const_iterator<std::vector<uint32_t>>::value );
+// 		CHECK ( has_const_iterator<std::list<int32_t>>::value    );
+// 		CHECK ( has_const_iterator<std::list<uint32_t>>::value   );
+// 		CHECK ( has_const_iterator<const std::vector<int32_t>>::value  );
+//
+// 		CHECK ( not has_const_iterator<int>::value );
+// 		CHECK ( not has_const_iterator<const short>::value );
+// 		CHECK ( not has_const_iterator<std::pair<int, bool>>::value );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_size", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_size;
+//
+// 	SECTION ( "has_size for some std containers" )
+// 	{
+// 		CHECK ( has_size<std::vector<char>>::value     );
+// 		CHECK ( has_size<std::vector<int32_t>>::value  );
+// 		CHECK ( has_size<std::vector<uint32_t>>::value );
+// 		CHECK ( has_size<std::list<int32_t>>::value    );
+// 		CHECK ( has_size<std::list<uint32_t>>::value   );
+// 		CHECK ( has_size<const std::vector<int32_t>>::value  );
+//
+// 		CHECK ( not has_size<int>::value );
+// 		CHECK ( not has_size<std::pair<char, bool>>::value );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_begin", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_begin;
+//
+// 	SECTION ( "has_begin for some std containers" )
+// 	{
+// 		CHECK ( has_begin<std::vector<char>>::value     );
+// 		CHECK ( has_begin<std::vector<int32_t>>::value  );
+// 		CHECK ( has_begin<std::vector<uint32_t>>::value );
+// 		CHECK ( has_begin<std::list<int32_t>>::value    );
+// 		CHECK ( has_begin<std::list<uint32_t>>::value   );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_end", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_end;
+//
+// 	SECTION ( "has_end for some std containers" )
+// 	{
+// 		CHECK ( has_end<std::vector<char>>::value     );
+// 		CHECK ( has_end<std::vector<int32_t>>::value  );
+// 		CHECK ( has_end<std::vector<uint32_t>>::value );
+// 		CHECK ( has_end<std::list<int32_t>>::value    );
+// 		CHECK ( has_end<std::list<uint32_t>>::value   );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "is_container", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::is_container;
+//
+// 	SECTION ( "is_container" )
+// 	{
+// 		CHECK ( is_container<std::vector<char>>::value     );
+// 		CHECK ( is_container<std::vector<int32_t>>::value  );
+// 		CHECK ( is_container<std::vector<uint32_t>>::value );
+// 		CHECK ( is_container<std::list<int32_t>>::value    );
+// 		CHECK ( is_container<std::list<uint32_t>>::value   );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "is_lba_container", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::is_lba_container;
+//
+// 	SECTION ( "is_lba_container for non-refererence types" )
+// 	{
+// 		CHECK ( is_lba_container<std::vector<int32_t>>::value     );
+// 		CHECK ( is_lba_container<std::vector<uint32_t>>::value    );
+// 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
+// 		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+// 		CHECK ( is_lba_container<std::array<int32_t,   1>>::value );
+// 		CHECK ( is_lba_container<std::array<int32_t,  99>>::value );
+// 		CHECK ( is_lba_container<std::array<uint32_t,  1>>::value );
+// 		CHECK ( is_lba_container<std::array<uint32_t, 99>>::value );
+// 		CHECK ( is_lba_container<std::list<int32_t>>::value       );
+// 		CHECK ( is_lba_container<std::list<uint32_t>>::value      );
+//
+// 		//CHECK ( is_lba_container<std::vector<char>>::value        );
+// 	}
+//
+// 	SECTION ( "is_lba_container for references" )
+// 	{
+// 		CHECK ( is_lba_container<std::vector<int32_t> &>::value     );
+// 		CHECK ( is_lba_container<std::vector<uint32_t> &>::value    );
+// 		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+// 		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+// 		CHECK ( is_lba_container<std::array<int32_t,   1> &>::value );
+// 		CHECK ( is_lba_container<std::array<int32_t,  99> &>::value );
+// 		CHECK ( is_lba_container<std::array<uint32_t,  1> &>::value );
+// 		CHECK ( is_lba_container<std::array<uint32_t, 99> &>::value );
+// 		CHECK ( is_lba_container<std::list<int32_t> &>::value       );
+// 		CHECK ( is_lba_container<std::list<uint32_t> &>::value      );
+//
+// 		CHECK ( not is_lba_container<std::vector<char> &>::value    );
+// 	}
+// }
+//
+//
+// TEST_CASE ( "has_filename_value_type", "[identifier] [make_toc]" )
+// {
+// 	using arcstk::details::has_filename_value_type;
+//
+// 	SECTION ( "has_filename_value_type" )
+// 	{
+// 		CHECK ( has_filename_value_type<std::vector<std::string>>::value );
+// 		CHECK ( has_filename_value_type<std::list<std::wstring>>::value );
+//
+// 		CHECK ( not has_filename_value_type<std::vector<char>>::value     );
+// 		CHECK ( not has_filename_value_type<std::vector<int32_t>>::value  );
+// 		CHECK ( not has_filename_value_type<std::vector<uint32_t>>::value );
+// 		CHECK ( not has_filename_value_type<std::list<int32_t>>::value    );
+// 		CHECK ( not has_filename_value_type<std::list<uint32_t>>::value   );
+// 	}
+// }
+//
+//
+// TEST_CASE ("is_filename_container", "[identifier] [make_toc]")
+// {
+// 	using arcstk::details::is_filename_container;
+//
+// 	SECTION ( "is_filename_container for non-reference types" )
+// 	{
+// 		CHECK ( is_filename_container<std::vector<std::string>>::value     );
+// 		CHECK ( is_filename_container<std::list<std::string>>::value       );
+// 		CHECK ( is_filename_container<std::array<std::string,   1>>::value );
+// 		CHECK ( is_filename_container<std::array<std::string,  99>>::value );
+// 		CHECK ( is_filename_container<std::list<std::string>>::value       );
+//
+// 		CHECK ( not is_filename_container<std::vector<char>>::value        );
+// 	}
+//
+// 	SECTION ( "is_filename_container for reference types" )
+// 	{
+// 		CHECK ( is_filename_container<std::vector<std::string> &>::value     );
+// 		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+// 		CHECK ( is_filename_container<std::array<std::string,   1> &>::value );
+// 		CHECK ( is_filename_container<std::array<std::string,  99> &>::value );
+// 		CHECK ( is_filename_container<std::list<std::string> &>::value       );
+//
+// 		CHECK ( not is_filename_container<std::vector<char> &>::value        );
+// 	}
+// }
+

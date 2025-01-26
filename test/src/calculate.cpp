@@ -353,16 +353,17 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 
 TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 {
-	using arcstk::Calculation;
-	using arcstk::Context;
-	using arcstk::Algorithm;
-	using arcstk::ToC;
-	using arcstk::make_toc;
-	using arcstk::AudioSize;
-	using arcstk::make_calculation;
 	using arcstk::AccurateRipV1V2;
+	using arcstk::AudioSize;
+	using arcstk::Algorithm;
+	using arcstk::Calculation;
 	using arcstk::checksum::type;
+	using arcstk::Context;
+	using arcstk::make_calculation;
+	using arcstk::make_toc;
+	using arcstk::Points;
 	using arcstk::Settings;
+	using arcstk::ToC;
 
 
 	const auto toc = make_toc(
@@ -377,7 +378,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 
 	auto calculation { Calculation(Context::ALBUM,
 			std::make_unique<AccurateRipV1V2>(),
-			size, toc.offsets()) };
+			size, toc->offsets()) };
 
 	const auto algorithm { calculation.algorithm() };
 
@@ -397,17 +398,17 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	{
 		CHECK ( std::is_constructible<Calculation,
 				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
-				const std::vector<int32_t>&>::value
+				const Points&>::value
 				);
 
 		CHECK ( not std::is_trivially_constructible<Calculation,
 				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
-				const std::vector<int32_t>&>::value
+				const Points&>::value
 				);
 
 		CHECK ( not std::is_nothrow_constructible<Calculation,
 				const Settings&, std::unique_ptr<Algorithm>, const AudioSize&,
-				const std::vector<int32_t>&>::value
+				const Points&>::value
 				);
 	}
 

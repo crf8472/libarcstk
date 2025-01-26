@@ -23,6 +23,7 @@
 #include <string>            // for string, operator<<, char_traits
 #include <utility>           // for move
 #include <vector>            // for vector, vector<>::size_type
+#include <iostream>
 
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -175,17 +176,17 @@ uint64_t sum_digits(const uint32_t number) noexcept
 
 // identifier_details.hpp
 
-
+// TODO Do this generically
 std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets)
 {
-	auto integers = std::vector<int32_t>{};
+	auto integers { std::vector<int32_t>(offsets.size()) };
 
 	using std::begin;
 	using std::cbegin;
 	using std::cend;
 
 	std::transform(cbegin(offsets), cend(offsets), begin(integers),
-			[](const AudioSize& a)
+			[](const AudioSize& a) -> int32_t
 			{
 				return a.total_frames();
 			});
@@ -226,7 +227,7 @@ std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
 
 std::unique_ptr<ARId> make_arid(const ToC& toc)
 {
-	return make_arid(toc, toc.leadout());
+	return make_arid(toc.offsets(), toc.leadout());
 }
 
 

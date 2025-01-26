@@ -196,10 +196,6 @@ list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/samples.hpp"    )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/verify.hpp"     )
 list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/version.hpp"    )
 
-set (PRIVATE_HEADERS )
-list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/builders.tpp" )
-list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/validate.tpp" )
-
 
 ## --- Add and configure project target
 
@@ -238,7 +234,6 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF ## use -std=c++14 instead of std=gnu++14
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
-	PRIVATE_HEADER "${PRIVATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
