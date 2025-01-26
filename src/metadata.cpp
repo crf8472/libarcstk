@@ -13,6 +13,7 @@
 
 #include <algorithm>     // for transform
 #include <sstream>       // for stringstream
+#include <stdexcept>     // for invalid_argument
 #include <string>        // for vector
 #include <vector>        // for string
 #include <unordered_set> // for unordered_set
@@ -21,6 +22,10 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+
+// metadata_details.hpp
+
 
 namespace details
 {
@@ -92,7 +97,142 @@ int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 	return value;
 }
 
+
+namespace validate
+{
+
+/**
+ * \brief Worker to throw when ToCData validation fails.
+ *
+ * \param[in] msg Error message
+ *
+ * \throws std::invalid_argument
+ */
+void throw_on_invalid_tocdata(const std::string& msg);
+
+
+void throw_on_invalid_tocdata(const std::string& msg)
+{
+	throw std::invalid_argument(msg);
+}
+
+
+/**
+ * \brief Worker to validate frame value for being in legal range.
+ *
+ * \param[in] frames LBA frame amount to validate
+ *
+ * \throws std::invalid_argument
+ */
+void in_legal_frame_range(const int32_t frames);
+
+void in_legal_frame_range(const int32_t frames)
+{
+	using std::to_string;
+
+	if (frames < CDDA::MIN_TRACK_OFFSET_DIST)
+	{
+		auto ss = std::stringstream {};
+		ss << "Value " << frames << " is smaller than minimum track length";
+		throw_on_invalid_tocdata(ss.str());
+	}
+
+	if (frames > CDDA::MAX_BLOCK_ADDRESS)
+	{
+		auto ss = std::stringstream {};
+		ss << "Value " << frames << " exceeds physical maximum";
+		throw_on_invalid_tocdata(ss.str());
+	}
+
+	if (frames > MAX_OFFSET_99)
+	{
+		auto ss = std::stringstream {};
+		ss << "Value exceeds physical range of 99 min ("
+				<< to_string(MAX_OFFSET_99) << " frames)";
+		throw_on_invalid_tocdata(ss.str());
+	}
+
+	if (frames > MAX_OFFSET_90)
+	{
+		auto ss = std::stringstream {};
+		ss << "Value exceeds "
+			<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
+		throw_on_invalid_tocdata(ss.str());
+	}
+
+	if (frames > CDDA::MAX_OFFSET)
+	{
+		auto ss = std::stringstream {};
+		ss << "Value " << frames << " exceeds redbook maximum";
+		throw_on_invalid_tocdata(ss.str());
+	}
+}
+
+
+void legal_leadout_size(const ToCData& toc_data)
+{
+	const auto leadout { toc::leadout(toc_data).total_frames() };
+	in_legal_frame_range(leadout);
+}
+
+
+void legal_offset_sizes(const ToCData& /*toc_data*/)
+{
+	// TODO Implement
+}
+
+
+void legal_total_tracks(const ToCData& /*toc_data*/)
+{
+	// TODO Implement
+}
+
+
+void legal_ordering(const ToCData& /*toc_data*/)
+{
+	// TODO Implement
+}
+
+
+void legal_minimum_distances(const ToCData& toc_data)
+{
+	// Has each offset legal minimal distance to its predecessor?
+
+	auto curr_len = int32_t { 0 };
+	auto prev_len = curr_len;
+
+	auto track = ToCData::size_type { 1 }; // track number
+	auto c     = ToCData::size_type { 0 }; // count comparisons
+	while (c < toc_data.size())
+	{
+		prev_len = toc_data[track].total_frames();
+
+		++track;
+		track %= toc_data.size(); // after last track, flip back to 0
+
+		curr_len = toc_data[track].total_frames();
+
+		if (curr_len - prev_len < CDDA::MIN_TRACK_LEN_FRAMES)
+		{
+			using std::to_string;
+			auto ss = std::stringstream {};
+			ss << "Illegal length: Track "
+				<< to_string(track > 0 ? track - 1 : toc_data.size() - 1)
+				<< "is too short (" << (curr_len - prev_len) << " frames)";
+
+			throw_on_invalid_tocdata(ss.str());
+		}
+
+		++c;
+	}
+}
+
+} // namespace validate
+
 } // namespace details
+
+
+// metadata.hpp
 
 
 // AudioSize
@@ -312,6 +452,17 @@ bool complete(const ToCData& data)
 	return !data.empty()  &&  !data[0].zero()  &&  total_tracks(data) > 0;
 }
 
+
+void validate(const ToCData& toc_data)
+{
+	details::validate::legal_leadout_size(toc_data);
+	details::validate::legal_offset_sizes(toc_data);
+	details::validate::legal_total_tracks(toc_data);
+
+	details::validate::legal_ordering(toc_data);
+	details::validate::legal_minimum_distances(toc_data);
+}
+
 } // namespace toc
 
 
@@ -322,8 +473,7 @@ class ToC::Impl final
 {
 public:
 
-	Impl(const int32_t leadout, const std::vector<int32_t>& offsets,
-			const std::vector<std::string>& filenames);
+	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
 
 	Impl(const Impl& rhs);
 	Impl& operator = (const Impl& rhs);
@@ -365,9 +515,8 @@ private:
 };
 
 
-ToC::Impl::Impl(const int32_t leadout, const std::vector<int32_t>& offsets,
-			const std::vector<std::string>& filenames)
-	: toc_       { toc::construct(leadout, offsets) }
+ToC::Impl::Impl(const ToCData& toc, const std::vector<std::string>& filenames)
+	: toc_       { toc       }
 	, filenames_ { filenames }
 {
 	// empty
@@ -465,30 +614,16 @@ bool ToC::Impl::complete() const noexcept
 // ToC
 
 
-ToC::ToC(const int32_t leadout, const std::vector<int32_t>& offsets,
-		const std::vector<std::string>& filenames)
-	: impl_ { std::make_unique<ToC::Impl>(leadout, offsets, filenames) }
+ToC::ToC(const ToCData& toc_data, const std::vector<std::string>& filenames)
+	: impl_ { std::make_unique<ToC::Impl>(toc_data, filenames) }
 {
 	// empty
 }
 
-ToC::ToC(const int32_t leadout, const std::vector<int32_t>& offsets)
-	: impl_ { std::make_unique<ToC::Impl>(leadout, offsets,
-			std::vector<std::string>{/*empty*/}) }
-{
-	// empty
-}
 
-ToC::ToC(const std::vector<int32_t>& offsets,
-		const std::vector<std::string>& filenames)
-	: impl_ { std::make_unique<ToC::Impl>(0, offsets, filenames) }
-{
-	// empty
-}
-
-ToC::ToC(const std::vector<int32_t>& offsets)
-	: impl_ { std::make_unique<ToC::Impl>(0, offsets,
-			std::vector<std::string>{/*empty*/}) }
+ToC::ToC(const ToCData& toc_data)
+	: impl_ { std::make_unique<ToC::Impl>(toc_data,
+			std::vector<std::string>{/* empty */}) }
 {
 	// empty
 }
@@ -582,14 +717,14 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames)
 {
-	return std::make_unique<ToC>(leadout, offsets, filenames);
+	return std::make_unique<ToC>(toc::construct(leadout, offsets), filenames);
 }
 
 
 std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets)
 {
-	return make_toc(leadout, offsets, std::vector<std::string>{});
+	return std::make_unique<ToC>(toc::construct(leadout, offsets));
 }
 
 
@@ -602,7 +737,7 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
 
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets)
 {
-	return make_toc(0, offsets, std::vector<std::string>{});
+	return make_toc(0, offsets);
 }
 
 } // namespace v_1_0_0

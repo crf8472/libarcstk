@@ -274,31 +274,89 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 
 /**
- * \brief Leadout on index 0, followed by the sequence of offsets.
+ * \brief ToC data from a file, e.g. offsets and leadout.
  *
- * Every number denotes an amount of frames.
+ * Leadout is on index 0, followed by the sequence of offsets. Offset indices
+ * therefore correspond to track numbers, i.e. index 7 is offset of track 7.
+ *
+ * It is guaranteed to be iterable and accessible by operator [].
  */
 using ToCData = std::vector<AudioSize>;
 
+
+/**
+ * \brief Functions for managing ToCData instances.
+ */
 namespace toc
 {
 
+/**
+ * \brief Construct ToCData from leadout and offsets.
+ *
+ * All <tt>int32_t</tt> data types denote amounts of LBA frames.
+ *
+ * \param[in] leadout Leadout frame
+ * \param[in] offsets Offset frames in order of tracks
+ *
+ * \return Formatted ToCData object
+ */
 ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets);
 
+/**
+ * \brief Set the leadout of a ToC object.
+ *
+ * \param[in] leadout Leadout to set
+ * \param[in] data    ToCData to update
+ */
 void set_leadout(const AudioSize& leadout, ToCData& data);
 
+/**
+ * \brief Leadout of a ToC object.
+ *
+ * \param[in] data ToCData to read from
+ *
+ * \return Leadout of a ToC object
+ */
 AudioSize leadout(const ToCData& data);
 
+/**
+ * \brief Offsets of a ToC object.
+ *
+ * \param[in] data ToCData to read from
+ *
+ * \return Offsets of a ToC object
+ */
 std::vector<AudioSize> offsets(const ToCData& data);
 
+/**
+ * \brief Total tracks of a ToC object.
+ *
+ * \param[in] data ToCData to read from
+ *
+ * \return Total tracks of a ToC object
+ */
 int total_tracks(const ToCData& data);
 
+/**
+ * \brief TRUE iff non-zero leadout and non-empty sequence of offsets are
+ * specified.
+ *
+ * This does not entail a validation of the specified values.
+ *
+ * \return TRUE iff non-zero leadout and non-empty offsets exist
+ */
 bool complete(const ToCData& data);
 
-}
+/**
+ * \brief Validate ToCData object.
+ *
+ * \param[in] toc_data ToCData object to be validated
+ *
+ * \throws invalid_argument If validation fails
+ */
+void validate(const ToCData& toc_data);
 
-
-// ToC
+} // namespace toc
 
 
 /**
@@ -308,35 +366,92 @@ class ToC final : public Comparable<ToC>
 {
 public:
 
-	ToC(const int32_t leadout, const std::vector<int32_t>& offsets,
-			const std::vector<std::string>& filenames);
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] toc_data   The ToC data to construct a ToC from
+	 * \param[in] filenames  Audio filenames
+	 */
+	ToC(const ToCData& toc_data, const std::vector<std::string>& filenames);
 
-	ToC(const int32_t leadout, const std::vector<int32_t>& offsets);
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] toc_data The ToC data to construct a ToC from
+	 */
+	explicit ToC(const ToCData& toc_data);
 
-	ToC(const std::vector<int32_t>& offsets,
-			const std::vector<std::string>& filenames);
-
-	ToC(const std::vector<int32_t>& offsets);
-
-
+	// copy
 	ToC(const ToC& rhs);
 	ToC& operator = (const ToC& rhs);
+
+	// move
 	ToC(ToC&& rhs) noexcept;
 	ToC& operator = (ToC&& rhs) noexcept;
+
 	~ToC() noexcept;
 
-
+	/**
+	 * \brief Total tracks in this ToC.
+	 *
+	 * \return Total tracks
+	 */
 	int total_tracks() const noexcept;
+
+	/**
+	 * \brief Leadout LBA frame of this ToC.
+	 *
+	 * If the leadout is unknown, the AudioSize returned is <tt>zero()</tt>.
+	 *
+	 * \return Leadout LBA frame
+	 */
 	AudioSize leadout() const noexcept;
+
+	/**
+	 * \brief Set the leadout LBA frame of this ToC.
+	 *
+	 * \param[in] leadout The leadout frame to set
+	 */
 	void set_leadout(const AudioSize l) noexcept;
+
+	/**
+	 * \brief Offsets of this ToC.
+	 *
+	 * \return Offsets
+	 */
 	std::vector<AudioSize>   offsets() const;
+
+	/**
+	 * \brief Filenames of this ToC.
+	 *
+	 * \return Filenames
+	 */
 	std::vector<std::string> filenames() const;
+
+	/**
+	 * \brief TRUE iff the ToC specifies exactly one audiofile, otherwise FALSE.
+	 *
+	 * However, the <tt>filenames()</tt> returned may be more than 1, but they
+	 * will be all identical. This is possible when the parsed metadata source
+	 * specifies a file for each track.
+	 *
+	 * This will be FALSE in case where multiple non-identical filenames were
+	 * specified by the metadata source.
+	 *
+	 * \return TRUE iff the ToC has exactly one audio file, otherwise FALSE
+	 */
 	bool is_single_file() const noexcept;
+
+	/**
+	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise FALS.
+	 *
+	 * \return TRUE iff ToC contains complete toc information otherwise FALSE
+	 */
 	bool complete() const noexcept;
 
+	friend void swap(ToC& lhs, ToC& rhs) noexcept;
 
 	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept;
-	friend void swap(ToC& lhs, ToC& rhs) noexcept;
 
 private:
 
@@ -345,16 +460,40 @@ private:
 };
 
 
+/**
+ * \brief Constructor.
+ *
+ * \param[in] leadout   Leadout frame
+ * \param[in] offsets   Offset frames
+ * \param[in] filenames Audio filenames
+ */
 std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
+/**
+ * \brief Constructor.
+ *
+ * \param[in] leadout   Leadout frame
+ * \param[in] offsets   Offset frames
+ */
 std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets);
 
+/**
+ * \brief Constructor.
+ *
+ * \param[in] offsets   Offset frames
+ * \param[in] filenames Audio filenames
+ */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
+/**
+ * \brief Constructor.
+ *
+ * \param[in] offsets   Offset frames
+ */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
 
 } // namespace v_1_0_0

@@ -129,16 +129,17 @@ TEST_CASE ( "ToC", "[metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::ToC;
+	using arcstk::make_toc;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG
-	const auto toc = ToC {
+	const auto toc = make_toc(
 		// leadout
 		253038,
 		// offsets
 		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 			157863, 198495, 213368, 225320, 234103 },
 		{ "file" }
-	};
+	);
 
 	const auto toc_leadout { 253038 };
 
@@ -147,17 +148,17 @@ TEST_CASE ( "ToC", "[metadata]" )
 
 	const std::vector<std::string> toc_filenames { "file" };
 
-	const auto toc2 = ToC ( toc_leadout, toc_offsets, toc_filenames );
+	const auto toc2 = make_toc(toc_leadout, toc_offsets, toc_filenames);
 
 
 	SECTION ( "Returns correct leadout from ToC" )
 	{
-		CHECK ( toc.leadout().total_frames() == 253038 );
+		CHECK ( toc->leadout().total_frames() == 253038 );
 	}
 
 	SECTION ( "Returns correct offsets from ToC" )
 	{
-		const auto offsets = toc.offsets();
+		const auto offsets = toc->offsets();
 
 		CHECK ( offsets.size() == 15 );
 
@@ -180,7 +181,7 @@ TEST_CASE ( "ToC", "[metadata]" )
 
 	SECTION ( "Returns correct filenames from ToC" )
 	{
-		const auto filenames = toc.filenames();
+		const auto filenames = toc->filenames();
 
 		CHECK ( filenames.size() == 1 );
 
@@ -189,7 +190,7 @@ TEST_CASE ( "ToC", "[metadata]" )
 
 	SECTION ( "Equality operator is correct" )
 	{
-		CHECK ( toc == toc2 );
+		CHECK ( *toc == *toc2 );
 	}
 }
 
