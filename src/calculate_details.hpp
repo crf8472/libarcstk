@@ -1,3 +1,7 @@
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#error "Do not include calculate_details.hpp, include calculate.hpp instead"
+#endif
+
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #define __LIBARCSTK_CALCULATE_DETAILS_HPP__
 /**
@@ -22,65 +26,11 @@ inline namespace v_1_0_0
 
 // avoid includes
 class AudioSize;
-class TOC;
+class ToC;
 class ChecksumSet;
 
 namespace details
 {
-
-/**
- * \brief Convert amount of frames to the equivalent amount of samples.
- *
- * \param[in] frames Amount of frames to convert
- *
- * \return Amount of samples equivalent to \c frames
- */
-int32_t frames2samples(const int32_t frames);
-
-/**
- * \brief Convert amount of samples to the equivalent amount of frames.
- *
- * \param[in] samples Amount of samples to convert
- *
- * \return Amount of frames equivalent to \c samples
- */
-int32_t samples2frames(const int32_t samples);
-
-/**
- * \brief Convert amount of frames to the equivalent amount of bytes.
- *
- * \param[in] frames Amount of frames to convert
- *
- * \return Amount of bytes equivalent to \c frames
- */
-int32_t frames2bytes(const int32_t frames);
-
-/**
- * \brief Convert amount of bytes to the equivalent amount of frames.
- *
- * \param[in] bytes Amount of bytes to convert
- *
- * \return Amount of frames equivalent to \c bytes
- */
-int32_t bytes2frames(const int32_t bytes);
-
-/**
- * \brief Convert amount of samples to the equivalent amount of bytes.
- *
- * \param[in] samples Amount of samples to convert
- *
- * \return Amount of bytes equivalent to \c samples
- */
-int32_t samples2bytes(const int32_t samples);
-
-/**
- * \brief Convert amount of bytes to the equivalent amount of samples.
- *
- * \param[in] bytes Amount of bytes to convert
- *
- * \return Amount of samples equivalent to \c bytes
- */
-int32_t bytes2samples(const int32_t bytes);
 
 /**
  * \internal
@@ -204,7 +154,7 @@ Partitioning get_partitioning(
  *
  * \brief Interface for generating a partitioning over a sequence of samples.
  *
- * The partitioning is done along the track bounds according to the TOC such
+ * The partitioning is done along the track bounds according to the ToC such
  * that every two partitions adjacent within the same sequence belong to
  * different tracks. This way it is possible to entirely avoid checking for
  * track bounds within the checksum calculation loop.
@@ -283,7 +233,7 @@ public:
 private:
 
 	/**
-	 * \brief Implements Partitioner::create_partitioning() with a TOC.
+	 * \brief Implements Partitioner::create_partitioning() with a ToC.
 	 *
 	 * \param[in] current_interval Interval to build partitions from
 	 * \param[in] legal_range      Legal interval to process
@@ -298,7 +248,7 @@ private:
 	= 0;
 
 	/**
-	 * \brief Implements Partitioner::create_partitioning() without a TOC.
+	 * \brief Implements Partitioner::create_partitioning() without a ToC.
 	 *
 	 * \param[in] current_interval Interval to build partitions from
 	 * \param[in] legal_range      Legal interval to process
@@ -552,11 +502,11 @@ public:
 /**
  * \brief Return the offsets converted to sample indices.
  *
- * \param[in] toc TOC to get offsets from
+ * \param[in] toc ToC to get offsets from
  *
  * \return List of offsets with each value converted from LBA frames to samples
  */
-Points get_offset_sample_indices(const TOC& toc);
+Points get_offset_sample_indices(const ToC& toc);
 
 } // namespace details
 } // namespace v_1_0_0

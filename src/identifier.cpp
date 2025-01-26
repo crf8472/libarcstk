@@ -7,7 +7,14 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#include "identifier_details.hpp"
+#endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"      // for AudioSize, CDDA, ToC
+#endif
 
+#include <algorithm>         // for transform
 #include <cstdint>           // for uint32_t, uint64_t
 #include <iomanip>           // for operator<<, setw, setfill
 #include <memory>            // for unique_ptr, make_unique, operator==
@@ -34,15 +41,16 @@ namespace details
 // ARIdBuilder
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc, const lba_count_t leadout)
+std::unique_ptr<ARId> ARIdBuilder::build(const ToC &toc,
+		const AudioSize leadout)
 {
 	return build_worker(toc, leadout);
 }
 
 
-std::unique_ptr<ARId> ARIdBuilder::build(const TOC &toc)
+std::unique_ptr<ARId> ARIdBuilder::build(const ToC &toc)
 {
-	return build_worker(toc, 0);
+	return build_worker(toc, AudioSize{});
 }
 
 
@@ -62,18 +70,18 @@ std::unique_ptr<ARId> ARIdBuilder::build_empty_id() noexcept
 }
 
 
-std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
-		const lba_count_t leadout)
+std::unique_ptr<ARId> ARIdBuilder::build_worker(const ToC &toc,
+		const AudioSize leadout)
 {
-	// Override TOC leadout with optional non-null extra leadout
+	// Override ToC leadout with optional non-null extra leadout
 
-	auto leadout_val = lba_count_t { leadout };
+	auto leadout_val = int32_t { leadout.total_frames() };
 
 	if (leadout_val > 0)
 	{
 		try {
 
-			TOCValidator::validate(toc, leadout_val);
+			//TOCValidator::validate(toc, leadout_val);
 
 		} catch (const NonstandardMetadataException &nsm)
 		{
@@ -83,77 +91,144 @@ std::unique_ptr<ARId> ARIdBuilder::build_worker(const TOC &toc,
 		}
 	} else
 	{
-		leadout_val = toc.leadout();
+		leadout_val = toc.leadout().total_frames();
 	}
 
-	auto offsets { toc::get_offsets(toc) };
+	const auto offsets { toc.offsets() };
+	const auto offset_frames { to_frames(offsets) };
 
 	return std::make_unique<ARId>(
 			toc.total_tracks(),
-			disc_id_1(offsets, leadout_val),
-			disc_id_2(offsets, leadout_val),
-			cddb_id  (offsets, leadout_val)
+			disc_id_1(offset_frames, leadout_val),
+			disc_id_2(offset_frames, leadout_val),
+			cddb_id  (offset_frames, leadout_val)
 	);
 }
 
 
-uint32_t ARIdBuilder::disc_id_1(const std::vector<lba_count_t> &offsets,
-		const lba_count_t leadout) noexcept
+uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
+	noexcept
 {
 	// disc id 1 is just the sum off all offsets + the leadout frame
 
-	auto sum_offsets = lba_count_t { 0 };
+	auto accum = int32_t { 0 };
 
-	for (const auto &o : offsets) { sum_offsets += o; }
+	for (const auto& o : offsets)
+	{
+		accum += o;
+	}
 
-	return static_cast<uint32_t>(sum_offsets + leadout);
+	return static_cast<uint32_t>(accum + leadout);
 }
 
 
-uint32_t ARIdBuilder::disc_id_2(const std::vector<lba_count_t> &offsets,
-		const lba_count_t leadout) noexcept
+uint32_t disc_id_2(const std::vector<int32_t>& offsets, const int32_t leadout)
+	noexcept
 {
 	// disc id 2 is the sum of the products of offsets and the corresponding
 	// 1-based track number while normalizing offsets to be >= 1
 
-	auto accum = lba_count_t { 0 };
-
+	auto accum = int32_t { 0 };
 	auto track { 1 };
-	for (const auto &o : offsets) { accum += (o > 0 ? o : 1) * track; track++; }
+
+	for (const auto& o : offsets)
+	{
+		accum += (o > 0 ? o : 1) * track;
+		++track;
+	}
 
 	return static_cast<uint32_t>(accum + leadout * track);
 }
 
 
-uint32_t ARIdBuilder::cddb_id(const std::vector<lba_count_t> &offsets,
-		const lba_count_t leadout) noexcept
+uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout)
 {
-	const auto fps { static_cast<uint32_t>(CDDA::FRAMES_PER_SEC) };
-	auto accum = uint32_t { 0 };
+	const auto start_audio = uint32_t { offsets.empty()
+		? 0
+		: static_cast<uint32_t>(offsets.front()) };
 
-	for (const auto &o : offsets)
+	const auto fps { static_cast<uint32_t>(CDDA::FRAMES_PER_SEC) };
+
+	auto accum = uint32_t { 0 };
+	for (const auto& o : offsets)
 	{
 		accum += sum_digits(static_cast<uint32_t>(o) / fps + 2u);
 	}
 	accum %= 255; // normalize to 1 byte
 
-	const uint32_t total_seconds {
-		static_cast<uint32_t>(leadout) / fps  -
-			static_cast<uint32_t>(offsets[0]) / fps };
+	const auto total_seconds = uint32_t {
+		static_cast<uint32_t>(leadout) / fps  -  start_audio / fps };
+			//static_cast<uint32_t>(offsets[0]) / fps };
 
 	// since 0 <= offsets.size <= 99 narrowing is no problem
-	const auto track_count = uint32_t { static_cast<uint32_t>(offsets.size()) };
+	const auto track_count = static_cast<uint32_t>(offsets.size());
 
 	return (accum << 24u) | (total_seconds << 8u) | track_count;
 }
 
 
-uint64_t ARIdBuilder::sum_digits(const uint32_t number) noexcept
+uint64_t sum_digits(const uint32_t number) noexcept
 {
 	return (number < 10) ? number : (number % 10) + sum_digits(number / 10);
 }
 
+
+// identifier_details.hpp
+
+
+std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets)
+{
+	auto integers = std::vector<int32_t>{};
+
+	using std::begin;
+	using std::cbegin;
+	using std::cend;
+
+	std::transform(cbegin(offsets), cend(offsets), begin(integers),
+			[](const AudioSize& a)
+			{
+				return a.total_frames();
+			});
+
+	return integers;
+}
+
 } // namespace details
+
+
+std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
+		const int32_t leadout)
+{
+	return std::make_unique<ARId>(
+			offsets.size(),
+			details::disc_id_1(offsets, leadout),
+			details::disc_id_2(offsets, leadout),
+			details::cddb_id  (offsets, leadout)
+	);
+}
+
+
+std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
+		const AudioSize& leadout)
+{
+	const auto offset_frames { details::to_frames(offsets) };
+	const auto leadout_frame { leadout.total_frames() };
+
+	return make_arid(offset_frames, leadout_frame);
+}
+
+
+std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
+{
+	return make_arid(toc.offsets(), leadout);
+}
+
+
+std::unique_ptr<ARId> make_arid(const ToC& toc)
+{
+	return make_arid(toc, toc.leadout());
+}
+
 
 
 /**
@@ -428,109 +503,6 @@ std::string ARId::Impl::construct_url(const TrackNo track_count,
 }
 
 
-// TOC
-
-
-TOC::TOC(std::unique_ptr<TOC::Impl> impl)
-	: impl_ { std::move(impl) }
-{
-	// empty
-}
-
-
-TOC::TOC(const TOC &rhs)
-	: impl_ { std::make_unique<TOC::Impl>(*rhs.impl_) }
-{
-	// empty
-}
-
-
-TOC::TOC(TOC &&rhs) noexcept = default;
-
-
-TOC::~TOC() noexcept = default;
-
-
-int TOC::total_tracks() const noexcept
-{
-	return impl_->total_tracks();
-}
-
-
-lba_count_t TOC::offset(const TrackNo idx) const
-{
-	return impl_->offset(idx);
-}
-
-
-lba_count_t TOC::parsed_length(const TrackNo idx) const
-{
-	return impl_->parsed_length(idx);
-}
-
-
-std::string TOC::filename(const TrackNo idx) const
-{
-	return impl_->filename(idx);
-}
-
-
-lba_count_t TOC::leadout() const noexcept
-{
-	return impl_->leadout();
-}
-
-
-bool TOC::complete() const noexcept
-{
-	return impl_->complete();
-}
-
-
-void TOC::update(const lba_count_t leadout)
-{
-	try {
-
-		details::TOCValidator::validate(*this, leadout);
-
-	} catch (const NonstandardMetadataException &nsm)
-	{
-		ARCS_LOG_WARNING << "Update will make Metadata non-standard: "
-			<< nsm.what();
-		// Do not propagate NonstandardMetadataException for now
-		// since we accept non-standard metadata
-	}
-
-	impl_->update(leadout);
-}
-
-
-TOC& TOC::operator = (const TOC &rhs)
-{
-	if (this != &rhs)
-	{
-		// deep copy
-		impl_ = std::make_unique<TOC::Impl>(*rhs.impl_);
-	}
-
-	return *this;
-}
-
-
-TOC& TOC::operator = (TOC &&rhs) noexcept = default;
-
-
-// operators TOC
-
-
-bool operator == (const TOC &lhs, const TOC &rhs) noexcept
-{
-	return &lhs == &rhs
-		or lhs.impl_ == rhs.impl_
-		or lhs.impl_->equals(*rhs.impl_);
-}
-
-
 // ARId
 
 
@@ -670,143 +642,7 @@ NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
 	// empty
 }
 
-
-namespace toc
-{
-
-/**
- * \internal
- *
- * \brief Implementation details of namespace toc
- */
-namespace details
-{
-
-/**
- * \internal
- * \brief Add TOC data to the end of a container.
- *
- * Type Container is required to yield its number of elements by member function
- * size() and to allow non-const iteration via begin() and end(). Those
- * requirements are not checked.
- *
- * \tparam Container Container type with size(), begin() and end()
- * \tparam InType    The type \c accessor returns
- *
- * \param[in,out] c         Actual container to fill
- * \param[in]     toc       TOC
- * \param[in]     accessor  TOC member function to iterate tracks
- *
- * \return The values \c accessor yields in the order they occurr in \c toc
- */
-template <typename Container, typename InType>
-decltype(auto) toc_get(Container&& c,
-		const TOC &toc,
-		InType (TOC::*accessor)(const TrackNo) const)
-{
-	using csize_t = decltype(c.size());
-
-	const auto track_count { toc.total_tracks() };
-
-	if (c.size() < static_cast<csize_t>(track_count))
-	{
-		throw std::logic_error("Container is too small to insert all tracks");
-	}
-
-	auto c_element { std::begin(c) };
-
-	for (int track { 1 }; track <= track_count; ++track, ++c_element)
-	{
-		*c_element = (toc.*accessor)(track);
-	}
-
-	return c;
-}
-
-} // namespace details
-
-
-std::vector<lba_count_t> get_offsets(const TOC &toc)
-{
-	std::vector<lba_count_t> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
-
-	return details::toc_get(target, toc, &TOC::offset);
-}
-
-
-std::vector<lba_count_t> get_offsets(const std::unique_ptr<TOC> &toc)
-{
-	return get_offsets(*toc);
-}
-
-
-std::vector<lba_count_t> get_parsed_lengths(const TOC &toc)
-{
-	std::vector<lba_count_t> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
-
-	return details::toc_get(target, toc, &TOC::parsed_length);
-}
-
-
-std::vector<lba_count_t> get_parsed_lengths(const std::unique_ptr<TOC> &toc)
-{
-	return get_parsed_lengths(*toc);
-}
-
-
-std::vector<std::string> get_filenames(const TOC &toc)
-{
-	std::vector<std::string> target;
-	target.resize(static_cast<decltype(target)::size_type>(toc.total_tracks()));
-
-	details::toc_get(target, toc, &TOC::filename);
-
-	// If we have no filenames in the TOC, do not generate a list full of
-	// empty strings, but just return an empty list
-	for (const auto& filename : target)
-	{
-		if (not filename.empty()) { return target; }
-	}
-	return {};
-}
-
-
-std::vector<std::string> get_filenames(const std::unique_ptr<TOC> &toc)
-{
-	return get_filenames(*toc);
-}
-
-} // namespace toc
-
-
-// make_arid
-
-
-std::unique_ptr<ARId> make_arid(const TOC &toc)
-{
-	return details::ARIdBuilder::build(toc);
-}
-
-
-std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc)
-{
-	return make_arid(*toc);
-}
-
-
-std::unique_ptr<ARId> make_arid(const TOC &toc, const lba_count_t leadout)
-{
-	return details::ARIdBuilder::build(toc, leadout);
-}
-
-
-std::unique_ptr<ARId> make_arid(const std::unique_ptr<TOC> &toc,
-		const lba_count_t leadout)
-{
-	return make_arid(*toc, leadout);
-}
+// make_empty_arid
 
 
 std::unique_ptr<ARId> make_empty_arid() noexcept
@@ -815,6 +651,5 @@ std::unique_ptr<ARId> make_empty_arid() noexcept
 }
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 

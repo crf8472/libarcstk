@@ -26,27 +26,6 @@ inline namespace v_1_0_0
 namespace details
 {
 
-/**
- * \brief Convert \c value to the corrsponding number of bytes.
- *
- * \param[in] value Value to convert
- * \param[in] unit  Unit of the value
- *
- * \return The equivalent number of bytes.
- */
-int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept;
-
-/**
- * \brief Convert \c bytes to the specified \c unit.
- *
- * \param[in] bytes Amount of bytes
- * \param[in] unit  Unit to convert to
- *
- * \return The equivalent value in the specified unit
- */
-int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
-
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 
@@ -344,8 +323,7 @@ public:
 	 * \param[in] size   Total size of the expected input
 	 * \param[in] points Track offsets (as sample indices)
 	 */
-	void init(const Settings& s, const AudioSize& size,
-		const std::vector<int32_t>& points);
+	void init(const Settings& s, const AudioSize& size, const Points& points);
 
 	/**
 	 * \brief Initializing worker to create the internal state.

@@ -212,14 +212,14 @@ ChecksumSet::ChecksumSet()
 }
 
 
-ChecksumSet::ChecksumSet(const lba_count_t length)
+ChecksumSet::ChecksumSet(const int32_t length)
 	: ChecksumSet { length, { /* empty */ } }
 {
 	// empty
 }
 
 
-ChecksumSet::ChecksumSet(const lba_count_t length,
+ChecksumSet::ChecksumSet(const int32_t length,
 		std::initializer_list<
 			std::pair<const ChecksumSet::key_type,
 			                ChecksumSet::value_type>> checksums)
@@ -230,13 +230,13 @@ ChecksumSet::ChecksumSet(const lba_count_t length,
 }
 
 
-lba_count_t ChecksumSet::length() const noexcept
+int32_t ChecksumSet::length() const noexcept
 {
 	return length_;
 }
 
 
-void ChecksumSet::set_length(const lba_count_t l) noexcept
+void ChecksumSet::set_length(const int32_t l) noexcept
 {
 	length_ = l;
 }

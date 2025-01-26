@@ -12,10 +12,10 @@
 #include <unordered_set>    // for unordered_set
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"             // for ChecksumSet, Checksums
+#include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
-#ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"             // for TotallyOrdered
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"     // for AudioSize, CDDA, ToC
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
@@ -27,10 +27,7 @@ inline namespace v_1_0_0
 {
 
 // avoid includes
-using TrackNo = int;         // TODO TrackNo also defined in identifier.hpp
-using lba_count_t = int32_t; // TODO lba_count_t also defined in identifier.hpp
-class ARId;
-class TOC;
+class ToC;
 
 
 /**
@@ -410,171 +407,6 @@ private:
 
 
 /**
- * \brief Uniform access to the size of the input audio information.
- *
- * Some decoders provide the number of frames, others the number of samples and
- * maybe in some situations just the number of bytes of the sample stream is
- * known. To avoid implementing the appropriate conversion for each decoder,
- * AudioSize provides an interface for uniform representation to this
- * information. Any of the informations provided will determine all of the
- * others.
- *
- * An AudioSize converts to TRUE if it is greater than 0. An AudioSize of 0
- * converts to FALSE.
- */
-class AudioSize final : TotallyOrdered<AudioSize>
-{
-	/**
-	 * \brief Data: Total number of pcm sample bytes in the audio file.
-	 */
-	int32_t total_pcm_bytes_;
-
-public:
-
-	/**
-	 * \brief Units for size declaration
-	 */
-	enum class UNIT
-	{
-		SAMPLES, FRAMES, BYTES
-	};
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Constructs an AudioSize of zero().
-	 */
-	AudioSize() noexcept;
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] value Size value
-	 * \param[in] unit  Unit for \c value
-	 */
-	AudioSize(const int32_t value, const UNIT unit) noexcept;
-	// FIXME This allows setting a value without a bounds check
-
-	/**
-	 * \brief Return the LBA leadout frame.
-	 *
-	 * Note that the number is 1-based.
-	 *
-	 * \return LBA leadout frame
-	 */
-	int32_t leadout_frame() const;
-
-	/**
-	 * \brief Return the total number of LBA frames.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS which is a value of
-	 * 449.999 LBA frames on a disc.
-	 *
-	 * \return Total number of LBA frames
-	 */
-	int32_t total_frames() const;
-
-	/**
-	 * \brief Set the total number of LBA frames.
-	 *
-	 * \param[in] frame_count Total number of LBA frames
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_frames(const int32_t frame_count);
-
-	/**
-	 * \brief Return the total number of 32 bit PCM samples.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME
-	 * which is a value of 264.599.412 stereo samples on a disc.
-	 *
-	 * \return The total number of 32 bit PCM samples
-	 */
-	int32_t total_samples() const;
-
-	/**
-	 * \brief Set the total number of 32 bit PCM samples.
-	 *
-	 * This also determines the leadout frame and the number of PCM bytes.
-	 *
-	 * \param[in] sample_count Total number of 32 bit PCM samples
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_samples(const int32_t sample_count);
-
-	/**
-	 * \brief Return the total number of bytes holding 32 bit PCM samples.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_SAMPLE which
-	 * is a value of 1.058.397.648 bytes on a disc.
-	 *
-	 * \return The total number of bytes holding 32 bit PCM samples
-	 */
-	int32_t total_pcm_bytes() const noexcept;
-
-	/**
-	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
-	 *
-	 * This also determines the leadout frame and the total number of 32 bit PCM
-	 * samples.
-	 *
-	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_pcm_bytes(const int32_t byte_count) noexcept;
-
-	/**
-	 * \brief Return \c TRUE if the AudioSize is 0.
-	 *
-	 * \return \c TRUE if the AudioSize is 0
-	 */
-	bool zero() const noexcept;
-
-	/**
-	 * \brief Return maximum size for the specified unit.
-	 */
-	static int32_t max(const UNIT unit) noexcept;
-
-	/**
-	 * \brief Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
-	 */
-	explicit operator bool() const noexcept;
-
-
-	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept;
-
-private:
-
-	/**
-	 * \brief Set the internal value, possibly converting from \c unit.
-	 *
-	 * \param[in] value Value to set
-	 * \param[in] unit  Unit to convert to bytes from
-	 */
-	void set_value(const int32_t value, AudioSize::UNIT unit);
-
-	/**
-	 * \brief Get internal size in the specified unit.
-	 *
-	 * \param[in] unit  Unit to convert bytes amount to
-	 */
-	int32_t read_as(const AudioSize::UNIT unit) const;
-};
-
-bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
-
-bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
-
-
-/**
  * \brief Calculation mode.
  */
 enum class Context : unsigned char
@@ -656,7 +488,7 @@ using ChecksumtypeSet = std::unordered_set<checksum::type>;
 /**
  * \brief Type of a list of split points within a range of samples.
  */
-using Points = std::vector<int32_t>;
+using Points = std::vector<AudioSize>;
 
 
 #pragma GCC diagnostic push
@@ -706,7 +538,7 @@ public:
 	 * \return Input range of 1-based sample indices to use for calculation.
 	 */
 	std::pair<int32_t,int32_t> range(const AudioSize& size,
-			const std::vector<int32_t>& points) const;
+			const Points& points) const;
 
 	/**
 	 * \brief Update with a sequence of samples.
@@ -751,7 +583,7 @@ private:
 	= 0;
 
 	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
-			const std::vector<int32_t>& points) const
+			const Points& points) const
 	= 0;
 
 	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
@@ -796,7 +628,7 @@ public:
 	 * \param[in] points    Track offsets (as samples)
 	 */
 	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
-			const AudioSize& size, const std::vector<int32_t>& points);
+			const AudioSize& size, const Points& points);
 
 	/**
 	 * \brief Copy constructor.
@@ -949,16 +781,16 @@ private:
 
 
 /**
- * \brief Create a calculation from a TOC.
+ * \brief Create a calculation from a ToC.
  *
- * If the TOC is not complete, the Calculation must be updated with the correct
+ * If the ToC is not complete, the Calculation must be updated with the correct
  * total number of input samples.
  *
  * \param[in] algorithm    The algorithm to use for calculating
- * \param[in] toc          Complete TOC to perform calculation for
+ * \param[in] toc          Complete ToC to perform calculation for
  */
 std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const TOC& toc);
+		std::unique_ptr<Algorithm> algorithm, const ToC& toc);
 
 } // namespace v_1_0_0
 } // namespace arcstk

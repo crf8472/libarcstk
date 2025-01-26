@@ -4,9 +4,6 @@
  * \brief Implementation of the new checksum calculation API
  */
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"    // for ARId, CDDA, lba_count_t
-#endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
@@ -16,8 +13,15 @@
 #ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
 #include "calculate_impl.hpp"
 #endif
+
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
+#endif
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"    // for ARId
+#endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"      // for CDDA, AudioSize
 #endif
 
 #include <algorithm>   // for max, min, transform
@@ -35,53 +39,26 @@ namespace details
 // calculate_details.hpp
 
 
-int32_t frames2samples(const int32_t frames)
-{
-	return frames * CDDA::SAMPLES_PER_FRAME;
-}
-
-
-int32_t samples2frames(const int32_t samples)
-{
-	return samples / CDDA::SAMPLES_PER_FRAME;
-}
-
-
-int32_t frames2bytes(const int32_t frames)
-{
-	return frames * CDDA::BYTES_PER_FRAME;
-}
-
-
-int32_t bytes2frames(const int32_t bytes)
-{
-	return bytes / CDDA::BYTES_PER_FRAME;
-}
-
-
-int32_t samples2bytes(const int32_t samples)
-{
-	return samples * CDDA::BYTES_PER_SAMPLE;
-}
-
-
-int32_t bytes2samples(const int32_t bytes)
-{
-	return bytes / CDDA::BYTES_PER_SAMPLE;
-}
-
-
 // get_partitioning
 
 
 Partitioning get_partitioning(const SampleRange& interval,
 		const SampleRange& legal,
-		const Points& points)
+		const Points& opoints)
 {
-	if (points.empty())
+	if (opoints.empty())
 	{
 		return get_partitioning(interval, legal);
 	}
+
+	// convert from AudioSize to int32_t(samples)
+	// TODO convert this generically
+	auto points { std::vector<int32_t>(opoints.size()) };
+	using std::cbegin;
+	using std::cend;
+	using std::begin;
+	std::transform(cbegin(opoints), cend(opoints), begin(points),
+			[](const AudioSize& a) -> int32_t { return a.total_samples(); });
 
 	const auto real_lower = std::max(legal.lower(), interval.lower());
 	const auto real_upper = std::min(legal.upper(), interval.upper());
@@ -343,55 +320,7 @@ std::size_t Partition::size() const
 }
 
 
-// get_offset_sample_indices
-
-
-Points get_offset_sample_indices(const TOC& toc)
-{
-	auto points { toc::get_offsets(toc) };
-
-	using std::cbegin;
-	using std::cend;
-	using std::begin;
-
-	std::transform(cbegin(points), cend(points), begin(points),
-			[](const int32_t i){ return frames2samples(i); } );
-
-	return points;
-}
-
-
 // calculate_impl.hpp
-
-
-int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
-{
-	using UNIT = AudioSize::UNIT;
-
-	switch (unit)
-	{
-		case UNIT::FRAMES:  return frames2bytes(value);
-		case UNIT::SAMPLES: return samples2bytes(value);
-		default:            return value;
-	}
-
-	return value;
-}
-
-
-int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
-{
-	using UNIT = AudioSize::UNIT;
-
-	switch (unit)
-	{
-		case UNIT::FRAMES:  return bytes2frames(value);
-		case UNIT::SAMPLES: return bytes2samples(value);
-		default:            return value;
-	}
-
-	return value;
-}
 
 
 // CalculationState
@@ -759,152 +688,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 
 // calculate.hpp
-
-
-// AudioSize
-
-
-AudioSize::AudioSize() noexcept
-	: AudioSize { 0, AudioSize::UNIT::BYTES }
-{
-	// empty
-}
-
-
-AudioSize::AudioSize(const int32_t value, const AudioSize::UNIT unit) noexcept
-	: total_pcm_bytes_ { details::to_bytes(value, unit) }
-{
-	// empty
-}
-
-
-int32_t AudioSize::leadout_frame() const
-{
-	return total_frames();
-}
-
-
-int32_t AudioSize::total_frames() const
-{
-	return read_as(AudioSize::UNIT::FRAMES);
-}
-
-
-void AudioSize::set_total_frames(const int32_t frame_count)
-{
-	set_value(frame_count, AudioSize::UNIT::FRAMES);
-}
-
-
-int32_t AudioSize::total_samples() const
-{
-	return read_as(AudioSize::UNIT::SAMPLES);
-}
-
-
-void AudioSize::set_total_samples(const int32_t sample_count)
-{
-	set_value(sample_count, AudioSize::UNIT::SAMPLES);
-}
-
-
-int32_t AudioSize::total_pcm_bytes() const noexcept
-{
-	return read_as(AudioSize::UNIT::BYTES);
-}
-
-
-void AudioSize::set_total_pcm_bytes(const int32_t byte_count) noexcept
-{
-	set_value(byte_count, AudioSize::UNIT::BYTES);
-}
-
-
-bool AudioSize::zero() const noexcept
-{
-	return 0 == total_pcm_bytes();
-}
-
-
-int32_t AudioSize::max(const UNIT unit) noexcept
-{
-	static constexpr int32_t error_value { 0 };
-
-	switch (unit)
-	{
-		case UNIT::FRAMES:
-			return CDDA::MAX_BLOCK_ADDRESS;
-
-		case UNIT::SAMPLES:
-			return CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME;
-
-		case UNIT::BYTES:
-			return CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_FRAME;
-
-		default:
-			return error_value;
-	}
-
-	return error_value;
-}
-
-
-void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
-{
-	if (not details::SampleRange(0, AudioSize::max(unit)).contains(value))
-	{
-		using std::to_string;
-
-		if (value > AudioSize::max(unit))
-		{
-			auto ss = std::stringstream {};
-			ss << "Value too big for maximum: " << to_string(value);
-			throw std::overflow_error(ss.str());
-		} else // value < 0
-		{
-			auto ss = std::stringstream {};
-			ss << "Cannot set AudioSize to negative value: "
-				<< to_string(value);
-			throw std::underflow_error(ss.str());
-		}
-	}
-
-	total_pcm_bytes_ = details::to_bytes(value, unit);
-}
-
-
-int32_t AudioSize::read_as(const AudioSize::UNIT unit) const
-{
-	return details::from_bytes(total_pcm_bytes_, unit);
-}
-
-
-AudioSize::operator bool() const noexcept
-{
-	return !zero();
-}
-
-
-void swap(AudioSize& lhs, AudioSize& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.total_pcm_bytes_, rhs.total_pcm_bytes_);
-}
-
-
-//
-
-
-bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept
-{
-	return lhs.total_pcm_bytes() == rhs.total_pcm_bytes();
-}
-
-
-bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
-{
-	return lhs.total_pcm_bytes() < rhs.total_pcm_bytes();
-}
 
 
 // SampleInputIterator
@@ -1309,19 +1092,18 @@ Checksums Calculation::result() const noexcept
 
 
 std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const TOC& toc)
+		std::unique_ptr<Algorithm> algorithm, const ToC& toc)
 {
 	auto leadout = AudioSize{};
 
 	if (toc.complete())
 	{
-		leadout = AudioSize { toc.leadout(), AudioSize::UNIT::FRAMES };
+		leadout = toc.leadout();
 	}
 
 	return std::make_unique<Calculation>(Context::ALBUM,
 		std::move(algorithm),
-		leadout,
-		details::get_offset_sample_indices(toc));
+		leadout, toc.offsets());
 }
 
 

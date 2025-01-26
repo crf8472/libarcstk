@@ -179,15 +179,14 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 
 template <cstype T1, cstype... T2>
 std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
-		const AudioSize& size,
-		const std::vector<int32_t>& points) const
+		const AudioSize& size, const Points& points) const
 {
 	int32_t from = 0;
 	int32_t to   = size.total_samples() - 1;
 
 	if (!points.empty())
 	{
-		from += points[0]; // start on first offset
+		from += points[0].total_samples(); // start on first offset
 	}
 
 	ARCS_LOG_DEBUG << "  Start on sample offset " << from;

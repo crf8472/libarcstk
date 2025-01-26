@@ -21,10 +21,15 @@ list (APPEND TEST_SETS calculate         )
 list (APPEND TEST_SETS calculate_details )
 list (APPEND TEST_SETS checksum          )
 list (APPEND TEST_SETS dbar              )
+#list (APPEND TEST_SETS dbar_details      )
 list (APPEND TEST_SETS identifier        )
+#list (APPEND TEST_SETS identifier_details)
+list (APPEND TEST_SETS metadata          )
+list (APPEND TEST_SETS metadata_details  )
 list (APPEND TEST_SETS samples           )
 list (APPEND TEST_SETS tk_version        )
 list (APPEND TEST_SETS verify            )
+#list (APPEND TEST_SETS verify_details    )
 
 
 ## Adjust compile options for tests.

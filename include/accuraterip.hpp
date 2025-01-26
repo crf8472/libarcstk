@@ -263,7 +263,7 @@ class ARCSAlgorithm final : public Algorithm
 	void do_setup(const Settings* s) final;
 
 	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
-			const std::vector<int32_t>& points) const final;
+			const Points& points) const final;
 
 	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
 

@@ -356,7 +356,8 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::Calculation;
 	using arcstk::Context;
 	using arcstk::Algorithm;
-	using arcstk::TOC;
+	using arcstk::ToC;
+	using arcstk::make_toc;
 	using arcstk::AudioSize;
 	using arcstk::make_calculation;
 	using arcstk::AccurateRipV1V2;
@@ -364,21 +365,19 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::Settings;
 
 
-	const auto toc = arcstk::details::TOCBuilder::build(
-		// track count
-		15,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 },
+	const auto toc = make_toc(
 		// leadout
-		253038
+		253038,
+		// offsets
+		std::vector<int32_t>{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733,
+			106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 	);
 
 	const auto size { AudioSize { 253038, AudioSize::UNIT::FRAMES } };
 
 	auto calculation { Calculation(Context::ALBUM,
 			std::make_unique<AccurateRipV1V2>(),
-			size, arcstk::toc::get_offsets(toc)) };
+			size, toc.offsets()) };
 
 	const auto algorithm { calculation.algorithm() };
 
@@ -516,18 +515,16 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
 
 
-	SECTION ("make_calculation() with complete TOC succeeds")
+	SECTION ("make_calculation() with complete ToC succeeds")
 	{
 		using arcstk::checksum::type;
 
-		const auto toc_1 = arcstk::details::TOCBuilder::build(
-			// track count
-			15,
-			// offsets
-			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-				157863, 198495, 213368, 225320, 234103 },
+		const auto toc_1 = make_toc(
 			// leadout
-			253038
+			253038,
+			// offsets
+			std::vector<int32_t>{ 33, 5225, 7390, 23380, 35608, 49820, 69508,
+				87733, 106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		);
 
 		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
@@ -547,19 +544,17 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 
-	SECTION ("make_calculation() with incomplete TOC succeeds")
+	SECTION ("make_calculation() with incomplete ToC succeeds")
 	{
 		using arcstk::checksum::type;
 
-		const auto toc_1 = arcstk::details::TOCBuilder::build(
-			// track count
-			15,
+		const auto toc_1 = make_toc(
 			// offsets
-			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-				157863, 198495, 213368, 225320, 234103 },
-			// lengths
-			{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
-				18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
+			std::vector<int32_t>{ 33, 5225, 7390, 23380, 35608, 49820, 69508,
+				87733, 106333, 139495, 157863, 198495, 213368, 225320, 234103 }
+			//// lengths
+			//{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+			//	18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		);
 
 		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };

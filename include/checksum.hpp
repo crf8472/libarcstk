@@ -19,10 +19,6 @@
 #include "policies.hpp"
 #endif
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"  // for lba_count_t
-#endif
-
 namespace arcstk
 {
 inline namespace v_1_0_0
@@ -239,7 +235,7 @@ private:
 	 * \internal
 	 * \brief Track length as number of LBA frames.
 	 */
-	lba_count_t length_;
+	int32_t length_;
 
 public:
 
@@ -268,7 +264,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(const lba_count_t length);
+	explicit ChecksumSet(const int32_t length);
 
 	/**
 	 * \brief Constructor for a known set of typed Checksums.
@@ -276,7 +272,7 @@ public:
 	 * \param[in] length Track length
 	 * \param[in] sums   Sequence of checksums represented as type-value pairs
 	 */
-	ChecksumSet(const lba_count_t length,
+	ChecksumSet(const int32_t length,
 			std::initializer_list<
 				std::pair<const checksum::type, value_type>> sums);
 	//NOTE We do not expose key_type. If key is not of key_type, it just breaks.
@@ -286,9 +282,9 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	lba_count_t length() const noexcept;
+	int32_t length() const noexcept;
 
-	void set_length(const lba_count_t l) noexcept;
+	void set_length(const int32_t l) noexcept;
 
 	/**
 	 * \brief Returns the number of elements contained in the instance.
