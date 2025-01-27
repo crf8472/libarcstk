@@ -511,7 +511,7 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
 /**
  * \brief Reports invalid metadata for constructing a ToC.
  */
-class InvalidMetadataException final : public std::logic_error
+class InvalidMetadataException final : public std::runtime_error
 {
 public:
 
@@ -542,7 +542,7 @@ public:
  * This exception occurrs only internally in the current API version, but is
  * never thrown to the client. This may change in future versions.
  */
-class NonstandardMetadataException final : public std::logic_error
+class NonstandardMetadataException final : public std::runtime_error
 {
 public:
 
