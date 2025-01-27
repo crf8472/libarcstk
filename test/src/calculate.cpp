@@ -77,6 +77,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 
 		const auto start_time { std::chrono::steady_clock::now() };
 		impl1.update(begin(dummy_data), end(dummy_data));
+		impl1.track_finished();
 		const auto time_elapsed {
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::steady_clock::now() - start_time)

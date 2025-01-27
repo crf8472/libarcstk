@@ -316,6 +316,8 @@ std::size_t Partition::size() const
 CalculationState::CalculationState(Algorithm* const algorithm)
 	: current_offset_    { 0 }
 	, samples_processed_ { 0 }
+	, track_samples_processed_ { 0 }
+	, tracks_processed_  { 0 }
 	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
 	, algorithm_         { algorithm }
 {
@@ -326,6 +328,8 @@ CalculationState::CalculationState(Algorithm* const algorithm)
 CalculationState::CalculationState(const CalculationState& rhs)
 	: current_offset_    { rhs.current_offset_    }
 	, samples_processed_ { rhs.samples_processed_ }
+	, track_samples_processed_ { rhs.track_samples_processed_ }
+	, tracks_processed_  { rhs.tracks_processed_ }
 	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
 	, algorithm_         { rhs.algorithm_         }
 {
@@ -336,6 +340,8 @@ CalculationState::CalculationState(const CalculationState& rhs)
 CalculationState::CalculationState(CalculationState&& rhs) noexcept
 	: current_offset_    { std::move(rhs.current_offset_)    }
 	, samples_processed_ { std::move(rhs.samples_processed_) }
+	, track_samples_processed_ { std::move(rhs.track_samples_processed_) }
+	, tracks_processed_  { std::move(rhs.tracks_processed_)  }
 	, proc_time_elapsed_ { std::move(rhs.proc_time_elapsed_) }
 	, algorithm_         { std::move(rhs.algorithm_)         }
 {
@@ -346,35 +352,9 @@ CalculationState::CalculationState(CalculationState&& rhs) noexcept
 CalculationState::~CalculationState() noexcept = default;
 
 
-int32_t CalculationState::do_current_offset() const noexcept
+void CalculationState::do_advance(const int32_t /* amount */)
 {
-	return current_offset_.value();
-}
-
-
-void CalculationState::do_advance(const int32_t amount)
-{
-	current_offset_.increment(amount);
-}
-
-
-int32_t CalculationState::do_samples_processed() const noexcept
-{
-	return samples_processed_.value();
-}
-
-
-std::chrono::milliseconds CalculationState::do_proc_time_elapsed() const
-	noexcept
-{
-	return proc_time_elapsed_.value();
-}
-
-
-void CalculationState::do_increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
-{
-	proc_time_elapsed_.increment(amount);
+	// empty
 }
 
 
@@ -393,25 +373,27 @@ ChecksumSet CalculationState::do_current_subtotal() const
 
 void CalculationState::do_track_finished()
 {
-	algorithm_->track_finished();
+	algorithm_->track_finished(tracks_processed_.value(),
+			AudioSize { track_samples_processed_.value(), UNIT::SAMPLES });
 }
 
 
 int32_t CalculationState::current_offset() const noexcept
 {
-	return do_current_offset();
+	return current_offset_.value();
 }
 
 
 void CalculationState::advance(const int32_t amount)
 {
+	current_offset_.increment(amount);
 	do_advance(amount);
 }
 
 
 int32_t CalculationState::samples_processed() const noexcept
 {
-	return do_samples_processed();
+	return samples_processed_.value();
 }
 
 
@@ -423,14 +405,14 @@ const Algorithm* CalculationState::algorithm() const noexcept
 
 std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
 {
-	return do_proc_time_elapsed();
+	return proc_time_elapsed_.value();
 }
 
 
 void CalculationState::increment_proc_time_elapsed(
 		const std::chrono::milliseconds amount)
 {
-	do_increment_proc_time_elapsed(amount);
+	proc_time_elapsed_.increment(amount);
 }
 
 
@@ -440,13 +422,16 @@ void CalculationState::update(SampleInputIterator start,
 	const auto amount { std::distance(start, stop) };
 	do_update(start, stop); // TODO try and update counter in catch
 	samples_processed_.increment(amount);
+	track_samples_processed_.increment(amount);
 	advance(amount);
 }
 
 
 void CalculationState::track_finished()
 {
+	tracks_processed_.increment(1);
 	this->do_track_finished();
+	track_samples_processed_.reset();
 }
 
 
@@ -479,6 +464,8 @@ void swap(CalculationState& lhs, CalculationState& rhs) noexcept
 	using std::swap;
 	swap(lhs.current_offset_,    rhs.current_offset_    );
 	swap(lhs.samples_processed_, rhs.samples_processed_ );
+	swap(lhs.track_samples_processed_, rhs.track_samples_processed_ );
+	swap(lhs.tracks_processed_,  rhs.tracks_processed_  );
 	swap(lhs.proc_time_elapsed_, rhs.proc_time_elapsed_ );
 	swap(lhs.algorithm_,         rhs.algorithm_         );
 }
@@ -639,8 +626,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 			ARCS_LOG_DEBUG << "    Completed track: "
 				<< std::to_string(partition.track());
 
-			result_buffer.append(state.current_subtotal());
 			state.track_finished();
+			result_buffer.append(state.current_subtotal());
 		}
 	}
 
@@ -761,9 +748,9 @@ void Algorithm::update(SampleInputIterator start, SampleInputIterator stop)
 }
 
 
-void Algorithm::track_finished()
+void Algorithm::track_finished(const int t, const AudioSize& length)
 {
-	this->do_track_finished();
+	this->do_track_finished(t, length);
 }
 
 

@@ -144,7 +144,8 @@ std::string Updatable<cstype::ARCS1, cstype::ARCS2>::do_id_string()
 
 template <cstype T1, cstype... T2>
 ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
-	: state_ { /* default */ }
+	: state_          { /* default */ }
+	, current_result_ { /* default */ }
 {
 	// empty
 	ARCS_LOG_DEBUG << "Algorithm is AccurateRip " << state_.id_string();
@@ -162,6 +163,13 @@ template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
 	state_.set_multiplier(m);
+}
+
+
+template <cstype T1, cstype... T2>
+void ARCSAlgorithm<T1, T2...>::save_current_subtotal()
+{
+	current_result_ = state_.value();
 }
 
 
@@ -226,8 +234,12 @@ void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 
 
 template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::do_track_finished()
+void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
+		const AudioSize& s)
 {
+	this->save_current_subtotal();
+	current_result_.set_length(s.frames());
+
 	state_.reset();
 	set_multiplier(1);
 }
@@ -236,7 +248,8 @@ void ARCSAlgorithm<T1, T2...>::do_track_finished()
 template <cstype T1, cstype... T2>
 ChecksumSet ARCSAlgorithm<T1, T2...>::do_result() const
 {
-	return state_.value();
+	//return state_.value();
+	return current_result_;
 }
 
 

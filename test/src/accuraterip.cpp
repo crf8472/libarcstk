@@ -86,6 +86,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 		in.close();
 
 		algo.update(buffer.begin(), buffer.end());
+		algo.track_finished(1, arcstk::AudioSize{});
 
 		//CHECK ( calculation.complete() );
 

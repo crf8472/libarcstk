@@ -519,16 +519,15 @@ public:
 	{
 		value_ += amount;
 	}
-};
 
-/**
- * \brief Return the offsets converted to sample indices.
- *
- * \param[in] toc ToC to get offsets from
- *
- * \return List of offsets with each value converted from LBA frames to samples
- */
-Points get_offset_sample_indices(const ToC& toc);
+	/**
+	 * \brief Reset the counted value to the default initializer of T..
+	 */
+	void reset()
+	{
+		value_ = T{};
+	}
+};
 
 } // namespace details
 } // namespace v_1_0_0

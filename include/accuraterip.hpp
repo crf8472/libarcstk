@@ -259,12 +259,16 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> state_;
 
+	ChecksumSet current_result_;
+
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
 	 * \param[in] m New value for multiplier
 	 */
 	void set_multiplier(const uint_fast64_t m);
+
+	void save_current_subtotal();
 
 
 	// Algorithm
@@ -276,7 +280,7 @@ class ARCSAlgorithm final : public Algorithm
 
 	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
 
-	void do_track_finished() final;
+	void do_track_finished(const int t, const AudioSize& length) final;
 
 	ChecksumSet do_result() const final;
 

@@ -48,6 +48,16 @@ class CalculationState
 	Counter<int32_t> samples_processed_;
 
 	/**
+	 * \brief Internal 0-based counter for track samples processed.
+	 */
+	Counter<int32_t> track_samples_processed_;
+
+	/**
+	 * \brief Internal 0-based counter for tracks..
+	 */
+	Counter<int32_t> tracks_processed_;
+
+	/**
 	 * \brief Internal time elapsed by updating.
 	 */
 	Counter<std::chrono::milliseconds> proc_time_elapsed_;
@@ -58,16 +68,7 @@ class CalculationState
 	Algorithm* algorithm_;
 
 
-	virtual int32_t do_current_offset() const noexcept;
-
-	virtual int32_t do_samples_processed() const noexcept;
-
 	virtual void do_advance(const int32_t amount);
-
-	virtual std::chrono::milliseconds do_proc_time_elapsed() const noexcept;
-
-	virtual void do_increment_proc_time_elapsed(
-			const std::chrono::milliseconds amount);
 
 	virtual void do_update(SampleInputIterator start, SampleInputIterator stop);
 

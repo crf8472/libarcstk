@@ -566,8 +566,11 @@ public:
 	 *
 	 * What the instance has to do whenever a track is finished can be
 	 * implemented in this hook.
+	 *
+	 * \param[in] t      Track number
+	 * \param[in] length Track length as calculated
 	 */
-	void track_finished();
+	void track_finished(const int t, const AudioSize& length);
 
 	/**
 	 * \brief Return the result of the algorithm.
@@ -602,7 +605,7 @@ private:
 	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
 	= 0;
 
-	virtual void do_track_finished()
+	virtual void do_track_finished(const int t, const AudioSize& length)
 	= 0;
 
 	virtual ChecksumSet do_result() const
