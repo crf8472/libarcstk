@@ -13,6 +13,7 @@ TEST_CASE ( "toc", "[metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::toc::construct;
+	using arcstk::UNIT;
 
 	const auto leadout { 253038 };
 
@@ -24,22 +25,22 @@ TEST_CASE ( "toc", "[metadata]" )
 	SECTION ( "toc::construct() constructs object correctly" )
 	{
 		CHECK ( toc_data.size() == 16 );
-		CHECK ( toc_data[ 0] == AudioSize { 253038, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 1] == AudioSize {     33, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 2] == AudioSize {   5225, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 3] == AudioSize {   7390, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 4] == AudioSize {  23380, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 5] == AudioSize {  35608, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 6] == AudioSize {  49820, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 7] == AudioSize {  69508, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 8] == AudioSize {  87733, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[ 9] == AudioSize { 106333, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[10] == AudioSize { 139495, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[11] == AudioSize { 157863, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[12] == AudioSize { 198495, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[13] == AudioSize { 213368, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[14] == AudioSize { 225320, AudioSize::UNIT::FRAMES } );
-		CHECK ( toc_data[15] == AudioSize { 234103, AudioSize::UNIT::FRAMES } );
+		CHECK ( toc_data[ 0] == AudioSize { 253038, UNIT::FRAMES } );
+		CHECK ( toc_data[ 1] == AudioSize {     33, UNIT::FRAMES } );
+		CHECK ( toc_data[ 2] == AudioSize {   5225, UNIT::FRAMES } );
+		CHECK ( toc_data[ 3] == AudioSize {   7390, UNIT::FRAMES } );
+		CHECK ( toc_data[ 4] == AudioSize {  23380, UNIT::FRAMES } );
+		CHECK ( toc_data[ 5] == AudioSize {  35608, UNIT::FRAMES } );
+		CHECK ( toc_data[ 6] == AudioSize {  49820, UNIT::FRAMES } );
+		CHECK ( toc_data[ 7] == AudioSize {  69508, UNIT::FRAMES } );
+		CHECK ( toc_data[ 8] == AudioSize {  87733, UNIT::FRAMES } );
+		CHECK ( toc_data[ 9] == AudioSize { 106333, UNIT::FRAMES } );
+		CHECK ( toc_data[10] == AudioSize { 139495, UNIT::FRAMES } );
+		CHECK ( toc_data[11] == AudioSize { 157863, UNIT::FRAMES } );
+		CHECK ( toc_data[12] == AudioSize { 198495, UNIT::FRAMES } );
+		CHECK ( toc_data[13] == AudioSize { 213368, UNIT::FRAMES } );
+		CHECK ( toc_data[14] == AudioSize { 225320, UNIT::FRAMES } );
+		CHECK ( toc_data[15] == AudioSize { 234103, UNIT::FRAMES } );
 	}
 
 
@@ -56,13 +57,13 @@ TEST_CASE ( "toc", "[metadata]" )
 	{
 		const auto l { arcstk::toc::leadout(toc_data) };
 
-		CHECK ( l == AudioSize { 253038, AudioSize::UNIT::FRAMES } );
+		CHECK ( l == AudioSize { 253038, UNIT::FRAMES } );
 	}
 
 
 	SECTION ( "toc::set_leadout() set leadout correctly" )
 	{
-		const auto size = AudioSize { 8472, AudioSize::UNIT::FRAMES };
+		const auto size = AudioSize { 8472, UNIT::FRAMES };
 
 		auto data2 { toc_data };
 		arcstk::toc::set_leadout(size, data2);
@@ -77,21 +78,49 @@ TEST_CASE ( "toc", "[metadata]" )
 
 		CHECK ( offset.size() == 15 );
 
-		CHECK ( offset[ 0] == AudioSize {     33, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 1] == AudioSize {   5225, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 2] == AudioSize {   7390, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 3] == AudioSize {  23380, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 4] == AudioSize {  35608, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 5] == AudioSize {  49820, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 6] == AudioSize {  69508, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 7] == AudioSize {  87733, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 8] == AudioSize { 106333, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[ 9] == AudioSize { 139495, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[10] == AudioSize { 157863, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[11] == AudioSize { 198495, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[12] == AudioSize { 213368, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[13] == AudioSize { 225320, AudioSize::UNIT::FRAMES } );
-		CHECK ( offset[14] == AudioSize { 234103, AudioSize::UNIT::FRAMES } );
+		CHECK ( offset[ 0] == AudioSize {     33, UNIT::FRAMES } );
+		CHECK ( offset[ 1] == AudioSize {   5225, UNIT::FRAMES } );
+		CHECK ( offset[ 2] == AudioSize {   7390, UNIT::FRAMES } );
+		CHECK ( offset[ 3] == AudioSize {  23380, UNIT::FRAMES } );
+		CHECK ( offset[ 4] == AudioSize {  35608, UNIT::FRAMES } );
+		CHECK ( offset[ 5] == AudioSize {  49820, UNIT::FRAMES } );
+		CHECK ( offset[ 6] == AudioSize {  69508, UNIT::FRAMES } );
+		CHECK ( offset[ 7] == AudioSize {  87733, UNIT::FRAMES } );
+		CHECK ( offset[ 8] == AudioSize { 106333, UNIT::FRAMES } );
+		CHECK ( offset[ 9] == AudioSize { 139495, UNIT::FRAMES } );
+		CHECK ( offset[10] == AudioSize { 157863, UNIT::FRAMES } );
+		CHECK ( offset[11] == AudioSize { 198495, UNIT::FRAMES } );
+		CHECK ( offset[12] == AudioSize { 213368, UNIT::FRAMES } );
+		CHECK ( offset[13] == AudioSize { 225320, UNIT::FRAMES } );
+		CHECK ( offset[14] == AudioSize { 234103, UNIT::FRAMES } );
+	}
+
+
+	SECTION ( "toc::lengths() yields correct offsets" )
+	{
+		const auto length { arcstk::toc::lengths(toc_data) };
+
+		// parsed (with silence):
+		//{ 5192, 2165, 15885, 12228, 13925, 19513, 18155, 18325, 33075,
+		//		18368, 40152, 14798, 11952, 8463, 18935 }
+
+		CHECK ( length.size() == 15 );
+													// parsed from disc
+		CHECK ( length[ 0].total_frames() ==  5192 );
+		CHECK ( length[ 1].total_frames() ==  2165 );
+		CHECK ( length[ 2].total_frames() == 15990 ); // 15885
+		CHECK ( length[ 3].total_frames() == 12228 );
+		CHECK ( length[ 4].total_frames() == 14212 ); // 13925
+		CHECK ( length[ 5].total_frames() == 19688 ); // 19513
+		CHECK ( length[ 6].total_frames() == 18225 ); // 18155
+		CHECK ( length[ 7].total_frames() == 18600 ); // 18325
+		CHECK ( length[ 8].total_frames() == 33162 ); // 33075
+		CHECK ( length[ 9].total_frames() == 18368 );
+		CHECK ( length[10].total_frames() == 40632 ); // 40152
+		CHECK ( length[11].total_frames() == 14873 ); // 14798
+		CHECK ( length[12].total_frames() == 11952 );
+		CHECK ( length[13].total_frames() ==  8783 ); //  8463
+		CHECK ( length[14].total_frames() == 18935 );
 	}
 
 
@@ -110,7 +139,7 @@ TEST_CASE ( "toc", "[metadata]" )
 	SECTION ( "toc::complete() is FALSE iff the ToCData is not complete" )
 	{
 		auto data_with_zero_leadout { toc_data };
-		arcstk::toc::set_leadout(AudioSize { 0, AudioSize::UNIT::FRAMES },
+		arcstk::toc::set_leadout(AudioSize { 0, UNIT::FRAMES },
 				data_with_zero_leadout);
 
 		REQUIRE ( data_with_zero_leadout.front().zero() );
@@ -130,6 +159,7 @@ TEST_CASE ( "ToC", "[metadata]" )
 	using arcstk::AudioSize;
 	using arcstk::ToC;
 	using arcstk::make_toc;
+	using arcstk::UNIT;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG
 	const auto toc = make_toc(
@@ -162,21 +192,21 @@ TEST_CASE ( "ToC", "[metadata]" )
 
 		CHECK ( offsets.size() == 15 );
 
-		CHECK ( offsets[ 0] == AudioSize {     33, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 1] == AudioSize {   5225, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 2] == AudioSize {   7390, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 3] == AudioSize {  23380, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 4] == AudioSize {  35608, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 5] == AudioSize {  49820, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 6] == AudioSize {  69508, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 7] == AudioSize {  87733, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 8] == AudioSize { 106333, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[ 9] == AudioSize { 139495, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[10] == AudioSize { 157863, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[11] == AudioSize { 198495, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[12] == AudioSize { 213368, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[13] == AudioSize { 225320, AudioSize::UNIT::FRAMES } );
-		CHECK ( offsets[14] == AudioSize { 234103, AudioSize::UNIT::FRAMES } );
+		CHECK ( offsets[ 0] == AudioSize {     33, UNIT::FRAMES } );
+		CHECK ( offsets[ 1] == AudioSize {   5225, UNIT::FRAMES } );
+		CHECK ( offsets[ 2] == AudioSize {   7390, UNIT::FRAMES } );
+		CHECK ( offsets[ 3] == AudioSize {  23380, UNIT::FRAMES } );
+		CHECK ( offsets[ 4] == AudioSize {  35608, UNIT::FRAMES } );
+		CHECK ( offsets[ 5] == AudioSize {  49820, UNIT::FRAMES } );
+		CHECK ( offsets[ 6] == AudioSize {  69508, UNIT::FRAMES } );
+		CHECK ( offsets[ 7] == AudioSize {  87733, UNIT::FRAMES } );
+		CHECK ( offsets[ 8] == AudioSize { 106333, UNIT::FRAMES } );
+		CHECK ( offsets[ 9] == AudioSize { 139495, UNIT::FRAMES } );
+		CHECK ( offsets[10] == AudioSize { 157863, UNIT::FRAMES } );
+		CHECK ( offsets[11] == AudioSize { 198495, UNIT::FRAMES } );
+		CHECK ( offsets[12] == AudioSize { 213368, UNIT::FRAMES } );
+		CHECK ( offsets[13] == AudioSize { 225320, UNIT::FRAMES } );
+		CHECK ( offsets[14] == AudioSize { 234103, UNIT::FRAMES } );
 	}
 
 	SECTION ( "Returns correct filenames from ToC" )

@@ -13,6 +13,9 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
+#ifndef __LIBARCSTK_METADATA_CONV_HPP__
+#include "metadata_conv.hpp" // for convert
+#endif
 
 #include <algorithm>         // for transform
 #include <cstdint>           // for uint32_t, uint64_t
@@ -193,22 +196,15 @@ std::string construct_id(const int track_count,
 }
 
 
-// TODO Do this generically
-std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets)
+std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
+		const int32_t leadout)
 {
-	auto integers { std::vector<int32_t>(offsets.size()) };
-
-	using std::begin;
-	using std::cbegin;
-	using std::cend;
-
-	std::transform(cbegin(offsets), cend(offsets), begin(integers),
-			[](const AudioSize& a) -> int32_t
-			{
-				return a.total_frames();
-			});
-
-	return integers;
+	return std::make_unique<ARId>(
+			offsets.size(),
+			details::disc_id_1(offsets, leadout),
+			details::disc_id_2(offsets, leadout),
+			details::cddb_id  (offsets, leadout)
+	);
 }
 
 } // namespace details
@@ -479,37 +475,27 @@ std::string to_string(const ARId& id) noexcept
 // make_arid
 
 
-std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
-		const int32_t leadout)
-{
-	return std::make_unique<ARId>(
-			offsets.size(),
-			details::disc_id_1(offsets, leadout),
-			details::disc_id_2(offsets, leadout),
-			details::cddb_id  (offsets, leadout)
-	);
-}
-
-
 std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout)
 {
-	const auto offset_frames { details::to_frames(offsets) };
+	const auto offset_frames { details::convert<UNIT::FRAMES>(offsets) };
 	const auto leadout_frame { leadout.total_frames() };
 
-	return make_arid(offset_frames, leadout_frame);
+	return details::make_arid(offset_frames, leadout_frame);
 }
 
 
 std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
 {
-	return make_arid(toc.offsets(), leadout);
+	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
+			leadout.total_frames());
 }
 
 
 std::unique_ptr<ARId> make_arid(const ToC& toc)
 {
-	return make_arid(toc.offsets(), toc.leadout());
+	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
+			toc.leadout().total_frames());
 }
 
 // make_empty_arid

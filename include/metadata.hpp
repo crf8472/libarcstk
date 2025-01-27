@@ -10,6 +10,7 @@
 #include "policies.hpp"   // for Comparable, TotallyOrdered
 #endif
 
+#include <algorithm>      // for transform
 #include <cstdint>        // for uint32_t, int32_t
 #include <memory>         // for unique_ptr
 #include <vector>         // for vector
@@ -131,6 +132,20 @@ struct CDDA final
 };
 
 
+enum class UNIT : int
+{
+	FRAMES  = 1,
+	SAMPLES = CDDA::SAMPLES_PER_FRAME,
+	BYTES   = CDDA::BYTES_PER_FRAME
+};
+
+// F -> S : f * SAMPLES   multiply by bigger type iff one type is 1
+// F -> B : f * BYTES     multiply by bigger type iff one type is 1
+// S -> F : f \ SAMPLES   divide by bigger type iff one type is 1
+// S -> B : f * (BYTES \ SAMPLES)
+// B -> F : f \ BYTES     divide by bigger type iff one type is 1
+// B -> S : f \ (BYTES \ SAMPLES)
+
 /**
  * \brief Uniform access to the size of the input audio information.
  *
@@ -156,10 +171,10 @@ public:
 	/**
 	 * \brief Units for size declaration
 	 */
-	enum class UNIT
-	{
-		SAMPLES, FRAMES, BYTES
-	};
+	// enum class UNIT
+	// {
+	// 	SAMPLES, FRAMES, BYTES
+	// };
 
 	/**
 	 * \brief Constructor.
@@ -281,14 +296,14 @@ private:
 	 * \param[in] value Value to set
 	 * \param[in] unit  Unit to convert to bytes from
 	 */
-	void set_value(const int32_t value, AudioSize::UNIT unit);
+	void set_value(const int32_t value, const UNIT unit);
 
 	/**
 	 * \brief Get internal size in the specified unit.
 	 *
 	 * \param[in] unit  Unit to convert bytes amount to
 	 */
-	int32_t read_as(const AudioSize::UNIT unit) const;
+	int32_t read_as(const UNIT unit) const;
 };
 
 bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
@@ -350,6 +365,15 @@ AudioSize leadout(const ToCData& data);
  * \return Offsets of a ToC object
  */
 std::vector<AudioSize> offsets(const ToCData& data);
+
+/**
+ * \brief Lengths of tracks object.
+ *
+ * \param[in] data ToCData to read from
+ *
+ * \return Track lengths
+ */
+std::vector<AudioSize> lengths(const ToCData& data);
 
 /**
  * \brief Total tracks of a ToC object.
@@ -442,7 +466,7 @@ public:
 	 *
 	 * \return Offsets
 	 */
-	std::vector<AudioSize>   offsets() const;
+	std::vector<AudioSize> offsets() const;
 
 	/**
 	 * \brief Filenames of this ToC.

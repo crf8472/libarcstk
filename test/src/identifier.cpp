@@ -12,6 +12,9 @@
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
+#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#include "identifier_details.hpp"
+#endif
 
 
 /**
@@ -141,7 +144,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		std::unique_ptr<arcstk::ARId> id1 = arcstk::make_arid(
+		std::unique_ptr<arcstk::ARId> id1 = arcstk::details::make_arid(
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -168,7 +171,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		std::unique_ptr<arcstk::ARId> id2 = arcstk::make_arid(
+		std::unique_ptr<arcstk::ARId> id2 = arcstk::details::make_arid(
 			// offsets
 			{ 32, 96985, 166422 },
 			// leadout
@@ -194,7 +197,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		std::unique_ptr<arcstk::ARId> id3 = arcstk::make_arid(
+		std::unique_ptr<arcstk::ARId> id3 = arcstk::details::make_arid(
 			// offsets
 			{ 33, 34283, 49908, 71508, 97983, 111183, 126708, 161883, 187158 },
 			// leadout
@@ -220,7 +223,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// Bent: "Programmed to Love"
 
-		std::unique_ptr<arcstk::ARId> id4 = arcstk::make_arid(
+		std::unique_ptr<arcstk::ARId> id4 = arcstk::details::make_arid(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -248,7 +251,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[identifier] [aridbuilder]" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		std::unique_ptr<arcstk::ARId> id5 = arcstk::make_arid(
+		std::unique_ptr<arcstk::ARId> id5 = arcstk::details::make_arid(
 			// offsets
 			{ 33 },
 			// leadout

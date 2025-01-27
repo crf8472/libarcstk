@@ -43,26 +43,27 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 	SECTION ( "Partitioning with TOC in 1 block is correct" )
 	{
 		using arcstk::AudioSize;
+		using arcstk::UNIT;
 
 		auto p { arcstk::details::get_partitioning(
 				{ /* use samples in one block  */    0, 253038 * 588        },
 				{ /* use accuraterip algorithm */ 2939, 253038 * 588 - 2940 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
-					AudioSize {     33 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   5225 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   7390 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  23380 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  35608 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  49820 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  69508 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  87733 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 106333 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 139495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 157863 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 198495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 213368 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 225320 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 234103 * 588, AudioSize::UNIT::SAMPLES }
+					AudioSize {     33 * 588, UNIT::SAMPLES },
+					AudioSize {   5225 * 588, UNIT::SAMPLES },
+					AudioSize {   7390 * 588, UNIT::SAMPLES },
+					AudioSize {  23380 * 588, UNIT::SAMPLES },
+					AudioSize {  35608 * 588, UNIT::SAMPLES },
+					AudioSize {  49820 * 588, UNIT::SAMPLES },
+					AudioSize {  69508 * 588, UNIT::SAMPLES },
+					AudioSize {  87733 * 588, UNIT::SAMPLES },
+					AudioSize { 106333 * 588, UNIT::SAMPLES },
+					AudioSize { 139495 * 588, UNIT::SAMPLES },
+					AudioSize { 157863 * 588, UNIT::SAMPLES },
+					AudioSize { 198495 * 588, UNIT::SAMPLES },
+					AudioSize { 213368 * 588, UNIT::SAMPLES },
+					AudioSize { 225320 * 588, UNIT::SAMPLES },
+					AudioSize { 234103 * 588, UNIT::SAMPLES }
 				}
 		)};
 
@@ -184,26 +185,27 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 	SECTION ( "Partitioning with TOC: first block is correct" )
 	{
 		using arcstk::AudioSize;
+		using arcstk::UNIT;
 
 		auto p { arcstk::details::get_partitioning(
 				{ /* use samples in one block  */    0, 29000000 },
 				{ /* use accuraterip algorithm */ 2939, 148786344 - 2940 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
-					AudioSize {     33 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   5225 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   7390 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  23380 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  35608 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  49820 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  69508 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  87733 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 106333 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 139495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 157863 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 198495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 213368 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 225320 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 234103 * 588, AudioSize::UNIT::SAMPLES }
+					AudioSize {     33 * 588, UNIT::SAMPLES },
+					AudioSize {   5225 * 588, UNIT::SAMPLES },
+					AudioSize {   7390 * 588, UNIT::SAMPLES },
+					AudioSize {  23380 * 588, UNIT::SAMPLES },
+					AudioSize {  35608 * 588, UNIT::SAMPLES },
+					AudioSize {  49820 * 588, UNIT::SAMPLES },
+					AudioSize {  69508 * 588, UNIT::SAMPLES },
+					AudioSize {  87733 * 588, UNIT::SAMPLES },
+					AudioSize { 106333 * 588, UNIT::SAMPLES },
+					AudioSize { 139495 * 588, UNIT::SAMPLES },
+					AudioSize { 157863 * 588, UNIT::SAMPLES },
+					AudioSize { 198495 * 588, UNIT::SAMPLES },
+					AudioSize { 213368 * 588, UNIT::SAMPLES },
+					AudioSize { 225320 * 588, UNIT::SAMPLES },
+					AudioSize { 234103 * 588, UNIT::SAMPLES }
 				}
 		)};
 
@@ -255,26 +257,27 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 	SECTION ( "Partitioning with TOC: last block is correct" )
 	{
 		using arcstk::AudioSize;
+		using arcstk::UNIT;
 
 		auto p { arcstk::details::get_partitioning(
 				{ /* use samples in one block  */  120000000, 148786344 },
 				{ /* use accuraterip algorithm */ 2940, 148786344 - 2939 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
-					AudioSize {     33 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   5225 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {   7390 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  23380 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  35608 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  49820 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  69508 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize {  87733 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 106333 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 139495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 157863 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 198495 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 213368 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 225320 * 588, AudioSize::UNIT::SAMPLES },
-					AudioSize { 234103 * 588, AudioSize::UNIT::SAMPLES }
+					AudioSize {     33 * 588, UNIT::SAMPLES },
+					AudioSize {   5225 * 588, UNIT::SAMPLES },
+					AudioSize {   7390 * 588, UNIT::SAMPLES },
+					AudioSize {  23380 * 588, UNIT::SAMPLES },
+					AudioSize {  35608 * 588, UNIT::SAMPLES },
+					AudioSize {  49820 * 588, UNIT::SAMPLES },
+					AudioSize {  69508 * 588, UNIT::SAMPLES },
+					AudioSize {  87733 * 588, UNIT::SAMPLES },
+					AudioSize { 106333 * 588, UNIT::SAMPLES },
+					AudioSize { 139495 * 588, UNIT::SAMPLES },
+					AudioSize { 157863 * 588, UNIT::SAMPLES },
+					AudioSize { 198495 * 588, UNIT::SAMPLES },
+					AudioSize { 213368 * 588, UNIT::SAMPLES },
+					AudioSize { 225320 * 588, UNIT::SAMPLES },
+					AudioSize { 234103 * 588, UNIT::SAMPLES }
 				}
 		)};
 

@@ -17,6 +17,9 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, ToC, CDDA
 #endif
+#ifndef __LIBARCSTK_METADATA_CONV_HPP__
+#include "metadata_conv.hpp" // for convert
+#endif
 
 #include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
@@ -42,15 +45,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 	{
 		return get_partitioning(interval, legal);
 	}
-
-	// convert from AudioSize to int32_t(samples)
-	// TODO convert this generically
-	auto points { std::vector<int32_t>(opoints.size()) };
-	using std::cbegin;
-	using std::cend;
-	using std::begin;
-	std::transform(cbegin(opoints), cend(opoints), begin(points),
-			[](const AudioSize& a) -> int32_t { return a.total_samples(); });
+	const auto points { details::convert<UNIT::SAMPLES>(opoints) };
 
 	const auto real_lower = std::max(legal.lower(), interval.lower());
 	const auto real_upper = std::min(legal.upper(), interval.upper());

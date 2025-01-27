@@ -11,125 +11,75 @@
 #include "metadata_details.hpp"  // for frames2samples, samples2frames,...
 #endif
 
-
-TEST_CASE ( "Unit conversions", "[metadata_details]" )
+TEST_CASE ("convert_to_bytes()", "[metadata_details]")
 {
-	using arcstk::details::frames2samples;
-	using arcstk::details::samples2frames;
-	using arcstk::details::bytes2samples;
-	using arcstk::details::samples2bytes;
-	using arcstk::details::frames2bytes;
-	using arcstk::details::bytes2frames;
+	using arcstk::details::convert_to_bytes;
+	using arcstk::UNIT;
 
-	SECTION ( "frames2samples() is correct" )
+	SECTION ( "Converts samples to bytes correctly" )
 	{
-		CHECK ( frames2samples(-2) == -1176 );
-		CHECK ( frames2samples(-1) ==  -588 );
-		CHECK ( frames2samples( 0) ==     0 );
-		CHECK ( frames2samples( 1) ==   588 );
-		CHECK ( frames2samples( 2) ==  1176 );
-
-		CHECK ( frames2samples(253038) == 148786344 );
+		CHECK ( convert_to_bytes(3072300, UNIT::SAMPLES) == 12289200 );
 	}
 
-	SECTION ( "samples2frames() is correct" )
+	SECTION ( "Converts frames to bytes correctly" )
 	{
-		CHECK ( samples2frames(-588) == -1 );
-		CHECK ( samples2frames(-587) ==  0 );
-		CHECK ( samples2frames(-586) ==  0 );
-		CHECK ( samples2frames(-585) ==  0 );
-		//...
-		CHECK ( samples2frames(  -2) ==  0 );
-		CHECK ( samples2frames(  -1) ==  0 );
-		CHECK ( samples2frames(   0) ==  0 );
-		CHECK ( samples2frames(   1) ==  0 );
-		CHECK ( samples2frames(   2) ==  0 );
-		// ...
-		CHECK ( samples2frames( 585) ==  0 );
-		CHECK ( samples2frames( 586) ==  0 );
-		CHECK ( samples2frames( 587) ==  0 );
-
-		// every i : -588 < i < 588 will be 0
-
-		CHECK ( samples2frames(588)  == 1 );
-		CHECK ( samples2frames(589)  == 1 );
-		CHECK ( samples2frames(590)  == 1 );
-
-		CHECK ( samples2frames(1176) == 2 );
-
-		CHECK ( samples2frames(148786344) == 253038 );
+		CHECK ( convert_to_bytes(5225, UNIT::FRAMES) == 12289200 );
 	}
 
-	SECTION ( "samples2bytes() is correct" )
+	SECTION ( "Returns bytes when bytes were passed" )
 	{
-		CHECK ( samples2bytes(-2)   == -8 );
-		CHECK ( samples2bytes(-1)   == -4 );
-		CHECK ( samples2bytes( 0)   ==  0 );
-		CHECK ( samples2bytes( 1)   ==  4 );
-		CHECK ( samples2bytes( 2)   ==  8 );
+		CHECK ( convert_to_bytes(12345, UNIT::BYTES) == 12345 );
+	}
+}
 
-		CHECK ( samples2bytes(586)  == 2344 );
-		CHECK ( samples2bytes(587)  == 2348 );
-		CHECK ( samples2bytes(588)  == 2352 );
+TEST_CASE ("validate_lengths()", "[metadata_details]")
+{
+	using arcstk::details::validate::validate_lengths;
 
-		CHECK ( samples2bytes(1176) == 4704 );
+	using arcstk::toc::construct;
 
-		CHECK ( samples2bytes(148786344) == 595145376 );
+	const auto toc_data { construct(
+		253038,
+		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 }
+	)};
+
+	SECTION ("Validates correct distances correctly")
+	{
+		CHECK_NOTHROW ( validate_lengths(toc_data) );
 	}
 
-	SECTION ( "bytes2samples() is correct" )
+	SECTION ("Throws on leadout too short")
 	{
-		CHECK ( bytes2samples(-5)   == -1 );
-		CHECK ( bytes2samples(-4)   == -1 );
-		CHECK ( bytes2samples(-3)   ==  0 );
-		CHECK ( bytes2samples(-2)   ==  0 );
-		CHECK ( bytes2samples(-1)   ==  0 );
-		CHECK ( bytes2samples( 0)   ==  0 );
-		CHECK ( bytes2samples( 1)   ==  0 );
-		CHECK ( bytes2samples( 2)   ==  0 );
-		CHECK ( bytes2samples( 3)   ==  0 );
-		CHECK ( bytes2samples( 4)   ==  1 );
-		CHECK ( bytes2samples( 5)   ==  1 );
-		CHECK ( bytes2samples( 6)   ==  1 );
-		CHECK ( bytes2samples( 7)   ==  1 );
-		CHECK ( bytes2samples( 8)   ==  2 );
-		CHECK ( bytes2samples( 9)   ==  2 );
+		const auto toc_data1 { construct(
+			234104, // last track is 1 frame
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+				157863, 198495, 213368, 225320, 234103 }
+		)};
 
-		// every i : -4 < i < 4 will be 0
-
-		CHECK ( bytes2samples(2344) == 586 );
-		CHECK ( bytes2samples(2348) == 587 );
-		CHECK ( bytes2samples(2352) == 588 );
-
-		CHECK ( bytes2samples(4704) == 1176 );
-
-		CHECK ( bytes2samples(595145376) == 148786344 );
+		CHECK_THROWS ( validate_lengths(toc_data1) );
 	}
 
-	SECTION ( "frames2bytes() is correct" )
+	SECTION ("Throws on first track too short")
 	{
-		CHECK ( frames2bytes( -2)  == -4704 );
-		CHECK ( frames2bytes( -1)  == -2352 );
-		CHECK ( frames2bytes(  0)  ==     0 );
-		CHECK ( frames2bytes(  1)  ==  2352 );
-		CHECK ( frames2bytes(  2)  ==  4704 );
+		const auto toc_data1 { construct(
+			253038,
+			{ 33, 33 /* 0 length */, 7390, 23380, 35608, 49820, 69508, 87733,
+				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
+		)};
 
-		CHECK ( frames2bytes(253038) == 595145376 );
+		CHECK_THROWS ( validate_lengths(toc_data1) );
 	}
 
-	SECTION ( "bytes2frames() is correct" )
+	SECTION ("Throws on some mid track too short")
 	{
-		CHECK ( bytes2frames( 2352)   ==  1 );
-		CHECK ( bytes2frames( 2351)   ==  0 );
-		// ...
-		CHECK ( bytes2frames(    0)   ==  0 );
-		CHECK ( bytes2frames(    1)   ==  0 );
-		CHECK ( bytes2frames(    2)   ==  0 );
-		// ...
-		CHECK ( bytes2frames( 2351)   ==  0 );
-		CHECK ( bytes2frames( 2352)   ==  1 );
+		const auto toc_data1 { construct(
+			253038,
+			{ 33, 5225, 7390, 23380, 35608, 49820, 49825/* too short */, 87733,
+				106333, 139495, 157863, 198495, 213368, 225320, 234103 }
+		)};
 
-		CHECK ( bytes2frames(595145376) == 253038 );
+		CHECK_THROWS ( validate_lengths(toc_data1) );
 	}
 }
 

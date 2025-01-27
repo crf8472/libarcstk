@@ -11,7 +11,9 @@
  * \brief Declare implementation details for metadata.hpp.
  */
 
+#include <algorithm>      // for transform
 #include <cstdint>        // for int32_t
+#include <vector>         // for vector
 
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"
@@ -32,7 +34,7 @@ namespace details
  *
  * \return Amount of samples equivalent to \c frames
  */
-int32_t frames2samples(const int32_t frames);
+//int32_t frames2samples(const int32_t frames);
 
 /**
  * \brief Convert amount of samples to the equivalent amount of frames.
@@ -41,7 +43,7 @@ int32_t frames2samples(const int32_t frames);
  *
  * \return Amount of frames equivalent to \c samples
  */
-int32_t samples2frames(const int32_t samples);
+//int32_t samples2frames(const int32_t samples);
 
 /**
  * \brief Convert amount of frames to the equivalent amount of bytes.
@@ -50,7 +52,7 @@ int32_t samples2frames(const int32_t samples);
  *
  * \return Amount of bytes equivalent to \c frames
  */
-int32_t frames2bytes(const int32_t frames);
+//int32_t frames2bytes(const int32_t frames);
 
 /**
  * \brief Convert amount of bytes to the equivalent amount of frames.
@@ -59,7 +61,7 @@ int32_t frames2bytes(const int32_t frames);
  *
  * \return Amount of frames equivalent to \c bytes
  */
-int32_t bytes2frames(const int32_t bytes);
+//int32_t bytes2frames(const int32_t bytes);
 
 /**
  * \brief Convert amount of samples to the equivalent amount of bytes.
@@ -68,7 +70,7 @@ int32_t bytes2frames(const int32_t bytes);
  *
  * \return Amount of bytes equivalent to \c samples
  */
-int32_t samples2bytes(const int32_t samples);
+//int32_t samples2bytes(const int32_t samples);
 
 /**
  * \brief Convert amount of bytes to the equivalent amount of samples.
@@ -77,7 +79,7 @@ int32_t samples2bytes(const int32_t samples);
  *
  * \return Amount of samples equivalent to \c bytes
  */
-int32_t bytes2samples(const int32_t bytes);
+//int32_t bytes2samples(const int32_t bytes);
 
 
 /**
@@ -88,7 +90,7 @@ int32_t bytes2samples(const int32_t bytes);
  *
  * \return The equivalent number of bytes.
  */
-int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept;
+int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 
 /**
  * \brief Convert \c bytes to the specified \c unit.
@@ -98,7 +100,7 @@ int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept;
  *
  * \return The equivalent value in the specified unit
  */
-int32_t from_bytes(const int32_t bytes, const AudioSize::UNIT unit) noexcept;
+int32_t convert_from_bytes(const int32_t bytes, const UNIT unit) noexcept;
 
 
 namespace validate
@@ -120,12 +122,44 @@ static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
  */
 static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 
-void legal_leadout_size(const ToCData& toc_data);
-void legal_offset_sizes(const ToCData& toc_data);
-void legal_total_tracks(const ToCData& toc_data);
+/**
+ * \brief Worker to validate LBA frame offset for being in legal range.
+ *
+ * \param[in] frames LBA frame amount to validate
+ *
+ * \throws std::invalid_argument
+ */
+void is_legal_offset(const int32_t offset);
 
-void legal_ordering(const ToCData& toc_data);
-void legal_minimum_distances(const ToCData& toc_data);
+/**
+ * \brief Worker to validate track length in frames for being of legal size.
+ *
+ * \param[in] length Track length in LBA frames to validate
+ *
+ * \throws std::invalid_argument
+ */
+void is_legal_length(const int32_t length);
+
+/**
+ * \brief Validate leadout.
+ *
+ * \param[in] toc_data ToCData to validate
+ */
+void validate_leadout(const ToCData& toc_data);
+
+/**
+ * \brief Validate all offsets.
+ *
+ * \param[in] toc_data ToCData to validate
+ */
+void validate_offsets(const ToCData& toc_data);
+
+/**
+ * \brief Validate all lengths.
+ *
+ * \param[in] toc_data ToCData to validate
+ */
+void validate_lengths(const ToCData& toc_data);
 
 }
 

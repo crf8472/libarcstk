@@ -21,7 +21,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 	using arcstk::sample_t;
 
 	// fits calculation-test-01.bin
-	//auto audiosize = AudioSize { 196608, AudioSize::UNIT::SAMPLES };
+	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{

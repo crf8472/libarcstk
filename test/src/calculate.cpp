@@ -28,7 +28,7 @@
 TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 {
 	using arcstk::AudioSize;
-	using UNIT = arcstk::AudioSize::UNIT;
+	using arcstk::UNIT;
 
 	AudioSize empty_size{};
 
@@ -76,10 +76,10 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 	SECTION ("Parametized construction is as declared")
 	{
 		CHECK ( std::is_constructible<AudioSize,
-				const int32_t, const AudioSize::UNIT>::value );
+				const int32_t, const UNIT>::value );
 
 		CHECK ( std::is_nothrow_constructible<AudioSize,
-				const int32_t, const AudioSize::UNIT>::value );
+				const int32_t, const UNIT>::value );
 	}
 
 	SECTION ("Parametized construction is correct")
@@ -364,6 +364,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	using arcstk::Points;
 	using arcstk::Settings;
 	using arcstk::ToC;
+	using arcstk::UNIT;
 
 
 	const auto toc = make_toc(
@@ -374,7 +375,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 			106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 	);
 
-	const auto size { AudioSize { 253038, AudioSize::UNIT::FRAMES } };
+	const auto size { AudioSize { 253038, UNIT::FRAMES } };
 
 	auto calculation { Calculation(Context::ALBUM,
 			std::make_unique<AccurateRipV1V2>(),
@@ -510,10 +511,10 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 	}
 
 	// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
-	// 		CDDA::MAX_OFFSET + 1, AudioSize::UNIT::FRAMES };
+	// 		CDDA::MAX_OFFSET + 1, UNIT::FRAMES };
 	//
 	// 	const auto size_too_small = AudioSize { // smaller than allowed MIN
-	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, AudioSize::UNIT::FRAMES };
+	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, UNIT::FRAMES };
 
 
 	SECTION ("make_calculation() with complete ToC succeeds")

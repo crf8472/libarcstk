@@ -121,9 +121,16 @@ std::string construct_id(const int track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
 
-
-// TODO Implement this as a universal template like toc_get()
-std::vector<int32_t> to_frames(const std::vector<AudioSize>& offsets);
+/**
+ * \brief Create an ARId from the toc data.
+ *
+ * \param[in] offsets Offsets (in LBA frames)
+ * \param[in] leadout Leadout (in LBA frames)
+ *
+ * \return ARId
+ */
+std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
+		const int32_t leadout);
 
 } //namespace details
 

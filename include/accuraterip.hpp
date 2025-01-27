@@ -8,6 +8,9 @@
 
 #include <cstdint>  // for uint_fast32_t, uint_fast64_t, int32_t
 
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"                // for Identifier
+#endif
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                  // for checksum::type, ChecksumSet
 #endif
@@ -24,6 +27,12 @@ namespace accuraterip
 {
 namespace details
 {
+
+// Id calculation
+
+// TODO
+
+// Checksum calculation
 
 /**
  * \internal

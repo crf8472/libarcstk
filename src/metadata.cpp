@@ -10,6 +10,9 @@
 #ifndef __LIBARCSTK_METADATA_DETAILS_HPP__
 #include "metadata_details.hpp"
 #endif
+#ifndef __LIBARCSTK_METADATA_CONV_HPP__
+#include "metadata_conv.hpp"
+#endif
 
 #include <algorithm>     // for transform
 #include <sstream>       // for stringstream
@@ -17,6 +20,7 @@
 #include <string>        // for vector
 #include <vector>        // for string
 #include <unordered_set> // for unordered_set
+#include <iostream>
 
 namespace arcstk
 {
@@ -29,7 +33,7 @@ inline namespace v_1_0_0
 
 namespace details
 {
-
+/*
 int32_t frames2samples(const int32_t frames)
 {
 	return frames * CDDA::SAMPLES_PER_FRAME;
@@ -64,17 +68,16 @@ int32_t bytes2samples(const int32_t bytes)
 {
 	return bytes / CDDA::BYTES_PER_SAMPLE;
 }
+*/
 
-
-// TODO Implement this generically like toc_get
-int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
+int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
 {
-	using UNIT = AudioSize::UNIT;
-
 	switch (unit) // TODO template?
 	{
-		case UNIT::FRAMES:  return frames2bytes(value);
-		case UNIT::SAMPLES: return samples2bytes(value);
+		//case UNIT::FRAMES:  return frames2bytes(value);
+		//case UNIT::SAMPLES: return samples2bytes(value);
+		case UNIT::FRAMES:  return convert<UNIT::FRAMES,  UNIT::BYTES>(value);
+		case UNIT::SAMPLES: return convert<UNIT::SAMPLES, UNIT::BYTES>(value);
 		default:            return value;
 	}
 
@@ -82,15 +85,14 @@ int32_t to_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
 }
 
 
-// TODO Implement this generically like toc_get
-int32_t from_bytes(const int32_t value, const AudioSize::UNIT unit) noexcept
+int32_t convert_from_bytes(const int32_t value, const UNIT unit) noexcept
 {
-	using UNIT = AudioSize::UNIT;
-
 	switch (unit) // TODO template?
 	{
-		case UNIT::FRAMES:  return bytes2frames(value);
-		case UNIT::SAMPLES: return bytes2samples(value);
+		//case UNIT::FRAMES:  return bytes2frames(value);
+		//case UNIT::SAMPLES: return bytes2samples(value);
+		case UNIT::FRAMES:  return convert<UNIT::BYTES, UNIT::FRAMES>(value);
+		case UNIT::SAMPLES: return convert<UNIT::BYTES, UNIT::SAMPLES>(value);
 		default:            return value;
 	}
 
@@ -110,125 +112,129 @@ namespace validate
  */
 void throw_on_invalid_tocdata(const std::string& msg);
 
-
 void throw_on_invalid_tocdata(const std::string& msg)
 {
 	throw std::invalid_argument(msg);
 }
 
 
-/**
- * \brief Worker to validate frame value for being in legal range.
- *
- * \param[in] frames LBA frame amount to validate
- *
- * \throws std::invalid_argument
- */
-void in_legal_frame_range(const int32_t frames);
-
-void in_legal_frame_range(const int32_t frames)
+void is_legal_offset(const int32_t offset)
 {
 	using std::to_string;
 
-	if (frames < CDDA::MIN_TRACK_OFFSET_DIST)
+	if (offset < 0)
 	{
 		auto ss = std::stringstream {};
-		ss << "Value " << frames << " is smaller than minimum track length";
+		ss << "Negative value " << offset << " is not an offset";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
-	if (frames > CDDA::MAX_BLOCK_ADDRESS)
+	if (offset > CDDA::MAX_BLOCK_ADDRESS)
 	{
 		auto ss = std::stringstream {};
-		ss << "Value " << frames << " exceeds physical maximum";
+		ss << "Value " << offset << " exceeds physical maximum";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
-	if (frames > MAX_OFFSET_99)
+	if (offset > MAX_OFFSET_99)
 	{
 		auto ss = std::stringstream {};
 		ss << "Value exceeds physical range of 99 min ("
-				<< to_string(MAX_OFFSET_99) << " frames)";
+				<< to_string(MAX_OFFSET_99) << " offset)";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
-	if (frames > MAX_OFFSET_90)
+	if (offset > MAX_OFFSET_90)
 	{
 		auto ss = std::stringstream {};
 		ss << "Value exceeds "
-			<< std::to_string(MAX_OFFSET_90) << " frames (90 min)";
+			<< std::to_string(MAX_OFFSET_90) << " offset (90 min)";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
-	if (frames > CDDA::MAX_OFFSET)
+	if (offset > CDDA::MAX_OFFSET)
 	{
 		auto ss = std::stringstream {};
-		ss << "Value " << frames << " exceeds redbook maximum";
+		ss << "Value " << offset << " exceeds redbook maximum";
 		throw_on_invalid_tocdata(ss.str());
 	}
 }
 
 
-void legal_leadout_size(const ToCData& toc_data)
+void is_legal_length(const int32_t length)
+{
+	if (length < CDDA::MIN_TRACK_LEN_FRAMES)
+	{
+		using std::to_string;
+		throw_on_invalid_tocdata(to_string(length));
+	}
+}
+
+
+void validate_leadout(const ToCData& toc_data)
 {
 	const auto leadout { toc::leadout(toc_data).total_frames() };
-	in_legal_frame_range(leadout);
-}
 
+	is_legal_offset(leadout);
 
-void legal_offset_sizes(const ToCData& /*toc_data*/)
-{
-	// TODO Implement
-}
-
-
-void legal_total_tracks(const ToCData& /*toc_data*/)
-{
-	// TODO Implement
-}
-
-
-void legal_ordering(const ToCData& /*toc_data*/)
-{
-	// TODO Implement
-}
-
-
-void legal_minimum_distances(const ToCData& toc_data)
-{
-	// Has each offset legal minimal distance to its predecessor?
-
-	auto curr_len = int32_t { 0 };
-	auto prev_len = curr_len;
-
-	auto track = ToCData::size_type { 1 }; // track number
-	auto c     = ToCData::size_type { 0 }; // count comparisons
-	while (c < toc_data.size())
+	if (leadout < CDDA::MIN_TRACK_OFFSET_DIST)
 	{
-		prev_len = toc_data[track].total_frames();
-
-		++track;
-		track %= toc_data.size(); // after last track, flip back to 0
-
-		curr_len = toc_data[track].total_frames();
-
-		if (curr_len - prev_len < CDDA::MIN_TRACK_LEN_FRAMES)
-		{
-			using std::to_string;
-			auto ss = std::stringstream {};
-			ss << "Illegal length: Track "
-				<< to_string(track > 0 ? track - 1 : toc_data.size() - 1)
-				<< "is too short (" << (curr_len - prev_len) << " frames)";
-
-			throw_on_invalid_tocdata(ss.str());
-		}
-
-		++c;
+		auto ss = std::stringstream {};
+		ss << "Leadout " << leadout << " is smaller than minimum track length";
+		throw_on_invalid_tocdata(ss.str());
 	}
+}
+
+
+void validate_offsets(const ToCData& toc_data)
+{
+	const auto offsets { toc::offsets(toc_data) };
+
+	using std::cbegin;
+	using std::cend;
+
+	std::for_each(cbegin(offsets), cend(offsets),
+		[](const AudioSize& a)
+		{
+			is_legal_offset(a.total_frames());
+		}
+	);
+}
+
+
+void validate_lengths(const ToCData& toc_data)
+{
+	const auto lengths { toc::lengths(toc_data) };
+
+	using std::cbegin;
+	using std::cend;
+
+	auto track { 1 };
+	std::for_each(cbegin(lengths), cend(lengths),
+		[&track](const AudioSize& a)
+		{
+			try
+			{
+				// Length = next track offset - previous track offset
+				// Has each offset legal minimal distance to its predecessor?
+				is_legal_length(a.total_frames());
+			}
+			catch (const std::invalid_argument& e)
+			{
+				using std::to_string;
+				auto ss = std::stringstream {};
+				ss << "Illegal length: Track " << track
+					<< " is too short (length is " << e.what() << " frames)";
+
+				throw_on_invalid_tocdata(ss.str());
+			}
+
+			++track;
+		}
+	);
 }
 
 } // namespace validate
-
 } // namespace details
 
 
@@ -239,14 +245,14 @@ void legal_minimum_distances(const ToCData& toc_data)
 
 
 AudioSize::AudioSize() noexcept
-	: AudioSize { 0, AudioSize::UNIT::BYTES }
+	: AudioSize { 0, UNIT::BYTES }
 {
 	// empty
 }
 
 
-AudioSize::AudioSize(const int32_t value, const AudioSize::UNIT unit) noexcept
-	: total_pcm_bytes_ { details::to_bytes(value, unit) }
+AudioSize::AudioSize(const int32_t value, const UNIT unit) noexcept
+	: total_pcm_bytes_ { details::convert_to_bytes(value, unit) }
 {
 	// empty
 }
@@ -260,37 +266,37 @@ int32_t AudioSize::leadout_frame() const
 
 int32_t AudioSize::total_frames() const
 {
-	return read_as(AudioSize::UNIT::FRAMES);
+	return read_as(UNIT::FRAMES);
 }
 
 
 void AudioSize::set_total_frames(const int32_t frame_count)
 {
-	set_value(frame_count, AudioSize::UNIT::FRAMES);
+	set_value(frame_count, UNIT::FRAMES);
 }
 
 
 int32_t AudioSize::total_samples() const
 {
-	return read_as(AudioSize::UNIT::SAMPLES);
+	return read_as(UNIT::SAMPLES);
 }
 
 
 void AudioSize::set_total_samples(const int32_t sample_count)
 {
-	set_value(sample_count, AudioSize::UNIT::SAMPLES);
+	set_value(sample_count, UNIT::SAMPLES);
 }
 
 
 int32_t AudioSize::total_pcm_bytes() const noexcept
 {
-	return read_as(AudioSize::UNIT::BYTES);
+	return read_as(UNIT::BYTES);
 }
 
 
 void AudioSize::set_total_pcm_bytes(const int32_t byte_count) noexcept
 {
-	set_value(byte_count, AudioSize::UNIT::BYTES);
+	set_value(byte_count, UNIT::BYTES);
 }
 
 
@@ -323,7 +329,7 @@ int32_t AudioSize::max(const UNIT unit) noexcept
 }
 
 
-void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
+void AudioSize::set_value(const int32_t value, const UNIT unit)
 {
 	using std::to_string;
 
@@ -342,13 +348,13 @@ void AudioSize::set_value(const int32_t value, AudioSize::UNIT unit)
 		throw std::underflow_error(ss.str());
 	}
 
-	total_pcm_bytes_ = details::to_bytes(value, unit);
+	total_pcm_bytes_ = details::convert_to_bytes(value, unit);
 }
 
 
-int32_t AudioSize::read_as(const AudioSize::UNIT unit) const
+int32_t AudioSize::read_as(const UNIT unit) const
 {
-	return details::from_bytes(total_pcm_bytes_, unit);
+	return details::convert_from_bytes(total_pcm_bytes_, unit);
 }
 
 
@@ -394,13 +400,13 @@ ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets)
 
 	auto ptr { begin(toc) };
 
-	*ptr = AudioSize { leadout, AudioSize::UNIT::FRAMES };
+	*ptr = AudioSize { leadout, UNIT::FRAMES };
 	++ptr;
 
 	std::transform(cbegin(offsets), cend(offsets), ptr,
 			[](const int32_t o) -> AudioSize
 			{
-				return AudioSize { o, AudioSize::UNIT::FRAMES };
+				return AudioSize { o, UNIT::FRAMES };
 			});
 
 	toc.shrink_to_fit();
@@ -422,8 +428,7 @@ void set_leadout(const AudioSize& leadout, ToCData& data)
 
 AudioSize leadout(const ToCData& data)
 {
-	return data.empty() ? AudioSize { 0, AudioSize::UNIT::FRAMES }
-		: data.front();
+	return data.empty() ? AudioSize { 0, UNIT::FRAMES } : data.front();
 }
 
 
@@ -441,6 +446,36 @@ std::vector<AudioSize> offsets(const ToCData& data)
 }
 
 
+std::vector<AudioSize> lengths(const ToCData& data)
+{
+	const auto total_tracks { static_cast<unsigned>(toc::total_tracks(data)) };
+
+	auto lengths { std::vector<AudioSize>{} };
+
+	auto curr_offset = int32_t { 0 };
+	auto prev_offset = curr_offset;
+
+	auto track = ToCData::size_type { 1 }; // track number
+	auto c     = ToCData::size_type { 0 }; // count comparisons
+
+	while (c < total_tracks)
+	{
+		prev_offset = data[track].total_frames();
+
+		++track;
+		track %= data.size(); // after last track, flip back to 0
+
+		curr_offset = data[track].total_frames();
+
+		lengths.emplace_back(curr_offset - prev_offset, UNIT::FRAMES);
+
+		++c;
+	}
+
+	return lengths;
+}
+
+
 int total_tracks(const ToCData& data)
 {
 	return data.size() - 1;
@@ -455,12 +490,9 @@ bool complete(const ToCData& data)
 
 void validate(const ToCData& toc_data)
 {
-	details::validate::legal_leadout_size(toc_data);
-	details::validate::legal_offset_sizes(toc_data);
-	details::validate::legal_total_tracks(toc_data);
-
-	details::validate::legal_ordering(toc_data);
-	details::validate::legal_minimum_distances(toc_data);
+	details::validate::validate_leadout(toc_data);
+	details::validate::validate_offsets(toc_data);
+	details::validate::validate_lengths(toc_data);
 }
 
 } // namespace toc
