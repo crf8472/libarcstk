@@ -274,6 +274,8 @@ bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
+std::string to_string(const AudioSize& s);
+
 
 /**
  * \brief ToC data from a file, e.g. offsets and leadout.

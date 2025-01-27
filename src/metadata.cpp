@@ -312,6 +312,13 @@ bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 }
 
 
+std::string to_string(const AudioSize& s)
+{
+	using std::to_string;
+	return to_string(s.frames()) + " LBA frames";
+}
+
+
 // ToCData
 
 
