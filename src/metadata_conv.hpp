@@ -58,6 +58,13 @@ constexpr auto factor() -> int
 		? std::max(per_frame(F),per_frame(T))      // => bigger type
 		: std::max(per_frame(F),per_frame(T)) /    // otherwise
 			std::min(per_frame(F),per_frame(T));   // divide bigger by smaller
+
+// F -> S : f * SAMPLES   multiply by bigger type iff one type is 1
+// F -> B : f * BYTES     multiply by bigger type iff one type is 1
+// S -> F : f \ SAMPLES   divide by bigger type iff one type is 1
+// S -> B : f * (BYTES \ SAMPLES)
+// B -> F : f \ BYTES     divide by bigger type iff one type is 1
+// B -> S : f \ (BYTES \ SAMPLES)
 }
 
 
@@ -108,19 +115,19 @@ int32_t convert_to(const AudioSize& v);
 template <>
 inline int32_t convert_to<UNIT::FRAMES>(const AudioSize& v)
 {
-	return v.total_frames();
+	return v.frames();
 }
 
 template <>
 inline int32_t convert_to<UNIT::SAMPLES>(const AudioSize& v)
 {
-	return v.total_samples();
+	return v.samples();
 }
 
 template <>
 inline int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
 {
-	return v.total_pcm_bytes();
+	return v.bytes();
 }
 
 

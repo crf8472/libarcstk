@@ -211,7 +211,7 @@ std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
 	// if calc_range.lower() < 1, use 1 as lower
 	// if calc_range.upper() > size, use size as upper
 
-	return std::make_unique<TrackPartitioner>(size.total_samples(), points,
+	return std::make_unique<TrackPartitioner>(size.samples(), points,
 			calc_range);
 }
 
@@ -944,7 +944,7 @@ void Calculation::Impl::update(SampleInputIterator start,
 
 void Calculation::Impl::update(const AudioSize &audiosize)
 {
-	partitioner_->set_total_samples(audiosize.total_samples());
+	partitioner_->set_total_samples(audiosize.samples());
 }
 
 

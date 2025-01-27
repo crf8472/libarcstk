@@ -13,6 +13,7 @@
 #include <algorithm>      // for transform
 #include <cstdint>        // for uint32_t, int32_t
 #include <memory>         // for unique_ptr
+#include <stdexcept>      // for invalid_argument
 #include <vector>         // for vector
 
 namespace arcstk
@@ -132,6 +133,11 @@ struct CDDA final
 };
 
 
+/**
+ * \brief Represents an audio unit.
+ *
+ * Units are frames, samples or bytes.
+ */
 enum class UNIT : int
 {
 	FRAMES  = 1,
@@ -139,12 +145,33 @@ enum class UNIT : int
 	BYTES   = CDDA::BYTES_PER_FRAME
 };
 
-// F -> S : f * SAMPLES   multiply by bigger type iff one type is 1
-// F -> B : f * BYTES     multiply by bigger type iff one type is 1
-// S -> F : f \ SAMPLES   divide by bigger type iff one type is 1
-// S -> B : f * (BYTES \ SAMPLES)
-// B -> F : f \ BYTES     divide by bigger type iff one type is 1
-// B -> S : f \ (BYTES \ SAMPLES)
+
+/**
+ * \brief Return the maximum cdda conforming value for the specified UNIT.
+ */
+template <enum UNIT U>
+constexpr int32_t cdda_max() noexcept;
+
+// full specializations
+
+template <>
+inline constexpr int32_t cdda_max<UNIT::FRAMES>() noexcept
+{
+	return CDDA::MAX_BLOCK_ADDRESS;
+}
+
+template <>
+inline constexpr int32_t cdda_max<UNIT::SAMPLES>() noexcept
+{
+	return cdda_max<UNIT::FRAMES>() * CDDA::SAMPLES_PER_FRAME;
+}
+
+template <>
+inline constexpr int32_t cdda_max<UNIT::BYTES>() noexcept
+{
+	return cdda_max<UNIT::FRAMES>() * CDDA::BYTES_PER_FRAME;
+}
+
 
 /**
  * \brief Uniform access to the size of the input audio information.
@@ -182,100 +209,55 @@ public:
 	 * \param[in] unit  Unit for \c value
 	 */
 	AudioSize(const int32_t value, const UNIT unit) noexcept;
-	// FIXME This allows setting a value without a bounds check
 
+	/**
+	 * \brief Size in LBA frames.
+	 *
+	 * \return The size in LBA frames
+	 */
 	int32_t frames() const noexcept;
+
+	/**
+	 * \brief Update this size by an amount of LBA frames
+	 *
+	 * \param[in] frames Updated size to set as an amount of LBA frames
+	 */
 	void set_frames(const int32_t frames) noexcept;
+
+	/**
+	 * \brief Size in stereo PCM samples.
+	 *
+	 * \return The size in stereo PCM samples
+	 */
 	int32_t samples() const noexcept;
+
+	/**
+	 * \brief Update this size by an amount of stereo PCM samples.
+	 *
+	 * \param[in] samples Updated size to set as an amount of stereo PCM samples
+	 */
 	void set_samples(const int32_t samples) noexcept;
+
+	/**
+	 * \brief Size in bytes.
+	 *
+	 * \return The size in bytes
+	 */
 	int32_t bytes() const noexcept;
+
+	/**
+	 * \brief Update this size by an amount of bytes.
+	 *
+	 * \param[in] samples Updated size to set as an amount of bytes
+	 */
 	void set_bytes(const int32_t bytes) noexcept;
 
 	/**
-	 * \brief Return the LBA leadout frame.
+	 * \brief Return \c TRUE if the AudioSize is equivalent to zero.
 	 *
-	 * Note that the number is 1-based.
-	 *
-	 * \return LBA leadout frame
-	 */
-	int32_t leadout_frame() const;
-
-	/**
-	 * \brief Return the total number of LBA frames.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS which is a value of
-	 * 449.999 LBA frames on a disc.
-	 *
-	 * \return Total number of LBA frames
-	 */
-	int32_t total_frames() const;
-
-	/**
-	 * \brief Set the total number of LBA frames.
-	 *
-	 * \param[in] frame_count Total number of LBA frames
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_frames(const int32_t frame_count);
-
-	/**
-	 * \brief Return the total number of 32 bit PCM samples.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME
-	 * which is a value of 264.599.412 stereo samples on a disc.
-	 *
-	 * \return The total number of 32 bit PCM samples
-	 */
-	int32_t total_samples() const;
-
-	/**
-	 * \brief Set the total number of 32 bit PCM samples.
-	 *
-	 * This also determines the leadout frame and the number of PCM bytes.
-	 *
-	 * \param[in] sample_count Total number of 32 bit PCM samples
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_samples(const int32_t sample_count);
-
-	/**
-	 * \brief Return the total number of bytes holding 32 bit PCM samples.
-	 *
-	 * Maximum value is CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_SAMPLE which
-	 * is a value of 1.058.397.648 bytes on a disc.
-	 *
-	 * \return The total number of bytes holding 32 bit PCM samples
-	 */
-	int32_t total_pcm_bytes() const noexcept;
-
-	/**
-	 * \brief Set the total number of bytes holding decoded 32 bit PCM samples
-	 *
-	 * This also determines the leadout frame and the total number of 32 bit PCM
-	 * samples.
-	 *
-	 * \param[in] byte_count Total number of bytes holding 32 bit PCM samples
-	 *
-	 * \throw std::underflow_error If value is negative
-	 * \throw std::overflow_error  If value is greater than the unit maximum
-	 */
-	void set_total_pcm_bytes(const int32_t byte_count) noexcept;
-
-	/**
-	 * \brief Return \c TRUE if the AudioSize is 0.
-	 *
-	 * \return \c TRUE if the AudioSize is 0
+	 * \return \c TRUE if the AudioSize is zero
 	 */
 	bool zero() const noexcept;
-
-	/**
-	 * \brief Return maximum size for the specified unit.
-	 */
-	static int32_t max(const UNIT unit) noexcept;
 
 	/**
 	 * \brief Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
@@ -286,23 +268,6 @@ public:
 
 
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept;
-
-private:
-
-	/**
-	 * \brief Set the internal value, possibly converting from \c unit.
-	 *
-	 * \param[in] value Value to set
-	 * \param[in] unit  Unit to convert to bytes from
-	 */
-	void set_value(const int32_t value, const UNIT unit);
-
-	/**
-	 * \brief Get internal size in the specified unit.
-	 *
-	 * \param[in] unit  Unit to convert bytes amount to
-	 */
-	int32_t read_as(const UNIT unit) const;
 };
 
 bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
@@ -544,11 +509,9 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
 
 
 /**
- * \brief Reports invalid metadata for building a TOC.
- *
- * This exception indicates that no TOC can be build.
+ * \brief Reports invalid metadata for constructing a ToC.
  */
-class InvalidMetadataException final : public std::runtime_error
+class InvalidMetadataException final : public std::logic_error
 {
 public:
 
@@ -579,7 +542,7 @@ public:
  * This exception occurrs only internally in the current API version, but is
  * never thrown to the client. This may change in future versions.
  */
-class NonstandardMetadataException final : public std::runtime_error
+class NonstandardMetadataException final : public std::logic_error
 {
 public:
 

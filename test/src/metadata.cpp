@@ -9,6 +9,20 @@
 #endif
 
 
+TEST_CASE ( "Units", "[metadata]" )
+{
+	SECTION ("cdda_max<>() yields correct maximum values")
+	{
+		using arcstk::UNIT;
+		using arcstk::cdda_max;
+
+		CHECK (     449999 == cdda_max<UNIT::FRAMES>()  );
+		CHECK (  264599412 == cdda_max<UNIT::SAMPLES>() );
+		CHECK ( 1058397648 == cdda_max<UNIT::BYTES>()   );
+	}
+}
+
+
 TEST_CASE ( "toc", "[metadata]" )
 {
 	using arcstk::AudioSize;
@@ -48,7 +62,7 @@ TEST_CASE ( "toc", "[metadata]" )
 	{
 		const auto data { construct(100, {}) };
 
-		CHECK ( data[0].total_frames() == 100 );
+		CHECK ( data[0].frames() == 100 );
 		CHECK ( data.size() == 1 );
 	}
 
@@ -106,21 +120,21 @@ TEST_CASE ( "toc", "[metadata]" )
 
 		CHECK ( length.size() == 15 );
 													// parsed from disc
-		CHECK ( length[ 0].total_frames() ==  5192 );
-		CHECK ( length[ 1].total_frames() ==  2165 );
-		CHECK ( length[ 2].total_frames() == 15990 ); // 15885
-		CHECK ( length[ 3].total_frames() == 12228 );
-		CHECK ( length[ 4].total_frames() == 14212 ); // 13925
-		CHECK ( length[ 5].total_frames() == 19688 ); // 19513
-		CHECK ( length[ 6].total_frames() == 18225 ); // 18155
-		CHECK ( length[ 7].total_frames() == 18600 ); // 18325
-		CHECK ( length[ 8].total_frames() == 33162 ); // 33075
-		CHECK ( length[ 9].total_frames() == 18368 );
-		CHECK ( length[10].total_frames() == 40632 ); // 40152
-		CHECK ( length[11].total_frames() == 14873 ); // 14798
-		CHECK ( length[12].total_frames() == 11952 );
-		CHECK ( length[13].total_frames() ==  8783 ); //  8463
-		CHECK ( length[14].total_frames() == 18935 );
+		CHECK ( length[ 0].frames() ==  5192 );
+		CHECK ( length[ 1].frames() ==  2165 );
+		CHECK ( length[ 2].frames() == 15990 ); // 15885
+		CHECK ( length[ 3].frames() == 12228 );
+		CHECK ( length[ 4].frames() == 14212 ); // 13925
+		CHECK ( length[ 5].frames() == 19688 ); // 19513
+		CHECK ( length[ 6].frames() == 18225 ); // 18155
+		CHECK ( length[ 7].frames() == 18600 ); // 18325
+		CHECK ( length[ 8].frames() == 33162 ); // 33075
+		CHECK ( length[ 9].frames() == 18368 );
+		CHECK ( length[10].frames() == 40632 ); // 40152
+		CHECK ( length[11].frames() == 14873 ); // 14798
+		CHECK ( length[12].frames() == 11952 );
+		CHECK ( length[13].frames() ==  8783 ); //  8463
+		CHECK ( length[14].frames() == 18935 );
 	}
 
 
@@ -183,7 +197,7 @@ TEST_CASE ( "ToC", "[metadata]" )
 
 	SECTION ( "Returns correct leadout from ToC" )
 	{
-		CHECK ( toc->leadout().total_frames() == 253038 );
+		CHECK ( toc->leadout().frames() == 253038 );
 	}
 
 	SECTION ( "Returns correct offsets from ToC" )
@@ -243,7 +257,7 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 	REQUIRE ( size1.zero() );
 
-	size1.set_total_frames(253038);
+	size1.set_frames(253038);
 
 	//
 
@@ -251,7 +265,7 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 					 //
 	REQUIRE ( size2.zero() );
 
-	size2.set_total_frames(253038);
+	size2.set_frames(253038);
 
 	//
 
@@ -265,7 +279,7 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 	REQUIRE ( different_size.zero() );
 
-	different_size.set_total_frames(14827);
+	different_size.set_frames(14827);
 
 	//
 
@@ -288,44 +302,38 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 	SECTION ("Parametized construction is correct")
 	{
 		CHECK ( empty_size.zero() );
-		CHECK ( 0 == empty_size.total_pcm_bytes() );
-		CHECK ( 0 == empty_size.leadout_frame() );
+		CHECK ( 0 == empty_size.bytes() );
+		CHECK ( 0 == empty_size.frames() );
 
 		// constructed with frames
-		CHECK ( size1.leadout_frame()   ==    253038 );
-		CHECK ( size1.total_frames()    ==    253038 );
-		CHECK ( size1.total_samples()   == 148786344 );
-		CHECK ( size1.total_pcm_bytes() == 595145376 );
+		CHECK ( size1.frames()   ==    253038 );
+		CHECK ( size1.samples()   == 148786344 );
+		CHECK ( size1.bytes() == 595145376 );
 
 		// constructed with frames too
-		CHECK ( size2.leadout_frame()   ==    253038 );
-		CHECK ( size2.total_frames()    ==    253038 );
-		CHECK ( size2.total_samples()   == 148786344 );
-		CHECK ( size2.total_pcm_bytes() == 595145376 );
+		CHECK ( size2.frames()   ==    253038 );
+		CHECK ( size2.samples()   == 148786344 );
+		CHECK ( size2.bytes() == 595145376 );
 
 		// constructed with frames too
-		CHECK ( size3.leadout_frame()   ==    253038 );
-		CHECK ( size3.total_frames()    ==    253038 );
-		CHECK ( size3.total_samples()   == 148786344 );
-		CHECK ( size3.total_pcm_bytes() == 595145376 );
+		CHECK ( size3.frames()   ==    253038 );
+		CHECK ( size3.samples()   == 148786344 );
+		CHECK ( size3.bytes() == 595145376 );
 
 		// constructed with samples
-		CHECK ( size4.leadout_frame()   ==    253038 );
-		CHECK ( size4.total_frames()    ==    253038 );
-		CHECK ( size4.total_samples()   == 148786344 );
-		CHECK ( size4.total_pcm_bytes() == 595145376 );
+		CHECK ( size4.frames()   ==    253038 );
+		CHECK ( size4.samples()   == 148786344 );
+		CHECK ( size4.bytes() == 595145376 );
 
 		// constructed with bytes
-		CHECK ( size5.leadout_frame()   ==    253038 );
-		CHECK ( size5.total_frames()    ==    253038 );
-		CHECK ( size5.total_samples()   == 148786344 );
-		CHECK ( size5.total_pcm_bytes() == 595145376 );
+		CHECK ( size5.frames()   ==    253038 );
+		CHECK ( size5.samples()   == 148786344 );
+		CHECK ( size5.bytes() == 595145376 );
 
 		// different size, constructed with frames
-		CHECK ( different_size.leadout_frame()   ==    14827 );
-		CHECK ( different_size.total_frames()    ==    14827 );
-		CHECK ( different_size.total_samples()   ==  8718276 );
-		CHECK ( different_size.total_pcm_bytes() == 34873104 );
+		CHECK ( different_size.frames()   ==    14827 );
+		CHECK ( different_size.samples()   ==  8718276 );
+		CHECK ( different_size.bytes() == 34873104 );
 	}
 
 	SECTION ("Copy construction is as declared")
@@ -391,13 +399,6 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 	// TODO Move construction correct?
 
-	SECTION ("Maximum values are correct")
-	{
-		CHECK (     449999 == empty_size.max(UNIT::FRAMES)  );
-		CHECK (  264599412 == empty_size.max(UNIT::SAMPLES) );
-		CHECK ( 1058397648 == empty_size.max(UNIT::BYTES)   );
-	}
-
 	SECTION ("Equality operator is correct")
 	{
 		CHECK ( size1 == size1 );
@@ -454,13 +455,13 @@ TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
 
 		swap(size2, different_size);
 
-		CHECK (  14827 == size2.total_frames() );
-		CHECK ( 253038 == different_size.total_frames() );
+		CHECK (  14827 == size2.frames() );
+		CHECK ( 253038 == different_size.frames() );
 
 		swap(empty_size, size3);
 
-		CHECK (      0 == size3.total_frames() );
-		CHECK ( 253038 == empty_size.total_frames() );
+		CHECK (      0 == size3.frames() );
+		CHECK ( 253038 == empty_size.frames() );
 	}
 }
 

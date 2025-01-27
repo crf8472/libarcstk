@@ -479,7 +479,7 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout)
 {
 	const auto offset_frames { details::convert<UNIT::FRAMES>(offsets) };
-	const auto leadout_frame { leadout.total_frames() };
+	const auto leadout_frame { leadout.frames() };
 
 	return details::make_arid(offset_frames, leadout_frame);
 }
@@ -488,14 +488,14 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
 {
 	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
-			leadout.total_frames());
+			leadout.frames());
 }
 
 
 std::unique_ptr<ARId> make_arid(const ToC& toc)
 {
 	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
-			toc.leadout().total_frames());
+			toc.leadout().frames());
 }
 
 // make_empty_arid

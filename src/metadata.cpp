@@ -33,42 +33,6 @@ inline namespace v_1_0_0
 
 namespace details
 {
-/*
-int32_t frames2samples(const int32_t frames)
-{
-	return frames * CDDA::SAMPLES_PER_FRAME;
-}
-
-
-int32_t samples2frames(const int32_t samples)
-{
-	return samples / CDDA::SAMPLES_PER_FRAME;
-}
-
-
-int32_t frames2bytes(const int32_t frames)
-{
-	return frames * CDDA::BYTES_PER_FRAME;
-}
-
-
-int32_t bytes2frames(const int32_t bytes)
-{
-	return bytes / CDDA::BYTES_PER_FRAME;
-}
-
-
-int32_t samples2bytes(const int32_t samples)
-{
-	return samples * CDDA::BYTES_PER_SAMPLE;
-}
-
-
-int32_t bytes2samples(const int32_t bytes)
-{
-	return bytes / CDDA::BYTES_PER_SAMPLE;
-}
-*/
 
 int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
 {
@@ -173,7 +137,7 @@ void is_legal_length(const int32_t length)
 
 void validate_leadout(const ToCData& toc_data)
 {
-	const auto leadout { toc::leadout(toc_data).total_frames() };
+	const auto leadout { toc::leadout(toc_data).frames() };
 
 	is_legal_offset(leadout);
 
@@ -196,7 +160,7 @@ void validate_offsets(const ToCData& toc_data)
 	std::for_each(cbegin(offsets), cend(offsets),
 		[](const AudioSize& a)
 		{
-			is_legal_offset(a.total_frames());
+			is_legal_offset(a.frames());
 		}
 	);
 }
@@ -217,7 +181,7 @@ void validate_lengths(const ToCData& toc_data)
 			{
 				// Length = next track offset - previous track offset
 				// Has each offset legal minimal distance to its predecessor?
-				is_legal_length(a.total_frames());
+				is_legal_length(a.frames());
 			}
 			catch (const std::invalid_argument& e)
 			{
@@ -257,30 +221,36 @@ AudioSize::AudioSize(const int32_t value, const UNIT unit) noexcept
 	// empty
 }
 
+
 int32_t AudioSize::frames() const noexcept
 {
 	return details::convert<UNIT::BYTES, UNIT::FRAMES>(total_pcm_bytes_);
 }
+
 
 void AudioSize::set_frames(const int32_t frames) noexcept
 {
 	total_pcm_bytes_ = details::convert<UNIT::FRAMES, UNIT::BYTES>(frames);
 }
 
+
 int32_t AudioSize::samples() const noexcept
 {
 	return details::convert<UNIT::BYTES, UNIT::SAMPLES>(total_pcm_bytes_);
 }
+
 
 void AudioSize::set_samples(const int32_t samples) noexcept
 {
 	total_pcm_bytes_ = details::convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
 }
 
+
 int32_t AudioSize::bytes() const noexcept
 {
 	return details::convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
 }
+
 
 void AudioSize::set_bytes(const int32_t bytes) noexcept
 {
@@ -288,54 +258,12 @@ void AudioSize::set_bytes(const int32_t bytes) noexcept
 }
 
 
-int32_t AudioSize::leadout_frame() const
-{
-	return total_frames();
-}
-
-
-int32_t AudioSize::total_frames() const
-{
-	return read_as(UNIT::FRAMES);
-}
-
-
-void AudioSize::set_total_frames(const int32_t frame_count)
-{
-	set_value(frame_count, UNIT::FRAMES);
-}
-
-
-int32_t AudioSize::total_samples() const
-{
-	return read_as(UNIT::SAMPLES);
-}
-
-
-void AudioSize::set_total_samples(const int32_t sample_count)
-{
-	set_value(sample_count, UNIT::SAMPLES);
-}
-
-
-int32_t AudioSize::total_pcm_bytes() const noexcept
-{
-	return read_as(UNIT::BYTES);
-}
-
-
-void AudioSize::set_total_pcm_bytes(const int32_t byte_count) noexcept
-{
-	set_value(byte_count, UNIT::BYTES);
-}
-
-
 bool AudioSize::zero() const noexcept
 {
-	return 0 == total_pcm_bytes();
+	return 0 == bytes();
 }
 
-
+/*
 int32_t AudioSize::max(const UNIT unit) noexcept
 {
 	static constexpr int32_t error_value { 0 };
@@ -357,36 +285,7 @@ int32_t AudioSize::max(const UNIT unit) noexcept
 
 	return error_value;
 }
-
-
-void AudioSize::set_value(const int32_t value, const UNIT unit)
-{
-	using std::to_string;
-
-	if (value > AudioSize::max(unit))
-	{
-		auto ss = std::stringstream {};
-		ss << "Value too big for maximum: " << to_string(value);
-		throw std::overflow_error(ss.str());
-	}
-
-	if (value < 0)
-	{
-		auto ss = std::stringstream {};
-		ss << "Cannot set AudioSize to negative value: "
-			<< to_string(value);
-		throw std::underflow_error(ss.str());
-	}
-
-	total_pcm_bytes_ = details::convert_to_bytes(value, unit);
-}
-
-
-int32_t AudioSize::read_as(const UNIT unit) const
-{
-	return details::convert_from_bytes(total_pcm_bytes_, unit);
-}
-
+*/
 
 AudioSize::operator bool() const noexcept
 {
@@ -403,13 +302,13 @@ void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 
 bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept
 {
-	return lhs.total_pcm_bytes() == rhs.total_pcm_bytes();
+	return lhs.bytes() == rhs.bytes();
 }
 
 
 bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 {
-	return lhs.total_pcm_bytes() < rhs.total_pcm_bytes();
+	return lhs.bytes() < rhs.bytes();
 }
 
 
@@ -490,12 +389,12 @@ std::vector<AudioSize> lengths(const ToCData& data)
 
 	while (c < total_tracks)
 	{
-		prev_offset = data[track].total_frames();
+		prev_offset = data[track].frames();
 
 		++track;
 		track %= data.size(); // after last track, flip back to 0
 
-		curr_offset = data[track].total_frames();
+		curr_offset = data[track].frames();
 
 		lengths.emplace_back(curr_offset - prev_offset, UNIT::FRAMES);
 
