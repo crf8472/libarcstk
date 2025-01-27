@@ -169,14 +169,6 @@ class AudioSize final : TotallyOrdered<AudioSize>
 public:
 
 	/**
-	 * \brief Units for size declaration
-	 */
-	// enum class UNIT
-	// {
-	// 	SAMPLES, FRAMES, BYTES
-	// };
-
-	/**
 	 * \brief Constructor.
 	 *
 	 * Constructs an AudioSize of zero().
@@ -191,6 +183,13 @@ public:
 	 */
 	AudioSize(const int32_t value, const UNIT unit) noexcept;
 	// FIXME This allows setting a value without a bounds check
+
+	int32_t frames() const noexcept;
+	void set_frames(const int32_t frames) noexcept;
+	int32_t samples() const noexcept;
+	void set_samples(const int32_t samples) noexcept;
+	int32_t bytes() const noexcept;
+	void set_bytes(const int32_t bytes) noexcept;
 
 	/**
 	 * \brief Return the LBA leadout frame.

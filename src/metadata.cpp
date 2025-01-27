@@ -257,6 +257,36 @@ AudioSize::AudioSize(const int32_t value, const UNIT unit) noexcept
 	// empty
 }
 
+int32_t AudioSize::frames() const noexcept
+{
+	return details::convert<UNIT::BYTES, UNIT::FRAMES>(total_pcm_bytes_);
+}
+
+void AudioSize::set_frames(const int32_t frames) noexcept
+{
+	total_pcm_bytes_ = details::convert<UNIT::FRAMES, UNIT::BYTES>(frames);
+}
+
+int32_t AudioSize::samples() const noexcept
+{
+	return details::convert<UNIT::BYTES, UNIT::SAMPLES>(total_pcm_bytes_);
+}
+
+void AudioSize::set_samples(const int32_t samples) noexcept
+{
+	total_pcm_bytes_ = details::convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
+}
+
+int32_t AudioSize::bytes() const noexcept
+{
+	return details::convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
+}
+
+void AudioSize::set_bytes(const int32_t bytes) noexcept
+{
+	total_pcm_bytes_ = details::convert<UNIT::BYTES, UNIT::BYTES>(bytes);
+}
+
 
 int32_t AudioSize::leadout_frame() const
 {
