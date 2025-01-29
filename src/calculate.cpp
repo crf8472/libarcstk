@@ -23,6 +23,7 @@
 
 #include <algorithm>   // for max, min, transform
 #include <cstdint>     // for int32_t
+#include <iostream>
 
 namespace arcstk
 {
@@ -39,16 +40,16 @@ namespace details
 
 Partitioning get_partitioning(const SampleRange& interval,
 		const SampleRange& legal,
-		const Points& opoints)
+		const Points&      opoints)
 {
 	if (opoints.empty())
 	{
 		return get_partitioning(interval, legal);
 	}
-	const auto points { details::convert<UNIT::SAMPLES>(opoints) };
 
-	const auto real_lower = std::max(legal.lower(), interval.lower());
-	const auto real_upper = std::min(legal.upper(), interval.upper());
+	const auto real_lower { std::max(legal.lower(), interval.lower()) };
+	const auto real_upper { std::min(legal.upper(), interval.upper()) };
+	const auto points     { details::convert<UNIT::SAMPLES>(opoints)  };
 
 	// Both, real_lower and real_upper lie in segments between two of points[].
 	// Identify those segments.
@@ -66,26 +67,62 @@ Partitioning get_partitioning(const SampleRange& interval,
 	// [b+1,e-2] can be just read off of points[].
 
 	// Add first partition: from real lower to the start of the subsequent
-	// track. Of course this ends a track.
+	// track or the upper bound. May or may not end the first track.
+
+	// Note: The interval may be smaller than a track. In this case, only one
+	// partition will be returned and it may be the partition that ends the last
+	// track. In this case, b will be bigger than the index.
+
+	const auto start_of_track = b == 0 ? 0 : points[b - 1];
+	const auto end_of_track   = points[b] - 1;
+
+	// start of the first (and maybe only) partition
+	const auto p0_lower { real_lower };
+
+	// end of the first (and maybe only) partition
+	const auto p0_upper { b < points.size()  // if not last track
+		? std::min(end_of_track, real_upper)
+		: real_upper
+	};
+
+	ARCS_LOG(DEBUG1) << "  Create front partition, b: " << b << ", " << p0_lower
+		<< " - " << p0_upper;
+
 	auto partitions = std::vector<Partition> {
-		Partition { real_lower, points[b] - 1, //(b != 0)
-			real_lower == points[b - 1], true, static_cast<TrackNo>(b) // == 0
+		Partition { p0_lower, p0_upper,
+			p0_lower == start_of_track || p0_lower == legal.lower(),
+			p0_upper == end_of_track   || p0_upper == legal.upper(),
+			static_cast<TrackNo>(b)
 		}
 	};
 
-	// If the interval does not span over any values, we are done now.
+	// If the interval does not span over multiple tracks, we are done now.
 	if (b == e) { return partitions; }
 
 	// Add further partitions, this is just from point i to point i + 1.
 	for (auto i { b }; i < e - 1; ++i)
 	{
+		ARCS_LOG(DEBUG1) << "  Create partition " << points[i] << " - "
+			<< points[ i + 1 ];
 		partitions.emplace_back(points[i], points[i + 1] - 1, true, true, i + 1);
 	}
 
+	const auto pN_lower { points[e - 1] };
+
+	const auto pN_upper { e < points.size()
+		? std::min(points[e] - 1, real_upper)
+		: real_upper
+	};
+
+	ARCS_LOG(DEBUG1) << "  Create back partition, e: " << e << ", " <<
+		pN_lower << " - " << pN_upper;
+
 	// Add last partition: from the beginning of the track that contains the
 	// upper bound to the real upper bound.
-	partitions.emplace_back(points[e - 1], real_upper,
-		true, (e == points.size() || real_upper == points[e]),
+	partitions.emplace_back(pN_lower, pN_upper,
+		true, //starts track?
+		//(e == points.size() || pN_upper == points[e]), //ends track?
+		pN_upper == points[e] - 1 || pN_upper == legal.upper(),
 		static_cast<TrackNo>(e)
 	);
 
@@ -229,9 +266,9 @@ TrackPartitioner::TrackPartitioner(const int32_t total_samples,
 
 
 Partitioning TrackPartitioner::do_create_partitioning(
-		const SampleRange&    interval,     /* block of samples */
-		const SampleRange&    legal,        /* legal range of samples */
-		const Points& points) const /* track points */
+		const SampleRange& interval,     /* block of samples */
+		const SampleRange& legal,        /* legal range of samples */
+		const Points&      points) const /* track points */
 {
 	return get_partitioning(interval, legal, points);
 }
@@ -571,12 +608,23 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	const auto partitioning { partitioner.create_partitioning(
 			start_pos, samples_in_block) };
 
-	// If we skipped some samples at the beginning, advance the state by this
-	// amount so that current_sample() will be correct on subsequent call.
+	if (partitioning.empty())
 	{
+		// TODO Necessary? The next non-empty partitioning will do the sync!
+		ARCS_LOG_DEBUG << "  Skip block (" << samples_in_block << " samples).";
+		state.advance(samples_in_block);
+		return;
+	} else
+	{
+		// If we skipped some samples at the beginning, advance the state by
+		// this amount so that current_sample() will be correct on subsequent
+		// call.
+		// TODO If partitioning is empty, resync is not performed, problem?
 		const auto diff { partitioning.front().begin_offset() - start_pos };
 		if (diff > 0)
 		{
+			ARCS_LOG_DEBUG << "  Skipped " << diff
+				<< " samples at front, resync";
 			state.advance(diff);
 		}
 	}
