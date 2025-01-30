@@ -30,6 +30,8 @@ inline namespace v_1_0_0
 /**
  * \brief An AccurateRip checksum for a single file or track.
  *
+ * \details
+ *
  * A Checksum has a value_type. This is its numeric representation. It is an
  * unsigned integer of 32 bit length.
  *

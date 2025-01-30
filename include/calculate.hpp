@@ -32,13 +32,24 @@ class ToC;
 
 /** \defgroup calc Checksum calculation
  *
- * SampleInputIterator
+ * \brief Calculate checksums for audio files.
  *
- * Context, Settings
+ * \details
  *
- * Algorithm
+ * SampleInputIterator is a wrapper iterator for any iterator with a
+ * <tt>value_type</tt> of <tt>uint32_t</tt>.
  *
- * Calculation
+ * An Algorithm is a procedure to calculate Checksums over an input of audio
+ * samples.
+ *
+ * A Calculation represents the process of calculating Checksums by an
+ * Algorithm. It can be parametized with an Algorithm, initialized with the
+ * offsets and the leadout of the audio image and then be  updated with portions
+ * of samples. A Calculation can be also finetuned with Settings.
+ *
+ * The Context in which an Algorithm or a Calculation work. The Context
+ * indicates if either the FIRST_TRACK, the LAST_TRACK or an entire ALBUM has to
+ * be respected.
  *
  * @{
  */

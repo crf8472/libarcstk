@@ -23,6 +23,10 @@ inline namespace v_1_0_0
 
 /** \defgroup meta Compact Disc and Audio Metadata
  *
+ * \brief ToC metadata and input size of the audio files
+ *
+ * \details
+ *
  * A ToC is the table of content information from a compact disc. It contains
  * the track offsets and the leadout of the compact disc.
  *
