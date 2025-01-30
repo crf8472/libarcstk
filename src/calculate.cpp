@@ -492,21 +492,21 @@ std::unique_ptr<CalculationState> CalculationState::clone_to(Algorithm* a) const
 }
 
 
-void CalculationState::set_algorithm(Algorithm* const algorithm) noexcept
+void CalculationState::swap_base(CalculationState& rhs)
 {
-	algorithm_ = algorithm;
+	using std::swap;
+	swap(this->current_offset_,    rhs.current_offset_    );
+	swap(this->samples_processed_, rhs.samples_processed_ );
+	swap(this->track_samples_processed_, rhs.track_samples_processed_ );
+	swap(this->tracks_processed_,  rhs.tracks_processed_  );
+	swap(this->proc_time_elapsed_, rhs.proc_time_elapsed_ );
+	swap(this->algorithm_,         rhs.algorithm_         );
 }
 
 
-void swap(CalculationState& lhs, CalculationState& rhs) noexcept
+void CalculationState::set_algorithm(Algorithm* const algorithm) noexcept
 {
-	using std::swap;
-	swap(lhs.current_offset_,    rhs.current_offset_    );
-	swap(lhs.samples_processed_, rhs.samples_processed_ );
-	swap(lhs.track_samples_processed_, rhs.track_samples_processed_ );
-	swap(lhs.tracks_processed_,  rhs.tracks_processed_  );
-	swap(lhs.proc_time_elapsed_, rhs.proc_time_elapsed_ );
-	swap(lhs.algorithm_,         rhs.algorithm_         );
+	algorithm_ = algorithm;
 }
 
 
@@ -539,20 +539,20 @@ CalculationStateImpl::~CalculationStateImpl() noexcept = default;
 
 std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
 {
-	return raw_clone();
+	return base_clone();
 }
 
 
 std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
 		Algorithm* algorithm) const
 {
-	auto cloned { raw_clone() };
+	auto cloned { base_clone() };
 	cloned->set_algorithm(algorithm);
 	return cloned;
 }
 
 
-std::unique_ptr<CalculationStateImpl> CalculationStateImpl::raw_clone() const
+std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
 {
 	return std::make_unique<CalculationStateImpl>(*this);
 }
@@ -582,9 +582,7 @@ CalculationStateImpl& CalculationStateImpl::operator = (
 
 void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs) noexcept
 {
-	using std::swap;
-	swap(static_cast<CalculationState&>(lhs),
-			static_cast<CalculationState&>(rhs));
+	lhs.swap_base(rhs);
 }
 
 
@@ -612,16 +610,14 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	if (partitioning.empty())
 	{
-		// TODO Necessary? The next non-empty partitioning will do the sync!
 		ARCS_LOG_DEBUG << "  Skip block (" << samples_in_block << " samples).";
 		state.advance(samples_in_block);
 		return;
 	} else
 	{
-		// If we skipped some samples at the beginning, advance the state by
-		// this amount so that current_sample() will be correct on subsequent
-		// call.
-		// TODO If partitioning is empty, resync is not performed, problem?
+		// If we skipped some samples at the beginning of the partition, advance
+		// the state by this amount so that current_offset() will be correct on
+		// subsequent call.
 		const auto diff { partitioning.front().begin_offset() - start_pos };
 		if (diff > 0)
 		{

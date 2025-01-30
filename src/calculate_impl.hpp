@@ -197,6 +197,13 @@ protected:
 	// no move assingment operator
 
 	/**
+	 * \brief Swap abstract part of the concrete subclass..
+	 *
+	 * \param[in] rhs Other instance to swap
+	 */
+	void swap_base(CalculationState& rhs);
+
+	/**
 	 * \brief Set the Algorithm of this instance.
 	 *
 	 * \param[in] algorithm Algorithm instance to set
@@ -234,7 +241,7 @@ class CalculationStateImpl final : public CalculationState
 	/**
 	 * \brief Only clone the base class part.
 	 */
-	std::unique_ptr<CalculationStateImpl> raw_clone() const;
+	std::unique_ptr<CalculationStateImpl> base_clone() const;
 
 public:
 
@@ -342,6 +349,7 @@ public:
 	 * \return Initialized Checksums instance
 	 */
 	std::unique_ptr<Checksums> init_buffer();
+
 
 	// Calculation
 
