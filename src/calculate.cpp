@@ -136,21 +136,23 @@ Partitioning get_partitioning(const SampleRange& interval,
 	// Create a single partition spanning the entire block of samples,
 	// but respect skipping samples at front or back.
 
-	const auto chunk_first = interval.contains(legal.lower())
+	const auto partition_start = interval.contains(legal.lower())
 		? legal.lower()
 		: interval.lower();
 
-	const auto chunk_last = interval.contains(legal.upper())
+	const auto partition_end = interval.contains(legal.upper())
 		? legal.upper()
 		: interval.upper();
 
+	ARCS_LOG(DEBUG1) << "  Convert interval to partition: "
+		<< (partition_start - interval.lower()) << " - "
+		<< (partition_end   - interval.lower() + 1);
+
 	return { Partition {
-		/* begin offset */  { chunk_first - interval.lower()     },
-		/* end offset */    { chunk_last  - interval.lower() + 1 },
-		/* chunk first */   //chunk_first, // redundant
-		/* chunk last */    //chunk_last,  // redundant
-		/* starts track */  { chunk_first == legal.lower() },
-		/* ends track */    { chunk_last  == legal.upper() },
+		/* begin offset */  { partition_start - interval.lower()     },
+		/* end offset */    { partition_end   - interval.lower() + 1 },
+		/* starts track */  { partition_start == legal.lower() },
+		/* ends track */    { partition_end   == legal.upper() },
 		/* invalid track */ 0
 	}};
 }
@@ -595,7 +597,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		Checksums&         result_buffer)
 {
 	const auto start_pos        { state.current_offset() };
-	const auto samples_in_block { std::distance(start, stop) - 1 };
+	const auto samples_in_block { std::distance(start, stop) };
 
 	const auto last_sample_in_block { start_pos + samples_in_block };
 
