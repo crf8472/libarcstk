@@ -21,8 +21,15 @@
 #include "logging.hpp"
 #endif
 
+/**
+ * \brief APIs of libarcstk.
+ */
 namespace arcstk
 {
+
+/**
+ * \brief libarcstk API version 1.0.0
+ */
 inline namespace v_1_0_0
 {
 
@@ -598,7 +605,7 @@ public:
 	ChecksumtypeSet types() const;
 
 	/**
-	 * \brief Clone this instance..
+	 * \brief Clone this instance.
 	 *
 	 * \return Deep copy of the instance
 	 */

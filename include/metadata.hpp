@@ -466,9 +466,9 @@ public:
 	 */
 	bool complete() const noexcept;
 
-	friend void swap(ToC& lhs, ToC& rhs) noexcept;
-
 	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept;
+
+	friend void swap(ToC& lhs, ToC& rhs) noexcept;
 
 private:
 

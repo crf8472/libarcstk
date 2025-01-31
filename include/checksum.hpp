@@ -77,6 +77,9 @@ public:
 	 */
 	Checksum(const value_type value);
 
+	// Assignment operator for value_type instances
+	Checksum& operator = (const value_type rhs);
+
 	/**
 	 * \brief Numeric value of the checksum.
 	 *
@@ -95,9 +98,6 @@ public:
 	bool empty() const noexcept;
 
 	explicit operator bool() const noexcept;
-
-	// Assignment operator for value_type instances
-	Checksum& operator = (const value_type rhs);
 
 	friend bool operator == (const Checksum& lhs, const Checksum& rhs)
 		noexcept;
@@ -282,11 +282,24 @@ public:
 	/**
 	 * \brief Length (in LBA frames) of this track.
 	 *
+	 * For ChecksumSets constructed by an instance of Algorithm, this will be
+	 * the length actually used for computing the Checksum. It may or may not be
+	 * identical to the parsed length hold in the ToC. The parsed length might
+	 * be smaller since it is possible that it does not contain the silence
+	 * adjacent to the respective track. Hence, a mismatch between the length()
+	 * of a ChecksumSet and the parsed_length() of the ToC used in the
+	 * Calculation that created the ChecksumSet is not an error.
+	 *
 	 * \return Length of this track in LBA frames
 	 */
 	int32_t length() const noexcept;
 
-	void set_length(const int32_t l) noexcept;
+	/**
+	 * \brief Set the length (in LBA frames) of this track.
+	 *
+	 * \param[in] length New length for this instance
+	 */
+	void set_length(const int32_t length) noexcept;
 
 	/**
 	 * \brief Returns the number of elements contained in the instance.

@@ -268,6 +268,7 @@ public:
 
 
 class VerificationResult;
+
 /**
  * \brief Print a VerificationResult to a stream
  */
@@ -523,9 +524,9 @@ public:
 	bool strict() const;
 
 	/**
-	 * \brief Clones this instance.
+	 * \brief Returns a deep copy of the instance
 	 *
-	 * \return Deep copy of this instance.
+	 * \return A deep copy of the instance
 	 */
 	std::unique_ptr<VerificationResult> clone() const;
 };

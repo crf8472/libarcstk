@@ -23,8 +23,17 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+/**
+ * \brief Calculating AccurateRip checksums.
+ */
 namespace accuraterip
 {
+
+/**
+ * \internal
+ * Implementation details of libarcstk API v1.0.0.
+ */
 namespace details
 {
 
