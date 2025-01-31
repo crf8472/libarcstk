@@ -23,6 +23,8 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+/** \addtogroup calc */
+/** @{ */
 
 /**
  * \brief Calculating AccurateRip checksums.
@@ -268,7 +270,11 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	Updatable<T1, T2...> state_;
 
+	/**
+	 * \brief Current result of performing the algorithm.
+	 */
 	ChecksumSet current_result_;
+
 
 	/**
 	 * \brief Set multiplier to a new value.
@@ -277,6 +283,9 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	void set_multiplier(const uint_fast64_t m);
 
+	/**
+	 * \brief Save the current subtotal as result.
+	 */
 	void save_current_subtotal();
 
 
@@ -332,6 +341,9 @@ using V1and2 =
 	details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
 } // namespace accuraterip
+
+/** @} */ // group calc
+
 } // namespace v_1_0_0
 } // namespace arcstk
 

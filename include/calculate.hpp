@@ -33,7 +33,6 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-// avoid includes
 class ToC;
 
 
@@ -43,33 +42,44 @@ class ToC;
  *
  * \details
  *
- * SampleInputIterator is a wrapper iterator for any iterator with a
- * <tt>value_type</tt> of <tt>uint32_t</tt>.
+ * An Algorithm specifies a ruleset how to to calculate Checksums over an input
+ * of audio samples. AccurateRip specifies two distinct algorithms for
+ * calculating a checksum, v1 and v2. Since a v1 checksum is materialized as a
+ * subtotal when calculating a v2 checksum, there are three variants of the
+ * Algorith: V1, V2 and V1and2 which provides both types of checksums at once.
  *
- * An Algorithm is a procedure to calculate Checksums over an input of audio
+ * Settings provide an interface for configuring an Algorithm or the calculation
+ * process.
+ *
+ * The Context in which a Calculation is performed as part of the Settings. The
+ * Algorithm is aware of the Context, too. The Context indicates if either
+ * FIRST_TRACK, LAST_TRACK, or both have to be treated specially.
+ *
+ * A Calculation represents the technical process of calculating Checksums by an
+ * Algorithm. It has to be parametized with an Algorithm, initialized with the
+ * offsets and the leadout of the audio image and then subsequently be updated
+ * with portions of samples in the right order. A Calculation can be also
+ * finetuned by providing Settings.
+ *
+ * Updating a Calculation is done by providing a sample portion represented by
+ * two instances of SampleInputIterator that represent start and stop of the
+ * update. SampleInputIterator is a wrapper iterator for any iterator with a
+ * <tt>value_type</tt> of <tt>sample_t</tt>, the declared type for stereo PCM
  * samples.
  *
- * A Calculation represents the process of calculating Checksums by an
- * Algorithm. It can be parametized with an Algorithm, initialized with the
- * offsets and the leadout of the audio image and then be  updated with portions
- * of samples. A Calculation can be also finetuned with Settings.
+ * When a Calculation is complete() its result can be requested. The result are
+ * Checksums which represent the result for all requested checksum types and
+ * all tracks of the audio input. It is an aggregation of the
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of an
+ * respective audio input. Depending on the input, it can represent either an
+ * entire album or a single track.
  *
- * The Context in which a Calculation is performed. The Algorithm is aware of
- * the Context, too. The Context indicates if either the FIRST_TRACK, the
- * LAST_TRACK, or both have to be treated specially.
+ * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink of
+ * different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink of
+ * the same track.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
  * Checksums are calculated by a Calculation using an Algorithm.
- *
- * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
- * of different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink
- * of the same track.
- *
- * Checksums represent a calculation result for all requested checksum
- * types and all tracks of the audio input. It is an aggregation of the
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of
- * an respective audio input. Depending on the input, it can represent either
- * an entire album or a single track.
  *
  * @{
  */
@@ -140,7 +150,7 @@ SampleInputIterator operator + (const int32_t amount, SampleInputIterator rhs)
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
- * \link Calculation::update() update \endlink a Calculation.
+ * \link arcstk::v_1_0_0::Calculation::update() update \endlink a Calculation.
  * This allows to pass in fact iterators of any type to a Calculation.
  *
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
@@ -149,7 +159,7 @@ SampleInputIterator operator + (const int32_t amount, SampleInputIterator rhs)
  * The type erasure interface only ensures that (most of) the requirements of a
  * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
- * \link Calculation::update() updating \endlink a Calculation.
+ * \link arcstk::v_1_0_0::Calculation::update() updating \endlink a Calculation.
  *
  * Although SampleInputIterator is intended to provide the functionality of
  * an input iterator, it does not provide operator->() and does
@@ -479,7 +489,7 @@ constexpr bool operator == (const Context lhs, const Context rhs)
 }
 
 /**
- * \brief Returns TRUE iff rhs != Context::NONE
+ * \brief Returns TRUE iff <tt>rhs != Context::NONE</tt>.
  */
 bool any(const Context& rhs) noexcept;
 
@@ -490,6 +500,13 @@ bool any(const Context& rhs) noexcept;
 class Settings final
 {
 public:
+
+	/**
+	 * \brief Default constructor.
+	 *
+	 * Initializes the Context of the Settings instance as ALBUM.
+	 */
+	Settings();
 
 	/**
 	 * \brief Converting constructor.
@@ -515,9 +532,9 @@ public:
 private:
 
 	/**
-	 * \brief Internal context, default is ALBUM.
+	 * \brief Internal context.
 	 */
-	Context context_ { Context::ALBUM };
+	Context context_;
 };
 
 
@@ -530,7 +547,7 @@ using ChecksumtypeSet = std::unordered_set<checksum::type>;
 
 
 /**
- * \brief Type of a list of split points within a range of samples.
+ * \brief List of split points within a range of samples.
  */
 using Points = std::vector<AudioSize>;
 
@@ -598,10 +615,10 @@ public:
 	 * What the instance has to do whenever a track is finished can be
 	 * implemented in this hook.
 	 *
-	 * \param[in] t      Track number
-	 * \param[in] length Track length as calculated
+	 * \param[in] trackno Track number
+	 * \param[in] length  Track length as calculated
 	 */
-	void track_finished(const int t, const AudioSize& length);
+	void track_finished(const int trackno, const AudioSize& length);
 
 	/**
 	 * \brief Return the result of the algorithm.
@@ -672,7 +689,6 @@ private:
  * order. After the last update, the Calculation returns the calculation result
  * on request. The calculated Checksums are represented as an iterable aggregate
  * of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
- *
  */
 class Calculation final
 {
@@ -835,20 +851,19 @@ public:
 
 private:
 
-	// Private implementation
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 };
 
 
 /**
- * \brief Create a calculation from a ToC.
+ * \brief Create a calculation from an Algorithm and a ToC.
  *
  * If the ToC is not complete, the Calculation must be updated with the correct
- * total number of input samples.
+ * total number of input samples before updating starts.
  *
- * \param[in] algorithm    The algorithm to use for calculating
- * \param[in] toc          Complete ToC to perform calculation for
+ * \param[in] algorithm The algorithm to use for calculating
+ * \param[in] toc       Complete ToC to perform calculation for
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const ToC& toc);

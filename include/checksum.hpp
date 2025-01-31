@@ -10,7 +10,6 @@
 #include <array>         // for array
 #include <cstdint>       // for uint32_t, int32_t
 #include <unordered_map> // for unordered_map
-#include <memory>        // for unique_ptr
 #include <set>           // for set
 #include <utility>       // for pair
 #include <vector>        // for vector
@@ -139,18 +138,6 @@ std::ostream& operator << (std::ostream& out, const Checksum& c);
  * \return String representation of the checksum
  */
 std::string to_string(const Checksum& c);
-
-
-/**
- * \brief Global instance of an empty Checksum.
- *
- * This is for convenience since in most cases, the creation of an empty
- * Checksum can be avoided when a reference instance is at hand.
- *
- * This instance defines emptyness for checksums since Checksum::empty()
- * just compares the instance with this instance.
- */
-extern const Checksum EmptyChecksum;
 
 
 /**
@@ -450,203 +437,31 @@ public:
 	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept;
 };
 
-
+/**
+ * \brief List of ChecksumSets.
+ *
+ * Each ChecksumSet represents a track an the order of the ChecksumSets follows
+ * the order of tracks on the original compact disc.
+ */
 using Checksums = std::vector<ChecksumSet>;
 
+/**
+ * \brief Global instance of an empty Checksum.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * Checksum can be avoided when a reference instance is at hand.
+ */
+extern const Checksum EmptyChecksum;
 
 /**
- * \brief The result of a Calculation, an iterable list of
- * \link ChecksumSet ChecksumSets \endlink.
- *
- * A Checksums instance represents all calculated checksums of an input, i.e. an
- * album or a track list. Each of the contained
- * \link ChecksumSet ChecksumSets \endlink represents a track.
- *
- * Checksums are an ordered container, thus iterating the instance will
- * enumerate the tracks in the order they appeared during calculation, i.e.
- * element 0 of the Checksums represents track 1 and so on.
+ * \brief Global instance of an empty ChecksumSet.
  */
-// class Checksums final : public Comparable<Checksums>
-// {
-// public:
-//
-// 	/**
-// 	 * \brief Value type of the Checksums.
-// 	 *
-// 	 * This represents a set of checksums for a single track.
-// 	 */
-// 	using value_type = ChecksumSet;
-//
-// private:
-//
-// 	/**
-// 	 * \internal
-// 	 * \brief Type of the internal storage of the Checksums.
-// 	 */
-// 	using storage_type = std::vector<value_type>;
-//
-// 	/**
-// 	 * \internal
-// 	 * \brief Internal storage of the ChecksumSet.
-// 	 */
-// 	storage_type sets_;
-//
-// public:
-//
-// 	/**
-// 	 * \brief Unspecified forward iterator type.
-// 	 */
-// 	using iterator       = storage_type::iterator;
-//
-// 	/**
-// 	 * \brief Unspecified forward iterator type.
-// 	 */
-// 	using const_iterator = storage_type::const_iterator;
-//
-// 	/**
-// 	 * \brief Size type (unsigned integral type)
-// 	 */
-// 	using size_type      = storage_type::size_type;
-//
-// 	/**
-// 	 * \brief Default size of a Checksums instance.
-// 	 */
-// 	const size_type default_size  = 10;
-//
-// 	/**
-// 	 * \brief Default constructor.
-// 	 *
-// 	 * Reserves a capacity of <tt>default_size</tt> elements.
-// 	 */
-// 	Checksums();
-//
-// 	/**
-// 	 * \brief Constructor.
-// 	 *
-// 	 * Reserves a capacity of <tt>size</tt> elements.
-// 	 *
-// 	 * \param[in] size Number of elements
-// 	 */
-// 	explicit Checksums(size_type size);
-//
-// 	/**
-// 	 * \brief Constructor
-// 	 *
-// 	 * This constructor is intended for testing purposes only.
-// 	 *
-// 	 * \param[in] tracks Sequence of track checksums
-// 	 */
-// 	Checksums(std::initializer_list<ChecksumSet> tracks);
-//
-// 	/**
-// 	 * \brief Return the total number of elements.
-// 	 *
-// 	 * \return Total number of elements
-// 	 */
-// 	size_type size() const noexcept;
-//
-// 	/**
-// 	 * \brief Returns \c TRUE iff the instance contains no elements, otherwise
-// 	 * \c FALSE.
-// 	 *
-// 	 * \return \c TRUE iff instance contains no elements, otherwise \c FALSE
-// 	 */
-// 	bool empty() const noexcept;
-//
-// 	/**
-// 	 * \brief The ChecksumSet with the specified 0-based index \c index.
-// 	 *
-// 	 * \details
-// 	 *
-// 	 * Bounds checking is performed. If \c index is illegal, an exception is
-// 	 * thrown. For index based access with no bounds checking see
-// 	 * \link Checksums::operator [](const size_type index) const
-// 	 * operator[]\endlink.
-// 	 *
-// 	 * \see \link Checksums::operator [](const size_type index) const
-// 	 * operator[]\endlink
-// 	 *
-// 	 * \param[in] index Index of the ChecksumSet to read
-// 	 *
-// 	 * \return ChecksumSet at index \c index.
-// 	 *
-// 	 * \throws std::out_of_range Iff \c index >= Checksums::size()
-// 	 */
-// 	const ChecksumSet& at(const size_type index) const;
-//
-// 	/**
-// 	 * \brief The ChecksumSet with the specified \c index.
-// 	 *
-// 	 * No bounds checking is performed. For index based access with bounds
-// 	 * checking, see
-// 	 * \link Checksums::at(const size_type index) const at()\endlink.
-// 	 *
-// 	 * \see \link Checksums::at(const size_type index) const at()\endlink.
-// 	 *
-// 	 * \param[in] index The 0-based index of the ChecksumSet to return
-// 	 *
-// 	 * \return ChecksumSet at the specified index
-// 	 */
-// 	const ChecksumSet& operator [] (const size_type index) const;
-//
-// 	/**
-// 	 * \brief Append a track's checksums by copy.
-// 	 *
-// 	 * \param[in] checksums The checksums of a track
-// 	 */
-// 	void append(const ChecksumSet& checksums);
-//
-// 	/**
-// 	 * \brief Append a track's checksums by in-place move construction.
-// 	 *
-// 	 * \param[in] checksums The checksums of a track
-// 	 */
-// 	void append(ChecksumSet&& checksums);
-//
-// 	/**
-// 	 * \brief Obtain a const_iterator pointing to first ChecksumSet.
-// 	 *
-// 	 * \return const_iterator pointing to first ChecksumSet
-// 	 */
-// 	const_iterator cbegin() const;
-//
-// 	/**
-// 	 * \brief Obtain a const_iterator pointing behind last ChecksumSet.
-// 	 *
-// 	 * \return const_iterator pointing behind last ChecksumSet
-// 	 */
-// 	const_iterator cend() const;
-//
-// 	/**
-// 	 * \copydoc cbegin()
-// 	 */
-// 	const_iterator begin() const;
-//
-// 	/**
-// 	 * \copydoc cend()
-// 	 */
-// 	const_iterator end() const;
-//
-// 	/**
-// 	 * \brief Obtain a pointer to the first ChecksumSet.
-// 	 *
-// 	 * \return Pointer to the first ChecksumSet
-// 	 */
-// 	iterator begin();
-//
-// 	/**
-// 	 * \brief Obtain a pointer pointing behind the last ChecksumSet.
-// 	 *
-// 	 * \return Pointer pointing behind the last ChecksumSet
-// 	 */
-// 	iterator end();
-//
-//
-// 	friend bool operator == (const Checksums& lhs, const Checksums& rhs)
-// 		noexcept;
-//
-// 	friend void swap(Checksums& lhs, Checksums& rhs) noexcept;
-// };
+extern const ChecksumSet EmptyChecksumSet;
+
+/**
+ * \brief Global instance of empty Checksums.
+ */
+extern const Checksums EmptyChecksums;
 
 /** @} */ // group calc
 

@@ -733,6 +733,13 @@ bool any(const Context& rhs) noexcept
 // Settings
 
 
+Settings::Settings()
+	: context_ { Context::ALBUM }
+{
+	// empty
+}
+
+
 Settings::Settings(const Context& c)
 	: context_ { c }
 {

@@ -80,9 +80,6 @@ void swap(Checksum& lhs, Checksum& rhs) noexcept
 namespace checksum
 {
 
-/// \internal \addtogroup calcImpl
-/// @{
-
 /**
  * \internal
  *
@@ -108,22 +105,7 @@ void print_hex(const Checksum& checksum, const bool upper,
 
 } // namespace checksum::details
 
-/** @} */    /* group calcImpl ends here */
-
 } // namespace checksum
-
-
-std::ostream& operator << (std::ostream& out, const Checksum &c)
-{
-	auto prev_settings = std::ios_base::fmtflags { out.flags() };
-
-	checksum::details::print_hex(c, true, false, out);
-	//out << std::hex << std::uppercase << std::setw(8) << std::setfill('0')
-	//	<< c.value();
-
-	out.flags(prev_settings);
-	return out;
-}
 
 
 std::string to_string(const Checksum& c)
@@ -134,22 +116,40 @@ std::string to_string(const Checksum& c)
 }
 
 
+std::ostream& operator << (std::ostream& out, const Checksum &c)
+{
+	auto prev_settings = std::ios_base::fmtflags { out.flags() };
+
+	checksum::details::print_hex(c, true, false, out);
+
+	out.flags(prev_settings);
+	return out;
+}
+
+
 //
 
 
-const Checksum EmptyChecksum = 0; // defines emptyness for Checksum
+const Checksum EmptyChecksum { 0 }; // defines emptyness for Checksum
+
+const ChecksumSet EmptyChecksumSet { ChecksumSet{/* empty */} };
+
+const Checksums EmptyChecksums { Checksums{/* empty */} };
 
 
 namespace checksum
 {
 /// \internal \addtogroup calcImpl
 /// @{
+
+/**
+ * \internal
+ * \brief Implementation details of namespace checksum.
+ */
 namespace details
 {
 
 /**
- * \internal
- *
  * \brief Checksum type names.
  *
  * The order of names in this aggregate must match the order of types in
@@ -162,7 +162,14 @@ static const std::array<std::string, 2> names {
 	// "FOURTH_TYPE" ...
 };
 
-
+/**
+ * \brief Worker for printing a Checksum to an output stream.
+ *
+ * \param[in] checksum	Checksum to print
+ * \param[in] upper		Flag: iff TRUE, print letters uppercase
+ * \param[in] base		Flag: iff TRUE, print base 0x
+ * \param[in] out		Output stream to print to
+ */
 void print_hex(const Checksum &checksum, const bool upper,
 		const bool base, std::ostream& out)
 {
@@ -173,30 +180,21 @@ void print_hex(const Checksum &checksum, const bool upper,
 		<< checksum.value();
 }
 
-/**
- * \internal
- *
- * \brief Return the numeric value of a >=C++11 enum class value
- *
- * \return The numeric constant of an enum class value
- */
-template <typename E> // TODO Why not <enum E>?
-auto as_integral_value(E const value)
-		-> typename std::underlying_type<E>::type
-{
-	return static_cast<typename std::underlying_type<E>::type>(value);
-}
-
-
 } // namespace checksum::details
 
 /** @} */    /* group calcImpl ends here */
 
+/**
+ * \brief Return the name of a checksum::type.
+ *
+ * \param[in] t Checksum type to get the name for
+ *
+ * \return Name of checksum::type \c t
+ */
 std::string type_name(const type t)
 {
-	using details::names;
-
-	return names.at(std::log2(details::as_integral_value(t)));
+	return details::names.at(std::log2(
+		static_cast<typename std::underlying_type<checksum::type>::type>(t)));
 }
 
 } // namespace checksum
@@ -222,7 +220,7 @@ ChecksumSet::ChecksumSet(const int32_t length)
 ChecksumSet::ChecksumSet(const int32_t length,
 		std::initializer_list<
 			std::pair<const ChecksumSet::key_type,
-			                ChecksumSet::value_type>> checksums)
+							ChecksumSet::value_type>> checksums)
 	: set_     ( checksums )
 	, length_  { length    }
 {
@@ -392,115 +390,6 @@ void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
 	swap(lhs.length_, rhs.length_);
 	swap(lhs.set_,    rhs.set_);
 }
-
-
-// Checksums
-
-
-// Checksums::Checksums()
-// 	: sets_ { /* empty */ }
-// {
-// 	sets_.reserve(default_size);
-// }
-//
-//
-// Checksums::Checksums(const size_type size)
-// 	: sets_ { /* empty */ }
-// {
-// 	sets_.reserve(size);
-// }
-//
-//
-// Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
-// 	: sets_ { tracks }
-// {
-// 	// empty
-// }
-//
-//
-// Checksums::size_type Checksums::size() const noexcept
-// {
-// 	return sets_.size();
-// }
-//
-//
-// bool Checksums::empty() const noexcept
-// {
-// 	return sets_.empty();
-// }
-//
-//
-// const ChecksumSet& Checksums::at(const size_type i) const
-// {
-// 	return sets_.at(i);
-// }
-//
-//
-// const ChecksumSet& Checksums::operator[](const size_type i) const
-// {
-// 	return sets_[i];
-// }
-//
-//
-// void Checksums::append(const ChecksumSet& s)
-// {
-// 	sets_.push_back(s);
-// }
-//
-//
-// void Checksums::append(ChecksumSet&& s)
-// {
-// 	sets_.emplace_back(std::move(s));
-// }
-//
-//
-// Checksums::const_iterator Checksums::cbegin() const
-// {
-// 	return sets_.cbegin();
-// }
-//
-//
-// Checksums::const_iterator Checksums::cend() const
-// {
-// 	return sets_.cend();
-// }
-//
-//
-// Checksums::const_iterator Checksums::begin() const
-// {
-// 	return sets_.begin();
-// }
-//
-//
-// Checksums::const_iterator Checksums::end() const
-// {
-// 	return sets_.end();
-// }
-//
-//
-// Checksums::iterator Checksums::begin()
-// {
-// 	return sets_.begin();
-// }
-//
-//
-// Checksums::iterator Checksums::end()
-// {
-// 	return sets_.end();
-// }
-//
-//
-// bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
-// {
-// 	return lhs.sets_ == rhs.sets_;
-// }
-//
-//
-// void swap(Checksums& lhs, Checksums& rhs) noexcept
-// {
-// 	using std::swap;
-// 	swap(lhs.sets_, rhs.sets_);
-// }
 
 } // namespace v_1_0_0
 } // namespace arcstk

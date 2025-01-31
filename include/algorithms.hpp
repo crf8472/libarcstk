@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Concrete algorithms.
+ * \brief Concrete algorithms for calculating checksums.
  */
 
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__

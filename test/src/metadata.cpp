@@ -16,9 +16,9 @@ TEST_CASE ( "Units", "[metadata]" )
 		using arcstk::UNIT;
 		using arcstk::cdda_max;
 
-		CHECK (     449999 == cdda_max<UNIT::FRAMES>()  );
-		CHECK (  264599412 == cdda_max<UNIT::SAMPLES>() );
-		CHECK ( 1058397648 == cdda_max<UNIT::BYTES>()   );
+		CHECK (     449999 == cdda_max<UNIT::FRAMES>  );
+		CHECK (  264599412 == cdda_max<UNIT::SAMPLES> );
+		CHECK ( 1058397648 == cdda_max<UNIT::BYTES>   );
 	}
 }
 

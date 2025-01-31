@@ -28,7 +28,14 @@ inline namespace v_1_0_0
  * \details
  *
  * A ToC is the table of content information from a compact disc. It contains
- * the track offsets and optionally the leadout of the compact disc.
+ * the track offsets and optionally the leadout of the compact disc. ToCs that
+ * contain not only the offsets but also the leadout are
+ * @link arcstk::v_1_0_0::ToC::complete() complete @endlink.
+ *
+ * ToCData is a minimalistic version of a ToC: an aggregate that contains the
+ * leadout at index 0 and on the subsequent index positions the offets of the
+ * tracks. Hence, ToCData contains all and only the data that is required to
+ * calculate AccurateRip checksums.
  *
  * AudioSize is a representation of an amount of audio information that can be
  * evaluated as frames, samples or bytes. Passing AudioSize objects helps to
@@ -149,8 +156,11 @@ enum class UNIT : int
 };
 
 
+namespace details
+{
+
 /**
- * \brief Maximum cdda conforming value for the specified UNIT.
+ * \brief Maximum value for the specified UNIT according to CDDA.
  */
 template <enum UNIT U>
 constexpr int32_t cdda_max() noexcept;
@@ -174,6 +184,15 @@ inline constexpr int32_t cdda_max<UNIT::BYTES>() noexcept
 {
 	return cdda_max<UNIT::FRAMES>() * CDDA::BYTES_PER_FRAME;
 }
+
+} // namespace details
+
+
+/**
+ * \brief Maximum value for the specified UNIT according to CDDA.
+ */
+template <enum UNIT U>
+constexpr int32_t cdda_max { details::cdda_max<U>() };
 
 
 /**
@@ -251,7 +270,7 @@ public:
 	/**
 	 * \brief Update this size by an amount of bytes.
 	 *
-	 * \param[in] samples Updated size to set as an amount of bytes
+	 * \param[in] bytes Updated size to set as an amount of bytes
 	 */
 	void set_bytes(const int32_t bytes) noexcept;
 
@@ -298,6 +317,8 @@ using ToCData = std::vector<AudioSize>;
 
 /**
  * \brief Functions for managing ToCData instances.
+ *
+ * This is intended to be used when implementing metadata parsers.
  */
 namespace toc
 {
@@ -433,7 +454,7 @@ public:
 	 *
 	 * \param[in] leadout The leadout frame to set
 	 */
-	void set_leadout(const AudioSize l) noexcept;
+	void set_leadout(const AudioSize leadout) noexcept;
 
 	/**
 	 * \brief Offsets of this ToC.
