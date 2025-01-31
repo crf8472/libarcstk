@@ -673,7 +673,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 				<< std::to_string(partition.track());
 
 			state.track_finished();
-			result_buffer.append(state.current_subtotal());
+			//result_buffer.append(state.current_subtotal());
+			result_buffer.push_back(state.current_subtotal());
 		}
 	}
 

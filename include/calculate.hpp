@@ -39,7 +39,7 @@ class ToC;
 
 /** \defgroup calc Checksum calculation
  *
- * \brief Calculate checksums for audio files.
+ * \brief Calculate checksums of audio tracks.
  *
  * \details
  *
@@ -54,9 +54,22 @@ class ToC;
  * offsets and the leadout of the audio image and then be  updated with portions
  * of samples. A Calculation can be also finetuned with Settings.
  *
- * The Context in which an Algorithm or a Calculation work. The Context
- * indicates if either the FIRST_TRACK, the LAST_TRACK or an entire ALBUM has to
- * be respected.
+ * The Context in which a Calculation is performed. The Algorithm is aware of
+ * the Context, too. The Context indicates if either the FIRST_TRACK, the
+ * LAST_TRACK, or both have to be treated specially.
+ *
+ * A Checksum refers to a particular track and a particular checksum::type.
+ * Checksums are calculated by a Calculation using an Algorithm.
+ *
+ * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink
+ * of different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink
+ * of the same track.
+ *
+ * Checksums represent a calculation result for all requested checksum
+ * types and all tracks of the audio input. It is an aggregation of the
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of
+ * an respective audio input. Depending on the input, it can represent either
+ * an entire album or a single track.
  *
  * @{
  */
@@ -646,6 +659,20 @@ private:
 
 /**
  * \brief Calculates checksums.
+ *
+ * A Calculation represents a concrete checksum calculation that must be
+ * initialized with the specific ToC information and size of the input audio
+ * file and an Algorithm that defines the type of the checksums. Additionally,
+ * some Settings can be specified. The currently only supported Setting is the
+ * Context.
+ *
+ * The input of the audio file must be represented as a succession of iterable
+ * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink
+ * and the Calculation is sequentially updated with these sequences in
+ * order. After the last update, the Calculation returns the calculation result
+ * on request. The calculated Checksums are represented as an iterable aggregate
+ * of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ *
  */
 class Calculation final
 {

@@ -16,7 +16,7 @@
 #include "calculate_details.hpp"
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"  // for TOC
+#include "identifier.hpp"  // for ToC
 #endif
 
 namespace arcstk

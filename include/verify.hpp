@@ -26,8 +26,10 @@ inline namespace v_1_0_0
 
 class ARId;
 class Checksum;
-class Checksums;
+class ChecksumSet;
 class DBAR;
+
+using Checksums = std::vector<ChecksumSet>; // Also typedef'ed in calculate.hpp
 
 /**
  * \defgroup verify AccurateRip Checksum Verification
@@ -611,11 +613,13 @@ public:
 	 * \return The verification result
 	 */
 	std::unique_ptr<VerificationResult> perform(const DBAR& ref_sums) const;
+
+	// TODO clone()
 };
 
 
 /**
- * \brief Verifier for a list of checksums accompanied by a TOC.
+ * \brief Verifier for a list of checksums accompanied by a ToC.
  *
  * \details
  *
@@ -660,13 +664,13 @@ public:
 
 
 /**
- * \brief Verifier for a set of checksums without a TOC.
+ * \brief Verifier for a set of checksums without a ToC.
  *
  * \details
  *
  * Find any match of any actual Checksum in the reference. This targets the
  * situation where a set of tracks is to be matched that actually forms an album
- * but there is no TOC present. This means that there is also no ARId known
+ * but there is no ToC present. This means that there is also no ARId known
  * and maybe not even the actual order of tracks.
  *
  * TracksetVerifier requires that the set of actual checksums and the blocks
@@ -677,7 +681,7 @@ public:
  *
  * The AlbumVerifier is less ressource-consuming since it has to perform only a
  * single match for every reference value. It is therefore recommended to use
- * AlbumVerifier in any case where a TOC is available.
+ * AlbumVerifier in any case where a ToC is available.
  *
  * \note
  * TracksetVerifier is a generalization of the AlbumVerifier. AlbumVerifier adds

@@ -397,110 +397,110 @@ void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
 // Checksums
 
 
-Checksums::Checksums()
-	: sets_ { /* empty */ }
-{
-	sets_.reserve(default_size);
-}
-
-
-Checksums::Checksums(const size_type size)
-	: sets_ { /* empty */ }
-{
-	sets_.reserve(size);
-}
-
-
-Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
-	: sets_ { tracks }
-{
-	// empty
-}
-
-
-Checksums::size_type Checksums::size() const noexcept
-{
-	return sets_.size();
-}
-
-
-bool Checksums::empty() const noexcept
-{
-	return sets_.empty();
-}
-
-
-const ChecksumSet& Checksums::at(const size_type i) const
-{
-	return sets_.at(i);
-}
-
-
-const ChecksumSet& Checksums::operator[](const size_type i) const
-{
-	return sets_[i];
-}
-
-
-void Checksums::append(const ChecksumSet& s)
-{
-	sets_.push_back(s);
-}
-
-
-void Checksums::append(ChecksumSet&& s)
-{
-	sets_.emplace_back(std::move(s));
-}
-
-
-Checksums::const_iterator Checksums::cbegin() const
-{
-	return sets_.cbegin();
-}
-
-
-Checksums::const_iterator Checksums::cend() const
-{
-	return sets_.cend();
-}
-
-
-Checksums::const_iterator Checksums::begin() const
-{
-	return sets_.begin();
-}
-
-
-Checksums::const_iterator Checksums::end() const
-{
-	return sets_.end();
-}
-
-
-Checksums::iterator Checksums::begin()
-{
-	return sets_.begin();
-}
-
-
-Checksums::iterator Checksums::end()
-{
-	return sets_.end();
-}
-
-
-bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
-{
-	return lhs.sets_ == rhs.sets_;
-}
-
-
-void swap(Checksums& lhs, Checksums& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.sets_, rhs.sets_);
-}
+// Checksums::Checksums()
+// 	: sets_ { /* empty */ }
+// {
+// 	sets_.reserve(default_size);
+// }
+//
+//
+// Checksums::Checksums(const size_type size)
+// 	: sets_ { /* empty */ }
+// {
+// 	sets_.reserve(size);
+// }
+//
+//
+// Checksums::Checksums(std::initializer_list<ChecksumSet> tracks)
+// 	: sets_ { tracks }
+// {
+// 	// empty
+// }
+//
+//
+// Checksums::size_type Checksums::size() const noexcept
+// {
+// 	return sets_.size();
+// }
+//
+//
+// bool Checksums::empty() const noexcept
+// {
+// 	return sets_.empty();
+// }
+//
+//
+// const ChecksumSet& Checksums::at(const size_type i) const
+// {
+// 	return sets_.at(i);
+// }
+//
+//
+// const ChecksumSet& Checksums::operator[](const size_type i) const
+// {
+// 	return sets_[i];
+// }
+//
+//
+// void Checksums::append(const ChecksumSet& s)
+// {
+// 	sets_.push_back(s);
+// }
+//
+//
+// void Checksums::append(ChecksumSet&& s)
+// {
+// 	sets_.emplace_back(std::move(s));
+// }
+//
+//
+// Checksums::const_iterator Checksums::cbegin() const
+// {
+// 	return sets_.cbegin();
+// }
+//
+//
+// Checksums::const_iterator Checksums::cend() const
+// {
+// 	return sets_.cend();
+// }
+//
+//
+// Checksums::const_iterator Checksums::begin() const
+// {
+// 	return sets_.begin();
+// }
+//
+//
+// Checksums::const_iterator Checksums::end() const
+// {
+// 	return sets_.end();
+// }
+//
+//
+// Checksums::iterator Checksums::begin()
+// {
+// 	return sets_.begin();
+// }
+//
+//
+// Checksums::iterator Checksums::end()
+// {
+// 	return sets_.end();
+// }
+//
+//
+// bool operator == (const Checksums &lhs, const Checksums &rhs) noexcept
+// {
+// 	return lhs.sets_ == rhs.sets_;
+// }
+//
+//
+// void swap(Checksums& lhs, Checksums& rhs) noexcept
+// {
+// 	using std::swap;
+// 	swap(lhs.sets_, rhs.sets_);
+// }
 
 } // namespace v_1_0_0
 } // namespace arcstk

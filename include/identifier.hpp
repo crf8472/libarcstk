@@ -38,7 +38,7 @@ class ToC;
  * album and as well its canonical savefile name. \link ARId ARIds\endlink are
  * constructed by other IDs and metadata like offsets and track count. As a
  * convenience, functions make_arid() construct the ARId of an album by its
- * TOC.
+ * ToC.
  *
  * @{
  */
@@ -50,7 +50,7 @@ class ToC;
  * well as the standard filename of the AccurateRip response.
  *
  * \link ARId ARIds\endlink can be constructed either from three
- * precomputed ids or from a TOC using function make_arid().
+ * precomputed ids or from a ToC using function make_arid().
  *
  * In some cases, an ARId is syntactically required, but semantically
  * superflous. An ARId can be empty() to indicate that it carries no identifier.
@@ -179,11 +179,11 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout);
 
 /**
- * \brief Create an ARId from a TOC and a specified leadout.
+ * \brief Create an ARId from a ToC and a specified leadout.
  *
  * The input is validated.
  *
- * Parameter \c toc is allowed to be non-\link arcstk::v_1_0_0::TOC::complete()
+ * Parameter \c toc is allowed to be non-\link arcstk::v_1_0_0::ToC::complete()
  * complete()\endlink. Parameter \c leadout is intended to provide the value
  * possibly missing in \c toc.
  *
@@ -196,7 +196,7 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
  * \c leadout is not 0 and \c leadout and \c toc cannot be validated as
  * consistent with each other, an InvalidMetadataException is thrown.
  *
- * \param[in] toc     TOC to use
+ * \param[in] toc     ToC to use
  * \param[in] leadout Leadout LBA frame
  *
  * \return ARId
@@ -207,18 +207,18 @@ std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a
- * \link arcstk::v_1_0_0::TOC::complete() complete()\endlink TOC.
+ * \link arcstk::v_1_0_0::ToC::complete() complete()\endlink ToC.
  *
  * \details
  *
  * The \c toc is validated.
  *
- * \param[in] toc TOC to use
+ * \param[in] toc ToC to use
  *
- * \return ARId corresponding to the input TOC
+ * \return ARId corresponding to the input ToC
  *
  * \throw InvalidMetadataException
- * If \c toc is not \link arcstk::v_1_0_0::TOC::complete() complete()\endlink.
+ * If \c toc is not \link arcstk::v_1_0_0::ToC::complete() complete()\endlink.
  */
 std::unique_ptr<ARId> make_arid(const ToC& toc);
 

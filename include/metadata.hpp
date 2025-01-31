@@ -28,12 +28,12 @@ inline namespace v_1_0_0
  * \details
  *
  * A ToC is the table of content information from a compact disc. It contains
- * the track offsets and the leadout of the compact disc.
+ * the track offsets and optionally the leadout of the compact disc.
  *
- * An AudioSize is a representation of an amount of audio information that can
- * be evaluated as frames, samples or bytes. Passing AudioSize objects helps to
- * avoid calculating with the wrong unit, e.g. w/ samples when frames are
- * required.
+ * AudioSize is a representation of an amount of audio information that can be
+ * evaluated as frames, samples or bytes. Passing AudioSize objects helps to
+ * avoid accidentally calculating with the wrong unit, e.g. w/ samples when
+ * frames are required.
  *
  * CDDA provides a set of cdda related constants that are used on validating and
  * parsing audio information.
@@ -42,8 +42,7 @@ inline namespace v_1_0_0
  * from the input provided.
  *
  * A NonstandardMetadataException indicates that the input is not conforming to
- * the redbook standard. This exception can occurr in the internal validation
- * mechanism but is currently not used in the public API.
+ * the redbook standard.
  *
  * @{
  */
@@ -151,7 +150,7 @@ enum class UNIT : int
 
 
 /**
- * \brief Return the maximum cdda conforming value for the specified UNIT.
+ * \brief Maximum cdda conforming value for the specified UNIT.
  */
 template <enum UNIT U>
 constexpr int32_t cdda_max() noexcept;
@@ -278,7 +277,12 @@ bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
 bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
 
-std::string to_string(const AudioSize& s);
+/**
+ * \brief Create a string representation of the AudioSize instance.
+ *
+ * \param[in] a The instance to convert to a string
+ */
+std::string to_string(const AudioSize& a);
 
 
 /**
