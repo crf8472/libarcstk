@@ -61,7 +61,7 @@ Checksum& Checksum::operator = (const Checksum::value_type rhs)
 }
 
 
-bool operator == (const Checksum &lhs, const Checksum &rhs) noexcept
+bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
 {
 	return lhs.value() == rhs.value();
 }
@@ -116,7 +116,7 @@ std::string to_string(const Checksum& c)
 }
 
 
-std::ostream& operator << (std::ostream& out, const Checksum &c)
+std::ostream& operator << (std::ostream& out, const Checksum& c)
 {
 	auto prev_settings = std::ios_base::fmtflags { out.flags() };
 
@@ -170,7 +170,7 @@ static const std::array<std::string, 2> names {
  * \param[in] base		Flag: iff TRUE, print base 0x
  * \param[in] out		Output stream to print to
  */
-void print_hex(const Checksum &checksum, const bool upper,
+void print_hex(const Checksum& checksum, const bool upper,
 		const bool base, std::ostream& out)
 {
 	out << std::hex
@@ -252,7 +252,7 @@ bool ChecksumSet::empty() const noexcept
 }
 
 
-bool ChecksumSet::contains(const checksum::type &type) const
+bool ChecksumSet::contains(const checksum::type& type) const
 {
 	using std::end;
 	return set_.find(type) != end(set_);
@@ -283,7 +283,7 @@ std::set<checksum::type> ChecksumSet::types() const
 
 	std::transform(begin(set_), end(set_),
 		std::inserter(keys, begin(keys)),
-		[](const storage_type::value_type &pair)
+		[](const storage_type::value_type& pair)
 		{
 			return pair.first;
 		}
@@ -294,7 +294,7 @@ std::set<checksum::type> ChecksumSet::types() const
 
 
 std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
-		const checksum::type type, const Checksum &checksum)
+		const checksum::type type, const Checksum& checksum)
 {
 	return set_.insert({ type, checksum });
 }
@@ -324,7 +324,7 @@ void ChecksumSet::merge(const ChecksumSet& rhs)
 }
 
 
-void ChecksumSet::erase(const checksum::type &type)
+void ChecksumSet::erase(const checksum::type& type)
 {
 	set_.erase(type);
 }
@@ -378,7 +378,7 @@ ChecksumSet::operator bool() const noexcept
 }
 
 
-bool operator == (const ChecksumSet &lhs, const ChecksumSet &rhs) noexcept
+bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs) noexcept
 {
 	return lhs.length_ == rhs.length_ and lhs.set_ == rhs.set_;
 }

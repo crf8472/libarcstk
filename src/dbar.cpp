@@ -63,7 +63,7 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
 }
 
 
-uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	if (!p)
@@ -99,7 +99,7 @@ uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
 	// we could also read the entire binary file content in a vector<uint8_t>
 	// and proceed working on that vector:
 	//
-	// std::vector<uint8_t> file_content(const std::string &filename) const
+	// std::vector<uint8_t> file_content(const std::string& filename) const
 	// {
 	//   std::ifstream input(filename.c_str(), std::ios::in | std::ios::binary);
 	//
@@ -1055,7 +1055,7 @@ void DBARErrorHandler::do_on_error(const unsigned byte_counter,
 
 StreamParseException::StreamParseException(const unsigned byte_pos,
 		const unsigned block, const unsigned block_byte_pos,
-		const std::string &what_arg)
+		const std::string& what_arg)
 	: std::runtime_error { what_arg }
 	, byte_pos_ { byte_pos }
 	, block_ { block }
@@ -1125,7 +1125,7 @@ bool is_valid_confidence(const unsigned value)
 // parse_stream()
 
 
-uint32_t parse_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	return details::parse_dbar_stream(in, p, e);

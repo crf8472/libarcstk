@@ -551,7 +551,7 @@ public:
 	 *
 	 * \param[in] what_arg What argument
 	 */
-	explicit InvalidMetadataException(const std::string &what_arg);
+	explicit InvalidMetadataException(const std::string& what_arg);
 
 	/**
 	 * \brief Constructor.
@@ -582,7 +582,7 @@ public:
 	 *
 	 * \param[in] what_arg What argument
 	 */
-	explicit NonstandardMetadataException(const std::string &what_arg);
+	explicit NonstandardMetadataException(const std::string& what_arg);
 
 	/**
 	 * \brief Constructor.

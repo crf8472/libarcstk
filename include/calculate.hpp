@@ -64,7 +64,7 @@ class ToC;
  * Updating a Calculation is done by providing a sample portion represented by
  * two instances of SampleInputIterator that represent start and stop of the
  * update. SampleInputIterator is a wrapper iterator for any iterator with a
- * <tt>value_type</tt> of <tt>sample_t</tt>, the declared type for stereo PCM
+ * <tt>value_type</tt> of <tt>sample_t</tt>, the declared type for PCM 32 bit
  * samples.
  *
  * When a Calculation is complete() its result can be requested. The result are
@@ -137,8 +137,8 @@ using IsSampleIterator =
 // forward declaration for operator == and binary ops
 class SampleInputIterator; // IWYU pragma keep
 
-bool operator == (const SampleInputIterator &lhs,
-		const SampleInputIterator &rhs) noexcept;
+bool operator == (const SampleInputIterator& lhs,
+		const SampleInputIterator& rhs) noexcept;
 
 SampleInputIterator operator + (SampleInputIterator lhs, const int32_t amount)
 	noexcept;
@@ -176,8 +176,8 @@ class SampleInputIterator final : public Comparable<SampleInputIterator>
 {
 public:
 
-	friend bool operator == (const SampleInputIterator &lhs,
-			const SampleInputIterator &rhs) noexcept
+	friend bool operator == (const SampleInputIterator& lhs,
+			const SampleInputIterator& rhs) noexcept
 	{
 		return lhs.object_->equals(*rhs.object_);
 	}
@@ -263,7 +263,7 @@ private:
 		 *
 		 * \return \c TRUE if \c rhs is equal to the instance, otherwise \c FALSE
 		 */
-		virtual bool equals(const Concept &rhs) const noexcept
+		virtual bool equals(const Concept& rhs) const noexcept
 		= 0;
 
 		/**
@@ -314,7 +314,7 @@ private:
 			return *iterator_;
 		}
 
-		bool equals(const Concept &rhs) const noexcept final
+		bool equals(const Concept& rhs) const noexcept final
 		{
 			return iterator_ == static_cast<const Model&>(rhs).iterator_;
 		}
@@ -329,7 +329,7 @@ private:
 			return std::make_unique<Model>(*this);
 		}
 
-		friend void swap(Model &lhs, Model &rhs) noexcept
+		friend void swap(Model& lhs, Model& rhs) noexcept
 		{
 			using std::swap;
 
@@ -357,7 +357,7 @@ public:
 	 * \param[in] i Instance of an iterator over \c sample_t
 	 */
 	template <class Iterator, typename = IsSampleIterator<Iterator> >
-	SampleInputIterator(const Iterator &i) // FIXME Do not move a const ref
+	SampleInputIterator(const Iterator& i) // FIXME Do not move a const ref
 		: object_ { std::make_unique<Model<Iterator>>(std::move(i)) }
 	{
 		// empty
@@ -442,7 +442,7 @@ public:
 	}
 	// required by LegacyIterator
 
-	friend void swap(SampleInputIterator &lhs, SampleInputIterator &rhs)
+	friend void swap(SampleInputIterator& lhs, SampleInputIterator& rhs)
 		noexcept
 	{
 		using std::swap;
@@ -556,7 +556,7 @@ using Points = std::vector<AudioSize>;
 #pragma GCC diagnostic ignored "-Weffc++"
 
 /**
- * \brief Checksum calculation algorithm interface.
+ * \brief Interface: Checksum calculation algorithm.
  */
 class Algorithm
 {
@@ -640,6 +640,10 @@ public:
 	 * \return Deep copy of the instance
 	 */
 	std::unique_ptr<Algorithm> clone() const;
+
+protected:
+
+	void base_swap(Algorithm& rhs);
 
 private:
 
@@ -840,7 +844,7 @@ public:
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
-	void update(const AudioSize &audiosize);
+	void update(const AudioSize& audiosize);
 
 	/**
 	 * \brief Acquire the resulting Checksums.

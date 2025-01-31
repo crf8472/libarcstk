@@ -712,7 +712,7 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets)
 // InvalidMetadataException
 
 
-InvalidMetadataException::InvalidMetadataException(const std::string &what_arg)
+InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 	: std::runtime_error { what_arg }
 {
 	// empty
@@ -730,7 +730,7 @@ InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 
 
 NonstandardMetadataException::NonstandardMetadataException(
-		const std::string &what_arg)
+		const std::string& what_arg)
 	: std::runtime_error { what_arg }
 {
 	// empty

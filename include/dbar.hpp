@@ -968,7 +968,7 @@ public:
 	 * \param[in] what_arg       Error message
 	 */
 	StreamParseException(const unsigned byte_pos, const unsigned block,
-			const unsigned block_byte_pos, const std::string &what_arg);
+			const unsigned block_byte_pos, const std::string& what_arg);
 
 	/**
 	 * \brief Constructor with default message.
@@ -1063,7 +1063,7 @@ bool is_valid_confidence(const unsigned value);
  *
  * \return Total number of bytes parsed
  */
-uint32_t parse_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
 

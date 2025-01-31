@@ -182,6 +182,13 @@ template<enum checksum::type T1, enum checksum::type... T2>
 class Updatable final : public UpdatableBase<T1, T2...>
 {
 	// empty
+
+	friend void swap(Updatable& lhs, Updatable& rhs)
+	{
+		using std::swap;
+
+		swap(lhs.st_, rhs.st_);
+	}
 };
 
 
@@ -319,6 +326,15 @@ public:
 	 * \return Current multiplier
 	 */
 	uint_fast64_t multiplier() const;
+
+
+	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs)
+	{
+		using std::swap;
+
+		swap(lhs.state_,          rhs.state_);
+		swap(lhs.current_result_, rhs.current_result_);
+	}
 };
 
 } // namespace details

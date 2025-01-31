@@ -876,7 +876,7 @@ public:
 class MatchPolicy
 {
 	virtual void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const
 	= 0;
 
@@ -915,7 +915,7 @@ public:
 	 * \param[in]     block  Current reference block
 	 * \param[in]     track  Current track
 	 */
-	void perform(VerificationResult& result, const Checksums &actual_sums,
+	void perform(VerificationResult& result, const Checksums& actual_sums,
 			const Checksum& ref, const int block,
 			const Checksums::size_type track) const;
 };
@@ -927,7 +927,7 @@ public:
 class TrackOrderPolicy final : public MatchPolicy
 {
 	void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const final;
 };
 
@@ -938,7 +938,7 @@ class TrackOrderPolicy final : public MatchPolicy
 class FindOrderPolicy final : public MatchPolicy
 {
 	void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const final;
 };
 
@@ -959,7 +959,7 @@ class Verification final
 	 * \param[in]     actual_id   Actual ARId
 	 * \param[in]     ref_sums    Reference Checksums
 	 */
-	void perform_ids(VerificationResult& result, const ARId &actual_id,
+	void perform_ids(VerificationResult& result, const ARId& actual_id,
 		const ChecksumSource& ref_sums) const;
 
 	/**
@@ -971,7 +971,7 @@ class Verification final
 	 * \param[in]     match       MatchPolicy to apply
 	 */
 	void perform_current(VerificationResult& result,
-		const Checksums &actual_sums,
+		const Checksums& actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& match) const;
 
 public:
@@ -987,7 +987,7 @@ public:
 	 * \param[in]     match       MatchPolicy to apply
 	 */
 	void perform(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
+		const Checksums& actual_sums, const ARId& actual_id,
 		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& match) const;
 		// TODO Make traversal const
@@ -1014,8 +1014,8 @@ public:
  * \return The verification result object
  */
 std::unique_ptr<VerificationResult> verify(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
+		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& match);
 
 

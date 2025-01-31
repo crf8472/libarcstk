@@ -185,7 +185,7 @@ public:
 	 *
 	 * \param[in] rhs The non-constant SampleIterator
 	 */
-	SampleIterator(const SampleIterator<T, is_planar, false> &rhs)
+	SampleIterator(const SampleIterator<T, is_planar, false>& rhs)
 		: seq_ { rhs.seq_ } // works due to friendship
 		, pos_ { rhs.pos_ }
 	{
@@ -199,14 +199,14 @@ public:
 	 *
 	 * \param[in] rhs The non-constant SampleIterator
 	 */
-	SampleIterator& operator = (const SampleIterator<T, is_planar, false> &rhs)
+	SampleIterator& operator = (const SampleIterator<T, is_planar, false>& rhs)
 	{
 		seq_ = rhs.seq_;
 		pos_ = rhs.pos_;
 		return *this;
 	}
 	// Note: prior versions of g++ and clang++ accepted the following:
-	//SampleIterator& operator = (const SampleIterator &rhs) = default;
+	//SampleIterator& operator = (const SampleIterator& rhs) = default;
 	// but since this lets -Wdeprecated-copy fire at least on clang++ 14 we had
 	// to define the nonconst-to-const assignment operator explicitely.
 
@@ -367,26 +367,26 @@ public:
 	 *
 	 * \return Arithmetical difference between \c lhs and \c rhs
 	 */
-	friend difference_type operator - (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
+	friend difference_type operator - (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
 	{
 		return lhs.pos_ - rhs.pos_;
 	}
 
 
-	friend bool operator == (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
+	friend bool operator == (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
 	{
 		return lhs.seq_ == rhs.seq_ and lhs.pos_ == rhs.pos_;
 	}
 
-	friend bool operator != (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
+	friend bool operator != (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
 	{
 		return not(lhs == rhs);
 	}
 
-	friend void swap(SampleIterator &lhs, SampleIterator &rhs)
+	friend void swap(SampleIterator& lhs, SampleIterator& rhs)
 	{
 		using std::swap;
 
@@ -405,7 +405,7 @@ private:
 	 * \param[in] seq SampleSequence to iterate
 	 * \param[in] pos Start index
 	 */
-	SampleIterator(const SampleSequence<T, is_planar> &seq,
+	SampleIterator(const SampleSequence<T, is_planar>& seq,
 			const difference_type pos)
 		: seq_ { &seq }
 		, pos_ { pos }
@@ -594,25 +594,25 @@ protected:
 	/**
 	 * \brief Protected default copy constructor.
 	 */
-	SampleSequenceImplBase(const SampleSequenceImplBase &)
+	SampleSequenceImplBase(const SampleSequenceImplBase& )
 	= default;
 
 	/**
 	 * \brief Protected default copy assignment operator.
 	 */
-	SampleSequenceImplBase& operator = (const SampleSequenceImplBase &)
+	SampleSequenceImplBase& operator = (const SampleSequenceImplBase& )
 	= default;
 
 	/**
 	 * \brief Protected default move constructor.
 	 */
-	SampleSequenceImplBase(SampleSequenceImplBase &&) noexcept
+	SampleSequenceImplBase(SampleSequenceImplBase&&) noexcept
 	= default;
 
 	/**
 	 * \brief Protected default move assignment operator.
 	 */
-	SampleSequenceImplBase& operator = (SampleSequenceImplBase &&) noexcept
+	SampleSequenceImplBase& operator = (SampleSequenceImplBase&&) noexcept
 	= default;
 
 	/**
@@ -778,9 +778,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//Skip copy-ctor   SampleSequence(const SampleSequence &)
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
 
-	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
 
 	/**
 	 * \brief Constructor for a sequence with specified channel ordering.
@@ -1050,9 +1050,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//Skip copy-ctor   SampleSequence(const SampleSequence &)
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
 
-	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
 
 	/**
 	 * \brief Constructor for a sequence with specified channel ordering.

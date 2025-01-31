@@ -101,7 +101,7 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
  *
  * \todo This implementation silently relies on a little endian plattform.
  */
-uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**

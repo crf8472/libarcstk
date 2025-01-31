@@ -31,7 +31,7 @@ struct Comparable
 	 *
 	 * \return TRUE iff not \c lhs == \c rhs, otherwise FALSE
 	 */
-	friend bool operator != (const T &lhs, const T &rhs) noexcept
+	friend bool operator != (const T& lhs, const T& rhs) noexcept
 	{
 		return !(lhs == rhs);
 	}
@@ -56,7 +56,7 @@ struct TotallyOrdered : public Comparable<T>
 	 *
 	 * \return TRUE iff \c lhs > \c rhs, otherwise FALSE
 	 */
-	friend bool operator > (const T &lhs, const T &rhs) noexcept
+	friend bool operator > (const T& lhs, const T& rhs) noexcept
 	{
 		return rhs < lhs;
 	}
@@ -69,7 +69,7 @@ struct TotallyOrdered : public Comparable<T>
 	 *
 	 * \return TRUE iff \c lhs >= \c rhs, otherwise FALSE
 	 */
-	friend bool operator >= (const T &lhs, const T &rhs) noexcept
+	friend bool operator >= (const T& lhs, const T& rhs) noexcept
 	{
 		return !(rhs > lhs);
 	}
@@ -82,7 +82,7 @@ struct TotallyOrdered : public Comparable<T>
 	 *
 	 * \return TRUE iff \c lhs <= \c rhs, otherwise FALSE
 	 */
-	friend bool operator <= (const T &lhs, const T &rhs) noexcept
+	friend bool operator <= (const T& lhs, const T& rhs) noexcept
 	{
 		return !(lhs > rhs);
 	}

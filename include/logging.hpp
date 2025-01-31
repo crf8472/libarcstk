@@ -98,7 +98,7 @@ public:
 	 *
 	 * \param[in] filename File to append to and name of the Appender
 	 */
-	inline explicit Appender(const std::string &filename);
+	inline explicit Appender(const std::string& filename);
 
 	/**
 	 * \brief Constructs an Appender for appending to the given <tt>FILE</tt>.
@@ -108,7 +108,7 @@ public:
 	 * \param[in] name   Name of the Appender
 	 * \param[in] stream The <tt>FILE</tt> to append to
 	 */
-	inline Appender(const std::string &name, FILE* stream);
+	inline Appender(const std::string& name, FILE* stream);
 
 	/**
 	 * \brief Appender is non-copyable
@@ -120,7 +120,7 @@ public:
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	inline Appender(Appender &&rhs) noexcept;
+	inline Appender(Appender&& rhs) noexcept;
 
 	/**
 	 * \brief Destructor
@@ -146,7 +146,7 @@ public:
 	inline Appender& operator = (const Appender&) = delete;
 
 	// Appender is movable-only
-	inline Appender& operator = (Appender &&rhs) noexcept;
+	inline Appender& operator = (Appender&& rhs) noexcept;
 
 
 private:
@@ -202,7 +202,7 @@ public:
 	 *
 	 * \param[in] onoff TRUE activates the logging of timestamps for this logger
 	 */
-	void set_timestamps(const bool &onoff) noexcept;
+	void set_timestamps(const bool& onoff) noexcept;
 
 	/**
 	 * \brief Returns TRUE iff this instance is configured to log timestamps.
@@ -230,7 +230,7 @@ public:
 	 *
 	 * \param[in] msg The message to log
 	 */
-	void log(const std::string &msg) const;
+	void log(const std::string& msg) const;
 
 
 	// Logger is non-copyable.
@@ -286,7 +286,7 @@ public:
 	 * \param[in] logger    Logger to use
 	 * \param[in] msg_level Loglevel of the message to log
 	 */
-	Log(const Logger &logger, LOGLEVEL msg_level);
+	Log(const Logger& logger, LOGLEVEL msg_level);
 
 	/**
 	 * \brief Class is non-copyable
@@ -425,7 +425,7 @@ public:
 	 *
 	 * \param[in] activate TRUE activates logging of timestamps
 	 */
-	void set_timestamps(const bool &activate);
+	void set_timestamps(const bool& activate);
 
 	/**
 	 * \brief Returns TRUE iff output of timestamps is activated, otherwise
@@ -484,7 +484,7 @@ private:
 
 // Appender
 
-inline Appender::Appender(const std::string &filename)
+inline Appender::Appender(const std::string& filename)
 	: name_ { filename }
 	, stream_ { std::fopen(name_.c_str(), "a") }
 {
@@ -497,7 +497,7 @@ inline Appender::Appender(const std::string &filename)
 }
 
 
-inline Appender::Appender(const std::string &name, FILE* stream)
+inline Appender::Appender(const std::string& name, FILE* stream)
 	: name_ { name }
 	, stream_ { stream }
 {
@@ -565,7 +565,7 @@ inline Logger::Logger(Logger&& logger) noexcept = default;
 inline Logger::~Logger() noexcept = default;
 
 
-inline void Logger::set_timestamps(const bool &on_or_off) noexcept
+inline void Logger::set_timestamps(const bool& on_or_off) noexcept
 {
 	log_timestamps_ = on_or_off;
 }
@@ -595,7 +595,7 @@ inline void Logger::remove_appender(const Appender *appender)
 }
 
 
-inline void Logger::log(const std::string &msg) const
+inline void Logger::log(const std::string& msg) const
 {
 	for (auto& appender : appenders_)
 	{
@@ -641,7 +641,7 @@ inline std::string now_time()
 // Log
 
 
-inline Log::Log(const Logger &logger, LOGLEVEL msg_level)
+inline Log::Log(const Logger& logger, LOGLEVEL msg_level)
 	: os_ {}
 	, logger_ { &logger }
 	, msg_level_ { msg_level }
@@ -794,7 +794,7 @@ inline bool Logging::has_level(LOGLEVEL level) noexcept
 }
 
 
-inline void Logging::set_timestamps(const bool &on_or_off)
+inline void Logging::set_timestamps(const bool& on_or_off)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	logger_.set_timestamps(on_or_off);

@@ -417,11 +417,11 @@ public:
 	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
-			const int32_t &begin_offset,
-			const int32_t &end_offset,
-			const bool    &starts_track,
-			const bool    &ends_track,
-			const TrackNo &track);
+			const int32_t& begin_offset,
+			const int32_t& end_offset,
+			const bool&    starts_track,
+			const bool&    ends_track,
+			const TrackNo& track);
 
 	/**
 	 * \brief Relative offset of the first sample in the partition.

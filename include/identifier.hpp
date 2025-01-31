@@ -80,18 +80,18 @@ public:
 	 *
 	 * \param[in] rhs The ARId to copy
 	 */
-	ARId(const ARId &rhs);
+	ARId(const ARId& rhs);
 
-	ARId& operator = (const ARId &rhs);
+	ARId& operator = (const ARId& rhs);
 
 	/**
 	 * \brief Default move constructor.
 	 *
 	 * \param[in] rhs The ARId to move
 	 */
-	ARId(ARId &&rhs) noexcept;
+	ARId(ARId&& rhs) noexcept;
 
-	ARId& operator = (ARId &&rhs) noexcept;
+	ARId& operator = (ARId&& rhs) noexcept;
 
 	/**
 	 * \brief Default destructor.

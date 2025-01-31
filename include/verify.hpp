@@ -270,10 +270,6 @@ public:
 
 
 class VerificationResult;
-
-/**
- * \brief Print a VerificationResult to a stream
- */
 std::ostream& operator << (std::ostream&, const VerificationResult& r);
 
 
@@ -339,7 +335,7 @@ class VerificationResult
 	= 0;
 
 	friend std::ostream& operator << (std::ostream&,
-			const VerificationResult &match);
+			const VerificationResult& match);
 
 public:
 
@@ -351,9 +347,9 @@ public:
 	/**
 	 * \brief TRUE iff each track is verified.
 	 *
-	 * This is shorthand for checking whether total_unverified_tracks is 0.
-	 * The verification should be considered as successful and iff this returns
-	 * TRUE.
+	 * This is shorthand for checking whether total_unverified_tracks() is 0.
+	 * The verification should be considered as successful iff this function
+	 * returns TRUE.
 	 *
 	 * A rip for which all tracks are verified can be considered accurate
 	 * relative to the applied verification method. Iff the method is strict,
@@ -401,7 +397,7 @@ public:
 	 *
 	 * \note
 	 * The call <tt>myVerificationResult.value(0,17,true)</tt> refers to the
-	 * ARCSv2 of track 18 in the first block. If this call returns \c true,
+	 * ARCSv2 of track 18 in the first block. If this call returns \c TRUE,
 	 * track 18 in the first block in the \c ref_sums was matched. Whether this
 	 * indicates that track 18 of the actual Checksums caused the match is
 	 * implementation defined and depends on the \c MatchOrder. It can also
@@ -512,7 +508,7 @@ public:
 	/**
 	 * \brief Difference of the best block in this result.
 	 *
-	 * This is shorthand for getting element 2 of \c best_block().
+	 * This is shorthand for getting element 2 of best_block().
 	 *
 	 * \return Smallest difference of any block
 	 */
@@ -540,7 +536,7 @@ public:
  * Subclasses of verifiers can implement specialized policies for strictness
  * and match order.
  *
- * A Verifier is \c strict() by default.
+ * A Verifier is strict() by default.
  */
 class Verifier
 {

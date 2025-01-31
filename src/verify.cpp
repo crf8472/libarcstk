@@ -858,7 +858,7 @@ void MatchPolicy::perform_match(VerificationResult& result,
 
 
 void TrackOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
+		const Checksums& actual_sums, const Checksum& ref,
 		const int block, const Checksums::size_type track) const
 {
 	perform_match(result, actual_sums.at(track), ref, block, track);
@@ -869,7 +869,7 @@ void TrackOrderPolicy::do_perform(VerificationResult& result,
 
 
 void FindOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
+		const Checksums& actual_sums, const Checksum& ref,
 		const int block, const Checksums::size_type /* track */) const
 {
 	auto t = Checksums::size_type { 0 };
@@ -885,7 +885,7 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 
 
 void Verification::perform_ids(VerificationResult& result,
-	const ARId &actual_id, const ChecksumSource& ref_sums) const
+	const ARId& actual_id, const ChecksumSource& ref_sums) const
 {
 	using size_type = ChecksumSource::size_type;
 
@@ -913,7 +913,7 @@ void Verification::perform_ids(VerificationResult& result,
 
 
 void Verification::perform_current(VerificationResult& result,
-		const Checksums &actual_sums,
+		const Checksums& actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	for (auto it = traversal.begin(); it != traversal.end(); ++it)
@@ -928,7 +928,7 @@ void Verification::perform_current(VerificationResult& result,
 
 
 void Verification::perform(VerificationResult& result,
-	const Checksums &actual_sums, const ARId &actual_id,
+	const Checksums& actual_sums, const ARId& actual_id,
 	const ChecksumSource& ref_sums,
 	TraversalPolicy& traversal, const MatchPolicy& order) const
 {
@@ -952,8 +952,8 @@ void Verification::perform(VerificationResult& result,
 
 
 std::unique_ptr<VerificationResult> verify(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
+		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& order)
 {
 	auto r = create_result(ref_sums.size()/* total blocks */,
@@ -1137,7 +1137,7 @@ std::size_t DBARSource::do_size() const
 // VerificationResult
 
 
-std::ostream& operator << (std::ostream &out, const VerificationResult &result)
+std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 {
 	std::ios_base::fmtflags prev_settings = out.flags();
 

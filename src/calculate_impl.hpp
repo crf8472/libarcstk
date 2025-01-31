@@ -371,7 +371,7 @@ public:
 
 	void update(SampleInputIterator begin, SampleInputIterator end);
 
-	void update(const AudioSize &audiosize);
+	void update(const AudioSize& audiosize);
 
 	Checksums result() const noexcept;
 };

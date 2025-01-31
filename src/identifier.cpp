@@ -379,14 +379,14 @@ ARId::ARId(const int track_count,
 }
 
 
-ARId::ARId(const ARId &id)
+ARId::ARId(const ARId& id)
 	: impl_ { std::make_unique<ARId::Impl>(*id.impl_) }
 {
 	// empty
 }
 
 
-ARId::ARId(ARId &&rhs) noexcept = default;
+ARId::ARId(ARId&& rhs) noexcept = default;
 
 
 ARId::~ARId() noexcept = default;
@@ -440,7 +440,7 @@ bool ARId::empty() const noexcept
 }
 
 
-ARId& ARId::operator = (const ARId &rhs)
+ARId& ARId::operator = (const ARId& rhs)
 {
 	if (this == &rhs)
 	{
@@ -453,7 +453,7 @@ ARId& ARId::operator = (const ARId &rhs)
 }
 
 
-ARId& ARId::operator = (ARId &&rhs) noexcept = default;
+ARId& ARId::operator = (ARId&& rhs) noexcept = default;
 
 
 bool operator == (const ARId& lhs, const ARId& rhs) noexcept
@@ -497,6 +497,7 @@ std::unique_ptr<ARId> make_arid(const ToC& toc)
 	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
 			toc.leadout().frames());
 }
+
 
 // make_empty_arid
 

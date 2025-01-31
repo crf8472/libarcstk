@@ -294,11 +294,11 @@ std::unique_ptr<Partitioner> TrackPartitioner::do_clone() const
 
 
 Partition::Partition(
-		const int32_t &begin_offset,
-		const int32_t &end_offset,
-		const bool    &starts_track,
-		const bool    &ends_track,
-		const TrackNo &track
+		const int32_t& begin_offset,
+		const int32_t& end_offset,
+		const bool&    starts_track,
+		const bool&    ends_track,
+		const TrackNo& track
 	)
 	: begin_offset_ { begin_offset }
 	, end_offset_   { end_offset   }
@@ -826,6 +826,14 @@ std::unique_ptr<Algorithm> Algorithm::clone() const
 }
 
 
+void Algorithm::base_swap(Algorithm& rhs)
+{
+	using std::swap;
+
+	swap(settings_, rhs.settings_);
+}
+
+
 // Calculation::Impl
 
 
@@ -983,7 +991,7 @@ void Calculation::Impl::update(SampleInputIterator start,
 }
 
 
-void Calculation::Impl::update(const AudioSize &audiosize)
+void Calculation::Impl::update(const AudioSize& audiosize)
 {
 	partitioner_->set_total_samples(audiosize.samples());
 }
@@ -1104,7 +1112,7 @@ void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
 }
 
 
-void Calculation::update(const AudioSize &audiosize)
+void Calculation::update(const AudioSize& audiosize)
 {
 	impl_->update(audiosize);
 }

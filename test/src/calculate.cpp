@@ -22,6 +22,16 @@
 
 #include <vector> // for vector
 
+
+// Algorithm
+
+
+TEST_CASE ( "Algorithm", "[calculate] [algorithm]" )
+{
+
+}
+
+
 // Context
 
 
