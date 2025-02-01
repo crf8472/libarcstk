@@ -136,24 +136,29 @@ Partitioning get_partitioning(const SampleRange& interval,
 	// Create a single partition spanning the entire block of samples,
 	// but respect skipping samples at front or back.
 
-	const auto partition_start = interval.contains(legal.lower())
+	const auto partition_start { interval.contains(legal.lower())
 		? legal.lower()
-		: interval.lower();
+		: interval.lower()
+	};
 
-	const auto partition_end = interval.contains(legal.upper())
+	const auto partition_end { interval.contains(legal.upper())
 		? legal.upper()
-		: interval.upper();
+		: interval.upper()
+	};
+
+	const auto begin_offset { partition_start - interval.lower()     };
+	const auto end_offset   { partition_end   - interval.lower() + 1 };
+	// XXX The +1 seems like an error
 
 	ARCS_LOG(DEBUG1) << "  Convert interval to partition: "
-		<< (partition_start - interval.lower()) << " - "
-		<< (partition_end   - interval.lower() + 1);
+		<< begin_offset << " - " << end_offset;
 
 	return { Partition {
-		/* begin offset */  { partition_start - interval.lower()     },
-		/* end offset */    { partition_end   - interval.lower() + 1 },
-		/* starts track */  { partition_start == legal.lower() },
-		/* ends track */    { partition_end   == legal.upper() },
-		/* invalid track */ 0
+		{ begin_offset },
+		{ end_offset   },
+		{ partition_start == legal.lower() }/* starts track ? */,
+		{ partition_end   == legal.upper() }/* ends track ? */,
+		0/* invalid track */
 	}};
 }
 
