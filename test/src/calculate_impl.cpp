@@ -18,7 +18,6 @@
 #endif
 
 #include <numeric>  // for iota
-#include <iostream>
 
 // CalculationStateImpl
 
