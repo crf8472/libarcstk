@@ -99,7 +99,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 	}
 
 
-	SECTION ("update() counts the amount of samples processed")
+	SECTION ("update() counts the amount of samples processed correctly")
 	{
 		CHECK ( impl1.samples_processed() == 1000000 );
 	}
@@ -143,8 +143,10 @@ TEST_CASE ( "perform_update", "[calculate]" )
 	using std::begin;
 	using std::end;
 
+	// This test simulates the calculation of an album
 
 	const auto s { Settings { Context::ALBUM } };
+
 	auto algorithm { std::make_unique<AccurateRipV1V2>() };
 	algorithm->set_settings(&s);
 
@@ -155,7 +157,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 	/* use Bach, Organ Concertos, Simon Preston, DGG */
 	const auto partitioner { TrackPartitioner {
 		/* total samples */ 253038 * 588 /* 148786344 */,
-		{ /* split points */
+		{ /* split points (track offsets) */
 			AudioSize {     33 * 588, UNIT::SAMPLES },
 			AudioSize {   5225 * 588, UNIT::SAMPLES },
 			AudioSize {   7390 * 588, UNIT::SAMPLES },
@@ -172,24 +174,29 @@ TEST_CASE ( "perform_update", "[calculate]" )
 			AudioSize { 225320 * 588, UNIT::SAMPLES },
 			AudioSize { 234103 * 588, UNIT::SAMPLES }
 		},
-		/* legal range */ { 33 * 588 + 2939, 253038 * 588 - 2940 },
+		/* legal range w/ skips */ { 33 * 588 + 2939, 253038 * 588 - 2940 },
 	}};
 
 	REQUIRE ( partitioner.total_samples()       == 148786344 );
 	REQUIRE ( partitioner.legal_range().lower() == 22343 );
 	REQUIRE ( partitioner.legal_range().upper() == 148783404 );
-	// TODO Check split points
+	// TODO Verify split points
 
 	Checksums buffer { Checksums{}  };
 
 	REQUIRE ( buffer.size() == 0 );
 
+	// for convenience
+	const int32_t skipped_front { 19404 + 2939 }; // equivalent to legal lower
+
 	auto dummy_data = std::vector<uint32_t>(148786344 );
 	std::iota(begin(dummy_data), end(dummy_data), 1);
 
 
-	SECTION ("Test update for sequence 1-n with split points works correctly")
+	SECTION ("Updating album w/ block_size 16777216 yields correct checksums")
 	{
+		// This simulates libarcsdec:readerwav
+
 		const auto block_size = int { 16777216 }; // samples
 
 		perform_update(	cbegin(dummy_data) + 0 * block_size,
@@ -197,7 +204,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == block_size );
-		CHECK ( state.samples_processed() == block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == block_size - skipped_front );
 		CHECK ( buffer.size()             == 3 );
 
 		CHECK ( buffer[ 0].get(type::ARCS1) == 0x0AF18BB6u );
@@ -214,7 +221,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 2 * block_size );
-		CHECK ( state.samples_processed() == 2 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 2 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 5 );
 
 		CHECK ( buffer[ 3].get(type::ARCS1) == 0xD394FC08u );
@@ -228,7 +235,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 3 * block_size );
-		CHECK ( state.samples_processed() == 3 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 3 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 6 );
 
 		CHECK ( buffer[ 5].get(type::ARCS1) == 0x528B55D0u );
@@ -239,7 +246,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 4 * block_size );
-		CHECK ( state.samples_processed() == 4 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 4 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 8 );
 
 		CHECK ( buffer[ 6].get(type::ARCS1) == 0xB53625EAu );
@@ -253,7 +260,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 5 * block_size );
-		CHECK ( state.samples_processed() == 5 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 5 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 9 );
 
 		CHECK ( buffer[ 8].get(type::ARCS1) == 0x53262404u );
@@ -264,7 +271,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 6 * block_size );
-		CHECK ( state.samples_processed() == 6 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 6 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 10 );
 
 		CHECK ( buffer[ 9].get(type::ARCS1) == 0x33A23980u );
@@ -275,7 +282,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 7 * block_size );
-		CHECK ( state.samples_processed() == 7 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 7 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 11 );
 
 		CHECK ( buffer[10].get(type::ARCS1) == 0xB66906B0u );
@@ -286,7 +293,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						partitioner, state, buffer);
 
 		CHECK ( state.current_offset()    == 8 * block_size );
-		CHECK ( state.samples_processed() == 8 * block_size - (19404 + 2939) );
+		CHECK ( state.samples_processed() == 8 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 13 );
 
 		CHECK ( buffer[11].get(type::ARCS1) == 0x2BE3B232u );
@@ -306,7 +313,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 				ind2am(partitioner.legal_range().upper()) );
 
 		CHECK ( state.samples_processed() ==
-				ind2am(partitioner.legal_range().upper()) - (19404 + 2939) );
+				ind2am(partitioner.legal_range().upper()) - skipped_front );
 
 		CHECK ( buffer.size()             == 15 );
 
@@ -316,5 +323,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[14].get(type::ARCS1) == 0x9F4BF9D9u );
 		CHECK ( buffer[14].get(type::ARCS2) == 0xCE22774Eu );
 	}
+
+	// TODO Simulate the same album but with block_size 4096 like ffmpeg does
 }
 
