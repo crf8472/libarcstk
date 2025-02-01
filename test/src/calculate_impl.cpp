@@ -195,8 +195,8 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						cbegin(dummy_data) + 1 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == block_size + 1 );
-		CHECK ( state.samples_processed() == block_size + 1 - (19404 + 2939) );
+		CHECK ( state.current_offset()    == block_size );
+		CHECK ( state.samples_processed() == block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 3 );
 
 		CHECK ( buffer[ 0].get(type::ARCS1) == 0x0AF18BB6u );
@@ -212,101 +212,110 @@ TEST_CASE ( "perform_update", "[calculate]" )
 						cbegin(dummy_data) + 2 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 2 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 2 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 2 * block_size );
+		CHECK ( state.samples_processed() == 2 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 5 );
 
-		CHECK ( buffer[ 3].get(type::ARCS1) == 0x240F8589u );
-		CHECK ( buffer[ 3].get(type::ARCS2) == 0x1ECFAAB3u );
+		CHECK ( buffer[ 3].get(type::ARCS1) == 0xD394FC08u );
+		CHECK ( buffer[ 3].get(type::ARCS2) == 0xCE55344Bu );
 
-		CHECK ( buffer[ 4].get(type::ARCS1) == 0x1E8159F0u );
-		CHECK ( buffer[ 4].get(type::ARCS2) == 0x4B7F5247u );
+		CHECK ( buffer[ 4].get(type::ARCS1) == 0xD52E3008u );
+		CHECK ( buffer[ 4].get(type::ARCS2) == 0x022C486Du );
 
 		perform_update( cbegin(dummy_data) + 2 * block_size,
 						cbegin(dummy_data) + 3 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 3 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 3 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 3 * block_size );
+		CHECK ( state.samples_processed() == 3 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 6 );
 
-		CHECK ( buffer[ 5].get(type::ARCS1) == 0x21FEDDABu );
-		CHECK ( buffer[ 5].get(type::ARCS2) == 0x93EA9566u );
+		CHECK ( buffer[ 5].get(type::ARCS1) == 0x528B55D0u );
+		CHECK ( buffer[ 5].get(type::ARCS2) == 0xC4778057u );
 
 		perform_update( cbegin(dummy_data) + 3 * block_size,
 						cbegin(dummy_data) + 4 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 4 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 4 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 4 * block_size );
+		CHECK ( state.samples_processed() == 4 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 8 );
 
-		CHECK ( buffer[ 6].get(type::ARCS1) == 0xE5B0359Eu );
-		CHECK ( buffer[ 6].get(type::ARCS2) == 0x5A58B2B8u );
+		CHECK ( buffer[ 6].get(type::ARCS1) == 0xB53625EAu );
+		CHECK ( buffer[ 6].get(type::ARCS2) == 0x29DF16E5u );
 
-		CHECK ( buffer[ 7].get(type::ARCS1) == 0xC39C71C0u );
-		CHECK ( buffer[ 7].get(type::ARCS2) == 0xA75FF365u );
+		CHECK ( buffer[ 7].get(type::ARCS1) == 0x55480A90u );
+		CHECK ( buffer[ 7].get(type::ARCS2) == 0x390C2F05u );
 
 		perform_update( cbegin(dummy_data) + 4 * block_size,
 						cbegin(dummy_data) + 5 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 5 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 5 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 5 * block_size );
+		CHECK ( state.samples_processed() == 5 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 9 );
 
-		CHECK ( buffer[ 8].get(type::ARCS1) == 0x802331E8u );
-		CHECK ( buffer[ 8].get(type::ARCS2) == 0xD5B01211u );
+		CHECK ( buffer[ 8].get(type::ARCS1) == 0x53262404u );
+		CHECK ( buffer[ 8].get(type::ARCS2) == 0xA8B5ADDDu );
 
 		perform_update( cbegin(dummy_data) + 5 * block_size,
 						cbegin(dummy_data) + 6 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 6 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 6 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 6 * block_size );
+		CHECK ( state.samples_processed() == 6 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 10 );
 
-		CHECK ( buffer[ 9].get(type::ARCS1) == 0x036EA5A9u );
-		CHECK ( buffer[ 9].get(type::ARCS2) == 0x1D5EB660u );
+		CHECK ( buffer[ 9].get(type::ARCS1) == 0x33A23980u );
+		CHECK ( buffer[ 9].get(type::ARCS2) == 0x4D9350B0u );
 
 		perform_update( cbegin(dummy_data) + 6 * block_size,
 						cbegin(dummy_data) + 7 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 7 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 7 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 7 * block_size );
+		CHECK ( state.samples_processed() == 7 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 11 );
 
-		CHECK ( buffer[10].get(type::ARCS1) == 0x4642D86Bu );
-		CHECK ( buffer[10].get(type::ARCS2) == 0xD9A63BA9u );
+		CHECK ( buffer[10].get(type::ARCS1) == 0xB66906B0u );
+		CHECK ( buffer[10].get(type::ARCS2) == 0x49D26578u );
 
 		perform_update( cbegin(dummy_data) + 7 * block_size,
 						cbegin(dummy_data) + 8 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == 8 * (block_size + 1) );
-		CHECK ( state.samples_processed() == 8 * (block_size + 1) - (19404 + 2939) );
+		CHECK ( state.current_offset()    == 8 * block_size );
+		CHECK ( state.samples_processed() == 8 * block_size - (19404 + 2939) );
 		CHECK ( buffer.size()             == 13 );
 
-		CHECK ( buffer[11].get(type::ARCS1) == 0xC320349Eu );
-		CHECK ( buffer[11].get(type::ARCS2) == 0xCC980E81u );
+		CHECK ( buffer[11].get(type::ARCS1) == 0x2BE3B232u );
+		CHECK ( buffer[11].get(type::ARCS2) == 0x355C7E28u );
 
-		CHECK ( buffer[12].get(type::ARCS1) == 0x62CA1080u );
-		CHECK ( buffer[12].get(type::ARCS2) == 0x9CB2E1BEu );
+		CHECK ( buffer[12].get(type::ARCS1) == 0x5D229B60u );
+		CHECK ( buffer[12].get(type::ARCS2) == 0x970C0A35u );
 
 		perform_update( cbegin(dummy_data) + 8 * block_size,
 						cbegin(dummy_data) + 9 * block_size,
 						partitioner, state, buffer);
 
-		CHECK ( state.current_offset()    == partitioner.legal_range().upper() + 1 );
-		CHECK ( state.samples_processed() == 148783404 - (19404 + 2939) + 1 );
+		// After the last partition, current_offset() will be 1 index ahead
+		// as before. However, the block is smaller than block_size.
+
+		CHECK ( state.current_offset()    ==
+				partitioner.legal_range().upper() + 1 );
+		// +1 since an index is converted to amount
+
+		CHECK ( state.samples_processed() ==
+				partitioner.legal_range().upper() - (19404 + 2939) + 1 );
+		// +1 since an index is converted to amount
+
 		CHECK ( buffer.size()             == 15 );
 
-		CHECK ( buffer[13].get(type::ARCS1) == 0x1F277B2Au );
-		CHECK ( buffer[13].get(type::ARCS2) == 0x63761391u );
+		CHECK ( buffer[13].get(type::ARCS1) == 0x3EF9CE06u );
+		CHECK ( buffer[13].get(type::ARCS2) == 0x8348C62Fu );
 
-		CHECK ( buffer[14].get(type::ARCS1) == 0xD2A3C2B1u );
-		CHECK ( buffer[14].get(type::ARCS2) == 0x01787E01u );
+		CHECK ( buffer[14].get(type::ARCS1) == 0x9F4BF9D9u );
+		CHECK ( buffer[14].get(type::ARCS2) == 0xCE22774Eu );
 	}
 }
 
