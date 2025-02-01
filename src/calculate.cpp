@@ -179,8 +179,8 @@ Partitioning Partitioner::create_partitioning(
 		const int32_t total_samples_in_block) const
 {
 	const SampleRange current_interval {
-		/* first phys. sample in block */ offset,
-		/* last  phys. sample in block */ offset + total_samples_in_block - 1
+		/*first phys. sample in block*/ offset,
+		/*last  phys. sample in block*/ offset + am2ind(total_samples_in_block)
 		// -1 because the amount total_samples_in_block has to be converted to
 		// the sample index of the last sample in the interval.
 	};
@@ -349,6 +349,18 @@ std::size_t Partition::size() const
 
 
 // calculate_impl.hpp
+
+
+int32_t ind2am(const int32_t index)
+{
+	return index + 1;
+}
+
+
+int32_t am2ind(const int32_t amount)
+{
+	return amount - 1;
+}
 
 
 // CalculationState
@@ -601,7 +613,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	const auto start_pos        { state.current_offset() };
 	const auto samples_in_block { std::distance(start, stop) };
 
-	const auto last_sample_in_block { start_pos + samples_in_block - 1 };
+	const auto last_sample_in_block { start_pos + am2ind(samples_in_block) };
 
 	ARCS_LOG_DEBUG << "  Offset:  " << state.current_offset() << " samples";
 	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block       << " samples";
@@ -669,6 +681,9 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG_DEBUG << "    Samples total: " << partition.size();
 
 		state.update(start + offset_first, start + offset_last + 1);
+		// +1 because the "stop" sample will not be processed. As an
+		// end()-iterator, the intended stop point has to be shifted behind the
+		// last sample to pass.
 
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())

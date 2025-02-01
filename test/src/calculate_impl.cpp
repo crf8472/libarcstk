@@ -132,6 +132,7 @@ TEST_CASE ( "perform_update", "[calculate]" )
 	using arcstk::UNIT;
 	using arcstk::checksum::type;
 
+	using arcstk::details::ind2am;
 	using arcstk::details::Interval;
 	using arcstk::details::TrackPartitioner;
 	using arcstk::details::CalculationStateImpl;
@@ -302,12 +303,10 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		// as before. However, the block is smaller than block_size.
 
 		CHECK ( state.current_offset()    ==
-				partitioner.legal_range().upper() + 1 );
-		// +1 since an index is converted to amount
+				ind2am(partitioner.legal_range().upper()) );
 
 		CHECK ( state.samples_processed() ==
-				partitioner.legal_range().upper() - (19404 + 2939) + 1 );
-		// +1 since an index is converted to amount
+				ind2am(partitioner.legal_range().upper()) - (19404 + 2939) );
 
 		CHECK ( buffer.size()             == 15 );
 

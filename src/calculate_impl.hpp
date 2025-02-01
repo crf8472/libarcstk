@@ -26,6 +26,25 @@ inline namespace v_1_0_0
 namespace details
 {
 
+/**
+ * \brief Convert a 0-based sample index to an equivalent amount of samples.
+ *
+ * \param[in] index The index to convert to an amount
+ *
+ * \return Amount of samples equivalent to the index passed
+ */
+int32_t ind2am(const int32_t index);
+
+/**
+ * \brief Convert a 1-based amount of samples to an equivalent index.
+ *
+ * \param[in] amount The amount to convert to an index
+ *
+ * \return Sample index equivalent to the amount passed
+ */
+int32_t am2ind(const int32_t amount);
+
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 
