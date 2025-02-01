@@ -180,7 +180,9 @@ Partitioning Partitioner::create_partitioning(
 {
 	const SampleRange current_interval {
 		/* first phys. sample in block */ offset,
-		/* last  phys. sample in block */ offset + total_samples_in_block
+		/* last  phys. sample in block */ offset + total_samples_in_block - 1
+		// -1 because the amount total_samples_in_block has to be converted to
+		// the sample index of the last sample in the interval.
 	};
 
 	// If the sample block does not contain any relevant samples,
@@ -459,7 +461,9 @@ void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
 	const auto amount { std::distance(start, stop) };
+
 	do_update(start, stop); // TODO try and update counter in catch
+
 	samples_processed_.increment(amount);
 	track_samples_processed_.increment(amount);
 	advance(amount);
@@ -597,7 +601,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	const auto start_pos        { state.current_offset() };
 	const auto samples_in_block { std::distance(start, stop) };
 
-	const auto last_sample_in_block { start_pos + samples_in_block };
+	const auto last_sample_in_block { start_pos + samples_in_block - 1 };
 
 	ARCS_LOG_DEBUG << "  Offset:  " << state.current_offset() << " samples";
 	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block       << " samples";
