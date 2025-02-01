@@ -134,6 +134,10 @@ using Partitioning = std::vector<Partition>;
 /**
  * \brief Create a partitioning for an interval in a legal range by a sequence
  * of points.
+ *
+ * \param[in] interval	Interval to create a partitioning for
+ * \param[in] legal		Relevant range within the interval
+ * \param[in] points    Points to define partition bounds
  */
 Partitioning get_partitioning(
 		const SampleRange& interval,
@@ -142,6 +146,9 @@ Partitioning get_partitioning(
 
 /**
  * \brief Create a single partition for an interval in a legal range.
+ *
+ * \param[in] interval	Interval to create a partitioning for
+ * \param[in] legal		Relevant range within the interval
  */
 Partitioning get_partitioning(
 		const SampleRange& interval,
