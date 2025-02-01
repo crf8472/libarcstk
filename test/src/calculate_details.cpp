@@ -16,6 +16,53 @@
 #endif
 
 
+TEST_CASE ( "Interval", "[calculate_details]" )
+{
+	using arcstk::details::Interval;
+
+	const auto i1 = Interval<int32_t> {  10,  17 };
+	const auto i2 = Interval<int32_t> { -12, 123 };
+	const auto i3 = Interval<int32_t> {   2,   1 };
+
+	SECTION ("Construction is correct")
+	{
+		CHECK ( i1.lower() ==  10 );
+		CHECK ( i2.lower() == -12 );
+		CHECK ( i3.lower() ==   1 );
+
+		CHECK ( i1.upper() ==  17 );
+		CHECK ( i2.upper() == 123 );
+		CHECK ( i3.upper() ==   2 );
+	}
+
+	SECTION ("contains() is correct")
+	{
+		CHECK ( !i1.contains( 9) );
+		CHECK (  i1.contains(10) );
+		CHECK (  i1.contains(11) );
+		CHECK (  i1.contains(12) );
+		CHECK (  i1.contains(13) );
+		CHECK (  i1.contains(14) );
+		CHECK (  i1.contains(15) );
+		CHECK (  i1.contains(16) );
+		CHECK (  i1.contains(17) );
+		CHECK ( !i1.contains(18) );
+
+		CHECK ( !i2.contains(-13) );
+		CHECK (  i2.contains(-12) );
+		CHECK (  i2.contains(-11) );
+		CHECK (  i2.contains(-10) );
+		CHECK (  i2.contains(122) );
+		CHECK (  i2.contains(123) );
+		CHECK ( !i2.contains(124) );
+
+		CHECK ( !i3.contains(0) );
+		CHECK (  i3.contains(1) );
+		CHECK (  i3.contains(2) );
+		CHECK ( !i3.contains(3) );
+	}
+}
+
 TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 {
 	// Use samples as points, not frames
@@ -321,7 +368,7 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 		// 5. block of 4095 contains beginning of first track but not its end
 
 		auto p { arcstk::details::get_partitioning(
-				{ /* use samples in one block  */ 20475, 24570 /*==4095*/ },
+				{ /* use samples in one block  */ 20475, 24570 },
 				{ /* use accuraterip algorithm */  2939, 253038 * 588 - 2940 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
 					AudioSize {     33 * 588, UNIT::SAMPLES },
@@ -360,7 +407,7 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 		// 5. block of 4095 contains beginning of first track but not its end
 
 		auto p { arcstk::details::get_partitioning(
-				{ /* use samples in one block  */ 148782249, 148786344 /*==4095*/ },
+				{ /* use samples in one block  */ 148782249, 148786344 },
 				{ /* use accuraterip algorithm */  2939, 253038 * 588 - 2940 },
 				{ /* use Bach, Organ Concertos, Simon Preston, DGG */
 					AudioSize {     33 * 588, UNIT::SAMPLES },
@@ -392,6 +439,7 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 	}
 }
 
+
 /*
 TEST_CASE ( "Partition", "[partitioner]" )
 {
@@ -410,53 +458,6 @@ TEST_CASE ( "CalculationState", "[calculationstate]" )
 	// TODO Implement
 }
 */
-
-TEST_CASE ( "Interval", "[calculate_details]" )
-{
-	using arcstk::details::Interval;
-
-	const auto i1 = Interval<int32_t> {  10,  17 };
-	const auto i2 = Interval<int32_t> { -12, 123 };
-	const auto i3 = Interval<int32_t> {   2,   1 };
-
-	SECTION ("Construction is correct")
-	{
-		CHECK ( i1.lower() ==  10 );
-		CHECK ( i2.lower() == -12 );
-		CHECK ( i3.lower() ==   1 );
-
-		CHECK ( i1.upper() ==  17 );
-		CHECK ( i2.upper() == 123 );
-		CHECK ( i3.upper() ==   2 );
-	}
-
-	SECTION ("contains() is correct")
-	{
-		CHECK ( !i1.contains( 9) );
-		CHECK (  i1.contains(10) );
-		CHECK (  i1.contains(11) );
-		CHECK (  i1.contains(12) );
-		CHECK (  i1.contains(13) );
-		CHECK (  i1.contains(14) );
-		CHECK (  i1.contains(15) );
-		CHECK (  i1.contains(16) );
-		CHECK (  i1.contains(17) );
-		CHECK ( !i1.contains(18) );
-
-		CHECK ( !i2.contains(-13) );
-		CHECK (  i2.contains(-12) );
-		CHECK (  i2.contains(-11) );
-		CHECK (  i2.contains(-10) );
-		CHECK (  i2.contains(122) );
-		CHECK (  i2.contains(123) );
-		CHECK ( !i2.contains(124) );
-
-		CHECK ( !i3.contains(0) );
-		CHECK (  i3.contains(1) );
-		CHECK (  i3.contains(2) );
-		CHECK ( !i3.contains(3) );
-	}
-}
 
 
 TEST_CASE ( "Counter", "[calculate_details]" )
