@@ -197,11 +197,13 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		// This simulates libarcsdec:readerwav
 
 		const auto block_size = int { 16777216 }; // samples
+		auto r = bool { true };
 
-		perform_update(	cbegin(dummy_data) + 0 * block_size,
-						cbegin(dummy_data) + 1 * block_size,
-						partitioner, state, buffer);
+		r = perform_update(	cbegin(dummy_data) + 0 * block_size,
+							cbegin(dummy_data) + 1 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == block_size );
 		CHECK ( state.samples_processed() == block_size - skipped_front );
 		CHECK ( buffer.size()             == 3 );
@@ -215,10 +217,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 2].get(type::ARCS1) == 0xBC5C57ECu );
 		CHECK ( buffer[ 2].get(type::ARCS2) == 0x2A4FD377u );
 
-		perform_update( cbegin(dummy_data) + 1 * block_size,
-						cbegin(dummy_data) + 2 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 1 * block_size,
+							cbegin(dummy_data) + 2 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 2 * block_size );
 		CHECK ( state.samples_processed() == 2 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 5 );
@@ -229,10 +232,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 4].get(type::ARCS1) == 0xD52E3008u );
 		CHECK ( buffer[ 4].get(type::ARCS2) == 0x022C486Du );
 
-		perform_update( cbegin(dummy_data) + 2 * block_size,
-						cbegin(dummy_data) + 3 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 2 * block_size,
+							cbegin(dummy_data) + 3 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 3 * block_size );
 		CHECK ( state.samples_processed() == 3 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 6 );
@@ -240,10 +244,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 5].get(type::ARCS1) == 0x528B55D0u );
 		CHECK ( buffer[ 5].get(type::ARCS2) == 0xC4778057u );
 
-		perform_update( cbegin(dummy_data) + 3 * block_size,
-						cbegin(dummy_data) + 4 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 3 * block_size,
+							cbegin(dummy_data) + 4 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 4 * block_size );
 		CHECK ( state.samples_processed() == 4 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 8 );
@@ -254,10 +259,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 7].get(type::ARCS1) == 0x55480A90u );
 		CHECK ( buffer[ 7].get(type::ARCS2) == 0x390C2F05u );
 
-		perform_update( cbegin(dummy_data) + 4 * block_size,
-						cbegin(dummy_data) + 5 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 4 * block_size,
+							cbegin(dummy_data) + 5 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 5 * block_size );
 		CHECK ( state.samples_processed() == 5 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 9 );
@@ -265,10 +271,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 8].get(type::ARCS1) == 0x53262404u );
 		CHECK ( buffer[ 8].get(type::ARCS2) == 0xA8B5ADDDu );
 
-		perform_update( cbegin(dummy_data) + 5 * block_size,
-						cbegin(dummy_data) + 6 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 5 * block_size,
+							cbegin(dummy_data) + 6 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 6 * block_size );
 		CHECK ( state.samples_processed() == 6 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 10 );
@@ -276,10 +283,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[ 9].get(type::ARCS1) == 0x33A23980u );
 		CHECK ( buffer[ 9].get(type::ARCS2) == 0x4D9350B0u );
 
-		perform_update( cbegin(dummy_data) + 6 * block_size,
-						cbegin(dummy_data) + 7 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 6 * block_size,
+							cbegin(dummy_data) + 7 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 7 * block_size );
 		CHECK ( state.samples_processed() == 7 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 11 );
@@ -287,10 +295,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[10].get(type::ARCS1) == 0xB66906B0u );
 		CHECK ( buffer[10].get(type::ARCS2) == 0x49D26578u );
 
-		perform_update( cbegin(dummy_data) + 7 * block_size,
-						cbegin(dummy_data) + 8 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 7 * block_size,
+							cbegin(dummy_data) + 8 * block_size,
+							partitioner, state, buffer);
 
+		CHECK ( !r );
 		CHECK ( state.current_offset()    == 8 * block_size );
 		CHECK ( state.samples_processed() == 8 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 13 );
@@ -301,9 +310,11 @@ TEST_CASE ( "perform_update", "[calculate]" )
 		CHECK ( buffer[12].get(type::ARCS1) == 0x5D229B60u );
 		CHECK ( buffer[12].get(type::ARCS2) == 0x970C0A35u );
 
-		perform_update( cbegin(dummy_data) + 8 * block_size,
-						cbegin(dummy_data) + 9 * block_size,
-						partitioner, state, buffer);
+		r = perform_update( cbegin(dummy_data) + 8 * block_size,
+							cbegin(dummy_data) + 9 * block_size,
+							partitioner, state, buffer);
+
+		CHECK ( r );
 
 		// After the last partition, current_offset() will be 1 index ahead
 		// as before. However, the block is smaller than block_size.
