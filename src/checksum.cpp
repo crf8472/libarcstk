@@ -14,7 +14,7 @@
 #include <cstdint>          // for int32_t
 #include <initializer_list> // for initializer_list
 #include <iomanip>          // for setfill, setw
-#include <iterator>         // for inserter
+#include <iterator>         // for begin, end, inserter
 #include <set>              // for set
 #include <sstream>          // for ostringstream
 #include <stdexcept>        // for domain_error
@@ -324,7 +324,7 @@ void ChecksumSet::merge(const ChecksumSet& rhs)
 	}
 
 	#if __cplusplus >= 201703L
-		//set_.merge(rhs.set_);
+		set_.merge(rhs.set_);
 	#else
 		using std::begin;
 		using std::end;
