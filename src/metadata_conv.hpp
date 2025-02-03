@@ -47,6 +47,15 @@ constexpr auto as_integral_value(const E& value)
 
 namespace conv
 {
+// Implement the conversion of different UNITs as follows:
+
+// F -> S : f * SAMPLES   multiply by bigger type iff one type is 1
+// F -> B : f * BYTES     multiply by bigger type iff one type is 1
+// S -> F : f \ SAMPLES   divide by bigger type iff one type is 1
+// S -> B : f * (BYTES \ SAMPLES)
+// B -> F : f \ BYTES     divide by bigger type iff one type is 1
+// B -> S : f \ (BYTES \ SAMPLES)
+
 
 // determine total number of passed units per frame
 template <typename E>
@@ -57,21 +66,41 @@ constexpr auto per_frame(const E& value)
 }
 
 
+// implement factor selection
+template <enum UNIT F, enum UNIT T, bool B>
+struct factor_impl
+{
+	// empty
+};
+
+template <enum UNIT F, enum UNIT T>
+struct factor_impl<F, T, true>
+{
+	static constexpr int value()
+	{
+		// use bigger type as factor
+		return std::max(per_frame(F), per_frame(T));
+	}
+};
+
+template <enum UNIT F, enum UNIT T>
+struct factor_impl<F, T, false>
+{
+	static constexpr int value()
+	{
+		// use bigger type divided by smaller type as factor
+		return std::max(per_frame(F), per_frame(T)) /
+			std::min(per_frame(F), per_frame(T));
+	}
+};
+
+
+
 // determine factor to multiply or divide by
 template <enum UNIT F, enum UNIT T>
 constexpr auto factor() -> int
 {
-	return per_frame(F) == 1 || per_frame(T) == 1  // one type is FRAME (1)?
-		? std::max(per_frame(F),per_frame(T))      // => bigger type
-		: std::max(per_frame(F),per_frame(T)) /    // otherwise
-			std::min(per_frame(F),per_frame(T));   // divide bigger by smaller
-
-// F -> S : f * SAMPLES   multiply by bigger type iff one type is 1
-// F -> B : f * BYTES     multiply by bigger type iff one type is 1
-// S -> F : f \ SAMPLES   divide by bigger type iff one type is 1
-// S -> B : f * (BYTES \ SAMPLES)
-// B -> F : f \ BYTES     divide by bigger type iff one type is 1
-// B -> S : f \ (BYTES \ SAMPLES)
+	return factor_impl<F, T, per_frame(F) == 1 || per_frame(T) == 1>::value();
 }
 
 
@@ -100,8 +129,8 @@ constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
 template <enum UNIT F, enum UNIT T>
 constexpr auto convert(const int32_t from) -> int32_t
 {
-	return conv::op<conv::per_frame(F) < conv::per_frame(T)>(from,
-			conv::factor<F,T>());
+	return conv::op<conv::per_frame(F) < conv::per_frame(T)>(
+			from, conv::factor<F,T>());
 }
 
 
