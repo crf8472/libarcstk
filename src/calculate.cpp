@@ -73,38 +73,45 @@ Partitioning get_partitioning(const SampleRange& interval,
 	// partition will be returned and it may be the partition that ends the last
 	// track. In this case, b will be bigger than the index.
 
-	const auto start_of_track = b == 0 ? 0 : points[b - 1];
-	const auto end_of_track   = points[b] - 1;
+	auto partitions = std::vector<Partition>{};
 
-	// start of the first (and maybe only) partition
-	const auto p0_lower { real_lower };
+	// front
 
-	// end of the first (and maybe only) partition
-	const auto p0_upper { b < points.size()  // if not last track
-		? std::min(end_of_track, real_upper)
-		: real_upper
-	};
+	auto track { b };
+	{
+		const auto start_of_track = track == 0 ? 0 : points[track - 1];
+		const auto end_of_track   = points[track] - 1;
 
-	ARCS_LOG(DEBUG3) << "Create front partition, "
-		<< "track " << std::setw(2) << std::right << b << ": "
-		<< std::setw(9) << std::right << p0_lower
-		<< " - "
-		<< std::setw(9) << std::right << p0_upper;
+		// start of the first (and maybe only) partition
+		const auto p0_lower { real_lower };
 
-	auto partitions = std::vector<Partition> {
-		Partition { p0_lower, p0_upper,
+		// end of the first (and maybe only) partition
+		const auto p0_upper { track < points.size()  // if not last track
+			? std::min(end_of_track, real_upper)
+			: real_upper
+		};
+
+		ARCS_LOG(DEBUG3) << "Create front partition, "
+			<< "track " << std::setw(2) << std::right << track << ": "
+			<< std::setw(9) << std::right << p0_lower
+			<< " - "
+			<< std::setw(9) << std::right << p0_upper;
+
+		partitions.emplace_back(
+			p0_lower, p0_upper,
 			p0_lower == start_of_track || p0_lower == legal.lower(),
 			p0_upper == end_of_track   || p0_upper == legal.upper(),
-			static_cast<TrackNo>(b)
-		}
-	};
+			static_cast<TrackNo>(track)
+		);
+	} // front
 
 	// If the interval does not span over multiple tracks, we are done now.
 	if (b == e) { return partitions; }
 
+	// mid (if any)
+
 	// Add further partitions, this is just from point i to point i + 1.
 	// Will be entirely skipped if the partition does span 2 tracks or less.
-	auto track { b };
 	for (auto i { b }; i < e - 1; ++i)
 	{
 		track = i + 1;
@@ -116,29 +123,35 @@ Partitioning get_partitioning(const SampleRange& interval,
 			<< std::setw(9) << std::right << points[track];
 
 		partitions.emplace_back(
-				points[i], points[track] - 1, true, true, track);
+				points[i], points[track] - 1, true, true,
+				static_cast<TrackNo>(track));
 	}
 
-	const auto pN_lower { points[e - 1] };
+	// back
 
-	const auto pN_upper { e < points.size()
-		? std::min(points[e] - 1, real_upper)
-		: real_upper
-	};
+	track = e;
+	{
+		const auto pN_lower { points[track - 1] };
 
-	ARCS_LOG(DEBUG3) << "Create back partition,  "
-		<< "track " << std::setw(2) << std::right << e << ": "
-		<< std::setw(9) << std::right << pN_lower
-		<< " - "
-		<< std::setw(9) << std::right << pN_upper;
+		const auto pN_upper { track < points.size()
+			? std::min(points[track] - 1, real_upper)
+			: real_upper
+		};
 
-	// Add last partition: from the beginning of the track that contains the
-	// upper bound to the real upper bound.
-	partitions.emplace_back(pN_lower, pN_upper,
-		true,/*since a previous partition is guaranteed that ends on track end*/
-		pN_upper == points[e] - 1 || pN_upper == legal.upper(),
-		static_cast<TrackNo>(e)
-	);
+		ARCS_LOG(DEBUG3) << "Create back partition,  "
+			<< "track " << std::setw(2) << std::right << e << ": "
+			<< std::setw(9) << std::right << pN_lower
+			<< " - "
+			<< std::setw(9) << std::right << pN_upper;
+
+		// Add last partition: from the beginning of the track that contains the
+		// upper bound to the real upper bound.
+		partitions.emplace_back(pN_lower, pN_upper,
+			true,/*since a previous partition is guaranteed that ends on track end*/
+			pN_upper == points[track] - 1 || pN_upper == legal.upper(),
+			static_cast<TrackNo>(track)
+		);
+	} // back
 
 	return partitions;
 }
@@ -671,6 +684,7 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
+	auto total        { 0 };
 
 	for (const auto& partition : partitioning)
 	{
@@ -681,17 +695,18 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 		offset_first = partition.begin_offset() - start_pos;
 		offset_last  = partition.end_offset()   - start_pos;
+		total        = offset_last + 1 - offset_first;
 
 		ARCS_LOG(DEBUG2) << "Samples "
-			<< std::setw(9) << std::right << start_pos + offset_first
+			<< std::setw(9) << std::right << (start_pos + offset_first)
 			<< " - "
-			<< std::setw(9) << std::right << start_pos + offset_last
+			<< std::setw(9) << std::right << (start_pos + offset_last)
 			<< " (Track " << partition.track() << ", "
 			<< (partition.starts_track()
 					? (partition.ends_track() ? "complete"  : "first part")
 					: (partition.ends_track() ? "last part" : "mid part"))
 			<< ")";
-		ARCS_LOG(DEBUG2) << "Samples total: " << offset_last + 1 - offset_first;
+		ARCS_LOG(DEBUG2) << "Samples total: " << total;
 
 		state.update(start + offset_first, start + offset_last + 1);
 		// +1 because the "stop" sample will not be processed. As an
