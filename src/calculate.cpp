@@ -194,8 +194,7 @@ Partitioning Partitioner::create_partitioning(
 		const int32_t total_samples_in_block) const
 {
 	const SampleRange current_interval {
-		/*first phys. sample in block*/ offset,
-		/*last  phys. sample in block*/ offset + am2ind(total_samples_in_block)
+		offset, offset + am2ind(total_samples_in_block)
 	};
 
 	// If the sample block does not contain any relevant samples,
@@ -368,36 +367,39 @@ int32_t am2ind(const int32_t amount)
 
 
 CalculationState::CalculationState(Algorithm* const algorithm)
-	: current_offset_    { 0 }
-	, samples_processed_ { 0 }
+	: current_offset_      { 0 }
+	, samples_processed_   { 0 }
 	, track_samples_processed_ { 0 }
-	, tracks_processed_  { 0 }
-	, proc_time_elapsed_ { std::chrono::duration<int64_t, std::milli>(0) }
-	, algorithm_         { algorithm }
+	, tracks_processed_    { 0 }
+	, algo_time_elapsed_   { 0 }
+	, update_time_elapsed_ { 0 }
+	, algorithm_           { algorithm }
 {
 	// empty
 }
 
 
 CalculationState::CalculationState(const CalculationState& rhs)
-	: current_offset_    { rhs.current_offset_    }
-	, samples_processed_ { rhs.samples_processed_ }
+	: current_offset_      { rhs.current_offset_      }
+	, samples_processed_   { rhs.samples_processed_   }
 	, track_samples_processed_ { rhs.track_samples_processed_ }
-	, tracks_processed_  { rhs.tracks_processed_ }
-	, proc_time_elapsed_ { rhs.proc_time_elapsed_ }
-	, algorithm_         { rhs.algorithm_         }
+	, tracks_processed_    { rhs.tracks_processed_    }
+	, algo_time_elapsed_   { rhs.algo_time_elapsed_   }
+	, update_time_elapsed_ { rhs.update_time_elapsed_ }
+	, algorithm_           { rhs.algorithm_           }
 {
 	// empty
 }
 
 
 CalculationState::CalculationState(CalculationState&& rhs) noexcept
-	: current_offset_    { std::move(rhs.current_offset_)    }
-	, samples_processed_ { std::move(rhs.samples_processed_) }
+	: current_offset_      { std::move(rhs.current_offset_)    }
+	, samples_processed_   { std::move(rhs.samples_processed_) }
 	, track_samples_processed_ { std::move(rhs.track_samples_processed_) }
-	, tracks_processed_  { std::move(rhs.tracks_processed_)  }
-	, proc_time_elapsed_ { std::move(rhs.proc_time_elapsed_) }
-	, algorithm_         { std::move(rhs.algorithm_)         }
+	, tracks_processed_    { std::move(rhs.tracks_processed_)  }
+	, algo_time_elapsed_   { std::move(rhs.algo_time_elapsed_) }
+	, update_time_elapsed_ { std::move(rhs.update_time_elapsed_) }
+	, algorithm_           { std::move(rhs.algorithm_)         }
 {
 	// empty
 }
@@ -457,25 +459,41 @@ const Algorithm* CalculationState::algorithm() const noexcept
 }
 
 
-std::chrono::milliseconds CalculationState::proc_time_elapsed() const noexcept
+std::chrono::duration<float> CalculationState::update_time_elapsed() const
+	noexcept
 {
-	return proc_time_elapsed_.value();
+	return update_time_elapsed_;
 }
 
 
-void CalculationState::increment_proc_time_elapsed(
-		const std::chrono::milliseconds amount)
+void CalculationState::increment_update_time_elapsed(
+			const std::chrono::duration<float>& duration)
 {
-	proc_time_elapsed_.increment(amount);
+	update_time_elapsed_ += duration;
+}
+
+
+std::chrono::duration<float> CalculationState::algo_time_elapsed() const
+	noexcept
+{
+	return algo_time_elapsed_;
 }
 
 
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
+	using fsec = std::chrono::duration<float>;
+
 	const auto amount { std::distance(start, stop) };
 
+	const auto start_time { std::chrono::steady_clock::now() };
+
 	do_update(start, stop); // TODO try and update counter in catch
+
+	const auto stop_time { std::chrono::steady_clock::now() };
+	const fsec dur       { stop_time - start_time };
+	algo_time_elapsed_ += dur;
 
 	samples_processed_.increment(amount);
 	track_samples_processed_.increment(amount);
@@ -512,12 +530,14 @@ std::unique_ptr<CalculationState> CalculationState::clone_to(Algorithm* a) const
 void CalculationState::swap_base(CalculationState& rhs)
 {
 	using std::swap;
-	swap(this->current_offset_,    rhs.current_offset_    );
-	swap(this->samples_processed_, rhs.samples_processed_ );
+
+	swap(this->current_offset_,      rhs.current_offset_    );
+	swap(this->samples_processed_,   rhs.samples_processed_ );
 	swap(this->track_samples_processed_, rhs.track_samples_processed_ );
-	swap(this->tracks_processed_,  rhs.tracks_processed_  );
-	swap(this->proc_time_elapsed_, rhs.proc_time_elapsed_ );
-	swap(this->algorithm_,         rhs.algorithm_         );
+	swap(this->tracks_processed_,    rhs.tracks_processed_  );
+	swap(this->algo_time_elapsed_,   rhs.algo_time_elapsed_ );
+	swap(this->update_time_elapsed_, rhs.update_time_elapsed_ );
+	swap(this->algorithm_,           rhs.algorithm_         );
 }
 
 
@@ -652,8 +672,6 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
 
-	const auto start_time { std::chrono::steady_clock::now() };
-
 	for (const auto& partition : partitioning)
 	{
 		++partition_counter;
@@ -689,13 +707,6 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 			result_buffer.push_back(state.current_subtotal());
 		}
 	}
-
-	const auto block_time_elapsed {
-		std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::steady_clock::now() - start_time)
-	};
-
-	state.increment_proc_time_elapsed(block_time_elapsed);
 
 	return SampleRange(start_pos, last_pos).contains(
 			partitioner.legal_range().upper()/* last rel. sample */);
@@ -851,9 +862,9 @@ void Algorithm::base_swap(Algorithm& rhs)
 Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
 	: settings_      { Context::ALBUM /* just to have a default */ }
 	, partitioner_   { nullptr /* requires concrete input data */  }
-	, result_buffer_ { std::move(init_buffer())                    }
+	, result_buffer_ { init_buffer()                               }
 	, algorithm_     { std::move(algorithm)                        }
-	, state_         { std::move(init_state(algorithm_.get()))     }
+	, state_         { init_state(algorithm_.get())                }
 {
 	// empty
 }
@@ -978,9 +989,17 @@ int32_t Calculation::Impl::samples_processed() const noexcept
 }
 
 
-std::chrono::milliseconds Calculation::Impl::proc_time_elapsed() const noexcept
+std::chrono::duration<float> Calculation::Impl::update_time_elapsed() const
+	noexcept
 {
-	return state_->proc_time_elapsed();
+	return state_->update_time_elapsed();
+}
+
+
+std::chrono::duration<float> Calculation::Impl::algo_time_elapsed() const
+	noexcept
+{
+	return state_->algo_time_elapsed();
 }
 
 
@@ -993,21 +1012,47 @@ bool Calculation::Impl::complete() const noexcept
 void Calculation::Impl::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	ARCS_LOG(DEBUG1) << "PROCESS BLOCK";
+	using fsec = std::chrono::duration<float>;
+	using ms   = std::chrono::milliseconds;
 
-	if (perform_update(start, stop, *partitioner_, *state_, *result_buffer_))
+	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
+
+	const auto start_time { std::chrono::steady_clock::now() };
+
+	const auto finished = bool {
+		perform_update(start, stop, *partitioner_, *state_, *result_buffer_) };
+
+	const auto stop_time  { std::chrono::steady_clock::now() };
+	const fsec dur { stop_time - start_time }; // intentionally not auto
+	// Type of the subtraction is high_resolution_clock::duration which is
+	// not necessarily the same type as duration<float>.
+	state_->increment_update_time_elapsed(dur);
+
+	if (finished)
 	{
 		ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
+
 		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
 			partitioner_->total_samples();
+
 		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
 			state_->samples_processed() <<
 			" (== " << partitioner_->legal_range().to_string() << ")";
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
-			state_->proc_time_elapsed().count();
+
+		const ms update_time =
+			std::chrono::duration_cast<ms>(state_->update_time_elapsed());
+
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
+			<< update_time.count();
+
+		const ms algo_time =
+			std::chrono::duration_cast<ms>(state_->algo_time_elapsed());
+
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by Algorithm: "
+			<< algo_time.count();
 	}
 
-	ARCS_LOG(DEBUG1) << "BLOCK PROCESSED";
+	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: END";
 }
 
 
@@ -1114,9 +1159,16 @@ int32_t Calculation::samples_todo() const noexcept
 }
 
 
-std::chrono::milliseconds Calculation::proc_time_elapsed() const noexcept
+std::chrono::duration<float> Calculation::update_time_elapsed() const
+	noexcept
 {
-	return impl_->proc_time_elapsed();
+	return impl_->update_time_elapsed();
+}
+
+
+std::chrono::duration<float> Calculation::algo_time_elapsed() const noexcept
+{
+	return impl_->algo_time_elapsed();
 }
 
 
@@ -1157,8 +1209,7 @@ std::unique_ptr<Calculation> make_calculation(
 		leadout = toc.leadout();
 	}
 
-	return std::make_unique<Calculation>(Context::ALBUM,
-		std::move(algorithm),
+	return std::make_unique<Calculation>(Context::ALBUM, std::move(algorithm),
 		leadout, toc.offsets());
 }
 

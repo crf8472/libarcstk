@@ -48,7 +48,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 				std::chrono::steady_clock::now() - start_time)
 		};
 
-		impl1.increment_proc_time_elapsed(time_elapsed);
+		impl1.increment_update_time_elapsed(time_elapsed);
 	}
 
 
@@ -84,7 +84,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 
 		CHECK ( impl2.algorithm()         == algorithm.get() );
 		CHECK ( impl2.samples_processed() == 1000000 );
-		CHECK ( impl2.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+		CHECK ( impl2.update_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
 
 
@@ -94,7 +94,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 
 		CHECK ( impl3.algorithm()         == algorithm.get() );
 		CHECK ( impl3.samples_processed() == 1000000 );
-		CHECK ( impl3.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+		CHECK ( impl3.update_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
 
 
@@ -104,9 +104,9 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 	}
 
 
-	SECTION ("increment_proc_time_elapsed() updates time counter")
+	SECTION ("increment_update_time_elapsed() updates time counter")
 	{
-		CHECK ( impl1.proc_time_elapsed() > std::chrono::milliseconds::zero() );
+		CHECK ( impl1.update_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
 
 

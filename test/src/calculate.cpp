@@ -145,7 +145,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( calculation.samples_todo() == 148786344 );
 		CHECK ( calculation.samples_todo() == calculation.samples_expected() );
 
-		CHECK ( calculation.proc_time_elapsed().count() == 0 );
+		CHECK ( calculation.update_time_elapsed().count() == 0 );
 
 		CHECK ( not calculation.complete() );
 
@@ -179,7 +179,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( c2.samples_todo() == 148786344 );
 		CHECK ( c2.samples_todo() == calculation.samples_expected() );
 
-		CHECK ( c2.proc_time_elapsed().count() == 0 );
+		CHECK ( c2.update_time_elapsed().count() == 0 );
 
 		CHECK ( not c2.complete() );
 
@@ -212,7 +212,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( c3.samples_todo() == 148786344 );
 		CHECK ( c3.samples_todo() == c3.samples_expected() );
 
-		CHECK ( c3.proc_time_elapsed().count() == 0 );
+		CHECK ( c3.update_time_elapsed().count() == 0 );
 
 		CHECK ( not c3.complete() );
 
@@ -256,7 +256,7 @@ TEST_CASE ( "Calculation", "[calculate] [calculation]" )
 		CHECK ( calc->samples_expected()  == 253038 * 588 );
 		CHECK ( calc->samples_processed() == 0 );
 		CHECK ( calc->samples_todo()      == 253038 * 588 );
-		CHECK ( calc->proc_time_elapsed().count() == 0 );
+		CHECK ( calc->update_time_elapsed().count() == 0 );
 		CHECK ( not calc->complete() );
 		CHECK ( calc->result().empty() );
 

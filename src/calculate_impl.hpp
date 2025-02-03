@@ -77,9 +77,14 @@ class CalculationState
 	Counter<int32_t> tracks_processed_;
 
 	/**
+	 * \brief Internal time elapsed by processing.
+	 */
+	std::chrono::duration<float> algo_time_elapsed_;
+
+	/**
 	 * \brief Internal time elapsed by updating.
 	 */
-	Counter<std::chrono::milliseconds> proc_time_elapsed_;
+	std::chrono::duration<float> update_time_elapsed_;
 
 	/**
 	 * \brief Internal Algorithm to caculate updates.
@@ -155,20 +160,26 @@ public:
 	const Algorithm* algorithm() const noexcept;
 
 	/**
-	 * \brief Amount of milliseconds elapsed so far by processing.
+	 * \brief Amount of milliseconds elapsed so far by updating this instance.
 	 *
-	 * This includes the time of reading as well as of calculation.
-	 *
-	 * \return Amount of milliseconds elapsed so far by processing.
+	 * \return Amount of milliseconds elapsed so far by updating.
 	 */
-	std::chrono::milliseconds proc_time_elapsed() const noexcept;
+	std::chrono::duration<float> update_time_elapsed() const noexcept;
 
 	/**
-	 * \brief Increment the amount of time elapsed.
+	 * \brief Increment the duration for updating.
 	 *
-	 * \param[in] amount Amount of milliseconds to advance
+	 * \param[in] duration Amount of duration to add
 	 */
-	void increment_proc_time_elapsed(const std::chrono::milliseconds amount);
+	void increment_update_time_elapsed(
+			const std::chrono::duration<float>& duration);
+
+	/**
+	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
+	 *
+	 * \return Amount of milliseconds elapsed so far by the Algorithm instance.
+	 */
+	std::chrono::duration<float> algo_time_elapsed() const noexcept;
 
 	/**
 	 * \brief Update the calculation state with an contigous amount of samples.
@@ -386,7 +397,9 @@ public:
 
 	int32_t samples_processed() const noexcept;
 
-	std::chrono::milliseconds proc_time_elapsed() const noexcept;
+	std::chrono::duration<float> update_time_elapsed() const noexcept;
+
+	std::chrono::duration<float> algo_time_elapsed() const noexcept;
 
 	bool complete() const noexcept;
 

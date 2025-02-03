@@ -820,13 +820,18 @@ public:
 	int32_t samples_todo() const noexcept;
 
 	/**
-	 * \brief Amount of milliseconds elapsed so far by processing.
+	 * \brief Amount of time elapsed so far by update().
 	 *
-	 * This includes the time of reading as well as of calculation.
-	 *
-	 * \return Amount of milliseconds elapsed so far by processing.
+	 * \return Amount of time elapsed so far by update().
 	 */
-	std::chrono::milliseconds proc_time_elapsed() const noexcept;
+	std::chrono::duration<float> update_time_elapsed() const noexcept;
+
+	/**
+	 * \brief Amount of time elapsed so far by the algorithm instance.
+	 *
+	 * \return Amount of time elapsed so far by the algorithm instance.
+	 */
+	std::chrono::duration<float> algo_time_elapsed() const noexcept;
 
 	/**
 	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise
