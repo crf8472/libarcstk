@@ -1,19 +1,23 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for details in module calculate
+ * \file
+ *
+ * \brief Fixtures for calculate_details.hpp
  */
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
+#define __LIBARCSTK_CALCULATE_HPP__
 #endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"
+#include "calculate_details.hpp"  // TO BE TESTED
 #endif
 
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"     // for AudioSize, UNIT
+#include "metadata.hpp"           // for AudioSize, UNIT
 #endif
+
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "Interval", "[calculate_details]" )

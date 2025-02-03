@@ -1,19 +1,20 @@
 #include "catch2/catch_test_macros.hpp"
 
-#include <algorithm>         // for max
-#include <cstdint>           // for int16_t, uint8_t, uint32_t, int32_t, uin...
-#include <fstream>           // for ifstream, operator|, basic_istream, ios_...
-#include <iterator>          // for istreambuf_iterator, operator!=
-#include <vector>            // for vector
+/**
+ * \file
+ *
+ * \brief Fixtures for samples.hpp
+ */
 
 #ifndef __LIBARCSTK_SAMPLES_HPP__
-#include "samples.hpp"
+#include "samples.hpp"            // TO BE TESTED
 #endif
 
-
-/**
- * \file Fixtures for SampleSequence
- */
+#include <algorithm>              // for max
+#include <cstdint>                // for int16_t, uint8_t, uint32_t, int32_t,...
+#include <fstream>                // for ifstream,...
+#include <iterator>               // for istreambuf_iterator, operator!=
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "SampleSequence allows int16_t and int32_t",

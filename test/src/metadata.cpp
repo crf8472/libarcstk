@@ -1,11 +1,13 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for details in module metadata
+ * \file
+ *
+ * \brief Fixtures for metadata.hpp
  */
 
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"          // for AudioSize, CDDA, ToC
+#include "metadata.hpp"           // TO BE TESTED
 #endif
 
 

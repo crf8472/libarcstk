@@ -1,7 +1,13 @@
 #include "catch2/catch_test_macros.hpp"
 
+/**
+ * \file
+ *
+ * \brief Fixtures for checksum.hpp
+ */
+
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"
+#include "checksum.hpp"           // TO BE TESTED
 #endif
 
 
@@ -594,3 +600,4 @@ TEST_CASE ( "Checksums", "[checksum] [checksums]" )
 	}
 
 }
+

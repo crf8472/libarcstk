@@ -1,13 +1,14 @@
 #include "catch2/catch_test_macros.hpp"
 
+/**
+ * \file
+ *
+ * \brief Fixtures for version.hpp
+ */
 
 #ifndef __LIBARCSTK_VERSION_HPP__
-#include "version.hpp"
+#include "version.hpp"            // TO BE TESTED
 #endif
-
-/**
- * \file Fixtures for functions in version.cpp
- */
 
 
 TEST_CASE ( "constants", "[version]" )

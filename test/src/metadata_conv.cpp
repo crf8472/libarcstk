@@ -1,15 +1,18 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for unit conversions in module metadata
+ * \file
+ *
+ * \brief Fixtures for metadata.hpp
  */
 
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"          // for AudioSize
+#include "metadata.hpp"           // for AudioSize
 #endif
 #ifndef __LIBARCSTK_METADATA_CONV_HPP__
-#include "metadata_conv.hpp"     // for convert
+#include "metadata_conv.hpp"      // TO BE TESTED
 #endif
+
 
 TEST_CASE ( "convert<>()", "[metadata]" )
 {

@@ -1,18 +1,21 @@
 #include "catch2/catch_test_macros.hpp"
 
-#include <fstream>           // for ifstream
-#include <memory>            // for make_unique, unique_ptr
+/**
+ * \file
+ *
+ * \brief Fixtures for dbar.hpp
+ */
 
 #ifndef __LIBARCSTK_DBAR_HPP__
-#include "dbar.hpp"
+#include "dbar.hpp"               // TO BE TESTED
 #endif
 #ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
-#include "dbar_details.hpp"
+#include "dbar_details.hpp"       // for parse_dbar_stream
 #endif
 
-/**
- * \file Fixtures for \ref DBAR, \ref DBARBlock, \ref DBARTriplet and parsing
- */
+#include <fstream>                // for ifstream
+#include <memory>                 // for make_unique, unique_ptr
+
 
 TEST_CASE ( "DBARBlock", "[dbarblock]" )
 {

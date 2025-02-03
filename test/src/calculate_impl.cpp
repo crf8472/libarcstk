@@ -1,29 +1,30 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for implementation details in module calculate
+ * \file
+ *
+ * \brief Fixtures for calculate_impl.hpp
  */
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"                // for Points
-#endif
-#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"
+#include "calculate.hpp"          // for Algorithm, Points
 #endif
 #ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
-#include "calculate_impl.hpp"           // for CalculationStateImpl
+#include "calculate_impl.hpp"     // TO BE TESTED
 #endif
 
 #ifndef __LIBARCSTK_ALGORITHMS_HPP__
-#include "algorithms.hpp"
+#include "algorithms.hpp"         // for AccurateRipV1V2
+#endif
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"           // for checksum::type, Checksums
 #endif
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"
+#include "metadata.hpp"           // for AudioSize, UNIT
 #endif
 
-#include <numeric>  // for iota
-
-// CalculationStateImpl
+#include <iterator>               // for begin, cbegin, cend, end
+#include <numeric>                // for iota
 
 
 TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )

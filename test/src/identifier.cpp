@@ -1,25 +1,26 @@
 #include "catch2/catch_test_macros.hpp"
 
-#include <algorithm>         // for max
-#include <array>             // for array
-#include <cstdint>           // for uint32_t, int32_t
-#include <list>              // for list
-#include <memory>            // for unique_ptr
-#include <string>            // for basic_string, operator==, string
-#include <type_traits>       // for integral_constant<>::value
-#include <vector>            // for vector
+/**
+ * \file
+ *
+ * \brief Fixtures for identifier.hpp
+ */
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
+#include "identifier.hpp"         // TO BE TESTED
 #endif
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#include "identifier_details.hpp"
+#include "identifier_details.hpp" // for make_arid
 #endif
 
-
-/**
- * \file Fixtures for classes in module 'identifier'
- */
+#include <algorithm>              // for max
+#include <array>                  // for array
+#include <cstdint>                // for uint32_t, int32_t
+#include <list>                   // for list
+#include <memory>                 // for unique_ptr
+#include <string>                 // for basic_string, operator==, string
+#include <type_traits>            // for integral_constant<>::value
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "ARId", "[identifier] [arid]" )

@@ -1,20 +1,27 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for accuraterip.hpp
+ * \file
+ *
+ * \brief Fixtures for accuraterip.hpp
  */
 
-#include <fstream>                // for ifstream, operator|, ios_base::failure
-
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
-#include "accuraterip.hpp"
+#include "accuraterip.hpp"        // TO BE TESTED
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"  // for checksum::type, sample_t
+
+#ifndef __LIBARCSTK_SAMPLES_HPP__
+#include "samples.hpp"            // for sample_t
+#endif
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"           // for checksum::type
 #endif
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"
+#include "metadata.hpp"           // for AudioSize
 #endif
+
+#include <fstream>                // for ifstream, operator|, ios_base::failure
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "Updating ARCS v1+v2", "[update]" )

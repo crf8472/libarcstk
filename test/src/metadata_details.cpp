@@ -1,15 +1,18 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for details in module metadata
+ * \file
+ *
+ * \brief Fixtures for metadata_details.hpp
  */
 
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"          // for AudioSize, CDDA, ToC
+#include "metadata.hpp"           // for AudioSize, CDDA, ToC
 #endif
 #ifndef __LIBARCSTK_METADATA_DETAILS_HPP__
-#include "metadata_details.hpp"  // for frames2samples, samples2frames,...
+#include "metadata_details.hpp"   // TO BE TESTED
 #endif
+
 
 TEST_CASE ("convert_to_bytes()", "[metadata_details]")
 {

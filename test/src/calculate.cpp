@@ -1,41 +1,36 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
- * \file Fixtures for classes in module calculate
+ * \file
+ *
+ * \brief Fixtures for calculate.hpp.
  */
 
-#include <chrono>
-#include <numeric>      // for iota
-
-#ifndef __LIBARCSTK_ALGORITHMS_HPP__
-#include "algorithms.hpp"
-#endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
+#include "calculate.hpp"          // TO BE TESTED
 #endif
-#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
-#include "calculate_details.hpp"
+
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"           // for checksum::type
 #endif
-#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
-#include "calculate_impl.hpp"
+#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#include "algorithms.hpp"         // for AccurateRipV1V2
 #endif
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"
+#include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
 #endif
 
-#include <vector> // for vector
-
-
-// Algorithm
+#include <memory>                 // for make_unique, unique_ptr
+#include <type_traits>            // for is_default_constructible,....
+#include <unordered_set>          // for unordered_set
+#include <utility>                // for move
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "Algorithm", "[calculate] [algorithm]" )
 {
-
+	// TODO
 }
-
-
-// Context
 
 
 TEST_CASE ( "Context", "[calculate] [context]" )

@@ -1,27 +1,29 @@
 #include "catch2/catch_test_macros.hpp"
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"
-#endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCSTK_DBAR_HPP__
-#include "dbar.hpp"
-#endif
+/**
+ * \file
+ *
+ * \brief Fixtures for verify.hpp
+ */
 
 #ifndef __LIBARCSTK_VERIFY_HPP__
-#include "verify.hpp"
+#include "verify.hpp"             // TO BE TESTED
 #endif
 #ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#include "verify_details.hpp"
+#include "verify_details.hpp"     // TO BE TESTED
 #endif
 
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"           // for Checksum, ChecksumSet, Checksums,...
+#endif
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"         // for ARId
+#endif
+#ifndef __LIBARCSTK_DBAR_HPP__
+#include "dbar.hpp"               // for DBAR, DBARSource
+#endif
 
-
-/**
- * \file Fixtures for classes in module "verify"
- */
+#include <vector>                 // for vector
 
 
 TEST_CASE ( "DBARSource", "[dbarsource]" )
