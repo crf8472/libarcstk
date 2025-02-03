@@ -838,14 +838,14 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		{
 			const auto bitpos = result.verify_track(block, track, is_v2);
 
-			ARCS_LOG(DEBUG1) << "Track "
+			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " verified: "
 				<< result.track(block, track, is_v2)
 				<< " (bit " << bitpos << ")";
 		} else
 		{
-			ARCS_LOG(DEBUG1) << "Track "
+			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
 				<< result.track(block, track, is_v2);

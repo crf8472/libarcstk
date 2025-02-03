@@ -141,12 +141,12 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 			bytes_read = in.gcount();
 		}
 
-		//ARCS_LOG_DEBUG << "Read " << bytes_read << " header bytes";
+		ARCS_LOG(DEBUG2) << "Read " << bytes_read << " header bytes";
 
 		byte_counter += bytes_read;
 		block_byte_counter += bytes_read;
 
-		//ARCS_LOG_DEBUG << "Read " << byte_counter << " bytes total";
+		ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
 
 		if (bytes_read == 0)
 		{
@@ -221,12 +221,12 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 				bytes_read = in.gcount();
 			}
 
-			//ARCS_LOG_DEBUG << "Read " << bytes_read << " triplet bytes";
+			ARCS_LOG(DEBUG2) << "Read " << bytes_read << " triplet bytes";
 
 			byte_counter += bytes_read;
 			block_byte_counter += bytes_read;
 
-			//ARCS_LOG_DEBUG << "Read " << byte_counter << " bytes total";
+			ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
 
 			if (bytes_read == 0)
 			{
