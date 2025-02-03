@@ -11,6 +11,7 @@
 #include <cstdint>          // for uint32_t
 #include <initializer_list> // for initializer_list
 #include <istream>          // for istream
+#include <iterator>         // for forward_iterator_tag
 #include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr
 #include <stdexcept>        // for runtime_error

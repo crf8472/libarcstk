@@ -12,11 +12,14 @@
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"  // for checksum::type, sample_t
 #endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"
+#endif
 
 
 TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 {
-	// using arcstk::AudioSize;
+	using arcstk::AudioSize;
 	using arcstk::checksum::type;
 	using arcstk::sample_t;
 
@@ -86,7 +89,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
 		in.close();
 
 		algo.update(buffer.begin(), buffer.end());
-		algo.track_finished(1, arcstk::AudioSize{});
+		algo.track_finished(1, AudioSize{});
 
 		//CHECK ( calculation.complete() );
 

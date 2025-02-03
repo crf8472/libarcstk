@@ -19,6 +19,9 @@
 #ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
 #include "calculate_impl.hpp"
 #endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"
+#endif
 
 #include <vector> // for vector
 
@@ -41,9 +44,9 @@ TEST_CASE ( "Context", "[calculate] [context]" )
 
 	SECTION ( "Constants behave as expected" )
 	{
-		CHECK ((Context::FIRST_TRACK | Context::NONE) == Context::FIRST_TRACK);
-		CHECK ((Context::LAST_TRACK  | Context::NONE) == Context::LAST_TRACK);
-		CHECK ((Context::ALBUM       | Context::NONE) == Context::ALBUM);
+		CHECK ((Context::FIRST_TRACK | Context::TRACK) == Context::FIRST_TRACK);
+		CHECK ((Context::LAST_TRACK  | Context::TRACK) == Context::LAST_TRACK);
+		CHECK ((Context::ALBUM       | Context::TRACK) == Context::ALBUM);
 
 		CHECK ((Context::FIRST_TRACK | Context::LAST_TRACK)  == Context::ALBUM);
 		CHECK ((Context::FIRST_TRACK | Context::ALBUM)       == Context::ALBUM);
@@ -57,7 +60,7 @@ TEST_CASE ( "Context", "[calculate] [context]" )
 
 	SECTION ( "any() is correct" )
 	{
-		CHECK ( not any(Context::NONE) );
+		CHECK ( not any(Context::TRACK) );
 
 		CHECK ( any(Context::FIRST_TRACK) );
 		CHECK ( any(Context::LAST_TRACK) );

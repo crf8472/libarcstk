@@ -749,9 +749,11 @@ inline SampleInputIterator operator + (const int32_t amount,
 // Context
 
 
-bool any(const Context& rhs) noexcept
+void swap(Context& lhs, Context& rhs)
 {
-	return rhs != Context::NONE;
+	Context tmp = lhs;
+	lhs = rhs;
+	rhs = tmp;
 }
 
 
@@ -762,12 +764,19 @@ std::string to_string(const Context& c) noexcept
 		case Context::ALBUM:       return "ALBUM";
 		case Context::LAST_TRACK:  return "LAST_TRACK";
 		case Context::FIRST_TRACK: return "FIRST_TRACK";
-		case Context::NONE:        return "NONE";
+		case Context::TRACK:       return "TRACK";
 		default: ;
 	}
 
-	return "";
+	return {};
 }
+
+
+bool any(const Context& rhs) noexcept
+{
+	return static_cast<unsigned>(rhs) != 0;
+}
+
 
 
 // Settings

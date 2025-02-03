@@ -17,7 +17,7 @@
 #include "dbar.hpp"            // for DBAR::size_type + ...
 #endif
 
-#include <cstdint>   // for uint32_t
+#include <cstdint>   // for uint32_t, uint8_t
 #include <istream>   // for istream
 #include <string>    // for string
 #include <vector>    // for vector

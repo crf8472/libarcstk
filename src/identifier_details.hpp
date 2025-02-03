@@ -19,15 +19,13 @@
 
 #include <cstdint>  // for uint32_t, int32_t
 #include <memory>   // for unique_ptr
+#include <string>   // for string
 #include <vector>   // for vector
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
-
-// avoid includes
-class AudioSize;
 
 namespace details
 {

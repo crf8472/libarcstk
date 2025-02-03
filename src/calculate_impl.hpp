@@ -13,23 +13,29 @@
  * \brief Implementation details for calculate.hpp.
  */
 
-#include <cstdint>       // for int32_t
-#include <memory>        // for unique_ptr
-
 #ifndef __LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"  // for ToC
-#endif
+
+#include <chrono>        // for duration
+#include <cstdint>       // for int32_t
+#include <memory>        // for unique_ptr
+#include <vector>        // for vector
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+class AudioSize;
+class Checksum;
+class ChecksumSet;
+
+using Checksums = std::vector<ChecksumSet>; // Repeated from checksum.hpp
+
 namespace details
 {
 

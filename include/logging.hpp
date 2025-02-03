@@ -489,7 +489,7 @@ inline Appender::Appender(const std::string& filename)
 {
 	if (!stream_)
 	{
-		std::stringstream ss;
+		std::ostringstream ss;
 		ss << "File " << name_.c_str() << " could not be opened";
 		throw std::runtime_error(ss.str());
 	}
@@ -502,7 +502,7 @@ inline Appender::Appender(const std::string& name, FILE* stream)
 {
 	if (!stream)
 	{
-		std::stringstream ss;
+		std::ostringstream ss;
 		ss << "Appender " << name_.c_str() << " has no stream to append to";
 		throw std::runtime_error(ss.str());
 	}
@@ -612,7 +612,7 @@ inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
 inline std::string now_time()
 {
 	const auto now { std::chrono::system_clock::now() };
-	auto ss = std::stringstream {};
+	auto ss = std::ostringstream {};
 
 	// Print year, month, day, hour, minute, second
 

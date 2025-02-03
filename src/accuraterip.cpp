@@ -279,34 +279,25 @@ std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 // Explicit instantiations
 
 
-template
-class UpdatableBase<cstype::ARCS1>;
+template class UpdatableBase<cstype::ARCS1>;
 
-template
-class UpdatableBase<cstype::ARCS2>;
+template class UpdatableBase<cstype::ARCS2>;
 
-template
-class UpdatableBase<cstype::ARCS1, cstype::ARCS2>;
+template class UpdatableBase<cstype::ARCS1, cstype::ARCS2>;
 
 
-template
-class Updatable<cstype::ARCS1>;
+//template class Updatable<cstype::ARCS1>;
 
-template
-class Updatable<cstype::ARCS2>;
+//template class Updatable<cstype::ARCS2>;
 
-template
-class Updatable<cstype::ARCS1, cstype::ARCS2>;
+//template class Updatable<cstype::ARCS1, cstype::ARCS2>;
 
 
-template
-class ARCSAlgorithm<cstype::ARCS1>;
+template class ARCSAlgorithm<cstype::ARCS1>;
 
-template
-class ARCSAlgorithm<cstype::ARCS2>;
+template class ARCSAlgorithm<cstype::ARCS2>;
 
-template
-class ARCSAlgorithm<cstype::ARCS1, cstype::ARCS2>;
+template class ARCSAlgorithm<cstype::ARCS1, cstype::ARCS2>;
 
 } // namespace details
 

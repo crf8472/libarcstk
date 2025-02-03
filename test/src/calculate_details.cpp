@@ -4,15 +4,15 @@
  * \file Fixtures for details in module calculate
  */
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"               // for TrackNo
-#endif
-
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"                // for Points
+#include "calculate.hpp"
 #endif
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
+#endif
+
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"     // for AudioSize, UNIT
 #endif
 
 

@@ -7,8 +7,6 @@
  * \brief Policies for enhancing classes with comparison operators.
  */
 
-#include <stdexcept>
-
 namespace arcstk
 {
 inline namespace v_1_0_0

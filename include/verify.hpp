@@ -14,7 +14,11 @@
  * checksums.
  */
 
+#include <cstddef>        // for size_t
+#include <cstdint>        // for uint32_t
 #include <memory>         // for unique_ptr
+#include <ostream>        // for ostream
+#include <tuple>          // for tuple
 #include <vector>         // for vector
 
 

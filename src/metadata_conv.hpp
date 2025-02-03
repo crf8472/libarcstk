@@ -13,6 +13,10 @@
  * \brief Conversions for metadata.
  */
 
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"
+#endif
+
 #include <algorithm>   // for transform
 #include <cstdint>     // for uint32_t, int32_t
 #include <iterator>    // for begin, cbegin, cend, end
@@ -23,9 +27,6 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
-
-class AudioSize;
-enum class UNIT;
 
 namespace details
 {

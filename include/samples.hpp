@@ -8,12 +8,12 @@
  */
 
 #include <array>                // for array
-#include <cstdint>              // for uint8_t, uint32_t
-#include <iosfwd>               // for size_t
-#include <iterator>             // for input_iterator_tag
+#include <cstddef>              // for ptrdiff_t, size_t
+#include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
+#include <iterator>             // for bidirectional_iterator_tag
+#include <sstream>              // for ostringstream
 #include <stdexcept>            // for out_of_range
-#include <sstream>              // for stringstream
-#include <type_traits>          // for is_same, conditional, enable_if_t
+#include <type_traits>          // for is_same, enable_if_t
 
 namespace arcstk
 {
@@ -126,15 +126,14 @@ class SampleSequenceImplBase; // IWYU pragma keep
 
 /**
  * \internal
- * \brief An \c input_iterator for samples in SampleSequence instances.
+ * \brief A \c bidirectional_iterator for samples in SampleSequence instances.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
  * a single integer of an unsigned integer type assignable to \c sample_t.
  *
  * Equality between a \c const_iterator and an \c iterator works as expected.
  *
- * Although tagged as \c input_iterator, SampleIterator provides some additional
- * functionality as there is
+ * SampleIterator provides the following functionality:
  * <ul>
  *   <li>prefix- and postfix decrement,</li>
  *   <li>operators add-assign (+=) and subtract-assign (-=),</li>
@@ -674,7 +673,7 @@ protected:
 	{
 		if (this->out_of_range(index))
 		{
-			auto msg = std::stringstream {};
+			auto msg = std::ostringstream {};
 			msg << "Index out of bounds: " << index
 				<< ". Size: " << this->size();
 

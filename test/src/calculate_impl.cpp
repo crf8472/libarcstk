@@ -13,8 +13,12 @@
 #ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
 #include "calculate_impl.hpp"           // for CalculationStateImpl
 #endif
+
 #ifndef __LIBARCSTK_ALGORITHMS_HPP__
 #include "algorithms.hpp"
+#endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"
 #endif
 
 #include <numeric>  // for iota

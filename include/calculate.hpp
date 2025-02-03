@@ -8,17 +8,22 @@
  */
 
 #include <chrono>           // for duration
+#include <cstddef>          // for ptrdiff_t
 #include <cstdint>          // for int32_t
+#include <iterator>         // for advance, input_iterator_tag
 #include <memory>           // for make_unique, unique_ptr
 #include <string>           // for string
+#include <type_traits>      // for decay_t, enable_if_t, is_same, decay
+#include <typeinfo>         // for type_info
 #include <unordered_set>    // for unordered_set
+#include <utility>          // for declval, move, pair
 #include <vector>           // for vector
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"     // for AudioSize, CDDA, ToC
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"     // for Comparable
 #endif
 
 /**
@@ -33,6 +38,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+class AudioSize;
 class ToC;
 
 
@@ -461,45 +467,49 @@ private:
 
 
 /**
- * \brief Calculation mode.
+ * \brief Context represents what is to be relevant for calculation process.
+ *
+ * AccurateRip algorithm contain different restrictions for calculating the
+ * checksums of the the first and last track of an album. Thus, the information
+ * has to be represented whether a first or last track of an album is to be
+ * processed. This is achieved by the Context.
  */
 enum class Context : unsigned
 {
-	NONE        = 0, // shorthand for "!(FIRST_TRACK | LAST_TRACK)"
+	TRACK       = 0, // neither first or last track
 	FIRST_TRACK = 1,
 	LAST_TRACK  = 2,
-	ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
+	ALBUM       = 3  // first track and last track
 };
 
-std::string to_string(const Context& c) noexcept;
-
-constexpr Context operator | (const Context lhs, const Context rhs);
-
-constexpr Context operator | (const Context lhs, const Context rhs)
+inline constexpr Context operator | (const Context lhs, const Context rhs)
 {
 	return static_cast<Context>(
 			static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
 }
 
-constexpr Context operator & (const Context lhs, const Context rhs);
-
-constexpr Context operator & (const Context lhs, const Context rhs)
+inline constexpr Context operator & (const Context lhs, const Context rhs)
 {
 	return static_cast<Context>(
 			static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
 }
 
-// TODO Other bitwise operators for Context
-
-constexpr bool operator == (const Context lhs, const Context rhs);
-
-constexpr bool operator == (const Context lhs, const Context rhs)
+inline constexpr bool operator == (const Context lhs, const Context rhs)
 {
 	return static_cast<unsigned>(lhs) == static_cast<unsigned>(rhs);
 }
 
+void swap(Context& lhs, Context& rhs);
+
 /**
- * \brief Returns TRUE iff <tt>rhs != Context::NONE</tt>.
+ * \brief String representation of a Context.
+ *
+ * \return Name of the Context
+ */
+std::string to_string(const Context& c) noexcept;
+
+/**
+ * \brief Returns TRUE iff \c rhs is not equivalent to 0.
  */
 bool any(const Context& rhs) noexcept;
 

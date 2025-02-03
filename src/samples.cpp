@@ -1,8 +1,6 @@
 /**
  * \file
  *
- * \internal
- *
  * \brief Instantiations of SampleSequence and SampleIterator
  */
 

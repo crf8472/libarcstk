@@ -13,8 +13,10 @@
  * \brief Implementation details for calculate.hpp.
  */
 
+#include <cstddef>       // for size_t
 #include <cstdint>       // for int32_t
-#include <memory>        // for memory
+#include <memory>        // for unique_ptr
+#include <utility>       // for pair
 #include <string>        // for string
 #include <vector>        // for vector
 
@@ -28,6 +30,8 @@ inline namespace v_1_0_0
 class AudioSize;
 class ToC;
 class ChecksumSet;
+
+using Points = std::vector<AudioSize>; // Repeated from calculate.hpp
 
 namespace details
 {

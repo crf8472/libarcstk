@@ -13,7 +13,7 @@
 #include <vector>                // for vector
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"
+#include "policies.hpp"          // for Comparable
 #endif
 
 namespace arcstk

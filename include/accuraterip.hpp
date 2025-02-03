@@ -6,16 +6,17 @@
  * \brief AccurateRip Checksum specific implementations.
  */
 
-#include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
-#include <string>         // for string
-#include <unordered_set>  // for unordered_set
-
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
-#include "checksum.hpp"                  // for checksum::type, ChecksumSet
+#include "checksum.hpp"     // for checksum::type, ChecksumSet
 #endif
 #ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"                 // for Algorithm
+#include "calculate.hpp"    // for Algorithm
 #endif
+
+#include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
+#include <memory>         // for unique_ptr, swap
+#include <string>         // for string
+#include <unordered_set>  // for unordered_set
 
 
 namespace arcstk
@@ -38,9 +39,7 @@ namespace accuraterip
 namespace details
 {
 
-// Id calculation
-
-// TODO
+// XXX Move id calculation here?
 
 // Checksum calculation
 
@@ -191,7 +190,7 @@ class Updatable final : public UpdatableBase<T1, T2...>
 };
 
 
-// full specialization for ARCS1
+// specialization for ARCS1
 template <>
 class Updatable<checksum::type::ARCS1> final
 								: public UpdatableAPI
@@ -214,7 +213,7 @@ public:
 };
 
 
-// full specialization for ARCS2
+// specialization for ARCS2
 template <>
 class Updatable<checksum::type::ARCS2> final
 								: public UpdatableAPI
@@ -240,7 +239,7 @@ public:
 };
 
 
-// full specialization for ARCS1+ARCS2
+// specialization for ARCS1+ARCS2
 template <>
 class Updatable<checksum::type::ARCS1,checksum::type::ARCS2> final
 			: public UpdatableAPI

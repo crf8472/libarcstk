@@ -324,7 +324,7 @@ void ChecksumSet::merge(const ChecksumSet& rhs)
 	}
 
 	#if __cplusplus >= 201703L
-		set_.merge(rhs.set_);
+		//set_.merge(rhs.set_);
 	#else
 		using std::begin;
 		using std::end;

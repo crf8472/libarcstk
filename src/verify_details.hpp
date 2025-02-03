@@ -17,12 +17,13 @@
 #include "verify.hpp"
 #endif
 
+#include <cstddef>  // for size_t, ptrdiff_t
 #include <cstdint>  // for uint32_t
-#include <cstddef>  // for ptrdiff_t
 #include <iterator> // for input_iterator_tag
 #include <memory>   // for unique_ptr
 #include <tuple>    // for tuple
 #include <utility>  // for swap
+#include <vector>   // for vector
 
 
 namespace arcstk
