@@ -111,6 +111,18 @@ public:
 	{
 		return (a_ <= b_) ? a_ <= i && i <= b_ : b_ <= i && i <= a_;
 	}
+
+	/**
+	 * \brief Return a string representation of the interval.
+	 *
+	 * \return Interval as a string
+	 */
+	std::string to_string() const
+	{
+		using std::to_string;
+
+		return "[" + to_string(lower()) + "," + to_string(upper()) + "]";
+	}
 };
 
 

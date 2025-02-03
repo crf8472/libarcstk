@@ -15,7 +15,6 @@
 #endif
 
 #include <cstdint>     // for uint_fast32_t, uint_fast64_t, int32_t
-#include <vector>      // for string
 
 namespace arcstk
 {
@@ -26,7 +25,7 @@ namespace accuraterip
 namespace details
 {
 
-using cstype = checksum::type; // for Readability
+using cstype = checksum::type; // local, for Readability
 
 
 // UpdatableAPI
@@ -148,7 +147,7 @@ ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 	, current_result_ { /* default */ }
 {
 	// empty
-	ARCS_LOG_DEBUG << "Algorithm is AccurateRip " << state_.id_string();
+	ARCS_LOG_DEBUG << "Use algorithm: AccurateRip " << state_.id_string();
 }
 
 
@@ -176,12 +175,14 @@ void ARCSAlgorithm<T1, T2...>::save_current_subtotal()
 template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 {
+	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(s->context());
+
 	if (any(Context::FIRST_TRACK & s->context()))
 	{
 		this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
-
-		ARCS_LOG_DEBUG << "  Initialize multiplier: " << this->multiplier();
 	}
+
+	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << this->multiplier();
 }
 
 
@@ -197,16 +198,15 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 		from += points[0].samples(); // start on first offset
 	}
 
-	ARCS_LOG_DEBUG << "  Range for context "
+	ARCS_LOG(DEBUG2) << "Legal range for context "
 		<< to_string(this->settings()->context());
-
-	ARCS_LOG_DEBUG << "  Start on sample offset " << from;
 
 	if (any(Context::FIRST_TRACK & this->settings()->context()))
 	{
 		from += NUM_SKIP_SAMPLES_FRONT;
 
-		ARCS_LOG_DEBUG << "  Then skip " << NUM_SKIP_SAMPLES_FRONT
+		ARCS_LOG(DEBUG2) << "Start on sample offset " << from;
+		ARCS_LOG(DEBUG2) << "Then skip " << NUM_SKIP_SAMPLES_FRONT
 			<< " samples";
 	}
 
@@ -214,11 +214,11 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 	{
 		to -= NUM_SKIP_SAMPLES_BACK;
 
-		ARCS_LOG_DEBUG << "  Skip last " << NUM_SKIP_SAMPLES_BACK
+		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES_BACK
 			<< " samples";
 	}
 
-	ARCS_LOG_DEBUG << "  Interval: " << from << " - " << to;
+	ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
 
 	return { from, to };
 }
@@ -228,11 +228,12 @@ template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	ARCS_LOG_DEBUG << "    First multiplier: " << multiplier();
+	ARCS_LOG(DEBUG3) << "First multiplier: " << multiplier();
 
 	state_.update(start, stop);
 
-	ARCS_LOG_DEBUG << "    Last multiplier:  " << multiplier() - 1;
+	ARCS_LOG(DEBUG3) << "Last multiplier:  " << multiplier() - 1;
+	// -1 because multiplier_ has already been updated to next input
 }
 
 
@@ -251,7 +252,6 @@ void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
 template <cstype T1, cstype... T2>
 ChecksumSet ARCSAlgorithm<T1, T2...>::do_result() const
 {
-	//return state_.value();
 	return current_result_;
 }
 

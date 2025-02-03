@@ -85,8 +85,11 @@ Partitioning get_partitioning(const SampleRange& interval,
 		: real_upper
 	};
 
-	ARCS_LOG(DEBUG1) << "  Create front partition, b: " << b << ", " << p0_lower
-		<< " - " << p0_upper;
+	ARCS_LOG(DEBUG3) << "Create front partition, "
+		<< "track " << std::setw(2) << std::right << b << ": "
+		<< std::setw(9) << std::right << p0_lower
+		<< " - "
+		<< std::setw(9) << std::right << p0_upper;
 
 	auto partitions = std::vector<Partition> {
 		Partition { p0_lower, p0_upper,
@@ -100,11 +103,20 @@ Partitioning get_partitioning(const SampleRange& interval,
 	if (b == e) { return partitions; }
 
 	// Add further partitions, this is just from point i to point i + 1.
+	// Will be entirely skipped if the partition does span 2 tracks or less.
+	auto track { b };
 	for (auto i { b }; i < e - 1; ++i)
 	{
-		ARCS_LOG(DEBUG1) << "  Create partition " << points[i] << " - "
-			<< points[ i + 1 ];
-		partitions.emplace_back(points[i], points[i + 1] - 1, true, true, i + 1);
+		track = i + 1;
+
+		ARCS_LOG(DEBUG3) << "Create mid. partition,  "
+			<< "track " << std::setw(2) << std::right << track << ": "
+			<< std::setw(9) << std::right << points[i]
+			<< " - "
+			<< std::setw(9) << std::right << points[track];
+
+		partitions.emplace_back(
+				points[i], points[track] - 1, true, true, track);
 	}
 
 	const auto pN_lower { points[e - 1] };
@@ -114,14 +126,16 @@ Partitioning get_partitioning(const SampleRange& interval,
 		: real_upper
 	};
 
-	ARCS_LOG(DEBUG1) << "  Create back partition, e: " << e << ", " <<
-		pN_lower << " - " << pN_upper;
+	ARCS_LOG(DEBUG3) << "Create back partition,  "
+		<< "track " << std::setw(2) << std::right << e << ": "
+		<< std::setw(9) << std::right << pN_lower
+		<< " - "
+		<< std::setw(9) << std::right << pN_upper;
 
 	// Add last partition: from the beginning of the track that contains the
 	// upper bound to the real upper bound.
 	partitions.emplace_back(pN_lower, pN_upper,
-		true, //starts track?
-		//(e == points.size() || pN_upper == points[e]), //ends track?
+		true,/*since a previous partition is guaranteed that ends on track end*/
 		pN_upper == points[e] - 1 || pN_upper == legal.upper(),
 		static_cast<TrackNo>(e)
 	);
@@ -133,8 +147,8 @@ Partitioning get_partitioning(const SampleRange& interval,
 Partitioning get_partitioning(const SampleRange& interval,
 		const SampleRange& legal)
 {
-	// Create a single partition spanning the entire block of samples,
-	// but respect skipping samples at front or back.
+	// Create a single partition spanning the entire block of samples.
+	// Respect legal range.
 
 	const auto partition_start { interval.contains(legal.lower())
 		? legal.lower()
@@ -146,7 +160,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 		: interval.upper()
 	};
 
-	ARCS_LOG_DEBUG << "Create partition from interval: " << partition_start
+	ARCS_LOG(DEBUG3) << "Create partition from interval: " << partition_start
 		<< " - " << partition_end;
 
 	return { Partition {
@@ -578,7 +592,7 @@ std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
 CalculationStateImpl& CalculationStateImpl::operator = (
 		const CalculationStateImpl& rhs)
 {
-	auto tmp { CalculationStateImpl(rhs) };
+	auto tmp { CalculationStateImpl(rhs) }; // TODO pass by value instead?
 
 	using std::swap;
 	swap(*this, tmp);
@@ -589,6 +603,8 @@ CalculationStateImpl& CalculationStateImpl::operator = (
 CalculationStateImpl& CalculationStateImpl::operator = (
 		CalculationStateImpl&& rhs) noexcept
 {
+	// TODO Could this be done more performant?
+
 	auto tmp { std::move(rhs) };
 
 	using std::swap;
@@ -613,12 +629,10 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 {
 	const auto start_pos        { state.current_offset() };
 	const auto samples_in_block { std::distance(start, stop) };
+	const auto last_pos         { start_pos + am2ind(samples_in_block) };
 
-	const auto last_sample_in_block { start_pos + am2ind(samples_in_block) };
-
-	ARCS_LOG_DEBUG << "  Offset:  " << state.current_offset() << " samples";
-	ARCS_LOG_DEBUG << "  Size:    " << samples_in_block       << " samples";
-	ARCS_LOG_DEBUG << "  Indices: " << start_pos << " - " << last_sample_in_block;
+	ARCS_LOG(DEBUG1) << "Offsets: " << start_pos << " - " << last_pos;
+	ARCS_LOG(DEBUG1) << "Size:    " << samples_in_block   << " samples";
 
 	// Create a partitioning following the track bounds in this block
 
@@ -627,7 +641,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	if (partitioning.empty())
 	{
-		ARCS_LOG_DEBUG << "  Skip block (" << samples_in_block << " samples).";
+		ARCS_LOG_DEBUG << "Skip block";
 		state.advance(samples_in_block);
 		return;
 	} else
@@ -638,23 +652,21 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const auto diff { partitioning.front().begin_offset() - start_pos };
 		if (diff > 0)
 		{
-			ARCS_LOG_DEBUG << "  Skipped " << diff
-				<< " samples at front, resync";
+			ARCS_LOG(DEBUG1) << "Skipped " << diff << " samples, advance";
 			state.advance(diff);
 		}
 	}
 
-	ARCS_LOG_DEBUG << "  Partitions: " << partitioning.size();
+	ARCS_LOG(DEBUG1) << "Partitions: " << partitioning.size();
 
 	const bool is_last_relevant_block {
-		SampleRange(start_pos, last_sample_in_block)
+		SampleRange(start_pos, last_pos)
 			.contains(partitioner.legal_range().upper()/* last rel. sample */)
 	};
 
 	// Update the state with each partition in this partitioning
 
 	auto partition_counter = uint16_t { 0 };
-	auto relevant_samples_counter = std::size_t { 0 };
 
 	auto offset_first { 0 };
 	auto offset_last  { 0 };
@@ -664,22 +676,21 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	for (const auto& partition : partitioning)
 	{
 		++partition_counter;
-		relevant_samples_counter += partition.size();
 
-		ARCS_LOG_DEBUG << "  PARTITION " << partition_counter << "/" <<
+		ARCS_LOG(DEBUG2) << "PARTITION " << partition_counter << "/" <<
 			partitioning.size();
 
 		offset_first = partition.begin_offset() - start_pos;
 		offset_last  = partition.end_offset()   - start_pos;
 
-		ARCS_LOG_DEBUG << "    Samples " << start_pos + offset_first << " - "
+		ARCS_LOG(DEBUG2) << "Samples " << start_pos + offset_first << " - "
 			<< start_pos + offset_last
 			<< " (Track " << partition.track() << ", "
 			<< (partition.starts_track()
 					? (partition.ends_track() ? "complete"  : "first part")
 					: (partition.ends_track() ? "last part" : "mid part"))
 			<< ")";
-		ARCS_LOG_DEBUG << "    Samples total: " << partition.size();
+		ARCS_LOG(DEBUG2) << "Samples total: " << offset_last + 1 - offset_first;
 
 		state.update(start + offset_first, start + offset_last + 1);
 		// +1 because the "stop" sample will not be processed. As an
@@ -689,8 +700,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())
 		{
-			ARCS_LOG_DEBUG << "    Completed track: "
-				<< std::to_string(partition.track());
+			ARCS_LOG(DEBUG3) << "Completed track: " << partition.track();
 
 			state.track_finished();
 			result_buffer.push_back(state.current_subtotal());
@@ -704,21 +714,18 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	state.increment_proc_time_elapsed(block_time_elapsed);
 
-	ARCS_LOG_DEBUG << "  Number of relevant samples in this block: "
-			<< relevant_samples_counter;
-	ARCS_LOG_DEBUG << "  Milliseconds elapsed by processing this block: "
-			<<	state.proc_time_elapsed().count();
-
 	if (is_last_relevant_block)
 	{
-		ARCS_LOG(DEBUG1) << "Calculation complete.";
+		ARCS_LOG(DEBUG1) << "Calculation finished";
+
+		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
+			partitioner.total_samples();
 
 		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
 			state.samples_processed() <<
-			" (from " << partitioner.legal_range().lower() <<
-			" to "    << partitioner.legal_range().upper() << ")";
-		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
-			partitioner.total_samples();
+			" ("  << partitioner.legal_range().lower() <<
+			" - " << partitioner.legal_range().upper() << ")";
+
 		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
 			state.proc_time_elapsed().count();
 	}
@@ -936,16 +943,13 @@ Calculation::Impl::~Impl() noexcept = default;
 void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 		const Points& points)
 {
+	using details::SampleRange;
+
 	this->set_settings(s); // also sets up Algorithm
 
-	ARCS_LOG_DEBUG << "Context: " << to_string(s.context());
+	const auto interval { SampleRange { algorithm_->range(size, points) }};
 
-	const auto interval { details::SampleRange {
-		algorithm_->range(size, points)
-	}};
-
-	ARCS_LOG_DEBUG << "Calculation interval is [" << interval.lower() << "," <<
-		interval.upper() << "]";
+	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
 
 	partitioner_ = details::make_partitioner(size, points, interval);
 }
@@ -1019,11 +1023,11 @@ bool Calculation::Impl::complete() const noexcept
 void Calculation::Impl::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	ARCS_LOG_DEBUG << "PROCESS BLOCK";
+	ARCS_LOG(DEBUG1) << "PROCESS BLOCK";
 
 	perform_update(start, stop, *partitioner_, *state_, *result_buffer_);
 
-	ARCS_LOG_DEBUG << "END BLOCK";
+	ARCS_LOG(DEBUG1) << "BLOCK PROCESSED";
 }
 
 
