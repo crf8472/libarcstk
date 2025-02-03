@@ -608,7 +608,7 @@ void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs) noexcept
 // perform_update
 
 
-void perform_update(SampleInputIterator start, SampleInputIterator stop,
+bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer)
@@ -627,9 +627,9 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	if (partitioning.empty())
 	{
-		ARCS_LOG_DEBUG << "Skip block";
+		ARCS_LOG_DEBUG << "Skip block, advance";
 		state.advance(samples_in_block);
-		return;
+		return state.current_offset() >= partitioner.legal_range().upper();
 	} else
 	{
 		// If we skipped some samples at the beginning of the partition, advance
@@ -644,11 +644,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 	}
 
 	ARCS_LOG(DEBUG1) << "Partitions: " << partitioning.size();
-
-	const bool is_last_relevant_block {
-		SampleRange(start_pos, last_pos)
-			.contains(partitioner.legal_range().upper()/* last rel. sample */)
-	};
 
 	// Update the state with each partition in this partitioning
 
@@ -669,8 +664,10 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		offset_first = partition.begin_offset() - start_pos;
 		offset_last  = partition.end_offset()   - start_pos;
 
-		ARCS_LOG(DEBUG2) << "Samples " << start_pos + offset_first << " - "
-			<< start_pos + offset_last
+		ARCS_LOG(DEBUG2) << "Samples "
+			<< std::setw(9) << std::right << start_pos + offset_first
+			<< " - "
+			<< std::setw(9) << std::right << start_pos + offset_last
 			<< " (Track " << partition.track() << ", "
 			<< (partition.starts_track()
 					? (partition.ends_track() ? "complete"  : "first part")
@@ -686,7 +683,7 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())
 		{
-			ARCS_LOG(DEBUG3) << "Completed track: " << partition.track();
+			ARCS_LOG(DEBUG3) << "Completed track:  " << partition.track();
 
 			state.track_finished();
 			result_buffer.push_back(state.current_subtotal());
@@ -700,21 +697,8 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 
 	state.increment_proc_time_elapsed(block_time_elapsed);
 
-	if (is_last_relevant_block)
-	{
-		ARCS_LOG(DEBUG1) << "Calculation finished";
-
-		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
-			partitioner.total_samples();
-
-		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
-			state.samples_processed() <<
-			" ("  << partitioner.legal_range().lower() <<
-			" - " << partitioner.legal_range().upper() << ")";
-
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
-			state.proc_time_elapsed().count();
-	}
+	return SampleRange(start_pos, last_pos).contains(
+			partitioner.legal_range().upper()/* last rel. sample */);
 }
 
 } // namespace details
@@ -1011,7 +995,17 @@ void Calculation::Impl::update(SampleInputIterator start,
 {
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK";
 
-	perform_update(start, stop, *partitioner_, *state_, *result_buffer_);
+	if (perform_update(start, stop, *partitioner_, *state_, *result_buffer_))
+	{
+		ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
+		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
+			partitioner_->total_samples();
+		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
+			state_->samples_processed() <<
+			" (== " << partitioner_->legal_range().to_string() << ")";
+		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: " <<
+			state_->proc_time_elapsed().count();
+	}
 
 	ARCS_LOG(DEBUG1) << "BLOCK PROCESSED";
 }

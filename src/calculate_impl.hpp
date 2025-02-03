@@ -301,8 +301,10 @@ public:
  * \param[in]     partitioner   Partition provider
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Buffer for collecting results
+ *
+ * \return FALSE iff more updates are required, otherwise TRUE
  */
-void perform_update(SampleInputIterator start, SampleInputIterator stop,
+bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer);
