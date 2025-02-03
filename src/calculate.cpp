@@ -21,7 +21,7 @@
 #include "metadata_conv.hpp" // for convert
 #endif
 
-#include <algorithm>   // for max, min, transform
+#include <algorithm>   // for max, min
 #include <cstdint>     // for int32_t
 #include <iostream>
 
@@ -141,21 +141,18 @@ Partitioning get_partitioning(const SampleRange& interval,
 		: interval.lower()
 	};
 
-	const auto partition_end { interval.contains(legal.upper())
+	const auto partition_end { (interval.contains(legal.upper())
 		? legal.upper()
-		: interval.upper()
+		: interval.upper())
+		//+ 1
 	};
 
-	const auto begin_offset { partition_start - interval.lower()     };
-	const auto end_offset   { partition_end   - interval.lower() + 1 };
-	// XXX The +1 seems like an error
-
-	ARCS_LOG(DEBUG1) << "  Convert interval to partition: "
-		<< begin_offset << " - " << end_offset;
+	ARCS_LOG_DEBUG << "Convert interval to partition: " << partition_start
+		<< " - " << partition_end;
 
 	return { Partition {
-		{ begin_offset },
-		{ end_offset   },
+		{ partition_start },
+		{ partition_end   },
 		{ partition_start == legal.lower() }/* starts track ? */,
 		{ partition_end   == legal.upper() }/* ends track ? */,
 		0/* invalid track */
@@ -697,7 +694,6 @@ void perform_update(SampleInputIterator start, SampleInputIterator stop,
 				<< std::to_string(partition.track());
 
 			state.track_finished();
-			//result_buffer.append(state.current_subtotal());
 			result_buffer.push_back(state.current_subtotal());
 		}
 	}
@@ -751,6 +747,21 @@ inline SampleInputIterator operator + (const int32_t amount,
 bool any(const Context& rhs) noexcept
 {
 	return rhs != Context::NONE;
+}
+
+
+std::string to_string(const Context& c) noexcept
+{
+	switch (c)
+	{
+		case Context::ALBUM:       return "ALBUM";
+		case Context::LAST_TRACK:  return "LAST_TRACK";
+		case Context::FIRST_TRACK: return "FIRST_TRACK";
+		case Context::NONE:        return "NONE";
+		default: ;
+	}
+
+	return "";
 }
 
 
@@ -927,6 +938,8 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 		const Points& points)
 {
 	this->set_settings(s); // also sets up Algorithm
+
+	ARCS_LOG_DEBUG << "Context: " << to_string(s.context());
 
 	const auto interval { details::SampleRange {
 		algorithm_->range(size, points)

@@ -463,7 +463,7 @@ private:
 /**
  * \brief Calculation mode.
  */
-enum class Context : unsigned char
+enum class Context : unsigned
 {
 	NONE        = 0, // shorthand for "!(FIRST_TRACK | LAST_TRACK)"
 	FIRST_TRACK = 1,
@@ -471,12 +471,22 @@ enum class Context : unsigned char
 	ALBUM       = 3  // shorthand for "FIRST_TRACK | LAST_TRACK"
 };
 
+std::string to_string(const Context& c) noexcept;
+
 constexpr Context operator | (const Context lhs, const Context rhs);
 
 constexpr Context operator | (const Context lhs, const Context rhs)
 {
 	return static_cast<Context>(
-			static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+			static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
+}
+
+constexpr Context operator & (const Context lhs, const Context rhs);
+
+constexpr Context operator & (const Context lhs, const Context rhs)
+{
+	return static_cast<Context>(
+			static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
 }
 
 // TODO Other bitwise operators for Context
@@ -485,7 +495,7 @@ constexpr bool operator == (const Context lhs, const Context rhs);
 
 constexpr bool operator == (const Context lhs, const Context rhs)
 {
-	return static_cast<unsigned char>(lhs) == static_cast<unsigned char>(rhs);
+	return static_cast<unsigned>(lhs) == static_cast<unsigned>(rhs);
 }
 
 /**

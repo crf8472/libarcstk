@@ -176,7 +176,7 @@ void ARCSAlgorithm<T1, T2...>::save_current_subtotal()
 template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 {
-	if (any(Context::FIRST_TRACK | s->context()))
+	if (any(Context::FIRST_TRACK & s->context()))
 	{
 		this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
 
@@ -197,9 +197,12 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 		from += points[0].samples(); // start on first offset
 	}
 
+	ARCS_LOG_DEBUG << "  Range for context "
+		<< to_string(this->settings()->context());
+
 	ARCS_LOG_DEBUG << "  Start on sample offset " << from;
 
-	if (any(Context::FIRST_TRACK | this->settings()->context()))
+	if (any(Context::FIRST_TRACK & this->settings()->context()))
 	{
 		from += NUM_SKIP_SAMPLES_FRONT;
 
@@ -207,7 +210,7 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 			<< " samples";
 	}
 
-	if (any(Context::LAST_TRACK  | this->settings()->context()))
+	if (any(Context::LAST_TRACK  & this->settings()->context()))
 	{
 		to -= NUM_SKIP_SAMPLES_BACK;
 
