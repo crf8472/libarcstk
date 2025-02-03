@@ -67,13 +67,13 @@ enum class LOGLEVEL : int16_t
 /**
  * \brief Numeric representation of the minimal legal loglevel.
  */
-extern const int LOGLEVEL_MIN;
+constexpr int LOGLEVEL_MIN = 0;
 
 
 /**
  * \brief Numeric representation of the maximum legal loglevel.
  */
-extern const int LOGLEVEL_MAX;
+constexpr int LOGLEVEL_MAX = 8;
 
 
 /**
@@ -272,7 +272,7 @@ std::string now_time();
 /**
  * \brief A single logging operation of a Logger using a specified LOGLEVEL.
  *
- * A (More or less) thread-safe, type-safe, portable logging interface for
+ * A (more or less) thread-safe, type-safe, portable logging interface for
  * concrete @link Logger Loggers @endlink.
  */
 class Log final
@@ -694,11 +694,11 @@ inline std::string Log::to_string(LOGLEVEL level)
 {
 	static const char* const buffer[] =
 	{
-		"NONE",
-		"ERROR",
-		"WARN",
-		"INFO",
-		"DEBUG",
+		"NONE  ",
+		"ERROR ",
+		"WARN  ",
+		"INFO  ",
+		"DEBUG ",
 		"DEBUG1",
 		"DEBUG2",
 		"DEBUG3",
