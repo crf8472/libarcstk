@@ -7,15 +7,18 @@
  * \brief Representation for checksums, their aggregates and their types.
  */
 
-#include <array>         // for array
-#include <cstdint>       // for uint32_t, int32_t
-#include <unordered_map> // for unordered_map
-#include <set>           // for set
-#include <utility>       // for pair
-#include <vector>        // for vector
+#include <array>            // for array
+#include <cstdint>          // for int32_t, uint32_t
+#include <initializer_list> // for initializer_list
+#include <ostream>          // for ostream
+#include <set>              // for set
+#include <unordered_map>    // for unordered_map
+#include <utility>          // for pair
+#include <string>           // for string
+#include <vector>           // for vector
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"
+#include "policies.hpp"     // for Comparable
 #endif
 
 namespace arcstk

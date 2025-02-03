@@ -14,13 +14,15 @@
 #include "metadata_conv.hpp"
 #endif
 
-#include <algorithm>     // for transform
-#include <sstream>       // for stringstream
+#include <algorithm>     // for for_each, transform
+#include <iterator>      // for begin, cbegin, cend, end
+#include <sstream>       // for ostringstream
 #include <stdexcept>     // for invalid_argument
 #include <string>        // for vector
-#include <vector>        // for string
 #include <unordered_set> // for unordered_set
-#include <iostream>
+#include <utility>       // for move, swap
+#include <vector>        // for string
+
 
 namespace arcstk
 {
@@ -88,21 +90,21 @@ void is_legal_offset(const int32_t offset)
 
 	if (offset < 0)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Negative value " << offset << " is not an offset";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
 	if (offset > CDDA::MAX_BLOCK_ADDRESS)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Value " << offset << " exceeds physical maximum";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
 	if (offset > MAX_OFFSET_99)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Value exceeds physical range of 99 min ("
 				<< to_string(MAX_OFFSET_99) << " offset)";
 		throw_on_invalid_tocdata(ss.str());
@@ -110,7 +112,7 @@ void is_legal_offset(const int32_t offset)
 
 	if (offset > MAX_OFFSET_90)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Value exceeds "
 			<< std::to_string(MAX_OFFSET_90) << " offset (90 min)";
 		throw_on_invalid_tocdata(ss.str());
@@ -118,7 +120,7 @@ void is_legal_offset(const int32_t offset)
 
 	if (offset > CDDA::MAX_OFFSET)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Value " << offset << " exceeds redbook maximum";
 		throw_on_invalid_tocdata(ss.str());
 	}
@@ -143,7 +145,7 @@ void validate_leadout(const ToCData& toc_data)
 
 	if (leadout < CDDA::MIN_TRACK_OFFSET_DIST)
 	{
-		auto ss = std::stringstream {};
+		auto ss = std::ostringstream {};
 		ss << "Leadout " << leadout << " is smaller than minimum track length";
 		throw_on_invalid_tocdata(ss.str());
 	}
@@ -186,7 +188,7 @@ void validate_lengths(const ToCData& toc_data)
 			catch (const std::invalid_argument& e)
 			{
 				using std::to_string;
-				auto ss = std::stringstream {};
+				auto ss = std::ostringstream {};
 				ss << "Illegal length: Track " << track
 					<< " is too short (length is " << e.what() << " frames)";
 

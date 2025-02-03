@@ -2,16 +2,16 @@
 #error "Do not include dbar_details.hpp, include dbar.hpp instead"
 #endif
 
+#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
+#define __LIBARCSTK_DBAR_DETAILS_HPP__
+
 /**
  * \internal
  *
  * \file
  *
- * \brief Internal API for AccurateRip response parsing and syntactic entities.
+ * \brief Implementation details for dbar.hpp.
  */
-
-#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
-#define __LIBARCSTK_DBAR_DETAILS_HPP__
 
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"            // for DBAR::size_type + ...

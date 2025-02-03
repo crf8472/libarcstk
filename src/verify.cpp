@@ -4,8 +4,12 @@
  * \brief Implementation of the checksum verification API
  */
 
-#include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
-#include <stdexcept>
+#ifndef __LIBARCSTK_VERIFY_HPP__
+#include "verify.hpp"
+#endif
+#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
+#include "verify_details.hpp"
+#endif
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                   // for Checksums
@@ -13,15 +17,22 @@
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"                       // for DBAR
 #endif
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"                 // for ARId
+#endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
-#ifndef __LIBARCSTK_VERIFY_HPP__
-#include "verify.hpp"
-#endif
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#include "verify_details.hpp"
-#endif
+
+#include <cstdint>        // for uint32_t
+#include <exception>      // for exception
+#include <iomanip>        // for setw, setfill
+#include <stdexcept>      // for runtime_error
+#include <sstream>        // for ostringstream
+#include <string>         // for string
+#include <tuple>          // for tuple
+#include <utility>        // for move
+#include <vector>         // for vector
 
 namespace arcstk
 {
@@ -244,7 +255,7 @@ void ResultBits::validate_block(int b) const
 {
 	if (b >= blocks_)
 	{
-		auto msg = std::stringstream {};
+		auto msg = std::ostringstream {};
 		msg << "Block index " << b << " too big, only " << blocks_
 			<< " blocks in response";
 
@@ -257,7 +268,7 @@ void ResultBits::validate_track(int t) const
 {
 	if (t >= tracks_per_block_)
 	{
-		auto msg = std::stringstream {};
+		auto msg = std::ostringstream {};
 		msg << "Track index " << t << " too big, only " << tracks_per_block_
 			<< " tracks in album";
 

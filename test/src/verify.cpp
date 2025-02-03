@@ -3,8 +3,8 @@
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"
 #endif
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"

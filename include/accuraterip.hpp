@@ -6,11 +6,10 @@
  * \brief AccurateRip Checksum specific implementations.
  */
 
-#include <cstdint>  // for uint_fast32_t, uint_fast64_t, int32_t
+#include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
+#include <string>         // for string
+#include <unordered_set>  // for unordered_set
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"                // for Identifier
-#endif
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                  // for checksum::type, ChecksumSet
 #endif

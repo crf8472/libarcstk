@@ -10,10 +10,10 @@
 #include "policies.hpp"   // for Comparable, TotallyOrdered
 #endif
 
-#include <algorithm>      // for transform
 #include <cstdint>        // for uint32_t, int32_t
 #include <memory>         // for unique_ptr
 #include <stdexcept>      // for invalid_argument
+#include <string>         // for string
 #include <vector>         // for vector
 
 namespace arcstk

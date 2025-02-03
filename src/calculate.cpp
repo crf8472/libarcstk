@@ -14,6 +14,9 @@
 #include "calculate_impl.hpp"
 #endif
 
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, ToC, CDDA
 #endif
@@ -21,9 +24,9 @@
 #include "metadata_conv.hpp" // for convert
 #endif
 
-#include <algorithm>   // for max, min
-#include <cstdint>     // for int32_t
-#include <iostream>
+#include <algorithm>   // for min, max
+#include <cstdint>     // for int32_t, uint16_t
+#include <iomanip>     // for setw, right
 
 namespace arcstk
 {

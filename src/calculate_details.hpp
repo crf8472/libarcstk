@@ -4,20 +4,20 @@
 
 #ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
 #define __LIBARCSTK_CALCULATE_DETAILS_HPP__
+
 /**
+ * \internal
+ *
  * \file
  *
- * \brief Implementation details of the calculation interface.
+ * \brief Implementation details for calculate.hpp.
  */
-#include <chrono>        // for milliseconds, duration-cast, operator-
+
 #include <cstdint>       // for int32_t
 #include <memory>        // for memory
 #include <string>        // for string
 #include <vector>        // for vector
 
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 namespace arcstk
 {

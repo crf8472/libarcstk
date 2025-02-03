@@ -7,18 +7,18 @@
  * \brief Calculation interface.
  */
 
+#include <chrono>           // for duration
 #include <cstdint>          // for int32_t
-#include <memory>           // for unique_ptr
+#include <memory>           // for make_unique, unique_ptr
+#include <string>           // for string
 #include <unordered_set>    // for unordered_set
+#include <vector>           // for vector
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"     // for AudioSize, CDDA, ToC
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
 #endif
 
 /**

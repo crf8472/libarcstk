@@ -4,7 +4,10 @@
 
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #define __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementation details for identifier.hpp.

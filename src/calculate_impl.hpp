@@ -1,9 +1,16 @@
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#error "Do not include calculate_impl.hpp, include calculate.hpp instead"
+#endif
+
 #ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
 #define __LIBARCSTK_CALCULATE_IMPL_HPP__
+
 /**
+ * \internal
+ *
  * \file
  *
- * \brief Implementations of calculate.hpp that depend on the public header.
+ * \brief Implementation details for calculate.hpp.
  */
 
 #include <cstdint>       // for int32_t

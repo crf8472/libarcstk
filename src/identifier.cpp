@@ -10,6 +10,7 @@
 #ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #include "identifier_details.hpp"
 #endif
+
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
@@ -17,20 +18,13 @@
 #include "metadata_conv.hpp" // for convert
 #endif
 
-#include <algorithm>         // for transform
-#include <cstdint>           // for uint32_t, uint64_t
+#include <cstdint>           // for int32_t, uint32_t, uint64_t
 #include <iomanip>           // for operator<<, setw, setfill
 #include <memory>            // for unique_ptr, make_unique, operator==
 #include <sstream>           // for operator<<, basic_ostream, basic_strings...
-#include <stdexcept>         // for logic_error
 #include <string>            // for string, operator<<, char_traits
-#include <utility>           // for move
 #include <vector>            // for vector, vector<>::size_type
-#include <iostream>
 
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
 namespace arcstk
 {
@@ -123,7 +117,7 @@ std::string construct_filename(const int track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept
 {
-	auto ss = std::stringstream {};
+	auto ss = std::ostringstream {};
 
 	auto dec_flags = std::ios_base::fmtflags { ss.flags() };
 	dec_flags &= ~ss.basefield;
@@ -156,7 +150,7 @@ std::string construct_url(const int track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept
 {
-	auto ss = std::stringstream {};
+	auto ss = std::ostringstream {};
 
 	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
 	hex_flags &= ~ss.basefield;
@@ -180,7 +174,7 @@ std::string construct_id(const int track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept
 {
-	auto id = std::stringstream {};
+	auto id = std::ostringstream {};
 
 	id << std::dec
 		<< std::setw(3) << std::setfill('0') << track_count

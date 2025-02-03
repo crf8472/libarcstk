@@ -1,6 +1,13 @@
+#ifndef __LIBARCSTK_METADATA_HPP__
+#error "Do not include metadata_conv.hpp, include metadata.hpp instead"
+#endif
+
 #ifndef __LIBARCSTK_METADATA_CONV_HPP__
 #define __LIBARCSTK_METADATA_CONV_HPP__
+
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Conversions for metadata.
@@ -8,7 +15,7 @@
 
 #include <algorithm>   // for transform
 #include <cstdint>     // for uint32_t, int32_t
-#include <memory>      // for unique_ptr
+#include <iterator>    // for begin, cbegin, cend, end
 #include <type_traits> // for underlying_type
 #include <vector>      // for vector
 

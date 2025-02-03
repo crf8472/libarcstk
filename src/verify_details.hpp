@@ -2,38 +2,35 @@
 #error "Do not include verify_details.hpp, include verify.hpp instead"
 #endif
 
+#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
+#define __LIBARCSTK_VERIFY_DETAILS_HPP__
+
 /**
  * \internal
  *
  * \file
  *
- * \brief Internal API for Matcher algorithms.
+ * \brief Implementation details for verify.hpp.
  */
-
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#define __LIBARCSTK_VERIFY_DETAILS_HPP__
 
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
-#include <iterator> // for std::input_iterator_tag
-#include <cstddef>  // for std::ptrdiff_t
-#include <utility>  // for std::swap
+#include <cstdint>  // for uint32_t
+#include <cstddef>  // for ptrdiff_t
+#include <iterator> // for input_iterator_tag
+#include <memory>   // for unique_ptr
+#include <tuple>    // for tuple
+#include <utility>  // for swap
+
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+class ARId;
 
 namespace details
 {

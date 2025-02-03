@@ -6,18 +6,18 @@
 #define __LIBARCSTK_METADATA_DETAILS_HPP__
 
 /**
+ * \internal
+ *
  * \file
  *
- * \brief Declare implementation details for metadata.hpp.
+ * \brief Implementation details for metadata.hpp.
  */
-
-#include <algorithm>      // for transform
-#include <cstdint>        // for int32_t
-#include <vector>         // for vector
 
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"
 #endif
+
+#include <cstdint>        // for int32_t
 
 namespace arcstk
 {

@@ -4,15 +4,24 @@
  * \brief Implementation of the checksum calculation API
  */
 
-#include <algorithm>  // for transform
-#include <array>      // for array
-#include <cmath>      // for log2
-#include <iomanip>    // for setfill, setw
-#include <unordered_map> // for unordered_map
-
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
+
+#include <algorithm>        // for transform
+#include <array>            // for array
+#include <cmath>            // for log2
+#include <cstdint>          // for int32_t
+#include <initializer_list> // for initializer_list
+#include <iomanip>          // for setfill, setw
+#include <iterator>         // for inserter
+#include <set>              // for set
+#include <sstream>          // for ostringstream
+#include <stdexcept>        // for domain_error
+#include <string>           // for string
+#include <type_traits>      // for underlying_type
+#include <utility>          // for pair, swap
+
 
 namespace arcstk
 {

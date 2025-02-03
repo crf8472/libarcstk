@@ -7,14 +7,20 @@
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
 #endif
+
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"              // for type, ChecksumSet
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"              // for AudioSize
+#endif
 
-#include <cstdint>     // for uint_fast32_t, uint_fast64_t, int32_t
+#include <cstdint>       // for int32_t, uint_fast64_t
+#include <memory>        // for make_unique, unique_ptr
+#include <utility>       // for pair
 
 namespace arcstk
 {

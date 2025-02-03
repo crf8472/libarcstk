@@ -7,14 +7,16 @@
  * \brief Public API for reading and representing dBAR-files.
  */
 
-#include <cstddef>   // for size_t, nullptr
-#include <cstdint>   // for uint32_t
-#include <limits>    // for numeric_limits
-#include <memory>    // for unique_ptr
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
-#include <tuple>     // for tuple
-#include <utility>   // for pair
+#include <cstddef>          // for size_t, nullptr
+#include <cstdint>          // for uint32_t
+#include <initializer_list> // for initializer_list
+#include <istream>          // for istream
+#include <limits>           // for numeric_limits
+#include <memory>           // for unique_ptr
+#include <stdexcept>        // for runtime_error
+#include <string>           // for string
+#include <tuple>            // for tuple
+#include <utility>          // for pair
 
 namespace arcstk
 {
@@ -636,6 +638,7 @@ DBAR::iterator begin(DBAR& dbar);
 DBAR::iterator end(DBAR& dbar);
 DBAR::const_iterator begin(const DBAR& dbar);
 DBAR::const_iterator end(const DBAR& dbar);
+// TODO cbegin, cend
 
 /**
  * \brief A block in a DBAR.

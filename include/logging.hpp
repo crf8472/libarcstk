@@ -15,8 +15,7 @@
  * Marginean, P: "Logging in C++: Part 2", http://www.ddj.com/cpp/221900468
  */
 
-#include <cxxabi.h>       // for __forced_unwind
-#include <stdint.h>       // for int16_t
+#include <cstdint>        // for int16_t
 #include <chrono>         // for milliseconds, seconds, duration_cast, opera...
 #include <cstdio>         // for fclose, fflush, FILE, fopen, fprintf
 #include <ctime>          // for localtime, time_t

@@ -14,7 +14,6 @@
  * checksums.
  */
 
-#include <sstream>        // for operator<<, basic_ostream::operator<<, basi...
 #include <memory>         // for unique_ptr
 #include <vector>         // for vector
 

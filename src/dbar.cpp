@@ -12,9 +12,9 @@
 #include "dbar_details.hpp"
 #endif
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
+// #ifndef __LIBARCSTK_CALCULATE_HPP__
+// #include "calculate.hpp"
+// #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
@@ -22,15 +22,18 @@
 #include "logging.hpp"
 #endif
 
-#include <cstdint>   // for uint32_t
-#include <fstream>   // for basic_ifstream
-#include <memory>    // for unique_ptr, make_unique
-#include <numeric>   // for accumulate
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
-#include <tuple>     // for get, tuple
-#include <utility>   // for pair, move
-#include <vector>    // for vector
+#include <cstdint>          // for uint32_t
+#include <cstdio>           // for EOF
+#include <fstream>          // for basic_ifstream
+#include <initializer_list> // for initializer_list
+#include <memory>           // for unique_ptr, make_unique
+#include <numeric>			// for accumulate
+#include <sstream>			// for ostringstream
+#include <stdexcept>		// for runtime_error
+#include <string>			// for string
+#include <tuple>			// for get, tuple
+#include <utility>			// for pair, move
+#include <vector>			// for vector
 
 namespace arcstk
 {
@@ -1097,7 +1100,7 @@ unsigned StreamParseException::block_byte_position() const noexcept
 std::string StreamParseException::default_message(const unsigned byte_pos,
 		const unsigned block_pos, const unsigned block_byte_pos) const
 {
-	auto ss = std::stringstream {};
+	auto ss = std::ostringstream {};
 	ss << "Error on input byte " << byte_pos << " (block " << block_pos
 			<< ", byte " << block_byte_pos << ")";
 	return ss.str();
