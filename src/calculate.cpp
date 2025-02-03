@@ -141,13 +141,12 @@ Partitioning get_partitioning(const SampleRange& interval,
 		: interval.lower()
 	};
 
-	const auto partition_end { (interval.contains(legal.upper())
+	const auto partition_end { interval.contains(legal.upper())
 		? legal.upper()
-		: interval.upper())
-		//+ 1
+		: interval.upper()
 	};
 
-	ARCS_LOG_DEBUG << "Convert interval to partition: " << partition_start
+	ARCS_LOG_DEBUG << "Create partition from interval: " << partition_start
 		<< " - " << partition_end;
 
 	return { Partition {
