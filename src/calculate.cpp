@@ -196,8 +196,6 @@ Partitioning Partitioner::create_partitioning(
 	const SampleRange current_interval {
 		/*first phys. sample in block*/ offset,
 		/*last  phys. sample in block*/ offset + am2ind(total_samples_in_block)
-		// -1 because the amount total_samples_in_block has to be converted to
-		// the sample index of the last sample in the interval.
 	};
 
 	// If the sample block does not contain any relevant samples,
@@ -206,13 +204,9 @@ Partitioning Partitioner::create_partitioning(
 	if (current_interval.upper() < legal_range().lower() ||
 			current_interval.lower() > legal_range().upper())
 	{
-		ARCS_LOG(DEBUG1) << "  No relevant samples in this block, skip";
+		ARCS_LOG(DEBUG2) <<
+			"No relevant samples in interval, provide no partitions";
 		return Partitioning {};
-	}
-
-	if (points_.empty())
-	{
-		return do_create_partitioning(current_interval, legal_range());
 	}
 
 	return do_create_partitioning(current_interval, legal_range(), points_);
@@ -290,14 +284,6 @@ Partitioning TrackPartitioner::do_create_partitioning(
 		const Points&      points) const /* track points */
 {
 	return get_partitioning(interval, legal, points);
-}
-
-
-Partitioning TrackPartitioner::do_create_partitioning(
-			const SampleRange& interval,
-			const SampleRange& legal) const
-{
-	return get_partitioning(interval, legal);
 }
 
 

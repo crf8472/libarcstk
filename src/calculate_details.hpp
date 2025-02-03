@@ -266,19 +266,6 @@ private:
 		const Points& points) const
 	= 0;
 
-	/**
-	 * \brief Implements Partitioner::create_partitioning() without a ToC.
-	 *
-	 * \param[in] current_interval Interval to build partitions from
-	 * \param[in] legal_range      Legal interval to process
-	 *
-	 * \return Partitioning of \c samples as a sequence of partitions.
-	 */
-	virtual Partitioning do_create_partitioning(
-		const SampleRange& current_interval,
-		const SampleRange& legal_range) const
-	= 0;
-
 	virtual std::unique_ptr<Partitioner> do_clone() const
 	= 0;
 
@@ -335,10 +322,6 @@ class TrackPartitioner final : public Partitioner
 		const SampleRange& sample_block,
 		const SampleRange& relevant_interval,
 		const Points& points) const final;
-
-	virtual Partitioning do_create_partitioning(
-		const SampleRange& sample_block,
-		const SampleRange& relevant_interval) const final;
 
 	virtual std::unique_ptr<Partitioner> do_clone() const final;
 
