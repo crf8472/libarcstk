@@ -66,13 +66,13 @@ environment variables ``CC`` and ``CXX``.
 
 If your actual compiler is not clang and you want to use your installed clang:
 
-	$ export CC=$(which clang)
-	$ export CXX=$(which clang++)
+	$ export CC=$(type -p clang)
+	$ export CXX=$(type -p clang++)
 
 If your actual compiler is not g++ and you want to use your installed g++:
 
-	$ export CC=$(which gcc)
-	$ export CXX=$(which g++)
+	$ export CC=$(type -p gcc)
+	$ export CXX=$(type -p g++)
 
 Then, delete your directory ``build`` (which contains metadata from
 the previous compiler) to start off cleanly.
