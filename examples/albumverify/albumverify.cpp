@@ -3,27 +3,29 @@
 // provided by AccurateRip.
 //
 
-#include <algorithm> // for count
-#include <cstdint>   // for uint32_t etc.
-#include <cstring>   // for strtok
-#include <fstream>   // for ifstream etc.
-#include <iomanip>   // for setw, setfill, hex
-#include <iostream>  // for cerr, cout
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
-
-#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
-#include "logging.hpp"
+#ifndef __LIBARCSTK_CALCULATE_HPP__
+#include "calculate.hpp"             // for Checksums
 #endif
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"                  // for DBAR
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"             // for Checksums
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"            // for ARId
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#include "logging.hpp"
 #endif
 #ifndef __LIBARCSTK_VERIFY_HPP__     // libarcstk: match Checksums and DBAR
 #include "verify.hpp"
 #endif
+
+#include <algorithm> // for count
+#include <cstdint>   // for uint32_t etc.
+#include <cstring>   // for strtok
+#include <iomanip>   // for setw, setfill, hex
+#include <iostream>  // for cerr, cout
+#include <stdexcept> // for runtime_error
+#include <string>    // for string
 
 
 // ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
@@ -97,7 +99,7 @@ arcstk::Checksums parse_input_arcs(const char* list,
 	std::string::size_type token_end   { checksum_list.find_first_of(',') };
 
 	auto prev_settings { std::cout.flags() };
-	std::cout << "My checksums to match:" << std::endl;
+	std::cout << "My checksums to match:" << '\n';
 
 	std::string token; // current token
 	auto arcs = uint32_t { 0 };  // ARCS of the current token
@@ -121,7 +123,7 @@ arcstk::Checksums parse_input_arcs(const char* list,
 
 		auto track_sum = arcstk::ChecksumSet { 0 };
 		track_sum.insert(t, arcstk::Checksum(arcs));
-		checksums.append(track_sum);
+		checksums.push_back(track_sum);
 
 		token_start = token_end + 1;
 		token_end   = checksum_list.find_first_of(',', token_start);
@@ -163,9 +165,9 @@ int main(int argc, char* argv[])
 	// Do only the absolutely inevitable checking
 	if (argc < 3 or argc > 4)
 	{
-		std::cout <<
-			"Usage: albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <dbar_file.bin>"
-			<< std::endl;
+		std::cout << "Usage: "
+			<< "albumverify --id=<ARId> --arcs2=0xA,0xB,0xC,... <dbar_file.bin>"
+			<< '\n';
 
 		return EXIT_SUCCESS;
 	}
@@ -184,7 +186,7 @@ int main(int argc, char* argv[])
 	// Parse the AccurateRip id of the album passed from the command line
 	const arcstk::ARId arid { parse_arid(argv[1] + 5) };
 
-	std::cout << "Album ID: " << arid.to_string() << '\n';
+	std::cout << "Album ID: " << to_string(arid) << '\n';
 
 	// Parse declared ARCS type (ARCSv1 or ARCSv2)
 	arcstk::checksum::type type { argv[2][6] == '1'
@@ -246,7 +248,8 @@ int main(int argc, char* argv[])
 		// has performed. Thus, the result of the matching can be queried on the
 		// match object by just giving the coordinate block/track/version.
 		is_match =
-			result->track(block, trackno, type == arcstk::checksum::type::ARCS2);
+			result->track(block, trackno,
+					type == arcstk::checksum::type::ARCS2);
 
 		std::cout << " " << std::dec << std::setw(2) << std::setfill('0')
 			<< (trackno + 1) << ":  ";
