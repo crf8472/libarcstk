@@ -1148,32 +1148,6 @@ std::size_t DBARSource::do_size() const
 // VerificationResult
 
 
-std::ostream& operator << (std::ostream& out, const VerificationResult& result)
-{
-	std::ios_base::fmtflags prev_settings = out.flags();
-
-	const auto indent = std::string { "  " };
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
-	{
-		out << "Block " << b << std::endl;
-
-		out << indent << "Id match: "
-			<< std::boolalpha << result.id(b) << std::endl;
-
-		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
-		{
-			out << indent << "Track " << std::setw(2) << (t + 1)
-				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
-				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
-				<< std::endl;
-		}
-	}
-
-	out.flags(prev_settings);
-	return out;
-}
-
-
 VerificationResult::~VerificationResult() noexcept = default;
 
 
@@ -1264,6 +1238,32 @@ bool VerificationResult::strict() const
 std::unique_ptr<VerificationResult> VerificationResult::clone() const
 {
 	return do_clone();
+}
+
+
+std::ostream& operator << (std::ostream& out, const VerificationResult& result)
+{
+	std::ios_base::fmtflags prev_settings = out.flags();
+
+	const auto indent = std::string { "  " };
+	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	{
+		out << "Block " << b << std::endl;
+
+		out << indent << "Id match: "
+			<< std::boolalpha << result.id(b) << std::endl;
+
+		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
+		{
+			out << indent << "Track " << std::setw(2) << (t + 1)
+				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
+				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
+				<< std::endl;
+		}
+	}
+
+	out.flags(prev_settings);
+	return out;
 }
 
 

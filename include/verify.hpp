@@ -41,6 +41,24 @@ using Checksums = std::vector<ChecksumSet>; // Also typedef'ed in calculate.hpp
  *
  * \details
  *
+ * A Verifier verifies local Checksums against some reference Checksums provided
+ * by a ChecksumSource. A ChecksumSource is an interface to different kinds of
+ * input for Checksums. For convenience, a DBARSource is provided that makes a
+ * DBAR object available as input for verification.
+ *
+ * A custom class T can be made available as input provider by subclassing
+ * ChecksumSourceOf<T> and implementing the access to the reference values in
+ * question.
+ *
+ * The result of a verification process is a VerificationResult. It holds every
+ * result of every match operation performed during verification.
+ *
+ * AlbumVerifier is suitable for verifying input that contains a ToC. Scenarious
+ * without a ToC (e.g. a set of input audio files) is supported by
+ * TracksetVerifier.
+ *
+ * \see AlbumVerifier \see TracksetVerifier
+ *
  * @{
  */
 
@@ -116,7 +134,8 @@ public:
 	 *
 	 * \return The checksum of the specified index position
 	 */
-	Checksum checksum(const size_type block_idx, const size_type track_idx) const;
+	Checksum checksum(const size_type block_idx, const size_type track_idx)
+		const;
 
 	/**
 	 * \brief Return the ARCS value on the specified position.
@@ -126,7 +145,8 @@ public:
 	 *
 	 * \return The ARCS value of the specified index position
 	 */
-	const uint32_t& arcs_value(const size_type block_idx, const size_type track_idx) const;
+	const uint32_t& arcs_value(const size_type block_idx,
+			const size_type track_idx) const;
 
 	/**
 	 * \brief Read confidence \c idx in section with the specified \c block_idx.
@@ -136,7 +156,8 @@ public:
 	 *
 	 * \return The confidence of the specified index position
 	 */
-	const unsigned& confidence(const size_type block_idx, const size_type track_idx) const;
+	const unsigned& confidence(const size_type block_idx,
+			const size_type track_idx) const;
 
 	/**
 	 * \brief Return the ARCS value of frame 450 on the specified position.
@@ -172,7 +193,7 @@ public:
 
 
 /**
- * \brief Wrap a checksum container in a ChecksumSource.
+ * \brief Base: wrap a checksum container type in a ChecksumSource.
  *
  * A type \c T can be made available as a ChecksumSource via definig a subclass
  * of ChecksumSourceOf<T>. The subclass has to implement the virtual functions
@@ -272,11 +293,8 @@ public:
 };
 
 
-class VerificationResult;
-std::ostream& operator << (std::ostream&, const VerificationResult& r);
-
-
-/** \brief Interface: Result of a verification process.
+/**
+ * \brief Interface: Result of a verification process.
  *
  * \details
  *
@@ -656,7 +674,7 @@ public:
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
 
 	/**
-	 * \brief Default destructor:
+	 * \brief Default destructor.
 	 */
 	~AlbumVerifier() noexcept;
 };
@@ -683,7 +701,7 @@ public:
  * AlbumVerifier in any case where a ToC is available.
  *
  * \note
- * TracksetVerifier is a generalization of the AlbumVerifier. AlbumVerifier adds
+ * TracksetVerifier is a generalization of AlbumVerifier. AlbumVerifier adds
  * the restriction that the order of tracks in the reference must be matched
  * too.
  *
@@ -708,10 +726,10 @@ public:
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
-	TracksetVerifier(const Checksums& actual_sums);
+	explicit TracksetVerifier(const Checksums& actual_sums);
 
 	/**
-	 * \brief Default destructor:
+	 * \brief Default destructor.
 	 */
 	~TracksetVerifier() noexcept;
 };
