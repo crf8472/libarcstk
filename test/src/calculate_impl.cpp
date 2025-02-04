@@ -23,11 +23,16 @@
 #include "metadata.hpp"           // for AudioSize, UNIT
 #endif
 
+#include <chrono>                 // for steady_clock::now
 #include <iterator>               // for begin, cbegin, cend, end
+#include <memory>                 // for make_unique
 #include <numeric>                // for iota
+#include <type_traits>            // for is_copy_constructible,...
+#include <vector>                 // for vector
 
 
-TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
+TEST_CASE ( "CalculationStateImpl",
+		"[calculationstateimpl] [calc]" )
 {
 	using arcstk::Algorithm;
 	using arcstk::AccurateRipV1V2;
@@ -124,7 +129,7 @@ TEST_CASE ( "CalculationStateImpl", "[calculate] [calculationstateimpl]" )
 }
 
 
-TEST_CASE ( "perform_update", "[calculate]" )
+TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 {
 	using arcstk::Algorithm;
 	using arcstk::AccurateRipV1V2;

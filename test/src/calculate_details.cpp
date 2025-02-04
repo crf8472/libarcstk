@@ -20,7 +20,7 @@
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "Interval", "[calculate_details]" )
+TEST_CASE ( "Interval", "[calculate_details] [calc]" )
 {
 	using arcstk::details::Interval;
 
@@ -67,7 +67,8 @@ TEST_CASE ( "Interval", "[calculate_details]" )
 	}
 }
 
-TEST_CASE ( "get_partitioning", "[get_partitioning]" )
+
+TEST_CASE ( "get_partitioning", "[get_partitioning] [calc]" )
 {
 	// Use samples as points, not frames
 	const auto points = std::vector<int32_t> {
@@ -445,26 +446,27 @@ TEST_CASE ( "get_partitioning", "[get_partitioning]" )
 
 
 /*
-TEST_CASE ( "Partition", "[partitioner]" )
+TEST_CASE ( "Partition", "[partitioner] [calc]" )
 {
 	// TODO Implement
 }
 
 
-TEST_CASE ( "TrackPartitioner", "[trackpartitioner]" )
+TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc]" )
 {
 	// TODO Implement
 }
 
 
-TEST_CASE ( "CalculationState", "[calculationstate]" )
+TEST_CASE ( "CalculationStateImpl",
+	"[calculationstateimpl] [calc]" )
 {
 	// TODO Implement
 }
 */
 
 
-TEST_CASE ( "Counter", "[calculate_details]" )
+TEST_CASE ( "Counter", "[counter] [calc]" )
 {
 	using arcstk::details::Counter;
 

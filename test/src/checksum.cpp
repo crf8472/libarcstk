@@ -10,9 +10,11 @@
 #include "checksum.hpp"           // TO BE TESTED
 #endif
 
+#include <utility>                // for move
+
 
 TEST_CASE ( "checksum::type_name provides correct names",
-		"[checksum] [checksum::type_name]" )
+		"[checksum::type_name] [calc]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::checksum::type_name;
@@ -24,7 +26,7 @@ TEST_CASE ( "checksum::type_name provides correct names",
 }
 
 
-TEST_CASE ( "Checksum", "[checksum]" )
+TEST_CASE ( "Checksum", "[checksum] [calc]" )
 {
 	using arcstk::Checksum;
 
@@ -52,79 +54,8 @@ TEST_CASE ( "Checksum", "[checksum]" )
 	}
 }
 
-/*
-TEST_CASE ( "ChecksumMap", "[calculate] [checksumset]" )
-{
-	using arcstk::checksum::type;
-	using arcstk::Checksum;
-	using arcstk::details::ChecksumMap;
 
-	ChecksumMap<type> track01{};
-
-	CHECK ( track01.empty() );
-	CHECK ( track01.size() == 0 );
-	CHECK ( track01.begin()  == track01.end() );
-	CHECK ( track01.cbegin() == track01.cend() );
-
-	track01.insert(type::ARCS2, Checksum(0xB89992E5));
-	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
-
-	CHECK ( not track01.empty() );
-	CHECK ( track01.size() == 2 );
-
-
-	SECTION ( "insert_overwrite: insert" )
-	{
-		ChecksumMap<type> track{};
-		track.insert_overwrite(type::ARCS2, Checksum(0x4F77EB03));
-		track.insert_overwrite(type::ARCS1, Checksum(0x475F57E9));
-
-		CHECK ( track.size() == 2 );
-		CHECK ( *track.find(type::ARCS2) == Checksum(0x4F77EB03) );
-		CHECK ( *track.find(type::ARCS1) == Checksum(0x475F57E9) );
-	}
-
-	SECTION ( "insert_overwrite: overwrite" )
-	{
-		track01.insert_overwrite(type::ARCS2, Checksum(0x4F77EB03));
-		track01.insert_overwrite(type::ARCS1, Checksum(0x475F57E9));
-
-		CHECK ( track01.size() == 2 );
-		CHECK ( *track01.find(type::ARCS2) == Checksum(0x4F77EB03) );
-		CHECK ( *track01.find(type::ARCS1) == Checksum(0x475F57E9) );
-	}
-
-	SECTION ( "merge_overwrite: merge" )
-	{
-		ChecksumMap<type> track02{};
-		track02.insert(type::ARCS1, Checksum(0x475F57E9));
-
-		ChecksumMap<type> track03{};
-		track03.insert(type::ARCS2, Checksum(0x4F77EB03));
-
-		track02.merge_overwrite(track03);
-
-		CHECK ( track02.size() == 2 );
-		CHECK ( *track02.find(type::ARCS2) == Checksum(0x4F77EB03) );
-		CHECK ( *track02.find(type::ARCS1) == Checksum(0x475F57E9) );
-	}
-
-	SECTION ( "merge_overwrite: overwrite" )
-	{
-		ChecksumMap<type> track02{};
-		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
-		track02.insert(type::ARCS1, Checksum(0x475F57E9));
-
-		track01.merge_overwrite(track02);
-
-		CHECK ( track01.size() == 2 );
-		CHECK ( *track01.find(type::ARCS2) == Checksum(0x4F77EB03) );
-		CHECK ( *track01.find(type::ARCS1) == Checksum(0x475F57E9) );
-	}
-}
-*/
-
-TEST_CASE ( "ChecksumSet", "[checksum] [checksumset]" )
+TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
@@ -311,7 +242,7 @@ TEST_CASE ( "ChecksumSet", "[checksum] [checksumset]" )
 }
 
 
-TEST_CASE ( "Checksums", "[checksum] [checksums]" )
+TEST_CASE ( "Checksums", "[checksums] [calc]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
@@ -600,4 +531,76 @@ TEST_CASE ( "Checksums", "[checksum] [checksums]" )
 	}
 
 }
+
+/*
+TEST_CASE ( "ChecksumMap", "[calculate] [checksumset]" )
+{
+	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::details::ChecksumMap;
+
+	ChecksumMap<type> track01{};
+
+	CHECK ( track01.empty() );
+	CHECK ( track01.size() == 0 );
+	CHECK ( track01.begin()  == track01.end() );
+	CHECK ( track01.cbegin() == track01.cend() );
+
+	track01.insert(type::ARCS2, Checksum(0xB89992E5));
+	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
+
+	CHECK ( not track01.empty() );
+	CHECK ( track01.size() == 2 );
+
+
+	SECTION ( "insert_overwrite: insert" )
+	{
+		ChecksumMap<type> track{};
+		track.insert_overwrite(type::ARCS2, Checksum(0x4F77EB03));
+		track.insert_overwrite(type::ARCS1, Checksum(0x475F57E9));
+
+		CHECK ( track.size() == 2 );
+		CHECK ( *track.find(type::ARCS2) == Checksum(0x4F77EB03) );
+		CHECK ( *track.find(type::ARCS1) == Checksum(0x475F57E9) );
+	}
+
+	SECTION ( "insert_overwrite: overwrite" )
+	{
+		track01.insert_overwrite(type::ARCS2, Checksum(0x4F77EB03));
+		track01.insert_overwrite(type::ARCS1, Checksum(0x475F57E9));
+
+		CHECK ( track01.size() == 2 );
+		CHECK ( *track01.find(type::ARCS2) == Checksum(0x4F77EB03) );
+		CHECK ( *track01.find(type::ARCS1) == Checksum(0x475F57E9) );
+	}
+
+	SECTION ( "merge_overwrite: merge" )
+	{
+		ChecksumMap<type> track02{};
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+		ChecksumMap<type> track03{};
+		track03.insert(type::ARCS2, Checksum(0x4F77EB03));
+
+		track02.merge_overwrite(track03);
+
+		CHECK ( track02.size() == 2 );
+		CHECK ( *track02.find(type::ARCS2) == Checksum(0x4F77EB03) );
+		CHECK ( *track02.find(type::ARCS1) == Checksum(0x475F57E9) );
+	}
+
+	SECTION ( "merge_overwrite: overwrite" )
+	{
+		ChecksumMap<type> track02{};
+		track02.insert(type::ARCS2, Checksum(0x4F77EB03));
+		track02.insert(type::ARCS1, Checksum(0x475F57E9));
+
+		track01.merge_overwrite(track02);
+
+		CHECK ( track01.size() == 2 );
+		CHECK ( *track01.find(type::ARCS2) == Checksum(0x4F77EB03) );
+		CHECK ( *track01.find(type::ARCS1) == Checksum(0x475F57E9) );
+	}
+}
+*/
 

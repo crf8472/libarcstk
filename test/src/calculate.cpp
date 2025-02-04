@@ -27,13 +27,13 @@
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "Algorithm", "[calculate] [algorithm]" )
+TEST_CASE ( "Algorithm", "[algorithm] [calc]" )
 {
 	// TODO
 }
 
 
-TEST_CASE ( "Context", "[calculate] [context]" )
+TEST_CASE ( "Context", "[context] [calc]" )
 {
 	using arcstk::Context;
 
@@ -64,10 +64,7 @@ TEST_CASE ( "Context", "[calculate] [context]" )
 }
 
 
-// Calculation
-
-
-TEST_CASE ( "Calculation", "[calculate] [calculation]" )
+TEST_CASE ( "Calculation", "[calculation] [calc]" )
 {
 	using arcstk::AccurateRipV1V2;
 	using arcstk::AudioSize;

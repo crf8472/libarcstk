@@ -7,14 +7,14 @@
  */
 
 #ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"           // for AudioSize
+#include "metadata.hpp"           // for AudioSize, UNIT
 #endif
 #ifndef __LIBARCSTK_METADATA_CONV_HPP__
 #include "metadata_conv.hpp"      // TO BE TESTED
 #endif
 
 
-TEST_CASE ( "convert<>()", "[metadata]" )
+TEST_CASE ( "convert<>()", "[convert] [meta]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::details::convert;

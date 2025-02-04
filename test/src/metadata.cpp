@@ -10,8 +10,13 @@
 #include "metadata.hpp"           // TO BE TESTED
 #endif
 
+#include <cstdint>                // for int32_t
+#include <type_traits>            // for is_copy_constructible
+#include <string>                 // for string
+#include <vector>                 // for vector
 
-TEST_CASE ( "Units", "[metadata]" )
+
+TEST_CASE ( "Units", "[meta]" )
 {
 	SECTION ("cdda_max<>() yields correct maximum values")
 	{
@@ -25,7 +30,7 @@ TEST_CASE ( "Units", "[metadata]" )
 }
 
 
-TEST_CASE ( "toc", "[metadata]" )
+TEST_CASE ( "ToCData", "[tocdata] [meta]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::toc::construct;
@@ -170,7 +175,7 @@ TEST_CASE ( "toc", "[metadata]" )
 }
 
 
-TEST_CASE ( "ToC", "[metadata]" )
+TEST_CASE ( "ToC", "[toc] [meta]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::ToC;
@@ -241,10 +246,7 @@ TEST_CASE ( "ToC", "[metadata]" )
 }
 
 
-// AudioSize
-
-
-TEST_CASE ( "AudioSize", "[calculate] [audiosize]" )
+TEST_CASE ( "AudioSize", "[audiosize] [meta]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;

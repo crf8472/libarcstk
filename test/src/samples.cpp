@@ -10,15 +10,15 @@
 #include "samples.hpp"            // TO BE TESTED
 #endif
 
-#include <algorithm>              // for max
 #include <cstdint>                // for int16_t, uint8_t, uint32_t, int32_t,...
-#include <fstream>                // for ifstream,...
-#include <iterator>               // for istreambuf_iterator, operator!=
+#include <fstream>                // for ifstream, istreambuf_iterator
+#include <iterator>               // for begin, end, next, prev
+#include <utility>                // for move
 #include <vector>                 // for vector
 
 
 TEST_CASE ( "SampleSequence allows int16_t and int32_t",
-		"[samplesequence] [construction]" )
+		"[samplesequence] [calc]" )
 {
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;
@@ -31,7 +31,7 @@ TEST_CASE ( "SampleSequence allows int16_t and int32_t",
 
 
 TEST_CASE ( "SampleSequence index access works correctly",
-		"[samplesequence] [subscript]" )
+		"[samplesequence] [calc]" )
 {
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;
@@ -968,7 +968,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 
 TEST_CASE ( "SampleIterator increment and decrement",
-		"[samplesequence] [iterator]" )
+		"[sampleiterator] [calc]" )
 {
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;

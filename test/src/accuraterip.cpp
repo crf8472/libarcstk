@@ -20,11 +20,12 @@
 #include "metadata.hpp"           // for AudioSize
 #endif
 
-#include <fstream>                // for ifstream, operator|, ios_base::failure
+#include <fstream>                // for ifstream
+#include <unordered_set>          // for unordered_set
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "Updating ARCS v1+v2", "[update]" )
+TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
