@@ -469,6 +469,15 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
  */
 std::string to_string(const AudioSize& a);
 
+
+/**
+ * \brief Empty AudioSize.
+ *
+ * Not necessary to create it again in your code.
+ */
+extern const AudioSize EmptyAudioSize;
+
+
 /**
  * \brief Convert an AudioSize to the specified UNIT.
  *

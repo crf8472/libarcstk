@@ -271,6 +271,9 @@ std::string to_string(const AudioSize& s)
 }
 
 
+const AudioSize EmptyAudioSize { 0, UNIT::BYTES };
+
+
 // ToCData
 
 
