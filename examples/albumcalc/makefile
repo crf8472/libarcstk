@@ -5,9 +5,9 @@ CXX     := g++
 CFLAGS  := -std=c++14 -Wall -Wextra -pedantic
 LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 ## We force to use libarcstk.so from build tree. Check this with
-## $ ldd arparse | grep arcs
+## $ ldd albumcalc | grep arcs
 ## or
-## $ readelf -d arparse | head -20
+## $ readelf -d albumcalc | head -20
 ## and look for the value of RPATH.
 
 PROJECT := albumcalc
