@@ -1,4 +1,4 @@
-# Toolkit to calculate and verify AccurateRip checksums and ids
+# Calculate and verify AccurateRip checksums and ids
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)

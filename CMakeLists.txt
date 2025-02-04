@@ -15,7 +15,7 @@ get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 ## --- Setup Version Information
 
 set (PROJECT_BRIEF_DESC
-	"Toolkit to calculate and verify AccurateRip checksums and ids" )
+	"Calculate and verify AccurateRip checksums and ids" )
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
