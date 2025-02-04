@@ -10,9 +10,6 @@
 #ifndef __LIBARCSTK_METADATA_DETAILS_HPP__
 #include "metadata_details.hpp"
 #endif
-#ifndef __LIBARCSTK_METADATA_CONV_HPP__
-#include "metadata_conv.hpp"
-#endif
 
 #include <algorithm>     // for for_each, transform
 #include <iterator>      // for begin, cbegin, cend, end
@@ -29,60 +26,14 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-
 // metadata_details.hpp
 
 
 namespace details
 {
 
-int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
-{
-	switch (unit) // TODO template?
-	{
-		//case UNIT::FRAMES:  return frames2bytes(value);
-		//case UNIT::SAMPLES: return samples2bytes(value);
-		case UNIT::FRAMES:  return convert<UNIT::FRAMES,  UNIT::BYTES>(value);
-		case UNIT::SAMPLES: return convert<UNIT::SAMPLES, UNIT::BYTES>(value);
-		default:            return value;
-	}
-
-	return value;
-}
-
-
-int32_t convert_from_bytes(const int32_t value, const UNIT unit) noexcept
-{
-	switch (unit) // TODO template?
-	{
-		//case UNIT::FRAMES:  return bytes2frames(value);
-		//case UNIT::SAMPLES: return bytes2samples(value);
-		case UNIT::FRAMES:  return convert<UNIT::BYTES, UNIT::FRAMES>(value);
-		case UNIT::SAMPLES: return convert<UNIT::BYTES, UNIT::SAMPLES>(value);
-		default:            return value;
-	}
-
-	return value;
-}
-
-
 namespace validate
 {
-
-/**
- * \brief Worker to throw when ToCData validation fails.
- *
- * \param[in] msg Error message
- *
- * \throws std::invalid_argument
- */
-void throw_on_invalid_tocdata(const std::string& msg);
-
-void throw_on_invalid_tocdata(const std::string& msg)
-{
-	throw std::invalid_argument(msg);
-}
-
 
 void is_legal_offset(const int32_t offset)
 {
@@ -200,7 +151,29 @@ void validate_lengths(const ToCData& toc_data)
 	);
 }
 
+void throw_on_invalid_tocdata(const std::string& msg)
+{
+	throw std::invalid_argument(msg);
+}
+
 } // namespace validate
+
+
+// metadata_conv.hpp
+
+
+int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
+{
+	switch (unit)
+	{
+		case UNIT::FRAMES:  return convert<UNIT::FRAMES,  UNIT::BYTES>(value);
+		case UNIT::SAMPLES: return convert<UNIT::SAMPLES, UNIT::BYTES>(value);
+		default:            return value;
+	}
+
+	return value;
+}
+
 } // namespace details
 
 
@@ -226,37 +199,37 @@ AudioSize::AudioSize(const int32_t value, const UNIT unit) noexcept
 
 int32_t AudioSize::frames() const noexcept
 {
-	return details::convert<UNIT::BYTES, UNIT::FRAMES>(total_pcm_bytes_);
+	return convert<UNIT::BYTES, UNIT::FRAMES>(total_pcm_bytes_);
 }
 
 
 void AudioSize::set_frames(const int32_t frames) noexcept
 {
-	total_pcm_bytes_ = details::convert<UNIT::FRAMES, UNIT::BYTES>(frames);
+	total_pcm_bytes_ = convert<UNIT::FRAMES, UNIT::BYTES>(frames);
 }
 
 
 int32_t AudioSize::samples() const noexcept
 {
-	return details::convert<UNIT::BYTES, UNIT::SAMPLES>(total_pcm_bytes_);
+	return convert<UNIT::BYTES, UNIT::SAMPLES>(total_pcm_bytes_);
 }
 
 
 void AudioSize::set_samples(const int32_t samples) noexcept
 {
-	total_pcm_bytes_ = details::convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
+	total_pcm_bytes_ = convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
 }
 
 
 int32_t AudioSize::bytes() const noexcept
 {
-	return details::convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
+	return convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
 }
 
 
 void AudioSize::set_bytes(const int32_t bytes) noexcept
 {
-	total_pcm_bytes_ = details::convert<UNIT::BYTES, UNIT::BYTES>(bytes);
+	total_pcm_bytes_ = convert<UNIT::BYTES, UNIT::BYTES>(bytes);
 }
 
 
@@ -265,29 +238,6 @@ bool AudioSize::zero() const noexcept
 	return 0 == bytes();
 }
 
-/*
-int32_t AudioSize::max(const UNIT unit) noexcept
-{
-	static constexpr int32_t error_value { 0 };
-
-	switch (unit)
-	{
-		case UNIT::FRAMES:
-			return CDDA::MAX_BLOCK_ADDRESS;
-
-		case UNIT::SAMPLES:
-			return CDDA::MAX_BLOCK_ADDRESS * CDDA::SAMPLES_PER_FRAME;
-
-		case UNIT::BYTES:
-			return CDDA::MAX_BLOCK_ADDRESS * CDDA::BYTES_PER_FRAME;
-
-		default:
-			return error_value;
-	}
-
-	return error_value;
-}
-*/
 
 AudioSize::operator bool() const noexcept
 {

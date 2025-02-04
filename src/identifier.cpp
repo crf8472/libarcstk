@@ -14,9 +14,6 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
-#ifndef __LIBARCSTK_METADATA_CONV_HPP__
-#include "metadata_conv.hpp" // for convert
-#endif
 
 #include <cstdint>           // for int32_t, uint32_t, uint64_t
 #include <iomanip>           // for operator<<, setw, setfill
@@ -472,7 +469,7 @@ std::string to_string(const ARId& id) noexcept
 std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout)
 {
-	const auto offset_frames { details::convert<UNIT::FRAMES>(offsets) };
+	const auto offset_frames { convert<UNIT::FRAMES>(offsets) };
 	const auto leadout_frame { leadout.frames() };
 
 	return details::make_arid(offset_frames, leadout_frame);
@@ -481,14 +478,14 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 
 std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
 {
-	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
+	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
 			leadout.frames());
 }
 
 
 std::unique_ptr<ARId> make_arid(const ToC& toc)
 {
-	return details::make_arid( details::convert<UNIT::FRAMES>(toc.offsets()),
+	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
 			toc.leadout().frames());
 }
 

@@ -30,6 +30,49 @@ TEST_CASE ( "Units", "[meta]" )
 }
 
 
+TEST_CASE ( "convert<>()", "[convert] [meta]" )
+{
+	using arcstk::AudioSize;
+	using arcstk::convert;
+	using arcstk::UNIT;
+
+	// 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+	//	157863, 198495, 213368, 225320, 234103
+
+	SECTION ( "converts frames to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::BYTES>(5225) == 12289200 );
+	}
+
+	SECTION ( "converts frames to samples correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::SAMPLES>(  5225) ==   3072300 );
+		CHECK ( convert<UNIT::FRAMES, UNIT::SAMPLES>(253038) == 148786344 );
+	}
+
+	SECTION ( "converts bytes to frames correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::FRAMES>(12289200) == 5225 );
+	}
+
+	SECTION ( "converts bytes to samples correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::SAMPLES>(12289200) == 3072300 );
+	}
+
+	SECTION ( "converts samples to frames correctly" )
+	{
+		CHECK ( convert<UNIT::SAMPLES, UNIT::FRAMES>(  3072300) ==   5225 );
+		CHECK ( convert<UNIT::SAMPLES, UNIT::FRAMES>(148786344) == 253038 );
+	}
+
+	SECTION ( "converts samples to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::SAMPLES, UNIT::BYTES>(3072300) == 12289200 );
+	}
+}
+
+
 TEST_CASE ( "ToCData", "[tocdata] [meta]" )
 {
 	using arcstk::AudioSize;

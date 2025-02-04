@@ -20,9 +20,6 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, ToC, CDDA
 #endif
-#ifndef __LIBARCSTK_METADATA_CONV_HPP__
-#include "metadata_conv.hpp" // for convert
-#endif
 
 #include <algorithm>   // for min, max
 #include <cstdint>     // for int32_t, uint16_t
@@ -52,7 +49,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 
 	const auto real_lower { std::max(legal.lower(), interval.lower()) };
 	const auto real_upper { std::min(legal.upper(), interval.upper()) };
-	const auto points     { details::convert<UNIT::SAMPLES>(opoints)  };
+	const auto points     { convert<UNIT::SAMPLES>(opoints)  };
 
 	// Both, real_lower and real_upper lie in segments between two of points[].
 	// Identify those segments.

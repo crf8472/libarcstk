@@ -28,61 +28,6 @@ namespace details
 {
 
 /**
- * \brief Convert amount of frames to the equivalent amount of samples.
- *
- * \param[in] frames Amount of frames to convert
- *
- * \return Amount of samples equivalent to \c frames
- */
-//int32_t frames2samples(const int32_t frames);
-
-/**
- * \brief Convert amount of samples to the equivalent amount of frames.
- *
- * \param[in] samples Amount of samples to convert
- *
- * \return Amount of frames equivalent to \c samples
- */
-//int32_t samples2frames(const int32_t samples);
-
-/**
- * \brief Convert amount of frames to the equivalent amount of bytes.
- *
- * \param[in] frames Amount of frames to convert
- *
- * \return Amount of bytes equivalent to \c frames
- */
-//int32_t frames2bytes(const int32_t frames);
-
-/**
- * \brief Convert amount of bytes to the equivalent amount of frames.
- *
- * \param[in] bytes Amount of bytes to convert
- *
- * \return Amount of frames equivalent to \c bytes
- */
-//int32_t bytes2frames(const int32_t bytes);
-
-/**
- * \brief Convert amount of samples to the equivalent amount of bytes.
- *
- * \param[in] samples Amount of samples to convert
- *
- * \return Amount of bytes equivalent to \c samples
- */
-//int32_t samples2bytes(const int32_t samples);
-
-/**
- * \brief Convert amount of bytes to the equivalent amount of samples.
- *
- * \param[in] bytes Amount of bytes to convert
- *
- * \return Amount of samples equivalent to \c bytes
- */
-//int32_t bytes2samples(const int32_t bytes);
-
-
-/**
  * \brief Convert \c value to the corrsponding number of bytes.
  *
  * \param[in] value Value to convert
@@ -93,16 +38,8 @@ namespace details
 int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 
 /**
- * \brief Convert \c bytes to the specified \c unit.
- *
- * \param[in] bytes Amount of bytes
- * \param[in] unit  Unit to convert to
- *
- * \return The equivalent value in the specified unit
+ * \brief Validations for ToCData.
  */
-int32_t convert_from_bytes(const int32_t bytes, const UNIT unit) noexcept;
-
-
 namespace validate
 {
 
@@ -161,9 +98,18 @@ void validate_offsets(const ToCData& toc_data);
  */
 void validate_lengths(const ToCData& toc_data);
 
-}
+/**
+ * \brief Worker to throw when ToCData validation fails.
+ *
+ * \param[in] msg Error message
+ *
+ * \throws std::invalid_argument
+ */
+void throw_on_invalid_tocdata(const std::string& msg);
 
-} //namespace details
+} // namespace validate
+} // namespace details
+
 } // namespace v_1_0_0
 } // namespace arcstk
 

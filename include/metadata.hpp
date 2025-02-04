@@ -10,10 +10,12 @@
 #include "policies.hpp"   // for Comparable, TotallyOrdered
 #endif
 
+#include <algorithm>      // for transform
 #include <cstdint>        // for uint32_t, int32_t
 #include <memory>         // for unique_ptr
 #include <stdexcept>      // for invalid_argument
 #include <string>         // for string
+#include <type_traits>    // for underlying_type
 #include <vector>         // for vector
 
 namespace arcstk
@@ -190,9 +192,165 @@ inline constexpr int32_t cdda_max<UNIT::BYTES>() noexcept
 
 /**
  * \brief Maximum value for the specified UNIT according to CDDA.
+ *
+ * \tparam U The UNIT the determine the maximum legal CDDA value of
  */
 template <enum UNIT U>
 constexpr int32_t cdda_max { details::cdda_max<U>() };
+
+
+/**
+ * \internal
+ *
+ * \brief Conversion operations
+ */
+namespace conv
+{
+
+/**
+ * \internal
+ *
+ * \brief Return the numeric value of a enum class value.
+ *
+ * \param[in] value Value to convert
+ *
+ * \tparam E The type to convert
+ *
+ * \return The integral value of an enum
+ */
+template <typename E>
+constexpr auto as_integral_value(const E& value)
+	-> typename std::underlying_type<E>::type
+{
+	return static_cast<typename std::underlying_type<E>::type>(value);
+}
+
+
+// Implement the conversion of different UNITs as follows:
+
+// FRAMES  -> SAMPLES: x * SAMPLES   multiply by bigger type iff one type is 1
+// FRAMES  -> BYTES  : x * BYTES     multiply by bigger type iff one type is 1
+// SAMPLES -> FRAMES : x \ SAMPLES   divide by bigger type iff one type is 1
+// SAMPLES -> BYTES  : x * (BYTES \ SAMPLES)
+// BYTES   -> FRAMES : x \ BYTES     divide by bigger type iff one type is 1
+// BYTES   -> SAMPLES: x \ (BYTES \ SAMPLES)
+
+// We therefore require:
+// - UNITS per frame: per_frame<>()
+// - select factor: (1) bigger type or (2) division of bigger by smaller type
+// - determine whether at least one of the two UNITS is FRAMES
+
+/**
+ * \brief Determine total number of units per frame.
+ *
+ * \tparam E
+ */
+template <typename E>
+constexpr auto per_frame(const E& value)
+	-> typename std::underlying_type<E>::type
+{
+	return as_integral_value(value);
+}
+
+
+/**
+ * \brief Implement factor selection for conversion.
+ *
+ * \tparam F The UNIT to convert from
+ * \tparam T The UNIT to convert to
+ * \tparam B Determine which factor implementation to select
+ */
+template <enum UNIT F, enum UNIT T, bool B>
+struct factor_impl
+{
+	// empty
+};
+
+// partial specializations
+
+template <enum UNIT F, enum UNIT T>
+struct factor_impl<F, T, true>
+{
+	// if true: use "bigger" type as factor
+	static constexpr int value()
+	{
+		return std::max(per_frame(F), per_frame(T));
+	}
+};
+
+template <enum UNIT F, enum UNIT T>
+struct factor_impl<F, T, false>
+{
+	static constexpr int value()
+	{
+		// if false: use "bigger" type divided by "smaller" type as factor
+		return std::max(per_frame(F), per_frame(T)) /
+			std::min(per_frame(F), per_frame(T));
+	}
+};
+
+
+/**
+ * \brief Determine factor to multiply or divide by when converting F to T.
+ *
+ * \tparam F The UNIT to convert from
+ * \tparam T The UNIT to convert to
+ *
+ * \return Factor to multiply or divide by on conversion
+ */
+template <enum UNIT F, enum UNIT T>
+constexpr auto factor() -> int
+{
+	return factor_impl<F, T, per_frame(F) == 1 || per_frame(T) == 1>::value();
+}
+
+
+/**
+ * \brief Determine whether to multiply or divide when converting.
+ *
+ * \tparam B Iff TRUE perform multiplication, otherwise perform division
+ */
+template <bool>
+constexpr auto op(const int32_t value, const int32_t factor) -> int32_t;
+
+// full specialization
+
+template <>
+constexpr auto op<true>(const int32_t value, const int32_t factor) -> int32_t
+{
+	return value * factor;
+};
+
+template <>
+constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
+{
+	return value / factor;
+};
+
+} // namespace conv
+
+
+/**
+ * \brief Convert from UNIT F to UNIT T.
+ *
+ * Convert an amount auf UNIT F to the equivalent amount of UNIT T.
+ *
+ * \param[in] amount The amount to convert
+ *
+ * \tparam F The UNIT of \c amount to be converted
+ * \tparam T The UNIT to convert to
+ *
+ * \return The equivalent amount in UNIT T
+ */
+template <enum UNIT F, enum UNIT T>
+constexpr auto convert(const int32_t amount) -> int32_t
+{
+	using conv::op;
+	using conv::factor;
+	using conv::per_frame;
+
+	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
+}
 
 
 /**
@@ -302,6 +460,65 @@ bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
  * \param[in] a The instance to convert to a string
  */
 std::string to_string(const AudioSize& a);
+
+/**
+ * \brief Convert an AudioSize to the specified UNIT.
+ *
+ * \param[in] v The object to convert
+ *
+ * \tparam U The UNIT to convert to
+ *
+ * \return Value of the specified unit
+ */
+template <enum UNIT U>
+int32_t convert_to(const AudioSize& v);
+
+// full specializations
+
+template <>
+inline int32_t convert_to<UNIT::FRAMES>(const AudioSize& v)
+{
+	return v.frames();
+}
+
+template <>
+inline int32_t convert_to<UNIT::SAMPLES>(const AudioSize& v)
+{
+	return v.samples();
+}
+
+template <>
+inline int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
+{
+	return v.bytes();
+}
+
+/**
+ * \brief Convert a vector of AudioSize instances to the specified UNIT.
+ *
+ * \param[in] values The values to convert
+ *
+ * \tparam U The UNIT to convert to
+ *
+ * \return Converted values of the specified unit
+ */
+template <enum UNIT U>
+inline std::vector<int32_t> convert(const std::vector<AudioSize>& values)
+{
+	auto integers { std::vector<int32_t>(values.size()) };
+
+	using std::cbegin;
+	using std::cend;
+	using std::begin;
+
+	std::transform(cbegin(values), cend(values), begin(integers),
+			[](const AudioSize& a) -> int32_t
+			{
+				return convert_to<U>(a);
+			});
+
+	return integers;
+}
 
 
 /**
