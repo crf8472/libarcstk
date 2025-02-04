@@ -28,6 +28,8 @@ namespace details
 {
 
 /**
+ * \internal
+ *
  * \brief Convert \c value to the corrsponding number of bytes.
  *
  * \param[in] value Value to convert
@@ -38,12 +40,16 @@ namespace details
 int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 
 /**
+ * \internal
+ *
  * \brief Validations for ToCData.
  */
 namespace validate
 {
 
 /**
+ * \internal
+ *
  * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
  * frames).
  *
@@ -52,6 +58,8 @@ namespace validate
 static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 
 /**
+ * \internal
+ *
  * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
  * frames).
  *
@@ -60,6 +68,8 @@ static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 
 /**
+ * \internal
+ *
  * \brief Worker to validate LBA frame offset for being in legal range.
  *
  * \param[in] frames LBA frame amount to validate
@@ -69,6 +79,8 @@ static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 void is_legal_offset(const int32_t offset);
 
 /**
+ * \internal
+ *
  * \brief Worker to validate track length in frames for being of legal size.
  *
  * \param[in] length Track length in LBA frames to validate
@@ -78,6 +90,8 @@ void is_legal_offset(const int32_t offset);
 void is_legal_length(const int32_t length);
 
 /**
+ * \internal
+ *
  * \brief Validate leadout.
  *
  * \param[in] toc_data ToCData to validate
@@ -85,6 +99,8 @@ void is_legal_length(const int32_t length);
 void validate_leadout(const ToCData& toc_data);
 
 /**
+ * \internal
+ *
  * \brief Validate all offsets.
  *
  * \param[in] toc_data ToCData to validate
@@ -92,6 +108,8 @@ void validate_leadout(const ToCData& toc_data);
 void validate_offsets(const ToCData& toc_data);
 
 /**
+ * \internal
+ *
  * \brief Validate all lengths.
  *
  * \param[in] toc_data ToCData to validate
@@ -99,6 +117,8 @@ void validate_offsets(const ToCData& toc_data);
 void validate_lengths(const ToCData& toc_data);
 
 /**
+ * \internal
+ *
  * \brief Worker to throw when ToCData validation fails.
  *
  * \param[in] msg Error message
