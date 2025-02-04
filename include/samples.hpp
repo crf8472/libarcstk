@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Public API for representing unconverted sequences of samples.
+ * \brief Represent and manage unconverted sequences of samples.
  */
 
 #include <array>                // for array
@@ -27,6 +27,7 @@ inline namespace v_1_0_0
 
 /**
  * \internal
+ *
  * \brief Type to represent a 32 bit PCM stereo sample.
  *
  * This type must be defined assignable-to arcstk::sample_t. It has therefore
@@ -44,10 +45,10 @@ using sample_type = uint32_t;
  *
  * Calculation expects an update represented by two
  * iterators that enumerate the audio input as a sequence of 32 bit unsigned
- * integers of which each represents a pair 16-bit stereo PCM samples.
+ * integers of which each represents a pair of 16-bit stereo PCM samples.
  * SampleSequence is a read-only compatibility wrapper for passing sample
  * buffers of an integral sample format with 16 or 32 bit width to
- * Calculation::update() in this expected update format.
+ * Calculation::update() in the appropriate update format.
  *
  * The use of a SampleSequence for providing the updates is optional, the caller
  * may decide to provide the required sample format completely without using
@@ -91,13 +92,17 @@ using sample_type = uint32_t;
  * \see InterleavedSamples
  */
 template <typename T, bool is_planar>
-class SampleSequence;
+class SampleSequence
+{
+	// empty
+};
 
 namespace details
 {
 
 /**
  * \internal
+ *
  * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
  */
 template <typename T>
@@ -110,6 +115,7 @@ using IsSampleType = std::enable_if_t<
 
 /**
  * \internal
+ *
  * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
@@ -126,6 +132,7 @@ class SampleSequenceImplBase; // IWYU pragma keep
 
 /**
  * \internal
+ *
  * \brief A \c bidirectional_iterator for samples in SampleSequence instances.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
@@ -428,6 +435,7 @@ namespace details
 
 /**
  * \internal
+ *
  * \brief Abstract base class for SampleSequences.
  *
  * \details
@@ -748,6 +756,7 @@ private:
 
 /**
  * \internal
+ *
  * \brief A planar sequence of samples.
  *
  * \details
@@ -1022,6 +1031,7 @@ private:
 
 /**
  * \internal
+ *
  * \brief An interleaved sequence of samples.
  *
  * This class is intended to be used by its alias InterleavedSamples<T>.

@@ -148,7 +148,8 @@ const Checksums EmptyChecksums { Checksums{/* empty */} };
 
 namespace checksum
 {
-/// \internal \addtogroup calcImpl
+
+/// \internal \addtogroup calc
 /// @{
 
 /**
@@ -191,7 +192,7 @@ void print_hex(const Checksum& checksum, const bool upper,
 
 } // namespace checksum::details
 
-/** @} */    /* group calcImpl ends here */
+/** @} */
 
 /**
  * \brief Return the name of a checksum::type.

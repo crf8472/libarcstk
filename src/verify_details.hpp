@@ -33,6 +33,12 @@ inline namespace v_1_0_0
 
 class ARId;
 
+/**
+ * \addtogroup verify
+ *
+ * @{
+ */
+
 namespace details
 {
 
@@ -1152,6 +1158,8 @@ public:
 	 */
 	~Impl() noexcept = default;
 };
+
+/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk

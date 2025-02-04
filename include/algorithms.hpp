@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Concrete algorithms for calculating checksums.
+ * \brief Algorithms for calculating AccurateRip checksums.
  */
 
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
@@ -14,12 +14,25 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
+/** \addtogroup calc */
+/** @{ */
 
-// AccurateRip algorithms
-
+/**
+ * \brief AccurateRip checksum algorithm version 1.
+ */
 using AccurateRipV1   = accuraterip::V1;
+
+/**
+ * \brief AccurateRip checksum algorithm version 2.
+ */
 using AccurateRipV2   = accuraterip::V2;
+
+/**
+ * \brief AccurateRip checksum algorithm version 2 providing also version 1.
+ */
 using AccurateRipV1V2 = accuraterip::V1and2;
+
+/** @} */ // group calc
 
 } // namespace v_1_0_0
 } // namespace arcstk

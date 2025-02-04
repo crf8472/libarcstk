@@ -716,7 +716,6 @@ public:
 	~TracksetVerifier() noexcept;
 };
 
-
 /** @} */
 
 } // namespace v_1_0_0

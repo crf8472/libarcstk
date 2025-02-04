@@ -144,13 +144,15 @@ std::string to_string(const Checksum& c);
 
 
 /**
- * \brief Everything regarding operation with Checksums.
+ * \brief Operations on checksum types and their names.
  */
 namespace checksum
 {
 
 /**
  * \brief Pre-defined checksum types.
+ *
+ * ARCS1 is AccurateRip v1 and ARCS2 is AccurateRip v2.
  */
 enum class type : unsigned int
 {
@@ -441,7 +443,7 @@ public:
 };
 
 /**
- * \brief List of ChecksumSets.
+ * \brief A list of ChecksumSets.
  *
  * Each ChecksumSet represents a track an the order of the ChecksumSets follows
  * the order of tracks on the original compact disc.

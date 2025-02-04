@@ -1,9 +1,11 @@
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #define __LIBARCSTK_ACCURATERIP_HPP__
 /**
+ * \internal
+ *
  * \file
  *
- * \brief AccurateRip Checksum specific implementations.
+ * \brief AccurateRip specific implementations.
  */
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
@@ -34,6 +36,7 @@ namespace accuraterip
 
 /**
  * \internal
+ *
  * Implementation details of libarcstk API v1.0.0.
  */
 namespace details
@@ -45,6 +48,7 @@ namespace details
 
 /**
  * \internal
+ *
  * \brief Number of samples to be skipped before the end of the last track.
  *
  * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
@@ -55,6 +59,7 @@ constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
 /**
  * \internal
+ *
  * \brief Number of samples to be skipped after the start of the first track.
  *
  * There are 5 frames - 1 sample to be skipped, i.e.
@@ -64,7 +69,9 @@ constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
 
 
 /**
- * \brief Interface for updating a calculation state holding subtotals.
+ * \internal
+ *
+ * \brief Interface and base class for updatable subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class UpdatableBase
@@ -142,7 +149,9 @@ public:
 
 
 /**
- * \brief Abstract base class for public member functions for Updatables.
+ * \internal
+ *
+ * \brief Public interface for subclasses of Updatable.
  */
 class UpdatableAPI
 {
@@ -172,6 +181,8 @@ public:
 
 
 /**
+ * \internal
+ *
  * \brief Updatable state of subtotals.
  *
  * Default implementation is empty.
@@ -265,7 +276,9 @@ public:
 
 
 /**
- * \brief Implement AccurateRip algorithm variants.
+ * \internal
+ *
+ * \brief AccurateRip algorithm variants.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class ARCSAlgorithm final : public Algorithm
@@ -352,7 +365,7 @@ using V2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
  * \brief AccurateRip v2 algorithm implementation that also provides v1.
  */
 using V1and2 =
-	details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
+	details::ARCSAlgorithm<checksum::type::ARCS1, checksum::type::ARCS2>;
 
 } // namespace accuraterip
 

@@ -42,7 +42,7 @@ class AudioSize;
 class ToC;
 
 
-/** \defgroup calc Checksum calculation
+/** \defgroup calc AccurateRip Checksum Calculation
  *
  * \brief Calculate checksums of audio tracks.
  *
@@ -71,7 +71,8 @@ class ToC;
  * two instances of SampleInputIterator that represent start and stop of the
  * update. SampleInputIterator is a wrapper iterator for any iterator with a
  * <tt>value_type</tt> of <tt>sample_t</tt>, the declared type for PCM 32 bit
- * samples.
+ * samples. Using a SampleSequence may be of convenience for establishing
+ * compatibility of the sample input format.
  *
  * When a Calculation is complete() its result can be requested. The result are
  * Checksums which represent the result for all requested checksum types and
@@ -91,13 +92,13 @@ class ToC;
  */
 
 /**
- * \brief Type to represent a 32 bit PCM stereo sample.
+ * \brief Represent a 32 bit wide PCM stereo sample.
  *
- * An unsigned integer of 32 bit length.
+ * An unsigned integer of exact 32 bit length.
  *
  * The type is not intended to do arithmetic operations on it.
  *
- * Bitwise operators are required to work as on unsigned types.
+ * Bitwise operators are guaranteed to work as on unsigned types.
  */
 using sample_t = uint32_t;
 
@@ -467,7 +468,7 @@ private:
 
 
 /**
- * \brief Context represents what is to be relevant for calculation process.
+ * \brief Represent what is to be relevant for calculation process.
  *
  * AccurateRip algorithm contain different restrictions for calculating the
  * checksums of the the first and last track of an album. Thus, the information
@@ -561,13 +562,15 @@ private:
 /**
  * \brief Set of checksum types.
  *
- * The set is iterable and duplicate-free.
+ * Guaranteed to be iterable and duplicate-free.
  */
 using ChecksumtypeSet = std::unordered_set<checksum::type>;
 
 
 /**
  * \brief List of split points within a range of samples.
+ *
+ * Guaranteed to be forward iterable and have operator [].
  */
 using Points = std::vector<AudioSize>;
 
@@ -577,6 +580,15 @@ using Points = std::vector<AudioSize>;
 
 /**
  * \brief Interface: Checksum calculation algorithm.
+ *
+ * Algorithm instances hold the concrete subtotals. An Algorithm can be updated
+ * with new input by the caller and provides the result after the last update.
+ * The calculation of tracks is to be finished manually by calling
+ * track_finished().
+ *
+ * The caller is required to instantiate and setup an Algorithm. However,
+ * it should usually not be required to use an Algorithm directly. This is
+ * performed via a Calculation.
  */
 class Algorithm
 {
@@ -663,6 +675,11 @@ public:
 
 protected:
 
+	/**
+	 * \brief Implementation of swap for the base class.
+	 *
+	 * This is to be called by swap() implementations for subclasses.
+	 */
 	void base_swap(Algorithm& rhs);
 
 private:
@@ -699,27 +716,33 @@ private:
 
 
 /**
- * \brief Calculates checksums.
+ * \brief Perform checksums calculation.
  *
- * A Calculation represents a concrete checksum calculation that must be
- * initialized with the specific ToC information and size of the input audio
- * file and an Algorithm that defines the type of the checksums. Additionally,
- * some Settings can be specified. The currently only supported Setting is the
- * Context.
+ * A Calculation represents a concrete checksum calculation process. It is
+ * manually performed by the caller by calling update().
+ *
+ * Calculation instances must be initialized with the specific size of the input
+ * audio file and an Algorithm that defines the type of the checksums. If
+ * multiple tracks e.g. an entire disc content is to be processed, the ToC
+ * information of the disc is required. Additionally, a Settings instance can be
+ * specified. Currently, the only supported Settings attribute is Context.
  *
  * The input of the audio file must be represented as a succession of iterable
- * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink
- * and the Calculation is sequentially updated with these sequences in
- * order. After the last update, the Calculation returns the calculation result
- * on request. The calculated Checksums are represented as an iterable aggregate
- * of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink and the
+ * Calculation is to be sequentially updated with these sequences in order.
+ * After the last update, the Calculation returns the calculation result on
+ * request. The calculated Checksums are represented as an iterable aggregate of
+ * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ *
+ * \see make_calculation
  */
 class Calculation final
 {
+
 public:
 
 	/**
-	 * \brief Create a calculation instance.
+	 * \brief Constructor.
 	 *
 	 * If <tt>size.zero()</tt>, then first <tt>update()</tt> will throw.
 	 *
@@ -863,7 +886,7 @@ public:
 	void update(SampleInputIterator start, SampleInputIterator stop);
 
 	/**
-	 * \brief Updates the instance with a new AudioSize.
+	 * \brief Update the instance with a new AudioSize.
 	 *
 	 * This can be done safely at any time before the last call of update().
 	 *
@@ -886,10 +909,10 @@ private:
 
 
 /**
- * \brief Create a calculation from an Algorithm and a ToC.
+ * \brief Create a Calculation from an Algorithm and a ToC.
  *
  * If the ToC is not complete, the Calculation must be updated with the correct
- * total number of input samples before updating starts.
+ * total number of input samples before calling Calculation::update().
  *
  * \param[in] algorithm The algorithm to use for calculating
  * \param[in] toc       Complete ToC to perform calculation for
