@@ -30,6 +30,13 @@ TEST_CASE ( "Units", "[meta]" )
 }
 
 
+// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
+// 		CDDA::MAX_OFFSET + 1, UNIT::FRAMES };
+//
+// 	const auto size_too_small = AudioSize { // smaller than allowed MIN
+// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, UNIT::FRAMES };
+
+
 TEST_CASE ( "convert<>()", "[convert] [meta]" )
 {
 	using arcstk::AudioSize;
@@ -628,6 +635,44 @@ TEST_CASE ( "toc::get_filenames", "[identifier]" )
 		auto fnames = get_filenames(*toc0);
 
 		CHECK ( fnames.size() == 15 );
+	}
+}
+*/
+
+/*
+TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
+{
+	using arcstk::make_toc;
+
+	const auto toc = make_toc(
+		// leadout
+		253038,
+		// offsets
+		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 }
+	);
+
+	SECTION ( "is correct" )
+	{
+		const auto points = arcstk::details::get_offset_sample_indices(*toc);
+
+		CHECK ( points.size() == 15 );
+
+		CHECK ( points[ 0] ==     19404 );
+		CHECK ( points[ 1] ==   3072300 );
+		CHECK ( points[ 2] ==   4345320 );
+		CHECK ( points[ 3] ==  13747440 );
+		CHECK ( points[ 4] ==  20937504 );
+		CHECK ( points[ 5] ==  29294160 );
+		CHECK ( points[ 6] ==  40870704 );
+		CHECK ( points[ 7] ==  51587004 );
+		CHECK ( points[ 8] ==  62523804 );
+		CHECK ( points[ 9] ==  82023060 );
+		CHECK ( points[10] ==  92823444 );
+		CHECK ( points[11] == 116715060 );
+		CHECK ( points[12] == 125460384 );
+		CHECK ( points[13] == 132488160 );
+		CHECK ( points[14] == 137652564 );
 	}
 }
 */

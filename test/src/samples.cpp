@@ -307,7 +307,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( index2 == 256 );
 	}
 
-	SECTION ("Subscript in32_t interleaved sequence")
+	SECTION ("Subscript int32_t interleaved sequence")
 	{
 		InterleavedSamples<int32_t> sequence;
 
@@ -396,7 +396,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[127] == 0xDD6DABA8 );
 	}
 
-	SECTION ("Iteration and Subscript are equivalent for in32_t interleaved sequence")
+	SECTION ("Iteration and Subscript are equivalent for int32_t interleaved sequence")
 	{
 		InterleavedSamples<int32_t> sequence;
 
@@ -531,7 +531,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( index2 == 256 );
 	}
 
-	SECTION ("Subscript in32_t planar sequence")
+	SECTION ("Subscript int32_t planar sequence")
 	{
 		PlanarSamples<int32_t> sequence;
 
@@ -621,7 +621,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[127] == 0xDD6D28EF );
 	}
 
-	SECTION ("Iteration and Subscript are equivalent for in32_t planar sequence")
+	SECTION ("Iteration and Subscript are equivalent for int32_t planar sequence")
 	{
 		PlanarSamples<int32_t> sequence;
 
@@ -786,7 +786,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[255] == 0x157171F9 );
 	}
 
-	SECTION ("Subscript uin32_t interleaved sequence")
+	SECTION ("Subscript uint32_t interleaved sequence")
 	{
 		InterleavedSamples<uint32_t> sequence;
 
@@ -875,7 +875,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( sequence[127] == 0xDD6DABA8 );
 	}
 
-	SECTION ("Subscript uin32_t planar sequence")
+	SECTION ("Subscript uint32_t planar sequence")
 	{
 		PlanarSamples<uint32_t> sequence;
 

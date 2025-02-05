@@ -31,7 +31,10 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 		CHECK ( id.cddb_id()     == 0xbc55023f );
 
 		CHECK ( id.url()         ==
-				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/0/d/f/"
+				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
+
 		CHECK ( id.filename()    ==
 				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
 
@@ -99,7 +102,10 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 		CHECK ( copied_id.cddb_id()     == 0xbc55023f );
 
 		CHECK ( copied_id.url()         ==
-				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/0/d/f/"
+				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
+
 		CHECK ( copied_id.filename()    ==
 				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
 
@@ -120,7 +126,10 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 		CHECK ( id.cddb_id()     == 0xbc55023f );
 
 		CHECK ( id.url()         ==
-				"http://www.accuraterip.com/accuraterip/0/d/f/dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/0/d/f/"
+				"dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
+
 		CHECK ( id.filename()    ==
 				"dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
 
@@ -152,7 +161,10 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		CHECK ( id1->cddb_id()     == 0xb40d2d0f );
 
 		CHECK ( id1->url()         ==
-				"http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/8/7/1/"
+				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
+
 		CHECK ( id1->filename()    ==
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
@@ -178,7 +190,10 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		CHECK ( id2->cddb_id()     == 0x190dcc03 );
 
 		CHECK ( id2->url()         ==
-				"http://www.accuraterip.com/accuraterip/c/0/0/dBAR-003-0008100c-001ac008-190dcc03.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/c/0/0/"
+				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
+
 		CHECK ( id2->filename()    ==
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
@@ -198,14 +213,16 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 			210143
 		);
 
-
 		CHECK ( id3->track_count() == 9 );
 		CHECK ( id3->disc_id_1()   == 0x001008a6 );
 		CHECK ( id3->disc_id_2()   == 0x007469b8 );
 		CHECK ( id3->cddb_id()     == 0x870af109 );
 
 		CHECK ( id3->url()         ==
-				"http://www.accuraterip.com/accuraterip/6/a/8/dBAR-009-001008a6-007469b8-870af109.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/6/a/8/"
+				"dBAR-009-001008a6-007469b8-870af109.bin" );
+
 		CHECK ( id3->filename()    ==
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
@@ -233,7 +250,10 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		CHECK ( id4->cddb_id()     == 0x27114b12 );
 
 		CHECK ( id4->url()         ==
-				"http://www.accuraterip.com/accuraterip/8/7/c/dBAR-018-00307c78-0281351d-27114b12.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/8/7/c/"
+				"dBAR-018-00307c78-0281351d-27114b12.bin" );
+
 		CHECK ( id4->filename()    ==
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
@@ -259,7 +279,10 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		CHECK ( id5->cddb_id()     == 0x020c2901 );
 
 		CHECK ( id5->url()         ==
-				"http://www.accuraterip.com/accuraterip/d/2/0/dBAR-001-0003902d-00072039-020c2901.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/d/2/0/"
+				"dBAR-001-0003902d-00072039-020c2901.bin" );
+
 		CHECK ( id5->filename()    ==
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
@@ -281,7 +304,10 @@ TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
 		CHECK ( empty_id->cddb_id()     == 0x00000000 );
 
 		CHECK ( empty_id->url()         ==
-				"http://www.accuraterip.com/accuraterip/0/0/0/dBAR-000-00000000-00000000-00000000.bin" );
+				"http://www.accuraterip.com/accuraterip"
+				"/0/0/0/"
+				"dBAR-000-00000000-00000000-00000000.bin" );
+
 		CHECK ( empty_id->filename()    ==
 				"dBAR-000-00000000-00000000-00000000.bin" );
 

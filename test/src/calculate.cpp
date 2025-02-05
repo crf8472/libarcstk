@@ -27,12 +27,6 @@
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "Algorithm", "[algorithm] [calc]" )
-{
-	// TODO
-}
-
-
 TEST_CASE ( "Context", "[context] [calc]" )
 {
 	using arcstk::Context;
@@ -222,12 +216,6 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		CHECK ( calculations.capacity() == 5 );
 	}
-
-	// 	const auto size_too_big = AudioSize { // bigger than allowed MAX
-	// 		CDDA::MAX_OFFSET + 1, UNIT::FRAMES };
-	//
-	// 	const auto size_too_small = AudioSize { // smaller than allowed MIN
-	// 		CDDA::MIN_TRACK_LEN_FRAMES - 1, UNIT::FRAMES };
 
 
 	SECTION ("make_calculation() with complete ToC succeeds")

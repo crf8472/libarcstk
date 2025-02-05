@@ -17,7 +17,33 @@
 #include <stdexcept>              // for runtime_error
 #include <string>                 // for string
 
+/**
+ * \brief Complete test of possible input
+ *
+ * \details
+ *
+ * A parse error can only occurr if the input ends prematurely, e.g. if
+ * an input block, for any reason, is not 13 + (n * 9) bytes long (with n
+ * being the track number.
+ *
+ * 22 cases are tested:
+ *
+ * Header is 13 bytes long, hence there are 13 positions (after byte 1 - 13)
+ * for errors that are covered by the input files *H_01-H_013.
+ *
+ * Triplet is 9 bytes long, hence there are 9 different positions (before
+ * byte 1 and after byte 1 - 8) for errors that are covered by the input
+ * files *T_00-T_08.
 
+ * There is no easy or comfortable way in Catch2 to access the
+ * exception object thrown via its genuine interface. (However, you can
+ * access the "what" message via CHECK_THROWS_WITH).
+ *
+ * The following workaround addresses this by requiring an exception
+ * manually and catching the exception object.
+ *
+ * Confer: https://github.com/catchorg/Catch2/issues/394
+*/
 TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 {
 	using arcstk::details::parse_dbar_stream;
@@ -29,27 +55,6 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 
-	// A parse error can only occurr if the input ends prematurely, e.g. if
-	// an input block, for any reason, is not 13 + (n * 9) bytes long (with n
-	// being the track number.
-	//
-	// 22 cases are tested:
-	//
-	// Header is 13 bytes long, hence there are 13 positions (after byte 1 - 13)
-	// for errors that are covered by the input files *H_01-H_013.
-	//
-	// Triplet is 9 bytes long, hence there are 9 different positions (before
-	// byte 1 and after byte 1 - 8) for errors that are covered by the input
-	// files *T_00-T_08.
-
-	// There is no easy or comfortable way in Catch2 to access the
-	// exception object thrown via its genuine interface. (However, you can
-	// access the "what" message via CHECK_THROWS_WITH).
-	//
-	// The following workaround addresses this by requiring an exception
-	// manually and catching the exception object.
-	//
-	// Confer: https://github.com/catchorg/Catch2/issues/394
 
 	SECTION ( "Parse intact file" )
 	{

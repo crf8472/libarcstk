@@ -1,4 +1,5 @@
 #include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_template_test_macros.hpp"
 
 /**
  * \file
@@ -456,63 +457,36 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc]" )
 {
 	// TODO Implement
 }
-
-
-TEST_CASE ( "CalculationStateImpl",
-	"[calculationstateimpl] [calc]" )
-{
-	// TODO Implement
-}
 */
 
 
-TEST_CASE ( "Counter", "[counter] [calc]" )
+TEMPLATE_TEST_CASE ( "Counter", "[counter] [calc]", int32_t )
 {
 	using arcstk::details::Counter;
 
-	/*
+	auto c = Counter<TestType>{ 0 };
+
+	REQUIRE ( c.value() == 0 );
+
 	SECTION ( "increment() is correct" )
 	{
-		// TODO Implement
+		c.increment(5);
+		c.increment(28);
+		c.increment(10191);
+
+		CHECK ( c.value() == 10224 );
 	}
-	*/
-}
 
-/*
-TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
-{
-	using arcstk::make_toc;
-
-	const auto toc = make_toc(
-		// leadout
-		253038,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 }
-	);
-
-	SECTION ( "is correct" )
+	SECTION ( "reset() is correct" )
 	{
-		const auto points = arcstk::details::get_offset_sample_indices(*toc);
+		c.increment(5);
+		c.increment(10191);
 
-		CHECK ( points.size() == 15 );
+		REQUIRE ( c.value() == 10196 );
 
-		CHECK ( points[ 0] ==     19404 );
-		CHECK ( points[ 1] ==   3072300 );
-		CHECK ( points[ 2] ==   4345320 );
-		CHECK ( points[ 3] ==  13747440 );
-		CHECK ( points[ 4] ==  20937504 );
-		CHECK ( points[ 5] ==  29294160 );
-		CHECK ( points[ 6] ==  40870704 );
-		CHECK ( points[ 7] ==  51587004 );
-		CHECK ( points[ 8] ==  62523804 );
-		CHECK ( points[ 9] ==  82023060 );
-		CHECK ( points[10] ==  92823444 );
-		CHECK ( points[11] == 116715060 );
-		CHECK ( points[12] == 125460384 );
-		CHECK ( points[13] == 132488160 );
-		CHECK ( points[14] == 137652564 );
+		c.reset();
+
+		CHECK ( c.value() == 0 );
 	}
 }
-*/
 
