@@ -35,9 +35,9 @@ inline namespace v_1_0_0
  * @link arcstk::v_1_0_0::ToC::complete() complete @endlink.
  *
  * ToCData is a minimalistic version of a ToC: an aggregate that contains the
- * leadout at index 0 and on the subsequent index positions the offets of the
- * tracks. Hence, ToCData contains all and only the data that is required to
- * calculate AccurateRip checksums.
+ * leadout at index 0 and on the subsequent index positions 1..n the offets of
+ * the respective tracks. Hence, ToCData contains all and only the data that is
+ * required to calculate AccurateRip checksums.
  *
  * AudioSize is a representation of an amount of audio information that can be
  * evaluated as frames, samples or bytes. Passing AudioSize objects helps to
@@ -737,7 +737,7 @@ private:
 
 
 /**
- * \brief Constructor.
+ * \brief Create a ToC from leadout, offsets and filenames.
  *
  * \param[in] leadout   Leadout frame
  * \param[in] offsets   Offset frames
@@ -748,7 +748,7 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<std::string>& filenames);
 
 /**
- * \brief Constructor.
+ * \brief Create a ToC from leadout and offsets.
  *
  * \param[in] leadout   Leadout frame
  * \param[in] offsets   Offset frames
@@ -757,7 +757,7 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets);
 
 /**
- * \brief Constructor.
+ * \brief Create a ToC from offsets and filenames.
  *
  * \param[in] offsets   Offset frames
  * \param[in] filenames Audio filenames
@@ -766,12 +766,11 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
- * \brief Constructor.
+ * \brief Create a ToC from offsets.
  *
  * \param[in] offsets   Offset frames
  */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
-
 
 /**
  * \brief Reports invalid metadata for constructing a ToC.
@@ -794,7 +793,6 @@ public:
 	 */
 	explicit InvalidMetadataException(const char *what_arg);
 };
-
 
 /**
  * \brief Reports metadata violating the redbook standard.
