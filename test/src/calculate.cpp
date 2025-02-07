@@ -31,7 +31,7 @@ TEST_CASE ( "Context", "[context] [calc]" )
 {
 	using arcstk::Context;
 
-	SECTION ( "Constants behave as expected" )
+	SECTION ( "OR-ing Context works as expected" )
 	{
 		CHECK ((Context::FIRST_TRACK | Context::TRACK) == Context::FIRST_TRACK);
 		CHECK ((Context::LAST_TRACK  | Context::TRACK) == Context::LAST_TRACK);
@@ -54,6 +54,8 @@ TEST_CASE ( "Context", "[context] [calc]" )
 		CHECK ( any(Context::FIRST_TRACK) );
 		CHECK ( any(Context::LAST_TRACK) );
 		CHECK ( any(Context::ALBUM) );
+
+		CHECK ( any(Context::FIRST_TRACK | Context::LAST_TRACK) );
 	}
 }
 
@@ -61,17 +63,17 @@ TEST_CASE ( "Context", "[context] [calc]" )
 TEST_CASE ( "Calculation", "[calculation] [calc]" )
 {
 	using arcstk::AccurateRipV1V2;
-	using arcstk::AudioSize;
 	using arcstk::Algorithm;
+	using arcstk::AudioSize;
 	using arcstk::Calculation;
-	using arcstk::checksum::type;
 	using arcstk::Context;
-	using arcstk::make_calculation;
-	using arcstk::make_toc;
 	using arcstk::Points;
 	using arcstk::Settings;
 	using arcstk::ToC;
 	using arcstk::UNIT;
+	using arcstk::checksum::type;
+	using arcstk::make_calculation;
+	using arcstk::make_toc;
 
 
 	const auto toc = make_toc(
@@ -82,15 +84,14 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 			106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 	);
 
-	const auto size { AudioSize { 253038, UNIT::FRAMES } };
+	const auto size      { AudioSize { 253038, UNIT::FRAMES } };
 
-	auto calculation { Calculation(Context::ALBUM,
-			std::make_unique<AccurateRipV1V2>(),
-			size, toc->offsets()) };
+	auto calculation     { Calculation(Context::ALBUM,
+			std::make_unique<AccurateRipV1V2>(), size, toc->offsets()) };
 
 	const auto algorithm { calculation.algorithm() };
 
-	const auto result { calculation.result() };
+	const auto result    { calculation.result() };
 
 	//
 
