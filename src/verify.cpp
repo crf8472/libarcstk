@@ -575,16 +575,16 @@ ChecksumSource::size_type SourceIterator::current() const
 SourceIterator::reference SourceIterator::operator * () const // dereferncing
 {
 	// Used for testing, commented out
-	/*
-	if (!source_)
-	{
-		throw std::invalid_argument("Cannot traverse null ChecksumSource");
-	}
-	if (!selector_)
-	{
-		throw std::invalid_argument("No selector available");
-	}
-	*/
+
+	// if (!source_)
+	// {
+	// 	throw std::invalid_argument("Cannot traverse null ChecksumSource");
+	// }
+	// if (!selector_)
+	// {
+	// 	throw std::invalid_argument("No selector available");
+	// }
+
 	return selector_->get(*source_, current_, counter_);
 }
 
@@ -706,13 +706,15 @@ TraversalPolicy::const_iterator TraversalPolicy::end() const
 }
 
 
-Checksums::size_type TraversalPolicy::current_block(const SourceIterator& i) const
+Checksums::size_type TraversalPolicy::current_block(const SourceIterator& i)
+	const
 {
 	return do_current_block(i);
 }
 
 
-Checksums::size_type TraversalPolicy::current_track(const SourceIterator& i) const
+Checksums::size_type TraversalPolicy::current_track(const SourceIterator& i)
+	const
 {
 	return do_current_track(i);
 }
@@ -752,25 +754,29 @@ std::unique_ptr<Selector> BlockTraversal::create_selector() const
 }
 
 
-Checksums::size_type BlockTraversal::do_current_block(const SourceIterator& i) const
+Checksums::size_type BlockTraversal::do_current_block(const SourceIterator& i)
+	const
 {
 	return i.current();
 }
 
 
-Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i) const
+Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i)
+	const
 {
 	return i.counter();
 }
 
 
-ChecksumSource::size_type BlockTraversal::do_end_current(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_current(
+		const ChecksumSource& source) const
 {
 	return source.size(); // number of blocks in source
 }
 
 
-ChecksumSource::size_type BlockTraversal::do_end_counter(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_counter(
+		const ChecksumSource& source) const
 {
 	return source.size(0); // number of tracks per block in source
 }
@@ -1080,7 +1086,8 @@ const uint32_t& ChecksumSource::frame450_arcs_value(
 	return this->do_arcs_value(block_idx, idx);
 }
 
-std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx) const
+std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx)
+	const
 {
 	return this->do_size(block_idx);
 }

@@ -565,24 +565,24 @@ DBAR::Impl::Impl()
 	// empty
 }
 
-/*
-DBAR::Impl::Impl(const Impl& impl)
-	: total_tracks_ { impl.total_tracks_ }
-	, confidence_   { impl.confidence_ }
-	, sums_         { impl.sums_ }
-{
-	// empty
-}
 
+// DBAR::Impl::Impl(const Impl& impl)
+// 	: total_tracks_ { impl.total_tracks_ }
+// 	, confidence_   { impl.confidence_ }
+// 	, sums_         { impl.sums_ }
+// {
+// 	// empty
+// }
+//
+//
+// DBAR::Impl::Impl(Impl&& impl)
+// 	: total_tracks_ { std::move(impl.total_tracks_) }
+// 	, confidence_   { std::move(impl.confidence_) }
+// 	, sums_         { std::move(impl.sums_) }
+// {
+// 	// empty
+// }
 
-DBAR::Impl::Impl(Impl&& impl)
-	: total_tracks_ { std::move(impl.total_tracks_) }
-	, confidence_   { std::move(impl.confidence_) }
-	, sums_         { std::move(impl.sums_) }
-{
-	// empty
-}
-*/
 
 
 DBAR::Impl::size_type DBAR::Impl::size() const
