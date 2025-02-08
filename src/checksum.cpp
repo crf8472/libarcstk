@@ -7,6 +7,9 @@
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"
 #endif
+#ifndef __LIBARCSTK_CHECKSUM_DETAILS_HPP__
+#include "checksum_details.hpp"
+#endif
 
 #include <algorithm>        // for transform
 #include <array>            // for array
@@ -84,37 +87,6 @@ void swap(Checksum& lhs, Checksum& rhs) noexcept
 
 
 //
-
-
-namespace checksum
-{
-
-/**
- * \internal
- *
- * \brief Implementation details of namespace checksum
- */
-namespace details
-{
-
-/**
- * \internal
- *
- * \brief Creates a hexadecimal string representation of a 32bit checksum.
- *
- * \param[in] checksum The Checksum to represent
- * \param[in] upper    TRUE indicates to print digits A-F in uppercase
- * \param[in] base     TRUE indicates to print base '0x'
- * \param[in] out      Stream to print to
- *
- * \return A hexadecimal representation of the \c checksum as a string
- */
-void print_hex(const Checksum& checksum, const bool upper,
-		const bool base, std::ostream& out);
-
-} // namespace checksum::details
-
-} // namespace checksum
 
 
 std::string to_string(const Checksum& c)
