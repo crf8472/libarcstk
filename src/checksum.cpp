@@ -310,9 +310,9 @@ std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
 }
 
 
-void ChecksumSet::merge(const ChecksumSet& rhs)
+void ChecksumSet::merge(ChecksumSet& rhs)
 {
-	if (this->length() != 0 and rhs.length() != 0)
+	if (this->length() != 0 && rhs.length() != 0)
 	{
 		// Non-zero lengths with different value indicates different tracks.
 		if (this->length() != rhs.length())
@@ -324,12 +324,13 @@ void ChecksumSet::merge(const ChecksumSet& rhs)
 		// Sets with zero length may be merged without constraint
 	}
 
-	#if __cplusplus >= 201703L
-		set_.merge(rhs.set_);
-	#else
+	#if __cplusplus < 201703L
+		// pre-C++17 implementation of merge()
 		using std::begin;
 		using std::end;
 		set_.insert(begin(rhs.set_), end(rhs.set_));
+	#else
+		set_.merge(rhs.set_);
 	#endif
 }
 

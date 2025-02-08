@@ -230,9 +230,9 @@ target_include_directories (${PROJECT_NAME}
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD   14
+	CXX_STANDARD   17
 	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF ## use -std=c++14 instead of std=gnu++14
+	CXX_EXTENSIONS OFF ## use -std=c++17 instead of std=gnu++17
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"

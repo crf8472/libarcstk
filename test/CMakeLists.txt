@@ -71,7 +71,7 @@ foreach (_testcase ${TEST_SETS} )
 	## Define an executable for each single testfile
 	add_executable (${_testcase}_test "${TEST_SOURCE_DIR}/${_testcase}.cpp" )
 
-	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 14 )
+	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 17 )
 
 	target_include_directories (${_testcase}_test
 		PRIVATE ${PROJECT_INCLUDE_DIR}      ## public headers

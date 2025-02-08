@@ -370,7 +370,7 @@ public:
 	 *
 	 * \throws domain_error If \c rhs.length() != \c length() and both are != 0
 	 */
-	void merge(const ChecksumSet& rhs);
+	void merge(ChecksumSet& rhs);
 
 	/**
 	 * \brief Erases the Checksum with the given type.

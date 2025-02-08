@@ -12,7 +12,7 @@ it.
 
 Libarcstk embraces "modern" C++, which means to choose the contemporary way of
 doing things, not the way things were done back in the Nineties. Currently,
-libarcstk is compiled as C++14.
+libarcstk is compiled as C++17. Versions before 0.3 were compiled with C++14.
 
 On the other hand, libarcstk has a tendency to OOP-style design along with some
 of its patterns but avoids deep inheritance levels. Inheritance is good in case
@@ -58,8 +58,8 @@ and perhaps by other languages at some point.
 
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
 - Use STL data types whenever possible: std::string instead of foo::myStr.
-- Prefer smart pointers over raw pointers. Prefer to use C++14's
-  ``std::make_unique`` if possible.
+- Prefer smart pointers over raw pointers. Prefer to use ``std::make_unique``
+  if possible.
 - Use non-owning raw pointers sparingly, except for very good reasons.
 - Prefer ``using``-declaratives over classical ``typedef``'s:
   ``using A = foo::A`` instead of ``typedef foo::A A``.

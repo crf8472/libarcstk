@@ -2,7 +2,7 @@
 
 CXX     := g++
 ## Replace 'g++' with 'clang++' if you like to use clang
-CFLAGS  := -std=c++14 -Wall -Wextra -pedantic
+CFLAGS  := -std=c++17 -Wall -Wextra -pedantic
 LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 ## We force to use libarcstk.so from build tree. Check this with
 ## $ ldd albumcalc | grep arcs
