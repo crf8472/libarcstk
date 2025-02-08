@@ -5,6 +5,26 @@
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
 
+## Version 0.3 introduces breaking changes
+
+  - Libarcstk 0.3 will be compileable as C++17 only. Support for C++14 is
+    dropped.
+  - Version 0.3 will contain a rewrite of all classes and functions in modules
+    'id' and 'calc'.
+  - Interfaces of classes Calculation, TOC and AudioSize will change
+    fundamentally. TOC will be renamed to ToC.
+  - Class CalcContext will be removed completely.
+  - Most of the template magic in ``calculate.hpp`` will be removed.
+  - The public headers in arcstk/details and the contained classes ARIdBuilder
+	and TOCBuilder will be removed.
+  - The forced validation of TOC objects will be dropped. Validation of TOC data
+    is completely rewritten and fully optional.
+  - The logs will be make use of more log levels and be more compact in general.
+
+Currently, the upcoming version 0.3 can be checked out from the development
+branch ``0.3-dev``. It will be released not before March 1st, 2025.
+
+
 ## What libarcstk does
 
 Libarcstk supports the following tasks:
