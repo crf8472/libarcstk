@@ -11,15 +11,19 @@
     dropped.
   - Version 0.3 will contain a rewrite of all classes and functions in modules
     'id' and 'calc'.
-  - Interfaces of classes Calculation, TOC and AudioSize will change
-    fundamentally. TOC will be renamed to ToC.
-  - Class CalcContext will be removed completely.
-  - Most of the template magic in ``calculate.hpp`` will be removed.
-  - The public headers in arcstk/details and the contained classes ARIdBuilder
-	and TOCBuilder will be removed.
-  - The forced validation of TOC objects will be dropped. Validation of TOC data
-    is completely rewritten and fully optional.
+  - Interfaces of classes ``Calculation``, ``TOC`` and ``AudioSize`` will change
+    fundamentally. ``TOC`` will be removed in favor of ``ToC``.
+  - Class ``CalcContext`` will be entirely removed.
+  - Class ``Checksums`` will be entirely removed and only kept as a typedef.
+  - Most of the template magic in ``calculate.hpp`` will be removed as well as
+	the templated versions of ``make_toc()``.
+  - The public headers in arcstk/details and the contained classes
+    ``ARIdBuilder`` and ``TOCBuilder`` will be removed.
+  - The forced validation of ``TOC`` objects will be dropped. Validation of
+    ``TOC`` data is completely rewritten and fully optional.
   - The logs will be make use of more log levels and be more compact in general.
+
+Client code using version 0.2* will not be compileable with version 0.3.
 
 Currently, the upcoming version 0.3 can be checked out from the development
 branch ``0.3-dev``. It will be released not before March 1st, 2025.
