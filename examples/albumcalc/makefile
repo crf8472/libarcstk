@@ -1,5 +1,7 @@
 # Makefile for the example 'albumcalc', part of libarcstk
 
+# ! Requires libcue and libsndfile !
+
 CXX     := g++
 ## Replace 'g++' with 'clang++' if you like to use clang
 CFLAGS  := -std=c++17 -Wall -Wextra -pedantic
@@ -13,7 +15,7 @@ LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 PROJECT := albumcalc
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) -c -I../../include $<
+	$(CXX) $(CFLAGS) -c -I../../build/include/arcstk $<
 
 $(PROJECT) : $(PROJECT).o
 	$(CXX) $(LDFLAGS) $< ../../build/libarcstk.so -lcue -lsndfile -o $@

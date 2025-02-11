@@ -13,7 +13,7 @@ LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 PROJECT := albumid
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) -c -I../../include $<
+	$(CXX) $(CFLAGS) -c -I../../build/include/arcstk $<
 
 $(PROJECT) : $(PROJECT).o
 	$(CXX) $(LDFLAGS) $< ../../build/libarcstk.so -lcue -lsndfile -o $@

@@ -13,7 +13,7 @@ LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 PROJECT := arparse
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) -c -I../../include $<
+	$(CXX) $(CFLAGS) -c -I../../build/include/arcstk $<
 
 $(PROJECT) : $(PROJECT).o
 	$(CXX) $(LDFLAGS) $< ../../build/libarcstk.so -o $@

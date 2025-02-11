@@ -11,6 +11,10 @@ Makefiles to your compiler before building the examples.
 The aim of the examples is demonstration, not productive use. Backup any file
 you intend to use as input for the example applications!
 
+The example applications are compiled against the libarcstk.so object in the
+build tree! Use each example application exclusively in the directory it was
+compiled since it is only guaranteed to work from there.
+
 Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
 
