@@ -26,6 +26,7 @@ extern "C" {
 
 #include <cstdint>   // for uint32_t etc.
 #include <cstdio>    // for fopen, fclose, FILE
+#include <cstdlib>   // for EXIT_SUCCESS
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
@@ -324,4 +325,7 @@ int main(int argc, char* argv[])
 
 		++trk_no;
 	}
+
+	return EXIT_SUCCESS;
 }
+

@@ -21,6 +21,7 @@
 
 #include <algorithm> // for count
 #include <cstdint>   // for uint32_t etc.
+#include <cstdlib>   // for EXIT_SUCCESS
 #include <cstring>   // for strtok
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout

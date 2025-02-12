@@ -25,6 +25,7 @@ extern "C" {
 
 #include <cstdint>   // for uint32_t etc.
 #include <cstdio>    // for fopen, fclose, FILE
+#include <cstdlib>   // for EXIT_SUCCESS
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
 #include <stdexcept> // for runtime_error
@@ -229,9 +230,11 @@ int main(int argc, char* argv[])
 	// leadout, we can now construct the AccurateRip ID directly from the TOC.
 	const auto id { arcstk::make_arid(arcstk::ToC(toc_data)) };
 
-	std::cout << "ID:          " << arcstk::to_string(*id) << '\n';
-	std::cout << "Filename:    " << id->filename()         << '\n';
-	std::cout << "Request-URL: " << id->url()              << '\n';
+	// Print the ARId.
+	using std::string;
+	std::cout << "ID:          " << to_string(*id) << '\n';
+	std::cout << "Filename:    " << id->filename() << '\n';
+	std::cout << "Request-URL: " << id->url()      << '\n';
 
 	return EXIT_SUCCESS;
 }

@@ -12,6 +12,7 @@
 #include "logging.hpp"
 #endif
 
+#include <cstdlib>   // for EXIT_SUCCESS
 #include <fstream>   // for ifstream
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
