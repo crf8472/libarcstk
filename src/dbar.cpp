@@ -1,4 +1,6 @@
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementing the API for AccurateRip response parsing and syntactic

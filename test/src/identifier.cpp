@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for identifier.hpp
+ * \brief Fixtures for identifier.hpp.
  */
 
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__

@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for dbar_details.hpp
+ * \brief Fixtures for dbar_details.hpp.
  */
 
 #ifndef __LIBARCSTK_DBAR_HPP__

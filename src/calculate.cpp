@@ -1,4 +1,6 @@
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementation of the new checksum calculation API

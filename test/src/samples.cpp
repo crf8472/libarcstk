@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for samples.hpp
+ * \brief Fixtures for samples.hpp.
  */
 
 #ifndef __LIBARCSTK_SAMPLES_HPP__

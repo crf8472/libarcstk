@@ -1,4 +1,6 @@
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementation of a low-level API for representing AccurateRip ids

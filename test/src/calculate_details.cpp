@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Fixtures for calculate_details.hpp
+ * \brief Fixtures for calculate_details.hpp.
  */
 
 #ifndef __LIBARCSTK_CALCULATE_HPP__

@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for checksum_details.hpp
+ * \brief Fixtures for checksum_details.hpp.
  */
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__

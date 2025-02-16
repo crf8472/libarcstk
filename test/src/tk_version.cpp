@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for version.hpp
+ * \brief Fixtures for version.hpp.
  */
 
 #ifndef __LIBARCSTK_VERSION_HPP__

@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for accuraterip.hpp
+ * \brief Fixtures for accuraterip.hpp.
  */
 
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__

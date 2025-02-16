@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for verify_details.hpp
+ * \brief Fixtures for verify_details.hpp.
  */
 
 #ifndef __LIBARCSTK_VERIFY_HPP__

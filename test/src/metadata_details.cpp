@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for metadata_details.hpp
+ * \brief Fixtures for metadata_details.hpp.
  */
 
 #ifndef __LIBARCSTK_METADATA_HPP__
