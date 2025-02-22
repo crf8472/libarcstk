@@ -401,11 +401,15 @@ if (NOT SKIP_INSTALL_ALL )
 
 		## Support pkgconfig
 
+		string (REPLACE lib ""   PKG_BIND_NAME "${PROJECT_NAME}" )
+
 		configure_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
 			"${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
 			@ONLY
 		)
+
+		unset (PKG_BIND_NAME )
 
 		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
 			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )

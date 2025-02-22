@@ -1,14 +1,14 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=@CMAKE_INSTALL_PREFIX@
-libdir=@INSTALL_LIBRARY_DIR@
-sharedlibdir=@INSTALL_LIBRARY_DIR@
-includedir=@INSTALL_INCLUDE_DIR@
+libdir=@CMAKE_INSTALL_PREFIX@/lib
+sharedlibdir=@CMAKE_INSTALL_PREFIX@/lib
+includedir=@CMAKE_INSTALL_PREFIX@/include
 
 Name: @PROJECT_NAME@
 Description: @PROJECT_BRIEF_DESC@
 Version: @PROJECT_VERSION_STRING_WITHOUT_SUFFIX@
 URL: @PROJECT_URL@/
 
-Libs: -L${libdir} -L${sharedlibdir} -l@PROJECT_NAME@
+Libs: -L${libdir} -L${sharedlibdir} -l@PKG_BIND_NAME@
 Cflags: -I${includedir}
 
