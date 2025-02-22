@@ -191,7 +191,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 // Partitioner
 
 
-Partitioner::Partitioner(const int32_t total_samples, const Points& points,
+Partitioner::Partitioner(const AudioSize& total_samples, const Points& points,
 		const SampleRange& legal)
 	: total_samples_ { total_samples }
 	, points_        { points        }
@@ -227,13 +227,13 @@ Partitioning Partitioner::create_partitioning(
 }
 
 
-int32_t Partitioner::total_samples() const
+AudioSize Partitioner::total_samples() const
 {
 	return total_samples_;
 }
 
 
-void Partitioner::set_total_samples(const int32_t total_samples)
+void Partitioner::set_total_samples(const AudioSize& total_samples)
 {
 	total_samples_ = total_samples;
 }
@@ -257,35 +257,12 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 }
 
 
-// make_partitioner
-
-
-std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const SampleRange& calc_range) noexcept
-{
-	return make_partitioner(size, {/* empty */}, calc_range);
-}
-
-
-std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const Points& points, const SampleRange& calc_range)
-		noexcept
-{
-	// TODO Check calc_range
-	// if calc_range.lower() < 1, use 1 as lower
-	// if calc_range.upper() > size, use size as upper
-
-	return std::make_unique<TrackPartitioner>(size.samples(), points,
-			calc_range);
-}
-
-
 // TrackPartitioner
 
 
-TrackPartitioner::TrackPartitioner(const int32_t total_samples,
-			const Points& points,
-			const SampleRange&    legal)
+TrackPartitioner::TrackPartitioner(const AudioSize& total_samples,
+			const Points&      points,
+			const SampleRange& legal)
 	: Partitioner(total_samples, points, legal)
 {
 	// empty
@@ -711,9 +688,8 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG(DEBUG2) << "Samples total: " << total;
 
 		state.update(start + offset_first, start + offset_last + 1);
-		// +1 because the "stop" sample will not be processed. As an
-		// end()-iterator, the intended stop point has to be shifted behind the
-		// last sample to pass.
+		// +1 because the "last" sample would not be processed otherwise. The
+		// stop point has to be shifted behind the last sample intended to pass.
 
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())
@@ -726,7 +702,7 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 	}
 
 	return SampleRange(start_pos, last_pos).contains(
-			partitioner.legal_range().upper()/* last rel. sample */);
+			partitioner.legal_range().upper()/* last relevant sample */);
 }
 
 } // namespace details
@@ -748,9 +724,9 @@ inline SampleInputIterator operator + (const int32_t amount,
 // Context
 
 
-void swap(Context& lhs, Context& rhs)
+void swap(Context& lhs, Context& rhs) noexcept
 {
-	Context tmp = lhs;
+	Context tmp { lhs };
 	lhs = rhs;
 	rhs = tmp;
 }
@@ -947,10 +923,17 @@ Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
 Calculation::Impl::~Impl() noexcept = default;
 
 
+void Calculation::Impl::init(const Settings& s, const ToCData& toc)
+{
+	return init(s, *cbegin(toc), { cbegin(toc) + 1, cend(toc) });
+}
+
+
 void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 		const Points& points)
 {
 	using details::SampleRange;
+	using details::TrackPartitioner;
 
 	this->set_settings(s); // also sets up Algorithm
 
@@ -958,7 +941,7 @@ void Calculation::Impl::init(const Settings& s, const AudioSize& size,
 
 	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
 
-	partitioner_ = details::make_partitioner(size, points, interval);
+	partitioner_ = std::make_unique<TrackPartitioner>(size, points, interval);
 }
 
 
@@ -1005,7 +988,7 @@ const Algorithm* Calculation::Impl::algorithm() const noexcept
 int32_t Calculation::Impl::samples_expected() const noexcept
 {
 	// Expected total number of input samples
-	return partitioner_->total_samples();
+	return partitioner_->total_samples().samples();
 }
 
 
@@ -1058,12 +1041,10 @@ void Calculation::Impl::update(SampleInputIterator start,
 	{
 		ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
 
-		ARCS_LOG(DEBUG1) << "Total samples declared:  " <<
-			partitioner_->total_samples();
+		ARCS_LOG(DEBUG1) << "Total samples declared:  " << samples_expected();
 
-		ARCS_LOG(DEBUG1) << "Total samples processed: " <<
-			state_->samples_processed() <<
-			" (== " << partitioner_->legal_range().to_string() << ")";
+		ARCS_LOG(DEBUG1) << "Total samples processed: " << samples_processed()
+			<< " (== " << partitioner_->legal_range().to_string() << ")";
 
 		const ms update_time =
 			std::chrono::duration_cast<ms>(state_->update_time_elapsed());
@@ -1084,7 +1065,7 @@ void Calculation::Impl::update(SampleInputIterator start,
 
 void Calculation::Impl::update(const AudioSize& audiosize)
 {
-	partitioner_->set_total_samples(audiosize.samples());
+	partitioner_->set_total_samples(audiosize);
 }
 
 

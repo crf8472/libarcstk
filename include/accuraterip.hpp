@@ -42,9 +42,15 @@ namespace accuraterip
 namespace details
 {
 
-// XXX Move id calculation here?
-
 // Checksum calculation
+
+/**
+ * \internal
+ *
+ * \brief Number of samples to skip at back and front.
+ */
+struct NUM_SKIP_SAMPLES
+{
 
 /**
  * \internal
@@ -55,7 +61,7 @@ namespace details
  * = 2940 samples. We derive the number of samples to be skipped at the
  * start of the first track by just subtracting 1 from this constant.
  */
-constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples/frame*/;
+constexpr static int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
 /**
  * \internal
@@ -65,7 +71,9 @@ constexpr int32_t NUM_SKIP_SAMPLES_BACK  = 5/*frames*/ * 588/*samples/frame*/;
  * There are 5 frames - 1 sample to be skipped, i.e.
  * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
  */
-constexpr int32_t NUM_SKIP_SAMPLES_FRONT = NUM_SKIP_SAMPLES_BACK - 1;
+constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
+
+};
 
 
 /**
@@ -192,7 +200,7 @@ class Updatable final : public UpdatableBase<T1, T2...>
 {
 	// empty
 
-	friend void swap(Updatable& lhs, Updatable& rhs)
+	friend void swap(Updatable& lhs, Updatable& rhs) noexcept
 	{
 		using std::swap;
 
@@ -339,7 +347,7 @@ public:
 	uint_fast64_t multiplier() const;
 
 
-	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs)
+	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs) noexcept
 	{
 		using std::swap;
 

@@ -13,6 +13,10 @@
  * \brief Implementation details for calculate.hpp.
  */
 
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"
+#endif
+
 #include <cstddef>       // for size_t
 #include <cstdint>       // for int32_t
 #include <memory>        // for unique_ptr
@@ -27,11 +31,9 @@ inline namespace v_1_0_0
 {
 
 // avoid includes
-class AudioSize;
-class ToC;
 class ChecksumSet;
 
-using Points = std::vector<AudioSize>; // Repeated from calculate.hpp
+using Points  = std::vector<AudioSize>; // duplicate of calculate.hpp
 
 namespace details
 {
@@ -193,7 +195,7 @@ public:
 	 * \param[in] points        List of splitting points
 	 * \param[in] legal         Legal range of calculation
 	 */
-	Partitioner(const int32_t total_samples, const Points& points,
+	Partitioner(const AudioSize& total_samples, const Points& points,
 			const SampleRange& legal);
 
 	/**
@@ -218,7 +220,7 @@ public:
 	 *
 	 * \return Total number of samples
 	 */
-	int32_t total_samples() const;
+	AudioSize total_samples() const;
 
 	/**
 	 * \brief Set total number of samples.
@@ -228,7 +230,7 @@ public:
 	 *
 	 * \param[in] total_samples Total number of samples
 	 */
-	void set_total_samples(const int32_t total_samples);
+	void set_total_samples(const AudioSize& total_samples);
 
 	/**
 	 * \brief Legal range to occurr in partitions.
@@ -276,7 +278,7 @@ private:
 	/**
 	 * \brief Total number of samples expected.
 	 */
-	int32_t total_samples_;
+	AudioSize total_samples_;
 
 	/**
 	 * \brief Internal splitting points.
@@ -288,33 +290,6 @@ private:
 	 */
 	SampleRange legal_;
 };
-
-
-/**
- * \brief Create a partitioner for a closed input interval.
- *
- * The concrete interval is [1;size.total_samples()].
- *
- * \param[in] size       Upper bound for the closed input interval.
- * \param[in] calc_range The legal range for partitioning.
- *
- * \return Partitioner for the specified interval.
- */
-std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const SampleRange& calc_range) noexcept;
-
-
-/**
- * \brief Create a partitioner for a closed input interval.
- *
- * \param[in] size       Upper bound for the closed input interval.
- * \param[in] calc_range The legal range for partitioning.
- * \param[in] points     The splitting points for the partitions.
- *
- * \return Partitioner for the specified interval.
- */
-std::unique_ptr<Partitioner> make_partitioner(const AudioSize& size,
-		const Points& points, const SampleRange& calc_range) noexcept;
 
 
 /**
@@ -338,7 +313,7 @@ public:
 	 * \param[in] points        List of splitting points
 	 * \param[in] legal         Legal range of calculation
 	 */
-	TrackPartitioner(const int32_t total_samples, const Points& points,
+	TrackPartitioner(const AudioSize& total_samples, const Points& points,
 			const SampleRange& legal);
 };
 

@@ -165,7 +165,7 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 	/* use Bach, Organ Concertos, Simon Preston, DGG */
 	const auto partitioner { TrackPartitioner {
-		/* total samples */ 253038 * 588 /* 148786344 */,
+		AudioSize { 253038 * 588 /* 148786344 */, UNIT::SAMPLES },
 		{ /* split points (track offsets) */
 			AudioSize {     33 * 588, UNIT::SAMPLES },
 			AudioSize {   5225 * 588, UNIT::SAMPLES },
@@ -186,9 +186,9 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		/* legal range w/ skips */ { 33 * 588 + 2939, 253038 * 588 - 2940 },
 	}};
 
-	REQUIRE ( partitioner.total_samples()       == 148786344 );
-	REQUIRE ( partitioner.legal_range().lower() == 22343 );
-	REQUIRE ( partitioner.legal_range().upper() == 148783404 );
+	REQUIRE ( partitioner.total_samples().samples() == 148786344 );
+	REQUIRE ( partitioner.legal_range().lower()     == 22343 );
+	REQUIRE ( partitioner.legal_range().upper()     == 148783404 );
 	// TODO Verify split points
 
 	Checksums buffer { Checksums{}  };

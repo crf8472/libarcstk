@@ -187,7 +187,7 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 
 	if (any(Context::FIRST_TRACK & s->context()))
 	{
-		this->set_multiplier(NUM_SKIP_SAMPLES_FRONT + 1);
+		this->set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
 	}
 
 	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << this->multiplier();
@@ -211,18 +211,18 @@ std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 
 	if (any(Context::FIRST_TRACK & this->settings()->context()))
 	{
-		from += NUM_SKIP_SAMPLES_FRONT;
+		from += NUM_SKIP_SAMPLES::FRONT;
 
 		ARCS_LOG(DEBUG2) << "Start on sample offset " << from;
-		ARCS_LOG(DEBUG2) << "Then skip " << NUM_SKIP_SAMPLES_FRONT
+		ARCS_LOG(DEBUG2) << "Then skip " << NUM_SKIP_SAMPLES::FRONT
 			<< " samples";
 	}
 
 	if (any(Context::LAST_TRACK  & this->settings()->context()))
 	{
-		to -= NUM_SKIP_SAMPLES_BACK;
+		to -= NUM_SKIP_SAMPLES::BACK;
 
-		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES_BACK
+		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
 			<< " samples";
 	}
 

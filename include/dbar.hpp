@@ -238,6 +238,7 @@ public:
 
 /**
  * \internal
+ *
  * \brief Store current element together with its current index.
  *
  * \tparam T Some object type that exposes a <tt>size_type</tt>
@@ -487,9 +488,9 @@ private:
 
 public:
 
-	using size_type = std::size_t;
-	using value_type = DBARBlock;
-	using iterator = DBARForwardIterator<DBAR>;
+	using size_type      = std::size_t;
+	using value_type     = DBARBlock;
+	using iterator       = DBARForwardIterator<DBAR>;
 	using const_iterator = const iterator;
 
 	/**
@@ -520,6 +521,7 @@ public:
 
 	DBAR(const DBAR& rhs);
 	DBAR& operator= (const DBAR& rhs);
+
 	DBAR(DBAR&& rhs) noexcept;
 	DBAR& operator= (DBAR&& rhs) noexcept;
 

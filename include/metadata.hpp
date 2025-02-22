@@ -165,26 +165,26 @@ namespace details
  * \brief Maximum value for the specified UNIT according to CDDA.
  */
 template <enum UNIT U>
-constexpr int32_t cdda_max() noexcept;
+constexpr int32_t cdda_max_value() noexcept;
 
 // full specializations
 
 template <>
-inline constexpr int32_t cdda_max<UNIT::FRAMES>() noexcept
+inline constexpr int32_t cdda_max_value<UNIT::FRAMES>() noexcept
 {
 	return CDDA::MAX_BLOCK_ADDRESS;
 }
 
 template <>
-inline constexpr int32_t cdda_max<UNIT::SAMPLES>() noexcept
+inline constexpr int32_t cdda_max_value<UNIT::SAMPLES>() noexcept
 {
-	return cdda_max<UNIT::FRAMES>() * CDDA::SAMPLES_PER_FRAME;
+	return cdda_max_value<UNIT::FRAMES>() * CDDA::SAMPLES_PER_FRAME;
 }
 
 template <>
-inline constexpr int32_t cdda_max<UNIT::BYTES>() noexcept
+inline constexpr int32_t cdda_max_value<UNIT::BYTES>() noexcept
 {
-	return cdda_max<UNIT::FRAMES>() * CDDA::BYTES_PER_FRAME;
+	return cdda_max_value<UNIT::FRAMES>() * CDDA::BYTES_PER_FRAME;
 }
 
 } // namespace details
@@ -196,7 +196,7 @@ inline constexpr int32_t cdda_max<UNIT::BYTES>() noexcept
  * \tparam U The UNIT the determine the maximum legal CDDA value of
  */
 template <enum UNIT U>
-constexpr int32_t cdda_max { details::cdda_max<U>() };
+constexpr int32_t cdda_max { details::cdda_max_value<U>() };
 
 
 /**

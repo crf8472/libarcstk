@@ -373,6 +373,14 @@ public:
 	 * \brief Initialize the instance.
 	 *
 	 * \param[in] s      Settings for this instance
+	 * \param[in] toc    ToC
+	 */
+	void init(const Settings& s, const ToCData& toc);
+
+	/**
+	 * \brief Initialize the instance.
+	 *
+	 * \param[in] s      Settings for this instance
 	 * \param[in] size   Total size of the expected input
 	 * \param[in] points Track offsets (as sample indices)
 	 */

@@ -392,7 +392,7 @@ public:
 		return not(lhs == rhs);
 	}
 
-	friend void swap(SampleIterator& lhs, SampleIterator& rhs)
+	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
 	{
 		using std::swap;
 

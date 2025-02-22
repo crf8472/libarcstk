@@ -32,7 +32,7 @@ class Checksum;
 class ChecksumSet;
 class DBAR;
 
-using Checksums = std::vector<ChecksumSet>; // Also typedef'ed in calculate.hpp
+using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
 
 /**
  * \defgroup verify AccurateRip Checksum Verification

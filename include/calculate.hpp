@@ -41,6 +41,8 @@ inline namespace v_1_0_0
 class AudioSize;
 class ToC;
 
+using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
+
 
 /** \defgroup calc AccurateRip Checksum Calculation
  *
@@ -500,7 +502,10 @@ inline constexpr bool operator == (const Context lhs, const Context rhs)
 	return static_cast<unsigned>(lhs) == static_cast<unsigned>(rhs);
 }
 
-void swap(Context& lhs, Context& rhs);
+/**
+ * \brief Swap two Context instances.
+ */
+void swap(Context& lhs, Context& rhs) noexcept;
 
 /**
  * \brief String representation of a Context.
@@ -753,6 +758,16 @@ public:
 	 */
 	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
 			const AudioSize& size, const Points& points);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] settings  The settings for the calculation
+	 * \param[in] algorithm The algorithm to use for calculating
+	 * \param[in] toc       Track offsets and leadout
+	 */
+	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
+			const ToCData& toc);
 
 	/**
 	 * \brief Copy constructor.
