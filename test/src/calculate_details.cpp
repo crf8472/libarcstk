@@ -459,12 +459,21 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc]" )
 }
 */
 
+// Commented out: intended use is:
+//
+//TEMPLATE_TEST_CASE ( "Counter", "[counter] [calc]", int32_t )
+//{
+//	...
+//	auto c = Counter<TestType>{ 0 };
+//
+// But this causes a compile warning by Clang 19:
+// https://github.com/catchorg/Catch2/issues/2910
 
-TEMPLATE_TEST_CASE ( "Counter", "[counter] [calc]", int32_t )
+TEST_CASE ( "Counter", "[counter] [calc]" )
 {
 	using arcstk::details::Counter;
 
-	auto c = Counter<TestType>{ 0 };
+	auto c = Counter<int32_t>{ 0 };
 
 	REQUIRE ( c.value() == 0 );
 
