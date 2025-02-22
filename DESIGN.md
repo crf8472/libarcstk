@@ -74,24 +74,30 @@ and perhaps by other languages at some point.
 
 - Absolutely avoid class members that are ``public`` and non-const. Use
   accessors and mutators instead. Also trivial accessors and mutators are ok.
-- Classes in exported header files should be Pimpls. The forward declaration
-  and the opaque pointer in the Pimpl class are ``private``.
-- A non-template class declaration contains only declaration of its members, but
-  not their inline implementation. (Inlining is no reason, static is no reason.)
+- Classes in exported header files should be Pimpls if they hold private
+  members. (It could be ok to use non-Pimpl layout for classes without private
+  members but private member functions.) The forward declaration and the opaque
+  pointer in the Pimpl class are ``private``. The pointer to the impl class is
+  always a ``unique_ptr``.
+- Any non-template class declaration contains only declaration of its members,
+  but not their inline implementation. (Inlining is no reason, static is no
+  reason.)
 - The definition ``= delete`` has to be in the header not in the source file
-  since it is part of the API.
+  since it is part of the API. The definition ``= default`` is preferred to be
+  in the source file not in the header file.
 
 
 ## Linkage
 
-- Libarcstk does never ever put anything in the global namespace. Everything
-  that is part of libarcstk *must* reside in the ``arcstk`` namespace or one of
-  its contained namespaces.
+- Libarcstk does never ever put anything in the global namespace. Period.
+  Everything that is part of libarcstk *must* reside in the ``arcstk``
+  namespace or one of its contained namespaces.
 - When it is arcstk-global, it should have ``extern`` linkage to avoid
   unnecessary instances.
 - What is declared and used only within a ``.cpp`` file must have internal
   linkage, usually by putting it in an unnamed namespace. Avoid the ``static``
-  qualifier for only defining linkage.
+  qualifier for only defining linkage. Avoid declarations in the source file
+  whenever possible.
 
 
 ## Header files
