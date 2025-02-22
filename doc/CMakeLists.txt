@@ -53,7 +53,6 @@ set (DOC_DOXYFILE_BASE_TEMPLATE ${PROJECT_DOC_DIR}/Doxyfile.in )
 
 add_custom_command (
 	OUTPUT  ${DOC_GEN_DIR}
-	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND}
 	ARGS    -E make_directory ${DOC_GEN_DIR} )
 
