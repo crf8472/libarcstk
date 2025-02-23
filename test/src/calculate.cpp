@@ -62,7 +62,8 @@ TEST_CASE ( "Context", "[context] [calc]" )
 
 TEST_CASE ( "Calculation", "[calculation] [calc]" )
 {
-	using arcstk::AccurateRipV1V2;
+	using arcstk::accuraterip::V1;
+	using arcstk::accuraterip::V1andV2;
 	using arcstk::Algorithm;
 	using arcstk::AudioSize;
 	using arcstk::Calculation;
@@ -87,7 +88,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 	const auto size      { AudioSize { 253038, UNIT::FRAMES } };
 
 	auto calculation     { Calculation(Context::ALBUM,
-			std::make_unique<AccurateRipV1V2>(), size, toc->offsets()) };
+			std::make_unique<V1andV2>(), size, toc->offsets()) };
 
 	const auto algorithm { calculation.algorithm() };
 
@@ -231,7 +232,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 				87733, 106333, 139495, 157863, 198495, 213368, 225320, 234103 }
 		);
 
-		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
+		auto algorithmV1V2 { std::make_unique<V1andV2>() };
 
 		const auto algo_types = algorithmV1V2->types();
 
@@ -261,7 +262,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 			//	18368, 40152, 14798, 11952, 8463, -1 /* instead of 18935 */ }
 		);
 
-		auto algorithmV1V2 { std::make_unique<AccurateRipV1V2>() };
+		auto algorithmV1V2 { std::make_unique<V1andV2>() };
 
 		auto c { make_calculation(std::move(algorithmV1V2), *toc_1) };
 

@@ -34,14 +34,14 @@
 TEST_CASE ( "CalculationStateImpl",
 		"[calculationstateimpl] [calc]" )
 {
+	using arcstk::accuraterip::V1andV2;
 	using arcstk::Algorithm;
-	using arcstk::AccurateRipV1V2;
 	using arcstk::details::CalculationStateImpl;
 
 	using std::begin;
 	using std::end;
 
-	auto algorithm { std::make_unique<AccurateRipV1V2>() };
+	auto algorithm { std::make_unique<V1andV2>() };
 	auto impl1 { CalculationStateImpl { algorithm.get() } };
 
 	{
@@ -131,8 +131,8 @@ TEST_CASE ( "CalculationStateImpl",
 
 TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 {
+	using arcstk::accuraterip::V1andV2;
 	using arcstk::Algorithm;
-	using arcstk::AccurateRipV1V2;
 	using arcstk::AudioSize;
 	using arcstk::Checksums;
 	using arcstk::Context;
@@ -156,7 +156,7 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 	const auto s { Settings { Context::ALBUM } };
 
-	auto algorithm { std::make_unique<AccurateRipV1V2>() };
+	auto algorithm { std::make_unique<V1andV2>() };
 	algorithm->set_settings(&s);
 
 	auto state { CalculationStateImpl { algorithm.get() } };
