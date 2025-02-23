@@ -377,9 +377,9 @@ public:
 	Logging(Logging&&) noexcept = delete;
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \brief Default destructor.
 	 */
-	virtual ~Logging() noexcept;
+	~Logging() noexcept;
 
 	/**
 	 * \brief Handle for the singleton.
