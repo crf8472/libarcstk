@@ -4,7 +4,7 @@
 /**
  * \file
  *
- * \brief Policies for enhancing classes with comparison operators.
+ * \brief Policies for enhancing classes.
  */
 
 namespace arcstk
@@ -14,6 +14,7 @@ inline namespace v_1_0_0
 
 /**
  * \internal
+ *
  * \brief Adds inequality to classes defining equality operator==.
  */
 template <typename T>
@@ -38,6 +39,7 @@ struct Comparable
 
 /**
  * \internal
+ *
  * \brief Adds all relational operators to classes defining operator<
  * (less-than).
  */
@@ -87,7 +89,6 @@ struct TotallyOrdered : public Comparable<T>
 };
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
