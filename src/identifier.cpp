@@ -38,7 +38,8 @@ const ARId EmptyARId = *make_empty_arid();
 namespace details
 {
 
-const std::string AR_URL_PREFIX { "http://www.accuraterip.com/accuraterip/" };
+const static std::string AR_URL_PREFIX {
+	"http://www.accuraterip.com/accuraterip/" };
 
 
 uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
@@ -263,17 +264,11 @@ public:
 	 */
 	bool empty() const noexcept;
 
+	void swap(Impl& rhs) noexcept;
+
+	bool equals(const Impl& rhs) const noexcept;
 
 	std::string to_string() const noexcept;
-
-
-	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
-	{
-		return lhs.track_count_ == rhs.track_count_
-			&& lhs.disc_id1_    == rhs.disc_id1_
-			&& lhs.disc_id2_    == rhs.disc_id2_
-			&& lhs.cddb_id_     == rhs.cddb_id_;
-	}
 
 private:
 
@@ -349,7 +344,25 @@ uint32_t ARId::Impl::cddb_id() const noexcept
 
 bool ARId::Impl::empty() const noexcept
 {
-	return *EmptyARId.impl_ == *this;
+	return this->equals(*EmptyARId.impl_);
+}
+
+
+void ARId::Impl::swap(Impl& rhs) noexcept
+{
+	std::swap(this->track_count_, rhs.track_count_);
+	std::swap(this->disc_id1_,    rhs.disc_id1_);
+	std::swap(this->disc_id2_,    rhs.disc_id2_);
+	std::swap(this->cddb_id_,     rhs.cddb_id_);
+}
+
+
+bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
+{
+	return     this->track_count_ == rhs.track_count_
+			&& this->disc_id1_    == rhs.disc_id1_
+			&& this->disc_id2_    == rhs.disc_id2_
+			&& this->cddb_id_     == rhs.cddb_id_;
 }
 
 
@@ -433,6 +446,24 @@ bool ARId::empty() const noexcept
 }
 
 
+void ARId::swap(ARId& rhs) const noexcept
+{
+	impl_->swap(*rhs.impl_);
+}
+
+
+bool ARId::equals(const ARId& rhs) const noexcept
+{
+	return impl_->equals(*rhs.impl_);
+}
+
+
+std::string ARId::to_string() const noexcept
+{
+	return impl_->to_string();
+}
+
+
 ARId& ARId::operator = (const ARId& rhs)
 {
 	if (this == &rhs)
@@ -447,22 +478,6 @@ ARId& ARId::operator = (const ARId& rhs)
 
 
 ARId& ARId::operator = (ARId&& rhs) noexcept = default;
-
-
-bool operator == (const ARId& lhs, const ARId& rhs) noexcept
-{
-	return &lhs == &rhs || *lhs.impl_ == *rhs.impl_;
-}
-
-
-std::string to_string(const ARId& id) noexcept
-{
-	return details::construct_id(
-			id.track_count(),
-			id.disc_id_1(),
-			id.disc_id_2(),
-			id.cddb_id());
-}
 
 
 // make_arid

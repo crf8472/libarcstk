@@ -56,8 +56,6 @@ class ARId final : public Comparable<ARId>
 {
 public:
 
-	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept;
-
 	/**
 	 * \brief Construct ARId.
 	 *
@@ -150,18 +148,57 @@ public:
 	 */
 	bool empty() const noexcept;
 
+	/**
+	 * \brief Swap with another instance.
+	 */
+	void swap(ARId& rhs) const noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const ARId& rhs) const noexcept;
+
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const noexcept;
+
 private:
 
 	class Impl;
 	std::unique_ptr<Impl> impl_;
+
+public:
+
+	friend void swap(ARId& lhs, ARId& rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
+
+	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	/**
+	 * \brief Create a string representation of the ARId.
+	 *
+	 * \param[in] arid The ARId to represent
+	 *
+	 * \return The actual AccurateRip ID as a string
+	 */
+	friend std::string to_string(const ARId& arid)
+	{
+		return arid.to_string();
+	}
 };
 
-/**
- * \brief Create a string representation of the ARId.
- *
- * \return The actual AccurateRip ID as a string
- */
-std::string to_string(const ARId& id) noexcept;
 
 /**
  * \brief Create an ARId from the toc data.
