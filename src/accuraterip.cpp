@@ -6,6 +6,9 @@
  * \brief Implementation of the AccurateRip checksum algorithm.
  */
 
+#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#include "algorithms.hpp"
+#endif
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"
 #endif
@@ -37,6 +40,9 @@ using cstype = checksum::type; // local, for Readability
 
 
 // UpdatableAPI
+
+
+UpdatableAPI::~UpdatableAPI() noexcept = default;
 
 
 ChecksumSet UpdatableAPI::value() const

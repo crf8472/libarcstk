@@ -1,5 +1,6 @@
 #ifndef __LIBARCSTK_ALGORITHMS_HPP__
 #define __LIBARCSTK_ALGORITHMS_HPP__
+
 /**
  * \file
  *
@@ -17,20 +18,25 @@ inline namespace v_1_0_0
 /** \addtogroup calc */
 /** @{ */
 
+namespace accuraterip
+{
+
 /**
  * \brief AccurateRip checksum algorithm version 1.
  */
-using AccurateRipV1   = accuraterip::V1;
+using V1 = details::Version1;
 
 /**
  * \brief AccurateRip checksum algorithm version 2.
  */
-using AccurateRipV2   = accuraterip::V2;
+using V2 = details::Version2;
 
 /**
  * \brief AccurateRip checksum algorithm version 2 providing also version 1.
  */
-using AccurateRipV1V2 = accuraterip::V1and2;
+using V1andV2 = details::Versions1and2;
+
+} // namespace accuraterip
 
 /** @} */ // group calc
 

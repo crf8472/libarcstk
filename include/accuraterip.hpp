@@ -1,11 +1,16 @@
+#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#error "Do not include accuraterip.hpp, include algorithms.hpp instead"
+#endif
+
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
 #define __LIBARCSTK_ACCURATERIP_HPP__
+
 /**
  * \internal
  *
  * \file
  *
- * \brief AccurateRip specific implementations.
+ * \brief AccurateRip implementations details.
  */
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
@@ -172,9 +177,9 @@ class UpdatableAPI
 public:
 
 	/**
-	 * \brief Virtual public destructor.
+	 * \brief Virtual default destructor.
 	 */
-	virtual ~UpdatableAPI() noexcept = default;
+	virtual ~UpdatableAPI() noexcept;
 
 	/**
 	 * \brief Get the current updated value from the Updatable.
@@ -301,7 +306,6 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	ChecksumSet current_result_;
 
-
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
@@ -346,7 +350,12 @@ public:
 	 */
 	uint_fast64_t multiplier() const;
 
-
+	/**
+	 * \brief Swap two instances.
+	 *
+	 * \param[in] lhs First instance to swap
+	 * \param[in] rhs Second instance to swap
+	 */
 	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs) noexcept
 	{
 		using std::swap;
@@ -356,25 +365,32 @@ public:
 	}
 };
 
-} // namespace details
-
-
-/**
- * \brief AccurateRip v1 algorithm.
- */
-using V1 = details::ARCSAlgorithm<checksum::type::ARCS1>;
+// The following using declaratives are intended for testing.
+// For regular use, include header algorithms.hpp.
 
 /**
- * \brief AccurateRip v2 algorithm.
+ * \internal
+ *
+ * \brief AccurateRip checksum algorithm version 1.
  */
-using V2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
+using Version1 = details::ARCSAlgorithm<checksum::type::ARCS1>;
 
 /**
- * \brief AccurateRip v2 algorithm implementation that also provides v1.
+ * \internal
+ *
+ * \brief AccurateRip checksum algorithm version 2.
  */
-using V1and2 =
+using Version2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
+
+/**
+ * \internal
+ *
+ * \brief AccurateRip checksum algorithm version 2 providing also version 1.
+ */
+using Versions1and2 =
 	details::ARCSAlgorithm<checksum::type::ARCS1, checksum::type::ARCS2>;
 
+} // namespace details
 } // namespace accuraterip
 
 /** @} */ // group calc
