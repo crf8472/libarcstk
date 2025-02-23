@@ -104,7 +104,6 @@ using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
  */
 using sample_t = uint32_t;
 
-
 /**
  * \internal
  *
@@ -119,7 +118,6 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 // Nonetheless I am not quite sure whether bare pointers indeed should be used
 // in this context.
 
-
 /**
  * \internal
  *
@@ -131,7 +129,6 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
-
 /**
  * \internal
  * \brief Defined iff \c Iterator is an iterator over \c sample_t.
@@ -141,19 +138,6 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 template<typename Iterator>
 using IsSampleIterator =
 	std::enable_if_t<is_iterator_over<Iterator, sample_t>::value>;
-
-
-// forward declaration for operator == and binary ops
-class SampleInputIterator; // IWYU pragma keep
-
-bool operator == (const SampleInputIterator& lhs,
-		const SampleInputIterator& rhs) noexcept;
-
-SampleInputIterator operator + (SampleInputIterator lhs, const int32_t amount)
-	noexcept;
-
-SampleInputIterator operator + (const int32_t amount, SampleInputIterator rhs)
-	noexcept;
 
 /**
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
@@ -185,21 +169,6 @@ class SampleInputIterator final : public Comparable<SampleInputIterator>
 {
 public:
 
-	friend bool operator == (const SampleInputIterator& lhs,
-			const SampleInputIterator& rhs) noexcept
-	{
-		return lhs.object_->equals(*rhs.object_);
-	}
-
-	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const int32_t amount) noexcept
-	{
-		lhs.object_->advance(amount);
-		return lhs;
-	}
-
-	// operator + (amount, rhs) is not a friend
-
 	/**
 	 * \brief Iterator category is std::input_iterator_tag.
 	 */
@@ -226,13 +195,11 @@ public:
 	 */
 	using difference_type = std::ptrdiff_t;
 
-
 private:
-
-	/// \cond IGNORE_DOCUMENTATION_FOR_THE_FOLLOWING
 
 	/**
 	 * \internal
+	 *
 	 * \brief Internal interface to the type-erased object.
 	 */
 	struct Concept
@@ -292,9 +259,9 @@ private:
 		= 0;
 	};
 
-
 	/**
 	 * \internal
+	 *
 	 * \brief Internal object representation
 	 *
 	 * \tparam Iterator The iterator type to wrap
@@ -341,20 +308,16 @@ private:
 		friend void swap(Model& lhs, Model& rhs) noexcept
 		{
 			using std::swap;
-
 			swap(lhs.iterator_, rhs.iterator_);
 		}
 
-		private:
+	private:
 
-			/**
-			 * \brief The type-erased iterator instance.
-			 */
-			Iterator iterator_;
+		/**
+		 * \brief The type-erased iterator instance.
+		 */
+		Iterator iterator_;
 	};
-
-	/// \endcond
-
 
 public:
 
@@ -451,14 +414,34 @@ public:
 	}
 	// required by LegacyIterator
 
+
 	friend void swap(SampleInputIterator& lhs, SampleInputIterator& rhs)
 		noexcept
 	{
 		using std::swap;
-
 		swap(lhs.object_, rhs.object_);
 	} // required by LegacyIterator
 
+
+	friend bool operator == (const SampleInputIterator& lhs,
+			const SampleInputIterator& rhs) noexcept
+	{
+		return lhs.object_->equals(*rhs.object_);
+	}
+
+
+	friend SampleInputIterator operator + (SampleInputIterator lhs,
+			const int32_t amount) noexcept
+	{
+		lhs.object_->advance(amount);
+		return lhs;
+	}
+
+	friend SampleInputIterator operator + (const int32_t amount,
+			SampleInputIterator lhs) noexcept
+	{
+		return lhs + amount;
+	}
 
 private:
 
@@ -515,16 +498,24 @@ void swap(Context& lhs, Context& rhs) noexcept;
 std::string to_string(const Context& c) noexcept;
 
 /**
- * \brief Returns TRUE iff \c rhs is not equivalent to 0.
+ * \brief Returns TRUE iff \c c is not equivalent to 0.
+ *
+ * \param[in] c Context to evaluate
+ *
+ * \return TRUE iff \c c is not equivalent to 0
  */
-bool any(const Context& rhs) noexcept;
-
+bool any(const Context& c) noexcept;
 
 /**
  * \brief Settings for a Calculation.
  */
-class Settings final
+class Settings final : public Comparable<Settings>
 {
+	/**
+	 * \brief Internal context.
+	 */
+	Context context_;
+
 public:
 
 	/**
@@ -555,12 +546,16 @@ public:
 	 */
 	Context context() const;
 
-private:
+	friend void swap(Settings& lhs, Settings& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.context_, rhs.context_);
+	}
 
-	/**
-	 * \brief Internal context.
-	 */
-	Context context_;
+	friend bool operator == (const Settings& lhs, const Settings& rhs) noexcept
+	{
+		return lhs.context_ == rhs.context_;
+	}
 };
 
 
@@ -743,6 +738,8 @@ private:
  */
 class Calculation final
 {
+	class Impl;
+	std::unique_ptr<Impl> impl_;
 
 public:
 
@@ -916,10 +913,7 @@ public:
 	 */
 	Checksums result() const noexcept;
 
-private:
-
-	class Impl;
-	std::unique_ptr<Impl> impl_;
+	// TODO swap
 };
 
 

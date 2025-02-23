@@ -711,16 +711,6 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 // calculate.hpp
 
 
-// SampleInputIterator
-
-
-inline SampleInputIterator operator + (const int32_t amount,
-		SampleInputIterator rhs) noexcept
-{
-	return rhs + amount;
-}
-
-
 // Context
 
 
@@ -853,7 +843,6 @@ std::unique_ptr<Algorithm> Algorithm::clone() const
 void Algorithm::base_swap(Algorithm& rhs)
 {
 	using std::swap;
-
 	swap(settings_, rhs.settings_);
 }
 
