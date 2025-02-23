@@ -186,7 +186,7 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
 
 
 AudioSize::AudioSize() noexcept
-	: AudioSize { 0, UNIT::BYTES }
+	: AudioSize { EmptyAudioSize }
 {
 	// empty
 }
@@ -247,33 +247,7 @@ AudioSize::operator bool() const noexcept
 }
 
 
-void swap(AudioSize& lhs, AudioSize& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.total_pcm_bytes_, rhs.total_pcm_bytes_);
-}
-
-
-bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept
-{
-	return lhs.bytes() == rhs.bytes();
-}
-
-
-bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
-{
-	return lhs.bytes() < rhs.bytes();
-}
-
-
-std::string to_string(const AudioSize& s)
-{
-	using std::to_string;
-	return to_string(s.frames()) + " LBA frames";
-}
-
-
-const AudioSize EmptyAudioSize { 0, UNIT::BYTES };
+extern const AudioSize EmptyAudioSize { 0, UNIT::BYTES };
 
 
 // ToCData
@@ -284,22 +258,27 @@ namespace toc
 
 ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets)
 {
-	using std::cbegin;
-	using std::cend;
+	const auto unit { UNIT::FRAMES };
+	auto toc = ToCData(1 + offsets.size());
+
+	// Write leadout to first index position
+
 	using std::begin;
 	using std::end;
 
-	ToCData toc ( 1 + offsets.size() );
-
 	auto ptr { begin(toc) };
-
-	*ptr = AudioSize { leadout, UNIT::FRAMES };
+	*ptr = AudioSize { leadout, unit };
 	++ptr;
+
+	// Write tracks in ascending order to index positions 1..n
+
+	using std::cbegin;
+	using std::cend;
 
 	std::transform(cbegin(offsets), cend(offsets), ptr,
 			[](const int32_t o) -> AudioSize
 			{
-				return AudioSize { o, UNIT::FRAMES };
+				return AudioSize { o, unit };
 			});
 
 	toc.shrink_to_fit();
@@ -416,14 +395,10 @@ public:
 	std::vector<AudioSize>   offsets() const;
 	std::vector<std::string> filenames() const;
 
+	bool has_filenames() const noexcept;
 	bool is_single_file() const noexcept;
 
 	bool complete() const noexcept;
-
-	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
-	{
-		return lhs.toc_ == rhs.toc_ && lhs.filenames_ == rhs.filenames_;
-	}
 
 	friend void swap(Impl& lhs, Impl& rhs) noexcept
 	{
@@ -431,6 +406,11 @@ public:
 
 		swap(lhs.toc_,       rhs.toc_);
 		swap(lhs.filenames_, rhs.filenames_);
+	}
+
+	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
+	{
+		return lhs.toc_ == rhs.toc_ && lhs.filenames_ == rhs.filenames_;
 	}
 
 private:
@@ -515,6 +495,12 @@ std::vector<std::string> ToC::Impl::filenames() const
 }
 
 
+bool ToC::Impl::has_filenames() const noexcept
+{
+	return !filenames_.empty();
+}
+
+
 bool ToC::Impl::is_single_file() const noexcept
 {
 	if (filenames_.size() == 1)
@@ -547,8 +533,8 @@ ToC::ToC(const ToCData& toc_data, const std::vector<std::string>& filenames)
 
 
 ToC::ToC(const ToCData& toc_data)
-	: impl_ { std::make_unique<ToC::Impl>(toc_data,
-			std::vector<std::string>{/* empty */}) }
+	: impl_ { std::make_unique<ToC::Impl>(
+					toc_data, std::vector<std::string>{/* empty */}) }
 {
 	// empty
 }
@@ -621,17 +607,9 @@ bool ToC::complete() const noexcept
 }
 
 
-bool operator == (const ToC& lhs, const ToC& rhs) noexcept
+bool ToC::equals(const ToC& rhs) const noexcept
 {
-	return *lhs.impl_ == *rhs.impl_;
-}
-
-
-void swap(ToC& lhs, ToC& rhs) noexcept
-{
-	using std::swap;
-
-	swap(lhs.impl_, rhs.impl_);
+	return *impl_ == *rhs.impl_;
 }
 
 
@@ -677,24 +655,6 @@ InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 
 
 InvalidMetadataException::InvalidMetadataException(const char *what_arg)
-	: std::runtime_error { what_arg }
-{
-	// empty
-}
-
-
-// NonstandardMetadataException
-
-
-NonstandardMetadataException::NonstandardMetadataException(
-		const std::string& what_arg)
-	: std::runtime_error { what_arg }
-{
-	// empty
-}
-
-
-NonstandardMetadataException::NonstandardMetadataException(const char *what_arg)
 	: std::runtime_error { what_arg }
 {
 	// empty

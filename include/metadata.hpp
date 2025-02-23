@@ -1,5 +1,6 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #define __LIBARCSTK_METADATA_HPP__
+
 /**
  * \file
  *
@@ -455,19 +456,34 @@ public:
 	explicit operator bool() const noexcept;
 
 
-	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept;
+	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.total_pcm_bytes_, rhs.total_pcm_bytes_);
+	}
+
+	friend bool operator == (const AudioSize& lhs, const AudioSize& rhs)
+		noexcept
+	{
+		return lhs.bytes() == rhs.bytes();
+	}
+
+	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
+	{
+		return lhs.bytes() < rhs.bytes();
+	}
+
+	/**
+	 * \brief Create a string representation of the AudioSize instance.
+	 *
+	 * \param[in] a The instance to convert to a string
+	 */
+	friend std::string to_string(const AudioSize& s)
+	{
+		using std::to_string;
+		return to_string(s.frames()) + " LBA frames";
+	}
 };
-
-bool operator == (const AudioSize& lhs, const AudioSize& rhs) noexcept;
-
-bool operator  < (const AudioSize& lhs, const AudioSize& rhs) noexcept;
-
-/**
- * \brief Create a string representation of the AudioSize instance.
- *
- * \param[in] a The instance to convert to a string
- */
-std::string to_string(const AudioSize& a);
 
 
 /**
@@ -665,6 +681,9 @@ public:
 	ToC(ToC&& rhs) noexcept;
 	ToC& operator = (ToC&& rhs) noexcept;
 
+	/**
+	 * \brief Default destructor.
+	 */
 	~ToC() noexcept;
 
 	/**
@@ -725,14 +744,32 @@ public:
 	 */
 	bool complete() const noexcept;
 
-	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept;
-
-	friend void swap(ToC& lhs, ToC& rhs) noexcept;
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const ToC& rhs) const noexcept;
 
 private:
 
 	class Impl;
 	std::unique_ptr<Impl> impl_;
+
+public:
+
+	friend void swap(ToC& lhs, ToC& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.impl_, rhs.impl_);
+	}
+
+	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
 };
 
 
@@ -792,36 +829,6 @@ public:
 	 * \param[in] what_arg What argument
 	 */
 	explicit InvalidMetadataException(const char *what_arg);
-};
-
-/**
- * \brief Reports metadata violating the redbook standard.
- *
- * Violating the redbook standard is usually not a problem for calculating
- * AccurateRip checksums. A common case are unusual total lengths, as for
- * example up to 99 minutes per disc.
- *
- * \attention
- * This exception occurrs only internally in the current API version, but is
- * never thrown to the client. This may change in future versions.
- */
-class NonstandardMetadataException final : public std::runtime_error
-{
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit NonstandardMetadataException(const std::string& what_arg);
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] what_arg What argument
-	 */
-	explicit NonstandardMetadataException(const char *what_arg);
 };
 
 /** @} */
