@@ -25,7 +25,6 @@
 #include <string>         // for string
 #include <unordered_set>  // for unordered_set
 
-
 namespace arcstk
 {
 inline namespace v_1_0_0
@@ -82,61 +81,145 @@ constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 
 
 /**
+ * \brief Helper for masking the lower 32 bits of a sample.
+ */
+static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
+
+
+/**
+ * \brief Values of a calculation state.
+ */
+struct Subtotals
+{
+	uint_fast64_t multiplier  = 1;  // multiplier
+	uint_fast64_t update      = 0;  // update factor
+	uint_fast32_t subtotal_v1 = 0;  // subtotal for ARCSv1
+	uint_fast32_t subtotal_v2 = 0;  // subtotal for ARCSv2
+
+	friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.multiplier,  rhs.multiplier);
+		swap(lhs.update,      rhs.update);
+		swap(lhs.subtotal_v1, rhs.subtotal_v1);
+		swap(lhs.subtotal_v2, rhs.subtotal_v2);
+	}
+};
+
+
+/**
+ * \brief Functor for performing the actual update.
+ */
+template <enum checksum::type T1, enum checksum::type... T2>
+struct Update
+{
+	template <class B, class E>
+	void operator()(const B& /* start */, const E& /* stop */,
+			Subtotals& /* subtotals */) const
+	{
+		// empty
+	}
+
+	ChecksumSet value(Subtotals& /* st */) const
+	{
+		return {/* empty */};
+	}
+
+	std::string id_string() const
+	{
+		return {/* empty */};
+	}
+};
+
+
+// AccurateRip v1
+template <>
+struct Update<checksum::type::ARCS1>
+{
+	template <class B, class E>
+	void operator()(const B& start, const E& stop, Subtotals& st) const
+	{
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			st.subtotal_v1 += st.multiplier * (*pos) & LOWER_32_BITS_;
+		}
+	}
+
+	ChecksumSet value(const Subtotals& st) const;
+	std::string id_string() const;
+};
+
+
+// AccurateRip v2
+template <>
+struct Update<checksum::type::ARCS2>
+{
+	template <class B, class E>
+	void operator()(const B& start, const E& stop, Subtotals& st) const
+	{
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			st.update = st.multiplier * (*pos);
+
+			st.subtotal_v2 +=
+				(st.update & LOWER_32_BITS_) + (st.update >> 32u);
+		}
+	}
+
+	ChecksumSet value(const Subtotals& st) const;
+	std::string id_string() const;
+};
+
+
+// AccurateRip v1+2
+template <>
+struct Update<checksum::type::ARCS1,checksum::type::ARCS2>
+{
+	template <class B, class E>
+	void operator()(const B& start, const E& stop, Subtotals& st) const
+	{
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			st.update       = st.multiplier * (*pos);
+			st.subtotal_v1 += st.update & LOWER_32_BITS_;
+			st.subtotal_v2 += (st.update >> 32u);
+		}
+	}
+
+	ChecksumSet value(const Subtotals& st) const;
+	std::string id_string() const;
+};
+
+
+/**
+ * \brief Updater for specified checksum types.
+ */
+template <enum checksum::type T1, enum checksum::type... T2>
+std::unordered_set<checksum::type> types_set()
+{
+	return { T1, T2... };
+}
+
+
+/**
  * \internal
  *
  * \brief Interface and base class for updatable subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
-class UpdatableBase
+class AccurateRipCS final
 {
-	/**
-	 * \brief Values of a calculation state.
-	 */
-	struct Subtotals
-	{
-		uint_fast64_t multiplier  = 1;  // multiplier: sample index
-		uint_fast64_t update      = 0;  // update factor
-		uint_fast32_t subtotal_v1 = 0;  // subtotal for ARCSv1
-		uint_fast32_t subtotal_v2 = 0;  // subtotal for ARCSv2
-
-		friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
-		{
-			using std::swap;
-			swap(lhs.multiplier,  rhs.multiplier);
-			swap(lhs.update,      rhs.update);
-			swap(lhs.subtotal_v1, rhs.subtotal_v1);
-			swap(lhs.subtotal_v2, rhs.subtotal_v2);
-		}
-	};
-
-protected:
-
-	/**
-	 * \brief Protected virtual default destructor.
-	 */
-	~UpdatableBase() noexcept;
-
 	/**
 	 * \brief Internal subtotals.
 	 */
 	Subtotals st_;
 
 	/**
-	 * \brief Helper for masking the lower 32 bits of a sample.
+	 * \brief Internal update strategy.
 	 */
-	static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
+	Update<T1, T2...> update_;
 
 public:
-
-	/**
-	 * \brief Default constructor.
-	 */
-	UpdatableBase();
-
-	/**
-	 * \brief Reset the instance to its initial state.
-	 */
-	void reset();
 
 	/**
 	 * \brief Current Multiplier of this instance.
@@ -153,138 +236,61 @@ public:
 	void set_multiplier(const uint_fast64_t m);
 
 	/**
-	 * \brief Return the checksum types this instance calculates.
+	 * \brief Update the instance by a sequence of samples.
 	 *
-	 * \return Set of types calculated by this instance
+	 * \param[in] start The start position (part of update)
+	 * \param[in] stop  The stop position (not part of update)
 	 */
-	std::unordered_set<checksum::type> types() const;
-};
-
-
-/**
- * \internal
- *
- * \brief Public interface for subclasses of Updatable.
- */
-class UpdatableAPI
-{
-	virtual ChecksumSet do_value() const
-	= 0;
-
-	virtual std::string do_id_string() const
-	= 0;
-
-public:
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~UpdatableAPI() noexcept;
+	void update(const SampleInputIterator& start,
+			const SampleInputIterator& stop);
 
 	/**
 	 * \brief Get the current updated value from the Updatable.
+	 *
+	 * The length is the actual length based on the total number of samples the
+	 * instance has been updated.
+	 *
+	 * \return The current subtotal
 	 */
 	ChecksumSet value() const;
 
 	/**
-	 * \brief Get the ID string from the Updatable.
+	 * \brief Reset the instance to its initial state.
 	 */
-	std::string id_string() const;
-};
+	void reset();
 
+	/**
+	 * \brief Get the ID string from the Updatable.
+	 *
+	 * \return String representing the type of this instance.
+	 */
+	std::string id_string() const
+	{
+		return update_.id_string();
+	}
 
-/**
- * \internal
- *
- * \brief Updatable state of subtotals.
- *
- * Default implementation is empty.
- */
-template<enum checksum::type T1, enum checksum::type... T2>
-class Updatable final : public UpdatableBase<T1, T2...>
-{
-	// empty
+	/**
+	 * \brief Return the checksum types this instance calculates.
+	 *
+	 * \return Set of types calculated by this instance
+	 */
+	std::unordered_set<checksum::type> types() const
+	{
+		return types_set<T1, T2...>();
+	}
 
-	friend void swap(Updatable& lhs, Updatable& rhs) noexcept
+	/**
+	 * \brief Swap two instances.
+	 *
+	 * \param[in] lhs First instance to swap
+	 * \param[in] rhs Second instance to swap
+	 */
+	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
 	{
 		using std::swap;
-
-		swap(lhs.st_, rhs.st_);
+		swap(lhs.st_,     rhs.st_);
+		swap(lhs.update_, rhs.update_);
 	}
-};
-
-
-// specialization for ARCS1
-template <>
-class Updatable<checksum::type::ARCS1> final
-								: public UpdatableAPI
-								, public UpdatableBase<checksum::type::ARCS1>
-{
-public:
-
-	template <class B, class E>
-	void update(const B& start, const E& stop)
-	{
-		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
-		{
-			st_.subtotal_v1 += st_.multiplier * (*pos) & LOWER_32_BITS_;
-		}
-	}
-
-	// UpdatableAPI
-	ChecksumSet do_value()     const final;
-	std::string do_id_string() const final;
-};
-
-
-// specialization for ARCS2
-template <>
-class Updatable<checksum::type::ARCS2> final
-								: public UpdatableAPI
-								, public UpdatableBase<checksum::type::ARCS2>
-{
-public:
-
-	template<class B, class E>
-	void update(const B& start, const E& stop)
-	{
-		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
-		{
-			st_.update = st_.multiplier * (*pos);
-
-			st_.subtotal_v2 +=
-				(st_.update & LOWER_32_BITS_) + (st_.update >> 32u);
-		}
-	}
-
-	// UpdatableAPI
-	ChecksumSet do_value()     const final;
-	std::string do_id_string() const final;
-};
-
-
-// specialization for ARCS1+ARCS2
-template <>
-class Updatable<checksum::type::ARCS1,checksum::type::ARCS2> final
-			: public UpdatableAPI
-			, public UpdatableBase<checksum::type::ARCS1,checksum::type::ARCS2>
-{ // TODO Order of args in parameter pack??
-public:
-
-	template<class B, class E>
-	void update(const B& start, const E& stop)
-	{
-		for (auto pos = start; pos != stop; ++pos, ++st_.multiplier)
-		{
-			st_.update       = st_.multiplier * (*pos);
-			st_.subtotal_v1 += st_.update & LOWER_32_BITS_;
-			st_.subtotal_v2 += (st_.update >> 32u);
-		}
-	}
-
-	// UpdatableAPI
-	ChecksumSet do_value()     const final;
-	std::string do_id_string() const final;
 };
 
 
@@ -297,34 +303,18 @@ template<enum checksum::type T1, enum checksum::type... T2>
 class ARCSAlgorithm final : public Algorithm
 {
 	/**
-	 * \brief Internal updatable state.
+	 * \brief Algorithm state..
 	 */
-	Updatable<T1, T2...> state_;
+	AccurateRipCS<T1, T2...> state_;
 
 	/**
 	 * \brief Current result of performing the algorithm.
 	 */
 	ChecksumSet current_result_;
 
-	/**
-	 * \brief Set multiplier to a new value.
-	 *
-	 * \param[in] m New value for multiplier
-	 */
-	void set_multiplier(const uint_fast64_t m);
-
-	/**
-	 * \brief Save the current subtotal as result.
-	 */
-	void save_current_subtotal();
-
-
 	// Algorithm
 
 	void do_setup(const Settings* s) final;
-
-	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
-			const Points& points) const final;
 
 	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
 
@@ -334,6 +324,9 @@ class ARCSAlgorithm final : public Algorithm
 
 	std::unordered_set<checksum::type> do_types() const final;
 
+	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
+			const Points& points) const final;
+
 	std::unique_ptr<Algorithm> do_clone() const final;
 
 public:
@@ -342,13 +335,6 @@ public:
 	 * \brief Default constructor.
 	 */
 	ARCSAlgorithm();
-
-	/**
-	 * \brief Current multiplier.
-	 *
-	 * \return Current multiplier
-	 */
-	uint_fast64_t multiplier() const;
 
 	/**
 	 * \brief Swap two instances.
@@ -388,7 +374,7 @@ using Version2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
  * \brief AccurateRip checksum algorithm version 2 providing also version 1.
  */
 using Versions1and2 =
-	details::ARCSAlgorithm<checksum::type::ARCS1, checksum::type::ARCS2>;
+		details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
 } // namespace details
 } // namespace accuraterip

@@ -28,6 +28,36 @@
 #include <vector>                 // for vector
 
 
+TEST_CASE ( "AccurateRipCS", "[updatable]" )
+{
+	using arcstk::accuraterip::details::AccurateRipCS;
+	using arcstk::checksum::type;
+
+	AccurateRipCS<type::ARCS1,type::ARCS2> u1;
+	AccurateRipCS<type::ARCS1,type::ARCS2> u2;
+
+	std::vector<uint32_t> data { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+
+	using std::cbegin;
+	using std::cend;
+
+	u1.set_multiplier(1);
+	u1.update(cbegin(data), cend(data));
+
+	SECTION( "Swapping instances of AccurateRipCS<> works" )
+	{
+		CHECK ( u1.value().get(type::ARCS2).value() == 650 );
+		CHECK ( u2.value().get(type::ARCS2).value() ==   0 );
+
+		using std::swap;
+		swap(u1, u2);
+
+		CHECK ( u1.value().get(type::ARCS2).value() ==   0 );
+		CHECK ( u2.value().get(type::ARCS2).value() == 650 );
+	}
+}
+
+
 TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 {
 	using arcstk::AudioSize;
@@ -116,7 +146,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		auto state = AccurateRip::Updatable<type::ARCS2>{};
+		auto state = AccurateRip::AccurateRipCS<type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
 
@@ -192,7 +222,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		auto state = AccurateRip::Updatable<type::ARCS1,type::ARCS2>{};
+		auto state = AccurateRip::AccurateRipCS<type::ARCS1,type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
@@ -270,7 +300,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		auto state = AccurateRip::Updatable<type::ARCS1,type::ARCS2>{};
+		auto state = AccurateRip::AccurateRipCS<type::ARCS1,type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
@@ -376,7 +406,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 /*
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		arcstk::accuraterip::Updatable<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::AccurateRipCS<type::ARCS1,type::ARCS2> state {};
 
 		// Initialize Buffer
 

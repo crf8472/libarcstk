@@ -39,116 +39,88 @@ namespace details
 using cstype = checksum::type; // local, for Readability
 
 
-// UpdatableAPI
+// Update
 
 
-UpdatableAPI::~UpdatableAPI() noexcept = default;
-
-
-ChecksumSet UpdatableAPI::value() const
+ChecksumSet Update<cstype::ARCS1>::value(const Subtotals& st) const
 {
-	return do_value();
+	return { 0, {{ cstype::ARCS1, st.subtotal_v1 }} };
 }
 
 
-std::string UpdatableAPI::id_string() const
+std::string Update<cstype::ARCS1>::id_string() const
 {
-	return do_id_string();
+	return "v1";
 }
 
 
-// UpdatableBase
-
-
-template <cstype T1, cstype... T2>
-UpdatableBase<T1, T2...>::~UpdatableBase() noexcept = default;
-
-
-template <cstype T1, cstype... T2>
-UpdatableBase<T1, T2...>::UpdatableBase()
-	: st_ { /* default */ }
+ChecksumSet Update<cstype::ARCS2>::value(const Subtotals& st) const
 {
-	// empty
+	return { 0, {{ cstype::ARCS2, st.subtotal_v2 }} };
 }
 
 
-template <cstype T1, cstype... T2>
-void UpdatableBase<T1, T2...>::reset()
+std::string Update<cstype::ARCS2>::id_string() const
 {
-	st_.update      = 0;
-	st_.subtotal_v1 = 0;
-	st_.subtotal_v2 = 0;
+	return "v2";
 }
 
 
+ChecksumSet Update<cstype::ARCS1, cstype::ARCS2>::value(
+		const Subtotals& st) const
+{
+	return { 0, {
+		{ cstype::ARCS1, st.subtotal_v1 },
+		{ cstype::ARCS2, st.subtotal_v1 + st.subtotal_v2 },
+	} };
+}
+
+
+std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
+	const
+{
+	return "v1+2";
+}
+
+
+// AccurateRipCS
+
+
 template <cstype T1, cstype... T2>
-uint_fast64_t UpdatableBase<T1, T2...>::multiplier() const
+uint_fast64_t AccurateRipCS<T1, T2...>::multiplier() const
 {
 	return st_.multiplier;
 }
 
 
 template <cstype T1, cstype... T2>
-void UpdatableBase<T1, T2...>::set_multiplier(const uint_fast64_t m)
+void AccurateRipCS<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
 	st_.multiplier = m;
 }
 
 
 template <cstype T1, cstype... T2>
-std::unordered_set<cstype> UpdatableBase<T1, T2...>::types() const
+void AccurateRipCS<T1, T2...>::update(const SampleInputIterator& start,
+			const SampleInputIterator& stop)
 {
-	return { T1, T2... };
+	update_(start, stop, st_);
 }
 
 
-// Updatable <ARCS1>
-
-
-ChecksumSet Updatable<cstype::ARCS1>::do_value() const
+template <cstype T1, cstype... T2>
+ChecksumSet AccurateRipCS<T1, T2...>::value() const
 {
-	return { 0, {{ cstype::ARCS1, st_.subtotal_v1 }} };
+	return update_.value(st_);
 }
 
 
-std::string Updatable<cstype::ARCS1>::do_id_string() const
+template <cstype T1, cstype... T2>
+void AccurateRipCS<T1, T2...>::reset()
 {
-	return "v1";
-}
-
-
-// Updatable <ARCS2>
-
-
-ChecksumSet Updatable<cstype::ARCS2>::do_value() const
-{
-	return { 0, {{ cstype::ARCS2, st_.subtotal_v2 }} };
-}
-
-
-std::string Updatable<cstype::ARCS2>::do_id_string() const
-{
-	return "v2";
-}
-
-
-// Updatable <ARCS1, ARCS2>
-
-
-ChecksumSet Updatable<cstype::ARCS1, cstype::ARCS2>::do_value()
-	const
-{
-	return { 0, {
-		{ cstype::ARCS1, st_.subtotal_v1 },
-		{ cstype::ARCS2, st_.subtotal_v1 + st_.subtotal_v2 },
-	} };
-}
-
-
-std::string Updatable<cstype::ARCS1, cstype::ARCS2>::do_id_string()
-	const
-{
-	return "v1+2";
+	st_.update      = 0;
+	st_.subtotal_v1 = 0;
+	st_.subtotal_v2 = 0;
 }
 
 
@@ -166,75 +138,16 @@ ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 
 
 template <cstype T1, cstype... T2>
-uint_fast64_t ARCSAlgorithm<T1, T2...>::multiplier() const
-{
-	return state_.multiplier();
-}
-
-
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::set_multiplier(const uint_fast64_t m)
-{
-	state_.set_multiplier(m);
-}
-
-
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::save_current_subtotal()
-{
-	current_result_ = state_.value();
-}
-
-
-template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 {
 	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(s->context());
 
 	if (any(Context::FIRST_TRACK & s->context()))
 	{
-		this->set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
+		state_.set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
 	}
 
-	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << this->multiplier();
-}
-
-
-template <cstype T1, cstype... T2>
-std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
-		const AudioSize& size, const Points& points) const
-{
-	int32_t from = 0;
-	int32_t to   = size.samples() - 1;
-
-	if (!points.empty())
-	{
-		from += points[0].samples(); // start on first offset
-	}
-
-	ARCS_LOG(DEBUG2) << "Legal range for context "
-		<< to_string(this->settings()->context());
-
-	if (any(Context::FIRST_TRACK & this->settings()->context()))
-	{
-		from += NUM_SKIP_SAMPLES::FRONT;
-
-		ARCS_LOG(DEBUG2) << "Start on sample offset " << from;
-		ARCS_LOG(DEBUG2) << "Then skip " << NUM_SKIP_SAMPLES::FRONT
-			<< " samples";
-	}
-
-	if (any(Context::LAST_TRACK  & this->settings()->context()))
-	{
-		to -= NUM_SKIP_SAMPLES::BACK;
-
-		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
-			<< " samples";
-	}
-
-	ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
-
-	return { from, to };
+	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
 }
 
 
@@ -242,11 +155,11 @@ template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	ARCS_LOG(DEBUG3) << "First multiplier: " << multiplier();
+	ARCS_LOG(DEBUG3) << "First multiplier: " << state_.multiplier();
 
 	state_.update(start, stop);
 
-	ARCS_LOG(DEBUG3) << "Last multiplier:  " << multiplier() - 1;
+	ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
 	// -1 because multiplier_ has already been updated to next input
 }
 
@@ -255,11 +168,11 @@ template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
 		const AudioSize& s)
 {
-	this->save_current_subtotal();
+	current_result_ = state_.value();
 	current_result_.set_length(s.frames());
 
 	state_.reset();
-	set_multiplier(1);
+	state_.set_multiplier(1);
 }
 
 
@@ -278,6 +191,46 @@ std::unordered_set<cstype> ARCSAlgorithm<T1, T2...>::do_types() const
 
 
 template <cstype T1, cstype... T2>
+std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
+		const AudioSize& size, const Points& points) const
+{
+	const auto ctx = this->settings()->context();
+
+	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
+
+	auto from = int32_t { 0 };
+	auto to   = int32_t { size.samples() - 1 };
+
+	if (!points.empty())
+	{
+		from += points[0].samples(); // start on first offset
+
+		ARCS_LOG(DEBUG2) << "Skip first " << from << " samples due to offset";
+	}
+
+	if (any(Context::FIRST_TRACK & ctx))
+	{
+		from += NUM_SKIP_SAMPLES::FRONT;
+
+		ARCS_LOG(DEBUG2) << "Skip " << NUM_SKIP_SAMPLES::FRONT
+			<< " samples after beginning";
+	}
+
+	if (any(Context::LAST_TRACK & ctx))
+	{
+		to -= NUM_SKIP_SAMPLES::BACK;
+
+		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
+			<< " samples";
+	}
+
+	ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
+
+	return { from, to };
+}
+
+
+template <cstype T1, cstype... T2>
 std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 {
 	return std::make_unique<ARCSAlgorithm>(*this);
@@ -287,18 +240,11 @@ std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 // Explicit instantiations
 
 
-template class UpdatableBase<cstype::ARCS1>;
+template class AccurateRipCS<cstype::ARCS1>;
 
-template class UpdatableBase<cstype::ARCS2>;
+template class AccurateRipCS<cstype::ARCS2>;
 
-template class UpdatableBase<cstype::ARCS1, cstype::ARCS2>;
-
-
-//template class Updatable<cstype::ARCS1>;
-
-//template class Updatable<cstype::ARCS2>;
-
-//template class Updatable<cstype::ARCS1, cstype::ARCS2>;
+template class AccurateRipCS<cstype::ARCS1, cstype::ARCS2>;
 
 
 template class ARCSAlgorithm<cstype::ARCS1>;
