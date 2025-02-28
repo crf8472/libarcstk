@@ -222,6 +222,11 @@ class AccurateRipCS final
 public:
 
 	/**
+	 * \brief Default constructor.
+	 */
+	AccurateRipCS();
+
+	/**
 	 * \brief Current Multiplier of this instance.
 	 *
 	 * \return Current multiplier

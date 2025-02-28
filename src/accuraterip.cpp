@@ -87,6 +87,15 @@ std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
 
 
 template <cstype T1, cstype... T2>
+AccurateRipCS<T1, T2...>::AccurateRipCS()
+	: st_     { /*default*/ }
+	, update_ { /*default*/ }
+{
+	// empty
+}
+
+
+template <cstype T1, cstype... T2>
 uint_fast64_t AccurateRipCS<T1, T2...>::multiplier() const
 {
 	return st_.multiplier;
