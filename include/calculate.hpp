@@ -913,7 +913,17 @@ public:
 	 */
 	Checksums result() const noexcept;
 
-	// TODO swap
+	/**
+	 * \brief Swap the instance with another instance.
+	 *
+	 * \param[in] rhs Instance to swap with
+	 */
+	void swap(Calculation& rhs) noexcept;
+
+	friend void swap(Calculation& lhs, Calculation& rhs)
+	{
+		lhs.swap(rhs);
+	}
 };
 
 

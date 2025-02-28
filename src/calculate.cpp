@@ -1192,6 +1192,13 @@ Checksums Calculation::result() const noexcept
 }
 
 
+void Calculation::swap(Calculation& rhs) noexcept
+{
+	using std::swap;
+	swap (impl_, rhs.impl_);
+}
+
+
 // make_calculation
 
 
