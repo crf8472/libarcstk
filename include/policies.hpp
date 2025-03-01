@@ -100,20 +100,30 @@ struct TotallyOrdered : public Comparable<T>
  *
  * Intended to be used with types without operator ->, e.g. primitive types.
  *
- * \tparam T Some object type
+ * \tparam V Some value type
+ * \tparam I Some index type, std::ptrdiff_t if omitted
  */
-template<typename T>
+template<typename V, typename I = std::ptrdiff_t>
 class IteratorElement final
 {
-	std::size_t index_;
-	T element_;
-
 public:
 
 	/**
 	 * \brief Value type to represent
 	 */
-	using value_type = T;
+	using value_type = V;
+
+	/**
+	 * \brief Index type to represent
+	 */
+	using index_type = I;
+
+private:
+
+	index_type index_;
+	value_type element_;
+
+public:
 
 	/**
 	 * \brief Constructor.
@@ -131,7 +141,7 @@ public:
 	 * \param[in] index   Index position
 	 * \param[in] element Element value
 	 */
-	IteratorElement(const std::size_t index, const T& element)
+	IteratorElement(const index_type index, const value_type& element)
 		: index_   { index   }
 		, element_ { element }
 	{
@@ -143,7 +153,7 @@ public:
 	 *
 	 * \return Index position of the element
 	 */
-	std::size_t index() const
+	index_type index() const
 	{
 		return index_;
 	}

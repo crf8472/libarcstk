@@ -262,24 +262,26 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
  * \internal
  * \brief Forward iterator for DBAR related containers.
  *
- * \tparam T Type of object we iterate over
+ * \tparam T Type of object we iterate over, must define size_type
  */
 template<typename T>
 class DBARForwardIterator final : public Comparable<DBARForwardIterator<T>>
 {
+	using size_type = typename T::size_type;
+
 public:
 
 	using iterator_category = std::forward_iterator_tag;
 
 	/**
-	 * \brief Specialization of get_element<T>() yields the value_type
+	 * \brief Specialization of get_element<T>() yields the actual value_type
 	 */
     using value_type        = decltype( get_element<T>(
 				std::declval<T &>(),
-				std::declval<typename T::size_type>()) );
+				std::declval<size_type>()) );
 
     using reference         = value_type; // not a reference
-    using pointer           = IteratorElement<value_type>;
+    using pointer           = IteratorElement<value_type, size_type>;
     using difference_type   = std::ptrdiff_t;
 
 private:
@@ -289,17 +291,12 @@ private:
 	 *
 	 * This index is the position to iterate over.
 	 */
-	typename T::size_type idx_;
+	size_type idx_;
 
 	/**
 	 * \brief Container object to iterate over.
 	 */
 	const T* container_;
-
-	/**
-	 * \brief Cached current element together with its block-relative index.
-	 */
-	mutable pointer current_element_;
 
 public:
 
@@ -309,44 +306,39 @@ public:
 	 * \param[in] container Container to iterate over
 	 * \param[in] idx       Container index position to iterate over
 	 */
-	DBARForwardIterator(const T& container, const typename T::size_type idx)
-		: idx_             { idx }
-		, container_       { &container }
-		, current_element_ { /* default */ }
+	DBARForwardIterator(const T& container, const size_type idx)
+		: idx_       { idx }
+		, container_ { &container }
 	{
 		// empty
 	}
 
 	DBARForwardIterator(const DBARForwardIterator& rhs)
-		: idx_             { rhs.idx_ }
-		, container_       { rhs.container_ }
-		, current_element_ { rhs.current_element_ }
+		: idx_       { rhs.idx_ }
+		, container_ { rhs.container_ }
 	{
 		// empty
 	}
 
 	DBARForwardIterator& operator=(const DBARForwardIterator& rhs)
 	{
-		idx_             = rhs.idx_;
-		container_       = rhs.container_;
-		current_element_ = rhs.current_element_;
+		idx_       = rhs.idx_;
+		container_ = rhs.container_;
 
 		return *this;
 	}
 
 	DBARForwardIterator(DBARForwardIterator&& rhs) noexcept
-		: idx_             { std::move(rhs.idx_) }
-		, container_       { std::move(rhs.container_) }
-		, current_element_ { std::move(rhs.current_element_) }
+		: idx_       { std::move(rhs.idx_) }
+		, container_ { std::move(rhs.container_) }
 	{
 		// empty
 	}
 
 	DBARForwardIterator& operator=(DBARForwardIterator&& rhs) noexcept
 	{
-		idx_             = std::move(rhs.idx_);
-		container_       = std::move(rhs.container_);
-		current_element_ = std::move(rhs.current_element_);
+		idx_       = std::move(rhs.idx_);
+		container_ = std::move(rhs.container_);
 
 		return *this;
 	}
@@ -355,14 +347,12 @@ public:
 
 	reference operator*() const
 	{
-		this->sync();
-		return current_element_.element();
+		return get_element(*this->container_, this->idx_);
 	}
 
     pointer operator->() const
 	{
-		this->sync();
-		return current_element_;
+		return pointer { idx_, get_element(*this->container_, this->idx_) };
 	}
 
     DBARForwardIterator& operator++()
@@ -383,30 +373,6 @@ public:
 	{
 		return lhs.container_ == rhs.container_
 			&& lhs.idx_       == rhs.idx_;
-		// current_element_ is irrelevant for equality
-	}
-
-private:
-
-	/**
-	 * \brief Load current element from container.
-	 *
-	 * \return Current element with index.
-	 */
-	pointer load_current() const
-	{
-		return pointer { idx_, get_element(*this->container_, this->idx_) };
-	}
-
-	/**
-	 * \brief Update the internal cached object to current element if required.
-	 */
-	void sync() const
-	{
-		if (current_element_.index() != this->idx_)
-		{
-			current_element_ = this->load_current();
-		}
 	}
 };
 
