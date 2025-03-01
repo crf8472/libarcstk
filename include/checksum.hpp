@@ -10,7 +10,9 @@
 #include <array>            // for array
 #include <cstdint>          // for int32_t, uint32_t
 #include <initializer_list> // for initializer_list
+#include <iomanip>          // for setfill, setw
 #include <ostream>          // for ostream
+#include <sstream>          // for ostringstream
 #include <set>              // for set
 #include <unordered_map>    // for unordered_map
 #include <utility>          // for pair
@@ -101,10 +103,35 @@ public:
 
 	explicit operator bool() const noexcept;
 
-	friend bool operator == (const Checksum& lhs, const Checksum& rhs)
-		noexcept;
+	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
+	{
+		return lhs.value() == rhs.value();
+	}
 
-	friend void swap(Checksum& lhs, Checksum& rhs) noexcept;
+	friend void swap(Checksum& lhs, Checksum& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.value_, rhs.value_);
+	}
+
+	friend std::ostream& operator << (std::ostream& out, const Checksum& c)
+	{
+		auto prev_settings = std::ios_base::fmtflags { out.flags() };
+
+		out << std::hex << std::noshowbase << std::uppercase
+			<< std::setw(8) << std::setfill('0')
+			<< c.value();
+
+		out.flags(prev_settings);
+		return out;
+	}
+
+	friend std::string to_string(const Checksum& c)
+	{
+		auto stream = std::ostringstream {};
+		stream << c;
+		return stream.str();
+	}
 
 private:
 
@@ -113,34 +140,6 @@ private:
 	 */
 	value_type value_;
 };
-
-
-/**
- * \internal
- * \brief Overload operator << for outputting Checksums.
- *
- * Note: This is the default layout for printing ARCSs:
- * - hexadecimal representation
- * - without the '0x' base indicator
- * - uppercase letters
- * - leading zeros filling the width up to 8 digits.
- *
- * \param[in] out Stream to print to
- * \param[in] c   Checksum to print
- *
- * \return Reference to the stream
- */
-std::ostream& operator << (std::ostream& out, const Checksum& c);
-
-
-/**
- * \brief Provide a string representation of a Checksum.
- *
- * \param[in] c Checksum to represent as string
- *
- * \return String representation of the checksum
- */
-std::string to_string(const Checksum& c);
 
 
 /**
@@ -437,9 +436,17 @@ public:
 
 
 	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
-		noexcept;
+		noexcept
+	{
+		return lhs.length_ == rhs.length_ && lhs.set_ == rhs.set_;
+	}
 
-	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept;
+	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.length_, rhs.length_);
+		swap(lhs.set_,    rhs.set_);
+	}
 };
 
 /**

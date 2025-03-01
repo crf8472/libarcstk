@@ -18,10 +18,8 @@
 #include <cmath>            // for log2
 #include <cstdint>          // for int32_t
 #include <initializer_list> // for initializer_list
-#include <iomanip>          // for setfill, setw
 #include <iterator>         // for begin, end, inserter
 #include <set>              // for set
-#include <sstream>          // for ostringstream
 #include <stdexcept>        // for domain_error
 #include <string>           // for string
 #include <type_traits>      // for underlying_type
@@ -75,51 +73,6 @@ Checksum& Checksum::operator = (const Checksum::value_type rhs)
 }
 
 
-bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
-{
-	return lhs.value() == rhs.value();
-}
-
-
-void swap(Checksum& lhs, Checksum& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.value_, rhs.value_);
-}
-
-
-//
-
-
-std::string to_string(const Checksum& c)
-{
-	auto stream = std::ostringstream {};
-	stream << c;
-	return stream.str();
-}
-
-
-std::ostream& operator << (std::ostream& out, const Checksum& c)
-{
-	auto prev_settings = std::ios_base::fmtflags { out.flags() };
-
-	checksum::details::print_hex(c, true, false, out);
-
-	out.flags(prev_settings);
-	return out;
-}
-
-
-//
-
-
-const Checksum EmptyChecksum { 0 }; // defines emptyness for Checksum
-
-const ChecksumSet EmptyChecksumSet { ChecksumSet{/* empty */} };
-
-const Checksums EmptyChecksums { Checksums{/* empty */} };
-
-
 namespace checksum
 {
 
@@ -145,24 +98,6 @@ static const std::array<std::string, 2> names {
 	// "THIRD_TYPE" ,
 	// "FOURTH_TYPE" ...
 };
-
-/**
- * \brief Worker for printing a Checksum to an output stream.
- *
- * \param[in] checksum	Checksum to print
- * \param[in] upper		Flag: iff TRUE, print letters uppercase
- * \param[in] base		Flag: iff TRUE, print base 0x
- * \param[in] out		Output stream to print to
- */
-void print_hex(const Checksum& checksum, const bool upper,
-		const bool base, std::ostream& out)
-{
-	out << std::hex
-		<< (base  ? std::showbase  : std::noshowbase  )
-		<< (upper ? std::uppercase : std::nouppercase )
-		<< std::setw(8) << std::setfill('0')
-		<< checksum.value();
-}
 
 } // namespace checksum::details
 
@@ -363,18 +298,14 @@ ChecksumSet::operator bool() const noexcept
 }
 
 
-bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs) noexcept
-{
-	return lhs.length_ == rhs.length_ and lhs.set_ == rhs.set_;
-}
+// empty instances
 
 
-void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
-{
-	using std::swap;
-	swap(lhs.length_, rhs.length_);
-	swap(lhs.set_,    rhs.set_);
-}
+const Checksum    EmptyChecksum    { 0 }; // defines emptyness for Checksum
+
+const ChecksumSet EmptyChecksumSet { ChecksumSet{/* empty */} };
+
+const Checksums   EmptyChecksums   { Checksums{/* empty */} };
 
 } // namespace v_1_0_0
 } // namespace arcstk
