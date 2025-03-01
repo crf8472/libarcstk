@@ -160,17 +160,16 @@ class SampleIterator final
 
 public:
 
-
 	using iterator_category = std::bidirectional_iterator_tag;
 
 	using value_type        = sample_type;
 
-	using difference_type   = std::ptrdiff_t;
-	// Must be at least as wide as SampleSequence::size_type
+	using reference         = const value_type&;
 
 	using pointer           = const value_type*;
 
-	using reference         = const value_type&;
+	using difference_type   = std::ptrdiff_t;
+	// Must be at least as wide as SampleSequence::size_type
 
 	/**
 	 * \brief Default constructor.
@@ -383,19 +382,18 @@ public:
 	friend bool operator == (const SampleIterator& lhs,
 			const SampleIterator& rhs) noexcept
 	{
-		return lhs.seq_ == rhs.seq_ and lhs.pos_ == rhs.pos_;
+		return lhs.seq_ == rhs.seq_ && lhs.pos_ == rhs.pos_;
 	}
 
 	friend bool operator != (const SampleIterator& lhs,
 			const SampleIterator& rhs) noexcept
 	{
-		return not(lhs == rhs);
+		return !(lhs == rhs);
 	}
 
 	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
 	{
 		using std::swap;
-
 		swap(lhs.seq_, rhs.seq_);
 		swap(lhs.pos_, rhs.pos_);
 	}
@@ -422,7 +420,7 @@ private:
 	/**
 	 * \brief The SampleSequence to iterate.
 	 */
-	const SampleSequence<T, is_planar> *seq_;
+	const SampleSequence<T, is_planar>* seq_;
 
 	/**
 	 * \brief Current index position.
@@ -1324,7 +1322,6 @@ using InterleavedSamples = SampleSequence<T, false>;
 /** @} */
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
