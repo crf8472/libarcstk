@@ -153,12 +153,12 @@ public:
 	 *
 	 * \return Element value
 	 */
-	const T& element() const
+	const value_type& element() const
 	{
 		return element_;
 	}
 
-	T* operator->()
+	value_type* operator->()
 	{
 		return std::addressof(element_);
 	}
