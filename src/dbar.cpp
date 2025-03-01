@@ -319,8 +319,7 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 	}
 	catch (const std::ifstream::failure& f)
 	{
-		//file.close(); // TODO Commented out: no close when open failed
-
+		// TODO Use original f?
 		throw std::runtime_error(std::string{
 			"Failed to open file '" + filename + "'. Message: " + f.what()
 		});
@@ -474,18 +473,6 @@ DBARBlock::iterator DBARBlock::end()
 }
 
 
-DBARBlock::const_iterator DBARBlock::begin() const
-{
-	return cbegin();
-}
-
-
-DBARBlock::const_iterator DBARBlock::end() const
-{
-	return cend();
-}
-
-
 DBARBlock::const_iterator DBARBlock::cbegin() const
 {
 	return DBARBlock::const_iterator(*this, 0);
@@ -495,6 +482,18 @@ DBARBlock::const_iterator DBARBlock::cbegin() const
 DBARBlock::const_iterator DBARBlock::cend() const
 {
 	return DBARBlock::const_iterator(*this, dBAR_->size(idx_));
+}
+
+
+DBARBlock::const_iterator DBARBlock::begin() const
+{
+	return this->cbegin();
+}
+
+
+DBARBlock::const_iterator DBARBlock::end() const
+{
+	return this->cend();
 }
 
 
@@ -544,15 +543,27 @@ DBARBlock::iterator end(DBARBlock& block)
 }
 
 
+DBARBlock::const_iterator cbegin(const DBARBlock& block)
+{
+	return block.cbegin();
+}
+
+
+DBARBlock::const_iterator cend(const DBARBlock& block)
+{
+	return block.cend();
+}
+
+
 DBARBlock::const_iterator begin(const DBARBlock& block)
 {
-	return block.begin();
+	return block.cbegin();
 }
 
 
 DBARBlock::const_iterator end(const DBARBlock& block)
 {
-	return block.end();
+	return block.cend();
 }
 
 
@@ -566,25 +577,6 @@ DBAR::Impl::Impl()
 {
 	// empty
 }
-
-
-// DBAR::Impl::Impl(const Impl& impl)
-// 	: total_tracks_ { impl.total_tracks_ }
-// 	, confidence_   { impl.confidence_ }
-// 	, sums_         { impl.sums_ }
-// {
-// 	// empty
-// }
-//
-//
-// DBAR::Impl::Impl(Impl&& impl)
-// 	: total_tracks_ { std::move(impl.total_tracks_) }
-// 	, confidence_   { std::move(impl.confidence_) }
-// 	, sums_         { std::move(impl.sums_) }
-// {
-// 	// empty
-// }
-
 
 
 DBAR::Impl::size_type DBAR::Impl::size() const
@@ -873,6 +865,18 @@ DBAR::iterator DBAR::end()
 }
 
 
+DBAR::const_iterator DBAR::cbegin() const
+{
+	return DBAR::const_iterator { *this, 0 };
+}
+
+
+DBAR::const_iterator DBAR::cend() const
+{
+	return DBAR::const_iterator { *this, impl_->size() };
+}
+
+
 DBAR::const_iterator DBAR::begin() const
 {
 	return this->cbegin();
@@ -882,18 +886,6 @@ DBAR::const_iterator DBAR::begin() const
 DBAR::const_iterator DBAR::end() const
 {
 	return this->cend();
-}
-
-
-DBAR::const_iterator DBAR::cbegin() const
-{
-	return DBAR::iterator { *this, 0 };
-}
-
-
-DBAR::const_iterator DBAR::cend() const
-{
-	return DBAR::iterator { *this, impl_->size() };
 }
 
 
@@ -909,6 +901,18 @@ DBAR::iterator begin(DBAR& dbar)
 DBAR::iterator end(DBAR& dbar)
 {
 	return dbar.end();
+}
+
+
+DBAR::const_iterator cbegin(const DBAR& dbar)
+{
+	return dbar.cbegin();
+}
+
+
+DBAR::const_iterator cend(const DBAR& dbar)
+{
+	return dbar.cend();
 }
 
 

@@ -7,6 +7,10 @@
  * \brief Represent and manage unconverted sequences of samples.
  */
 
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"         // for Comparable, IteratorElement
+#endif
+
 #include <array>                // for array
 #include <cstddef>              // for ptrdiff_t, size_t
 #include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
@@ -164,9 +168,10 @@ public:
 
 	using value_type        = sample_type;
 
-	using reference         = const value_type&;
+	using reference         = value_type; // not a reference
 
-	using pointer           = const value_type*;
+	using pointer           = IteratorElement<value_type>;
+							// non-pointer, gives chaining effect on ->
 
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
@@ -248,10 +253,24 @@ public:
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
 	 */
-	value_type operator * () const
+	reference operator * () const
 	{
-		return seq_->operator[](static_cast<
-			typename SampleSequence<T, is_planar>::size_type>(pos_));
+		using index_type = typename SampleSequence<T, is_planar>::size_type;
+
+		return seq_->operator[](static_cast<index_type>(pos_));
+		//return seq_->operator[](static_cast<
+		//	typename SampleSequence<T, is_planar>::size_type>(pos_));
+	}
+
+	/**
+	 * \internal
+	 * \brief Pointer operator.
+	 *
+	 * \return Pointer to the converted PCM 32 bit sample the iterator points to
+	 */
+	pointer operator -> () const
+	{
+		return { *this, pos_ }; // IteratorElement<value_type>
 	}
 
 	/**

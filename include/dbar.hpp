@@ -7,12 +7,15 @@
  * \brief Public API for reading and representing dBAR-files.
  */
 
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"     // for Comparable, IteratorElement
+#endif
+
 #include <cstddef>          // for size_t, nullptr
 #include <cstdint>          // for uint32_t
 #include <initializer_list> // for initializer_list
 #include <istream>          // for istream
 #include <iterator>         // for forward_iterator_tag
-#include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr
 #include <stdexcept>        // for runtime_error
 #include <string>           // for string
@@ -76,7 +79,7 @@ class Checksum;
  *
  * A DBARBlockHeader is a POD and holds copies of the values.
  */
-class DBARBlockHeader final
+class DBARBlockHeader final : public Comparable<DBARBlockHeader>
 {
 	/**
 	 * \brief Total number of tracks in this block as declared.
@@ -141,7 +144,7 @@ public:
 
 
     friend bool operator == (const DBARBlockHeader& lhs,
-			const DBARBlockHeader& rhs)
+			const DBARBlockHeader& rhs) noexcept
 	{
 		return lhs.total_tracks_  == rhs.total_tracks_
 			&& lhs.id1_           == rhs.id1_
@@ -149,10 +152,13 @@ public:
 			&& lhs.cddb_id_       == rhs.cddb_id_;
 	}
 
-    friend bool operator != (const DBARBlockHeader& lhs,
-			const DBARBlockHeader& rhs)
+	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs)
 	{
-		return !(lhs == rhs);
+		using std::swap;
+		swap(lhs.total_tracks_, rhs.total_tracks_);
+		swap(lhs.id1_,          rhs.id1_);
+		swap(lhs.id2_,          rhs.id2_);
+		swap(lhs.cddb_id_,      rhs.cddb_id_);
 	}
 };
 
@@ -166,7 +172,7 @@ public:
  *
  * A DBARTriplet is a POD and holds copies of the values.
  */
-class DBARTriplet final
+class DBARTriplet final : public Comparable<DBARTriplet>
 {
 	/**
 	 * \brief ARCS value.
@@ -223,86 +229,19 @@ public:
 
 
     friend bool operator == (const DBARTriplet& lhs, const DBARTriplet& rhs)
+		noexcept
 	{
 		return lhs.arcs_          == rhs.arcs_
 			&& lhs.confidence_    == rhs.confidence_
 			&& lhs.frame450_arcs_ == rhs.frame450_arcs_;
 	}
 
-    friend bool operator != (const DBARTriplet& lhs, const DBARTriplet& rhs)
+	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs)
 	{
-		return !(lhs == rhs);
-	}
-};
-
-
-/**
- * \internal
- *
- * \brief Store current element together with its current index.
- *
- * \tparam T Some object type that exposes a <tt>size_type</tt>
- */
-template<typename T>
-class WithIndex final
-{
-	std::size_t index_;
-	T element_;
-
-public:
-
-	/**
-	 * \brief Value type to represent
-	 */
-	using value_type = T;
-
-	/**
-	 * \brief Constructor.
-	 */
-	WithIndex()
-		: index_   { std::numeric_limits<decltype( index_ )>::max() }
-		, element_ { /* default */ }
-	{
-		// empty
-	} // TODO Max value is not strongly guaranteed to never occurr in real life
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] index   Index position
-	 * \param[in] element Element value
-	 */
-	WithIndex(const std::size_t index, const T& element)
-		: index_   { index }
-		, element_ { element }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Index position of the element.
-	 *
-	 * \return Index position of the element
-	 */
-	std::size_t index() const
-	{
-		return index_;
-	}
-
-	/**
-	 * \brief Element value.
-	 *
-	 * \return Element value
-	 */
-	const T& element() const
-	{
-		return element_;
-	}
-
-
-	T* operator->()
-	{
-		return std::addressof(element_);
+		using std::swap;
+		swap(lhs.arcs_,          rhs.arcs_);
+		swap(lhs.confidence_,    rhs.confidence_);
+		swap(lhs.frame450_arcs_, rhs.frame450_arcs_);
 	}
 };
 
@@ -326,7 +265,7 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
  * \tparam T Type of object we iterate over
  */
 template<typename T>
-class DBARForwardIterator final
+class DBARForwardIterator final : public Comparable<DBARForwardIterator<T>>
 {
 public:
 
@@ -339,13 +278,8 @@ public:
 				std::declval<T &>(),
 				std::declval<typename T::size_type>()) );
 
-	/**
-	 * \brief Copy of the value currently pointed to.
-	 */
-	using Cached = WithIndex<value_type>;
-
-    using pointer           = Cached; // Cached has chained ->()
-    using reference         = value_type;
+    using reference         = value_type; // not a reference
+    using pointer           = IteratorElement<value_type>;
     using difference_type   = std::ptrdiff_t;
 
 private:
@@ -365,9 +299,7 @@ private:
 	/**
 	 * \brief Cached current element together with its block-relative index.
 	 */
-	mutable Cached current_element_;
-
-	//https://stackoverflow.com/questions/64274156/operator-for-an-iterator-that-returns-a-temporary
+	mutable pointer current_element_;
 
 public:
 
@@ -402,6 +334,23 @@ public:
 		return *this;
 	}
 
+	DBARForwardIterator(DBARForwardIterator&& rhs) noexcept
+		: idx_             { std::move(rhs.idx_) }
+		, container_       { std::move(rhs.container_) }
+		, current_element_ { std::move(rhs.current_element_) }
+	{
+		// empty
+	}
+
+	DBARForwardIterator& operator=(DBARForwardIterator&& rhs) noexcept
+	{
+		idx_             = std::move(rhs.idx_);
+		container_       = std::move(rhs.container_);
+		current_element_ = std::move(rhs.current_element_);
+
+		return *this;
+	}
+
 	~DBARForwardIterator() noexcept = default;
 
 	reference operator*() const
@@ -429,18 +378,12 @@ public:
 		return i;
 	}
 
-
     friend bool operator == (const DBARForwardIterator& lhs,
 			const DBARForwardIterator& rhs)
 	{
 		return lhs.container_ == rhs.container_
 			&& lhs.idx_       == rhs.idx_;
-	}
-
-    friend bool operator != (const DBARForwardIterator& lhs,
-			const DBARForwardIterator& rhs)
-	{
-		return !(lhs == rhs);
+		// current_element_ is irrelevant for equality
 	}
 
 private:
@@ -450,9 +393,9 @@ private:
 	 *
 	 * \return Current element with index.
 	 */
-	Cached load_current() const
+	pointer load_current() const
 	{
-		return Cached(idx_, get_element(*this->container_, this->idx_));
+		return pointer { idx_, get_element(*this->container_, this->idx_) };
 	}
 
 	/**
@@ -496,7 +439,7 @@ public:
 	/**
 	 * \brief Default constructor.
 	 */
-	DBAR(); // required for WithIndex
+	DBAR(); // required for IteratorElement
 
 	/**
 	 * \internal
@@ -631,17 +574,18 @@ public:
 
 	iterator begin();
 	iterator end();
-	const_iterator begin() const;
-	const_iterator end() const;
 	const_iterator cbegin() const;
 	const_iterator cend() const;
+	const_iterator begin() const;
+	const_iterator end() const;
 };
 
 DBAR::iterator begin(DBAR& dbar);
 DBAR::iterator end(DBAR& dbar);
+DBAR::const_iterator cbegin(const DBAR& dbar);
+DBAR::const_iterator cend(const DBAR& dbar);
 DBAR::const_iterator begin(const DBAR& dbar);
 DBAR::const_iterator end(const DBAR& dbar);
-// TODO cbegin, cend
 
 /**
  * \brief A block in a DBAR.
@@ -672,7 +616,7 @@ public:
 	/**
 	 * \brief Default constructor.
 	 */
-	DBARBlock(); // required by WithIndex
+	DBARBlock(); // required by IteratorElement
 
 	/**
 	 * \brief Constructor
@@ -732,14 +676,16 @@ public:
 
 	iterator begin();
 	iterator end();
-	const_iterator begin() const;
-	const_iterator end() const;
 	const_iterator cbegin() const;
 	const_iterator cend() const;
+	const_iterator begin() const;
+	const_iterator end() const;
 };
 
 DBARBlock::iterator begin(DBARBlock& block);
 DBARBlock::iterator end(DBARBlock& block);
+DBARBlock::const_iterator cbegin(const DBARBlock& block);
+DBARBlock::const_iterator cend(const DBARBlock& block);
 DBARBlock::const_iterator begin(const DBARBlock& block);
 DBARBlock::const_iterator end(const DBARBlock& block);
 
