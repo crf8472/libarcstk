@@ -23,7 +23,7 @@
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
 #ifndef __LIBARCSTK_POLICIES_HPP__
-#include "policies.hpp"     // for Comparable
+#include "policies.hpp"     // for Comparable, IteratorValue
 #endif
 
 /**
@@ -181,14 +181,17 @@ public:
 
 	/**
 	 * \brief Same as value_type, *not* a reference type.
+	 *
+	 * Note that some iterator types like SampleIterator for instance do not
+	 * yield lvalues, thererfore no reference to the value under the iterator is
+	 * available.
 	 */
-	using reference = sample_t;
+	using reference = sample_t; // not a reference
 
 	/**
-	 * \brief Defined as void due to absence of operator ->.
+	 * \brief Pointer to element.
 	 */
-	using pointer = void;
-	// Note: Should be const value_type* when operator-> is provided
+	using pointer = const value_type*;
 
 	/**
 	 * \brief Pointer difference type.
@@ -377,8 +380,14 @@ public:
 	 *
 	 * \return A pointer to the underlying referee
 	 */
-	pointer operator -> () const noexcept; // required by LegacyInpuIterator
-	// TODO implement
+	//Concept& operator -> () const noexcept // required by LegacyInputIterator
+	//{
+	//	return *object_;
+	//	// This will work iff Concept has operator -> defined.
+	//	// A real pointer must not be returned at this place, otherwise the
+	//	// chaining effect for operator -> will be prevented.
+	//	// See: https://stackoverflow.com/a/4923639
+	//}
 
 	/**
 	 * \brief Pre-increment iterator.
