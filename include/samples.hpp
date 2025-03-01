@@ -153,7 +153,8 @@ class SampleSequenceImplBase; // IWYU pragma keep
  * </ul>
  */
 template <typename T, bool is_planar, bool is_const>
-class SampleIterator final
+class SampleIterator final :
+					public Comparable<SampleIterator<T, is_planar, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
@@ -270,7 +271,7 @@ public:
 	 */
 	pointer operator -> () const
 	{
-		return { *this, pos_ }; // IteratorElement<value_type>
+		return { pos_, **this };
 	}
 
 	/**
@@ -402,12 +403,6 @@ public:
 			const SampleIterator& rhs) noexcept
 	{
 		return lhs.seq_ == rhs.seq_ && lhs.pos_ == rhs.pos_;
-	}
-
-	friend bool operator != (const SampleIterator& lhs,
-			const SampleIterator& rhs) noexcept
-	{
-		return !(lhs == rhs);
 	}
 
 	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept

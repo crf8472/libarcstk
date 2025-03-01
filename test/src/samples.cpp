@@ -23,10 +23,33 @@ TEST_CASE ( "SampleSequence allows int16_t and int32_t",
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;
 
-	PlanarSamples<int16_t>      seq_planar_16;
-	InterleavedSamples<int16_t> seq_interl_16;
-	PlanarSamples<int32_t>      seq_planar_32;
-	InterleavedSamples<int32_t> seq_interl_32;
+	SECTION ( "Planar 16 bit samples" )
+	{
+		auto seq_planar_16 = PlanarSamples<int16_t>{};
+
+		REQUIRE ( seq_planar_16.size() == 0 );
+	}
+
+	SECTION ( "Interleaved 16 bit samples" )
+	{
+		auto seq_interl_16 = InterleavedSamples<int16_t>{};
+
+		REQUIRE ( seq_interl_16.size() == 0 );
+	}
+
+	SECTION ( "Planar 32 bit samples" )
+	{
+		auto seq_planar_32 = PlanarSamples<int32_t>{};
+
+		REQUIRE ( seq_planar_32.size() == 0 );
+	}
+
+	SECTION ( "Interleaved 32 bit samples" )
+	{
+		auto seq_interl_32 = InterleavedSamples<int32_t>{};
+
+		REQUIRE ( seq_interl_32.size() == 0 );
+	}
 }
 
 
@@ -35,6 +58,9 @@ TEST_CASE ( "SampleSequence index access works correctly",
 {
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;
+
+	using std::cbegin;
+	using std::cend;
 
 	// Load example samples
 
@@ -71,14 +97,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t interleaved sequence access works as expected")
 	{
-		InterleavedSamples<int16_t> sequence;
+		auto sequence = InterleavedSamples<int16_t>{};
 
 		CHECK ( sequence.typesize() == 2 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xC711C2A5 );
@@ -107,7 +133,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]), 512,
 				true); // int16_t's
 
-		CHECK ( sequence.size() == 256 );
+		CHECK ( 256 == sequence.size() );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xC711C2A5 );
@@ -136,16 +162,16 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iterating over a in16_t interleaved sequence works as expected")
 	{
-		InterleavedSamples<int16_t> sequence;
+		auto sequence = InterleavedSamples<int16_t>{};
 
 		CHECK ( sequence.typesize() == 2 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
-		auto it_begin { sequence.begin() };
+		auto it_begin { sequence.cbegin() };
 
 		// begin: first 10 samples
 		CHECK ( *it_begin == 0xC711C2A5 );
@@ -220,7 +246,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		++it_begin2;
 		CHECK ( *it_begin2 == 0x0DF0F5F6 );
 
-		auto it_end2 { sequence.end() };
+		auto it_end2 { sequence.cend() };
 
 		// end: last 10 samples
 		--it_end2;
@@ -265,7 +291,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 		CHECK ( *it3 == 0xAE450C0F );
 
-		CHECK ( it3 != sequence.begin() );
+		CHECK ( it3 != sequence.cbegin() );
 
 		it3 -= 4;
 
@@ -274,14 +300,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t interleaved sequence")
 	{
-		InterleavedSamples<int16_t> sequence;
+		auto sequence = InterleavedSamples<int16_t>{};
 
 		CHECK ( sequence.typesize() == 2 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		decltype( sequence )::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -309,14 +335,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript int32_t interleaved sequence")
 	{
-		InterleavedSamples<int32_t> sequence;
+		auto sequence = InterleavedSamples<int32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0x9ECCC2A5 );
@@ -398,14 +424,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for int32_t interleaved sequence")
 	{
-		InterleavedSamples<int32_t> sequence;
+		auto sequence = InterleavedSamples<int32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		InterleavedSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -433,12 +459,12 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript in16_t planar sequence")
 	{
-		PlanarSamples<int16_t> sequence;
+		auto sequence = PlanarSamples<int16_t>{};
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -497,14 +523,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t planar sequence")
 	{
-		PlanarSamples<int16_t> sequence;
+		auto sequence = PlanarSamples<int16_t>{};
 
 		CHECK ( sequence.typesize() == 2 );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		PlanarSamples<int16_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -533,14 +559,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript int32_t planar sequence")
 	{
-		PlanarSamples<int32_t> sequence;
+		auto sequence = PlanarSamples<int32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -623,14 +649,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Iteration and Subscript are equivalent for int32_t planar sequence")
 	{
-		PlanarSamples<int32_t> sequence;
+		auto sequence = PlanarSamples<int32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		PlanarSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -659,14 +685,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t interleaved sequence")
 	{
-		InterleavedSamples<uint16_t> sequence;
+		auto sequence = InterleavedSamples<uint16_t>{};
 
 		CHECK ( sequence.typesize() == 2 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xC711C2A5 );
@@ -724,12 +750,12 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uin16_t planar sequence")
 	{
-		PlanarSamples<uint16_t> sequence;
+		auto sequence = PlanarSamples<uint16_t>{};
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -788,14 +814,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uint32_t interleaved sequence")
 	{
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0x9ECCC2A5 );
@@ -877,14 +903,14 @@ TEST_CASE ( "SampleSequence index access works correctly",
 
 	SECTION ("Subscript uint32_t planar sequence")
 	{
-		PlanarSamples<uint32_t> sequence;
+		auto sequence = PlanarSamples<uint32_t>{};
 
 		CHECK ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -970,6 +996,9 @@ TEST_CASE ( "SampleSequence index access works correctly",
 TEST_CASE ( "SampleIterator increment and decrement",
 		"[sampleiterator] [calc]" )
 {
+	using std::cbegin;
+	using std::cend;
+
 	using arcstk::PlanarSamples;
 	using arcstk::InterleavedSamples;
 
@@ -1011,14 +1040,14 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		const auto begin1 = sequence.begin();
 		auto begin2 = sequence.begin();
@@ -1039,7 +1068,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		// take begin of other sequence
 
-		InterleavedSamples<uint32_t> sequence_other;
+		auto sequence_other = InterleavedSamples<uint32_t>{};
 		sequence_other.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 		auto begin_other = sequence_other.begin();
 
@@ -1076,7 +1105,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
@@ -1092,14 +1121,14 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1139,14 +1168,14 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1171,14 +1200,14 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1199,14 +1228,14 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1229,34 +1258,58 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 
 		REQUIRE ( sequence.typesize() == 4 );
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == sequence.end() - sequence.begin() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
-		auto begin { sequence.begin() };
-		auto end   { sequence.end() };
+		auto start { sequence.begin() };
+		auto stop  { sequence.end() };
 
-		CHECK ( begin == sequence.begin() );
-		CHECK ( end   == sequence.end() );
+		CHECK ( start == sequence.begin() );
+		CHECK ( stop  == sequence.end() );
 
-		swap(begin, end);
+		using std::swap;
+		swap(start, stop);
 
-		CHECK ( end   == sequence.begin() );
-		CHECK ( begin == sequence.end() );
+		CHECK ( stop  == sequence.begin() );
+		CHECK ( start == sequence.end() );
+	}
+
+	SECTION ("Iterator arrow operator")
+	{
+		using arcstk::SampleIterator;
+
+		auto sequence = InterleavedSamples<uint32_t>{};
+
+		REQUIRE ( sequence.typesize() == 4 );
+
+		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+
+		REQUIRE ( 128 == sequence.size() );
+		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
+
+		REQUIRE ( *cbegin(sequence) == 0x9ECCC2A5 );
+
+		//
+
+		const auto e = cbegin(sequence).operator->();
+
+		CHECK ( e.element() == 0x9ECCC2A5 );
+		CHECK ( e.index()   == 0 );
 	}
 
 	SECTION ("Iterator 16 bit begin and end")
 	{
-		PlanarSamples<int16_t> sequence;
+		auto sequence = PlanarSamples<int16_t>{};
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( 0 == sequence.size() );
-		CHECK ( 0 == sequence.end() - sequence.begin() );
+		CHECK ( 0 == cend(sequence) - cbegin(sequence) );
 		CHECK ( 0 == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( sequence.empty() );
 
@@ -1264,7 +1317,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == sequence.end() - sequence.begin() );
+		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 		CHECK ( 256 == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( not sequence.empty() );
 
@@ -1274,11 +1327,11 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 	SECTION ("Iterator 32 bit begin and end")
 	{
-		PlanarSamples<int32_t> sequence;
+		auto sequence = PlanarSamples<int32_t>{};
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( 0 == sequence.size() );
-		CHECK ( 0 == sequence.end() - sequence.begin() );
+		CHECK ( 0 == cend(sequence) - cbegin(sequence) );
 		CHECK ( 0 == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( sequence.empty() );
 
@@ -1286,7 +1339,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == sequence.end() - sequence.begin() );
+		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 		CHECK ( 128 == std::end(sequence) - std::begin(sequence) );
 		//CHECK ( not sequence.empty() );
 
@@ -1298,12 +1351,12 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 
-		auto ptr = sequence.begin();
+		auto ptr = cbegin(sequence);
 
 		// begin: first 10 samples
 		CHECK (    *ptr  == 0x9ECCC2A5 );
@@ -1338,7 +1391,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
@@ -1415,12 +1468,12 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
 
-		auto ptr = std::end(sequence);
+		auto ptr = std::cend(sequence);
 
 		// end: last 10 samples
 		CHECK ( *(--ptr) == 0xDD6DABA8 );
@@ -1455,7 +1508,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	{
 		using arcstk::SampleIterator;
 
-		InterleavedSamples<uint32_t> sequence;
+		auto sequence = InterleavedSamples<uint32_t>{};
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( sequence.size() == 128 );
@@ -1527,7 +1580,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		ptr = std::prev(ptr);
 		CHECK ( *ptr == 0x9ECCC2A5 );
 
-		CHECK ( ptr == sequence.begin() );
+		CHECK ( ptr == sequence.cbegin() );
 	}
 }
 
