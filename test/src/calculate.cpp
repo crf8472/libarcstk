@@ -62,8 +62,8 @@ TEST_CASE ( "Context", "[context] [calc]" )
 
 TEST_CASE ( "Calculation", "[calculation] [calc]" )
 {
-	using arcstk::accuraterip::V1;
-	using arcstk::accuraterip::V1andV2;
+	using arcstk::AccurateRip::V1;
+	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;
 	using arcstk::AudioSize;
 	using arcstk::Calculation;

@@ -63,14 +63,14 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
 	using arcstk::sample_t;
-	namespace AccurateRip = arcstk::accuraterip::details;
+	namespace Details = arcstk::accuraterip::details;
 
 	// fits calculation-test-01.bin
 	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		auto algo = AccurateRip::Version1{};
+		auto algo = Details::Version1{};
 		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
@@ -146,7 +146,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		auto state = AccurateRip::AccurateRipCS<type::ARCS2>{};
+		auto state = Details::AccurateRipCS<type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
 
@@ -222,7 +222,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		auto state = AccurateRip::AccurateRipCS<type::ARCS1,type::ARCS2>{};
+		auto state = Details::AccurateRipCS<type::ARCS1,type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
@@ -300,7 +300,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		auto state = AccurateRip::AccurateRipCS<type::ARCS1,type::ARCS2>{};
+		auto state = Details::AccurateRipCS<type::ARCS1,type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
