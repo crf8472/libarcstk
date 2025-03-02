@@ -34,7 +34,7 @@
 TEST_CASE ( "CalculationStateImpl",
 		"[calculationstateimpl] [calc]" )
 {
-	using arcstk::accuraterip::V1andV2;
+	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;
 	using arcstk::details::CalculationStateImpl;
 
@@ -131,7 +131,7 @@ TEST_CASE ( "CalculationStateImpl",
 
 TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 {
-	using arcstk::accuraterip::V1andV2;
+	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;
 	using arcstk::AudioSize;
 	using arcstk::Checksums;
