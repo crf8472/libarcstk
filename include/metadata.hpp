@@ -476,7 +476,7 @@ public:
 	/**
 	 * \brief Create a string representation of the AudioSize instance.
 	 *
-	 * \param[in] a The instance to convert to a string
+	 * \param[in] s The instance to convert to a string
 	 */
 	friend std::string to_string(const AudioSize& s)
 	{
