@@ -108,6 +108,9 @@ private:
 	virtual std::size_t do_size() const
 	= 0;
 
+	virtual std::unique_ptr<ChecksumSource> do_clone() const
+	= 0;
+
 public:
 
 	/**
@@ -189,6 +192,13 @@ public:
 	 * \return Number of blocks in this object
 	 */
 	size_type size() const;
+
+	/**
+	 * \brief Returns a deep copy of the instance
+	 *
+	 * \return A deep copy of the instance
+	 */
+	std::unique_ptr<ChecksumSource> clone() const;
 };
 
 
@@ -242,7 +252,7 @@ public:
 	 *
 	 * \return Copy of \c rhs
 	 */
-	ChecksumSourceOf& operator=(const ChecksumSourceOf& rhs)
+	ChecksumSourceOf& operator = (const ChecksumSourceOf& rhs)
 	{
 		checksum_source_ = rhs.checksum_source_;
 		return *this;
@@ -272,23 +282,32 @@ public:
  */
 class DBARSource final : public ChecksumSourceOf<DBAR>
 {
+	// ChecksumSource
+
 	ARId do_id(const size_type block_idx) const final;
+
 	Checksum do_checksum(const size_type block_idx,
 			const size_type idx) const final;
 
 	const uint32_t& do_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
+
 	const unsigned& do_confidence(const size_type block_idx,
 			const size_type idx) const final;
+
 	const uint32_t& do_frame450_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
 
 	std::size_t do_size(const size_type block_idx) const final;
+
 	std::size_t do_size() const final;
+
+	std::unique_ptr<ChecksumSource> do_clone() const final;
 
 public:
 
 	using ChecksumSourceOf::ChecksumSourceOf;
+
 	using ChecksumSourceOf::operator=;
 };
 
@@ -577,6 +596,9 @@ class Verifier
 			const ChecksumSource& ref_sums) const
 	= 0;
 
+	virtual std::unique_ptr<Verifier> do_clone() const
+	= 0;
+
 public:
 
 	/**
@@ -631,7 +653,12 @@ public:
 	 */
 	std::unique_ptr<VerificationResult> perform(const DBAR& ref_sums) const;
 
-	// TODO clone()
+	/**
+	 * \brief Returns a deep copy of the instance
+	 *
+	 * \return A deep copy of the instance
+	 */
+	std::unique_ptr<Verifier> clone() const;
 };
 
 
@@ -656,12 +683,20 @@ class AlbumVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
+	// Verifier
+
 	virtual const ARId& do_actual_id() const noexcept final;
+
 	virtual const Checksums& do_actual_checksums() const noexcept final;
+
 	virtual bool do_strict() const noexcept final;
+
 	virtual void do_set_strict(const bool strict) noexcept final;
+
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
+
+	virtual std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -672,6 +707,12 @@ public:
 	 * \param[in] actual_id   Actual ARId to check for
 	 */
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
+
+	AlbumVerifier(const AlbumVerifier& verifier);
+	AlbumVerifier& operator=(const AlbumVerifier& verifier);
+
+	AlbumVerifier(AlbumVerifier&& verifier) noexcept;
+	AlbumVerifier& operator=(AlbumVerifier&& verifier) noexcept;
 
 	/**
 	 * \brief Default destructor.
@@ -712,12 +753,20 @@ class TracksetVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
+	// Verifier
+
 	virtual const ARId& do_actual_id() const noexcept final;
+
 	virtual const Checksums& do_actual_checksums() const noexcept final;
+
 	virtual bool do_strict() const noexcept final;
+
 	virtual void do_set_strict(const bool strict) noexcept final;
+
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
+
+	virtual std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -727,6 +776,12 @@ public:
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
 	explicit TracksetVerifier(const Checksums& actual_sums);
+
+	TracksetVerifier(const TracksetVerifier& verifier);
+	TracksetVerifier& operator=(const TracksetVerifier& verifier);
+
+	TracksetVerifier(TracksetVerifier&& verifier) noexcept;
+	TracksetVerifier& operator=(TracksetVerifier&& verifier) noexcept;
 
 	/**
 	 * \brief Default destructor.

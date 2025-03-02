@@ -302,7 +302,14 @@ bool VerificationPolicy::is_strict() const
 }
 
 
-int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+std::unique_ptr<VerificationPolicy> VerificationPolicy::clone() const
+{
+	return do_clone();
+}
+
+
+int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r)
+	const
 {
 	using size_type = details::ResultBits::size_type;
 
@@ -346,6 +353,12 @@ bool StrictPolicy::do_is_strict() const
 }
 
 
+std::unique_ptr<VerificationPolicy> StrictPolicy::do_clone() const
+{
+	return std::make_unique<StrictPolicy>(*this);
+}
+
+
 // LiberalPolicy
 
 
@@ -369,6 +382,12 @@ bool LiberalPolicy::do_is_strict() const
 }
 
 
+std::unique_ptr<VerificationPolicy> LiberalPolicy::do_clone() const
+{
+	return std::make_unique<LiberalPolicy>(*this);
+}
+
+
 // Result
 
 
@@ -377,6 +396,38 @@ Result::Result(std::unique_ptr<VerificationPolicy> p)
 	, policy_ { std::move(p) }
 {
 	// empty
+}
+
+
+Result::Result(const Result& rhs)
+	: flags_  { rhs.flags_ }
+	, policy_ { rhs.policy_->clone() }
+{
+	// empty
+}
+
+
+Result& Result::operator= (const Result& rhs)
+{
+	flags_  = rhs.flags_;
+	policy_ = rhs.policy_->clone();
+	return *this;
+}
+
+
+Result::Result(Result&& rhs) noexcept
+	: flags_  { std::move(rhs.flags_)  }
+	, policy_ { std::move(rhs.policy_) }
+{
+	// empty
+}
+
+
+Result& Result::operator= (Result&& rhs) noexcept
+{
+	flags_  = std::move(rhs.flags_);
+	policy_ = std::move(rhs.policy_);
+	return *this;
 }
 
 
@@ -480,7 +531,7 @@ const VerificationPolicy* Result::policy() const
 
 std::unique_ptr<VerificationResult> Result::do_clone() const
 {
-	return nullptr; // FIXME
+	return std::make_unique<Result>(*this);
 }
 
 
@@ -1099,6 +1150,11 @@ std::size_t ChecksumSource::size() const
 	return this->do_size();
 }
 
+std::unique_ptr<ChecksumSource> ChecksumSource::clone() const
+{
+	return this->do_clone();
+}
+
 
 // DBARSource
 
@@ -1151,6 +1207,12 @@ std::size_t DBARSource::do_size(const ChecksumSource::size_type /* block_idx */)
 std::size_t DBARSource::do_size() const
 {
 	return source()->size();
+}
+
+
+std::unique_ptr<ChecksumSource> DBARSource::do_clone() const
+{
+	return std::make_unique<DBARSource>(*this);
 }
 
 
@@ -1321,8 +1383,8 @@ std::unique_ptr<VerificationResult> Verifier::perform(const DBAR& ref_sums)
 
 
 AlbumVerifier::Impl::Impl(const Checksums& actual_sums, const ARId& actual_id)
-	: details::VerifierBase { actual_sums }
-	, actual_id_ { actual_id }
+	: details::VerifierBase { actual_sums               }
+	, actual_id_            { std::addressof(actual_id) }
 {
 	// empty
 }
@@ -1337,7 +1399,7 @@ std::unique_ptr<details::MatchPolicy> AlbumVerifier::Impl::do_create_order()
 
 const ARId& AlbumVerifier::Impl::do_actual_id() const noexcept
 {
-	return actual_id_;
+	return *actual_id_;
 }
 
 
@@ -1349,6 +1411,34 @@ AlbumVerifier::AlbumVerifier(const Checksums& actual_sums,
 	: impl_      { std::make_unique<Impl>(actual_sums, actual_id) }
 {
 	// empty
+}
+
+
+AlbumVerifier::AlbumVerifier(const AlbumVerifier& rhs)
+	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+{
+	// empty
+}
+
+
+AlbumVerifier& AlbumVerifier::operator=(const AlbumVerifier& rhs)
+{
+	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	return *this;
+}
+
+
+AlbumVerifier::AlbumVerifier(AlbumVerifier&& rhs) noexcept
+	: impl_      { std::move(rhs.impl_) }
+{
+	// empty
+}
+
+
+AlbumVerifier& AlbumVerifier::operator=(AlbumVerifier&& rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 
@@ -1387,6 +1477,12 @@ std::unique_ptr<VerificationResult> AlbumVerifier::do_perform(
 }
 
 
+std::unique_ptr<Verifier> AlbumVerifier::do_clone() const
+{
+	return std::make_unique<AlbumVerifier>(*this);
+}
+
+
 // TracksetVerifier::Impl
 
 
@@ -1411,6 +1507,34 @@ TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
 	: impl_      { std::make_unique<Impl>(actual_sums) }
 {
 	// empty
+}
+
+
+TracksetVerifier::TracksetVerifier(const TracksetVerifier& rhs)
+	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+{
+	// empty
+}
+
+
+TracksetVerifier& TracksetVerifier::operator=(const TracksetVerifier& rhs)
+{
+	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	return *this;
+}
+
+
+TracksetVerifier::TracksetVerifier(TracksetVerifier&& rhs) noexcept
+	: impl_      { std::move(rhs.impl_) }
+{
+	// empty
+}
+
+
+TracksetVerifier& TracksetVerifier::operator=(TracksetVerifier&& rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 
@@ -1445,6 +1569,12 @@ std::unique_ptr<VerificationResult> TracksetVerifier::do_perform(
 			const ChecksumSource& ref_sums) const
 {
 	return impl_->perform(ref_sums);
+}
+
+
+std::unique_ptr<Verifier> TracksetVerifier::do_clone() const
+{
+	return std::make_unique<TracksetVerifier>(*this);
 }
 
 

@@ -321,6 +321,9 @@ class VerificationPolicy { virtual bool do_is_verified(const int track, const
 	virtual bool do_is_strict() const
 	= 0;
 
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const
+	= 0;
+
 public:
 
 	/**
@@ -361,6 +364,8 @@ public:
 	 * \return TRUE iff this policy is strict.
 	 */
 	bool is_strict() const;
+
+	std::unique_ptr<VerificationPolicy> clone() const;
 };
 
 
@@ -376,6 +381,8 @@ class StrictPolicy final : public VerificationPolicy
 		final;
 
 	virtual bool do_is_strict() const final;
+
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -388,6 +395,8 @@ class LiberalPolicy final : public VerificationPolicy
 		const final;
 
 	virtual bool do_is_strict() const final;
+
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -428,7 +437,13 @@ public:
 	 *
 	 * \param[in] policy VerificationPolicy to use when interpreting the result.
 	 */
-	Result(std::unique_ptr<VerificationPolicy> policy);
+	explicit Result(std::unique_ptr<VerificationPolicy> policy);
+
+	Result(const Result& rhs);
+	Result& operator= (const Result& rhs);
+
+	Result(Result&& rhs) noexcept;
+	Result& operator= (Result&& rhs) noexcept;
 
 	/**
 	 * \brief Initializer helper.
@@ -1105,6 +1120,9 @@ private:
 } // namespace details
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+
 /**
  * \brief Implementation of an AlbumVerifier.
  */
@@ -1133,8 +1151,10 @@ private:
 	/**
 	 * \brief Internal actual ARId.
 	 */
-	const ARId& actual_id_;
+	const ARId* actual_id_;
 };
+
+#pragma GCC diagnostic pop
 
 
 /**
