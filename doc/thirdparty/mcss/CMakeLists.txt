@@ -3,7 +3,7 @@
 ## Use HTML5/CSS3 from m.css for generating HTML from Doxygen XML output
 ##
 ## Prerequisites from parent:
-## - Targets: 'doc'
+## - Targets:   'doc'
 ## - Variables: DOC_GEN_DIR, DOC_COMMENT, DOXYGEN_NEEDS_XML_DEDUP,
 ##              DOXYGEN_VERSION (from find_package)
 ##
@@ -23,14 +23,6 @@ message (STATUS "Will build documentation with m.css" )
 
 find_package (Git REQUIRED )
 
-
-if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.9.7 )
-	message (FATAL_ERROR
-		"Doxygen version is ${DOXYGEN_VERSION} "
-		"but m.css does currently not support doxygen versions > 1.9.6")
-else()
-	message (STATUS "m.css uses doxygen version ${DOXYGEN_VERSION}" )
-endif()
 
 
 ## --- Overwrite default values from parent
