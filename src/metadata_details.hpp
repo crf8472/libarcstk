@@ -130,6 +130,53 @@ void throw_on_invalid_tocdata(const std::string& msg);
 } // namespace validate
 } // namespace details
 
+
+class ToC::Impl final
+{
+public:
+
+	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
+
+	Impl(const Impl& rhs);
+	Impl& operator = (const Impl& rhs);
+
+	Impl(Impl&& rhs) noexcept;
+	Impl& operator = (Impl&& rhs) noexcept;
+
+	~Impl() noexcept;
+
+	int total_tracks() const noexcept;
+
+	void set_leadout(const AudioSize leadout) noexcept;
+	AudioSize leadout() const noexcept;
+
+	std::vector<AudioSize>   offsets() const;
+	std::vector<std::string> filenames() const;
+
+	bool has_filenames() const noexcept;
+	bool is_single_file() const noexcept;
+
+	bool complete() const noexcept;
+
+	friend void swap(Impl& lhs, Impl& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(lhs.toc_,       rhs.toc_);
+		swap(lhs.filenames_, rhs.filenames_);
+	}
+
+	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
+	{
+		return lhs.toc_ == rhs.toc_ && lhs.filenames_ == rhs.filenames_;
+	}
+
+private:
+
+	ToCData toc_;
+	std::vector<std::string> filenames_;
+};
+
 } // namespace v_1_0_0
 } // namespace arcstk
 
