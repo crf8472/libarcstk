@@ -373,4 +373,4 @@ just not done. Help will be appreciated.
 [1]: https://include-what-you-use.org/
 [2]: https://github.com/catchorg/Catch2
 [3]: https://mcss.mosra.cz/doxygen/
-[4]: https://crf8472.github.io/libarcstk/
+[4]: https://crf8472.github.io/libarcstk/current/
