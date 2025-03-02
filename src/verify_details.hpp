@@ -2,38 +2,42 @@
 #error "Do not include verify_details.hpp, include verify.hpp instead"
 #endif
 
+#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
+#define __LIBARCSTK_VERIFY_DETAILS_HPP__
+
 /**
  * \internal
  *
  * \file
  *
- * \brief Internal API for Matcher algorithms.
+ * \brief Implementation details for verify.hpp.
  */
-
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#define __LIBARCSTK_VERIFY_DETAILS_HPP__
 
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
 
-#include <iterator> // for std::input_iterator_tag
-#include <cstddef>  // for std::ptrdiff_t
-#include <utility>  // for std::swap
+#include <cstddef>  // for size_t, ptrdiff_t
+#include <cstdint>  // for uint32_t
+#include <iterator> // for input_iterator_tag
+#include <memory>   // for unique_ptr
+#include <tuple>    // for tuple
+#include <utility>  // for swap
+#include <vector>   // for vector
+
 
 namespace arcstk
 {
 inline namespace v_1_0_0
 {
+
+class ARId;
+
+/**
+ * \addtogroup verify
+ *
+ * @{
+ */
 
 namespace details
 {
@@ -317,6 +321,9 @@ class VerificationPolicy { virtual bool do_is_verified(const int track, const
 	virtual bool do_is_strict() const
 	= 0;
 
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const
+	= 0;
+
 public:
 
 	/**
@@ -357,6 +364,8 @@ public:
 	 * \return TRUE iff this policy is strict.
 	 */
 	bool is_strict() const;
+
+	std::unique_ptr<VerificationPolicy> clone() const;
 };
 
 
@@ -372,6 +381,8 @@ class StrictPolicy final : public VerificationPolicy
 		final;
 
 	virtual bool do_is_strict() const final;
+
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -384,6 +395,8 @@ class LiberalPolicy final : public VerificationPolicy
 		const final;
 
 	virtual bool do_is_strict() const final;
+
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -424,7 +437,13 @@ public:
 	 *
 	 * \param[in] policy VerificationPolicy to use when interpreting the result.
 	 */
-	Result(std::unique_ptr<VerificationPolicy> policy);
+	explicit Result(std::unique_ptr<VerificationPolicy> policy);
+
+	Result(const Result& rhs);
+	Result& operator= (const Result& rhs);
+
+	Result(Result&& rhs) noexcept;
+	Result& operator= (Result&& rhs) noexcept;
 
 	/**
 	 * \brief Initializer helper.
@@ -876,7 +895,7 @@ public:
 class MatchPolicy
 {
 	virtual void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const
 	= 0;
 
@@ -915,7 +934,7 @@ public:
 	 * \param[in]     block  Current reference block
 	 * \param[in]     track  Current track
 	 */
-	void perform(VerificationResult& result, const Checksums &actual_sums,
+	void perform(VerificationResult& result, const Checksums& actual_sums,
 			const Checksum& ref, const int block,
 			const Checksums::size_type track) const;
 };
@@ -927,7 +946,7 @@ public:
 class TrackOrderPolicy final : public MatchPolicy
 {
 	void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const final;
 };
 
@@ -938,7 +957,7 @@ class TrackOrderPolicy final : public MatchPolicy
 class FindOrderPolicy final : public MatchPolicy
 {
 	void do_perform(VerificationResult& result,
-			const Checksums &actual_sums, const Checksum& ref,
+			const Checksums& actual_sums, const Checksum& ref,
 			const int block, const Checksums::size_type track) const final;
 };
 
@@ -959,7 +978,7 @@ class Verification final
 	 * \param[in]     actual_id   Actual ARId
 	 * \param[in]     ref_sums    Reference Checksums
 	 */
-	void perform_ids(VerificationResult& result, const ARId &actual_id,
+	void perform_ids(VerificationResult& result, const ARId& actual_id,
 		const ChecksumSource& ref_sums) const;
 
 	/**
@@ -971,7 +990,7 @@ class Verification final
 	 * \param[in]     match       MatchPolicy to apply
 	 */
 	void perform_current(VerificationResult& result,
-		const Checksums &actual_sums,
+		const Checksums& actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& match) const;
 
 public:
@@ -987,7 +1006,7 @@ public:
 	 * \param[in]     match       MatchPolicy to apply
 	 */
 	void perform(VerificationResult& result,
-		const Checksums &actual_sums, const ARId &actual_id,
+		const Checksums& actual_sums, const ARId& actual_id,
 		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& match) const;
 		// TODO Make traversal const
@@ -1014,8 +1033,8 @@ public:
  * \return The verification result object
  */
 std::unique_ptr<VerificationResult> verify(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
+		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& match);
 
 
@@ -1101,6 +1120,9 @@ private:
 } // namespace details
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+
 /**
  * \brief Implementation of an AlbumVerifier.
  */
@@ -1129,8 +1151,10 @@ private:
 	/**
 	 * \brief Internal actual ARId.
 	 */
-	const ARId& actual_id_;
+	const ARId* actual_id_;
 };
+
+#pragma GCC diagnostic pop
 
 
 /**
@@ -1154,6 +1178,8 @@ public:
 	 */
 	~Impl() noexcept = default;
 };
+
+/** @} */
 
 } // namespace v_1_0_0
 } // namespace arcstk

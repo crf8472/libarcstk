@@ -1,32 +1,8 @@
-# Toolkit to calculate and verify AccurateRip checksums and ids
+# Calculate and Verify AccurateRip Checksums and Ids
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
+[![C++17](https://img.shields.io/badge/C++-17-darkblue.svg)](./API.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
-
-
-## Version 0.3 introduces breaking changes
-
-  - Libarcstk 0.3 will be compileable as C++17 only. Support for C++14 is
-    dropped.
-  - Version 0.3 will contain a rewrite of all classes and functions in modules
-    'id' and 'calc'.
-  - Interfaces of classes ``Calculation``, ``TOC`` and ``AudioSize`` will change
-    fundamentally. ``TOC`` will be removed in favor of ``ToC``.
-  - Class ``CalcContext`` will be entirely removed.
-  - Class ``Checksums`` will be entirely removed and only kept as a typedef.
-  - Most of the template magic in ``calculate.hpp`` will be removed as well as
-	the templated versions of ``make_toc()``.
-  - The public headers in arcstk/details and the contained classes
-    ``ARIdBuilder`` and ``TOCBuilder`` will be removed.
-  - The forced validation of ``TOC`` objects will be dropped. Validation of
-    ``TOC`` data is completely rewritten and fully optional.
-  - The logs will be make use of more log levels and be more compact in general.
-
-Client code using version 0.2* will not be compileable with version 0.3.
-
-Currently, the upcoming version 0.3 can be checked out from the development
-branch ``0.3-dev``. It will be released not before March 1st, 2025.
 
 
 ## What libarcstk does
@@ -107,5 +83,5 @@ build switches.
 
 - Checksumming CD images containing data tracks is untested and broken.
 
-[1]: https://crf8472.github.io/libarcstk/
+[1]: https://crf8472.github.io/libarcstk/current/
 [2]: https://github.com/crf8472/libarcsdec/

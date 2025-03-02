@@ -1,19 +1,21 @@
 # Makefile for the example 'albumcalc', part of libarcstk
 
+# ! Requires libcue and libsndfile !
+
 CXX     := g++
 ## Replace 'g++' with 'clang++' if you like to use clang
-CFLAGS  := -std=c++14 -Wall -Wextra -pedantic
+CFLAGS  := -std=c++17 -Wall -Wextra -pedantic
 LDFLAGS := "-Wl,--disable-new-dtags,-rpath,../../build/"
 ## We force to use libarcstk.so from build tree. Check this with
-## $ ldd arparse | grep arcs
+## $ ldd albumcalc | grep arcs
 ## or
-## $ readelf -d arparse | head -20
+## $ readelf -d albumcalc | head -20
 ## and look for the value of RPATH.
 
 PROJECT := albumcalc
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) -c -I../../include $<
+	$(CXX) $(CFLAGS) -c -I../../build/include/arcstk $<
 
 $(PROJECT) : $(PROJECT).o
 	$(CXX) $(LDFLAGS) $< ../../build/libarcstk.so -lcue -lsndfile -o $@

@@ -1,4 +1,6 @@
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementing the API for AccurateRip response parsing and syntactic
@@ -12,9 +14,9 @@
 #include "dbar_details.hpp"
 #endif
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"
-#endif
+// #ifndef __LIBARCSTK_CALCULATE_HPP__
+// #include "calculate.hpp"
+// #endif
 #ifndef __LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
@@ -22,15 +24,18 @@
 #include "logging.hpp"
 #endif
 
-#include <cstdint>   // for uint32_t
-#include <fstream>   // for basic_ifstream
-#include <memory>    // for unique_ptr, make_unique
-#include <numeric>   // for accumulate
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
-#include <tuple>     // for get, tuple
-#include <utility>   // for pair, move
-#include <vector>    // for vector
+#include <cstdint>          // for uint32_t
+#include <cstdio>           // for EOF
+#include <fstream>          // for basic_ifstream
+#include <initializer_list> // for initializer_list
+#include <memory>           // for unique_ptr, make_unique
+#include <numeric>			// for accumulate
+#include <sstream>			// for ostringstream
+#include <stdexcept>		// for runtime_error
+#include <string>			// for string
+#include <tuple>			// for get, tuple
+#include <utility>			// for pair, move
+#include <vector>			// for vector
 
 namespace arcstk
 {
@@ -63,7 +68,7 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
 }
 
 
-uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	if (!p)
@@ -99,7 +104,7 @@ uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
 	// we could also read the entire binary file content in a vector<uint8_t>
 	// and proceed working on that vector:
 	//
-	// std::vector<uint8_t> file_content(const std::string &filename) const
+	// std::vector<uint8_t> file_content(const std::string& filename) const
 	// {
 	//   std::ifstream input(filename.c_str(), std::ios::in | std::ios::binary);
 	//
@@ -141,12 +146,12 @@ uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
 			bytes_read = in.gcount();
 		}
 
-		//ARCS_LOG_DEBUG << "Read " << bytes_read << " header bytes";
+		ARCS_LOG(DEBUG2) << "Read " << bytes_read << " header bytes";
 
 		byte_counter += bytes_read;
 		block_byte_counter += bytes_read;
 
-		//ARCS_LOG_DEBUG << "Read " << byte_counter << " bytes total";
+		ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
 
 		if (bytes_read == 0)
 		{
@@ -221,12 +226,12 @@ uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
 				bytes_read = in.gcount();
 			}
 
-			//ARCS_LOG_DEBUG << "Read " << bytes_read << " triplet bytes";
+			ARCS_LOG(DEBUG2) << "Read " << bytes_read << " triplet bytes";
 
 			byte_counter += bytes_read;
 			block_byte_counter += bytes_read;
 
-			//ARCS_LOG_DEBUG << "Read " << byte_counter << " bytes total";
+			ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
 
 			if (bytes_read == 0)
 			{
@@ -314,8 +319,7 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 	}
 	catch (const std::ifstream::failure& f)
 	{
-		//file.close(); // TODO Commented out: no close when open failed
-
+		// TODO Use original f?
 		throw std::runtime_error(std::string{
 			"Failed to open file '" + filename + "'. Message: " + f.what()
 		});
@@ -332,7 +336,7 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 
 ARId get_arid(const DBARBlockHeader& header)
 {
-	return ARId{ header.total_tracks(), header.id1(), header.id2(),
+	return ARId { header.total_tracks(), header.id1(), header.id2(),
 			header.cddb_id() };
 }
 
@@ -469,18 +473,6 @@ DBARBlock::iterator DBARBlock::end()
 }
 
 
-DBARBlock::const_iterator DBARBlock::begin() const
-{
-	return cbegin();
-}
-
-
-DBARBlock::const_iterator DBARBlock::end() const
-{
-	return cend();
-}
-
-
 DBARBlock::const_iterator DBARBlock::cbegin() const
 {
 	return DBARBlock::const_iterator(*this, 0);
@@ -493,6 +485,18 @@ DBARBlock::const_iterator DBARBlock::cend() const
 }
 
 
+DBARBlock::const_iterator DBARBlock::begin() const
+{
+	return this->cbegin();
+}
+
+
+DBARBlock::const_iterator DBARBlock::end() const
+{
+	return this->cend();
+}
+
+
 DBARBlock::size_type DBARBlock::index() const noexcept
 {
 	return idx_;
@@ -501,7 +505,6 @@ DBARBlock::size_type DBARBlock::index() const noexcept
 
 DBARBlock::size_type DBARBlock::size() const
 {
-	//return dBAR_->total_tracks(idx_);
 	return dBAR_->size(idx_);
 }
 
@@ -524,30 +527,10 @@ ARId DBARBlock::id() const
 }
 
 
-//
-
-
-DBARBlock::iterator begin(DBARBlock& block)
+bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
 {
-	return block.begin();
-}
-
-
-DBARBlock::iterator end(DBARBlock& block)
-{
-	return block.end();
-}
-
-
-DBARBlock::const_iterator begin(const DBARBlock& block)
-{
-	return block.begin();
-}
-
-
-DBARBlock::const_iterator end(const DBARBlock& block)
-{
-	return block.end();
+	return dBAR_ == rhs.dBAR_ || dBAR_->equals(*rhs.dBAR_)
+		|| idx_ == rhs.idx_;
 }
 
 
@@ -555,31 +538,12 @@ DBARBlock::const_iterator end(const DBARBlock& block)
 
 
 DBAR::Impl::Impl()
-	: total_tracks_ ( )
-	, confidence_   ( )
-	, sums_         ( )
+	: total_tracks_ { /* default */ }
+	, confidence_   { /* default */ }
+	, sums_         { /* default */ }
 {
 	// empty
 }
-
-/*
-DBAR::Impl::Impl(const Impl& impl)
-	: total_tracks_ { impl.total_tracks_ }
-	, confidence_   { impl.confidence_ }
-	, sums_         { impl.sums_ }
-{
-	// empty
-}
-
-
-DBAR::Impl::Impl(Impl&& impl)
-	: total_tracks_ { std::move(impl.total_tracks_) }
-	, confidence_   { std::move(impl.confidence_) }
-	, sums_         { std::move(impl.sums_) }
-{
-	// empty
-}
-*/
 
 
 DBAR::Impl::size_type DBAR::Impl::size() const
@@ -644,6 +608,14 @@ void DBAR::Impl::add_triplet(const uint32_t arcs,
 
 	sums_.push_back(arcs);
 	sums_.push_back(frame450_arcs);
+}
+
+
+bool DBAR::Impl::equals(const Impl& rhs) const noexcept
+{
+	return total_tracks_ == rhs.total_tracks_
+		&& confidence_   == rhs.confidence_
+		&& sums_         == rhs.sums_;
 }
 
 
@@ -856,6 +828,12 @@ DBARBlock DBAR::block(const DBAR::size_type block_idx) const
 }
 
 
+bool DBAR::equals(const DBAR& rhs) const noexcept
+{
+	return impl_->equals(*rhs.impl_);
+}
+
+
 DBAR::iterator DBAR::begin()
 {
 	return DBAR::iterator { *this, 0 };
@@ -868,6 +846,18 @@ DBAR::iterator DBAR::end()
 }
 
 
+DBAR::const_iterator DBAR::cbegin() const
+{
+	return DBAR::const_iterator { *this, 0 };
+}
+
+
+DBAR::const_iterator DBAR::cend() const
+{
+	return DBAR::const_iterator { *this, impl_->size() };
+}
+
+
 DBAR::const_iterator DBAR::begin() const
 {
 	return this->cbegin();
@@ -877,45 +867,6 @@ DBAR::const_iterator DBAR::begin() const
 DBAR::const_iterator DBAR::end() const
 {
 	return this->cend();
-}
-
-
-DBAR::const_iterator DBAR::cbegin() const
-{
-	return DBAR::iterator { *this, 0 };
-}
-
-
-DBAR::const_iterator DBAR::cend() const
-{
-	return DBAR::iterator { *this, impl_->size() };
-}
-
-
-//
-
-
-DBAR::iterator begin(DBAR& dbar)
-{
-	return dbar.begin();
-}
-
-
-DBAR::iterator end(DBAR& dbar)
-{
-	return dbar.end();
-}
-
-
-DBAR::const_iterator begin(const DBAR& dbar)
-{
-	return dbar.begin();
-}
-
-
-DBAR::const_iterator end(const DBAR& dbar)
-{
-	return dbar.end();
 }
 
 
@@ -1055,7 +1006,7 @@ void DBARErrorHandler::do_on_error(const unsigned byte_counter,
 
 StreamParseException::StreamParseException(const unsigned byte_pos,
 		const unsigned block, const unsigned block_byte_pos,
-		const std::string &what_arg)
+		const std::string& what_arg)
 	: std::runtime_error { what_arg }
 	, byte_pos_ { byte_pos }
 	, block_ { block }
@@ -1097,7 +1048,7 @@ unsigned StreamParseException::block_byte_position() const noexcept
 std::string StreamParseException::default_message(const unsigned byte_pos,
 		const unsigned block_pos, const unsigned block_byte_pos) const
 {
-	auto ss = std::stringstream {};
+	auto ss = std::ostringstream {};
 	ss << "Error on input byte " << byte_pos << " (block " << block_pos
 			<< ", byte " << block_byte_pos << ")";
 	return ss.str();
@@ -1125,7 +1076,7 @@ bool is_valid_confidence(const unsigned value)
 // parse_stream()
 
 
-uint32_t parse_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	return details::parse_dbar_stream(in, p, e);

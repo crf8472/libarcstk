@@ -1,6 +1,6 @@
 ## CMake file for configuring and running tests
 
-cmake_minimum_required (VERSION 3.7 )
+cmake_minimum_required (VERSION 3.10 )
 
 ## Always link library files by full path when a full path is given to the
 ## target_link_libraries() command.
@@ -16,12 +16,22 @@ set (TEST_SOURCE_DIR "src" )
 ## Define testsuites
 
 set (TEST_SETS )
-list (APPEND TEST_SETS calculate )
-list (APPEND TEST_SETS dbar )
-list (APPEND TEST_SETS identifier )
-list (APPEND TEST_SETS samples )
-list (APPEND TEST_SETS verify )
-list (APPEND TEST_SETS tk_version )
+list (APPEND TEST_SETS accuraterip       )
+list (APPEND TEST_SETS calculate         )
+list (APPEND TEST_SETS calculate_details )
+list (APPEND TEST_SETS calculate_impl    )
+list (APPEND TEST_SETS checksum          )
+list (APPEND TEST_SETS checksum_details  )
+list (APPEND TEST_SETS dbar              )
+list (APPEND TEST_SETS dbar_details      )
+list (APPEND TEST_SETS identifier        )
+list (APPEND TEST_SETS identifier_details)
+list (APPEND TEST_SETS metadata          )
+list (APPEND TEST_SETS metadata_details  )
+list (APPEND TEST_SETS samples           )
+list (APPEND TEST_SETS tk_version        )
+list (APPEND TEST_SETS verify            )
+list (APPEND TEST_SETS verify_details    )
 
 
 ## Adjust compile options for tests.
@@ -62,7 +72,7 @@ foreach (_testcase ${TEST_SETS} )
 	## Define an executable for each single testfile
 	add_executable (${_testcase}_test "${TEST_SOURCE_DIR}/${_testcase}.cpp" )
 
-	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 14 )
+	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 17 )
 
 	target_include_directories (${_testcase}_test
 		PRIVATE ${PROJECT_INCLUDE_DIR}      ## public headers

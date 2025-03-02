@@ -1,4 +1,6 @@
 /**
+ * \internal
+ *
  * \file
  *
  * \brief Implementing a thread-safe, type-safe and portable logging interface
@@ -12,10 +14,6 @@ namespace arcstk
 {
 inline namespace v_1_0_0
 {
-
-const int LOGLEVEL_MIN = 0;
-
-const int LOGLEVEL_MAX = 8;
 
 /**
  * \brief The Logger for a single thread

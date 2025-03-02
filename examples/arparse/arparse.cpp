@@ -2,12 +2,6 @@
 // Example for parsing the binary AccurateRip query response to plaintext.
 //
 
-#include <fstream>   // for ifstream
-#include <iomanip>   // for setw, setfill, hex
-#include <iostream>  // for cerr, cout
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
-
 #ifndef __LIBARCSTK_DBAR_HPP__       // libarcstk: parse AccurateRip responses
 #include "dbar.hpp"
 #endif
@@ -18,6 +12,12 @@
 #include "logging.hpp"
 #endif
 
+#include <cstdlib>   // for EXIT_SUCCESS
+#include <fstream>   // for ifstream
+#include <iomanip>   // for setw, setfill, hex
+#include <iostream>  // for cerr, cout
+#include <stdexcept> // for runtime_error
+#include <string>    // for string
 
 // ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
 // NOTE! THIS IS EXAMPLE CODE! IT IS INTENDED TO DEMONSTRATE HOW LIBARCSTK COULD
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 {
 	if (argc != 2)
 	{
-		std::cout << "Usage: arparse <response_file_name>" << std::endl;
+		std::cout << "Usage: arparse <response_file_name>" << '\n';
 		return EXIT_SUCCESS;
 	}
 
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 			<< dBAR.size() << '\n';
 
 		// Print the header of this block (which is the AccurateRip id)
-		std::cout << "ID: " << block.id().url() << std::endl;
+		std::cout << "ID: " << block.id().url() << '\n';
 
 		for (const auto& triplet : block)
 		{
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 				<< std::hex << std::uppercase
 				<< std::setw(8) << std::setfill('0')
 					<< triplet.frame450_arcs()
-				<< std::endl;
+				<< '\n';
 		}
 
 		++block_counter;

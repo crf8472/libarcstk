@@ -2,10 +2,12 @@
 #include "catch2/catch_test_macros.hpp"
 
 /**
+ * \internal
+ *
  * \file
  *
- * \brief The main file for the Catch2 tester binary
+ * \brief Main file for the Catch2 tester binary.
  */
 
-// empty
+// intentionally left empty
 

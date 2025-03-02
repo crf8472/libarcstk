@@ -13,7 +13,7 @@ if (WIN32 )
 endif()
 
 
-cmake_minimum_required (VERSION 3.0.2 )
+cmake_minimum_required (VERSION 3.10 )
 
 ## Doxygen is already required in parent
 

@@ -14,8 +14,11 @@
  * checksums.
  */
 
-#include <sstream>        // for operator<<, basic_ostream::operator<<, basi...
+#include <cstddef>        // for size_t
+#include <cstdint>        // for uint32_t
 #include <memory>         // for unique_ptr
+#include <ostream>        // for ostream
+#include <tuple>          // for tuple
 #include <vector>         // for vector
 
 
@@ -26,8 +29,10 @@ inline namespace v_1_0_0
 
 class ARId;
 class Checksum;
-class Checksums;
+class ChecksumSet;
 class DBAR;
+
+using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
 
 /**
  * \defgroup verify AccurateRip Checksum Verification
@@ -35,6 +40,24 @@ class DBAR;
  * \brief Verify local Checksums against a ChecksumSource.
  *
  * \details
+ *
+ * A Verifier verifies local Checksums against some reference Checksums provided
+ * by a ChecksumSource. A ChecksumSource is an interface to different kinds of
+ * input for Checksums. For convenience, a DBARSource is provided that makes a
+ * DBAR object available as input for verification.
+ *
+ * A custom class T can be made available as input provider by subclassing
+ * ChecksumSourceOf<T> and implementing the access to the reference values in
+ * question.
+ *
+ * The result of a verification process is a VerificationResult. It holds every
+ * result of every match operation performed during verification.
+ *
+ * AlbumVerifier is suitable for verifying input that contains a ToC. Scenarious
+ * without a ToC (e.g. a set of input audio files) is supported by
+ * TracksetVerifier.
+ *
+ * \see AlbumVerifier \see TracksetVerifier
  *
  * @{
  */
@@ -85,6 +108,9 @@ private:
 	virtual std::size_t do_size() const
 	= 0;
 
+	virtual std::unique_ptr<ChecksumSource> do_clone() const
+	= 0;
+
 public:
 
 	/**
@@ -111,7 +137,8 @@ public:
 	 *
 	 * \return The checksum of the specified index position
 	 */
-	Checksum checksum(const size_type block_idx, const size_type track_idx) const;
+	Checksum checksum(const size_type block_idx, const size_type track_idx)
+		const;
 
 	/**
 	 * \brief Return the ARCS value on the specified position.
@@ -121,7 +148,8 @@ public:
 	 *
 	 * \return The ARCS value of the specified index position
 	 */
-	const uint32_t& arcs_value(const size_type block_idx, const size_type track_idx) const;
+	const uint32_t& arcs_value(const size_type block_idx,
+			const size_type track_idx) const;
 
 	/**
 	 * \brief Read confidence \c idx in section with the specified \c block_idx.
@@ -131,7 +159,8 @@ public:
 	 *
 	 * \return The confidence of the specified index position
 	 */
-	const unsigned& confidence(const size_type block_idx, const size_type track_idx) const;
+	const unsigned& confidence(const size_type block_idx,
+			const size_type track_idx) const;
 
 	/**
 	 * \brief Return the ARCS value of frame 450 on the specified position.
@@ -163,11 +192,18 @@ public:
 	 * \return Number of blocks in this object
 	 */
 	size_type size() const;
+
+	/**
+	 * \brief Returns a deep copy of the instance
+	 *
+	 * \return A deep copy of the instance
+	 */
+	std::unique_ptr<ChecksumSource> clone() const;
 };
 
 
 /**
- * \brief Wrap a checksum container in a ChecksumSource.
+ * \brief Base: wrap a checksum container type in a ChecksumSource.
  *
  * A type \c T can be made available as a ChecksumSource via definig a subclass
  * of ChecksumSourceOf<T>. The subclass has to implement the virtual functions
@@ -216,7 +252,7 @@ public:
 	 *
 	 * \return Copy of \c rhs
 	 */
-	ChecksumSourceOf& operator=(const ChecksumSourceOf& rhs)
+	ChecksumSourceOf& operator = (const ChecksumSourceOf& rhs)
 	{
 		checksum_source_ = rhs.checksum_source_;
 		return *this;
@@ -246,35 +282,38 @@ public:
  */
 class DBARSource final : public ChecksumSourceOf<DBAR>
 {
+	// ChecksumSource
+
 	ARId do_id(const size_type block_idx) const final;
+
 	Checksum do_checksum(const size_type block_idx,
 			const size_type idx) const final;
 
 	const uint32_t& do_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
+
 	const unsigned& do_confidence(const size_type block_idx,
 			const size_type idx) const final;
+
 	const uint32_t& do_frame450_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
 
 	std::size_t do_size(const size_type block_idx) const final;
+
 	std::size_t do_size() const final;
+
+	std::unique_ptr<ChecksumSource> do_clone() const final;
 
 public:
 
 	using ChecksumSourceOf::ChecksumSourceOf;
+
 	using ChecksumSourceOf::operator=;
 };
 
 
-class VerificationResult;
 /**
- * \brief Print a VerificationResult to a stream
- */
-std::ostream& operator << (std::ostream&, const VerificationResult& r);
-
-
-/** \brief Interface: Result of a verification process.
+ * \brief Interface: Result of a verification process.
  *
  * \details
  *
@@ -336,7 +375,7 @@ class VerificationResult
 	= 0;
 
 	friend std::ostream& operator << (std::ostream&,
-			const VerificationResult &match);
+			const VerificationResult& match);
 
 public:
 
@@ -348,9 +387,9 @@ public:
 	/**
 	 * \brief TRUE iff each track is verified.
 	 *
-	 * This is shorthand for checking whether total_unverified_tracks is 0.
-	 * The verification should be considered as successful and iff this returns
-	 * TRUE.
+	 * This is shorthand for checking whether total_unverified_tracks() is 0.
+	 * The verification should be considered as successful iff this function
+	 * returns TRUE.
 	 *
 	 * A rip for which all tracks are verified can be considered accurate
 	 * relative to the applied verification method. Iff the method is strict,
@@ -398,7 +437,7 @@ public:
 	 *
 	 * \note
 	 * The call <tt>myVerificationResult.value(0,17,true)</tt> refers to the
-	 * ARCSv2 of track 18 in the first block. If this call returns \c true,
+	 * ARCSv2 of track 18 in the first block. If this call returns \c TRUE,
 	 * track 18 in the first block in the \c ref_sums was matched. Whether this
 	 * indicates that track 18 of the actual Checksums caused the match is
 	 * implementation defined and depends on the \c MatchOrder. It can also
@@ -509,7 +548,7 @@ public:
 	/**
 	 * \brief Difference of the best block in this result.
 	 *
-	 * This is shorthand for getting element 2 of \c best_block().
+	 * This is shorthand for getting element 2 of best_block().
 	 *
 	 * \return Smallest difference of any block
 	 */
@@ -523,9 +562,9 @@ public:
 	bool strict() const;
 
 	/**
-	 * \brief Clones this instance.
+	 * \brief Returns a deep copy of the instance
 	 *
-	 * \return Deep copy of this instance.
+	 * \return A deep copy of the instance
 	 */
 	std::unique_ptr<VerificationResult> clone() const;
 };
@@ -537,7 +576,7 @@ public:
  * Subclasses of verifiers can implement specialized policies for strictness
  * and match order.
  *
- * A Verifier is \c strict() by default.
+ * A Verifier is strict() by default.
  */
 class Verifier
 {
@@ -555,6 +594,9 @@ class Verifier
 
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const
+	= 0;
+
+	virtual std::unique_ptr<Verifier> do_clone() const
 	= 0;
 
 public:
@@ -610,11 +652,18 @@ public:
 	 * \return The verification result
 	 */
 	std::unique_ptr<VerificationResult> perform(const DBAR& ref_sums) const;
+
+	/**
+	 * \brief Returns a deep copy of the instance
+	 *
+	 * \return A deep copy of the instance
+	 */
+	std::unique_ptr<Verifier> clone() const;
 };
 
 
 /**
- * \brief Verifier for a list of checksums accompanied by a TOC.
+ * \brief Verifier for a list of checksums accompanied by a ToC.
  *
  * \details
  *
@@ -634,12 +683,20 @@ class AlbumVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
+	// Verifier
+
 	virtual const ARId& do_actual_id() const noexcept final;
+
 	virtual const Checksums& do_actual_checksums() const noexcept final;
+
 	virtual bool do_strict() const noexcept final;
+
 	virtual void do_set_strict(const bool strict) noexcept final;
+
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
+
+	virtual std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -651,21 +708,27 @@ public:
 	 */
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
 
+	AlbumVerifier(const AlbumVerifier& verifier);
+	AlbumVerifier& operator=(const AlbumVerifier& verifier);
+
+	AlbumVerifier(AlbumVerifier&& verifier) noexcept;
+	AlbumVerifier& operator=(AlbumVerifier&& verifier) noexcept;
+
 	/**
-	 * \brief Default destructor:
+	 * \brief Default destructor.
 	 */
 	~AlbumVerifier() noexcept;
 };
 
 
 /**
- * \brief Verifier for a set of checksums without a TOC.
+ * \brief Verifier for a set of checksums without a ToC.
  *
  * \details
  *
  * Find any match of any actual Checksum in the reference. This targets the
  * situation where a set of tracks is to be matched that actually forms an album
- * but there is no TOC present. This means that there is also no ARId known
+ * but there is no ToC present. This means that there is also no ARId known
  * and maybe not even the actual order of tracks.
  *
  * TracksetVerifier requires that the set of actual checksums and the blocks
@@ -676,10 +739,10 @@ public:
  *
  * The AlbumVerifier is less ressource-consuming since it has to perform only a
  * single match for every reference value. It is therefore recommended to use
- * AlbumVerifier in any case where a TOC is available.
+ * AlbumVerifier in any case where a ToC is available.
  *
  * \note
- * TracksetVerifier is a generalization of the AlbumVerifier. AlbumVerifier adds
+ * TracksetVerifier is a generalization of AlbumVerifier. AlbumVerifier adds
  * the restriction that the order of tracks in the reference must be matched
  * too.
  *
@@ -690,12 +753,20 @@ class TracksetVerifier final : public Verifier
 	class Impl;
 	std::unique_ptr<Impl> impl_;
 
+	// Verifier
+
 	virtual const ARId& do_actual_id() const noexcept final;
+
 	virtual const Checksums& do_actual_checksums() const noexcept final;
+
 	virtual bool do_strict() const noexcept final;
+
 	virtual void do_set_strict(const bool strict) noexcept final;
+
 	virtual std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
+
+	virtual std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -704,14 +775,19 @@ public:
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
-	TracksetVerifier(const Checksums& actual_sums);
+	explicit TracksetVerifier(const Checksums& actual_sums);
+
+	TracksetVerifier(const TracksetVerifier& verifier);
+	TracksetVerifier& operator=(const TracksetVerifier& verifier);
+
+	TracksetVerifier(TracksetVerifier&& verifier) noexcept;
+	TracksetVerifier& operator=(TracksetVerifier&& verifier) noexcept;
 
 	/**
-	 * \brief Default destructor:
+	 * \brief Default destructor.
 	 */
 	~TracksetVerifier() noexcept;
 };
-
 
 /** @} */
 

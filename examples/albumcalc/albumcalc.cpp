@@ -3,28 +3,34 @@
 // represented by a Cuesheet and a single losslessly encoded audio file.
 //
 
-#include <cstdint>   // for uint32_t etc.
-#include <cstdio>    // for fopen, fclose, FILE
-#include <iomanip>   // for setw, setfill, hex
-#include <iostream>  // for cerr, cout
-#include <stdexcept> // for runtime_error
-#include <string>    // for string
+#ifndef __LIBARCSTK_ALGORITHMS_HPP__ // libarcstk: AccurateRip algorithms
+#include "algorithms.hpp"
+#endif
+#ifndef __LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
+#include "calculate.hpp"
+#endif
+#ifndef __LIBARCSTK_METADATA_HPP__   // libarcstk: Compact Disc metadata
+#include "metadata.hpp"
+#endif
+#ifndef __LIBARCSTK_SAMPLES_HPP__    // libarcstk: normalize input samples
+#include "samples.hpp"
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#include "logging.hpp"
+#endif
 
 extern "C" {
 #include <libcue/libcue.h>        // libcue for parsing the CUEsheet
 }
 #include <sndfile.hh>             // libsndfile for reading the audio file
 
-
-#ifndef __LIBARCSTK_CALCULATE_HPP__ // libarcstk: calculate ARCSs
-#include "calculate.hpp"
-#endif
-#ifndef __LIBARCSTK_SAMPLES_HPP__   // libarcstk: normalize input samples
-#include "samples.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__   // libarcstk: log what you do
-#include "logging.hpp"
-#endif
+#include <cstdint>   // for uint32_t etc.
+#include <cstdio>    // for fopen, fclose, FILE
+#include <cstdlib>   // for EXIT_SUCCESS
+#include <iomanip>   // for setw, setfill, hex
+#include <iostream>  // for cerr, cout
+#include <stdexcept> // for runtime_error
+#include <string>    // for string
 
 
 // ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
@@ -45,13 +51,13 @@ extern "C" {
  *
  * @return STL-like container with a size_type holding offsets
  */
-auto parse_cuesheet(const std::string &cuefilename)
+auto get_offsets(const std::string &cuefilename) -> std::vector<int32_t>
 {
 	FILE* f = std::fopen(cuefilename.c_str(), "r");
 
 	if (!f)
 	{
-		std::cerr << "Failed to open CUEsheet: " << cuefilename << std::endl;
+		std::cerr << "Failed to open CUEsheet: " << cuefilename << '\n';
 		throw std::runtime_error("Failed to open CUEsheet");
 	}
 
@@ -59,25 +65,27 @@ auto parse_cuesheet(const std::string &cuefilename)
 
 	if (std::fclose(f))
 	{
-		std::cerr << "Failed to close CUEsheet: " << cuefilename << std::endl;
+		std::cerr << "Failed to close CUEsheet: " << cuefilename << '\n';
 	}
 	f = nullptr;
 
 	if (!cdinfo)
 	{
-		std::cerr << "Failed to parse CUEsheet: " << cuefilename << std::endl;
+		std::cerr << "Failed to parse CUEsheet: " << cuefilename << '\n';
 		throw std::runtime_error("Failed to parse CUEsheet");
 	}
 
 	const auto track_count = ::cd_get_ntrack(cdinfo);
 
-	std::vector<int> offsets;
+	auto offsets = std::vector<int32_t>();
 	offsets.reserve(static_cast<decltype(offsets)::size_type>(track_count));
 
 	::Track* track = nullptr;
+	auto offset    = long { 0 };
+
 	for (auto i = int { 1 }; i <= track_count; ++i)
 	{
-		track = ::cd_get_track(cdinfo, i);
+		track  = ::cd_get_track(cdinfo, i);
 
 		if (!track)
 		{
@@ -85,7 +93,17 @@ auto parse_cuesheet(const std::string &cuefilename)
 			continue;
 		}
 
-		offsets.emplace_back(::track_get_start(track));
+		offset = ::track_get_start(track);
+
+		if (offset <= std::numeric_limits<int32_t>::max())
+		{
+			offsets.emplace_back(static_cast<int32_t>(offset));
+		} else
+		{
+			std::cerr << "Offset too big: " << offset << " frames, abort\n";
+			::cd_delete(cdinfo);
+			return {};
+		}
 	}
 
 	::cd_delete(cdinfo);
@@ -98,7 +116,7 @@ int main(int argc, char* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Usage: albumcalc <cuesheet> <audiofile>" << std::endl;
+		std::cout << "Usage: albumcalc <cuesheet> <audiofile>" << '\n';
 		return EXIT_SUCCESS;
 	}
 
@@ -120,37 +138,48 @@ int main(int argc, char* argv[])
 	// 32 bit unsigned integer holding a pair of PCM 16 bit stereo samples.
 	const auto samples_per_block { 16777216 }; // == 64 MB block size
 
+	// Calculation will have to distinguish the tracks in the audiofile.
+	// To identify the track bounds, we need the TOC, precisely:
+	// 1. the leadout frame
+	// 2. the number of tracks
+	// 3. the track offset for each track
+
+	// Since the CUEsheet usually does not know the length of the last track, we
+	// have to derive the leadout frame from the audio data.  We could do this
+	// quite convenient by using libarcstk's AudioReader::acquire_size() method.
+	// But thanks to libsndfile, this is not even necessary: the information is
+	// conveniently provided by the audiofile handle:
+
 	// libsndfile API provides the file handle for the audio file
 	SndfileHandle audiofile(audiofilename, SFM_READ);
 	// Skip any sanity checks you would do in production code...
 
-	// Calculation will have to distinguish the tracks in the audiofile.
-	// To identify the track bounds, we need the TOC, precisely:
-	// 1. the number of tracks
-	// 2. the track offset for each track
-	// 3. the leadout frame
+	const auto total_samples { audiofile.frames() /* It's 'samples'! */ };
+	// Since this is of type 'long', we have to ensure that it fits for
+	// conversion.
+	if (total_samples * arcstk::CDDA::BYTES_PER_SAMPLE
+			> std::numeric_limits<int32_t>::max())
+	{
+		std::cerr << "File too big ("
+			<< total_samples * arcstk::CDDA::BYTES_PER_SAMPLE
+			<< " bytes), abort\n";
+	}
 
-	// We derive 1. total number of tracks and 2. actual track offsets from
-	// parsing the CUEsheet.  We skip the details here for libarcstk does not
-	// provide this functionality and the author just did a quick hack with
-	// libcue.  (Just consult the implementation of function parse_cuesheet()
-	// if you are interested in the details, but this is libcue, not libarcstk.)
-	const auto offsets { parse_cuesheet(cuefilename) };
-	// Skip santiy checks and everything you could do with try/catch ...
-
-	// Two completed, one to go.  Since the CUEsheet usually does not know the
-	// length of the last track, we have to derive the leadout frame from the
-	// audio data.  We could do this quite convenient by using libarcstk's
-	// AudioReader::acquire_size() method.  But thanks to libsndfile, this is
-	// not even necessary: the information is conveniently provided by the
-	// audiofile handle:
-	auto total_samples { arcstk::AudioSize {
-			audiofile.frames(), arcstk::AudioSize::UNIT::SAMPLES } };
+	const auto audiosize { arcstk::AudioSize {
+		static_cast<int32_t>(total_samples), arcstk::UNIT::SAMPLES } };
 	// Remark: what libsndfile calls "frames" is what libarcstk calls
 	// "PCM 32 bit samples" or just "samples". Our "sample" represents a pair of
 	// 16 bit stereo samples as a single 32 bit unsigned int (left/right).
 	// Libsndfile's frame encodes the same information as 2 signed 16 bit
 	// integers, one per channel.
+
+	// We derive 2. total number of tracks and 3. actual track offsets from
+	// parsing the CUEsheet.  We skip the details here for libarcstk does not
+	// provide this functionality and the author just did a quick hack with
+	// libcue.  (Just consult the implementation of function parse_cuesheet()
+	// if you are interested in the details, but this is libcue, not libarcstk.)
+	const auto offsets { get_offsets(cuefilename) };
+	// Skip santiy checks and everything you could do with try/catch ...
 
 	// We now have derived all relevant metadata from our input files.
 	// Let's print it one last time before starting with the real business:
@@ -159,49 +188,35 @@ int main(int argc, char* argv[])
 		std::cout << "Track " << std::setw(2) << std::setfill(' ') << i
 			<< " offset: "
 			<< std::setw(6)  << std::setfill(' ') << offsets[i-1]
-			<< std::endl;
+			<< '\n';
 	}
-	std::cout << "Track count: " << offsets.size()                << std::endl;
-	std::cout << "Leadout: "     << total_samples.leadout_frame() << std::endl;
+	std::cout << "Track count: " << offsets.size()     << '\n';
+	std::cout << "Leadout: "     << audiosize.frames() << '\n';
 
-	// Step 1: Use libarcstk to construct the TOC.
-	auto toc { std::unique_ptr<arcstk::TOC> { nullptr }};
-	try
-	{
-		// This validates the parsed toc data and will throw if the parsed data
-		// is inconsistent.
-		toc = arcstk::make_toc(offsets, total_samples.leadout_frame());
+	// Step 1: Use libarcstk to construct the TOC
+	// (cf. example 'albumid' for a different method to construct a ToC).
+	const auto toc { arcstk::make_toc(audiosize.frames(), offsets) };
 
-	} catch (const std::exception &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-
-	// Step 2: Create a context from the TOC and the name of the audiofile.
-	// The context represents the configuration of the calculation process along
-	// with the necessary metadata.
-	auto context { arcstk::make_context(toc, audiofilename) };
+	// Step 2: Choose an Algorithm. For this occasion we choose
+	// AccurateRip::V1andV2 to get checksums for ARCSv2 as well as for ARCSv1.
+	auto algorithm { std::make_unique<arcstk::AccurateRip::V1andV2>() };
 
 	// Step 3: Create a Calculation and provide it with the context.
 	// We do not specify a checksum type, thus the Calculation will provide
 	// ARCSv1 as well as ARCSv2 values as default result.
-	auto calculation { arcstk::Calculation { std::move(context) }};
+	auto calculation { arcstk::make_calculation(std::move(algorithm), *toc) };
 
 	// Let's enumerate the blocks in the output. This is just to give some
 	// informative logging.
-	auto total_blocks
-		{ 1 + (total_samples.total_samples() - 1) / samples_per_block };
+	const auto total_blocks
+		{ 1 + (audiosize.samples() - 1) / samples_per_block };
 
-	std::cout << "Expect " <<  total_blocks << " blocks" << std::endl;
+	std::cout << "Expect " << total_blocks << " blocks" << '\n';
 
 	// Provide simple input buffer for libsndfile's genuine sample/frame format.
 	// We decide to want 16 bit signed integers.
 	const auto buffer_len { samples_per_block * 2 };
-	std::vector<int16_t> buffer(buffer_len);
-
-	const auto samples_total {
-		calculation.context().audio_size().total_samples() };
+	auto buffer { std::vector<int16_t>(buffer_len) };
 
 	auto ints_in_block { int32_t { 0 }}; // Count ints read in single operation
 	auto samples_read  { int64_t { 0 }}; // Count total samples actually read
@@ -218,6 +233,9 @@ int main(int argc, char* argv[])
 	// things... If the channel order is switched, the sample format is
 	// changed or the sequence is planar, the example code will screw up!
 
+	using std::cbegin;
+	using std::cend;
+
 	// Main loop: let libsndfile read the sample in its own format, normalize it
 	// and update the prepared Calculation with the samples read in the current
 	// loop run.
@@ -230,14 +248,14 @@ int main(int argc, char* argv[])
 
 			const auto samples_in_block {
 					ints_in_block / arcstk::CDDA::NUMBER_OF_CHANNELS };
-			const auto samples_expected { samples_total - samples_read };
+			const auto samples_expected { audiosize.samples() - samples_read };
 
 			if (samples_in_block != samples_expected)
 			{
 				// Unexpected number of samples for the last block.
 				// This is an unrecoverable error, act accordingly here.
 				std::cerr << "Expected " << buffer_len << " integers but got "
-					<< ints_in_block << ". Bail out." << std::endl;
+					<< ints_in_block << ". Bail out." << '\n';
 				return EXIT_FAILURE;
 			}
 
@@ -248,7 +266,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Read block " << (1 + samples_read / samples_per_block)
 			<< "/" << total_blocks
-			<< " (" << (buffer.size() / 2) << " samples)" << std::endl;
+			<< " (" << (buffer.size() / 2) << " samples)" << '\n';
 
 		// Wrap buffer in a reusable SampleSequence
 		sequence.wrap_int_buffer(&buffer[0], buffer.size());
@@ -274,24 +292,24 @@ int main(int argc, char* argv[])
 		// count the total number of samples read before the last update.
 
 		// Update calculation with next portion of normalized samples.
-		calculation.update(sequence.begin(), sequence.end());
+		calculation->update(cbegin(sequence), cend(sequence));
 	}
 
 	// Ok, no more samples. We demonstrate that the Calculation is complete:
-	if (calculation.complete())
+	if (calculation->complete())
 	{
-		std::cout << "Calculation complete" << std::endl;
+		std::cout << "Calculation complete" << '\n';
 	} else
 	{
-		std::cerr << "Error, calculation incomplete" << std::endl;
+		std::cerr << "Error, calculation incomplete" << '\n';
 	}
-	std::cout << "Read " << samples_read << " samples" << std::endl;
+	std::cout << "Read " << samples_read << " samples" << '\n';
 
 	// Let's finally get us the result!
-	auto checksums { calculation.result() };
+	auto checksums { calculation->result() };
 
 	// And now, the time has come: print the actual checksums.
-	std::cout << "Track  ARCSv1    ARCSv2" << std::endl;
+	std::cout << "Track  ARCSv1    ARCSv2" << '\n';
 
 	auto trk_no { 1 };
 	for (const auto& track_values : checksums)
@@ -303,8 +321,11 @@ int main(int argc, char* argv[])
 			<< "  "
 			<< std::setw(8) << std::setfill('0')
 			<< track_values.get(arcstk::checksum::type::ARCS2).value()
-			<< std::endl;
+			<< '\n';
 
 		++trk_no;
 	}
+
+	return EXIT_SUCCESS;
 }
+

@@ -2,22 +2,22 @@
 #error "Do not include dbar_details.hpp, include dbar.hpp instead"
 #endif
 
+#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
+#define __LIBARCSTK_DBAR_DETAILS_HPP__
+
 /**
  * \internal
  *
  * \file
  *
- * \brief Internal API for AccurateRip response parsing and syntactic entities.
+ * \brief Implementation details for dbar.hpp.
  */
-
-#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
-#define __LIBARCSTK_DBAR_DETAILS_HPP__
 
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"            // for DBAR::size_type + ...
 #endif
 
-#include <cstdint>   // for uint32_t
+#include <cstdint>   // for uint32_t, uint8_t
 #include <istream>   // for istream
 #include <string>    // for string
 #include <vector>    // for vector
@@ -58,18 +58,15 @@ static constexpr int TRIPLET_BYTES { 9 };
 uint32_t le_bytes_to_uint32(const char b1, const char b2, const char b3,
 	const char b4);
 
-
 /**
  * \brief Indicates an invalid ARCS value.
  */
 static constexpr uint32_t UNPARSED_ARCS = 0;
 
-
 /**
  * \brief Indicates an invalid confidence value.
  */
 static constexpr unsigned UNPARSED_CONFIDENCE = 0;
-
 
 /**
  * \brief Worker: called by parse_dbar_stream() when a parse error occurrs.
@@ -87,7 +84,6 @@ static constexpr unsigned UNPARSED_CONFIDENCE = 0;
 void on_parse_error(const unsigned byte_pos, const unsigned block,
 			const unsigned block_byte_pos, ParseErrorHandler* e);
 
-
 /**
  * \brief Worker method for parsing an input stream.
  *
@@ -101,7 +97,7 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
  *
  * \todo This implementation silently relies on a little endian plattform.
  */
-uint32_t parse_dbar_stream(std::istream &in, ParseHandler* p,
+uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
@@ -268,6 +264,8 @@ public:
 	 */
 	void add_triplet(const uint32_t arcs, const uint8_t confidence,
 			const uint32_t frame450_arcs);
+
+	bool equals(const Impl& rhs) const noexcept;
 
 	friend void swap(Impl& lhs, Impl& rhs) noexcept
 	{

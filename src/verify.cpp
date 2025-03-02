@@ -1,4 +1,11 @@
-#include <stdexcept>
+/**
+ * \internal
+ *
+ * \file
+ *
+ * \brief Implementation of the checksum verification API
+ */
+
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
@@ -6,14 +13,28 @@
 #include "verify_details.hpp"
 #endif
 
-#include <iomanip>        // for operator<<, setw, setfill, hex, uppercase
-
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"                   // for Checksums
+#endif
 #ifndef __LIBARCSTK_DBAR_HPP__
-#include "dbar.hpp"
+#include "dbar.hpp"                       // for DBAR
+#endif
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"                 // for ARId
 #endif
 #ifndef __LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
+
+#include <cstdint>        // for uint32_t
+#include <exception>      // for exception
+#include <iomanip>        // for setw, setfill
+#include <sstream>        // for ostringstream
+#include <stdexcept>      // for runtime_error
+#include <string>         // for string
+#include <tuple>          // for tuple
+#include <utility>        // for move
+#include <vector>         // for vector
 
 namespace arcstk
 {
@@ -236,7 +257,7 @@ void ResultBits::validate_block(int b) const
 {
 	if (b >= blocks_)
 	{
-		auto msg = std::stringstream {};
+		auto msg = std::ostringstream {};
 		msg << "Block index " << b << " too big, only " << blocks_
 			<< " blocks in response";
 
@@ -249,7 +270,7 @@ void ResultBits::validate_track(int t) const
 {
 	if (t >= tracks_per_block_)
 	{
-		auto msg = std::stringstream {};
+		auto msg = std::ostringstream {};
 		msg << "Track index " << t << " too big, only " << tracks_per_block_
 			<< " tracks in album";
 
@@ -281,7 +302,14 @@ bool VerificationPolicy::is_strict() const
 }
 
 
-int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+std::unique_ptr<VerificationPolicy> VerificationPolicy::clone() const
+{
+	return do_clone();
+}
+
+
+int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r)
+	const
 {
 	using size_type = details::ResultBits::size_type;
 
@@ -325,6 +353,12 @@ bool StrictPolicy::do_is_strict() const
 }
 
 
+std::unique_ptr<VerificationPolicy> StrictPolicy::do_clone() const
+{
+	return std::make_unique<StrictPolicy>(*this);
+}
+
+
 // LiberalPolicy
 
 
@@ -348,6 +382,12 @@ bool LiberalPolicy::do_is_strict() const
 }
 
 
+std::unique_ptr<VerificationPolicy> LiberalPolicy::do_clone() const
+{
+	return std::make_unique<LiberalPolicy>(*this);
+}
+
+
 // Result
 
 
@@ -356,6 +396,38 @@ Result::Result(std::unique_ptr<VerificationPolicy> p)
 	, policy_ { std::move(p) }
 {
 	// empty
+}
+
+
+Result::Result(const Result& rhs)
+	: flags_  { rhs.flags_ }
+	, policy_ { rhs.policy_->clone() }
+{
+	// empty
+}
+
+
+Result& Result::operator= (const Result& rhs)
+{
+	flags_  = rhs.flags_;
+	policy_ = rhs.policy_->clone();
+	return *this;
+}
+
+
+Result::Result(Result&& rhs) noexcept
+	: flags_  { std::move(rhs.flags_)  }
+	, policy_ { std::move(rhs.policy_) }
+{
+	// empty
+}
+
+
+Result& Result::operator= (Result&& rhs) noexcept
+{
+	flags_  = std::move(rhs.flags_);
+	policy_ = std::move(rhs.policy_);
+	return *this;
 }
 
 
@@ -459,7 +531,7 @@ const VerificationPolicy* Result::policy() const
 
 std::unique_ptr<VerificationResult> Result::do_clone() const
 {
-	return nullptr; // FIXME
+	return std::make_unique<Result>(*this);
 }
 
 
@@ -556,16 +628,16 @@ ChecksumSource::size_type SourceIterator::current() const
 SourceIterator::reference SourceIterator::operator * () const // dereferncing
 {
 	// Used for testing, commented out
-	/*
-	if (!source_)
-	{
-		throw std::invalid_argument("Cannot traverse null ChecksumSource");
-	}
-	if (!selector_)
-	{
-		throw std::invalid_argument("No selector available");
-	}
-	*/
+
+	// if (!source_)
+	// {
+	// 	throw std::invalid_argument("Cannot traverse null ChecksumSource");
+	// }
+	// if (!selector_)
+	// {
+	// 	throw std::invalid_argument("No selector available");
+	// }
+
 	return selector_->get(*source_, current_, counter_);
 }
 
@@ -687,13 +759,15 @@ TraversalPolicy::const_iterator TraversalPolicy::end() const
 }
 
 
-Checksums::size_type TraversalPolicy::current_block(const SourceIterator& i) const
+Checksums::size_type TraversalPolicy::current_block(const SourceIterator& i)
+	const
 {
 	return do_current_block(i);
 }
 
 
-Checksums::size_type TraversalPolicy::current_track(const SourceIterator& i) const
+Checksums::size_type TraversalPolicy::current_track(const SourceIterator& i)
+	const
 {
 	return do_current_track(i);
 }
@@ -733,25 +807,29 @@ std::unique_ptr<Selector> BlockTraversal::create_selector() const
 }
 
 
-Checksums::size_type BlockTraversal::do_current_block(const SourceIterator& i) const
+Checksums::size_type BlockTraversal::do_current_block(const SourceIterator& i)
+	const
 {
 	return i.current();
 }
 
 
-Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i) const
+Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i)
+	const
 {
 	return i.counter();
 }
 
 
-ChecksumSource::size_type BlockTraversal::do_end_current(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_current(
+		const ChecksumSource& source) const
 {
 	return source.size(); // number of blocks in source
 }
 
 
-ChecksumSource::size_type BlockTraversal::do_end_counter(const ChecksumSource& source) const
+ChecksumSource::size_type BlockTraversal::do_end_counter(
+		const ChecksumSource& source) const
 {
 	return source.size(0); // number of tracks per block in source
 }
@@ -830,14 +908,14 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		{
 			const auto bitpos = result.verify_track(block, track, is_v2);
 
-			ARCS_LOG(DEBUG1) << "Track "
+			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " verified: "
 				<< result.track(block, track, is_v2)
 				<< " (bit " << bitpos << ")";
 		} else
 		{
-			ARCS_LOG(DEBUG1) << "Track "
+			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
 				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
 				<< result.track(block, track, is_v2);
@@ -850,7 +928,7 @@ void MatchPolicy::perform_match(VerificationResult& result,
 
 
 void TrackOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
+		const Checksums& actual_sums, const Checksum& ref,
 		const int block, const Checksums::size_type track) const
 {
 	perform_match(result, actual_sums.at(track), ref, block, track);
@@ -861,7 +939,7 @@ void TrackOrderPolicy::do_perform(VerificationResult& result,
 
 
 void FindOrderPolicy::do_perform(VerificationResult& result,
-		const Checksums &actual_sums, const Checksum& ref,
+		const Checksums& actual_sums, const Checksum& ref,
 		const int block, const Checksums::size_type /* track */) const
 {
 	auto t = Checksums::size_type { 0 };
@@ -877,7 +955,7 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 
 
 void Verification::perform_ids(VerificationResult& result,
-	const ARId &actual_id, const ChecksumSource& ref_sums) const
+	const ARId& actual_id, const ChecksumSource& ref_sums) const
 {
 	using size_type = ChecksumSource::size_type;
 
@@ -905,7 +983,7 @@ void Verification::perform_ids(VerificationResult& result,
 
 
 void Verification::perform_current(VerificationResult& result,
-		const Checksums &actual_sums,
+		const Checksums& actual_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	for (auto it = traversal.begin(); it != traversal.end(); ++it)
@@ -920,7 +998,7 @@ void Verification::perform_current(VerificationResult& result,
 
 
 void Verification::perform(VerificationResult& result,
-	const Checksums &actual_sums, const ARId &actual_id,
+	const Checksums& actual_sums, const ARId& actual_id,
 	const ChecksumSource& ref_sums,
 	TraversalPolicy& traversal, const MatchPolicy& order) const
 {
@@ -944,8 +1022,8 @@ void Verification::perform(VerificationResult& result,
 
 
 std::unique_ptr<VerificationResult> verify(
-		const Checksums &actual_sums, const ARId &actual_id,
-		const ChecksumSource &ref_sums,
+		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
 		TraversalPolicy& traversal, const MatchPolicy& order)
 {
 	auto r = create_result(ref_sums.size()/* total blocks */,
@@ -1061,7 +1139,8 @@ const uint32_t& ChecksumSource::frame450_arcs_value(
 	return this->do_arcs_value(block_idx, idx);
 }
 
-std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx) const
+std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx)
+	const
 {
 	return this->do_size(block_idx);
 }
@@ -1069,6 +1148,11 @@ std::size_t ChecksumSource::size(const ChecksumSource::size_type block_idx) cons
 std::size_t ChecksumSource::size() const
 {
 	return this->do_size();
+}
+
+std::unique_ptr<ChecksumSource> ChecksumSource::clone() const
+{
+	return this->do_clone();
 }
 
 
@@ -1126,33 +1210,13 @@ std::size_t DBARSource::do_size() const
 }
 
 
-// VerificationResult
-
-
-std::ostream& operator << (std::ostream &out, const VerificationResult &result)
+std::unique_ptr<ChecksumSource> DBARSource::do_clone() const
 {
-	std::ios_base::fmtflags prev_settings = out.flags();
-
-	const auto indent = std::string { "  " };
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
-	{
-		out << "Block " << b << std::endl;
-
-		out << indent << "Id match: "
-			<< std::boolalpha << result.id(b) << std::endl;
-
-		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
-		{
-			out << indent << "Track " << std::setw(2) << (t + 1)
-				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
-				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
-				<< std::endl;
-		}
-	}
-
-	out.flags(prev_settings);
-	return out;
+	return std::make_unique<DBARSource>(*this);
 }
+
+
+// VerificationResult
 
 
 VerificationResult::~VerificationResult() noexcept = default;
@@ -1248,6 +1312,32 @@ std::unique_ptr<VerificationResult> VerificationResult::clone() const
 }
 
 
+std::ostream& operator << (std::ostream& out, const VerificationResult& result)
+{
+	std::ios_base::fmtflags prev_settings = out.flags();
+
+	const auto indent = std::string { "  " };
+	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	{
+		out << "Block " << b << std::endl;
+
+		out << indent << "Id match: "
+			<< std::boolalpha << result.id(b) << std::endl;
+
+		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
+		{
+			out << indent << "Track " << std::setw(2) << (t + 1)
+				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
+				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
+				<< std::endl;
+		}
+	}
+
+	out.flags(prev_settings);
+	return out;
+}
+
+
 // Verifier
 
 
@@ -1293,8 +1383,8 @@ std::unique_ptr<VerificationResult> Verifier::perform(const DBAR& ref_sums)
 
 
 AlbumVerifier::Impl::Impl(const Checksums& actual_sums, const ARId& actual_id)
-	: details::VerifierBase { actual_sums }
-	, actual_id_ { actual_id }
+	: details::VerifierBase { actual_sums               }
+	, actual_id_            { std::addressof(actual_id) }
 {
 	// empty
 }
@@ -1309,7 +1399,7 @@ std::unique_ptr<details::MatchPolicy> AlbumVerifier::Impl::do_create_order()
 
 const ARId& AlbumVerifier::Impl::do_actual_id() const noexcept
 {
-	return actual_id_;
+	return *actual_id_;
 }
 
 
@@ -1321,6 +1411,34 @@ AlbumVerifier::AlbumVerifier(const Checksums& actual_sums,
 	: impl_      { std::make_unique<Impl>(actual_sums, actual_id) }
 {
 	// empty
+}
+
+
+AlbumVerifier::AlbumVerifier(const AlbumVerifier& rhs)
+	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+{
+	// empty
+}
+
+
+AlbumVerifier& AlbumVerifier::operator=(const AlbumVerifier& rhs)
+{
+	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	return *this;
+}
+
+
+AlbumVerifier::AlbumVerifier(AlbumVerifier&& rhs) noexcept
+	: impl_      { std::move(rhs.impl_) }
+{
+	// empty
+}
+
+
+AlbumVerifier& AlbumVerifier::operator=(AlbumVerifier&& rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 
@@ -1359,6 +1477,12 @@ std::unique_ptr<VerificationResult> AlbumVerifier::do_perform(
 }
 
 
+std::unique_ptr<Verifier> AlbumVerifier::do_clone() const
+{
+	return std::make_unique<AlbumVerifier>(*this);
+}
+
+
 // TracksetVerifier::Impl
 
 
@@ -1383,6 +1507,34 @@ TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
 	: impl_      { std::make_unique<Impl>(actual_sums) }
 {
 	// empty
+}
+
+
+TracksetVerifier::TracksetVerifier(const TracksetVerifier& rhs)
+	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+{
+	// empty
+}
+
+
+TracksetVerifier& TracksetVerifier::operator=(const TracksetVerifier& rhs)
+{
+	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	return *this;
+}
+
+
+TracksetVerifier::TracksetVerifier(TracksetVerifier&& rhs) noexcept
+	: impl_      { std::move(rhs.impl_) }
+{
+	// empty
+}
+
+
+TracksetVerifier& TracksetVerifier::operator=(TracksetVerifier&& rhs) noexcept
+{
+	impl_ = std::move(rhs.impl_);
+	return *this;
 }
 
 
@@ -1417,6 +1569,12 @@ std::unique_ptr<VerificationResult> TracksetVerifier::do_perform(
 			const ChecksumSource& ref_sums) const
 {
 	return impl_->perform(ref_sums);
+}
+
+
+std::unique_ptr<Verifier> TracksetVerifier::do_clone() const
+{
+	return std::make_unique<TracksetVerifier>(*this);
 }
 
 

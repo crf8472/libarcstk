@@ -1,13 +1,13 @@
 ## CMake file for single-header version of Catch2
 
-cmake_minimum_required (VERSION 3.6 )
+cmake_minimum_required (VERSION 3.10 )
 
 find_package (Git REQUIRED )
 
 ## --- Catch2 identifiers
 
 set (CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
-set (CATCH2_VERSION_TAG "v3.4.0" )
+set (CATCH2_VERSION_TAG "v3.8.0" )
 
 ## --- Define Catch2 to be checked out/updated while configuring
 

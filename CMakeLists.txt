@@ -1,13 +1,13 @@
 ## Root CMake file for libarcstk
 
-cmake_minimum_required (VERSION 3.9.6 )
+cmake_minimum_required (VERSION 3.10 )
 
 ## Set variables corresponding to unspecified versions to the empty string
 ## Required for specifying the project version along with the name in project()
 cmake_policy (SET CMP0048 NEW )
 
 
-project (libarcstk VERSION 0.2.1 LANGUAGES CXX )
+project (libarcstk VERSION 0.3.0 LANGUAGES CXX )
 
 get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
@@ -15,7 +15,7 @@ get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 ## --- Setup Version Information
 
 set (PROJECT_BRIEF_DESC
-	"Toolkit to calculate and verify AccurateRip checksums and ids" )
+	"Calculate and Verify AccurateRip Checksums and Ids" )
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
@@ -183,27 +183,30 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 ## --- Specify Exported Headers
 
 set (INTERFACE_HEADERS )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/identifier.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/logging.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/policies.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/samples.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/verify.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/version.hpp" )
-
-set (PRIVATE_HEADERS )
-list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/builders.tpp" )
-list (APPEND PRIVATE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/details/validate.tpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/accuraterip.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/algorithms.hpp"  )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp"   )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/checksum.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp"        )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/identifier.hpp"  )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/logging.hpp"     )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/metadata.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/policies.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/samples.hpp"     )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/verify.hpp"      )
+list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/version.hpp"     )
 
 
 ## --- Add and configure project target
 
 add_library (${PROJECT_NAME} SHARED
+	"${PROJECT_SOURCE_DIR}/accuraterip.cpp"
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
+	"${PROJECT_SOURCE_DIR}/checksum.cpp"
 	"${PROJECT_SOURCE_DIR}/dbar.cpp"
 	"${PROJECT_SOURCE_DIR}/identifier.cpp"
 	"${PROJECT_SOURCE_DIR}/logging.cpp"
+	"${PROJECT_SOURCE_DIR}/metadata.cpp"
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
 	"${PROJECT_SOURCE_DIR}/verify.cpp"
 	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
@@ -227,11 +230,10 @@ target_include_directories (${PROJECT_NAME}
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD   14
+	CXX_STANDARD   17
 	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF ## use -std=c++14 instead of std=gnu++14
+	CXX_EXTENSIONS OFF ## use -std=c++17 instead of std=gnu++17
 	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
-	PRIVATE_HEADER "${PRIVATE_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
 	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
 	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
@@ -389,9 +391,7 @@ if (NOT SKIP_INSTALL_ALL )
 		EXPORT "${PROJECT_EXPORT_SET}"
 		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
 		PUBLIC_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}"
-		PRIVATE_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}/details" )
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}" )
 
 	install (EXPORT ${PROJECT_EXPORT_SET}
 		NAMESPACE libarcstk::

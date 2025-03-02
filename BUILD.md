@@ -4,10 +4,10 @@
 
 ## Building libarcstk on Linux and \*BSD
 
-Libarcstk is written in C++14. It was developed mainly (but not exclusively) for
-Linux and has no runtime dependencies other than the C++ standard library. It
-was not tested whether libarcstk builds out-of-the-box on BSDs but don't expect
-major issues.
+Libarcstk is compiled as C++17, originally written in C++14. It was developed
+mainly (but not exclusively) for Linux and has no runtime dependencies other
+than the C++ standard library. It was not tested whether libarcstk builds
+out-of-the-box on BSDs but don't expect major issues.
 
 
 
@@ -16,8 +16,8 @@ major issues.
 
 ### Mandatory Buildtime Dependencies
 
-- C++-14-compliant-compiler with C++ standard library
-- ``cmake`` >= 3.9.6
+- C++-17-compliant-compiler with C++ standard library
+- ``cmake`` >= 3.10
 - ``make`` or some other build tool compatible to cmake (the examples suppose
   ``make`` nonetheless)
 
@@ -363,7 +363,7 @@ In fact, as a lack of requirement, libarcstk has not yet even been tried to be
 built on Windows.
 
 To avoid any show-stoppers for porting libarcstk to Windows or other platforms,
-libarcstk relies completely on pure C++14 and the C++ standard library. It does
+libarcstk relies completely on pure C++ and the C++ standard library. It does
 not require any other dependencies. In fact, it is intended to not use platform
 specific operations at all. Code that breaks platform independence will be
 considered being a bug. The porting is expected not to be difficult, but is

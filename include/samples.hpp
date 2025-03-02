@@ -4,16 +4,20 @@
 /**
  * \file
  *
- * \brief Public API for representing unconverted sequences of samples.
+ * \brief Represent and manage unconverted sequences of samples.
  */
 
+#ifndef __LIBARCSTK_POLICIES_HPP__
+#include "policies.hpp"         // for Comparable, IteratorElement
+#endif
+
 #include <array>                // for array
-#include <cstdint>              // for uint8_t, uint32_t
-#include <iosfwd>               // for size_t
-#include <iterator>             // for input_iterator_tag
+#include <cstddef>              // for ptrdiff_t, size_t
+#include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
+#include <iterator>             // for bidirectional_iterator_tag
+#include <sstream>              // for ostringstream
 #include <stdexcept>            // for out_of_range
-#include <sstream>              // for stringstream
-#include <type_traits>          // for is_same, conditional, enable_if_t
+#include <type_traits>          // for is_same, enable_if_t
 
 namespace arcstk
 {
@@ -27,6 +31,7 @@ inline namespace v_1_0_0
 
 /**
  * \internal
+ *
  * \brief Type to represent a 32 bit PCM stereo sample.
  *
  * This type must be defined assignable-to arcstk::sample_t. It has therefore
@@ -44,10 +49,10 @@ using sample_type = uint32_t;
  *
  * Calculation expects an update represented by two
  * iterators that enumerate the audio input as a sequence of 32 bit unsigned
- * integers of which each represents a pair 16-bit stereo PCM samples.
+ * integers of which each represents a pair of 16-bit stereo PCM samples.
  * SampleSequence is a read-only compatibility wrapper for passing sample
  * buffers of an integral sample format with 16 or 32 bit width to
- * Calculation::update() in this expected update format.
+ * Calculation::update() in the appropriate update format.
  *
  * The use of a SampleSequence for providing the updates is optional, the caller
  * may decide to provide the required sample format completely without using
@@ -91,13 +96,17 @@ using sample_type = uint32_t;
  * \see InterleavedSamples
  */
 template <typename T, bool is_planar>
-class SampleSequence;
+class SampleSequence
+{
+	// empty
+};
 
 namespace details
 {
 
 /**
  * \internal
+ *
  * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
  */
 template <typename T>
@@ -110,6 +119,7 @@ using IsSampleType = std::enable_if_t<
 
 /**
  * \internal
+ *
  * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
@@ -126,15 +136,15 @@ class SampleSequenceImplBase; // IWYU pragma keep
 
 /**
  * \internal
- * \brief An \c input_iterator for samples in SampleSequence instances.
+ *
+ * \brief A \c bidirectional_iterator for samples in SampleSequence instances.
  *
  * Provides a representation of the 16 bit stereo samples for each channel as
  * a single integer of an unsigned integer type assignable to \c sample_t.
  *
  * Equality between a \c const_iterator and an \c iterator works as expected.
  *
- * Although tagged as \c input_iterator, SampleIterator provides some additional
- * functionality as there is
+ * SampleIterator provides the following functionality:
  * <ul>
  *   <li>prefix- and postfix decrement,</li>
  *   <li>operators add-assign (+=) and subtract-assign (-=),</li>
@@ -143,7 +153,8 @@ class SampleSequenceImplBase; // IWYU pragma keep
  * </ul>
  */
 template <typename T, bool is_planar, bool is_const>
-class SampleIterator final
+class SampleIterator final :
+					public Comparable<SampleIterator<T, is_planar, is_const>>
 {
 	// Befriend the converse version of the type: const_iterator can access
 	// private members of iterator (and vice versa)
@@ -154,17 +165,17 @@ class SampleIterator final
 
 public:
 
-
 	using iterator_category = std::bidirectional_iterator_tag;
 
 	using value_type        = sample_type;
 
+	using reference         = value_type; // not a reference
+
+	using pointer           = IteratorElement<value_type>;
+							// non-pointer, gives chaining effect on ->
+
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
-
-	using pointer           = const value_type*;
-
-	using reference         = const value_type&;
 
 	/**
 	 * \brief Default constructor.
@@ -185,7 +196,7 @@ public:
 	 *
 	 * \param[in] rhs The non-constant SampleIterator
 	 */
-	SampleIterator(const SampleIterator<T, is_planar, false> &rhs)
+	SampleIterator(const SampleIterator<T, is_planar, false>& rhs)
 		: seq_ { rhs.seq_ } // works due to friendship
 		, pos_ { rhs.pos_ }
 	{
@@ -199,14 +210,14 @@ public:
 	 *
 	 * \param[in] rhs The non-constant SampleIterator
 	 */
-	SampleIterator& operator = (const SampleIterator<T, is_planar, false> &rhs)
+	SampleIterator& operator = (const SampleIterator<T, is_planar, false>& rhs)
 	{
 		seq_ = rhs.seq_;
 		pos_ = rhs.pos_;
 		return *this;
 	}
 	// Note: prior versions of g++ and clang++ accepted the following:
-	//SampleIterator& operator = (const SampleIterator &rhs) = default;
+	//SampleIterator& operator = (const SampleIterator& rhs) = default;
 	// but since this lets -Wdeprecated-copy fire at least on clang++ 14 we had
 	// to define the nonconst-to-const assignment operator explicitely.
 
@@ -243,10 +254,24 @@ public:
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
 	 */
-	value_type operator * () const
+	reference operator * () const
 	{
-		return seq_->operator[](static_cast<
-			typename SampleSequence<T, is_planar>::size_type>(pos_));
+		using index_type = typename SampleSequence<T, is_planar>::size_type;
+
+		return seq_->operator[](static_cast<index_type>(pos_));
+		//return seq_->operator[](static_cast<
+		//	typename SampleSequence<T, is_planar>::size_type>(pos_));
+	}
+
+	/**
+	 * \internal
+	 * \brief Pointer operator.
+	 *
+	 * \return Pointer to the converted PCM 32 bit sample the iterator points to
+	 */
+	pointer operator -> () const
+	{
+		return { pos_, **this };
 	}
 
 	/**
@@ -367,29 +392,22 @@ public:
 	 *
 	 * \return Arithmetical difference between \c lhs and \c rhs
 	 */
-	friend difference_type operator - (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
+	friend difference_type operator - (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
 	{
 		return lhs.pos_ - rhs.pos_;
 	}
 
 
-	friend bool operator == (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
+	friend bool operator == (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
 	{
-		return lhs.seq_ == rhs.seq_ and lhs.pos_ == rhs.pos_;
+		return lhs.seq_ == rhs.seq_ && lhs.pos_ == rhs.pos_;
 	}
 
-	friend bool operator != (const SampleIterator &lhs,
-			const SampleIterator &rhs) noexcept
-	{
-		return not(lhs == rhs);
-	}
-
-	friend void swap(SampleIterator &lhs, SampleIterator &rhs)
+	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
 	{
 		using std::swap;
-
 		swap(lhs.seq_, rhs.seq_);
 		swap(lhs.pos_, rhs.pos_);
 	}
@@ -405,7 +423,7 @@ private:
 	 * \param[in] seq SampleSequence to iterate
 	 * \param[in] pos Start index
 	 */
-	SampleIterator(const SampleSequence<T, is_planar> &seq,
+	SampleIterator(const SampleSequence<T, is_planar>& seq,
 			const difference_type pos)
 		: seq_ { &seq }
 		, pos_ { pos }
@@ -416,7 +434,7 @@ private:
 	/**
 	 * \brief The SampleSequence to iterate.
 	 */
-	const SampleSequence<T, is_planar> *seq_;
+	const SampleSequence<T, is_planar>* seq_;
 
 	/**
 	 * \brief Current index position.
@@ -429,6 +447,7 @@ namespace details
 
 /**
  * \internal
+ *
  * \brief Abstract base class for SampleSequences.
  *
  * \details
@@ -594,25 +613,25 @@ protected:
 	/**
 	 * \brief Protected default copy constructor.
 	 */
-	SampleSequenceImplBase(const SampleSequenceImplBase &)
+	SampleSequenceImplBase(const SampleSequenceImplBase& )
 	= default;
 
 	/**
 	 * \brief Protected default copy assignment operator.
 	 */
-	SampleSequenceImplBase& operator = (const SampleSequenceImplBase &)
+	SampleSequenceImplBase& operator = (const SampleSequenceImplBase& )
 	= default;
 
 	/**
 	 * \brief Protected default move constructor.
 	 */
-	SampleSequenceImplBase(SampleSequenceImplBase &&) noexcept
+	SampleSequenceImplBase(SampleSequenceImplBase&&) noexcept
 	= default;
 
 	/**
 	 * \brief Protected default move assignment operator.
 	 */
-	SampleSequenceImplBase& operator = (SampleSequenceImplBase &&) noexcept
+	SampleSequenceImplBase& operator = (SampleSequenceImplBase&&) noexcept
 	= default;
 
 	/**
@@ -674,7 +693,7 @@ protected:
 	{
 		if (this->out_of_range(index))
 		{
-			auto msg = std::stringstream {};
+			auto msg = std::ostringstream {};
 			msg << "Index out of bounds: " << index
 				<< ". Size: " << this->size();
 
@@ -749,6 +768,7 @@ private:
 
 /**
  * \internal
+ *
  * \brief A planar sequence of samples.
  *
  * \details
@@ -778,9 +798,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//Skip copy-ctor   SampleSequence(const SampleSequence &)
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
 
-	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
 
 	/**
 	 * \brief Constructor for a sequence with specified channel ordering.
@@ -1023,6 +1043,7 @@ private:
 
 /**
  * \internal
+ *
  * \brief An interleaved sequence of samples.
  *
  * This class is intended to be used by its alias InterleavedSamples<T>.
@@ -1050,9 +1071,9 @@ public: /* typedefs */
 
 public: /* member functions */
 
-	//Skip copy-ctor   SampleSequence(const SampleSequence &)
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
 
-	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence &)
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
 
 	/**
 	 * \brief Constructor for a sequence with specified channel ordering.
@@ -1315,7 +1336,6 @@ using InterleavedSamples = SampleSequence<T, false>;
 /** @} */
 
 } // namespace v_1_0_0
-
 } // namespace arcstk
 
 #endif
