@@ -68,7 +68,9 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 
 	SECTION ( "Can be forward-iterated correctly" )
 	{
-		auto it { block.begin() };
+		using std::cbegin;
+
+		auto it { cbegin(block) };
 
 		CHECK ( it->arcs() == 0x98B10E0F );
 		CHECK ( it->confidence() == 3 );
@@ -260,7 +262,9 @@ TEST_CASE ( "DBAR", "[dbar]" )
 
 	SECTION ( "Can be forward-iterated correctly" )
 	{
-		auto it { dBAR.begin() };
+		using std::cbegin;
+
+		auto it { cbegin(dBAR) };
 
 		CHECK ( it->header().total_tracks() == 15 );
 		CHECK ( it->header().id1() == 0x001B9178 );
