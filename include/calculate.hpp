@@ -235,6 +235,9 @@ private:
 		virtual reference dereference() noexcept
 		= 0;
 
+		virtual pointer pointer_to() noexcept
+		= 0;
+
 		/**
 		 * \brief Returns \c TRUE if \c rhs is equal to the instance.
 		 *
@@ -273,7 +276,7 @@ private:
 	struct Model : Concept
 	{
 		explicit Model(Iterator iterator)
-			: iterator_(iterator)
+			: iterator_ { iterator }
 		{
 			// empty
 		}
@@ -291,6 +294,11 @@ private:
 		reference dereference() noexcept final
 		{
 			return *iterator_;
+		}
+
+		pointer pointer_to() noexcept final
+		{
+			return nullptr;
 		}
 
 		bool equals(const Concept& rhs) const noexcept final
@@ -332,8 +340,8 @@ public:
 	 * \param[in] i Instance of an iterator over \c sample_t
 	 */
 	template <class Iterator, typename = IsSampleIterator<Iterator> >
-	SampleInputIterator(const Iterator& i) // FIXME Do not move a const ref
-		: object_ { std::make_unique<Model<Iterator>>(std::move(i)) }
+	SampleInputIterator(const Iterator& i)
+		: object_ { std::make_unique<Model<Iterator>>(i) }
 	{
 		// empty
 	}
@@ -375,19 +383,9 @@ public:
 		return object_->dereference();
 	}
 
-	/* *
-	 * \brief Access members of the underlying referee
-	 *
-	 * \return A pointer to the underlying referee
-	 */
-	//Concept& operator -> () const noexcept // required by LegacyInputIterator
-	//{
-	//	return *object_;
-	//	// This will work iff Concept has operator -> defined.
-	//	// A real pointer must not be returned at this place, otherwise the
-	//	// chaining effect for operator -> will be prevented.
-	//	// See: https://stackoverflow.com/a/4923639
-	//}
+
+	// TODO operator ->()
+
 
 	/**
 	 * \brief Pre-increment iterator.
@@ -418,6 +416,7 @@ public:
 	 */
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
+		using std::swap;
 		swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
 		return *this;
 	}
