@@ -534,45 +534,6 @@ bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
 }
 
 
-//
-
-
-DBARBlock::iterator begin(DBARBlock& block)
-{
-	return block.begin();
-}
-
-
-DBARBlock::iterator end(DBARBlock& block)
-{
-	return block.end();
-}
-
-
-DBARBlock::const_iterator cbegin(const DBARBlock& block)
-{
-	return block.cbegin();
-}
-
-
-DBARBlock::const_iterator cend(const DBARBlock& block)
-{
-	return block.cend();
-}
-
-
-DBARBlock::const_iterator begin(const DBARBlock& block)
-{
-	return block.cbegin();
-}
-
-
-DBARBlock::const_iterator end(const DBARBlock& block)
-{
-	return block.cend();
-}
-
-
 // DBAR::Impl
 
 
@@ -906,45 +867,6 @@ DBAR::const_iterator DBAR::begin() const
 DBAR::const_iterator DBAR::end() const
 {
 	return this->cend();
-}
-
-
-//
-
-
-DBAR::iterator begin(DBAR& dbar)
-{
-	return dbar.begin();
-}
-
-
-DBAR::iterator end(DBAR& dbar)
-{
-	return dbar.end();
-}
-
-
-DBAR::const_iterator cbegin(const DBAR& dbar)
-{
-	return dbar.cbegin();
-}
-
-
-DBAR::const_iterator cend(const DBAR& dbar)
-{
-	return dbar.cend();
-}
-
-
-DBAR::const_iterator begin(const DBAR& dbar)
-{
-	return dbar.begin();
-}
-
-
-DBAR::const_iterator end(const DBAR& dbar)
-{
-	return dbar.end();
 }
 
 

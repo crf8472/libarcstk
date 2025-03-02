@@ -559,13 +559,6 @@ public:
 	}
 };
 
-DBAR::iterator begin(DBAR& dbar);
-DBAR::iterator end(DBAR& dbar);
-DBAR::const_iterator cbegin(const DBAR& dbar);
-DBAR::const_iterator cend(const DBAR& dbar);
-DBAR::const_iterator begin(const DBAR& dbar);
-DBAR::const_iterator end(const DBAR& dbar);
-
 /**
  * \brief A block in a DBAR.
  *
@@ -690,13 +683,6 @@ public:
 		swap(lhs.idx_,  rhs.idx_);
 	}
 };
-
-DBARBlock::iterator begin(DBARBlock& block);
-DBARBlock::iterator end(DBARBlock& block);
-DBARBlock::const_iterator cbegin(const DBARBlock& block);
-DBARBlock::const_iterator cend(const DBARBlock& block);
-DBARBlock::const_iterator begin(const DBARBlock& block);
-DBARBlock::const_iterator end(const DBARBlock& block);
 
 
 // specialization for DBAR
