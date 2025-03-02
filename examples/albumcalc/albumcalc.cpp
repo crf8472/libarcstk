@@ -197,9 +197,9 @@ int main(int argc, char* argv[])
 	// (cf. example 'albumid' for a different method to construct a ToC).
 	const auto toc { arcstk::make_toc(audiosize.frames(), offsets) };
 
-	// Step 2: Choose an Algorithm. For this occasion we choose AccurateRipV1V2
-	// to get checksums for ARCSv2 as well as for ARCSv1.
-	auto algorithm { std::make_unique<arcstk::AccurateRipV1V2>() };
+	// Step 2: Choose an Algorithm. For this occasion we choose
+	// AccurateRip::V1andV2 to get checksums for ARCSv2 as well as for ARCSv1.
+	auto algorithm { std::make_unique<arcstk::AccurateRip::V1andV2>() };
 
 	// Step 3: Create a Calculation and provide it with the context.
 	// We do not specify a checksum type, thus the Calculation will provide
