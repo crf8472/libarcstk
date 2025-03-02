@@ -438,7 +438,6 @@ public:
 	 * \brief Default destructor
 	 */
 	~DBAR() noexcept;
-	// =default in source file after DBAR::Impl declaration was seen
 
 	/**
 	 * \brief Total number of blocks.
@@ -538,12 +537,26 @@ public:
 	 */
 	DBARBlock block(const size_type block_idx) const;
 
+	bool equals(const DBAR& rhs) const noexcept;
+
 	iterator begin();
 	iterator end();
 	const_iterator cbegin() const;
 	const_iterator cend() const;
 	const_iterator begin() const;
 	const_iterator end() const;
+
+
+	friend bool operator == (DBAR& lhs, DBAR& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend void swap(DBAR& lhs, DBAR& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.impl_, rhs.impl_);
+	}
 };
 
 DBAR::iterator begin(DBAR& dbar);
@@ -574,9 +587,24 @@ class DBARBlock final
 
 public:
 
+	/**
+	 * \brief Size type for this type, also used for indexing.
+	 */
 	using size_type = std::size_t;
+
+	/**
+	 * \brief Value type for this type.
+	 */
 	using value_type = DBARTriplet;
+
+	/**
+	 * \brief Iterator type.
+	 */
 	using iterator = DBARForwardIterator<DBARBlock>;
+
+	/**
+	 * \brief Constant iterator type.
+	 */
 	using const_iterator = const iterator;
 
 	/**
@@ -640,12 +668,27 @@ public:
 	 */
 	ARId id() const;
 
+	bool equals(const DBARBlock& rhs) const noexcept;
+
 	iterator begin();
 	iterator end();
 	const_iterator cbegin() const;
 	const_iterator cend() const;
 	const_iterator begin() const;
 	const_iterator end() const;
+
+
+	friend bool operator == (DBARBlock& lhs, DBARBlock& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend void swap(DBARBlock& lhs, DBARBlock& rhs) noexcept
+	{
+		using std::swap;
+		swap(lhs.dBAR_, rhs.dBAR_);
+		swap(lhs.idx_,  rhs.idx_);
+	}
 };
 
 DBARBlock::iterator begin(DBARBlock& block);
@@ -780,20 +823,27 @@ public:
  */
 class DBARBuilder final : public ParseHandler
 {
-	virtual void do_start_input() final;
-	virtual void do_start_block() final;
-	virtual void do_header(const uint8_t track_count, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id) final;
-	virtual void do_triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs) final;
-	virtual void do_end_block() final;
-	virtual void do_end_input() final;
-
 	/**
 	 * \brief Internal result representation
 	 */
 	std::unique_ptr<DBAR::Impl> result_;
+
+	// ParseHandler
+
+	virtual void do_start_input() final;
+
+	virtual void do_start_block() final;
+
+	virtual void do_header(const uint8_t track_count, const uint32_t id1,
+			const uint32_t id2, const uint32_t cddb_id) final;
+
+	virtual void do_triplet(const uint32_t arcs,
+			const uint8_t confidence,
+			const uint32_t frame450_arcs) final;
+
+	virtual void do_end_block() final;
+
+	virtual void do_end_input() final;
 
 public:
 
@@ -875,14 +925,31 @@ class DBARErrorHandler final : public ParseErrorHandler
  */
 class StreamParseException final : public std::runtime_error
 {
+	/**
+	 * \brief Last 1-based global byte position before the exception occurred.
+	 */
+	const unsigned byte_pos_;
+
+	/**
+	 * \brief The 1-based block number of the block in which the exception
+	 * occurred.
+	 */
+	const unsigned block_;
+
+	/**
+	 * \brief Last 1-based block-relative byte position read before the
+	 * exception.
+	 */
+	const unsigned block_byte_pos_;
+
 public:
 
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] byte_pos       Last 1-based global byte pos read before exception
+	 * \param[in] byte_pos       Last 1-based global byte pos before exception
 	 * \param[in] block          1-based block number
-	 * \param[in] block_byte_pos Last 1-based block byte pos read before exception
+	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 * \param[in] what_arg       Error message
 	 */
 	StreamParseException(const unsigned byte_pos, const unsigned block,
@@ -891,9 +958,9 @@ public:
 	/**
 	 * \brief Constructor with default message.
 	 *
-	 * \param[in] byte_pos       Last 1-based global byte pos read before exception
+	 * \param[in] byte_pos       Last 1-based global byte pos before exception
 	 * \param[in] block          1-based block number
-	 * \param[in] block_byte_pos Last 1-based block byte pos read before exception
+	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 */
 	StreamParseException(const unsigned byte_pos, const unsigned block,
 			const unsigned block_byte_pos);
@@ -926,31 +993,13 @@ private:
 	/**
 	 * \brief Compose default error message.
 	 *
-	 * \param[in] byte_pos       Last 1-based global byte pos read before exception
+	 * \param[in] byte_pos       Last 1-based global byte pos before exception
 	 * \param[in] block          1-based block number
-	 * \param[in] block_byte_pos Last 1-based block byte pos read before exception
+	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 */
 	std::string default_message(const unsigned byte_pos, const unsigned block,
 			const unsigned block_byte_pos) const;
-
-	/**
-	 * \brief Last 1-based global byte position before the exception occurred.
-	 */
-	const unsigned byte_pos_;
-
-	/**
-	 * \brief The 1-based block number of the block in which the exception
-	 * occurred.
-	 */
-	const unsigned block_;
-
-	/**
-	 * \brief Last 1-based block-relative byte position read before the
-	 * exception.
-	 */
-	const unsigned block_byte_pos_;
 };
-
 
 /**
  * \brief Check a parsed value whether it is a valid ARCS (also frame 450 ARCS).
@@ -961,7 +1010,6 @@ private:
  */
 bool is_valid_arcs(const uint32_t value);
 
-
 /**
  * \brief Check a parsed value whether it is a valid confidence.
  *
@@ -970,7 +1018,6 @@ bool is_valid_arcs(const uint32_t value);
  * \return TRUE iff value is valid i.e. was parsed correctly
  */
 bool is_valid_confidence(const unsigned value);
-
 
 /**
  * \brief Parse an input stream.
@@ -984,7 +1031,6 @@ bool is_valid_confidence(const unsigned value);
 uint32_t parse_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
-
 /**
  * \brief Parse a file.
  *
@@ -996,7 +1042,6 @@ uint32_t parse_stream(std::istream& in, ParseHandler* p,
  */
 uint32_t parse_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);
-
 
 /**
  * \brief Read an AccurateRip response file to a DBAR object.

@@ -336,7 +336,7 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 
 ARId get_arid(const DBARBlockHeader& header)
 {
-	return ARId{ header.total_tracks(), header.id1(), header.id2(),
+	return ARId { header.total_tracks(), header.id1(), header.id2(),
 			header.cddb_id() };
 }
 
@@ -505,7 +505,6 @@ DBARBlock::size_type DBARBlock::index() const noexcept
 
 DBARBlock::size_type DBARBlock::size() const
 {
-	//return dBAR_->total_tracks(idx_);
 	return dBAR_->size(idx_);
 }
 
@@ -525,6 +524,13 @@ DBARTriplet DBARBlock::triplet(const size_type track_idx) const
 ARId DBARBlock::id() const
 {
 	return details::get_arid(header());
+}
+
+
+bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
+{
+	return dBAR_ == rhs.dBAR_ || dBAR_->equals(*rhs.dBAR_)
+		|| idx_ == rhs.idx_;
 }
 
 
@@ -571,9 +577,9 @@ DBARBlock::const_iterator end(const DBARBlock& block)
 
 
 DBAR::Impl::Impl()
-	: total_tracks_ ( )
-	, confidence_   ( )
-	, sums_         ( )
+	: total_tracks_ { /* default */ }
+	, confidence_   { /* default */ }
+	, sums_         { /* default */ }
 {
 	// empty
 }
@@ -641,6 +647,14 @@ void DBAR::Impl::add_triplet(const uint32_t arcs,
 
 	sums_.push_back(arcs);
 	sums_.push_back(frame450_arcs);
+}
+
+
+bool DBAR::Impl::equals(const Impl& rhs) const noexcept
+{
+	return total_tracks_ == rhs.total_tracks_
+		&& confidence_   == rhs.confidence_
+		&& sums_         == rhs.sums_;
 }
 
 
@@ -850,6 +864,12 @@ DBARTriplet DBAR::triplet(const DBAR::size_type block_idx,
 DBARBlock DBAR::block(const DBAR::size_type block_idx) const
 {
 	return DBARBlock { *this, block_idx };
+}
+
+
+bool DBAR::equals(const DBAR& rhs) const noexcept
+{
+	return impl_->equals(*rhs.impl_);
 }
 
 
