@@ -107,5 +107,5 @@ build switches.
 
 - Checksumming CD images containing data tracks is untested and broken.
 
-[1]: https://crf8472.github.io/libarcstk/0.2.x/
+[1]: https://crf8472.github.io/libarcstk/0.2.1/
 [2]: https://github.com/crf8472/libarcsdec/
