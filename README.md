@@ -4,14 +4,15 @@
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
-**This is version 0.1 which is not developed any more**
+**This branch contains version 0.1 which is not developed any more**
 
 
 ## Version 0.1
 
-Version 0.1 contains deprecated module 'parse' instead of current module 'dbar'
-and deprecated module 'match' instead of current module 'verify'. The last
-release with this API was 0.1.1-beta.2.
+This version branch is outdated and will not see any development any more.
+The last release with this API was 0.1.1-beta.2. You will find the API
+documentation for this version [here][1].
+
 
 
 ## What libarcstk does
@@ -92,5 +93,5 @@ build switches.
 
 - Checksumming CD images containing data tracks is untested and broken.
 
-[1]: https://crf8472.github.io/libarcstk/
+[1]: https://crf8472.github.io/libarcstk/0.1.1/
 [2]: https://github.com/crf8472/libarcsdec/
