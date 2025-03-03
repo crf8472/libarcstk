@@ -1,28 +1,30 @@
 \mainpage @PROJECT_NAME@ - @PROJECT_BRIEF_DESC@
 
 
+
 \section Home
 
 See the [project repository](@PROJECT_URL@/).
+
 
 
 \section features Features
 
 Libarcstk supports the following tasks for working with AccurateRip checksums:
 
-- Calculate the AccurateRip checksums of a succession of audio samples, may it
-  be a single track or an album
-- Verify AccurateRip checksums against their reference sums from AccurateRip
-- Calculate the AccurateRip ID of a CD from its TOC information (along with the
-  request URL and the canonical response filename)
-- Parse the response of an request to the AccurateRip database to plaintext
+- Verify AccurateRip checksums against their reference sums from AccurateRip.
+- Calculate the AccurateRip checksums of a sequence of audio samples, may it
+  be a single track or an album.
+- Calculate the AccurateRip Id of a CD from its toc information (along with the
+  request URL and the canonical response filename).
+- Parse the responses AccurateRip sends to database requests to plaintext.
 
 
 
 \section nonfeatures Non-features
 
-- Libarcstk does not rip CDs
-- Libarcstk does not read, decode or buffer audio data
+- Libarcstk does not rip CDs.
+- Libarcstk does not read, decode or buffer audio data.
 - Libarcstk will not send any requests to AccurateRip. Libarcstk has no network
   facilities and is not supposed to get any. The actual HTTP request for
   fetching the reference values is better performed by the HTTP client of your
