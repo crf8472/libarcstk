@@ -370,7 +370,8 @@ public:
 
 
 /**
- * \brief VerificationPolicy that accepts track matches in the same block as verified.
+ * \brief VerificationPolicy that accepts track matches in the same block as
+ * verified.
  */
 class StrictPolicy final : public VerificationPolicy
 {

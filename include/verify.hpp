@@ -65,6 +65,8 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
 /**
  * \brief Interface: unified access to checksum containers.
  *
+ * \details
+ *
  * A checksum container contains several blocks while each block consists of an
  * ARId and an ordered sequence of checksums. A single checksum is accessed by a
  * block index in combination with the index of the checksum within the block.
@@ -204,6 +206,8 @@ public:
 
 /**
  * \brief Base: wrap a checksum container type in a ChecksumSource.
+ *
+ * \details
  *
  * A type \c T can be made available as a ChecksumSource via definig a subclass
  * of ChecksumSourceOf<T>. The subclass has to implement the virtual functions
@@ -393,9 +397,10 @@ public:
 	 *
 	 * A rip for which all tracks are verified can be considered accurate
 	 * relative to the applied verification method. Iff the method is strict,
-	 * then there is a single block in the ChecksumSource that is identical
-	 * with the list of actual Checksums. Iff the method is non-strict, every
-	 * actual Checksum occurred at least in one block of the ChecksumSource.
+	 * then a total match requires at least one block in the ChecksumSource that
+	 * is identical to the list of actual Checksums. Iff the method is
+	 * non-strict, every actual Checksum occurred at least in one block of the
+	 * ChecksumSource.
 	 *
 	 * \return TRUE iff each track is verified otherwise FALSE
 	 */
@@ -505,7 +510,7 @@ public:
 	/**
 	 * \brief Returns the number of analyzed reference blocks.
 	 *
-	 * This is identical with the total number of blocks in the ChecksumSource.
+	 * This is identical to the total number of blocks in the ChecksumSource.
 	 *
 	 * \return Total number of analyzed blocks.
 	 */
@@ -514,7 +519,7 @@ public:
 	/**
 	 * \brief Returns the number of compared tracks per reference block.
 	 *
-	 * This is identical with the total number of tracks in each block in the
+	 * This is identical to the total number of tracks in each block in the
 	 * ChecksumSource.
 	 *
 	 * \return Total number of tracks per block.
@@ -576,10 +581,19 @@ public:
  * A verification is performed by matching actual checksums against some
  * reference checksums. A Verifier declares the interface for this matching
  * process. The actual checksums are passed as constructor arguments in the
- * concrete subclasses. Function perform() does the match against the reference
+ * concrete subclasses. Some Verifier types may return \c nullptr for their
+ * actual_id().
+ *
+ * Function perform() does the match against the reference
  * checksums passed as an argument.
  *
- * A Verifier is strict() by default.
+ * Any Verifier can be either strict or not strict. A strict Verifier will
+ * produce a verified result only iff there is at least one block in the
+ * ChecksumSource that is identical to the list of actual Checksums. Iff the
+ * Verifier is not strict, its result will qualify as verified already iff every
+ * actual Checksum occurred at least in one block of the ChecksumSource.
+ *
+ * Any Verifier is strict() by default.
  */
 class Verifier
 {
@@ -745,9 +759,8 @@ public:
  * AlbumVerifier in any case where a ToC is available.
  *
  * \note
- * TracksetVerifier is a generalization of AlbumVerifier. AlbumVerifier adds
- * the restriction that the order of tracks in the reference must be matched
- * too.
+ * TracksetVerifier is a generalization of AlbumVerifier. AlbumVerifier adds the
+ * restriction that the order of tracks in the reference must be matched too.
  *
  * \see AlbumVerifier
  */
