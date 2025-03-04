@@ -1038,12 +1038,15 @@ std::unique_ptr<VerificationResult> verify(
 		TraversalPolicy& traversal, const MatchPolicy& match);
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+
 /**
  * \brief Interface: base class for Verifiers.
  */
 class VerifierBase
 {
-	virtual const ARId& do_actual_id() const noexcept;
+	virtual const ARId* do_actual_id() const noexcept;
 	virtual std::unique_ptr<TraversalPolicy> do_create_traversal() const;
 
 	virtual std::unique_ptr<MatchPolicy> do_create_order() const
@@ -1056,7 +1059,7 @@ protected:
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
-	VerifierBase(const Checksums& actual_sums);
+	VerifierBase(const Checksums* actual_sums);
 
 public:
 
@@ -1070,14 +1073,14 @@ public:
 	 *
 	 * \return Actual ARId.
 	 */
-	const ARId& actual_id() const noexcept;
+	const ARId* actual_id() const noexcept;
 
 	/**
 	 * \brief The actual checksums to be verified.
 	 *
 	 * \return The actual checksums to be verified.
 	 */
-	const Checksums& actual_checksums() const noexcept;
+	const Checksums* actual_checksums() const noexcept;
 
 	/**
 	 * \brief TRUE iff this instances performs verification strictly.
@@ -1108,7 +1111,7 @@ private:
 	/**
 	 * \brief Actual checksums to be verified.
 	 */
-	const Checksums& actual_sums_;
+	const Checksums* actual_sums_;
 
 	/**
 	 * \brief Flag to indicate strictness.
@@ -1116,6 +1119,7 @@ private:
 	bool is_strict_;
 };
 
+#pragma GCC diagnostic pop
 
 } // namespace details
 
@@ -1129,7 +1133,7 @@ private:
 class AlbumVerifier::Impl : public details::VerifierBase
 {
 	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
-	virtual const ARId& do_actual_id() const noexcept final;
+	virtual const ARId* do_actual_id() const noexcept final;
 
 public:
 

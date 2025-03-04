@@ -604,8 +604,8 @@ std::unique_ptr<Selector> TrackSelector::do_clone() const
 SourceIterator::SourceIterator(const ChecksumSource& source,
 		const ChecksumSource::size_type current,
 		const ChecksumSource::size_type counter, const Selector& selector)
-	: selector_ { &selector }
-	, source_   { &source }
+	: selector_ { std::addressof(selector) }
+	, source_   { std::addressof(source)   }
 	, current_  { current }
 	, counter_  { counter }
 {
@@ -644,7 +644,7 @@ SourceIterator::reference SourceIterator::operator * () const // dereferncing
 
 SourceIterator::pointer SourceIterator::operator -> () const // dereferncing
 {
-	return &selector_->get(*source_, current_, counter_);
+	return std::addressof(selector_->get(*source_, current_, counter_));
 }
 
 
@@ -729,7 +729,7 @@ const ChecksumSource* TraversalPolicy::source() const
 
 void TraversalPolicy::set_source(const ChecksumSource& source)
 {
-	source_ = &source;
+	source_ = std::addressof(source);
 }
 
 
@@ -1030,7 +1030,7 @@ std::unique_ptr<VerificationResult> verify(
 			actual_sums.size()/* total tracks per block */,
 			traversal.get_policy());
 
-	const Verification v{};
+	const auto v = Verification{};
 	// Verification has no members so its instantiation does not
 	// require extra memory.
 	v.perform(*r, actual_sums, actual_id, ref_sums, traversal, order);
@@ -1042,21 +1042,21 @@ std::unique_ptr<VerificationResult> verify(
 // VerifierBase
 
 
-VerifierBase::VerifierBase(const Checksums& actual_sums)
+VerifierBase::VerifierBase(const Checksums* actual_sums)
 	: actual_sums_ { actual_sums }
-	, is_strict_   { true        }
+	, is_strict_   { true }
 {
 	// empty
 }
 
 
-const ARId& VerifierBase::actual_id() const noexcept
+const ARId* VerifierBase::actual_id() const noexcept
 {
 	return do_actual_id();
 }
 
 
-const Checksums& VerifierBase::actual_checksums() const noexcept
+const Checksums* VerifierBase::actual_checksums() const noexcept
 {
 	return actual_sums_;
 }
@@ -1079,13 +1079,14 @@ std::unique_ptr<VerificationResult> VerifierBase::perform(
 {
 	const auto o = do_create_order();
 	auto t = do_create_traversal();
-	return verify(actual_checksums(), actual_id(), ref_sums, *t, *o);
+	auto id = actual_id() ? *actual_id() : arcstk::EmptyARId;
+	return verify(*actual_checksums(), id, ref_sums, *t, *o);
 }
 
 
-const ARId& VerifierBase::do_actual_id() const noexcept
+const ARId* VerifierBase::do_actual_id() const noexcept
 {
-	return EmptyARId;
+	return nullptr;
 }
 
 
@@ -1341,13 +1342,13 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 // Verifier
 
 
-const ARId& Verifier::actual_id() const noexcept
+const ARId* Verifier::actual_id() const noexcept
 {
 	return do_actual_id();
 }
 
 
-const Checksums& Verifier::actual_checksums() const noexcept
+const Checksums* Verifier::actual_checksums() const noexcept
 {
 	return do_actual_checksums();
 }
@@ -1375,7 +1376,7 @@ std::unique_ptr<VerificationResult> Verifier::perform(
 std::unique_ptr<VerificationResult> Verifier::perform(const DBAR& ref_sums)
 	const
 {
-	return do_perform(DBARSource{ &ref_sums });
+	return do_perform(DBARSource{ std::addressof(ref_sums) });
 }
 
 
@@ -1383,8 +1384,8 @@ std::unique_ptr<VerificationResult> Verifier::perform(const DBAR& ref_sums)
 
 
 AlbumVerifier::Impl::Impl(const Checksums& actual_sums, const ARId& actual_id)
-	: details::VerifierBase { actual_sums               }
-	, actual_id_            { std::addressof(actual_id) }
+	: details::VerifierBase { std::addressof(actual_sums) }
+	, actual_id_            { std::addressof(actual_id)   }
 {
 	// empty
 }
@@ -1397,9 +1398,9 @@ std::unique_ptr<details::MatchPolicy> AlbumVerifier::Impl::do_create_order()
 }
 
 
-const ARId& AlbumVerifier::Impl::do_actual_id() const noexcept
+const ARId* AlbumVerifier::Impl::do_actual_id() const noexcept
 {
-	return *actual_id_;
+	return actual_id_;
 }
 
 
@@ -1445,13 +1446,13 @@ AlbumVerifier& AlbumVerifier::operator=(AlbumVerifier&& rhs) noexcept
 AlbumVerifier::~AlbumVerifier() noexcept = default;
 
 
-const ARId& AlbumVerifier::do_actual_id() const noexcept
+const ARId* AlbumVerifier::do_actual_id() const noexcept
 {
 	return impl_->actual_id();
 }
 
 
-const Checksums& AlbumVerifier::do_actual_checksums() const noexcept
+const Checksums* AlbumVerifier::do_actual_checksums() const noexcept
 {
 
 	return impl_->actual_checksums();
@@ -1487,7 +1488,7 @@ std::unique_ptr<Verifier> AlbumVerifier::do_clone() const
 
 
 TracksetVerifier::Impl::Impl(const Checksums& actual_sums)
-	: details::VerifierBase { actual_sums }
+	: details::VerifierBase { std::addressof(actual_sums) }
 {
 	// empty
 }
@@ -1541,13 +1542,13 @@ TracksetVerifier& TracksetVerifier::operator=(TracksetVerifier&& rhs) noexcept
 TracksetVerifier::~TracksetVerifier() noexcept = default;
 
 
-const ARId& TracksetVerifier::do_actual_id() const noexcept
+const ARId* TracksetVerifier::do_actual_id() const noexcept
 {
 	return impl_->actual_id();
 }
 
 
-const Checksums& TracksetVerifier::do_actual_checksums() const noexcept
+const Checksums* TracksetVerifier::do_actual_checksums() const noexcept
 {
 	return impl_->actual_checksums();
 }

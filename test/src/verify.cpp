@@ -328,12 +328,12 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 	REQUIRE ( actual_sums.size() == 15 );
 
 	// Represents verification in track order, maybe either strict or non-strict
-	AlbumVerifier a {actual_sums, id};
+	auto a = AlbumVerifier { actual_sums, id };
 
 	// Check defaults
 	REQUIRE ( a.strict() );
-	REQUIRE ( a.actual_id() == id );
-	REQUIRE ( a.actual_checksums() == actual_sums );
+	REQUIRE ( a.actual_id() == &id );
+	REQUIRE ( a.actual_checksums() == &actual_sums );
 
 	// common constants
 
@@ -914,11 +914,11 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 	REQUIRE ( actual_sums.size() == 15 );
 
 
-	TracksetVerifier t { actual_sums };
+	auto t = TracksetVerifier { actual_sums };
 
 	REQUIRE ( t.strict() );
-	REQUIRE ( t.actual_id() == arcstk::EmptyARId);
-	REQUIRE ( t.actual_checksums() == actual_sums );
+	REQUIRE ( t.actual_id() == nullptr );
+	REQUIRE ( t.actual_checksums() == &actual_sums );
 
 	// common constants
 

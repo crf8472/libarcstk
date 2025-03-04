@@ -573,17 +573,20 @@ public:
 /**
  * \brief Interface: perform a verification.
  *
- * Subclasses of verifiers can implement specialized policies for strictness
- * and match order.
+ * A verification is performed by matching actual checksums against some
+ * reference checksums. A Verifier declares the interface for this matching
+ * process. The actual checksums are passed as constructor arguments in the
+ * concrete subclasses. Function perform() does the match against the reference
+ * checksums passed as an argument.
  *
  * A Verifier is strict() by default.
  */
 class Verifier
 {
-	virtual const ARId& do_actual_id() const noexcept
+	virtual const ARId* do_actual_id() const noexcept
 	= 0;
 
-	virtual const Checksums& do_actual_checksums() const noexcept
+	virtual const Checksums* do_actual_checksums() const noexcept
 	= 0;
 
 	virtual bool do_strict() const noexcept
@@ -611,14 +614,14 @@ public:
 	 *
 	 * \return Actual ARId.
 	 */
-	const ARId& actual_id() const noexcept;
+	const ARId* actual_id() const noexcept;
 
 	/**
 	 * \brief Actual Checksums.
 	 *
 	 * \return Actual Checksums.
 	 */
-	const Checksums& actual_checksums() const noexcept;
+	const Checksums* actual_checksums() const noexcept;
 
 	/**
 	 * \brief TRUE iff verification is peformed by a strict policy.
@@ -685,9 +688,9 @@ class AlbumVerifier final : public Verifier
 
 	// Verifier
 
-	virtual const ARId& do_actual_id() const noexcept final;
+	virtual const ARId* do_actual_id() const noexcept final;
 
-	virtual const Checksums& do_actual_checksums() const noexcept final;
+	virtual const Checksums* do_actual_checksums() const noexcept final;
 
 	virtual bool do_strict() const noexcept final;
 
@@ -755,9 +758,9 @@ class TracksetVerifier final : public Verifier
 
 	// Verifier
 
-	virtual const ARId& do_actual_id() const noexcept final;
+	virtual const ARId* do_actual_id() const noexcept final;
 
-	virtual const Checksums& do_actual_checksums() const noexcept final;
+	virtual const Checksums* do_actual_checksums() const noexcept final;
 
 	virtual bool do_strict() const noexcept final;
 
