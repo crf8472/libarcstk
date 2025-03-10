@@ -8,18 +8,18 @@ Building the examples requires libarcstk to have been successfully build (e.g.
 the .so-file residing in build/.). If you do not have g++ installed, adjust the
 Makefiles to your compiler before building the examples.
 
-The aim of the examples is demonstration, not productive use. Backup any file
-you intend to use as input for the example applications!
-
 The example applications are compiled against the libarcstk.so object in the
 build tree! Use each example application exclusively in the directory it was
 compiled since it is only guaranteed to work from there.
 
+The aim of the examples is demonstration, not productive use. Backup any file
+you intend to use as input for the example applications!
+
 Each of the example applications lets the user input her own data and is
 intended to provide useful results for a specific task.
 
-Note: The example applications do only target situations where an entire album
-as a single audio file along with its metadata (as a Cuesheet) is to be
+Note: The example applications do exclusively target situations where an entire
+album as a single audio file along with its metadata (as a Cuesheet) is to be
 processed. This restriction keeps the examples reasonably small. Of course,
 libarcstk can also process single audio files representing specific tracks or a
 set of audio files that represent an album or parts of an album. For this use
