@@ -1,6 +1,6 @@
-# vim:set ft=conf
-
 ## Base configuration for doxygen.
+##
+## Activates only the default output formats, i.e. HTML and LaTeX.
 ##
 ## Can be used as a standalone config for doxygen or to be included by
 ## another doxyfile that adds generator-specific configuration.
@@ -15,19 +15,18 @@ STRIP_FROM_PATH        = @DOXYGEN_STRIP_FROM_PATH@
 STRIP_FROM_INC_PATH    = @DOXYGEN_STRIP_FROM_INC_PATH@
 
 # Base configuration: define every m.css markup macro empty
-ALIASES                = \
-    "m_div{1}=" \
-    "m_enddiv=" \
-    "m_span{1}=" \
-    "m_endspan=" \
-    "m_class{1}=" \
-    "m_footernavigation=" \
-    "m_examplenavigation{2}=" \
-    "m_keywords{1}=" \
-    "m_keyword{3}=" \
-    "m_enum_values_as_keywords="
-
-EXTENSION_MAPPING      = tpp=C++
+# This entails to use this Doxyfile with m.css markup without using m.css.
+ALIASES               += \
+							"m_div{1}="                  \
+							"m_enddiv="                  \
+							"m_span{1}="                 \
+							"m_endspan="                 \
+							"m_class{1}="                \
+							"m_footernavigation="        \
+							"m_examplenavigation{2}="    \
+							"m_keywords{1}="             \
+							"m_keyword{3}="              \
+							"m_enum_values_as_keywords="
 
 INLINE_GROUPED_CLASSES = YES
 EXTRACT_LOCAL_CLASSES  = NO
@@ -42,6 +41,7 @@ SORT_MEMBERS_CTORS_1ST = YES
 SORT_GROUP_NAMES       = YES
 
 WARN_LOGFILE           = @PROJECT_LOG_DIR@/Doxygen_Warnings.log
+WARN_NO_PARAMDOC       = YES
 
 INPUT                  = @DOXYGEN_INPUT@
 FILE_PATTERNS          = @DOXYGEN_FILE_PATTERNS@
