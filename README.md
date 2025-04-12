@@ -4,18 +4,21 @@
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./DESIGN.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
+**This branch contains an outdated version that is not developed any more!**
 
 
-## The version on this branch is deprecated
+## Version 0.1.x
 
-This branch hosts version 0.1.x of libarcstk which is deprecated and will not
-see any development any more. This branch should not be used for new projects.
-If your project require version 0.1.x consider the upgrade to the version on the
-main branch.
+This branch hosts version 0.1.x of libarcstk which is outdated and will not see
+any development anymore.
 
-Version 0.1 contains deprecated module 'parse' instead of current module 'dbar'
-and deprecated module 'match' instead of current module 'verify'. The last
-release with this API was 0.1.1-beta.2.
+The latest release with this API was 0.1.1-beta.2. Version 0.1 contains
+outdated module 'parse' instead of current module 'dbar' and deprecated module
+'match' instead of current module 'verify'.
+
+This branch should not be used for new projects. If your project requires
+version 0.1.x consider upgrading to the latest release of libarcstk soon.
+
 
 
 ## What libarcstk does
