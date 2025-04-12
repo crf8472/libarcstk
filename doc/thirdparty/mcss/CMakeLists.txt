@@ -86,7 +86,7 @@ else() ## No FetchContent module available
 
 	include (ExternalProject )
 
-	ExternalProject_Add (mcss_download
+	ExternalProject_Add (libarcstk_mcss_download
 		GIT_REPOSITORY    ${MCSS_REPO_URL}
 		#GIT_TAG          ... use always HEAD of default branch
 		GIT_SHALLOW       true
@@ -109,7 +109,7 @@ else() ## No FetchContent module available
 
 	unset(SOURCE_DIR )
 
-	add_dependencies (libarcstk_mcss_doc mcss_download )
+	add_dependencies (libarcstk_mcss_doc libarcstk_mcss_download )
 endif()
 
 
