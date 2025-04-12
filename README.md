@@ -4,13 +4,14 @@
 [![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./DESIGN.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
+**This branch contains an outdated version that is not developed any more**
 
 
-## The version on this branch is deprecated
+## Version 0.2.x
 
 This branch hosts version 0.2.x of libarcstk which is deprecated. This branch
 should not be used for new projects. If your project require version 0.2.x
-consider the upgrade to 0.3.x.
+consider the upgrade to the main branch.
 
 
 
