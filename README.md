@@ -12,9 +12,10 @@
 This branch hosts version 0.1.x of libarcstk which is outdated and will not see
 any development anymore.
 
-The latest release with this API was 0.1.1-beta.2. Version 0.1 contains
+The latest release with this API was 0.1.1-beta.2. You will find the API
+documentation for this version [here][1]. (Version 0.1.x contains
 outdated module 'parse' instead of current module 'dbar' and deprecated module
-'match' instead of current module 'verify'.
+'match' instead of current module 'verify'.)
 
 This branch should not be used for new projects. If your project requires
 version 0.1.x consider upgrading to the latest release of libarcstk soon.
@@ -99,5 +100,5 @@ build switches.
 
 - Checksumming CD images containing data tracks is untested and broken.
 
-[1]: https://crf8472.github.io/libarcstk/
+[1]: https://crf8472.github.io/libarcstk/0.1.1/
 [2]: https://github.com/crf8472/libarcsdec/

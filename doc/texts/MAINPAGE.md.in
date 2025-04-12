@@ -1,9 +1,18 @@
 \mainpage @PROJECT_NAME@ - @PROJECT_BRIEF_DESC@
 
 
+
+\attention
+<b>This documentation refers to outdated version @PROJECT_VERSION@ of
+libarcstk.</b> - Documentation for the current version of libarcstk can be
+found here: https://crf8472.github.io/libarcstk/current/index.html
+
+
+
 \section Home
 
 See the [project repository](@PROJECT_URL@/).
+
 
 
 \section features Features
