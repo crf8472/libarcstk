@@ -1,13 +1,17 @@
 # Toolkit to calculate and verify AccurateRip checksums and ids
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./API.md)
+[![C++14](https://img.shields.io/badge/C++-14-darkred.svg)](./DESIGN.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 
-**This is version 0.1 which is not developed any more**
 
 
-## Version 0.1
+## The version on this branch is deprecated
+
+This branch hosts version 0.1.x of libarcstk which is deprecated and will not
+see any development any more. This branch should not be used for new projects.
+If your project require version 0.1.x consider the upgrade to the version on the
+main branch.
 
 Version 0.1 contains deprecated module 'parse' instead of current module 'dbar'
 and deprecated module 'match' instead of current module 'verify'. The last
