@@ -152,22 +152,24 @@ add_dependencies (libarcstk_doc        libarcstk_text_files )
 
 ## --- If some thirdparty documentation tool was requested, use it
 
-list (APPEND GENERATORS MCSS RTD )
+get_filename_component (_FULLPATH "${CMAKE_CURRENT_SOURCE_DIR}" REALPATH )
 
-foreach (GENERATOR IN ITEMS ${GENERATORS} )
+foreach (GENERATOR IN LISTS USE_DOC_TOOL )
 
-	if (GENERATOR IN_LIST USE_DOC_TOOL )
+	string (TOLOWER ${GENERATOR} GENERATOR_DIR )
 
-		message (STATUS "Generate documentation by ${GENERATOR}" )
+	message (STATUS "Check path ${_FULLPATH}/thirdparty/${GENERATOR_DIR}")
 
-		string (TOLOWER ${GENERATOR} GENERATOR_DIR )
+	if (EXISTS "${_FULLPATH}/thirdparty/${GENERATOR_DIR}" )
+
+		message (STATUS "Generate documentation by ${GENERATOR_DIR}" )
 
 		list (APPEND LOAD_GENERATORS "${GENERATOR_DIR}" )
 	endif()
 
+	unset (GENERATOR_DIR )
 endforeach()
 unset (GENERATOR )
-unset (GENERATOR_DIR )
 
 
 ## --- Detect Doxygen version with duplication bug and setup deduplication
