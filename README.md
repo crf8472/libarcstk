@@ -12,7 +12,7 @@
 This branch hosts version 0.2.x of libarcstk which is outdated and will not see
 any development anymore.
 
-The latest release with this API was [0.2.1-alpha.2 (Mar 2, 2025)][3].
+The latest release with this API was [0.2.1-alpha.2][3] (Mar 2, 2025).
 You will find the API documentation for this version [here][1].
 
 This branch should not be used for new projects. If your project requires
