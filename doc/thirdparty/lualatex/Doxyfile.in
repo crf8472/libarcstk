@@ -1,0 +1,26 @@
+## Doxygen file for generating a manual by lualatex
+
+## Include the base Doxyfile
+
+@INCLUDE = @DOC_DOXYFILE_BASE@
+
+
+## Override the following values from included Doxyfile
+
+OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
+# Has to be repeated: Doxfile-base gets the value from root CMakeLists.txt,
+# Doxyfile has to get the value from lualatex/CMakeListst.txt.
+
+LATEX_OUTPUT           = lualatex
+
+INPUT                  = @DOXYGEN_INPUT@
+
+GENERATE_HTML          = NO
+
+
+GENERATE_LATEX         = YES # default
+COMPACT_LATEX          = YES
+
+#USE_PDFLATEX           = NO
+LATEX_CMD_NAME         = lualatex
+

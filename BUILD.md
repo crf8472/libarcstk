@@ -300,27 +300,24 @@ load ``build/generated-docs/mcss/html/index.html`` in your browser.
 ### Manual: PDF by LaTeX (smoke-tested, more or less)
 
 Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
-installation (along with ``pdflatex``) is required for creating the manual.
+installation (containing ``lualatex`` and ``epstopdf``) is required for creating
+the manual.
 
-Building the ``doc`` target like in the examples above will create the LaTeX
-sources for the PDF manual but will not automatically typeset the actual PDF
-document. This requires to change directory to ``build/generated-docs/latex``
-and issue ``make``.
+Building the PDF manual can be requested by using ``-DUSE_DOC_TOOL=LUALATEX``.
+It will therefore by typeset by building the ``doc`` target.
 
 The entire process:
 
 	$ cd build
-	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=lualatex ..
+	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=LUALATEX ..
 	$ cmake --build . --target doc
-	$ cd generated-docs/latex
-	$ make
 
 This will create the manual ``refman.pdf`` in folder
-``build/generated-docs/latex`` (while issueing loads of ``Underfull \hbox``
-warnings, which is perfectly normal).
+``build/generated-docs/doxygen/lualatex`` (while issuing loads of ``Underfull
+\hbox`` warnings, which is perfectly normal).
 
-Note that I did never give any love to the manual. It will build but it will not
-be convenient or look good at its current stage!
+Note that I did never give any love to the manual. It will build. However, it
+will not be convenient to read or look good at its current stage.
 
 
 ## Deep language support in your ``$EDITOR``
