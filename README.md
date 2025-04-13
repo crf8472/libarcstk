@@ -12,14 +12,17 @@
 This branch hosts version 0.1.x of libarcstk which is outdated and will not see
 any development anymore.
 
-The latest release with this API was 0.1.1-beta.2. You will find the API
-documentation for this version [here][1]. (Version 0.1.x contains
-outdated module 'parse' instead of current module 'dbar' and deprecated module
-'match' instead of current module 'verify'.)
+The latest release with this API was 0.1.1-beta.2 (Aug 1, 2023). You will find
+the API documentation for this version [here][1].
 
 This branch should not be used for new projects. If your project requires
 version 0.1.x consider upgrading to the latest release of libarcstk soon.
 
+- Libarcstk 0.1.x contains outdated module 'parse' which was replaced by module
+  'dbar' since version 0.2.0
+- Libarcstk 0.1.x contains outdated module 'match' which was replaced by module
+  'verify' since version 0.2.0
+- Libarcstk 0.1.x is compileable as C++14 only.
 
 
 ## What libarcstk does
