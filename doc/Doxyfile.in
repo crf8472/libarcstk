@@ -56,7 +56,6 @@ VERBATIM_HEADERS       = NO
 #GENERATE_HTML          = YES # default
 
 #GENERATE_LATEX         = YES # default
-COMPACT_LATEX          = YES
 
 GROUP_GRAPHS           = NO
 
