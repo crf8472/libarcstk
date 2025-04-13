@@ -227,8 +227,8 @@ settings to your requirements.
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                                     |OFF    |
 |WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs                   |OFF    |
 |WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-on-off) on compiling                         |       |
-|                    |CMAKE_BUILD_TYPE=Debug                          |OFF    |
-|                    |CMAKE_BUILD_TYPE=Release                        |ON     |
+|                    |CMAKE_BUILD_TYPE=Debug                                                                             |OFF    |
+|                    |CMAKE_BUILD_TYPE=Release                                                                           |ON     |
 |WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)                                              |OFF    |
 |USE_DOC_TOOL        |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) to build the documentation. Activates ``WITH_DOCS=ON``.                          |       |
 
@@ -365,3 +365,4 @@ just not done. Help will be appreciated.
 [2]: https://github.com/catchorg/Catch2
 [3]: https://mcss.mosra.cz/doxygen/
 [4]: https://crf8472.github.io/libarcstk/current/
+
