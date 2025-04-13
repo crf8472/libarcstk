@@ -12,12 +12,15 @@
 This branch hosts version 0.2.x of libarcstk which is outdated and will not see
 any development anymore.
 
-The latest release with this API was 0.2.1-alpha.2. You will find the API
-documentation for this version [here][1].
+The latest release with this API was [0.2.1-alpha.2 (Mar 2, 2025)][3].
+You will find the API documentation for this version [here][1].
 
 This branch should not be used for new projects. If your project requires
 version 0.2.x consider upgrading to the latest release of libarcstk.
 
+- Libarcstk 0.2.x contains an earlier version of module 'calc' whose API has
+  been reorganized in later versions.
+- Libarcstk 0.2.x is compileable as C++14 only.
 
 
 ## What libarcstk does
@@ -100,3 +103,5 @@ build switches.
 
 [1]: https://crf8472.github.io/libarcstk/0.2.1/
 [2]: https://github.com/crf8472/libarcsdec/
+[3]: https://github.com/crf8472/libarcstk/releases/tag/0.2.1-alpha.2
+
