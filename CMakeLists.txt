@@ -104,6 +104,15 @@ set (PROJECT_BUILD_SOURCE_DIR  "${PROJECT_BINARY_DIR}/generated-sources" )
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
+## List of markdown files
+foreach (FILE IN ITEMS "BUILD" "CODING" "DESIGN" )
+
+	list (APPEND PROJECT_TEXT_FILES "${FILE}.md" )
+endforeach()
+
+# Source directory for markdown files
+set (PROJECT_TEXT_SOURCE_DIR   "${CMAKE_CURRENT_SOURCE_DIR}" )
+
 
 
 ## --- Create build-tree directories

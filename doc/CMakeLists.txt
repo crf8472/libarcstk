@@ -132,6 +132,24 @@ configure_file (${DOC_TEXTS_SOURCE_DIR}/MAINPAGE.md.in ${DOC_MAINPAGE} @ONLY )
 add_custom_target (libarcstk_doc )
 
 
+## --- Provide other markdown texts
+
+add_custom_target (libarcstk_text_files )
+
+## Copy text files to generated docs
+foreach (FILE IN LISTS PROJECT_TEXT_FILES )
+
+	add_custom_command(
+		TARGET libarcstk_text_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy
+			${PROJECT_TEXT_SOURCE_DIR}/${FILE}
+			${DOC_TEXTS_GEN_DIR}/${FILE} )
+endforeach()
+
+add_dependencies (libarcstk_text_files libarcstk_create_output_dir )
+add_dependencies (libarcstk_doc        libarcstk_text_files )
+
+
 ## --- If some thirdparty documentation tool was requested, use it
 
 list (APPEND GENERATORS MCSS RTD )

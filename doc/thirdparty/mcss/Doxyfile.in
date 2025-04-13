@@ -25,6 +25,8 @@ ALIASES               += \
 
 EXTRACT_PRIV_VIRTUAL   = YES # 1.8.16
 
+GENERATE_TODOLIST      = NO
+
 GENERATE_HTML          = NO
 GENERATE_LATEX         = NO
 
