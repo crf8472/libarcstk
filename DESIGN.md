@@ -12,7 +12,7 @@ it.
 
 Libarcstk embraces "modern" C++, which means to choose the contemporary way of
 doing things, not the way things were done back in the Nineties. Currently,
-libarcstk is compiled as C++17. Versions before 0.3 were compiled with C++14.
+libarcstk is compiled as C++17. Versions before 0.3 were compiled as C++14.
 
 On the other hand, libarcstk has a tendency to OOP-style design along with some
 of its patterns but avoids deep inheritance levels. Inheritance is good in case
@@ -57,14 +57,16 @@ and perhaps by other languages at some point.
 ## Types
 
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
-- Use STL data types whenever possible: std::string instead of foo::myStr.
-- Prefer smart pointers over raw pointers. Prefer to use ``std::make_unique``
-  if possible.
+- Use STL data types whenever possible: ``std::string`` instead of
+  ``foo::myStr``.
+- Prefer smart pointers over raw pointers. Prefer to use C++14's
+  ``std::make_unique`` if possible.
 - Use non-owning raw pointers sparingly, except for very good reasons.
 - Prefer ``using``-declaratives over classical ``typedef``'s:
   ``using A = foo::A`` instead of ``typedef foo::A A``.
-- Prefer choosing the minimal possible scope for a using declarative. Avoid
-  any declarative of the form ``using namespace foo`` except for good reasons.
+- Prefer choosing the minimal possible scope for a ``using`` declarative.
+  Declaratives of type ``using namespace`` in any non-leaf namespace are
+  considered a bug.
 - Prefer the form ``auto foo { expr }`` for auto-typed and ``auto foo = type
   {expr}`` for fixed-type variables (see [Gotw94][1]).
 - Prefer braced initialization, also in constructor lists.
@@ -107,12 +109,11 @@ and perhaps by other languages at some point.
   If you absolutely must provide a symbol in a header that is not considered
   part of the public API enclose it in the namespace ``arcstk::details``.
   Of course forward declared implementation pointers are ok.
-- Non-public files (such as .tpp files with template implementations) reside
-  in a directory ``details`` within the top-level include directory.
 - If it is not part of the public API but needs to be tested, move it to a
   separate header in the source directory and include that by the test class.
-  Prefix the header filename with the name of the doxygen module the header
-  contributes to followed by an underscore ``_``.
+- Consider to reuse the filename of the public header and append ``_details``
+  to its basename to make clear which source file depends on that header's
+  contents.
 
 
 ## Dependencies
@@ -120,12 +121,15 @@ and perhaps by other languages at some point.
 - Do not introduce any new external dependencies. For runtime, prefer standard
   library whenever reasonably possible and for buildtime stick to the tools
   already involved (CMake, Catch2).
+- For documentation stick to the tools already involved (doxygen, m.css). Any
+  additional buildtime dependencies must be deactivated by default and only
+  optionally activated by a CMake buildstep-switch.
 
 
 ## Tests
 
 - If it does anything non-trivial, add a unit test for it.
-- Keep one testcase file per module, since the modules are of moderate size and
-  compiling tests is expensive.
+- Keep one testcase file per TU since compiling tests is expensive.
 
 [1]: https://herbsutter.com/2013/08/12/gotw-94-solution-aaa-style-almost-always-auto/
+

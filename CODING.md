@@ -25,7 +25,7 @@ libarcstk.
 
 # Headers, Declarations, Definitions
 
-- Header file names end with ``.hpp`` (not ``.h`` or anything else).
+- Header file names end with ``.hpp`` (not ``.h``,``.hh`` or anything else).
 - Headers do not contain definitions, except for template (member) functions or
   for functions the compiler must be able to inline (as SampleInputIterator and
   the functions in the logging API).
@@ -50,13 +50,12 @@ libarcstk.
 - Put the ``= 0;`` of a pure virtual method declaration on a separate line.
 - Constructor initialization lists are formatted with one assignment per line,
   with leading ``:`` or ``,`` and indented one step to the constructor name.
-- Prefer ``and``, ``or`` and ``not`` to ``||``, ``&&`` and ``~``.
 
 
 # Compiler feedback
 
 - Eliminate *all* compiler warnings for *all* supported compilers from your
-  code. (``CMakeLists.txt`` declares the compilers to support.)
+  code. (Root ``CMakeLists.txt`` declares the compilers to support.)
 
 
 # Documentation Comments
@@ -95,8 +94,8 @@ libarcstk.
   every line instead.
 - If something is wrong but can't be corrected immediately, describe the bug
   leaving a FIXME tag explaining the need at its very site in the code.
-- Use ``TODO`` tags within the code to mark sites were non-bug, non-API issues
-  are to do.
+- Use ``TODO`` tags within the code generously to mark sites were non-bug,
+  non-API issues are to do. For bugs, use ``FIXME``. If unsure, use ``XXX``.
 
 
 # Character encoding and newlines
