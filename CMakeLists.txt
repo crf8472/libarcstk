@@ -90,16 +90,16 @@ set (PROJECT_LOCAL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 
 ## "Root directory for out-of-source build"
-set (PROJECT_BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}" )
+set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_BINARY_DIR}" )
 
 ## "Target directory for public/exported headers"
-set (PROJECT_INCLUDE_DIR       "${PROJECT_BINARY_DIR}/include/arcstk" )
+set (PROJECT_INCLUDE_DIR      "${PROJECT_BINARY_DIR}/include/arcstk" )
 
 ## "Target directory for non-cmake logs"
-set (PROJECT_LOG_DIR           "${PROJECT_BINARY_DIR}/log" )
+set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
 
 ## "Target directory for generated sources and configuration"
-set (PROJECT_BUILD_SOURCE_DIR  "${PROJECT_BINARY_DIR}/generated-sources" )
+set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 
 ## Subdir for installing includes
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
