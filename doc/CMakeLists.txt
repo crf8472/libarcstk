@@ -138,7 +138,9 @@ list (APPEND GENERATORS MCSS RTD )
 
 foreach (GENERATOR IN ITEMS ${GENERATORS} )
 
-	if (USE_${GENERATOR} )
+	if (GENERATOR IN_LIST USE_DOC_TOOL )
+
+		message (STATUS "Generate documentation by ${GENERATOR}" )
 
 		string (TOLOWER ${GENERATOR} GENERATOR_DIR )
 

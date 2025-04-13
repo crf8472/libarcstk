@@ -224,13 +224,13 @@ settings to your requirements.
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix     |plattform defined|
 |CMAKE_EXPORT_COMPILE_COMMANDS|Rebuilds a [compilation database](#deep-language-support-in-your-editor) when configuring |OFF    |
-|WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                     |OFF    |
-|WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs   |OFF    |
-|WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-on-off) on compiling |       |
+|WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                                     |OFF    |
+|WITH_INTERNAL_DOCS  |Configure for [documentation](#building-the-api-documentation) for internal APIs                   |OFF    |
+|WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-on-off) on compiling                         |       |
 |                    |CMAKE_BUILD_TYPE=Debug                          |OFF    |
 |                    |CMAKE_BUILD_TYPE=Release                        |ON     |
-|WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)              |OFF    |
-|USE_MCSS            |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) when building the documentation. Implies WITH_DOCS=ON  |OFF    |
+|WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)                                              |OFF    |
+|USE_DOC_TOOL        |[Use m.css](#doxygen-by-m-css-with-html5-and-css3-tested-but-still-experimental) to build the documentation. Activates ``WITH_DOCS=ON``.                          |       |
 
 
 
@@ -284,7 +284,7 @@ The [public APIdoc of libarcstk is build with m.css][4].
 This APIdoc can be built locally by the following steps:
 
 	$ cd build
-	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=ON ..
+	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=MCSS ..
 	$ cmake --build . --target doc
 
 CMake then creates a local python sandbox in ``build`` with ``virtualenv``,
@@ -296,20 +296,11 @@ not work.)
 Documentation is generated in ``build/generated-docs/mcss`` and you can
 load ``build/generated-docs/mcss/html/index.html`` in your browser.
 
-Note that ``-DUSE_MCSS=ON`` turns off the LaTeX output! You cannot generate
-m.css and LaTeX output in the same build.
-
 
 ### Manual: PDF by LaTeX (smoke-tested, more or less)
 
 Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
 installation (along with ``pdflatex``) is required for creating the manual.
-
-Building the PDF manual is only available when ``USE_MCSS`` is ``OFF``. Using
-``-DUSE_MCSS=ON`` will effectively turn off LaTeX source generation! If you have
-previously configured ``USE_MCSS``, just reconfigure your build:
-
-	$ cmake -DWITH_DOCS=ON -DUSE_MCSS=OFF ..
 
 Building the ``doc`` target like in the examples above will create the LaTeX
 sources for the PDF manual but will not automatically typeset the actual PDF
@@ -319,7 +310,7 @@ and issue ``make``.
 The entire process:
 
 	$ cd build
-	$ cmake -DWITH_DOCS=ON ..  # Do not use -DUSE_MCSS=ON!
+	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=lualatex ..
 	$ cmake --build . --target doc
 	$ cd generated-docs/latex
 	$ make

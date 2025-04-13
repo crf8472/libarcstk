@@ -472,9 +472,10 @@ endif (WITH_TESTS)
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (USE_MCSS           "Build documentation using m.css"              OFF )
+option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
 
 ## Auto-activate WITH_DOCS if settings for documentation are present
-if (WITH_INTERNAL_DOCS OR USE_MCSS )
+if (WITH_INTERNAL_DOCS )
 
 	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
 endif()
@@ -484,4 +485,13 @@ if (WITH_DOCS )
 
 	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/doc )
 endif (WITH_DOCS )
+
+## For backwards compatibility
+if (USE_MCSS )
+
+	list (APPEND USE_DOC_TOOL "MCSS" )
+	unset (USE_MCSS )
+	message (WARNING "Option USE_MCSS is deprecated and will be removed soon!"
+		" Use -DUSE_DOC_TOOL=MCSS instead." )
+endif()
 
