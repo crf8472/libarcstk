@@ -45,7 +45,10 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
 
-add_custom_target (libarcstk_mcss_doc DEPENDS ${OUTPUT_MAINPAGE} )
+add_custom_target (libarcstk_mcss_create_html DEPENDS "${OUTPUT_MAINPAGE}" )
+
+add_custom_target (libarcstk_mcss_doc )
+add_dependencies  (libarcstk_mcss_doc libarcstk_mcss_create_html )
 
 
 ## --- Define m.css to be checked out/updated while configuring
@@ -119,7 +122,12 @@ configure_file ("${DOXYFILE_TEMPLATE}"  "${DOXYFILE}"  @ONLY )
 
 
 ## Create conf.py for m.css
-configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"  "${CONFPY}"  @ONLY )
+set (CONFPY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in" )
+configure_file ("${CONFPY_SOURCE}" "${CONFPY}"  @ONLY )
+
+
+## --- Configure custom colors
+#add_subdirectory (custom-colors )
 
 
 
