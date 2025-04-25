@@ -67,7 +67,7 @@ add_custom_target (libarcstk_create_output_dir DEPENDS ${DOC_GEN_DIR} )
 ## Set CMake controlled values in the Doxyfile base template
 
 set (DOXYGEN_OUTPUT_DIRECTORY       "${DOC_GEN_DIR}/doxygen" )
-set (DOXYGEN_FILE_PATTERNS          "*.hpp *.md *.cpp" )
+set (DOXYGEN_FILE_PATTERNS          "*.hpp *.md" )
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_MAINPAGE}" )
 set (DOXYGEN_STRIP_FROM_INC_PATH    "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_STRIP_FROM_PATH        "${PROJECT_INCLUDE_SOURCE_DIR}/" )
