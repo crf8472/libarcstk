@@ -2,11 +2,11 @@
 ##
 ## Use HTML5/CSS3 from m.css for generating HTML from Doxygen XML output
 ##
-## Prerequisites from parent:
+## Prerequisites from PARENT:
 ## - Targets:   'doc'
-## - Variables: DOC_GEN_DIR, DOC_COMMENT, DOXYGEN_NEEDS_XML_DEDUP,
-##              DOXYGEN_VERSION (from find_package)
-##
+## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_GEN_DIR, DOC_SOURCES
+##              DOXYGEN_NEEDS_XML_DEDUP,
+#
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
 
@@ -44,10 +44,9 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## Before commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
+add_custom_target (libarcstk_mcss_doc )
 
 add_custom_target (libarcstk_mcss_create_html DEPENDS "${OUTPUT_MAINPAGE}" )
-
-add_custom_target (libarcstk_mcss_doc )
 add_dependencies  (libarcstk_mcss_doc libarcstk_mcss_create_html )
 
 
@@ -128,6 +127,7 @@ configure_file ("${CONFPY_SOURCE}" "${CONFPY}"  @ONLY )
 
 ## --- Configure custom colors
 #add_subdirectory (custom-colors )
+## TODO Activate this for custom colors
 
 
 
@@ -137,7 +137,7 @@ add_requirements_target (libarcstk_mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies (libarcstk_mcss_doc libarcstk_mcss_requirements )
+add_dependencies (libarcstk_mcss_create_html libarcstk_mcss_requirements )
 
 
 
@@ -148,9 +148,9 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (libarcstk_mcss_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_mcss_create_xml ${DOXYFILE} ${OUTPUT_INDEX} )
 
-	add_dependencies (libarcstk_mcss_doc libarcstk_mcss_doxygen )
+	add_dependencies (libarcstk_mcss_create_html libarcstk_mcss_create_xml )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
@@ -163,10 +163,17 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	)
 else()
 
-	add_dependencies (libarcstk_mcss_doc
-		libarcstk_create_output_dir libarcstk_create_log_dir )
-
 	## Doxygen is called by m.css.
+
+	## Since we do not use add_doxygen_target, we have to take care for the
+	## dependencies manually
+	add_dependencies (libarcstk_mcss_create_html
+		## add deps from PARENT
+		libarcstk_create_output_dir
+		libarcstk_create_log_dir
+		libarcstk_text_files
+		## add deps from here
+		libarcstk_mcss_requirements )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"

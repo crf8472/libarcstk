@@ -1,6 +1,8 @@
+## Configuration options for m.css
+##
+## See: https://mcss.mosra.cz/documentation/doxygen/
+
 DOXYFILE = 'Doxyfile'
-## mcss-specific options
-## according to https://mcss.mosra.cz/documentation/doxygen/
 
 MAIN_PROJECT_URL = "@PROJECT_URL@/"
 
@@ -18,7 +20,7 @@ LINKS_NAVBAR2    = [
 ## custom, not m.css
 my_CUSTOM_STYLESHEET = '@CUSTOM_STYLESHEET@'
 
-## Reset custom stylesheet only if it was explicitly defined
+## Reset m.css stylesheets option only if a stylesheet was explicitly defined
 if not my_CUSTOM_STYLESHEET=='':
     STYLESHEETS = [
         'https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600',
