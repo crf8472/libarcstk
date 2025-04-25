@@ -5,7 +5,7 @@
 ## Prerequisites from PARENT:
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_GEN_DIR, DOC_SOURCES
-##              DOXYGEN_NEEDS_XML_DEDUP,
+##              DOXYGEN_NEEDS_XML_DEDUP
 ##
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
