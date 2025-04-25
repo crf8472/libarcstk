@@ -97,7 +97,7 @@ exhale_args = {
                                    # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": @EXHALE_EXECUTES_DOXYGEN@,
     "exhaleUseDoxyfile":     @EXHALE_EXECUTES_DOXYGEN@
-    #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_DIR@"
+    #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_BINARY_DIR@"
     #"listingExclude":        [ r".*::v_1_0_0" ]
 }
 

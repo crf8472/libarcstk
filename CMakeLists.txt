@@ -83,26 +83,26 @@ endif()
 ## --- Project Directory Layout
 
 ## "Root directory for sources"
-set (PROJECT_SOURCE_DIR        "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+set (PROJECT_SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 ## "Root directory for public/exported headers"
-set (PROJECT_LOCAL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+set (PROJECT_INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 
 ## "Root directory for out-of-source build"
-set (PROJECT_BINARY_DIR       "${CMAKE_CURRENT_BINARY_DIR}" )
-
-## "Target directory for public/exported headers"
-set (PROJECT_INCLUDE_DIR      "${PROJECT_BINARY_DIR}/include/arcstk" )
-
-## "Target directory for non-cmake logs"
-set (PROJECT_LOG_DIR          "${PROJECT_BINARY_DIR}/log" )
-
-## "Target directory for generated sources and configuration"
-set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
+set (PROJECT_BINARY_DIR         "${CMAKE_CURRENT_BINARY_DIR}" )
 
 ## Subdir for installing includes
-set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
+set (PROJECT_INCLUDE_INSTALL_SUBDIR "include/arcstk" )
+
+## "Target directory for public/exported headers"
+set (PROJECT_INCLUDE_BINARY_DIR "${PROJECT_BINARY_DIR}/${PROJECT_INCLUDE_INSTALL_SUBDIR}" )
+
+## "Target directory for non-cmake logs"
+set (PROJECT_LOG_DIR            "${PROJECT_BINARY_DIR}/log" )
+
+## "Target directory for generated sources and configuration"
+set (PROJECT_GEN_SOURCES_DIR    "${PROJECT_BINARY_DIR}/generated-sources" )
 
 ## List of markdown files
 foreach (FILE IN ITEMS "BUILD" "CODING" )
@@ -111,7 +111,7 @@ foreach (FILE IN ITEMS "BUILD" "CODING" )
 endforeach()
 
 # Source directory for markdown files
-set (PROJECT_TEXT_SOURCE_DIR   "${CMAKE_CURRENT_SOURCE_DIR}" )
+set (PROJECT_TEXT_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 
 
@@ -140,7 +140,7 @@ add_custom_target (libarcstk_create_include_dir
 ## This is useful for finding the includes when used as a subproject.
 add_custom_target (libarcstk_link_to_headers
 	COMMAND ${CMAKE_COMMAND} -E create_symlink
-	${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_INCLUDE_DIR} )
+	${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_INCLUDE_BINARY_DIR} )
 
 add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
 
@@ -184,7 +184,7 @@ endif()
 
 ## This presupposes having CMAKE_CONFIGURE_DEPENDS set to .git/index
 configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
-	${PROJECT_BUILD_SOURCE_DIR}/version.cpp
+	${PROJECT_GEN_SOURCES_DIR}/version.cpp
 	@ONLY )
 
 
@@ -192,18 +192,18 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 ## --- Specify Exported Headers
 
 set (INTERFACE_HEADERS )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/accuraterip.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/algorithms.hpp"  )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/calculate.hpp"   )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/checksum.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/dbar.hpp"        )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/identifier.hpp"  )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/logging.hpp"     )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/metadata.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/policies.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/samples.hpp"     )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/verify.hpp"      )
-list (APPEND INTERFACE_HEADERS "${PROJECT_LOCAL_INCLUDE_DIR}/version.hpp"     )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp" )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/algorithms.hpp"  )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/calculate.hpp"   )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/checksum.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/dbar.hpp"        )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/identifier.hpp"  )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/logging.hpp"     )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/metadata.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/policies.hpp"    )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/samples.hpp"     )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/verify.hpp"      )
+list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/version.hpp"     )
 
 
 ## --- Add and configure project target
@@ -218,7 +218,7 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/metadata.cpp"
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
 	"${PROJECT_SOURCE_DIR}/verify.cpp"
-	"${PROJECT_BUILD_SOURCE_DIR}/version.cpp" )
+	"${PROJECT_GEN_SOURCES_DIR}/version.cpp" )
 
 if (HAS_PARENT )
 	## Make project's includes available to PARENT
@@ -232,10 +232,10 @@ endif()
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
-		$<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
-		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDES_SUBDIR}>
+		$<BUILD_INTERFACE:${PROJECT_INCLUDE_BINARY_DIR}>
+		$<INSTALL_INTERFACE:${PROJECT_INCLUDE_INSTALL_SUBDIR}>
 	PRIVATE
-		"${PROJECT_BUILD_SOURCE_DIR}" ## for generated sources
+		"${PROJECT_GEN_SOURCES_DIR}" ## for generated sources
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
@@ -400,7 +400,7 @@ if (NOT SKIP_INSTALL_ALL )
 		EXPORT "${PROJECT_EXPORT_SET}"
 		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
 		PUBLIC_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INSTALL_INCLUDES_SUBDIR}" )
+				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INCLUDE_INSTALL_SUBDIR}" )
 
 	install (EXPORT ${PROJECT_EXPORT_SET}
 		NAMESPACE libarcstk::
@@ -414,13 +414,13 @@ if (NOT SKIP_INSTALL_ALL )
 
 		configure_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-			"${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
+			"${PROJECT_GEN_SOURCES_DIR}/libarcstk.pc"
 			@ONLY
 		)
 
 		unset (PKG_BIND_NAME )
 
-		install (FILES "${PROJECT_BUILD_SOURCE_DIR}/libarcstk.pc"
+		install (FILES "${PROJECT_GEN_SOURCES_DIR}/libarcstk.pc"
 			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
 
 		## Support CMake Packaging
@@ -433,19 +433,19 @@ if (NOT SKIP_INSTALL_ALL )
 
 		configure_package_config_file (
 			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
+			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_FILE}"
 			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 		)
 
 		write_basic_package_version_file (
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
+			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
 			VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
 			COMPATIBILITY  SameMajorVersion
 		)
 
 		install (FILES
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_FILE}"
-			"${PROJECT_BUILD_SOURCE_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
+			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_FILE}"
+			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
 			DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
 		)
 
