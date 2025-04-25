@@ -6,7 +6,7 @@
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_GEN_DIR, DOC_SOURCES
 ##              DOXYGEN_NEEDS_XML_DEDUP,
-#
+##
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
 
@@ -173,7 +173,8 @@ else()
 		libarcstk_create_log_dir
 		libarcstk_text_files
 		## add deps from here
-		libarcstk_mcss_requirements )
+		libarcstk_mcss_requirements
+	)
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
