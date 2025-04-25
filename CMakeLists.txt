@@ -105,7 +105,7 @@ set (PROJECT_BUILD_SOURCE_DIR "${PROJECT_BINARY_DIR}/generated-sources" )
 set (PROJECT_INSTALL_INCLUDES_SUBDIR "include/arcstk" )
 
 ## List of markdown files
-foreach (FILE IN ITEMS "BUILD" "CODING" "DESIGN" )
+foreach (FILE IN ITEMS "BUILD" "CODING" )
 
 	list (APPEND PROJECT_TEXT_FILES "${FILE}.md" )
 endforeach()
