@@ -86,7 +86,10 @@ endif()
 set (PROJECT_SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 ## "Root directory for public/exported headers"
-set (PROJECT_INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+set (PROJECT_INCLUDE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/include" )
+
+# Source directory for markdown files
+set (PROJECT_TEXT_SOURCE_DIR    "${PROJECT_SOURCE_DIR}" )
 
 
 ## "Root directory for out-of-source build"
@@ -109,9 +112,6 @@ foreach (FILE IN ITEMS "BUILD" "CODING" )
 
 	list (APPEND PROJECT_TEXT_FILES "${FILE}.md" )
 endforeach()
-
-# Source directory for markdown files
-set (PROJECT_TEXT_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 
 
