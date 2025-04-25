@@ -480,8 +480,9 @@ endif (WITH_TESTS)
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
-option (USE_MCSS           "Build documentation using m.css"              OFF )
 option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
+## TODO Remove the following line
+option (USE_MCSS           "Build documentation using m.css"              OFF )
 
 ## Auto-activate WITH_DOCS if settings for documentation are present
 if (WITH_INTERNAL_DOCS )
@@ -498,7 +499,9 @@ endif (WITH_DOCS )
 ## For backwards compatibility
 if (USE_MCSS )
 
-	list (APPEND USE_DOC_TOOL "MCSS" )
+	if (NOT "MCSS" IN_LIST USE_DOC_TOOL )
+		list (APPEND USE_DOC_TOOL "MCSS" )
+	endif()
 	unset (USE_MCSS )
 	message (WARNING "Option USE_MCSS is deprecated and will be removed soon!"
 		" Use -DUSE_DOC_TOOL=MCSS instead." )
