@@ -1,10 +1,14 @@
-## CMake  sphinx
+## CMake file for sphinx/exhale
 ##
 ## Use sphinx to build the Read-the-docs documentation from Doxygen XML output
-
-## Prerequisites from parent:
-## - 'doc' target must exist
-## - Variables: DOC_GEN_DIR, DOC_COMMENT
+##
+## Prerequisites from PARENT:
+## - Targets:   'doc'
+## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_DOXYFILE_BASE_TEMPLATE,
+##              DOC_GEN_DIR, DOC_SOURCES, DOXYGEN_NEEDS_XML_DEDUP
+##
+## Provides:
+## - Targets: 'libarcstk_rtd_doc'
 
 if (WIN32 )
 
@@ -14,8 +18,6 @@ endif()
 
 
 cmake_minimum_required (VERSION 3.10 )
-
-## Doxygen is already required in parent
 
 message (STATUS "Will build documentation with sphinx" )
 message (WARNING "Sphinx support for Read-the-docs is experimental and broken" )
@@ -27,7 +29,7 @@ message (WARNING "Sphinx support for Read-the-docs is experimental and broken" )
 set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}/read-the-docs" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using sphinx" )
 
-## Some variables
+## --- Some variables
 
 set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (OUTPUT_INDEX      "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
@@ -36,6 +38,14 @@ set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (SPHINX_BINARY_DIR        "${DOXYGEN_OUTPUT_DIRECTORY}" )
 set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" )
 
+
+
+## --- Set up targets
+
+add_custom_target (libarcstk_rtd_doc )
+
+add_custom_target (libarcstk_rtd_create_html DEPENDS "${OUTPUT_MAINPAGE}" )
+add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_create_html )
 
 
 ## --- Install files and directories in sphinx build directory
@@ -62,33 +72,26 @@ add_requirements_target (libarcstk_rtd_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-
-
-## --- Set up targets
-
-add_custom_target (libarcstk_rtd_doc DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_requirements )
-
-add_dependencies  (libarcstk_doc libarcstk_rtd_doc )
+add_dependencies  (libarcstk_rtd_create_html libarcstk_rtd_requirements )
 
 
 
-## --- Prepare Doxygen XML generation
-
+## --- Build rule for running exhale
 
 set (EXHALE_EXECUTES_DOXYGEN "True" )
 
-
 if (DOXYGEN_NEEDS_XML_DEDUP )
 
-	# --- Run doxygen in a separate target and make exhale depend on its output
+	## Doxygen needs to run separately from exhale since we want to post-process
+	## its XML output.
+	## So run doxygen in a separate target and make exhale depend on its output.
 
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_doxygen_target (libarcstk_rtd_doxygen ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_rtd_create_xml ${DOXYFILE} ${OUTPUT_INDEX} )
 
-	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_doxygen )
+	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_create_xml )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}" "${SPHINX_LIBRARY_ROOT_PAGE}"
@@ -108,7 +111,7 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	)
 else()
 
-	# --- Let exhale run doxygen
+	## Doxygen is called by exhale.
 
 	set (DOXYFILE "${SPHINX_BINARY_DIR}/source/Doxyfile" )
 
@@ -130,10 +133,15 @@ else()
 endif()
 
 
+## Create Doxyfile for sphinx
+configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
+
+
+## Create conf.py for sphinx
 configure_file ("docroot/source/conf.py.in"
 	"${SPHINX_BINARY_DIR}/source/conf.py"
 	@ONLY
 )
 
-configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
+add_dependencies  (libarcstk_doc libarcstk_rtd_doc )
 
