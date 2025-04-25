@@ -4,8 +4,8 @@
 
 ## Names of the classes known to be broken
 CLASSES=( 'Verifier' 'VerificationResult' )
-NS='arcstk'
 
+NS='arcstk'
 PREFIX="generated-docs/mcss/xml/class${NS}_1_1v__1__0__0_1_1"
 
 for CLASS in ${CLASSES[@]}; do
