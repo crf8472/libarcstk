@@ -51,7 +51,7 @@ compile_commands.json
 
 # ---> vim
 
-# vim intermediate files
+# vim/neovim intermediate files
 *.swp
 *.swo
 
