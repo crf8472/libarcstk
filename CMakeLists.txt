@@ -1,18 +1,20 @@
 ## Root CMake file for libarcstk
+## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
+## --- Policies {{{1
 
-## Set variables corresponding to unspecified versions to the empty string
-## Required for specifying the project version along with the name in project()
+## Set variables corresponding to unspecified versions to the empty string.
+## Required for specifying the project version along with the name in project().
 cmake_policy (SET CMP0048 NEW )
+
+## 1}}}
 
 
 project (libarcstk VERSION 0.3.0 LANGUAGES CXX )
 
-get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
-
-## --- Setup Version Information
+## --- Setup Short Description, URL and Version Information {{{1
 
 set (PROJECT_BRIEF_DESC
 	"Calculate and Verify AccurateRip Checksums and Ids" )
@@ -38,7 +40,7 @@ message (STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
 
 
 
-## --- Setup Default Build Type
+## --- Setup Default Build Type {{{1
 
 if (NOT CMAKE_BUILD_TYPE )
 
@@ -52,14 +54,14 @@ message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
 
 
-## --- Global settings
+## --- Trigger Configuration Step Whenever Git Index Changes {{{1
 
-## Trigger configuration phase whenever git index changes
 set_property (DIRECTORY APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
 
 
-## Abort release-builds on big endian platforms
+
+## --- Abort Release-Builds on Big Endian Platforms {{{1
 
 include (TestBigEndian )
 
@@ -80,31 +82,34 @@ endif()
 
 
 
-## --- Project Directory Layout
+## --- Project Directory Layout {{{1
 
-## "Root directory for sources"
+## Root directory for sources
 set (PROJECT_SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
-## "Root directory for public/exported headers"
-set (PROJECT_INCLUDE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/include" )
+## Root directory for public/exported headers
+set (PROJECT_INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
-# Source directory for markdown files
-set (PROJECT_TEXT_SOURCE_DIR    "${PROJECT_SOURCE_DIR}" )
+## Source directory for markdown files
+set (PROJECT_TEXT_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}" )
+
+## Source directory for tests
+set (PROJECT_TEST_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/test/src" )
 
 
-## "Root directory for out-of-source build"
+## Root directory for out-of-source build
 set (PROJECT_BINARY_DIR         "${CMAKE_CURRENT_BINARY_DIR}" )
 
 ## Subdir for installing includes
 set (PROJECT_INCLUDE_INSTALL_SUBDIR "include/arcstk" )
 
-## "Target directory for public/exported headers"
+## Target directory for public/exported headers
 set (PROJECT_INCLUDE_BINARY_DIR "${PROJECT_BINARY_DIR}/${PROJECT_INCLUDE_INSTALL_SUBDIR}" )
 
-## "Target directory for non-cmake logs"
+## Target directory for non-cmake logs
 set (PROJECT_LOG_DIR            "${PROJECT_BINARY_DIR}/log" )
 
-## "Target directory for generated sources and configuration"
+## Target directory for generated sources and configuration
 set (PROJECT_GEN_SOURCES_DIR    "${PROJECT_BINARY_DIR}/generated-sources" )
 
 ## List of markdown files
@@ -115,9 +120,9 @@ endforeach()
 
 
 
-## --- Create build-tree directories
+## --- Create build-tree directories {{{1
 
-## Log directory
+## -- Log Directory {{{2
 
 add_custom_command (
 	OUTPUT  ${PROJECT_LOG_DIR}
@@ -126,7 +131,8 @@ add_custom_command (
 
 add_custom_target (libarcstk_create_log_dir ALL DEPENDS ${PROJECT_LOG_DIR} )
 
-## include directory + link
+
+## -- Include Directory + Link {{{2
 
 add_custom_command (
 	OUTPUT  ${PROJECT_BINARY_DIR}/include
@@ -146,7 +152,7 @@ add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
 
 
 
-## --- Update version.cpp with info from git
+## --- Update version.cpp with info from git {{{1
 
 find_package (Git QUIET REQUIRED )
 
@@ -189,7 +195,10 @@ configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
 
 
 
-## --- Specify Exported Headers
+
+## --- Define Project Target {{{1
+
+## -- Specify Exported Headers {{{2
 
 set (INTERFACE_HEADERS )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp" )
@@ -206,7 +215,7 @@ list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/verify.hpp"      )
 list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/version.hpp"     )
 
 
-## --- Add and configure project target
+## -- Specify Sources {{{2
 
 add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/accuraterip.cpp"
@@ -219,6 +228,11 @@ add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/samples.cpp"
 	"${PROJECT_SOURCE_DIR}/verify.cpp"
 	"${PROJECT_GEN_SOURCES_DIR}/version.cpp" )
+
+
+## -- Configure Target {{{2
+
+get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
 if (HAS_PARENT )
 	## Make project's includes available to PARENT
@@ -251,7 +265,9 @@ add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 
 
 
-## --- Compiler Specific Settings
+## --- Compiler Specific Settings {{{1
+
+## -- Define Warning and Optimization Flags for g++ and clang++ {{{2
 
 ## g++: Warnings
 set (PROJECT_CXX_GNU_FLAGS_WARNINGS
@@ -308,7 +324,7 @@ set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
 set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE -march=native -mtune=generic )
 
 
-## Compiler: apply specific flags
+## -- Select Warning and Optimization Flags for Actual Compiler {{{2
 
 if (CMAKE_COMPILER_IS_GNUCXX ) ## for g++
 
@@ -334,9 +350,11 @@ else()
 endif()
 
 
-## Compiler: Activate Warnings on library sources
+## -- Activate Compiler Warnings on Library Sources  {{{2
+
 ## We do not use target_compile_options since those flags should not be
 ## applied to Catch2 and tests.
+## TODO Find a way to use target_compile_options
 
 get_target_property (PROJECT_SOURCES ${PROJECT_NAME} SOURCES )
 
@@ -350,7 +368,9 @@ foreach (_sourcefile ${PROJECT_SOURCES} )
 endforeach()
 
 
-## Compiler: Add optimization flags (always in the same way)
+## -- Manage Optimization Flags  {{{2
+
+## - Macro add_cxx_flags_optimize(): Add Optimization Flags {{{3
 
 macro (add_cxx_flags_optimize )
 
@@ -360,17 +380,18 @@ macro (add_cxx_flags_optimize )
 		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 endmacro()
 
-
-## Compiler: Activate Optimizations (default ON for Release, otherwise OFF)
+## - Optional: Activate Optimization Option (default ON for Release only) {{{3
 
 option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
 
+## For 'Release', Set Default ON
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
 
 	set (WITH_NATIVE ON CACHE BOOL
 			"Release: Force platform specific optimization" FORCE )
 endif ()
 
+## - If Optimization Option Activated, Add Flags {{{3
 if (WITH_NATIVE )
 
 	add_cxx_flags_optimize()
@@ -380,82 +401,24 @@ else()
 
 endif (WITH_NATIVE )
 
-get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
+## - Status Message About Compile Flags {{{3
 
+get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
 message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
 
 
 
-## --- Install binary and exported header files
+## --- Installation {{{1
 
 if (NOT SKIP_INSTALL_ALL )
 
-	set (INSTALL_CMAKECONFIG_DIR
-		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
-		CACHE PATH "Installation directory for cmake package files" )
+	add_subdirectory (install)
 
-	set (PROJECT_EXPORT_SET "${PROJECT_NAME}-targets" )
-
-	install (TARGETS ${PROJECT_NAME}
-		EXPORT "${PROJECT_EXPORT_SET}"
-		LIBRARY       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-		PUBLIC_HEADER DESTINATION
-				"${CMAKE_INSTALL_PREFIX}/${PROJECT_INCLUDE_INSTALL_SUBDIR}" )
-
-	install (EXPORT ${PROJECT_EXPORT_SET}
-		NAMESPACE libarcstk::
-		DESTINATION "${INSTALL_CMAKECONFIG_DIR}" )
-
-	if (NOT SKIP_INSTALL_FILES )
-
-		## Support pkgconfig
-
-		string (REPLACE lib ""   PKG_BIND_NAME "${PROJECT_NAME}" )
-
-		configure_file (
-			"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-			"${PROJECT_GEN_SOURCES_DIR}/libarcstk.pc"
-			@ONLY
-		)
-
-		unset (PKG_BIND_NAME )
-
-		install (FILES "${PROJECT_GEN_SOURCES_DIR}/libarcstk.pc"
-			DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
-
-		## Support CMake Packaging
-
-		include (CMakePackageConfigHelpers )
-
-		set (PROJECT_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
-
-		set (PROJECT_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
-
-		configure_package_config_file (
-			"${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_CONFIG_FILE}.in"
-			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_FILE}"
-			INSTALL_DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
-		)
-
-		write_basic_package_version_file (
-			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
-			VERSION        ${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}
-			COMPATIBILITY  SameMajorVersion
-		)
-
-		install (FILES
-			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_FILE}"
-			"${PROJECT_GEN_SOURCES_DIR}/${PROJECT_CONFIG_VERSION_FILE}"
-			DESTINATION "${INSTALL_CMAKECONFIG_DIR}"
-		)
-
-	endif ()
-
-endif (NOT SKIP_INSTALL_ALL)
+endif ()
 
 
 
-## --- Optional: Build tests, using Catch2 testing framework (default: OFF)
+## --- Optional: Build Tests (default: OFF) {{{1
 
 option (WITH_TESTS "Build unit tests" OFF )
 
@@ -476,7 +439,8 @@ if (WITH_TESTS)
 endif (WITH_TESTS)
 
 
-## --- Optional: Build documentation (default: OFF)
+
+## --- Optional: Build documentation (default: OFF) {{{1
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
@@ -484,7 +448,8 @@ option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
 ## TODO Remove the following line
 option (USE_MCSS           "Build documentation using m.css"              OFF )
 
-## Process configuration for building the documentation
+
+## -- Process configuration for building the documentation
 if (WITH_DOCS )
 
 	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/doc )
@@ -495,7 +460,8 @@ else ()
 	endif()
 endif (WITH_DOCS )
 
-## Require WITH_DOCS to use WITH_INTERNAL_DOCS
+
+## -- Require WITH_DOCS to use WITH_INTERNAL_DOCS
 if (WITH_INTERNAL_DOCS )
 
 	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
@@ -506,8 +472,9 @@ if (WITH_INTERNAL_DOCS )
 	endif()
 endif()
 
-## For backwards compatibility
-if (USE_MCSS )
+
+## -- For backwards compatibility
+if (USE_MCSS ) # TODO Remove that
 
 	if (NOT "MCSS" IN_LIST USE_DOC_TOOL )
 		list (APPEND USE_DOC_TOOL "MCSS" )
