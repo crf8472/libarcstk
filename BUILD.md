@@ -21,7 +21,7 @@ your project.
 
 ## Building libarcstk on Linux and \*BSD
 
-Libarcstk >= 0.2 is compiled as C++17. It was developed mainly (but not
+Libarcstk >= 0.3 is compiled as C++17. It was developed mainly (but not
 exclusively) for Linux and has no runtime dependencies other than the C++
 standard library. It was not tested whether libarcstk builds out-of-the-box on
 BSDs but don't expect major issues.
@@ -50,7 +50,7 @@ more dependencies required.
 
 ### Installed files
 
-The following files will be installed to your system:
+The following 18 files will be installed to your system:
 
 - The shared object libarcstk.so.x.y.z (along with a symbolic link
   ``libarcstk.so``) in the standard library location (e.g. ``/usr/local/lib``).
@@ -61,9 +61,11 @@ The following files will be installed to your system:
   default include location (e.g. ``/usr/local/include``).
 - The 4 cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
-  ``libarcstk-targets-release.cmake`` that allow other projects to simply import
-  libarcstk's exported cmake targets.
-- The pkg-config configuration file ``libarcstk.pc``.
+  ``libarcstk-targets-release.cmake`` in directory ``libarcstk`` beneath the
+  default cmake location (e.g. ``/usr/local/lib/cmake``). Those files allow
+  other projects to simply import libarcstk's exported cmake targets.
+- The pkg-config configuration file ``libarcstk.pc`` in the default pkgconfig
+  location (e.g. ``/usr/local/lib/pkgconfig``).
 
 The default installation prefix can be changed by passing the actual prefix to
 cmake. This is achieved by using the switch
