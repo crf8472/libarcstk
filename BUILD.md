@@ -179,8 +179,8 @@ If your current compiler is not g++ and you want to use your installed g++:
 	$ export CC=$(type -p gcc)
 	$ export CXX=$(type -p g++)
 
-Delete your directory ``build`` (which contains metadata from the previous
-compiler) to start off cleanly.
+Delete your directory ``build`` since it contains metadata from the previous
+compiler. Start off cleanly.
 
 	$ cd ..
 	$ rm -rf build
@@ -190,7 +190,7 @@ CMake-reconfigure the project to have the change take effect:
 	$ mkdir build && cd build
 	$ cmake ..
 
-To check whether your setting took effect, observer the CMake output. During the
+To check whether your setting took effect, observe the CMake output. During the
 configure step, CMake informs about the actual C++-compiler like:
 
 	-- The CXX compiler identification is Clang 19.1.7
@@ -218,6 +218,25 @@ is completed.
 Note that ctest will write report files in the ``build`` folder, their name
 pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
 ``.cpp``-file in ``test/src``.
+
+
+### Cleaning the project
+
+Clean only the shared library binaries (when in directory ``build``):
+
+	$ cmake -P CMakeFiles/libarcstk.dir/cmake_clean.cmake
+
+Clean the project entirely:
+
+	$ cmake --build . --target clean
+
+Note that this forces to recompile everything including Catch2 if
+``-DWITH_TESTS`` is configured.
+
+Completely wipe everything configured and built locally (when in top-level
+directory):
+
+	$ rm -rf build
 
 
 
@@ -256,7 +275,7 @@ This will build the documentation sources for HTML in subdirectories of
 entry page.
 
 
-### Website: M.css with HTML5 and CSS3 via doxygen's XML
+### Website: m.css with HTML5 and CSS3 via doxygen's XML
 
 Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
 and generates a static site in plain HTML5 and CSS3 from it (nearly without
@@ -301,6 +320,38 @@ which is perfectly normal).
 
 Note that I did never give any love to the manual. It will build. Not more.
 However, it will not be convenient to read or look good at its current stage.
+
+
+## Using a compilation database
+
+A compilation database provides the dependencies and paths used for building the
+project. CDBs are used for deep language support in the ``$EDITOR`` or IDE.
+
+If you intend to use an LSP server (e.g. the one from clang++), the use of the
+CDB is encouraged since otherwise the LSP server may not find required paths and
+augment your display with artifacts that suggest errors which in fact don't
+exist.
+
+You may have noticed that libarcsdec comes with a top-level ``.clang`` file that
+already points to ``compile_commands.json`` in the same directory. This prepares
+the support for clang-based DLS for libarcsdec. However, the compilation
+database is OFF in the default configuration and must be re-built locally for
+the local compiler and the local settings:
+
+	$ cd build
+	$ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+	$ cd ..
+	$ ln -s build/compile_commands.json . # May or may not be required
+
+The compilation database is now recreated whenever configuring the project.
+Its recreation can be forced by just doing:
+
+	$ cd build
+	$ cmake ..
+
+If you do not intend to use an LSP server, it is completely safe to skip this
+paragraph, ignore the ``.clang`` file and just feel good. It will not get in
+your way.
 
 
 ## Build on Windows ... duh!
