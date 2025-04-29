@@ -19,7 +19,8 @@ def xsl_transform(inDoc, xslFile, outDoc):
 
 def doxy_deduplicate_index(filename):
     xsl_transform(filename,
-            "@PROJECT_DOC_DIR@/thirdparty/doxygen/dedup_index.xsl", filename)
+            "@CMAKE_SOURCE_DIR@/doc/thirdparty/doxygen-dedup/dedup_index.xsl",
+            filename)
     print('Removed duplicated <compound> elements in index.xml')
 
 doxy_deduplicate_index(sys.argv[1])

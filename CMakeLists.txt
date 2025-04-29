@@ -112,12 +112,6 @@ set (PROJECT_LOG_DIR            "${PROJECT_BINARY_DIR}/log" )
 ## Target directory for generated sources and configuration
 set (PROJECT_GEN_SOURCES_DIR    "${PROJECT_BINARY_DIR}/generated-sources" )
 
-## List of markdown files
-foreach (FILE IN ITEMS "BUILD" "CODING" )
-
-	list (APPEND PROJECT_TEXT_FILES "${FILE}.md" )
-endforeach()
-
 
 
 ## --- Create build-tree directories {{{1
@@ -237,6 +231,7 @@ get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 if (HAS_PARENT )
 	## Make project's includes available to PARENT
 	target_include_directories (${PROJECT_NAME}
+		## public headers:
 		INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	)
 
