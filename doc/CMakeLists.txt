@@ -23,7 +23,7 @@ set (DOC_GEN_DIR          ${PROJECT_BINARY_DIR}/generated-docs )
 set (DOC_COMMENT          "Build documentation for APIs" )
 
 ## Define input for documentation
-set (DOC_SOURCES          ${INTERFACE_HEADERS} ${DOC_MAINPAGE} )
+set (DOC_SOURCES          ${INTERFACE_HEADERS} )
 
 ## Define the target name and location of the base Doxyfile to be included
 set (DOC_DOXYFILE_BASE_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in )

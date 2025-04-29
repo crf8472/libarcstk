@@ -1,10 +1,6 @@
 ## CMake
 ## vim:fdm=marker
 ##
-## Prerequisites from PARENT:
-##
-## - Variables: DOC_MAINPAGE
-##
 ## Provides:
 ##
 ## - Target: libarcstk_static_pages_files
