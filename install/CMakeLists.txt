@@ -1,3 +1,5 @@
+## CMakeLists.txt for installation
+##
 ## Prerequisistes from PARENT:
 ##
 ## - Variables: PROJECT_GEN_SOURCES_DIR, PROJECT_INCLUDE_INSTALL_SUBDIR,
