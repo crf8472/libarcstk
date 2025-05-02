@@ -114,5 +114,5 @@ add_dependencies  (libarcstk_deploy_css_files libarcstk_create_css_dir )
 
 set (DOC_DOXYFILE_INPUT "${DOXYFILE}" PARENT_SCOPE )
 
-add_dependencies  (libarcstk_doxygen_create_html libarcstk_deploy_css_files )
+add_dependencies  (libarcstk_doxygen_generate_html libarcstk_deploy_css_files )
 

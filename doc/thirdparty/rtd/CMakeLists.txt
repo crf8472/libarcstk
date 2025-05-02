@@ -44,8 +44,8 @@ set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" 
 
 add_custom_target (libarcstk_rtd_doc )
 
-add_custom_target (libarcstk_rtd_create_html DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_create_html )
+add_custom_target (libarcstk_rtd_generate_html DEPENDS "${OUTPUT_MAINPAGE}" )
+add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_generate_html )
 
 
 ## --- Install files and directories in sphinx build directory
@@ -72,7 +72,7 @@ add_requirements_target (libarcstk_rtd_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies  (libarcstk_rtd_create_html libarcstk_rtd_requirements )
+add_dependencies  (libarcstk_rtd_generate_html libarcstk_rtd_requirements )
 
 
 
@@ -89,9 +89,9 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_doxygen_target (libarcstk_rtd_create_xml ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_rtd_generate_xml ${DOXYFILE} ${OUTPUT_INDEX} )
 
-	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_create_xml )
+	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_generate_xml )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}" "${SPHINX_LIBRARY_ROOT_PAGE}"

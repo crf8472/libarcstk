@@ -11,7 +11,7 @@
 ##
 ## Provides:
 ## - Target 'libarcstk_mcss_custom_css' as dependency of
-##   parent's 'libarcstk_mcss_create_html'
+##   parent's 'libarcstk_mcss_generate_html'
 
 
 ## --- Create css output directory
@@ -87,7 +87,7 @@ add_dependencies  (libarcstk_mcss_custom_css libarcstk_create_css_output_dir )
 
 
 ## --- Activate this script's target
-add_dependencies (libarcstk_mcss_create_html libarcstk_mcss_custom_css )
+add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_custom_css )
 
 
 ## Redo configuring (was already done in PARENT)

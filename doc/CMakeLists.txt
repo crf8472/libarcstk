@@ -164,22 +164,14 @@ endif()
 
 if (LOAD_GENERATORS AND DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
-	## The "duplication bug" was introduced in 1.8.16
-
 	set (DOXYGEN_NEEDS_XML_DEDUP TRUE ) ## Use this in subdirectories!
-endif()
 
-
-if (DOXYGEN_NEEDS_XML_DEDUP )
-
-	add_subdirectory (thirdparty/doxygen-dedup EXCLUDE_FROM_ALL )
+	add_subdirectory (thirdparty/doxygen-xml )
+	add_subdirectory (thirdparty/doxygen-xml/tasks/dedup_index )
 
 else()
 
-	if (NOT LOAD_GENERATORS )
-
-		message (STATUS "No index deduplication since no generators requested" )
-	else()
+	if (LOAD_GENERATORS )
 
 		message (STATUS "Doxygen version does not require index deduplication" )
 	endif()
@@ -191,6 +183,7 @@ endif()
 
 macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 
+	## Produce INDEXFILE by running doxygen
 	add_custom_command (
 		OUTPUT  ${INDEXFILE}
 		COMMAND Doxygen::doxygen ${DOXYFILE}
@@ -201,44 +194,11 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 	)
 
 	## Handle possible deduplication requirement
-	if (DOXYGEN_NEEDS_XML_DEDUP )
+	if (DOXYGEN_NEEDS_XML_DEDUP ) # TODO if IS TARGET add_doxy...._with_dedup
 
-		## Setup doxygen run target
-		add_custom_target (${DOXY_TARGET}_run DEPENDS ${INDEXFILE} )
-		add_dependencies  (${DOXY_TARGET}_run
-			libarcstk_create_log_dir
-			libarcstk_create_output_dir
-			libarcstk_static_pages_files
-		)
+		add_doxygen_xml_target_with_dedup( ${DOXY_TARGET} ${DOXYFILE}
+			${INDEXFILE} )
 
-		set (STAMP_FILE ${INDEXFILE}.deduplicated )
-
-		add_custom_command (
-			OUTPUT  ${STAMP_FILE}
-			COMMAND ${PYTHON_CMD}
-			ARGS    ${DOXYGEN_XML_DEDUP_SCRIPT} ${INDEXFILE}
-			COMMAND ${CMAKE_COMMAND}
-			ARGS    -E touch ${STAMP_FILE}
-			DEPENDS ${INDEXFILE}
-			WORKING_DIRECTORY "${DOC_GEN_DIR}"
-			COMMENT "Remove duplicate compounds in ${INDEXFILE}"
-			VERBATIM
-		)
-
-		## Setup deduplication target
-		add_custom_target (${DOXY_TARGET}_dedup DEPENDS ${STAMP_FILE} )
-		add_dependencies  (${DOXY_TARGET}_dedup ${DOXY_TARGET}_run )
-		if (PYTHON_ENV_AVAILABLE )
-
-			add_dependencies  (${DOXY_TARGET}_dedup
-				libarcstk_doxygen-dedup_requirements )
-		endif()
-
-		## Setup doxygen target
-		add_custom_target (${DOXY_TARGET} )
-		add_dependencies  (${DOXY_TARGET} ${DOXY_TARGET}_dedup )
-
-		unset (STAMPFILE )
 	else()
 
 		add_custom_target (${DOXY_TARGET} DEPENDS ${INDEXFILE} )
@@ -263,7 +223,7 @@ unset (_generator )
 
 
 
-## --- Define libarcstk_doxygen_create_html for Doxygen Stock HTML {{{1
+## --- Define libarcstk_doxygen_generate_html for Doxygen Stock HTML {{{1
 
 ## If no generator is requested, just produce stock HTML
 
@@ -276,7 +236,7 @@ if (NOT LOAD_GENERATORS )
 
 	set (_index_html ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
 
-	add_custom_target (libarcstk_doxygen_create_html DEPENDS ${_index_html} )
+	add_custom_target (libarcstk_doxygen_generate_html DEPENDS ${_index_html} )
 
 
 	## -- Load stylesheets if any
@@ -286,7 +246,7 @@ if (NOT LOAD_GENERATORS )
 
 	## Comment or uncomment this line to use a alternative layouts to the
 	## doxygen stock HTML layout. The subscope may re-set DOC_DOXYFILE_INPUT
-	## and add dependencies to target 'libarcstk_doxygen_create_html'.
+	## and add dependencies to target 'libarcstk_doxygen_generate_html'.
 	#add_subdirectory ("thirdparty/doxygen-awesome-css" )
 
 	message (STATUS "Use doxygen file: ${DOC_DOXYFILE_INPUT}" )
@@ -303,11 +263,11 @@ if (NOT LOAD_GENERATORS )
 		VERBATIM
 	)
 
-	add_dependencies  (libarcstk_doxygen_create_html
+	add_dependencies  (libarcstk_doxygen_generate_html
 							libarcstk_create_log_dir
 							libarcstk_create_output_dir )
 
-	add_dependencies  (libarcstk_doc libarcstk_doxygen_create_html )
+	add_dependencies  (libarcstk_doc libarcstk_doxygen_generate_html )
 
 endif()
 

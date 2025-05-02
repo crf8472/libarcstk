@@ -45,6 +45,7 @@ WARN_LOGFILE           = @PROJECT_LOG_DIR@/Doxygen_Warnings.log
 WARN_NO_PARAMDOC       = YES
 
 INPUT                  = @DOXYGEN_INPUT@
+EXCLUDE                = build install thirdparty
 FILE_PATTERNS          = @DOXYGEN_FILE_PATTERNS@
 EXCLUDE_PATTERNS       = *.cpp
 RECURSIVE              = YES

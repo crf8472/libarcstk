@@ -46,8 +46,8 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 
 add_custom_target (libarcstk_mcss_doc )
 
-add_custom_target (libarcstk_mcss_create_html DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (libarcstk_mcss_doc libarcstk_mcss_create_html )
+add_custom_target (libarcstk_mcss_generate_html DEPENDS "${OUTPUT_MAINPAGE}" )
+add_dependencies  (libarcstk_mcss_doc libarcstk_mcss_generate_html )
 
 
 ## --- Define m.css to be checked out/updated while configuring
@@ -137,25 +137,30 @@ add_requirements_target (libarcstk_mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies (libarcstk_mcss_create_html libarcstk_mcss_requirements )
+add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_requirements )
 
 
 
 ## --- Build rule for running m.css
+
+set (MCSS_LOG_FILE "${PROJECT_LOG_DIR}/MCSS.log" )
 
 if (DOXYGEN_NEEDS_XML_DEDUP )
 
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (libarcstk_mcss_create_xml ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_mcss_generate_xml
+		${DOXYFILE}
+		${OUTPUT_INDEX}
+	)
 
-	add_dependencies (libarcstk_mcss_create_html libarcstk_mcss_create_xml )
+	add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_generate_xml )
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
-		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" --no-doxygen "${CONFPY}"
-				2> "${PROJECT_LOG_DIR}/MCSS.log"
+		COMMAND "${PYTHON_CMD}"
+		ARGS    "${MCSS_CMD}" --no-doxygen "${CONFPY}" 2> "${MCSS_LOG_FILE}"
 		DEPENDS ${OUTPUT_INDEX} ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
@@ -167,7 +172,7 @@ else()
 
 	## Since we do not use add_doxygen_target, we have to take care for the
 	## dependencies manually
-	add_dependencies (libarcstk_mcss_create_html
+	add_dependencies (libarcstk_mcss_generate_html
 		## add deps from PARENT
 		libarcstk_create_output_dir
 		libarcstk_create_log_dir
@@ -178,8 +183,8 @@ else()
 
 	add_custom_command (
 		OUTPUT  "${OUTPUT_MAINPAGE}"
-		COMMAND "${PYTHON_CMD}" "${MCSS_CMD}" "${CONFPY}"
-				2> "${PROJECT_LOG_DIR}/MCSS.log"
+		COMMAND "${PYTHON_CMD}"
+		ARGS    "${MCSS_CMD}" "${CONFPY}" 2> "${MCSS_LOG_FILE}"
 		DEPENDS "${DOC_DOXYFILE_BASE}"
 				"${DOXYFILE}"
 				${DOC_SOURCES}
