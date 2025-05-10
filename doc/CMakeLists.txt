@@ -70,7 +70,7 @@ add_subdirectory (texts ) ## Will update DOXYGEN_* variables or add more
 
 
 
-## --- Setup Building Internal Docs if Requested {{{1
+## --- Setup Building Internal Docs if Requested (TODO broken) {{{1
 
 if (WITH_INTERNAL_DOCS )
 
@@ -137,6 +137,10 @@ unset (_generator )
 
 
 
+## --- Declare doc targets for HTML {{{1
+
+add_custom_target (libarcstk_doc_generate_html )
+add_dependencies  (libarcstk_doc libarcstk_doc_generate_html )
 
 
 
@@ -147,67 +151,36 @@ if (LOAD_GENERATORS )
 	## Configure virtual Python Sandbox
 	add_subdirectory (thirdparty/python-virtualenv EXCLUDE_FROM_ALL )
 	## Now, PYTHON_ENV_AVAILABLE is "YES"
+
+	## Each generator requires XML
+	add_subdirectory (doxygen-xml )
+	## Now, DOXYGEN_NEEDS_XML_DEDUP is either "YES" or "NO"
 endif()
-
-
-
-## --- Setup Deduplication for Doxygen's XML if Required {{{1
-
-## Variable DOXYGEN_NEEDS_XML_DEDUP can be used in subdirectory scopes.
-
-## DOXYGEN_NEEDS_XML_DEDUP indicates that:
-##   - XML output is requested (hence at least one thirdparty tool is used)
-##   - XML output requires post processing
-##
-## Note: DOXYGEN_NEEDS_XML_DEDUP must be set _before_ actually loading the
-## CMAKE scripts for generators with add_subdirectory()!
-
-if (LOAD_GENERATORS AND DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
-
-	set (DOXYGEN_NEEDS_XML_DEDUP TRUE ) ## Use this in subdirectories!
-
-	add_subdirectory (thirdparty/doxygen-xml )
-	add_subdirectory (thirdparty/doxygen-xml/tasks/dedup_index )
-
-else()
-
-	if (LOAD_GENERATORS )
-
-		message (STATUS "Doxygen version does not require index deduplication" )
-	endif()
-endif()
-
 
 
 ## --- Provide Macro for Subdir CMake Scripts to Request Doxygen Runs {{{1
+## Note that this target can produce XML as well as HTML, depends on Doxyfile.
 
 macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 
-	## Produce INDEXFILE by running doxygen
+	add_custom_target (${DOXY_TARGET} DEPENDS ${INDEXFILE} )
+
+	add_dependencies  (${DOXY_TARGET}
+			libarcstk_create_log_dir
+			libarcstk_create_output_dir
+			libarcstk_static_pages_files
+	)
+
+	## Produce INDEXFILE (either XML or HTML) by running doxygen
 	add_custom_command (
 		OUTPUT  ${INDEXFILE}
-		COMMAND Doxygen::doxygen ${DOXYFILE}
 		DEPENDS ${DOC_DOXYFILE_BASE} ${DOXYFILE} ${DOC_SOURCES}
+		COMMAND Doxygen::doxygen
+		ARGS    ${DOXYFILE}
 		WORKING_DIRECTORY ${DOC_GEN_DIR}
 		COMMENT "Run doxygen for target ${DOXY_TARGET}"
 		VERBATIM
 	)
-
-	## Handle possible deduplication requirement
-	if (DOXYGEN_NEEDS_XML_DEDUP ) # TODO if IS TARGET add_doxy...._with_dedup
-
-		add_doxygen_xml_target_with_dedup( ${DOXY_TARGET} ${DOXYFILE}
-			${INDEXFILE} )
-
-	else()
-
-		add_custom_target (${DOXY_TARGET} DEPENDS ${INDEXFILE} )
-		add_dependencies  (${DOXY_TARGET}
-			libarcstk_create_log_dir
-			libarcstk_create_output_dir
-			libarcstk_static_pages_files
-		)
-	endif()
 endmacro()
 
 
@@ -231,14 +204,6 @@ if (NOT LOAD_GENERATORS )
 
 	message (STATUS "Will build documentation with pure doxygen (HTML)" )
 
-
-	## -- Target for output mainpage
-
-	set (_index_html ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
-
-	add_custom_target (libarcstk_doxygen_generate_html DEPENDS ${_index_html} )
-
-
 	## -- Load stylesheets if any
 
 	## Fallback in case subdirectory does not overwrite it
@@ -254,20 +219,25 @@ if (NOT LOAD_GENERATORS )
 
 	## -- Add commands + organize targets
 
+	set (_index_html ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
+
 	add_custom_command (
 		OUTPUT  ${_index_html}
-		COMMAND Doxygen::doxygen ${DOC_DOXYFILE_INPUT}
 		DEPENDS ${DOC_DOXYFILE_INPUT} ${DOC_SOURCES}
+		COMMAND Doxygen::doxygen ${DOC_DOXYFILE_INPUT}
 		WORKING_DIRECTORY ${DOC_GEN_DIR}
 		COMMENT "Run doxygen to create HTML"
 		VERBATIM
 	)
 
+	add_custom_target (libarcstk_doxygen_generate_html DEPENDS ${_index_html} )
+
 	add_dependencies  (libarcstk_doxygen_generate_html
 							libarcstk_create_log_dir
 							libarcstk_create_output_dir )
 
-	add_dependencies  (libarcstk_doc libarcstk_doxygen_generate_html )
+	add_dependencies  (libarcstk_doc_generate_html
+							libarcstk_doxygen_generate_html )
 
 endif()
 

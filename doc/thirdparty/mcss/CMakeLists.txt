@@ -32,8 +32,8 @@ set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
 ## --- Some variables
 
-set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
-set (OUTPUT_INDEX      "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
+set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
+set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (CONFPY            "${CMAKE_CURRENT_BINARY_DIR}/conf.py" )
@@ -44,10 +44,9 @@ set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## Before commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
 
-add_custom_target (libarcstk_mcss_doc )
+add_custom_target (libarcstk_mcss_generate_html DEPENDS "${INDEX_HTML}" )
 
-add_custom_target (libarcstk_mcss_generate_html DEPENDS "${OUTPUT_MAINPAGE}" )
-add_dependencies  (libarcstk_mcss_doc libarcstk_mcss_generate_html )
+add_dependencies  (libarcstk_doc_generate_html libarcstk_mcss_generate_html )
 
 
 ## --- Define m.css to be checked out/updated while configuring
@@ -111,7 +110,7 @@ else() ## No FetchContent module available
 
 	unset(SOURCE_DIR )
 
-	add_dependencies (libarcstk_mcss_doc libarcstk_mcss_download )
+	add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_download )
 endif()
 
 
@@ -150,18 +149,18 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (libarcstk_mcss_generate_xml
+	add_doxygen_xml_target (libarcstk_mcss_generate_xml
 		${DOXYFILE}
-		${OUTPUT_INDEX}
+		${INDEX_XML}
 	)
 
 	add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_generate_xml )
 
 	add_custom_command (
-		OUTPUT  "${OUTPUT_MAINPAGE}"
+		OUTPUT  "${INDEX_HTML}"
 		COMMAND "${PYTHON_CMD}"
 		ARGS    "${MCSS_CMD}" --no-doxygen "${CONFPY}" 2> "${MCSS_LOG_FILE}"
-		DEPENDS ${OUTPUT_INDEX} ${DOC_SOURCES}
+		DEPENDS ${INDEX_XML} ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
@@ -182,7 +181,7 @@ else()
 	)
 
 	add_custom_command (
-		OUTPUT  "${OUTPUT_MAINPAGE}"
+		OUTPUT  "${INDEX_HTML}"
 		COMMAND "${PYTHON_CMD}"
 		ARGS    "${MCSS_CMD}" "${CONFPY}" 2> "${MCSS_LOG_FILE}"
 		DEPENDS "${DOC_DOXYFILE_BASE}"
@@ -194,5 +193,5 @@ else()
 	)
 endif()
 
-add_dependencies (libarcstk_doc libarcstk_mcss_doc )
+#add_dependencies (libarcstk_doc libarcstk_mcss_doc )
 

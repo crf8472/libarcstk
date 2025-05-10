@@ -69,22 +69,16 @@ set (PYTHON_CMD           "${ENV_DIR}/bin/python" PARENT_SCOPE )
 ## This is provided for use in other CMakeLists.txt.
 macro (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
 
-	set (STAMP_FILE "${PYTHON_ENV_DIRECTORY}/${UPDATE_TARGET}.update.stamp" )
+	add_custom_target (${UPDATE_TARGET} )
 
 	add_custom_command(
-		OUTPUT  "${STAMP_FILE}"
-		DEPENDS "${REQUIREMENTS_FILE}"
-		COMMAND ${PYTHON_ENV_DIRECTORY}/bin/pip install
-		ARGS    -r "${REQUIREMENTS_FILE}" --upgrade
-		COMMAND ${CMAKE_COMMAND}
-		ARGS    -E touch "${STAMP_FILE}"
+		TARGET  ${UPDATE_TARGET} PRE_BUILD
+		COMMAND ${PYTHON_ENV_DIRECTORY}/bin/pip
+		ARGS    install -r "${REQUIREMENTS_FILE}" --upgrade
 		WORKING_DIRECTORY "${PYTHON_ENV_DIRECTORY}"
 		VERBATIM
 		COMMENT "Update requirements in python sandbox for ${UPDATE_TARGET}"
 	)
-
-	add_custom_target (${UPDATE_TARGET} DEPENDS "${STAMP_FILE}" )
-	unset (STAMP_FILE )
 
 	add_dependencies (${UPDATE_TARGET} libarcstk_virtualenv_create_sandbox )
 endmacro()

@@ -31,10 +31,10 @@ set (DOC_COMMENT              "${DOC_COMMENT}, using sphinx" )
 
 ## --- Some variables
 
-set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
-set (OUTPUT_INDEX      "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 
+set (INDEX_HTML               "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
+set (INDEX_XML                "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (SPHINX_BINARY_DIR        "${DOXYGEN_OUTPUT_DIRECTORY}" )
 set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" )
 
@@ -44,7 +44,7 @@ set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" 
 
 add_custom_target (libarcstk_rtd_doc )
 
-add_custom_target (libarcstk_rtd_generate_html DEPENDS "${OUTPUT_MAINPAGE}" )
+add_custom_target (libarcstk_rtd_generate_html DEPENDS "${INDEX_HTML}" )
 add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_generate_html )
 
 
@@ -89,14 +89,14 @@ if (DOXYGEN_NEEDS_XML_DEDUP )
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_doxygen_target (libarcstk_rtd_generate_xml ${DOXYFILE} ${OUTPUT_INDEX} )
+	add_doxygen_target (libarcstk_rtd_generate_xml ${DOXYFILE} ${INDEX_XML} )
 
 	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_generate_xml )
 
 	add_custom_command (
-		OUTPUT  "${OUTPUT_MAINPAGE}" "${SPHINX_LIBRARY_ROOT_PAGE}"
+		OUTPUT  "${INDEX_HTML}" "${SPHINX_LIBRARY_ROOT_PAGE}"
 		COMMAND make html
-		DEPENDS "${OUTPUT_INDEX}"
+		DEPENDS "${INDEX_XML}"
 				"${SPHINX_BINARY_DIR}/Makefile"
 				"${SPHINX_BINARY_DIR}/source/index.rst"
 				"${SPHINX_BINARY_DIR}/source/conf.py"
@@ -116,7 +116,7 @@ else()
 	set (DOXYFILE "${SPHINX_BINARY_DIR}/source/Doxyfile" )
 
 	add_custom_command (
-		OUTPUT  "${OUTPUT_MAINPAGE}" "${SPHINX_LIBRARY_ROOT_PAGE}"
+		OUTPUT  "${INDEX_HTML}" "${SPHINX_LIBRARY_ROOT_PAGE}"
 		COMMAND make html
 		DEPENDS "${SPHINX_BINARY_DIR}/Makefile"
 				"${SPHINX_BINARY_DIR}/source/index.rst"

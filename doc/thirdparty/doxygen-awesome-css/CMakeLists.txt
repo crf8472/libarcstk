@@ -26,7 +26,6 @@ set (DOC_COMMENT       "${DOC_COMMENT}, using doxygen-awesome-css" )
 
 ## --- Some variables
 
-set (OUTPUT_MAINPAGE   "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
