@@ -60,3 +60,6 @@ GENERATE_LATEX         = NO
 
 GROUP_GRAPHS           = NO
 
+#HIDE_INLINE_NAMESPACES = YES
+## https://github.com/doxygen/doxygen/pull/10070
+
