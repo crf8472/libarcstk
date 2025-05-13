@@ -5,7 +5,7 @@
 ## Prerequisites from PARENT:
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_GEN_DIR, DOC_SOURCES
-##              DOXYGEN_NEEDS_XML_DEDUP
+##              DOXYGEN_XML_DEDUP_INDEX_REQUIRED
 ##
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
@@ -144,12 +144,12 @@ add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_requirements )
 
 set (MCSS_LOG_FILE "${PROJECT_LOG_DIR}/MCSS.log" )
 
-if (DOXYGEN_NEEDS_XML_DEDUP )
+if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
 
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_xml_target (libarcstk_mcss_generate_xml
+	add_doxygen_target (libarcstk_mcss_generate_xml
 		${DOXYFILE}
 		${INDEX_XML}
 	)

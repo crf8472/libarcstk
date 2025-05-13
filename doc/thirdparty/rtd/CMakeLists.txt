@@ -5,7 +5,7 @@
 ## Prerequisites from PARENT:
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_DOXYFILE_BASE_TEMPLATE,
-##              DOC_GEN_DIR, DOC_SOURCES, DOXYGEN_NEEDS_XML_DEDUP
+##              DOC_GEN_DIR, DOC_SOURCES, DOXYGEN_XML_DEDUP_INDEX_REQUIRED
 ##
 ## Provides:
 ## - Targets: 'libarcstk_rtd_doc'
@@ -80,7 +80,7 @@ add_dependencies  (libarcstk_rtd_generate_html libarcstk_rtd_requirements )
 
 set (EXHALE_EXECUTES_DOXYGEN "True" )
 
-if (DOXYGEN_NEEDS_XML_DEDUP )
+if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
 
 	## Doxygen needs to run separately from exhale since we want to post-process
 	## its XML output.

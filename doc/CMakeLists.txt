@@ -144,20 +144,6 @@ add_dependencies  (libarcstk_doc libarcstk_doc_generate_html )
 
 
 
-## --- Configure Python Sandbox Used by Some Generators {{{1
-
-if (LOAD_GENERATORS )
-
-	## Configure virtual Python Sandbox
-	add_subdirectory (thirdparty/python-virtualenv EXCLUDE_FROM_ALL )
-	## Now, PYTHON_ENV_AVAILABLE is "YES"
-
-	## Each generator requires XML
-	add_subdirectory (doxygen-xml )
-	## Now, DOXYGEN_NEEDS_XML_DEDUP is either "YES" or "NO"
-endif()
-
-
 ## --- Provide Macro for Subdir CMake Scripts to Request Doxygen Runs {{{1
 ## Note that this target can produce XML as well as HTML, depends on Doxyfile.
 
@@ -183,6 +169,20 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 	)
 endmacro()
 
+
+
+## --- Configure Python Sandbox Used by Some Generators {{{1
+
+if (LOAD_GENERATORS )
+
+	## Configure virtual Python Sandbox
+	add_subdirectory (thirdparty/python-virtualenv EXCLUDE_FROM_ALL )
+	## Now, PYTHON_ENV_AVAILABLE is "YES"
+
+	## Each generator requires XML
+	add_subdirectory (doxygen-xml )
+	## Now, DOXYGEN_XML_DEDUP_INDEX_REQUIRED is either "YES" or "NO"
+endif()
 
 
 ## --- Actually Load Generators {{{1

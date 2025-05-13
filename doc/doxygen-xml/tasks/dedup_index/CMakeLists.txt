@@ -12,32 +12,26 @@
 message (STATUS "Doxygen version requires index deduplication" )
 
 
-## --- Provide Macro for Subdir CMake Scripts to Request Doxygen Runs {{{1
+## Setup doxygen index deduplication target {{{2
 
-macro (add_doxygen_pp_dedup_index DOXY_TARGET INDEXFILE )
+add_dependencies (${DOXY_TARGET} libarcstk_doxygen_xml_env )
 
-	## Setup doxygen index deduplication target {{{2
-
-	add_dependencies (${DOXY_TARGET} libarcstk_doxygen_xml_env )
-
-	add_custom_command (#${DOXY_TARGET}_dedup
-		TARGET  ${DOXY_TARGET} POST_BUILD
-		#DEPENDS ${INDEXFILE}
-		COMMAND ${PYTHON_CMD}
-		ARGS    ${CMAKE_SOURCE_DIR}/doc/doxygen-xml/xsl_transform.py
-				${INDEXFILE}
-				${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/dedup_index/dedup_index.xsl
-				${INDEXFILE}
-		WORKING_DIRECTORY "${DOC_GEN_DIR}"
-		COMMENT "Remove duplicate compounds in ${INDEXFILE}"
-		VERBATIM
-	)
+add_custom_command (#${DOXY_TARGET}_dedup
+	TARGET  ${DOXY_TARGET} POST_BUILD
+	#DEPENDS ${INDEXFILE}
+	COMMAND ${PYTHON_CMD}
+	ARGS    ${CMAKE_SOURCE_DIR}/doc/doxygen-xml/xsl_transform.py
+			${INDEXFILE}
+			${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/dedup_index/dedup_index.xsl
+			${INDEXFILE}
+	WORKING_DIRECTORY "${DOC_GEN_DIR}"
+	COMMENT "Remove duplicate compounds in ${INDEXFILE}"
+	VERBATIM
+)
 
 	#add_dependencies (${DOXY_TARGET}_dedup libarcstk_doxygen_xml_env )
 	#add_dependencies (${DOXY_TARGET}_dedup ${DOXY_TARGET}_run )
 
 	#add_dependencies (${DOXY_TARGET}       ${DOXY_TARGET}_dedup )
 	## 2}}}
-
-endmacro()
 
