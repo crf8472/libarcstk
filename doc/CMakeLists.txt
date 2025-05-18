@@ -207,43 +207,27 @@ if (NOT LOAD_GENERATORS )
 
 	message (STATUS "Will build documentation with pure doxygen (HTML)" )
 
-	## -- Load stylesheets if any
-
-	## Fallback in case subdirectory does not overwrite it
 	set (DOC_DOXYFILE_INPUT ${DOC_DOXYFILE_BASE} )
 
 	## Comment or uncomment this line to use a alternative layouts to the
 	## doxygen stock HTML layout. The subscope may re-set DOC_DOXYFILE_INPUT
 	## and add dependencies to target 'libarcstk_doxygen_generate_html'.
-	#add_subdirectory ("thirdparty/doxygen-awesome-css" )
+	add_subdirectory ("thirdparty/doxygen-awesome-css" )
 
-	message (STATUS "Use doxygen file: ${DOC_DOXYFILE_INPUT}" )
+	add_doxygen_target (libarcstk_doxygen_generate_html
+		${DOC_DOXYFILE_INPUT}
+		${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
 
+	if (TARGET libarcstk_doxygen_awesome_css )
 
-	## -- Add commands + organize targets
+		add_dependencies (libarcstk_doxygen_generate_html
+			libarcstk_doxygen_awesome_css )
+	endif()
 
-	set (_index_html ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
-
-	add_custom_command (
-		OUTPUT  ${_index_html}
-		DEPENDS ${DOC_DOXYFILE_INPUT} ${DOC_SOURCES}
-		COMMAND Doxygen::doxygen ${DOC_DOXYFILE_INPUT}
-		WORKING_DIRECTORY ${DOC_GEN_DIR}
-		COMMENT "Run doxygen to create HTML"
-		VERBATIM
-	)
-
-	add_custom_target (libarcstk_doxygen_generate_html DEPENDS ${_index_html} )
-
-	add_dependencies  (libarcstk_doxygen_generate_html
-							libarcstk_create_log_dir
-							libarcstk_create_output_dir )
-
-	add_dependencies  (libarcstk_doc_generate_html
+	add_dependencies (libarcstk_doc_generate_html
 							libarcstk_doxygen_generate_html )
 
 endif()
-
 ## 1}}}
 
 add_dependencies (doc libarcstk_create_log_dir libarcstk_doc )
