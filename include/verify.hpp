@@ -57,7 +57,8 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
  * without a ToC (e.g. a set of input audio files) is supported by
  * TracksetVerifier.
  *
- * \see AlbumVerifier \see TracksetVerifier
+ * \see AlbumVerifier
+ * \see TracksetVerifier
  *
  * @{
  */
