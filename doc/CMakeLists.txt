@@ -181,7 +181,7 @@ if (LOAD_GENERATORS )
 
 	## Each generator requires XML
 	add_subdirectory (doxygen-xml )
-	## Now, DOXYGEN_XML_DEDUP_INDEX_REQUIRED is either "YES" or "NO"
+	## Now, list DOXYGEN_XML_POSTPROCESSING_TASKS is provided
 
 	foreach (_generator IN ITEMS ${LOAD_GENERATORS} )
 

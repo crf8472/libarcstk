@@ -5,7 +5,6 @@
 ## Prerequisites from PARENT:
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_GEN_DIR, DOC_SOURCES
-##              DOXYGEN_XML_DEDUP_INDEX_REQUIRED
 ##
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
@@ -32,12 +31,8 @@ set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
 ## --- Some variables
 
-set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html"
-	CACHE FILEPATH "Filepath for index.html created by m.css" )
-
-set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml"
-	CACHE FILEPATH "Filepath for index.xml created by m.css" )
-
+set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
+set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (CONFPY            "${CMAKE_CURRENT_BINARY_DIR}/conf.py" )
@@ -150,19 +145,13 @@ add_dependencies (libarcstk_mcss_generate_html
 
 set (MCSS_LOG_FILE "${PROJECT_LOG_DIR}/MCSS.log" )
 
-
-if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
+if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 
 	## Doxygen needs to run separately from m.css since we want to post-process
 	## its XML output.
 
-	add_doxygen_target (libarcstk_mcss_generate_xml
-		${DOXYFILE}
-		${INDEX_XML}
-	)
-
-	add_dependencies (libarcstk_doxygen_generate_xml
-										libarcstk_mcss_generate_xml )
+	add_doxygen_xml_target (libarcstk_mcss_generate_xml
+		${DOXYFILE} ${INDEX_XML} )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}"
