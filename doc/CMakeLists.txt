@@ -171,7 +171,7 @@ endmacro()
 
 
 
-## --- Configure Python Sandbox Used by Some Generators {{{1
+## --- Load Python Sandbox, XML Postprocessing and Actual Generators {{{1
 
 if (LOAD_GENERATORS )
 
@@ -182,17 +182,15 @@ if (LOAD_GENERATORS )
 	## Each generator requires XML
 	add_subdirectory (doxygen-xml )
 	## Now, DOXYGEN_XML_DEDUP_INDEX_REQUIRED is either "YES" or "NO"
+
+	foreach (_generator IN ITEMS ${LOAD_GENERATORS} )
+
+		## Subdir CMake can attach target "python-virtualenv" as requirement
+		add_subdirectory ("thirdparty/${_generator}" EXCLUDE_FROM_ALL )
+	endforeach()
+	unset (_generator )
+
 endif()
-
-
-## --- Actually Load Generators {{{1
-
-foreach (_generator IN ITEMS ${LOAD_GENERATORS} )
-
-	## Subdir CMake can attach target "python-virtualenv" as requirement
-	add_subdirectory ("thirdparty/${_generator}" EXCLUDE_FROM_ALL )
-endforeach()
-unset (_generator )
 
 
 

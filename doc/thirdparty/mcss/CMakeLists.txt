@@ -32,8 +32,12 @@ set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
 ## --- Some variables
 
-set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
-set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
+set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html"
+	CACHE FILEPATH "Filepath for index.html created by m.css" )
+
+set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml"
+	CACHE FILEPATH "Filepath for index.xml created by m.css" )
+
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 set (CONFPY            "${CMAKE_CURRENT_BINARY_DIR}/conf.py" )
@@ -136,13 +140,16 @@ add_requirements_target (libarcstk_mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_requirements )
+add_dependencies (libarcstk_mcss_generate_html
+	libarcstk_mcss_requirements
+	libarcstk_doxygen_provide_xml )
 
 
 
 ## --- Build rule for running m.css
 
 set (MCSS_LOG_FILE "${PROJECT_LOG_DIR}/MCSS.log" )
+
 
 if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
 
@@ -154,7 +161,8 @@ if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
 		${INDEX_XML}
 	)
 
-	add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_generate_xml )
+	add_dependencies (libarcstk_doxygen_generate_xml
+										libarcstk_mcss_generate_xml )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}"
@@ -192,6 +200,4 @@ else()
 		VERBATIM
 	)
 endif()
-
-#add_dependencies (libarcstk_doc libarcstk_mcss_doc )
 

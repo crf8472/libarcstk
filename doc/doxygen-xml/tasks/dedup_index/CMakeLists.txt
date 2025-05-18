@@ -12,26 +12,30 @@
 message (STATUS "Doxygen version requires index deduplication" )
 
 
-## Setup doxygen index deduplication target {{{2
+## TODO
+## This file should just add a function that can be called by the
+## add_doxygen_xml_target function
 
-add_dependencies (${DOXY_TARGET} libarcstk_doxygen_xml_env )
 
-add_custom_command (#${DOXY_TARGET}_dedup
-	TARGET  ${DOXY_TARGET} POST_BUILD
-	#DEPENDS ${INDEXFILE}
+add_custom_target (libarcstk_doxygen_task_dedup_index )
+
+add_dependencies  (libarcstk_doxygen_task_dedup_index
+												libarcstk_doxygen_generate_xml )
+add_dependencies  (libarcstk_doxygen_task_dedup_index
+													libarcstk_doxygen_xml_env )
+
+add_custom_command (
+	TARGET  libarcstk_doxygen_task_dedup_index POST_BUILD
 	COMMAND ${PYTHON_CMD}
-	ARGS    ${CMAKE_SOURCE_DIR}/doc/doxygen-xml/xsl_transform.py
-			${INDEXFILE}
+	ARGS    ${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/xsl_transform.py
+			${INDEX_XML}
 			${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/dedup_index/dedup_index.xsl
-			${INDEXFILE}
+			${INDEX_XML}
 	WORKING_DIRECTORY "${DOC_GEN_DIR}"
-	COMMENT "Remove duplicate compounds in ${INDEXFILE}"
+	COMMENT "Remove duplicate compounds in ${INDEX_XML}"
 	VERBATIM
 )
 
-	#add_dependencies (${DOXY_TARGET}_dedup libarcstk_doxygen_xml_env )
-	#add_dependencies (${DOXY_TARGET}_dedup ${DOXY_TARGET}_run )
-
-	#add_dependencies (${DOXY_TARGET}       ${DOXY_TARGET}_dedup )
-	## 2}}}
+add_dependencies  (libarcstk_doxygen_provide_xml
+										libarcstk_doxygen_task_dedup_index )
 
