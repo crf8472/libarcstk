@@ -125,7 +125,7 @@ configure_file ("${CONFPY_SOURCE}" "${CONFPY}"  @ONLY )
 
 ## --- Configure custom colors
 #add_subdirectory (custom-colors )
-## TODO Activate this for custom colors
+## TODO Activate this for custom colors in m.css
 
 
 
