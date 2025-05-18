@@ -5,7 +5,7 @@
 ## Prerequisites from PARENT:
 ## - Targets:   'doc'
 ## - Variables: DOC_COMMENT, DOC_DOXYFILE_BASE, DOC_DOXYFILE_BASE_TEMPLATE,
-##              DOC_GEN_DIR, DOC_SOURCES, DOXYGEN_XML_DEDUP_INDEX_REQUIRED
+##              DOC_GEN_DIR, DOC_SOURCES
 ##
 ## Provides:
 ## - Targets: 'libarcstk_rtd_doc'
@@ -31,28 +31,22 @@ set (DOC_COMMENT              "${DOC_COMMENT}, using sphinx" )
 
 ## --- Some variables
 
-set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
-
 set (INDEX_HTML               "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (INDEX_XML                "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
+set (DOXYFILE_TEMPLATE        "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (SPHINX_BINARY_DIR        "${DOXYGEN_OUTPUT_DIRECTORY}" )
 set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" )
 
-
-
 ## --- Set up targets
 
-add_custom_target (libarcstk_rtd_doc )
-
 add_custom_target (libarcstk_rtd_generate_html DEPENDS "${INDEX_HTML}" )
-add_dependencies  (libarcstk_rtd_doc libarcstk_rtd_generate_html )
+add_dependencies  (libarcstk_doc_generate_html libarcstk_rtd_generate_html )
 
 
 ## --- Install files and directories in sphinx build directory
 
 file (MAKE_DIRECTORY "${SPHINX_BINARY_DIR}/source/_static" )
 file (MAKE_DIRECTORY "${SPHINX_BINARY_DIR}/source/_templates" )
-#file (MAKE_DIRECTORY "${SPHINX_BINARY_DIR}/build" )
 
 configure_file ("docroot/Makefile.in"
 	"${SPHINX_BINARY_DIR}/Makefile"
@@ -72,7 +66,9 @@ add_requirements_target (libarcstk_rtd_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
 )
 
-add_dependencies  (libarcstk_rtd_generate_html libarcstk_rtd_requirements )
+add_dependencies  (libarcstk_rtd_generate_html
+	libarcstk_rtd_requirements
+	libarcstk_doxygen_provide_xml )
 
 
 
@@ -80,7 +76,7 @@ add_dependencies  (libarcstk_rtd_generate_html libarcstk_rtd_requirements )
 
 set (EXHALE_EXECUTES_DOXYGEN "True" )
 
-if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
+if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 
 	## Doxygen needs to run separately from exhale since we want to post-process
 	## its XML output.
@@ -89,9 +85,8 @@ if (DOXYGEN_XML_DEDUP_INDEX_REQUIRED )
 	set (EXHALE_EXECUTES_DOXYGEN "False" )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-	add_doxygen_target (libarcstk_rtd_generate_xml ${DOXYFILE} ${INDEX_XML} )
-
-	add_dependencies (libarcstk_rtd_doc libarcstk_rtd_generate_xml )
+	add_doxygen_xml_target (libarcstk_rtd_generate_xml
+		${DOXYFILE} ${INDEX_XML} )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}" "${SPHINX_LIBRARY_ROOT_PAGE}"
@@ -142,6 +137,4 @@ configure_file ("docroot/source/conf.py.in"
 	"${SPHINX_BINARY_DIR}/source/conf.py"
 	@ONLY
 )
-
-add_dependencies  (libarcstk_doc libarcstk_rtd_doc )
 
