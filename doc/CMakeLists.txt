@@ -137,10 +137,15 @@ unset (_generator )
 
 
 
-## --- Declare doc targets for HTML {{{1
+## --- Declare doc targets for HTML and PDF {{{1
+
+## FIXME Activate only those targets whose format is actually requested
 
 add_custom_target (libarcstk_doc_generate_html )
 add_dependencies  (libarcstk_doc libarcstk_doc_generate_html )
+
+add_custom_target (libarcstk_doc_generate_pdf )
+add_dependencies  (libarcstk_doc libarcstk_doc_generate_pdf )
 
 
 
@@ -179,7 +184,7 @@ if (LOAD_GENERATORS )
 	add_subdirectory (thirdparty/python-virtualenv EXCLUDE_FROM_ALL )
 	## Now, PYTHON_ENV_AVAILABLE is "YES"
 
-	## Each generator requires XML
+	## Each generator requires XML (FIXME: no, lualatex doesn't)
 	add_subdirectory (doxygen-xml )
 	## Now, list DOXYGEN_XML_POSTPROCESSING_TASKS is provided
 

@@ -51,12 +51,15 @@ add_doxygen_target (libarcstk_lltx_doxygen ${DOXYFILE} ${OUTPUT_MAINFILE} )
 
 ## --- Set up targets
 
-add_custom_target (libarcstk_lltx_doc DEPENDS "${OUTPUT_MANUAL_PDF}" )
+add_custom_target (libarcstk_lltx_generate_pdf DEPENDS "${OUTPUT_MANUAL_PDF}" )
 
-add_dependencies (libarcstk_lltx_doc
-		libarcstk_create_output_dir libarcstk_create_log_dir )
+add_dependencies (libarcstk_lltx_generate_pdf
+		libarcstk_lltx_doxygen
+		libarcstk_create_output_dir
+		libarcstk_create_log_dir
+)
 
-add_dependencies  (libarcstk_doc libarcstk_lltx_doc )
+add_dependencies (libarcstk_doc_generate_pdf libarcstk_lltx_generate_pdf )
 
 
 ## --- Generate doxyfile
