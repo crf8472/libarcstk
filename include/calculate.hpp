@@ -26,15 +26,8 @@
 #include "policies.hpp"     // for Comparable, IteratorValue
 #endif
 
-/**
- * \brief APIs of libarcstk.
- */
 namespace arcstk
 {
-
-/**
- * \brief libarcstk API version 1.0.0
- */
 inline namespace v_1_0_0
 {
 
