@@ -1,4 +1,6 @@
-## Customization for m.css layout
+## CMake Script for Customizing m.css Layout
+##
+## vim:fdm=marker
 
 ## Copy the custom files to the m.css source directory, postprocess them
 ## at this place (where all includes are present) and deploy the resulting
@@ -14,7 +16,7 @@
 ##   parent's 'libarcstk_mcss_generate_html'
 
 
-## --- Create css output directory
+## --- Create CSS output directory {{{1
 
 set (CSS_TARGET_DIR "${DOXYGEN_OUTPUT_DIRECTORY}/html" )
 
@@ -25,17 +27,20 @@ add_custom_command (
 	COMMAND ${CMAKE_COMMAND}
 	ARGS    -E make_directory ${CSS_TARGET_DIR} )
 
-## Create css target directory
+## Target Directory
 add_custom_target (libarcstk_create_css_output_dir DEPENDS ${CSS_TARGET_DIR} )
 
+
+
+## --- Provide Required CSS Source Files {{{1
 
 ## Filename of compiled CSS to deploy
 set (CSS_TARGET_FILE   "m-custom+m-documentation.compiled.css" )
 
-## CMake-generated folder for m.css
+## CMake-generated Folder for m.css
 set (CSS_SOURCE_DIR    "${MCSS_SOURCE_DIR}/css" )
 
-## Provide list of required CSS source files and how to provide them
+## Add Source Files to List
 foreach (FILE IN ITEMS "m-custom.css" "m-theme-custom.css" )
 
 	## List of file dependencies for postprocessing command
@@ -51,7 +56,8 @@ foreach (FILE IN ITEMS "m-custom.css" "m-theme-custom.css" )
 endforeach()
 
 
-## Path of compiled CSS to deploy
+
+## --- Compile/Postprocess CSS Style File {{{1
 set (CUSTOM_STYLESHEET "${CSS_SOURCE_DIR}/${CSS_TARGET_FILE}" )
 
 ## Create compiled CSS from CSS source fils as explained in
@@ -67,7 +73,6 @@ add_custom_command (
 	WORKING_DIRECTORY "${CSS_SOURCE_DIR}"
 )
 
-
 ## Path of compiled CSS when deployed
 set (CUSTOM_STYLESHEET_TARGET "${CSS_TARGET_DIR}/${CSS_TARGET_FILE}" )
 
@@ -81,16 +86,21 @@ add_custom_command (
 )
 
 
-## Target for providing custom css file
-add_custom_target (libarcstk_mcss_custom_css DEPENDS "${CUSTOM_STYLESHEET_TARGET}" )
+
+## --- Target: Provide Custom CSS File {{{1
+
+add_custom_target (libarcstk_mcss_custom_css
+	DEPENDS "${CUSTOM_STYLESHEET_TARGET}" )
+
 add_dependencies  (libarcstk_mcss_custom_css libarcstk_create_css_output_dir )
 
 
-## --- Activate this script's target
+
+## --- Activate this Script's Target {{{1
 add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_custom_css )
 
 
-## Redo configuring (was already done in PARENT)
+## --- Redo Configuring conf.py (was already done in PARENT) {{{1
 configure_file ("${CONFPY_SOURCE}" "${CONFPY}"  @ONLY )
 ## FIXME Should be configured exactly once!
 

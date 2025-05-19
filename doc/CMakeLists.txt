@@ -1,18 +1,33 @@
-## CMake file for building the documentation
+## CMake script for building the documentation
+##
 ## vim:fdm=marker
+##
+## Prerequisites:
+## - target libarcstk_create_log_dir
+##
+## Provides:
+## - targets: doc, libarcstk_doc, libarcstk_create_output_dir,
+##            libarcstk_doc_generate_html, libarcstk_doc_generate_pdf
 
 cmake_minimum_required (VERSION 3.12 )
 ## --- Policies {{{1
 
 ## Support IN_LIST if() operator required by FindDoxygen.cmake
+## https://cmake.org/cmake/help/latest/policy/CMP0057.html
 cmake_policy (SET CMP0057 NEW )
 ## 1}}}
 
-find_package (Doxygen )
-#find_package (Doxygen 1.9.1...<1.9.7 ) # 1.9.7 crashes m.css
-#find_package (Doxygen 1.8.15...1.8.20 ) # OK too
+message (STATUS "Build documentation" )
 
+
+find_package (Doxygen ) ## must be >= 1.9.8
+#find_package (Doxygen 1.9.1...<1.9.7 )  # 1.9.7 crashes m.css
+#find_package (Doxygen 1.8.15...1.8.20 )
+
+
+## --- Provide target
 add_custom_target (doc )
+
 
 ## --- Some Variables {{{1
 
@@ -36,6 +51,7 @@ set (DOC_DOXYFILE_BASE    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-base )
 ## --- Add Default 'doc' Target {{{1
 
 add_custom_target (libarcstk_doc )
+add_dependencies  (libarcstk_doc libarcstk_create_log_dir )
 
 
 
@@ -176,7 +192,7 @@ endmacro()
 
 
 
-## --- Load Python Sandbox, XML Postprocessing and Actual Generators {{{1
+## --- Prepare Actual Generators or Stock HTML {{{1
 
 if (LOAD_GENERATORS )
 
@@ -186,7 +202,7 @@ if (LOAD_GENERATORS )
 
 	## Each generator requires XML (FIXME: no, lualatex doesn't)
 	add_subdirectory (doxygen-xml )
-	## Now, list DOXYGEN_XML_POSTPROCESSING_TASKS is provided
+	## Now, list DOXYGEN_XML_POSTPROCESSING_TASKS is provided (maybe empty)
 
 	foreach (_generator IN ITEMS ${LOAD_GENERATORS} )
 
@@ -195,40 +211,11 @@ if (LOAD_GENERATORS )
 	endforeach()
 	unset (_generator )
 
-endif()
+else() # If no Generators are Specified, Just Use Doxygen's Stock HTML
 
-
-
-## --- Define libarcstk_doxygen_generate_html for Doxygen Stock HTML {{{1
-
-## If no generator is requested, just produce stock HTML
-
-if (NOT LOAD_GENERATORS )
-
-	message (STATUS "Will build documentation with pure doxygen (HTML)" )
-
-	set (DOC_DOXYFILE_INPUT ${DOC_DOXYFILE_BASE} )
-
-	## Comment or uncomment this line to use a alternative layouts to the
-	## doxygen stock HTML layout. The subscope may re-set DOC_DOXYFILE_INPUT
-	## and add dependencies to target 'libarcstk_doxygen_generate_html'.
-	add_subdirectory ("thirdparty/doxygen-awesome-css" )
-
-	add_doxygen_target (libarcstk_doxygen_generate_html
-		${DOC_DOXYFILE_INPUT}
-		${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
-
-	if (TARGET libarcstk_doxygen_awesome_css )
-
-		add_dependencies (libarcstk_doxygen_generate_html
-			libarcstk_doxygen_awesome_css )
-	endif()
-
-	add_dependencies (libarcstk_doc_generate_html
-							libarcstk_doxygen_generate_html )
-
+	add_subdirectory ("doxygen-html")
 endif()
 ## 1}}}
 
-add_dependencies (doc libarcstk_create_log_dir libarcstk_doc )
+add_dependencies (doc libarcstk_doc )
 

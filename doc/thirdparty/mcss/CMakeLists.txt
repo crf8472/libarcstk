@@ -1,4 +1,6 @@
-## CMake file for m.css
+## CMake script for m.css
+##
+## vim:fdm=marker
 ##
 ## Use HTML5/CSS3 from m.css for generating HTML from Doxygen XML output
 ##
@@ -9,27 +11,25 @@
 ## Provides:
 ## - Targets: 'libarcstk_mcss_doc'
 
+cmake_minimum_required (VERSION 3.10 )
+
+message (STATUS "Will build documentation with m.css" )
+
 if (WIN32 )
 
 	message (FATAL_ERROR
 		"m.css support is currently not available for Windows" )
 endif()
 
-
-cmake_minimum_required (VERSION 3.10 )
-
-message (STATUS "Will build documentation with m.css" )
-
 find_package (Git REQUIRED )
 
 
-
-## --- Overwrite default values from parent
+## --- Overwrite Default Values From Parent {{{1
 
 set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}/mcss" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using m.css" )
 
-## --- Some variables
+## --- Some Variables {{{1
 
 set (INDEX_HTML        "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (INDEX_XML         "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
@@ -40,15 +40,16 @@ set (CONFPY            "${CMAKE_CURRENT_BINARY_DIR}/conf.py" )
 set (MCSS_REPO_URL       "https://github.com/mosra/m.css.git" )
 set (MCSS_SCRIPT_RELPATH "documentation/doxygen.py" )
 ## Commented out:
-## Before commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
+## Before m.css commit 3f568563a8b70fc49a479250d51a2fdc71a66943:
 ## set (MCSS_SCRIPT_RELPATH "doxygen/dox2html5.py" )
+## 1}}}
+
 
 add_custom_target (libarcstk_mcss_generate_html DEPENDS "${INDEX_HTML}" )
-
 add_dependencies  (libarcstk_doc_generate_html libarcstk_mcss_generate_html )
 
 
-## --- Define m.css to be checked out/updated while configuring
+## --- Define m.css to be Checked out/Updated on Configure {{{1
 
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 
@@ -114,22 +115,22 @@ endif()
 
 
 
-## Create Doxyfile for m.css
+## --- Create Doxyfile for m.css {{{1
 configure_file ("${DOXYFILE_TEMPLATE}"  "${DOXYFILE}"  @ONLY )
 
 
-## Create conf.py for m.css
+## --- Create conf.py for m.css {{{1
 set (CONFPY_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in" )
 configure_file ("${CONFPY_SOURCE}" "${CONFPY}"  @ONLY )
 
 
-## --- Configure custom colors
+## --- Configure Custom Colors (commented out) {{{1
 #add_subdirectory (custom-colors )
 ## TODO Activate this for custom colors in m.css
 
 
 
-## --- Set up python environment
+## --- Set up Python Environment {{{1
 
 add_requirements_target (libarcstk_mcss_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
@@ -141,7 +142,7 @@ add_dependencies (libarcstk_mcss_generate_html
 
 
 
-## --- Build rule for running m.css
+## --- Target for Running m.css {{{1
 
 set (MCSS_LOG_FILE "${PROJECT_LOG_DIR}/MCSS.log" )
 

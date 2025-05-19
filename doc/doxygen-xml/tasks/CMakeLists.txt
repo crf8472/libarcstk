@@ -1,4 +1,5 @@
 ## CMake script for addings postprocessing tasks to doxygen's XML
+##
 ## vim:fdm=marker
 
 message (STATUS "Doxygen XSLT postprocessing is required" )

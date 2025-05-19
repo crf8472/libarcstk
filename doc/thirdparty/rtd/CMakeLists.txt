@@ -1,5 +1,7 @@
 ## CMake file for sphinx/exhale
 ##
+## vim:fdm=marker
+##
 ## Use sphinx to build the Read-the-docs documentation from Doxygen XML output
 ##
 ## Prerequisites from PARENT:
@@ -10,26 +12,27 @@
 ## Provides:
 ## - Targets: 'libarcstk_rtd_doc'
 
+cmake_minimum_required (VERSION 3.10 )
+
+message (STATUS "Will build documentation with sphinx" )
+
 if (WIN32 )
 
 	message (FATAL_ERROR
 		"Sphinx support is currently not available for Windows" )
 endif()
 
-
-cmake_minimum_required (VERSION 3.10 )
-
-message (STATUS "Will build documentation with sphinx" )
 message (WARNING "Sphinx support for Read-the-docs is experimental and broken" )
 
 
-
-## --- Overwrite default values from parent
+## --- Overwrite Default Values From Parent {{{1
 
 set (DOXYGEN_OUTPUT_DIRECTORY "${DOC_GEN_DIR}/read-the-docs" )
 set (DOC_COMMENT              "${DOC_COMMENT}, using sphinx" )
 
-## --- Some variables
+
+
+## --- Some Variables {{{1
 
 set (INDEX_HTML               "${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 set (INDEX_XML                "${DOXYGEN_OUTPUT_DIRECTORY}/xml/index.xml" )
@@ -37,13 +40,16 @@ set (DOXYFILE_TEMPLATE        "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (SPHINX_BINARY_DIR        "${DOXYGEN_OUTPUT_DIRECTORY}" )
 set (SPHINX_LIBRARY_ROOT_PAGE "${SPHINX_BINARY_DIR}/html/api/library_root.html" )
 
-## --- Set up targets
+
+
+## --- Set up Targets {{{1
 
 add_custom_target (libarcstk_rtd_generate_html DEPENDS "${INDEX_HTML}" )
 add_dependencies  (libarcstk_doc_generate_html libarcstk_rtd_generate_html )
 
 
-## --- Install files and directories in sphinx build directory
+
+## --- Install Files and Directories in Sphinx Build Directory {{{1
 
 file (MAKE_DIRECTORY "${SPHINX_BINARY_DIR}/source/_static" )
 file (MAKE_DIRECTORY "${SPHINX_BINARY_DIR}/source/_templates" )
@@ -60,7 +66,7 @@ configure_file ("docroot/source/index.rst.in"
 
 
 
-## --- Set up python environment
+## --- Set up Python Environment {{{1
 
 add_requirements_target (libarcstk_rtd_requirements
 	"${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt"
@@ -72,7 +78,7 @@ add_dependencies  (libarcstk_rtd_generate_html
 
 
 
-## --- Build rule for running exhale
+## --- Build Rule for Running Exhale {{{1
 
 set (EXHALE_EXECUTES_DOXYGEN "True" )
 
@@ -128,11 +134,11 @@ else()
 endif()
 
 
-## Create Doxyfile for sphinx
+## --- Configure Doxyfile for sphinx {{{1
 configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 
 
-## Create conf.py for sphinx
+## --- Configure conf.py for sphinx {{{1
 configure_file ("docroot/source/conf.py.in"
 	"${SPHINX_BINARY_DIR}/source/conf.py"
 	@ONLY

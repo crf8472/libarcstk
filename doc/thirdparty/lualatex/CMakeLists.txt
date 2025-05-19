@@ -1,10 +1,14 @@
 ## CMake  lualatex
 ##
+## vim:fdm=marker
+##
 ## Use lualatex to build the documentation manual from Doxygen latex output
 
 ## Prerequisites from parent:
 ## - 'doc' target must exist
 ## - Variables: DOC_GEN_DIR, DOC_COMMENT
+
+cmake_minimum_required (VERSION 3.10 )
 
 if (WIN32 )
 
@@ -12,22 +16,17 @@ if (WIN32 )
 		"Lualatex support is currently not available for Windows" )
 endif()
 
-
-cmake_minimum_required (VERSION 3.10 )
-
-## Doxygen is already required in parent
-
 message (STATUS "Will build documentation with lualatex" )
+
 message (WARNING "Lualatex support for the manual is experimental and broken" )
 
 
+## --- Overwrite Default Values From Parent {{{1
 
-## --- Overwrite default values from parent
-
-set (DOC_COMMENT              "${DOC_COMMENT}, using lualatex" )
+set (DOC_COMMENT       "${DOC_COMMENT}, using lualatex" )
 
 
-## --- Setup latex process
+## --- Setup LaTeX Process {{{1
 
 set (OUTPUT_LTX_DIR    "${DOXYGEN_OUTPUT_DIRECTORY}/lualatex" )
 set (OUTPUT_MAINFILE   "${OUTPUT_LTX_DIR}/refman.tex" )
@@ -41,7 +40,7 @@ add_custom_command(
 )
 
 
-## --- Setup doxygen
+## --- Setup Doxygen Run {{{1
 
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
@@ -49,7 +48,7 @@ set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 add_doxygen_target (libarcstk_lltx_doxygen ${DOXYFILE} ${OUTPUT_MAINFILE} )
 
 
-## --- Set up targets
+## --- Setup doc Targets {{{1
 
 add_custom_target (libarcstk_lltx_generate_pdf DEPENDS "${OUTPUT_MANUAL_PDF}" )
 
@@ -62,7 +61,7 @@ add_dependencies (libarcstk_lltx_generate_pdf
 add_dependencies (libarcstk_doc_generate_pdf libarcstk_lltx_generate_pdf )
 
 
-## --- Generate doxyfile
+## --- Configure Doxyfile {{{1
 
 configure_file ("${DOXYFILE_TEMPLATE}" "${DOXYFILE}" @ONLY )
 

@@ -1,4 +1,5 @@
 ## CMake script for deduplicating doxygen's index.xml
+##
 ## vim:fdm=marker
 
 ## In index.xml, every class in an inline namespace occurrs twice: once as
