@@ -17,22 +17,24 @@ add_dependencies  (libarcstk_static_pages_files libarcstk_create_output_dir )
 
 set (DOC_TEXTS_MAINPAGE        "${CMAKE_CURRENT_BINARY_DIR}/MAINPAGE.md" )
 
-configure_file (MAINPAGE.md.in ${DOC_TEXTS_MAINPAGE} @ONLY )
+configure_file (MAINPAGE.md.in "${DOC_TEXTS_MAINPAGE}" @ONLY )
 
 
 
-## --- Provide Markdown Files from Project Root Folder {{{1
+## --- Provide Text Files from Project Root Folder {{{1
 
 foreach (FILE IN ITEMS "BUILD" "CODING" )
 
-	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_SOURCE_DIR}/${FILE}.md" )
+	set (DOC_SOURCES  ${DOC_SOURCES} "${PROJECT_ROOT_DIR}/${FILE}.md" )
 
 	add_custom_command(
 		TARGET libarcstk_static_pages_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND}
+		COMMAND "${CMAKE_COMMAND}"
 		ARGS -E copy
-			"${CMAKE_SOURCE_DIR}/${FILE}.md"
-			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md" )
+			"${PROJECT_ROOT_DIR}/${FILE}.md"
+			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md"
+		VERBATIM
+	)
 endforeach()
 
 
@@ -44,14 +46,15 @@ foreach (FILE IN ITEMS "Accuraterip_algorithms" )
 
 	add_custom_command(
 		TARGET libarcstk_static_pages_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND}
+		COMMAND "${CMAKE_COMMAND}"
 		ARGS -E copy
 			"${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
 			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md"
+		VERBATIM
 	)
 endforeach()
 
-set (DOC_SOURCES ${DOC_SOURCES} ${DOC_TEXTS_MAINPAGE} )
+set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
 
 
 

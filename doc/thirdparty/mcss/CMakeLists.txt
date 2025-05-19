@@ -51,9 +51,9 @@ add_dependencies  (libarcstk_doc_generate_html libarcstk_mcss_generate_html )
 
 ## --- Define m.css to be Checked out/Updated on Configure {{{1
 
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.11.0" )
 
-	## --- Use FetchContent if possible
+	## --- FetchContent {{{2
 
 	## This will NOT update the cloned m.css on build!
 
@@ -62,10 +62,10 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 	FetchContent_Declare (m_css
 		GIT_REPOSITORY    "${MCSS_REPO_URL}"
 		#GIT_TAG          ... use always HEAD of default branch
-		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
+		UPDATE_COMMAND    "${GIT_EXECUTABLE}" pull
 	)
 
-	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14" )
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.14" )
 
 		FetchContent_MakeAvailable (m_css )
 
@@ -74,16 +74,17 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 		if (NOT m_css_POPULATED )
 
 			FetchContent_Populate (m_css )
-
-		endif (NOT m_css_POPULATED )
+		endif()
 	endif()
 
 	set (MCSS_SOURCE_DIR "${m_css_SOURCE_DIR}" )
-	set (MCSS_CMD "${m_css_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+	set (MCSS_CMD        "${m_css_SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+	# 2}}}
+else()
 
-else() ## No FetchContent module available
+	## No FetchContent module available
 
-	## --- Define m.css as target (will be updated on build)
+	## --- ExternalProject (will be updated on build) {{{2
 
 	include (ExternalProject )
 
@@ -95,7 +96,7 @@ else() ## No FetchContent module available
 		TIMEOUT           10
 		# DOWNLOAD_COMMAND use default
 		PATCH_COMMAND     ""
-		UPDATE_COMMAND    ${GIT_EXECUTABLE} pull
+		UPDATE_COMMAND    "${GIT_EXECUTABLE}" pull
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND     ""
 		INSTALL_COMMAND   ""
@@ -106,11 +107,12 @@ else() ## No FetchContent module available
 	ExternalProject_Get_Property (mcss_download SOURCE_DIR )
 
 	set (MCSS_SOURCE_DIR "${SOURCE_DIR}" )
-	set (MCSS_CMD "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
+	set (MCSS_CMD        "${SOURCE_DIR}/${MCSS_SCRIPT_RELPATH}" )
 
 	unset(SOURCE_DIR )
 
 	add_dependencies (libarcstk_mcss_generate_html libarcstk_mcss_download )
+	# 2}}}
 endif()
 
 
@@ -152,13 +154,13 @@ if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 	## its XML output.
 
 	add_doxygen_xml_target (libarcstk_mcss_generate_xml
-		${DOXYFILE} ${INDEX_XML} )
+		"${DOXYFILE}" "${INDEX_XML}" )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}"
 		COMMAND "${PYTHON_CMD}"
 		ARGS    "${MCSS_CMD}" --no-doxygen "${CONFPY}" 2> "${MCSS_LOG_FILE}"
-		DEPENDS ${INDEX_XML} ${DOC_SOURCES}
+		DEPENDS "${INDEX_XML}" ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM

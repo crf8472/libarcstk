@@ -1,6 +1,9 @@
 ## CMake file for configuring and running tests
+##
+## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
+## --- Policies {{{1
 
 ## Always link library files by full path when a full path is given to the
 ## target_link_libraries() command.
@@ -8,6 +11,7 @@ cmake_policy (SET CMP0003 NEW )
 
 ## Link libraries by full path even in implicit directories.
 cmake_policy (SET CMP0060 NEW )
+## 1}}}
 
 
 set (TEST_SOURCE_DIR "src" )
@@ -96,9 +100,9 @@ foreach (_testcase ${TEST_SETS} )
 	## Add test to ctest set
 	add_test (
 		NAME    ${_testcase}_test
-		COMMAND ${_testcase}_test
-			-o "${PROJECT_BINARY_DIR}/report.${_testcase}.xml"
-			-r junit
+		COMMAND "${_testcase}_test"
+				-o "${PROJECT_BINARY_DIR}/report.${_testcase}.xml"
+				-r junit
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data"
 	)
 

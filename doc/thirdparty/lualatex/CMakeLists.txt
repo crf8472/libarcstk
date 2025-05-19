@@ -33,10 +33,11 @@ set (OUTPUT_MAINFILE   "${OUTPUT_LTX_DIR}/refman.tex" )
 set (OUTPUT_MANUAL_PDF "${OUTPUT_LTX_DIR}/refman.pdf" )
 
 add_custom_command(
-	OUTPUT "${OUTPUT_MANUAL_PDF}"
+	OUTPUT  "${OUTPUT_MANUAL_PDF}"
+	DEPENDS "${OUTPUT_MAINFILE}"
 	COMMAND make
 	WORKING_DIRECTORY "${OUTPUT_LTX_DIR}"
-	DEPENDS "${OUTPUT_MAINFILE}"
+	VERBATIM
 )
 
 
@@ -45,7 +46,7 @@ add_custom_command(
 set (DOXYFILE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 set (DOXYFILE          "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
-add_doxygen_target (libarcstk_lltx_doxygen ${DOXYFILE} ${OUTPUT_MAINFILE} )
+add_doxygen_target (libarcstk_lltx_doxygen "${DOXYFILE}" "${OUTPUT_MAINFILE}" )
 
 
 ## --- Setup doc Targets {{{1

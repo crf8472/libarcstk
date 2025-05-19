@@ -1,4 +1,4 @@
-## CMake file for doxygen-awesome-css
+## CMake script for doxygen-awesome-css
 ##
 ## vim:fdm=marker
 ##
@@ -44,7 +44,7 @@ set (AWESOME_GITHUB_URL "https://github.com/jothepro/doxygen-awesome-css" )
 
 ## --- Define doxygen-awesome-css to be checked out/updated on configure {{{1
 
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.11.0" )
 
 	## --- Use FetchContent if possible
 
@@ -56,7 +56,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0" )
 		URL "${AWESOME_GITHUB_URL}/archive/refs/heads/main.zip"
 	)
 
-	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.14" )
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.14" )
 
 		FetchContent_MakeAvailable (doxygen-awesome-css )
 
@@ -91,10 +91,13 @@ file (GLOB STYLE_FILES RELATIVE "${SOURCE_CSS_DIR}"
 
 foreach (FILE ${STYLE_FILES} )
 	add_custom_command(
-		OUTPUT  ${TARGET_CSS_DIR}/${FILE}
-		COMMAND ${CMAKE_COMMAND} -E copy
+		OUTPUT  "${TARGET_CSS_DIR}/${FILE}"
+		COMMAND "${CMAKE_COMMAND}"
+		ARGS    -E copy
 				"${SOURCE_CSS_DIR}/${FILE}"
-				"${TARGET_CSS_DIR}/${FILE}" )
+				"${TARGET_CSS_DIR}/${FILE}"
+		VERBATIM
+	)
 endforeach (FILE )
 
 ## Make list of source files to a list of target files
@@ -106,11 +109,13 @@ add_custom_target (libarcstk_deploy_css_files ALL DEPENDS ${STYLE_FILES} )
 ## --- Target: Create CSS Directory {{{1
 
 add_custom_command (
-	OUTPUT  ${TARGET_CSS_DIR}
-	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E make_directory ${TARGET_CSS_DIR} )
+	OUTPUT  "${TARGET_CSS_DIR}"
+	COMMAND "${CMAKE_COMMAND}"
+	ARGS    -E make_directory "${TARGET_CSS_DIR}"
+	VERBATIM
+)
 
-add_custom_target (libarcstk_create_css_dir ALL DEPENDS ${TARGET_CSS_DIR} )
+add_custom_target (libarcstk_create_css_dir ALL DEPENDS "${TARGET_CSS_DIR}" )
 
 add_dependencies  (libarcstk_deploy_css_files libarcstk_create_css_dir )
 

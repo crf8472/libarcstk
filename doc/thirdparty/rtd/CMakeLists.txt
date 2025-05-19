@@ -92,7 +92,7 @@ if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 	set (DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" )
 
 	add_doxygen_xml_target (libarcstk_rtd_generate_xml
-		${DOXYFILE} ${INDEX_XML} )
+		"${DOXYFILE}" "${INDEX_XML}" )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}" "${SPHINX_LIBRARY_ROOT_PAGE}"
@@ -115,6 +115,17 @@ else()
 	## Doxygen is called by exhale.
 
 	set (DOXYFILE "${SPHINX_BINARY_DIR}/source/Doxyfile" )
+
+	## Since we do not use add_doxygen_target, we have to take care for the
+	## dependencies manually
+	add_dependencies (libarcstk_rtd_generate_html
+		## add deps from PARENT
+		libarcstk_create_output_dir
+		libarcstk_create_log_dir
+		libarcstk_static_pages_files
+		## add deps from here
+		libarcstk_mcss_requirements
+	)
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}" "${SPHINX_LIBRARY_ROOT_PAGE}"

@@ -41,14 +41,17 @@ endif()
 ## --- Function for generating XML in the CMakeLists.txt of the Generators {{{1
 function (add_doxygen_xml_target DOXY_TARGET DOXYFILE INDEX_XML )
 
-	add_doxygen_target (${DOXY_TARGET} ${DOXYFILE} ${INDEX_XML} )
+	add_doxygen_target (${DOXY_TARGET} "${DOXYFILE}" "${INDEX_XML}" )
 
 	add_dependencies (libarcstk_doxygen_generate_xml ${DOXY_TARGET} )
 
 	if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 
 		add_doxygen_xslt_tasks (libarcstk_doxygen_provide_xml
-				${DOXYFILE} ${INDEX_XML} ${DOXYGEN_XML_POSTPROCESSING_TASKS} )
+			"${DOXYFILE}"
+			"${INDEX_XML}"
+			${DOXYGEN_XML_POSTPROCESSING_TASKS}
+		)
 	endif()
 
 	## NOTE that this provides only the target! It does not define how to

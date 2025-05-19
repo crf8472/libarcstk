@@ -32,7 +32,7 @@ add_custom_target (doc )
 ## --- Some Variables {{{1
 
 ## Target directory for generated documentation
-set (DOC_GEN_DIR          ${PROJECT_BINARY_DIR}/generated-docs )
+set (DOC_GEN_DIR          "${PROJECT_BINARY_DIR}/generated-docs" )
 
 ## Construct comment for doc target
 set (DOC_COMMENT          "Build documentation for APIs" )
@@ -41,10 +41,10 @@ set (DOC_COMMENT          "Build documentation for APIs" )
 set (DOC_SOURCES          ${INTERFACE_HEADERS} )
 
 ## Define the target name and location of the base Doxyfile to be included
-set (DOC_DOXYFILE_BASE_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in )
+set (DOC_DOXYFILE_BASE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
 
 ## Define the target name and location of the base Doxyfile to be included
-set (DOC_DOXYFILE_BASE    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-base )
+set (DOC_DOXYFILE_BASE    "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile-base" )
 
 
 
@@ -58,11 +58,13 @@ add_dependencies  (libarcstk_doc libarcstk_create_log_dir )
 ## --- Generate Documentation Output Directory {{{1
 
 add_custom_command (
-	OUTPUT  ${DOC_GEN_DIR}
-	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E make_directory ${DOC_GEN_DIR} )
+	OUTPUT  "${DOC_GEN_DIR}"
+	COMMAND "${CMAKE_COMMAND}"
+	ARGS    -E make_directory "${DOC_GEN_DIR}"
+	VERBATIM
+)
 
-add_custom_target (libarcstk_create_output_dir DEPENDS ${DOC_GEN_DIR} )
+add_custom_target (libarcstk_create_output_dir DEPENDS "${DOC_GEN_DIR}" )
 
 
 
@@ -125,7 +127,7 @@ endif (WITH_INTERNAL_DOCS)
 ## Normalize DOXYGEN_INPUT list
 string (REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT}/" )
 
-configure_file ( ${DOC_DOXYFILE_BASE_TEMPLATE} ${DOC_DOXYFILE_BASE} @ONLY )
+configure_file ( "${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 
 
 
@@ -144,6 +146,9 @@ foreach (_generator IN LISTS USE_DOC_TOOL )
 		message (STATUS "Generate documentation by ${_generator_dir}" )
 
 		list (APPEND LOAD_GENERATORS "${_generator_dir}" )
+	else()
+
+		message (WARNING "DOC_TOOL \"${_generator}\" not found, ignore" )
 	endif()
 
 	unset (_generator_dir )
@@ -168,9 +173,9 @@ add_dependencies  (libarcstk_doc libarcstk_doc_generate_pdf )
 ## --- Provide Macro for Subdir CMake Scripts to Request Doxygen Runs {{{1
 ## Note that this target can produce XML as well as HTML, depends on Doxyfile.
 
-macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
+function (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 
-	add_custom_target (${DOXY_TARGET} DEPENDS ${INDEXFILE} )
+	add_custom_target (${DOXY_TARGET} DEPENDS "${INDEXFILE}" )
 
 	add_dependencies  (${DOXY_TARGET}
 			libarcstk_create_log_dir
@@ -180,15 +185,15 @@ macro (add_doxygen_target DOXY_TARGET DOXYFILE INDEXFILE )
 
 	## Produce INDEXFILE (either XML or HTML) by running doxygen
 	add_custom_command (
-		OUTPUT  ${INDEXFILE}
-		DEPENDS ${DOC_DOXYFILE_BASE} ${DOXYFILE} ${DOC_SOURCES}
+		OUTPUT  "${INDEXFILE}"
+		DEPENDS "${DOC_DOXYFILE_BASE}" "${DOXYFILE}" ${DOC_SOURCES}
 		COMMAND Doxygen::doxygen
-		ARGS    ${DOXYFILE}
-		WORKING_DIRECTORY ${DOC_GEN_DIR}
+		ARGS    "${DOXYFILE}"
+		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "Run doxygen for target ${DOXY_TARGET}"
 		VERBATIM
 	)
-endmacro()
+endfunction()
 
 
 

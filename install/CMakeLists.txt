@@ -1,4 +1,6 @@
-## CMakeLists.txt for installation
+## CMake script for installation
+##
+## vim:fdm=marker
 ##
 ## Prerequisistes from PARENT:
 ##

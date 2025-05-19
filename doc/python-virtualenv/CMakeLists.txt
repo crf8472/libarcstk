@@ -9,17 +9,17 @@ project (CMakeVirtualenv )
 
 ## --- Find python 3 {{{1
 
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12" ) ## FindPython available
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.12" ) ## FindPython available
 
 	find_package (Python3 COMPONENTS Interpreter Development REQUIRED )
 
-	set(CALL_PYTHON ${Python3_EXECUTABLE} )
+	set(CALL_PYTHON "${Python3_EXECUTABLE}" )
 
 else()
 
 	find_package (PythonInterp 3.0 REQUIRED )
 
-	set(CALL_PYTHON ${PYTHON_EXECUTABLE} )
+	set(CALL_PYTHON "${PYTHON_EXECUTABLE}" )
 
 endif()
 
@@ -45,15 +45,15 @@ set (ENV_DIR    "${CMAKE_BINARY_DIR}/${ENV_NAME}" )
 
 ## --- Setup ENV_DIR as virtual environment directory {{{1
 add_custom_command(
-	OUTPUT  "${ENV_DIR}"
-	COMMAND ${VIRTUALENV}
-	ARGS    -p ${CALL_PYTHON} "${ENV_DIR}"
+	OUTPUT   "${ENV_DIR}"
+	COMMAND  "${VIRTUALENV}"
+	ARGS     -p "${CALL_PYTHON}" "${ENV_DIR}"
+	COMMENT  "Create python sandbox"
 	VERBATIM
-	COMMENT "Create python sandbox"
 )
 ## Note:
 ## One could also do this by specifying the following:
-##	COMMAND ${CALL_PYTHON}
+##	COMMAND "${CALL_PYTHON}"
 ##	ARGS    -m virtualenv "${ENV_DIR}"
 ## But it can fail on systems with python 2 present. When loaded, virtualenv is
 ## allowed to change the python interpreter. At least on Bionic Beaver, it
@@ -72,19 +72,19 @@ set (PYTHON_CMD           "${ENV_DIR}/bin/python" PARENT_SCOPE )
 ## Install and Update custom requirements in the sandbox.
 ##
 ## This is provided for use in other CMakeLists.txt.
-macro (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
+function (add_requirements_target UPDATE_TARGET REQUIREMENTS_FILE )
 
 	add_custom_target (${UPDATE_TARGET} )
 
 	add_custom_command(
 		TARGET  ${UPDATE_TARGET} PRE_BUILD
-		COMMAND ${PYTHON_ENV_DIRECTORY}/bin/pip
+		COMMAND "${PYTHON_ENV_DIRECTORY}/bin/pip"
 		ARGS    install -r "${REQUIREMENTS_FILE}" --upgrade
 		WORKING_DIRECTORY "${PYTHON_ENV_DIRECTORY}"
-		VERBATIM
 		COMMENT "Update requirements in python sandbox for ${UPDATE_TARGET}"
+		VERBATIM
 	)
 
 	add_dependencies (${UPDATE_TARGET} libarcstk_virtualenv_create_sandbox )
-endmacro()
+endfunction()
 

@@ -57,7 +57,7 @@ message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 ## --- Trigger Configuration Step Whenever Git Index Changes {{{1
 
 set_property (DIRECTORY APPEND
-	PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/.git/index )
+	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
 
 
 
@@ -84,14 +84,14 @@ endif()
 
 ## --- Project Directory Layout {{{1
 
+## Source directory for markdown files
+set (PROJECT_ROOT_DIR           "${CMAKE_CURRENT_SOURCE_DIR}" )
+
 ## Root directory for sources
 set (PROJECT_SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/src" )
 
 ## Root directory for public/exported headers
 set (PROJECT_INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
-
-## Source directory for markdown files
-set (PROJECT_TEXT_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 ## Source directory for tests
 set (PROJECT_TEST_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/test/src" )
@@ -119,28 +119,38 @@ set (PROJECT_GEN_SOURCES_DIR    "${PROJECT_BINARY_DIR}/generated-sources" )
 ## -- Log Directory {{{2
 
 add_custom_command (
-	OUTPUT  ${PROJECT_LOG_DIR}
-	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E make_directory ${PROJECT_LOG_DIR} )
+	OUTPUT  "${PROJECT_LOG_DIR}"
+	COMMAND "${CMAKE_COMMAND}"
+	ARGS    -E make_directory "${PROJECT_LOG_DIR}"
+	VERBATIM
+)
 
-add_custom_target (libarcstk_create_log_dir ALL DEPENDS ${PROJECT_LOG_DIR} )
+add_custom_target (libarcstk_create_log_dir ALL DEPENDS "${PROJECT_LOG_DIR}" )
 
 
 ## -- Include Directory + Link {{{2
 
 add_custom_command (
-	OUTPUT  ${PROJECT_BINARY_DIR}/include
-	COMMAND ${CMAKE_COMMAND}
-	ARGS    -E make_directory ${PROJECT_BINARY_DIR}/include )
+	OUTPUT  "${PROJECT_BINARY_DIR}/include"
+	COMMAND "${CMAKE_COMMAND}"
+	ARGS    -E make_directory "${PROJECT_BINARY_DIR}/include"
+	VERBATIM
+)
 
 add_custom_target (libarcstk_create_include_dir
-	DEPENDS ${PROJECT_BINARY_DIR}/include )
+	DEPENDS "${PROJECT_BINARY_DIR}/include"
+	VERBATIM
+)
 
 ## Create build-tree include directory (symlink)
 ## This is useful for finding the includes when used as a subproject.
 add_custom_target (libarcstk_link_to_headers
-	COMMAND ${CMAKE_COMMAND} -E create_symlink
-	${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_INCLUDE_BINARY_DIR} )
+	COMMAND "${CMAKE_COMMAND}"
+		-E create_symlink
+		"${CMAKE_CURRENT_SOURCE_DIR}/include"
+		"${PROJECT_INCLUDE_BINARY_DIR}"
+	VERBATIM
+)
 
 add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
 
@@ -152,8 +162,8 @@ find_package (Git QUIET REQUIRED )
 
 ## Run 'git describe'
 execute_process (
-	COMMAND ${GIT_EXECUTABLE} describe --always HEAD
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 	RESULT_VARIABLE GIT_EXIT_CODE
 	OUTPUT_VARIABLE GIT_VERSION_STRING
 	OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -168,8 +178,8 @@ endif()
 
 ## Run 'git rev-parse'
 execute_process (
-	COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 	RESULT_VARIABLE GIT_EXIT_CODE
 	OUTPUT_VARIABLE GIT_COMMIT_ID
 	OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -183,8 +193,8 @@ else()
 endif()
 
 ## This presupposes having CMAKE_CONFIGURE_DEPENDS set to .git/index
-configure_file (${PROJECT_SOURCE_DIR}/version.cpp.in
-	${PROJECT_GEN_SOURCES_DIR}/version.cpp
+configure_file ("${PROJECT_SOURCE_DIR}/version.cpp.in"
+	"${PROJECT_GEN_SOURCES_DIR}/version.cpp"
 	@ONLY )
 
 
@@ -355,7 +365,7 @@ get_target_property (PROJECT_SOURCES ${PROJECT_NAME} SOURCES )
 
 foreach (_sourcefile ${PROJECT_SOURCES} )
 	set_property (
-		SOURCE ${_sourcefile}
+		SOURCE "${_sourcefile}"
 		APPEND
 		PROPERTY COMPILE_OPTIONS ${PROJECT_CXX_FLAGS_WARNINGS}
 	)
@@ -364,16 +374,6 @@ endforeach()
 
 
 ## -- Manage Optimization Flags  {{{2
-
-## - Macro add_cxx_flags_optimize(): Add Optimization Flags {{{3
-
-macro (add_cxx_flags_optimize )
-
-	message (STATUS "Build with platform specific optimization")
-
-	target_compile_options (${PROJECT_NAME}
-		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
-endmacro()
 
 ## - Optional: Activate Optimization Option (default ON for Release only) {{{3
 
@@ -389,7 +389,10 @@ endif ()
 ## - If Optimization Option Activated, Add Flags {{{3
 if (WITH_NATIVE )
 
-	add_cxx_flags_optimize()
+	message (STATUS "Build with platform specific optimization")
+
+	target_compile_options (${PROJECT_NAME}
+		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 else()
 
 	message (STATUS "Build without platform specific optimization" )
@@ -429,7 +432,7 @@ if (WITH_TESTS)
 	endif()
 
 	## Add tests
-	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/test )
+	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/test" )
 
 endif (WITH_TESTS)
 
@@ -447,7 +450,7 @@ option (USE_MCSS           "Build documentation using m.css"              OFF )
 ## -- Process configuration for building the documentation
 if (WITH_DOCS )
 
-	add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/doc )
+	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/doc" )
 else ()
 
 	if (USE_DOC_TOOL )

@@ -11,7 +11,7 @@ message (STATUS "Doxygen stock HTML generation is required" )
 
 ## --- Overwrite Default Values From Parent {{{1
 
-set (DOC_DOXYFILE_INPUT ${DOC_DOXYFILE_BASE} )
+set (DOC_DOXYFILE_INPUT "${DOC_DOXYFILE_BASE}" )
 
 ## Comment or uncomment this line to use a alternative layouts to the
 ## doxygen stock HTML layout. The subscope may re-set DOC_DOXYFILE_INPUT
@@ -20,8 +20,8 @@ set (DOC_DOXYFILE_INPUT ${DOC_DOXYFILE_BASE} )
 
 ## --- Setup Targets {{{1
 add_doxygen_target (libarcstk_doxygen_generate_html
-	${DOC_DOXYFILE_INPUT}
-	${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html )
+	"${DOC_DOXYFILE_INPUT}"
+	"${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html" )
 
 if (TARGET libarcstk_doxygen_awesome_css )
 

@@ -36,7 +36,7 @@ else()
 
 	set (PYTHON_CMD )
 
-endif (PYTHON_ENV_AVAILABLE )
+endif()
 ## 1}}}
 ## --- Load Postprocessing Tasks from Subdirectories {{{1
 foreach (_task IN LISTS XML_POSTPROC_TASKS )
@@ -71,11 +71,11 @@ function (add_doxygen_xslt_task TASK DOXYFILE INDEX_XML )
 
 	add_custom_command (
 		TARGET  ${TASK_TARGET} POST_BUILD
-		COMMAND ${PYTHON_CMD}
-		ARGS    ${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/xsl_transform.py
-				${INDEX_XML}
-				${CMAKE_SOURCE_DIR}/doc/doxygen-xml/tasks/${TASK}/${TASK}.xsl
-				${INDEX_XML}
+		COMMAND "${PYTHON_CMD}"
+		ARGS    "${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/xsl_transform.py"
+				"${INDEX_XML}"
+				"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/${TASK}.xsl"
+				"${INDEX_XML}"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "Remove duplicate compounds in ${INDEX_XML}"
 		VERBATIM
@@ -89,7 +89,7 @@ function (add_doxygen_xslt_tasks DOXY_TARGET DOXYFILE INDEX_XML TASK_LIST )
 
 	foreach (_task IN LISTS TASK_LIST )
 
-		add_doxygen_xslt_task (${_task} ${DOXYFILE} ${INDEX_XML} )
+		add_doxygen_xslt_task (${_task} "${DOXYFILE}" "${INDEX_XML}" )
 	endforeach()
 	unset (_task )
 
