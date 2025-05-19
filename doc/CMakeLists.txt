@@ -197,23 +197,23 @@ endmacro()
 if (LOAD_GENERATORS )
 
 	## Configure virtual Python Sandbox
-	add_subdirectory (thirdparty/python-virtualenv EXCLUDE_FROM_ALL )
+	add_subdirectory (python-virtualenv EXCLUDE_FROM_ALL )
 	## Now, PYTHON_ENV_AVAILABLE is "YES"
 
 	## Each generator requires XML (FIXME: no, lualatex doesn't)
+	## TODO: Check: is doxygen-xml required by at least one generator?
 	add_subdirectory (doxygen-xml )
 	## Now, list DOXYGEN_XML_POSTPROCESSING_TASKS is provided (maybe empty)
 
 	foreach (_generator IN ITEMS ${LOAD_GENERATORS} )
 
-		## Subdir CMake can attach target "python-virtualenv" as requirement
 		add_subdirectory ("thirdparty/${_generator}" EXCLUDE_FROM_ALL )
 	endforeach()
 	unset (_generator )
 
 else() # If no Generators are Specified, Just Use Doxygen's Stock HTML
 
-	add_subdirectory ("doxygen-html")
+	add_subdirectory (doxygen-html )
 endif()
 ## 1}}}
 
