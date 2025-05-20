@@ -56,7 +56,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.11.0" )
 		URL "${AWESOME_GITHUB_URL}/archive/refs/heads/main.zip"
 	)
 
-	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.14" )
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.14.0" )
 
 		FetchContent_MakeAvailable (doxygen-awesome-css )
 

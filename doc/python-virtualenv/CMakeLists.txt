@@ -1,4 +1,4 @@
-## CMake
+## CMake script for building a python sandbox
 ##
 ## vim:fdm=marker
 

@@ -74,7 +74,8 @@ add_requirements_target (libarcstk_rtd_requirements
 
 add_dependencies  (libarcstk_rtd_generate_html
 	libarcstk_rtd_requirements
-	libarcstk_doxygen_provide_xml )
+	libarcstk_doxygen_provide_xml
+)
 
 
 

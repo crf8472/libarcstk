@@ -140,7 +140,8 @@ add_requirements_target (libarcstk_mcss_requirements
 
 add_dependencies (libarcstk_mcss_generate_html
 	libarcstk_mcss_requirements
-	libarcstk_doxygen_provide_xml )
+	libarcstk_doxygen_provide_xml
+)
 
 
 
@@ -158,9 +159,9 @@ if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}"
+		DEPENDS "${INDEX_XML}" ${DOC_SOURCES}
 		COMMAND "${PYTHON_CMD}"
 		ARGS    "${MCSS_CMD}" --no-doxygen "${CONFPY}" 2> "${MCSS_LOG_FILE}"
-		DEPENDS "${INDEX_XML}" ${DOC_SOURCES}
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM
@@ -182,11 +183,11 @@ else()
 
 	add_custom_command (
 		OUTPUT  "${INDEX_HTML}"
-		COMMAND "${PYTHON_CMD}"
-		ARGS    "${MCSS_CMD}" "${CONFPY}" 2> "${MCSS_LOG_FILE}"
 		DEPENDS "${DOC_DOXYFILE_BASE}"
 				"${DOXYFILE}"
 				${DOC_SOURCES}
+		COMMAND "${PYTHON_CMD}"
+		ARGS    "${MCSS_CMD}" "${CONFPY}" 2> "${MCSS_LOG_FILE}"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
 		COMMENT "${DOC_COMMENT}"
 		VERBATIM

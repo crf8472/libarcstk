@@ -97,7 +97,8 @@ add_custom_command (
 ## --- Target: Provide Custom CSS File {{{1
 
 add_custom_target (libarcstk_mcss_custom_css
-	DEPENDS "${CUSTOM_STYLESHEET_TARGET}" )
+	DEPENDS "${CUSTOM_STYLESHEET_TARGET}"
+)
 
 add_dependencies  (libarcstk_mcss_custom_css libarcstk_create_css_output_dir )
 

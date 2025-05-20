@@ -1,4 +1,4 @@
-## CMake file for configuring and running tests
+## CMake build script for configuring and building tests
 ##
 ## vim:fdm=marker
 
@@ -10,6 +10,7 @@ cmake_minimum_required (VERSION 3.10 )
 cmake_policy (SET CMP0003 NEW )
 
 ## Link libraries by full path even in implicit directories.
+## See: https://cmake.org/cmake/help/latest/policy/CMP0060.html
 cmake_policy (SET CMP0060 NEW )
 ## 1}}}
 
@@ -17,7 +18,7 @@ cmake_policy (SET CMP0060 NEW )
 set (TEST_SOURCE_DIR "src" )
 
 
-## Define testsuites
+## --- Define testcases {{{1
 
 set (TEST_SETS )
 list (APPEND TEST_SETS accuraterip        )
@@ -44,7 +45,8 @@ list (APPEND TEST_SETS verify_details     )
 set (TEST_CXX_FLAGS_WARNINGS ${PROJECT_CXX_FLAGS_WARNINGS} )
 
 
-## Remove flags from g++ that pollute the output
+
+## --- Remove flags from g++ that pollute the output {{{1
 
 if (CMAKE_COMPILER_IS_GNUCXX )
 
@@ -63,7 +65,8 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 endif()
 
 
-## Add common configuration for all testsuites (catch2 + project dependencies)
+
+## --- Add common configuration for all testcases {{{1
 
 foreach (_testcase ${TEST_SETS} )
 
@@ -73,7 +76,7 @@ foreach (_testcase ${TEST_SETS} )
 		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS_WARNINGS}
 	)
 
-	## Define an executable for each single testfile
+	## Define executable for this testcase
 	add_executable (${_testcase}_test "${TEST_SOURCE_DIR}/${_testcase}.cpp" )
 
 	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 17 )
@@ -94,6 +97,7 @@ foreach (_testcase ${TEST_SETS} )
 	## even if a system-wide libarcstk is installed. Using RUNPATH instead of
 	## RPATH causes the testcase to load the system-wide libfile.
 
+	## Set same optimization flags as for project sources
 	target_compile_options (${_testcase}_test
 		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
 

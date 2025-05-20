@@ -6,6 +6,7 @@ cmake_minimum_required (VERSION 3.10 )
 
 ## Set variables corresponding to unspecified versions to the empty string.
 ## Required for specifying the project version along with the name in project().
+## See: https://cmake.org/cmake/help/latest/policy/CMP0048.html
 cmake_policy (SET CMP0048 NEW )
 
 ## 1}}}
