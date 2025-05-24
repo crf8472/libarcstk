@@ -27,3 +27,6 @@ if not my_CUSTOM_STYLESHEET=='':
         my_CUSTOM_STYLESHEET
     ]
 
+## Place m.math.cache in the same directory as the HTML output
+M_MATH_CACHE_FILE = 'html/m.math.cache'
+
