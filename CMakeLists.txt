@@ -12,7 +12,7 @@ cmake_policy (SET CMP0048 NEW )
 ## 1}}}
 
 
-project (libarcstk VERSION 0.3.0 LANGUAGES CXX )
+project (libarcstk VERSION 0.3.1 LANGUAGES CXX )
 
 
 ## --- Setup Short Description, URL and Version Information {{{1
