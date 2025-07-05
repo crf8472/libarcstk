@@ -40,18 +40,22 @@ endforeach()
 
 ## --- Provide Static Pages {{{1
 
-foreach (FILE IN ITEMS "Accuraterip_algorithms" )
+foreach (FILE IN ITEMS "Accuraterip_algorithms" "How_to_calculate"
+		"How_to_verify" "How_to_get_ids" "How_to_parse_DBARs" )
 
 	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md" )
 
-	add_custom_command(
-		TARGET libarcstk_static_pages_files PRE_BUILD
+	add_custom_target(provide_page_${FILE}
+		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
 		COMMAND "${CMAKE_COMMAND}"
-		ARGS -E copy
+			-E copy
 			"${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
 			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md"
+		COMMENT "Provide static page file ${FILE}.md"
 		VERBATIM
 	)
+
+	add_dependencies (libarcstk_static_pages_files provide_page_${FILE} )
 endforeach()
 
 set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
