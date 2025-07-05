@@ -37,51 +37,62 @@ class ToC;
 using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
 
 
-/** \defgroup calc AccurateRip Checksum Calculation
+/**
+ * \defgroup calc AccurateRip Checksum Calculation
  *
  * \brief Calculate checksums of audio tracks.
  *
  * \details
  *
- * An Algorithm specifies a ruleset how to to calculate Checksums over an input
- * of audio samples. AccurateRip specifies two distinct algorithms for
- * calculating a checksum, v1 and v2. Since a v1 checksum is materialized as a
- * subtotal when calculating a v2 checksum, there are three variants of the
- * Algorith: V1, V2 and V1and2 which provides both types of checksums at once.
+ * AccurateRip checksums are calculated from a sequence of input sample
+ * sequences. The caller is responsible for determining an Algorithm and
+ * providing the entire sequence of audio sample sequences to a Calculation
+ * instance. The result is provided in a Checksums instance.
  *
- * Settings provide an interface for configuring an Algorithm or the calculation
- * process.
+ * An Algorithm specifies a ruleset to calculate Checksums over a sequence of
+ * audio samples. AccurateRip specifies two distinct algorithms for calculating
+ * a checksum, v1 and v2. A v1 checksum can be materialized as a subtotal when
+ * calculating a v2 checksum. Therefore a calculation of a v2 value can also
+ * provide the v1 value for the input. Hence there are three variants of the
+ * Algorith available: V1, V2 and V1and2. The latter provides v1 as well as v2.
  *
- * The Context in which a Calculation is performed as part of the Settings. The
- * Algorithm is aware of the Context, too. The Context indicates if either
- * FIRST_TRACK, LAST_TRACK, or both have to be treated specially.
+ * Class Settings provides an interface for configuring an Algorithm or the
+ * calculation process.
+ *
+ * As part of the Settings there exists a Context in which the Calculation is
+ * performed. The Algorithm is aware of the Context. The Context indicates if
+ * either FIRST_TRACK, LAST_TRACK, or both have to be treated specially when
+ * calculating. This is a requirement of the AccurateRip algorithms.
  *
  * A Calculation represents the technical process of calculating Checksums by an
  * Algorithm. It has to be parametized with an Algorithm, initialized with the
  * offsets and the leadout of the audio image and then subsequently be updated
- * with portions of samples in the right order. A Calculation can be also
- * finetuned by providing Settings.
+ * with portions of samples in their correct order. A Calculation works fine
+ * with the default settings, but can be finetuned by providing custom Settings.
  *
- * Updating a Calculation is done by providing a sample portion represented by
- * two instances of SampleInputIterator that represent start and stop of the
- * update. SampleInputIterator is a wrapper iterator for any iterator with a
- * <tt>value_type</tt> of <tt>sample_t</tt>, the declared type for PCM 32 bit
+ * Updating a Calculation with an actual sequence of samples is done by
+ * providing a sequence of samples represented by two instances of
+ * SampleInputIterator. Those instances represent start and stop of the update.
+ * SampleInputIterator is a wrapper iterator for any iterator with a
+ * <tt>value_type</tt> of sample_t, which is the declared type for PCM 32 bit
  * samples. Using a SampleSequence may be of convenience for establishing
  * compatibility of the sample input format.
  *
- * When a Calculation is complete() its result can be requested. The result are
- * Checksums which represent the result for all requested checksum types and
- * all tracks of the audio input. It is an aggregation of the
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink for each track of an
- * respective audio input. Depending on the input, it can represent either an
- * entire album or a single track.
+ * When a Calculation is
+ * @link arcstk::v_1_0_0::Calculation::complete() complete() @endlink its result
+ * can be provided. The result are Checksums which represent the result for all
+ * requested checksum types and all tracks of the audio input. It is an
+ * aggregation of the ChecksumSet for each track of an respective audio input.
+ * Depending on the input, it can represent either an entire album or a single
+ * track.
  *
  * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink of
  * different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink of
  * the same track.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
- * Checksums are calculated by a Calculation using an Algorithm.
+ * Checksums are calculated by updating a Calculation with a sequence of sample
+ * sequences.
  *
  * @{
  */
@@ -109,7 +120,7 @@ using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
 // This is SFINAE compatible and respects bare pointers, which would not
 // have been respected when using std::iterator_traits<Iterator>::value_type.
 // Nonetheless I am not quite sure whether bare pointers indeed should be used
-// in this context.
+// in this context at the first place.
 
 /**
  * \internal
@@ -454,19 +465,33 @@ private:
 
 
 /**
- * \brief Represent what is to be relevant for calculation process.
+ * \brief Indicate the track context.
  *
- * AccurateRip algorithm contain different restrictions for calculating the
- * checksums of the the first and last track of an album. Thus, the information
- * has to be represented whether a first or last track of an album is to be
- * processed. This is achieved by the Context.
+ * AccurateRip algorithms imply different restrictions for calculating the
+ * checksums of the the first and last track of an album. Context represents
+ * this information.
  */
 enum class Context : unsigned
 {
-	TRACK       = 0, // neither first or last track
+	/**
+	 * \brief Single track that is neither first or last track.
+	 */
+	TRACK       = 0,
+
+	/**
+	 * \brief First track is first track of an album.
+	 */
 	FIRST_TRACK = 1,
+
+	/**
+	 * \brief Last track is last track of an album.
+	 */
 	LAST_TRACK  = 2,
-	ALBUM       = 3  // first track and last track
+
+	/**
+	 * \brief Entire album, hence first as well as last track.
+	 */
+	ALBUM       = 3
 };
 
 inline constexpr Context operator | (const Context lhs, const Context rhs)
@@ -499,11 +524,13 @@ void swap(Context& lhs, Context& rhs) noexcept;
 std::string to_string(const Context& c) noexcept;
 
 /**
- * \brief Returns TRUE iff \c c is not equivalent to 0.
+ * \brief Returns TRUE iff \c c is not equivalent to Context::TRACK.
+ *
+ * Equivalent to <code>c != Context::TRACK</code>.
  *
  * \param[in] c Context to evaluate
  *
- * \return TRUE iff \c c is not equivalent to 0
+ * \return TRUE iff \c c is not equivalent to Context::TRACK
  */
 bool any(const Context& c) noexcept;
 
@@ -561,7 +588,7 @@ public:
 
 
 /**
- * \brief Set of checksum types.
+ * \brief Set of @link arcstk::v_1_0_0::checksum::type Checksum types @endlink.
  *
  * Guaranteed to be iterable and duplicate-free.
  */
@@ -582,18 +609,16 @@ using Points = std::vector<AudioSize>;
 /**
  * \brief Interface: Checksum calculation algorithm.
  *
- * Algorithm instances hold the concrete subtotals. An Algorithm can be updated
- * with new input by the caller and provides the result after the last update.
- * The calculation of tracks is to be finished manually by calling
- * track_finished().
+ * An Algorithm instance can be updated with new input by the caller and
+ * provides the result after the last update. The calculation of tracks is to be
+ * finished manually by calling track_finished(). Algorithm instances hold the
+ * concrete subtotals.
  *
- * The caller is required to instantiate and setup an Algorithm. However,
- * it should usually not be required to use an Algorithm directly. This is
- * performed via a Calculation.
+ * The caller is required to instantiate and setup an Algorithm. However, it
+ * should usually not be required to update the Algorithm instance directly.
+ * This is performed via a Calculation.
  */
-class Algorithm
-{
-public:
+class Algorithm { public:
 
 	/**
 	 * \brief Default constructor.
@@ -931,7 +956,9 @@ public:
 /**
  * \brief Create a Calculation from an Algorithm and a ToC.
  *
- * If the ToC is not complete, the Calculation must be updated with the correct
+ * If the ToC is not
+ * @link arcstk::v_1_0_0::ToC::complete complete @endlink,
+ * the Calculation must be updated with the correct
  * total number of input samples before calling Calculation::update().
  *
  * \param[in] algorithm The algorithm to use for calculating

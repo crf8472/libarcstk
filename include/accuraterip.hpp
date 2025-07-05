@@ -33,6 +33,8 @@ inline namespace v_1_0_0
 /** @{ */
 
 /**
+ * \internal
+ *
  * \brief Calculating AccurateRip checksums.
  */
 namespace accuraterip
@@ -192,6 +194,8 @@ struct Update<checksum::type::ARCS1,checksum::type::ARCS2>
 
 
 /**
+ * \internal
+ *
  * \brief Updater for specified checksum types.
  */
 template <enum checksum::type T1, enum checksum::type... T2>

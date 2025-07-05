@@ -450,9 +450,9 @@ public:
 };
 
 /**
- * \brief A list of ChecksumSets.
+ * \brief A list of @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
  *
- * Each ChecksumSet represents a track an the order of the ChecksumSets follows
+ * Each ChecksumSet represents a track. The order of the ChecksumSets follows
  * the order of tracks on the original compact disc.
  */
 using Checksums = std::vector<ChecksumSet>;
@@ -460,18 +460,21 @@ using Checksums = std::vector<ChecksumSet>;
 /**
  * \brief Global instance of an empty Checksum.
  *
- * This is for convenience since in most cases, the creation of an empty
- * Checksum can be avoided when a reference instance is at hand.
+ * Avoid the creation of empty instances whenever possible.
  */
 extern const Checksum EmptyChecksum;
 
 /**
  * \brief Global instance of an empty ChecksumSet.
+ *
+ * Avoid the creation of empty instances whenever possible.
  */
 extern const ChecksumSet EmptyChecksumSet;
 
 /**
  * \brief Global instance of empty Checksums.
+ *
+ * Avoid the creation of empty instances whenever possible.
  */
 extern const Checksums EmptyChecksums;
 

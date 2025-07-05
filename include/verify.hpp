@@ -34,17 +34,16 @@ class DBAR;
 
 using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
 
-/**
- * \defgroup verify AccurateRip Checksum Verification
+/** \defgroup verify AccurateRip Checksum Verification
  *
- * \brief Verify local Checksums against a ChecksumSource.
+ * \brief Verify actual Checksums against a reference.
  *
  * \details
  *
- * A Verifier verifies local Checksums against some reference Checksums provided
- * by a ChecksumSource. A ChecksumSource is an interface to different kinds of
- * input for Checksums. For convenience, a DBARSource is provided that makes a
- * DBAR object available as input for verification.
+ * A Verifier verifies actual Checksums against some reference Checksums
+ * provided by a ChecksumSource. A ChecksumSource is an interface to different
+ * kinds of input for Checksums. For convenience, a DBARSource is provided that
+ * makes a DBAR object available as input for verification.
  *
  * A custom class T can be made available as input provider by subclassing
  * ChecksumSourceOf<T> and implementing the access to the reference values in
@@ -53,7 +52,7 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
  * The result of a verification process is a VerificationResult. It holds every
  * result of every match operation performed during verification.
  *
- * AlbumVerifier is suitable for verifying input that contains a ToC. Scenarious
+ * AlbumVerifier is suitable for verifying input that contains a ToC. Situations
  * without a ToC (e.g. a set of input audio files) is supported by
  * TracksetVerifier.
  *
