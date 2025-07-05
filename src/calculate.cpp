@@ -722,7 +722,7 @@ void swap(Context& lhs, Context& rhs) noexcept
 }
 
 
-std::string to_string(const Context& c) noexcept
+std::string name(const Context& c) noexcept
 {
 	switch (c)
 	{
@@ -734,6 +734,12 @@ std::string to_string(const Context& c) noexcept
 	}
 
 	return {};
+}
+
+
+std::string to_string(const Context& c) noexcept
+{
+	return name(c);
 }
 
 

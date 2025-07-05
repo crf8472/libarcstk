@@ -164,6 +164,8 @@ namespace details
 
 /**
  * \brief Maximum value for the specified UNIT according to CDDA.
+ *
+ * \return Maximum CDDA compatible value for \c U
  */
 template <enum UNIT U>
 constexpr int32_t cdda_max_value() noexcept;
@@ -635,6 +637,8 @@ int total_tracks(const ToCData& data);
  *
  * This does not entail a validation of the specified values.
  *
+ * \param[in] data TocData instance to check for completeness
+ *
  * \return TRUE iff non-zero leadout and non-empty offsets exist
  */
 bool complete(const ToCData& data);
@@ -779,6 +783,8 @@ public:
  * \param[in] leadout   Leadout frame
  * \param[in] offsets   Offset frames
  * \param[in] filenames Audio filenames
+ *
+ * \return ToC created from leadout, offsets and filenames
  */
 std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets,
@@ -789,6 +795,8 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
  *
  * \param[in] leadout   Leadout frame
  * \param[in] offsets   Offset frames
+ *
+ * \return ToC created from leadout and offsets
  */
 std::unique_ptr<ToC> make_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets);
@@ -798,6 +806,8 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
  *
  * \param[in] offsets   Offset frames
  * \param[in] filenames Audio filenames
+ *
+ * \return ToC created from offsets and filenames
  */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
@@ -806,6 +816,8 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
  * \brief Create a ToC from offsets.
  *
  * \param[in] offsets   Offset frames
+ *
+ * \return ToC created from offsets.
  */
 std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
 

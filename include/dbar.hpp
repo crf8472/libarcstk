@@ -449,6 +449,8 @@ public:
 	/**
 	 * \brief Physical total number of tracks in the specified block.
 	 *
+	 * \param[in] block_idx Index of the block to specify
+	 *
 	 * \return Size of the specified block
 	 */
 	size_type size(const size_type block_idx) const;

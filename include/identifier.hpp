@@ -150,6 +150,8 @@ public:
 
 	/**
 	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
 	 */
 	void swap(ARId& rhs) const noexcept;
 

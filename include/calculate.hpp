@@ -417,6 +417,10 @@ public:
 
 	/**
 	 * \brief Copy assignment.
+	 *
+	 * \param[in] rhs Value to assign
+	 *
+	 * \return Instance with new value assigned
 	 */
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
@@ -513,13 +517,29 @@ inline constexpr bool operator == (const Context lhs, const Context rhs)
 
 /**
  * \brief Swap two Context instances.
+ *
+ * \param[in] lhs Left hand side to swap
+ * \param[in] rhs Right hand side to swap
  */
 void swap(Context& lhs, Context& rhs) noexcept;
 
 /**
+ * \brief Name of the specified Context.
+ *
+ * \param[in] c Context to provide name of
+ *
+ * \return Name of context \c
+ */
+std::string name(const Context& c) noexcept;
+
+/**
  * \brief String representation of a Context.
  *
- * \return Name of the Context
+ * This will return the name of the context. It is equivalent to name().
+ *
+ * \param[in] c Context to transform to a string
+ *
+ * \return String representation of context \c
  */
 std::string to_string(const Context& c) noexcept;
 
@@ -705,6 +725,8 @@ protected:
 	 * \brief Implementation of swap for the base class.
 	 *
 	 * This is to be called by swap() implementations for subclasses.
+	 *
+	 * \param[in] rhs Instance to swap
 	 */
 	void base_swap(Algorithm& rhs);
 
@@ -963,6 +985,8 @@ public:
  *
  * \param[in] algorithm The algorithm to use for calculating
  * \param[in] toc       Complete ToC to perform calculation for
+ *
+ * \return Calculation object using \c algorithm and \c toc.
  */
 std::unique_ptr<Calculation> make_calculation(
 		std::unique_ptr<Algorithm> algorithm, const ToC& toc);
