@@ -135,27 +135,28 @@ configure_file ( "${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 
 get_filename_component (_fullpath "${CMAKE_CURRENT_SOURCE_DIR}" REALPATH )
 
-foreach (_generator IN LISTS USE_DOC_TOOL )
+if (USE_DOC_TOOL )
+	foreach (_generator IN LISTS USE_DOC_TOOL )
 
-	string (TOLOWER ${_generator} _generator_dir )
+		string (TOLOWER ${_generator} _generator_dir )
 
-	message (STATUS "Check path ${_fullpath}/thirdparty/${_generator_dir}")
+		message (STATUS "Check path ${_fullpath}/thirdparty/${_generator_dir}")
 
-	if (EXISTS "${_fullpath}/thirdparty/${_generator_dir}" )
+		if (EXISTS "${_fullpath}/thirdparty/${_generator_dir}" )
 
-		message (STATUS "Generate documentation by ${_generator_dir}" )
+			message (STATUS "Generate documentation by ${_generator_dir}" )
 
-		list (APPEND LOAD_GENERATORS "${_generator_dir}" )
-	else()
+			list (APPEND LOAD_GENERATORS "${_generator_dir}" )
+		else()
 
-		message (WARNING "DOC_TOOL \"${_generator}\" not found, ignore" )
-	endif()
+			message (WARNING "DOC_TOOL \"${_generator}\" not found, ignore" )
+		endif()
 
-	unset (_generator_dir )
-endforeach()
-unset (_fullpath  )
-unset (_generator )
-
+		unset (_generator_dir )
+	endforeach()
+	unset (_fullpath  )
+	unset (_generator )
+endif (USE_DOC_TOOL )
 
 
 ## --- Declare doc targets for HTML and PDF {{{1
