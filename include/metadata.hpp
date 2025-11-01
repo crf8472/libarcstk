@@ -35,7 +35,7 @@ inline namespace v_1_0_0
  * contain not only the offsets but also the leadout are
  * @link arcstk::v_1_0_0::ToC::complete() complete @endlink.
  *
- * ToCData is a minimalistic version of a ToC: an aggregate that contains the
+ * ToCData is the data part of a ToC: an aggregate that contains the
  * leadout at index 0 and on the subsequent index positions 1..n the offets of
  * the respective tracks. Hence, ToCData contains all and only the data that is
  * required to calculate AccurateRip checksums.
@@ -50,9 +50,6 @@ inline namespace v_1_0_0
  *
  * An InvalidMetadataException indicates that no valid ToC can be constructed
  * from the input provided.
- *
- * A NonstandardMetadataException indicates that the input is not conforming to
- * the redbook standard.
  *
  * @{
  */

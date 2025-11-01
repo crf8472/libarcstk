@@ -49,7 +49,7 @@ using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
  * providing the entire sequence of audio sample sequences to a Calculation
  * instance. The result is provided in a Checksums instance.
  *
- * An Algorithm specifies a ruleset to calculate Checksums over a sequence of
+ * An Algorithm specifies a method to calculate Checksums over a sequence of
  * audio samples. AccurateRip specifies two distinct algorithms for calculating
  * a checksum, v1 and v2. A v1 checksum can be materialized as a subtotal when
  * calculating a v2 checksum. Therefore a calculation of a v2 value can also
@@ -78,13 +78,12 @@ using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
  * samples. Using a SampleSequence may be of convenience for establishing
  * compatibility of the sample input format.
  *
- * When a Calculation is
- * @link arcstk::v_1_0_0::Calculation::complete() complete() @endlink its result
- * can be provided. The result are Checksums which represent the result for all
- * requested checksum types and all tracks of the audio input. It is an
- * aggregation of the ChecksumSet for each track of an respective audio input.
- * Depending on the input, it can represent either an entire album or a single
- * track.
+ * Its result can be provided as soon as a Calculation is
+ * @link arcstk::v_1_0_0::Calculation::complete() complete() @endlink.
+ * The resulting Checksums represent the result for all requested checksum types
+ * and all tracks of the audio input. It is an aggregation of the ChecksumSet
+ * for each track of an respective audio input. Depending on the input, it can
+ * represent either an entire album or a single track.
  *
  * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink of
  * different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink of
@@ -638,7 +637,9 @@ using Points = std::vector<AudioSize>;
  * should usually not be required to update the Algorithm instance directly.
  * This is performed via a Calculation.
  */
-class Algorithm { public:
+class Algorithm
+{
+public:
 
 	/**
 	 * \brief Default constructor.

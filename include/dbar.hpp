@@ -39,7 +39,7 @@ class Checksum;
  * \details
  *
  * Functions parse_stream() and parse_file() can parse a stream to a DBAR
- * object, which provdes access to all values by their respective indices.
+ * object, which provides access to all values by their respective indices.
  *
  * A DBARBlockHeader is a representation of the header of a block within a DBAR
  * file. A DBARTriplet represents the three values each block contains for each
@@ -49,12 +49,12 @@ class Checksum;
  * The lifetime of a DBARBlock must not exceed the lifetime of the DBAR object
  * it was constructed from.
  *
- * When parsing, a DBARBuilder can be passed to the parse() functions as a
+ * When parsing, a DBARBuilder can be passed to the parse_*() functions as a
  * ParseHandler that constructs the DBAR object from the input stream.
  * Alternatively, custom implementations of ParseHandler can be used.
  *
  * DBARErrorHandler is the default ParseErrorHandler implementation that just
- * throws a StreamParseException an each error. Throwing a StreamParseException
+ * throws a StreamParseException on each error. Throwing a StreamParseException
  * is the default behaviour in case no ParseErrorHandler is provided.
  * Alternatively, custom implementations of ParseErrorHandler can be used.
  *
@@ -62,8 +62,8 @@ class Checksum;
  * There is no way to inform the client whether the actual ARCS in an ARTriplet
  * is an ARCSv1 or an ARCSv2. The AccurateRip response does not distinguish
  * blocks of ARCSv1 from blocks of ARCSv2 and provides no information about the
- * concrete checksum algorithm. A block of ARCSv1 is considered just an
- * information about another pressing of an album.
+ * concrete checksum algorithm. Different blocks of checksums of the same type
+ * are considered just as information about different pressings of an album.
  *
  * @{
  */
