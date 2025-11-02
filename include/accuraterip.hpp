@@ -11,6 +11,12 @@
  * \file
  *
  * \brief AccurateRip implementations details.
+ *
+ * \details
+ *
+ * Do not include this file directly, include algorithms.hpp instead.
+ *
+ * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #ifndef __LIBARCSTK_CHECKSUM_HPP__

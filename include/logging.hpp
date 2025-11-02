@@ -4,15 +4,18 @@
 /**
  * \file
  *
- * \brief Public Logging API for clients.
+ * \brief Public \link logging Logging API for clients\endlink.
+ *
+ * \details
  *
  * Provides a thread-safe, type-safe and portable logging interface in form
  * of the logging macros along with a global Logging instance.
  *
  * The code in this file is based on ideas by Petru Marginean published in:
- * Marginean, P: "Logging in C++", http://www.ddj.com/cpp/201804215
+ * Marginean, P: "Logging in C++: A typesafe, threadsafe, portable logging
+ * mechanism", 10/2007, http://www.ddj.com/cpp/201804215
  * and
- * Marginean, P: "Logging in C++: Part 2", http://www.ddj.com/cpp/221900468
+ * Marginean, P: "Logging in C++: Part 2", 11/20/2009, http://www.ddj.com/cpp/221900468
  */
 
 #include <cstdint>        // for int16_t

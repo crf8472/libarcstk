@@ -4,7 +4,11 @@
 /**
  * \file
  *
- * \brief Calculation interface.
+ * \brief Public API for \link calc AccurateRip checksum calculation\endlink.
+ *
+ * \details
+ *
+ * Provides the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #include <chrono>           // for duration

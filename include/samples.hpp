@@ -4,7 +4,12 @@
 /**
  * \file
  *
- * \brief Represent and manage unconverted sequences of samples.
+ * \brief Represent and manage unconverted \link calc sequences of
+ * samples\endlink.
+ *
+ * \details
+ *
+ * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #ifndef __LIBARCSTK_POLICIES_HPP__

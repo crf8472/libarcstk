@@ -5,6 +5,10 @@
  * \file
  *
  * \brief Policies for enhancing classes.
+ *
+ * \details
+ *
+ * You probably should not include this file directly.
  */
 
 #include <cstddef>          // for size_t, nullptr

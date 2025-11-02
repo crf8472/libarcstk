@@ -1,7 +1,8 @@
 #ifndef __LIBARCSTK_VERIFY_HPP__
 #define __LIBARCSTK_VERIFY_HPP__
 
-/** \file
+/**
+ * \file
  *
  * \brief Public API for \link verify AccurateRip checksum verification\endlink.
  *
@@ -34,7 +35,8 @@ class DBAR;
 
 using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
 
-/** \defgroup verify AccurateRip Checksum Verification
+/**
+ * \defgroup verify AccurateRip Checksum Verification
  *
  * \brief Verify actual Checksums against a reference.
  *

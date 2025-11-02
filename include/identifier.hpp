@@ -5,6 +5,10 @@
  * \file
  *
  * \brief Public API for \link id calculating AccurateRip ids\endlink
+ *
+ * \details
+ *
+ * Calculate and represent AccurateRip IDs.
  */
 
 #include <cstdint>               // for uint32_t, int32_t, uint64_t
@@ -26,7 +30,8 @@ class AudioSize;
 class ToC;
 
 
-/** \defgroup id AccurateRip IDs
+/**
+ * \defgroup id AccurateRip IDs
  *
  * \brief Calculate and manage \link ARId AccurateRip identifier\endlink
  *

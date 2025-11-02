@@ -4,7 +4,12 @@
 /**
  * \file
  *
- * \brief Representation for checksums, their aggregates and their types.
+ * \brief Representation for \link calc checksums\endlink, their aggregates and
+ * their types.
+ *
+ * \details
+ *
+ * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #include <array>            // for array

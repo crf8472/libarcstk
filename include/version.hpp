@@ -4,7 +4,12 @@
 /**
  * \file
  *
- * \brief Provide version and name information for libarcstk.
+ * \brief Provide \link version version and name information\endlink for
+ * libarcstk.
+ *
+ * \details
+ *
+ * Provide version and release info.
  */
 
 #include <string>

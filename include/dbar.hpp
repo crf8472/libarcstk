@@ -4,7 +4,11 @@
 /**
  * \file
  *
- * \brief Public API for reading and representing dBAR-files.
+ * \brief Public API for \link dbar reading and representing dBAR-files\endlink.
+ *
+ * \details
+ *
+ * Parse dBAR-formatted data from files and streams.
  */
 
 #ifndef __LIBARCSTK_POLICIES_HPP__

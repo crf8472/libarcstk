@@ -4,7 +4,12 @@
 /**
  * \file
  *
- * \brief Classes and functions for metadata of a compact disc.
+ * \brief Classes and functions for \link meta metadata of a compact
+ * disc\endlink.
+ *
+ * \details
+ *
+ * Part of the API for \link meta calculating AccurateRip checksums\endlink.
  */
 
 #ifndef __LIBARCSTK_POLICIES_HPP__
@@ -24,7 +29,8 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-/** \defgroup meta Compact Disc and Audio Metadata
+/**
+ * \defgroup meta Compact Disc and Audio Metadata
  *
  * \brief ToC metadata and input size of the audio files
  *

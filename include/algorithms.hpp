@@ -4,7 +4,14 @@
 /**
  * \file
  *
- * \brief Algorithms for calculating AccurateRip checksums.
+ * \brief Algorithms for \link calc calculating AccurateRip checksums\endlink.
+ *
+ * \details
+ *
+ * Provides Algorithms AccurateRip v1, AccurateRip v2 and a third variant that
+ * contains both, v1 and v2.
+ *
+ * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
 #ifndef __LIBARCSTK_ACCURATERIP_HPP__
