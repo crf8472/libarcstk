@@ -18,14 +18,13 @@ function (register_remove_inline_ns_names XML_INPUT_PATH )
 		# required for success:
 		"${XML_INPUT_PATH}/struct${_v_ns_}SampleInputIterator_1_1Concept.xml"
 		"${XML_INPUT_PATH}/struct${_v_ns_}SampleInputIterator_1_1Model.xml"
-		# listed in tab 'Classes':
+		# the 32 classes listed in tab 'Classes':
 		"${XML_INPUT_PATH}/class${_v_ns_}AlbumVerifier.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Algorithm.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Appender.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}ARId.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}AudioSize.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Calculation.xml"
-		"${XML_INPUT_PATH}/struct${_v_ns_}CDDA.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Checksum.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}ChecksumSet.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}ChecksumSource.xml"
@@ -49,6 +48,9 @@ function (register_remove_inline_ns_names XML_INPUT_PATH )
 		"${XML_INPUT_PATH}/class${_v_ns_}StreamParseException.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}ToC.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}TracksetVerifier.xml"
+		"${XML_INPUT_PATH}/class${_v_ns_}VerificationResult.xml"
+		"${XML_INPUT_PATH}/class${_v_ns_}Verifier.xml"
+		"${XML_INPUT_PATH}/struct${_v_ns_}CDDA.xml"
 		# 7 class files are ignored: DBARForwardIterator, SampleIterator,
 		# details::SampleSequenceImplBase, accuraterip::details::AccurateRipCS,
 		# accuraterip::details::ARCSAlgorithm, SampleSequence<false>,
@@ -75,5 +77,4 @@ function (register_remove_inline_ns_names XML_INPUT_PATH )
 	#	"${XML_INPUT_PATH}" )
 
 endfunction()
-
 

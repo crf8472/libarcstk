@@ -21,7 +21,8 @@
 	</xsl:copy>
 </xsl:template>
 
-<!-- But remove specified name part from compoundname -->
+<!-- Remove a specified namespace name -->
+<!-- This will fail if 'full_name' does not contain 'ns_name' -->
 
 <xsl:template name="remove_ns_name">
 	<xsl:param name="full_name"/>
@@ -29,17 +30,22 @@
 
 	<xsl:variable name="ns_part" select="concat($ns_name, '::')"/>
 
-	<xsl:value-of select="substring-before($full_name, $ns_part)"/>
-	<xsl:value-of select="substring-after ($full_name, $ns_part)"/>
+	<xsl:value-of select="concat(
+			substring-before($full_name, $ns_part),
+			substring-after ($full_name, $ns_part))"/>
 </xsl:template>
 
-<xsl:template match="compoundname">
+<!-- Match all compoundnames containing namespace 'v_1_0_0' -->
+
+<xsl:template match="compoundname[contains(text(),'v_1_0_0::')]">
+
 	<xsl:element name="compoundname">
 		<xsl:call-template name="remove_ns_name">
 			<xsl:with-param name="full_name" select="text()"/>
 			<xsl:with-param name="ns_name"   select="'v_1_0_0'"/>
 		</xsl:call-template>
 	</xsl:element>
+
 </xsl:template>
 
 </xsl:transform>
