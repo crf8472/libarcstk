@@ -11,11 +11,14 @@ function (register_remove_inline_ns_names XML_INPUT_PATH )
 
 	set (_v_ns_ "arcstk_1_1v__1__0__0_1_1" )
 
+	## Note that '_1_1' means '::'.
+	## Underscore is escaped with another underscore.
+
 	set (_XML_CLASSFILES
 		# required for success:
 		"${XML_INPUT_PATH}/struct${_v_ns_}SampleInputIterator_1_1Concept.xml"
 		"${XML_INPUT_PATH}/struct${_v_ns_}SampleInputIterator_1_1Model.xml"
-		# in tab 'Classes':
+		# listed in tab 'Classes':
 		"${XML_INPUT_PATH}/class${_v_ns_}AlbumVerifier.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Algorithm.xml"
 		"${XML_INPUT_PATH}/class${_v_ns_}Appender.xml"
@@ -53,20 +56,23 @@ function (register_remove_inline_ns_names XML_INPUT_PATH )
 		# 13 struct files are ignored, CDDA is the only exception.
 	)
 
-	## TODO May be we can glob exactly the relevant files? Like:
-	#
-	#file (GLOB remove_inline_ns_names_CLASSFILES
-	#	"${XML_INPUT_PATH}/classarcstk*.xml")
-	#
-	#message (STATUS "classfiles: ${remove_inline_ns_names_CLASSFILES}" )
-	#
-	#add_doxygen_xslt_task ("remove_inline_ns_names"
-	#	"${remove_inline_ns_names_CLASSFILES}" "${XML_INPUT_PATH}" )
-
 	add_doxygen_xslt_task ("remove_inline_ns_names"
 		"${_XML_CLASSFILES}" "${XML_INPUT_PATH}" )
 
 	unset (_XML_CLASSFILES)
+
+	## TODO May be we can glob exactly the relevant files?
+	## But at the time when this function is loaded, they are not yet
+	## created.
+
+	#file (GLOB _XMLFILES
+	#	"${XML_INPUT_PATH}/structarcstk*.xml"
+	#	"${XML_INPUT_PATH}/classarcstk*.xml")
+
+	#message (STATUS "xmlfiles: ${_XMLFILES}" )
+
+	#add_doxygen_xslt_task ("remove_inline_ns_names" "${_XMLFILES}"
+	#	"${XML_INPUT_PATH}" )
 
 endfunction()
 
