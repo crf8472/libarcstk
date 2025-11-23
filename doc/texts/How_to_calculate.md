@@ -26,8 +26,8 @@ Insert
 in the file where you intend to place your code.
 
 To decode the audio input into PCM samples, you may probably need a thirdparty
-API to read samples from input files, consider libsndfile, ffmpeg or an
-abstraction API like libarcsdec.
+API to read samples from input files. For this task consider libsndfile, ffmpeg
+or an abstraction API like libarcsdec.
 
 For formats and codecs that do not require complex decoding (like WAV/PCM), you
 are good to use the file reading capabilities of the bare C++ API and a
