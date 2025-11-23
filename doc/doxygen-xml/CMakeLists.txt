@@ -20,8 +20,10 @@ add_dependencies (libarcstk_doxygen_provide_xml libarcstk_doxygen_generate_xml )
 if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
 	list (APPEND XML_POSTPROC_TASKS "dedup_index" )
+	#list (APPEND XML_POSTPROC_TASKS "remove_inline_ns_names" ) ## TODO fix
 endif()
 ## 1}}}
+
 ## --- List of Postprocessing Tasks To Be Visible to Generators {{{1
 set (DOXYGEN_XML_POSTPROCESSING_TASKS ${XML_POSTPROC_TASKS} PARENT_SCOPE )
 
@@ -37,7 +39,6 @@ if (XML_POSTPROC_TASKS )
 endif()
 
 
-
 ## --- Function for generating XML in the CMakeLists.txt of the Generators {{{1
 function (add_doxygen_xml_target DOXY_TARGET DOXYFILE INDEX_XML )
 
@@ -45,14 +46,21 @@ function (add_doxygen_xml_target DOXY_TARGET DOXYFILE INDEX_XML )
 
 	add_dependencies (libarcstk_doxygen_generate_xml ${DOXY_TARGET} )
 
+	cmake_path (GET INDEX_XML PARENT_PATH _xmlpath )
+
+	## Note that at this point we can also use the generator-specific:
+	#message (WARNING "doxygen output path: ${DOXYGEN_OUTPUT_DIRECTORY}" )
+
 	if (DOXYGEN_XML_POSTPROCESSING_TASKS )
 
-		add_doxygen_xslt_tasks (libarcstk_doxygen_provide_xml
-			"${DOXYFILE}"
-			"${INDEX_XML}"
-			${DOXYGEN_XML_POSTPROCESSING_TASKS}
-		)
+		foreach (_task IN LISTS DOXYGEN_XML_POSTPROCESSING_TASKS )
+
+			cmake_language (CALL "register_${_task}" "${_xmlpath}" )
+		endforeach()
+		unset (_task )
+
 	endif()
+	unset (_xmlpath )
 
 	## NOTE that this provides only the target! It does not define how to
 	## produce INDEX_XML! - Generator CMakeLists.txt MUST provide the

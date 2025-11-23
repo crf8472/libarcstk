@@ -9,6 +9,13 @@
 ## https://github.com/doxygen/doxygen/issues/5914
 ## https://github.com/doxygen/doxygen/pull/10070
 
+cmake_minimum_required (VERSION 3.12 )
 
-message (STATUS "Doxygen Task: doxygen version requires index deduplication" )
+function (register_dedup_index XML_INPUT_PATH )
+
+	message (STATUS "Doxygen Task: doxygen requires index deduplication" )
+
+	add_doxygen_xslt_task ("dedup_index" "${XML_INPUT_PATH}/index.xml" )
+
+endfunction()
 

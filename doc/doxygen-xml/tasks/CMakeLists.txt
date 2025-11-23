@@ -2,6 +2,8 @@
 ##
 ## vim:fdm=marker
 
+cmake_minimum_required (VERSION 3.12 )
+
 message (STATUS "Doxygen XSLT postprocessing is required" )
 
 
@@ -38,19 +40,8 @@ else()
 
 endif()
 ## 1}}}
-## --- Load Postprocessing Tasks from Subdirectories {{{1
-foreach (_task IN LISTS XML_POSTPROC_TASKS )
-
-	add_subdirectory (${_task} )
-endforeach()
-unset (_task )
-
-
-
-## --- Functions to Add XML Postprocessing Tasks {{{1
-
-## -- Function: Add a XSLT post processing comand {{{2
-function (add_doxygen_xslt_task TASK DOXYFILE INDEX_XML )
+## --- Function: Add a XSLT post processing comand {{{1
+function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 
 	## "Chain" a target: task-target depends on doxygen_generate_xml and is
 	## itself a dependency of doxygen_provide_xml. The actual posprocessing
@@ -73,25 +64,20 @@ function (add_doxygen_xslt_task TASK DOXYFILE INDEX_XML )
 		TARGET  ${TASK_TARGET} POST_BUILD
 		COMMAND "${PYTHON_CMD}"
 		ARGS    "${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/xsl_transform.py"
-				"${INDEX_XML}"
+				"${XML_INPUT_FILES}"
 				"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/${TASK}.xsl"
-				"${INDEX_XML}"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
-		COMMENT "Remove duplicate compounds in ${INDEX_XML}"
+		COMMENT "Run task ${TASK}"
 		VERBATIM
 	)
 
 endfunction()
 
 
-## -- Function: Add all post processing comands in given list {{{2
-function (add_doxygen_xslt_tasks DOXY_TARGET DOXYFILE INDEX_XML TASK_LIST )
+## --- Load Requested Postprocessing Tasks from Subdirectories {{{1
+foreach (_task IN LISTS XML_POSTPROC_TASKS )
 
-	foreach (_task IN LISTS TASK_LIST )
-
-		add_doxygen_xslt_task (${_task} "${DOXYFILE}" "${INDEX_XML}" )
-	endforeach()
-	unset (_task )
-
-endfunction()
+	add_subdirectory (${_task} )
+endforeach()
+unset (_task )
 
