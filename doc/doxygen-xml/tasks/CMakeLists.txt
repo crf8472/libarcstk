@@ -60,6 +60,20 @@ function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 
 	## When doxygen_generate_xml is completed, postprocess the file
 
+	## TODO Use a task-specific call to get the XML input files instead of
+	## passing their names as build time when they possibly do not exist.
+	## Maybe use ${CMAKE_COMMAND} -P ${TASK}/get_xml_names.cmake
+	## and do this as POST_BUILD of libarcstk_doxygen_generate_xml
+	## or PRE_BUILD of the task target
+
+	# add_custom_command (
+	# 	TARGET  ${TASK_TARGET} PRE_BUILD
+	# 	COMMENT "List files of task ${TASK}"
+	# 	COMMAND ${CMAKE_COMMAND} -P
+	# 		"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/file_list.cmake"
+	# 	VERBATIM
+	# )
+
 	add_custom_command (
 		TARGET  ${TASK_TARGET} POST_BUILD
 		COMMAND "${PYTHON_CMD}"
@@ -67,9 +81,11 @@ function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 				"${XML_INPUT_FILES}"
 				"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/${TASK}.xsl"
 		WORKING_DIRECTORY "${DOC_GEN_DIR}"
-		COMMENT "Run task ${TASK}"
+		COMMENT "Run transformations of task ${TASK}"
 		VERBATIM
 	)
+
+	unset (TASK_TARGET )
 
 endfunction()
 
