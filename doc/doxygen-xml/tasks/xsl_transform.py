@@ -18,16 +18,6 @@ def transform_doc(in_file, xslt_tf, out_file):
     save_doc(transformed_doc, out_file)
     return
 
-# XSL-transform a single document (legacy version, commented out)
-# def xsl_transform_old(infile, xslFile, outfile):
-#     xslt = ET.parse(xslFile)
-#     transform = ET.XSLT(xslt)
-#     doc = ET.parse(infile)
-#     transformed_doc = transform(doc)
-#     with open(outfile, 'w') as f:
-#         print(transformed_doc, file=f)
-#     return
-
 ## XSL-transform a single document
 def xsl_transform(infile, xslFile, outfile):
     xslt = ET.parse(xslFile)
