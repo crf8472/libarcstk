@@ -20,7 +20,7 @@ add_dependencies (libarcstk_doxygen_provide_xml libarcstk_doxygen_generate_xml )
 if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
 	list (APPEND XML_POSTPROC_TASKS "dedup_index" )
-	#list (APPEND XML_POSTPROC_TASKS "remove_inline_ns_names" ) ## TODO fix
+	list (APPEND XML_POSTPROC_TASKS "remove_inline_ns_names" )
 endif()
 ## 1}}}
 
