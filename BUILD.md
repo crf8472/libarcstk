@@ -301,12 +301,15 @@ load ``build/generated-docs/mcss/html/index.html`` in your browser.
 
 ### Manual: PDF by LaTeX (smoke-tested, more or less)
 
-Libarcstk provides also support for a PDF manual using LaTeX. An actual LaTeX
-installation (containing ``lualatex`` and ``epstopdf``) is required for creating
-the manual.
+Libarcstk is supposed to provide support for a PDF manual using LaTeX at some
+point in the future. Currently, it is possible to create a manual for just
+working on the process. Do not expect satisfying results.
+
+An actual LaTeX installation (containing ``lualatex`` and ``epstopdf``) is
+required for creating the manual.
 
 Building the PDF manual can be requested by using ``-DUSE_DOC_TOOL=LUALATEX``.
-It will therefore be typeset by building the ``doc`` target.
+It will thereby be typeset by building the ``doc`` target.
 
 The entire process:
 
