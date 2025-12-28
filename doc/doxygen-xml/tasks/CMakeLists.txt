@@ -58,21 +58,29 @@ function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 
 	add_dependencies (libarcstk_doxygen_provide_xml ${TASK_TARGET} )
 
-	## When doxygen_generate_xml is completed, postprocess the file
-
-	## TODO Use a task-specific call to get the XML input files instead of
-	## passing their names as build time when they possibly do not exist.
-	## Maybe use ${CMAKE_COMMAND} -P ${TASK}/get_xml_names.cmake
-	## and do this as POST_BUILD of libarcstk_doxygen_generate_xml
-	## or PRE_BUILD of the task target
-
-	# add_custom_command (
-	# 	TARGET  ${TASK_TARGET} PRE_BUILD
-	# 	COMMENT "List files of task ${TASK}"
-	# 	COMMAND ${CMAKE_COMMAND} -P
-	# 		"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/file_list.cmake"
-	# 	VERBATIM
-	# )
+	## NOTE Get XML input filenames at build time
+	##
+	## It would be nice to use a task-specific call at build time to get the
+	## XML input filenames. We would use a build-time command like:
+	##
+	## add_custom_command (
+	##	TARGET  ${TASK_TARGET} PRE_BUILD
+	##	COMMENT "List input files of task ${TASK}"
+	##	COMMAND ${CMAKE_COMMAND} -P
+	##		"${PROJECT_ROOT_DIR}/doc/doxygen-xml/tasks/${TASK}/file_list.cmake"
+	##	VERBATIM
+	## )
+	##
+	## Also possible as POST_BUILD of libarcstk_doxygen_generate_xml.
+	##
+	## 2 impediments:
+	##
+	## - We would have to know and pass the XML input path at this site. This
+	##   would be redundant and overly complex since doxygen-xml/CMakeLists.txt
+	##   is the correct site to do that.
+	## - We would have to transport the file list back to this site. If we do
+	##   this by -P with a script, there is no PARENT_SCOPE. We would have to
+	##   capture the output (somehow).
 
 	add_custom_command (
 		TARGET  ${TASK_TARGET} POST_BUILD
