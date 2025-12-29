@@ -17,7 +17,6 @@ cmake_policy (SET CMP0060 NEW )
 
 set (TEST_SOURCE_DIR "src" )
 
-
 ## --- Define testcases {{{1
 
 set (TEST_SETS )
@@ -40,15 +39,13 @@ list (APPEND TEST_SETS verify_details     )
 
 
 ## Adjust compile options for tests.
-## (g++ issues many warnings when compiling Catch2 v3.x tests)
-
 set (TEST_CXX_FLAGS_WARNINGS ${PROJECT_CXX_FLAGS_WARNINGS} )
-
-
+set (TEST_CXX_FLAGS )
 
 ## --- Remove flags from g++ that pollute the output {{{1
 
 if (CMAKE_COMPILER_IS_GNUCXX )
+	## (g++ issues many warnings when compiling Catch2 v3.x tests)
 
 	## Remove some flags from the actual compile options, if they are present
 	list (APPEND GNUCXX_IGNORE_FLAGS
@@ -62,8 +59,11 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 			"Ignore compile flag ${_flag} when compiling Catch2-tests with g++" )
 		list (REMOVE_ITEM TEST_CXX_FLAGS_WARNINGS ${_flag} )
 	endforeach()
-endif()
 
+	set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}
+		"--param" "max-gcse-memory=140040"
+	)
+endif()
 
 
 ## --- Add common configuration for all testcases {{{1
@@ -73,7 +73,7 @@ foreach (_testcase ${TEST_SETS} )
 	set_property (
 		SOURCE "${TEST_SOURCE_DIR}/${_testcase}.cpp"
 		APPEND
-		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS_WARNINGS}
+		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS}
 	)
 
 	## Define executable for this testcase
