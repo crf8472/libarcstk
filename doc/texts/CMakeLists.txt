@@ -23,7 +23,7 @@ configure_file (MAINPAGE.md.in "${DOC_TEXTS_MAINPAGE}" @ONLY )
 
 ## --- Provide Text Files from Project Root Folder {{{1
 
-foreach (FILE IN ITEMS "BUILD" "CODING" )
+foreach (FILE IN ITEMS "BUILD" ) # TODO Add "CODING"
 
 	set (DOC_SOURCES  ${DOC_SOURCES} "${PROJECT_ROOT_DIR}/${FILE}.md" )
 
@@ -46,17 +46,17 @@ foreach (FILE IN ITEMS "How_to_calculate" "How_to_verify" "How_to_get_ids"
 
 	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md" )
 
-	add_custom_target(provide_page_${FILE}
+	add_custom_target(libarcstk_provide_page_${FILE}
 		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
-		COMMAND "${CMAKE_COMMAND}"
-			-E copy
+		COMMAND "${CMAKE_COMMAND}" -E copy
 			"${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
 			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md"
 		COMMENT "Provide static page file ${FILE}.md"
 		VERBATIM
 	)
 
-	add_dependencies (libarcstk_static_pages_files provide_page_${FILE} )
+	add_dependencies (libarcstk_static_pages_files
+		libarcstk_provide_page_${FILE} )
 endforeach()
 
 set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
