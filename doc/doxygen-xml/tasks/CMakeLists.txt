@@ -47,7 +47,7 @@ function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 	## itself a dependency of doxygen_provide_xml. The actual posprocessing
 	## will be a POST_BUILD command to this target.
 
-	set (TASK_TARGET libarcstk_doxygen_task_${TASK} )
+	set (TASK_TARGET libarcstk_doxygen_xsl_task_${TASK} )
 
 	add_custom_target (${TASK_TARGET} )
 

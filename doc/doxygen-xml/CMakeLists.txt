@@ -15,7 +15,7 @@ add_custom_target (libarcstk_doxygen_provide_xml )
 add_dependencies (libarcstk_doxygen_provide_xml libarcstk_doxygen_generate_xml )
 
 
-## --- Is Deduplication for Doxygen's index.xml Required ? {{{1
+## --- Check for required Postprocessing Tasks {{{1
 
 if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
@@ -23,7 +23,6 @@ if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 	list (APPEND XML_POSTPROC_TASKS "remove_inline_ns_names" )
 endif()
 ## 1}}}
-
 ## --- List of Postprocessing Tasks To Be Visible to Generators {{{1
 set (DOXYGEN_XML_POSTPROCESSING_TASKS ${XML_POSTPROC_TASKS} PARENT_SCOPE )
 
