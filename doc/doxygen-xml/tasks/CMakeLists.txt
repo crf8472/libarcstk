@@ -40,7 +40,7 @@ else()
 
 endif()
 ## 1}}}
-## --- Function: Add a XSLT post processing comand {{{1
+## --- Function: Add a XSLT post processing command {{{1
 function (add_doxygen_xslt_task TASK XML_INPUT_FILES )
 
 	## "Chain" a target: task-target depends on doxygen_generate_xml and is
