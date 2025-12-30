@@ -538,10 +538,11 @@ public:
 	 *
 	 * \note
 	 * The size of a VerificationResult with a number \f$b\f$ of total_blocks()
-	 * and \f$t\f$ tracks_per_block() is \f$b * (2 * t + 1)\f$. The coefficient
-	 * \f$2\f$ is required since each block is matched against ARCSv1 and
-	 * ARCSv2 sums. The \f$+1\f$ is required since the ARId of each block
-	 * contributes an additional verification flag to the VerificationResult.
+	 * and \f$t\f$ of tracks_per_block() is \f$b * (2 * t + 1)\f$. The
+	 * coefficient \f$2\f$ is required since each block is matched against
+	 * ARCSv1 and ARCSv2 sums. The \f$+1\f$ is required since the ARId of each
+	 * block contributes an additional verification flag to the
+	 * VerificationResult.
 	 *
 	 * \return Number of flags stored
 	 */
