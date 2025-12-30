@@ -48,7 +48,7 @@ This may require that you accomplish the following tasks:
 	- Reading the audio data possibly along with its metadata & calculating the
 	  checksums of this input (as explained in @ref howto_calculate).
 	- Calculate the AccurateRip id if you not already know it (as explained in
-	  @ref howot_get_ids).
+	  @ref howto_get_ids).
 	- Use the id to acquire and parse the reference values (as explained in
 	  @ref howto_calculate).
 	- Instantiate and configure a Verifier to run it on the aforementioned input
@@ -68,53 +68,96 @@ The basic approach is to construct a Verifier on your local data and then call
 This is the easy part.
 
 @code{.cpp}
-
 	// Let's assume that you already have the following:
 
 	ARId      my_id        { /* calculated from your local audio or known */ };
 	Checksums my_checksums { /* calculated from your local audio */ };
-	DBAR      dbar         { /* from AccurateRips http response to my_id */ };
+	DBAR   their_checksums { /* from AccurateRip's http response for my_id */ };
 
-	// You use the AlbumVerifier since you have a single file and metadata:
+	// Let's use the AlbumVerifier since we have a single audio image file
+	// and its metadata:
 
 	AlbumVerifier verifier { my_checksums, my_id };
 
-	// This instance is now configured to match your local data agains the
-	// reference values from the DBAR instance:
+	// This instance is now set up to match your local data. Perform the match
+	// by passing the reference values from the DBAR instance:
 
-	const auto result { verifier.perform(dbar) };
+	const auto result { verifier.perform(their_checksums) };
 @endcode
 
-Now, how to interpret the result?
+Note that function perform() accepts not only a DBAR object but a subclass of
+ChecksumSource. Abstract class ChecksumSource provides an interface to access
+checksum containers for verification. For any checksum container X that is to be
+wrapped for input to function perform(), create a subclass of
+ChecksumSourceOf<X>. Have a look at the code of class DBARSource for an example
+how to do it.
 
-The most coarse-grained way would be a call of result->all_tracks_verified()
-that will immediately tell you whether your input data matches the reference
-values completely. It is a boolean value that just says "it's accurate" or "it's
-not".
+So, having performed the verification, how to interpret the result?
 
-The most fine-grained way is to query the result for any triple of <block,
-track, type> by just calling result->track(i, j, flag). This will tell you,
-whether track j in block i matches for algorithm flag. (It will also tell you,
-whether your reference checksums are v1 or v2 if you did not already know it.)
+The most coarse-grained way would be to simply check if verification was a total
+success and the audio data was verified to be accurate.
 
-If your verification returned "not accurate", you may be interested in some
-mid-level kind of analysis, that can be done by looking at the best matching
-block first. This may be the most interesting part of the reference data, since
-it is the closest match you got.
-
-A call of result->best_block() tells you the index of the reference checksum
-block within the DBAR instance that has the most matches. If there are multiple
-blocks that all match, best_block() will return the first.
+Function all_tracks_verified() will just tell you whether your input data
+matches the reference values completely. It is a boolean value that just says
+"it's accurate" or "it's not".
 
 @code{.cpp}
-	const auto best = result->best_block();
+	if (result->all_tracks_verified())
+	{
+		// Success! Take the relevant actions
+		// ...
+	} else
+	{
+		// Not a complete success at least.
+		// ...
+	}
 @endcode
 
-The resulting object is a std::tuple that can be inspected by 0 (index), 1
-(algorithm) or 2 (number of not matching tracks).
+If your verification returned "not accurate", you may be interested in some
+mid-level kind of analysis, that can be done by inspecting the best matching
+block of the reference checksums.
+
+This block may be the most interesting part of the reference data, since it is
+the closest match you got. The best block is that block within the DBAR instance
+that has the most matching tracks. If there are multiple blocks that all match
+equally well, best_block() will return the last matching ARCSv2 block of them. A
+best block can only be v1 if there is no at least equally good block that is v2.
+
+@code{.cpp}
+	const auto best { result->best_block() };
+@endcode
+
+A call of result->best_block() provides you with 3 values:
+  * the index of the reference checksum block within the DBAR instance,
+  * the type of algorithm of the checksums within this respective block, and
+  * the total number of mismatches in this block.
+
+Currently, there is no API to access those values. The resulting object is a
+std::tuple. Use std::get with the index values 0 (int for index), 1 (bool
+whether it is v2 or not) or 2 (int for total number of mismatching tracks in
+this block).
 
 Get the best block from the DBAR instance and print it along with your
-calculated data. The code example shows you how to do that in a very basic way.
+calculated data. The code example ``albumverify`` shows you how to do that in a
+very basic way.
+
+The most fine-grained way of inspection is to query the result object for any
+triple of <b, t, flag> of a block index, a track index, and an algorithm type
+(ARCSv1 or ARCSv2). This is achieved by result->track(b, t, flag).
+
+This will tell you, whether track t in block b matches for algorithm type flag.
+
+@code{.cpp}
+
+	auto b { 0 };
+	auto t { 1 };
+	auto is_v2 { true };
+
+	if (result->track(b, t, is_v2)
+	{
+		// The v2 value for track j in block i matches!
+	}
+@endcode
 
 #### Verifying a set of files
 
