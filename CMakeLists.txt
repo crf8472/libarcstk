@@ -18,6 +18,8 @@ cmake_policy (SET CMP0057 NEW )
 
 project (libarcstk VERSION 0.3.1 LANGUAGES CXX )
 
+set (PROJECT_VERSION_SUFFIX "alpha.1" )
+
 
 ## --- Setup Short Description, URL and Version Information {{{1
 
@@ -25,8 +27,6 @@ set (PROJECT_BRIEF_DESC
 	"Calculate and Verify AccurateRip Checksums and Ids" )
 
 set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
-
-set (PROJECT_VERSION_SUFFIX "alpha.1" )
 
 set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
 
