@@ -1,4 +1,4 @@
-# How to calculate AccurateRip checksums
+# How to Calculate AccurateRip Checksums                      {#howto_calculate}
 
 
 ## Have a look at the code example
