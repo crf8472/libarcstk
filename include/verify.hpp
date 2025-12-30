@@ -318,6 +318,11 @@ public:
 };
 
 
+// TODO API for working with best block
+// Say a typedef like: using block_result = std::tuple<int, bool, int>
+// And accessors for that like get_index(), get_algo(), get_total_fails().
+// Maybe enum constants for the tuple indices: INDEX, ALGO, TOTAL_FAILS
+
 /**
  * \brief Interface: Result of a verification process.
  *
