@@ -6,11 +6,11 @@
  * \brief Instantiations of SampleSequence and SampleIterator
  */
 
-#include <cstdint>
-
 #ifndef __LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"
 #endif
+
+#include <cstdint>      // for int16_t, uint16_t, int32_t, uint32_t
 
 namespace arcstk
 {

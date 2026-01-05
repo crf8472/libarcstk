@@ -1,9 +1,17 @@
-// vim:ft=cpp
+/* vim:ft=cpp */
+/**
+ * \internal
+ *
+ * \file
+ *
+ * \brief Implements symbols from version.hpp.
+ */
+
 #ifndef __LIBARCSTK_VERSION_HPP__
 #include "version.hpp"
 #endif
 
-#include <string>
+#include <string>   // for string
 
 namespace arcstk
 {
