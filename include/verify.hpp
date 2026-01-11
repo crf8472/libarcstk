@@ -329,7 +329,7 @@ public:
  * \details
  *
  * A VerificationResult is the result of a complete matching of actual Checksums
- * against a ChecksumSource of referene checksums.
+ * against a ChecksumSource of reference checksums.
  *
  * It holds the result of any verification task of any reference track value.
  * Access to each of these results is provided in terms of
