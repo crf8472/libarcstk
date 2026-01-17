@@ -669,7 +669,6 @@ SourceIterator SourceIterator::operator ++ (int) // postfix increment
 TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
 	: source_   { nullptr }
 	, selector_ { std::move(selector) }
-	, current_  { 0 }
 {
 	// empty
 }
@@ -678,7 +677,6 @@ TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
 TraversalPolicy::TraversalPolicy(const TraversalPolicy& rhs)
 	: source_   { rhs.source_ }
 	, selector_ { rhs.selector_->clone() }
-	, current_  { rhs.current_ }
 {
 	// empty
 }
@@ -688,7 +686,6 @@ TraversalPolicy& TraversalPolicy::operator = (const TraversalPolicy& rhs)
 {
 	source_   = rhs.source_;
 	selector_ = rhs.selector_->clone();
-	current_  = rhs.current_;
 
 	return *this;
 }
@@ -700,15 +697,17 @@ const Selector& TraversalPolicy::selector() const
 }
 
 
-ChecksumSource::size_type TraversalPolicy::end_current() const
+ChecksumSource::size_type TraversalPolicy::end_current(
+		const ChecksumSource::size_type c) const
 {
-	return do_end_current(*source_);
+	return do_end_current(*source_, c);
 }
 
 
-ChecksumSource::size_type TraversalPolicy::end_counter() const
+ChecksumSource::size_type TraversalPolicy::end_counter(
+		const ChecksumSource::size_type c) const
 {
-	return do_end_counter(*source_);
+	return do_end_counter(*source_, c);
 }
 
 
@@ -733,29 +732,19 @@ void TraversalPolicy::set_source(const ChecksumSource& source)
 }
 
 
-ChecksumSource::size_type TraversalPolicy::current() const
-{
-	return current_;
-}
-
-
-void TraversalPolicy::set_current(const ChecksumSource::size_type current)
-{
-	current_ = current;
-}
-
-
-TraversalPolicy::const_iterator TraversalPolicy::begin() const
+TraversalPolicy::const_iterator TraversalPolicy::begin(
+		const ChecksumSource::size_type current) const
 {
 	check_source_for_null();
-	return SourceIterator(*source(), current(), 0, selector());
+	return SourceIterator(*source(), current, 0, selector());
 }
 
 
-TraversalPolicy::const_iterator TraversalPolicy::end() const
+TraversalPolicy::const_iterator TraversalPolicy::end(
+		const ChecksumSource::size_type current) const
 {
 	check_source_for_null();
-	return SourceIterator(*source(), current(), end_counter(), selector());
+	return SourceIterator(*source(), current, end_counter(current), selector());
 }
 
 
@@ -822,16 +811,16 @@ Checksums::size_type BlockTraversal::do_current_track(const SourceIterator& i)
 
 
 ChecksumSource::size_type BlockTraversal::do_end_current(
-		const ChecksumSource& source) const
+		const ChecksumSource& source, const Checksums::size_type /*c*/) const
 {
 	return source.size(); // number of blocks in source
 }
 
 
 ChecksumSource::size_type BlockTraversal::do_end_counter(
-		const ChecksumSource& source) const
+		const ChecksumSource& source, const Checksums::size_type c) const
 {
-	return source.size(0); // number of tracks per block in source
+	return source.size(c); // number of tracks per block in source
 }
 
 
@@ -872,14 +861,14 @@ Checksums::size_type TrackTraversal::do_current_track(const SourceIterator& i)
 
 
 ChecksumSource::size_type TrackTraversal::do_end_current(
-	const ChecksumSource& source) const
+	const ChecksumSource& source, const Checksums::size_type c) const
 {
-	return source.size(0); // traverses same track over all blocks
+	return source.size(c); // traverses same track over all blocks
 }
 
 
 ChecksumSource::size_type TrackTraversal::do_end_counter(
-	const ChecksumSource& source) const
+	const ChecksumSource& source, const Checksums::size_type /*c*/) const
 {
 	return source.size(); // traverses same track over all blocks
 }
@@ -984,9 +973,10 @@ void Verification::perform_ids(VerificationResult& result,
 
 void Verification::perform_current(VerificationResult& result,
 		const Checksums& actual_sums,
-		const TraversalPolicy& traversal, const MatchPolicy& order) const
+		const TraversalPolicy& traversal,
+		const ChecksumSource::size_type current, const MatchPolicy& order) const
 {
-	for (auto it = traversal.begin(); it != traversal.end(); ++it)
+	for (auto it = traversal.begin(current); it != traversal.end(current); ++it)
 	{
 		if (result.id(traversal.current_block(it))) // ARId matched?
 		{
@@ -1000,7 +990,7 @@ void Verification::perform_current(VerificationResult& result,
 void Verification::perform(VerificationResult& result,
 	const Checksums& actual_sums, const ARId& actual_id,
 	const ChecksumSource& ref_sums,
-	TraversalPolicy& traversal, const MatchPolicy& order) const
+	const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	perform_ids(result, actual_id, ref_sums);
 	// Always done once per block, regardless of traversal
@@ -1008,12 +998,10 @@ void Verification::perform(VerificationResult& result,
 	// From here on, result can be checked for whether the current block is
 	// is actually considered relevant by its id.
 
-	traversal.set_source(ref_sums);
 	for (auto c = ChecksumSource::size_type { 0 };
-			c < traversal.end_current(); ++c)
+			c < traversal.end_current(c); ++c)
 	{
-		traversal.set_current(c);
-		perform_current(result, actual_sums, traversal, order);
+		perform_current(result, actual_sums, traversal, c, order);
 	}
 }
 
@@ -1024,7 +1012,7 @@ void Verification::perform(VerificationResult& result,
 std::unique_ptr<VerificationResult> verify(
 		const Checksums& actual_sums, const ARId& actual_id,
 		const ChecksumSource& ref_sums,
-		TraversalPolicy& traversal, const MatchPolicy& order)
+		const TraversalPolicy& traversal, const MatchPolicy& order)
 {
 	auto r = create_result(ref_sums.size()/* total blocks */,
 			actual_sums.size()/* total tracks per block */,
@@ -1077,10 +1065,12 @@ void VerifierBase::set_strict(const bool strict) noexcept
 std::unique_ptr<VerificationResult> VerifierBase::perform(
 			const ChecksumSource& ref_sums) const
 {
-	const auto o = do_create_order();
-	auto t = do_create_traversal();
-	auto id = actual_id() ? *actual_id() : arcstk::EmptyARId;
-	return verify(*actual_checksums(), id, ref_sums, *t, *o);
+	const auto id = actual_id() ? *actual_id() : arcstk::EmptyARId;
+	auto traversal = do_create_traversal();
+	traversal->set_source(ref_sums);
+	const auto order = do_create_order();
+
+	return verify(*actual_checksums(), id, ref_sums, *traversal, *order);
 }
 
 

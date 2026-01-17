@@ -663,10 +663,12 @@ class TraversalPolicy
 	virtual Checksums::size_type do_current_track(const SourceIterator& i) const
 	= 0;
 	virtual ChecksumSource::size_type do_end_current(
-			const ChecksumSource& source) const
+			const ChecksumSource& source,
+			const Checksums::size_type c) const
 	= 0;
 	virtual ChecksumSource::size_type do_end_counter(
-			const ChecksumSource& source) const
+			const ChecksumSource& source,
+			const Checksums::size_type c) const
 	= 0;
 
 	/**
@@ -772,9 +774,12 @@ public:
 	 * When iterating over values for current(), this is the smallest illegal
 	 * value.
 	 *
+	 * \param[in] c Index of current block
+	 *
 	 * \return The maximal legal value for current() + 1
 	 */
-	ChecksumSource::size_type end_current() const;
+	ChecksumSource::size_type end_current(
+			const Checksums::size_type c) const;
 
 	/**
 	 * \brief The end() value for \c counter().
@@ -782,23 +787,30 @@ public:
 	 * When iterating over values for counter(), this is the smallest illegal
 	 * value.
 	 *
+	 * \param[in] c Index of current block
+	 *
 	 * \return The maximal legal value for counter() + 1
 	 */
-	ChecksumSource::size_type end_counter() const;
+	ChecksumSource::size_type end_counter(
+			const Checksums::size_type c) const;
 
 	/**
 	 * \brief Start value for traversal
 	 *
+	 * \param[in] c Index of current block
+	 *
 	 * \return Start iterator for traversal
 	 */
-	const_iterator begin() const;
+	const_iterator begin(const ChecksumSource::size_type current) const;
 
 	/**
 	 * \brief End value for traversal (after last legal value)
 	 *
+	 * \param[in] c Index of current block
+	 *
 	 * \return End iterator for traversal
 	 */
-	const_iterator end() const;
+	const_iterator end(const ChecksumSource::size_type current) const;
 
 	/**
 	 * \brief Get current block for iterator position.
@@ -845,10 +857,10 @@ class BlockTraversal final : public TraversalPolicy
 	std::unique_ptr<Selector> create_selector() const final;
 	Checksums::size_type do_current_block(const SourceIterator& i) const final;
 	Checksums::size_type do_current_track(const SourceIterator& i) const final;
-	ChecksumSource::size_type do_end_current(const ChecksumSource& source) const
-		final;
-	ChecksumSource::size_type do_end_counter(const ChecksumSource& source) const
-		final;
+	ChecksumSource::size_type do_end_current(const ChecksumSource& source,
+			const Checksums::size_type c) const final;
+	ChecksumSource::size_type do_end_counter(const ChecksumSource& source,
+			const Checksums::size_type c) const final;
 
 public:
 
@@ -870,10 +882,10 @@ class TrackTraversal final : public TraversalPolicy
 	std::unique_ptr<Selector> create_selector() const final;
 	Checksums::size_type do_current_block(const SourceIterator& i) const final;
 	Checksums::size_type do_current_track(const SourceIterator& i) const final;
-	ChecksumSource::size_type do_end_current(const ChecksumSource& source) const
-		final;
-	ChecksumSource::size_type do_end_counter(const ChecksumSource& source) const
-		final;
+	ChecksumSource::size_type do_end_current(const ChecksumSource& source,
+			const Checksums::size_type c) const final;
+	ChecksumSource::size_type do_end_counter(const ChecksumSource& source,
+			const Checksums::size_type c) const final;
 
 public:
 
@@ -988,11 +1000,13 @@ class Verification final
 	 * \param[in,out] result      Result to set verification flags
 	 * \param[in]     actual_sums Actual Checksums
 	 * \param[in]     traversal   TraversalPolicy to apply
+	 * \param[in]     current     Index of current block to traverse
 	 * \param[in]     match       MatchPolicy to apply
 	 */
 	void perform_current(VerificationResult& result,
 		const Checksums& actual_sums,
-		const TraversalPolicy& traversal, const MatchPolicy& match) const;
+		const TraversalPolicy& traversal,
+		const ChecksumSource::size_type current, const MatchPolicy& match) const;
 
 public:
 
@@ -1009,8 +1023,7 @@ public:
 	void perform(VerificationResult& result,
 		const Checksums& actual_sums, const ARId& actual_id,
 		const ChecksumSource& ref_sums,
-		TraversalPolicy& traversal, const MatchPolicy& match) const;
-		// TODO Make traversal const
+		const TraversalPolicy& traversal, const MatchPolicy& match) const;
 };
 
 
@@ -1036,7 +1049,7 @@ public:
 std::unique_ptr<VerificationResult> verify(
 		const Checksums& actual_sums, const ARId& actual_id,
 		const ChecksumSource& ref_sums,
-		TraversalPolicy& traversal, const MatchPolicy& match);
+		const TraversalPolicy& traversal, const MatchPolicy& match);
 
 
 #pragma GCC diagnostic push

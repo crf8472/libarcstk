@@ -783,22 +783,19 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal] [verify]" )
 	REQUIRE ( b.source() == &r );
 	REQUIRE ( b.source() != nullptr );
 
-	b.set_current(1);
-	REQUIRE ( b.current() == 1 ); // block
+	REQUIRE ( b.current_block(b.begin(1)) == 1 );
+	REQUIRE ( b.current_track(b.begin(1)) == 0 );
 
-	REQUIRE ( b.current_block(b.begin()) == 1 );
-	REQUIRE ( b.current_track(b.begin()) == 0 );
-
-	auto block_start = b.begin();
+	auto block_start = b.begin(1);
 	REQUIRE ( block_start.counter() == 0 );
 
-	auto block_end = b.end();
+	auto block_end = b.end(1);
 	REQUIRE ( block_end.counter() == 15 );
 
 
 	SECTION ( "BlockTraversal traverses current() correctly" )
 	{
-		auto i = b.begin();
+		auto i = b.begin(1);
 
 		CHECK ( i.current() == 1 ); // block
 		CHECK ( i.counter() == 0 ); // track
@@ -830,10 +827,10 @@ TEST_CASE ( "details::BlockTraversal", "[blocktraversal] [verify]" )
 	{
 		REQUIRE ( b.source() == &r );
 		REQUIRE ( b.source() != nullptr );
-		REQUIRE ( b.current() == 1 ); // block
+		//REQUIRE ( b.current() == 1 ); // block
 
-		auto it = b.begin();
-		const auto stop = b.end();
+		auto it = b.begin(1);
+		const auto stop = b.end(1);
 
 		for (; it != stop; ++it)
 		{
@@ -922,22 +919,19 @@ TEST_CASE ( "details::TrackTraversal", "[tracktraversal] [verify]" )
 	t.set_source(r);
 	REQUIRE ( t.source() == &r );
 
-	t.set_current(3);
-	REQUIRE ( t.current() == 3 ); // 0-based track
+	REQUIRE ( t.current_block(t.begin(3)) == 0 );
+	REQUIRE ( t.current_track(t.begin(3)) == 3 );
 
-	REQUIRE ( t.current_block(t.begin()) == 0 );
-	REQUIRE ( t.current_track(t.begin()) == 3 );
-
-	const auto track_start = t.begin();
+	const auto track_start = t.begin(3);
 	REQUIRE ( track_start.counter() == 0 );
 
-	const auto track_end = t.end();
+	const auto track_end = t.end(3);
 	REQUIRE ( track_end.counter() == 3 );
 
 
-	SECTION ( "TrackTraversal traverses current() correctly" )
+	SECTION ( "TrackTraversal traverses current correctly" )
 	{
-		auto i = t.begin();
+		auto i = t.begin(3);
 		CHECK ( i.current() == 3 ); // 0-based track
 		CHECK ( i.counter() == 0 );
 
@@ -1478,6 +1472,7 @@ TEST_CASE ( "details::Verification", "[verififcation] [verify]" )
 		const auto order = std::make_unique<TrackOrderPolicy>();
 
 		auto traversal = std::make_unique<BlockTraversal>();
+		traversal->set_source(ref_sums);
 
 		const auto result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), traversal->get_policy());
@@ -1611,6 +1606,8 @@ TEST_CASE ( "details::Verification", "[verififcation] [verify]" )
 
 		// strict version matching one block
 		auto block = std::make_unique<BlockTraversal>();
+		block->set_source(ref_sums);
+
 		const auto b_result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), block->get_policy());
 
@@ -1620,6 +1617,8 @@ TEST_CASE ( "details::Verification", "[verififcation] [verify]" )
 
 		// non-strict version just matching every track in at least one block
 		auto track = std::make_unique<TrackTraversal>();
+		track->set_source(ref_sums);
+
 		const auto t_result = arcstk::details::create_result(ref_sums.size(),
 			actual_sums.size(), track->get_policy());
 
