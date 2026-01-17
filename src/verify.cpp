@@ -893,7 +893,7 @@ void MatchPolicy::perform_match(VerificationResult& result,
 	{
 		const bool is_v2 = (type == arcstk::checksum::type::ARCS2);
 
-		if (ref == actual.get(type))
+		if (is_match(actual.get(type), ref))
 		{
 			const auto bitpos = result.verify_track(block, track, is_v2);
 
@@ -943,45 +943,45 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 // Verification
 
 
+void Verification::verify_all_ids(VerificationResult& result) const
+{
+	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	{
+		result.verify_id(b);
+	}
+}
+
+
 void Verification::perform_ids(VerificationResult& result,
 	const ARId& actual_id, const ChecksumSource& ref_sums) const
 {
 	using size_type = ChecksumSource::size_type;
 
-	if (actual_id == EmptyARId)
+	for (auto b = size_type { 0 }; b < ref_sums.size(); ++b)
 	{
-		// No actual ARId passed, set every id to 'verified'
-
-		for (auto b = size_type { 0 }; b < ref_sums.size(); ++b)
+		if (is_match(actual_id, ref_sums.id(b)))
 		{
 			result.verify_id(b);
-		}
-	} else
-	{
-		// Actually verify ids
-
-		for (auto b = size_type { 0 }; b < ref_sums.size(); ++b)
-		{
-			if (actual_id == ref_sums.id(b))
-			{
-				result.verify_id(b);
-			}
 		}
 	}
 }
 
 
-void Verification::perform_current(VerificationResult& result,
+void Verification::perform_checksums(VerificationResult& result,
 		const Checksums& actual_sums,
 		const TraversalPolicy& traversal,
 		const ChecksumSource::size_type current, const MatchPolicy& order) const
 {
-	for (auto it = traversal.begin(current); it != traversal.end(current); ++it)
+	auto block = Checksums::size_type { 0 };
+
+	for (auto t = traversal.begin(current); t != traversal.end(current); ++t)
 	{
-		if (result.id(traversal.current_block(it))) // ARId matched?
+		block = traversal.current_block(t);
+
+		if (result.id(block)) // ARId matched?
 		{
-			order.perform(result, actual_sums, *it, traversal.current_block(it),
-				traversal.current_track(it));
+			order.perform(result, actual_sums, *t, block,
+				traversal.current_track(t));
 		}
 	}
 }
@@ -992,8 +992,14 @@ void Verification::perform(VerificationResult& result,
 	const ChecksumSource& ref_sums,
 	const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
-	perform_ids(result, actual_id, ref_sums);
 	// Always done once per block, regardless of traversal
+	if (actual_id == EmptyARId)
+	{
+		verify_all_ids(result);
+	} else
+	{
+		perform_ids(result, actual_id, ref_sums);
+	}
 
 	// From here on, result can be checked for whether the current block is
 	// is actually considered relevant by its id.
@@ -1001,7 +1007,7 @@ void Verification::perform(VerificationResult& result,
 	for (auto c = ChecksumSource::size_type { 0 };
 			c < traversal.end_current(c); ++c)
 	{
-		perform_current(result, actual_sums, traversal, c, order);
+		perform_checksums(result, actual_sums, traversal, c, order);
 	}
 }
 

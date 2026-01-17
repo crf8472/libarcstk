@@ -976,6 +976,23 @@ class FindOrderPolicy final : public MatchPolicy
 
 
 /**
+ * \brief Perform a match between an actual instance and a reference instance.
+ *
+ * The actual match is performed by calling operator == on the instances.
+ *
+ * \tparam T Type of instances to match
+ *
+ * \param[in] actual The actual instance to match
+ * \param[in] ref    The reference instance to be matched
+ */
+template <typename T>
+bool is_match(const T& actual, const T& ref)
+{
+	return actual == ref;
+}
+
+
+/**
  * \brief Worker: implements the application of traversal and order.
  *
  * Internally calls verify().
@@ -984,6 +1001,13 @@ class FindOrderPolicy final : public MatchPolicy
  */
 class Verification final
 {
+	/**
+	 * \brief Verify all ids in the specified result.
+	 *
+	 * \param[in] result The result object to modify
+	 */
+	void verify_all_ids(VerificationResult& result) const;
+
 	/**
 	 * \brief Perform verification with specified parameters.
 	 *
@@ -1003,7 +1027,7 @@ class Verification final
 	 * \param[in]     current     Index of current block to traverse
 	 * \param[in]     match       MatchPolicy to apply
 	 */
-	void perform_current(VerificationResult& result,
+	void perform_checksums(VerificationResult& result,
 		const Checksums& actual_sums,
 		const TraversalPolicy& traversal,
 		const ChecksumSource::size_type current, const MatchPolicy& match) const;
