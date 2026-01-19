@@ -210,6 +210,8 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 			break;
 		}
 
+		p->start_triplets();
+
 		bytes_read = 0;
 
 		// Read triplets of current block
@@ -295,6 +297,8 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 						e);
 			}
 		} // for
+
+		p->end_triplets();
 
 		p->end_block();
 	}
