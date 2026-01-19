@@ -892,11 +892,23 @@ void ParseHandler::header(const uint8_t track_count, const uint32_t id1,
 }
 
 
+void ParseHandler::start_triplets()
+{
+	do_start_triplets();
+}
+
+
 void ParseHandler::triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs)
 {
 	do_triplet(arcs, confidence, frame450_arcs);
+}
+
+
+void ParseHandler::end_triplets()
+{
+	do_end_triplets();
 }
 
 
@@ -962,10 +974,22 @@ void DBARBuilder::do_header(const uint8_t track_count, const uint32_t id1,
 }
 
 
+void DBARBuilder::do_start_triplets()
+{
+	// empty
+}
+
+
 void DBARBuilder::do_triplet(const uint32_t arcs,
 	const uint8_t confidence, const uint32_t frame450_arcs)
 {
 	result_->add_triplet(arcs, confidence, frame450_arcs);
+}
+
+
+void DBARBuilder::do_end_triplets()
+{
+	// empty
 }
 
 

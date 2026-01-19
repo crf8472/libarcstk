@@ -736,6 +736,12 @@ class ParseHandler
 	= 0;
 
 	/**
+	 * \brief On starting a sequence of triplets.
+	 */
+	virtual void do_start_triplets()
+	= 0;
+
+	/**
 	 * \brief On a triplet.
 	 *
 	 * \param[in] arcs          ARCS value
@@ -745,6 +751,12 @@ class ParseHandler
 	virtual void do_triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs)
+	= 0;
+
+	/**
+	 * \brief On ending a sequence of triplets.
+	 */
+	virtual void do_end_triplets()
 	= 0;
 
 	/**
@@ -788,6 +800,11 @@ public:
 			const uint32_t id2, const uint32_t cddb_id);
 
 	/**
+	 * \brief On starting a sequence of triplets.
+	 */
+	void start_triplets();
+
+	/**
 	 * \brief React on a triplet.
 	 *
 	 * \param[in] arcs          ARCS value
@@ -797,6 +814,11 @@ public:
 	void triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs);
+
+	/**
+	 * \brief On ending a sequence of triplets.
+	 */
+	void end_triplets();
 
 	/**
 	 * \brief React on the end of an ARBlock.
@@ -829,9 +851,13 @@ class DBARBuilder final : public ParseHandler
 	virtual void do_header(const uint8_t track_count, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id) final;
 
+	virtual void do_start_triplets() final;
+
 	virtual void do_triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs) final;
+
+	virtual void do_end_triplets() final;
 
 	virtual void do_end_block() final;
 
