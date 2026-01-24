@@ -1,9 +1,9 @@
 ## Settings for using graphviz with CMake.
 ## See: https://cmake.org/cmake/help/latest/module/CMakeGraphVizOptions.html
 ##
-## Use as configuring parameter like:
+## Use as configuring parameter like (when in 'build' dir):
 ##
-## $ cmake --graphviz=libarcstk.dot && dot -Tpng libarcstk.dot -o libarcstk.png
+## $ cmake --graphviz=libarcstk.dot . && dot -Tpng libarcstk.dot -o image.png
 ##
 ## Debug-/Development only. Do not use in production builds!
 
@@ -17,8 +17,9 @@
 #set (GRAPHVIZ_OBJECT_LIBS    OFF )
 #set (GRAPHVIZ_UNKNOWN_LIBS   OFF )
 #set (GRAPHVIZ_EXTERNAL_LIBS  OFF )
-set (GRAPHVIZ_CUSTOM_TARGETS  ON  ) # Activate dot-graph for target dependencies
-#set (GRAPHVIZ_IGNORE_TARGETS  libarcstk )
+
+set (GRAPHVIZ_CUSTOM_TARGETS  ON  )
+set (GRAPHVIZ_IGNORE_TARGETS  Catch2.*  .*_test )
 
 #set (GRAPHVIZ_GENERATE_PER_TARGET OFF )
 #set (GRAPHVIZ_GENERATE_DEPENDERS  OFF )
