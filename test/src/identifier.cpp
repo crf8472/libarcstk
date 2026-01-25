@@ -13,7 +13,51 @@
 #include "identifier_details.hpp" // for make_arid
 #endif
 
-#include <memory>                 // for unique_ptr
+#include <type_traits>            // for is_*_{constructible,assignable}
+
+
+TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
+{
+	SECTION ( "is NOT default constructable")
+	{
+		CHECK ( ! std::is_default_constructible_v<arcstk::ARId>);
+	}
+
+	SECTION ( "IS copy-constructable")
+	{
+		CHECK ( std::is_copy_constructible_v<arcstk::ARId>);
+		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::ARId>);
+		//CHECK ( std::is_nothrow_copy_constructible_v<arcstk::ARId>);
+	}
+
+	SECTION ( "IS (nothrow) move-constructable")
+	{
+		CHECK ( std::is_move_constructible_v<arcstk::ARId>);
+		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ARId>);
+		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::ARId>);
+	}
+
+	SECTION ( "IS copy-assignable")
+	{
+		CHECK ( std::is_copy_assignable_v<arcstk::ARId>);
+		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::ARId>);
+		//CHECK ( std::is_nothrow_copy_assignable_v<arcstk::ARId>);
+	}
+
+	SECTION ( "IS (nothrow) move-assignable")
+	{
+		CHECK ( std::is_move_assignable_v<arcstk::ARId>);
+		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ARId>);
+		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::ARId>);
+	}
+
+	SECTION ("IS destructible")
+	{
+		CHECK ( std::is_destructible_v<arcstk::ARId> );
+		//CHECK ( std::is_trivially_destructible_v<arcstk::ARId> );
+		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ARId> );
+	}
+}
 
 
 TEST_CASE ( "ARId", "[arid] [id]" )
@@ -21,7 +65,6 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 	using arcstk::ARId;
 
 	ARId id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
-
 
 	SECTION ( "Constructor" )
 	{
@@ -115,7 +158,16 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 
 	SECTION ( "Copy assignment operator" )
 	{
-		ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
+		// id is as defined above
+		CHECK ( id.track_count() == 10 );
+		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
+		CHECK ( id.disc_id_2()   == 0x01f880cc );
+		CHECK ( id.cddb_id()     == 0xbc55023f );
+
+		const ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
+
+		CHECK ( id != other_id );
+
 		id = other_id;
 
 		CHECK ( id == other_id );
@@ -147,7 +199,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		std::unique_ptr<arcstk::ARId> id1 = arcstk::details::make_arid(
+		auto id1 = arcstk::details::make_arid(
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -155,20 +207,20 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 			253038
 		);
 
-		CHECK ( id1->track_count() == 15 );
-		CHECK ( id1->disc_id_1()   == 0x001b9178 );
-		CHECK ( id1->disc_id_2()   == 0x014be24e );
-		CHECK ( id1->cddb_id()     == 0xb40d2d0f );
+		CHECK ( id1.track_count() == 15 );
+		CHECK ( id1.disc_id_1()   == 0x001b9178 );
+		CHECK ( id1.disc_id_2()   == 0x014be24e );
+		CHECK ( id1.cddb_id()     == 0xb40d2d0f );
 
-		CHECK ( id1->url()         ==
+		CHECK ( id1.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/8/7/1/"
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
-		CHECK ( id1->filename()    ==
+		CHECK ( id1.filename()    ==
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
-		CHECK ( not id1->empty() );
+		CHECK ( not id1.empty() );
 	}
 
 
@@ -177,27 +229,27 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		std::unique_ptr<arcstk::ARId> id2 = arcstk::details::make_arid(
+		auto id2 = arcstk::details::make_arid(
 			// offsets
 			{ 32, 96985, 166422 },
 			// leadout
 			264957
 		);
 
-		CHECK ( id2->track_count() == 3 );
-		CHECK ( id2->disc_id_1()   == 0x0008100c );
-		CHECK ( id2->disc_id_2()   == 0x001ac008 );
-		CHECK ( id2->cddb_id()     == 0x190dcc03 );
+		CHECK ( id2.track_count() == 3 );
+		CHECK ( id2.disc_id_1()   == 0x0008100c );
+		CHECK ( id2.disc_id_2()   == 0x001ac008 );
+		CHECK ( id2.cddb_id()     == 0x190dcc03 );
 
-		CHECK ( id2->url()         ==
+		CHECK ( id2.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/c/0/0/"
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
-		CHECK ( id2->filename()    ==
+		CHECK ( id2.filename()    ==
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
-		CHECK ( not id2->empty() );
+		CHECK ( not id2.empty() );
 	}
 
 
@@ -206,27 +258,27 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		std::unique_ptr<arcstk::ARId> id3 = arcstk::details::make_arid(
+		auto id3 = arcstk::details::make_arid(
 			// offsets
 			{ 33, 34283, 49908, 71508, 97983, 111183, 126708, 161883, 187158 },
 			// leadout
 			210143
 		);
 
-		CHECK ( id3->track_count() == 9 );
-		CHECK ( id3->disc_id_1()   == 0x001008a6 );
-		CHECK ( id3->disc_id_2()   == 0x007469b8 );
-		CHECK ( id3->cddb_id()     == 0x870af109 );
+		CHECK ( id3.track_count() == 9 );
+		CHECK ( id3.disc_id_1()   == 0x001008a6 );
+		CHECK ( id3.disc_id_2()   == 0x007469b8 );
+		CHECK ( id3.cddb_id()     == 0x870af109 );
 
-		CHECK ( id3->url()         ==
+		CHECK ( id3.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/6/a/8/"
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
-		CHECK ( id3->filename()    ==
+		CHECK ( id3.filename()    ==
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
-		CHECK ( not id3->empty() );
+		CHECK ( not id3.empty() );
 	}
 
 
@@ -234,7 +286,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// Bent: "Programmed to Love"
 
-		std::unique_ptr<arcstk::ARId> id4 = arcstk::details::make_arid(
+		auto id4 = arcstk::details::make_arid(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -244,20 +296,20 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 
-		CHECK ( id4->track_count() == 18 );
-		CHECK ( id4->disc_id_1()   == 0x00307c78 );
-		CHECK ( id4->disc_id_2()   == 0x0281351d );
-		CHECK ( id4->cddb_id()     == 0x27114b12 );
+		CHECK ( id4.track_count() == 18 );
+		CHECK ( id4.disc_id_1()   == 0x00307c78 );
+		CHECK ( id4.disc_id_2()   == 0x0281351d );
+		CHECK ( id4.cddb_id()     == 0x27114b12 );
 
-		CHECK ( id4->url()         ==
+		CHECK ( id4.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/8/7/c/"
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
-		CHECK ( id4->filename()    ==
+		CHECK ( id4.filename()    ==
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
-		CHECK ( not id4->empty() );
+		CHECK ( not id4.empty() );
 	}
 
 
@@ -265,7 +317,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		std::unique_ptr<arcstk::ARId> id5 = arcstk::details::make_arid(
+		auto id5 = arcstk::details::make_arid(
 			// offsets
 			{ 33 },
 			// leadout
@@ -273,46 +325,58 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 
-		CHECK ( id5->track_count() == 1 );
-		CHECK ( id5->disc_id_1()   == 0x0003902d );
-		CHECK ( id5->disc_id_2()   == 0x00072039 );
-		CHECK ( id5->cddb_id()     == 0x020c2901 );
+		CHECK ( id5.track_count() == 1 );
+		CHECK ( id5.disc_id_1()   == 0x0003902d );
+		CHECK ( id5.disc_id_2()   == 0x00072039 );
+		CHECK ( id5.cddb_id()     == 0x020c2901 );
 
-		CHECK ( id5->url()         ==
+		CHECK ( id5.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/d/2/0/"
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
-		CHECK ( id5->filename()    ==
+		CHECK ( id5.filename()    ==
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
-		CHECK ( not id5->empty() );
+		CHECK ( not id5.empty() );
 	}
 }
 
 
 TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
 {
-	SECTION ( "Empty ARId" )
+	SECTION ( "make_empty_arid produces empty result" )
 	{
-		std::unique_ptr<arcstk::ARId> empty_id = arcstk::make_empty_arid();
+		auto empty_id = arcstk::make_empty_arid();
 
+		CHECK ( empty_id.empty() );
+	}
 
-		CHECK ( empty_id->track_count() == 0 );
-		CHECK ( empty_id->disc_id_1()   == 0x00000000 );
-		CHECK ( empty_id->disc_id_2()   == 0x00000000 );
-		CHECK ( empty_id->cddb_id()     == 0x00000000 );
+	SECTION ( "make_empty_arid produces result that equals EmptyARId" )
+	{
+		auto empty_id = arcstk::make_empty_arid();
 
-		CHECK ( empty_id->url()         ==
+		CHECK ( empty_id == arcstk::EmptyARId );
+	}
+
+	SECTION ( "make_empty_arid produces result with zero values" )
+	{
+		auto empty_id = arcstk::make_empty_arid();
+
+		CHECK ( empty_id.track_count() == 0 );
+		CHECK ( empty_id.disc_id_1()   == 0x00000000 );
+		CHECK ( empty_id.disc_id_2()   == 0x00000000 );
+		CHECK ( empty_id.cddb_id()     == 0x00000000 );
+
+		CHECK ( empty_id.url()         ==
 				"http://www.accuraterip.com/accuraterip"
 				"/0/0/0/"
 				"dBAR-000-00000000-00000000-00000000.bin" );
 
-		CHECK ( empty_id->filename()    ==
+		CHECK ( empty_id.filename()    ==
 				"dBAR-000-00000000-00000000-00000000.bin" );
-
-		CHECK ( empty_id->empty() );
 	}
+
 }
 
 

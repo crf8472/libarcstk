@@ -11,6 +11,7 @@
  * Calculate and represent AccurateRip IDs.
  */
 
+#include <cstddef>               // for size_t
 #include <cstdint>               // for uint32_t, int32_t, uint64_t
 #include <memory>                // for unique_ptr
 #include <string>                // for string
@@ -70,6 +71,19 @@ public:
 	 * \param[in] cddb_id     CDDB id of this medium
 	 */
 	ARId(const int track_count,
+			const uint32_t id_1,
+			const uint32_t id_2,
+			const uint32_t cddb_id);
+
+	/**
+	 * \brief Construct ARId.
+	 *
+	 * \param[in] track_count Number of tracks in this medium
+	 * \param[in] id_1        Id 1 of this medium
+	 * \param[in] id_2        Id 2 of this medium
+	 * \param[in] cddb_id     CDDB id of this medium
+	 */
+	ARId(const std::size_t track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -215,8 +229,7 @@ public:
  *
  * \return ARId
  */
-std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
-		const AudioSize& leadout);
+ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a ToC and a specified leadout.
@@ -243,7 +256,7 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
  *
  * \throw InvalidMetadataException If \c toc and \c leadout are inconsistent
  */
-std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout);
+ARId make_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a
@@ -260,7 +273,7 @@ std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout);
  * \throw InvalidMetadataException
  * If \c toc is not \link arcstk::v_1_0_0::ToC::complete() complete()\endlink.
  */
-std::unique_ptr<ARId> make_arid(const ToC& toc);
+ARId make_arid(const ToC& toc);
 
 /**
  * \brief Global instance of an empty ARId.
@@ -291,7 +304,7 @@ extern const ARId EmptyARId;
  *
  * \return An empty ARId
  */
-std::unique_ptr<ARId> make_empty_arid() noexcept;
+ARId make_empty_arid() noexcept;
 
 /** @} */
 

@@ -30,7 +30,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-const ARId EmptyARId = *make_empty_arid();
+const ARId EmptyARId = make_empty_arid();
 
 
 // identifier_details.hpp
@@ -190,15 +190,14 @@ std::string construct_id(const int track_count,
 }
 
 
-std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
-		const int32_t leadout)
+ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout)
 {
-	return std::make_unique<ARId>(
+	return ARId {
 			offsets.size(),
 			details::disc_id_1(offsets, leadout),
 			details::disc_id_2(offsets, leadout),
 			details::cddb_id  (offsets, leadout)
-	);
+	};
 }
 
 } // namespace details
@@ -263,10 +262,11 @@ bool ARId::Impl::empty() const noexcept
 
 void ARId::Impl::swap(Impl& rhs) noexcept
 {
-	std::swap(this->track_count_, rhs.track_count_);
-	std::swap(this->disc_id1_,    rhs.disc_id1_);
-	std::swap(this->disc_id2_,    rhs.disc_id2_);
-	std::swap(this->cddb_id_,     rhs.cddb_id_);
+	using std::swap;
+	swap(this->track_count_, rhs.track_count_);
+	swap(this->disc_id1_,    rhs.disc_id1_);
+	swap(this->disc_id2_,    rhs.disc_id2_);
+	swap(this->cddb_id_,     rhs.cddb_id_);
 }
 
 
@@ -293,6 +293,17 @@ ARId::ARId(const int track_count,
 		const uint32_t id_2,
 		const uint32_t cddb_id)
 	: impl_ { std::make_unique<ARId::Impl>(track_count, id_1, id_2, cddb_id) }
+{
+	// empty
+}
+
+
+ARId::ARId(const std::size_t track_count,
+			const uint32_t id_1,
+			const uint32_t id_2,
+			const uint32_t cddb_id)
+	: ARId { static_cast<int>(track_count)/* must be > 0 and < 100 anyway */,
+		id_1, id_2, cddb_id }
 {
 	// empty
 }
@@ -396,8 +407,7 @@ ARId& ARId::operator = (ARId&& rhs) noexcept = default;
 // make_arid
 
 
-std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
-		const AudioSize& leadout)
+ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout)
 {
 	const auto offset_frames { convert<UNIT::FRAMES>(offsets) };
 	const auto leadout_frame { leadout.frames() };
@@ -406,14 +416,14 @@ std::unique_ptr<ARId> make_arid(const std::vector<AudioSize>& offsets,
 }
 
 
-std::unique_ptr<ARId> make_arid(const ToC& toc, const AudioSize& leadout)
+ARId make_arid(const ToC& toc, const AudioSize& leadout)
 {
 	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
 			leadout.frames());
 }
 
 
-std::unique_ptr<ARId> make_arid(const ToC& toc)
+ARId make_arid(const ToC& toc)
 {
 	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
 			toc.leadout().frames());
@@ -423,9 +433,9 @@ std::unique_ptr<ARId> make_arid(const ToC& toc)
 // make_empty_arid
 
 
-std::unique_ptr<ARId> make_empty_arid() noexcept
+ARId make_empty_arid() noexcept
 {
-	return std::make_unique<ARId>(0, 0, 0, 0);
+	return ARId { 0, 0, 0, 0 };
 }
 
 } // namespace v_1_0_0

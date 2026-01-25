@@ -130,8 +130,7 @@ std::string construct_id(const int track_count,
  *
  * \return ARId
  */
-std::unique_ptr<ARId> make_arid(const std::vector<int32_t>& offsets,
-		const int32_t leadout);
+ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout);
 
 } //namespace details
 
