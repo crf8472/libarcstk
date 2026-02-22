@@ -1,4 +1,4 @@
-## CMake script for m.css
+## CMake file for building the documentation with m.css
 ##
 ## vim:fdm=marker
 ##
