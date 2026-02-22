@@ -4,8 +4,8 @@
 /**
  * \file
  *
- * \brief Provide \link version version and name information\endlink for
- * libarcstk.
+ * \brief \link version Name, version and release information\endlink for
+ *        libarcstk.
  *
  * \details
  *
