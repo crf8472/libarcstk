@@ -20,7 +20,9 @@
 namespace arcstk
 {
 
-// libarcstk API version 1.0.0, no doxygen comment
+/**
+ * \brief libarcstk API version 1.0.0.
+ */
 inline namespace v_1_0_0
 {
 
