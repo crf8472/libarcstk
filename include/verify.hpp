@@ -207,7 +207,7 @@ public:
 
 
 /**
- * \brief Base: wrap a checksum container type in a ChecksumSource.
+ * \brief Template/Base: wrap a checksum container type in a ChecksumSource.
  *
  * \details
  *

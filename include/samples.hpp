@@ -50,7 +50,7 @@ inline namespace v_1_0_0
 using sample_type = uint32_t;
 
 /**
- * \brief A sequence of samples represented by 16 or 32 bit integral types.
+ * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
  *
  * Calculation expects an update represented by two
  * iterators that enumerate the audio input as a sequence of 32 bit unsigned
