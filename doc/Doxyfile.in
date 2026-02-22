@@ -1,6 +1,6 @@
 ## Base configuration for doxygen.
 ##
-## Activates only the default output formats, i.e. HTML and LaTeX.
+## Activates only HTML output, deactives LaTeX.
 ##
 ## Can be used as a standalone config for doxygen or to be included by
 ## another doxyfile that adds generator-specific configuration.
