@@ -77,7 +77,7 @@ using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
  * Updating a Calculation with an actual sequence of samples is done by
  * providing a sequence of samples represented by two instances of
  * SampleInputIterator. Those instances represent start and stop of the update.
- * SampleInputIterator is a wrapper iterator for any iterator with a
+ * SampleInputIterator is a wrapper input_iterator for any iterator with a
  * <tt>value_type</tt> of sample_t, which is the declared type for PCM 32 bit
  * samples. Using a SampleSequence may be of convenience for establishing
  * compatibility of the sample input format.
@@ -147,6 +147,8 @@ using IsSampleIterator =
 	std::enable_if_t<is_iterator_over<Iterator, sample_t>::value>;
 
 /**
+ * \internal
+ *
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
