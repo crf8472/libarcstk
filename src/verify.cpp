@@ -669,6 +669,7 @@ SourceIterator SourceIterator::operator ++ (int) // postfix increment
 TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
 	: source_   { nullptr }
 	, selector_ { std::move(selector) }
+	, current_  { 0 }
 {
 	// empty
 }
@@ -677,6 +678,7 @@ TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
 TraversalPolicy::TraversalPolicy(const TraversalPolicy& rhs)
 	: source_   { rhs.source_ }
 	, selector_ { rhs.selector_->clone() }
+	, current_  { rhs.current_ }
 {
 	// empty
 }
@@ -686,6 +688,7 @@ TraversalPolicy& TraversalPolicy::operator = (const TraversalPolicy& rhs)
 {
 	source_   = rhs.source_;
 	selector_ = rhs.selector_->clone();
+	current_  = rhs.current_;
 
 	return *this;
 }
