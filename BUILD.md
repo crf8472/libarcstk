@@ -251,12 +251,9 @@ Doxygen is required for building the documentation in either case.
 The documentation can be build as a set of static HTML pages (recommended) or as
 a PDF manual using LaTeX (experimental, very alpha).
 
-When building HTML, you may choose either the stock HTML output of doxygen or
-the HTML output styled by m.css. Doxygen's stock HTML output is stable but looks
-outdated. The m.css-styled seems by far user-friendlier, cleaner and more
-adapted for documentation of modern C++. On the other hand it is more cutting
-edge and therefore not as stable as doxygen's stock HTML output. Credits for
-m.css go to [mozra][3].
+When building HTML, you may choose between the following options:
+  - stock HTML output of doxygen (the default)
+  - HTML output styled by [m.css][3]
 
 
 ### Website: Doxygen Stock HTML
@@ -281,7 +278,7 @@ Accompanying [m.css][3] comes a doxygen style. It takes the doxygen XML output
 and generates a static site in plain HTML5 and CSS3 from it (nearly without
 JavaScript).
 
-The [public APIdoc of libarcstk is build with m.css][4].
+The [public APIdoc of libarcstk is build with m.css][5].
 
 This APIdoc can be built locally by the following steps:
 
@@ -297,6 +294,8 @@ not work.)
 
 Documentation is generated in ``build/generated-docs/mcss`` and you can
 load ``build/generated-docs/mcss/html/index.html`` in your browser.
+
+Gratitude for m.css is owed to [mozra][3].
 
 
 ### Manual: PDF by LaTeX (smoke-tested, more or less)
@@ -375,5 +374,6 @@ just not done. Help will be appreciated.
 [1]: https://include-what-you-use.org/
 [2]: https://github.com/catchorg/Catch2
 [3]: https://mcss.mosra.cz/doxygen/
-[4]: https://crf8472.github.io/libarcstk/current/
+[4]: https://jothepro.github.io/doxygen-awesome-css/
+[5]: https://crf8472.github.io/libarcstk/current/
 
