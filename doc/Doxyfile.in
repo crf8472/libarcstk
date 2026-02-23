@@ -1,21 +1,39 @@
 ## Base configuration for doxygen.
 ##
-## Activates only HTML output, deactives LaTeX.
-##
-## Can be used as a standalone config for doxygen or to be included by
-## another doxyfile that adds generator-specific configuration.
+## Can be used as a standalone config for doxygen or to be included by another
+## doxyfile that adds generator-specific configuration.
 ## See e.g. doc/thirdparty/mcss/Doxyfile.in.
 
+## Project information
 PROJECT_NAME           = "@PROJECT_NAME@"
 PROJECT_NUMBER         = "@PROJECT_VERSION_STRING@"
 PROJECT_BRIEF          = "@PROJECT_BRIEF_DESC@"
-OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
 
-STRIP_FROM_PATH        = @DOXYGEN_STRIP_FROM_PATH@
-STRIP_FROM_INC_PATH    = @DOXYGEN_STRIP_FROM_INC_PATH@
+## Which parts to show
+INTERNAL_DOCS          = @DOXYGEN_INTERNAL_DOCS@
+EXTRACT_LOCAL_CLASSES  = NO
+HIDE_UNDOC_MEMBERS     = YES
+HIDE_UNDOC_CLASSES     = YES
+HIDE_FRIEND_COMPOUNDS  = YES
+HIDE_IN_BODY_DOCS      = YES
+VERBATIM_HEADERS       = NO
+#HIDE_INLINE_NAMESPACES = YES ## https://github.com/doxygen/doxygen/pull/10070
 
-# Base configuration: define every m.css markup macro empty
-# This entails to use this Doxyfile with m.css markup without using m.css.
+## Grouping
+INLINE_GROUPED_CLASSES = YES
+SHOW_GROUPED_MEMB_INC  = YES
+GROUP_GRAPHS           = NO
+
+## Sorting
+SORT_BRIEF_DOCS        = YES
+SORT_MEMBERS_CTORS_1ST = YES
+SORT_GROUP_NAMES       = YES
+
+## Text Replacements
+##
+## Define every m.css markup macro empty to effectively ignore m.css markup
+## in doxygen comments. This Doxyfile can therefore be used without using m.css.
+## An m.css specific Doxyfile may include this file and overwrite these ALIASES.
 ALIASES               += \
 							"m_div{1}="                  \
 							"m_enddiv="                  \
@@ -28,38 +46,22 @@ ALIASES               += \
 							"m_keyword{3}="              \
 							"m_enum_values_as_keywords="
 
-INLINE_GROUPED_CLASSES = YES
-EXTRACT_LOCAL_CLASSES  = NO
-HIDE_UNDOC_MEMBERS     = YES
-HIDE_UNDOC_CLASSES     = YES
-HIDE_FRIEND_COMPOUNDS  = YES
-HIDE_IN_BODY_DOCS      = YES
-INTERNAL_DOCS          = @DOXYGEN_INTERNAL_DOCS@
-SHOW_GROUPED_MEMB_INC  = YES
+## Path Modification
+STRIP_FROM_PATH        = @DOXYGEN_STRIP_FROM_PATH@
+STRIP_FROM_INC_PATH    = @DOXYGEN_STRIP_FROM_INC_PATH@
 
-SORT_BRIEF_DOCS        = YES
-SORT_MEMBERS_CTORS_1ST = YES
-SORT_GROUP_NAMES       = YES
-
-WARN_LOGFILE           = @PROJECT_LOG_DIR@/Doxygen_Warnings.log
-WARN_NO_PARAMDOC       = YES
-
+## Input
+USE_MDFILE_AS_MAINPAGE = @DOXYGEN_USE_MDFILE_AS_MAINPAGE@
 INPUT                  = @DOXYGEN_INPUT@
-EXCLUDE                = build install thirdparty
 FILE_PATTERNS          = @DOXYGEN_FILE_PATTERNS@
 EXCLUDE_PATTERNS       = *.cpp
 RECURSIVE              = YES
 
-USE_MDFILE_AS_MAINPAGE = @DOXYGEN_USE_MDFILE_AS_MAINPAGE@
+## Logging
+WARN_LOGFILE           = @PROJECT_LOG_DIR@/Doxygen_Warnings.log
+WARN_NO_PARAMDOC       = YES
 
-VERBATIM_HEADERS       = NO
-
-#GENERATE_HTML          = YES # default
-
+## Output
+OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIRECTORY@"
 GENERATE_LATEX         = NO
-
-GROUP_GRAPHS           = NO
-
-#HIDE_INLINE_NAMESPACES = YES
-## https://github.com/doxygen/doxygen/pull/10070
 
