@@ -79,6 +79,7 @@ set (DOXYGEN_FILE_PATTERNS          "*.hpp *.md" )
 set (DOXYGEN_STRIP_FROM_INC_PATH    "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_STRIP_FROM_PATH        "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_INPUT                  "${PROJECT_INCLUDE_SOURCE_DIR}/" )
+set (DOXYGEN_INTERNAL_DOCS          "NO" )
 
 
 
@@ -96,27 +97,20 @@ if (WITH_INTERNAL_DOCS )
 
 	## passed to doxygen
 
+	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${PROJECT_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${PROJECT_GEN_SOURCES_DIR}/" )
+
+	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${PROJECT_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${PROJECT_GEN_SOURCES_DIR}/" )
+
+	list (APPEND DOXYGEN_INPUT               "${PROJECT_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_INPUT               "${PROJECT_GEN_SOURCES_DIR}/" )
+
 	set (DOXYGEN_INTERNAL_DOCS "YES" )
-
-	string (REPLACE ";" " " DOXYGEN_INPUT
-		"${DOXYGEN_INPUT};${PROJECT_SOURCE_DIR}/;${PROJECT_GEN_SOURCES_DIR}/" )
-
-	string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
-		"${DOXYGEN_STRIP_FROM_INC_PATH}/;${PROJECT_SOURCE_DIR}/;${PROJECT_GEN_SOURCES_DIR}/" )
-
-	string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH
-		"${DOXYGEN_STRIP_FROM_PATH}/;${PROJECT_SOURCE_DIR}/;${PROJECT_GEN_SOURCES_DIR}/" )
-
-	# commented out, no list of private headers available
-	#set (DOC_SOURCES ${DOC_SOURCES} ${PRIVATE_HEADERS} )
 
 	## not passed to doxygen, cmake only
 
 	set (DOC_COMMENT "${DOC_COMMENT} (also internal APIs)" )
-
-else ()
-
-	set (DOXYGEN_INTERNAL_DOCS "NO" )
 
 endif (WITH_INTERNAL_DOCS)
 
@@ -124,8 +118,10 @@ endif (WITH_INTERNAL_DOCS)
 
 ## --- Configure Doxyfile-base {{{1
 
-## Normalize DOXYGEN_INPUT list
-string (REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT}/" )
+## Normalize path lists for doxygen
+string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH "${DOXYGEN_STRIP_FROM_INC_PATH}" )
+string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH "${DOXYGEN_STRIP_FROM_PATH}" )
+string (REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT}" )
 
 configure_file ( "${DOC_DOXYFILE_BASE_TEMPLATE}" "${DOC_DOXYFILE_BASE}" @ONLY )
 

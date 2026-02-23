@@ -209,20 +209,20 @@ configure_file ("${PROJECT_SOURCE_DIR}/version.cpp.in"
 
 ## -- Specify Exported Headers {{{2
 
-set (INTERFACE_HEADERS )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp" )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/algorithms.hpp"  )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/calculate.hpp"   )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/checksum.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/dbar.hpp"        )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/identifier.hpp"  )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/logging.hpp"     )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/metadata.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/policies.hpp"    )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/samples.hpp"     )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/verify.hpp"      )
-list (APPEND INTERFACE_HEADERS "${PROJECT_INCLUDE_SOURCE_DIR}/version.hpp"     )
-
+list (APPEND INTERFACE_HEADERS
+	"${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/algorithms.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/calculate.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/checksum.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/dbar.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/identifier.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/logging.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/metadata.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/policies.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/samples.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/verify.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/version.hpp"
+)
 
 ## -- Specify Sources {{{2
 
@@ -467,23 +467,11 @@ endif (WITH_DOCS )
 ## -- Require WITH_DOCS to use WITH_INTERNAL_DOCS
 if (WITH_INTERNAL_DOCS )
 
-	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
+# 	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
 	if (NOT WITH_DOCS )
-		message (FATAL_ERROR
-			"-DWITH_DOCS=ON is required to set -DWITH_INTERNAL_DOCS."
-			" Auto-set it now, but this will be an error in future versions." )
+		message (WARNING
+			"-DWITH_DOCS=ON is OFF but -DWITH_INTERNAL_DOCS=ON will only "
+			"have any effects as soon as -DWITH_DOCS is set ON." )
 	endif()
-endif()
-
-
-## -- For backwards compatibility
-if (USE_MCSS ) # TODO Remove that
-
-	if (NOT "MCSS" IN_LIST USE_DOC_TOOL )
-		list (APPEND USE_DOC_TOOL "MCSS" )
-	endif()
-	unset (USE_MCSS )
-	message (WARNING "Option USE_MCSS is deprecated and will be removed soon!"
-		" Use -DUSE_DOC_TOOL=MCSS instead." )
 endif()
 
