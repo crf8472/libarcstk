@@ -7,8 +7,8 @@ DOXYFILE = 'Doxyfile'
 MAIN_PROJECT_URL = "@PROJECT_URL@/"
 
 LINKS_NAVBAR1    = [
-    (None, 'modules', []),
-    (None, 'pages',   [])
+    (None, 'pages',   []),
+    (None, 'modules', [])
 ]
 
 LINKS_NAVBAR2    = [
