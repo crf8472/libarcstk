@@ -178,12 +178,12 @@ std::string construct_id(const int track_count,
 
 	id << std::dec
 		<< std::setw(3) << std::setfill('0') << track_count
-		<< "-"
+		<< '-'
 		<< std::hex << std::nouppercase
 		<< std::setw(8) << std::setfill('0') << id_1
-		<< "-"
+		<< '-'
 		<< std::setw(8) << std::setfill('0') << id_2
-		<< "-"
+		<< '-'
 		<< std::setw(8) << std::setfill('0') << cddb_id;
 
 	return id.str();
