@@ -3,8 +3,8 @@
 // provided by AccurateRip.
 //
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
-#include "calculate.hpp"             // for Checksums
+#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#include "checksum.hpp"              // for Checksums
 #endif
 #ifndef __LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"                  // for DBAR
@@ -39,16 +39,16 @@
 
 // NOTE 2: This example is rather long, much longer than I would prefer it to
 // be. The reason for this longishness is that for using the match interface,
-// you have to add code that prepares and provides the following input:
+// you have to add boilerplate code that prepares and provides the following
+// input:
 //
 // - your own sums, i.e. the sums you have from your rip
 // - the reference sums from AccurateRip and
 // - the AccurateRip id of the album.
 //
-// This requires some boilerplate code. Although that boilerplate does not carry
-// any didactic evidence concerning libarcstk, I wanted to provide an example
-// that at least demonstrates the added value on your own input data.
-// In fact, the functions
+// Although that boilerplate does not carry any didactic evidence concerning
+// libarcstk, I wanted to provide an example that at least demonstrates the
+// added value on your own input data. In fact, the functions
 //
 // parse_arid(),
 // parse_input_arcs() and
@@ -56,16 +56,16 @@
 //
 // are more or less quick and dirty dummies for just providing the required
 // input values. This is not related to getting acquainted to the libarcstk API.
-// The actual example demonstrating the use of the AlbumMatcher class is
+// The actual example demonstrating the use of the AlbumVerifier class is
 // contained in main(). It's very simple to use. Have fun!
 
 
 /**
  * \brief Parse the ARId from the command line.
  *
- * @param[in] input_id A string representation of the ARId
+ * \param[in] input_id A string representation of the ARId
  *
- * @return Parsed ARId
+ * \return Parsed ARId
  */
 arcstk::ARId parse_arid(const char* input_id)
 {
@@ -83,10 +83,10 @@ arcstk::ARId parse_arid(const char* input_id)
 /**
  * \brief Parse a comma-separated list of hexadecimal numbers.
  *
- * @param[in] list A string representation of the list
- * @param[in] t    The checksum type to declare (either ARCS1 or ARCS2)
+ * \param[in] list A string representation of the list
+ * \param[in] t    The checksum type to declare (either ARCS1 or ARCS2)
  *
- * @return Parsed Checksums
+ * \return Parsed Checksums
  */
 arcstk::Checksums parse_input_arcs(const char* list,
 		const arcstk::checksum::type t)
@@ -143,12 +143,12 @@ arcstk::Checksums parse_input_arcs(const char* list,
 /**
  * \brief Parse ARCSs from a non-empty response file or from stdin.
  *
- * @param[in] filename Name of the response file
+ * \param[in] filename Name of the response file
  *
- * @return Parsed ARResponse
+ * \return Parsed ARResponse
  *
- * @throws std::runtime_error           If filename is empty
- * @throws arcstk::StreamParseException If parsing fails
+ * \throws std::runtime_error           If filename is empty
+ * \throws arcstk::StreamParseException If parsing fails
  */
 arcstk::DBAR parse_match_arcs(const std::string &filename)
 {

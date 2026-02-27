@@ -128,8 +128,8 @@ bool ResultBits::init(int blocks, int tracks)
 		validate(blocks, tracks);
 	} catch (const std::exception& e)
 	{
-		//std::cerr << e.what();
-		return false; // TODO Log something
+		ARCS_LOG_ERROR << "Exception while validating: " << e.what();
+		return false;
 	}
 
 	blocks_ = blocks;
@@ -203,14 +203,16 @@ void ResultBits::validate(int blocks, int tracks) const
 {
 	if (tracks < 0 or tracks > 99) // FIXME CDDA::MAX_TRACKCOUNT)
 	{
+		using std::to_string;
 		throw std::out_of_range("Illegal number of tracks: "
-				+ std::to_string(tracks));
+				+ to_string(tracks));
 	}
 
 	if (blocks < 0)
 	{
+		using std::to_string;
 		throw std::out_of_range("Illegal number of blocks: "
-				+ std::to_string(blocks));
+				+ to_string(blocks));
 	}
 }
 
@@ -248,7 +250,9 @@ int ResultBits::track_offset(int t, bool v2) const
 
 void ResultBits::set_flag(const int offset, const bool value)
 {
-	auto pos = flag_.begin() + offset; // TODO Work with index instead?
+	using std::begin;
+
+	auto pos = begin(flag_) + offset; // TODO Work with index instead?
 	*pos = value;
 }
 
@@ -367,6 +371,7 @@ bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
 {
 	for (auto b = 0; b < r.total_blocks(); ++b)
 	{
+		// if track matches either v2 or v1
 		if (r.track(b, track, true) or r.track(b, track, false))
 		{
 			return true;
@@ -625,7 +630,7 @@ ChecksumSource::size_type SourceIterator::current() const
 }
 
 
-SourceIterator::reference SourceIterator::operator * () const // dereferncing
+SourceIterator::reference SourceIterator::operator * () const // dereferencing
 {
 	// Used for testing, commented out
 
@@ -892,9 +897,11 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		const ChecksumSet& actual, const Checksum& ref,
 		const int block, const Checksums::size_type track) const
 {
+	bool is_v2;
+
 	for (const auto& type : actual.types())
 	{
-		const bool is_v2 = (type == arcstk::checksum::type::ARCS2);
+		is_v2 = (type == arcstk::checksum::type::ARCS2);
 
 		if (is_match(actual.get(type), ref))
 		{
@@ -946,7 +953,7 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 // Verification
 
 
-void Verification::verify_all_ids(VerificationResult& result) const
+void Verification::set_all_ids_verified(VerificationResult& result) const
 {
 	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
 	{
@@ -998,14 +1005,15 @@ void Verification::perform(VerificationResult& result,
 	// Always done once per block, regardless of traversal
 	if (actual_id == EmptyARId)
 	{
-		verify_all_ids(result);
+		set_all_ids_verified(result);
 	} else
 	{
 		perform_ids(result, actual_id, ref_sums);
 	}
 
-	// From here on, result can be checked for whether the current block is
-	// is actually considered relevant by its id.
+	// From here on, result can be checked for whether the current block
+	// (based on its id) is considered relevant for verification in the first
+	// place.
 
 	for (auto c = ChecksumSource::size_type { 0 };
 			c < traversal.end_current(c); ++c)
@@ -1023,16 +1031,16 @@ std::unique_ptr<VerificationResult> verify(
 		const ChecksumSource& ref_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& order)
 {
-	auto r = create_result(ref_sums.size()/* total blocks */,
+	auto result = create_result(ref_sums.size()/* total blocks */,
 			actual_sums.size()/* total tracks per block */,
 			traversal.get_policy());
 
 	const auto v = Verification{};
 	// Verification has no members so its instantiation does not
 	// require extra memory.
-	v.perform(*r, actual_sums, actual_id, ref_sums, traversal, order);
+	v.perform(*result, actual_sums, actual_id, ref_sums, traversal, order);
 
-	return r;
+	return result;
 }
 
 

@@ -324,7 +324,7 @@ public:
 // Maybe enum constants for the tuple indices: INDEX, ALGO, TOTAL_FAILS
 
 /**
- * \brief Interface: Result of a verification process.
+ * \brief Interface: Result of a Verifier performing a verification process.
  *
  * \details
  *
@@ -333,10 +333,10 @@ public:
  *
  * It holds the result of any verification task of any reference track value.
  * Access to each of these results is provided in terms of
- * <tt>block:track:version</tt>. The <tt>block</tt> and <tt>track</tt> address
- * components are integers, that refer to the respective 0-based block and
- * 0-based track in the ChecksumSource. The <tt>version</tt> is a boolean that
- * indicates whether the match is for ARCSv2 (\c TRUE) or for ARCSv1 (\c FALSE).
+ * <tt>block:track:%version</tt>. The \c block and \c track address components
+ * are integers, that refer to the respective 0-based block and 0-based track in
+ * the ChecksumSource. The \c %version is a boolean that indicates whether the
+ * match is for ARCSv2 (\c TRUE) or for ARCSv1 (\c FALSE).
  *
  * The result contains also the track-based interpretation of the flags, i.e.
  * whether a given track is considered to be verified or not.
@@ -449,11 +449,12 @@ public:
 	 *
 	 * \note
 	 * The call <tt>myVerificationResult.value(0,17,true)</tt> refers to the
-	 * ARCSv2 of track 18 in the first block. If this call returns \c TRUE,
-	 * track 18 in the first block in the \c ref_sums was matched. Whether this
-	 * indicates that track 18 of the actual Checksums caused the match is
-	 * implementation defined and depends on the \c MatchOrder. It can also
-	 * just indicate that \em one of the actual Checksums matched track 18.
+	 * ARCSv2 verification status of track 18 in the first block. If this call
+	 * returns \c TRUE, track 18 in the first block in the \c ref_sums was
+	 * matched (and thereby turned out to be ARCSv2). Whether this indicates
+	 * that track 18 of the actual Checksums caused the match is implementation
+	 * defined and depends on whether the result is strict(). Otherwise, it just
+	 * indicates that \em one of the actual Checksums matched track 18.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
 	 * \param[in] t  0-based index of the track to verify in the ChecksumSource
@@ -554,6 +555,8 @@ public:
 	 * If there is more than one block with the smallest difference, return the
 	 * one with the lowest index position.
 	 *
+	 * \todo API must support to access single parts the resulting tuple.
+	 *
 	 * \return 0-based index, ARCS version, and difference of the best block
 	 */
 	std::tuple<int, bool, int> best_block() const;
@@ -586,27 +589,23 @@ public:
 /**
  * \brief Interface: perform a verification.
  *
- * A verification is performed by matching actual checksums against some
- * reference checksums. A Verifier declares the interface for this matching
- * process. The actual checksums are passed as constructor arguments in the
- * concrete subclasses. Some Verifier types may return \c nullptr for their
- * actual_id().
+ * A Verifier declares the interface for matching actual checksums against some
+ * reference checksums. The actual checksums are passed as constructor arguments
+ * in the concrete subclasses. Some Verifier types may return \c nullptr for
+ * their actual_id().
  *
- * Function perform() does the match against the reference
- * checksums passed as an argument.
+ * Function perform() does the match against the reference checksums passed as
+ * an argument.
  *
- * Any Verifier can be either strict or not strict. A strict Verifier will
+ * Any Verifier can be either strict or non-strict. A strict Verifier will
  * produce a verified result only iff there is at least one block in the
  * ChecksumSource that is identical to the list of actual Checksums. Iff the
- * Verifier is not strict, its result will qualify as verified already iff every
+ * Verifier is non-strict, its result will qualify as verified already iff every
  * actual Checksum occurred at least in one block of the ChecksumSource.
  *
  * Any Verifier is strict() by default.
  */
-class Verifier
-{
-	virtual const ARId* do_actual_id() const noexcept
-	= 0;
+class Verifier { virtual const ARId* do_actual_id() const noexcept = 0;
 
 	virtual const Checksums* do_actual_checksums() const noexcept
 	= 0;
@@ -692,21 +691,21 @@ public:
  *
  * \details
  *
- * Tries to match each position \c i in the actual Checksums exclusively with
- * position \c i in each block of the ChecksumSource. Additonally checks the
- * input id for identity with the ARId of each respective block in the DBAR
- * object. Actual checksum lists whose ARId does not match have a difference of
- * at least \c 1.
+ * Matches each position \c i in each set of actual checksums exclusively with
+ * position \c i in the current block of reference tracks of the ChecksumSource.
+ * Intuitively this means that each track in the input is matched against the
+ * exact single reference track with the respective track number.
  *
- * AlbumVerifier is the Verifier class suitable for easy matching of entire
- * album rips.
+ * If available each input block is checked whether its ARId is identical to
+ * the on resulting from the ToC. Reference blocks whose ARId is not identical
+ * get a difference of at least \c 1.
+ *
+ * \note AlbumVerifier is suitable for matching of entire album rips.
  *
  * \see TracksetVerifier
  */
-class AlbumVerifier final : public Verifier
-{
-	class Impl;
-	std::unique_ptr<Impl> impl_;
+class AlbumVerifier final : public Verifier { class Impl; std::unique_ptr<Impl>
+	impl_;
 
 	// Verifier
 
@@ -751,10 +750,14 @@ public:
  *
  * \details
  *
- * Find any match of any actual Checksum in the reference. This targets the
- * situation where a set of tracks is to be matched that actually forms an album
- * but there is no ToC present. This means that there is also no ARId known
- * and maybe not even the actual order of tracks.
+ * Matches each position \c i in each set of actual checksums with every
+ * position in the current block of reference tracks of the ChecksumSource.
+ * Intuitively this means that each track in the input is matched against each
+ * track of the current block of reference tracks.
+ *
+ * This targets the situation where a set of tracks is to be matched that
+ * actually forms an album but there is no ToC present. This means that there is
+ * also no ARId known and maybe not even the actual order of tracks.
  *
  * TracksetVerifier requires that the set of actual checksums and the blocks
  * of the ChecksumSource have the same cardinality. This means intuitively that
@@ -762,13 +765,15 @@ public:
  * same. The verification of only some tracks against a superset of references
  * is not supported.
  *
- * The AlbumVerifier is less ressource-consuming since it has to perform only a
- * single match for every reference value. It is therefore recommended to use
- * AlbumVerifier in any case where a ToC is available.
- *
  * \note
  * TracksetVerifier is a generalization of AlbumVerifier. AlbumVerifier adds the
  * restriction that the order of tracks in the reference must be matched too.
+ *
+ * \note
+ * AlbumVerifier is slightly less ressource-consuming than TracksetVerifier
+ * since AlbumVerifier has to perform only a single match for every actual
+ * input value. It is therefore recommended to prefer AlbumVerifier whenever a
+ * ToC is available.
  *
  * \see AlbumVerifier
  */

@@ -1006,7 +1006,7 @@ class Verification final
 	 *
 	 * \param[in] result The result object to modify
 	 */
-	void verify_all_ids(VerificationResult& result) const;
+	void set_all_ids_verified(VerificationResult& result) const;
 
 	/**
 	 * \brief Perform verification with specified parameters.

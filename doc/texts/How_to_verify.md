@@ -26,27 +26,27 @@ Consult the module @ref verify for the part of the API you want to use.
 Insert
 
 @code{.cpp}
-	#include <arcstk/dbar.hpp>
 	#include <arcstk/identifier.hpp>
-	#include <arcstk/calculate.hpp>
+	#include <arcstk/checksum.hpp>
+	#include <arcstk/dbar.hpp>
 	#include <arcstk/verify.hpp>
 @endcode
 
-in the file where you intend to place your code.
+in the source file where you intend to place your code.
 
 #### Verifying an Album
 
-The common use case is to verify an album. To get this done you need even a
-little bit more:
+While it is also supported to verify a set of tracks, the common use case is to
+verify an album. To get this done you need even a little bit more:
 	- The audio image you wish to verify (may it be one or more files)
 	- If you have exactly one file, the track offsets for the image are required
 	- The AccurateRip id of the album to verify
 	- Reference Checksums provided by AccurateRip for this particular id, which
-	  typically come as a parseable DBAR file
+	  typically come as a DBAR file
 
 This may require that you accomplish the following tasks:
-	- Reading the audio data possibly along with its metadata & calculating the
-	  checksums of this input (as explained in @ref howto_calculate).
+	- Reading the audio data possibly along with its metadata and calculating
+	  the checksums of this input (as explained in @ref howto_calculate).
 	- Calculate the AccurateRip id if you not already know it (as explained in
 	  @ref howto_get_ids).
 	- Use the id to acquire and parse the reference values (as explained in
@@ -57,22 +57,21 @@ This may require that you accomplish the following tasks:
 @code{.cpp}
 	using arcstk::AlbumVerifier;
 
-	// Those three are discussed in the other HowTo-parts:
+	// These three are discussed in other HowTos:
 	using arcstk::ARId;
 	using arcstk::Checksums;
 	using arcstk::DBAR;
 @endcode
 
 The basic approach is to construct a Verifier on your local data and then call
-''perform()'' on it thereby passing the reference values to match against.
-This is the easy part.
+perform() on it thereby passing the reference values to match against.
 
 @code{.cpp}
 	// Let's assume that you already have the following:
 
-	ARId      my_id        { /* calculated from your local audio or known */ };
-	Checksums my_checksums { /* calculated from your local audio */ };
-	DBAR   their_checksums { /* from AccurateRip's http response for my_id */ };
+	ARId      my_id        { /* existing or calculated from local audio */ };
+	Checksums my_checksums { /* calculated from local audio */ };
+	DBAR   their_checksums { /* AccurateRip's HTTP response for my_id */ };
 
 	// Let's use the AlbumVerifier since we have a single audio image file
 	// and its metadata:
@@ -92,7 +91,7 @@ wrapped for input to function perform(), create a subclass of
 ChecksumSourceOf<X>. Have a look at the code of class DBARSource for an example
 how to do it.
 
-So, having performed the verification, how to interpret the result?
+So, having performed the verification, let's see how to interpret the result.
 
 The most coarse-grained way would be to simply check if verification was a total
 success and the audio data was verified to be accurate.
@@ -121,7 +120,8 @@ This block may be the most interesting part of the reference data, since it is
 the closest match you got. The best block is that block within the DBAR instance
 that has the most matching tracks. If there are multiple blocks that all match
 equally well, best_block() will return the last matching ARCSv2 block of them. A
-best block can only be v1 if there is no at least equally good block that is v2.
+best block can only be v1 if there is not at least equally good block that is
+v2.
 
 @code{.cpp}
 	const auto best { result->best_block() };
@@ -132,8 +132,8 @@ A call of result->best_block() provides you with 3 values:
   * the type of algorithm of the checksums within this respective block, and
   * the total number of mismatches in this block.
 
-Currently, there is no API to access those values. The resulting object is a
-std::tuple. Use std::get with the index values 0 (int for index), 1 (bool
+Currently, there is no API to access those values. The resulting object is
+a std::tuple. Use std::get with the index values 0 (int for index), 1 (bool
 whether it is v2 or not) or 2 (int for total number of mismatching tracks in
 this block).
 
@@ -141,23 +141,30 @@ Get the best block from the DBAR instance and print it along with your
 calculated data. The code example ``albumverify`` shows you how to do that in a
 very basic way.
 
-The most fine-grained way of inspection is to query the result object for any
-triple of <b, t, flag> of a block index, a track index, and an algorithm type
-(ARCSv1 or ARCSv2). This is achieved by result->track(b, t, flag).
+The most fine-grained way of inspecting the result is to query the result object
+for any triple of <b, t, flag> of a block index, a track index, and an algorithm
+type (ARCSv1 or ARCSv2). This is achieved by result->track(b, t, flag).
 
-This will tell you, whether track t in block b matches for algorithm type flag.
+This will tell you, whether track t in block b matches for ARCSv2.
 
 @code{.cpp}
 
+	const auto is_v2 { true };
 	auto b { 0 };
 	auto t { 1 };
-	auto is_v2 { true };
 
 	if (result->track(b, t, is_v2)
 	{
 		// The v2 value for track j in block i matches!
+	} else
+	{
+		// maybe check result->track(b, t, !is_v2)
 	}
 @endcode
+
+The legal range of block indices is from 0 to ``result->total_blocks() - 1``
+The legal range of track indices is from 0 to ``result->tracks_per_block() -
+1``.
 
 #### Verifying a set of files
 
