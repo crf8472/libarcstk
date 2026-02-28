@@ -30,8 +30,9 @@
 
 namespace arcstk
 {
+/** \cond NAMESPACE_v_1_0_0 */
 inline namespace v_1_0_0
-{
+{ /** \endcond */
 
 /** \addtogroup calc */
 /** @{ */
@@ -485,7 +486,7 @@ extern const Checksums EmptyChecksums;
 
 /** @} */ // group calc
 
-} // namespace v_1_0_0
+/** \cond NAMESPACE_v_1_0_0 */ } /** \endcond */ // namespace v_1_0_0
 } // namespace arcstk
 
 #endif

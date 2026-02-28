@@ -81,6 +81,9 @@ set (DOXYGEN_STRIP_FROM_PATH        "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_INPUT                  "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_INTERNAL_DOCS          "NO" )
 
+## Activate the inline namespace only for debug purposes, it's quite broken
+## on doxygen's behalf
+#set (DOXYGEN_ENABLED_SECTIONS       "NAMESPACE_v_1_0_0" )
 
 
 ## --- Provide Texts for Static Pages {{{1
