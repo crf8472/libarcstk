@@ -232,9 +232,9 @@ int main(int argc, char* argv[])
 
 	// Print the ARId.
 	using std::string;
-	std::cout << "ID:          " << to_string(*id) << '\n';
-	std::cout << "Filename:    " << id->filename() << '\n';
-	std::cout << "Request-URL: " << id->url()      << '\n';
+	std::cout << "ID:          " << to_string(id) << '\n';
+	std::cout << "Filename:    " << id.filename() << '\n';
+	std::cout << "Request-URL: " << id.url()      << '\n';
 
 	return EXIT_SUCCESS;
 }
