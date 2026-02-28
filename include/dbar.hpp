@@ -28,9 +28,10 @@
 
 namespace arcstk
 {
-/** \cond NAMESPACE_v_1_0_0 */
+                                                  /** \cond NAMESPACE_v_1_0_0 */
 inline namespace v_1_0_0
-{ /** \endcond */
+{
+                                                                 /** \endcond */
 
 // avoid includes
 class ARId;
@@ -1073,7 +1074,9 @@ DBAR load_file(const std::string& filename);
 
 /** @} */
 
-/** \cond NAMESPACE_v_1_0_0 */ } /** \endcond */ // namespace v_1_0_0
+                                                  /** \cond NAMESPACE_v_1_0_0 */
+} // namespace v_1_0_0
+                                                                 /** \endcond */
 } // namespace arcstk
 
 #endif
