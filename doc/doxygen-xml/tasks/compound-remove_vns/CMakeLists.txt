@@ -49,14 +49,14 @@ function (register_compound-remove_vns XML_INPUT_PATH )
 		#"class${_arcstk_v100_}Verifier" ;           # no fix required
 		"struct${_arcstk_v100_}CDDA" ;
 		#
-		"namespace${_arcstk_v100_}AccurateRip"
-		"namespace${_arcstk_v100_}checksum"
-		"namespace${_arcstk_v100_}toc"
-		"namespace${_arcstk_v100_}conv"
+		#"namespace${_arcstk_v100_}AccurateRip"
+		#"namespace${_arcstk_v100_}checksum"
+		#"namespace${_arcstk_v100_}toc"
+		#"namespace${_arcstk_v100_}conv"
 		#
-		"struct${_arcstk_v100_}conv${_sep_}factor__impl" ;
-		"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01false_01_4" ;
-		"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01true_01_4" ;
+		#"struct${_arcstk_v100_}conv${_sep_}factor__impl" ;
+		#"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01false_01_4" ;
+		#"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01true_01_4" ;
 	)
 	## It seems, every name that is lexicographically after 'v_1_0_0' is ok.
 
