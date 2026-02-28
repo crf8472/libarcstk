@@ -17,7 +17,8 @@ HIDE_UNDOC_CLASSES     = YES
 HIDE_FRIEND_COMPOUNDS  = YES
 HIDE_IN_BODY_DOCS      = YES
 VERBATIM_HEADERS       = NO
-#HIDE_INLINE_NAMESPACES = YES ## https://github.com/doxygen/doxygen/pull/10070
+ENABLED_SECTIONS       = @DOXYGEN_ENABLED_SECTIONS@
+#HIDE_INLINE_NAMESPACES = YES   ## https://github.com/doxygen/doxygen/pull/10070
 
 ## Grouping
 INLINE_GROUPED_CLASSES = YES

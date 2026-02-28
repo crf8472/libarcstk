@@ -17,8 +17,9 @@
 
 namespace arcstk
 {
+/** \cond NAMESPACE_v_1_0_0 */
 inline namespace v_1_0_0
-{
+{ /** \endcond */
 
 /**
  * \internal
@@ -180,7 +181,7 @@ public:
 	// https://stackoverflow.com/a/4923639
 };
 
-} // namespace v_1_0_0
+/** \cond NAMESPACE_v_1_0_0 */ } /** \endcond */ // namespace v_1_0_0
 } // namespace arcstk
 
 #endif

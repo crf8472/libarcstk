@@ -19,12 +19,23 @@ add_dependencies (libarcstk_doxygen_provide_xml libarcstk_doxygen_generate_xml )
 
 if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
-	## Order is not guaranteed, tasks must be orthogonal
+	## Postprocess if version namespace v_1_0_0 is to be shown
+	if (DOXYGEN_ENABLED_SECTIONS STREQUAL "NAMESPACE_v_1_0_0" )
 
-	## Insert missing version namespaces in index
-	list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
-	## Remove version namespaces from compounds
-	list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
+		## Order is not guaranteed, tasks must be orthogonal
+
+		## Solution 1: Insert version namespace everywhere   (FAILED)
+		#list (APPEND XML_POSTPROC_TASKS "compound-insert_vns" )
+		#list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
+
+		## Solution 2: Remove version namespace everywhere   (FAILED)
+		#list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
+		#list (APPEND XML_POSTPROC_TASKS "index-dedup" )
+
+		## Solution 3: Remove version namespace from compounds, insert in index
+		list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
+		list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
+	endif()
 endif()
 ## 1}}}
 ## --- List of Postprocessing Tasks To Be Visible to Generators {{{1

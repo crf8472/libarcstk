@@ -17,8 +17,9 @@
 
 namespace arcstk
 {
+/** \cond NAMESPACE_v_1_0_0 */
 inline namespace v_1_0_0
-{
+{ /** \endcond */
 
 class Checksum;
 
@@ -41,7 +42,7 @@ void print_hex(const Checksum& checksum, const bool upper,
 } // namespace details
 } // namespace checksum
 
-} // namespace v_1_0_0
+/** \cond NAMESPACE_v_1_0_0 */ } /** \endcond */ // namespace v_1_0_0
 } // namespace arcstk
 
 #endif

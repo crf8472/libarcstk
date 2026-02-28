@@ -21,8 +21,9 @@
 
 namespace arcstk
 {
+/** \cond NAMESPACE_v_1_0_0 */
 inline namespace v_1_0_0
-{
+{ /** \endcond */
 
 namespace details
 {
@@ -177,7 +178,7 @@ private:
 	std::vector<std::string> filenames_;
 };
 
-} // namespace v_1_0_0
+/** \cond NAMESPACE_v_1_0_0 */ } /** \endcond */ // namespace v_1_0_0
 } // namespace arcstk
 
 #endif
