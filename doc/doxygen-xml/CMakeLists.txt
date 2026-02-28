@@ -22,7 +22,7 @@ if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 	## Order is not guaranteed, tasks must be orthogonal
 
 	list (APPEND XML_POSTPROC_TASKS "index-dedup" )
-	list (APPEND XML_POSTPROC_TASKS "compound-insert_vns" )
+	list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
 endif()
 ## 1}}}
 ## --- List of Postprocessing Tasks To Be Visible to Generators {{{1

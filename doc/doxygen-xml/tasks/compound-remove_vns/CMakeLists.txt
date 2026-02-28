@@ -1,10 +1,10 @@
-## CMake script for inserting missing inline namespace to some compounds' names
+## CMake script for removing duplicate inline namespace to some compounds' names
 ##
 ## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.12 )
 
-function (register_compound-fix_vns XML_INPUT_PATH )
+function (register_compound-remove_vns XML_INPUT_PATH )
 
 	message (STATUS
 		"Add doxygen Task: fix inline namespaces in compound names" )
@@ -54,7 +54,7 @@ function (register_compound-fix_vns XML_INPUT_PATH )
 	## Expand the compounds' refids to XML filenames
 	list (TRANSFORM _XML_COMPOUNDS REPLACE "(.+)" "${XML_INPUT_PATH}/\\1.xml" )
 
-	add_doxygen_xslt_task ("compound-fix_vns" "${_XML_COMPOUNDS}"
+	add_doxygen_xslt_task ("compound-remove_vns" "${_XML_COMPOUNDS}"
 		"${XML_INPUT_PATH}" )
 
 	unset (_XML_COMPOUNDS )

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Insert missing inline namespace names in <compoundname>s.              -->
+<!-- Remove inline namespace names in <compoundname>s.                       -->
 
-<!-- Required for doxygen >= 1.8.16.                                        -->
+<!-- Required for doxygen >= 1.8.16.                                         -->
 
 <xsl:transform
 	version="1.0"
