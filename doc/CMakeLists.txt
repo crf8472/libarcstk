@@ -92,7 +92,7 @@ add_subdirectory (texts ) ## Will update DOXYGEN_* variables or add more
 
 
 
-## --- Setup Building Internal Docs if Requested (TODO broken) {{{1
+## --- Setup Building Internal Docs if Requested {{{1
 
 if (WITH_INTERNAL_DOCS )
 
