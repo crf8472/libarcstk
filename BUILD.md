@@ -153,6 +153,7 @@ used.
 |                    |CMAKE_BUILD_TYPE=Debug                                                                             |OFF    |
 |                    |CMAKE_BUILD_TYPE=Release                                                                           |ON     |
 |WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)                                              |OFF    |
+|WITH_EXAMPLES       |Compile [examples](#examples)                                                                      |OFF    |
 
 Note that ``USE_DOC_TOOL`` can be passed multiple values. For example, building
 the HTML version as well as the manual in one build run is achieved by:
@@ -218,6 +219,53 @@ is completed.
 Note that ctest will write report files in the ``build`` folder, their name
 pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
 ``.cpp``-file in ``test/src``.
+
+
+### Examples
+
+For each of the four basic tasks - verifiying ARCSs, calculating ARCSs,
+calculating ARIds, parsing DBAR files - there is a code example within the
+directory ``examples``.
+
+Note that the examples ``albumid`` and ``albumcalc`` rely on processing audio
+and metadata input and therefore introduce dependencies to libcue and
+libsndfile. Those are dependencies of these particular examples, not of the
+libarcstk library itself - libarcstk has no external dependencies.
+
+**Important:** the examples *always* linked against the libarcstk binary in
+directory ``build``. It is therefore NOT supported to just use them independent
+from the libarcstk build process.
+
+#### Building during build phase
+
+You may build those examples by configuring ``-DWITH_EXAMPLES=ON`` before
+building. After building, you will find the binaries in
+``build/examples/<NAME>``.
+
+#### Building manually
+
+Alternatively each example can be built separately by cd'ing into its directory
+and just issuing ``make``. Note that the libarcstk binary has to be available in
+the build directory, so build libarcstk before building the examples manually.
+
+For example, to build the albumcalc example:
+
+	$ cd examples/albumcalc
+	$ make clean && make
+	$ ./albumcalc
+
+#### Cleaning the examples
+
+If the examples were built by the regular build phase, it is sufficient to just
+remove the corresponding subdirectory:
+
+	$ cd build
+	$ rm -r examples/
+
+If the examples were built manually, the current example folder can be cleaned
+by:
+
+	$ make clean
 
 
 ### Cleaning the project

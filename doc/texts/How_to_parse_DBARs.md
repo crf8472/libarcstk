@@ -3,7 +3,7 @@
 
 ## Have a look at the code example
 
-Locate the example ``arparse`` in the top-level folder ``examples``. You may
+Locate the example ``dbarparse`` in the top-level folder ``examples``. You may
 find a compileable code example for parsing dBAR-files acquired from
 AccurateRip.
 

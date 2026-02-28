@@ -1,4 +1,4 @@
-# Example application: arparse
+# Example application: dbarparse
 
 This example application demonstrates how libarcstk is used to parse a binary
 response to an AccurateRip database request into plaintext. The response is
@@ -42,9 +42,9 @@ example application [albumid](../albumid/README.md), for example try:
 
 ### How to use the example application
 
-arparse expects the filename as parameter, just like:
+dbarparse expects the filename as parameter, just like:
 
-	$ ./arparse response_file.bin
+	$ ./dbarparse response_file.bin
 
-For more information, read the comments in [arparse.cpp](./arparse.cpp).
+For more information, read the comments in [dbarparse.cpp](./dbarparse.cpp).
 

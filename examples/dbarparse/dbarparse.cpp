@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 {
 	if (argc != 2)
 	{
-		std::cout << "Usage: arparse <response_file_name>" << '\n';
+		std::cout << "Usage: dbarparse <response_file_name>" << '\n';
 		return EXIT_SUCCESS;
 	}
 
