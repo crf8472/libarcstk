@@ -1,4 +1,4 @@
-# How to parse AccurateRip DBAR responses                   {#howto_parse_dbars}
+# How to Parse AccurateRip DBAR responses                   {#howto_parse_dbars}
 
 
 ## Have a look at the code example

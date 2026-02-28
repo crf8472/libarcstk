@@ -1,4 +1,4 @@
-# How to calculate AccurateRip IDs                              {#howto_get_ids}
+# How to Calculate AccurateRip IDs                              {#howto_get_ids}
 
 
 ## Have a look at the code example
