@@ -20,14 +20,13 @@
 namespace arcstk
 {
 
+                                                  /** \cond NAMESPACE_v_1_0_0 */
 /**
  * \brief libarcstk API version 1.0.0.
- *
- * \cond NAMESPACE_v_1_0_0
  */
 inline namespace v_1_0_0
 {
-/** \endcond */
+                                                                 /** \endcond */
 
 /**
  * \defgroup version Version information
