@@ -21,16 +21,9 @@ if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 
 	## Order is not guaranteed, tasks must be orthogonal
 
-	## Solution 1: Insert version namespace everywhere
-	#list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
-	#list (APPEND XML_POSTPROC_TASKS "compound-insert_vns" )
-
-	## Solution 2: Remove version namespace everywhere
-	#list (APPEND XML_POSTPROC_TASKS "index-dedup" )
-	#list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
-
-	## Solution 2: Remove version namespace from compounds, insert in index
+	## Insert missing version namespaces in index
 	list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
+	## Remove version namespaces from compounds
 	list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
 endif()
 ## 1}}}
