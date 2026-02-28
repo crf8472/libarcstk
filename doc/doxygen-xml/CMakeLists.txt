@@ -26,11 +26,7 @@ if (DOXYGEN_VERSION VERSION_GREATER_EQUAL 1.8.16 )
 	#list (APPEND XML_POSTPROC_TASKS "compound-insert_vns" )
 
 	## Solution 2: Remove version namespace everywhere
-	#list (APPEND XML_POSTPROC_TASKS "index-dedup" )
-	#list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
-
-	## Solution 3: version namespace: inserted in index + removed from compounds
-	list (APPEND XML_POSTPROC_TASKS "index-dedup-vns" )
+	list (APPEND XML_POSTPROC_TASKS "index-dedup" )
 	list (APPEND XML_POSTPROC_TASKS "compound-remove_vns" )
 endif()
 ## 1}}}
