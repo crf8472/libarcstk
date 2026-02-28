@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Removes duplicate <compound>-entries in the index.xml file.             -->
+<!-- Inserts missing <compound>-entries in the index.xml file and then       -->
+<!-- remove duplicate compound elements.                                     -->
 <!-- This fixes the duplicate classnames in doxygen's 'Classes' index when   -->
 <!-- using inline namespaces in C++.                                         -->
 
 <!-- Each compound with a given refid occurs twice: once for *::Class and a  -->
 <!-- second time for inline namespace as *::v_1_0_0::Class while the content -->
 <!-- of these compounds is identical.                                        -->
+<!--                                                                         -->
 <!-- The version containing the inline namespace is kept.                    -->
 
 <!-- Required for doxygen >= 1.8.16.                                         -->
@@ -32,15 +34,17 @@
 </xsl:template>
 
 
-<!-- Remove version namespace just everywhere. -->
+<!-- Insert version namespace just everywhere. -->
 <!-- Thus we will not have to care about accessing a preceding sibling. -->
 
-<xsl:template match="compound/name[contains(text(), '::v_1_0_0')]">
+<xsl:template match="compound/name[not(contains(text(), '::v_1_0_0'))
+	and contains(text(), '::')]">
 
 	<xsl:element name="name">
 		<xsl:value-of select="concat(
-			substring-before(text(), '::v_1_0_0'),
-			substring-after(text(), '::v_1_0_0'))"/>
+			substring-before(text(), '::'),
+			'::v_1_0_0::',
+			substring-after(text(), '::'))"/>
 	</xsl:element>
 
 </xsl:template>

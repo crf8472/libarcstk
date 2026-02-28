@@ -1,10 +1,10 @@
-## CMake script for inserting missing inline namespace to some compounds' names
+## CMake script for removing inline namespace to some compounds' names
 ##
 ## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.12 )
 
-function (register_compound-fix_vns XML_INPUT_PATH )
+function (register_compound-remove_vns XML_INPUT_PATH )
 
 	message (STATUS
 		"Add doxygen Task: fix inline namespaces in compound names" )
@@ -48,13 +48,22 @@ function (register_compound-fix_vns XML_INPUT_PATH )
 		#"class${_arcstk_v100_}VerificationResult" ; # no fix required
 		#"class${_arcstk_v100_}Verifier" ;           # no fix required
 		"struct${_arcstk_v100_}CDDA" ;
+		#
+		"namespace${_arcstk_v100_}AccurateRip"
+		"namespace${_arcstk_v100_}checksum"
+		"namespace${_arcstk_v100_}toc"
+		"namespace${_arcstk_v100_}conv"
+		#
+		"struct${_arcstk_v100_}conv${_sep_}factor__impl" ;
+		"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01false_01_4" ;
+		"struct${_arcstk_v100_}conv${_sep_}factor__impl_3_01F_00_01T_00_01true_01_4" ;
 	)
 	## It seems, every name that is lexicographically after 'v_1_0_0' is ok.
 
 	## Expand the compounds' refids to XML filenames
 	list (TRANSFORM _XML_COMPOUNDS REPLACE "(.+)" "${XML_INPUT_PATH}/\\1.xml" )
 
-	add_doxygen_xslt_task ("compound-fix_vns" "${_XML_COMPOUNDS}"
+	add_doxygen_xslt_task ("compound-remove_vns" "${_XML_COMPOUNDS}"
 		"${XML_INPUT_PATH}" )
 
 	unset (_XML_COMPOUNDS )
