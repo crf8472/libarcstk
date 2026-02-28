@@ -1,4 +1,4 @@
-## CMake script for removing inline namespace to some compounds' names
+## CMake script for removing duplicate inline namespace to some compounds' names
 ##
 ## vim:fdm=marker
 
