@@ -85,14 +85,14 @@ using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
  * compatibility of the sample input format.
  *
  * Its result can be provided as soon as a Calculation is
- * @link arcstk::v_1_0_0::Calculation::complete() complete() @endlink.
+ * @link arcstk::Calculation::complete() complete() @endlink.
  * The resulting Checksums represent the result for all requested checksum types
  * and all tracks of the audio input. It is an aggregation of the ChecksumSet
  * for each track of an respective audio input. Depending on the input, it can
  * represent either an entire album or a single track.
  *
- * ChecksumSet is a set of @link arcstk::v_1_0_0::Checksum Checksums @endlink of
- * different @link arcstk::v_1_0_0::checksum::type checksum::types @endlink of
+ * ChecksumSet is a set of @link arcstk::Checksum Checksums @endlink of
+ * different @link arcstk::checksum::type checksum::types @endlink of
  * the same track.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
@@ -154,7 +154,7 @@ using IsSampleIterator =
  * \brief Type erasing interface for iterators over PCM 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
- * \link arcstk::v_1_0_0::Calculation::update() update \endlink a Calculation.
+ * \link arcstk::Calculation::update() update \endlink a Calculation.
  * This allows to pass in fact iterators of any type to a Calculation.
  *
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
@@ -163,14 +163,14 @@ using IsSampleIterator =
  * The type erasure interface only ensures that (most of) the requirements of a
  * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
- * \link arcstk::v_1_0_0::Calculation::update() updating \endlink a Calculation.
+ * \link arcstk::Calculation::update() updating \endlink a Calculation.
  *
  * Although SampleInputIterator is intended to provide the functionality of
  * an input iterator, it does not provide operator->() and does
  * therefore not completely fulfill the requirements for a LegacyInputIterator.
  *
  * SampleInputIterator provides iteration over values of type
- * \link arcstk::v_1_0_0::sample_t sample_t\endlink which is defined as a
+ * \link arcstk::sample_t sample_t\endlink which is defined as a
  * primitve type. Since samples therefore do not have members, operator -> would
  * not provide any reasonable function.
  *
@@ -615,7 +615,7 @@ public:
 
 
 /**
- * \brief Set of @link arcstk::v_1_0_0::checksum::type Checksum types @endlink.
+ * \brief Set of @link arcstk::checksum::type Checksum types @endlink.
  *
  * Guaranteed to be iterable and duplicate-free.
  */
@@ -785,11 +785,11 @@ private:
  * specified. Currently, the only supported Settings attribute is Context.
  *
  * The input of the audio file must be represented as a succession of iterable
- * @link arcstk::v_1_0_0::SampleSequence SampleSequences @endlink and the
+ * @link arcstk::SampleSequence SampleSequences @endlink and the
  * Calculation is to be sequentially updated with these sequences in order.
  * After the last update, the Calculation returns the calculation result on
  * request. The calculated Checksums are represented as an iterable aggregate of
- * @link arcstk::v_1_0_0::ChecksumSet ChecksumSets @endlink.
+ * @link arcstk::ChecksumSet ChecksumSets @endlink.
  *
  * \see make_calculation
  */
@@ -987,8 +987,7 @@ public:
 /**
  * \brief Create a Calculation from an Algorithm and a ToC.
  *
- * If the ToC is not
- * @link arcstk::v_1_0_0::ToC::complete complete @endlink,
+ * If the ToC is not @link arcstk::ToC::complete complete @endlink,
  * the Calculation must be updated with the correct
  * total number of input samples before calling Calculation::update().
  *

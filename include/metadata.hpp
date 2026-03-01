@@ -41,7 +41,7 @@ inline namespace v_1_0_0
  * A ToC is the table of content information from a compact disc. It contains
  * the track offsets and optionally the leadout of the compact disc. ToCs that
  * contain not only the offsets but also the leadout are
- * @link arcstk::v_1_0_0::ToC::complete() complete @endlink.
+ * @link arcstk::ToC::complete() complete @endlink.
  *
  * ToCData is the data part of a ToC: an aggregate that contains the
  * leadout at index 0 and on the subsequent index positions 1..n the offets of

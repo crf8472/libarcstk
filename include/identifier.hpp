@@ -238,7 +238,7 @@ ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout);
  *
  * The input is validated.
  *
- * Parameter \c toc is allowed to be non-\link arcstk::v_1_0_0::ToC::complete()
+ * Parameter \c toc is allowed to be non-\link arcstk::ToC::complete()
  * complete()\endlink. Parameter \c leadout is intended to provide the value
  * possibly missing in \c toc.
  *
@@ -262,7 +262,7 @@ ARId make_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a
- * \link arcstk::v_1_0_0::ToC::complete() complete()\endlink ToC.
+ * \link arcstk::ToC::complete() complete()\endlink ToC.
  *
  * \details
  *
@@ -273,7 +273,7 @@ ARId make_arid(const ToC& toc, const AudioSize& leadout);
  * \return ARId corresponding to the input ToC
  *
  * \throw InvalidMetadataException
- * If \c toc is not \link arcstk::v_1_0_0::ToC::complete() complete()\endlink.
+ * If \c toc is not \link arcstk::ToC::complete() complete()\endlink.
  */
 ARId make_arid(const ToC& toc);
 
@@ -289,7 +289,7 @@ extern const ARId EmptyARId;
 
 /**
  * \brief Safely create an
- * \link arcstk::v_1_0_0::ARId::empty() empty()\endlink ARId.
+ * \link arcstk::ARId::empty() empty()\endlink ARId.
  *
  * The implementation of make_empty_arid() defines emptiness for ARIds.
  *
