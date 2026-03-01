@@ -5,11 +5,11 @@ this is to be done. Each of the examples refers to one of the main modules of
 libarcstk.
 
 Building the examples requires libarcstk to have been successfully build (e.g.
-the .so-file residing in ``build/``.). If you do not have g++ installed, adjust
+the .so-file residing in ``build/``.). If you do not intend to use g++, adjust
 the Makefiles to your compiler before building the examples. It is also possible
 to compile the examples regularly in the course of the build process when
 configuring ``-DWITH_EXAMPLES=ON``. In this case, find the compiled binaries in
-your directory ``build/examples`` where a build directory for each example is
+your directory ``build/examples/`` where a build directory for each example is
 located after build.
 
 The example applications are linked against the libarcstk.so object in the build
@@ -18,9 +18,6 @@ since it is only guaranteed to work from there.
 
 The motivation of the examples is demonstration, not productive use. Backup any
 file before using it as input for the example applications!
-
-Each of the example applications lets the user input her own data and is
-intended to provide useful results for a specific task.
 
 Note: The example applications do exclusively target situations where an entire
 album as a single audio file along with its metadata (as a Cuesheet) is to be
@@ -33,7 +30,7 @@ documentation it should not be that hard to figure out how to do it.
 - [albumverify](./albumverify/README.md) - Demonstrates how locally known
   checksums can be verified against the checksums AccurateRip provides.
 - [albumcalc](./albumcalc/README.md) - Demonstrates how AccurateRip checksums
-  can be calculated locally on a ripped audio image and a CUEsheet. The actual
+  can be calculated locally on a ripped audio image and a Cuesheet. The actual
   decoding is performed by libsndfile, hence checksums can be calculated on any
   combination of container format and lossless audio codec that libsndfile
   supports.

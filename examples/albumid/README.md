@@ -26,7 +26,7 @@ For removing all compiled and temporary files, just use
 
 ## Usage
 
-albumid expects two filenames as parameters, the first being a CUEsheet and
+albumid expects two filenames as parameters, the first being a Cuesheet and
 the second an audio file in a lossless audio format that can be read by
 libsndfile, e.g. RIFFWAV/PCM or FLAC/FLAC.
 
