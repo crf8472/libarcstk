@@ -11,9 +11,10 @@ set_target_properties ( albumverify PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF )
 
-target_compile_options ( albumverify
-	PRIVATE -Wall -Wextra -pedantic )
+target_compile_options ( albumverify PRIVATE -Wall -Wextra -pedantic )
 
+## Always link to the libarcstk headers in the build/ dir - if another header
+## is present, ignore it.
 target_include_directories ( albumverify
 	PRIVATE $<BUILD_INTERFACE:${PROJECT_BUILD_DIR}/arcstk> )
 
@@ -22,5 +23,5 @@ target_include_directories ( albumverify
 target_link_libraries ( albumverify
 	PRIVATE "-Wl,--disable-new-dtags,-rpath,${PROJECT_BUILD_DIR}/" libarcstk )
 
-add_dependencies ( libarcstk )
+add_dependencies ( albumverify libarcstk )
 

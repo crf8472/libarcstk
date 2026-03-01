@@ -11,7 +11,7 @@ set_target_properties ( albumcalc
 
 target_compile_options ( albumcalc PRIVATE -Wall -Wextra -pedantic )
 
-add_dependencies ( libarcstk )
+add_dependencies ( albumcalc libarcstk )
 
 
 ## build with libsndfile for audio reading
@@ -43,6 +43,8 @@ find_library (LIBCUE_LIBRARY     NAMES libcue.so )
 
 set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build" )
 
+## Always link to the libarcstk headers in the build/ dir - if another header
+## is present, ignore it.
 target_include_directories ( albumcalc
 	PRIVATE ${LIBCUE_INCLUDE_DIR}
 	PRIVATE $<BUILD_INTERFACE:${PROJECT_BUILD_DIR}/arcstk> )
