@@ -80,6 +80,8 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
  *
  * \see ChecksumSourceOf
  * \see DBARSource
+ *
+ * \todo Does ChecksumSource specify a good method for iterating a 2-level obj?
  */
 class ChecksumSource
 {
@@ -220,6 +222,8 @@ public:
  * \tparam T The type to wrap
  *
  * \see DBARSource
+ *
+ * \todo Is ChecksumSourceOf actually required in libarcstk? Do this in caller.
  */
 template <typename T>
 class ChecksumSourceOf : public ChecksumSource
@@ -557,7 +561,7 @@ public:
 	 * If there is more than one block with the smallest difference, return the
 	 * one with the lowest index position.
 	 *
-	 * \todo API must support to access single parts the resulting tuple.
+	 * \todo API must support to access single parts of the resulting tuple.
 	 *
 	 * \return 0-based index, ARCS version, and difference of the best block
 	 */
