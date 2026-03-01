@@ -41,22 +41,23 @@ endforeach()
 ## --- Provide Static Pages {{{1
 
 # TODO Write and include page "Accuraterip_algorithms"
-foreach (FILE IN ITEMS "How_to_calculate" "How_to_verify" "How_to_get_ids"
-		"How_to_parse_DBARs" )
+foreach (FILE IN ITEMS "How_to_calculate.md" "How_to_verify.md"
+		"How_to_get_ids.md" "How_to_parse_DBARs.md" )
 
-	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md" )
+	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}" )
+	string (REPLACE "." "_" PAGE_TITLE ${FILE})
 
-	add_custom_target(libarcstk_provide_page_${FILE}
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
+	add_custom_target(libarcstk_provide_page_${PAGE_TITLE}
+		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}"
 		COMMAND "${CMAKE_COMMAND}" -E copy
-			"${CMAKE_CURRENT_SOURCE_DIR}/${FILE}.md"
-			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}.md"
-		COMMENT "Provide static page file ${FILE}.md"
+			"${CMAKE_CURRENT_SOURCE_DIR}/${FILE}"
+			"${CMAKE_CURRENT_BINARY_DIR}/${FILE}"
+		COMMENT "Provide static page file ${FILE}"
 		VERBATIM
 	)
 
 	add_dependencies (libarcstk_static_pages_files
-		libarcstk_provide_page_${FILE} )
+		libarcstk_provide_page_${PAGE_TITLE} )
 endforeach()
 
 set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
@@ -67,6 +68,8 @@ set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
 
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_TEXTS_MAINPAGE}" PARENT_SCOPE )
 
+set (DOXYGEN_FILE_PATTERNS          "${DOXYGEN_FILE_PATTERNS} *.md"
+	PARENT_SCOPE )
 set (DOXYGEN_INPUT "${DOXYGEN_INPUT} ${CMAKE_CURRENT_BINARY_DIR}/"
 	PARENT_SCOPE )
 

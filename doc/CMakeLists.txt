@@ -75,7 +75,7 @@ add_custom_target (libarcstk_create_output_dir DEPENDS "${DOC_GEN_DIR}" )
 ## those from the root script prefixed by "PROJECT_".
 
 set (DOXYGEN_OUTPUT_DIRECTORY       "${DOC_GEN_DIR}/doxygen" )
-set (DOXYGEN_FILE_PATTERNS          "*.hpp *.md" )
+set (DOXYGEN_FILE_PATTERNS          "*.hpp" )
 set (DOXYGEN_STRIP_FROM_INC_PATH    "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_STRIP_FROM_PATH        "${PROJECT_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_INPUT                  "${PROJECT_INCLUDE_SOURCE_DIR}/" )
