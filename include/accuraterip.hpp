@@ -92,6 +92,8 @@ static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 
 
 /**
+ * \internal
+ *
  * \brief Values of a calculation state.
  */
 struct Subtotals
@@ -113,6 +115,8 @@ struct Subtotals
 
 
 /**
+ * \internal
+ *
  * \brief Functor for performing the actual update.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
