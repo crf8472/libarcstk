@@ -49,10 +49,6 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
  * kinds of input for Checksums. For convenience, a DBARSource is provided that
  * makes a DBAR object available as input for verification.
  *
- * A custom class T can be made available as input provider by subclassing
- * ChecksumSourceOf<T> and implementing the access to the reference values in
- * question.
- *
  * The result of a verification process is a VerificationResult. It holds every
  * result of every match operation performed during verification.
  *
@@ -75,10 +71,6 @@ using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
  * ARId and an ordered sequence of checksums. A single checksum is accessed by a
  * block index in combination with the index of the checksum within the block.
  *
- * A type \c T can be made available as a ChecksumSource via definig a subclass
- * of ChecksumSourceOf<T>.
- *
- * \see ChecksumSourceOf
  * \see DBARSource
  *
  * \todo Does ChecksumSource specify a good method for iterating a 2-level obj?
@@ -210,90 +202,21 @@ public:
 };
 
 
-/**
- * \brief Template/Base: wrap a checksum container type in a ChecksumSource.
- *
- * \details
- *
- * A type \c T can be made available as a ChecksumSource via definig a subclass
- * of ChecksumSourceOf<T>. The subclass has to implement the virtual functions
- * of ChecksumSource. It can reuse the constructor of ChecksumSourceOf<T>.
- *
- * \tparam T The type to wrap
- *
- * \see DBARSource
- *
- * \todo Is ChecksumSourceOf actually required in libarcstk? Do this in caller.
- */
-template <typename T>
-class ChecksumSourceOf : public ChecksumSource
-{
-	/**
-	 * \brief Internal checksum source.
-	 */
-	const T* checksum_source_;
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] t The primary checksum source
-	 */
-	ChecksumSourceOf(const T* t)
-		: checksum_source_ { t }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Copy constructor
-	 *
-	 * \param[in] rhs Instance to get a copy of
-	 */
-	ChecksumSourceOf(const ChecksumSourceOf& rhs)
-		: checksum_source_ { rhs.checksum_source_ }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Copy assignment operator
-	 *
-	 * \param[in] rhs Instance to get a copy of
-	 *
-	 * \return Copy of \c rhs
-	 */
-	ChecksumSourceOf& operator = (const ChecksumSourceOf& rhs)
-	{
-		checksum_source_ = rhs.checksum_source_;
-		return *this;
-	}
-
-	/**
-	 * \brief Virtual default destructor.
-	 */
-	virtual ~ChecksumSourceOf() noexcept = default;
-
-	/**
-	 * \brief The wrapped checksum source.
-	 *
-	 * \return The wrapped checksum source.
-	 */
-	const T* source() const
-	{
-		return checksum_source_;
-	}
-};
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief Access DBAR as a ChecksumSource.
  *
  * Make DBAR instances available for verification.
  */
-class DBARSource final : public ChecksumSourceOf<DBAR>
+class DBARSource final : public ChecksumSource
 {
+	/**
+	 * \brief Internal DBAR object.
+	 */
+	const DBAR* dbar_;
+
 	// ChecksumSource
 
 	ARId do_id(const size_type block_idx) const final;
@@ -318,10 +241,22 @@ class DBARSource final : public ChecksumSourceOf<DBAR>
 
 public:
 
-	using ChecksumSourceOf::ChecksumSourceOf;
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] dbar DBAR instance to wrap
+	 */
+	DBARSource(const DBAR* dbar);
 
-	using ChecksumSourceOf::operator=;
+	/**
+	 * \brief DBAR instance wrapped.
+	 *
+	 * \return The DBAR object wrapped by this instance
+	 */
+	const DBAR* dbar() const;
 };
+
+#pragma GCC diagnostic pop
 
 
 // TODO API for working with best block

@@ -23,9 +23,6 @@
 #include <tuple>                  // for get
 
 
-// TODO ChecksumSourceOf
-
-
 TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
 {
 	using arcstk::ARId;
@@ -96,25 +93,25 @@ TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
 
 	auto r_copy_ass = DBARSource { nullptr };
 
-	REQUIRE ( r_copy_ass.source() == nullptr );
+	REQUIRE ( r_copy_ass.dbar() == nullptr );
 
 	r_copy_ass = r; // copy assigned
 
 	SECTION ( "ChecksumSoure of DBAR is constructed correctly" )
 	{
-		CHECK ( &dBAR == r.source() );
+		CHECK ( &dBAR == r.dbar() );
 	}
 
 	SECTION ( "ChecksumSoure of DBAR is copy-constructed correctly" )
 	{
-		CHECK (  r_copy_ctor.source() == &dBAR );
-		CHECK ( &r_copy_ctor          != &r );
+		CHECK (  r_copy_ctor.dbar() == &dBAR );
+		CHECK ( &r_copy_ctor        != &r    );
 	}
 
 	SECTION ( "ChecksumSoure of DBAR is copy-assigned correctly" )
 	{
-		CHECK (  r_copy_ass.source() == &dBAR );
-		CHECK ( &r_copy_ass          != &r );
+		CHECK (  r_copy_ass.dbar() == &dBAR );
+		CHECK ( &r_copy_ass        != &r    );
 	}
 
 	SECTION ( "Access on DBAR data is correct" )

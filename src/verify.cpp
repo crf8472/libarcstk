@@ -1167,9 +1167,22 @@ std::unique_ptr<ChecksumSource> ChecksumSource::clone() const
 // DBARSource
 
 
+DBARSource::DBARSource(const DBAR* dbar)
+	: dbar_ { dbar }
+{
+	// empty
+}
+
+
+const DBAR* DBARSource::dbar() const
+{
+	return dbar_;
+}
+
+
 ARId DBARSource::do_id(const ChecksumSource::size_type block_idx) const
 {
-	return source()->block(static_cast<DBAR::size_type>(block_idx)).id();
+	return dbar_->block(static_cast<DBAR::size_type>(block_idx)).id();
 }
 
 
@@ -1177,7 +1190,7 @@ Checksum DBARSource::do_checksum(const ChecksumSource::size_type block_idx,
 		const ChecksumSource::size_type idx) const
 {
 	return
-		source()->block(static_cast<DBAR::size_type>(block_idx))
+		dbar_->block(static_cast<DBAR::size_type>(block_idx))
 			.triplet(static_cast<DBAR::size_type>(idx)).arcs();
 }
 
@@ -1186,14 +1199,14 @@ const uint32_t& DBARSource::do_arcs_value(
 		const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {
-	return source()->arcs_value(block, track);
+	return dbar_->arcs_value(block, track);
 }
 
 
 const unsigned& DBARSource::do_confidence(const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {
-	return source()->confidence_value(block, track);
+	return dbar_->confidence_value(block, track);
 }
 
 
@@ -1201,20 +1214,20 @@ const uint32_t& DBARSource::do_frame450_arcs_value(
 		const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {
-	return source()->frame450_arcs_value(block, track);
+	return dbar_->frame450_arcs_value(block, track);
 }
 
 
 std::size_t DBARSource::do_size(const ChecksumSource::size_type /* block_idx */)
 	const
 {
-	return source()->block(0).size();
+	return dbar_->block(0).size();
 }
 
 
 std::size_t DBARSource::do_size() const
 {
-	return source()->size();
+	return dbar_->size();
 }
 
 
