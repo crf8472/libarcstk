@@ -198,6 +198,11 @@ public:
 	 */
 	bool empty() const noexcept;
 
+	/**
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 */
 	explicit operator bool() const noexcept;
 
 	/**
