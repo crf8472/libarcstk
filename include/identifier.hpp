@@ -210,7 +210,7 @@ public:
 	 *
 	 * \param[in] rhs Instance to swap
 	 */
-	void swap(ARId& rhs) const noexcept;
+	void swap(ARId& rhs) noexcept;
 
 	/**
 	 * \brief TRUE iff this instance is equal to another instance.

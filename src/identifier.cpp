@@ -381,7 +381,7 @@ ARId::operator bool() const noexcept
 }
 
 
-void ARId::swap(ARId& rhs) const noexcept
+void ARId::swap(ARId& rhs) noexcept
 {
 	impl_->swap(*rhs.impl_);
 }
