@@ -266,15 +266,9 @@ public:
 	void add_triplet(const uint32_t arcs, const uint8_t confidence,
 			const uint32_t frame450_arcs);
 
-	bool equals(const Impl& rhs) const noexcept;
+	void swap(Impl& rhs) noexcept;
 
-	friend void swap(Impl& lhs, Impl& rhs) noexcept
-	{
-		using std::swap;
-		swap(lhs.total_tracks_, rhs.total_tracks_);
-		swap(lhs.confidence_,   rhs.confidence_);
-		swap(lhs.sums_,         rhs.sums_);
-	}
+	bool equals(const Impl& rhs) const noexcept;
 
 private:
 

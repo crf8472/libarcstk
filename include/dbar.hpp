@@ -148,23 +148,32 @@ public:
 	 */
 	uint32_t cddb_id() const noexcept;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(DBARBlockHeader& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const DBARBlockHeader& rhs) const noexcept;
+
+
+	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs)
+	{
+		lhs.swap(rhs);
+	}
 
     friend bool operator == (const DBARBlockHeader& lhs,
 			const DBARBlockHeader& rhs) noexcept
 	{
-		return lhs.total_tracks_  == rhs.total_tracks_
-			&& lhs.id1_           == rhs.id1_
-			&& lhs.id2_           == rhs.id2_
-			&& lhs.cddb_id_       == rhs.cddb_id_;
-	}
-
-	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs)
-	{
-		using std::swap;
-		swap(lhs.total_tracks_, rhs.total_tracks_);
-		swap(lhs.id1_,          rhs.id1_);
-		swap(lhs.id2_,          rhs.id2_);
-		swap(lhs.cddb_id_,      rhs.cddb_id_);
+		return lhs.equals(rhs);
 	}
 };
 
@@ -233,21 +242,32 @@ public:
 	 */
 	uint32_t frame450_arcs() const noexcept;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(DBARTriplet& rhs) noexcept;
 
-    friend bool operator == (const DBARTriplet& lhs, const DBARTriplet& rhs)
-		noexcept
-	{
-		return lhs.arcs_          == rhs.arcs_
-			&& lhs.confidence_    == rhs.confidence_
-			&& lhs.frame450_arcs_ == rhs.frame450_arcs_;
-	}
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const DBARTriplet& rhs) const noexcept;
+
 
 	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs)
 	{
-		using std::swap;
-		swap(lhs.arcs_,          rhs.arcs_);
-		swap(lhs.confidence_,    rhs.confidence_);
-		swap(lhs.frame450_arcs_, rhs.frame450_arcs_);
+		lhs.swap(rhs);
+	}
+
+    friend bool operator == (const DBARTriplet& lhs,
+			const DBARTriplet& rhs) noexcept
+	{
+		return lhs.equals(rhs);
 	}
 };
 
@@ -545,8 +565,6 @@ public:
 	 */
 	DBARBlock block(const size_type block_idx) const;
 
-	bool equals(const DBAR& rhs) const noexcept;
-
 	iterator begin();
 	iterator end();
 	const_iterator cbegin() const;
@@ -554,16 +572,31 @@ public:
 	const_iterator begin() const;
 	const_iterator end() const;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(DBAR& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const DBAR& rhs) const noexcept;
+
+
+	friend void swap(DBAR& lhs, DBAR& rhs)
+	{
+		lhs.swap(rhs);
+	}
 
 	friend bool operator == (DBAR& lhs, DBAR& rhs) noexcept
 	{
 		return lhs.equals(rhs);
-	}
-
-	friend void swap(DBAR& lhs, DBAR& rhs) noexcept
-	{
-		using std::swap;
-		swap(lhs.impl_, rhs.impl_);
 	}
 };
 
@@ -669,8 +702,6 @@ public:
 	 */
 	ARId id() const;
 
-	bool equals(const DBARBlock& rhs) const noexcept;
-
 	iterator begin();
 	iterator end();
 	const_iterator cbegin() const;
@@ -678,17 +709,31 @@ public:
 	const_iterator begin() const;
 	const_iterator end() const;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(DBARBlock& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const DBARBlock& rhs) const noexcept;
+
+
+	friend void swap(DBARBlock& lhs, DBARBlock& rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
 
 	friend bool operator == (DBARBlock& lhs, DBARBlock& rhs) noexcept
 	{
 		return lhs.equals(rhs);
-	}
-
-	friend void swap(DBARBlock& lhs, DBARBlock& rhs) noexcept
-	{
-		using std::swap;
-		swap(lhs.dBAR_, rhs.dBAR_);
-		swap(lhs.idx_,  rhs.idx_);
 	}
 };
 

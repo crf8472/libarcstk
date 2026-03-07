@@ -398,6 +398,24 @@ uint32_t DBARBlockHeader::cddb_id() const noexcept
 	return cddb_id_;
 }
 
+void DBARBlockHeader::swap(DBARBlockHeader& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->total_tracks_, rhs.total_tracks_);
+	swap(this->id1_,          rhs.id1_);
+	swap(this->id2_,          rhs.id2_);
+	swap(this->cddb_id_,      rhs.cddb_id_);
+}
+
+bool DBARBlockHeader::equals(const DBARBlockHeader& rhs) const noexcept
+{
+	return this->total_tracks_  == rhs.total_tracks_
+		&& this->id1_           == rhs.id1_
+		&& this->id2_           == rhs.id2_
+		&& this->cddb_id_       == rhs.cddb_id_;
+}
+
 
 // DBARTriplet
 
@@ -436,6 +454,24 @@ uint32_t DBARTriplet::frame450_arcs() const noexcept
 unsigned DBARTriplet::confidence() const noexcept
 {
 	return confidence_;
+}
+
+
+void DBARTriplet::swap(DBARTriplet& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->arcs_,          rhs.arcs_);
+	swap(this->confidence_,    rhs.confidence_);
+	swap(this->frame450_arcs_, rhs.frame450_arcs_);
+}
+
+
+bool DBARTriplet::equals(const DBARTriplet& rhs) const noexcept
+{
+	return this->arcs_          == rhs.arcs_
+		&& this->confidence_    == rhs.confidence_
+		&& this->frame450_arcs_ == rhs.frame450_arcs_;
 }
 
 
@@ -531,6 +567,15 @@ ARId DBARBlock::id() const
 }
 
 
+void DBARBlock::swap(DBARBlock& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->dBAR_, rhs.dBAR_);
+	swap(this->idx_,  rhs.idx_);
+}
+
+
 bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
 {
 	return dBAR_ == rhs.dBAR_ || dBAR_->equals(*rhs.dBAR_)
@@ -615,14 +660,6 @@ void DBAR::Impl::add_triplet(const uint32_t arcs,
 }
 
 
-bool DBAR::Impl::equals(const Impl& rhs) const noexcept
-{
-	return total_tracks_ == rhs.total_tracks_
-		&& confidence_   == rhs.confidence_
-		&& sums_         == rhs.sums_;
-}
-
-
 unsigned DBAR::Impl::total_tracks(const DBAR::Impl::size_type block_idx) const
 {
 	return total_tracks_[block_idx];
@@ -687,6 +724,24 @@ DBAR::Impl::size_type DBAR::Impl::frame450_arcs_idx(
 		const size_type block_idx, const size_type track_idx) const
 {
 	return arcs_idx(block_idx, track_idx) + 1;
+}
+
+
+void DBAR::Impl::swap(Impl& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->total_tracks_, rhs.total_tracks_);
+	swap(this->confidence_,   rhs.confidence_);
+	swap(this->sums_,         rhs.sums_);
+}
+
+
+bool DBAR::Impl::equals(const Impl& rhs) const noexcept
+{
+	return total_tracks_ == rhs.total_tracks_
+		&& confidence_   == rhs.confidence_
+		&& sums_         == rhs.sums_;
 }
 
 
@@ -832,12 +887,6 @@ DBARBlock DBAR::block(const DBAR::size_type block_idx) const
 }
 
 
-bool DBAR::equals(const DBAR& rhs) const noexcept
-{
-	return impl_->equals(*rhs.impl_);
-}
-
-
 DBAR::iterator DBAR::begin()
 {
 	return DBAR::iterator { *this, 0 };
@@ -871,6 +920,18 @@ DBAR::const_iterator DBAR::begin() const
 DBAR::const_iterator DBAR::end() const
 {
 	return this->cend();
+}
+
+
+void DBAR::swap(DBAR& rhs) noexcept
+{
+	impl_->swap(*rhs.impl_);
+}
+
+
+bool DBAR::equals(const DBAR& rhs) const noexcept
+{
+	return impl_->equals(*rhs.impl_);
 }
 
 
