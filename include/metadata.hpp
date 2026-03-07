@@ -456,9 +456,9 @@ public:
 	bool zero() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
+	 * \brief Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
 	 *
-	 * \return Return \c TRUE iff this AudioSize is zero(), otherwise \c FALSE.
+	 * \return Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
 	 */
 	explicit operator bool() const noexcept;
 
@@ -564,10 +564,10 @@ inline std::vector<int32_t> convert(const std::vector<AudioSize>& values)
 /**
  * \brief ToC data from a file, e.g. offsets and leadout.
  *
+ * ToCData is an iterable container accessible by operator [].
+ *
  * Leadout is on index 0, followed by the sequence of offsets. Offset indices
  * therefore correspond to track numbers, i.e. index 7 is offset of track 7.
- *
- * It is guaranteed to be iterable and accessible by operator [].
  */
 using ToCData = std::vector<AudioSize>;
 
@@ -588,12 +588,12 @@ namespace toc
  * \param[in] leadout Leadout frame
  * \param[in] offsets Offset frames in order of tracks
  *
- * \return Formatted ToCData object
+ * \return ToCData object
  */
 ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets);
 
 /**
- * \brief Set the leadout of a ToC object.
+ * \brief Set the leadout of a ToCData object.
  *
  * \param[in] leadout Leadout to set
  * \param[in] data    ToCData to update

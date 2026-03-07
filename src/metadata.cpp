@@ -57,6 +57,8 @@ void is_legal_offset(const int32_t offset)
 
 	if (offset > MAX_OFFSET_99)
 	{
+		using std::to_string;
+
 		auto ss = std::ostringstream {};
 		ss << "Value exceeds physical range of 99 min ("
 				<< to_string(MAX_OFFSET_99) << " offset)";
@@ -65,9 +67,11 @@ void is_legal_offset(const int32_t offset)
 
 	if (offset > MAX_OFFSET_90)
 	{
+		using std::to_string;
+
 		auto ss = std::ostringstream {};
 		ss << "Value exceeds "
-			<< std::to_string(MAX_OFFSET_90) << " offset (90 min)";
+			<< to_string(MAX_OFFSET_90) << " offset (90 min)";
 		throw_on_invalid_tocdata(ss.str());
 	}
 
@@ -108,6 +112,14 @@ void validate_leadout(const ToCData& toc_data)
 void validate_offsets(const ToCData& toc_data)
 {
 	const auto offsets { toc::offsets(toc_data) };
+
+	if (offsets.size() > CDDA::MAX_TRACKCOUNT)
+	{
+		auto ss = std::ostringstream {};
+		ss << "Number of tracks " << offsets.size()
+			<< " is bigger than maximum of " << CDDA::MAX_TRACKCOUNT;
+		throw_on_invalid_tocdata(ss.str());
+	}
 
 	using std::cbegin;
 	using std::cend;
