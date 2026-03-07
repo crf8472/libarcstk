@@ -66,6 +66,19 @@ Checksum::operator bool() const noexcept
 }
 
 
+void Checksum::swap(Checksum& rhs) noexcept
+{
+	using std::swap;
+	swap(this->value_, rhs.value_);
+}
+
+
+bool Checksum::equals(const Checksum& rhs) const noexcept
+{
+	return this->value_ == rhs.value_;
+}
+
+
 Checksum& Checksum::operator = (const Checksum::value_type rhs)
 {
 	value_ = rhs;
@@ -295,6 +308,21 @@ ChecksumSet::iterator ChecksumSet::end()
 ChecksumSet::operator bool() const noexcept
 {
 	return !empty();
+}
+
+
+void ChecksumSet::swap(ChecksumSet& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->length_, rhs.length_);
+	swap(this->set_,    rhs.set_);
+}
+
+
+bool ChecksumSet::equals(const ChecksumSet& rhs) const noexcept
+{
+	return this->length_ == rhs.length_ && this->set_ == rhs.set_;
 }
 
 

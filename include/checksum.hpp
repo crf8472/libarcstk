@@ -64,6 +64,8 @@ inline namespace v_1_0_0
  * As a technical convenience, a Checksum may be empty() which means: it carries
  * no value. Calling value() on an empty() Checksum may lead any result. Two
  * empty Checksum instances qualify as equal when compared using operator ==.
+ *
+ * \todo Default print layout for Checksums should be defined
  */
 class Checksum final : public Comparable<Checksum>
 {
@@ -108,22 +110,43 @@ public:
 	 */
 	bool empty() const noexcept;
 
+	/**
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 */
 	explicit operator bool() const noexcept;
 
-	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
-	{
-		return lhs.value() == rhs.value();
-	}
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(Checksum& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const Checksum& rhs) const noexcept;
+
 
 	friend void swap(Checksum& lhs, Checksum& rhs) noexcept
 	{
-		using std::swap;
-		swap(lhs.value_, rhs.value_);
+		lhs.swap(rhs);
+	}
+
+	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
+	{
+		return lhs.equals(rhs);
 	}
 
 	friend std::ostream& operator << (std::ostream& out, const Checksum& c)
 	{
-		auto prev_settings = std::ios_base::fmtflags { out.flags() };
+		const auto prev_settings = std::ios_base::fmtflags { out.flags() };
 
 		out << std::hex << std::noshowbase << std::uppercase
 			<< std::setw(8) << std::setfill('0')
@@ -435,24 +458,38 @@ public:
 	iterator end();
 
 	/**
-	 * \brief A ChecksumSet converts to bool iff it is non-empty.
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
 	 *
-	 * \return TRUE iff !empty().
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
 	 */
 	explicit operator bool() const noexcept;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(ChecksumSet& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const ChecksumSet& rhs) const noexcept;
+
+
+	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
 
 	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
 		noexcept
 	{
-		return lhs.length_ == rhs.length_ && lhs.set_ == rhs.set_;
-	}
-
-	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
-	{
-		using std::swap;
-		swap(lhs.length_, rhs.length_);
-		swap(lhs.set_,    rhs.set_);
+		return lhs.equals(rhs);
 	}
 };
 
