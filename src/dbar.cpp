@@ -691,9 +691,11 @@ unsigned DBAR::Impl::total_tracks_accumulated(const size_type block_idx) const
 {
 	using diff_type = decltype( total_tracks_ )::difference_type;
 
+	using std::cbegin;
+
 	return std::accumulate(
-		total_tracks_.begin(),
-		total_tracks_.begin() + static_cast<diff_type>(block_idx),
+		cbegin(total_tracks_),
+		cbegin(total_tracks_) + static_cast<diff_type>(block_idx),
 		0u);
 }
 

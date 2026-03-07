@@ -211,9 +211,10 @@ std::set<checksum::type> ChecksumSet::types() const
 	auto keys { std::set<checksum::type>{} };
 
 	using std::begin;
-	using std::end;
+	using std::cbegin;
+	using std::cend;
 
-	std::transform(begin(set_), end(set_),
+	std::transform(cbegin(set_), cend(set_),
 		std::inserter(keys, begin(keys)),
 		[](const storage_type::value_type& pair)
 		{

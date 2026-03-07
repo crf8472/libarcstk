@@ -920,6 +920,9 @@ Calculation::Impl::~Impl() noexcept = default;
 
 void Calculation::Impl::init(const Settings& s, const ToCData& toc)
 {
+	using std::cbegin;
+	using std::cend;
+
 	return init(s, *cbegin(toc), { cbegin(toc) + 1, cend(toc) });
 }
 
@@ -1201,7 +1204,7 @@ Checksums Calculation::result() const noexcept
 void Calculation::swap(Calculation& rhs) noexcept
 {
 	using std::swap;
-	swap (impl_, rhs.impl_);
+	swap(impl_, rhs.impl_);
 }
 
 

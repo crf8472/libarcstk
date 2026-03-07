@@ -432,7 +432,7 @@ public:
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
 		using std::swap;
-		swap(*this, rhs); // finds SampleInputIterator's friend swap via ADL
+		swap(*this, rhs);
 		return *this;
 	}
 	// required by LegacyIterator
