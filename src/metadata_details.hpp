@@ -160,18 +160,9 @@ public:
 
 	bool complete() const noexcept;
 
-	friend void swap(Impl& lhs, Impl& rhs) noexcept
-	{
-		using std::swap;
+	void swap(Impl& rhs) noexcept;
 
-		swap(lhs.toc_,       rhs.toc_);
-		swap(lhs.filenames_, rhs.filenames_);
-	}
-
-	friend bool operator == (const Impl& lhs, const Impl& rhs) noexcept
-	{
-		return lhs.toc_ == rhs.toc_ && lhs.filenames_ == rhs.filenames_;
-	}
+	bool equals(const Impl& rhs) noexcept;
 
 private:
 

@@ -259,6 +259,20 @@ AudioSize::operator bool() const noexcept
 }
 
 
+void AudioSize::swap(AudioSize& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->total_pcm_bytes_, rhs.total_pcm_bytes_);
+}
+
+
+bool AudioSize::equals(const AudioSize& rhs) const noexcept
+{
+	return this->total_pcm_bytes_ == rhs.total_pcm_bytes_;
+}
+
+
 extern const AudioSize EmptyAudioSize { 0, UNIT::BYTES };
 
 
@@ -501,6 +515,21 @@ bool ToC::Impl::complete() const noexcept
 }
 
 
+void ToC::Impl::swap(Impl& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->toc_,       rhs.toc_);
+	swap(this->filenames_, rhs.filenames_);
+}
+
+
+bool ToC::Impl::equals(const Impl& rhs) noexcept
+{
+	return this->toc_ == rhs.toc_ && this->filenames_ == rhs.filenames_;
+}
+
+
 // ToC
 
 
@@ -586,9 +615,15 @@ bool ToC::complete() const noexcept
 }
 
 
+void ToC::swap(const ToC& rhs) const noexcept
+{
+	impl_->swap(*rhs.impl_);
+}
+
+
 bool ToC::equals(const ToC& rhs) const noexcept
 {
-	return *impl_ == *rhs.impl_;
+	return impl_->equals(*rhs.impl_);
 }
 
 

@@ -462,22 +462,37 @@ public:
 	 */
 	explicit operator bool() const noexcept;
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(AudioSize& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const AudioSize& rhs) const noexcept;
+
 
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 	{
-		using std::swap;
-		swap(lhs.total_pcm_bytes_, rhs.total_pcm_bytes_);
+		lhs.swap(rhs);
 	}
 
 	friend bool operator == (const AudioSize& lhs, const AudioSize& rhs)
 		noexcept
 	{
-		return lhs.bytes() == rhs.bytes();
+		return lhs.equals(rhs);
 	}
 
 	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 	{
-		return lhs.bytes() < rhs.bytes();
+		return lhs.total_pcm_bytes_ < rhs.total_pcm_bytes_;
 	}
 
 	/**
@@ -765,6 +780,13 @@ public:
 	bool complete() const noexcept;
 
 	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(const ToC& rhs) const noexcept;
+
+	/**
 	 * \brief TRUE iff this instance is equal to another instance.
 	 *
 	 * \param[in] rhs Instance to check for equality
@@ -782,8 +804,7 @@ public:
 
 	friend void swap(ToC& lhs, ToC& rhs) noexcept
 	{
-		using std::swap;
-		swap(lhs.impl_, rhs.impl_);
+		lhs.swap(rhs);
 	}
 
 	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept
