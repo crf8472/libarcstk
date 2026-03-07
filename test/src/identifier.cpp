@@ -16,6 +16,83 @@
 #include <type_traits>            // for is_*_{constructible,assignable}
 
 
+TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
+{
+	REQUIRE ( arcstk::default_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+	REQUIRE ( arcstk::current_request_url_prefix() ==
+				arcstk::default_request_url_prefix() );
+
+	// Bent: "Programmed to Love"
+
+	const auto id4 = arcstk::details::make_arid(
+			// offsets
+			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
+				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
+				319992 },
+			// leadout
+			332075
+	);
+
+
+	SECTION ( "current_request_url_prefix() returns updated URL" )
+	{
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+		arcstk::set_current_request_url_prefix("https://foobar/test/success");
+
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"https://foobar/test/success" );
+	}
+
+	SECTION ( "reset_current_request_url_prefix() resets request URL" )
+	{
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+		arcstk::set_current_request_url_prefix("https://some/test/success/");
+
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"https://some/test/success/" );
+
+		arcstk::reset_current_request_url_prefix();
+
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+	}
+
+	SECTION ( "ARId::url() returns updated URL" )
+	{
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+		CHECK ( id4.url().substr(0, 39) ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+		arcstk::set_current_request_url_prefix("https://some/test/at/least/");
+
+		CHECK ( id4.url().substr(0, 27) ==
+				"https://some/test/at/least/" );
+	}
+
+	SECTION ( "ARId::prefix() returns updated URL" )
+	{
+		CHECK ( arcstk::current_request_url_prefix() ==
+				"http://www.accuraterip.com/accuraterip/" );
+
+		CHECK ( id4.prefix() == "http://www.accuraterip.com/accuraterip/" );
+
+		arcstk::set_current_request_url_prefix("https://some/test/at/least/");
+
+		CHECK ( id4.prefix() == "https://some/test/at/least/" );
+	}
+
+	arcstk::reset_current_request_url_prefix();
+}
+
+
 TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 {
 	SECTION ( "is NOT default constructable")
@@ -368,17 +445,12 @@ TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
 		CHECK ( empty_id.disc_id_2()   == 0x00000000 );
 		CHECK ( empty_id.cddb_id()     == 0x00000000 );
 
-		CHECK ( empty_id.url()         ==
-				"http://www.accuraterip.com/accuraterip"
-				"/0/0/0/"
-				"dBAR-000-00000000-00000000-00000000.bin" );
+		CHECK ( empty_id.url()         == "" );
 
-		CHECK ( empty_id.filename()    ==
-				"dBAR-000-00000000-00000000-00000000.bin" );
+		CHECK ( empty_id.filename()    == "" );
 	}
 
 }
-
 
 // TEST_CASE ( "make_arid refuses to build invalid ARIds",
 // 		"[identifier] [id] [aridbuilder]" )

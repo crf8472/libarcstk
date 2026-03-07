@@ -125,7 +125,9 @@ std::string construct_id(const int track_count,
 		const uint32_t cddb_id) noexcept;
 
 /**
- * \brief Create an ARId from the toc data.
+ * \brief Create an ARId by offsets and leadout.
+ *
+ * The input is unvalidated.
  *
  * \param[in] offsets Offsets (in LBA frames)
  * \param[in] leadout Leadout (in LBA frames)

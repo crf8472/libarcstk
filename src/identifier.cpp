@@ -38,8 +38,13 @@ const ARId EmptyARId = make_empty_arid();
 namespace details
 {
 
-const static std::string AR_URL_PREFIX {
-	"http://www.accuraterip.com/accuraterip/" };
+/* default URL prefix for AccurateRip requests */
+static const char* AR_DEFAULT_REQUEST_URL_PREFIX =
+	"http://www.accuraterip.com/accuraterip/";
+
+/* current URL prefix for AccurateRip requests */
+static std::string AR_CURRENT_REQUEST_URL_PREFIX {
+	AR_DEFAULT_REQUEST_URL_PREFIX };
 
 
 uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
@@ -159,7 +164,7 @@ std::string construct_url(const int track_count,
 	hex_flags |= ss.hex;
 
 	ss.flags(hex_flags);
-	ss << AR_URL_PREFIX
+	ss << current_request_url_prefix()
 	   << std::setw(1) << (id_1       & 0xFu)
 	   << '/'          << (id_1 >> 4u & 0xFu)
 	   << '/'          << (id_1 >> 8u & 0xFu)
@@ -324,13 +329,13 @@ ARId::~ARId() noexcept = default;
 
 std::string ARId::url() const noexcept
 {
-	return impl_->url();
+	return this->empty() ? std::string{} : impl_->url();
 }
 
 
 std::string ARId::filename() const noexcept
 {
-	return impl_->filename();
+	return this->empty() ? std::string{} : impl_->filename();
 }
 
 
@@ -360,13 +365,19 @@ uint32_t ARId::cddb_id() const noexcept
 
 std::string ARId::prefix() const noexcept
 {
-	return details::AR_URL_PREFIX;
+	return current_request_url_prefix();
 }
 
 
 bool ARId::empty() const noexcept
 {
 	return impl_->empty();
+}
+
+
+ARId::operator bool() const noexcept
+{
+	return !empty();
 }
 
 
@@ -384,7 +395,7 @@ bool ARId::equals(const ARId& rhs) const noexcept
 
 std::string ARId::to_string() const noexcept
 {
-	return impl_->to_string();
+	return this->empty() ? std::string{} : impl_->to_string();
 }
 
 
@@ -409,24 +420,42 @@ ARId& ARId::operator = (ARId&& rhs) noexcept = default;
 
 ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout)
 {
-	const auto offset_frames { convert<UNIT::FRAMES>(offsets) };
-	const auto leadout_frame { leadout.frames() };
-
-	return details::make_arid(offset_frames, leadout_frame);
+	return details::make_arid(convert<UNIT::FRAMES>(offsets), leadout.frames());
 }
 
 
 ARId make_arid(const ToC& toc, const AudioSize& leadout)
 {
-	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
+	return details::make_arid(convert<UNIT::FRAMES>(toc.offsets()),
 			leadout.frames());
 }
 
 
 ARId make_arid(const ToC& toc)
 {
-	return details::make_arid( convert<UNIT::FRAMES>(toc.offsets()),
+	return details::make_arid(convert<UNIT::FRAMES>(toc.offsets()),
 			toc.leadout().frames());
+}
+
+
+ARId validated_arid(const std::vector<AudioSize>& offsets,
+		const AudioSize& leadout)
+{
+	toc::validate(toc::construct(leadout, offsets));
+
+	return make_arid(offsets, leadout);
+}
+
+
+ARId validated_arid(const ToC& toc, const AudioSize& leadout)
+{
+	return validated_arid(toc.offsets(), leadout);
+}
+
+
+ARId validated_arid(const ToC& toc)
+{
+	return validated_arid(toc.offsets(), toc.leadout());
 }
 
 
@@ -436,6 +465,33 @@ ARId make_arid(const ToC& toc)
 ARId make_empty_arid() noexcept
 {
 	return ARId { 0, 0, 0, 0 };
+}
+
+
+// current_request_url_prefix
+
+
+void set_current_request_url_prefix(const std::string& prefix) noexcept
+{
+	details::AR_CURRENT_REQUEST_URL_PREFIX = prefix;
+}
+
+
+void reset_current_request_url_prefix() noexcept
+{
+	set_current_request_url_prefix(default_request_url_prefix());
+}
+
+
+std::string current_request_url_prefix() noexcept
+{
+	return details::AR_CURRENT_REQUEST_URL_PREFIX;
+}
+
+
+std::string default_request_url_prefix() noexcept
+{
+	return details::AR_DEFAULT_REQUEST_URL_PREFIX;
 }
 
 } // namespace v_1_0_0

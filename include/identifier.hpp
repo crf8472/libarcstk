@@ -38,11 +38,39 @@ class ToC;
  *
  * \brief Calculate and manage \link ARId AccurateRip identifier\endlink
  *
- * ARId is an AccurateRip identifier. It determines the request URL for an
- * album and as well its canonical savefile name. \link ARId ARIds\endlink are
- * constructed by other IDs and metadata like offsets and track count. As a
- * convenience, functions make_arid() construct the ARId of an album by its
- * ToC.
+ * ARId is an AccurateRip identifier. It determines the request URL for an album
+ * and as well the canonical savefile name for its AccurateRip data. \link ARId
+ * ARIds\endlink are constructed by track offsets, leadout and track count.
+ *
+ * As a convenience, functions make_arid() construct the ARId of an album by its
+ * metadata. These functions will not validate their input.
+ *
+ * Functions validated_arid() are wrappers around make_arid() that add
+ * validation by function toc::validate().
+ *
+ * ARIds can be turned into a URL that can be used to request the AccurateRip
+ * service. Those URLs are constructed by using a global URL prefix. This can be
+ * read by function current_request_url_prefix() and modified by function
+ * set_current_request_url_prefix(). After setting the global URL prefix to a
+ * new value, every call of ARId::url() and ARId::prefix() will reflect this
+ * updated value. The global value can be reset to its default by function
+ * reset_current_request_url_prefix().
+ *
+ * An ARId maybe empty(). This indicates that the ARId does for any reason not
+ * contain actual information (while it may or may not carry actual values which
+ * are meaningless though). It is not possible to turn an empty ARId into a
+ * functional request URL.
+ *
+ * Empty ARIds will turn into FALSE when checked via operator bool() while any
+ * non-empty ARId will turn into TRUE. A call of <tt>myARId.empty()</tt> will
+ * yield TRUE iff <tt>myARId == arcstk::EmptyARId</tt> yields TRUE.
+ *
+ * An empty ARId can be used to indicate that no valid ARId could be provided
+ * when nonetheless some ARId-typed value is required by the situation.
+ * This use-case motivates function make_empty_arid() which constructs empty
+ * ARIds. It is usually not required to explicitly construct a new empty ARId
+ * instance since a reference or pointer to arcstk::EmptyARId maybe returned
+ * instead without requiring additional memory.
  *
  * @{
  */
@@ -50,15 +78,16 @@ class ToC;
 /**
  * \brief AccurateRip-Identifier of a compact disc.
  *
- * The AccurateRip identifier determines the URL of the compact disc dataset as
- * well as the standard filename of the AccurateRip response.
+ * The AccurateRip identifier determines determines the request URL for an
+ * album and as well the canonical savefile name for its AccurateRip data.
  *
- * \link ARId ARIds\endlink can be constructed either from three
- * precomputed ids or from a ToC using function make_arid().
+ * \link ARId ARIds\endlink can be constructed either directly from three
+ * precomputed ids if they are known or from album metadata using functions
+ * make_arid(). To construct the ARId of a compact disc, two values are
+ * required: the complete set of track offsets and the leadout.
  *
- * In some cases, an ARId is syntactically required, but semantically
- * superflous. An ARId can be empty() to indicate that it carries no identifier.
- * An ARId that qualifies as empty() can be constructed by make_empty_arid().
+ * An ARId can be empty() to indicate that it carries no actual identifier. An
+ * ARId that qualifies as empty() can be constructed by make_empty_arid().
  */
 class ARId final : public Comparable<ARId>
 {
@@ -156,7 +185,7 @@ public:
 	uint32_t cddb_id() const noexcept;
 
 	/**
-	 * \brief Return the standard URL prefix for AccurateRip request urls.
+	 * \brief Return the current URL prefix for AccurateRip request urls.
 	 *
 	 * \return URL prefix for AccurateRip request URLs.
 	 */
@@ -168,6 +197,8 @@ public:
 	 * \return \c TRUE iff this ARId is empty
 	 */
 	bool empty() const noexcept;
+
+	explicit operator bool() const noexcept;
 
 	/**
 	 * \brief Swap with another instance.
@@ -222,9 +253,10 @@ public:
 	}
 };
 
-
 /**
- * \brief Create an ARId from the toc data.
+ * \brief Create an ARId from offsets and leadout.
+ *
+ * The size of the container \c offsets is interpreted as track count.
  *
  * \param[in] offsets Offsets
  * \param[in] leadout Leadout
@@ -234,48 +266,65 @@ public:
 ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout);
 
 /**
- * \brief Create an ARId from a ToC and a specified leadout.
- *
- * The input is validated.
- *
- * Parameter \c toc is allowed to be non-\link arcstk::ToC::complete()
- * complete()\endlink. Parameter \c leadout is intended to provide the value
- * possibly missing in \c toc.
- *
- * If \c leadout is 0, \c toc.leadout() is used and \c leadout is ignored. If
- * \c leadout is not 0, \c toc.leadout() is ignored. If both values are 0
- * an InvalidMetadataException is thrown.
- *
- * If \c leadout is 0 and \c toc cannot be validated, an
- * InvalidMetadataException is thrown. If
- * \c leadout is not 0 and \c leadout and \c toc cannot be validated as
- * consistent with each other, an InvalidMetadataException is thrown.
+ * \brief Create an ARId from a ToC and a leadout.
  *
  * \param[in] toc     ToC to use
  * \param[in] leadout Leadout LBA frame
  *
  * \return ARId
- *
- * \throw InvalidMetadataException If \c toc and \c leadout are inconsistent
  */
 ARId make_arid(const ToC& toc, const AudioSize& leadout);
+
+/**
+ * \brief Create an ARId from a ToC.
+ *
+ * \param[in] toc ToC to use
+ *
+ * \return ARId
+ */
+ARId make_arid(const ToC& toc);
+
+/**
+ * \brief Create an ARId from validated offsets and validated leadout.
+ *
+ * The size of the container \c offsets is interpreted as track count.
+ *
+ * \param[in] offsets Offsets
+ * \param[in] leadout Leadout
+ *
+ * \return ARId
+ *
+ * \throw invalid_argument If \c offsets or \c leadout could not be validated.
+ */
+ARId validated_arid(const std::vector<AudioSize>& offsets,
+		const AudioSize& leadout);
+
+/**
+ * \brief Create an ARId from a validated pair of ToC and leadout.
+ *
+ * The value of \c toc.leadout() is ignored and the value of \c leadout is used
+ * instead.
+ *
+ * \param[in] toc     ToC to use
+ * \param[in] leadout Leadout
+ *
+ * \return ARId
+ *
+ * \throw invalid_argument If \c toc or \c leadout could not be validated.
+ */
+ARId validated_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a
  * \link arcstk::ToC::complete() complete()\endlink ToC.
  *
- * \details
- *
- * The \c toc is validated.
- *
  * \param[in] toc ToC to use
  *
- * \return ARId corresponding to the input ToC
+ * \return ARId
  *
- * \throw InvalidMetadataException
- * If \c toc is not \link arcstk::ToC::complete() complete()\endlink.
+ * \throw invalid_argument If \c toc could not be validated.
  */
-ARId make_arid(const ToC& toc);
+ARId validated_arid(const ToC& toc);
 
 /**
  * \brief Global instance of an empty ARId.
@@ -307,6 +356,33 @@ extern const ARId EmptyARId;
  * \return An empty ARId
  */
 ARId make_empty_arid() noexcept;
+
+/**
+ * \brief Set the global URL prefix for AccurateRip request URLs.
+ *
+ * \param[in] prefix URL prefix to use for constructing ARId URLs
+ */
+void set_current_request_url_prefix(const std::string& prefix) noexcept;
+
+/**
+ * \brief Set the global URL prefix for AccurateRip request URLs to its default
+ * value.
+ */
+void reset_current_request_url_prefix() noexcept;
+
+/**
+ * \brief The global URL prefix for AccurateRip request URLs.
+ *
+ * \return URL prefix to use for constructing ARId URLs
+ */
+std::string current_request_url_prefix() noexcept;
+
+/**
+ * \brief The global default URL prefix for AccurateRip request URLs.
+ *
+ * \return Default URL prefix for constructing ARId URLs
+ */
+std::string default_request_url_prefix() noexcept;
 
 /** @} */
 
