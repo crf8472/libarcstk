@@ -593,6 +593,17 @@ namespace toc
 ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets);
 
 /**
+ * \brief Construct ToCData from leadout and offsets.
+ *
+ * \param[in] leadout Leadout
+ * \param[in] offsets Offset values in order of tracks
+ *
+ * \return ToCData object
+ */
+ToCData construct(const AudioSize& leadout,
+		const std::vector<AudioSize>& offsets);
+
+/**
  * \brief Set the leadout of a ToCData object.
  *
  * \param[in] leadout Leadout to set

@@ -299,6 +299,20 @@ ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets)
 }
 
 
+ToCData construct(const AudioSize& leadout,
+		const std::vector<AudioSize>& offsets)
+{
+	auto toc = offsets;
+
+	using std::begin;
+	toc.insert(begin(toc), leadout);
+
+	toc.shrink_to_fit(); // For safety. Required?
+
+	return toc;
+}
+
+
 void set_leadout(const AudioSize& leadout, ToCData& data)
 {
 	if (data.size() < 1)
