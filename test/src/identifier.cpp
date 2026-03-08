@@ -95,6 +95,13 @@ TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 
 TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 {
+	SECTION ("IS non-abstract final class")
+	{
+		CHECK ( std::is_class_v<arcstk::ARId> );
+		CHECK ( ! std::is_abstract_v<arcstk::ARId> );
+		CHECK ( std::is_final_v<arcstk::ARId> );
+	}
+
 	SECTION ( "is NOT default constructable")
 	{
 		CHECK ( ! std::is_default_constructible_v<arcstk::ARId>);
@@ -133,6 +140,17 @@ TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 		CHECK ( std::is_destructible_v<arcstk::ARId> );
 		//CHECK ( std::is_trivially_destructible_v<arcstk::ARId> );
 		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ARId> );
+	}
+
+	SECTION ("IS (nothrow) swappable")
+	{
+		CHECK ( std::is_swappable_v<arcstk::ARId> );
+		CHECK ( std::is_nothrow_swappable_v<arcstk::ARId> );
+	}
+
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::ARId> );
 	}
 }
 
@@ -451,6 +469,8 @@ TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
 	}
 
 }
+
+// TODO validated_arid
 
 // TEST_CASE ( "make_arid refuses to build invalid ARIds",
 // 		"[identifier] [id] [aridbuilder]" )

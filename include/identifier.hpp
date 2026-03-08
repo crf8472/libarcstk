@@ -101,7 +101,7 @@ public:
 	 * \param[in] id_2        Id 2 of this medium
 	 * \param[in] cddb_id     CDDB id of this medium
 	 */
-	ARId(const int track_count,
+	ARId(const std::size_t track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -114,7 +114,7 @@ public:
 	 * \param[in] id_2        Id 2 of this medium
 	 * \param[in] cddb_id     CDDB id of this medium
 	 */
-	ARId(const std::size_t track_count,
+	ARId(const int track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -161,7 +161,7 @@ public:
 	 *
 	 * \return Track count of this medium
 	 */
-	int track_count() const noexcept;
+	unsigned track_count() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 1.

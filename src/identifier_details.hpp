@@ -74,6 +74,24 @@ uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout);
 uint64_t sum_digits(const uint32_t number) noexcept;
 
 /**
+ * \brief Normalize a track_count to a legal unsigned value.
+ *
+ * \param[in] track_count Total number of tracks
+ *
+ * \return Total number of tracks
+ */
+unsigned normalize_trackcount(const std::size_t track_count);
+
+/**
+ * \brief Normalize a track_count to a legal unsigned value.
+ *
+ * \param[in] track_count Total number of tracks
+ *
+ * \return Total number of tracks
+ */
+unsigned normalize_trackcount(const int track_count);
+
+/**
  * \brief Service method: Compute the AccurateRip response filename
  *
  * Used by ARId::Impl::filename().
@@ -85,7 +103,7 @@ uint64_t sum_digits(const uint32_t number) noexcept;
  *
  * \return AccurateRip response filename
  */
-std::string construct_filename(const int track_count,
+std::string construct_filename(const unsigned track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
@@ -93,6 +111,8 @@ std::string construct_filename(const int track_count,
 /**
  * \brief Service method: Compute the AccurateRip request URL
  *
+ * The URL is constructed using current_request_url_prefix().
+ *
  * Used by ARId::Impl::url().
  *
  * \param[in] track_count   Number of tracks in this medium
@@ -102,15 +122,32 @@ std::string construct_filename(const int track_count,
  *
  * \return AccurateRip request URL
  */
-std::string construct_url(const int track_count,
+std::string construct_url(const unsigned track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
+
+/**
+ * \brief Service method: Compute the AccurateRip request URL
+ *
+ * \param[in] track_count   Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ * \param[in] prefix        URL prefix
+ *
+ * \return AccurateRip request URL
+ */
+std::string construct_url(const unsigned track_count,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id,
+		const std::string& prefix) noexcept;
 
 /**
  * \brief Service method: Compute the AccurateRip request ID
  *
- * Used by ARId::Impl::url().
+ * Used by ARId::Impl::to_string().
  *
  * \param[in] track_count   Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
@@ -119,13 +156,13 @@ std::string construct_url(const int track_count,
  *
  * \return AccurateRip request URL
  */
-std::string construct_id(const int track_count,
+std::string construct_id(const unsigned track_count,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
 
 /**
- * \brief Create an ARId by offsets and leadout.
+ * \brief Worker: Create an ARId by offsets and leadout.
  *
  * The input is unvalidated.
  *
@@ -159,7 +196,7 @@ public:
 	/**
 	 * \brief Implements ARId::ARId().
 	 */
-	Impl(const int track_count,
+	Impl(const unsigned track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -177,7 +214,7 @@ public:
 	/**
 	 * \brief Implements ARId::track_count()
 	 */
-	int track_count() const noexcept;
+	unsigned track_count() const noexcept;
 
 	/**
 	 * \brief Implements ARId::disc_id_1()
@@ -210,7 +247,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	int track_count_;
+	unsigned track_count_;
 
 	/**
 	 * \brief Disc id no. 1
