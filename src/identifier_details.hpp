@@ -80,7 +80,7 @@ uint64_t sum_digits(const uint32_t number) noexcept;
  *
  * \return Total number of tracks
  */
-unsigned normalize_trackcount(const std::size_t track_count);
+unsigned normalize_trackcount(const std::size_t track_count) noexcept;
 
 /**
  * \brief Normalize a track_count to a legal unsigned value.
@@ -89,7 +89,7 @@ unsigned normalize_trackcount(const std::size_t track_count);
  *
  * \return Total number of tracks
  */
-unsigned normalize_trackcount(const int track_count);
+unsigned normalize_trackcount(const int track_count) noexcept;
 
 /**
  * \brief Service method: Compute the AccurateRip response filename
@@ -199,7 +199,7 @@ public:
 	Impl(const unsigned track_count,
 			const uint32_t id_1,
 			const uint32_t id_2,
-			const uint32_t cddb_id);
+			const uint32_t cddb_id) noexcept;
 
 	/**
 	 * \brief Implements ARId::url()

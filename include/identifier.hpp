@@ -147,14 +147,14 @@ public:
 	 *
 	 * \return The AccurateRip request URL
 	 */
-	std::string url() const noexcept;
+	std::string url() const;
 
 	/**
 	 * \brief Return the AccurateRip filename of the response file.
 	 *
 	 * \return AccurateRip filename of the response file
 	 */
-	std::string filename() const noexcept;
+	std::string filename() const;
 
 	/**
 	 * \brief Return the track count.
@@ -226,7 +226,7 @@ public:
 	 *
 	 * \return String representation
 	 */
-	std::string to_string() const noexcept;
+	std::string to_string() const;
 
 private:
 
@@ -360,7 +360,7 @@ extern const ARId EmptyARId;
  *
  * \return An empty ARId
  */
-ARId make_empty_arid() noexcept;
+ARId make_empty_arid();
 
 /**
  * \brief Set the global URL prefix for AccurateRip request URLs.

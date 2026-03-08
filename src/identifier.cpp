@@ -117,7 +117,7 @@ uint64_t sum_digits(const uint32_t number) noexcept
 }
 
 
-unsigned normalize_trackcount(const std::size_t track_count)
+unsigned normalize_trackcount(const std::size_t track_count) noexcept
 {
 	if (track_count > CDDA::MAX_TRACKCOUNT) { return CDDA::MAX_TRACKCOUNT; }
 
@@ -125,7 +125,7 @@ unsigned normalize_trackcount(const std::size_t track_count)
 }
 
 
-unsigned normalize_trackcount(const int track_count)
+unsigned normalize_trackcount(const int track_count) noexcept
 {
 	/* legal track_count is between 0 and CDDA::MAX_TRACKCOUNT */
 
@@ -227,7 +227,7 @@ ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout)
 
 
 ARId::Impl::Impl(const unsigned track_count, const uint32_t id_1,
-		const uint32_t id_2, const uint32_t cddb_id)
+		const uint32_t id_2, const uint32_t cddb_id) noexcept
 	: track_count_ { track_count }
 	, disc_id1_    { id_1 }
 	, disc_id2_    { id_2 }
@@ -344,13 +344,13 @@ ARId::ARId(ARId&& rhs) noexcept = default;
 ARId::~ARId() noexcept = default;
 
 
-std::string ARId::url() const noexcept
+std::string ARId::url() const
 {
 	return this->empty() ? std::string{} : impl_->url();
 }
 
 
-std::string ARId::filename() const noexcept
+std::string ARId::filename() const
 {
 	return this->empty() ? std::string{} : impl_->filename();
 }
@@ -410,7 +410,7 @@ bool ARId::equals(const ARId& rhs) const noexcept
 }
 
 
-std::string ARId::to_string() const noexcept
+std::string ARId::to_string() const
 {
 	return this->empty() ? std::string{} : impl_->to_string();
 }
@@ -474,7 +474,7 @@ ARId validated_arid(const ToC& toc)
 // make_empty_arid
 
 
-ARId make_empty_arid() noexcept
+ARId make_empty_arid()
 {
 	return ARId { 0, 0, 0, 0 };
 }
