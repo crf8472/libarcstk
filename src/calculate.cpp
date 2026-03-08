@@ -523,13 +523,13 @@ void CalculationState::swap_base(CalculationState& rhs)
 {
 	using std::swap;
 
-	swap(this->current_offset_,      rhs.current_offset_    );
-	swap(this->samples_processed_,   rhs.samples_processed_ );
+	swap(this->current_offset_,          rhs.current_offset_          );
+	swap(this->samples_processed_,       rhs.samples_processed_       );
 	swap(this->track_samples_processed_, rhs.track_samples_processed_ );
-	swap(this->tracks_processed_,    rhs.tracks_processed_  );
-	swap(this->algo_time_elapsed_,   rhs.algo_time_elapsed_ );
-	swap(this->update_time_elapsed_, rhs.update_time_elapsed_ );
-	swap(this->algorithm_,           rhs.algorithm_         );
+	swap(this->tracks_processed_,        rhs.tracks_processed_        );
+	swap(this->algo_time_elapsed_,       rhs.algo_time_elapsed_       );
+	swap(this->update_time_elapsed_,     rhs.update_time_elapsed_     );
+	swap(this->algorithm_,               rhs.algorithm_               );
 }
 
 
