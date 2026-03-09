@@ -410,8 +410,11 @@ std::string ARId::to_string() const
 
 ARId& ARId::operator = (const ARId& rhs)
 {
-	auto tmp = std::make_unique<ARId::Impl>(*rhs.impl_);
-	impl_ = std::move(tmp);
+	if (&rhs != this)
+	{
+		auto tmp = std::make_unique<ARId::Impl>(*rhs.impl_);
+		impl_ = std::move(tmp);
+	}
 	return *this;
 }
 
