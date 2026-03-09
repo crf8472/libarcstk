@@ -131,10 +131,10 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 		// Read header of current block
 
-		track_count = 0;
-		discId1 = 0;
-		discId2 = 0;
-		cddbId  = 0;
+		// track_count = 0;
+		// discId1 = 0;
+		// discId2 = 0;
+		// cddbId  = 0;
 
 		try
 		{
