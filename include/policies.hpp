@@ -56,7 +56,7 @@ struct Comparable
 template <typename T>
 struct TotallyOrdered : public Comparable<T>
 {
-	virtual ~TotallyOrdered() = default;
+	~TotallyOrdered() override = default;
 
 	/**
 	 * \brief Greater-than.

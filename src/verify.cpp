@@ -1340,17 +1340,17 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 	const auto indent = std::string { "  " };
 	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
 	{
-		out << "Block " << b << std::endl;
+		out << "Block " << b << '\n';
 
 		out << indent << "Id match: "
-			<< std::boolalpha << result.id(b) << std::endl;
+			<< std::boolalpha << result.id(b) << '\n';
 
 		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
 		{
 			out << indent << "Track " << std::setw(2) << (t + 1)
 				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
 				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
-				<< std::endl;
+				<< '\n';
 		}
 	}
 

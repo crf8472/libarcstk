@@ -112,7 +112,7 @@ static const std::array<std::string, 2> names {
 	// "FOURTH_TYPE" ...
 };
 
-} // namespace checksum::details
+} // namespace details
 
 /** @} */
 

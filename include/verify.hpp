@@ -650,18 +650,18 @@ class AlbumVerifier final : public Verifier { class Impl; std::unique_ptr<Impl>
 
 	// Verifier
 
-	virtual const ARId* do_actual_id() const noexcept final;
+	const ARId* do_actual_id() const noexcept final;
 
-	virtual const Checksums* do_actual_checksums() const noexcept final;
+	const Checksums* do_actual_checksums() const noexcept final;
 
-	virtual bool do_strict() const noexcept final;
+	bool do_strict() const noexcept final;
 
-	virtual void do_set_strict(const bool strict) noexcept final;
+	void do_set_strict(const bool strict) noexcept final;
 
-	virtual std::unique_ptr<VerificationResult> do_perform(
+	std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
 
-	virtual std::unique_ptr<Verifier> do_clone() const final;
+	std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -682,7 +682,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~AlbumVerifier() noexcept;
+	~AlbumVerifier() noexcept final;
 };
 
 
@@ -725,18 +725,18 @@ class TracksetVerifier final : public Verifier
 
 	// Verifier
 
-	virtual const ARId* do_actual_id() const noexcept final;
+	const ARId* do_actual_id() const noexcept final;
 
-	virtual const Checksums* do_actual_checksums() const noexcept final;
+	const Checksums* do_actual_checksums() const noexcept final;
 
-	virtual bool do_strict() const noexcept final;
+	bool do_strict() const noexcept final;
 
-	virtual void do_set_strict(const bool strict) noexcept final;
+	void do_set_strict(const bool strict) noexcept final;
 
-	virtual std::unique_ptr<VerificationResult> do_perform(
+	std::unique_ptr<VerificationResult> do_perform(
 			const ChecksumSource& ref_sums) const final;
 
-	virtual std::unique_ptr<Verifier> do_clone() const final;
+	std::unique_ptr<Verifier> do_clone() const final;
 
 public:
 
@@ -756,7 +756,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~TracksetVerifier() noexcept;
+	~TracksetVerifier() noexcept final;
 };
 
 /** @} */

@@ -382,7 +382,7 @@ public:
 	/**
 	 * \brief Destructor
 	 */
-	~SampleInputIterator() noexcept = default;
+	~SampleInputIterator() noexcept final = default;
 
 	/**
 	 * \brief Dereferences the iterator to the sample pointed to.
@@ -828,7 +828,7 @@ public:
 	 *
 	 * \param[in] rhs Instance to be copied
 	 */
-	explicit Calculation(const Calculation& rhs);
+	Calculation(const Calculation& rhs);
 
 	Calculation& operator=(const Calculation& rhs);
 
@@ -837,7 +837,7 @@ public:
 	 *
 	 * \param[in] rhs Instance to be moved
 	 */
-	explicit Calculation(Calculation&& rhs) noexcept;
+	Calculation(Calculation&& rhs) noexcept;
 
 	Calculation& operator=(Calculation&& rhs) noexcept;
 
@@ -977,7 +977,7 @@ public:
 	 */
 	void swap(Calculation& rhs) noexcept;
 
-	friend void swap(Calculation& lhs, Calculation& rhs)
+	friend void swap(Calculation& lhs, Calculation& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}

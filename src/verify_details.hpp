@@ -377,15 +377,15 @@ public:
  */
 class StrictPolicy final : public VerificationPolicy
 {
-	virtual bool do_is_verified(const int track, const VerificationResult& r)
+	bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
 
-	virtual int do_total_unverified_tracks(const VerificationResult& r) const
+	int do_total_unverified_tracks(const VerificationResult& r) const
 		final;
 
-	virtual bool do_is_strict() const final;
+	bool do_is_strict() const final;
 
-	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
+	std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -394,12 +394,12 @@ class StrictPolicy final : public VerificationPolicy
  */
 class LiberalPolicy final : public VerificationPolicy
 {
-	virtual bool do_is_verified(const int track, const VerificationResult& r)
+	bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
 
-	virtual bool do_is_strict() const final;
+	bool do_is_strict() const final;
 
-	virtual std::unique_ptr<VerificationPolicy> do_clone() const final;
+	std::unique_ptr<VerificationPolicy> do_clone() const final;
 };
 
 
@@ -408,20 +408,20 @@ class LiberalPolicy final : public VerificationPolicy
  */
 class Result final : public VerificationResult
 {
-	virtual int  do_verify_id(const int b) final;
-	virtual bool do_id(const int b) const final;
-	virtual int  do_verify_track(const int b, const int t, const bool v2) final;
-	virtual bool do_track(const int b, const int t, const bool v2) const final;
-	virtual int  do_difference(const int b, const bool v2) const final;
-	virtual int  do_total_blocks() const final;
-	virtual int  do_tracks_per_block() const final;
-	virtual size_t do_size() const final;
-	virtual bool do_is_verified(const int track) const final;
-	virtual int  do_total_unverified_tracks() const final;
-	virtual std::tuple<int, bool, int> do_best_block() const final;
-	virtual int  do_best_block_difference() const final;
-	virtual bool do_strict() const final;
-	virtual std::unique_ptr<VerificationResult> do_clone() const final;
+	int  do_verify_id(const int b) final;
+	bool do_id(const int b) const final;
+	int  do_verify_track(const int b, const int t, const bool v2) final;
+	bool do_track(const int b, const int t, const bool v2) const final;
+	int  do_difference(const int b, const bool v2) const final;
+	int  do_total_blocks() const final;
+	int  do_tracks_per_block() const final;
+	size_t do_size() const final;
+	bool do_is_verified(const int track) const final;
+	int  do_total_unverified_tracks() const final;
+	std::tuple<int, bool, int> do_best_block() const final;
+	int  do_best_block_difference() const final;
+	bool do_strict() const final;
+	std::unique_ptr<VerificationResult> do_clone() const final;
 
 	/**
 	 * \brief The actual flags
@@ -534,8 +534,8 @@ public:
  */
 class BlockSelector final : public Selector
 {
-	virtual std::unique_ptr<Selector> do_clone() const final;
-	virtual const uint32_t& do_get(const ChecksumSource& s,
+	std::unique_ptr<Selector> do_clone() const final;
+	const uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type block,
 			const ChecksumSource::size_type track) const final;
 };
@@ -546,8 +546,8 @@ class BlockSelector final : public Selector
  */
 class TrackSelector final : public Selector
 {
-	virtual std::unique_ptr<Selector> do_clone() const final;
-	virtual const uint32_t& do_get(const ChecksumSource& s,
+	std::unique_ptr<Selector> do_clone() const final;
+	const uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type track,
 			const ChecksumSource::size_type block) const final;
 };
@@ -1099,7 +1099,7 @@ protected:
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
-	VerifierBase(const Checksums* actual_sums);
+	explicit VerifierBase(const Checksums* actual_sums);
 
 public:
 
@@ -1172,8 +1172,8 @@ private:
  */
 class AlbumVerifier::Impl : public details::VerifierBase
 {
-	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
-	virtual const ARId* do_actual_id() const noexcept final;
+	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
+	const ARId* do_actual_id() const noexcept final;
 
 public:
 
@@ -1206,7 +1206,7 @@ private:
  */
 class TracksetVerifier::Impl : public details::VerifierBase
 {
-	virtual std::unique_ptr<details::MatchPolicy> do_create_order() const final;
+	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 
 public:
 

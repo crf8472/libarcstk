@@ -299,12 +299,12 @@ private:
  */
 class TrackPartitioner final : public Partitioner
 {
-	virtual Partitioning do_create_partitioning(
+	Partitioning do_create_partitioning(
 		const SampleRange& sample_block,
 		const SampleRange& relevant_interval,
 		const Points& points) const final;
 
-	virtual std::unique_ptr<Partitioner> do_clone() const final;
+	std::unique_ptr<Partitioner> do_clone() const final;
 
 public:
 

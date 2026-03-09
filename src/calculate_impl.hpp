@@ -234,10 +234,10 @@ public:
 
 protected:
 
-	explicit CalculationState(const CalculationState& rhs);
+	CalculationState(const CalculationState& rhs);
 	// no copy assingment operator
 
-	explicit CalculationState(CalculationState&& rhs) noexcept;
+	CalculationState(CalculationState&& rhs) noexcept;
 	// no move assingment operator
 
 	/**
@@ -297,12 +297,12 @@ public:
 	explicit CalculationStateImpl(Algorithm* const algorithm);
 
 
-	explicit CalculationStateImpl(const CalculationStateImpl& rhs);
+	CalculationStateImpl(const CalculationStateImpl& rhs);
 
 	CalculationStateImpl& operator = (const CalculationStateImpl& rhs);
 
 
-	explicit CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
+	CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
 
 	CalculationStateImpl& operator = (CalculationStateImpl&& rhs) noexcept;
 
