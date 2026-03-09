@@ -362,32 +362,51 @@ extern const ARId EmptyARId;
  */
 ARId make_empty_arid();
 
-/**
- * \brief Set the global URL prefix for AccurateRip request URLs.
- *
- * \param[in] prefix URL prefix to use for constructing ARId URLs
- */
-void set_current_request_url_prefix(const std::string& prefix) noexcept;
 
 /**
- * \brief Set the global URL prefix for AccurateRip request URLs to its default
- * value.
+ * \brief Constants for AccurateRip.
  */
-void reset_current_request_url_prefix() noexcept;
+class ACCURATERIP
+{
+	/**
+	 * \brief Current request URL prefix.
+	 */
+	static std::string request_url_prefix_;
 
-/**
- * \brief The global URL prefix for AccurateRip request URLs.
- *
- * \return URL prefix to use for constructing ARId URLs
- */
-std::string current_request_url_prefix() noexcept;
+	// ... may contain more constants
 
-/**
- * \brief The global default URL prefix for AccurateRip request URLs.
- *
- * \return Default URL prefix for constructing ARId URLs
- */
-std::string default_request_url_prefix() noexcept;
+public:
+
+	/**
+	 * \brief The current URL prefix to construct request URLs.
+	 *
+	 * \return Current prefix to construct request URLs.
+	 */
+	static std::string request_url_prefix() noexcept;
+
+	/**
+	 * \brief The default URL prefix to construct request URLs.
+	 *
+	 * \return Default prefix to construct request URLs.
+	 */
+	static std::string default_request_url_prefix() noexcept;
+
+	/**
+	 * \brief Set the global URL prefix for AccurateRip request URLs.
+	 *
+	 * \param[in] prefix URL prefix to use for constructing ARId URLs
+	 */
+	static void set_request_url_prefix(const std::string& prefix) noexcept;
+
+	/**
+	 * \brief Set the global URL prefix for AccurateRip request URLs to its
+	 * default value.
+	 *
+	 * The default value is defined by
+	 * ACCURATERIP::default_request_url_prefix().
+	 */
+	static void reset_request_url_prefix() noexcept;
+};
 
 /** @} */
 

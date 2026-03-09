@@ -38,14 +38,6 @@ const ARId EmptyARId = make_empty_arid();
 namespace details
 {
 
-/* default URL prefix for AccurateRip requests */
-static const char* AR_DEFAULT_REQUEST_URL_PREFIX =
-	"http://www.accuraterip.com/accuraterip/";
-
-/* current URL prefix for AccurateRip requests */
-static std::string AR_CURRENT_REQUEST_URL_PREFIX {
-	AR_DEFAULT_REQUEST_URL_PREFIX };
-
 
 uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
 	noexcept
@@ -152,7 +144,7 @@ std::string construct_url(const unsigned track_count,
 		const uint32_t cddb_id) noexcept
 {
 	return construct_url(track_count, id_1, id_2, cddb_id,
-			current_request_url_prefix());
+			ACCURATERIP::request_url_prefix());
 }
 
 
@@ -382,7 +374,7 @@ uint32_t ARId::cddb_id() const noexcept
 
 std::string ARId::prefix() const noexcept
 {
-	return current_request_url_prefix();
+	return ACCURATERIP::request_url_prefix();
 }
 
 
@@ -480,30 +472,36 @@ ARId make_empty_arid()
 }
 
 
-// current_request_url_prefix
+// ACCURATERIP
 
 
-void set_current_request_url_prefix(const std::string& prefix) noexcept
+std::string ACCURATERIP::request_url_prefix_ =
+		ACCURATERIP::default_request_url_prefix();
+
+
+std::string ACCURATERIP::request_url_prefix() noexcept
 {
-	details::AR_CURRENT_REQUEST_URL_PREFIX = prefix;
+	return ACCURATERIP::request_url_prefix_;
 }
 
 
-void reset_current_request_url_prefix() noexcept
+std::string ACCURATERIP::default_request_url_prefix() noexcept
 {
-	set_current_request_url_prefix(default_request_url_prefix());
+	/* this defines the default URL prefix for AccurateRip requests */
+	return "http://www.accuraterip.com/accuraterip/";
 }
 
 
-std::string current_request_url_prefix() noexcept
+void ACCURATERIP::set_request_url_prefix(const std::string& prefix) noexcept
 {
-	return details::AR_CURRENT_REQUEST_URL_PREFIX;
+	ACCURATERIP::request_url_prefix_ = prefix;
 }
 
 
-std::string default_request_url_prefix() noexcept
+void ACCURATERIP::reset_request_url_prefix() noexcept
 {
-	return details::AR_DEFAULT_REQUEST_URL_PREFIX;
+	ACCURATERIP::set_request_url_prefix(
+			ACCURATERIP::default_request_url_prefix());
 }
 
 } // namespace v_1_0_0

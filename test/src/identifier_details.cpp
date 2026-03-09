@@ -155,7 +155,7 @@ TEST_CASE ( "construct_url", "[id]" )
 
 	const auto url = std::string { "http://www.accuraterip.com/accuraterip/" };
 
-	REQUIRE ( url == arcstk::current_request_url_prefix());
+	REQUIRE ( url == arcstk::ACCURATERIP::request_url_prefix());
 
 
 	SECTION ( "Constructing regular AccurateRip URLs works" )

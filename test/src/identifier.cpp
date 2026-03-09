@@ -18,11 +18,13 @@
 
 TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 {
-	REQUIRE ( arcstk::default_request_url_prefix() ==
+	using arcstk::ACCURATERIP;
+
+	REQUIRE ( ACCURATERIP::default_request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 
-	REQUIRE ( arcstk::current_request_url_prefix() ==
-				arcstk::default_request_url_prefix() );
+	REQUIRE ( ACCURATERIP::request_url_prefix() ==
+				ACCURATERIP::default_request_url_prefix() );
 
 	// Bent: "Programmed to Love"
 
@@ -36,42 +38,45 @@ TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 	);
 
 
-	SECTION ( "current_request_url_prefix() returns updated URL" )
+	SECTION ( "request_url_prefix() returns updated URL" )
 	{
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 
-		arcstk::set_current_request_url_prefix("https://foobar/test/success");
+		ACCURATERIP::set_request_url_prefix(
+				"https://foobar/test/success");
 
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"https://foobar/test/success" );
 	}
 
-	SECTION ( "reset_current_request_url_prefix() resets request URL" )
+	SECTION ( "reset_request_url_prefix() resets request URL" )
 	{
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 
-		arcstk::set_current_request_url_prefix("https://some/test/success/");
+		ACCURATERIP::set_request_url_prefix(
+				"https://some/test/success/");
 
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"https://some/test/success/" );
 
-		arcstk::reset_current_request_url_prefix();
+		ACCURATERIP::reset_request_url_prefix();
 
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 	}
 
 	SECTION ( "ARId::url() returns updated URL" )
 	{
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 
 		CHECK ( id4.url().substr(0, 39) ==
 				"http://www.accuraterip.com/accuraterip/" );
 
-		arcstk::set_current_request_url_prefix("https://some/test/at/least/");
+		ACCURATERIP::set_request_url_prefix(
+				"https://some/test/at/least/");
 
 		CHECK ( id4.url().substr(0, 27) ==
 				"https://some/test/at/least/" );
@@ -79,17 +84,18 @@ TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 
 	SECTION ( "ARId::prefix() returns updated URL" )
 	{
-		CHECK ( arcstk::current_request_url_prefix() ==
+		CHECK ( ACCURATERIP::request_url_prefix() ==
 				"http://www.accuraterip.com/accuraterip/" );
 
 		CHECK ( id4.prefix() == "http://www.accuraterip.com/accuraterip/" );
 
-		arcstk::set_current_request_url_prefix("https://some/test/at/least/");
+		ACCURATERIP::set_request_url_prefix(
+				"https://some/test/at/least/");
 
 		CHECK ( id4.prefix() == "https://some/test/at/least/" );
 	}
 
-	arcstk::reset_current_request_url_prefix();
+	ACCURATERIP::reset_request_url_prefix();
 }
 
 
