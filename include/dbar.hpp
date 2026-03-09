@@ -165,7 +165,7 @@ public:
 	bool equals(const DBARBlockHeader& rhs) const noexcept;
 
 
-	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs)
+	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
@@ -259,7 +259,7 @@ public:
 	bool equals(const DBARTriplet& rhs) const noexcept;
 
 
-	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs)
+	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
@@ -348,9 +348,11 @@ public:
 
 	DBARForwardIterator& operator=(const DBARForwardIterator& rhs)
 	{
-		idx_       = rhs.idx_;
-		container_ = rhs.container_;
-
+		if (&rhs != this)
+		{
+			idx_       = rhs.idx_;
+			container_ = rhs.container_;
+		}
 		return *this;
 	}
 
@@ -369,7 +371,7 @@ public:
 		return *this;
 	}
 
-	~DBARForwardIterator() noexcept = default;
+	~DBARForwardIterator() noexcept final = default;
 
 	reference operator*() const
 	{
@@ -448,7 +450,7 @@ public:
 	 *
 	 * \param[in] blocks List of DBAR block literals.
 	 */
-	explicit DBAR(std::initializer_list<
+	DBAR(std::initializer_list<
 			std::pair<
 				std::tuple<int, uint32_t, uint32_t, uint32_t>,
 				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
@@ -589,7 +591,7 @@ public:
 	bool equals(const DBAR& rhs) const noexcept;
 
 
-	friend void swap(DBAR& lhs, DBAR& rhs)
+	friend void swap(DBAR& lhs, DBAR& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
@@ -891,24 +893,24 @@ class DBARBuilder final : public ParseHandler
 
 	// ParseHandler
 
-	virtual void do_start_input() final;
+	void do_start_input() final;
 
-	virtual void do_start_block() final;
+	void do_start_block() final;
 
-	virtual void do_header(const uint8_t track_count, const uint32_t id1,
+	void do_header(const uint8_t track_count, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id) final;
 
-	virtual void do_start_triplets() final;
+	void do_start_triplets() final;
 
-	virtual void do_triplet(const uint32_t arcs,
+	void do_triplet(const uint32_t arcs,
 			const uint8_t confidence,
 			const uint32_t frame450_arcs) final;
 
-	virtual void do_end_triplets() final;
+	void do_end_triplets() final;
 
-	virtual void do_end_block() final;
+	void do_end_block() final;
 
-	virtual void do_end_input() final;
+	void do_end_input() final;
 
 public:
 
@@ -920,7 +922,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~DBARBuilder() noexcept;
+	~DBARBuilder() noexcept final;
 
 	/**
 	 * \brief Parsing result.
@@ -976,7 +978,7 @@ public:
  */
 class DBARErrorHandler final : public ParseErrorHandler
 {
-	virtual void do_on_error(const unsigned byte_counter,
+	void do_on_error(const unsigned byte_counter,
 			const unsigned block_counter, const unsigned block_byte_counter)
 		final;
 };
