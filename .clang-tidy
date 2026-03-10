@@ -1,0 +1,14 @@
+UseColor: true
+
+Checks: >
+    bugprone-*,
+    cppcoreguidelines-*,
+    google-*,
+    performance-*,
+
+HeaderFilterRegex:            '.*'
+
+HeaderFileExtensions:         ['hpp']
+
+ImplementationFileExtensions: ['cpp']
+
