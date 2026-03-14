@@ -13,6 +13,10 @@
 #include "accuraterip.hpp"        // TO BE TESTED
 #endif
 
+#include <fstream>                // for ifstream
+#include <unordered_set>          // for unordered_set
+#include <vector>                 // for vector
+
 #ifndef LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"            // for sample_t
 #endif
@@ -22,10 +26,6 @@
 #ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize
 #endif
-
-#include <fstream>                // for ifstream
-#include <unordered_set>          // for unordered_set
-#include <vector>                 // for vector
 
 
 TEST_CASE ( "AccurateRipCS", "[updatable]" )

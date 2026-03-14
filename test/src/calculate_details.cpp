@@ -14,11 +14,11 @@
 #include "calculate_details.hpp"  // TO BE TESTED
 #endif
 
+#include <vector>                 // for vector
+
 #ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize, UNIT
 #endif
-
-#include <vector>                 // for vector
 
 
 TEST_CASE ( "Interval", "[calculate_details] [calc]" )

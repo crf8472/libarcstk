@@ -13,6 +13,13 @@
 #include "calculate_impl.hpp"     // TO BE TESTED
 #endif
 
+#include <chrono>                 // for steady_clock::now
+#include <iterator>               // for begin, cbegin, cend, end
+#include <memory>                 // for make_unique
+#include <numeric>                // for iota
+#include <type_traits>            // for is_copy_constructible,...
+#include <vector>                 // for vector
+
 #ifndef LIBARCSTK_ALGORITHMS_HPP__
 #include "algorithms.hpp"         // for AccurateRipV1V2
 #endif
@@ -22,13 +29,6 @@
 #ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize, UNIT
 #endif
-
-#include <chrono>                 // for steady_clock::now
-#include <iterator>               // for begin, cbegin, cend, end
-#include <memory>                 // for make_unique
-#include <numeric>                // for iota
-#include <type_traits>            // for is_copy_constructible,...
-#include <vector>                 // for vector
 
 
 TEST_CASE ( "CalculationStateImpl",

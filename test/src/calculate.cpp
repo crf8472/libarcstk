@@ -10,6 +10,12 @@
 #include "calculate.hpp"          // TO BE TESTED
 #endif
 
+#include <memory>                 // for make_unique, unique_ptr
+#include <type_traits>            // for is_default_constructible,....
+#include <unordered_set>          // for unordered_set
+#include <utility>                // for move
+#include <vector>                 // for vector
+
 #ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for checksum::type
 #endif
@@ -19,12 +25,6 @@
 #ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
 #endif
-
-#include <memory>                 // for make_unique, unique_ptr
-#include <type_traits>            // for is_default_constructible,....
-#include <unordered_set>          // for unordered_set
-#include <utility>                // for move
-#include <vector>                 // for vector
 
 
 TEST_CASE ( "Context", "[context] [calc]" )

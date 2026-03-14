@@ -13,6 +13,11 @@
 #include "verify_details.hpp"     // TO BE TESTED
 #endif
 
+#include <memory>                 // for make_unique
+#include <tuple>                  // for get, tuple
+#include <utility>                // for move
+#include <vector>                 // for vector
+
 #ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for checksum::type, Checksum
 #endif
@@ -22,11 +27,6 @@
 #ifndef LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"         // for ARId
 #endif
-
-#include <memory>                 // for make_unique
-#include <tuple>                  // for get, tuple
-#include <utility>                // for move
-#include <vector>                 // for vector
 
 
 TEST_CASE ( "BestBlock", "[bestblock] [verify]" )
