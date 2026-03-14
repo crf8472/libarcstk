@@ -49,7 +49,7 @@ using V2 = accuraterip::details::Version2;
  */
 using V1andV2 = accuraterip::details::Versions1and2;
 
-} // namespace accuraterip
+} // namespace AccurateRip
 
 /** @} */ // group calc
 
