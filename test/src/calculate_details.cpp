@@ -7,16 +7,16 @@
  * \brief Fixtures for calculate_details.hpp.
  */
 
-#ifndef LIBARCSTK_CALCULATE_HPP__
-#define LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#define LIBARCSTK_CALCULATE_HPP_
 #endif
-#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP__
+#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP_
 #include "calculate_details.hpp"  // TO BE TESTED
 #endif
 
 #include <vector>                 // for vector
 
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"           // for AudioSize, UNIT
 #endif
 

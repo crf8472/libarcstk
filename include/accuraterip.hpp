@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
 #error "Do not include accuraterip.hpp, include algorithms.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_ACCURATERIP_HPP__
-#define LIBARCSTK_ACCURATERIP_HPP__
+#ifndef LIBARCSTK_ACCURATERIP_HPP_
+#define LIBARCSTK_ACCURATERIP_HPP_
 
 /**
  * \internal
@@ -19,10 +19,10 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for checksum::type, ChecksumSet
 #endif
-#ifndef LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
 #include "calculate.hpp"    // for Algorithm
 #endif
 

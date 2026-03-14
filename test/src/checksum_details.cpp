@@ -6,10 +6,10 @@
  * \brief Fixtures for checksum_details.hpp.
  */
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for AudioSize, CDDA, ToC
 #endif
-#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP__
+#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP_
 #include "checksum_details.hpp"   // TO BE TESTED
 #endif
 

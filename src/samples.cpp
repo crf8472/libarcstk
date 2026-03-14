@@ -6,7 +6,7 @@
  * \brief Instantiations of SampleSequence and SampleIterator
  */
 
-#ifndef LIBARCSTK_SAMPLES_HPP__
+#ifndef LIBARCSTK_SAMPLES_HPP_
 #include "samples.hpp"
 #endif
 

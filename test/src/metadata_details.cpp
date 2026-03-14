@@ -6,10 +6,10 @@
  * \brief Fixtures for metadata_details.hpp.
  */
 
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"           // for AudioSize, CDDA, ToC
 #endif
-#ifndef LIBARCSTK_METADATA_DETAILS_HPP__
+#ifndef LIBARCSTK_METADATA_DETAILS_HPP_
 #include "metadata_details.hpp"   // TO BE TESTED
 #endif
 

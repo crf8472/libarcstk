@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_CALCULATE_HPP__
-#define LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#define LIBARCSTK_CALCULATE_HPP_
 
 /**
  * \file
@@ -23,10 +23,10 @@
 #include <utility>          // for declval, move, pair
 #include <vector>           // for vector
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
-#ifndef LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP_
 #include "policies.hpp"     // for Comparable, IteratorValue
 #endif
 

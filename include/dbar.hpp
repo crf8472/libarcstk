@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_DBAR_HPP__
-#define LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
+#define LIBARCSTK_DBAR_HPP_
 
 /**
  * \file
@@ -11,7 +11,7 @@
  * Parse dBAR-formatted data from files and streams.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP_
 #include "policies.hpp"     // for Comparable, IteratorElement
 #endif
 

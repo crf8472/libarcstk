@@ -6,10 +6,10 @@
  * \brief Implementation of the checksum calculation API
  */
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"
 #endif
-#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP__
+#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP_
 #include "checksum_details.hpp"
 #endif
 

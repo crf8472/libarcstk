@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_METADATA_HPP__
-#define LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
+#define LIBARCSTK_METADATA_HPP_
 
 /**
  * \file
@@ -12,7 +12,7 @@
  * Part of the API for \link meta calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP_
 #include "policies.hpp"   // for Comparable, TotallyOrdered
 #endif
 

@@ -6,7 +6,7 @@
  * \brief Fixtures for version.hpp.
  */
 
-#ifndef LIBARCSTK_VERSION_HPP__
+#ifndef LIBARCSTK_VERSION_HPP_
 #include "version.hpp"            // TO BE TESTED
 #endif
 

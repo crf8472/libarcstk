@@ -6,10 +6,10 @@
  * \brief Implementation of metadata.hpp.
  */
 
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"
 #endif
-#ifndef LIBARCSTK_METADATA_DETAILS_HPP__
+#ifndef LIBARCSTK_METADATA_DETAILS_HPP_
 #include "metadata_details.hpp"
 #endif
 

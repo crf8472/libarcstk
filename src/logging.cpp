@@ -6,7 +6,7 @@
  * \brief Implementing a thread-safe, type-safe and portable logging interface
  */
 
-#ifndef LIBARCSTK_LOGGING_HPP__
+#ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
 

@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #error "Do not include checksum_details.hpp, include checksum.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP__
-#define LIBARCSTK_CHECKSUM_DETAILS_HPP__
+#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP_
+#define LIBARCSTK_CHECKSUM_DETAILS_HPP_
 
 /**
  * \internal

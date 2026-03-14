@@ -3,19 +3,19 @@
 // provided by AccurateRip.
 //
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"              // for Checksums
 #endif
-#ifndef LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"                  // for DBAR
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"            // for ARId
 #endif
-#ifndef LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef LIBARCSTK_LOGGING_HPP_    // libarcstk: log what you do
 #include "logging.hpp"
 #endif
-#ifndef LIBARCSTK_VERIFY_HPP__     // libarcstk: match Checksums and DBAR
+#ifndef LIBARCSTK_VERIFY_HPP_     // libarcstk: match Checksums and DBAR
 #include "verify.hpp"
 #endif
 

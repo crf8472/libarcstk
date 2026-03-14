@@ -6,10 +6,10 @@
  * \brief Implementation of a low-level API for representing AccurateRip ids
  */
 
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
 #include "identifier_details.hpp"
 #endif
 
@@ -20,7 +20,7 @@
 #include <string>            // for string, operator<<, char_traits
 #include <vector>            // for vector, vector<>::size_type
 
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
 

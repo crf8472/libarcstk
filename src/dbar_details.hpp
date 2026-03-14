@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
 #error "Do not include dbar_details.hpp, include dbar.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_DBAR_DETAILS_HPP__
-#define LIBARCSTK_DBAR_DETAILS_HPP__
+#ifndef LIBARCSTK_DBAR_DETAILS_HPP_
+#define LIBARCSTK_DBAR_DETAILS_HPP_
 
 /**
  * \internal
@@ -13,7 +13,7 @@
  * \brief Implementation details for dbar.hpp.
  */
 
-#ifndef LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"            // for DBAR::size_type + ...
 #endif
 

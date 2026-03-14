@@ -6,10 +6,10 @@
  * \brief Fixtures for verify_details.hpp.
  */
 
-#ifndef LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP_
 #include "verify.hpp"
 #endif
-#ifndef LIBARCSTK_VERIFY_DETAILS_HPP__
+#ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
 #include "verify_details.hpp"     // TO BE TESTED
 #endif
 
@@ -18,13 +18,13 @@
 #include <utility>                // for move
 #include <vector>                 // for vector
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for checksum::type, Checksum
 #endif
-#ifndef LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"               // for DBAR
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"         // for ARId
 #endif
 

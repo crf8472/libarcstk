@@ -2,13 +2,13 @@
 // Example for parsing the binary AccurateRip query response to plaintext.
 //
 
-#ifndef LIBARCSTK_DBAR_HPP__       // libarcstk: parse AccurateRip responses
+#ifndef LIBARCSTK_DBAR_HPP_       // libarcstk: parse AccurateRip responses
 #include "dbar.hpp"
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
+#ifndef LIBARCSTK_IDENTIFIER_HPP_ // libarcstk: calculate AccurateRip ids
 #include "identifier.hpp"
 #endif
-#ifndef LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef LIBARCSTK_LOGGING_HPP_    // libarcstk: log what you do
 #include "logging.hpp"
 #endif
 

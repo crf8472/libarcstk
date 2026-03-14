@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
 #error "Do not include calculate_impl.hpp, include calculate.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_CALCULATE_IMPL_HPP__
-#define LIBARCSTK_CALCULATE_IMPL_HPP__
+#ifndef LIBARCSTK_CALCULATE_IMPL_HPP_
+#define LIBARCSTK_CALCULATE_IMPL_HPP_
 
 /**
  * \internal
@@ -13,10 +13,10 @@
  * \brief Implementation details for calculate.hpp.
  */
 
-#ifndef LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
 #include "calculate.hpp"
 #endif
-#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP__
+#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP_
 #include "calculate_details.hpp"
 #endif
 

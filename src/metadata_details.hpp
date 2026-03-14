@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #error "Do not include metadata_details.hpp, include metadata.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_METADATA_DETAILS_HPP__
-#define LIBARCSTK_METADATA_DETAILS_HPP__
+#ifndef LIBARCSTK_METADATA_DETAILS_HPP_
+#define LIBARCSTK_METADATA_DETAILS_HPP_
 
 /**
  * \internal
@@ -13,7 +13,7 @@
  * \brief Implementation details for metadata.hpp.
  */
 
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"
 #endif
 

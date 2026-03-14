@@ -1,9 +1,9 @@
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #error "Do not include identifier_details.hpp, include identifier.hpp instead"
 #endif
 
-#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP__
-#define LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
+#define LIBARCSTK_IDENTIFIER_DETAILS_HPP_
 
 /**
  * \internal
@@ -13,7 +13,7 @@
  * \brief Implementation details for identifier.hpp.
  */
 
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"
 #endif
 

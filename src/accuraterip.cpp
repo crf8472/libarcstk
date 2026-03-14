@@ -6,10 +6,10 @@
  * \brief Implementation of the AccurateRip checksum algorithm.
  */
 
-#ifndef LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
 #include "algorithms.hpp"
 #endif
-#ifndef LIBARCSTK_ACCURATERIP_HPP__
+#ifndef LIBARCSTK_ACCURATERIP_HPP_
 #include "accuraterip.hpp"
 #endif
 
@@ -17,13 +17,13 @@
 #include <memory>        // for make_unique, unique_ptr
 #include <utility>       // for pair
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"              // for type, ChecksumSet
 #endif
-#ifndef LIBARCSTK_LOGGING_HPP__
+#ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"              // for AudioSize
 #endif
 

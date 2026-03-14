@@ -7,7 +7,7 @@
  * \brief Implements symbols from version.hpp.
  */
 
-#ifndef LIBARCSTK_VERSION_HPP__
+#ifndef LIBARCSTK_VERSION_HPP_
 #include "version.hpp"
 #endif
 

@@ -6,7 +6,7 @@
  * \brief Fixtures for calculate.hpp.
  */
 
-#ifndef LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP_
 #include "calculate.hpp"          // TO BE TESTED
 #endif
 
@@ -16,13 +16,13 @@
 #include <utility>                // for move
 #include <vector>                 // for vector
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for checksum::type
 #endif
-#ifndef LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
 #include "algorithms.hpp"         // for AccurateRipV1V2
 #endif
-#ifndef LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
 #endif
 

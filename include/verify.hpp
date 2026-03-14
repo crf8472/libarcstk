@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_VERIFY_HPP__
-#define LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP_
+#define LIBARCSTK_VERIFY_HPP_
 
 /**
  * \file

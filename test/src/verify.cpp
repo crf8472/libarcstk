@@ -6,19 +6,19 @@
  * \brief Fixtures for verify.hpp.
  */
 
-#ifndef LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP_
 #include "verify.hpp"             // TO BE TESTED
 #endif
 
 #include <tuple>                  // for get
 
-#ifndef LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for Checksum, ChecksumSet, Checksums,...
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"         // for ARId
 #endif
-#ifndef LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"               // for DBAR
 #endif
 

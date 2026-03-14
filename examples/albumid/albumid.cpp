@@ -5,16 +5,16 @@
 
 
 #include <limits>
-#ifndef LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
+#ifndef LIBARCSTK_CALCULATE_HPP_  // libarcstk: calculate ARCSs
 #include "calculate.hpp"
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP__ // libarcstk: calculate AccurateRip ids
+#ifndef LIBARCSTK_IDENTIFIER_HPP_ // libarcstk: calculate AccurateRip ids
 #include "identifier.hpp"
 #endif
-#ifndef LIBARCSTK_METADATA_HPP__   // libarcstk: Compact Disc metadata
+#ifndef LIBARCSTK_METADATA_HPP_   // libarcstk: Compact Disc metadata
 #include "metadata.hpp"
 #endif
-#ifndef LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef LIBARCSTK_LOGGING_HPP_    // libarcstk: log what you do
 #include "logging.hpp"
 #endif
 

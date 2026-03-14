@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_CHECKSUM_HPP__
-#define LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#define LIBARCSTK_CHECKSUM_HPP_
 
 /**
  * \file
@@ -24,7 +24,7 @@
 #include <string>           // for string
 #include <vector>           // for vector
 
-#ifndef LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP_
 #include "policies.hpp"     // for Comparable
 #endif
 

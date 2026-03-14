@@ -1,5 +1,5 @@
-#ifndef LIBARCSTK_ALGORITHMS_HPP__
-#define LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
+#define LIBARCSTK_ALGORITHMS_HPP_
 
 /**
  * \file
@@ -14,7 +14,7 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_ACCURATERIP_HPP__
+#ifndef LIBARCSTK_ACCURATERIP_HPP_
 #include "accuraterip.hpp"
 #endif
 
