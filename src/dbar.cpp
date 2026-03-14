@@ -7,10 +7,10 @@
  * entities.
  */
 
-#ifndef __LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"
 #endif
-#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
+#ifndef LIBARCSTK_DBAR_DETAILS_HPP__
 #include "dbar_details.hpp"
 #endif
 
@@ -27,10 +27,10 @@
 #include <utility>			// for pair, move
 #include <vector>			// for vector
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
+#ifndef LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 

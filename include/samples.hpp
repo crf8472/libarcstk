@@ -1,5 +1,5 @@
-#ifndef __LIBARCSTK_SAMPLES_HPP__
-#define __LIBARCSTK_SAMPLES_HPP__
+#ifndef LIBARCSTK_SAMPLES_HPP__
+#define LIBARCSTK_SAMPLES_HPP__
 
 /**
  * \file
@@ -12,7 +12,7 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#ifndef __LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"         // for Comparable, IteratorElement
 #endif
 

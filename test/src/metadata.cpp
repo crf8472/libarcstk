@@ -6,7 +6,7 @@
  * \brief Fixtures for metadata.hpp.
  */
 
-#ifndef __LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // TO BE TESTED
 #endif
 

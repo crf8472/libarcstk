@@ -1,9 +1,9 @@
-#ifndef __LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP__
 #error "Do not include verify_details.hpp, include verify.hpp instead"
 #endif
 
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
-#define __LIBARCSTK_VERIFY_DETAILS_HPP__
+#ifndef LIBARCSTK_VERIFY_DETAILS_HPP__
+#define LIBARCSTK_VERIFY_DETAILS_HPP__
 
 /**
  * \internal
@@ -13,7 +13,7 @@
  * \brief Implementation details for verify.hpp.
  */
 
-#ifndef __LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
 

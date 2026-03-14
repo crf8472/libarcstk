@@ -6,10 +6,10 @@
  * \brief Fixtures for identifier.hpp.
  */
 
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"         // TO BE TESTED
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_DETAILS_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP__
 #include "identifier_details.hpp" // for make_arid
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef __LIBARCSTK_POLICIES_HPP__
-#define __LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP__
+#define LIBARCSTK_POLICIES_HPP__
 
 /**
  * \file

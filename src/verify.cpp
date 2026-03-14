@@ -6,10 +6,10 @@
  * \brief Implementation of the checksum verification API
  */
 
-#ifndef __LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"
 #endif
-#ifndef __LIBARCSTK_VERIFY_DETAILS_HPP__
+#ifndef LIBARCSTK_VERIFY_DETAILS_HPP__
 #include "verify_details.hpp"
 #endif
 
@@ -23,16 +23,16 @@
 #include <utility>        // for move
 #include <vector>         // for vector
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                   // for Checksums
 #endif
-#ifndef __LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"                       // for DBAR
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"                 // for ARId
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
+#ifndef LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
 

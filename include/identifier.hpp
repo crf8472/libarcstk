@@ -1,5 +1,5 @@
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#define __LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP__
+#define LIBARCSTK_IDENTIFIER_HPP__
 
 /**
  * \file
@@ -17,7 +17,7 @@
 #include <string>                // for string
 #include <vector>                // for vector
 
-#ifndef __LIBARCSTK_POLICIES_HPP__
+#ifndef LIBARCSTK_POLICIES_HPP__
 #include "policies.hpp"          // for Comparable
 #endif
 

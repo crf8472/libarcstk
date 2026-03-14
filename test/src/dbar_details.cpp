@@ -6,10 +6,10 @@
  * \brief Fixtures for dbar_details.hpp.
  */
 
-#ifndef __LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"
 #endif
-#ifndef __LIBARCSTK_DBAR_DETAILS_HPP__
+#ifndef LIBARCSTK_DBAR_DETAILS_HPP__
 #include "dbar_details.hpp"       // TO BE TESTED
 #endif
 

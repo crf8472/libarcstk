@@ -6,7 +6,7 @@
  * \brief Fixtures for samples.hpp.
  */
 
-#ifndef __LIBARCSTK_SAMPLES_HPP__
+#ifndef LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"            // TO BE TESTED
 #endif
 

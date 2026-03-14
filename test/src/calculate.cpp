@@ -6,17 +6,17 @@
  * \brief Fixtures for calculate.hpp.
  */
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"          // TO BE TESTED
 #endif
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for checksum::type
 #endif
-#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP__
 #include "algorithms.hpp"         // for AccurateRipV1V2
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
 #endif
 

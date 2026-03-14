@@ -6,20 +6,20 @@
  * \brief Fixtures for calculate_impl.hpp.
  */
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"          // for Algorithm, Points
 #endif
-#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
+#ifndef LIBARCSTK_CALCULATE_IMPL_HPP__
 #include "calculate_impl.hpp"     // TO BE TESTED
 #endif
 
-#ifndef __LIBARCSTK_ALGORITHMS_HPP__
+#ifndef LIBARCSTK_ALGORITHMS_HPP__
 #include "algorithms.hpp"         // for AccurateRipV1V2
 #endif
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for checksum::type, Checksums
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize, UNIT
 #endif
 

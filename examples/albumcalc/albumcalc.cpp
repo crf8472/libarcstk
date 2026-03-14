@@ -3,19 +3,19 @@
 // represented by a Cuesheet and a single losslessly encoded audio file.
 //
 
-#ifndef __LIBARCSTK_ALGORITHMS_HPP__ // libarcstk: AccurateRip algorithms
+#ifndef LIBARCSTK_ALGORITHMS_HPP__ // libarcstk: AccurateRip algorithms
 #include "algorithms.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
+#ifndef LIBARCSTK_CALCULATE_HPP__  // libarcstk: calculate ARCSs
 #include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__   // libarcstk: Compact Disc metadata
+#ifndef LIBARCSTK_METADATA_HPP__   // libarcstk: Compact Disc metadata
 #include "metadata.hpp"
 #endif
-#ifndef __LIBARCSTK_SAMPLES_HPP__    // libarcstk: normalize input samples
+#ifndef LIBARCSTK_SAMPLES_HPP__    // libarcstk: normalize input samples
 #include "samples.hpp"
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
+#ifndef LIBARCSTK_LOGGING_HPP__    // libarcstk: log what you do
 #include "logging.hpp"
 #endif
 

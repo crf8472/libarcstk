@@ -6,10 +6,10 @@
  * \brief Implementation of the new checksum calculation API
  */
 
-#ifndef __LIBARCSTK_CALCULATE_HPP__
+#ifndef LIBARCSTK_CALCULATE_HPP__
 #include "calculate.hpp"
 #endif
-#ifndef __LIBARCSTK_CALCULATE_DETAILS_HPP__
+#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP__
 #include "calculate_details.hpp"
 #endif
 
@@ -17,13 +17,13 @@
 #include <cstdint>     // for int32_t, uint16_t
 #include <iomanip>     // for setw, right
 
-#ifndef __LIBARCSTK_CALCULATE_IMPL_HPP__
+#ifndef LIBARCSTK_CALCULATE_IMPL_HPP__
 #include "calculate_impl.hpp"
 #endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
+#ifndef LIBARCSTK_LOGGING_HPP__
 #include "logging.hpp"
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"      // for AudioSize, ToC, CDDA
 #endif
 

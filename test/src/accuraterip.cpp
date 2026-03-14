@@ -6,20 +6,20 @@
  * \brief Fixtures for accuraterip.hpp.
  */
 
-#ifndef __LIBARCSTK_ALGORITHMS_HPP__
-#define __LIBARCSTK_ALGORITHMS_HPP__ // allow accuraterip.hpp
+#ifndef LIBARCSTK_ALGORITHMS_HPP__
+#define LIBARCSTK_ALGORITHMS_HPP__ // allow accuraterip.hpp
 #endif
-#ifndef __LIBARCSTK_ACCURATERIP_HPP__
+#ifndef LIBARCSTK_ACCURATERIP_HPP__
 #include "accuraterip.hpp"        // TO BE TESTED
 #endif
 
-#ifndef __LIBARCSTK_SAMPLES_HPP__
+#ifndef LIBARCSTK_SAMPLES_HPP__
 #include "samples.hpp"            // for sample_t
 #endif
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for checksum::type
 #endif
-#ifndef __LIBARCSTK_METADATA_HPP__
+#ifndef LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"           // for AudioSize
 #endif
 

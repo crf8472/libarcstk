@@ -6,17 +6,17 @@
  * \brief Fixtures for verify.hpp.
  */
 
-#ifndef __LIBARCSTK_VERIFY_HPP__
+#ifndef LIBARCSTK_VERIFY_HPP__
 #include "verify.hpp"             // TO BE TESTED
 #endif
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // for Checksum, ChecksumSet, Checksums,...
 #endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#ifndef LIBARCSTK_IDENTIFIER_HPP__
 #include "identifier.hpp"         // for ARId
 #endif
-#ifndef __LIBARCSTK_DBAR_HPP__
+#ifndef LIBARCSTK_DBAR_HPP__
 #include "dbar.hpp"               // for DBAR
 #endif
 

@@ -6,7 +6,7 @@
  * \brief Fixtures for checksum.hpp.
  */
 
-#ifndef __LIBARCSTK_CHECKSUM_HPP__
+#ifndef LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"           // TO BE TESTED
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef __LIBARCSTK_VERSION_HPP__
-#define __LIBARCSTK_VERSION_HPP__
+#ifndef LIBARCSTK_VERSION_HPP__
+#define LIBARCSTK_VERSION_HPP__
 
 /**
  * \file
