@@ -13,6 +13,10 @@
 #include "accuraterip.hpp"
 #endif
 
+#include <cstdint>       // for int32_t, uint_fast64_t
+#include <memory>        // for make_unique, unique_ptr
+#include <utility>       // for pair
+
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"              // for type, ChecksumSet
 #endif
@@ -22,10 +26,6 @@
 #ifndef __LIBARCSTK_METADATA_HPP__
 #include "metadata.hpp"              // for AudioSize
 #endif
-
-#include <cstdint>       // for int32_t, uint_fast64_t
-#include <memory>        // for make_unique, unique_ptr
-#include <utility>       // for pair
 
 namespace arcstk
 {

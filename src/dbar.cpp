@@ -14,16 +14,6 @@
 #include "dbar_details.hpp"
 #endif
 
-// #ifndef __LIBARCSTK_CALCULATE_HPP__
-// #include "calculate.hpp"
-// #endif
-#ifndef __LIBARCSTK_IDENTIFIER_HPP__
-#include "identifier.hpp"
-#endif
-#ifndef __LIBARCSTK_LOGGING_HPP__
-#include "logging.hpp"
-#endif
-
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
 #include <fstream>          // for basic_ifstream
@@ -36,6 +26,14 @@
 #include <tuple>			// for get, tuple
 #include <utility>			// for pair, move
 #include <vector>			// for vector
+
+#ifndef __LIBARCSTK_IDENTIFIER_HPP__
+#include "identifier.hpp"
+#endif
+#ifndef __LIBARCSTK_LOGGING_HPP__
+#include "logging.hpp"
+#endif
+
 
 namespace arcstk
 {

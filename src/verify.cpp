@@ -13,6 +13,16 @@
 #include "verify_details.hpp"
 #endif
 
+#include <cstdint>        // for uint32_t
+#include <exception>      // for exception
+#include <iomanip>        // for setw, setfill
+#include <sstream>        // for ostringstream
+#include <stdexcept>      // for runtime_error
+#include <string>         // for string
+#include <tuple>          // for tuple
+#include <utility>        // for move
+#include <vector>         // for vector
+
 #ifndef __LIBARCSTK_CHECKSUM_HPP__
 #include "checksum.hpp"                   // for Checksums
 #endif
@@ -26,15 +36,6 @@
 #include "logging.hpp"
 #endif
 
-#include <cstdint>        // for uint32_t
-#include <exception>      // for exception
-#include <iomanip>        // for setw, setfill
-#include <sstream>        // for ostringstream
-#include <stdexcept>      // for runtime_error
-#include <string>         // for string
-#include <tuple>          // for tuple
-#include <utility>        // for move
-#include <vector>         // for vector
 
 namespace arcstk
 {

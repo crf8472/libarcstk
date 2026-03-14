@@ -13,16 +13,16 @@
 #include "identifier_details.hpp"
 #endif
 
-#ifndef __LIBARCSTK_METADATA_HPP__
-#include "metadata.hpp"      // for AudioSize, CDDA, ToC
-#endif
-
 #include <cstdint>           // for int32_t, uint32_t, uint64_t
 #include <iomanip>           // for operator<<, setw, setfill
 #include <memory>            // for unique_ptr, make_unique, operator==
 #include <sstream>           // for operator<<, basic_ostream, basic_strings...
 #include <string>            // for string, operator<<, char_traits
 #include <vector>            // for vector, vector<>::size_type
+
+#ifndef __LIBARCSTK_METADATA_HPP__
+#include "metadata.hpp"      // for AudioSize, CDDA, ToC
+#endif
 
 
 namespace arcstk
