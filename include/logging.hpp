@@ -384,7 +384,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~Logging() noexcept;
+	~Logging() noexcept = default;
 
 	/**
 	 * \brief Handle for the singleton.
@@ -757,9 +757,6 @@ inline Logging::Logging()
 {
 	// empty
 }
-
-
-inline Logging::~Logging() noexcept = default;
 
 
 inline const Logger& Logging::logger()
