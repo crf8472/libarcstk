@@ -44,32 +44,67 @@ class Checksum;
  *
  * \details
  *
- * Functions parse_stream() and parse_file() can parse a stream to a DBAR
- * object, which provides access to all values by their respective indices.
+ * A DBAR object is a parsed representation of the binary data contained in the
+ * response to an AccurateRip request.
  *
- * A DBARBlockHeader is a representation of the header of a block within a DBAR
- * file. A DBARTriplet represents the three values each block contains for each
- * track.
+ * A DBAR is a sequence of \link DBARBlock DBARBlocks\endlink where each
+ * DBARBlock consists of a single DBARBlockHeader and a sequence of
+ * \link DBARTriplet DBARTriplets\endlink.
  *
- * A DBARBlock is a representation of a single indexed block of a DBAR object.
- * The lifetime of a DBARBlock must not exceed the lifetime of the DBAR object
- * it was constructed from.
+ * Intuitively, a DBAR object represents the ARCSs provided by AccurateRip for
+ * the ARId specified in the related request. It contains the reference ARCSs
+ * for all albums with this ARId.
  *
- * When parsing, a DBARBuilder can be passed to the parse_*() functions as a
- * ParseHandler that constructs the DBAR object from the input stream.
- * Alternatively, custom implementations of ParseHandler can be used.
+ * A DBAR instance provides access to all ARIds and ARCSs by their respective
+ * indices. The sequence of blocks is iterable. Each DBARBlock is also iterable.
+ *
+ * A DBARBlock represents a single sequence of reference ARCSs associated with
+ * an ARId. A DBARBlockHeader is a representation of the ARId the DBARBlock
+ * relates to. A DBARTriplet contains the three values each block contains
+ * once for each track and thus represents a track. The DBAR instance therefore
+ * semantically represents a sequence of ARId-related Checksum sequences.
+ *
+ * This entails that a valid DBAR object has the following properties:
+ *
+ * - The ARId represented by the DBARBlockHeader is identical for each DBARBlock
+ * within the DBAR instance.
+ * - The total number of \link DBARTriplet DBARTriplets\endlink in a DBARBlock
+ * is identical for every DBARBlock in a given DBAR instance.
+ *
+ * Functions parse_stream() and parse_file() can parse a byte stream and provide
+ * each single value.
+ *
+ * The parse_*() functions emit the following 8 parse events:
+ *
+ * - <tt>start_input</tt>:    when parsing starts, before the first byte
+ * - <tt>start_block</tt>:    a new DBARBlock starts
+ * - <tt>header</tt>:         a DBARBlockHeader was parsed
+ * - <tt>start_triplets</tt>: a sequence of DBARTriplets starts
+ * - <tt>triplets</tt>:       a DBARTriplet was parsed
+ * - <tt>end_triplets</tt>:   the current sequence of DBARTriplets is completed
+ * - <tt>end_block</tt>:      the current DBARBlock is completed
+ * - <tt>end_input</tt>:      after the last byte when parsing is completed
+ *
+ * To handle the parse events an instance of an implementation of ParseHandler
+ * must be provided. A ParseHandler implements each of those parse events.
+ * To handle also possible parse errors, an instance of an implementation of
+ * ParseErrorHandler can optionally be provided. A ParseErrorHandler implements
+ * on_error(). If no ParseErrorHandler is provided, a StreamParseException is
+ * thrown on any parse error.
+ *
+ * A DBARBuilder can be passed to the parse_*() functions as a ParseHandler that
+ * constructs the DBAR object from the entire input stream. Alternatively,
+ * custom implementations of ParseHandler can be used.
  *
  * DBARErrorHandler is the default ParseErrorHandler implementation that just
- * throws a StreamParseException on each error. Throwing a StreamParseException
- * is the default behaviour in case no ParseErrorHandler is provided.
- * Alternatively, custom implementations of ParseErrorHandler can be used.
+ * throws a StreamParseException on each error.
  *
  * \note
  * There is no way to inform the client whether the actual ARCS in an ARTriplet
- * is an ARCSv1 or an ARCSv2. The AccurateRip response does not distinguish
- * blocks of ARCSv1 from blocks of ARCSv2 and provides no information about the
- * concrete checksum algorithm. Different blocks of checksums of the same type
- * are considered just as information about different pressings of an album.
+ * is an ARCSv1 or an ARCSv2. The AccurateRip API does not distinguish blocks of
+ * ARCSv1 from blocks of ARCSv2 and provides no information about the concrete
+ * checksum algorithm. Different blocks of checksums of the same type are
+ * considered just like ARCS sequences about different pressings of an album.
  *
  * @{
  */
@@ -78,10 +113,7 @@ class Checksum;
 /**
  * \brief The header of a DBARBlock.
  *
- * A DBARBlock represents a single block of triplets containing the actual
- * ARCS values, the confidence values and the ARCS values of frame 450 for each
- * track. The header of such a block contains the data to reconstruct the ARId,
- * as there are the number of total tracks and the three ids.
+ * It encodes the ARId the block refers to as a binary representation.
  *
  * A DBARBlockHeader is a POD and holds copies of the values.
  */
@@ -90,7 +122,7 @@ class DBARBlockHeader final : public Comparable<DBARBlockHeader>
 	/**
 	 * \brief Total number of tracks in this block as declared.
 	 */
-	int total_tracks_;
+	unsigned total_tracks_;
 
 	/**
 	 * \brief Id1.
@@ -117,7 +149,7 @@ public:
 	 * \param[in] id2          Id2 of the ARId
 	 * \param[in] cddb_id      CDDB Id
 	 */
-	DBARBlockHeader(const int total_tracks, const uint32_t id1,
+	DBARBlockHeader(const unsigned total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id);
 
 	/**
@@ -125,7 +157,7 @@ public:
 	 *
 	 * \return Total number of tracks in this block
 	 */
-	int total_tracks() const noexcept;
+	unsigned total_tracks() const noexcept;
 
 	/**
 	 * \brief Id1.
@@ -164,6 +196,13 @@ public:
 	 */
 	bool equals(const DBARBlockHeader& rhs) const noexcept;
 
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const;
+
 
 	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs) noexcept
 	{
@@ -174,6 +213,11 @@ public:
 			const DBARBlockHeader& rhs) noexcept
 	{
 		return lhs.equals(rhs);
+	}
+
+	friend std::string to_string(const DBARBlockHeader& h)
+	{
+		return h.to_string();
 	}
 };
 
@@ -258,6 +302,13 @@ public:
 	 */
 	bool equals(const DBARTriplet& rhs) const noexcept;
 
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const;
+
 
 	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs) noexcept
 	{
@@ -268,6 +319,11 @@ public:
 			const DBARTriplet& rhs) noexcept
 	{
 		return lhs.equals(rhs);
+	}
+
+	friend std::string to_string(const DBARTriplet& t)
+	{
+		return t.to_string();
 	}
 };
 
@@ -452,7 +508,7 @@ public:
 	 */
 	DBAR(std::initializer_list<
 			std::pair<
-				std::tuple<int, uint32_t, uint32_t, uint32_t>,
+				std::tuple<unsigned, uint32_t, uint32_t, uint32_t>,
 				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
 			blocks);
 
@@ -605,9 +661,17 @@ public:
 /**
  * \brief A block in a DBAR.
  *
- * A block consists of a header containing the ARId in a binary representation
- * and a sequence of triplets with each consisting of the actual ARCS, a
- * confidence value and the ARCS of frame 450 of the track.
+ * A DBARBlock represents a single block of triplets containing the actual ARCS
+ * values, the confidence values and the ARCS values of frame 450 for each
+ * album track. A DBARBlock contains a DBARBlockHeader that encodes the ARId of
+ * the respective album the block refers to.
+ *
+ * A DBARBlock is iterable by a forward iterator.
+ *
+ * \attention
+ * Destroying the DBAR instance a DBARBlock refers to invalidates the DBARBlock
+ * instance. Accessing a DBARBlock whose underlying DBAR instance was destroyed
+ * results in undefined behaviour.
  */
 class DBARBlock final
 {
@@ -988,34 +1052,34 @@ class DBARErrorHandler final : public ParseErrorHandler
  * \brief Reports a read error during parsing a binary stream.
  *
  * \attention
- * The byte positions are all interpreted as 1-based.
+ * All byte positions are interpreted as 1-based.
  */
 class StreamParseException final : public std::runtime_error
 {
 	/**
 	 * \brief Last 1-based global byte position before the exception occurred.
 	 */
-	const unsigned byte_pos_;
+	unsigned byte_pos_;
 
 	/**
 	 * \brief The 1-based block number of the block in which the exception
 	 * occurred.
 	 */
-	const unsigned block_;
+	unsigned block_;
 
 	/**
 	 * \brief Last 1-based block-relative byte position read before the
 	 * exception.
 	 */
-	const unsigned block_byte_pos_;
+	unsigned block_byte_pos_;
 
 public:
 
 	/**
-	 * \brief Constructor.
+	 * \brief Constructor with custom message.
 	 *
 	 * \param[in] byte_pos       Last 1-based global byte pos before exception
-	 * \param[in] block          1-based block number
+	 * \param[in] block          Current block index (1-based)
 	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 * \param[in] what_arg       Error message
 	 */
@@ -1026,7 +1090,7 @@ public:
 	 * \brief Constructor with default message.
 	 *
 	 * \param[in] byte_pos       Last 1-based global byte pos before exception
-	 * \param[in] block          1-based block number
+	 * \param[in] block          Current block index (1-based)
 	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 */
 	StreamParseException(const unsigned byte_pos, const unsigned block,
@@ -1040,7 +1104,7 @@ public:
 	unsigned byte_position() const noexcept;
 
 	/**
-	 * \brief The 1-based block number of the block in which the exception
+	 * \brief The 1-based block index of the block in which the exception
 	 * occurred.
 	 *
 	 * \return The 1-based block number of the block
@@ -1061,7 +1125,7 @@ private:
 	 * \brief Compose default error message.
 	 *
 	 * \param[in] byte_pos       Last 1-based global byte pos before exception
-	 * \param[in] block          1-based block number
+	 * \param[in] block          Current block index (1-based)
 	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 */
 	std::string default_message(const unsigned byte_pos, const unsigned block,

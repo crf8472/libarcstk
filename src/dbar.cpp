@@ -82,7 +82,7 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	std::vector<char> id(BLOCK_HEADER_BYTES * sizeof(char));
 	std::vector<char> triplet(TRIPLET_BYTES * sizeof(char));
 
-	auto track_count   = int { 0 };
+	auto track_count   = unsigned { 0 };
 	auto discId1       = uint32_t { 0 };
 	auto discId2       = uint32_t { 0 };
 	auto cddbId        = uint32_t { 0 };
@@ -366,8 +366,8 @@ auto get_element(const DBARBlock& object, const typename DBARBlock::size_type i)
 // DBARBlockHeader
 
 
-DBARBlockHeader::DBARBlockHeader(const int total_tracks, const uint32_t id1,
-		const uint32_t id2, const uint32_t cddb_id)
+DBARBlockHeader::DBARBlockHeader(const unsigned total_tracks,
+		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
 	: total_tracks_ { total_tracks }
 	, id1_          { id1 }
 	, id2_          { id2 }
@@ -376,7 +376,7 @@ DBARBlockHeader::DBARBlockHeader(const int total_tracks, const uint32_t id1,
 	// empty
 }
 
-int DBARBlockHeader::total_tracks() const noexcept
+unsigned DBARBlockHeader::total_tracks() const noexcept
 {
 	return total_tracks_;
 }
@@ -412,6 +412,18 @@ bool DBARBlockHeader::equals(const DBARBlockHeader& rhs) const noexcept
 		&& this->id1_           == rhs.id1_
 		&& this->id2_           == rhs.id2_
 		&& this->cddb_id_       == rhs.cddb_id_;
+}
+
+
+std::string DBARBlockHeader::to_string() const
+{
+	using std::to_string;
+
+	// Order in which the values occurr in the byte stream
+	return to_string(total_tracks()) + ", "
+		+  ACCURATERIP::default_id_format(id1()) + ", "
+		+  ACCURATERIP::default_id_format(id2()) + ", "
+		+  ACCURATERIP::default_id_format(cddb_id());
 }
 
 
@@ -470,6 +482,17 @@ bool DBARTriplet::equals(const DBARTriplet& rhs) const noexcept
 	return this->arcs_          == rhs.arcs_
 		&& this->confidence_    == rhs.confidence_
 		&& this->frame450_arcs_ == rhs.frame450_arcs_;
+}
+
+
+std::string DBARTriplet::to_string() const
+{
+	using std::to_string;
+
+	// Order in which the values occurr in the byte stream
+	return to_string(confidence()) + ", "
+		+ ACCURATERIP::default_arcs_format(arcs()) + ", "
+		+ ACCURATERIP::default_arcs_format(frame450_arcs());
 }
 
 
@@ -668,7 +691,7 @@ DBARBlockHeader DBAR::Impl::header(const DBAR::Impl::size_type block_idx) const
 {
 	const auto i = start_idx(block_idx);
 	return DBARBlockHeader {
-		static_cast<int>(total_tracks(block_idx)),
+		total_tracks(block_idx),
 		sums_[i], sums_[i + 1], sums_[i + 2],
 		};
 }
@@ -757,7 +780,7 @@ DBAR::DBAR()
 
 DBAR::DBAR(std::initializer_list<
 			std::pair<
-				std::tuple<int, uint32_t, uint32_t, uint32_t>,
+				std::tuple<unsigned, uint32_t, uint32_t, uint32_t>,
 				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
 			blocks)
 	: impl_ { std::make_unique<DBAR::Impl>() }
@@ -799,9 +822,11 @@ DBAR::DBAR(const DBAR& rhs)
 
 DBAR& DBAR::operator= (const DBAR& rhs)
 {
-	auto tmp_impl { std::make_unique<DBAR::Impl>(*rhs.impl_) };
-
-	impl_ = std::move(tmp_impl);
+	if (&rhs != this)
+	{
+		auto tmp { std::make_unique<DBAR::Impl>(*rhs.impl_) };
+		impl_ = std::move(tmp);
+	}
 	return *this;
 }
 
@@ -1096,10 +1121,10 @@ void DBARErrorHandler::do_on_error(const unsigned byte_counter,
 StreamParseException::StreamParseException(const unsigned byte_pos,
 		const unsigned block, const unsigned block_byte_pos,
 		const std::string& what_arg)
-	: std::runtime_error { what_arg }
-	, byte_pos_ { byte_pos }
-	, block_ { block }
-	, block_byte_pos_ { block_byte_pos }
+	: std::runtime_error { what_arg       }
+	, byte_pos_          { byte_pos       }
+	, block_             { block          }
+	, block_byte_pos_    { block_byte_pos }
 {
 	// empty
 }
@@ -1108,8 +1133,8 @@ StreamParseException::StreamParseException(const unsigned byte_pos,
 StreamParseException::StreamParseException(const unsigned byte_pos,
 		const unsigned block, const unsigned block_byte_pos)
 	: std::runtime_error { default_message(byte_pos, block, block_byte_pos) }
-	, byte_pos_ { byte_pos }
-	, block_ { block }
+	, byte_pos_       { byte_pos       }
+	, block_          { block          }
 	, block_byte_pos_ { block_byte_pos }
 {
 	// empty
