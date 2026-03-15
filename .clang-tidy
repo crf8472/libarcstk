@@ -2,7 +2,9 @@ UseColor: true
 
 Checks: >
     bugprone-*,
+    -bugprone-easily-swappable-parameters,
     cppcoreguidelines-*,
+    -cppcoreguidelines-avoid-magic-numbers,
     google-*,
     performance-*,
 
