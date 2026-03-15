@@ -618,7 +618,7 @@ public:
 		return not(lhs == rhs);
 	}
 
-	friend void swap(SourceIterator& lhs, SourceIterator& rhs)
+	friend void swap(SourceIterator& lhs, SourceIterator& rhs) noexcept
 	{
 		using std::swap;
 
@@ -1170,7 +1170,7 @@ private:
 /**
  * \brief Implementation of an AlbumVerifier.
  */
-class AlbumVerifier::Impl : public details::VerifierBase
+class AlbumVerifier::Impl final : public details::VerifierBase
 {
 	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 	const ARId* do_actual_id() const noexcept final;
@@ -1188,7 +1188,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~Impl() noexcept = default;
+	~Impl() noexcept final = default;
 
 private:
 
@@ -1204,7 +1204,7 @@ private:
 /**
  * \brief Implementation of a TracksetVerifier.
  */
-class TracksetVerifier::Impl : public details::VerifierBase
+class TracksetVerifier::Impl final : public details::VerifierBase
 {
 	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 
@@ -1215,12 +1215,12 @@ public:
 	 *
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
-	Impl(const Checksums& actual_sums);
+	explicit Impl(const Checksums& actual_sums);
 
 	/**
 	 * \brief Default destructor.
 	 */
-	~Impl() noexcept = default;
+	~Impl() noexcept final = default;
 };
 
 /** @} */
