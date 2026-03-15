@@ -69,6 +69,7 @@ Checksum::operator bool() const noexcept
 void Checksum::swap(Checksum& rhs) noexcept
 {
 	using std::swap;
+
 	swap(this->value_, rhs.value_);
 }
 
@@ -272,37 +273,41 @@ void ChecksumSet::clear()
 
 ChecksumSet::const_iterator ChecksumSet::cbegin() const
 {
-	return set_.cbegin();
+	using std::cbegin;
+	return cbegin(set_);
 }
 
 
 ChecksumSet::const_iterator ChecksumSet::cend() const
 {
-	return set_.cend();
+	using std::cend;
+	return cend(set_);
 }
 
 
 ChecksumSet::const_iterator ChecksumSet::begin() const
 {
-	return set_.begin();
+	return this->cbegin();
 }
 
 
 ChecksumSet::const_iterator ChecksumSet::end() const
 {
-	return set_.end();
+	return this->cend();
 }
 
 
 ChecksumSet::iterator ChecksumSet::begin()
 {
-	return set_.begin();
+	using std::begin;
+	return begin(set_);
 }
 
 
 ChecksumSet::iterator ChecksumSet::end()
 {
-	return set_.end();
+	using std::end;
+	return end(set_);
 }
 
 
