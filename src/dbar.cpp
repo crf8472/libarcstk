@@ -1031,7 +1031,8 @@ DBAR DBARBuilder::result()
 {
 	if (result_)
 	{
-		return DBAR(std::make_unique<DBAR::Impl>(*result_));
+		//return DBAR(std::make_unique<DBAR::Impl>(*result_));
+		return DBAR(std::move(result_));
 	}
 
 	throw std::runtime_error("Cannot obtain parsing result before parsing");

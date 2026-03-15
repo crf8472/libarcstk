@@ -947,6 +947,10 @@ public:
 
 /**
  * \brief ParseHandler to build a DBAR object.
+ *
+ * The DBARBuilder is the most basic implementation of non-validating DBAR
+ * construction. It just adds every header and every triplet to the DBAR
+ * instance it builds.
  */
 class DBARBuilder final : public ParseHandler
 {
@@ -993,8 +997,10 @@ public:
 	 *
 	 * If this function is called before parsing has happened, an exception
 	 * will occur. After the parsing process is finished successfully, this
-	 * function can be called multiple times for multiple copies of the
-	 * parsing result.
+	 * function can be called once to move the result to the caller.
+	 *
+	 * \attention
+	 * Every subsequent call of result() is undefined behaviour.
 	 *
 	 * \return The DBAR object representing the parsed input.
 	 */
@@ -1010,8 +1016,8 @@ class ParseErrorHandler
 	/**
 	 * \brief React on error.
 	 *
-	 * \param[in] byte_counter  Absolute byte position of the error
-	 * \param[in] block_counter Block in which the error occurred
+	 * \param[in] byte_counter       Absolute byte position of the error
+	 * \param[in] block_counter      Block in which the error occurred
 	 * \param[in] block_byte_counter Byte position relative to block start
 	 */
 	virtual void do_on_error(const unsigned byte_counter,
@@ -1028,8 +1034,8 @@ public:
 	/**
 	 * \brief React on error.
 	 *
-	 * \param[in] byte_counter  Absolute byte position of the error
-	 * \param[in] block_counter Block in which the error occurred
+	 * \param[in] byte_counter       Absolute byte position of the error
+	 * \param[in] block_counter      Block in which the error occurred
 	 * \param[in] block_byte_counter Byte position relative to block start
 	 */
 	void on_error(const unsigned byte_counter, const unsigned block_counter,
@@ -1039,6 +1045,8 @@ public:
 
 /**
  * \brief Default ParseErrorHandler for parsing DBAR objects.
+ *
+ * \todo This adds nothing to the default behaviour, maybe remove it
  */
 class DBARErrorHandler final : public ParseErrorHandler
 {
