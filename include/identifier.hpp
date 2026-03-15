@@ -127,19 +127,6 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * \brief Construct ARId.
-	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] id_1        Id 1 of this medium
-	 * \param[in] id_2        Id 2 of this medium
-	 * \param[in] cddb_id     CDDB id of this medium
-	 */
-	ARId(const int track_count,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id);
-
-	/**
 	 * \brief Copy constructor.
 	 *
 	 * \param[in] rhs The ARId to copy
@@ -422,6 +409,39 @@ public:
 	 * ACCURATERIP::default_request_url_prefix().
 	 */
 	static void reset_request_url_prefix() noexcept;
+
+	/**
+	 * \brief Format an unsigned 32bit integer as an ARCS in the default format.
+	 *
+	 * The default format is the format in which ARCSs are printed in most
+	 * client applications.
+	 *
+	 * The ARCS default format entails:
+	 * - hexadecimal representation
+	 * - base (like "0x") is not represented
+	 * - always 8 digits wide, possibly with leading zeros
+	 * - digits A-F are always uppercase
+	 *
+	 * \return Default-ARCS-formatted representation of the input number
+	 */
+	static std::string default_arcs_format(const uint32_t number);
+
+	/**
+	 * \brief Format an unsigned 32bit integer as a non-ARCS id.
+	 *
+	 * The default format is the format which is used by ids contained in \link
+	 * ARId ARIds\endlink. It is mostly equal to the default arcs format, but
+	 * with the exception that the A-F digits are lowercase.
+	 *
+	 * The ARCS default format entails:
+	 * - hexadecimal representation
+	 * - base (like "0x") is not represented
+	 * - always 8 digits wide, possibly with leading zeros
+	 * - digits A-F are always lowercase
+	 *
+	 * \return Default-ARCS-formatted representation of the input number
+	 */
+	static std::string default_id_format(const uint32_t number);
 };
 
 /** @} */

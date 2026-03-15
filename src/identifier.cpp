@@ -312,17 +312,6 @@ ARId::ARId(const std::size_t track_count,
 }
 
 
-ARId::ARId(const int track_count,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id)
-	: impl_ { std::make_unique<ARId::Impl>(
-			details::normalize_trackcount(track_count), id_1, id_2, cddb_id) }
-{
-	// empty
-}
-
-
 ARId::ARId(const ARId& id)
 	: impl_ { std::make_unique<ARId::Impl>(*id.impl_) }
 {
@@ -505,6 +494,44 @@ void ACCURATERIP::reset_request_url_prefix() noexcept
 {
 	ACCURATERIP::set_request_url_prefix(
 			ACCURATERIP::default_request_url_prefix());
+}
+
+
+std::string ACCURATERIP::default_arcs_format(const uint32_t number)
+{
+	auto ss = std::ostringstream {};
+
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
+	hex_flags &= ~ss.adjustfield; // unset 'left' or 'internal'
+	hex_flags |= ss.right;        // set 'right' only
+	hex_flags &= ~ss.basefield;   // unset 'dec' and 'oct'
+	hex_flags |= ss.hex;          // set 'hex' only
+	hex_flags |= ss.uppercase;    // set 'uppercase'
+	hex_flags &= ~ss.showbase;    // unset 'showbase'
+
+	ss.flags(hex_flags);
+	ss << std::setw(8) << std::setfill('0') << number;
+
+	return ss.str();
+}
+
+
+std::string ACCURATERIP::default_id_format(const uint32_t number)
+{
+	auto ss = std::ostringstream {};
+
+	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
+	hex_flags &= ~ss.adjustfield; // unset 'left' or 'internal'
+	hex_flags |= ss.right;        // set 'right' only
+	hex_flags &= ~ss.basefield;   // unset 'dec' and 'oct'
+	hex_flags |= ss.hex;          // set 'hex' only
+	hex_flags &= ~ss.uppercase;   // unset 'uppercase'
+	hex_flags &= ~ss.showbase;    // unset 'showbase'
+
+	ss.flags(hex_flags);
+	ss << std::setw(8) << std::setfill('0') << number;
+
+	return ss.str();
 }
 
 } // namespace v_1_0_0
