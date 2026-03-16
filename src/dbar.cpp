@@ -14,6 +14,7 @@
 #include "dbar_details.hpp"
 #endif
 
+#include <algorithm>        // for for_each
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
 #include <filesystem>       // for file_size
@@ -21,6 +22,7 @@
 #include <initializer_list> // for initializer_list
 #include <memory>           // for unique_ptr, make_unique
 #include <numeric>			// for accumulate
+#include <set>				// for set
 #include <sstream>			// for ostringstream
 #include <stdexcept>		// for runtime_error
 #include <string>			// for string
@@ -385,6 +387,51 @@ ARId get_arid(const DBARBlockHeader& header)
 }
 
 } // namespace details
+
+
+bool is_valid(const DBARBlock& block)
+{
+	return block.header().total_tracks() == block.size();
+}
+
+
+bool is_valid(const DBAR& dbar)
+{
+	using std::cbegin;
+	using std::cend;
+
+	/* empty DBAR is valid */
+	return std::accumulate(cbegin(dbar), cend(dbar), true,
+			[](const bool result, const DBARBlock& block)
+			{
+				return result && is_valid(block);
+			});
+}
+
+
+bool is_regular(const DBAR& dbar)
+{
+	auto same_id = false;
+
+	/* requirement 1: same ARId in all blocks */
+	{
+		using std::cbegin;
+		using std::cend;
+
+		auto ids = std::set<std::string> {};
+
+		// TODO only last block can be irregular, start with crbegin
+		std::for_each(cbegin(dbar), cend(dbar),
+				[&ids](const DBARBlock& block)
+				{
+					ids.insert(details::get_arid(block.header()).to_string());
+				});
+
+		same_id = ids.size() <= 1; /* 0 or 1 is regular */
+	}
+
+	return same_id && /* requirement 2: dbar is valid */is_valid(dbar);
+}
 
 
 // specialization for DBAR

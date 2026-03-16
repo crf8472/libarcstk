@@ -803,6 +803,41 @@ public:
 	}
 };
 
+/**
+ * \brief Returns TRUE iff the DBARBlock passed is valid.
+ *
+ * A DBARBlock is valid the number of the DBARTriplets it contains is identical
+ * to the track_count in its header.
+ *
+ * \param[in] block The DBARBlock to check
+ *
+ * \return TRUE iff \c block is valid
+ */
+bool is_valid(const DBARBlock& block);
+
+/**
+ * \brief Returns TRUE iff the DBAR passed is valid.
+ *
+ * A DBAR is valid iff each of its DBARBlocks is valid.
+ *
+ * \param[in] dbar The DBAR to check
+ *
+ * \return TRUE iff \c dbar is valid
+ */
+bool is_valid(const DBAR& dbar);
+
+/**
+ * \brief Returns TRUE iff the DBAR passed is regular.
+ *
+ * A DBAR is regular iff it is valid and each of its DBARBlockHeaders contain
+ * the same ARId.
+ *
+ * \param[in] dbar The DBAR to check
+ *
+ * \return TRUE iff \c dbar is regular
+ */
+bool is_regular(const DBAR& dbar);
+
 
 // specialization for DBAR
 template<>
