@@ -69,8 +69,8 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
 }
 
 
-void on_parse_error_default(const unsigned byte_pos, const unsigned block,
-		const unsigned block_byte_pos)
+void on_parse_error_default(const unsigned byte_pos,
+		const unsigned block, const unsigned block_byte_pos)
 {
 	throw StreamParseException { byte_pos, block, block_byte_pos };
 }
@@ -99,8 +99,8 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	using details::BLOCK_HEADER_BYTES;
 	using details::TRIPLET_BYTES;
 
-	std::vector<char> id(BLOCK_HEADER_BYTES * sizeof(char));
-	std::vector<char> triplet(TRIPLET_BYTES * sizeof(char));
+	std::vector<char> id      (BLOCK_HEADER_BYTES * sizeof(char));
+	std::vector<char> triplet (TRIPLET_BYTES      * sizeof(char));
 
 	auto track_count   = unsigned { 0 };
 	auto discId1       = uint32_t { 0 };
@@ -127,11 +127,6 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		p->start_block();
 
 		// Read header of current block
-
-		// track_count = 0;
-		// discId1 = 0;
-		// discId2 = 0;
-		// cddbId  = 0;
 
 		try
 		{
@@ -409,28 +404,27 @@ bool is_valid(const DBAR& dbar)
 }
 
 
+bool is_uniform(const DBAR& dbar)
+{
+	using std::cbegin;
+	using std::cend;
+
+	auto ids = std::set<std::string> {};
+
+	// TODO only last block can be irregular, start with crbegin
+	std::for_each(cbegin(dbar), cend(dbar),
+			[&ids](const DBARBlock& block)
+			{
+				ids.insert(details::get_arid(block.header()).to_string());
+			});
+
+	return ids.size() <= 1; /* 0 (empty) or 1 is uniform */
+}
+
+
 bool is_regular(const DBAR& dbar)
 {
-	auto same_id = false;
-
-	/* requirement 1: same ARId in all blocks */
-	{
-		using std::cbegin;
-		using std::cend;
-
-		auto ids = std::set<std::string> {};
-
-		// TODO only last block can be irregular, start with crbegin
-		std::for_each(cbegin(dbar), cend(dbar),
-				[&ids](const DBARBlock& block)
-				{
-					ids.insert(details::get_arid(block.header()).to_string());
-				});
-
-		same_id = ids.size() <= 1; /* 0 or 1 is regular */
-	}
-
-	return same_id && /* requirement 2: dbar is valid */is_valid(dbar);
+	return is_uniform(dbar) && is_valid(dbar);
 }
 
 
@@ -1119,9 +1113,6 @@ DBARBuilder::DBARBuilder()
 }
 
 
-DBARBuilder::~DBARBuilder() noexcept = default;
-
-
 DBAR DBARBuilder::result()
 {
 	if (result_)
@@ -1149,7 +1140,7 @@ void DBARBuilder::do_start_input()
 
 void DBARBuilder::do_start_block()
 {
-	// TODO
+	// empty
 }
 
 
@@ -1181,13 +1172,160 @@ void DBARBuilder::do_end_triplets()
 
 void DBARBuilder::do_end_block()
 {
-	// TODO
+	// empty
 }
 
 
 void DBARBuilder::do_end_input()
 {
 	// empty
+}
+
+
+// CheckingDBARBuilderState
+
+
+CheckingDBARBuilderState::CheckingDBARBuilderState()
+	: current_id_      { UNINITIALIZED_ID }
+	, triplet_counter_ { 0          }
+	, is_valid_        { true }
+	, is_uniform_      { true }
+{
+	// empty
+}
+
+
+void CheckingDBARBuilderState::update_uniformity(const id_type& id)
+{
+	// previous and current id are identical?
+	is_uniform_ = (current_id_ == id);
+}
+
+
+void CheckingDBARBuilderState::update_validity(const std::size_t& total_tracks)
+{
+	// all expected tracks counted?
+	is_valid_ = std::get<0>(current_id_) == total_tracks;
+}
+
+
+void CheckingDBARBuilderState::header(const uint8_t track_count,
+		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+{
+	if (is_uniform_ && current_id_ != UNINITIALIZED_ID)
+	{
+		update_uniformity({ track_count, id1, id2, cddb_id });
+	}
+	current_id_ = { track_count, id1, id2, cddb_id };
+}
+
+
+void CheckingDBARBuilderState::triplet(const uint32_t /*arcs*/,
+		const uint8_t /*confidence*/, const uint32_t /*frame450_arcs*/)
+{
+	++triplet_counter_;
+}
+
+
+void CheckingDBARBuilderState::end_block()
+{
+	if (is_valid_)
+	{
+		update_validity(triplet_counter_);
+	}
+	triplet_counter_ = 0;
+}
+
+
+bool CheckingDBARBuilderState::is_uniform() const
+{
+	return is_uniform_;
+}
+
+
+bool CheckingDBARBuilderState::is_valid() const
+{
+	return is_valid_;
+}
+
+
+// CheckingDBARBuilder
+
+
+void CheckingDBARBuilder::do_start_input()
+{
+	builder_.start_input();
+}
+
+
+void CheckingDBARBuilder::do_start_block()
+{
+	builder_.start_block();
+}
+
+
+void CheckingDBARBuilder::do_header(const uint8_t track_count,
+		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+{
+	builder_.header(track_count, id1, id2, cddb_id);
+	state_  .header(track_count, id1, id2, cddb_id); // for checks
+}
+
+
+void CheckingDBARBuilder::do_start_triplets()
+{
+	builder_.start_triplets();
+}
+
+
+void CheckingDBARBuilder::do_triplet(const uint32_t arcs,
+	const uint8_t confidence, const uint32_t frame450_arcs)
+{
+	builder_.triplet(arcs, confidence, frame450_arcs);
+	state_  .triplet(arcs, confidence, frame450_arcs); // for checks
+}
+
+
+void CheckingDBARBuilder::do_end_triplets()
+{
+	builder_.end_triplets();
+}
+
+
+void CheckingDBARBuilder::do_end_block()
+{
+	builder_.end_block();
+	state_  .end_block(); // for checks
+}
+
+
+void CheckingDBARBuilder::do_end_input()
+{
+	builder_.end_input();
+}
+
+
+bool CheckingDBARBuilder::result_is_valid() const
+{
+	return state_.is_valid();
+}
+
+
+bool CheckingDBARBuilder::result_is_uniform() const
+{
+	return state_.is_uniform();
+}
+
+
+bool CheckingDBARBuilder::result_is_regular() const
+{
+	return result_is_valid() && result_is_uniform();
+}
+
+
+DBAR CheckingDBARBuilder::result()
+{
+	return builder_.result();
 }
 
 

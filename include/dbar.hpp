@@ -62,12 +62,16 @@ class Checksum;
  * semantically represents a sequence of Checksum sequences all related to an
  * ARId.
  *
- * This entails that a regular DBAR object has the following properties:
+ * A DBARBlock object is called \e valid iff the total number of
+ * \link DBARTriplet DBARTriplets\endlink it contains matches the track count
+ * encoded in the ARId represented by its DBARBlockHeader.
  *
- * - The ARId represented by the DBARBlockHeader is identical for each DBARBlock
- * within the DBAR instance.
- * - The total number of \link DBARTriplet DBARTriplets\endlink in a DBARBlock
- * is identical for every DBARBlock in a given DBAR instance.
+ * A DBAR object is \e valid if each of the DBARBlocks it contains is valid.
+ * This property can be checked by function is_valid().
+ *
+ * A DBAR object is called \e regular iff it is valid the ARId represented by
+ * the DBARBlockHeader is identical for each DBARBlock within the DBAR instance.
+ * This property can be checked by function is_regular().
  *
  * A DBAR instance provides access to all ARIds and ARCSs contained by their
  * respective indices. The sequence of blocks is iterable. Each DBARBlock is
@@ -827,10 +831,21 @@ bool is_valid(const DBARBlock& block);
 bool is_valid(const DBAR& dbar);
 
 /**
+ * \brief Returns TRUE iff the DBAR passed is uniform.
+ *
+ * A DBAR is uniform iff each of its DBARBlockHeaders contain the same ARId.
+ *
+ * \param[in] dbar The DBAR to check
+ *
+ * \return TRUE iff \c dbar is uniform
+ */
+bool is_uniform(const DBAR& dbar);
+
+/**
  * \brief Returns TRUE iff the DBAR passed is regular.
  *
- * A DBAR is regular iff it is valid and each of its DBARBlockHeaders contain
- * the same ARId.
+ * A DBAR is regular iff it is \link is_valid(const DBAR&) valid\endlink and
+ * \link is_uniform() uniform\endlink.
  *
  * \param[in] dbar The DBAR to check
  *
@@ -1025,7 +1040,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~DBARBuilder() noexcept final;
+	~DBARBuilder() noexcept final = default;
 
 	/**
 	 * \brief Parsing result.
@@ -1038,6 +1053,156 @@ public:
 	 * Every subsequent call of result() is undefined behaviour.
 	 *
 	 * \return The DBAR object representing the parsed input.
+	 */
+	DBAR result();
+};
+
+
+/**
+ * \brief State of a CheckingDBARBuilder.
+ */
+class CheckingDBARBuilderState final
+{
+	using id_type = std::tuple<uint8_t, uint32_t, uint32_t, uint32_t>;
+
+	static constexpr id_type UNINITIALIZED_ID = { 0, 0, 0, 0 };
+
+	/**
+	 * \brief Cached previous ARId constants.
+	 */
+	id_type current_id_;
+
+	/**
+	 * \brief Count triplets in current block.
+	 */
+	std::size_t triplet_counter_;
+
+	/**
+	 * \brief Current validity value.
+	 */
+	bool is_valid_;
+
+	/**
+	 * \brief Current uniformity value.
+	 */
+	bool is_uniform_;
+
+	/**
+	 * \brief Update uniformity state.
+	 *
+	 * \param[in] id Update uniformity by \c id
+	 */
+	void update_uniformity(const id_type& id);
+
+	/**
+	 * \brief Update validity state.
+	 *
+	 * \param[in] total_triplets Update validity by \c total_triplets
+	 */
+	void update_validity(const std::size_t& total_triplets);
+
+public:
+
+	/**
+	 * \brief Default constructor.
+	 */
+	CheckingDBARBuilderState();
+
+	/**
+	 * \brief Inform about a header.
+	 */
+	void header(const uint8_t track_count, const uint32_t id1,
+			const uint32_t id2, const uint32_t cddb_id);
+
+	/**
+	 * \brief Inform about a triplet.
+	 */
+	void triplet(const uint32_t arcs,
+			const uint8_t confidence,
+			const uint32_t frame450_arcs);
+
+	/**
+	 * \brief Inform about end of current block.
+	 */
+	void end_block();
+
+	/**
+	 * \brief Return validity state.
+	 *
+	 * \return Current validity state.
+	 */
+	bool is_valid() const;
+
+	/**
+	 * \brief Return uniformity state.
+	 *
+	 * \return Current uniformity state.
+	 */
+	bool is_uniform() const;
+};
+
+
+/**
+ * \brief ParseHandler to build a DBAR object and check for regularity.
+ */
+class CheckingDBARBuilder final : public ParseHandler
+{
+	/**
+	 * \brief Internal DBARBuilder.
+	 */
+	DBARBuilder builder_;
+
+	/**
+	 * \brief Internal state.
+	 */
+	CheckingDBARBuilderState state_;
+
+	// ParseHandler
+
+	void do_start_input() final;
+
+	void do_start_block() final;
+
+	void do_header(const uint8_t track_count, const uint32_t id1,
+			const uint32_t id2, const uint32_t cddb_id) final;
+
+	void do_start_triplets() final;
+
+	void do_triplet(const uint32_t arcs,
+			const uint8_t confidence,
+			const uint32_t frame450_arcs) final;
+
+	void do_end_triplets() final;
+
+	void do_end_block() final;
+
+	void do_end_input() final;
+
+public:
+
+	/**
+	 * \brief Return validity state.
+	 *
+	 * \return Current validity state.
+	 */
+	bool result_is_valid() const;
+
+	/**
+	 * \brief Return uniformity state.
+	 *
+	 * \return Current uniformity state.
+	 */
+	bool result_is_uniform() const;
+
+	/**
+	 * \brief Return uniformity state.
+	 *
+	 * \return Current uniformity state.
+	 */
+	bool result_is_regular() const;
+
+	/**
+	 * \copydoc DBARBuilder::result()
 	 */
 	DBAR result();
 };
@@ -1171,9 +1336,23 @@ bool is_valid_confidence(const unsigned value);
 /**
  * \brief Parse an input stream.
  *
+ * The input stream must not be open on call.
+ *
+ * The parsing process acknowledges the track count values at the start of a
+ * block and validates that the input has the expected length. On the premature
+ * end of the input stream, ParserErrorHandler::on_error() is called or, in
+ * case \c e is \c nullptr, a StreamParseException is thrown, which is the
+ * default behaviour.
+ *
+ * The resulting DBAR is guaranteed to be valid if no exception occurrs and \c e
+ * is \c nullptr. If \c e is not \c nullptr, it's up to the implementation of
+ * \c e whether any guarantees are given.
+ *
  * \param[in] in Input stream
  * \param[in] p  Handler for parse events
  * \param[in] e  Handler for parse errors
+ *
+ * \throw StreamReadException If reading of the stream fails
  *
  * \return Total number of bytes parsed
  */
@@ -1183,9 +1362,14 @@ uint32_t parse_stream(std::istream& in, ParseHandler* p,
 /**
  * \brief Parse a file.
  *
+ * A StreamReadException is thrown when the input has not the expected length.
+ * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ *
  * \param[in] filename Name of the file to parse
- * \param[in] p  Handler for parse events
- * \param[in] e  Handler for parse errors
+ * \param[in] p        Handler for parse events
+ * \param[in] e        Handler for parse errors
+ *
+ * \throw StreamReadException If reading of the file fails
  *
  * \return Total number of bytes parsed
  */
@@ -1195,7 +1379,12 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
 /**
  * \brief Read an AccurateRip response file to a DBAR object.
  *
+ * A StreamReadException is thrown when the input has not the expected length.
+ * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ *
  * \param[in] filename Name of the file to parse
+ *
+ * \throw StreamReadException If reading of the file fails
  *
  * \return DBAR object representing the file content
  */

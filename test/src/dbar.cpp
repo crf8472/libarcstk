@@ -24,6 +24,9 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 	using arcstk::DBAR;
 	using arcstk::DBARBlock;
 	using arcstk::get_element;
+	using arcstk::is_valid;
+	using arcstk::is_uniform;
+	using arcstk::is_regular;
 
 	const auto dBAR = DBAR {
 		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
@@ -42,9 +45,9 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 			{ 0x563EDCCB, 21, 0x8ED8FEBB },
 			{ 0xAB123C7C, 14, 0xD03B6267 },
 			{ 0xC65C20E4, 26, 0x92349543 },
-			{ 0x58FC3C3E, 28, 0x6F309B40 }
-		} },
-		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
+			{ 0x58FC3C3E, 28, 0x6F309B40 }  //   |  different!
+		} },                                //   v
+		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0E },
 		{ /* triplets */
 			{ 0x98B10E0F,  3, 0xC19172F9 },
 			{ 0x475F57E9,  4, 0x6F71EA01 },
@@ -64,7 +67,7 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 		} }
 	};
 
-	auto block = DBARBlock { dBAR, 1 };
+	const auto block = DBARBlock { dBAR, 1 };
 
 	SECTION ( "Can be forward-iterated correctly" )
 	{
@@ -91,19 +94,72 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 		CHECK ( mytriplet.confidence()    == 3 );
 		CHECK ( mytriplet.frame450_arcs() == 0xC19172F9 );
 	}
+
+	SECTION ( "is_valid()" )
+	{
+		CHECK ( is_valid(dBAR) );
+	}
+
+	SECTION ( "is_uniform()" )
+	{
+		CHECK ( not is_uniform(dBAR) );
+	}
+
+	SECTION ( "is_uniform()" )
+	{
+		CHECK ( not is_regular(dBAR) );
+	}
+}
+
+
+TEST_CASE ( "DBAR Construction by CheckingDBARBuilder", "[dbar]")
+{
+	using arcstk::CheckingDBARBuilder;
+	using arcstk::DBAR;
+	using arcstk::details::parse_dbar_file;
+
+	CheckingDBARBuilder cbuilder1;
+
+	{
+		const auto b = parse_dbar_file(
+				"dBAR-015-001b9178-014be24e-b40d2d0f.bin", &cbuilder1, nullptr);
+
+		REQUIRE ( b == 444 );
+	}
+
+	const auto dBAR_1 = cbuilder1.result();
+
+	SECTION ( "DBAR 1 is valid and builder agrees" )
+	{
+		CHECK ( is_valid(dBAR_1) );
+		CHECK ( cbuilder1.result_is_valid() );
+	}
+
+	SECTION ( "DBAR 1 is uniform and builder agrees" )
+	{
+		CHECK ( is_uniform(dBAR_1) );
+		CHECK ( cbuilder1.result_is_uniform() );
+	}
+
+	SECTION ( "DBAR 1 is regular and builder agrees" )
+	{
+		CHECK ( is_regular(dBAR_1) );
+		CHECK ( cbuilder1.result_is_regular() );
+	}
 }
 
 
 TEST_CASE ( "DBAR Construction by DBARBuilder", "[dbar]")
 {
+	using arcstk::CheckingDBARBuilder;
 	using arcstk::DBAR;
 	using arcstk::DBARBuilder;
-	using arcstk::details::parse_dbar_stream;
+	using arcstk::details::parse_dbar_file;
 
 	DBARBuilder builder1;
 
 	{
-		const auto b = arcstk::details::parse_dbar_file(
+		const auto b = parse_dbar_file(
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin", &builder1, nullptr);
 
 		REQUIRE ( b == 444 );
