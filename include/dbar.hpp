@@ -40,36 +40,38 @@ class Checksum;
 /**
  * \defgroup dbar AccurateRip DBAR Parser
  *
- * \brief Parse a stream in AccurateRip HTTP-Response format to a DBAR object.
+ * \brief Parse a byte stream in AccurateRip HTTP-Response format.
  *
  * \details
  *
  * A DBAR object is a parsed representation of the binary data contained in the
  * response to an AccurateRip request.
  *
- * A DBAR is a sequence of \link DBARBlock DBARBlocks\endlink where each
- * DBARBlock consists of a single DBARBlockHeader and a sequence of
- * \link DBARTriplet DBARTriplets\endlink.
- *
  * Intuitively, a DBAR object represents the ARCSs provided by AccurateRip for
  * the ARId specified in the related request. It contains the reference ARCSs
  * for all albums with this ARId.
  *
- * A DBAR instance provides access to all ARIds and ARCSs by their respective
- * indices. The sequence of blocks is iterable. Each DBARBlock is also iterable.
+ * A DBAR is a sequence of \link DBARBlock DBARBlocks\endlink where each
+ * DBARBlock consists of a single DBARBlockHeader and a subsequent sequence of
+ * \link DBARTriplet DBARTriplets\endlink.
  *
  * A DBARBlock represents a single sequence of reference ARCSs associated with
  * an ARId. A DBARBlockHeader is a representation of the ARId the DBARBlock
  * relates to. A DBARTriplet contains the three values each block contains
  * once for each track and thus represents a track. The DBAR instance therefore
- * semantically represents a sequence of ARId-related Checksum sequences.
+ * semantically represents a sequence of Checksum sequences all related to an
+ * ARId.
  *
- * This entails that a valid DBAR object has the following properties:
+ * This entails that a regular DBAR object has the following properties:
  *
  * - The ARId represented by the DBARBlockHeader is identical for each DBARBlock
  * within the DBAR instance.
  * - The total number of \link DBARTriplet DBARTriplets\endlink in a DBARBlock
  * is identical for every DBARBlock in a given DBAR instance.
+ *
+ * A DBAR instance provides access to all ARIds and ARCSs contained by their
+ * respective indices. The sequence of blocks is iterable. Each DBARBlock is
+ * also iterable.
  *
  * Functions parse_stream() and parse_file() can parse a byte stream and provide
  * each single value.
@@ -89,15 +91,13 @@ class Checksum;
  * must be provided. A ParseHandler implements each of those parse events.
  * To handle also possible parse errors, an instance of an implementation of
  * ParseErrorHandler can optionally be provided. A ParseErrorHandler implements
- * on_error(). If no ParseErrorHandler is provided, a StreamParseException is
- * thrown on any parse error.
+ * function ParseErrorHandler::on_error(). If no ParseErrorHandler is provided,
+ * a StreamParseException is thrown on any parse error. A StreamParseException
+ * contains every positional information about the parse error.
  *
  * A DBARBuilder can be passed to the parse_*() functions as a ParseHandler that
  * constructs the DBAR object from the entire input stream. Alternatively,
  * custom implementations of ParseHandler can be used.
- *
- * DBARErrorHandler is the default ParseErrorHandler implementation that just
- * throws a StreamParseException on each error.
  *
  * \note
  * There is no way to inform the client whether the actual ARCS in an ARTriplet
@@ -1044,19 +1044,6 @@ public:
 
 
 /**
- * \brief Default ParseErrorHandler for parsing DBAR objects.
- *
- * \todo This adds nothing to the default behaviour, maybe remove it
- */
-class DBARErrorHandler final : public ParseErrorHandler
-{
-	void do_on_error(const unsigned byte_counter,
-			const unsigned block_counter, const unsigned block_byte_counter)
-		final;
-};
-
-
-/**
  * \brief Reports a read error during parsing a binary stream.
  *
  * \attention
@@ -1126,18 +1113,6 @@ public:
 	 * \return Last 1-based block byte position read before the exception
 	 */
 	unsigned block_byte_position() const noexcept;
-
-private:
-
-	/**
-	 * \brief Compose default error message.
-	 *
-	 * \param[in] byte_pos       Last 1-based global byte pos before exception
-	 * \param[in] block          Current block index (1-based)
-	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
-	 */
-	std::string default_message(const unsigned byte_pos, const unsigned block,
-			const unsigned block_byte_pos) const;
 };
 
 /**

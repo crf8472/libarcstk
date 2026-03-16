@@ -72,18 +72,45 @@ static constexpr unsigned UNPARSED_CONFIDENCE = 0;
 /**
  * \brief Worker: called by parse_dbar_stream() when a parse error occurrs.
  *
- * If \c e is not nullptr, e->on_error() is called. Otherwise, a
- * StreamParseException with position data is thrown as default behaviour.
+ * If \c e is not nullptr, e->on_error() is called. Otherwise, the default
+ * behaviour defined by on_parse_error_default() is executed.
  *
- * \param[in] byte_pos       Last 1-based global byte pos read before exception
- * \param[in] block          1-based block number
- * \param[in] block_byte_pos Last 1-based block byte pos read before exception
+ * \param[in] byte_pos       Last 1-based global byte pos before exception
+ * \param[in] block          Current block index (1-based)
+ * \param[in] block_byte_pos Last 1-based block byte pos before exception
  * \param[in] e              Error handler
  *
- * \throws SteamParseException If \c e is \c nullptr or if \c e throws it
+ * \throws SteamParseException On behalf of default behaviour if \c e is nullptr
  */
 void on_parse_error(const unsigned byte_pos, const unsigned block,
 			const unsigned block_byte_pos, ParseErrorHandler* e);
+
+/**
+ * \brief Worker: default behaviour on parse errors.
+ *
+ * A StreamParseException with position data is thrown.
+ *
+ * \param[in] byte_pos       Last 1-based global byte pos before exception
+ * \param[in] block          Current block index (1-based)
+ * \param[in] block_byte_pos Last 1-based block byte pos before exception
+ * \param[in] e              Error handler
+ *
+ * \throws SteamParseException On every call, thereby providing positional data
+ */
+void on_parse_error_default(const unsigned byte_pos, const unsigned block,
+		const unsigned block_byte_pos);
+
+/**
+ * \brief Generate a default message on parse error.
+ *
+ * \param[in] byte_pos       Last 1-based global byte pos before exception
+ * \param[in] block          Current block index (1-based)
+ * \param[in] block_byte_pos Last 1-based block byte pos before exception
+ *
+ * \return Default message containing the exact position of the parse error
+ */
+std::string default_positional_message(const unsigned byte_pos,
+		const unsigned block, const unsigned block_byte_pos);
 
 /**
  * \brief Worker method for parsing an input stream.
@@ -102,7 +129,7 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
- * \brief Worker method for parsing a file.
+ * \brief Worker method for parsing a dBAR file.
  *
  * \param[in] filename The file to be parsed
  * \param[in] p        Parse handler
@@ -116,6 +143,56 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
+ * \deprecated
+ *
+ * \brief Worker method for parsing a dBAR file.
+ *
+ * This is an alternate implementation of parse_dbar_file(): it reads the entire
+ * file to a vector and then parses the vector as a stream. The expected
+ * advantage is to lower the cost of I/O by performing a single read operation.
+ * However, for small files - like dBAR files - this advantage is nearly not
+ * measurable. The disadvantage is that memory consumption is doubled up by
+ * holding the file content as well as the parsed DBAR object in memory. We
+ * therefore stick with the regular implementation of the function.
+ *
+ * \param[in] filename The file to be parsed
+ * \param[in] p        Parse handler
+ * \param[in] e        Error handler
+ *
+ * \throw StreamReadException If reading of the file fails
+ *
+ * \return Number of parsed bytes
+ */
+std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
+		ParseErrorHandler* e);
+
+/**
+ * \deprecated
+ *
+ * \brief Load the content of a file into a vector.
+ *
+ * This is a partial implementation of parse_dbar_file2().
+ *
+ * \param[in] filename Name of the file to load
+ * \param[in] max_size Do not load file if size in bytes exceeds this value
+ *
+ * \throws runtime_error If file size is bigger than \c max_size
+ *
+ * \return File content as a sequence of bytes
+ */
+std::vector<char> file_content(const std::string &filepath, const
+		std::size_t max_size);
+
+/**
+ * \brief Load the content of a file into a vector.
+ *
+ * \param[in] filename Name of the file to load
+ *
+ * \return Sequence of bytes
+ */
+std::vector<uint8_t> file_content0(const std::string& filename);
+
+/**
  * \brief Convert a dBARHeader to an ARId;
  *
  * \param[in] header The dBARHeader to convert
@@ -123,6 +200,27 @@ uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
  * \return The ARId represented by the header
  */
 ARId get_arid(const DBARBlockHeader& header);
+
+/**
+ * \brief Wrap a vector of some char type in an istream.
+ */
+template<typename CharT, typename TraitsT = std::char_traits<CharT> >
+class istream_wrapper : public std::basic_streambuf<CharT, TraitsT>
+{
+public:
+
+	/**
+	 * \brief Constructor
+	 *
+	 * \param[in] v The vector to wrap
+	 */
+	explicit istream_wrapper(std::vector<CharT>& v)
+	{
+		this->setg(v.data(), v.data(), v.data() + v.size());
+	}
+
+	// https://stackoverflow.com/a/8815308
+};
 
 } // namespace details
 

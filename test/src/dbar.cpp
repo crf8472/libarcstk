@@ -72,14 +72,14 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 
 		auto it { cbegin(block) };
 
-		CHECK ( it->arcs() == 0x98B10E0F );
-		CHECK ( it->confidence() == 3 );
+		CHECK ( it->arcs()          == 0x98B10E0F );
+		CHECK ( it->confidence()    == 3 );
 		CHECK ( it->frame450_arcs() == 0xC19172F9 );
 
 		++it;
 
-		CHECK ( it->arcs() == 0x475F57E9 );
-		CHECK ( it->confidence() == 4 );
+		CHECK ( it->arcs()          == 0x475F57E9 );
+		CHECK ( it->confidence()    == 4 );
 		CHECK ( it->frame450_arcs() == 0x6F71EA01 );
 	}
 
@@ -100,67 +100,52 @@ TEST_CASE ( "DBAR Construction by DBARBuilder", "[dbar]")
 	using arcstk::DBARBuilder;
 	using arcstk::details::parse_dbar_stream;
 
-	DBARBuilder builder;
+	DBARBuilder builder1;
 
 	{
-		std::ifstream file;
-		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		try
-		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f.bin",
-					std::ifstream::in | std::ifstream::binary);
-		}
-		catch (const std::ifstream::failure& f)
-		{
-			throw std::runtime_error(
-				std::string { "Failed to open file "
-					"'dBAR-015-001b9178-014be24e-b40d2d0f.bin', got: " }
-				+ typeid(f).name()
-				+ ", message: " + f.what());
-		}
-
-		const auto b = parse_dbar_stream(file, &builder, nullptr);
+		const auto b = arcstk::details::parse_dbar_file(
+				"dBAR-015-001b9178-014be24e-b40d2d0f.bin", &builder1, nullptr);
 
 		REQUIRE ( b == 444 );
 	}
 
-	const auto dBAR_file = builder.result();
+	const auto dBAR = builder1.result();
 
 
 	SECTION ( "DBARBuilder constructs DBAR with correct values" )
 	{
-		CHECK ( dBAR_file.size() == 3 );
+		CHECK ( dBAR.size() == 3 );
 
-		CHECK ( dBAR_file.block(0).size() == 15 );
-		CHECK ( dBAR_file.block(1).size() == 15 );
-		CHECK ( dBAR_file.block(2).size() == 15 );
+		CHECK ( dBAR.block(0).size() == 15 );
+		CHECK ( dBAR.block(1).size() == 15 );
+		CHECK ( dBAR.block(2).size() == 15 );
 
-		const auto block0 = dBAR_file.block(0);
+		const auto block0 = dBAR.block(0);
 
 		CHECK ( block0.size() == 15 );
 		CHECK ( block0.index() == 0 );
 
-		const auto header0 = dBAR_file.block(0).header();
+		const auto header0 = dBAR.block(0).header();
 
 		CHECK ( header0.total_tracks() == 15 );
 		CHECK ( header0.id1()          == 0x001b9178 );
 		CHECK ( header0.id2()          == 0x014be24e );
 		CHECK ( header0.cddb_id()      == 0xb40d2d0f );
 
-		const auto block1 = dBAR_file.block(1);
+		const auto block1 = dBAR.block(1);
 		CHECK ( block1.index() == 1 );
 
-		const auto header1 = dBAR_file.block(1).header();
+		const auto header1 = dBAR.block(1).header();
 
 		CHECK ( header1.total_tracks() == 15 );
 		CHECK ( header1.id1()          == 0x001b9178 );
 		CHECK ( header1.id2()          == 0x014be24e );
 		CHECK ( header1.cddb_id()      == 0xb40d2d0f );
 
-		const auto block2 = dBAR_file.block(2);
+		const auto block2 = dBAR.block(2);
 		CHECK ( block2.index() == 2 );
 
-		const auto header2 = dBAR_file.block(2).header();
+		const auto header2 = dBAR.block(2).header();
 
 		CHECK ( header2.total_tracks() == 15 );
 		CHECK ( header2.id1()          == 0x001b9178 );
@@ -356,13 +341,13 @@ TEST_CASE ( "DBAR Construction by DBARBuilder", "[dbar]")
 
 	SECTION ( "Range-based for loop works correctly" )
 	{
-		for (const auto& block : dBAR_file)
+		for (const auto& block : dBAR)
 		{
-			CHECK ( block.header().total_tracks() > 0 );
+			CHECK ( block.header().total_tracks() == 15 );
 
 			for (const auto& triplet : block)
 			{
-				CHECK ( triplet.arcs() > 0 );
+				CHECK ( triplet.arcs() );
 			}
 		}
 	}

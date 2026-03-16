@@ -16,6 +16,7 @@
 
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
+#include <filesystem>       // for file_size
 #include <fstream>          // for basic_ifstream
 #include <initializer_list> // for initializer_list
 #include <memory>           // for unique_ptr, make_unique
@@ -61,8 +62,25 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
 		e->on_error(byte_pos, block, block_byte_pos);
 	} else
 	{
-		throw StreamParseException(byte_pos, block, block_byte_pos);
+		on_parse_error_default(byte_pos, block, block_byte_pos);
 	}
+}
+
+
+void on_parse_error_default(const unsigned byte_pos, const unsigned block,
+		const unsigned block_byte_pos)
+{
+	throw StreamParseException { byte_pos, block, block_byte_pos };
+}
+
+
+std::string default_positional_message(const unsigned byte_pos,
+		const unsigned block, const unsigned block_byte_pos)
+{
+	auto ss = std::ostringstream {};
+	ss << "Read error on input byte " << byte_pos << " (block " << block
+			<< ", byte " << block_byte_pos << ")";
+	return ss.str();
 }
 
 
@@ -96,27 +114,6 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	auto block_byte_counter = unsigned { 0 };
 
 	p->start_input();
-
-	// Commented out:
-	// Provided that the file size is carefully verified to be "small",
-	// we could also read the entire binary file content in a vector<uint8_t>
-	// and proceed working on that vector:
-	//
-	// std::vector<uint8_t> file_content(const std::string& filename) const
-	// {
-	//   std::ifstream input(filename.c_str(), std::ios::in | std::ios::binary);
-	//
-	//   std::vector<uint8_t> bytes(
-	//		(std::istreambuf_iterator<char>(input)),
-	//		std::istreambuf_iterator<char>()
-	//   );
-	//
-	//   return bytes;
-	// }
-	//
-	// Currently, we read the file bytewise instead. This is more effort, but
-	// enables instant detecting of unexpected input and very precise error
-	// messages.
 
 	while (in.good() and in.peek() != EOF)
 	{
@@ -250,15 +247,6 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 					// => We have read the confidence value, but reading
 					// failed on the actual ARCS.
 
-					// From a semantic perspective, it does not make sense to
-					// pass a confidence value when we do not know the ARCS to
-					// which it relates. The client could be mistake the 0 value
-					// for the actual ARCS. From a technical point of view, it
-					// may be interesting for the client to know how much bytes
-					// could be read from the stream and have the values that
-					// could be completely read without error. The client will
-					// know that 0 is not a valid ARCS for a non-silent track.
-
 					p->triplet(UNPARSED_ARCS, confidence, UNPARSED_ARCS);
 					// ARCS + frame450 ARCS are not valid
 
@@ -312,27 +300,81 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e)
 {
-	std::ifstream file;
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	std::ifstream input_stream;
+	input_stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 	try
 	{
-		file.open(filename, std::ifstream::in | std::ifstream::binary);
+		input_stream.open(filename, std::ifstream::in | std::ifstream::binary);
 	}
 	catch (const std::ifstream::failure& f)
 	{
-		// TODO Use original f?
 		throw std::runtime_error(std::string{
 			"Failed to open file '" + filename + "'. Message: " + f.what()
 		});
 	}
 
-	const auto byte_counter { parse_stream(file, p, e) };
+	const auto byte_counter { parse_stream(input_stream, p, e) };
 
 	ARCS_LOG_DEBUG << "Successfully finished to parse file '"
 		<< filename << "'.";
 
 	return byte_counter;
+}
+
+
+std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
+		ParseErrorHandler* e)
+{
+	static constexpr auto MAX_BYTES = std::size_t { 8/* MiB*/ * 1024 * 1024 };
+
+	auto bytes        = file_content(filename, MAX_BYTES);
+	auto char_stream  = istream_wrapper(bytes);
+	auto input_stream = std::istream(&char_stream);
+
+	const auto byte_counter { parse_stream(input_stream, p, e) };
+
+	ARCS_LOG_DEBUG << "Successfully finished to parse file '"
+		<< filename << "'.";
+
+	return byte_counter;
+}
+
+
+std::vector<char> file_content(const std::string &filepath, const
+		std::size_t max_size)
+{
+	// Check file size
+
+    const auto length { std::filesystem::file_size(filepath) };
+
+	if (length > max_size)
+	{
+		using std::to_string;
+
+		throw std::runtime_error("File too large, more than maximum of " +
+				to_string(max_size) + " bytes");
+	}
+
+	// Load file content into vector
+
+    auto input = std::ifstream { filepath, std::ios::in | std::ios::binary };
+
+    if (!input.good())
+	{
+		using std::to_string;
+
+		throw std::runtime_error("Unable to correctly open file '" + filepath
+				+ "'");
+    }
+
+    auto bytes = std::vector<char>(length);
+
+    input.read(bytes.data(), static_cast<long>(length));
+	// https://www.reddit.com/r/cpp_questions/comments/zl9p9p/is_there_a_better_way_to_read_a_file_into_a/
+	// https://stackoverflow.com/a/77038066
+
+    return bytes;
 }
 
 
@@ -376,25 +418,30 @@ DBARBlockHeader::DBARBlockHeader(const unsigned total_tracks,
 	// empty
 }
 
+
 unsigned DBARBlockHeader::total_tracks() const noexcept
 {
 	return total_tracks_;
 }
+
 
 uint32_t DBARBlockHeader::id1() const noexcept
 {
 	return id1_;
 }
 
+
 uint32_t DBARBlockHeader::id2() const noexcept
 {
 	return id2_;
 }
 
+
 uint32_t DBARBlockHeader::cddb_id() const noexcept
 {
 	return cddb_id_;
 }
+
 
 void DBARBlockHeader::swap(DBARBlockHeader& rhs) noexcept
 {
@@ -405,6 +452,7 @@ void DBARBlockHeader::swap(DBARBlockHeader& rhs) noexcept
 	swap(this->id2_,          rhs.id2_);
 	swap(this->cddb_id_,      rhs.cddb_id_);
 }
+
 
 bool DBARBlockHeader::equals(const DBARBlockHeader& rhs) const noexcept
 {
@@ -1106,16 +1154,6 @@ void ParseErrorHandler::on_error(const unsigned bytes, const unsigned blocks,
 }
 
 
-// DBARErrorHandler
-
-
-void DBARErrorHandler::do_on_error(const unsigned byte_counter,
-			const unsigned block_counter, const unsigned block_byte_counter)
-{
-	throw StreamParseException(byte_counter, block_counter, block_byte_counter);
-}
-
-
 // StreamParseException
 
 
@@ -1133,7 +1171,8 @@ StreamParseException::StreamParseException(const unsigned byte_pos,
 
 StreamParseException::StreamParseException(const unsigned byte_pos,
 		const unsigned block, const unsigned block_byte_pos)
-	: std::runtime_error { default_message(byte_pos, block, block_byte_pos) }
+	: std::runtime_error {
+		details::default_positional_message(byte_pos, block, block_byte_pos) }
 	, byte_pos_       { byte_pos       }
 	, block_          { block          }
 	, block_byte_pos_ { block_byte_pos }
@@ -1157,16 +1196,6 @@ unsigned StreamParseException::block() const noexcept
 unsigned StreamParseException::block_byte_position() const noexcept
 {
 	return block_byte_pos_;
-}
-
-
-std::string StreamParseException::default_message(const unsigned byte_pos,
-		const unsigned block_pos, const unsigned block_byte_pos) const
-{
-	auto ss = std::ostringstream {};
-	ss << "Error on input byte " << byte_pos << " (block " << block_pos
-			<< ", byte " << block_byte_pos << ")";
-	return ss.str();
 }
 
 
