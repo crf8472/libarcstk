@@ -422,6 +422,8 @@ public:
 	 * - always 8 digits wide, possibly with leading zeros
 	 * - digits A-F are always uppercase
 	 *
+	 * \param[in] number The number to format
+	 *
 	 * \return Default-ARCS-formatted representation of the input number
 	 */
 	static std::string default_arcs_format(const uint32_t number);
@@ -430,7 +432,7 @@ public:
 	 * \brief Format an unsigned 32bit integer as a non-ARCS id.
 	 *
 	 * The default format is the format which is used by ids contained in \link
-	 * ARId ARIds\endlink. It is mostly equal to the default arcs format, but
+	 * ARId ARIds\endlink. It is mostly equal to the default ARCS format, but
 	 * with the exception that the A-F digits are lowercase.
 	 *
 	 * The ARCS default format entails:
@@ -438,6 +440,8 @@ public:
 	 * - base (like "0x") is not represented
 	 * - always 8 digits wide, possibly with leading zeros
 	 * - digits A-F are always lowercase
+	 *
+	 * \param[in] number The number to format
 	 *
 	 * \return Default-ARCS-formatted representation of the input number
 	 */
