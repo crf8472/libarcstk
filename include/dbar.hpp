@@ -45,7 +45,8 @@ class Checksum;
  * \details
  *
  * A DBAR object is a parsed representation of the binary data contained in the
- * response to an AccurateRip request.
+ * response to an AccurateRip request. It is forward-iterable and provides
+ * access to each syntactic element represented in the original input.
  *
  * Intuitively, a DBAR object represents the ARCSs provided by AccurateRip for
  * the ARId specified in the related request. It contains the reference ARCSs
@@ -56,22 +57,23 @@ class Checksum;
  * \link DBARTriplet DBARTriplets\endlink.
  *
  * A DBARBlock represents a single sequence of reference ARCSs associated with
- * an ARId. A DBARBlockHeader is a representation of the ARId the DBARBlock
- * relates to. A DBARTriplet contains the three values each block contains
- * once for each track and thus represents a track. The DBAR instance therefore
- * semantically represents a sequence of Checksum sequences all related to an
- * ARId.
+ * an ARId. A DBARBlockHeader is a fine-granular representation of the ARId the
+ * DBARBlock relates to. A DBARTriplet contains the three values each block
+ * contains once for each track and thus represents a track. The DBAR instance
+ * therefore semantically represents a sequence of Checksum sequences all
+ * related to an ARId.
  *
  * A DBARBlock object is called \e valid iff the total number of
  * \link DBARTriplet DBARTriplets\endlink it contains matches the track count
  * encoded in the ARId represented by its DBARBlockHeader.
  *
  * A DBAR object is \e valid if each of the DBARBlocks it contains is valid.
- * This property can be checked by function is_valid().
+ * This property can be checked by function is_valid(). DBAR objects created by
+ * make_dbar() without exception are guaranteed to be valid.
  *
- * A DBAR object is called \e regular iff it is valid the ARId represented by
- * the DBARBlockHeader is identical for each DBARBlock within the DBAR instance.
- * This property can be checked by function is_regular().
+ * A DBAR object is called \e regular iff it is valid and the ARId represented
+ * by the DBARBlockHeader is identical for each DBARBlock within the DBAR
+ * instance. This property can be checked by function is_regular().
  *
  * A DBAR instance provides access to all ARIds and ARCSs contained by their
  * respective indices. The sequence of blocks is iterable. Each DBARBlock is
@@ -1063,8 +1065,17 @@ public:
  */
 class CheckingDBARBuilderState final
 {
+	/**
+	 * \brief Type of the not yet parsed ARId.
+	 */
 	using id_type = std::tuple<uint8_t, uint32_t, uint32_t, uint32_t>;
 
+	/**
+	 * \brief Initial value for the internal ARId.
+	 *
+	 * If \c current_id_ has this value, it means that \c current_id_ has not
+	 * yet been initialized.
+	 */
 	static constexpr id_type UNINITIALIZED_ID = { 0, 0, 0, 0 };
 
 	/**
