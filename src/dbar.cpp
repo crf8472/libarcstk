@@ -1249,22 +1249,30 @@ bool CheckingDBARBuilderState::is_valid() const
 }
 
 
-// CheckingDBARBuilder
+// CheckingDBARBuilder::Impl
 
 
-void CheckingDBARBuilder::do_start_input()
+CheckingDBARBuilder::Impl::Impl()
+	: builder_ { /* default */ }
+	, state_   { /* default */ }
+{
+	// empty
+}
+
+
+void CheckingDBARBuilder::Impl::start_input()
 {
 	builder_.start_input();
 }
 
 
-void CheckingDBARBuilder::do_start_block()
+void CheckingDBARBuilder::Impl::start_block()
 {
 	builder_.start_block();
 }
 
 
-void CheckingDBARBuilder::do_header(const uint8_t track_count,
+void CheckingDBARBuilder::Impl::header(const uint8_t track_count,
 		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
 {
 	builder_.header(track_count, id1, id2, cddb_id);
@@ -1272,13 +1280,13 @@ void CheckingDBARBuilder::do_header(const uint8_t track_count,
 }
 
 
-void CheckingDBARBuilder::do_start_triplets()
+void CheckingDBARBuilder::Impl::start_triplets()
 {
 	builder_.start_triplets();
 }
 
 
-void CheckingDBARBuilder::do_triplet(const uint32_t arcs,
+void CheckingDBARBuilder::Impl::triplet(const uint32_t arcs,
 	const uint8_t confidence, const uint32_t frame450_arcs)
 {
 	builder_.triplet(arcs, confidence, frame450_arcs);
@@ -1286,34 +1294,111 @@ void CheckingDBARBuilder::do_triplet(const uint32_t arcs,
 }
 
 
-void CheckingDBARBuilder::do_end_triplets()
+void CheckingDBARBuilder::Impl::end_triplets()
 {
 	builder_.end_triplets();
 }
 
 
-void CheckingDBARBuilder::do_end_block()
+void CheckingDBARBuilder::Impl::end_block()
 {
 	builder_.end_block();
 	state_  .end_block(); // for checks
 }
 
 
-void CheckingDBARBuilder::do_end_input()
+void CheckingDBARBuilder::Impl::end_input()
 {
 	builder_.end_input();
 }
 
 
-bool CheckingDBARBuilder::result_is_valid() const
+bool CheckingDBARBuilder::Impl::result_is_valid() const
 {
 	return state_.is_valid();
 }
 
 
-bool CheckingDBARBuilder::result_is_uniform() const
+bool CheckingDBARBuilder::Impl::result_is_uniform() const
 {
 	return state_.is_uniform();
+}
+
+
+DBAR CheckingDBARBuilder::Impl::result()
+{
+	return builder_.result();
+}
+
+
+// CheckingDBARBuilder
+
+
+CheckingDBARBuilder::CheckingDBARBuilder()
+	: impl_ { std::make_unique<Impl>() }
+{
+	// empty
+}
+
+void CheckingDBARBuilder::do_start_input()
+{
+	impl_->start_input();
+}
+
+
+void CheckingDBARBuilder::do_start_block()
+{
+	impl_->start_block();
+}
+
+
+void CheckingDBARBuilder::do_header(const uint8_t track_count,
+		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+{
+	impl_->header(track_count, id1, id2, cddb_id);
+}
+
+
+void CheckingDBARBuilder::do_start_triplets()
+{
+	impl_->start_triplets();
+}
+
+
+void CheckingDBARBuilder::do_triplet(const uint32_t arcs,
+	const uint8_t confidence, const uint32_t frame450_arcs)
+{
+	impl_->triplet(arcs, confidence, frame450_arcs);
+}
+
+
+void CheckingDBARBuilder::do_end_triplets()
+{
+	impl_->end_triplets();
+}
+
+
+void CheckingDBARBuilder::do_end_block()
+{
+	impl_->end_block();
+}
+
+
+void CheckingDBARBuilder::do_end_input()
+{
+	impl_->end_input();
+}
+
+
+bool CheckingDBARBuilder::result_is_valid() const
+{
+	return impl_->result_is_valid();
+}
+
+
+bool CheckingDBARBuilder::result_is_uniform() const
+{
+	return impl_->result_is_uniform();
 }
 
 
@@ -1325,7 +1410,7 @@ bool CheckingDBARBuilder::result_is_regular() const
 
 DBAR CheckingDBARBuilder::result()
 {
-	return builder_.result();
+	return impl_->result();
 }
 
 

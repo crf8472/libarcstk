@@ -1061,112 +1061,13 @@ public:
 
 
 /**
- * \brief State of a CheckingDBARBuilder.
- */
-class CheckingDBARBuilderState final
-{
-	/**
-	 * \brief Type of the not yet parsed ARId.
-	 */
-	using id_type = std::tuple<uint8_t, uint32_t, uint32_t, uint32_t>;
-
-	/**
-	 * \brief Initial value for the internal ARId.
-	 *
-	 * If \c current_id_ has this value, it means that \c current_id_ has not
-	 * yet been initialized.
-	 */
-	static constexpr id_type UNINITIALIZED_ID = { 0, 0, 0, 0 };
-
-	/**
-	 * \brief Cached previous ARId constants.
-	 */
-	id_type current_id_;
-
-	/**
-	 * \brief Count triplets in current block.
-	 */
-	std::size_t triplet_counter_;
-
-	/**
-	 * \brief Current validity value.
-	 */
-	bool is_valid_;
-
-	/**
-	 * \brief Current uniformity value.
-	 */
-	bool is_uniform_;
-
-	/**
-	 * \brief Update uniformity state.
-	 *
-	 * \param[in] id Update uniformity by \c id
-	 */
-	void update_uniformity(const id_type& id);
-
-	/**
-	 * \brief Update validity state.
-	 *
-	 * \param[in] total_triplets Update validity by \c total_triplets
-	 */
-	void update_validity(const std::size_t& total_triplets);
-
-public:
-
-	/**
-	 * \brief Default constructor.
-	 */
-	CheckingDBARBuilderState();
-
-	/**
-	 * \brief Inform about a header.
-	 */
-	void header(const uint8_t track_count, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
-
-	/**
-	 * \brief Inform about a triplet.
-	 */
-	void triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs);
-
-	/**
-	 * \brief Inform about end of current block.
-	 */
-	void end_block();
-
-	/**
-	 * \brief Return validity state.
-	 *
-	 * \return Current validity state.
-	 */
-	bool is_valid() const;
-
-	/**
-	 * \brief Return uniformity state.
-	 *
-	 * \return Current uniformity state.
-	 */
-	bool is_uniform() const;
-};
-
-
-/**
  * \brief ParseHandler to build a DBAR object and check for regularity.
  */
 class CheckingDBARBuilder final : public ParseHandler
 {
-	/**
-	 * \brief Internal DBARBuilder.
-	 */
-	DBARBuilder builder_;
+	class Impl;
 
-	/**
-	 * \brief Internal state.
-	 */
-	CheckingDBARBuilderState state_;
+	std::unique_ptr<Impl> impl_;
 
 	// ParseHandler
 
@@ -1190,6 +1091,11 @@ class CheckingDBARBuilder final : public ParseHandler
 	void do_end_input() final;
 
 public:
+
+	/**
+	 * \brief Default constructor.
+	 */
+	CheckingDBARBuilder();
 
 	/**
 	 * \brief Return validity state.
