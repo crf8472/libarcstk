@@ -3,8 +3,10 @@ UseColor: true
 Checks: >
     bugprone-*,
     -bugprone-easily-swappable-parameters,
+    -bugprone-branch-clone,
     cppcoreguidelines-*,
     -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
     google-*,
     performance-*,
 
