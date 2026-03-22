@@ -340,19 +340,14 @@ ARId validated_arid(const ToC& toc);
  * This is for convenience since in most cases, the creation of an empty
  * ARId can be avoided when a reference instance is at hand.
  *
- * The instance is created using make_empty_arid().
+ * The definition of EmptyARId defines emptiness for ARIds.
  */
 extern const ARId EmptyARId;
 
 /**
- * \brief Safely create an
- * \link arcstk::ARId::empty() empty()\endlink ARId.
+ * \brief Create an \link arcstk::ARId::empty() empty()\endlink ARId.
  *
- * The implementation of make_empty_arid() defines emptiness for ARIds.
- *
- * An empty ARId has the invalid value 0 for the track count and also 0
- * for disc id 1, disc id 2 and cddb id. An empty ARId is not a valid
- * description of a CDDA conforming medium.
+ * An empty ARId is not a valid description of a CDDA conforming medium.
  *
  * Building an empty ARId also provides the possibility to just provide an
  * ARId on sites where an ARId is required without having to test for null.

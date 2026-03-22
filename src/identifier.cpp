@@ -30,7 +30,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-const ARId EmptyARId = make_empty_arid();
+const ARId EmptyARId = ARId { 0, 0, 0, 0 }; // defines emptiness for ARId
 
 
 // identifier_details.hpp
@@ -460,7 +460,7 @@ ARId validated_arid(const ToC& toc)
 
 ARId make_empty_arid()
 {
-	return ARId { 0, 0, 0, 0 };
+	return EmptyARId;
 }
 
 
