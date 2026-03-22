@@ -208,7 +208,7 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 		// Read triplets of current block
 
-		for (auto trk = uint8_t { 0 }; trk < track_count; ++trk)
+		for (auto trk = unsigned { 0 }; trk < track_count; ++trk)
 		{
 			try
 			{
@@ -323,7 +323,8 @@ std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e)
 {
-	static constexpr auto MAX_BYTES = std::size_t { 8/* MiB*/ * 1024 * 1024 };
+	static constexpr auto MAX_BYTES = std::size_t {
+		static_cast<std::size_t>(8)/* MiB*/ * 1024 * 1024 };
 
 	auto bytes        = file_content(filename, MAX_BYTES);
 	auto char_stream  = istream_wrapper(bytes);
@@ -367,7 +368,7 @@ std::vector<char> file_content(const std::string &filepath, const
 
     auto bytes = std::vector<char>(length);
 
-    input.read(bytes.data(), static_cast<long>(length));
+    input.read(bytes.data(), static_cast<int64_t>(length));
 	// https://www.reddit.com/r/cpp_questions/comments/zl9p9p/is_there_a_better_way_to_read_a_file_into_a/
 	// https://stackoverflow.com/a/77038066
 
