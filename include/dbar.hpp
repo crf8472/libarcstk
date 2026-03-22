@@ -499,6 +499,7 @@ public:
 
 	/**
 	 * \internal
+	 *
 	 * \brief Constructor for fabrication.
 	 *
 	 * \param[in] impl Impl of this DBAR
@@ -1057,6 +1058,11 @@ public:
 	 * \return The DBAR object representing the parsed input.
 	 */
 	DBAR result();
+
+	/**
+	 * \brief Resets the instance to its initial state.
+	 */
+	void reset();
 };
 
 
@@ -1122,7 +1128,18 @@ public:
 	 * \copydoc DBARBuilder::result()
 	 */
 	DBAR result();
+
+	/**
+	 * \brief Resets the instance to its initial state.
+	 */
+	void reset();
 };
+
+
+/**
+ * \brief Represents a byte position in a binary input stream.
+ */
+using byte_position_t = unsigned;
 
 
 /**
@@ -1137,8 +1154,9 @@ class ParseErrorHandler
 	 * \param[in] block_counter      Block in which the error occurred
 	 * \param[in] block_byte_counter Byte position relative to block start
 	 */
-	virtual void do_on_error(const unsigned byte_counter,
-			const unsigned block_counter, const unsigned block_byte_counter)
+	virtual void do_on_error(const byte_position_t byte_counter,
+			const unsigned block_counter,
+			const byte_position_t block_byte_counter)
 	= 0;
 
 public:
@@ -1155,10 +1173,10 @@ public:
 	 * \param[in] block_counter      Block in which the error occurred
 	 * \param[in] block_byte_counter Byte position relative to block start
 	 */
-	void on_error(const unsigned byte_counter, const unsigned block_counter,
-			const unsigned block_byte_counter);
+	void on_error(const byte_position_t byte_counter,
+			const unsigned block_counter,
+			const byte_position_t block_byte_counter);
 };
-
 
 /**
  * \brief Reports a read error during parsing a binary stream.
@@ -1171,7 +1189,7 @@ class StreamParseException final : public std::runtime_error
 	/**
 	 * \brief Last 1-based global byte position before the exception occurred.
 	 */
-	unsigned byte_pos_;
+	byte_position_t byte_pos_;
 
 	/**
 	 * \brief The 1-based block number of the block in which the exception
@@ -1183,7 +1201,7 @@ class StreamParseException final : public std::runtime_error
 	 * \brief Last 1-based block-relative byte position read before the
 	 * exception.
 	 */
-	unsigned block_byte_pos_;
+	byte_position_t block_byte_pos_;
 
 public:
 
@@ -1195,8 +1213,9 @@ public:
 	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 * \param[in] what_arg       Error message
 	 */
-	StreamParseException(const unsigned byte_pos, const unsigned block,
-			const unsigned block_byte_pos, const std::string& what_arg);
+	StreamParseException(const byte_position_t byte_pos,
+			const unsigned block, const byte_position_t block_byte_pos,
+			const std::string& what_arg);
 
 	/**
 	 * \brief Constructor with default message.
@@ -1205,15 +1224,15 @@ public:
 	 * \param[in] block          Current block index (1-based)
 	 * \param[in] block_byte_pos Last 1-based block byte pos before exception
 	 */
-	StreamParseException(const unsigned byte_pos, const unsigned block,
-			const unsigned block_byte_pos);
+	StreamParseException(const byte_position_t byte_pos,
+			const unsigned block, const byte_position_t block_byte_pos);
 
 	/**
 	 * \brief Last 1-based global byte position before the exception occurred.
 	 *
 	 * \return Last 1-based global byte position before the exception occurred
 	 */
-	unsigned byte_position() const noexcept;
+	byte_position_t byte_position() const noexcept;
 
 	/**
 	 * \brief The 1-based block index of the block in which the exception
@@ -1229,8 +1248,9 @@ public:
 	 *
 	 * \return Last 1-based block byte position read before the exception
 	 */
-	unsigned block_byte_position() const noexcept;
+	byte_position_t block_byte_position() const noexcept;
 };
+
 
 /**
  * \brief Check a parsed value whether it is a valid ARCS (also frame 450 ARCS).
@@ -1279,7 +1299,7 @@ uint32_t parse_stream(std::istream& in, ParseHandler* p,
 /**
  * \brief Parse a file.
  *
- * A StreamReadException is thrown when the input has not the expected length.
+ * A StreamReadException is thrown if the input has not the expected length.
  * The resulting DBAR is guaranteed to be valid if no exception occurrs.
  *
  * \param[in] filename Name of the file to parse
@@ -1296,7 +1316,7 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
 /**
  * \brief Read an AccurateRip response file to a DBAR object.
  *
- * A StreamReadException is thrown when the input has not the expected length.
+ * A StreamReadException is thrown if the input has not the expected length.
  * The resulting DBAR is guaranteed to be valid if no exception occurrs.
  *
  * \param[in] filename Name of the file to parse
@@ -1305,7 +1325,26 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
  *
  * \return DBAR object representing the file content
  */
-DBAR load_file(const std::string& filename);
+DBAR make_dbar(const std::string& filename);
+
+/**
+ * \brief Read an AccurateRip response file to a DBAR object.
+ *
+ * The first value of the resulting tuple is the actual DBAR instance. The
+ * second value is TRUE iff the DBAR is valid. The third value is TRUE iff the
+ * DBAR is uniform. The DBAR is regular iff the second and the third value are
+ * TRUE.
+ *
+ * A StreamReadException is thrown if the input has not the expected length.
+ * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ *
+ * \param[in] filename Name of the file to parse
+ *
+ * \throw StreamReadException If reading of the file fails
+ *
+ * \return DBAR object representing the file content
+ */
+std::tuple<DBAR,bool,bool> validated_dbar(const std::string& filename);
 
 /** @} */
 

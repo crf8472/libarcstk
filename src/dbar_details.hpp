@@ -82,8 +82,8 @@ static constexpr unsigned UNPARSED_CONFIDENCE = 0;
  *
  * \throws SteamParseException On behalf of default behaviour if \c e is nullptr
  */
-void on_parse_error(const unsigned byte_pos, const unsigned block,
-			const unsigned block_byte_pos, ParseErrorHandler* e);
+void on_parse_error(const byte_position_t byte_pos, const unsigned block,
+			const byte_position_t block_byte_pos, ParseErrorHandler* e);
 
 /**
  * \brief Worker: default behaviour on parse errors.
@@ -97,8 +97,8 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
  *
  * \throws SteamParseException On every call, thereby providing positional data
  */
-void on_parse_error_default(const unsigned byte_pos, const unsigned block,
-		const unsigned block_byte_pos);
+void on_parse_error_default(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos);
 
 /**
  * \brief Generate a default message on parse error.
@@ -109,8 +109,8 @@ void on_parse_error_default(const unsigned byte_pos, const unsigned block,
  *
  * \return Default message containing the exact position of the parse error
  */
-std::string default_positional_message(const unsigned byte_pos,
-		const unsigned block, const unsigned block_byte_pos);
+std::string default_positional_message(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos);
 
 /**
  * \brief Worker method for parsing an input stream.
@@ -125,7 +125,7 @@ std::string default_positional_message(const unsigned byte_pos,
  *
  * \todo This implementation silently relies on a little endian plattform.
  */
-uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
+std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
@@ -139,7 +139,7 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
  *
  * \return Number of parsed bytes
  */
-uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
+std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
@@ -182,15 +182,6 @@ std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
  */
 std::vector<char> file_content(const std::string &filepath, const
 		std::size_t max_size);
-
-/**
- * \brief Load the content of a file into a vector.
- *
- * \param[in] filename Name of the file to load
- *
- * \return Sequence of bytes
- */
-std::vector<uint8_t> file_content0(const std::string& filename);
 
 /**
  * \brief Convert a dBARHeader to an ARId;
@@ -525,6 +516,11 @@ public:
 	 * \return Current uniformity state.
 	 */
 	bool is_uniform() const;
+
+	/**
+	 * \brief Resets the instance to its initial state.
+	 */
+	void reset();
 };
 
 
@@ -545,6 +541,9 @@ class CheckingDBARBuilder::Impl final
 
 public:
 
+	/**
+	 * \brief Default constructor.
+	 */
 	Impl();
 
 	// ParseHandler API mimicked
@@ -586,6 +585,11 @@ public:
 	 * \copydoc DBARBuilder::result()
 	 */
 	DBAR result();
+
+	/**
+	 * \brief Resets the instance to its initial state.
+	 */
+	void reset();
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

@@ -56,8 +56,8 @@ uint32_t le_bytes_to_uint32(const char b1, const char b2, const char b3,
 }
 
 
-void on_parse_error(const unsigned byte_pos, const unsigned block,
-		const unsigned block_byte_pos, ParseErrorHandler* e)
+void on_parse_error(const byte_position_t byte_pos, const unsigned block,
+		const byte_position_t block_byte_pos, ParseErrorHandler* e)
 {
 	if (e)
 	{
@@ -69,15 +69,15 @@ void on_parse_error(const unsigned byte_pos, const unsigned block,
 }
 
 
-void on_parse_error_default(const unsigned byte_pos,
-		const unsigned block, const unsigned block_byte_pos)
+void on_parse_error_default(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos)
 {
 	throw StreamParseException { byte_pos, block, block_byte_pos };
 }
 
 
-std::string default_positional_message(const unsigned byte_pos,
-		const unsigned block, const unsigned block_byte_pos)
+std::string default_positional_message(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos)
 {
 	auto ss = std::ostringstream {};
 	ss << "Read error on input byte " << byte_pos << " (block " << block
@@ -86,7 +86,7 @@ std::string default_positional_message(const unsigned byte_pos,
 }
 
 
-uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
+std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	if (!p)
@@ -110,10 +110,10 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	auto trk_arcs      = uint32_t { 0 };
 	auto frame450_arcs = uint32_t { 0 };
 
-	auto bytes_read         = unsigned { 0 };
-	auto byte_counter       = unsigned { 0 };
-	auto block_counter      = unsigned { 0 };
-	auto block_byte_counter = unsigned { 0 };
+	auto bytes_read         = std::size_t     { 0 };
+	auto byte_counter       = byte_position_t { 0 };
+	auto block_counter      = unsigned        { 0 };
+	auto block_byte_counter = byte_position_t { 0 };
 
 	p->start_input();
 
@@ -131,16 +131,16 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 		try
 		{
 			in.read(&id[0], BLOCK_HEADER_BYTES * sizeof(id[0]));
-			bytes_read = in.gcount();
+			bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
 
 		} catch (const std::istream::failure& flr)
 		{
-			bytes_read = in.gcount();
+			bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
 		}
 
 		ARCS_LOG(DEBUG2) << "Read " << bytes_read << " header bytes";
 
-		byte_counter += bytes_read;
+		byte_counter       += bytes_read;
 		block_byte_counter += bytes_read;
 
 		ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
@@ -213,16 +213,16 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 			try
 			{
 				in.read(&triplet[0], TRIPLET_BYTES * sizeof(triplet[0]));
-				bytes_read = in.gcount();
+				bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
 
 			} catch (std::istream::failure& flr)
 			{
-				bytes_read = in.gcount();
+				bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
 			}
 
 			ARCS_LOG(DEBUG2) << "Read " << bytes_read << " triplet bytes";
 
-			byte_counter += bytes_read;
+			byte_counter       += bytes_read;
 			block_byte_counter += bytes_read;
 
 			ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
@@ -294,7 +294,7 @@ uint32_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 }
 
 
-uint32_t parse_dbar_file(const std::string& filename, ParseHandler* p,
+std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	std::ifstream input_stream;
@@ -1113,28 +1113,9 @@ DBARBuilder::DBARBuilder()
 }
 
 
-DBAR DBARBuilder::result()
-{
-	if (result_)
-	{
-		//return DBAR(std::make_unique<DBAR::Impl>(*result_));
-		return DBAR(std::move(result_));
-	}
-
-	throw std::runtime_error("Cannot obtain parsing result before parsing");
-}
-
-
 void DBARBuilder::do_start_input()
 {
-	if (result_)
-	{
-		result_.reset();
-	}
-
-	result_ = std::make_unique<DBAR::Impl>();
-	// Initializing with nullptr is okay as long as DBARBuilder does not
-	// try to get an iterator of the object.
+	reset();
 }
 
 
@@ -1182,12 +1163,34 @@ void DBARBuilder::do_end_input()
 }
 
 
+DBAR DBARBuilder::result()
+{
+	if (result_)
+	{
+		return DBAR(std::move(result_));
+	}
+
+	throw std::runtime_error("Cannot obtain parsing result before parsing");
+}
+
+
+void DBARBuilder::reset()
+{
+	if (result_) // TODO unnecessary
+	{
+		result_.reset();
+	}
+
+	result_ = std::make_unique<DBAR::Impl>();
+}
+
+
 // CheckingDBARBuilderState
 
 
 CheckingDBARBuilderState::CheckingDBARBuilderState()
 	: current_id_      { UNINITIALIZED_ID }
-	, triplet_counter_ { 0          }
+	, triplet_counter_ { 0    }
 	, is_valid_        { true }
 	, is_uniform_      { true }
 {
@@ -1246,6 +1249,15 @@ bool CheckingDBARBuilderState::is_uniform() const
 bool CheckingDBARBuilderState::is_valid() const
 {
 	return is_valid_;
+}
+
+
+void CheckingDBARBuilderState::reset()
+{
+	current_id_      = UNINITIALIZED_ID;
+	triplet_counter_ = 0;
+	is_valid_        = true;
+	is_uniform_      = true;
 }
 
 
@@ -1331,6 +1343,13 @@ DBAR CheckingDBARBuilder::Impl::result()
 }
 
 
+void CheckingDBARBuilder::Impl::reset()
+{
+	builder_.reset();
+	state_.reset();
+}
+
+
 // CheckingDBARBuilder
 
 
@@ -1339,6 +1358,7 @@ CheckingDBARBuilder::CheckingDBARBuilder()
 {
 	// empty
 }
+
 
 void CheckingDBARBuilder::do_start_input()
 {
@@ -1414,11 +1434,17 @@ DBAR CheckingDBARBuilder::result()
 }
 
 
+void CheckingDBARBuilder::reset()
+{
+	impl_->reset();
+}
+
+
 // ParseErrorHandler
 
 
-void ParseErrorHandler::on_error(const unsigned bytes, const unsigned blocks,
-		const unsigned block_bytes)
+void ParseErrorHandler::on_error(const byte_position_t bytes,
+		const unsigned blocks, const byte_position_t block_bytes)
 {
 	do_on_error(bytes, blocks, block_bytes);
 }
@@ -1427,8 +1453,8 @@ void ParseErrorHandler::on_error(const unsigned bytes, const unsigned blocks,
 // StreamParseException
 
 
-StreamParseException::StreamParseException(const unsigned byte_pos,
-		const unsigned block, const unsigned block_byte_pos,
+StreamParseException::StreamParseException(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos,
 		const std::string& what_arg)
 	: std::runtime_error { what_arg       }
 	, byte_pos_          { byte_pos       }
@@ -1439,8 +1465,8 @@ StreamParseException::StreamParseException(const unsigned byte_pos,
 }
 
 
-StreamParseException::StreamParseException(const unsigned byte_pos,
-		const unsigned block, const unsigned block_byte_pos)
+StreamParseException::StreamParseException(const byte_position_t byte_pos,
+		const unsigned block, const byte_position_t block_byte_pos)
 	: std::runtime_error {
 		details::default_positional_message(byte_pos, block, block_byte_pos) }
 	, byte_pos_       { byte_pos       }
@@ -1451,19 +1477,19 @@ StreamParseException::StreamParseException(const unsigned byte_pos,
 }
 
 
-unsigned StreamParseException::byte_position() const noexcept
+byte_position_t StreamParseException::byte_position() const noexcept
 {
 	return byte_pos_;
 }
 
 
-unsigned StreamParseException::block() const noexcept
+byte_position_t StreamParseException::block() const noexcept
 {
 	return block_;
 }
 
 
-unsigned StreamParseException::block_byte_position() const noexcept
+byte_position_t StreamParseException::block_byte_position() const noexcept
 {
 	return block_byte_pos_;
 }
@@ -1504,14 +1530,26 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
 }
 
 
-// load_file()
+// make_dbar()
 
 
-DBAR load_file(const std::string& filename)
+DBAR make_dbar(const std::string& filename)
 {
 	DBARBuilder builder;
 	details::parse_dbar_file(filename, &builder, nullptr);
 	return builder.result();
+}
+
+
+// validated_dbar()
+
+
+std::tuple<DBAR,bool,bool> validated_dbar(const std::string& filename)
+{
+	CheckingDBARBuilder builder;
+	details::parse_dbar_file(filename, &builder, nullptr);
+	return { builder.result(), builder.result_is_valid(),
+		builder.result_is_uniform() };
 }
 
 } // namespace v_1_0_0
