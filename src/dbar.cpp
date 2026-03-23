@@ -394,11 +394,11 @@ bool is_valid(const DBARBlock& block)
 
 bool is_valid(const DBAR& dbar)
 {
-	using std::cbegin;
-	using std::cend;
+	using std::crbegin;
+	using std::crend;
 
 	/* empty DBAR is valid */
-	return std::accumulate(cbegin(dbar), cend(dbar), true,
+	return std::accumulate(crbegin(dbar), crend(dbar), true,
 			[](const bool result, const DBARBlock& block)
 			{
 				return result && is_valid(block);
@@ -413,7 +413,7 @@ bool is_uniform(const DBAR& dbar)
 
 	auto ids = std::set<std::string> {};
 
-	// TODO only last block can be irregular, start with crbegin
+	/* empty DBAR is uniform */
 	std::for_each(cbegin(dbar), cend(dbar),
 			[&ids](const DBARBlock& block)
 			{
