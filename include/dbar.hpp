@@ -348,12 +348,53 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
 
 /**
  * \internal
+ * \brief Increment an element.
+ *
+ * May be either increasing or decreasing increment.
+ *
+ * \tparam T The value to increment
+ * \tparam R Indicator for reverse increment
+ */
+template<typename T, bool R>
+class Increment
+{
+	// empty
+};
+
+
+template<typename T>
+class Increment<T, false>
+{
+public:
+
+	void operator() (T& i)
+	{
+		++i;
+	}
+};
+
+
+template<typename T>
+class Increment<T, true>
+{
+public:
+
+	void operator() (T& i)
+	{
+		--i;
+	}
+};
+
+
+/**
+ * \internal
  * \brief Forward iterator for DBAR related containers.
  *
  * \tparam T Type of object we iterate over, must define size_type
+ * \tparam R TRUE indicates reverse iteration
  */
-template<typename T>
-class DBARForwardIterator final : public Comparable<DBARForwardIterator<T>>
+template<typename T, bool R>
+class DBARForwardIterator final : public Comparable<DBARForwardIterator<T,R>>
 {
 	using size_type = typename T::size_type;
 
@@ -382,6 +423,11 @@ private:
 	size_type idx_;
 
 	/**
+	 * \brief Internal incrementor.
+	 */
+	Increment<size_type, R> increment_;
+
+	/**
 	 * \brief Container object to iterate over.
 	 */
 	const T* container_;
@@ -396,6 +442,7 @@ public:
 	 */
 	DBARForwardIterator(const T& container, const size_type idx)
 		: idx_       { idx }
+		, increment_ { /* default */ }
 		, container_ { &container }
 	{
 		// empty
@@ -403,6 +450,7 @@ public:
 
 	DBARForwardIterator(const DBARForwardIterator& rhs)
 		: idx_       { rhs.idx_ }
+		, increment_ { rhs.increment_ }
 		, container_ { rhs.container_ }
 	{
 		// empty
@@ -413,6 +461,7 @@ public:
 		if (&rhs != this)
 		{
 			idx_       = rhs.idx_;
+			increment_ = rhs.increment_;
 			container_ = rhs.container_;
 		}
 		return *this;
@@ -420,6 +469,7 @@ public:
 
 	DBARForwardIterator(DBARForwardIterator&& rhs) noexcept
 		: idx_       { std::move(rhs.idx_) }
+		, increment_ { std::move(rhs.increment_) }
 		, container_ { std::move(rhs.container_) }
 	{
 		// empty
@@ -428,6 +478,7 @@ public:
 	DBARForwardIterator& operator=(DBARForwardIterator&& rhs) noexcept
 	{
 		idx_       = std::move(rhs.idx_);
+		increment_ = std::move(rhs.increment_);
 		container_ = std::move(rhs.container_);
 
 		return *this;
@@ -447,15 +498,20 @@ public:
 
     DBARForwardIterator& operator++()
 	{
-		++idx_;
+		this->increment_(idx_);
 		return *this;
 	}
 
-    DBARForwardIterator operator++(int)
+    DBARForwardIterator operator++ (int)
 	{
-		DBARForwardIterator i { *this };
-		++i;
-		return i;
+		DBARForwardIterator prev_val { *this };
+		this->operator++();
+		return prev_val;
+	}
+
+	size_type index() const
+	{
+		return idx_;
 	}
 
     friend bool operator == (const DBARForwardIterator& lhs,
@@ -487,10 +543,35 @@ private:
 
 public:
 
-	using size_type      = std::size_t;
-	using value_type     = DBARBlock;
-	using iterator       = DBARForwardIterator<DBAR>;
-	using const_iterator = const iterator;
+	/**
+	 * \brief Size type for this type, also used for indexing.
+	 */
+	using size_type = std::size_t;
+
+	/**
+	 * \brief Value type for this type.
+	 */
+	using value_type = DBARBlock;
+
+	/**
+	 * \brief Iterator type.
+	 */
+	using iterator         = DBARForwardIterator<DBAR, false>;
+
+	/**
+	 * \brief Reverse iterator type.
+	 */
+	using reverse_iterator = DBARForwardIterator<DBAR, true>;
+
+	/**
+	 * \brief Constant iterator type.
+	 */
+	using const_iterator         = const iterator;
+
+	/**
+	 * \brief Constant reverse iterator type.
+	 */
+	using const_reverse_iterator = const reverse_iterator;
 
 	/**
 	 * \brief Default constructor.
@@ -637,6 +718,13 @@ public:
 	const_iterator begin() const;
 	const_iterator end() const;
 
+	reverse_iterator rbegin();
+	reverse_iterator rend();
+	const_reverse_iterator crbegin() const;
+	const_reverse_iterator crend() const;
+	const_reverse_iterator rbegin() const;
+	const_reverse_iterator rend() const;
+
 	/**
 	 * \brief Swap with another instance.
 	 *
@@ -707,12 +795,22 @@ public:
 	/**
 	 * \brief Iterator type.
 	 */
-	using iterator = DBARForwardIterator<DBARBlock>;
+	using iterator         = DBARForwardIterator<DBARBlock, false>;
+
+	/**
+	 * \brief Reverse iterator type.
+	 */
+	using reverse_iterator = DBARForwardIterator<DBARBlock, true>;
 
 	/**
 	 * \brief Constant iterator type.
 	 */
-	using const_iterator = const iterator;
+	using const_iterator         = const iterator;
+
+	/**
+	 * \brief Constant reverse iterator type.
+	 */
+	using const_reverse_iterator = const reverse_iterator;
 
 	/**
 	 * \brief Default constructor.
@@ -781,6 +879,13 @@ public:
 	const_iterator cend() const;
 	const_iterator begin() const;
 	const_iterator end() const;
+
+	reverse_iterator rbegin();
+	reverse_iterator rend();
+	const_reverse_iterator crbegin() const;
+	const_reverse_iterator crend() const;
+	const_reverse_iterator rbegin() const;
+	const_reverse_iterator rend() const;
 
 	/**
 	 * \brief Swap with another instance.

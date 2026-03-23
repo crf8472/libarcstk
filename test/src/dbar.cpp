@@ -69,6 +69,8 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 
 	const auto block = DBARBlock { dBAR, 1 };
 
+	REQUIRE ( block.size() == 15 );
+
 	SECTION ( "Can be forward-iterated correctly" )
 	{
 		using std::cbegin;
@@ -84,6 +86,57 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 		CHECK ( it->arcs()          == 0x475F57E9 );
 		CHECK ( it->confidence()    == 4 );
 		CHECK ( it->frame450_arcs() == 0x6F71EA01 );
+	}
+
+	SECTION ( "Can be reverse forward-iterated correctly" )
+	{
+		using std::crbegin;
+		using std::crend;
+
+		auto it { crbegin(block) };
+
+		CHECK ( it->arcs()          == 0x5FE8B032 );
+		CHECK ( it->confidence()    == 24 );
+		CHECK ( it->frame450_arcs() == 0x38179D44 );
+
+		++it;
+
+		CHECK ( it->arcs()          == 0x4A5C3872 );
+		CHECK ( it->confidence()    == 21 );
+		CHECK ( it->frame450_arcs() == 0x000353C6 );
+
+		++it;
+
+		for (auto i = DBARBlock::size_type { 2 }; i < block.size(); ++i)
+		{
+			it++;
+		}
+
+		CHECK ( it == crend(block) );
+	}
+
+	SECTION ( "Reverse end iterators work correctly" )
+	{
+		using std::crbegin;
+		using std::crend;
+
+		using std::rbegin;
+		using std::rend;
+
+		auto block_cend { crend(block)  };
+
+		CHECK ( rend(block) == block_cend );
+
+		auto block_pos  { crbegin(block) };
+
+		// Add complete size to crbegin
+		for (auto i = DBARBlock::size_type {0}; i < block.size(); ++i)
+		{
+			block_pos++;
+		}
+
+		CHECK ( block_pos == block_cend );
+		CHECK ( block_pos.index() == block_cend.index() );
 	}
 
 	SECTION ( "Can be accessed correctly by get_element()" )
@@ -453,6 +506,8 @@ TEST_CASE ( "DBAR", "[dbar]" )
 		} }
 	};
 
+	REQUIRE ( dBAR.size() == 2 );
+
 	SECTION ( "DBAR initializer_list constructor works correctly")
 	{
 		CHECK ( dBAR.size() == 2 );
@@ -502,6 +557,83 @@ TEST_CASE ( "DBAR", "[dbar]" )
 		CHECK ( it->triplet(0).frame450_arcs() == 0x1E46272D );
 
 		CHECK ( (*it).header().total_tracks() == 15 );
+	}
+
+	SECTION ( "End iterators work correctly" )
+	{
+		using std::cbegin;
+		using std::cend;
+
+		using std::begin;
+		using std::end;
+
+		auto dbar_cend { cend(dBAR)   };
+		auto dbar_pos  { cbegin(dBAR) };
+
+		CHECK ( end(dBAR) == dbar_cend );
+
+		// Add complete size to begin
+		for (auto i = DBAR::size_type {0}; i < dBAR.size(); ++i) { ++dbar_pos; }
+
+		CHECK ( dbar_pos == dbar_cend );
+	}
+
+	SECTION ( "Can be reverse forward-iterated correctly" )
+	{
+		using std::crbegin;
+		using std::crend;
+
+		auto it { crbegin(dBAR) };
+
+		CHECK ( it->header().total_tracks() == 15 );
+		CHECK ( it->header().id1() == 0x101B9178 );
+		CHECK ( it->header().id2() == 0xB14BE24E );
+		CHECK ( it->header().cddb_id() == 0x540C2D0A );
+
+		CHECK ( it->triplet(0).arcs() == 0x98B10E0F );
+		CHECK ( it->triplet(0).confidence() == 2 );
+		CHECK ( it->triplet(0).frame450_arcs() == 0x1E46272D );
+
+		CHECK ( (*it).header().total_tracks() == 15 );
+
+		++it;
+
+		CHECK ( it->header().total_tracks() == 15 );
+		CHECK ( it->header().id1() == 0x001B9178 );
+		CHECK ( it->header().id2() == 0x014BE24E );
+		CHECK ( it->header().cddb_id() == 0xB40D2D0F );
+
+		CHECK ( it->size() == 15 );
+		CHECK ( it->triplet(0).arcs() == 0xB89992E5 );
+		CHECK ( it->triplet(0).confidence() == 6 );
+		CHECK ( it->triplet(0).frame450_arcs() == 0xC89192E5 );
+
+		++it;
+
+		CHECK ( it == crend(dBAR) );
+	}
+
+	SECTION ( "Reverse end iterators work correctly" )
+	{
+		using std::crbegin;
+		using std::crend;
+
+		using std::rbegin;
+		using std::rend;
+
+		auto dbar_cend { crend(dBAR)  };
+
+		CHECK ( rend(dBAR) == dbar_cend );
+
+		auto dbar_pos  { crbegin(dBAR) };
+
+		// Add complete size to crbegin
+		for (auto i = DBAR::size_type {0}; i < dBAR.size(); ++i)
+		{
+			dbar_pos++;
+		}
+
+		CHECK ( dbar_pos == dbar_cend );
 	}
 
 	SECTION ( "Range-based for loop on initalizer_list constructed DBAR works correctly" )

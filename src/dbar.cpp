@@ -20,6 +20,7 @@
 #include <filesystem>       // for file_size
 #include <fstream>          // for basic_ifstream
 #include <initializer_list> // for initializer_list
+#include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr, make_unique
 #include <numeric>			// for accumulate
 #include <set>				// for set
@@ -648,6 +649,45 @@ DBARBlock::const_iterator DBARBlock::end() const
 }
 
 
+DBARBlock::reverse_iterator DBARBlock::rbegin()
+{
+	return DBARBlock::reverse_iterator { *this, dBAR_->size(idx_) - 1 };
+}
+
+
+DBARBlock::reverse_iterator DBARBlock::rend()
+{
+	return DBARBlock::reverse_iterator { *this,
+		std::numeric_limits<DBAR::size_type>::max() };
+}
+
+
+DBARBlock::const_reverse_iterator DBARBlock::crbegin() const
+{
+	return DBARBlock::const_reverse_iterator { *this, dBAR_->size(idx_) - 1 };
+}
+
+
+DBARBlock::const_reverse_iterator DBARBlock::crend() const
+{
+	return DBARBlock::const_reverse_iterator { *this,
+		std::numeric_limits<DBAR::size_type>::max() };
+}
+
+
+DBARBlock::const_reverse_iterator DBARBlock::rbegin() const
+{
+	return this->crbegin();
+}
+
+
+DBARBlock::const_reverse_iterator DBARBlock::rend() const
+{
+
+	return this->crend();
+}
+
+
 DBARBlock::size_type DBARBlock::index() const noexcept
 {
 	return idx_;
@@ -1035,6 +1075,44 @@ DBAR::const_iterator DBAR::begin() const
 DBAR::const_iterator DBAR::end() const
 {
 	return this->cend();
+}
+
+
+DBAR::reverse_iterator DBAR::rbegin()
+{
+	return DBAR::reverse_iterator { *this, impl_->size() - 1 };
+}
+
+
+DBAR::reverse_iterator DBAR::rend()
+{
+	return DBAR::reverse_iterator { *this,
+		std::numeric_limits<DBAR::size_type>::max() };
+}
+
+
+DBAR::const_reverse_iterator DBAR::crbegin() const
+{
+	return DBAR::const_reverse_iterator { *this, impl_->size() - 1 };
+}
+
+
+DBAR::const_reverse_iterator DBAR::crend() const
+{
+	return DBAR::const_reverse_iterator { *this,
+		std::numeric_limits<DBAR::size_type>::max() };
+}
+
+
+DBAR::const_reverse_iterator DBAR::rbegin() const
+{
+	return this->crbegin();
+}
+
+
+DBAR::const_reverse_iterator DBAR::rend() const
+{
+	return this->crend();
 }
 
 
