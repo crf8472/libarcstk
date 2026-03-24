@@ -588,21 +588,21 @@ public:
 	/**
 	 * \brief The value the iterator counts.
 	 *
-	 * \return The fixed value whose members are enumerated by the iterator.
+	 * \return The value that is counted when moving the iterator.
 	 */
 	ChecksumSource::size_type counter() const;
 
 	/**
-	 * \brief The value fixed, whose members are enumerated by counter().
+	 * \brief The fixed value whose members are enumerated by counter().
 	 *
-	 * \return The value that is counted when moving the iterator.
+	 * \return The fixed value whose members are enumerated by counter()
 	 */
 	ChecksumSource::size_type current() const;
 
-	reference operator * () const; // dereferencing
-	pointer operator -> () const; // dereferencing
-	SourceIterator& operator ++ (); // prefix increment
-	SourceIterator operator ++ (int); // postfix increment
+	reference       operator * ()  const;
+	pointer         operator -> () const;
+	SourceIterator& operator ++ ();
+	SourceIterator  operator ++ (int);
 
 	friend bool operator == (const SourceIterator& lhs, const SourceIterator&
 			rhs)
@@ -612,6 +612,7 @@ public:
 			&& lhs.counter_ == rhs.counter_;
 	}
 
+	// TODO Implement by policies
 	friend bool operator != (const SourceIterator& lhs,
 			const SourceIterator& rhs)
 	{
