@@ -1574,24 +1574,6 @@ byte_position_t StreamParseException::block_byte_position() const noexcept
 }
 
 
-// is_valid_arcs()
-
-
-bool is_valid_arcs(const uint32_t value)
-{
-	return value > details::UNPARSED_ARCS;
-}
-
-
-// is_valid_confidence()
-
-
-bool is_valid_confidence(const unsigned value)
-{
-	return value > details::UNPARSED_CONFIDENCE;
-}
-
-
 // parse_stream()
 
 

@@ -46,38 +46,42 @@ class Checksum;
  *
  * A DBAR object is a parsed representation of the binary data contained in the
  * response to an AccurateRip request. It is forward-iterable and provides
- * access to each syntactic element represented in the original input.
+ * access to each numerical element represented in the original input.
  *
  * Intuitively, a DBAR object represents the ARCSs provided by AccurateRip for
  * the ARId specified in the related request. It contains the reference ARCSs
- * for all albums with this ARId.
+ * for all albums with this ARId known to AccurateRip.
  *
  * A DBAR is a sequence of \link DBARBlock DBARBlocks\endlink where each
  * DBARBlock consists of a single DBARBlockHeader and a subsequent sequence of
  * \link DBARTriplet DBARTriplets\endlink.
  *
- * A DBARBlock represents a single sequence of reference ARCSs associated with
- * an ARId. A DBARBlockHeader is a fine-granular representation of the ARId the
- * DBARBlock relates to. A DBARTriplet contains the three values each block
- * contains once for each track and thus represents a track. The DBAR instance
- * therefore semantically represents a sequence of Checksum sequences all
- * related to an ARId.
+ * A DBAR instance provides access to all ARIds and ARCSs contained by their
+ * respective indices. The sequence of blocks is iterable. Each DBARBlock is
+ * also iterable.
+ *
+ * A DBARBlock represents a single sequence of triplets of values associated
+ * with the requested ARId. A DBARBlockHeader is a fine-granular representation
+ * of the ARId the DBARBlock relates to. A DBARTriplet contains the three values
+ * each block contains once for each track. A DBARTriplet thus represents a
+ * track. The DBAR instance therefore semantically represents a sequence of
+ * Checksum sequences all related to an ARId.
  *
  * A DBARBlock object is called \e valid iff the total number of
  * \link DBARTriplet DBARTriplets\endlink it contains matches the track count
  * encoded in the ARId represented by its DBARBlockHeader.
  *
  * A DBAR object is \e valid if each of the DBARBlocks it contains is valid.
- * This property can be checked by function is_valid(). DBAR objects created by
- * make_dbar() without exception are guaranteed to be valid.
+ * This property can be checked by function \link is_valid(const DBAR&)
+ * is_valid()\endlink. DBAR objects created by make_dbar() without exception are
+ * guaranteed to be valid.
  *
- * A DBAR object is called \e regular iff it is valid and the ARId represented
- * by the DBARBlockHeader is identical for each DBARBlock within the DBAR
- * instance. This property can be checked by function is_regular().
+ * A DBAR object is called \e uniform iff the ARId represented by the
+ * DBARBlockHeaders is the same for each DBARBlock within the DBAR instance.
+ * This property can be checked by function is_uniform().
  *
- * A DBAR instance provides access to all ARIds and ARCSs contained by their
- * respective indices. The sequence of blocks is iterable. Each DBARBlock is
- * also iterable.
+ * A DBAR object is called \e regular iff it is valid and uniform. This property
+ * can be checked by function is_regular().
  *
  * Functions parse_stream() and parse_file() can parse a byte stream and provide
  * each single value.
@@ -95,15 +99,29 @@ class Checksum;
  *
  * To handle the parse events an instance of an implementation of ParseHandler
  * must be provided. A ParseHandler implements each of those parse events.
- * To handle also possible parse errors, an instance of an implementation of
- * ParseErrorHandler can optionally be provided. A ParseErrorHandler implements
- * function ParseErrorHandler::on_error(). If no ParseErrorHandler is provided,
- * a StreamParseException is thrown on any parse error. A StreamParseException
- * contains every positional information about the parse error.
+ *
+ * A StreamParseException contains every positional information about a parse
+ * error. When a parse error occurrs, a StreamParseException is thrown by
+ * default.
+ *
+ * Since we are parsing binary data values, there is no level of syntactic
+ * validity. A StreamParseException will therefore indicate that the input has
+ * not the expected length or that an I/O problem occurred.
+ *
+ * This behaviour can be changed by providing an instance of ParseErrorHandler
+ * that implements member function on_error().
  *
  * A DBARBuilder can be passed to the parse_*() functions as a ParseHandler that
- * constructs the DBAR object from the entire input stream. Alternatively,
- * custom implementations of ParseHandler can be used.
+ * constructs the DBAR object from the entire input stream. If meta information
+ * about validity, uniformity and regularity of the resulting DBAR object is of
+ * interest, a CheckingDBARBuilder can be passed. Alternatively, custom
+ * implementations of ParseHandler can be used.
+ *
+ * Function validated_dbar() is a validating variant of make_dbar(). It returns
+ * a tuple whose first element is the actual dbar. The second element is a flag
+ * indicating whether the DBAR is valid. The third element is a flag indicating
+ * whether the DBAR is uniform. If the second and the third element both are
+ * TRUE, the resulting DBAR is regular.
  *
  * \note
  * There is no way to inform the client whether the actual ARCS in an ARTriplet
@@ -336,6 +354,7 @@ public:
 
 /**
  * \internal
+ *
  * \brief Apply an index on an indexed container.
  */
 template<typename T>
@@ -348,6 +367,7 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
 
 /**
  * \internal
+ *
  * \brief Increment an element.
  *
  * May be either increasing or decreasing increment.
@@ -388,6 +408,7 @@ public:
 
 /**
  * \internal
+ *
  * \brief Forward iterator for DBAR related containers.
  *
  * \tparam T Type of object we iterate over, must define size_type
@@ -1356,25 +1377,6 @@ public:
 	byte_position_t block_byte_position() const noexcept;
 };
 
-
-/**
- * \brief Check a parsed value whether it is a valid ARCS (also frame 450 ARCS).
- *
- * \param[in] value Value to check for validity
- *
- * \return TRUE iff value is valid i.e. was parsed correctly
- */
-bool is_valid_arcs(const uint32_t value);
-
-/**
- * \brief Check a parsed value whether it is a valid confidence.
- *
- * \param[in] value Value to check for validity
- *
- * \return TRUE iff value is valid i.e. was parsed correctly
- */
-bool is_valid_confidence(const unsigned value);
-
 /**
  * \brief Parse an input stream.
  *
@@ -1421,8 +1423,8 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
 /**
  * \brief Read an AccurateRip response file to a DBAR object.
  *
- * A StreamReadException is thrown if the input has not the expected length.
- * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ * A StreamReadException is thrown if a parse error occurrs. The resulting DBAR
+ * is guaranteed to be valid if no exception occurrs.
  *
  * \param[in] filename Name of the file to parse
  *
@@ -1440,14 +1442,14 @@ DBAR make_dbar(const std::string& filename);
  * DBAR is uniform. The DBAR is regular iff the second and the third value are
  * TRUE.
  *
- * A StreamReadException is thrown if the input has not the expected length.
- * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ * A StreamReadException is thrown if a parse error occurrs. The resulting DBAR
+ * is guaranteed to be valid if no exception occurrs.
  *
  * \param[in] filename Name of the file to parse
  *
  * \throw StreamReadException If reading of the file fails
  *
- * \return DBAR object representing the file content
+ * \return Tuple. 0: DBAR object, 1: validity flag, 2: uniformity flag
  */
 std::tuple<DBAR,bool,bool> validated_dbar(const std::string& filename);
 
