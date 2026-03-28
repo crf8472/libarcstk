@@ -367,8 +367,6 @@ std::vector<AudioSize> offsets(const ToCData& data)
 
 std::vector<AudioSize> lengths(const ToCData& data)
 {
-	const auto total_tracks { static_cast<unsigned>(toc::total_tracks(data)) };
-
 	auto lengths { std::vector<AudioSize>{} };
 
 	auto curr_offset = int32_t { 0 };
@@ -377,6 +375,7 @@ std::vector<AudioSize> lengths(const ToCData& data)
 	auto track = ToCData::size_type { 1 }; // track number
 	auto c     = ToCData::size_type { 0 }; // count comparisons
 
+	const auto total_tracks { toc::total_tracks(data) };
 	while (c < total_tracks)
 	{
 		prev_offset = data[track].frames();
@@ -395,7 +394,7 @@ std::vector<AudioSize> lengths(const ToCData& data)
 }
 
 
-int total_tracks(const ToCData& data)
+unsigned total_tracks(const ToCData& data)
 {
 	return data.size() - 1;
 }
@@ -465,7 +464,7 @@ ToC::Impl& ToC::Impl::operator = (Impl&& rhs) noexcept
 ToC::Impl::~Impl() noexcept = default;
 
 
-int ToC::Impl::total_tracks() const noexcept
+unsigned ToC::Impl::total_tracks() const noexcept
 {
 	return toc::total_tracks(toc_);
 }
@@ -586,7 +585,7 @@ ToC& ToC::operator = (ToC&& rhs) noexcept
 ToC::~ToC() noexcept = default;
 
 
-int ToC::total_tracks() const noexcept
+unsigned ToC::total_tracks() const noexcept
 {
 	return impl_->total_tracks();
 }
@@ -674,6 +673,16 @@ ToC validated_toc(const int32_t leadout,
 {
 	const auto toc_data { toc::construct(leadout, offsets) };
 	toc::validate(toc_data);
+
+	if (filenames.size() != toc::total_tracks(toc_data))
+	{
+		auto ss = std::ostringstream {};
+		ss << "Passed number of filenames " << filenames.size()
+			<< " is not equal to total number of tracks " <<
+			toc::total_tracks(toc_data);
+		details::validate::throw_on_invalid_tocdata(ss.str());
+	}
+
 	return ToC { toc_data, filenames };
 }
 

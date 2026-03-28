@@ -147,7 +147,7 @@ public:
 
 	~Impl() noexcept;
 
-	int total_tracks() const noexcept;
+	unsigned total_tracks() const noexcept;
 
 	void set_leadout(const AudioSize leadout) noexcept;
 	AudioSize leadout() const noexcept;

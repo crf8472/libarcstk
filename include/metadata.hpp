@@ -659,7 +659,7 @@ std::vector<AudioSize> lengths(const ToCData& data);
  *
  * \return Total tracks of a ToC object
  */
-int total_tracks(const ToCData& data);
+unsigned total_tracks(const ToCData& data);
 
 /**
  * \brief TRUE iff non-zero leadout and non-empty sequence of offsets are
@@ -725,7 +725,7 @@ public:
 	 *
 	 * \return Total tracks
 	 */
-	int total_tracks() const noexcept;
+	unsigned total_tracks() const noexcept;
 
 	/**
 	 * \brief Leadout LBA frame of this ToC.
