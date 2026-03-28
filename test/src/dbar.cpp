@@ -13,10 +13,71 @@
 #include "dbar_details.hpp"       // for parse_dbar_stream
 #endif
 
-#include <fstream>                // for ifstream
-#include <stdexcept>              // for runtime_error
 #include <string>                 // for string
 #include <utility>                // for move
+
+
+TEST_CASE ( "DBAR Type Traits", "[dbar]" )
+{
+	SECTION ( "IS non-abstract final class" )
+	{
+		CHECK ( std::is_class_v<arcstk::DBAR> );
+		CHECK ( ! std::is_abstract_v<arcstk::DBAR> );
+		CHECK ( std::is_final_v<arcstk::DBAR> );
+	}
+
+	SECTION ( "IS default constructable" )
+	{
+		// default constructability is required for IteratorElement
+		CHECK ( std::is_default_constructible_v<arcstk::DBAR>);
+	}
+
+	SECTION ( "IS copy-constructable" )
+	{
+		CHECK ( std::is_copy_constructible_v<arcstk::DBAR>);
+		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::DBAR>);
+		//CHECK ( std::is_nothrow_copy_constructible_v<arcstk::DBAR>);
+	}
+
+	SECTION ( "IS (nothrow) move-constructable")
+	{
+		CHECK ( std::is_move_constructible_v<arcstk::DBAR>);
+		CHECK ( std::is_nothrow_move_constructible_v<arcstk::DBAR>);
+		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::DBAR>);
+	}
+
+	SECTION ( "IS copy-assignable")
+	{
+		CHECK ( std::is_copy_assignable_v<arcstk::DBAR>);
+		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::DBAR>);
+		//CHECK ( std::is_nothrow_copy_assignable_v<arcstk::DBAR>);
+	}
+
+	SECTION ( "IS (nothrow) move-assignable")
+	{
+		CHECK ( std::is_move_assignable_v<arcstk::DBAR>);
+		CHECK ( std::is_nothrow_move_assignable_v<arcstk::DBAR>);
+		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::DBAR>);
+	}
+
+	SECTION ("IS destructible")
+	{
+		CHECK ( std::is_destructible_v<arcstk::DBAR> );
+		//CHECK ( std::is_trivially_destructible_v<arcstk::DBAR> );
+		//CHECK ( ! std::has_virtual_destructor_v<arcstk::DBAR> );
+	}
+
+	SECTION ("IS (nothrow) swappable")
+	{
+		CHECK ( std::is_swappable_v<arcstk::DBAR> );
+		CHECK ( std::is_nothrow_swappable_v<arcstk::DBAR> );
+	}
+
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::DBAR> );
+	}
+}
 
 
 TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
