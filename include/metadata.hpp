@@ -39,8 +39,9 @@ inline namespace v_1_0_0
  * \details
  *
  * A ToC is the table of content information from a compact disc. It contains
- * the track offsets and optionally the leadout of the compact disc. ToCs that
- * contain not only the offsets but also the leadout are
+ * the track offsets and optionally the leadout of the compact disc. A ToC may
+ * or may not contain filenames corresponding to the audio files. ToCs that
+ * contain not only the offsets but also the leadout are called
  * @link arcstk::ToC::complete() complete @endlink.
  *
  * ToCData is the data part of a ToC: an aggregate that contains the
@@ -48,16 +49,16 @@ inline namespace v_1_0_0
  * the respective tracks. Hence, ToCData contains all and only the data that is
  * required to calculate AccurateRip checksums.
  *
+ * An InvalidMetadataException indicates that no valid ToC can be constructed
+ * from the input provided.
+ *
  * AudioSize is a representation of an amount of audio information that can be
  * evaluated as frames, samples or bytes. Passing AudioSize objects helps to
  * avoid accidentally calculating with the wrong unit, e.g. w/ samples when
  * frames are required.
  *
- * CDDA provides a set of cdda related constants that are used on validating and
- * parsing audio information.
- *
- * An InvalidMetadataException indicates that no valid ToC can be constructed
- * from the input provided.
+ * CDDA provides a set of constants related to the CDDA standard. They are used
+ * on validating and parsing audio information.
  *
  * @{
  */
@@ -478,6 +479,13 @@ public:
 	 */
 	bool equals(const AudioSize& rhs) const noexcept;
 
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const;
+
 
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 	{
@@ -502,18 +510,9 @@ public:
 	 */
 	friend std::string to_string(const AudioSize& s)
 	{
-		using std::to_string;
-		return to_string(s.frames()) + " LBA frames";
+		return s.to_string();
 	}
 };
-
-
-/**
- * \brief Empty AudioSize.
- *
- * Not necessary to create it again in your code.
- */
-extern const AudioSize EmptyAudioSize;
 
 
 /**
@@ -823,8 +822,7 @@ public:
  *
  * \return ToC created from leadout, offsets and filenames
  */
-std::unique_ptr<ToC> make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets,
+ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -835,8 +833,7 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
  *
  * \return ToC created from leadout and offsets
  */
-std::unique_ptr<ToC> make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets);
+ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
 
 /**
  * \brief Create a ToC from offsets and filenames.
@@ -846,7 +843,7 @@ std::unique_ptr<ToC> make_toc(const int32_t leadout,
  *
  * \return ToC created from offsets and filenames
  */
-std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
+ToC make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -856,7 +853,29 @@ std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
  *
  * \return ToC created from offsets.
  */
-std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets);
+ToC make_toc(const std::vector<int32_t>& offsets);
+
+/**
+ * \brief Create a validated ToC from leadout, offsets and filenames.
+ *
+ * \param[in] leadout   Leadout frame
+ * \param[in] offsets   Offset frames
+ * \param[in] filenames Audio filenames
+ *
+ * \return ToC created from leadout, offsets and filenames
+ */
+ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
+		const std::vector<std::string>& filenames);
+
+/**
+ * \brief Create a validated ToC from leadout and offsets.
+ *
+ * \param[in] leadout   Leadout frame
+ * \param[in] offsets   Offset frames
+ *
+ * \return ToC created from leadout and offsets
+ */
+ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
 
 /**
  * \brief Reports invalid metadata for constructing a ToC.

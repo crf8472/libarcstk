@@ -88,7 +88,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 	const auto size      { AudioSize { 253038, UNIT::FRAMES } };
 
 	auto calculation     { Calculation(Context::ALBUM,
-			std::make_unique<V1andV2>(), size, toc->offsets()) };
+			std::make_unique<V1andV2>(), size, toc.offsets()) };
 
 	const auto algorithm { calculation.algorithm() };
 
@@ -236,7 +236,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		const auto algo_types = algorithmV1V2->types();
 
-		auto calc { make_calculation(std::move(algorithmV1V2), *toc_1) };
+		auto calc { make_calculation(std::move(algorithmV1V2), toc_1) };
 
 		CHECK ( calc->samples_expected()  == 253038 * 588 );
 		CHECK ( calc->samples_processed() == 0 );
@@ -264,7 +264,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		auto algorithmV1V2 { std::make_unique<V1andV2>() };
 
-		auto c { make_calculation(std::move(algorithmV1V2), *toc_1) };
+		auto c { make_calculation(std::move(algorithmV1V2), toc_1) };
 
 		CHECK ( c->types() ==
 				std::unordered_set<type>{ type::ARCS1, type::ARCS2 } );

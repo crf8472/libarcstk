@@ -198,7 +198,7 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
 
 
 AudioSize::AudioSize() noexcept
-	: AudioSize { EmptyAudioSize }
+	: AudioSize { 0, UNIT::BYTES }
 {
 	// empty
 }
@@ -237,13 +237,15 @@ void AudioSize::set_samples(const int32_t samples) noexcept
 
 int32_t AudioSize::bytes() const noexcept
 {
-	return convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
+	//return convert<UNIT::BYTES, UNIT::BYTES>(total_pcm_bytes_);
+	return total_pcm_bytes_;
 }
 
 
 void AudioSize::set_bytes(const int32_t bytes) noexcept
 {
-	total_pcm_bytes_ = convert<UNIT::BYTES, UNIT::BYTES>(bytes);
+	//total_pcm_bytes_ = convert<UNIT::BYTES, UNIT::BYTES>(bytes);
+	total_pcm_bytes_ = bytes;
 }
 
 
@@ -273,7 +275,12 @@ bool AudioSize::equals(const AudioSize& rhs) const noexcept
 }
 
 
-extern const AudioSize EmptyAudioSize { 0, UNIT::BYTES };
+std::string AudioSize::to_string() const
+{
+	using std::to_string;
+
+	return to_string(frames()) + " LBA frames";
+}
 
 
 // ToCData
@@ -630,31 +637,53 @@ bool ToC::equals(const ToC& rhs) const noexcept
 // make_toc
 
 
-std::unique_ptr<ToC> make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets,
+ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames)
 {
-	return std::make_unique<ToC>(toc::construct(leadout, offsets), filenames);
+	//return std::make_unique<ToC>(toc::construct(leadout, offsets), filenames);
+	return ToC { toc::construct(leadout, offsets), filenames };
 }
 
 
-std::unique_ptr<ToC> make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets)
+ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets)
 {
-	return std::make_unique<ToC>(toc::construct(leadout, offsets));
+	//return std::make_unique<ToC>(toc::construct(leadout, offsets));
+	return ToC { toc::construct(leadout, offsets) };
 }
 
 
-std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets,
+ToC make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames)
 {
 	return make_toc(0, offsets, filenames);
 }
 
 
-std::unique_ptr<ToC> make_toc(const std::vector<int32_t>& offsets)
+ToC make_toc(const std::vector<int32_t>& offsets)
 {
 	return make_toc(0, offsets);
+}
+
+
+// validated_toc
+
+
+ToC validated_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets,
+		const std::vector<std::string>& filenames)
+{
+	const auto toc_data { toc::construct(leadout, offsets) };
+	toc::validate(toc_data);
+	return ToC { toc_data, filenames };
+}
+
+
+ToC validated_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets)
+{
+	const auto toc_data { toc::construct(leadout, offsets) };
+	toc::validate(toc_data);
+	return ToC { toc_data };
 }
 
 

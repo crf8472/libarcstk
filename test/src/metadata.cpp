@@ -254,12 +254,12 @@ TEST_CASE ( "ToC", "[toc] [meta]" )
 
 	SECTION ( "Returns correct leadout from ToC" )
 	{
-		CHECK ( toc->leadout().frames() == 253038 );
+		CHECK ( toc.leadout().frames() == 253038 );
 	}
 
 	SECTION ( "Returns correct offsets from ToC" )
 	{
-		const auto offsets = toc->offsets();
+		const auto offsets = toc.offsets();
 
 		CHECK ( offsets.size() == 15 );
 
@@ -282,7 +282,7 @@ TEST_CASE ( "ToC", "[toc] [meta]" )
 
 	SECTION ( "Returns correct filenames from ToC" )
 	{
-		const auto filenames = toc->filenames();
+		const auto filenames = toc.filenames();
 
 		CHECK ( filenames.size() == 1 );
 
@@ -291,7 +291,7 @@ TEST_CASE ( "ToC", "[toc] [meta]" )
 
 	SECTION ( "Equality operator is correct" )
 	{
-		CHECK ( *toc == *toc2 );
+		CHECK ( toc == toc2 );
 	}
 }
 
