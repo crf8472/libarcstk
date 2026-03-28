@@ -131,6 +131,8 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 /**
  * \brief Worker method for parsing a dBAR file.
  *
+ * Implemented by using file_content().
+ *
  * \param[in] filename The file to be parsed
  * \param[in] p        Parse handler
  * \param[in] e        Error handler
@@ -355,8 +357,20 @@ public:
 	void add_triplet(const uint32_t arcs, const uint8_t confidence,
 			const uint32_t frame450_arcs);
 
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
 	void swap(Impl& rhs) noexcept;
 
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
 	bool equals(const Impl& rhs) const noexcept;
 
 private:
