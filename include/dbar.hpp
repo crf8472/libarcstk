@@ -58,7 +58,8 @@ class Checksum;
  *
  * A DBAR instance provides access to all ARIds and ARCSs contained by their
  * respective indices. The sequence of blocks is iterable. Each DBARBlock is
- * also iterable.
+ * also iterable. To access a single element of a DBAR or DBARBlock instance,
+ * also function get_element() can be used.
  *
  * A DBARBlock represents a single sequence of triplets of values associated
  * with the requested ARId. A DBARBlockHeader is a fine-granular representation
@@ -353,9 +354,9 @@ public:
 
 
 /**
- * \internal
- *
  * \brief Apply an index on an indexed container.
+ *
+ * \tparam T The container type to get an element from
  */
 template<typename T>
 auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
@@ -363,6 +364,10 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
 {
 	return nullptr; // Default implementation does nothing
 };
+
+
+namespace details
+{
 
 
 /**
@@ -543,6 +548,8 @@ public:
 	}
 };
 
+} // namespace details
+
 
 class DBARBlock;
 
@@ -577,12 +584,12 @@ public:
 	/**
 	 * \brief Iterator type.
 	 */
-	using iterator         = DBARForwardIterator<DBAR, false>;
+	using iterator         = details::DBARForwardIterator<DBAR, false>;
 
 	/**
 	 * \brief Reverse iterator type.
 	 */
-	using reverse_iterator = DBARForwardIterator<DBAR, true>;
+	using reverse_iterator = details::DBARForwardIterator<DBAR, true>;
 
 	/**
 	 * \brief Constant iterator type.
@@ -816,12 +823,12 @@ public:
 	/**
 	 * \brief Iterator type.
 	 */
-	using iterator         = DBARForwardIterator<DBARBlock, false>;
+	using iterator         = details::DBARForwardIterator<DBARBlock, false>;
 
 	/**
 	 * \brief Reverse iterator type.
 	 */
-	using reverse_iterator = DBARForwardIterator<DBARBlock, true>;
+	using reverse_iterator = details::DBARForwardIterator<DBARBlock, true>;
 
 	/**
 	 * \brief Constant iterator type.

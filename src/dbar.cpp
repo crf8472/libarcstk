@@ -430,7 +430,7 @@ bool is_regular(const DBAR& dbar)
 }
 
 
-// specialization for DBAR
+// specialization of get_element() for DBAR
 template<>
 auto get_element(const DBAR& object, const typename DBAR::size_type i)
 	-> DBAR::value_type
@@ -439,7 +439,7 @@ auto get_element(const DBAR& object, const typename DBAR::size_type i)
 };
 
 
-// specialization for DBARBlock
+// specialization of get_element() for DBARBlock
 template<>
 auto get_element(const DBARBlock& object, const typename DBARBlock::size_type i)
 	-> DBARBlock::value_type
