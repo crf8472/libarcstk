@@ -61,6 +61,10 @@ class Checksum;
  * also iterable. To access a single element of a DBAR or DBARBlock instance,
  * also function get_element() can be used.
  *
+ * A DBAR is \link DBAR::empty() empty()\endlink when constructed with its
+ * default constructor. Empty DBARs will turn into FALSE when checked via
+ * operator bool() while every non-empty DBAR will turn into TRUE.
+ *
  * A DBARBlock represents a single sequence of triplets of values associated
  * with the requested ARId. A DBARBlockHeader is a fine-granular representation
  * of the ARId the DBARBlock relates to. A DBARTriplet contains the three values
@@ -656,13 +660,6 @@ public:
 	size_type size(const size_type block_idx) const;
 
 	/**
-	 * \brief Returns TRUE iff DBAR is empty, otherwise FALSE.
-	 *
-	 * \return TRUE iff DBAR is empty, otherwise FALSE.
-	 */
-	bool empty() const noexcept;
-
-	/**
 	 * \brief ARCS value of a track.
 	 *
 	 * \param[in] block_idx Specified block index
@@ -752,6 +749,20 @@ public:
 	const_reverse_iterator crend() const;
 	const_reverse_iterator rbegin() const;
 	const_reverse_iterator rend() const;
+
+	/**
+	 * \brief Returns TRUE iff DBAR is empty, otherwise FALSE.
+	 *
+	 * \return TRUE iff DBAR is empty, otherwise FALSE.
+	 */
+	bool empty() const noexcept;
+
+	/**
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 */
+	explicit operator bool() const noexcept;
 
 	/**
 	 * \brief Swap with another instance.

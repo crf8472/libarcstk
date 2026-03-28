@@ -990,12 +990,6 @@ DBAR::size_type DBAR::size(const DBAR::size_type block_idx) const
 }
 
 
-bool DBAR::empty() const noexcept
-{
-	return impl_->size() == 0;
-}
-
-
 const uint32_t& DBAR::arcs_value(const DBAR::size_type block,
 		const DBAR::size_type track) const
 {
@@ -1113,6 +1107,18 @@ DBAR::const_reverse_iterator DBAR::rbegin() const
 DBAR::const_reverse_iterator DBAR::rend() const
 {
 	return this->crend();
+}
+
+
+bool DBAR::empty() const noexcept
+{
+	return impl_->size() == 0;
+}
+
+
+DBAR::operator bool() const noexcept
+{
+	return !empty();
 }
 
 
