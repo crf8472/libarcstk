@@ -225,6 +225,68 @@ TEST_CASE ( "ToCData", "[tocdata] [meta]" )
 }
 
 
+TEST_CASE ( "ToC Type Traits", "[toc] [meta]" )
+{
+	SECTION ("IS non-abstract final class")
+	{
+		CHECK ( std::is_class_v<arcstk::ToC> );
+		CHECK ( ! std::is_abstract_v<arcstk::ToC> );
+		CHECK ( std::is_final_v<arcstk::ToC> );
+	}
+
+	SECTION ( "is NOT default constructable")
+	{
+		CHECK ( ! std::is_default_constructible_v<arcstk::ToC>);
+	}
+
+	SECTION ( "IS copy-constructable")
+	{
+		CHECK ( std::is_copy_constructible_v<arcstk::ToC>);
+		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::ToC>);
+		//CHECK ( std::is_nothrow_copy_constructible_v<arcstk::ToC>);
+	}
+
+	SECTION ( "IS (nothrow) move-constructable")
+	{
+		CHECK ( std::is_move_constructible_v<arcstk::ToC>);
+		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ToC>);
+		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::ToC>);
+	}
+
+	SECTION ( "IS copy-assignable")
+	{
+		CHECK ( std::is_copy_assignable_v<arcstk::ToC>);
+		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::ToC>);
+		//CHECK ( std::is_nothrow_copy_assignable_v<arcstk::ToC>);
+	}
+
+	SECTION ( "IS (nothrow) move-assignable")
+	{
+		CHECK ( std::is_move_assignable_v<arcstk::ToC>);
+		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ToC>);
+		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::ToC>);
+	}
+
+	SECTION ("IS destructible")
+	{
+		CHECK ( std::is_destructible_v<arcstk::ToC> );
+		//CHECK ( std::is_trivially_destructible_v<arcstk::ToC> );
+		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ToC> );
+	}
+
+	SECTION ("IS (nothrow) swappable")
+	{
+		CHECK ( std::is_swappable_v<arcstk::ToC> );
+		CHECK ( std::is_nothrow_swappable_v<arcstk::ToC> );
+	}
+
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::ToC> );
+	}
+}
+
+
 TEST_CASE ( "ToC", "[toc] [meta]" )
 {
 	using arcstk::AudioSize;
@@ -292,6 +354,68 @@ TEST_CASE ( "ToC", "[toc] [meta]" )
 	SECTION ( "Equality operator is correct" )
 	{
 		CHECK ( toc == toc2 );
+	}
+}
+
+
+TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
+{
+	SECTION ("IS non-abstract final class")
+	{
+		CHECK ( std::is_class_v<arcstk::AudioSize> );
+		CHECK ( ! std::is_abstract_v<arcstk::AudioSize> );
+		CHECK ( std::is_final_v<arcstk::AudioSize> );
+	}
+
+	SECTION ( "IS default constructable")
+	{
+		CHECK ( std::is_default_constructible_v<arcstk::AudioSize>);
+	}
+
+	SECTION ( "IS (nothrow) copy-constructable")
+	{
+		CHECK ( std::is_copy_constructible_v<arcstk::AudioSize>);
+		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::AudioSize>);
+		CHECK ( std::is_nothrow_copy_constructible_v<arcstk::AudioSize>);
+	}
+
+	SECTION ( "IS (nothrow) move-constructable")
+	{
+		CHECK ( std::is_move_constructible_v<arcstk::AudioSize>);
+		CHECK ( std::is_nothrow_move_constructible_v<arcstk::AudioSize>);
+		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::AudioSize>);
+	}
+
+	SECTION ( "IS (nothrow) copy-assignable")
+	{
+		CHECK ( std::is_copy_assignable_v<arcstk::AudioSize>);
+		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::AudioSize>);
+		CHECK ( std::is_nothrow_copy_assignable_v<arcstk::AudioSize>);
+	}
+
+	SECTION ( "IS (nothrow) move-assignable")
+	{
+		CHECK ( std::is_move_assignable_v<arcstk::AudioSize>);
+		CHECK ( std::is_nothrow_move_assignable_v<arcstk::AudioSize>);
+		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::AudioSize>);
+	}
+
+	SECTION ("IS destructible")
+	{
+		CHECK ( std::is_destructible_v<arcstk::AudioSize> );
+		//CHECK ( std::is_trivially_destructible_v<arcstk::AudioSize> );
+		//CHECK ( ! std::has_virtual_destructor_v<arcstk::AudioSize> );
+	}
+
+	SECTION ("IS (nothrow) swappable")
+	{
+		CHECK ( std::is_swappable_v<arcstk::AudioSize> );
+		CHECK ( std::is_nothrow_swappable_v<arcstk::AudioSize> );
+	}
+
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::AudioSize> );
 	}
 }
 
@@ -390,21 +514,9 @@ TEST_CASE ( "AudioSize", "[audiosize] [meta]" )
 		CHECK ( different_size.bytes() == 34873104 );
 	}
 
-	SECTION ("Copy construction is as declared")
-	{
-		CHECK ( std::is_copy_constructible<AudioSize>::value );
-
-		CHECK ( std::is_nothrow_copy_constructible<AudioSize>::value );
-	}
-
 	// TODO Copy construction correct?
 
-	SECTION ("Move construction is as declared")
-	{
-		CHECK ( std::is_move_constructible<AudioSize>::value );
-
-		CHECK ( std::is_nothrow_move_constructible<AudioSize>::value );
-	}
+	// TODO Move construction correct?
 
 	SECTION ( "Assignment of frames is correct" )
 	{
@@ -451,7 +563,20 @@ TEST_CASE ( "AudioSize", "[audiosize] [meta]" )
 		CHECK ( s.bytes()   == 595145376 );
 	}
 
-	// TODO Move construction correct?
+	SECTION ("Swap operation is correct")
+	{
+		using std::swap;
+
+		swap(size2, different_size);
+
+		CHECK (  14827 == size2.frames() );
+		CHECK ( 253038 == different_size.frames() );
+
+		swap(empty_size, size3);
+
+		CHECK (      0 == size3.frames() );
+		CHECK ( 253038 == empty_size.frames() );
+	}
 
 	SECTION ("Equality operator is correct")
 	{
@@ -501,21 +626,6 @@ TEST_CASE ( "AudioSize", "[audiosize] [meta]" )
 		CHECK ( !(different_size > size5) );
 
 		CHECK ( empty_size < different_size );
-	}
-
-	SECTION ("Swap operation is correct")
-	{
-		using std::swap;
-
-		swap(size2, different_size);
-
-		CHECK (  14827 == size2.frames() );
-		CHECK ( 253038 == different_size.frames() );
-
-		swap(empty_size, size3);
-
-		CHECK (      0 == size3.frames() );
-		CHECK ( 253038 == empty_size.frames() );
 	}
 }
 
