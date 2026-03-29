@@ -755,7 +755,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~ToC() noexcept final;
+	~ToC() noexcept;
 
 	/**
 	 * \brief Total tracks in this ToC.
