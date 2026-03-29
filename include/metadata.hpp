@@ -19,7 +19,7 @@
 #include <algorithm>      // for transform
 #include <cstdint>        // for uint32_t, int32_t
 #include <memory>         // for unique_ptr
-#include <stdexcept>      // for invalid_argument
+#include <stdexcept>      // for runtime_error
 #include <string>         // for string
 #include <type_traits>    // for underlying_type
 #include <vector>         // for vector
@@ -698,13 +698,13 @@ unsigned total_tracks(const ToCData& data);
 bool complete(const ToCData& data);
 
 /**
- * \brief Validate ToCData object for completeness.
+ * \brief Validate ToCData object requiring completeness.
  *
  * The leadout is validated and required to be non-zero.
  *
  * \param[in] toc_data ToCData object to be validated
  *
- * \throws invalid_argument If validation fails
+ * \throws InvalidMetadataException If validation fails
  */
 void validate_with_completeness(const ToCData& toc_data);
 
@@ -715,7 +715,7 @@ void validate_with_completeness(const ToCData& toc_data);
  *
  * \param[in] toc_data ToCData object to be validated
  *
- * \throws invalid_argument If validation fails
+ * \throws InvalidMetadataException If validation fails
  */
 void validate_without_completeness(const ToCData& toc_data);
 
