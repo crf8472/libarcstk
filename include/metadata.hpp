@@ -807,13 +807,22 @@ public:
 	bool is_single_file() const noexcept;
 
 	/**
-	 * \brief TRUE iff the ToC instance is valid.
+	 * \brief Validate the instance.
 	 *
 	 * The ToC instance is not required to be complete to prove as valid.
 	 *
+	 * \throws InvalidMetadataException If validation fails
+	 */
+	void validate() const;
+
+	/**
+	 * \brief TRUE iff the ToC instance is valid.
+	 *
+	 * Calls validate() and returns TRUE iff no exception was thrown.
+	 *
 	 * \return TRUE iff ToC contains only valid data.
 	 */
-	bool valid() const;
+	bool valid() const noexcept;
 
 	/**
 	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise FALS.

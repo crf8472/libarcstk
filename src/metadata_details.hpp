@@ -203,7 +203,8 @@ public:
 	bool has_filenames() const noexcept;
 	bool is_single_file() const noexcept;
 
-	bool valid() const;
+	void validate() const;
+
 	bool complete() const noexcept;
 
 	void swap(Impl& rhs) noexcept;

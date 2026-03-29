@@ -558,29 +558,20 @@ bool ToC::Impl::is_single_file() const noexcept
 }
 
 
-bool ToC::Impl::valid() const
+void ToC::Impl::validate() const
 {
-	try
+	if (complete())
 	{
-		if (complete())
-		{
-			toc::validate_without_completeness(toc_);
-		} else
-		{
-			toc::validate_with_completeness(toc_);
-		}
-
-		if (!filenames_.empty())
-		{
-			details::validate_filenames_impl(toc_, filenames_);
-		}
-
-	} catch (const InvalidMetadataException& e)
+		toc::validate_without_completeness(toc_);
+	} else
 	{
-		return false;
+		toc::validate_with_completeness(toc_);
 	}
 
-	return true;
+	if (!filenames_.empty())
+	{
+		details::validate_filenames_impl(toc_, filenames_);
+	}
 }
 
 
@@ -684,9 +675,24 @@ std::vector<std::string> ToC::filenames() const
 }
 
 
-bool ToC::valid() const
+void ToC::validate() const
 {
-	return impl_->valid();
+	impl_->validate();
+}
+
+
+bool ToC::valid() const noexcept
+{
+	try
+	{
+		validate();
+
+	} catch (...)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 
