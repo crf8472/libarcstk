@@ -827,7 +827,8 @@ public:
 	bool valid() const noexcept;
 
 	/**
-	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise FALS.
+	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise
+	 * FALSE.
 	 *
 	 * \return TRUE iff ToC contains complete toc information otherwise FALSE
 	 */
