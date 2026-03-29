@@ -44,6 +44,30 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 /**
  * \internal
  *
+ * \brief Worker: implement leadout checks performed on every validation.
+ *
+ * \param[in] frames LBA frame amount to validate
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+void validate_leadout_impl(const int32_t leadout);
+
+/**
+ * \internal
+ *
+ * \brief Worker: implement checks for offsets and filenames.
+ *
+ * \param[in] toc_data  ToC data to validate
+ * \param[in] filenames Audio filenames
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+void validate_filenames_impl(const ToCData& toc_data,
+		const std::vector<std::string>& filenames);
+
+/**
+ * \internal
+ *
  * \brief Validations for ToCData.
  */
 namespace validate
@@ -76,7 +100,7 @@ static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
  *
  * \param[in] frames LBA frame amount to validate
  *
- * \throws std::invalid_argument
+ * \throws InvalidMetadataException If validation fails
  */
 void is_legal_offset(const int32_t offset);
 
@@ -87,7 +111,7 @@ void is_legal_offset(const int32_t offset);
  *
  * \param[in] length Track length in LBA frames to validate
  *
- * \throws std::invalid_argument
+ * \throws InvalidMetadataException If validation fails
  */
 void is_legal_length(const int32_t length);
 
@@ -96,9 +120,26 @@ void is_legal_length(const int32_t length);
  *
  * \brief Validate leadout.
  *
+ * A leadout of 0 validates.
+ *
  * \param[in] toc_data ToCData to validate
+ *
+ * \throws InvalidMetadataException If validation fails
  */
 void validate_leadout(const ToCData& toc_data);
+
+/**
+ * \internal
+ *
+ * \brief Validate a leadout.
+ *
+ * A leadout of 0 fails to validate.
+ *
+ * \param[in] toc_data ToCData to validate
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+void validate_nonzero_leadout(const ToCData& toc_data);
 
 /**
  * \internal
@@ -106,6 +147,8 @@ void validate_leadout(const ToCData& toc_data);
  * \brief Validate all offsets.
  *
  * \param[in] toc_data ToCData to validate
+ *
+ * \throws InvalidMetadataException If validation fails
  */
 void validate_offsets(const ToCData& toc_data);
 
@@ -115,6 +158,8 @@ void validate_offsets(const ToCData& toc_data);
  * \brief Validate all lengths.
  *
  * \param[in] toc_data ToCData to validate
+ *
+ * \throws InvalidMetadataException If validation fails
  */
 void validate_lengths(const ToCData& toc_data);
 
@@ -125,7 +170,7 @@ void validate_lengths(const ToCData& toc_data);
  *
  * \param[in] msg Error message
  *
- * \throws std::invalid_argument
+ * \throws InvalidMetadataException On every call
  */
 void throw_on_invalid_tocdata(const std::string& msg);
 
@@ -149,7 +194,7 @@ public:
 
 	unsigned total_tracks() const noexcept;
 
-	void set_leadout(const AudioSize leadout) noexcept;
+	void set_leadout(const AudioSize& leadout) noexcept;
 	AudioSize leadout() const noexcept;
 
 	std::vector<AudioSize>   offsets() const;
@@ -158,6 +203,7 @@ public:
 	bool has_filenames() const noexcept;
 	bool is_single_file() const noexcept;
 
+	bool valid() const;
 	bool complete() const noexcept;
 
 	void swap(Impl& rhs) noexcept;

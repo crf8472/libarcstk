@@ -437,7 +437,7 @@ ARId make_arid(const ToC& toc)
 ARId validated_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout)
 {
-	toc::validate(toc::construct(leadout, offsets));
+	toc::validate_with_completeness(toc::construct(leadout, offsets));
 
 	return make_arid(offsets, leadout);
 }

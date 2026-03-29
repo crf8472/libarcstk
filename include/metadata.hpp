@@ -38,24 +38,42 @@ inline namespace v_1_0_0
  *
  * \details
  *
- * A ToC is the table of content information from a compact disc. It contains
- * the track offsets and optionally the leadout of the compact disc. A ToC may
- * or may not contain filenames corresponding to the audio files. ToCs that
+ * A ToC is the table-of-content information from a compact disc. It contains
+ * the track offsets and optionally the leadout of the compact disc. ToCs that
  * contain not only the offsets but also the leadout are called
- * @link arcstk::ToC::complete() complete @endlink.
+ * \e complete. A ToC may or may not contain filenames corresponding to the
+ * audio files.
  *
  * ToCData is the data part of a ToC: an aggregate that contains the
- * leadout at index 0 and on the subsequent index positions 1..n the offets of
+ * leadout at index 0 and on the subsequent index positions 1..n the offsets of
  * the respective tracks. Hence, ToCData contains all and only the data that is
- * required to calculate AccurateRip checksums.
+ * required to calculate AccurateRip checksums and AccurateRip ids.
+ *
+ * ToCData can be constructed by toc::construct. ToC instances can be
+ * constructed by make_toc().
+ *
+ * ToCData and also ToC instances are called \e valid iff the contained data
+ * conforms to the redbook standard, i.e.
+ *
+ * - the total number of tracks is positive and not bigger than
+ *   CDDA::MAX_TRACKCOUNT,
+ * - no offset is bigger than CDDA::MAX_OFFSET, and
+ * - each track length is at least CDDA::MIN_TRACK_LEN_FRAMES.
+ *
+ * ToCData can be validated with or without the requirement for being complete
+ * by either toc::validate_with_completeness() or
+ * toc::validate_without_completeness(). Any ToC instance can be validated by
+ * member function ToC::valid().
+ *
+ * Validated ToCs can be constructed by using functions validated_toc().
  *
  * An InvalidMetadataException indicates that no valid ToC can be constructed
  * from the input provided.
  *
- * AudioSize is a representation of an amount of audio information that can be
- * evaluated as frames, samples or bytes. Passing AudioSize objects helps to
- * avoid accidentally calculating with the wrong unit, e.g. w/ samples when
- * frames are required.
+ * AudioSize is an abstract representation of an amount of audio information
+ * that can be evaluated as a total number of frames, samples or bytes. Passing
+ * AudioSize instances helps to avoid accidentally calculating with the wrong
+ * UNIT, e.g. w/ samples when frames are required.
  *
  * CDDA provides a set of constants related to the CDDA standard. They are used
  * on validating and parsing audio information.
@@ -548,7 +566,8 @@ inline int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
 }
 
 /**
- * \brief Convert a vector of AudioSize instances to the specified UNIT.
+ * \brief Convert a vector of AudioSize instances to a vector of the specified
+ * UNIT.
  *
  * \param[in] values The values to convert
  *
@@ -644,7 +663,10 @@ AudioSize leadout(const ToCData& data);
 std::vector<AudioSize> offsets(const ToCData& data);
 
 /**
- * \brief Lengths of tracks object.
+ * \brief Lengths of tracks.
+ *
+ * If the leadout is zero, the length of the last track is unknown and the
+ * size of the returned container will be smaller than total_tracks().
  *
  * \param[in] data ToCData to read from
  *
@@ -653,11 +675,11 @@ std::vector<AudioSize> offsets(const ToCData& data);
 std::vector<AudioSize> lengths(const ToCData& data);
 
 /**
- * \brief Total tracks of a ToC object.
+ * \brief Total tracks.
  *
  * \param[in] data ToCData to read from
  *
- * \return Total tracks of a ToC object
+ * \return Total number of tracks
  */
 unsigned total_tracks(const ToCData& data);
 
@@ -674,13 +696,26 @@ unsigned total_tracks(const ToCData& data);
 bool complete(const ToCData& data);
 
 /**
- * \brief Validate ToCData object.
+ * \brief Validate ToCData object for completeness.
+ *
+ * The leadout is validated and required to be non-zero.
  *
  * \param[in] toc_data ToCData object to be validated
  *
  * \throws invalid_argument If validation fails
  */
-void validate(const ToCData& toc_data);
+void validate_with_completeness(const ToCData& toc_data);
+
+/**
+ * \brief Validate ToCData object.
+ *
+ * The leadout is validated if it is non-zero.
+ *
+ * \param[in] toc_data ToCData object to be validated
+ *
+ * \throws invalid_argument If validation fails
+ */
+void validate_without_completeness(const ToCData& toc_data);
 
 } // namespace toc
 
@@ -741,7 +776,7 @@ public:
 	 *
 	 * \param[in] leadout The leadout frame to set
 	 */
-	void set_leadout(const AudioSize leadout) noexcept;
+	void set_leadout(const AudioSize& leadout) noexcept;
 
 	/**
 	 * \brief Offsets of this ToC.
@@ -770,6 +805,15 @@ public:
 	 * \return TRUE iff the ToC has exactly one audio file, otherwise FALSE
 	 */
 	bool is_single_file() const noexcept;
+
+	/**
+	 * \brief TRUE iff the ToC instance is valid.
+	 *
+	 * The ToC instance is not required to be complete to prove as valid.
+	 *
+	 * \return TRUE iff ToC contains only valid data.
+	 */
+	bool valid() const;
 
 	/**
 	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise FALS.
@@ -863,6 +907,8 @@ ToC make_toc(const std::vector<int32_t>& offsets);
  * \param[in] filenames Audio filenames
  *
  * \return ToC created from leadout, offsets and filenames
+ *
+ * \throws InvalidMetadataException If validation fails
  */
 ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
@@ -874,8 +920,34 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
  * \param[in] offsets   Offset frames
  *
  * \return ToC created from leadout and offsets
+ *
+ * \throws InvalidMetadataException If validation fails
  */
 ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
+
+/**
+ * \brief Create a validated ToC from offsets and filenames.
+ *
+ * \param[in] offsets   Offset frames
+ * \param[in] filenames Audio filenames
+ *
+ * \return ToC created from offsets and filenames
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+ToC validated_toc(const std::vector<int32_t>& offsets,
+		const std::vector<std::string>& filenames);
+
+/**
+ * \brief Create a validated ToC from offsets.
+ *
+ * \param[in] offsets   Offset frames
+ *
+ * \return ToC created from offsets.
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+ToC validated_toc(const std::vector<int32_t>& offsets);
 
 /**
  * \brief Reports invalid metadata for constructing a ToC.
@@ -896,7 +968,7 @@ public:
 	 *
 	 * \param[in] what_arg What argument
 	 */
-	explicit InvalidMetadataException(const char *what_arg);
+	explicit InvalidMetadataException(const char* what_arg);
 };
 
 /** @} */
