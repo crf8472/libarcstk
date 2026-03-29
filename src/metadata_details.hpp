@@ -46,6 +46,8 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
  *
  * \brief Worker: implement leadout checks performed on every validation.
  *
+ * Implements the common part of checking with or without completeness.
+ *
  * \param[in] frames LBA frame amount to validate
  *
  * \throws InvalidMetadataException If validation fails

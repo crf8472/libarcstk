@@ -57,7 +57,9 @@ inline namespace v_1_0_0
  *
  * - the total number of tracks is positive and not bigger than
  *   CDDA::MAX_TRACKCOUNT,
- * - no offset is bigger than CDDA::MAX_OFFSET, and
+ * - no offset is negative or bigger than CDDA::MAX_OFFSET,
+ * - each two offset have at least positive distance
+ *   CDDA::MIN_TRACK_OFFSET_DIST, and
  * - each track length is at least CDDA::MIN_TRACK_LEN_FRAMES.
  *
  * ToCData can be validated with or without the requirement for being complete

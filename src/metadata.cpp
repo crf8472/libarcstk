@@ -174,12 +174,32 @@ void validate_offsets(const ToCData& toc_data)
 	using std::cbegin;
 	using std::cend;
 
-	std::for_each(cbegin(offsets), cend(offsets),
-		[](const AudioSize& a)
+	auto pred { cbegin(offsets) };
+
+	is_legal_offset(pred->frames());
+
+	auto track { 1 };
+	std::for_each(cbegin(offsets) + 1, cend(offsets),
+		[&pred,&track](const AudioSize& a)
 		{
 			is_legal_offset(a.frames());
 
-			// TODO check CDDA::MIN_TRACK_OFFSET_DIST
+			// Check required minimal distance to predecessor
+
+			++track;
+			if (pred->frames() - a.frames() < CDDA::MIN_TRACK_OFFSET_DIST)
+			{
+				auto ss = std::ostringstream {};
+				ss << "The start offset of track " << track
+					<< " does not have the required minimal offset distance to "
+					" its predessessor track (is "
+					<< (pred->frames() - a.frames())
+					<< " frames but required is at least "
+					<< CDDA::MIN_TRACK_OFFSET_DIST
+					<< " frames)";
+				throw_on_invalid_tocdata(ss.str());
+			}
+			++pred;
 		}
 	);
 }
