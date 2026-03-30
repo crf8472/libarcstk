@@ -44,7 +44,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "disc_id_1() works" )
 	{
-		using arcstk::details::disc_id_1;
+		using arcstk::arid::disc_id_1;
 
 		CHECK ( 0x001B9178 == disc_id_1(offsets1, leadout1) );
 		CHECK ( 0x0008100C == disc_id_1(offsets2, leadout2) );
@@ -55,7 +55,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "disc_id_1() is 0 for empty or zero input" )
 	{
-		using arcstk::details::disc_id_1;
+		using arcstk::arid::disc_id_1;
 
 		CHECK ( 0 == disc_id_1({ /*empty*/  },  0) );
 		CHECK ( 0 == disc_id_1({ 0, 0, 0, 0 },  0) );
@@ -63,7 +63,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "disc_id_2() works" )
 	{
-		using arcstk::details::disc_id_2;
+		using arcstk::arid::disc_id_2;
 
 		CHECK ( 0x014BE24E == disc_id_2(offsets1, leadout1) );
 		CHECK ( 0x001AC008 == disc_id_2(offsets2, leadout2) );
@@ -74,7 +74,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "disc_id_2() works for empty or zero input" )
 	{
-		using arcstk::details::disc_id_2;
+		using arcstk::arid::disc_id_2;
 
 		CHECK ( 0 == disc_id_2({ /*empty*/  },  0) );
 		CHECK ( 1 * 1 + 1 * 2 + 1 * 3 + 1 * 4 == disc_id_2({ 0, 0, 0, 0 },  0) );
@@ -82,7 +82,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "cddb_id() works" )
 	{
-		using arcstk::details::cddb_id;
+		using arcstk::arid::cddb_id;
 
 		CHECK ( 0xB40d2d0f == cddb_id(offsets1, leadout1) );
 		CHECK ( 0x190DCC03 == cddb_id(offsets2, leadout2) );
@@ -93,7 +93,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 	SECTION ( "cddb_id() works for empty or zero input" )
 	{
-		using arcstk::details::cddb_id;
+		using arcstk::arid::cddb_id;
 
 		CHECK ( 0 == cddb_id({ /*empty*/  },  0) );
 		CHECK ( 0x08000004 == cddb_id({ 0, 0, 0, 0 },  0) );
@@ -103,7 +103,7 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 
 TEST_CASE ( "sum_digits", "[id]" )
 {
-	using arcstk::details::sum_digits;
+	using arcstk::arid::sum_digits;
 
 	CHECK ( sum_digits(0xFFFFFFFF)  == 57 ); // 4294967295
 	CHECK ( sum_digits(0x00000000)  ==  0 );
@@ -124,7 +124,7 @@ TEST_CASE ( "sum_digits", "[id]" )
 
 TEST_CASE ( "construct_filename", "[id]" )
 {
-	using arcstk::details::construct_filename;
+	using arcstk::arid::construct_filename;
 
 	SECTION ( "Constructing regular dBAR filenames works" )
 	{
@@ -151,7 +151,7 @@ TEST_CASE ( "construct_filename", "[id]" )
 
 TEST_CASE ( "construct_url", "[id]" )
 {
-	using arcstk::details::construct_url;
+	using arcstk::arid::construct_url;
 
 	const auto url = std::string { "http://www.accuraterip.com/accuraterip/" };
 
@@ -183,7 +183,7 @@ TEST_CASE ( "construct_url", "[id]" )
 
 TEST_CASE ( "construct_id", "[id]" )
 {
-	using arcstk::details::construct_id;
+	using arcstk::arid::construct_id;
 
 	SECTION ( "Constructing regular AccurateRip ids works" )
 	{

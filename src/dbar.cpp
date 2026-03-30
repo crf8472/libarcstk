@@ -32,10 +32,13 @@
 #include <vector>			// for vector
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"   // for ARId, ACCURATERIP::default_id_format()
+#include "identifier.hpp"          // for ARId
+#endif
+#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
+#include "identifier_details.hpp"  // for arid::print()
 #endif
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"     // for checksum::print()
+#include "checksum.hpp"            // for checksum::print()
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -106,7 +109,7 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	std::vector<char> id      (BLOCK_HEADER_BYTES * sizeof(char));
 	std::vector<char> triplet (TRIPLET_BYTES      * sizeof(char));
 
-	auto track_count   = unsigned { 0 };
+	auto total_tracks  = unsigned { 0 };
 	auto discId1       = uint32_t { 0 };
 	auto discId2       = uint32_t { 0 };
 	auto cddbId        = uint32_t { 0 };
@@ -158,11 +161,11 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 			// At least 1 byte has been read. We want to pass the bytes parsed
 			// so far to the content handler
 
-			track_count = id[0] & 0xFF;
+			total_tracks = id[0] & 0xFF;
 
 			if (bytes_read <= 4 * sizeof(id[0]))
 			{
-				p->header(track_count, 0, 0, 0);
+				p->header(total_tracks, 0, 0, 0);
 
 				on_parse_error(byte_counter, block_counter, block_byte_counter,
 						e);
@@ -173,7 +176,7 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 			if (bytes_read <= 8 * sizeof(id[0]))
 			{
-				p->header(track_count, discId1, 0, 0);
+				p->header(total_tracks, discId1, 0, 0);
 
 				on_parse_error(byte_counter, block_counter, block_byte_counter,
 						e);
@@ -184,7 +187,7 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 			if (bytes_read <= 12 * sizeof(id[0]))
 			{
-				p->header(track_count, discId1, discId2, 0);
+				p->header(total_tracks, discId1, discId2, 0);
 
 				on_parse_error(byte_counter, block_counter, block_byte_counter,
 						e);
@@ -193,11 +196,11 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 			cddbId  = le_bytes_to_uint32(id[9], id[10], id[11], id[12]);
 
-			ARCS_LOG(DEBUG1) << "New block (" << track_count
+			ARCS_LOG(DEBUG1) << "New block (" << total_tracks
 				<< " tracks) starts. ID: "
-				<< ARId(track_count, discId1, discId2, cddbId).filename();
+				<< ARId { total_tracks, discId1, discId2, cddbId }.filename();
 
-			p->header(track_count, discId1, discId2, cddbId);
+			p->header(total_tracks, discId1, discId2, cddbId);
 		}
 
 		if (not in.good())
@@ -212,7 +215,7 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 		// Read triplets of current block
 
-		for (auto trk = unsigned { 0 }; trk < track_count; ++trk)
+		for (auto trk = unsigned { 0 }; trk < total_tracks; ++trk)
 		{
 			try
 			{
@@ -511,13 +514,9 @@ bool DBARBlockHeader::equals(const DBARBlockHeader& rhs) const noexcept
 
 std::string DBARBlockHeader::to_string() const
 {
-	using std::to_string;
-
-	// Order in which the values occurr in the byte stream
-	return to_string(total_tracks()) + ", "
-		+  ACCURATERIP::default_id_format(id1()) + ", "
-		+  ACCURATERIP::default_id_format(id2()) + ", "
-		+  ACCURATERIP::default_id_format(cddb_id());
+	auto out = std::ostringstream {};
+	arid::print(out, total_tracks(), id1(), id2(), cddb_id(), ", ");
+	return out.str();
 }
 
 
@@ -798,10 +797,10 @@ const uint32_t& DBAR::Impl::frame450_arcs_value(const size_type block_idx,
 }
 
 
-void DBAR::Impl::add_header(const uint8_t track_count, const uint32_t id1,
+void DBAR::Impl::add_header(const uint8_t total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id)
 {
-	total_tracks_.push_back(track_count);
+	total_tracks_.push_back(total_tracks);
 
 	sums_.push_back(id1);
 	sums_.push_back(id2);
@@ -1157,10 +1156,10 @@ void ParseHandler::start_block()
 }
 
 
-void ParseHandler::header(const uint8_t track_count, const uint32_t id1,
+void ParseHandler::header(const uint8_t total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id)
 {
-	do_header(track_count, id1, id2, cddb_id);
+	do_header(total_tracks, id1, id2, cddb_id);
 }
 
 
@@ -1221,10 +1220,10 @@ void DBARBuilder::do_start_block()
 }
 
 
-void DBARBuilder::do_header(const uint8_t track_count, const uint32_t id1,
+void DBARBuilder::do_header(const uint8_t total_tracks, const uint32_t id1,
 	const uint32_t id2, const uint32_t cddb_id)
 {
-	result_->add_header(track_count, id1, id2, cddb_id);
+	result_->add_header(total_tracks, id1, id2, cddb_id);
 }
 
 
@@ -1263,7 +1262,7 @@ DBAR DBARBuilder::result()
 {
 	if (result_)
 	{
-		return DBAR(std::move(result_));
+		return DBAR { std::move(result_) };
 	}
 
 	throw std::runtime_error("Cannot obtain parsing result before parsing");
@@ -1308,14 +1307,14 @@ void CheckingDBARBuilderState::update_validity(const std::size_t& total_tracks)
 }
 
 
-void CheckingDBARBuilderState::header(const uint8_t track_count,
+void CheckingDBARBuilderState::header(const uint8_t total_tracks,
 		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
 {
 	if (is_uniform_ && current_id_ != UNINITIALIZED_ID)
 	{
-		update_uniformity({ track_count, id1, id2, cddb_id });
+		update_uniformity({ total_tracks, id1, id2, cddb_id });
 	}
-	current_id_ = { track_count, id1, id2, cddb_id };
+	current_id_ = { total_tracks, id1, id2, cddb_id };
 }
 
 
@@ -1380,11 +1379,11 @@ void CheckingDBARBuilder::Impl::start_block()
 }
 
 
-void CheckingDBARBuilder::Impl::header(const uint8_t track_count,
+void CheckingDBARBuilder::Impl::header(const uint8_t total_tracks,
 		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
 {
-	builder_.header(track_count, id1, id2, cddb_id);
-	state_  .header(track_count, id1, id2, cddb_id); // for checks
+	builder_.header(total_tracks, id1, id2, cddb_id);
+	state_  .header(total_tracks, id1, id2, cddb_id); // for checks
 }
 
 
@@ -1468,10 +1467,10 @@ void CheckingDBARBuilder::do_start_block()
 }
 
 
-void CheckingDBARBuilder::do_header(const uint8_t track_count,
+void CheckingDBARBuilder::do_header(const uint8_t total_tracks,
 		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
 {
-	impl_->header(track_count, id1, id2, cddb_id);
+	impl_->header(total_tracks, id1, id2, cddb_id);
 }
 
 
@@ -1613,7 +1612,7 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
 
 DBAR make_dbar(const std::string& filename)
 {
-	DBARBuilder builder;
+	DBARBuilder builder {};
 	details::parse_dbar_file(filename, &builder, nullptr);
 	return builder.result();
 }
@@ -1624,7 +1623,7 @@ DBAR make_dbar(const std::string& filename)
 
 std::tuple<DBAR,bool,bool> validated_dbar(const std::string& filename)
 {
-	CheckingDBARBuilder builder;
+	CheckingDBARBuilder builder {};
 	details::parse_dbar_file(filename, &builder, nullptr);
 	return { builder.result(), builder.result_is_valid(),
 		builder.result_is_uniform() };

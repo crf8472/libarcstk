@@ -344,7 +344,7 @@ public:
 	 * \param[in] id2          Id2 of the ARId
 	 * \param[in] cddb_id      CDDB Id
 	 */
-	void add_header(const uint8_t track_count, const uint32_t id1,
+	void add_header(const uint8_t total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id);
 
 	/**
@@ -502,7 +502,7 @@ public:
 	/**
 	 * \brief Inform about a header.
 	 */
-	void header(const uint8_t track_count, const uint32_t id1,
+	void header(const uint8_t total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id);
 
 	/**
@@ -566,7 +566,7 @@ public:
 
 	void start_block();
 
-	void header(const uint8_t track_count, const uint32_t id1,
+	void header(const uint8_t total_tracks, const uint32_t id1,
 			const uint32_t id2, const uint32_t cddb_id);
 
 	void start_triplets();

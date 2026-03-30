@@ -29,7 +29,7 @@ inline namespace v_1_0_0
 {
                                                                  /** \endcond */
 
-namespace details
+namespace arid // TODO These are not details but tools
 {
 
 /**
@@ -74,36 +74,27 @@ uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout);
 uint64_t sum_digits(const uint32_t number) noexcept;
 
 /**
- * \brief Normalize a track_count to a legal unsigned value.
+ * \brief Normalize total number of tracks to a legal unsigned value.
  *
- * \param[in] track_count Total number of tracks
- *
- * \return Total number of tracks
- */
-unsigned normalize_trackcount(const std::size_t track_count) noexcept;
-
-/**
- * \brief Normalize a track_count to a legal unsigned value.
- *
- * \param[in] track_count Total number of tracks
+ * \param[in] total_tracks Total number of tracks
  *
  * \return Total number of tracks
  */
-unsigned normalize_trackcount(const int track_count) noexcept;
+unsigned normalize_total_tracks(const std::size_t total_tracks) noexcept;
 
 /**
  * \brief Service method: Compute the AccurateRip response filename
  *
  * Used by ARId::Impl::filename().
  *
- * \param[in] track_count   Number of tracks in this medium
+ * \param[in] total_tracks  Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
  * \param[in] id_2          Id 2 of this medium
  * \param[in] cddb_id       CDDB id of this medium
  *
  * \return AccurateRip response filename
  */
-std::string construct_filename(const unsigned track_count,
+std::string construct_filename(const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
@@ -115,14 +106,14 @@ std::string construct_filename(const unsigned track_count,
  *
  * Used by ARId::Impl::url().
  *
- * \param[in] track_count   Number of tracks in this medium
+ * \param[in] total_tracks  Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
  * \param[in] id_2          Id 2 of this medium
  * \param[in] cddb_id       CDDB id of this medium
  *
  * \return AccurateRip request URL
  */
-std::string construct_url(const unsigned track_count,
+std::string construct_url(const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
@@ -130,7 +121,7 @@ std::string construct_url(const unsigned track_count,
 /**
  * \brief Service method: Compute the AccurateRip request URL
  *
- * \param[in] track_count   Number of tracks in this medium
+ * \param[in] total_tracks  Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
  * \param[in] id_2          Id 2 of this medium
  * \param[in] cddb_id       CDDB id of this medium
@@ -138,25 +129,52 @@ std::string construct_url(const unsigned track_count,
  *
  * \return AccurateRip request URL
  */
-std::string construct_url(const unsigned track_count,
+std::string construct_url(const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id,
 		const std::string& prefix) noexcept;
 
 /**
+ * \brief Worker: Print a sequence of ids.
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ * \param[in] delim         Delimiter
+ */
+void print(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id, const std::string& delim);
+
+/**
+ * \brief Worker: Print an ARId by its ids.
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ */
+void print(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id);
+
+/**
  * \brief Service method: Compute the AccurateRip request ID
  *
  * Used by ARId::Impl::to_string().
  *
- * \param[in] track_count   Number of tracks in this medium
+ * \param[in] total_tracks  Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
  * \param[in] id_2          Id 2 of this medium
  * \param[in] cddb_id       CDDB id of this medium
  *
  * \return AccurateRip request URL
  */
-std::string construct_id(const unsigned track_count,
+std::string construct_id(const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
@@ -173,7 +191,7 @@ std::string construct_id(const unsigned track_count,
  */
 ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout);
 
-} //namespace details
+} //namespace arid
 
 
 /**
@@ -196,7 +214,7 @@ public:
 	/**
 	 * \brief Implements ARId::ARId().
 	 */
-	Impl(const unsigned track_count,
+	Impl(const unsigned total_tracks,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id) noexcept;
@@ -212,9 +230,9 @@ public:
 	std::string filename() const noexcept;
 
 	/**
-	 * \brief Implements ARId::track_count()
+	 * \brief Implements ARId::total_tracks()
 	 */
-	unsigned track_count() const noexcept;
+	unsigned total_tracks() const noexcept;
 
 	/**
 	 * \brief Implements ARId::disc_id_1()
@@ -247,7 +265,7 @@ private:
 	/**
 	 * \brief Number of tracks
 	 */
-	unsigned track_count_;
+	unsigned total_tracks_;
 
 	/**
 	 * \brief Disc id no. 1

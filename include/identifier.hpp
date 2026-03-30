@@ -116,12 +116,12 @@ public:
 	/**
 	 * \brief Construct ARId.
 	 *
-	 * \param[in] track_count Number of tracks in this medium
-	 * \param[in] id_1        Id 1 of this medium
-	 * \param[in] id_2        Id 2 of this medium
-	 * \param[in] cddb_id     CDDB id of this medium
+	 * \param[in] total_tracks Number of tracks in this medium
+	 * \param[in] id_1         Id 1 of this medium
+	 * \param[in] id_2         Id 2 of this medium
+	 * \param[in] cddb_id      CDDB id of this medium
 	 */
-	ARId(const std::size_t track_count,
+	ARId(const std::size_t total_tracks,
 			const uint32_t id_1,
 			const uint32_t id_2,
 			const uint32_t cddb_id);
@@ -168,7 +168,7 @@ public:
 	 *
 	 * \return Track count of this medium
 	 */
-	unsigned track_count() const noexcept;
+	unsigned total_tracks() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 1.
@@ -250,6 +250,12 @@ public:
 	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept
 	{
 		return lhs.equals(rhs);
+	}
+
+	friend std::ostream& operator << (std::ostream& out, const ARId& arid)
+	{
+		out << arid.to_string();
+		return out;
 	}
 
 	friend std::string to_string(const ARId& arid)
@@ -422,25 +428,6 @@ public:
 	 * \return Default-ARCS-formatted representation of the input number
 	 */
 	static std::string default_arcs_format(const uint32_t number);
-
-	/**
-	 * \brief Format an unsigned 32bit integer as a non-ARCS id.
-	 *
-	 * The default format is the format which is used by ids contained in \link
-	 * ARId ARIds\endlink. It is mostly equal to the default ARCS format, but
-	 * with the exception that the A-F digits are lowercase.
-	 *
-	 * The ARCS default format entails:
-	 * - hexadecimal representation
-	 * - base (like "0x") is not represented
-	 * - always 8 digits wide, possibly with leading zeros
-	 * - digits A-F are always lowercase
-	 *
-	 * \param[in] number The number to format
-	 *
-	 * \return Default-ARCS-formatted representation of the input number
-	 */
-	static std::string default_id_format(const uint32_t number);
 };
 
 /** @} */

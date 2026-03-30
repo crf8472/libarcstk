@@ -28,7 +28,7 @@ TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 
 	// Bent: "Programmed to Love"
 
-	const auto id4 = arcstk::details::make_arid(
+	const auto id4 = arcstk::arid::make_arid(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -169,7 +169,7 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 
 	SECTION ( "Constructor" )
 	{
-		CHECK ( id.track_count() == 10 );
+		CHECK ( id.total_tracks() == 10 );
 		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
 		CHECK ( id.disc_id_2()   == 0x01f880cc );
 		CHECK ( id.cddb_id()     == 0xbc55023f );
@@ -240,7 +240,7 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 		ARId copied_id(id);
 
 
-		CHECK ( copied_id.track_count() == 10 );
+		CHECK ( copied_id.total_tracks() == 10 );
 		CHECK ( copied_id.disc_id_1()   == 0x02c34fd0 );
 		CHECK ( copied_id.disc_id_2()   == 0x01f880cc );
 		CHECK ( copied_id.cddb_id()     == 0xbc55023f );
@@ -260,7 +260,7 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 	SECTION ( "Copy assignment operator" )
 	{
 		// id is as defined above
-		CHECK ( id.track_count() == 10 );
+		CHECK ( id.total_tracks() == 10 );
 		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
 		CHECK ( id.disc_id_2()   == 0x01f880cc );
 		CHECK ( id.cddb_id()     == 0xbc55023f );
@@ -273,7 +273,7 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 
 		CHECK ( id == other_id );
 
-		CHECK ( id.track_count() == 11 );
+		CHECK ( id.total_tracks() == 11 );
 		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
 		CHECK ( id.disc_id_2()   == 0x04e880bb );
 		CHECK ( id.cddb_id()     == 0xbc55023f );
@@ -296,11 +296,11 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 
 TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 {
-	SECTION ( "ARId from track_count, offsets, leadout, example 1" )
+	SECTION ( "ARId from total_tracks, offsets, leadout, example 1" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		auto id1 = arcstk::details::make_arid(
+		auto id1 = arcstk::arid::make_arid(
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -308,7 +308,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 			253038
 		);
 
-		CHECK ( id1.track_count() == 15 );
+		CHECK ( id1.total_tracks() == 15 );
 		CHECK ( id1.disc_id_1()   == 0x001b9178 );
 		CHECK ( id1.disc_id_2()   == 0x014be24e );
 		CHECK ( id1.cddb_id()     == 0xb40d2d0f );
@@ -325,19 +325,19 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	}
 
 
-	SECTION ( "ARId from track_count, offsets, leadout, example 2" )
+	SECTION ( "ARId from total_tracks, offsets, leadout, example 2" )
 	{
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		auto id2 = arcstk::details::make_arid(
+		auto id2 = arcstk::arid::make_arid(
 			// offsets
 			{ 32, 96985, 166422 },
 			// leadout
 			264957
 		);
 
-		CHECK ( id2.track_count() == 3 );
+		CHECK ( id2.total_tracks() == 3 );
 		CHECK ( id2.disc_id_1()   == 0x0008100c );
 		CHECK ( id2.disc_id_2()   == 0x001ac008 );
 		CHECK ( id2.cddb_id()     == 0x190dcc03 );
@@ -354,19 +354,19 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	}
 
 
-	SECTION ( "ARId from track_count, offsets, leadout, example 3" )
+	SECTION ( "ARId from total_tracks, offsets, leadout, example 3" )
 	{
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		auto id3 = arcstk::details::make_arid(
+		auto id3 = arcstk::arid::make_arid(
 			// offsets
 			{ 33, 34283, 49908, 71508, 97983, 111183, 126708, 161883, 187158 },
 			// leadout
 			210143
 		);
 
-		CHECK ( id3.track_count() == 9 );
+		CHECK ( id3.total_tracks() == 9 );
 		CHECK ( id3.disc_id_1()   == 0x001008a6 );
 		CHECK ( id3.disc_id_2()   == 0x007469b8 );
 		CHECK ( id3.cddb_id()     == 0x870af109 );
@@ -383,11 +383,11 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	}
 
 
-	SECTION ( "ARId from track_count, offsets, leadout, example 4" )
+	SECTION ( "ARId from total_tracks, offsets, leadout, example 4" )
 	{
 		// Bent: "Programmed to Love"
 
-		auto id4 = arcstk::details::make_arid(
+		auto id4 = arcstk::arid::make_arid(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -397,7 +397,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 
-		CHECK ( id4.track_count() == 18 );
+		CHECK ( id4.total_tracks() == 18 );
 		CHECK ( id4.disc_id_1()   == 0x00307c78 );
 		CHECK ( id4.disc_id_2()   == 0x0281351d );
 		CHECK ( id4.cddb_id()     == 0x27114b12 );
@@ -414,11 +414,11 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	}
 
 
-	SECTION ( "ARId from track_count, offsets, leadout, example 5" )
+	SECTION ( "ARId from total_tracks, offsets, leadout, example 5" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		auto id5 = arcstk::details::make_arid(
+		auto id5 = arcstk::arid::make_arid(
 			// offsets
 			{ 33 },
 			// leadout
@@ -426,7 +426,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 
-		CHECK ( id5.track_count() == 1 );
+		CHECK ( id5.total_tracks() == 1 );
 		CHECK ( id5.disc_id_1()   == 0x0003902d );
 		CHECK ( id5.disc_id_2()   == 0x00072039 );
 		CHECK ( id5.cddb_id()     == 0x020c2901 );
@@ -464,7 +464,7 @@ TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
 	{
 		auto empty_id = arcstk::make_empty_arid();
 
-		CHECK ( empty_id.track_count() == 0 );
+		CHECK ( empty_id.total_tracks() == 0 );
 		CHECK ( empty_id.disc_id_1()   == 0x00000000 );
 		CHECK ( empty_id.disc_id_2()   == 0x00000000 );
 		CHECK ( empty_id.cddb_id()     == 0x00000000 );
