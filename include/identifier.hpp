@@ -199,9 +199,9 @@ public:
 	std::string prefix() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this ARId is empty (holding no information).
+	 * \brief Return \c TRUE iff this instance is empty.
 	 *
-	 * \return \c TRUE iff this ARId is empty
+	 * \return \c TRUE iff this instance is empty
 	 */
 	bool empty() const noexcept;
 
