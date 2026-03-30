@@ -975,7 +975,7 @@ DBAR& DBAR::operator= (DBAR&& rhs) noexcept
 }
 
 
-DBAR::~DBAR() noexcept = default;
+DBAR::~DBAR() noexcept = default; // Pimpl requirement
 
 
 DBAR::size_type DBAR::size() const noexcept
@@ -1196,6 +1196,9 @@ DBARBuilder::DBARBuilder()
 {
 	// empty
 }
+
+
+DBARBuilder::~DBARBuilder() noexcept = default; // Pimpl requirement
 
 
 void DBARBuilder::do_start_input()
