@@ -32,7 +32,10 @@
 #include <vector>			// for vector
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"
+#include "identifier.hpp"   // for ARId, ACCURATERIP::default_id_format()
+#endif
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"     // for checksum::print()
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -580,10 +583,15 @@ std::string DBARTriplet::to_string() const
 {
 	using std::to_string;
 
+	auto stream = std::ostringstream {};
+
 	// Order in which the values occurr in the byte stream
-	return to_string(confidence()) + ", "
-		+ ACCURATERIP::default_arcs_format(arcs()) + ", "
-		+ ACCURATERIP::default_arcs_format(frame450_arcs());
+	stream << to_string(confidence()) << ", ";
+	checksum::print(stream, arcs());
+	stream << ", ";
+	checksum::print(stream, frame450_arcs());
+
+	return stream.str();
 }
 
 

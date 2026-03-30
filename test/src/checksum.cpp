@@ -52,6 +52,11 @@ TEST_CASE ( "Checksum", "[checksum] [calc]" )
 
 		CHECK ( track01.value() == 0x98B10E0F );
 	}
+
+	SECTION ( "TOTAL_DIGITS are 8" )
+	{
+		CHECK ( Checksum::TOTAL_DIGITS == 8 );
+	}
 }
 
 

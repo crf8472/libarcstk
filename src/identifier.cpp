@@ -23,7 +23,9 @@
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
-
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"      // for Checksum
+#endif
 
 namespace arcstk
 {
@@ -499,20 +501,7 @@ void ACCURATERIP::reset_request_url_prefix() noexcept
 
 std::string ACCURATERIP::default_arcs_format(const uint32_t number)
 {
-	auto ss = std::ostringstream {};
-
-	auto hex_flags = std::ios_base::fmtflags { ss.flags() };
-	hex_flags &= ~ss.adjustfield; // unset 'left' or 'internal'
-	hex_flags |= ss.right;        // set 'right' only
-	hex_flags &= ~ss.basefield;   // unset 'dec' and 'oct'
-	hex_flags |= ss.hex;          // set 'hex' only
-	hex_flags |= ss.uppercase;    // set 'uppercase'
-	hex_flags &= ~ss.showbase;    // unset 'showbase'
-
-	ss.flags(hex_flags);
-	ss << std::setw(8) << std::setfill('0') << number;
-
-	return ss.str();
+	return Checksum { number }.to_string();
 }
 
 

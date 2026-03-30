@@ -9,9 +9,6 @@
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"
 #endif
-#ifndef LIBARCSTK_CHECKSUM_DETAILS_HPP_
-#include "checksum_details.hpp"
-#endif
 
 #include <algorithm>        // for transform
 #include <array>            // for array
@@ -19,11 +16,16 @@
 #include <cstdint>          // for int32_t
 #include <initializer_list> // for initializer_list
 #include <iterator>         // for begin, end, inserter
+#include <climits>          // for CHAR_BIT
 #include <set>              // for set
 #include <stdexcept>        // for domain_error
 #include <string>           // for string
 #include <type_traits>      // for underlying_type
 #include <utility>          // for pair, swap
+
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
+#include "identifier.hpp"   // for ACCURATERIP
+#endif
 
 
 namespace arcstk
@@ -80,6 +82,14 @@ bool Checksum::equals(const Checksum& rhs) const noexcept
 }
 
 
+std::string Checksum::to_string() const
+{
+	auto stream = std::ostringstream {};
+	checksum::print(stream, *this);
+	return stream.str();
+}
+
+
 Checksum& Checksum::operator = (const Checksum::value_type rhs)
 {
 	value_ = rhs;
@@ -117,17 +127,35 @@ static const std::array<std::string, 2> names {
 
 /** @} */
 
-/**
- * \brief Return the name of a checksum::type.
- *
- * \param[in] t Checksum type to get the name for
- *
- * \return Name of checksum::type \c t
- */
 std::string type_name(const type t)
 {
 	return details::names.at(std::log2(
 		static_cast<typename std::underlying_type<checksum::type>::type>(t)));
+}
+
+
+void print(std::ostream& out, const Checksum& c)
+{
+	static const auto hex_flags =
+		[](const std::ostream& stream) -> std::ios_base::fmtflags
+		{
+			auto flags = std::ios_base::fmtflags { stream.flags() };
+
+			flags &= ~stream.adjustfield; // unset 'left' or 'internal'
+			flags |= stream.right;        // set 'right' only
+			flags &= ~stream.basefield;   // unset 'dec' and 'oct'
+			flags |= stream.hex;          // set 'hex' only
+			flags |= stream.uppercase;    // set 'uppercase'
+			flags &= ~stream.showbase;    // unset 'showbase'
+
+			return flags;
+		};
+
+	const auto prev_flags = std::ios_base::fmtflags { out.flags() };
+
+	out.flags(hex_flags(out));
+	out << std::setw(Checksum::TOTAL_DIGITS) << std::setfill('0') << c.value();
+	out.flags(prev_flags);
 }
 
 } // namespace checksum
@@ -187,8 +215,9 @@ bool ChecksumSet::empty() const noexcept
 
 bool ChecksumSet::contains(const checksum::type& type) const
 {
-	using std::end;
-	return set_.find(type) != end(set_);
+	using std::cend;
+
+	return set_.find(type) != cend(set_);
 }
 
 
@@ -196,9 +225,9 @@ Checksum ChecksumSet::get(const checksum::type type) const
 {
 	const auto rc { set_.find(type) };
 
-	using std::end;
+	using std::cend;
 
-	if (rc == end(set_))
+	if (rc == cend(set_))
 	{
 		return EmptyChecksum;
 	}
@@ -248,14 +277,7 @@ void ChecksumSet::merge(ChecksumSet& rhs)
 		// Sets with zero length may be merged without constraint
 	}
 
-	#if __cplusplus < 201703L
-		// pre-C++17 implementation of merge()
-		using std::begin;
-		using std::end;
-		set_.insert(begin(rhs.set_), end(rhs.set_));
-	#else
-		set_.merge(rhs.set_);
-	#endif
+	set_.merge(rhs.set_);
 }
 
 
@@ -274,6 +296,7 @@ void ChecksumSet::clear()
 ChecksumSet::const_iterator ChecksumSet::cbegin() const
 {
 	using std::cbegin;
+
 	return cbegin(set_);
 }
 
@@ -281,6 +304,7 @@ ChecksumSet::const_iterator ChecksumSet::cbegin() const
 ChecksumSet::const_iterator ChecksumSet::cend() const
 {
 	using std::cend;
+
 	return cend(set_);
 }
 
@@ -300,6 +324,7 @@ ChecksumSet::const_iterator ChecksumSet::end() const
 ChecksumSet::iterator ChecksumSet::begin()
 {
 	using std::begin;
+
 	return begin(set_);
 }
 
@@ -307,6 +332,7 @@ ChecksumSet::iterator ChecksumSet::begin()
 ChecksumSet::iterator ChecksumSet::end()
 {
 	using std::end;
+
 	return end(set_);
 }
 
@@ -337,9 +363,9 @@ bool ChecksumSet::equals(const ChecksumSet& rhs) const noexcept
 
 const Checksum    EmptyChecksum    { 0 }; // defines emptyness for Checksum
 
-const ChecksumSet EmptyChecksumSet { ChecksumSet{/* empty */} };
+const ChecksumSet EmptyChecksumSet { ChecksumSet {/* empty */} };
 
-const Checksums   EmptyChecksums   { Checksums{/* empty */} };
+const Checksums   EmptyChecksums   { Checksums   {/* empty */} };
 
 } // namespace v_1_0_0
 } // namespace arcstk

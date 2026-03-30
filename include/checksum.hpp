@@ -13,6 +13,8 @@
  */
 
 #include <array>            // for array
+#include <climits>          // for CHAR_BIT
+#include <cmath>            // for log2
 #include <cstdint>          // for int32_t, uint32_t
 #include <initializer_list> // for initializer_list
 #include <iomanip>          // for setfill, setw
@@ -34,143 +36,10 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
+class Checksum; // forward declaration
 
 /** \addtogroup calc */
 /** @{ */
-
-/**
- * \brief An AccurateRip checksum for a single file or track.
- *
- * \details
- *
- * A Checksum has a value_type. This is its numeric representation. It is an
- * unsigned integer of 32 bit length.
- *
- * A Checksum can be represented by its numeric value() which is of type
- * value_type. A Checksum can be compared for equality with instances of its
- * value_type using operator ==.
- *
- * A Checksum has a converting constructor for its value_type, thus every
- * parameter that expects a checksum can be assigned a value of type value_type
- * instead of a Checksum. Some compilers will do the conversion with other
- * numerical types but issue a warning if a conversion from signed to unsigned
- * types is required (e.g. -Wsign-conversion).
- *
- * Operator << is overloaded for printing Checksums to streams. The Checksum
- * will then occurr in its standard layout: as a hexadecimal number without the
- * base '0x', all digits in upper case, and filled with leading zeros up to a
- * width of 8 digits.
- *
- * As a technical convenience, a Checksum may be empty() which means: it carries
- * no value. Calling value() on an empty() Checksum may lead any result. Two
- * empty Checksum instances qualify as equal when compared using operator ==.
- *
- * \todo Default print layout for Checksums should be defined
- */
-class Checksum final : public Comparable<Checksum>
-{
-public:
-
-	/**
-	 * \brief Numerical base type of checksums: a 32-bit wide unsigned integer.
-	 */
-	using value_type = uint32_t;
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Creates an empty Checksum.
-	 */
-	Checksum();
-
-	/**
-	 * \brief Converting constructor.
-	 *
-	 * \param[in] value Actual checksum value
-	 */
-	Checksum(const value_type value);
-
-	// Assignment operator for value_type instances
-	Checksum& operator = (const value_type rhs);
-
-	/**
-	 * \brief Numeric value of the checksum.
-	 *
-	 * \return Numeric value of the checksum
-	 */
-	value_type value() const noexcept;
-
-	/**
-	 * \brief Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
-	 *
-	 * A Checksum is empty if it contains no valid value. Note that this
-	 * does not guarantee <tt>value() == 0</tt>.
-	 *
-	 * \return Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
-	 */
-	bool empty() const noexcept;
-
-	/**
-	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
-	 */
-	explicit operator bool() const noexcept;
-
-	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
-	 */
-	void swap(Checksum& rhs) noexcept;
-
-	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
-	 */
-	bool equals(const Checksum& rhs) const noexcept;
-
-
-	friend void swap(Checksum& lhs, Checksum& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
-
-	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
-	{
-		return lhs.equals(rhs);
-	}
-
-	friend std::ostream& operator << (std::ostream& out, const Checksum& c)
-	{
-		const auto prev_settings = std::ios_base::fmtflags { out.flags() };
-
-		out << std::hex << std::noshowbase << std::uppercase
-			<< std::setw(8) << std::setfill('0')
-			<< c.value();
-
-		out.flags(prev_settings);
-		return out;
-	}
-
-	friend std::string to_string(const Checksum& c)
-	{
-		auto stream = std::ostringstream {};
-		stream << c;
-		return stream.str();
-	}
-
-private:
-
-	/**
-	 * \brief Actual checksum value;
-	 */
-	value_type value_;
-};
-
 
 /**
  * \brief Operations on checksum types and their names.
@@ -215,7 +84,163 @@ static const std::array<type, 2> types = {
  */
 std::string type_name(const type t);
 
+
+/**
+ * \brief Print a checksum value to a stream.
+ *
+ * This defines how to print a Checksum by default.
+ *
+ * It provides the default implementation of Checksum::operator << and
+ * Checksum::to_string().
+ *
+ * \param[in] stream   The stream to print to
+ * \param[in] checksum Checksum to print
+ */
+void print(std::ostream& stream, const Checksum& checksum);
+
 } // namespace checksum
+
+/**
+ * \brief An AccurateRip checksum for a single file or track.
+ *
+ * \details
+ *
+ * A Checksum has a value_type. This is its numeric representation. It is an
+ * unsigned integer of 32 bit length.
+ *
+ * A Checksum can be represented by its numeric value() which is of type
+ * value_type. A Checksum can be compared for equality with instances of its
+ * value_type using operator ==.
+ *
+ * A Checksum has a converting constructor for its value_type, thus every
+ * parameter that expects a checksum can be assigned a value of type value_type
+ * instead of a Checksum. Some compilers will do the conversion with other
+ * numerical types but issue a warning if a conversion from signed to unsigned
+ * types is required (e.g. -Wsign-conversion).
+ *
+ * Operator << is overloaded for printing Checksums to streams. The Checksum
+ * will then occurr in its standard layout: as a hexadecimal number without the
+ * base '0x', all digits in upper case, and filled with leading zeros up to a
+ * width of 8 digits.
+ *
+ * As a technical convenience, a Checksum may be empty() which means: it carries
+ * no value. Calling value() on an empty() Checksum may lead any result. Two
+ * empty Checksum instances qualify as equal when compared using operator ==.
+ */
+class Checksum final : public Comparable<Checksum>
+{
+public:
+
+	/**
+	 * \brief Numerical base type of checksums: a 32-bit wide unsigned integer.
+	 */
+	using value_type = uint32_t;
+
+	/**
+	 * \brief Total number of printed digits of an ARCS.
+	 */
+	constexpr static std::size_t TOTAL_DIGITS =
+		(sizeof(Checksum::value_type) * CHAR_BIT) / std::log2(16);
+	// 4 bits are required to represent a single hexadecimal digit
+	// (since 2^4 == 16). We express 4 as log_2(16).
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Creates an empty Checksum.
+	 */
+	Checksum();
+
+	/**
+	 * \brief Converting constructor for value_type instances.
+	 *
+	 * \param[in] value Actual checksum value
+	 */
+	Checksum(const value_type value);
+
+	/**
+	 * \brief Assignment operator for value_type instances
+	 *
+	 * \param[in] rhs Actual checksum value
+	 */
+	Checksum& operator = (const value_type rhs);
+
+	/**
+	 * \brief Numeric value of the checksum.
+	 *
+	 * \return Numeric value of the checksum
+	 */
+	value_type value() const noexcept;
+
+	/**
+	 * \brief Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
+	 *
+	 * A Checksum is empty if it contains no valid value. Note that this
+	 * may or may not entail that <tt>value() == 0</tt>.
+	 *
+	 * \return Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
+	 */
+	bool empty() const noexcept;
+
+	/**
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 */
+	explicit operator bool() const noexcept;
+
+	/**
+	 * \brief Swap with another instance.
+	 *
+	 * \param[in] rhs Instance to swap
+	 */
+	void swap(Checksum& rhs) noexcept;
+
+	/**
+	 * \brief TRUE iff this instance is equal to another instance.
+	 *
+	 * \param[in] rhs Instance to check for equality
+	 *
+	 * \return TRUE iff \c rhs == \c this
+	 */
+	bool equals(const Checksum& rhs) const noexcept;
+
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const;
+
+
+	friend void swap(Checksum& lhs, Checksum& rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
+
+	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend std::ostream& operator << (std::ostream& out, const Checksum& c)
+	{
+		checksum::print(out, c);
+		return out;
+	}
+
+	friend std::string to_string(const Checksum& c)
+	{
+		return c.to_string();
+	}
+
+private:
+
+	/**
+	 * \brief Actual checksum value;
+	 */
+	value_type value_;
+};
 
 
 /**
