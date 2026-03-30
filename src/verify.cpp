@@ -1241,7 +1241,8 @@ std::unique_ptr<ChecksumSource> DBARSource::do_clone() const
 // VerificationResult
 
 
-VerificationResult::~VerificationResult() noexcept = default;
+VerificationResult::~VerificationResult() noexcept = default; // Pimpl
+															  // requirement
 
 
 bool VerificationResult::all_tracks_verified() const
@@ -1464,7 +1465,7 @@ AlbumVerifier& AlbumVerifier::operator=(AlbumVerifier&& rhs) noexcept
 }
 
 
-AlbumVerifier::~AlbumVerifier() noexcept = default;
+AlbumVerifier::~AlbumVerifier() noexcept = default; // Pimpl requirement
 
 
 const ARId* AlbumVerifier::do_actual_id() const noexcept
@@ -1560,7 +1561,7 @@ TracksetVerifier& TracksetVerifier::operator=(TracksetVerifier&& rhs) noexcept
 }
 
 
-TracksetVerifier::~TracksetVerifier() noexcept = default;
+TracksetVerifier::~TracksetVerifier() noexcept = default; // Pimpl requirement
 
 
 const ARId* TracksetVerifier::do_actual_id() const noexcept

@@ -1114,7 +1114,7 @@ Calculation& Calculation::operator=(Calculation&& rhs) noexcept
 }
 
 
-Calculation::~Calculation() noexcept = default;
+Calculation::~Calculation() noexcept = default; // Pimpl requirement
 
 
 void Calculation::set_settings(const Settings& s) noexcept

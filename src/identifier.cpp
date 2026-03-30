@@ -322,7 +322,7 @@ ARId::ARId(const ARId& id)
 ARId::ARId(ARId&& rhs) noexcept = default;
 
 
-ARId::~ARId() noexcept = default;
+ARId::~ARId() noexcept = default; // Pimpl requirement
 
 
 std::string ARId::url() const
