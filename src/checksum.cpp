@@ -15,17 +15,13 @@
 #include <cmath>            // for log2
 #include <cstdint>          // for int32_t
 #include <initializer_list> // for initializer_list
+#include <iomanip>			// for setfill, setw
 #include <iterator>         // for begin, end, inserter
-#include <climits>          // for CHAR_BIT
 #include <set>              // for set
 #include <stdexcept>        // for domain_error
 #include <string>           // for string
 #include <type_traits>      // for underlying_type
 #include <utility>          // for pair, swap
-
-#ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"   // for ACCURATERIP
-#endif
 
 
 namespace arcstk

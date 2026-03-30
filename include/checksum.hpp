@@ -17,9 +17,7 @@
 #include <cmath>            // for log2
 #include <cstdint>          // for int32_t, uint32_t
 #include <initializer_list> // for initializer_list
-#include <iomanip>          // for setfill, setw
 #include <ostream>          // for ostream
-#include <sstream>          // for ostringstream
 #include <set>              // for set
 #include <unordered_map>    // for unordered_map
 #include <utility>          // for pair
