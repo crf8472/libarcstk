@@ -1187,7 +1187,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~DBARBuilder() noexcept final = default;
+	~DBARBuilder() noexcept final;
 
 	/**
 	 * \brief Parsing result.
