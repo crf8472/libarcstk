@@ -100,28 +100,28 @@ void is_legal_offset(const int32_t offset)
 		throw_on_invalid_tocdata(ss.str());
 	}
 
-	if (offset > MAX_OFFSET_99)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset exceeds physical range of 99 min ("
-				<< to_string(MAX_OFFSET_99) << " offset)";
-		throw_on_invalid_tocdata(ss.str());
-	}
-
-	if (offset > MAX_OFFSET_90)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset exceeds frame "
-			<< to_string(MAX_OFFSET_90) << " (90 min)";
-		throw_on_invalid_tocdata(ss.str());
-	}
-
-	if (offset > CDDA::MAX_OFFSET)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset " << offset << " exceeds redbook maximum";
-		throw_on_invalid_tocdata(ss.str());
-	}
+	// if (offset > MAX_OFFSET_99)
+	// {
+	// 	auto ss = std::ostringstream {};
+	// 	ss << "Offset exceeds physical range of 99 min ("
+	// 			<< to_string(MAX_OFFSET_99) << " offset)";
+	// 	throw_on_invalid_tocdata(ss.str());
+	// }
+	//
+	// if (offset > MAX_OFFSET_90)
+	// {
+	// 	auto ss = std::ostringstream {};
+	// 	ss << "Offset exceeds frame "
+	// 		<< to_string(MAX_OFFSET_90) << " (90 min)";
+	// 	throw_on_invalid_tocdata(ss.str());
+	// }
+	//
+	// if (offset > CDDA::MAX_OFFSET)
+	// {
+	// 	auto ss = std::ostringstream {};
+	// 	ss << "Offset " << offset << " exceeds redbook maximum";
+	// 	throw_on_invalid_tocdata(ss.str());
+	// }
 }
 
 
