@@ -835,6 +835,20 @@ public:
 	bool complete() const noexcept;
 
 	/**
+	 * \brief Return \c TRUE iff this instance is empty (without ToCData).
+	 *
+	 * There may or may not be filenames present, but no ToCData.
+	 */
+	bool empty() const noexcept;
+
+	/**
+	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 *
+	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 */
+	explicit operator bool() const noexcept;
+
+	/**
 	 * \brief Swap with another instance.
 	 *
 	 * \param[in] rhs Instance to swap
@@ -868,6 +882,13 @@ public:
 	}
 };
 
+/**
+ * \brief Global instance of an empty ToC.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * ToC can be avoided when a reference instance is at hand.
+ */
+extern const ToC EmptyToC;
 
 /**
  * \brief Create a ToC from leadout, offsets and filenames.

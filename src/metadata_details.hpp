@@ -209,9 +209,11 @@ public:
 
 	bool complete() const noexcept;
 
+	bool empty() const noexcept;
+
 	void swap(Impl& rhs) noexcept;
 
-	bool equals(const Impl& rhs) noexcept;
+	bool equals(const Impl& rhs) const noexcept;
 
 private:
 

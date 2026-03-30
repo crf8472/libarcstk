@@ -601,6 +601,12 @@ bool ToC::Impl::complete() const noexcept
 }
 
 
+bool ToC::Impl::empty() const noexcept
+{
+	return toc_.empty();
+}
+
+
 void ToC::Impl::swap(Impl& rhs) noexcept
 {
 	using std::swap;
@@ -610,7 +616,7 @@ void ToC::Impl::swap(Impl& rhs) noexcept
 }
 
 
-bool ToC::Impl::equals(const Impl& rhs) noexcept
+bool ToC::Impl::equals(const Impl& rhs) const noexcept
 {
 	return this->toc_ == rhs.toc_ && this->filenames_ == rhs.filenames_;
 }
@@ -722,6 +728,18 @@ bool ToC::complete() const noexcept
 }
 
 
+bool ToC::empty() const noexcept
+{
+	return impl_->empty();
+}
+
+
+ToC::operator bool() const noexcept
+{
+	return !empty();
+}
+
+
 void ToC::swap(const ToC& rhs) const noexcept
 {
 	impl_->swap(*rhs.impl_);
@@ -808,6 +826,12 @@ ToC validated_toc(const std::vector<int32_t>& offsets)
 
 	return ToC { toc_data };
 }
+
+
+// EmptyToC
+
+
+const ToC EmptyToC = ToC { {}, {} };
 
 
 // InvalidMetadataException
