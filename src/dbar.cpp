@@ -23,22 +23,22 @@
 #include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr, make_unique
 #include <numeric>			// for accumulate
-#include <set>				// for set
 #include <sstream>			// for ostringstream
 #include <stdexcept>		// for runtime_error
 #include <string>			// for string
 #include <tuple>			// for get, tuple
+#include <unordered_set>	// for unordered_set
 #include <utility>			// for pair, move
 #include <vector>			// for vector
 
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"            // for checksum::print()
+#endif
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"          // for ARId
 #endif
 #ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
 #include "identifier_details.hpp"  // for arid::print()
-#endif
-#ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"            // for checksum::print()
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -417,7 +417,7 @@ bool is_uniform(const DBAR& dbar)
 	using std::cbegin;
 	using std::cend;
 
-	auto ids = std::set<std::string> {};
+	auto ids = std::unordered_set<std::string> {};
 
 	/* empty DBAR is uniform */
 	std::for_each(cbegin(dbar), cend(dbar),
