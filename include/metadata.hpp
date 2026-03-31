@@ -724,6 +724,8 @@ void print(std::ostream& out, const ToCData& toc_data);
 /**
  * \brief Create a string representation of this instance.
  *
+ * \param[in] toc_data ToCData object to be converted
+ *
  * \return String representation
  */
 std::string to_string(const ToCData& toc_data);
@@ -879,6 +881,8 @@ public:
 	 * \brief Return \c TRUE iff this instance is empty (without ToCData).
 	 *
 	 * There may or may not be filenames present, but no ToCData.
+	 *
+	 * \return TRUE iff ToC is empty otherwise FALSE
 	 */
 	bool empty() const noexcept;
 

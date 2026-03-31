@@ -128,6 +128,17 @@ public:
 	ARId id(const size_type block_idx) const;
 
 	/**
+	 * \brief Size of the block specified by \c block_idx.
+	 *
+	 * The number of tracks in this block is its size.
+	 *
+	 * \param[in] block_idx 0-based block index to access
+	 *
+	 * \return The size of the specified block
+	 */
+	size_type size(const size_type block_idx) const;
+
+	/**
 	 * \brief Read checksum on the specified position.
 	 *
 	 * Note that the wrapping of the ARCS value involves a copy.
@@ -172,17 +183,6 @@ public:
 	 */
 	const uint32_t& frame450_arcs_value(const size_type block_idx,
 			const size_type track_idx) const;
-
-	/**
-	 * \brief Size of the block specified by \c block_idx.
-	 *
-	 * The number of tracks in this block is its size.
-	 *
-	 * \param[in] block_idx 0-based block index to access
-	 *
-	 * \return The size of the specified block
-	 */
-	size_type size(const size_type block_idx) const;
 
 	/**
 	 * \brief Number of blocks.
@@ -680,7 +680,7 @@ public:
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
-	AlbumVerifier(const AlbumVerifier& verifier);
+	AlbumVerifier(const AlbumVerifier& rhs);
 
 	/**
 	 * \brief Copy assignment operator.
@@ -689,14 +689,14 @@ public:
 	 *
 	 * \return Reference to the instance with the value assigned
 	 */
-	AlbumVerifier& operator=(const AlbumVerifier& verifier);
+	AlbumVerifier& operator = (const AlbumVerifier& rhs);
 
 	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	AlbumVerifier(AlbumVerifier&& verifier) noexcept;
+	AlbumVerifier(AlbumVerifier&& rhs) noexcept;
 
 	/**
 	 * \brief Move assignment operator.
@@ -705,7 +705,7 @@ public:
 	 *
 	 * \return Reference to the instance with the value assigned
 	 */
-	AlbumVerifier& operator=(AlbumVerifier&& verifier) noexcept;
+	AlbumVerifier& operator = (AlbumVerifier&& rhs) noexcept;
 
 	/**
 	 * \brief Default destructor.
@@ -780,7 +780,7 @@ public:
 	 *
 	 * \param[in] rhs The instance to copy
 	 */
-	TracksetVerifier(const TracksetVerifier& verifier);
+	TracksetVerifier(const TracksetVerifier& rhs);
 
 	/**
 	 * \brief Copy assignment operator.
@@ -789,14 +789,14 @@ public:
 	 *
 	 * \return Reference to the instance with the value assigned
 	 */
-	TracksetVerifier& operator=(const TracksetVerifier& verifier);
+	TracksetVerifier& operator = (const TracksetVerifier& rhs);
 
 	/**
 	 * \brief Move constructor.
 	 *
 	 * \param[in] rhs The instance to move
 	 */
-	TracksetVerifier(TracksetVerifier&& verifier) noexcept;
+	TracksetVerifier(TracksetVerifier&& rhs) noexcept;
 
 	/**
 	 * \brief Move assignment operator.
@@ -805,7 +805,7 @@ public:
 	 *
 	 * \return Reference to the instance with the value assigned
 	 */
-	TracksetVerifier& operator=(TracksetVerifier&& verifier) noexcept;
+	TracksetVerifier& operator=(TracksetVerifier&& rhs) noexcept;
 
 	/**
 	 * \brief Default destructor.

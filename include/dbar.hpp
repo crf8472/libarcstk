@@ -361,6 +361,8 @@ public:
  * \brief Apply an index on an indexed container.
  *
  * \tparam T The container type to get an element from
+ *
+ * \return The element on the specified index
  */
 template<typename T>
 auto get_element(const T& /*container*/, const typename T::size_type /*index*/)

@@ -160,6 +160,8 @@ public:
 	 * \brief Assignment operator for value_type instances
 	 *
 	 * \param[in] rhs Actual checksum value
+	 *
+	 * \return Reference to instance
 	 */
 	Checksum& operator = (const value_type rhs);
 
