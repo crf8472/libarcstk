@@ -689,8 +689,8 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		ARCS_LOG(DEBUG2) << "Samples total: " << total;
 
 		state.update(start + offset_first, start + offset_last + 1);
-		// +1 because the "last" sample would not be processed otherwise. The
-		// stop point has to be shifted behind the last sample intended to pass.
+		// +1 because the stop point has to be shifted _behind_ the last sample.
+		// The last sample would not be processed otherwise.
 
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())
@@ -702,8 +702,9 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		}
 	}
 
-	return SampleRange(start_pos, last_pos).contains(
-			partitioner.legal_range().upper()/* last relevant sample */);
+	/* Return TRUE iff the last relevant sample was in the current block. */
+	return SampleRange { start_pos, last_pos }.contains(
+			partitioner.legal_range().upper());
 }
 
 } // namespace details
@@ -916,7 +917,7 @@ Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
 }
 
 
-Calculation::Impl::~Impl() noexcept = default;
+//Calculation::Impl::~Impl() noexcept = default;
 
 
 void Calculation::Impl::init(const Settings& s, const ToCData& toc)
@@ -1017,45 +1018,61 @@ bool Calculation::Impl::complete() const noexcept
 }
 
 
-void Calculation::Impl::update(SampleInputIterator start,
+bool Calculation::Impl::perform_update_measure_time(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	using fsec = std::chrono::duration<float>;
-	using ms   = std::chrono::milliseconds;
-
-	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
-
 	const auto start_time { std::chrono::steady_clock::now() };
 
 	const auto finished = bool {
 		perform_update(start, stop, *partitioner_, *state_, *result_buffer_) };
 
 	const auto stop_time  { std::chrono::steady_clock::now() };
+
+	using fsec = std::chrono::duration<float>;
+
 	const fsec dur { stop_time - start_time }; // intentionally not auto
 	// Type of the subtraction is high_resolution_clock::duration which is
 	// not necessarily the same type as duration<float>.
+
 	state_->increment_update_time_elapsed(dur);
 
-	if (finished)
+	return finished;
+}
+
+
+void Calculation::Impl::completed()
+{
+	ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
+
+	ARCS_LOG(DEBUG1) << "Total samples declared:  " << samples_expected();
+
+	ARCS_LOG(DEBUG1) << "Total samples processed: " << samples_processed()
+		<< " (== " << partitioner_->legal_range().to_string() << ")";
+
+	using ms = std::chrono::milliseconds;
+
+	const ms update_time =
+		std::chrono::duration_cast<ms>(state_->update_time_elapsed());
+
+	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
+		<< update_time.count();
+
+	const ms algo_time =
+		std::chrono::duration_cast<ms>(state_->algo_time_elapsed());
+
+	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by Algorithm: "
+		<< algo_time.count();
+}
+
+
+void Calculation::Impl::update(SampleInputIterator start,
+		SampleInputIterator stop)
+{
+	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
+
+	if (perform_update_measure_time(start, stop))
 	{
-		ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
-
-		ARCS_LOG(DEBUG1) << "Total samples declared:  " << samples_expected();
-
-		ARCS_LOG(DEBUG1) << "Total samples processed: " << samples_processed()
-			<< " (== " << partitioner_->legal_range().to_string() << ")";
-
-		const ms update_time =
-			std::chrono::duration_cast<ms>(state_->update_time_elapsed());
-
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
-			<< update_time.count();
-
-		const ms algo_time =
-			std::chrono::duration_cast<ms>(state_->algo_time_elapsed());
-
-		ARCS_LOG(DEBUG1) << "Milliseconds elapsed by Algorithm: "
-			<< algo_time.count();
+		completed();
 	}
 
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: END";

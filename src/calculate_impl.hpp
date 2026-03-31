@@ -348,6 +348,19 @@ class Calculation::Impl final
 	std::unique_ptr<Algorithm>                  algorithm_;
 	std::unique_ptr<details::CalculationState>  state_;
 
+	/**
+	 * \brief Wrapper for perform_update that measures elapsed time.
+	 *
+	 * \return FALSE iff more updates are required, otherwise TRUE
+	 */
+	bool perform_update_measure_time(SampleInputIterator start,
+		SampleInputIterator stop);
+
+	/**
+	 * \brief Hook: called after the update sequence is completed.
+	 */
+	void completed();
+
 public:
 
 	/**
@@ -366,7 +379,7 @@ public:
 	/**
 	 * \brief Default destructor.
 	 */
-	~Impl() noexcept;
+	//~Impl() noexcept;
 
 	// Impl specific
 

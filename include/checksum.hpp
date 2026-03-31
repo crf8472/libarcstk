@@ -526,7 +526,7 @@ public:
 };
 
 /**
- * \brief A list of @link arcstk::ChecksumSet ChecksumSets @endlink.
+ * \brief List of \link arcstk::ChecksumSet ChecksumSets \endlink.
  *
  * Each ChecksumSet represents a track. The order of the ChecksumSets follows
  * the order of tracks on the original compact disc.

@@ -61,7 +61,8 @@ using ToCData = std::vector<AudioSize>;
  * a checksum, v1 and v2. A v1 checksum can be materialized as a subtotal when
  * calculating a v2 checksum. Therefore a calculation of a v2 value can also
  * provide the v1 value for the input. Hence there are three variants of the
- * Algorith available: V1, V2 and V1and2. The latter provides v1 as well as v2.
+ * Algorithm available: \e V1, \e V2 and \e V1and2. The latter provides v1 as
+ * well as v2.
  *
  * Class Settings provides an interface for configuring an Algorithm or the
  * calculation process.
@@ -69,7 +70,7 @@ using ToCData = std::vector<AudioSize>;
  * As part of the Settings there exists a Context in which the Calculation is
  * performed. The Algorithm is aware of the Context. The Context indicates if
  * either FIRST_TRACK, LAST_TRACK, or both have to be treated specially when
- * calculating. This is a requirement of the AccurateRip algorithms.
+ * calculating.
  *
  * A Calculation represents the technical process of calculating Checksums by an
  * Algorithm. It has to be parametized with an Algorithm, initialized with the
@@ -85,12 +86,12 @@ using ToCData = std::vector<AudioSize>;
  * samples. Using a SampleSequence may be of convenience for establishing
  * compatibility of the sample input format.
  *
- * Its result can be provided as soon as a Calculation is
- * @link arcstk::Calculation::complete() complete() @endlink.
- * The resulting Checksums represent the result for all requested checksum types
- * and all tracks of the audio input. It is an aggregation of the ChecksumSet
- * for each track of an respective audio input. Depending on the input, it can
- * represent either an entire album or a single track.
+ * As soon as a Calculation is
+ * @link arcstk::Calculation::complete() complete() @endlink its result can be
+ * provided. The resulting Checksums represent the result for all requested
+ * checksum types and all tracks of the audio input. It is an aggregation of the
+ * ChecksumSet for each track of an respective audio input. Depending on the
+ * input, it can represent either an entire album or a single track.
  *
  * ChecksumSet is a set of @link arcstk::Checksum Checksums @endlink of
  * different @link arcstk::checksum::type checksum::types @endlink of
@@ -509,18 +510,42 @@ enum class Context : unsigned
 	ALBUM       = 3
 };
 
+/**
+ * \brief Logical OR for two contexts.
+ *
+ * \param[in] lhs Left hand side
+ * \param[in] rhs Right hand side
+ *
+ * \return Context that respresents the result of lhs-OR-rhs
+ */
 inline constexpr Context operator | (const Context lhs, const Context rhs)
 {
 	return static_cast<Context>(
 			static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
 }
 
+/**
+ * \brief Logical AND for two contexts.
+ *
+ * \param[in] lhs Left hand side
+ * \param[in] rhs Right hand side
+ *
+ * \return Context that respresents the result of lhs-AND-rhs
+ */
 inline constexpr Context operator & (const Context lhs, const Context rhs)
 {
 	return static_cast<Context>(
 			static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
 }
 
+/**
+ * \brief Equality for two contexts.
+ *
+ * \param[in] lhs Left hand side
+ * \param[in] rhs Right hand side
+ *
+ * \return TRUE if \c lhs equals \c rhs, otherwise FALSE
+ */
 inline constexpr bool operator == (const Context lhs, const Context rhs)
 {
 	return static_cast<unsigned>(lhs) == static_cast<unsigned>(rhs);
@@ -604,6 +629,10 @@ public:
 	 * \return Context of this instance
 	 */
 	Context context() const;
+
+	// TODO swap()
+	// TODO equals()
+	// TODO to_string()
 
 	friend void swap(Settings& lhs, Settings& rhs) noexcept
 	{
