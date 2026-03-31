@@ -106,6 +106,7 @@ struct Subtotals
 	friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 	{
 		using std::swap;
+
 		swap(lhs.multiplier,  rhs.multiplier);
 		swap(lhs.update,      rhs.update);
 		swap(lhs.subtotal_v1, rhs.subtotal_v1);
@@ -304,6 +305,7 @@ public:
 	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
 	{
 		using std::swap;
+
 		swap(lhs.st_,     rhs.st_);
 		swap(lhs.update_, rhs.update_);
 	}

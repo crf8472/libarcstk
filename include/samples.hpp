@@ -467,14 +467,25 @@ class SampleSequenceImplBase
 {
 public:
 
+	/**
+	 * \brief Value type.
+	 */
 	using value_type = sample_type;
 
+	/**
+	 * \brief Size and index type.
+	 */
 	using size_type = std::size_t;
 
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
 	using iterator = SampleIterator<T, is_planar, false>;
 
+	/**
+	 * \brief Unspecified constant forward iterator type.
+	 */
 	using const_iterator = SampleIterator<T, is_planar, true>;
-
 
 	/**
 	 * \brief Obtain an iterator pointing to the beginning.

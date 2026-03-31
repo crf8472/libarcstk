@@ -116,6 +116,9 @@ std::ostream& operator << (std::ostream& out, const ARId& arid);
  */
 class ARId final : public Comparable<ARId>
 {
+	class Impl;
+	std::unique_ptr<Impl> impl_;
+
 public:
 
 	/**
@@ -254,12 +257,6 @@ public:
 	 */
 	std::string to_string() const;
 
-private:
-
-	class Impl;
-	std::unique_ptr<Impl> impl_;
-
-public:
 
 	friend void swap(ARId& lhs, ARId& rhs) noexcept
 	{

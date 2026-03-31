@@ -99,16 +99,17 @@ void print(std::ostream& stream, const Checksum& checksum);
 } // namespace checksum
 
 /**
- * \brief An AccurateRip checksum for a single file or track.
+ * \brief A checksum for a single file or track.
  *
  * \details
  *
- * A Checksum has a value_type. This is its numeric representation. It is an
- * unsigned integer of 32 bit length.
+ * A Checksum has a value_type of an unsigned integer of 32 bit length.
  *
- * A Checksum can be represented by its numeric value() which is of type
- * value_type. A Checksum can be compared for equality with instances of its
- * value_type using operator ==.
+ * A Checksum can be represented by its numeric value(). A Checksum can be
+ * compared for equality with instances of its value_type using operator ==.
+ * As a technical convenience, a Checksum is zero() if its value() is 0. In this
+ * case it is converted by operator bool() to FALSE. Any Checksum that is not
+ * zero() converts to TRUE.
  *
  * A Checksum has a converting constructor for its value_type, thus every
  * parameter that expects a checksum can be assigned a value of type value_type
@@ -120,10 +121,6 @@ void print(std::ostream& stream, const Checksum& checksum);
  * will then occurr in its standard layout: as a hexadecimal number without the
  * base '0x', all digits in upper case, and filled with leading zeros up to a
  * width of 8 digits.
- *
- * As a technical convenience, a Checksum may be empty() which means: it carries
- * no value. Calling value() on an empty() Checksum may lead any result. Two
- * empty Checksum instances qualify as equal when compared using operator ==.
  */
 class Checksum final : public Comparable<Checksum>
 {
@@ -135,7 +132,7 @@ public:
 	using value_type = uint32_t;
 
 	/**
-	 * \brief Total number of printed digits of an ARCS.
+	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
 	constexpr static std::size_t TOTAL_DIGITS =
 		(sizeof(Checksum::value_type) * CHAR_BIT) / std::log2(16);
@@ -157,7 +154,7 @@ public:
 	Checksum(const value_type value);
 
 	/**
-	 * \brief Assignment operator for value_type instances
+	 * \brief Assignment operator to assign value_type values
 	 *
 	 * \param[in] rhs Actual checksum value
 	 *
@@ -260,6 +257,12 @@ private:
 
 	/**
 	 * \internal
+	 * \brief Track length as number of LBA frames.
+	 */
+	int32_t length_;
+
+	/**
+	 * \internal
 	 * \brief Key type of the internal type map.
 	 */
 	using key_type = checksum::type;
@@ -276,28 +279,32 @@ private:
 	 */
 	storage_type set_;
 
-	/**
-	 * \internal
-	 * \brief Track length as number of LBA frames.
-	 */
-	int32_t length_;
+	// intentionally undocumented
+	using unspecified_forward_iterator_type = storage_type::iterator;
+
+	// intentionally undocumented
+	using unspecified_constant_forward_iterator_type =
+		storage_type::const_iterator;
+
+	// intentionally undocumented
+	using unspecified_unsigned_size_type = storage_type::size_type;
 
 public:
 
 	/**
 	 * \brief Unspecified forward iterator type.
 	 */
-	using iterator       = storage_type::iterator;
+	using iterator = unspecified_forward_iterator_type;
 
 	/**
 	 * \brief Unspecified forward iterator type.
 	 */
-	using const_iterator = storage_type::const_iterator;
+	using const_iterator = unspecified_constant_forward_iterator_type;
 
 	/**
 	 * \brief Size type (unsigned integral type)
 	 */
-	using size_type      = storage_type::size_type;
+	using size_type = unspecified_unsigned_size_type;
 
 	/**
 	 * \brief Constructor for a track with unknown length (will be 0)
@@ -335,14 +342,14 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	int32_t length() const noexcept;
+	int32_t length() const noexcept; //TODO AudioSize
 
 	/**
 	 * \brief Set the length (in LBA frames) of this track.
 	 *
 	 * \param[in] length New length for this instance
 	 */
-	void set_length(const int32_t length) noexcept;
+	void set_length(const int32_t length) noexcept; //TODO AudioSize
 
 	/**
 	 * \brief Returns the number of elements contained in the instance.

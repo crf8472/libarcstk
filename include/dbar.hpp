@@ -428,6 +428,9 @@ public:
 template<typename T, bool R>
 class DBARForwardIterator final : public Comparable<DBARForwardIterator<T,R>>
 {
+	/**
+	 * \brief Size and index type.
+	 */
 	using size_type = typename T::size_type;
 
 public:
@@ -442,7 +445,9 @@ public:
 				std::declval<size_type>()) );
 
     using reference         = value_type; // not a reference
+
     using pointer           = IteratorElement<value_type, size_type>;
+
     using difference_type   = std::ptrdiff_t;
 
 private:
@@ -570,10 +575,16 @@ public:
 
 private:
 
-	/**
-	 * \brief Internal implementation.
-	 */
+	// intentionally undocumented
 	std::unique_ptr<Impl> impl_;
+
+	// intentionally undocumented
+	using unspecified_forward_iterator_type =
+		details::DBARForwardIterator<DBAR, false>;
+
+	// intentionally undocumented
+	using unspecified_reverse_forward_iterator_type =
+		details::DBARForwardIterator<DBAR, true>;
 
 public:
 
@@ -588,29 +599,29 @@ public:
 	using value_type = DBARBlock;
 
 	/**
-	 * \brief Iterator type.
+	 * \brief Unspecified forward iterator type.
 	 */
-	using iterator         = details::DBARForwardIterator<DBAR, false>;
+	using iterator = unspecified_forward_iterator_type;
 
 	/**
-	 * \brief Reverse iterator type.
+	 * \brief Unspecified reverse forward iterator type.
 	 */
-	using reverse_iterator = details::DBARForwardIterator<DBAR, true>;
+	using reverse_iterator = unspecified_reverse_forward_iterator_type;
 
 	/**
-	 * \brief Constant iterator type.
+	 * \brief Unspecified constant forward iterator type.
 	 */
-	using const_iterator         = const iterator;
+	using const_iterator = const iterator;
 
 	/**
-	 * \brief Constant reverse iterator type.
+	 * \brief Unspecified reverse constant forward iterator type.
 	 */
 	using const_reverse_iterator = const reverse_iterator;
 
 	/**
 	 * \brief Default constructor.
 	 */
-	DBAR(); // required for IteratorElement
+	DBAR(); // required for use with IteratorElement
 
 	/**
 	 * \internal
@@ -624,7 +635,7 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Intended for writing tests.
+	 * Intended for use in tests.
 	 *
 	 * \param[in] blocks List of DBAR block literals.
 	 */
@@ -838,14 +849,22 @@ public:
 class DBARBlock final
 {
 	/**
-	 * \brief Pointer to underlying DBAR.
+	 * \brief Internal pointer to underlying DBAR.
 	 */
 	const DBAR* dBAR_;
 
 	/**
-	 * \brief Index of this block.
+	 * \brief Internal index of this block.
 	 */
 	DBAR::size_type idx_;
+
+	// intentionally undocumented
+	using unspecified_forward_iterator_type =
+		details::DBARForwardIterator<DBARBlock, false>;
+
+	// intentionally undocumented
+	using unspecified_reverse_forward_iterator_type =
+		details::DBARForwardIterator<DBARBlock, true>;
 
 public:
 
@@ -860,22 +879,22 @@ public:
 	using value_type = DBARTriplet;
 
 	/**
-	 * \brief Iterator type.
+	 * \brief Unspecified forward iterator type.
 	 */
-	using iterator         = details::DBARForwardIterator<DBARBlock, false>;
+	using iterator = unspecified_forward_iterator_type;
 
 	/**
-	 * \brief Reverse iterator type.
+	 * \brief Unspecified reverse forward iterator type.
 	 */
-	using reverse_iterator = details::DBARForwardIterator<DBARBlock, true>;
+	using reverse_iterator = unspecified_reverse_forward_iterator_type;
 
 	/**
-	 * \brief Constant iterator type.
+	 * \brief Unspecified constant forward iterator type.
 	 */
-	using const_iterator         = const iterator;
+	using const_iterator = const iterator;
 
 	/**
-	 * \brief Constant reverse iterator type.
+	 * \brief Unspecified reverse constant forward iterator type.
 	 */
 	using const_reverse_iterator = const reverse_iterator;
 
@@ -1039,6 +1058,15 @@ auto get_element(const DBAR& object, const DBAR::size_type i)
 template<>
 auto get_element(const DBARBlock& object, const DBARBlock::size_type i)
 	-> DBARBlock::value_type;
+
+
+/**
+ * \brief Global instance of an empty DBAR.
+ *
+ * This is for convenience since in most cases, the creation of an empty
+ * DBAR can be avoided when a reference instance is at hand.
+ */
+extern const DBAR EmptyDBAR;
 
 
 /**
@@ -1225,7 +1253,8 @@ public:
 	 * function can be called once to move the result to the caller.
 	 *
 	 * \attention
-	 * Every subsequent call of result() is undefined behaviour.
+	 * Only the first call of result() is supported.
+	 * Every subsequent call of result() leads arbitray results.
 	 *
 	 * \return The DBAR object representing the parsed input.
 	 */

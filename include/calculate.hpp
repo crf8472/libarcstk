@@ -40,7 +40,8 @@ inline namespace v_1_0_0
 class AudioSize;
 class ToC;
 
-using ToCData = std::vector<AudioSize>; // duplicate of metadata.hpp
+// duplicate of metadata.hpp, documented there
+using ToCData = std::vector<AudioSize>;
 
 
 /**
@@ -330,6 +331,7 @@ private:
 		friend void swap(Model& lhs, Model& rhs) noexcept
 		{
 			using std::swap;
+
 			swap(lhs.iterator_, rhs.iterator_);
 		}
 
@@ -432,6 +434,7 @@ public:
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
 		using std::swap;
+
 		swap(*this, rhs);
 		return *this;
 	}
@@ -442,6 +445,7 @@ public:
 		noexcept
 	{
 		using std::swap;
+
 		swap(lhs.object_, rhs.object_);
 	} // required by LegacyIterator
 
@@ -604,6 +608,7 @@ public:
 	friend void swap(Settings& lhs, Settings& rhs) noexcept
 	{
 		using std::swap;
+
 		swap(lhs.context_, rhs.context_);
 	}
 

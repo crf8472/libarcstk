@@ -50,6 +50,9 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
+const DBAR EmptyDBAR = DBAR {};
+
+
 namespace details
 {
 
