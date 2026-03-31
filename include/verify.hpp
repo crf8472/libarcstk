@@ -675,10 +675,36 @@ public:
 	 */
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
 
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	AlbumVerifier(const AlbumVerifier& verifier);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	AlbumVerifier& operator=(const AlbumVerifier& verifier);
 
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The instance to move
+	 */
 	AlbumVerifier(AlbumVerifier&& verifier) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	AlbumVerifier& operator=(AlbumVerifier&& verifier) noexcept;
 
 	/**
@@ -749,10 +775,36 @@ public:
 	 */
 	explicit TracksetVerifier(const Checksums& actual_sums);
 
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	TracksetVerifier(const TracksetVerifier& verifier);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	TracksetVerifier& operator=(const TracksetVerifier& verifier);
 
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The instance to move
+	 */
 	TracksetVerifier(TracksetVerifier&& verifier) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	TracksetVerifier& operator=(TracksetVerifier&& verifier) noexcept;
 
 	/**
