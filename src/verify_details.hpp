@@ -315,8 +315,11 @@ private:
  * verified if they all occurr in the same block. Alternatively, just any
  * matching track in any block may be considered as verified.
  */
-class VerificationPolicy { virtual bool do_is_verified(const int track, const
-		VerificationResult& r) const = 0;
+class VerificationPolicy
+{
+	virtual bool do_is_verified(const int track, const VerificationResult& r)
+		const
+	= 0;
 
 	virtual int do_total_unverified_tracks(const VerificationResult& r) const;
 
@@ -377,6 +380,8 @@ public:
  */
 class StrictPolicy final : public VerificationPolicy
 {
+	// VerificationPolicy
+
 	bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
 
@@ -394,6 +399,8 @@ class StrictPolicy final : public VerificationPolicy
  */
 class LiberalPolicy final : public VerificationPolicy
 {
+	// VerificationPolicy
+
 	bool do_is_verified(const int track, const VerificationResult& r)
 		const final;
 
@@ -408,19 +415,34 @@ class LiberalPolicy final : public VerificationPolicy
  */
 class Result final : public VerificationResult
 {
+	// VerificationResult
+
 	int  do_verify_id(const int b) final;
+
 	bool do_id(const int b) const final;
+
 	int  do_verify_track(const int b, const int t, const bool v2) final;
+
 	bool do_track(const int b, const int t, const bool v2) const final;
+
 	int  do_difference(const int b, const bool v2) const final;
+
 	int  do_total_blocks() const final;
+
 	int  do_tracks_per_block() const final;
+
 	size_t do_size() const final;
+
 	bool do_is_verified(const int track) const final;
+
 	int  do_total_unverified_tracks() const final;
+
 	std::tuple<int, bool, int> do_best_block() const final;
+
 	int  do_best_block_difference() const final;
+
 	bool do_strict() const final;
+
 	std::unique_ptr<VerificationResult> do_clone() const final;
 
 	/**
@@ -442,10 +464,36 @@ public:
 	 */
 	explicit Result(std::unique_ptr<VerificationPolicy> policy);
 
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	Result(const Result& rhs);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	Result& operator= (const Result& rhs);
 
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The instance to move
+	 */
 	Result(Result&& rhs) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	Result& operator= (Result&& rhs) noexcept;
 
 	/**
@@ -534,7 +582,10 @@ public:
  */
 class BlockSelector final : public Selector
 {
+	// Selector
+
 	std::unique_ptr<Selector> do_clone() const final;
+
 	const uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type block,
 			const ChecksumSource::size_type track) const final;
@@ -546,7 +597,10 @@ class BlockSelector final : public Selector
  */
 class TrackSelector final : public Selector
 {
+	// Selector
+
 	std::unique_ptr<Selector> do_clone() const final;
+
 	const uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type track,
 			const ChecksumSource::size_type block) const final;
@@ -566,9 +620,13 @@ class SourceIterator final
 public:
 
 	using iterator_category = std::input_iterator_tag;
+
 	using value_type        = uint32_t;
+
 	using difference_type   = std::ptrdiff_t;
+
 	using reference         = const value_type&;
+
 	using pointer           = const value_type*;
 
 public:
@@ -663,12 +721,15 @@ class TraversalPolicy
 {
 	virtual Checksums::size_type do_current_block(const SourceIterator& i) const
 	= 0;
+
 	virtual Checksums::size_type do_current_track(const SourceIterator& i) const
 	= 0;
+
 	virtual ChecksumSource::size_type do_end_current(
 			const ChecksumSource& source,
 			const Checksums::size_type c) const
 	= 0;
+
 	virtual ChecksumSource::size_type do_end_counter(
 			const ChecksumSource& source,
 			const Checksums::size_type c) const
@@ -714,9 +775,22 @@ protected:
 	 *
 	 * \param[in] selector Selector of the concrete subclass
 	 */
-	TraversalPolicy(std::unique_ptr<Selector> selector);
+	explicit TraversalPolicy(std::unique_ptr<Selector> selector);
 
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	TraversalPolicy(const TraversalPolicy& rhs);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	TraversalPolicy& operator = (const TraversalPolicy& rhs);
 
 	/**
@@ -736,6 +810,7 @@ protected:
 public:
 
 	using iterator       = const SourceIterator;
+
 	using const_iterator = const SourceIterator;
 
 	/**
@@ -856,12 +931,19 @@ public:
  */
 class BlockTraversal final : public TraversalPolicy
 {
+	// TraversalPolicy
+
 	std::unique_ptr<VerificationPolicy> create_track_policy() const final;
+
 	std::unique_ptr<Selector> create_selector() const final;
+
 	Checksums::size_type do_current_block(const SourceIterator& i) const final;
+
 	Checksums::size_type do_current_track(const SourceIterator& i) const final;
+
 	ChecksumSource::size_type do_end_current(const ChecksumSource& source,
 			const Checksums::size_type c) const final;
+
 	ChecksumSource::size_type do_end_counter(const ChecksumSource& source,
 			const Checksums::size_type c) const final;
 
@@ -881,12 +963,19 @@ public:
  */
 class TrackTraversal final : public TraversalPolicy
 {
+	// TraversalPolicy
+
 	std::unique_ptr<VerificationPolicy> create_track_policy() const final;
+
 	std::unique_ptr<Selector> create_selector() const final;
+
 	Checksums::size_type do_current_block(const SourceIterator& i) const final;
+
 	Checksums::size_type do_current_track(const SourceIterator& i) const final;
+
 	ChecksumSource::size_type do_end_current(const ChecksumSource& source,
 			const Checksums::size_type c) const final;
+
 	ChecksumSource::size_type do_end_counter(const ChecksumSource& source,
 			const Checksums::size_type c) const final;
 
@@ -1083,14 +1172,44 @@ std::unique_ptr<VerificationResult> verify(
 #pragma GCC diagnostic ignored "-Weffc++"
 
 /**
+ * \internal
+ *
  * \brief Interface: base class for Verifiers.
  */
 class VerifierBase
 {
+	/**
+	 * \brief Actual checksums to be verified.
+	 */
+	const Checksums* actual_sums_;
+
+	/**
+	 * \brief Flag to indicate strictness.
+	 */
+	bool is_strict_;
+
+	/**
+	 * \brief Provide actual ARId.
+	 *
+	 * Default implementation returns nullptr.
+	 */
 	virtual const ARId* do_actual_id() const noexcept;
 
+	/**
+	 * \brief Provide actual TraversalPolicy.
+	 *
+	 * Default implementation returns BlockTraversal for strict instances,
+	 * TrackTraversal for non-strict instances.
+	 *
+	 * \return TraversalPolicy
+	 */
 	virtual std::unique_ptr<TraversalPolicy> do_create_traversal() const;
 
+	/**
+	 * \brief Provide actual MatchPolicy.
+	 *
+	 * \return MatchPolicy
+	 */
 	virtual std::unique_ptr<MatchPolicy> do_create_order() const
 	= 0;
 
@@ -1147,18 +1266,6 @@ public:
 	 */
 	std::unique_ptr<VerificationResult> perform(const ChecksumSource& ref_sums)
 		const;
-
-private:
-
-	/**
-	 * \brief Actual checksums to be verified.
-	 */
-	const Checksums* actual_sums_;
-
-	/**
-	 * \brief Flag to indicate strictness.
-	 */
-	bool is_strict_;
 };
 
 #pragma GCC diagnostic pop
@@ -1170,6 +1277,8 @@ private:
 #pragma GCC diagnostic ignored "-Weffc++"
 
 /**
+ * \internal
+ *
  * \brief Implementation of an AlbumVerifier.
  */
 class AlbumVerifier::Impl final : public details::VerifierBase
@@ -1194,17 +1303,14 @@ public:
 	 * \param[in] actual_id   Actual ARId to check for
 	 */
 	Impl(const Checksums& actual_sums, const ARId& actual_id);
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~Impl() noexcept final = default;
 };
 
 #pragma GCC diagnostic pop
 
 
 /**
+ * \internal
+ *
  * \brief Implementation of a TracksetVerifier.
  */
 class TracksetVerifier::Impl final : public details::VerifierBase
@@ -1221,11 +1327,6 @@ public:
 	 * \param[in] actual_sums Actual checksums to check for
 	 */
 	explicit Impl(const Checksums& actual_sums);
-
-	/**
-	 * \brief Default destructor.
-	 */
-	~Impl() noexcept final = default;
 };
 
 /** @} */
