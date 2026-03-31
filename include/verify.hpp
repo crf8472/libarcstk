@@ -325,6 +325,11 @@ checksum::type checksumtype(const best_block_info_t& bb);
 } // namespace best_block
 
 
+class VerificationResult; // forward declaration
+
+// ensure to put declaration in this namespace
+std::ostream& operator << (std::ostream& out, const VerificationResult& result);
+
 /**
  * \brief Interface: Result of a Verifier performing a verification process.
  *

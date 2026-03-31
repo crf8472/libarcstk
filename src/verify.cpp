@@ -25,7 +25,7 @@
 #include <vector>         // for vector
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"                   // for Checksums
+#include "checksum.hpp"                   // for Checksums, checksum::
 #endif
 #ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"                       // for DBAR
@@ -900,7 +900,7 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		const ChecksumSet& actual, const Checksum& ref,
 		const int block, const Checksums::size_type track) const
 {
-	bool is_v2;
+	bool is_v2 {};
 
 	for (const auto& type : actual.types())
 	{
