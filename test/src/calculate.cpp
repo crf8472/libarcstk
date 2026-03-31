@@ -11,6 +11,7 @@
 #endif
 
 #include <memory>                 // for make_unique, unique_ptr
+#include <numeric>                // for iota
 #include <type_traits>            // for is_default_constructible,....
 #include <unordered_set>          // for unordered_set
 #include <utility>                // for move
@@ -268,6 +269,126 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		CHECK ( c->types() ==
 				std::unordered_set<type>{ type::ARCS1, type::ARCS2 } );
+	}
+}
+
+
+TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
+{
+	using std::begin;
+	using std::end;
+
+	using arcstk::sample_t;
+	using arcstk::SampleInputIterator;
+
+	auto object1 = std::vector<sample_t>(100);   // vector with 100 samples
+	std::iota (begin(object1), end(object1), 0); // fill with 0, 1, ..., 99.
+
+	auto it = SampleInputIterator { begin(object1) };
+
+	REQUIRE( *it == 0 ); // Dereference operator works
+	REQUIRE( *(it+99) == 99 );
+
+	SECTION ( "Prefix increment works" )
+	{
+		for (unsigned i = 0; i < 99; ++i)
+		{
+			CHECK ( *it == i );
+
+			++it;
+		}
+	}
+
+	SECTION ( "Postfix increment works" )
+	{
+		for (unsigned i = 0; i < 99; ++i)
+		{
+			CHECK ( *it == i );
+
+			it++;
+		}
+	}
+
+	SECTION ( "iterator + amount works" )
+	{
+		const auto it2 = it + 66;
+		CHECK ( *it2 == 66 );
+	}
+
+	SECTION ( "amount + iterator works" )
+	{
+		const auto it3 = 48 + it;
+		CHECK ( *it3 == 48 );
+	}
+
+	SECTION ( "Equality works" )
+	{
+		auto it2 = SampleInputIterator { begin(object1) };
+
+		CHECK ( it == it2 );
+
+		for (unsigned i = 0; i < 57; ++i) { ++it; }
+		for (unsigned i = 0; i < 57; ++i) { ++it2; }
+
+		CHECK ( it == it2 );
+	}
+
+	SECTION ( "Equality works for different type iterators" )
+	{
+		CHECK ( it + 100 == end(object1) );
+
+		auto it2 = begin(object1);
+
+		CHECK ( it == it2 );
+
+		for (unsigned i = 0; i < 72; ++i) { ++it;  }
+		for (unsigned i = 0; i < 72; ++i) { ++it2; }
+
+		CHECK ( it == it2 );
+	}
+
+	SECTION ( "Assignment operator works" )
+	{
+		auto it2 = end(object1);
+
+		CHECK ( it != it2 );
+
+		it = it2;
+
+		CHECK ( it == it2 );
+	}
+
+	SECTION ( "Pointer operator works" )
+	{
+		auto it2 = it + 89;
+
+		auto n = it2.operator->(); // SampleInputIterator
+
+		CHECK ( *n == 89 );
+
+
+		auto it3 = begin(object1) + 89;
+
+		auto x = it3.operator->(); // Vector<sample_t>::iterator
+
+		CHECK ( *x == 89 );
+	}
+
+	SECTION ( "swap works" )
+	{
+		it = it + 18;
+
+		REQUIRE ( *it == 18 );
+
+		auto it2 = SampleInputIterator { begin(object1) };
+		for (unsigned i = 0; i < 61; ++i) { ++it2; }
+
+		REQUIRE ( *it2 == 61 );
+
+		swap(it, it2);
+
+		CHECK ( *it  == 61 );
+		CHECK ( *it2 == 18 );
 	}
 }
 
