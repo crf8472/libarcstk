@@ -195,6 +195,20 @@ void on_nonstandard_tocdata(const std::string& msg);
 
 class ToC::Impl final
 {
+	/**
+	 * \internal
+	 *
+	 * \brief Internal ToCData.
+	 */
+	ToCData toc_;
+
+	/**
+	 * \internal
+	 *
+	 * \brief Internal filenames.
+	 */
+	std::vector<std::string> filenames_;
+
 public:
 
 	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
@@ -207,14 +221,14 @@ public:
 	std::vector<AudioSize>   offsets() const;
 	std::vector<std::string> filenames() const;
 
-	bool has_filenames() const noexcept;
+	bool has_filenames()  const noexcept;
 	bool is_single_file() const noexcept;
 
 	void validate() const;
 
 	bool complete() const noexcept;
 
-	void print(std::ostream& out);
+	void print(std::ostream& out); // implements ToC::operator <<
 
 	bool empty() const noexcept;
 
@@ -223,11 +237,6 @@ public:
 	bool equals(const Impl& rhs) const noexcept;
 
 	std::string to_string() const;
-
-private:
-
-	ToCData toc_;
-	std::vector<std::string> filenames_;
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */
