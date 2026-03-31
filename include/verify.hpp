@@ -645,8 +645,10 @@ public:
  *
  * \see TracksetVerifier
  */
-class AlbumVerifier final : public Verifier { class Impl; std::unique_ptr<Impl>
-	impl_;
+class AlbumVerifier final : public Verifier
+{
+	class Impl;
+	std::unique_ptr<Impl> impl_;
 
 	// Verifier
 
