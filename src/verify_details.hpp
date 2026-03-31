@@ -1088,6 +1088,7 @@ std::unique_ptr<VerificationResult> verify(
 class VerifierBase
 {
 	virtual const ARId* do_actual_id() const noexcept;
+
 	virtual std::unique_ptr<TraversalPolicy> do_create_traversal() const;
 
 	virtual std::unique_ptr<MatchPolicy> do_create_order() const
@@ -1173,8 +1174,16 @@ private:
  */
 class AlbumVerifier::Impl final : public details::VerifierBase
 {
-	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
+	/**
+	 * \brief Internal actual ARId.
+	 */
+	const ARId* actual_id_;
+
+	// VerifierBase
+
 	const ARId* do_actual_id() const noexcept final;
+
+	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 
 public:
 
@@ -1190,13 +1199,6 @@ public:
 	 * \brief Default destructor.
 	 */
 	~Impl() noexcept final = default;
-
-private:
-
-	/**
-	 * \brief Internal actual ARId.
-	 */
-	const ARId* actual_id_;
 };
 
 #pragma GCC diagnostic pop
@@ -1207,6 +1209,8 @@ private:
  */
 class TracksetVerifier::Impl final : public details::VerifierBase
 {
+	// VerifierBase
+
 	std::unique_ptr<details::MatchPolicy> do_create_order() const final;
 
 public:

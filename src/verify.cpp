@@ -1431,38 +1431,35 @@ const ARId* AlbumVerifier::Impl::do_actual_id() const noexcept
 
 AlbumVerifier::AlbumVerifier(const Checksums& actual_sums,
 		const ARId& actual_id)
-	: impl_      { std::make_unique<Impl>(actual_sums, actual_id) }
+	: impl_ { std::make_unique<Impl>(actual_sums, actual_id) }
 {
 	// empty
 }
 
 
 AlbumVerifier::AlbumVerifier(const AlbumVerifier& rhs)
-	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+	: impl_ { std::make_unique<Impl>(*rhs.impl_) }
 {
 	// empty
 }
 
 
-AlbumVerifier& AlbumVerifier::operator=(const AlbumVerifier& rhs)
+AlbumVerifier& AlbumVerifier::operator = (const AlbumVerifier& rhs)
 {
-	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	if (&rhs == this)
+	{
+		auto tmp = std::make_unique<Impl>(*rhs.impl_);
+		impl_ = std::move(tmp);
+	}
 	return *this;
 }
 
 
-AlbumVerifier::AlbumVerifier(AlbumVerifier&& rhs) noexcept
-	: impl_      { std::move(rhs.impl_) }
-{
-	// empty
-}
+AlbumVerifier::AlbumVerifier(AlbumVerifier&& rhs) noexcept = default;
 
 
-AlbumVerifier& AlbumVerifier::operator=(AlbumVerifier&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
-}
+AlbumVerifier& AlbumVerifier::operator = (AlbumVerifier&& rhs) noexcept
+= default;
 
 
 AlbumVerifier::~AlbumVerifier() noexcept = default; // Pimpl requirement
@@ -1527,38 +1524,35 @@ std::unique_ptr<details::MatchPolicy> TracksetVerifier::Impl::do_create_order()
 
 
 TracksetVerifier::TracksetVerifier(const Checksums& actual_sums)
-	: impl_      { std::make_unique<Impl>(actual_sums) }
+	: impl_  { std::make_unique<Impl>(actual_sums) }
 {
 	// empty
 }
 
 
 TracksetVerifier::TracksetVerifier(const TracksetVerifier& rhs)
-	: impl_      { std::make_unique<Impl>(*rhs.impl_) }
+	: impl_  { std::make_unique<Impl>(*rhs.impl_) }
 {
 	// empty
 }
 
 
-TracksetVerifier& TracksetVerifier::operator=(const TracksetVerifier& rhs)
+TracksetVerifier& TracksetVerifier::operator = (const TracksetVerifier& rhs)
 {
-	impl_ = std::make_unique<Impl>(*rhs.impl_);
+	if (&rhs == this)
+	{
+		auto tmp = std::make_unique<Impl>(*rhs.impl_);
+		impl_ = std::move(tmp);
+	}
 	return *this;
 }
 
 
-TracksetVerifier::TracksetVerifier(TracksetVerifier&& rhs) noexcept
-	: impl_      { std::move(rhs.impl_) }
-{
-	// empty
-}
+TracksetVerifier::TracksetVerifier(TracksetVerifier&& rhs) noexcept = default;
 
 
-TracksetVerifier& TracksetVerifier::operator=(TracksetVerifier&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
-}
+TracksetVerifier& TracksetVerifier::operator = (TracksetVerifier&& rhs) noexcept
+= default;
 
 
 TracksetVerifier::~TracksetVerifier() noexcept = default; // Pimpl requirement
