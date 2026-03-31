@@ -178,8 +178,8 @@ ChecksumSet::ChecksumSet(const int32_t length,
 		std::initializer_list<
 			std::pair<const ChecksumSet::key_type,
 							ChecksumSet::value_type>> checksums)
-	: set_     ( checksums )
-	, length_  { length    }
+	: length_  { length    }
+	, set_     ( checksums )
 {
 	// empty
 }
