@@ -248,6 +248,11 @@ private:
 		virtual reference dereference() noexcept
 		= 0;
 
+		/**
+		 * \brief Pointer to the actual value under the iterator.
+		 *
+		 * \return Pointer to actual value.
+		 */
 		virtual pointer pointer_to() noexcept
 		= 0;
 
@@ -311,7 +316,7 @@ private:
 
 		pointer pointer_to() noexcept final
 		{
-			return nullptr;
+			return iterator_.operator->();
 		}
 
 		bool equals(const Concept& rhs) const noexcept final
@@ -397,9 +402,15 @@ public:
 		return object_->dereference();
 	}
 
-
-	// TODO operator ->()
-
+	/**
+	 * \brief Pointer to the value under the iterator.
+	 *
+	 * \return A sample_t sample, returned by pointer
+	 */
+	pointer operator -> () noexcept
+	{
+		return object_->pointer_to();
+	}
 
 	/**
 	 * \brief Pre-increment iterator.
