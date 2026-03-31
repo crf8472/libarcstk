@@ -21,7 +21,6 @@
 #include <cstdint>  // for uint32_t
 #include <iterator> // for input_iterator_tag
 #include <memory>   // for unique_ptr
-#include <tuple>    // for tuple
 #include <utility>  // for swap
 #include <vector>   // for vector
 
@@ -52,7 +51,7 @@ struct BestBlock final
 {
 	/**
 	 * \brief Maximal difference that is possible between two blocks,
-	 * 99 tracks + id.
+	 * 99 tracks + 1 id.
 	 */
 	static constexpr int MAX_DIFFERENCE = 100;
 
@@ -68,7 +67,7 @@ struct BestBlock final
 	 *
 	 * \param[in] r The result to get the best block of
 	 */
-	std::tuple<int, bool, int> from(const VerificationResult& r) const;
+	best_block_info_t from(const VerificationResult& r) const;
 };
 
 
@@ -370,6 +369,11 @@ public:
 	 */
 	bool is_strict() const;
 
+	/**
+	 * \brief Returns a deep copy of the instance
+	 *
+	 * \return A deep copy of the instance
+	 */
 	std::unique_ptr<VerificationPolicy> clone() const;
 };
 
@@ -437,7 +441,7 @@ class Result final : public VerificationResult
 
 	int  do_total_unverified_tracks() const final;
 
-	std::tuple<int, bool, int> do_best_block() const final;
+	best_block_info_t do_best_block() const final;
 
 	int  do_best_block_difference() const final;
 
@@ -617,6 +621,26 @@ class TrackSelector final : public Selector
  */
 class SourceIterator final
 {
+	/**
+	 * \brief The concrete Selector used by this instance.
+	 */
+	const Selector* selector_;
+
+	/**
+	 * \brief ChecksumSource to iterate over.
+	 */
+	const ChecksumSource* source_;
+
+	/**
+	 * \brief Value of the current fixed position.
+	 */
+	ChecksumSource::size_type current_;
+
+	/**
+	 * \brief Value of the current counted position.
+	 */
+	ChecksumSource::size_type counter_;
+
 public:
 
 	using iterator_category = std::input_iterator_tag;
@@ -628,8 +652,6 @@ public:
 	using reference         = const value_type&;
 
 	using pointer           = const value_type*;
-
-public:
 
 	/**
 	 * \brief Constructor.
@@ -662,6 +684,15 @@ public:
 	SourceIterator& operator ++ ();
 	SourceIterator  operator ++ (int);
 
+	friend void swap(SourceIterator& lhs, SourceIterator& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(lhs.source_,  rhs.source_ );
+		swap(lhs.current_, rhs.current_);
+		swap(lhs.counter_, rhs.counter_);
+	}
+
 	friend bool operator == (const SourceIterator& lhs, const SourceIterator&
 			rhs)
 	{
@@ -676,37 +707,6 @@ public:
 	{
 		return not(lhs == rhs);
 	}
-
-	friend void swap(SourceIterator& lhs, SourceIterator& rhs) noexcept
-	{
-		using std::swap;
-
-		swap(lhs.source_,  rhs.source_);
-		swap(lhs.current_, rhs.current_);
-		swap(lhs.counter_, rhs.counter_);
-	}
-
-private:
-
-	/**
-	 * \brief The concrete Selector used by this instance.
-	 */
-	const Selector* selector_;
-
-	/**
-	 * \brief ChecksumSource to iterate over.
-	 */
-	const ChecksumSource* source_;
-
-	/**
-	 * \brief Value of the current fixed position.
-	 */
-	ChecksumSource::size_type current_;
-
-	/**
-	 * \brief Value of the current counted position.
-	 */
-	ChecksumSource::size_type counter_;
 };
 
 

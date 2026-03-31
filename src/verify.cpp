@@ -20,6 +20,7 @@
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
 #include <tuple>          // for tuple
+#include <type_traits>    // for underlying_type
 #include <utility>        // for move
 #include <vector>         // for vector
 
@@ -50,8 +51,7 @@ namespace details
 
 constexpr int BestBlock::MAX_DIFFERENCE;
 
-std::tuple<int, bool, int> BestBlock::from(
-		const VerificationResult& result) const
+best_block_info_t BestBlock::from(const VerificationResult& result) const
 {
 	ARCS_LOG(DEBUG1) << "Find best block:";
 
@@ -339,16 +339,18 @@ int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r)
 bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
 	const
 {
-	const auto t = r.best_block();
-	return r.track(std::get<0>(t), track, std::get<1>(t));
+	const auto bb = r.best_block();
+
+	return r.track(best_block::index(bb), track, best_block::typeflag(bb));
 }
 
 
 int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
 {
-	const auto t = r.best_block();
+	const auto bb = r.best_block();
+
 	// Do not count a non-matching id as unverified track
-	return std::get<2>(t) - !r.id(std::get<0>(t));
+	return best_block::difference(bb) - !r.id(best_block::index(bb));
 }
 
 
@@ -510,7 +512,7 @@ int Result::do_total_unverified_tracks() const
 }
 
 
-std::tuple<int, bool, int> Result::do_best_block() const
+best_block_info_t Result::do_best_block() const
 {
 	static const BestBlock best;
 	return best.from(*this);
@@ -519,7 +521,7 @@ std::tuple<int, bool, int> Result::do_best_block() const
 
 int Result::do_best_block_difference() const
 {
-	return std::get<2>(best_block());
+	return best_block::difference(best_block());
 }
 
 
@@ -1238,6 +1240,54 @@ std::unique_ptr<ChecksumSource> DBARSource::do_clone() const
 }
 
 
+// best_block_info
+
+
+namespace best_block
+{
+
+
+int index(const best_block_info_t& bb)
+{
+	constexpr static auto i = std::underlying_type<TUPLE_IDX>::type(
+				TUPLE_IDX::INDEX);
+
+	return std::get<i>(bb);
+}
+
+
+bool typeflag(const best_block_info_t& bb)
+{
+	constexpr static auto i = std::underlying_type<TUPLE_IDX>::type(
+				TUPLE_IDX::CHECKSUM_TYPE);
+
+	return std::get<i>(bb);
+}
+
+
+int difference(const best_block_info_t& bb)
+{
+	constexpr static auto i = std::underlying_type<TUPLE_IDX>::type(
+				TUPLE_IDX::DIFFERENCE);
+
+	return std::get<i>(bb);
+}
+
+
+checksum::type checksumtype(const best_block_info_t& bb)
+{
+	using size_type = decltype( checksum::types )::size_type;
+
+	// turns false to 0, true to 1
+	const auto t = static_cast<size_type>(typeflag(bb));
+
+	return checksum::types[t];
+}
+
+
+} // namespace best_block
+
+
 // VerificationResult
 
 
@@ -1311,7 +1361,7 @@ int VerificationResult::total_unverified_tracks() const
 }
 
 
-std::tuple<int, bool, int> VerificationResult::best_block() const
+best_block_info_t VerificationResult::best_block() const
 {
 	return do_best_block();
 }

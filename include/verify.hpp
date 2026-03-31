@@ -22,6 +22,9 @@
 #include <tuple>          // for tuple
 #include <vector>         // for vector
 
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"   // for checksum::type
+#endif
 
 namespace arcstk
 {
@@ -259,10 +262,68 @@ public:
 #pragma GCC diagnostic pop
 
 
-// TODO API for working with best block
-// Say a typedef like: using block_result = std::tuple<int, bool, int>
-// And accessors for that like get_index(), get_algo(), get_total_fails().
-// Maybe enum constants for the tuple indices: INDEX, ALGO, TOTAL_FAILS
+/**
+ * \brief Type to refer to best block in result.
+ *
+ * The type is accessible via std::get.
+ */
+using best_block_info_t = std::tuple<int, bool, int>;
+
+
+/**
+ * \brief Access operations for best_block_info_t.
+ */
+namespace best_block
+{
+
+/**
+ * \brief Element indices of type best_block_info_t.
+ */
+enum class TUPLE_IDX : unsigned
+{
+	INDEX         = 0,
+	CHECKSUM_TYPE = 1,
+	DIFFERENCE    = 2
+};
+
+/**
+ * \brief Index of the best block in the VerificationResult.
+ *
+ * \param[in] bb The best_block_info_t to query
+ *
+ * \return Index of the best block
+ */
+int index(const best_block_info_t& bb);
+
+/**
+ * \brief Type flag of the best block in the VerificationResult.
+ *
+ * \param[in] bb The best_block_info_t to query
+ *
+ * \return Type flag of the best block
+ */
+bool typeflag(const best_block_info_t& bb);
+
+/**
+ * \brief Total mismatches in the best block.
+ *
+ * \param[in] bb The best_block_info_t to query
+ *
+ * \return Total mismatches in the best block
+ */
+int difference(const best_block_info_t& bb);
+
+/**
+ * \brief Checksum type of the best block.
+ *
+ * \param[in] bb The best_block_info_t to query
+ *
+ * \return Checksum type of the best block
+ */
+checksum::type checksumtype(const best_block_info_t& bb);
+
+} // namespace best_block
+
 
 /**
  * \brief Interface: Result of a Verifier performing a verification process.
@@ -314,7 +375,7 @@ class VerificationResult
 	virtual size_t do_size() const
 	= 0;
 
-	virtual std::tuple<int, bool, int> do_best_block() const
+	virtual best_block_info_t do_best_block() const
 	= 0;
 
 	virtual int do_best_block_difference() const
@@ -496,11 +557,9 @@ public:
 	 * If there is more than one block with the smallest difference, return the
 	 * one with the lowest index position.
 	 *
-	 * \todo API must support to access single parts of the resulting tuple.
-	 *
 	 * \return 0-based index, ARCS version, and difference of the best block
 	 */
-	std::tuple<int, bool, int> best_block() const;
+	best_block_info_t best_block() const;
 
 	/**
 	 * \brief Difference of the best block in this result.
