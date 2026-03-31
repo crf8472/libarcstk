@@ -58,7 +58,7 @@ void validate_leadout_impl(const int32_t leadout)
 	{
 		auto ss = std::ostringstream {};
 		ss << "Leadout " << leadout << " is smaller than minimum track length";
-		validate::throw_on_invalid_tocdata(ss.str());
+		validate::on_invalid_tocdata(ss.str());
 	}
 }
 
@@ -74,7 +74,7 @@ void validate_filenames_impl(const ToCData& toc_data,
 			<< ") is not equal to total number of tracks (="
 			<< toc::total_tracks(toc_data)
 			<< ")";
-		validate::throw_on_invalid_tocdata(ss.str());
+		validate::on_invalid_tocdata(ss.str());
 	}
 }
 
@@ -90,38 +90,40 @@ void is_legal_offset(const int32_t offset)
 	{
 		auto ss = std::ostringstream {};
 		ss << "Negative value " << offset << " is not an offset";
-		throw_on_invalid_tocdata(ss.str());
+		on_invalid_tocdata(ss.str());
 	}
 
 	if (offset > CDDA::MAX_BLOCK_ADDRESS)
 	{
 		auto ss = std::ostringstream {};
 		ss << "Offset " << offset << " exceeds physical maximum";
-		throw_on_invalid_tocdata(ss.str());
+		on_invalid_tocdata(ss.str());
 	}
 
-	// if (offset > MAX_OFFSET_99)
-	// {
-	// 	auto ss = std::ostringstream {};
-	// 	ss << "Offset exceeds physical range of 99 min ("
-	// 			<< to_string(MAX_OFFSET_99) << " offset)";
-	// 	throw_on_invalid_tocdata(ss.str());
-	// }
-	//
-	// if (offset > MAX_OFFSET_90)
-	// {
-	// 	auto ss = std::ostringstream {};
-	// 	ss << "Offset exceeds frame "
-	// 		<< to_string(MAX_OFFSET_90) << " (90 min)";
-	// 	throw_on_invalid_tocdata(ss.str());
-	// }
-	//
-	// if (offset > CDDA::MAX_OFFSET)
-	// {
-	// 	auto ss = std::ostringstream {};
-	// 	ss << "Offset " << offset << " exceeds redbook maximum";
-	// 	throw_on_invalid_tocdata(ss.str());
-	// }
+	// The following cases are recognized but validation will not fail
+
+	if (offset > MAX_OFFSET_99)
+	{
+		auto ss = std::ostringstream {};
+		ss << "Offset exceeds physical range of 99 min ("
+				<< to_string(MAX_OFFSET_99) << " offset)";
+		on_nonstandard_tocdata(ss.str());
+	}
+
+	if (offset > MAX_OFFSET_90)
+	{
+		auto ss = std::ostringstream {};
+		ss << "Offset exceeds frame "
+			<< to_string(MAX_OFFSET_90) << " (90 min)";
+		on_nonstandard_tocdata(ss.str());
+	}
+
+	if (offset > CDDA::MAX_OFFSET)
+	{
+		auto ss = std::ostringstream {};
+		ss << "Offset " << offset << " exceeds redbook maximum";
+		on_nonstandard_tocdata(ss.str());
+	}
 }
 
 
@@ -131,7 +133,7 @@ void is_legal_length(const int32_t length)
 	{
 		using std::to_string;
 
-		throw_on_invalid_tocdata(to_string(length));
+		on_invalid_tocdata(to_string(length));
 	}
 }
 
@@ -152,7 +154,7 @@ void validate_nonzero_leadout(const ToCData& toc_data)
 	{
 		auto ss = std::ostringstream {};
 		ss << "Leadout " << leadout << " is missing (is actually zero)";
-		throw_on_invalid_tocdata(ss.str());
+		on_invalid_tocdata(ss.str());
 	}
 
 	details::validate_leadout_impl(leadout);
@@ -168,7 +170,7 @@ void validate_offsets(const ToCData& toc_data)
 		auto ss = std::ostringstream {};
 		ss << "Number of tracks " << offsets.size()
 			<< " is bigger than maximum of " << CDDA::MAX_TRACKCOUNT;
-		throw_on_invalid_tocdata(ss.str());
+		on_invalid_tocdata(ss.str());
 	}
 
 	using std::cbegin;
@@ -197,7 +199,7 @@ void validate_offsets(const ToCData& toc_data)
 					<< " frames but required is at least "
 					<< CDDA::MIN_TRACK_OFFSET_DIST
 					<< " frames)";
-				throw_on_invalid_tocdata(ss.str());
+				on_invalid_tocdata(ss.str());
 			}
 			++pred;
 		}
@@ -227,7 +229,7 @@ void validate_lengths(const ToCData& toc_data)
 				ss << "Illegal length: Track " << track
 					<< " is too short (length is " << e.what() << " frames)";
 
-				throw_on_invalid_tocdata(ss.str());
+				on_invalid_tocdata(ss.str());
 			}
 
 			++track;
@@ -236,9 +238,14 @@ void validate_lengths(const ToCData& toc_data)
 }
 
 
-void throw_on_invalid_tocdata(const std::string& msg)
+void on_invalid_tocdata(const std::string& msg)
 {
 	throw InvalidMetadataException { msg };
+}
+
+void on_nonstandard_tocdata(const std::string& /*msg*/)
+{
+	// do nothing
 }
 
 } // namespace validate
@@ -476,6 +483,50 @@ void validate_without_completeness(const ToCData& toc_data)
 	details::validate::validate_lengths(toc_data);
 }
 
+
+void print(std::ostream& out, const ToCData& toc_data)
+{
+	using std::cbegin;
+	using std::cend;
+
+	const auto sz = toc_data.size();
+
+	if (sz < 2)
+	{
+		return;
+	}
+
+	// offsets
+
+	if (sz == 2)
+	{
+		out << toc_data.back().frames();
+	} else
+	{
+		const auto last_track = cend(toc_data) - 1;
+
+		std::for_each(cbegin(toc_data) + 1, last_track,
+			[&out](const ToCData::value_type& offset)
+			{
+				out << offset.frames() << ',';
+			});
+
+		out << last_track->frames();
+	}
+
+	// leadout
+
+	out << ' ' << '(' << toc_data.front().frames() << ')';
+}
+
+
+std::string to_string(const ToCData& toc_data)
+{
+	auto stream = std::ostringstream {};
+	print(stream, toc_data);
+	return stream.str();
+}
+
 } // namespace toc
 
 
@@ -488,43 +539,6 @@ ToC::Impl::Impl(const ToCData& toc, const std::vector<std::string>& filenames)
 {
 	// empty
 }
-
-
-ToC::Impl::Impl(const Impl& rhs)
-	: toc_       { rhs.toc_       }
-	, filenames_ { rhs.filenames_ }
-{
-	// empty
-}
-
-
-ToC::Impl& ToC::Impl::operator = (const Impl& rhs)
-{
-	using std::swap;
-
-	Impl tmp { rhs };
-	swap(*this, tmp);
-	return *this;
-}
-
-
-ToC::Impl::Impl(Impl&& rhs) noexcept
-	: toc_        { std::move(rhs.toc_)       }
-	, filenames_  { std::move(rhs.filenames_) }
-{
-	// empty
-}
-
-
-ToC::Impl& ToC::Impl::operator = (Impl&& rhs) noexcept
-{
-	toc_       = std::move(rhs.toc_);
-	filenames_ = std::move(rhs.filenames_);
-	return *this;
-}
-
-
-ToC::Impl::~Impl() noexcept = default;
 
 
 unsigned ToC::Impl::total_tracks() const noexcept
@@ -601,6 +615,12 @@ bool ToC::Impl::complete() const noexcept
 }
 
 
+void ToC::Impl::print(std::ostream& out)
+{
+	toc::print(out, toc_);
+}
+
+
 bool ToC::Impl::empty() const noexcept
 {
 	return toc_.empty();
@@ -619,6 +639,12 @@ void ToC::Impl::swap(Impl& rhs) noexcept
 bool ToC::Impl::equals(const Impl& rhs) const noexcept
 {
 	return this->toc_ == rhs.toc_ && this->filenames_ == rhs.filenames_;
+}
+
+
+std::string ToC::Impl::to_string() const
+{
+	return toc::to_string(toc_);
 }
 
 
@@ -649,26 +675,22 @@ ToC::ToC(const ToC& rhs)
 
 ToC& ToC::operator = (const ToC& rhs)
 {
-	impl_ = std::make_unique<ToC::Impl>(*rhs.impl_);
+	if (&rhs == this)
+	{
+		auto tmp = std::make_unique<ToC::Impl>(*rhs.impl_);
+		impl_ = std::move(tmp);
+	}
 	return *this;
 }
 
 
-ToC::ToC(ToC&& rhs) noexcept
-	: impl_ { std::move(rhs.impl_) }
-{
-	// empty
-}
+ToC::ToC(ToC&& rhs) noexcept = default;
 
 
-ToC& ToC::operator = (ToC&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
-}
+ToC& ToC::operator = (ToC&& rhs) noexcept = default;
 
 
-ToC::~ToC() noexcept = default;
+ToC::~ToC() noexcept = default; // Pimpl requirement
 
 
 unsigned ToC::total_tracks() const noexcept
@@ -752,6 +774,12 @@ bool ToC::equals(const ToC& rhs) const noexcept
 }
 
 
+std::string ToC::to_string() const
+{
+	return impl_->to_string();
+}
+
+
 // make_toc
 
 
@@ -825,6 +853,16 @@ ToC validated_toc(const std::vector<int32_t>& offsets)
 	toc::validate_without_completeness(toc_data);
 
 	return ToC { toc_data };
+}
+
+
+// ToC::operator <<
+
+
+std::ostream& operator << (std::ostream& out, const ToC& toc)
+{
+	toc.impl_->print(out);
+	return out;
 }
 
 

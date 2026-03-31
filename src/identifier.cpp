@@ -165,6 +165,17 @@ std::string construct_url(const unsigned total_tracks,
 }
 
 
+std::string construct_id(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept
+{
+	auto out = std::ostringstream {};
+	print(out, total_tracks, id_1, id_2, cddb_id);
+	return out.str();
+}
+
+
 void print(std::ostream& out, const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
@@ -208,18 +219,13 @@ void print(std::ostream& out, const unsigned total_tracks,
 }
 
 
-std::string construct_id(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) noexcept
+void print(std::ostream& out, const ARId& id)
 {
-	auto out = std::ostringstream {};
-	print(out, total_tracks, id_1, id_2, cddb_id);
-	return out.str();
+	print(out, id.total_tracks(), id.disc_id_1(), id.disc_id_2(), id.cddb_id());
 }
 
 
-ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout)
+ARId make(const std::vector<int32_t>& offsets, const int32_t leadout)
 {
 	return ARId {
 			offsets.size(),
@@ -230,6 +236,16 @@ ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout)
 }
 
 } // namespace arid
+
+
+// ARId::operator <<
+
+
+std::ostream& operator << (std::ostream& out, const ARId& arid)
+{
+	arid::print(out, arid);
+	return out;
+}
 
 
 // ARId::Impl
@@ -309,7 +325,7 @@ bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
 }
 
 
-std::string ARId::Impl::to_string() const noexcept
+std::string ARId::Impl::to_string() const
 {
 	return arid::construct_id(total_tracks_, disc_id1_, disc_id2_, cddb_id_);
 }
@@ -336,7 +352,21 @@ ARId::ARId(const ARId& id)
 }
 
 
+ARId& ARId::operator = (const ARId& rhs)
+{
+	if (&rhs != this)
+	{
+		auto tmp = std::make_unique<ARId::Impl>(*rhs.impl_);
+		impl_ = std::move(tmp);
+	}
+	return *this;
+}
+
+
 ARId::ARId(ARId&& rhs) noexcept = default;
+
+
+ARId& ARId::operator = (ARId&& rhs) noexcept = default;
 
 
 ARId::~ARId() noexcept = default; // Pimpl requirement
@@ -414,39 +444,24 @@ std::string ARId::to_string() const
 }
 
 
-ARId& ARId::operator = (const ARId& rhs)
-{
-	if (&rhs != this)
-	{
-		auto tmp = std::make_unique<ARId::Impl>(*rhs.impl_);
-		impl_ = std::move(tmp);
-	}
-	return *this;
-}
-
-
-ARId& ARId::operator = (ARId&& rhs) noexcept = default;
-
-
 // make_arid
 
 
 ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout)
 {
-	return arid::make_arid(convert<UNIT::FRAMES>(offsets), leadout.frames());
+	return arid::make(convert<UNIT::FRAMES>(offsets), leadout.frames());
 }
 
 
 ARId make_arid(const ToC& toc, const AudioSize& leadout)
 {
-	return arid::make_arid(convert<UNIT::FRAMES>(toc.offsets()),
-			leadout.frames());
+	return arid::make(convert<UNIT::FRAMES>(toc.offsets()), leadout.frames());
 }
 
 
 ARId make_arid(const ToC& toc)
 {
-	return arid::make_arid(convert<UNIT::FRAMES>(toc.offsets()),
+	return arid::make(convert<UNIT::FRAMES>(toc.offsets()),
 			toc.leadout().frames());
 }
 

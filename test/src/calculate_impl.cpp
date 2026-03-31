@@ -218,14 +218,14 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == block_size - skipped_front );
 		CHECK ( buffer.size()             == 3 );
 
-		CHECK ( buffer[ 0].get(type::ARCS1) == 0x0AF18BB6u );
-		CHECK ( buffer[ 0].get(type::ARCS2) == 0x8FBB68BAu );
+		CHECK ( buffer[ 0].get(type::ARCS1).first == 0x0AF18BB6u );
+		CHECK ( buffer[ 0].get(type::ARCS2).first == 0x8FBB68BAu );
 
-		CHECK ( buffer[ 1].get(type::ARCS1) == 0x60F64E9Au );
-		CHECK ( buffer[ 1].get(type::ARCS2) == 0x8D040A9Au );
+		CHECK ( buffer[ 1].get(type::ARCS1).first == 0x60F64E9Au );
+		CHECK ( buffer[ 1].get(type::ARCS2).first == 0x8D040A9Au );
 
-		CHECK ( buffer[ 2].get(type::ARCS1) == 0xBC5C57ECu );
-		CHECK ( buffer[ 2].get(type::ARCS2) == 0x2A4FD377u );
+		CHECK ( buffer[ 2].get(type::ARCS1).first == 0xBC5C57ECu );
+		CHECK ( buffer[ 2].get(type::ARCS2).first == 0x2A4FD377u );
 
 		r = perform_update( cbegin(dummy_data) + 1 * block_size,
 							cbegin(dummy_data) + 2 * block_size,
@@ -236,11 +236,11 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 2 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 5 );
 
-		CHECK ( buffer[ 3].get(type::ARCS1) == 0xD394FC08u );
-		CHECK ( buffer[ 3].get(type::ARCS2) == 0xCE55344Bu );
+		CHECK ( buffer[ 3].get(type::ARCS1).first == 0xD394FC08u );
+		CHECK ( buffer[ 3].get(type::ARCS2).first == 0xCE55344Bu );
 
-		CHECK ( buffer[ 4].get(type::ARCS1) == 0xD52E3008u );
-		CHECK ( buffer[ 4].get(type::ARCS2) == 0x022C486Du );
+		CHECK ( buffer[ 4].get(type::ARCS1).first == 0xD52E3008u );
+		CHECK ( buffer[ 4].get(type::ARCS2).first == 0x022C486Du );
 
 		r = perform_update( cbegin(dummy_data) + 2 * block_size,
 							cbegin(dummy_data) + 3 * block_size,
@@ -251,8 +251,8 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 3 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 6 );
 
-		CHECK ( buffer[ 5].get(type::ARCS1) == 0x528B55D0u );
-		CHECK ( buffer[ 5].get(type::ARCS2) == 0xC4778057u );
+		CHECK ( buffer[ 5].get(type::ARCS1).first == 0x528B55D0u );
+		CHECK ( buffer[ 5].get(type::ARCS2).first == 0xC4778057u );
 
 		r = perform_update( cbegin(dummy_data) + 3 * block_size,
 							cbegin(dummy_data) + 4 * block_size,
@@ -263,11 +263,11 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 4 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 8 );
 
-		CHECK ( buffer[ 6].get(type::ARCS1) == 0xB53625EAu );
-		CHECK ( buffer[ 6].get(type::ARCS2) == 0x29DF16E5u );
+		CHECK ( buffer[ 6].get(type::ARCS1).first == 0xB53625EAu );
+		CHECK ( buffer[ 6].get(type::ARCS2).first == 0x29DF16E5u );
 
-		CHECK ( buffer[ 7].get(type::ARCS1) == 0x55480A90u );
-		CHECK ( buffer[ 7].get(type::ARCS2) == 0x390C2F05u );
+		CHECK ( buffer[ 7].get(type::ARCS1).first == 0x55480A90u );
+		CHECK ( buffer[ 7].get(type::ARCS2).first == 0x390C2F05u );
 
 		r = perform_update( cbegin(dummy_data) + 4 * block_size,
 							cbegin(dummy_data) + 5 * block_size,
@@ -278,8 +278,8 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 5 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 9 );
 
-		CHECK ( buffer[ 8].get(type::ARCS1) == 0x53262404u );
-		CHECK ( buffer[ 8].get(type::ARCS2) == 0xA8B5ADDDu );
+		CHECK ( buffer[ 8].get(type::ARCS1).first == 0x53262404u );
+		CHECK ( buffer[ 8].get(type::ARCS2).first == 0xA8B5ADDDu );
 
 		r = perform_update( cbegin(dummy_data) + 5 * block_size,
 							cbegin(dummy_data) + 6 * block_size,
@@ -290,8 +290,8 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 6 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 10 );
 
-		CHECK ( buffer[ 9].get(type::ARCS1) == 0x33A23980u );
-		CHECK ( buffer[ 9].get(type::ARCS2) == 0x4D9350B0u );
+		CHECK ( buffer[ 9].get(type::ARCS1).first == 0x33A23980u );
+		CHECK ( buffer[ 9].get(type::ARCS2).first == 0x4D9350B0u );
 
 		r = perform_update( cbegin(dummy_data) + 6 * block_size,
 							cbegin(dummy_data) + 7 * block_size,
@@ -302,8 +302,8 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 7 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 11 );
 
-		CHECK ( buffer[10].get(type::ARCS1) == 0xB66906B0u );
-		CHECK ( buffer[10].get(type::ARCS2) == 0x49D26578u );
+		CHECK ( buffer[10].get(type::ARCS1).first == 0xB66906B0u );
+		CHECK ( buffer[10].get(type::ARCS2).first == 0x49D26578u );
 
 		r = perform_update( cbegin(dummy_data) + 7 * block_size,
 							cbegin(dummy_data) + 8 * block_size,
@@ -314,11 +314,11 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 		CHECK ( state.samples_processed() == 8 * block_size - skipped_front );
 		CHECK ( buffer.size()             == 13 );
 
-		CHECK ( buffer[11].get(type::ARCS1) == 0x2BE3B232u );
-		CHECK ( buffer[11].get(type::ARCS2) == 0x355C7E28u );
+		CHECK ( buffer[11].get(type::ARCS1).first == 0x2BE3B232u );
+		CHECK ( buffer[11].get(type::ARCS2).first == 0x355C7E28u );
 
-		CHECK ( buffer[12].get(type::ARCS1) == 0x5D229B60u );
-		CHECK ( buffer[12].get(type::ARCS2) == 0x970C0A35u );
+		CHECK ( buffer[12].get(type::ARCS1).first == 0x5D229B60u );
+		CHECK ( buffer[12].get(type::ARCS2).first == 0x970C0A35u );
 
 		r = perform_update( cbegin(dummy_data) + 8 * block_size,
 							cbegin(dummy_data) + 9 * block_size,
@@ -337,11 +337,11 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 		CHECK ( buffer.size()             == 15 );
 
-		CHECK ( buffer[13].get(type::ARCS1) == 0x3EF9CE06u );
-		CHECK ( buffer[13].get(type::ARCS2) == 0x8348C62Fu );
+		CHECK ( buffer[13].get(type::ARCS1).first == 0x3EF9CE06u );
+		CHECK ( buffer[13].get(type::ARCS2).first == 0x8348C62Fu );
 
-		CHECK ( buffer[14].get(type::ARCS1) == 0x9F4BF9D9u );
-		CHECK ( buffer[14].get(type::ARCS2) == 0xCE22774Eu );
+		CHECK ( buffer[14].get(type::ARCS1).first == 0x9F4BF9D9u );
+		CHECK ( buffer[14].get(type::ARCS2).first == 0xCE22774Eu );
 	}
 
 	// TODO Simulate the same album but with block_size 4096 like ffmpeg does

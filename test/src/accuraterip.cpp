@@ -46,14 +46,14 @@ TEST_CASE ( "AccurateRipCS", "[updatable]" )
 
 	SECTION( "Swapping instances of AccurateRipCS<> works" )
 	{
-		CHECK ( u1.value().get(type::ARCS2).value() == 650 );
-		CHECK ( u2.value().get(type::ARCS2).value() ==   0 );
+		CHECK ( u1.value().get(type::ARCS2).first.value() == 650 );
+		CHECK ( u2.value().get(type::ARCS2).first.value() ==   0 );
 
 		using std::swap;
 		swap(u1, u2);
 
-		CHECK ( u1.value().get(type::ARCS2).value() ==   0 );
-		CHECK ( u2.value().get(type::ARCS2).value() == 650 );
+		CHECK ( u1.value().get(type::ARCS2).first.value() ==   0 );
+		CHECK ( u2.value().get(type::ARCS2).first.value() == 650 );
 	}
 }
 
@@ -140,7 +140,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)) );
+		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1).first) );
 	}
 
 
@@ -216,7 +216,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)) );
+		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2).first) );
 	}
 
 
@@ -293,8 +293,8 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 2 /* types */ );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)) );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)) );
+		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2).first) );
+		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1).first) );
 	}
 
 
@@ -371,8 +371,8 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 2 );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)).value() );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)).value() );
+		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)).first.value() );
+		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)).first.value() );
 	}
 }
 

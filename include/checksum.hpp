@@ -171,19 +171,16 @@ public:
 	value_type value() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
+	 * \brief Return \c TRUE iff this Checksum is 0, otherwise \c FALSE.
 	 *
-	 * A Checksum is empty if it contains no valid value. Note that this
-	 * may or may not entail that <tt>value() == 0</tt>.
-	 *
-	 * \return Return \c TRUE iff this Checksum is empty, otherwise \c FALSE.
+	 * \return Return \c TRUE iff this Checksum is 0, otherwise \c FALSE.
 	 */
-	bool empty() const noexcept;
+	bool zero() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 * \brief Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
 	 *
-	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 * \return Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
 	 */
 	explicit operator bool() const noexcept;
 
@@ -371,16 +368,19 @@ public:
 	bool contains(const checksum::type& type) const;
 
 	/**
-	 * \brief Return the \ref Checksum for the specified \c type
+	 * \brief Return the \ref Checksum for the specified \c type and a boolean.
 	 *
-	 * If there is no Checksum represented for the \c type, the Checksum
-	 * returned will be \link Checksum::empty() empty()\endlink.
+	 * The boolean is TRUE iff the search was successfull and the Checksum is an
+	 * actual search result. If there is no Checksum represented for the
+	 * \c type, the Checksum returned will be
+	 * \link Checksum::zero() zero()\endlink and the boolean value will be
+	 * FALSE.
 	 *
 	 * \param[in] type The checksum::type to return the value
 	 *
 	 * \return The checksum for the specified type
 	 */
-	Checksum get(const checksum::type type) const;
+	std::pair<Checksum, bool> get(const checksum::type type) const;
 
 	/**
 	 * \brief Return the checksum types present in this ChecksumSet
@@ -390,7 +390,7 @@ public:
 	std::set<checksum::type> types() const;
 
 	/**
-	 * \brief Inserts a new <type,Checksum> pair to the instance.
+	 * \brief Inserts a new <type, Checksum> pair to the instance.
 	 *
 	 * If the key is already present in the instance, the existing checksum will
 	 * be left unmodified.
@@ -523,13 +523,6 @@ public:
  * the order of tracks on the original compact disc.
  */
 using Checksums = std::vector<ChecksumSet>;
-
-/**
- * \brief Global instance of an empty Checksum.
- *
- * Avoid the creation of empty instances whenever possible.
- */
-extern const Checksum EmptyChecksum;
 
 /**
  * \brief Global instance of an empty ChecksumSet.

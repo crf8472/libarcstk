@@ -968,18 +968,10 @@ DBAR& DBAR::operator= (const DBAR& rhs)
 }
 
 
-DBAR::DBAR(DBAR&& rhs) noexcept
-	: impl_ { std::move(rhs.impl_) }
-{
-	// empty
-}
+DBAR::DBAR(DBAR&& rhs) noexcept = default;
 
 
-DBAR& DBAR::operator= (DBAR&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
-}
+DBAR& DBAR::operator= (DBAR&& rhs) noexcept = default;
 
 
 DBAR::~DBAR() noexcept = default; // Pimpl requirement

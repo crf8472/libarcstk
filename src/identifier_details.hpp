@@ -136,33 +136,6 @@ std::string construct_url(const unsigned total_tracks,
 		const std::string& prefix) noexcept;
 
 /**
- * \brief Worker: Print a sequence of ids.
- *
- * \param[in] total_tracks  Number of tracks in this medium
- * \param[in] id_1          Id 1 of this medium
- * \param[in] id_2          Id 2 of this medium
- * \param[in] cddb_id       CDDB id of this medium
- * \param[in] delim         Delimiter
- */
-void print(std::ostream& out, const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id, const std::string& delim);
-
-/**
- * \brief Worker: Print an ARId by its ids.
- *
- * \param[in] total_tracks  Number of tracks in this medium
- * \param[in] id_1          Id 1 of this medium
- * \param[in] id_2          Id 2 of this medium
- * \param[in] cddb_id       CDDB id of this medium
- */
-void print(std::ostream& out, const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id);
-
-/**
  * \brief Service method: Compute the AccurateRip request ID
  *
  * Used by ARId::Impl::to_string().
@@ -180,6 +153,43 @@ std::string construct_id(const unsigned total_tracks,
 		const uint32_t cddb_id) noexcept;
 
 /**
+ * \brief Worker: Print a sequence of ids.
+ *
+ * \param[in] out           Stream to print to
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ * \param[in] delim         Delimiter
+ */
+void print(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id, const std::string& delim);
+
+/**
+ * \brief Worker: Print an ARId by its ids.
+ *
+ * \param[in] out           Stream to print to
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ */
+void print(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id);
+
+/**
+ * \brief Worker: Print an ARId by its ids.
+ *
+ * \param[in] out Stream to print to
+ * \param[in] id  ARId to print
+ */
+void print(std::ostream& out, const ARId& id);
+
+/**
  * \brief Worker: Create an ARId by offsets and leadout.
  *
  * The input is unvalidated.
@@ -189,13 +199,14 @@ std::string construct_id(const unsigned total_tracks,
  *
  * \return ARId
  */
-ARId make_arid(const std::vector<int32_t>& offsets, const int32_t leadout);
+ARId make(const std::vector<int32_t>& offsets, const int32_t leadout);
 
 } //namespace arid
 
 
 /**
  * \internal
+ *
  * \ingroup id
  *
  * \brief Private implementation of ARId
@@ -208,10 +219,6 @@ class ARId::Impl final
 public:
 
 	/**
-	 * \brief URL prefix for accessing AccurateRip
-	 */
-
-	/**
 	 * \brief Implements ARId::ARId().
 	 */
 	Impl(const unsigned total_tracks,
@@ -219,46 +226,25 @@ public:
 			const uint32_t id_2,
 			const uint32_t cddb_id) noexcept;
 
-	/**
-	 * \brief Implements ARId::url()
-	 */
 	std::string url() const noexcept;
 
-	/**
-	 * \brief Implements ARId::filename()
-	 */
 	std::string filename() const noexcept;
 
-	/**
-	 * \brief Implements ARId::total_tracks()
-	 */
 	unsigned total_tracks() const noexcept;
 
-	/**
-	 * \brief Implements ARId::disc_id_1()
-	 */
 	uint32_t disc_id_1() const noexcept;
 
-	/**
-	 * \brief Implements ARId::disc_id_2()
-	 */
 	uint32_t disc_id_2() const noexcept;
 
-	/**
-	 * \brief Implements ARId::cddb_id()
-	 */
 	uint32_t cddb_id() const noexcept;
 
-	/**
-	 * \brief Implements ARId::empty()
-	 */
 	bool empty() const noexcept;
 
 	void swap(Impl& rhs) noexcept;
 
 	bool equals(const Impl& rhs) const noexcept;
 
-	std::string to_string() const noexcept;
+	std::string to_string() const;
 
 private:
 

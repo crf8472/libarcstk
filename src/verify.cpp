@@ -904,7 +904,7 @@ void MatchPolicy::perform_match(VerificationResult& result,
 	{
 		is_v2 = (type == arcstk::checksum::type::ARCS2);
 
-		if (is_match(actual.get(type), ref))
+		if (const auto p = actual.get(type); is_match(p.first, ref))
 		{
 			const auto bitpos = result.verify_track(block, track, is_v2);
 

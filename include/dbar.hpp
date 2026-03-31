@@ -632,10 +632,36 @@ public:
 				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
 			blocks);
 
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	DBAR(const DBAR& rhs);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	DBAR& operator= (const DBAR& rhs);
 
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The instance to move
+	 */
 	DBAR(DBAR&& rhs) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	DBAR& operator= (DBAR&& rhs) noexcept;
 
 	/**

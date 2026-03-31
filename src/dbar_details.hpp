@@ -251,130 +251,6 @@ class DBAR::Impl final
 	 */
 	std::vector<uint32_t> sums_;  // header ids + arcss + frame450s
 
-public:
-
-	using size_type      = DBAR::size_type;
-
-	/**
-	 * \brief Constructor.
-	 */
-	Impl();
-
-	/**
-	 * \brief Total number of declared blocks..
-	 *
-	 * \return Size of the DBAR object.
-	 */
-	size_type size() const;
-
-	/**
-	 * \brief Physical total number of tracks in the specified block.
-	 *
-	 * \return Size of the specified block
-	 */
-	size_type size(const size_type block_idx) const;
-
-	/**
-	 * \brief ARCS value of a track.
-	 *
-	 * \param[in] block_idx Specified block index
-	 * \param[in] track     Specified track index
-	 *
-	 * \return ARCS value of the specified track
-	 */
-	const uint32_t& arcs_value(const size_type block_idx, const size_type track)
-		const;
-
-	/**
-	 * \brief Confidence value of a track.
-	 *
-	 * \param[in] block_idx Specified block index
-	 * \param[in] track     Specified track index
-	 *
-	 * \return Confidence value of the specified track
-	 */
-	const unsigned& confidence_value(const size_type block_idx,
-			const size_type track) const;
-
-	/**
-	 * \brief ARCS value of frame 450 of a track.
-	 *
-	 * \param[in] block_idx Specified block index
-	 * \param[in] track     Specified track index
-	 *
-	 * \return ARCS value frame 450 of the specified track
-	 */
-	const uint32_t& frame450_arcs_value(const size_type block_idx,
-			const size_type track) const;
-
-	/**
-	 * \brief Total number of tracks declared.
-	 *
-	 * \param[in] block_idx Block to access
-	 *
-	 * \return Total number of tracks block \c block_idx declares
-	 */
-	unsigned total_tracks(const size_type block_idx) const;
-
-	/**
-	 * \brief Header of the specified block.
-	 *
-	 * \param[in] block_idx Block to return header of
-	 *
-	 * \return Header of block \c block_idx
-	 */
-	DBARBlockHeader header(const size_type block_idx) const;
-
-	/**
-	 * \brief Specified triplet.
-	 *
-	 * \param[in] block_idx Block to lookup track
-	 * \param[in] track_idx Track to return
-	 *
-	 * \return Triplet \c track_idx in block \c block_idx
-	 */
-	DBARTriplet triplet(const size_type block_idx,
-		const size_type track_idx) const;
-
-	/**
-	 * \brief Add a header to the object.
-	 *
-	 * \param[in] total_tracks Total number of tracks in this block
-	 * \param[in] id1          Id1 of the ARId
-	 * \param[in] id2          Id2 of the ARId
-	 * \param[in] cddb_id      CDDB Id
-	 */
-	void add_header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
-
-	/**
-	 * \brief Add a triplet to the object.
-	 *
-	 * \param[in] arcs          ARCS value
-	 * \param[in] confidence    Confidence value
-	 * \param[in] frame450_arcs ARCS value of frame 450 of this track
-	 */
-	void add_triplet(const uint32_t arcs, const uint8_t confidence,
-			const uint32_t frame450_arcs);
-
-	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
-	 */
-	void swap(Impl& rhs) noexcept;
-
-	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
-	 */
-	bool equals(const Impl& rhs) const noexcept;
-
-private:
-
 	/**
 	 * \brief Number of index positions of a header.
 	 */
@@ -385,14 +261,44 @@ private:
 	 */
 	static constexpr unsigned track_size  = 2;
 
-	/**
-	 * \brief Total number of tracks before specified block.
-	 *
-	 * \param[in] block Block index
-	 *
-	 * \return Total number of tracks of the first <tt>block - 1</tt> blocks.
-	 */
-	unsigned total_tracks_accumulated(const size_type block) const;
+public:
+
+	using size_type = DBAR::size_type;
+
+	Impl();
+
+	size_type size() const;
+
+	size_type size(const size_type block_idx) const;
+
+	const uint32_t& arcs_value(const size_type block_idx, const size_type track)
+		const;
+
+	const unsigned& confidence_value(const size_type block_idx,
+			const size_type track) const;
+
+	const uint32_t& frame450_arcs_value(const size_type block_idx,
+			const size_type track) const;
+
+	unsigned total_tracks(const size_type block_idx) const;
+
+	DBARBlockHeader header(const size_type block_idx) const;
+
+	DBARTriplet triplet(const size_type block_idx,
+		const size_type track_idx) const;
+
+	void add_header(const uint8_t total_tracks, const uint32_t id1,
+			const uint32_t id2, const uint32_t cddb_id);
+
+	void add_triplet(const uint32_t arcs, const uint8_t confidence,
+			const uint32_t frame450_arcs);
+
+
+	void swap(Impl& rhs) noexcept;
+
+	bool equals(const Impl& rhs) const noexcept;
+
+private: /* use size_type */
 
 	/**
 	 * \brief Start index of block \c block_idx in sums_.
@@ -437,6 +343,15 @@ private:
 	 */
 	size_type frame450_arcs_idx(const size_type block_idx,
 		const size_type track_idx) const;
+
+	/**
+	 * \brief Total number of tracks before specified block.
+	 *
+	 * \param[in] block Block index
+	 *
+	 * \return Total number of tracks of the first <tt>block - 1</tt> blocks.
+	 */
+	unsigned total_tracks_accumulated(const size_type block) const;
 };
 
 

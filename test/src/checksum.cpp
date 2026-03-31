@@ -100,8 +100,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		CHECK ( track02 == track01 );
 		CHECK ( track01 == track02 );
 
-		CHECK ( track02.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track02.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track02.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track02.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
@@ -113,15 +113,15 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		CHECK ( track02 == track01 );
 		CHECK ( track01 == track02 );
 
-		CHECK ( track02.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track02.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track02.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track02.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
 	SECTION ( "insert(type, Checksum)" )
 	{
-		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track01.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
@@ -130,8 +130,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		track01.insert(type::ARCS2, Checksum(0x4F77EB03));
 		track01.insert(type::ARCS1, Checksum(0x475F57E9));
 
-		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track01.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
@@ -166,8 +166,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 
 	SECTION ( "get(type)" )
 	{
-		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track01.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
@@ -180,8 +180,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		track01.merge(track02); // does nothing, since both types are present
 
 		CHECK ( track01.size() == 2 );
-		CHECK ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-		CHECK ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+		CHECK ( track01.get(type::ARCS2).first == Checksum(0xB89992E5) );
+		CHECK ( track01.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 	}
 
 
@@ -197,8 +197,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		track03.merge(track02); // Inserts ARCSv2 but leaves ARCSv1 untouched
 
 		CHECK ( track03.size() == 2 );
-		CHECK ( track03.get(type::ARCS1) == Checksum(0xB89992E5) );
-		CHECK ( track03.get(type::ARCS2) == Checksum(0x4F77EB03) );
+		CHECK ( track03.get(type::ARCS1).first == Checksum(0xB89992E5) );
+		CHECK ( track03.get(type::ARCS2).first == Checksum(0x4F77EB03) );
 	}
 
 
@@ -208,8 +208,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 
 		CHECK ( it != track01.end() );
 
-		CHECK ( not (*it).second.empty() );
-		CHECK ( not it->second.empty() );
+		CHECK ( not (*it).second.zero() );
+		CHECK ( not it->second.zero() );
 	}
 
 
@@ -219,8 +219,8 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 
 		CHECK ( cit != track01.cend() );
 
-		CHECK ( not (*cit).second.empty() );
-		CHECK ( not cit->second.empty() );
+		CHECK ( not (*cit).second.zero() );
+		CHECK ( not cit->second.zero() );
 	}
 
 
@@ -272,8 +272,8 @@ TEST_CASE ( "Checksums", "[checksums] [calc]" )
 	REQUIRE ( track01.begin()  != track01.end() );
 	REQUIRE ( track01.cbegin() != track01.cend() );
 	REQUIRE ( track01.length() == 5192 );
-	REQUIRE ( track01.get(type::ARCS2) == Checksum(0xB89992E5) );
-	REQUIRE ( track01.get(type::ARCS1) == Checksum(0x98B10E0F) );
+	REQUIRE ( track01.get(type::ARCS2).first == Checksum(0xB89992E5) );
+	REQUIRE ( track01.get(type::ARCS1).first == Checksum(0x98B10E0F) );
 
 	// Track 2
 
@@ -293,8 +293,8 @@ TEST_CASE ( "Checksums", "[checksums] [calc]" )
 	REQUIRE ( track02.begin()  != track02.end() );
 	REQUIRE ( track02.cbegin() != track02.cend() );
 	REQUIRE ( track02.length() == 2165 );
-	REQUIRE ( track02.get(type::ARCS2) == Checksum(0x4F77EB03) );
-	REQUIRE ( track02.get(type::ARCS1) == Checksum(0x475F57E9) );
+	REQUIRE ( track02.get(type::ARCS2).first == Checksum(0x4F77EB03) );
+	REQUIRE ( track02.get(type::ARCS1).first == Checksum(0x475F57E9) );
 
 	// Construct the other 13 tracks
 

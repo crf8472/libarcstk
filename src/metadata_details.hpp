@@ -168,13 +168,26 @@ void validate_lengths(const ToCData& toc_data);
 /**
  * \internal
  *
- * \brief Worker to throw when ToCData validation fails.
+ * \brief Worker to call when ToCData validation fails.
+ *
+ * Throws an InvalidMetadataException.
  *
  * \param[in] msg Error message
  *
  * \throws InvalidMetadataException On every call
  */
-void throw_on_invalid_tocdata(const std::string& msg);
+void on_invalid_tocdata(const std::string& msg);
+
+/**
+ * \internal
+ *
+ * \brief Worker to call when ToCData validation finds nonstandard data.
+ *
+ * Current implementation does nothing.
+ *
+ * \param[in] msg Message
+ */
+void on_nonstandard_tocdata(const std::string& msg);
 
 } // namespace validate
 } // namespace details
@@ -185,14 +198,6 @@ class ToC::Impl final
 public:
 
 	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
-
-	Impl(const Impl& rhs);
-	Impl& operator = (const Impl& rhs);
-
-	Impl(Impl&& rhs) noexcept;
-	Impl& operator = (Impl&& rhs) noexcept;
-
-	~Impl() noexcept;
 
 	unsigned total_tracks() const noexcept;
 
@@ -209,11 +214,15 @@ public:
 
 	bool complete() const noexcept;
 
+	void print(std::ostream& out);
+
 	bool empty() const noexcept;
 
 	void swap(Impl& rhs) noexcept;
 
 	bool equals(const Impl& rhs) const noexcept;
+
+	std::string to_string() const;
 
 private:
 

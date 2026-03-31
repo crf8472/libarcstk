@@ -82,6 +82,11 @@ class ToC;
  * @{
  */
 
+class ARId; // forward declaration
+
+// ensure to put declaration in this namespace
+std::ostream& operator << (std::ostream& out, const ARId& arid);
+
 /**
  * \brief AccurateRip identifier of a compact disc.
  *
@@ -129,19 +134,33 @@ public:
 	/**
 	 * \brief Copy constructor.
 	 *
-	 * \param[in] rhs The ARId to copy
+	 * \param[in] rhs The instance to copy
 	 */
 	ARId(const ARId& rhs);
 
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	ARId& operator = (const ARId& rhs);
 
 	/**
 	 * \brief Default move constructor.
 	 *
-	 * \param[in] rhs The ARId to move
+	 * \param[in] rhs The instance to move
 	 */
 	ARId(ARId&& rhs) noexcept;
 
+	/**
+	 * \brief Default move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	ARId& operator = (ARId&& rhs) noexcept;
 
 	/**
@@ -252,11 +271,7 @@ public:
 		return lhs.equals(rhs);
 	}
 
-	friend std::ostream& operator << (std::ostream& out, const ARId& arid)
-	{
-		out << arid.to_string();
-		return out;
-	}
+	friend std::ostream& operator << (std::ostream& out, const ARId& arid);
 
 	friend std::string to_string(const ARId& arid)
 	{

@@ -33,7 +33,7 @@ inline namespace v_1_0_0
 
 
 Checksum::Checksum()
-	: value_ { EmptyChecksum.value() }
+	: Checksum { 0 }
 {
 	// empty
 }
@@ -52,15 +52,15 @@ Checksum::value_type Checksum::value() const noexcept
 }
 
 
-bool Checksum::empty() const noexcept
+bool Checksum::zero() const noexcept
 {
-	return value_ == EmptyChecksum.value_;
+	return value_ == 0;
 }
 
 
 Checksum::operator bool() const noexcept
 {
-	return !empty();
+	return !zero();
 }
 
 
@@ -217,18 +217,16 @@ bool ChecksumSet::contains(const checksum::type& type) const
 }
 
 
-Checksum ChecksumSet::get(const checksum::type type) const
+std::pair<Checksum, bool> ChecksumSet::get(const checksum::type type) const
 {
-	const auto rc { set_.find(type) };
-
 	using std::cend;
 
-	if (rc == cend(set_))
+	if (const auto result { set_.find(type) }; result != cend(set_))
 	{
-		return EmptyChecksum;
+		return { result->second, true };
 	}
 
-	return rc->second;
+	return { Checksum {/*zero*/}, false };
 }
 
 
@@ -356,8 +354,6 @@ bool ChecksumSet::equals(const ChecksumSet& rhs) const noexcept
 
 // empty instances
 
-
-const Checksum    EmptyChecksum    { 0 }; // defines emptyness for Checksum
 
 const ChecksumSet EmptyChecksumSet { ChecksumSet {/* empty */} };
 

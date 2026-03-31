@@ -719,14 +719,31 @@ void validate_with_completeness(const ToCData& toc_data);
  */
 void validate_without_completeness(const ToCData& toc_data);
 
+void print(std::ostream& out, const ToCData& toc_data);
+
+/**
+ * \brief Create a string representation of this instance.
+ *
+ * \return String representation
+ */
+std::string to_string(const ToCData& toc_data);
+
 } // namespace toc
 
+
+class ToC; // forward declaration
+
+// ensure to put declaration in this namespace
+std::ostream& operator << (std::ostream& out, const ToC& toc);
 
 /**
  * \brief Table of contents of a compact disc.
  */
 class ToC final : public Comparable<ToC>
 {
+	class Impl;
+	std::unique_ptr<Impl> impl_;
+
 public:
 
 	/**
@@ -744,12 +761,36 @@ public:
 	 */
 	explicit ToC(const ToCData& toc_data);
 
-	// copy
+	/**
+	 * \brief Copy constructor.
+	 *
+	 * \param[in] rhs The instance to copy
+	 */
 	ToC(const ToC& rhs);
+
+	/**
+	 * \brief Copy assignment operator.
+	 *
+	 * \param[in] rhs The instance to copy
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	ToC& operator = (const ToC& rhs);
 
-	// move
+	/**
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs The instance to move
+	 */
 	ToC(ToC&& rhs) noexcept;
+
+	/**
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs The instance to move
+	 *
+	 * \return Reference to the instance with the value assigned
+	 */
 	ToC& operator = (ToC&& rhs) noexcept;
 
 	/**
@@ -864,12 +905,13 @@ public:
 	 */
 	bool equals(const ToC& rhs) const noexcept;
 
-private:
+	/**
+	 * \brief Create a string representation of this instance.
+	 *
+	 * \return String representation
+	 */
+	std::string to_string() const;
 
-	class Impl;
-	std::unique_ptr<Impl> impl_;
-
-public:
 
 	friend void swap(ToC& lhs, ToC& rhs) noexcept
 	{
@@ -879,6 +921,13 @@ public:
 	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept
 	{
 		return lhs.equals(rhs);
+	}
+
+	friend std::ostream& operator << (std::ostream& out, const ToC& toc);
+
+	friend std::string to_string(const ToC& toc)
+	{
+		return toc.to_string();
 	}
 };
 

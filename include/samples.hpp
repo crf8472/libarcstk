@@ -12,10 +12,6 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"         // for Comparable, IteratorElement
-#endif
-
 #include <array>                // for array
 #include <cstddef>              // for ptrdiff_t, size_t
 #include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
@@ -23,6 +19,10 @@
 #include <sstream>              // for ostringstream
 #include <stdexcept>            // for out_of_range
 #include <type_traits>          // for is_same, enable_if_t
+
+#ifndef LIBARCSTK_POLICIES_HPP_
+#include "policies.hpp"         // for Comparable, IteratorElement
+#endif
 
 namespace arcstk
 {

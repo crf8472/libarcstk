@@ -28,7 +28,7 @@ TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
 
 	// Bent: "Programmed to Love"
 
-	const auto id4 = arcstk::arid::make_arid(
+	const auto id4 = arcstk::arid::make(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -300,7 +300,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// "Bach: Organ Concertos", Simon Preston, DGG
 
-		auto id1 = arcstk::arid::make_arid(
+		auto id1 = arcstk::arid::make(
 			// offsets
 			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 				157863, 198495, 213368, 225320, 234103 },
@@ -330,7 +330,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		// "Saint-Saens: Symphony No. 3, Poulenc: Organ Concerto",
 		// Berliner Sinfonie-Orchester, C.-P. Flor, ETERNA
 
-		auto id2 = arcstk::arid::make_arid(
+		auto id2 = arcstk::arid::make(
 			// offsets
 			{ 32, 96985, 166422 },
 			// leadout
@@ -359,7 +359,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		// "Bach: Brandenburg Concertos 3,4 & 5",
 		// Academy of St.-Martin-in-the-Fields, Sir Neville Marriner, Philips
 
-		auto id3 = arcstk::arid::make_arid(
+		auto id3 = arcstk::arid::make(
 			// offsets
 			{ 33, 34283, 49908, 71508, 97983, 111183, 126708, 161883, 187158 },
 			// leadout
@@ -387,7 +387,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// Bent: "Programmed to Love"
 
-		auto id4 = arcstk::arid::make_arid(
+		auto id4 = arcstk::arid::make(
 			// offsets
 			{ 0, 29042, 53880, 58227, 84420, 94192, 119165, 123030, 147500,
 				148267, 174602, 208125, 212705, 239890, 268705, 272055, 291720,
@@ -418,7 +418,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 	{
 		// "Wir entdecken Komponisten: Ludwig van Beethoven Vol. 1", DGG
 
-		auto id5 = arcstk::arid::make_arid(
+		auto id5 = arcstk::arid::make(
 			// offsets
 			{ 33 },
 			// leadout
