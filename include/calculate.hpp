@@ -766,7 +766,7 @@ protected:
 	 *
 	 * \param[in] rhs Instance to swap
 	 */
-	void base_swap(Algorithm& rhs);
+	void swap_base(Algorithm& rhs);
 
 private:
 

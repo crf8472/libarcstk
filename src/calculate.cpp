@@ -17,9 +17,6 @@
 #include <cstdint>     // for int32_t, uint16_t
 #include <iomanip>     // for setw, right
 
-#ifndef LIBARCSTK_CALCULATE_IMPL_HPP_
-#include "calculate_impl.hpp"
-#endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
@@ -845,7 +842,7 @@ std::unique_ptr<Algorithm> Algorithm::clone() const
 }
 
 
-void Algorithm::base_swap(Algorithm& rhs)
+void Algorithm::swap_base(Algorithm& rhs)
 {
 	using std::swap;
 	swap(settings_, rhs.settings_);
