@@ -131,3 +131,130 @@
  * \return String representation of this instance
  */
 
+/**
+ * \class SNPT_mf_begin
+ *
+ * \brief Provide an iterator to the first element.
+ *
+ * \return An iterator to the first element.
+ */
+
+/**
+ * \class SNPT_mf_cbegin
+ *
+ * \brief Provide a const_iterator to the first element.
+ *
+ * \return A const_iterator to the first element.
+ */
+
+/**
+ * \class SNPT_mf_cend
+ *
+ * \brief Provide a const_iterator pointing behind the last element.
+ *
+ * \return A const_iterator pointing behind the last element.
+ */
+
+/**
+ * \class SNPT_mf_crbegin
+ *
+ * \brief Provide a reverse const_iterator pointing to the last element.
+ *
+ * \return A reverse const_iterator pointing to the last element.
+ */
+
+/**
+ * \class SNPT_mf_crend
+ *
+ * \brief Provide a reverse const_iterator pointing before the first element.
+ *
+ * \return A reverse const_iterator pointing before the first element.
+ */
+
+/**
+ * \class SNPT_mf_end
+ *
+ * \brief Provide an iterator pointing behind the last element.
+ *
+ * \return An iterator pointing behind the last element.
+ */
+
+/**
+ * \class SNPT_mf_rbegin
+ *
+ * \brief Provide a reverse iterator pointing to the last element.
+ *
+ * \return A reverse iterator pointing to the last element.
+ */
+
+/**
+ * \class SNPT_mf_rend
+ *
+ * \brief Provide a reverse iterator pointing before the first element.
+ *
+ * \return A reverse iterator pointing before the first element.
+ */
+
+
+/* =====  SNPT_tp_*: typedefs  ===== */
+
+/**
+ * \class SNPT_tp_value
+ *
+ * \brief Type of the values provided
+ */
+
+/**
+ * \class SNPT_tp_key
+ *
+ * \brief Type of the keys used for value access
+ */
+
+/**
+ * \class SNPT_tp_size
+ *
+ * \brief Type of the size of this class
+ */
+
+/**
+ * \class SNPT_tp_iterator
+ *
+ * \brief Type of iterator
+ */
+
+/**
+ * \class SNPT_tp_const_iterator
+ *
+ * \brief Type of constant iterator
+ */
+
+/**
+ * \class SNPT_tp_reverse_iterator
+ *
+ * \brief Type of reverse iterator
+ */
+
+/**
+ * \class SNPT_tp_reverse_const_iterator
+ *
+ * \brief Type of constant reverse iterator
+ */
+
+/**
+ * \class SNPT_tp_pointer
+ *
+ * \brief Type of pointer to element
+ */
+
+/**
+ * \class SNPT_tp_reference
+ *
+ * \brief Type of reference to element
+ */
+
+/**
+ * \class SNPT_tp_difference
+ *
+ * \brief Type of iterator difference
+ */
+

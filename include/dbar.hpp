@@ -341,6 +341,10 @@ public:
 };
 
 
+namespace details
+{
+
+
 /**
  * \brief Apply an index on an indexed container.
  *
@@ -356,13 +360,7 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
 };
 
 
-namespace details
-{
-
-
 /**
- * \internal
- *
  * \brief Increment an element.
  *
  * May be either increasing or decreasing increment.
@@ -402,8 +400,6 @@ public:
 
 
 /**
- * \internal
- *
  * \brief Forward iterator for DBAR related containers.
  *
  * \tparam T Type of object we iterate over, must define size_type
@@ -413,25 +409,42 @@ template<typename T, bool R>
 class DBARForwardIterator final : public Comparable<DBARForwardIterator<T,R>>
 {
 	/**
-	 * \brief Size and index type.
+	 * \copydoc SNPT_tp_size
 	 */
 	using size_type = typename T::size_type;
 
-public:
-
-	using iterator_category = std::forward_iterator_tag;
-
-	/**
-	 * \brief Specialization of get_element<T>() yields the actual value_type
-	 */
-    using value_type        = decltype( get_element<T>(
+	// intentionally undocumented
+	using type_of_iterated_elements = decltype( get_element<T>(
 				std::declval<T &>(),
 				std::declval<size_type>()) );
 
-    using reference         = value_type; // not a reference
+public:
 
+	/**
+	 * \brief LegacyForwardIterator
+	 */
+	using iterator_category = std::forward_iterator_tag;
+
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
+    using value_type        = type_of_iterated_elements;
+
+	/**
+	 * \copydoc SNPT_tp_reference
+	 *
+	 * \details Not an actual reference type.
+	 */
+    using reference         = value_type;
+
+	/**
+	 * \copydoc SNPT_tp_pointer
+	 */
     using pointer           = IteratorElement<value_type, size_type>;
 
+	/**
+	 * \copydoc SNPT_tp_difference
+	 */
     using difference_type   = std::ptrdiff_t;
 
 private:
@@ -747,18 +760,64 @@ public:
 	 */
 	DBARBlock block(const size_type block_idx) const;
 
+	/**
+	 * \copydoc SNPT_mf_begin
+	 */
 	iterator begin();
+
+	/**
+	 * \copydoc SNPT_mf_end
+	 */
 	iterator end();
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
 	const_iterator cbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
 	const_iterator cend() const;
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
 	const_iterator begin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
 	const_iterator end() const;
 
+	/**
+	 * \copydoc SNPT_mf_rbegin
+	 */
 	reverse_iterator rbegin();
+
+	/**
+	 * \copydoc SNPT_mf_rend
+	 */
 	reverse_iterator rend();
+
+	/**
+	 * \copydoc SNPT_mf_crbegin
+	 */
 	const_reverse_iterator crbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_crend
+	 */
 	const_reverse_iterator crend() const;
+
+	/**
+	 * \copydoc SNPT_mf_crbegin
+	 */
 	const_reverse_iterator rbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_crend
+	 */
 	const_reverse_iterator rend() const;
 
 	/**
@@ -921,18 +980,64 @@ public:
 	 */
 	ARId id() const;
 
+	/**
+	 * \copydoc SNPT_mf_begin
+	 */
 	iterator begin();
+
+	/**
+	 * \copydoc SNPT_mf_end
+	 */
 	iterator end();
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
 	const_iterator cbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
 	const_iterator cend() const;
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
 	const_iterator begin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
 	const_iterator end() const;
 
+	/**
+	 * \copydoc SNPT_mf_rbegin
+	 */
 	reverse_iterator rbegin();
+
+	/**
+	 * \copydoc SNPT_mf_rend
+	 */
 	reverse_iterator rend();
+
+	/**
+	 * \copydoc SNPT_mf_crbegin
+	 */
 	const_reverse_iterator crbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_crend
+	 */
 	const_reverse_iterator crend() const;
+
+	/**
+	 * \copydoc SNPT_mf_crbegin
+	 */
 	const_reverse_iterator rbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_crend
+	 */
 	const_reverse_iterator rend() const;
 
 	/**

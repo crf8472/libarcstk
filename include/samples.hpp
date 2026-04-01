@@ -172,15 +172,33 @@ class SampleIterator final :
 
 public:
 
+	/**
+	 * \brief LegacyBidirectionalIterator
+	 */
 	using iterator_category = std::bidirectional_iterator_tag;
 
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
 	using value_type        = sample_type;
 
-	using reference         = value_type; // not a reference
+	/**
+	 * \copydoc SNPT_tp_reference
+	 *
+	 * \details Not an actual reference type.
+	 */
+	using reference         = value_type;
 
+	/**
+	 * \copydoc SNPT_tp_pointer
+	 *
+	 * \details Not a pointer type, gives chaining effect on operator ->.
+	 */
 	using pointer           = IteratorElement<value_type>;
-							// non-pointer, gives chaining effect on ->
 
+	/**
+	 * \copydoc SNPT_tp_difference
+	 */
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
 
@@ -469,12 +487,12 @@ class SampleSequenceImplBase
 public:
 
 	/**
-	 * \brief Value type.
+	 * \copydoc SNPT_tp_value
 	 */
 	using value_type = sample_type;
 
 	/**
-	 * \brief Size and index type.
+	 * \copydoc SNPT_tp_size
 	 */
 	using size_type = std::size_t;
 
@@ -489,30 +507,7 @@ public:
 	using const_iterator = SampleIterator<T, is_planar, true>;
 
 	/**
-	 * \brief Obtain an iterator pointing to the beginning.
-	 *
-	 * \return Iterator pointing to the beginning of the SampleSequence
-	 */
-	const_iterator cbegin() const
-	{
-		return const_iterator(*this->sequence(), 0);
-	}
-
-	/**
-	 * \brief Obtain an iterator pointing behind the end.
-	 *
-	 * \return Iterator pointing behind the end of the SampleSequence
-	 */
-	const_iterator cend() const
-	{
-		return const_iterator(*this->sequence(), static_cast<
-				typename const_iterator::difference_type>(this->size()));
-	}
-
-	/**
-	 * \brief Obtain an iterator pointing to the beginning.
-	 *
-	 * \return Iterator pointing to the beginning of the SampleSequence
+	 * \copydoc SNPT_mf_begin
 	 */
 	iterator begin()
 	{
@@ -520,9 +515,7 @@ public:
 	}
 
 	/**
-	 * \brief Obtain an iterator pointing behind the end.
-	 *
-	 * \return Iterator pointing behind the end of the SampleSequence
+	 * \copydoc SNPT_mf_end
 	 */
 	iterator end()
 	{
@@ -531,9 +524,24 @@ public:
 	}
 
 	/**
-	 * \brief Obtain an iterator pointing to the beginning.
-	 *
-	 * \return Iterator pointing to the beginning of the SampleSequence
+	 * \copydoc SNPT_mf_cbegin
+	 */
+	const_iterator cbegin() const
+	{
+		return const_iterator(*this->sequence(), 0);
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
+	const_iterator cend() const
+	{
+		return const_iterator(*this->sequence(), static_cast<
+				typename const_iterator::difference_type>(this->size()));
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
 	 */
 	const_iterator begin() const
 	{
@@ -541,9 +549,7 @@ public:
 	}
 
 	/**
-	 * \brief Obtain an iterator pointing behind the end.
-	 *
-	 * \return Iterator pointing behind the end of the SampleSequence
+	 * \copydoc SNPT_mf_cend
 	 */
 	const_iterator end() const
 	{

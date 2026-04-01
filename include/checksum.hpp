@@ -127,7 +127,9 @@ class Checksum final : public Comparable<Checksum>
 public:
 
 	/**
-	 * \brief Numerical base type of checksums: a 32-bit wide unsigned integer.
+	 * \copydoc SNPT_tp_value
+	 *
+	 * \details Numerical type of checksums: an unsigned 32-bit integer.
 	 */
 	using value_type = uint32_t;
 
@@ -295,7 +297,10 @@ public:
 	using size_type = unspecified_unsigned_size_type;
 
 	/**
-	 * \brief Constructor for a track with unknown length (will be 0)
+	 *
+	 * \copydoc SNPT_sm_default_ctor
+	 *
+	 * \details Constructs a ChecksumSet/track with unknown length (will be 0).
 	 */
 	ChecksumSet();
 
@@ -425,42 +430,34 @@ public:
 	void clear();
 
 	/**
-	 * \brief Obtain a pointer to the first Checksum.
-	 *
-	 * \return Pointer to the first Checksum
-	 */
-	const_iterator cbegin() const;
-
-	/**
-	 * \brief Obtain a pointer pointing behind the last Checksum.
-	 *
-	 * \return Pointer pointing behind the last Checksum
-	 */
-	const_iterator cend() const;
-
-	/**
-	 * \copydoc cbegin()
-	 */
-	const_iterator begin() const;
-
-	/**
-	 * \copydoc cend()
-	 */
-	const_iterator end() const;
-
-	/**
-	 * \brief Obtain a pointer to the first Checksum.
-	 *
-	 * \return Pointer to the first Checksum
+	 * \copydoc SNPT_mf_begin
 	 */
 	iterator begin();
 
 	/**
-	 * \brief Obtain a pointer pointing behind the last Checksum.
-	 *
-	 * \return Pointer pointing behind the last Checksum
+	 * \copydoc SNPT_mf_end
 	 */
 	iterator end();
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
+	const_iterator cbegin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
+	const_iterator cend() const;
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
+	const_iterator begin() const;
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
+	const_iterator end() const;
 
 	/**
 	 * \copydoc SNPT_mf_size

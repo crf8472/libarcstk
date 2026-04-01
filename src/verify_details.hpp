@@ -624,15 +624,30 @@ class SourceIterator final
 
 public:
 
+	/**
+	 * \brief LegacyInputIterator.
+	 */
 	using iterator_category = std::input_iterator_tag;
 
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
 	using value_type        = uint32_t;
 
-	using difference_type   = std::ptrdiff_t;
-
+	/**
+	 * \copydoc SNPT_tp_reference
+	 */
 	using reference         = const value_type&;
 
+	/**
+	 * \copydoc SNPT_tp_pointer
+	 */
 	using pointer           = const value_type*;
+
+	/**
+	 * \copydoc SNPT_tp_difference
+	 */
+	using difference_type   = std::ptrdiff_t;
 
 	/**
 	 * \brief Constructor.
@@ -786,8 +801,14 @@ protected:
 
 public:
 
+	/**
+	 * \copydoc SNPT_tp_iterator
+	 */
 	using iterator       = const SourceIterator;
 
+	/**
+	 * \copydoc SNPT_tp_const_iterator
+	 */
 	using const_iterator = const SourceIterator;
 
 	/**

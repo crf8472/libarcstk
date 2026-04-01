@@ -183,31 +183,33 @@ class SampleInputIterator final : public Comparable<SampleInputIterator>
 public:
 
 	/**
-	 * \brief Iterator category is std::input_iterator_tag.
+	 * \brief InputIterator
 	 */
 	using iterator_category = std::input_iterator_tag;
 
 	/**
-	 * \brief The type this iterator enumerates.
+	 * \copydoc SNPT_tp_value
 	 */
 	using value_type = sample_t;
 
 	/**
-	 * \brief Same as value_type, *not* a reference type.
+	 * \copydoc SNPT_tp_reference
+	 *
+	 * \details Not an actual reference type.
 	 *
 	 * Note that some iterator types like SampleIterator for instance do not
 	 * yield lvalues, thererfore no reference to the value under the iterator is
 	 * available.
 	 */
-	using reference = sample_t; // not a reference
+	using reference = sample_t;
 
 	/**
-	 * \brief Pointer to element.
+	 * \copydoc SNPT_tp_pointer
 	 */
 	using pointer = const value_type*;
 
 	/**
-	 * \brief Pointer difference type.
+	 * \copydoc SNPT_tp_difference
 	 */
 	using difference_type = std::ptrdiff_t;
 
