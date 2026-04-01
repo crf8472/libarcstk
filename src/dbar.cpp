@@ -710,6 +710,12 @@ DBARBlock::size_type DBARBlock::size() const
 }
 
 
+bool DBARBlock::empty() const
+{
+	return size() == 0;
+}
+
+
 DBARBlockHeader DBARBlock::header() const
 {
 	return dBAR_->header(idx_);

@@ -215,13 +215,16 @@ public:
 
 	unsigned total_tracks() const noexcept;
 
-	void set_leadout(const AudioSize& leadout) noexcept;
 	AudioSize leadout() const noexcept;
 
-	std::vector<AudioSize>   offsets() const;
+	void set_leadout(const AudioSize& leadout) noexcept;
+
+	std::vector<AudioSize> offsets() const;
+
 	std::vector<std::string> filenames() const;
 
 	bool has_filenames()  const noexcept;
+
 	bool is_single_file() const noexcept;
 
 	void validate() const;

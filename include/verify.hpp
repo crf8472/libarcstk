@@ -117,7 +117,7 @@ private:
 public:
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~ChecksumSource() noexcept = default;
 
@@ -197,9 +197,7 @@ public:
 	size_type size() const;
 
 	/**
-	 * \brief Returns a deep copy of the instance
-	 *
-	 * \return A deep copy of the instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<ChecksumSource> clone() const;
 };
@@ -398,7 +396,7 @@ class VerificationResult
 public:
 
 	/**
-	 * \brief Virtual default destructor
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~VerificationResult() noexcept;
 
@@ -583,9 +581,7 @@ public:
 	bool strict() const;
 
 	/**
-	 * \brief Returns a deep copy of the instance
-	 *
-	 * \return A deep copy of the instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<VerificationResult> clone() const;
 };
@@ -631,7 +627,7 @@ class Verifier { virtual const ARId* do_actual_id() const noexcept = 0;
 public:
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~Verifier() noexcept = default;
 
@@ -683,9 +679,7 @@ public:
 	std::unique_ptr<VerificationResult> perform(const DBAR& ref_sums) const;
 
 	/**
-	 * \brief Returns a deep copy of the instance
-	 *
-	 * \return A deep copy of the instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Verifier> clone() const;
 };
@@ -740,39 +734,27 @@ public:
 	AlbumVerifier(const Checksums& actual_sums, const ARId& actual_id);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	AlbumVerifier(const AlbumVerifier& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	AlbumVerifier& operator = (const AlbumVerifier& rhs);
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	AlbumVerifier(AlbumVerifier&& rhs) noexcept;
 
 	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_move_op
 	 */
 	AlbumVerifier& operator = (AlbumVerifier&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~AlbumVerifier() noexcept final;
 };
@@ -840,39 +822,27 @@ public:
 	explicit TracksetVerifier(const Checksums& actual_sums);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	TracksetVerifier(const TracksetVerifier& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	TracksetVerifier& operator = (const TracksetVerifier& rhs);
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	TracksetVerifier(TracksetVerifier&& rhs) noexcept;
 
 	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_move_op
 	 */
 	TracksetVerifier& operator=(TracksetVerifier&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~TracksetVerifier() noexcept final;
 };

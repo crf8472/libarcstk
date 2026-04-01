@@ -185,9 +185,10 @@ public:
 	// Must be at least as wide as SampleSequence::size_type
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 *
-	 * Inititalizes a SampleIterator pointing to \c nullptr on position \c 0.
+	 * \details Inititalizes a SampleIterator pointing to \c nullptr on
+	 * position \c 0.
 	 */
 	SampleIterator()
 		: seq_ { nullptr }
@@ -605,9 +606,9 @@ public:
 protected:
 
 	/**
-	 * \brief Protected default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 *
-	 * Establishes a size of 0 and a LEFT_RIGHT channel ordering.
+	 * \details Establishes a size of 0 and a LEFT_RIGHT channel ordering.
 	 */
 	SampleSequenceImplBase()
 		: SampleSequenceImplBase{ true }
@@ -629,31 +630,31 @@ protected:
 	}
 
 	/**
-	 * \brief Protected default copy constructor.
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
-	SampleSequenceImplBase(const SampleSequenceImplBase& )
+	SampleSequenceImplBase(const SampleSequenceImplBase& rhs)
 	= default;
 
 	/**
-	 * \brief Protected default copy assignment operator.
+	 * \copydoc SNPT_sm_copy_op
 	 */
-	SampleSequenceImplBase& operator = (const SampleSequenceImplBase& )
+	SampleSequenceImplBase& operator = (const SampleSequenceImplBase& rhs)
 	= default;
 
 	/**
-	 * \brief Protected default move constructor.
+	 * \copydoc SNPT_sm_move_ctor
 	 */
-	SampleSequenceImplBase(SampleSequenceImplBase&&) noexcept
+	SampleSequenceImplBase(SampleSequenceImplBase&& rhs) noexcept
 	= default;
 
 	/**
-	 * \brief Protected default move assignment operator.
+	 * \copydoc SNPT_sm_move_op
 	 */
-	SampleSequenceImplBase& operator = (SampleSequenceImplBase&&) noexcept
+	SampleSequenceImplBase& operator = (SampleSequenceImplBase&& rhs) noexcept
 	= default;
 
 	/**
-	 * \brief Protected non-virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~SampleSequenceImplBase() noexcept
 	= default;

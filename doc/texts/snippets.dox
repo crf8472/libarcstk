@@ -1,0 +1,133 @@
+/* inspired by: https://stackoverflow.com/a/9179152 */
+
+/*  SNPT_sm_*: special members, copy + move ctors and ops + destructor   */
+
+/**
+ * \class SNPT_sm_default_ctor
+ *
+ * \brief Default constructor
+ */
+
+/**
+ * \class SNPT_sm_copy_ctor
+ *
+ * \brief Copy constructor.
+ *
+ * \param[in] rhs The instance to copy
+ */
+
+/**
+ * \class SNPT_sm_copy_op
+ *
+ * \brief Copy assignment operator.
+ *
+ * \param[in] rhs The instance to copy
+ *
+ * \return Reference to the instance with the value assigned
+ */
+
+/**
+ * \class SNPT_sm_move_ctor
+ *
+ * \brief Move constructor.
+ *
+ * \param[in] rhs The instance to move
+ */
+
+/**
+ * \class SNPT_sm_move_op
+ *
+ * \brief Move assignment operator.
+ *
+ * \param[in] rhs The instance to move
+ *
+ * \return Reference to the instance with the value assigned
+ */
+
+/**
+ * \class SNPT_sm_default_dtor
+ *
+ * \brief Default destructor.
+ */
+
+
+/* =====  SNPT_mf_*: member functions and member operators  ===== */
+
+/* virtual */
+
+/**
+ * \class SNPT_mf_clone
+ *
+ * \brief Return a deep copy of the instance
+ *
+ * \return A deep copy of the instance
+ */
+
+/* non-virtual */
+
+/**
+ * \class SNPT_mf_op_bool_if_empty
+ *
+ * \brief Return \c TRUE iff the instance is not empty(), otherwise \c FALSE.
+ *
+ * \return \c TRUE iff instance is not empty(), otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_mf_op_bool_if_zero
+ *
+ * \brief Return \c TRUE iff the instance is not zero(), otherwise \c FALSE.
+ *
+ * \return \c TRUE iff instance is not zero(), otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_mf_size
+ *
+ * \brief Return the number of elements contained in the instance.
+ *
+ * \return Number of elements contained in the instance
+ */
+
+/**
+ * \class SNPT_mf_empty
+ *
+ * \brief Return \c TRUE iff the instance is empty, otherwise \c FALSE.
+ *
+ * \return \c TRUE iff the instance is empty, otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_mf_zero
+ *
+ * \brief Return \c TRUE iff the value of this instance is equivalent to 0.
+ *
+ * \return \c TRUE if the value of this instance is 0, otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_mf_swap
+ *
+ * \brief Swap this instance with \c rhs.
+ *
+ * \param[in] rhs Instance to swap
+ */
+
+/**
+ * \class SNPT_mf_equals
+ *
+ * \brief Return \c TRUE iff the instance is equal to \c rhs otherwise \c FALSE.
+ *
+ * \param[in] rhs Instance to check for equality
+ *
+ * \return \c TRUE iff \c this is equal to \c rhs, otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_mf_to_string
+ *
+ * \brief Create a string representation of this instance.
+ *
+ * \return String representation of this instance
+ */
+

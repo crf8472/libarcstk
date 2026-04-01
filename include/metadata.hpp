@@ -470,39 +470,27 @@ public:
 	void set_bytes(const int32_t bytes) noexcept;
 
 	/**
-	 * \brief Return \c TRUE if the AudioSize is equivalent to zero.
-	 *
-	 * \return \c TRUE if the AudioSize is zero
+	 * \copydoc SNPT_mf_zero
 	 */
 	bool zero() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
+	 * \copydoc SNPT_mf_op_bool_if_zero
 	 */
 	explicit operator bool() const noexcept;
 
 	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(AudioSize& rhs) noexcept;
 
 	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
+	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const AudioSize& rhs) const noexcept;
 
 	/**
-	 * \brief Create a string representation of this instance.
-	 *
-	 * \return String representation
+	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
 
@@ -764,39 +752,27 @@ public:
 	explicit ToC(const ToCData& toc_data);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	ToC(const ToC& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	ToC& operator = (const ToC& rhs);
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	ToC(ToC&& rhs) noexcept;
 
 	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_move_op
 	 */
 	ToC& operator = (ToC&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~ToC() noexcept final;
 
@@ -878,41 +854,29 @@ public:
 	bool complete() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this instance is empty (without ToCData).
+	 * \copydoc SNPT_mf_empty
 	 *
-	 * There may or may not be filenames present, but no ToCData.
-	 *
-	 * \return TRUE iff ToC is empty otherwise FALSE
+	 * \details There may or may not be filenames present, but no ToCData.
 	 */
 	bool empty() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 * \class SNPT_mf_op_bool_if_empty
 	 */
 	explicit operator bool() const noexcept;
 
 	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(const ToC& rhs) const noexcept;
 
 	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
+	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const ToC& rhs) const noexcept;
 
 	/**
-	 * \brief Create a string representation of this instance.
-	 *
-	 * \return String representation
+	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
 

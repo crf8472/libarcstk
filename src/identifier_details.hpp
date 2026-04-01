@@ -215,12 +215,28 @@ ARId make(const std::vector<int32_t>& offsets, const int32_t leadout);
  */
 class ARId::Impl final
 {
+	/**
+	 * \brief Number of tracks
+	 */
+	unsigned total_tracks_;
+
+	/**
+	 * \brief Disc id no. 1
+	 */
+	uint32_t disc_id1_;
+
+	/**
+	 * \brief Disc id no. 2
+	 */
+	uint32_t disc_id2_;
+
+	/**
+	 * \brief CDDB disc id
+	 */
+	uint32_t cddb_id_;
 
 public:
 
-	/**
-	 * \brief Implements ARId::ARId().
-	 */
 	Impl(const unsigned total_tracks,
 			const uint32_t id_1,
 			const uint32_t id_2,
@@ -245,28 +261,6 @@ public:
 	bool equals(const Impl& rhs) const noexcept;
 
 	std::string to_string() const;
-
-private:
-
-	/**
-	 * \brief Number of tracks
-	 */
-	unsigned total_tracks_;
-
-	/**
-	 * \brief Disc id no. 1
-	 */
-	uint32_t disc_id1_;
-
-	/**
-	 * \brief Disc id no. 2
-	 */
-	uint32_t disc_id2_;
-
-	/**
-	 * \brief CDDB disc id
-	 */
-	uint32_t cddb_id_;
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

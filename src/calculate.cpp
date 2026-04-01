@@ -591,10 +591,13 @@ std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
 CalculationStateImpl& CalculationStateImpl::operator = (
 		const CalculationStateImpl& rhs)
 {
-	auto tmp { CalculationStateImpl(rhs) }; // TODO pass by value instead?
+	if (&rhs != this)
+	{
+		using std::swap;
 
-	using std::swap;
-	swap(*this, tmp);
+		auto tmp { CalculationStateImpl(rhs) }; // TODO pass-by-value for copy?
+		swap(*this, tmp);
+	}
 	return *this;
 }
 
@@ -602,19 +605,13 @@ CalculationStateImpl& CalculationStateImpl::operator = (
 CalculationStateImpl& CalculationStateImpl::operator = (
 		CalculationStateImpl&& rhs) noexcept
 {
-	// TODO Could this be done more performant?
-
-	auto tmp { std::move(rhs) };
+	// TODO This is wrong and not performant
 
 	using std::swap;
+
+	auto tmp { std::move(rhs) };
 	swap(*this, tmp);
 	return *this;
-}
-
-
-void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs) noexcept
-{
-	lhs.swap_base(rhs);
 }
 
 
@@ -915,9 +912,6 @@ Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
 	state_         = std::move(rhs.state_); // FIXME pointer to algo
 	return *this;
 }
-
-
-//Calculation::Impl::~Impl() noexcept = default;
 
 
 void Calculation::Impl::init(const Settings& s, const ToCData& toc)

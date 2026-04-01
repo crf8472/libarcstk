@@ -410,7 +410,7 @@ class CheckingDBARBuilderState final
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	CheckingDBARBuilderState();
 
@@ -470,9 +470,6 @@ class CheckingDBARBuilder::Impl final
 
 public:
 
-	/**
-	 * \brief Default constructor.
-	 */
 	Impl();
 
 	// ParseHandler API mimicked
@@ -496,28 +493,14 @@ public:
 
 	void end_input();
 
-	/**
-	 * \brief Return validity state.
-	 *
-	 * \return Current validity state.
-	 */
+	// Impl-specific members
+
 	bool result_is_valid() const;
 
-	/**
-	 * \brief Return uniformity state.
-	 *
-	 * \return Current uniformity state.
-	 */
 	bool result_is_uniform() const;
 
-	/**
-	 * \copydoc DBARBuilder::result()
-	 */
 	DBAR result();
 
-	/**
-	 * \brief Resets the instance to its initial state.
-	 */
 	void reset();
 };
 

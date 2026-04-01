@@ -221,7 +221,7 @@ private:
 	struct Concept
 	{
 		/**
-		 * \brief Virtual default destructor.
+		 * \copydoc SNPT_sm_default_dtor
 		 */
 		virtual ~Concept() noexcept
 		= default;
@@ -257,11 +257,7 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns \c TRUE if \c rhs is equal to the instance.
-		 *
-		 * \param[in] rhs The instance to test for equality
-		 *
-		 * \return \c TRUE if \c rhs is equal to the instance, otherwise \c FALSE
+		 * \copydoc SNPT_mf_equals
 		 */
 		virtual bool equals(const Concept& rhs) const noexcept
 		= 0;
@@ -275,9 +271,7 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns a deep copy of the instance
-		 *
-		 * \return A deep copy of the instance
+		 * \copydoc SNPT_mf_clone
 		 */
 		virtual std::unique_ptr<Concept> clone() const noexcept
 		= 0;
@@ -366,9 +360,7 @@ public:
 	}
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	SampleInputIterator(const SampleInputIterator& rhs)
 		: object_ { rhs.object_->clone() }
@@ -377,9 +369,7 @@ public:
 	}
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	SampleInputIterator(SampleInputIterator&& rhs) noexcept
 		: object_ { std::move(rhs.object_) }
@@ -388,7 +378,7 @@ public:
 	}
 
 	/**
-	 * \brief Destructor
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~SampleInputIterator() noexcept final = default;
 
@@ -437,11 +427,7 @@ public:
 	// required by LegacyInputIterator
 
 	/**
-	 * \brief Copy assignment.
-	 *
-	 * \param[in] rhs Value to assign
-	 *
-	 * \return Instance with new value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
@@ -614,9 +600,9 @@ class Settings final : public Comparable<Settings>
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 *
-	 * Initializes the Context of the Settings instance as ALBUM.
+	 * \details Initializes the Context of the Settings instance as ALBUM.
 	 */
 	Settings();
 
@@ -695,12 +681,12 @@ class Algorithm
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	Algorithm();
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~Algorithm() noexcept;
 
@@ -767,9 +753,7 @@ public:
 	ChecksumtypeSet types() const;
 
 	/**
-	 * \brief Clone this instance.
-	 *
-	 * \return Deep copy of the instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Algorithm> clone() const;
 
@@ -869,25 +853,27 @@ public:
 			const ToCData& toc);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs Instance to be copied
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	Calculation(const Calculation& rhs);
 
-	Calculation& operator=(const Calculation& rhs);
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	Calculation& operator = (const Calculation& rhs);
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs Instance to be moved
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	Calculation(Calculation&& rhs) noexcept;
 
-	Calculation& operator=(Calculation&& rhs) noexcept;
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Calculation& operator = (Calculation&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Calculation() noexcept;
 
@@ -1016,11 +1002,10 @@ public:
 	Checksums result() const noexcept;
 
 	/**
-	 * \brief Swap the instance with another instance.
-	 *
-	 * \param[in] rhs Instance to swap with
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(Calculation& rhs) noexcept;
+
 
 	friend void swap(Calculation& lhs, Calculation& rhs) noexcept
 	{

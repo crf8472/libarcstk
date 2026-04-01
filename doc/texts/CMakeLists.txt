@@ -42,7 +42,7 @@ endforeach()
 
 # TODO Write and include page "Accuraterip_algorithms"
 foreach (FILE IN ITEMS "How_to_calculate.md" "How_to_verify.md"
-		"How_to_get_ids.md" "How_to_parse_DBARs.md" )
+		"How_to_get_ids.md" "How_to_parse_DBARs.md" "snippets.dox" )
 
 	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}" )
 	string (REPLACE "." "_" PAGE_TITLE ${FILE})
@@ -68,7 +68,7 @@ set (DOC_SOURCES ${DOC_SOURCES} "${DOC_TEXTS_MAINPAGE}" )
 
 set (DOXYGEN_USE_MDFILE_AS_MAINPAGE "${DOC_TEXTS_MAINPAGE}" PARENT_SCOPE )
 
-set (DOXYGEN_FILE_PATTERNS          "${DOXYGEN_FILE_PATTERNS} *.md"
+set (DOXYGEN_FILE_PATTERNS          "${DOXYGEN_FILE_PATTERNS} *.md *.dox"
 	PARENT_SCOPE )
 set (DOXYGEN_INPUT "${DOXYGEN_INPUT} ${CMAKE_CURRENT_BINARY_DIR}/"
 	PARENT_SCOPE )

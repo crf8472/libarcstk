@@ -115,19 +115,17 @@ public:
 	inline Appender(const std::string& name, FILE* stream);
 
 	/**
-	 * \brief Appender is non-copyable
+	 * \brief Class is non-copyable
 	 */
 	inline Appender(const Appender&) = delete;
 
 	/**
-	 * \brief Move constructor
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	inline Appender(Appender&& rhs) noexcept;
 
 	/**
-	 * \brief Destructor
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	inline ~Appender() noexcept;
 
@@ -145,11 +143,14 @@ public:
 	 */
 	inline std::string name() const noexcept;
 
-
-	// Appender is non-copyable
+	/**
+	 * \brief Class is non-copyable
+	 */
 	inline Appender& operator = (const Appender&) = delete;
 
-	// Appender is movable-only
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
 	inline Appender& operator = (Appender&& rhs) noexcept;
 
 
@@ -185,19 +186,17 @@ public:
 	Logger();
 
 	/**
-	 * \brief Logger is non-copyable
+	 * \brief Class is non-copyable
 	 */
 	Logger(const Logger&) = delete;
 
 	/**
-	 * \brief Default move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	Logger(Logger&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Logger() noexcept;
 
@@ -236,11 +235,14 @@ public:
 	 */
 	void log(const std::string& msg) const;
 
-
-	// Logger is non-copyable.
+	/**
+	 * \brief Class is non-copyable
+	 */
 	Logger& operator = (const Logger&) = delete;
 
-	// Logger is movable-only.
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
 	Logger& operator = (Logger&& rhs) noexcept;
 
 
@@ -303,7 +305,7 @@ public:
 	Log(Log&&) = delete;
 
 	/**
-	 * \brief Destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Log() noexcept;
 
@@ -333,11 +335,14 @@ public:
 	 */
 	static LOGLEVEL from_string(const std::string& level);
 
-
-	// Log is non-copyable
+	/**
+	 * \brief Class is non-copyable
+	 */
 	Log& operator = (const Log&) = delete;
 
-	// Log is movable-only
+	/**
+	 * \brief Class is non-movable
+	 */
 	Log& operator = (Log&&) noexcept = delete;
 
 
@@ -382,7 +387,7 @@ public:
 	Logging(Logging&&) noexcept = delete;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Logging() noexcept = default;
 
@@ -453,11 +458,14 @@ public:
 	 */
 	void remove_appender(Appender *appender);
 
-
-	// Logging is non-copyable
+	/**
+	 * \brief Class is non-copyable.
+	 */
 	Logging& operator = (Logging& rhs) = delete;
 
-	// Logging is movable-only
+	/**
+	 * \brief Class is non-movable
+	 */
 	Logging& operator = (Logging&& rhs) noexcept = delete;
 
 

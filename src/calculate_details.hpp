@@ -201,7 +201,7 @@ public:
 			const SampleRange& legal);
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~Partitioner() noexcept;
 
@@ -251,9 +251,7 @@ public:
 	Points points() const;
 
 	/**
-	 * \brief Deep copy of this instance.
-	 *
-	 * \return A deep copy of this instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Partitioner> clone() const;
 

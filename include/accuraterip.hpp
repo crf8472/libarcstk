@@ -204,7 +204,7 @@ struct Update<checksum::type::ARCS1,checksum::type::ARCS2>
 /**
  * \internal
  *
- * \brief Updater for specified checksum types.
+ * \brief Set of specified checksum types.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
 std::unordered_set<checksum::type> types_set()
@@ -234,7 +234,7 @@ class AccurateRipCS final
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	AccurateRipCS();
 
@@ -296,12 +296,9 @@ public:
 		return types_set<T1, T2...>();
 	}
 
-	/**
-	 * \brief Swap two instances.
-	 *
-	 * \param[in] lhs First instance to swap
-	 * \param[in] rhs Second instance to swap
-	 */
+	// TODO member swap()
+
+
 	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
 	{
 		using std::swap;
@@ -350,7 +347,7 @@ class ARCSAlgorithm final : public Algorithm
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	ARCSAlgorithm();
 

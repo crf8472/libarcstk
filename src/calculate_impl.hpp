@@ -123,7 +123,7 @@ class CalculationState
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	CalculationState();
 
@@ -135,7 +135,7 @@ public:
 	explicit CalculationState(Algorithm* const algorithm);
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~CalculationState() noexcept;
 
@@ -216,9 +216,7 @@ public:
 	void track_finished();
 
 	/**
-	 * \brief Clone this instance.
-	 *
-	 * \return Deep copy of this instance.
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<CalculationState> clone() const;
 
@@ -234,11 +232,19 @@ public:
 
 protected:
 
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
 	CalculationState(const CalculationState& rhs);
-	// no copy assingment operator
 
+	// no copy assingment operator  // TODO deleted or defaulted?
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
 	CalculationState(CalculationState&& rhs) noexcept;
-	// no move assingment operator
+
+	// no move assingment operator  // TODO deleted or defaulted?
 
 	/**
 	 * \brief Swap abstract part of the concrete subclass..
@@ -296,25 +302,37 @@ public:
 	 */
 	explicit CalculationStateImpl(Algorithm* const algorithm);
 
-
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
 	CalculationStateImpl(const CalculationStateImpl& rhs);
 
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
 	CalculationStateImpl& operator = (const CalculationStateImpl& rhs);
 
-
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
 	CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
 
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
 	CalculationStateImpl& operator = (CalculationStateImpl&& rhs) noexcept;
 
-
 	/**
-	 * \brief Destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~CalculationStateImpl() noexcept final;
 
 
 	friend void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs)
-		noexcept;
+		noexcept
+	{
+		lhs.swap_base(rhs);
+	}
 };
 
 
@@ -370,16 +388,25 @@ public:
 	 */
 	explicit Impl(std::unique_ptr<Algorithm> algorithm);
 
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
 	Impl(const Impl& rhs);
-	Impl& operator=(const Impl& rhs);
-
-	Impl(Impl&& rhs) noexcept;
-	Impl& operator=(Impl&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_copy_op
 	 */
-	//~Impl() noexcept;
+	Impl& operator = (const Impl& rhs);
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	Impl(Impl&& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Impl& operator = (Impl&& rhs) noexcept;
 
 	// Impl specific
 

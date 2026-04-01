@@ -135,39 +135,27 @@ public:
 			const uint32_t cddb_id);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	ARId(const ARId& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	ARId& operator = (const ARId& rhs);
 
 	/**
-	 * \brief Default move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	ARId(ARId&& rhs) noexcept;
 
 	/**
-	 * \brief Default move assignment operator.
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_move_op
 	 */
 	ARId& operator = (ARId&& rhs) noexcept;
 
 	/**
-	 * \brief Default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~ARId() noexcept final;
 
@@ -221,39 +209,27 @@ public:
 	std::string prefix() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this instance is empty.
-	 *
-	 * \return \c TRUE iff this instance is empty
+	 * \copydoc SNPT_mf_empty
 	 */
 	bool empty() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 * \copydoc SNPT_mf_op_bool_if_empty
 	 */
 	explicit operator bool() const noexcept;
 
 	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(ARId& rhs) noexcept;
 
 	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
+	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const ARId& rhs) const noexcept;
 
 	/**
-	 * \brief Create a string representation of this instance.
-	 *
-	 * \return String representation
+	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
 
@@ -382,7 +358,7 @@ ARId make_empty_arid();
 /**
  * \brief Constants for the AccurateRip service.
  */
-class ACCURATERIP
+class ACCURATERIP final
 {
 	/**
 	 * \brief Current request URL prefix.

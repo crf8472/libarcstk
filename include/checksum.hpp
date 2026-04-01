@@ -140,9 +140,9 @@ public:
 	// (since 2^4 == 16). We express 4 as log_2(16).
 
 	/**
-	 * \brief Constructor.
+	 * \copydoc SNPT_sm_default_ctor
 	 *
-	 * Creates an empty Checksum.
+	 * \details Creates an empty Checksum.
 	 */
 	Checksum();
 
@@ -170,39 +170,27 @@ public:
 	value_type value() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff this Checksum is 0, otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff this Checksum is 0, otherwise \c FALSE.
+	 * \copydoc SNPT_mf_zero
 	 */
 	bool zero() const noexcept;
 
 	/**
-	 * \brief Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not zero(), otherwise \c FALSE.
+	 * \copydoc SNPT_mf_op_bool_if_zero
 	 */
 	explicit operator bool() const noexcept;
 
 	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(Checksum& rhs) noexcept;
 
 	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
+	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const Checksum& rhs) const noexcept;
 
 	/**
-	 * \brief Create a string representation of this instance.
-	 *
-	 * \return String representation
+	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
 
@@ -352,21 +340,6 @@ public:
 	void set_length(const int32_t length) noexcept; //TODO AudioSize
 
 	/**
-	 * \brief Returns the number of elements contained in the instance.
-	 *
-	 * \return Number of elements contained in the instance.
-	 */
-	size_type size() const noexcept;
-
-	/**
-	 * \brief Returns \c TRUE iff the instance contains no elements, otherwise
-	 * \c FALSE.
-	 *
-	 * \return \c TRUE iff instance contains no elements, otherwise \c FALSE
-	 */
-	bool empty() const noexcept;
-
-	/**
 	 * \brief Returns \c TRUE iff the instance contains a Checksum of the type
 	 * \c type.
 	 *
@@ -490,27 +463,31 @@ public:
 	iterator end();
 
 	/**
-	 * \brief Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
-	 *
-	 * \return Return \c TRUE iff instance is not empty(), otherwise \c FALSE.
+	 * \copydoc SNPT_mf_size
+	 */
+	size_type size() const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_empty
+	 */
+	bool empty() const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_op_bool_if_empty
 	 */
 	explicit operator bool() const noexcept;
 
 	/**
-	 * \brief Swap with another instance.
-	 *
-	 * \param[in] rhs Instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(ChecksumSet& rhs) noexcept;
 
 	/**
-	 * \brief TRUE iff this instance is equal to another instance.
-	 *
-	 * \param[in] rhs Instance to check for equality
-	 *
-	 * \return TRUE iff \c rhs == \c this
+	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const ChecksumSet& rhs) const noexcept;
+
+	// TODO to_string()
 
 
 	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept

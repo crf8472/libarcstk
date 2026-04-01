@@ -84,10 +84,7 @@ public:
 	using size_type = std::size_t;
 
 	/**
-	 * \brief Default constructor.
-	 *
-	 * \param[in] blocks Number of blocks to represent
-	 * \param[in] tracks Number of tracks per block
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	ResultBits();
 
@@ -331,7 +328,7 @@ class VerificationPolicy
 public:
 
 	/**
-	 * \brief Virtual default destructor
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~VerificationPolicy() noexcept = default;
 
@@ -370,9 +367,7 @@ public:
 	bool is_strict() const;
 
 	/**
-	 * \brief Returns a deep copy of the instance
-	 *
-	 * \return A deep copy of the instance
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<VerificationPolicy> clone() const;
 };
@@ -419,6 +414,16 @@ class LiberalPolicy final : public VerificationPolicy
  */
 class Result final : public VerificationResult
 {
+	/**
+	 * \brief The actual flags
+	 */
+	ResultBits flags_;
+
+	/**
+	 * \brief Policy to interpret the flags.
+	 */
+	std::unique_ptr<VerificationPolicy> policy_;
+
 	// VerificationResult
 
 	int  do_verify_id(const int b) final;
@@ -449,16 +454,6 @@ class Result final : public VerificationResult
 
 	std::unique_ptr<VerificationResult> do_clone() const final;
 
-	/**
-	 * \brief The actual flags
-	 */
-	ResultBits flags_;
-
-	/**
-	 * \brief Policy to interpret the flags.
-	 */
-	std::unique_ptr<VerificationPolicy> policy_;
-
 public:
 
 	/**
@@ -469,36 +464,24 @@ public:
 	explicit Result(std::unique_ptr<VerificationPolicy> policy);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	Result(const Result& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
-	Result& operator= (const Result& rhs);
+	Result& operator = (const Result& rhs);
 
 	/**
-	 * \brief Move constructor.
-	 *
-	 * \param[in] rhs The instance to move
+	 * \copydoc SNPT_sm_move_ctor
 	 */
 	Result(Result&& rhs) noexcept;
 
 	/**
-	 * \brief Move assignment operator.
-	 *
-	 * \param[in] rhs The instance to move
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_move_op
 	 */
-	Result& operator= (Result&& rhs) noexcept;
+	Result& operator = (Result&& rhs) noexcept;
 
 	/**
 	 * \brief Initializer helper.
@@ -557,7 +540,7 @@ class Selector
 public:
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~Selector() noexcept = default;
 
@@ -573,9 +556,7 @@ public:
 			const ChecksumSource::size_type counter) const;
 
 	/**
-	 * \brief Clone this instance.
-	 *
-	 * \return Deep copy of this instance.
+	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Selector> clone() const;
 };
@@ -684,6 +665,7 @@ public:
 	SourceIterator& operator ++ ();
 	SourceIterator  operator ++ (int);
 
+
 	friend void swap(SourceIterator& lhs, SourceIterator& rhs) noexcept
 	{
 		using std::swap;
@@ -719,6 +701,24 @@ public:
  */
 class TraversalPolicy
 {
+	/**
+	 * \brief ChecksumSource to traverse
+	 */
+	const ChecksumSource* source_;
+
+	/**
+	 * \brief Concrete selector to use.
+	 */
+	std::unique_ptr<Selector> selector_;
+
+	/**
+	 * \brief Fixed position to traverse.
+	 *
+	 * This can either be the block or the track.
+	 */
+	ChecksumSource::size_type current_;
+
+
 	virtual Checksums::size_type do_current_block(const SourceIterator& i) const
 	= 0;
 
@@ -751,23 +751,6 @@ class TraversalPolicy
 	virtual std::unique_ptr<Selector> create_selector() const
 	= 0;
 
-	/**
-	 * \brief ChecksumSource to traverse
-	 */
-	const ChecksumSource* source_;
-
-	/**
-	 * \brief Concrete selector to use.
-	 */
-	std::unique_ptr<Selector> selector_;
-
-	/**
-	 * \brief Fixed position to traverse.
-	 *
-	 * This can either be the block or the track.
-	 */
-	ChecksumSource::size_type current_;
-
 protected:
 
 	/**
@@ -778,18 +761,12 @@ protected:
 	explicit TraversalPolicy(std::unique_ptr<Selector> selector);
 
 	/**
-	 * \brief Copy constructor.
-	 *
-	 * \param[in] rhs The instance to copy
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	TraversalPolicy(const TraversalPolicy& rhs);
 
 	/**
-	 * \brief Copy assignment operator.
-	 *
-	 * \param[in] rhs The instance to copy
-	 *
-	 * \return Reference to the instance with the value assigned
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	TraversalPolicy& operator = (const TraversalPolicy& rhs);
 
@@ -814,7 +791,7 @@ public:
 	using const_iterator = const SourceIterator;
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~TraversalPolicy() noexcept = default;
 
@@ -950,7 +927,7 @@ class BlockTraversal final : public TraversalPolicy
 public:
 
 	/**
-	 * \brief Constructor
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	BlockTraversal();
 };
@@ -982,7 +959,7 @@ class TrackTraversal final : public TraversalPolicy
 public:
 
 	/**
-	 * \brief Constructor
+	 * \copydoc SNPT_sm_default_ctor
 	 */
 	TrackTraversal();
 };
@@ -1026,7 +1003,7 @@ protected:
 public:
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~MatchPolicy() noexcept = default;
 
@@ -1225,7 +1202,7 @@ protected:
 public:
 
 	/**
-	 * \brief Virtual default destructor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~VerifierBase() noexcept = default;
 
