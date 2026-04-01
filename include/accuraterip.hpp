@@ -296,15 +296,15 @@ public:
 		return types_set<T1, T2...>();
 	}
 
-	// TODO member swap()
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(AccurateRipCS& rhs) noexcept;
 
 
 	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
 	{
-		using std::swap;
-
-		swap(lhs.st_,     rhs.st_);
-		swap(lhs.update_, rhs.update_);
+		lhs.swap(rhs);
 	}
 };
 
@@ -352,17 +352,14 @@ public:
 	ARCSAlgorithm();
 
 	/**
-	 * \brief Swap two instances.
-	 *
-	 * \param[in] lhs First instance to swap
-	 * \param[in] rhs Second instance to swap
+	 * \copydoc SNPT_mf_swap
 	 */
+	void swap(ARCSAlgorithm& rhs) noexcept;
+
+
 	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs) noexcept
 	{
-		using std::swap;
-
-		swap(lhs.state_,          rhs.state_);
-		swap(lhs.current_result_, rhs.current_result_);
+		lhs.swap(rhs);
 	}
 };
 

@@ -133,6 +133,16 @@ void AccurateRipCS<T1, T2...>::reset()
 }
 
 
+template <cstype T1, cstype... T2>
+void AccurateRipCS<T1, T2...>::swap(AccurateRipCS& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->st_,     rhs.st_);
+	swap(this->update_, rhs.update_);
+}
+
+
 // ARCSAlgorithm
 
 
@@ -243,6 +253,16 @@ template <cstype T1, cstype... T2>
 std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
 {
 	return std::make_unique<ARCSAlgorithm>(*this);
+}
+
+
+template <cstype T1, cstype... T2>
+void ARCSAlgorithm<T1, T2...>::swap(ARCSAlgorithm& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->state_,          rhs.state_);
+	swap(this->current_result_, rhs.current_result_);
 }
 
 
