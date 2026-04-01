@@ -158,19 +158,20 @@ libarcstk.
 
 ## Classes
 
-- Absolutely avoid class members that are ``public`` and non-const. Use
+- Absolutely avoid class member variables that are ``public`` and non-const. Use
   accessors and mutators instead. Also trivial accessors and mutators are ok.
-- Classes in exported header files should be Pimpls if they hold private
-  members. (It could be ok to use non-Pimpl layout for classes without private
-  members but private member functions.) The forward declaration and the opaque
-  pointer in the Pimpl class are ``private``. The pointer to the impl class is
-  always a ``unique_ptr``.
+- Classes in exported header files should be Pimpls if they hold non-trivial
+  private members. (It could be ok to use non-Pimpl layout for classes without
+  private members but private member functions.) The forward declaration and the
+  opaque pointer in the Pimpl class are ``private``. The pointer to the impl
+  class is always a ``unique_ptr``.
 - Any non-template class declaration contains only declaration of its members,
   but not their inline implementation. (Inlining is no reason, static is no
   reason.)
-- The definition ``= delete`` has to be in the header not in the source file
-  since it is part of the API. The definition ``= default`` is preferred to be
-  in the source file not in the header file.
+- The definitions of ``= delete`` and ``= default`` are preferred to be in the
+  header not in the source file since they are considered part of the API.
+  However, for Pimpls the defaulting of the destructor may be done in the source
+  file.
 
 
 ## Linkage
