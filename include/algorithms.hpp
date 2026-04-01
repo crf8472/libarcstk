@@ -37,17 +37,17 @@ namespace AccurateRip
 /**
  * \brief AccurateRip checksum algorithm version 1.
  */
-using V1 = accuraterip::details::Version1;
+using V1 = accuraterip::algorithm::Version1;
 
 /**
  * \brief AccurateRip checksum algorithm version 2.
  */
-using V2 = accuraterip::details::Version2;
+using V2 = accuraterip::algorithm::Version2;
 
 /**
  * \brief AccurateRip checksum algorithm version 2 providing also version 1.
  */
-using V1andV2 = accuraterip::details::Versions1and2;
+using V1andV2 = accuraterip::algorithm::Versions1and2;
 
 } // namespace AccurateRip
 

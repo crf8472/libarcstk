@@ -21,6 +21,7 @@ set (TEST_SOURCE_DIR "src" )
 
 set (TEST_SETS )
 list (APPEND TEST_SETS accuraterip        )
+list (APPEND TEST_SETS accuraterip_func   )
 list (APPEND TEST_SETS calculate          )
 list (APPEND TEST_SETS calculate_details  )
 list (APPEND TEST_SETS checksum           )

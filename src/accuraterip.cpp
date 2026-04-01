@@ -6,11 +6,11 @@
  * \brief Implementation of the AccurateRip checksum algorithm.
  */
 
-#ifndef LIBARCSTK_ALGORITHMS_HPP_
-#include "algorithms.hpp"
-#endif
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
 #include "accuraterip.hpp"
+#endif
+#ifndef LIBARCSTK_ACCURATERIP_FUNC_HPP_
+#include "accuraterip_func.hpp"
 #endif
 
 #include <cstdint>       // for int32_t, uint_fast64_t

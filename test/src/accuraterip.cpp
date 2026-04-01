@@ -66,14 +66,13 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
 	using arcstk::sample_t;
-	namespace Details = arcstk::accuraterip::details;
 
 	// fits calculation-test-01.bin
 	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		auto algo = Details::Version1{};
+		auto algo = arcstk::accuraterip::algorithm::Version1{};
 		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
@@ -149,7 +148,8 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		auto state = Details::AccurateRipCS<type::ARCS2>{};
+		auto state = arcstk::accuraterip::details::AccurateRipCS<
+			type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
 
@@ -225,7 +225,8 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		auto state = Details::AccurateRipCS<type::ARCS1,type::ARCS2>{};
+		auto state = arcstk::accuraterip::details::AccurateRipCS<type::ARCS1,
+			 type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
@@ -303,7 +304,9 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		auto state = Details::AccurateRipCS<type::ARCS1,type::ARCS2>{};
+		auto state =
+			arcstk::accuraterip::details::AccurateRipCS<type::ARCS1,
+			type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
@@ -548,27 +551,6 @@ TEST_CASE ( "disc_id_1, disc_id_2, cddb_id", "[id]" )
 		CHECK ( 0 == cddb_id({ /*empty*/  },  0) );
 		CHECK ( 0x08000004 == cddb_id({ 0, 0, 0, 0 },  0) );
 	}
-}
-
-
-TEST_CASE ( "sum_digits", "[id]" )
-{
-	using arcstk::accuraterip::details::sum_digits;
-
-	CHECK ( sum_digits(0xFFFFFFFF)  == 57 ); // 4294967295
-	CHECK ( sum_digits(0x00000000)  ==  0 );
-
-	CHECK ( sum_digits(1234567890u) == 45 );
-	CHECK ( sum_digits( 123456789u) == 45 );
-	CHECK ( sum_digits(  12345678u) == 36 );
-	CHECK ( sum_digits(   1234567u) == 28 );
-	CHECK ( sum_digits(    123456u) == 21 );
-	CHECK ( sum_digits(     12345u) == 15 );
-	CHECK ( sum_digits(      1234u) == 10 );
-	CHECK ( sum_digits(       123u) ==  6 );
-	CHECK ( sum_digits(        12u) ==  3 );
-	CHECK ( sum_digits(         1u) ==  1 );
-	CHECK ( sum_digits(          0) ==  0 );
 }
 
 

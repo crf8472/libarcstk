@@ -37,8 +37,8 @@
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"          // for ARId
 #endif
-#ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip.hpp"         // for print_impl
+#ifndef LIBARCSTK_ACCURATERIP_FUNC_HPP_
+#include "accuraterip_func.hpp"    // for accuraterip::id::print_impl()
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"

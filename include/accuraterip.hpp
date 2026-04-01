@@ -366,51 +366,40 @@ public:
 	}
 };
 
+} // namespace details
+
 // The following using declaratives are intended for testing.
 // For regular use, include header algorithms.hpp.
 
 /**
  * \internal
  *
+ * \brief AccurateRip checksum calculation algorithms.
+ */
+namespace algorithm
+{
+
+/**
  * \brief AccurateRip checksum algorithm version 1.
  */
 using Version1 = details::ARCSAlgorithm<checksum::type::ARCS1>;
 
 /**
- * \internal
- *
  * \brief AccurateRip checksum algorithm version 2.
  */
 using Version2 = details::ARCSAlgorithm<checksum::type::ARCS2>;
 
 /**
- * \internal
- *
  * \brief AccurateRip checksum algorithm version 2 providing also version 1.
  */
 using Versions1and2 =
 		details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
-} // namespace details
-
-
-namespace details
-{
-
-/**
- * \brief Service method: sum up the digits of the number passed
- *
- * \param[in] number An unsigned integer number
- *
- * \return The sum of the digits of the number
- */
-uint64_t sum_digits(const uint32_t number) noexcept;
-
-} // namespace details
+} // namespace algorithm
 
 
 /**
- * \brief Calculate and represent AccurateRip Ids, URLs, and filenames.
+ * \brief AccurateRip Id, URL, and filename calculation.
  */
 namespace id
 {
@@ -471,23 +460,6 @@ std::string construct_filename(const unsigned total_tracks,
 /**
  * \brief Service function: Compute the AccurateRip request URL
  *
- * The URL is constructed using current_request_url_prefix().
- *
- * \param[in] total_tracks  Number of tracks in this medium
- * \param[in] id_1          Id 1 of this medium
- * \param[in] id_2          Id 2 of this medium
- * \param[in] cddb_id       CDDB id of this medium
- *
- * \return AccurateRip request URL
- */
-std::string construct_url(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) noexcept;
-
-/**
- * \brief Service function: Compute the AccurateRip request URL
- *
  * \param[in] total_tracks  Number of tracks in this medium
  * \param[in] id_1          Id 1 of this medium
  * \param[in] id_2          Id 2 of this medium
@@ -503,6 +475,23 @@ std::string construct_url(const unsigned total_tracks,
 		const std::string& prefix) noexcept;
 
 /**
+ * \brief Service function: Compute the AccurateRip request URL
+ *
+ * The URL is constructed using current_request_url_prefix().
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ *
+ * \return AccurateRip request URL
+ */
+std::string construct_url(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept;
+
+/**
  * \brief Service function: Compute the AccurateRip request ID
  *
  * \param[in] total_tracks  Number of tracks in this medium
@@ -516,21 +505,6 @@ std::string construct_id(const unsigned total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,
 		const uint32_t cddb_id) noexcept;
-
-/**
- * \brief Worker: Print a sequence of ids.
- *
- * \param[in] out           Stream to print to
- * \param[in] total_tracks  Number of tracks in this medium
- * \param[in] id_1          Id 1 of this medium
- * \param[in] id_2          Id 2 of this medium
- * \param[in] cddb_id       CDDB id of this medium
- * \param[in] delim         Delimiter
- */
-void print_impl(std::ostream& out, const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id, const std::string& delim);
 
 /**
  * \brief Service function: Print an ARId by its ids.
