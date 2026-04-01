@@ -37,8 +37,8 @@
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"          // for ARId
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
-#include "identifier_details.hpp"  // for arid::print()
+#ifndef LIBARCSTK_ACCURATERIP_HPP_
+#include "accuraterip.hpp"         // for print_impl
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -439,6 +439,9 @@ bool is_regular(const DBAR& dbar)
 }
 
 
+namespace details
+{
+
 // specialization of get_element() for DBAR
 template<>
 auto get_element(const DBAR& object, const typename DBAR::size_type i)
@@ -455,6 +458,8 @@ auto get_element(const DBARBlock& object, const typename DBARBlock::size_type i)
 {
 	return object.triplet(i);
 };
+
+} // namespace details
 
 
 // DBARBlockHeader
@@ -518,7 +523,8 @@ bool DBARBlockHeader::equals(const DBARBlockHeader& rhs) const noexcept
 std::string DBARBlockHeader::to_string() const
 {
 	auto out = std::ostringstream {};
-	arid::print(out, total_tracks(), id1(), id2(), cddb_id(), ", ");
+	accuraterip::id::print_impl(out, total_tracks(), id1(), id2(), cddb_id(),
+			", ");
 	return out.str();
 }
 

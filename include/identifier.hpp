@@ -54,14 +54,7 @@ class ToC;
  *
  * Every ARId can be turned into a URL that can be used to request
  * the AccurateRip service. Those URLs are constructed by using a global URL
- * prefix.
- *
- * This prefix can be read by function ACCURATERIP::request_url_prefix() and
- * modified by function ACCURATERIP::set_request_url_prefix(). After setting the
- * global URL prefix to a new value, every call of ARId::url() and
- * ARId::prefix() in client code will reflect this updated value. The global
- * value can be reset to its default by function
- * ACCURATERIP::reset_request_url_prefix().
+ * prefix that is modifiable via static class ACCURATERIP.
  *
  * An ARId may be \link ARId::empty() empty()\endlink. This indicates that the
  * ARId does for any reason not contain actual information (while it may or may
@@ -353,70 +346,6 @@ extern const ARId EmptyARId;
  * \return An empty ARId
  */
 ARId make_empty_arid();
-
-
-/**
- * \brief Constants for the AccurateRip service.
- */
-class ACCURATERIP final
-{
-	/**
-	 * \brief Current request URL prefix.
-	 */
-	static std::string request_url_prefix_;
-
-	// ... may contain more constants
-
-public:
-
-	/**
-	 * \brief The current URL prefix to construct request URLs.
-	 *
-	 * \return Current prefix to construct request URLs.
-	 */
-	static std::string request_url_prefix() noexcept;
-
-	/**
-	 * \brief The default URL prefix to construct request URLs.
-	 *
-	 * \return Default prefix to construct request URLs.
-	 */
-	static std::string default_request_url_prefix() noexcept;
-
-	/**
-	 * \brief Set the global URL prefix for AccurateRip request URLs.
-	 *
-	 * \param[in] prefix URL prefix to use for constructing ARId URLs
-	 */
-	static void set_request_url_prefix(const std::string& prefix) noexcept;
-
-	/**
-	 * \brief Set the global URL prefix for AccurateRip request URLs to its
-	 * default value.
-	 *
-	 * The default value is defined by
-	 * ACCURATERIP::default_request_url_prefix().
-	 */
-	static void reset_request_url_prefix() noexcept;
-
-	/**
-	 * \brief Format an unsigned 32bit integer as an ARCS in the default format.
-	 *
-	 * The default format is the format in which ARCSs are printed in most
-	 * client applications.
-	 *
-	 * The ARCS default format entails:
-	 * - hexadecimal representation
-	 * - base (like "0x") is not represented
-	 * - always 8 digits wide, possibly with leading zeros
-	 * - digits A-F are always uppercase
-	 *
-	 * \param[in] number The number to format
-	 *
-	 * \return Default-ARCS-formatted representation of the input number
-	 */
-	static std::string default_arcs_format(const uint32_t number);
-};
 
 /** @} */
 

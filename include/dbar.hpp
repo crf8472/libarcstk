@@ -58,8 +58,7 @@ class Checksum;
  *
  * A DBAR instance provides access to all ARIds and ARCSs contained by their
  * respective indices. The sequence of blocks is iterable. Each DBARBlock is
- * also iterable. To access a single element of a DBAR or DBARBlock instance,
- * also function get_element() can be used.
+ * also iterable.
  *
  * A DBAR is \link DBAR::empty() empty()\endlink when constructed with its
  * default constructor. Empty DBARs will turn into FALSE when checked via
@@ -1114,6 +1113,9 @@ bool is_uniform(const DBAR& dbar);
 bool is_regular(const DBAR& dbar);
 
 
+namespace details
+{
+
 // specialization for DBAR
 template<>
 auto get_element(const DBAR& object, const DBAR::size_type i)
@@ -1124,6 +1126,8 @@ auto get_element(const DBAR& object, const DBAR::size_type i)
 template<>
 auto get_element(const DBARBlock& object, const DBARBlock::size_type i)
 	-> DBARBlock::value_type;
+
+} // namespace details
 
 
 /**

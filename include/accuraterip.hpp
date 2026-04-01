@@ -1,7 +1,3 @@
-#ifndef LIBARCSTK_ALGORITHMS_HPP_
-#error "Do not include accuraterip.hpp, include algorithms.hpp instead"
-#endif
-
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
 #define LIBARCSTK_ACCURATERIP_HPP_
 
@@ -44,7 +40,14 @@ inline namespace v_1_0_0
 /**
  * \internal
  *
- * \brief Calculating AccurateRip checksums.
+ * \brief Calculating AccurateRip checksums and ids.
+ *
+ * URL prefix can be read by function ACCURATERIP::request_url_prefix() and
+ * modified by function ACCURATERIP::set_request_url_prefix(). After setting the
+ * global URL prefix to a new value, every call of ARId::url() and
+ * ARId::prefix() in client code will reflect this updated value. The global
+ * value can be reset to its default by function
+ * ACCURATERIP::reset_request_url_prefix().
  */
 namespace accuraterip
 {
@@ -58,7 +61,7 @@ namespace details
  *
  * \brief Number of samples to skip at back and front.
  */
-struct NUM_SKIP_SAMPLES
+struct NUM_SKIP_SAMPLES final
 {
 
 /**
@@ -389,7 +392,227 @@ using Versions1and2 =
 		details::ARCSAlgorithm<checksum::type::ARCS1,checksum::type::ARCS2>;
 
 } // namespace details
+
+
+namespace details
+{
+
+/**
+ * \brief Service method: sum up the digits of the number passed
+ *
+ * \param[in] number An unsigned integer number
+ *
+ * \return The sum of the digits of the number
+ */
+uint64_t sum_digits(const uint32_t number) noexcept;
+
+} // namespace details
+
+
+/**
+ * \brief Calculate and represent AccurateRip Ids, URLs, and filenames.
+ */
+namespace id
+{
+
+/**
+ * \brief Service function: Compute the disc id 1 from offsets and leadout.
+ *
+ * \param[in] offsets Offsets (in LBA frames) of each track
+ * \param[in] leadout Leadout LBA frame
+ *
+ * \return AccurateRip disc id 1
+ */
+uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
+	noexcept;
+
+/**
+ * \brief Service function: Compute the disc id 2 from offsets and leadout.
+ *
+ * \param[in] offsets Offsets (in LBA frames) of each track
+ * \param[in] leadout Leadout LBA frame
+ *
+ * \return AccurateRip disc id 2
+ */
+uint32_t disc_id_2(const std::vector<int32_t>& offsets, const int32_t leadout)
+	noexcept;
+
+/**
+ * \brief Service function: Compute the CDDB id from offsets and leadout.
+ *
+ * The CDDB id is a 32bit unsigned integer, formed of a concatenation of
+ * the following 3 numbers:
+ * first chunk (8 bits):   checksum (sum of digit sums of offset secs + 2)
+ * second chunk (16 bits): total seconds count
+ * third chunk (8 bits):   total number of tracks
+ *
+ * \param[in] offsets     Offsets (in LBA frames) of each track
+ * \param[in] leadout     Leadout LBA frame
+ *
+ * \return CDDB id
+ */
+uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout);
+
+/**
+ * \brief Service function: Compute the AccurateRip response filename
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ *
+ * \return AccurateRip response filename
+ */
+std::string construct_filename(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept;
+
+/**
+ * \brief Service function: Compute the AccurateRip request URL
+ *
+ * The URL is constructed using current_request_url_prefix().
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ *
+ * \return AccurateRip request URL
+ */
+std::string construct_url(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept;
+
+/**
+ * \brief Service function: Compute the AccurateRip request URL
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ * \param[in] prefix        URL prefix
+ *
+ * \return AccurateRip request URL
+ */
+std::string construct_url(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id,
+		const std::string& prefix) noexcept;
+
+/**
+ * \brief Service function: Compute the AccurateRip request ID
+ *
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ *
+ * \return AccurateRip request URL
+ */
+std::string construct_id(const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id) noexcept;
+
+/**
+ * \brief Worker: Print a sequence of ids.
+ *
+ * \param[in] out           Stream to print to
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ * \param[in] delim         Delimiter
+ */
+void print_impl(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id, const std::string& delim);
+
+/**
+ * \brief Service function: Print an ARId by its ids.
+ *
+ * \param[in] out           Stream to print to
+ * \param[in] total_tracks  Number of tracks in this medium
+ * \param[in] id_1          Id 1 of this medium
+ * \param[in] id_2          Id 2 of this medium
+ * \param[in] cddb_id       CDDB id of this medium
+ */
+void print(std::ostream& out, const unsigned total_tracks,
+		const uint32_t id_1,
+		const uint32_t id_2,
+		const uint32_t cddb_id);
+
+} // namespace id
+
 } // namespace accuraterip
+
+
+/**
+ * \brief Constants for the AccurateRip service.
+ */
+class ACCURATERIP final
+{
+	/**
+	 * \brief Current request URL prefix.
+	 */
+	static std::string request_url_prefix_;
+
+	// ... may contain more constants
+
+public:
+
+	/**
+	 * \brief The current URL prefix to construct request URLs.
+	 *
+	 * \return Current prefix to construct request URLs.
+	 */
+	static std::string request_url_prefix() noexcept;
+
+	/**
+	 * \brief The default URL prefix to construct request URLs.
+	 *
+	 * \return Default prefix to construct request URLs.
+	 */
+	static std::string default_request_url_prefix() noexcept;
+
+	/**
+	 * \brief Set the global URL prefix for AccurateRip request URLs.
+	 *
+	 * \param[in] prefix URL prefix to use for constructing ARId URLs
+	 */
+	static void set_request_url_prefix(const std::string& prefix) noexcept;
+
+	/**
+	 * \brief Set the global URL prefix for AccurateRip request URLs to its
+	 * default value.
+	 *
+	 * The default value is defined by
+	 * ACCURATERIP::default_request_url_prefix().
+	 */
+	static void reset_request_url_prefix() noexcept;
+
+	/**
+	 * \brief Format an unsigned 32bit integer as an ARCS in the default format.
+	 *
+	 * The default format is the format in which ARCSs are printed in most
+	 * client applications.
+	 *
+	 * The ARCS default format entails:
+	 * - hexadecimal representation
+	 * - base (like "0x") is not represented
+	 * - always 8 digits wide, possibly with leading zeros
+	 * - digits A-F are always uppercase
+	 *
+	 * \param[in] number The number to format
+	 *
+	 * \return Default-ARCS-formatted representation of the input number
+	 */
+	static std::string default_arcs_format(const uint32_t number);
+};
 
 /** @} */ // group calc
 

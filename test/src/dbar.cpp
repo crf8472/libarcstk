@@ -84,7 +84,7 @@ TEST_CASE ( "DBARBlock", "[dbarblock] [dbar]" )
 {
 	using arcstk::DBAR;
 	using arcstk::DBARBlock;
-	using arcstk::get_element;
+	using arcstk::details::get_element;
 	using arcstk::is_valid;
 	using arcstk::is_uniform;
 	using arcstk::is_regular;
