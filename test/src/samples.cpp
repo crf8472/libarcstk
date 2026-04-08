@@ -1297,10 +1297,11 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		//
 
-		const auto e = cbegin(sequence).operator->();
+		const auto e = cbegin(sequence);
 
-		CHECK ( e.element() == 0x9ECCC2A5 );
-		CHECK ( e.index()   == 0 );
+		CHECK ( *(e.operator->()) == 0x9ECCC2A5 );
+		CHECK ( *e == 0x9ECCC2A5 );
+		//CHECK ( e.index()   == 0 );
 	}
 
 	SECTION ("Iterator 16 bit begin and end")
@@ -1389,6 +1390,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 	SECTION ("Iterator std::next begins on beginning and ends on end")
 	{
+		using std::cbegin;
 		using arcstk::SampleIterator;
 
 		auto sequence = InterleavedSamples<uint32_t>{};
@@ -1396,7 +1398,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		REQUIRE ( sequence.size() == 128 );
 
-		auto ptr = std::begin(sequence);
+		auto ptr = cbegin(sequence);
 
 		// begin: first 10 samples
 		CHECK ( *ptr  == 0x9ECCC2A5 );
@@ -1466,6 +1468,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 	SECTION ("Iterator prefix decrement begins on end and ends on beginning")
 	{
+		using std::cend;
 		using arcstk::SampleIterator;
 
 		auto sequence = InterleavedSamples<uint32_t>{};
@@ -1473,7 +1476,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		REQUIRE ( sequence.size() == 128 );
 
-		auto ptr = std::cend(sequence);
+		auto ptr = cend(sequence);
 
 		// end: last 10 samples
 		CHECK ( *(--ptr) == 0xDD6DABA8 );
@@ -1504,8 +1507,9 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		CHECK ( ptr == sequence.begin() );
 	}
 
-	SECTION ("Iterator std::prev begins on end and ends on beginning")
+	SECTION ("Iterator is reverse traversable by std::prev")
 	{
+		using std::end;
 		using arcstk::SampleIterator;
 
 		auto sequence = InterleavedSamples<uint32_t>{};
@@ -1514,7 +1518,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		REQUIRE ( sequence.size() == 128 );
 
 		// Position on last element
-		auto ptr = std::prev(std::end(sequence));
+		auto ptr = std::prev(end(sequence));
 
 		// end: last 10 samples
 		CHECK ( *ptr == 0xDD6DABA8 );
@@ -1580,7 +1584,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		ptr = std::prev(ptr);
 		CHECK ( *ptr == 0x9ECCC2A5 );
 
-		CHECK ( ptr == sequence.cbegin() );
+		CHECK ( ptr == cbegin(sequence) );
 	}
 }
 

@@ -367,8 +367,8 @@ TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 
 		auto n = it2.operator->(); // SampleInputIterator
 
-		//CHECK ( *n == 89 );
-		CHECK ( n == nullptr );
+		CHECK ( *n == 89 );
+		//CHECK ( n == nullptr );
 
 
 		//auto it3 = begin(object1) + 89;

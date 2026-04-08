@@ -16,12 +16,13 @@
 #include <cstddef>              // for ptrdiff_t, size_t
 #include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
 #include <iterator>             // for bidirectional_iterator_tag
+#include <memory>               // for addressof
 #include <sstream>              // for ostringstream
 #include <stdexcept>            // for out_of_range
 #include <type_traits>          // for is_same, enable_if_t
 
 #ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"         // for Comparable, IteratorElement
+#include "policies.hpp"         // for Comparable
 #endif
 
 namespace arcstk
@@ -191,10 +192,8 @@ public:
 
 	/**
 	 * \copydoc SNPT_tp_pointer
-	 *
-	 * \details Not a pointer type, gives chaining effect on operator ->.
 	 */
-	using pointer           = IteratorElement<value_type>;
+	using pointer           = const value_type*;
 
 	/**
 	 * \copydoc SNPT_tp_difference
@@ -209,28 +208,30 @@ public:
 	 * position \c 0.
 	 */
 	SampleIterator()
-		: seq_ { nullptr }
-		, pos_ { 0 }
+		: seq_   { nullptr }
+		, pos_   { 0 }
+		, cache_ { 0 }
+		, cache_valid_ { false }
 	{
 		// empty
 	}
 
 	/**
-	 * \internal
 	 * \brief Construct a constant SampleIterator from a non-constant
 	 * SampleIterator.
 	 *
 	 * \param[in] rhs The non-constant SampleIterator
 	 */
 	SampleIterator(const SampleIterator<T, is_planar, false>& rhs)
-		: seq_ { rhs.seq_ } // works due to friendship
-		, pos_ { rhs.pos_ }
+		: seq_   { rhs.seq_ } // works due to friendship
+		, pos_   { rhs.pos_ }
+		, cache_ { 0 }
+		, cache_valid_ { false }
 	{
 		// empty
 	}
 
 	/**
-	 * \internal
 	 * \brief Construct a constant SampleIterator from a non-constant
 	 * SampleIterator.
 	 *
@@ -240,6 +241,10 @@ public:
 	{
 		seq_ = rhs.seq_;
 		pos_ = rhs.pos_;
+
+		cache_       = rhs.cache_;
+		cache_valid_ = rhs.cache_valid_;
+
 		return *this;
 	}
 	// Note: prior versions of g++ and clang++ accepted the following:
@@ -248,7 +253,6 @@ public:
 	// to define the nonconst-to-const assignment operator explicitely.
 
 	/**
-	 * \internal
 	 * \brief Return a pointer to the SampleSequence.
 	 *
 	 * Pointer to the SampleSequence the iterator relates to.
@@ -261,7 +265,6 @@ public:
 	}
 
 	/**
-	 * \internal
 	 * \brief Return the iterator position.
 	 *
 	 * Beginning of the sequence is 0 and a legal position is a positive integer
@@ -275,95 +278,91 @@ public:
 	}
 
 	/**
-	 * \internal
 	 * \brief Dereference operator.
 	 *
 	 * \return The converted PCM 32 bit sample the iterator points to
 	 */
 	reference operator * () const
 	{
-		using index_type = typename SampleSequence<T, is_planar>::size_type;
-
-		return seq_->operator[](static_cast<index_type>(pos_));
-		//return seq_->operator[](static_cast<
-		//	typename SampleSequence<T, is_planar>::size_type>(pos_));
+		this->update_cache();
+		return cache_;
 	}
 
 	/**
-	 * \internal
 	 * \brief Pointer operator.
+	 *
+	 * The value under the pointer obtained by calling this operator will be
+	 * invalidated by modifying the iterator.
 	 *
 	 * \return Pointer to the converted PCM 32 bit sample the iterator points to
 	 */
 	pointer operator -> () const
 	{
-		return { pos_, **this };
+		this->update_cache();
+		return std::addressof(cache_);
 	}
 
 	/**
-	 * \internal
 	 * \brief Prefix increment operator.
 	 */
 	SampleIterator& operator ++ ()
 	{
 		++pos_;
+		this->invalidate_cache();
 		return *this;
 	}
 
 	/**
-	 * \internal
 	 * \brief Postfix increment operator.
 	 */
 	SampleIterator operator ++ (int)
 	{
-		SampleIterator prev_val(*this);
+		auto prev_val = SampleIterator { *this };
 		this->operator++();
 		return prev_val;
 	}
 
 	/**
-	 * \internal
 	 * \brief Prefix decrement operator.
 	 */
 	SampleIterator& operator -- ()
 	{
 		--pos_;
+		this->invalidate_cache();
 		return *this;
 	}
 
 	/**
-	 * \internal
 	 * \brief Postfix decrement operator.
 	 */
 	SampleIterator operator -- (int)
 	{
-		SampleIterator prev_val(*this);
+		auto prev_val = SampleIterator { *this };
 		this->operator--();
 		return prev_val;
 	}
 
 	/**
-	 * \internal
 	 * \brief Add-assign amount.
 	 */
 	SampleIterator& operator += (const difference_type value)
 	{
 		pos_ += value;
+		this->invalidate_cache();
 		return *this;
 	}
 
 	/**
-	 * \internal
 	 * \brief Subtract-assign amount.
 	 */
 	SampleIterator& operator -= (const difference_type value)
 	{
 		pos_ -= value;
+		this->invalidate_cache();
 		return *this;
 	}
 
 	/**
-	 * \internal
 	 * \brief Add amount.
 	 *
 	 * \param[in] lhs   Iterator to add amount
@@ -374,12 +373,11 @@ public:
 	friend SampleIterator operator + (SampleIterator lhs,
 			const difference_type value) noexcept
 	{
-		lhs.pos_ += value;
+		lhs += value;
 		return lhs;
 	}
 
 	/**
-	 * \internal
 	 * \brief Add amount.
 	 *
 	 * \param[in] value Amount to add
@@ -394,7 +392,6 @@ public:
 	}
 
 	/**
-	 * \internal
 	 * \brief Subtract amount.
 	 *
 	 * \param[in] lhs   Iterator to subtract amount from
@@ -405,12 +402,11 @@ public:
 	friend SampleIterator operator - (SampleIterator lhs,
 			const difference_type value) noexcept
 	{
-		lhs.pos_ -= value;
+		lhs -= value;
 		return lhs;
 	}
 
 	/**
-	 * \internal
 	 * \brief Subtract position.
 	 *
 	 * \param[in] lhs Iterator to subtract from
@@ -425,17 +421,21 @@ public:
 	}
 
 
+	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(lhs.seq_,         rhs.seq_);
+		swap(lhs.pos_,         rhs.pos_);
+		swap(lhs.cache_,       rhs.cache_);
+		swap(lhs.cache_valid_, rhs.cache_valid_);
+	}
+
+
 	friend bool operator == (const SampleIterator& lhs,
 			const SampleIterator& rhs) noexcept
 	{
 		return lhs.seq_ == rhs.seq_ && lhs.pos_ == rhs.pos_;
-	}
-
-	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
-	{
-		using std::swap;
-		swap(lhs.seq_, rhs.seq_);
-		swap(lhs.pos_, rhs.pos_);
 	}
 
 private:
@@ -451,10 +451,52 @@ private:
 	 */
 	SampleIterator(const SampleSequence<T, is_planar>& seq,
 			const difference_type pos)
-		: seq_ { &seq }
-		, pos_ { pos }
+		: seq_   { &seq }
+		, pos_   { pos }
+		, cache_ { 0 }
+		, cache_valid_ { false }
 	{
 		// empty
+	}
+
+	/**
+	 * \brief TRUE iff the current value in the cache is valid, otherwise FALSE.
+	 *
+	 * \return TRUE iff cache is valid, otherwise FALSE
+	 */
+	bool cache_valid() const
+	{
+		return cache_valid_;
+	}
+
+	/**
+	 * \brief Initialize \c cache_ with the value under \c pos_.
+	 */
+	void pos_to_cache() const
+	{
+		using index_type = typename SampleSequence<T, is_planar>::size_type;
+
+		cache_       = seq_->operator[](static_cast<index_type>(pos_));
+		cache_valid_ = true;
+	}
+
+	/**
+	 * \brief Update the cache if necessary.
+	 */
+	void update_cache() const
+	{
+		if (!this->cache_valid())
+		{
+			pos_to_cache();
+		}
+	}
+
+	/**
+	 * \brief Invalidate the cached value.
+	 */
+	void invalidate_cache() const
+	{
+		cache_valid_ = false;
 	}
 
 	/**
@@ -466,6 +508,16 @@ private:
 	 * \brief Current index position.
 	 */
 	difference_type pos_;
+
+	/**
+	 * \brief Cached sample value.
+	 */
+	mutable value_type cache_;
+
+	/**
+	 * \brief Indicates whether content of \c cache_ is the value of pos_.
+	 */
+	mutable bool cache_valid_;
 };
 
 namespace details

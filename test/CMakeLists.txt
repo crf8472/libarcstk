@@ -31,6 +31,7 @@ list (APPEND TEST_SETS identifier         )
 list (APPEND TEST_SETS identifier_details )
 list (APPEND TEST_SETS metadata           )
 list (APPEND TEST_SETS metadata_details   )
+#list (APPEND TEST_SETS policies           )
 list (APPEND TEST_SETS samples            )
 list (APPEND TEST_SETS tk_version         )
 list (APPEND TEST_SETS verify             )
@@ -60,7 +61,8 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 	endforeach()
 
 	set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}
-		"--param" "max-gcse-memory=140040"
+		#"--param" "max-gcse-memory=140040"
+		"--param" "max-gcse-memory=140132"
 	)
 endif()
 

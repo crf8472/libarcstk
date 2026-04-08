@@ -174,12 +174,33 @@ public:
 		return element_;
 	}
 
-	value_type* operator->()
+	// operator: conversion to pointer
+	operator const value_type* () const
 	{
-		return std::addressof(element_);
+		return std::addressof(this->element_);
 	}
-	// https://stackoverflow.com/questions/64274156/operator-for-an-iterator-that-returns-a-temporary
+
+	// operator: conversion to value_type
+	explicit operator value_type() const
+	{
+		return this->element();
+	}
+
+	// pointer stuff
+
+	// deref
+	const value_type& operator * () const
+	{
+		return this->element();
+	}
+
+	// pointer
 	// https://stackoverflow.com/a/4923639
+	// https://stackoverflow.com/a/64275124
+	const value_type* operator -> () const
+	{
+		return this->operator const value_type* ();
+	}
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

@@ -205,8 +205,6 @@ public:
 
 	/**
 	 * \copydoc SNPT_tp_pointer
-	 *
-	 * \details Not implemented, will yield \c nullptr.
 	 */
 	using pointer = const value_type*;
 
@@ -299,15 +297,15 @@ private:
 			std::advance(iterator_, n);
 		}
 
-		reference dereference() noexcept final
+		reference/*not a reference type*/ dereference() noexcept final
 		{
 			return *iterator_;
 		}
 
 		pointer pointer_to() noexcept final
 		{
-			return nullptr;
-			//return iterator_.operator->(); // FIXME leads to type mismatch
+			return iterator_.operator->();
+			//return nullptr; // Commented out, previous dummy implementation
 		}
 
 		bool equals(const Concept& rhs) const noexcept final
@@ -431,6 +429,20 @@ public:
 	// required by LegacyIterator
 
 
+	friend SampleInputIterator operator + (SampleInputIterator lhs,
+			const int32_t amount) noexcept
+	{
+		lhs.object_->advance(amount);
+		return lhs;
+	}
+
+	friend SampleInputIterator operator + (const int32_t amount,
+			SampleInputIterator lhs) noexcept
+	{
+		return lhs + amount;
+	}
+
+
 	friend void swap(SampleInputIterator& lhs, SampleInputIterator& rhs)
 		noexcept
 	{
@@ -444,20 +456,6 @@ public:
 			const SampleInputIterator& rhs) noexcept
 	{
 		return lhs.object_->equals(*rhs.object_);
-	}
-
-
-	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const int32_t amount) noexcept
-	{
-		lhs.object_->advance(amount);
-		return lhs;
-	}
-
-	friend SampleInputIterator operator + (const int32_t amount,
-			SampleInputIterator lhs) noexcept
-	{
-		return lhs + amount;
 	}
 
 private:
