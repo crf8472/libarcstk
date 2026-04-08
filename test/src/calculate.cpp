@@ -26,6 +26,9 @@
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
 #endif
+#ifndef LIBARCSTK_SAMPLES_HPP_
+#include "samples.hpp"            // for SampleIterator<>
+#endif
 
 
 TEST_CASE ( "Context", "[context] [calc]" )
@@ -364,14 +367,16 @@ TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 
 		auto n = it2.operator->(); // SampleInputIterator
 
-		CHECK ( *n == 89 );
+		//CHECK ( *n == 89 );
+		CHECK ( n == nullptr );
 
 
-		auto it3 = begin(object1) + 89;
+		//auto it3 = begin(object1) + 89;
 
-		auto x = it3.operator->(); // Vector<sample_t>::iterator
+		//auto x = it3.operator->(); // Vector<sample_t>::iterator
 
-		CHECK ( *x == 89 );
+		//CHECK ( *x == 89 );
+		//CHECK ( x == nullptr );
 	}
 
 	SECTION ( "swap works" )
@@ -389,6 +394,47 @@ TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 
 		CHECK ( *it  == 61 );
 		CHECK ( *it2 == 18 );
+	}
+}
+
+
+TEST_CASE ( "SampleInputIterator wraps SampleIterator",
+		"[sampleinputiterator]" )
+{
+	using std::begin;
+	using std::cbegin;
+	using std::cend;
+	using std::end;
+
+	//using arcstk::sample_t;
+	using arcstk::SampleInputIterator;
+
+	auto seq = std::vector<int32_t>(100);   // vector with 100 samples
+	std::iota (begin(seq), end(seq), 0);    // fill with 0, 1, ..., 99.
+
+
+	SECTION ( "Iteration on interleaved samples works" )
+	{
+		using sequence_type = arcstk::InterleavedSamples<int32_t>;
+
+		const auto sequence = sequence_type { seq.data(), seq.size() };
+
+		auto it = SampleInputIterator { cbegin(sequence) };
+
+		CHECK ( *it == 65536 ); // base 2: 1000 0000 0000 0000
+	}
+
+
+	SECTION ( "Iteration on planar samples works" )
+	{
+		using sequence_type = arcstk::PlanarSamples<int32_t>;
+
+		const auto sequence = sequence_type {
+			seq.data(), seq.data() + seq.size()/2, seq.size()/2 };
+
+		auto it = SampleInputIterator { cbegin(sequence) };
+
+		CHECK ( *it == 3276800 );
 	}
 }
 

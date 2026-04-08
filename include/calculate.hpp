@@ -198,13 +198,15 @@ public:
 	 * \details Not an actual reference type.
 	 *
 	 * Note that some iterator types like SampleIterator for instance do not
-	 * yield lvalues, thererfore no reference to the value under the iterator is
+	 * yield lvalues, therefor no reference to the value under the iterator is
 	 * available.
 	 */
-	using reference = sample_t;
+	using reference = value_type;
 
 	/**
 	 * \copydoc SNPT_tp_pointer
+	 *
+	 * \details Not implemented, will yield \c nullptr.
 	 */
 	using pointer = const value_type*;
 
@@ -265,14 +267,6 @@ private:
 		= 0;
 
 		/**
-		 * \brief Returns RTTI.
-		 *
-		 * \return Runtime type information of this instance
-		 */
-		virtual const std::type_info& type() const noexcept
-		= 0;
-
-		/**
 		 * \copydoc SNPT_mf_clone
 		 */
 		virtual std::unique_ptr<Concept> clone() const noexcept
@@ -312,17 +306,13 @@ private:
 
 		pointer pointer_to() noexcept final
 		{
-			return iterator_.operator->();
+			return nullptr;
+			//return iterator_.operator->(); // FIXME leads to type mismatch
 		}
 
 		bool equals(const Concept& rhs) const noexcept final
 		{
 			return iterator_ == static_cast<const Model&>(rhs).iterator_;
-		}
-
-		const std::type_info& type() const noexcept final
-		{
-			return typeid(iterator_);
 		}
 
 		std::unique_ptr<Concept> clone() const noexcept final

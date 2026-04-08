@@ -473,8 +473,6 @@ std::chrono::duration<float> CalculationState::algo_time_elapsed() const
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	using fsec = std::chrono::duration<float>;
-
 	const auto amount { std::distance(start, stop) };
 
 	const auto start_time { std::chrono::steady_clock::now() };
@@ -482,8 +480,13 @@ void CalculationState::update(SampleInputIterator start,
 	do_update(start, stop); // TODO try and update counter in catch
 
 	const auto stop_time { std::chrono::steady_clock::now() };
-	const fsec dur       { stop_time - start_time };
-	algo_time_elapsed_ += dur;
+
+	// scope: update algorithm time
+	{
+		using fsec = std::chrono::duration<float>;
+		const fsec dur { stop_time - start_time };
+		algo_time_elapsed_ += dur;
+	}
 
 	samples_processed_.increment(amount);
 	track_samples_processed_.increment(amount);
@@ -1009,8 +1012,8 @@ bool Calculation::Impl::complete() const noexcept
 }
 
 
-bool Calculation::Impl::perform_update_measure_time(SampleInputIterator start,
-		SampleInputIterator stop)
+bool Calculation::Impl::perform_update_with_time_measured(
+		SampleInputIterator start, SampleInputIterator stop)
 {
 	const auto start_time { std::chrono::steady_clock::now() };
 
@@ -1020,12 +1023,12 @@ bool Calculation::Impl::perform_update_measure_time(SampleInputIterator start,
 	const auto stop_time  { std::chrono::steady_clock::now() };
 
 	using fsec = std::chrono::duration<float>;
-
 	const fsec dur { stop_time - start_time }; // intentionally not auto
 	// Type of the subtraction is high_resolution_clock::duration which is
 	// not necessarily the same type as duration<float>.
-
 	state_->increment_update_time_elapsed(dur);
+	// TODO why not just
+	//state_->increment_update_time_elapsed(stop_time - start_time);
 
 	return finished;
 }
@@ -1061,7 +1064,7 @@ void Calculation::Impl::update(SampleInputIterator start,
 {
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
 
-	if (perform_update_measure_time(start, stop))
+	if (perform_update_with_time_measured(start, stop))
 	{
 		completed();
 	}

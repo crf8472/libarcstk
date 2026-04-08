@@ -849,7 +849,7 @@ class Calculation::Impl final
 	 *
 	 * \return FALSE iff more updates are required, otherwise TRUE
 	 */
-	bool perform_update_measure_time(SampleInputIterator start,
+	bool perform_update_with_time_measured(SampleInputIterator start,
 		SampleInputIterator stop);
 
 	/**
