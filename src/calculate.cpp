@@ -836,46 +836,6 @@ Calculation::Impl::Impl(const Impl& rhs)
 }
 
 
-Calculation::Impl& Calculation::Impl::operator = (const Impl& rhs)
-{
-	// FIXME Implement copy assignment without code duplication
-	// see: http://www.gotw.ca/gotw/059.htm
-	if (&rhs != this)
-	{
-		settings_      = rhs.settings_;
-		partitioner_   = rhs.partitioner_->clone();
-		result_buffer_ = std::make_unique<Checksums>(*rhs.result_buffer_);
-		algorithm_     = rhs.algorithm_->clone();
-		state_         = rhs.state_->clone_to(algorithm_.get());
-	}
-	return *this;
-}
-
-
-Calculation::Impl::Impl(Impl&& rhs) noexcept
-	: settings_      { std::move(rhs.settings_)      }
-	, partitioner_   { std::move(rhs.partitioner_)   }
-	, result_buffer_ { std::move(rhs.result_buffer_) }
-	, algorithm_     { std::move(rhs.algorithm_)     }
-	, state_         { std::move(rhs.state_)         } // FIXME pointer to algo
-{
-	// empty
-}
-
-
-Calculation::Impl& Calculation::Impl::operator = (Impl&& rhs) noexcept
-{
-	// FIXME Implement move assignment without code duplication
-	// see: http://www.gotw.ca/gotw/059.htm
-	settings_      = std::move(rhs.settings_);
-	partitioner_   = std::move(rhs.partitioner_);
-	result_buffer_ = std::move(rhs.result_buffer_);
-	algorithm_     = std::move(rhs.algorithm_);
-	state_         = std::move(rhs.state_); // FIXME pointer to algo
-	return *this;
-}
-
-
 void Calculation::Impl::init(const Settings& s, const ToCData& toc)
 {
 	using std::cbegin;
@@ -975,7 +935,7 @@ bool Calculation::Impl::complete() const noexcept
 
 
 bool Calculation::Impl::perform_update_with_time_measured(
-		SampleInputIterator start, SampleInputIterator stop)
+		SampleInputIterator& start, SampleInputIterator& stop)
 {
 	using std::chrono::steady_clock;
 
@@ -1025,8 +985,8 @@ void Calculation::Impl::completed()
 }
 
 
-void Calculation::Impl::update(SampleInputIterator start,
-		SampleInputIterator stop)
+void Calculation::Impl::update(SampleInputIterator& start,
+		SampleInputIterator& stop)
 {
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
 

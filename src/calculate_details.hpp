@@ -26,7 +26,7 @@
 #include <vector>        // for vector
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"
+#include "metadata.hpp"  // for AudioSize
 #endif
 
 
@@ -38,7 +38,6 @@ inline namespace v_1_0_0
                                                                  /** \endcond */
 
 // avoid includes
-class AudioSize;
 class Checksum;
 class ChecksumSet;
 
@@ -819,7 +818,6 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		Checksums&         result_buffer);
 
 } // namespace details
-                                                  /** \cond NAMESPACE_v_1_0_0 */
 
 /**
  * \brief Private implementation of a Calculation.
@@ -837,8 +835,8 @@ class Calculation::Impl final
 	 *
 	 * \return FALSE iff more updates are required, otherwise TRUE
 	 */
-	bool perform_update_with_time_measured(SampleInputIterator start,
-		SampleInputIterator stop);
+	bool perform_update_with_time_measured(SampleInputIterator& start,
+		SampleInputIterator& stop);
 
 	/**
 	 * \brief Hook: called after the update sequence is completed.
@@ -862,17 +860,17 @@ public:
 	/**
 	 * \copydoc SNPT_sm_copy_op
 	 */
-	Impl& operator = (const Impl& rhs);
+	Impl& operator = (const Impl& rhs) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Impl(Impl&& rhs) noexcept;
+	Impl(Impl&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Impl& operator = (Impl&& rhs) noexcept;
+	Impl& operator = (Impl&& rhs) noexcept = delete;
 
 	// Impl specific
 
@@ -931,13 +929,14 @@ public:
 
 	bool complete() const noexcept;
 
-	void update(SampleInputIterator begin, SampleInputIterator end);
+	void update(SampleInputIterator& begin, SampleInputIterator& end);
 
 	void update(const AudioSize& audiosize);
 
 	Checksums result() const noexcept;
 };
 
+                                                  /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
 } // namespace arcstk

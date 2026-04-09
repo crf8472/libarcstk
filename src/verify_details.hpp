@@ -31,7 +31,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
-
+// avoid includes
 class ARId;
 
 /**
