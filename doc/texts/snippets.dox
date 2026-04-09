@@ -50,6 +50,18 @@
  * \brief Default destructor.
  */
 
+/**
+ * \class SNPT_sm_non_copyable
+ *
+ * \brief Instances of this class cannot be copied.
+ */
+
+/**
+ * \class SNPT_sm_non_moveable
+ *
+ * \brief Instances of this class cannot be moved.
+ */
+
 
 /* =====  SNPT_mf_*: member functions and member operators  ===== */
 

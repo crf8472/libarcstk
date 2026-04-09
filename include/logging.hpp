@@ -115,7 +115,7 @@ public:
 	inline Appender(const std::string& name, FILE* stream);
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	inline Appender(const Appender&) = delete;
 
@@ -144,7 +144,7 @@ public:
 	inline std::string name() const noexcept;
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	inline Appender& operator = (const Appender&) = delete;
 
@@ -169,10 +169,10 @@ private:
 
 
 /**
- * \brief Logs a message to its registered @link Appender Appenders @endlink.
+ * \brief Logs a message to its registered \link Appender Appenders \endlink.
  *
  * A Logger associates a configuration with a set of
- * @link Appender Appenders @endlink. Can be configured to log timestamps. The
+ * \link Appender Appenders \endlink. Can be configured to log timestamps. The
  * default is <tt>true</tt>.
  */
 class Logger final
@@ -186,7 +186,7 @@ public:
 	Logger();
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Logger(const Logger&) = delete;
 
@@ -229,14 +229,14 @@ public:
 	void remove_appender(const Appender *appender);
 
 	/**
-	 * \brief Log the given message to all @link Appender Appenders @endlink.
+	 * \brief Log the given message to all \link Appender Appenders \endlink.
 	 *
 	 * \param[in] msg The message to log
 	 */
 	void log(const std::string& msg) const;
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Logger& operator = (const Logger&) = delete;
 
@@ -249,7 +249,7 @@ public:
 private:
 
 	/**
-	 * \brief Internal set of @link Appender Appenders @endlink
+	 * \brief Internal set of \link Appender Appenders \endlink
 	 */
 	std::unordered_set<std::unique_ptr<Appender>> appenders_;
 
@@ -279,7 +279,7 @@ std::string now_time();
  * \brief A single logging operation of a Logger using a specified LOGLEVEL.
  *
  * A (more or less) thread-safe, type-safe, portable logging interface for
- * concrete @link Logger Loggers @endlink.
+ * concrete \link Logger Loggers \endlink.
  */
 class Log final
 {
@@ -295,12 +295,12 @@ public:
 	Log(const Logger& logger, LOGLEVEL msg_level);
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Log(const Log&) = delete;
 
 	/**
-	 * \brief Class is non-movable
+	 * \copydoc SNPT_sm_non_moveable
 	 */
 	Log(Log&&) = delete;
 
@@ -336,12 +336,12 @@ public:
 	static LOGLEVEL from_string(const std::string& level);
 
 	/**
-	 * \brief Class is non-copyable
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Log& operator = (const Log&) = delete;
 
 	/**
-	 * \brief Class is non-movable
+	 * \copydoc SNPT_sm_non_moveable
 	 */
 	Log& operator = (Log&&) noexcept = delete;
 
@@ -369,7 +369,7 @@ private:
  * \brief A singleton interface used by all Log instances.
  *
  * A singleton manager and thread safe interface class for all
- * @link Log Logs @endlink of the entire component.
+ * \link Log Logs \endlink of the entire component.
  */
 class Logging final
 {
@@ -377,12 +377,12 @@ class Logging final
 public:
 
 	/**
-	 * \brief Class is non-copyable.
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Logging(const Logging&) = delete;
 
 	/**
-	 * \brief Class is non-movable.
+	 * \copydoc SNPT_sm_non_moveable
 	 */
 	Logging(Logging&&) noexcept = delete;
 
@@ -459,12 +459,12 @@ public:
 	void remove_appender(Appender *appender);
 
 	/**
-	 * \brief Class is non-copyable.
+	 * \copydoc SNPT_sm_non_copyable
 	 */
 	Logging& operator = (Logging& rhs) = delete;
 
 	/**
-	 * \brief Class is non-movable
+	 * \copydoc SNPT_sm_non_moveable
 	 */
 	Logging& operator = (Logging&& rhs) noexcept = delete;
 

@@ -78,22 +78,21 @@ using ToCData = std::vector<AudioSize>;
  * with the default settings, but can be finetuned by providing custom Settings.
  *
  * Updating a Calculation with an actual sequence of samples is done by
- * providing a sequence of samples represented by two instances of
- * SampleInputIterator. Those instances represent start and stop of the update.
- * SampleInputIterator is a wrapper input_iterator for any iterator with a
- * <tt>value_type</tt> of sample_t, which is the declared type for PCM 32 bit
- * samples. Using a SampleSequence may be of convenience for establishing
- * compatibility of the sample input format.
+ * providing a sequence of samples represented by two iterators. Those iterators
+ * represent start and stop of the update. Any LegacyInputIterator with a
+ * \c value_type of sample_t is allowed. Type sample_t is the declared type for
+ * PCM 32 bit samples. Using a SampleSequence may be of convenience for
+ * establishing compatibility of the sample input format.
  *
  * As soon as a Calculation is
- * @link arcstk::Calculation::complete() complete() @endlink its result can be
+ * \link arcstk::Calculation::complete() complete() \endlink its result can be
  * provided. The resulting Checksums represent the result for all requested
  * checksum types and all tracks of the audio input. It is an aggregation of the
  * ChecksumSet for each track of an respective audio input. Depending on the
  * input, it can represent either an entire album or a single track.
  *
- * ChecksumSet is a set of @link arcstk::Checksum Checksums @endlink of
- * different @link arcstk::checksum::type checksum::types @endlink of
+ * ChecksumSet is a set of \link arcstk::Checksum Checksums \endlink of
+ * different \link arcstk::checksum::type checksum::types \endlink of
  * the same track.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
@@ -122,7 +121,7 @@ using sample_t = uint32_t;
  * \tparam Iterator Iterator type to test
  */
 template<typename Iterator>
-using it_value_type = std::decay_t<decltype(*std::declval<Iterator>())>;
+using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
 // This is SFINAE compatible and respects bare pointers, which would not
 // have been respected when using std::iterator_traits<Iterator>::value_type.
 // Nonetheless I am not quite sure whether bare pointers indeed should be used
@@ -642,7 +641,7 @@ public:
 
 
 /**
- * \brief Set of @link arcstk::checksum::type Checksum types @endlink.
+ * \brief Set of \link arcstk::checksum::type Checksum types \endlink.
  *
  * Guaranteed to be iterable and duplicate-free.
  */
@@ -810,11 +809,11 @@ private:
  * specified. Currently, the only supported Settings attribute is Context.
  *
  * The input of the audio file must be represented as a succession of iterable
- * @link arcstk::SampleSequence SampleSequences @endlink and the
+ * \link arcstk::SampleSequence SampleSequences \endlink and the
  * Calculation is to be sequentially updated with these sequences in order.
  * After the last update, the Calculation returns the calculation result on
  * request. The calculated Checksums are represented as an iterable aggregate of
- * @link arcstk::ChecksumSet ChecksumSets @endlink.
+ * \link arcstk::ChecksumSet ChecksumSets \endlink.
  *
  * \see make_calculation
  */
@@ -1013,7 +1012,7 @@ public:
 /**
  * \brief Create a Calculation from an Algorithm and a ToC.
  *
- * If the ToC is not @link arcstk::ToC::complete complete @endlink,
+ * If the ToC is not \link arcstk::ToC::complete complete \endlink,
  * the Calculation must be updated with the correct
  * total number of input samples before calling Calculation::update().
  *
