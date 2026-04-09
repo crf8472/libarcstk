@@ -444,7 +444,9 @@ std::chrono::duration<float> CalculationState::algo_time_elapsed() const
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
+	using std::chrono::steady_clock;
 	using fsec = std::chrono::duration<float>;
+
 	const auto amount { std::distance(start, stop) };
 
 	const auto start_time { std::chrono::steady_clock::now() };
@@ -975,20 +977,24 @@ bool Calculation::Impl::complete() const noexcept
 bool Calculation::Impl::perform_update_with_time_measured(
 		SampleInputIterator start, SampleInputIterator stop)
 {
-	const auto start_time { std::chrono::steady_clock::now() };
+	using std::chrono::steady_clock;
+
+	const auto start_time { steady_clock::now() };
 
 	const auto finished = bool {
 		perform_update(start, stop, *partitioner_, *state_, *result_buffer_) };
 
-	const auto stop_time  { std::chrono::steady_clock::now() };
+	const auto stop_time  { steady_clock::now() };
 
-	using fsec = std::chrono::duration<float>;
-	const fsec dur { stop_time - start_time }; // intentionally not auto
-	// Type of the subtraction is high_resolution_clock::duration which is
-	// not necessarily the same type as duration<float>.
-	state_->increment_update_time_elapsed(dur);
-	// TODO why not just
-	//state_->increment_update_time_elapsed(stop_time - start_time);
+	state_->increment_update_time_elapsed(stop_time - start_time);
+
+	// Previous version with explicit instantiation, commented out:
+	//
+	//using fsec = std::chrono::duration<float>;
+	//const fsec dur { stop_time - start_time }; // intentionally not auto
+	//// Type of the subtraction is high_resolution_clock::duration which is
+	//// not necessarily the same type as duration<float>.
+	//state_->increment_update_time_elapsed(dur);
 
 	return finished;
 }
