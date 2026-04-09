@@ -144,7 +144,7 @@ public:
 		, element_ { /* default */ }
 	{
 		// empty
-	} // TODO Max value is not strongly guaranteed to never occurr in real life
+	} // XXX Max value is not strongly guaranteed to never occurr in real life
 
 	/**
 	 * \brief Constructor.

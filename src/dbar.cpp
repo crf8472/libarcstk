@@ -768,7 +768,7 @@ DBAR::Impl::Impl()
 }
 
 
-DBAR::Impl::size_type DBAR::Impl::size() const
+DBAR::Impl::size_type DBAR::Impl::size() const noexcept
 {
 	return total_tracks_.size();
 }

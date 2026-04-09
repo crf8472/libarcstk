@@ -267,7 +267,7 @@ public:
 
 	Impl();
 
-	size_type size() const;
+	size_type size() const noexcept;
 
 	size_type size(const size_type block_idx) const;
 

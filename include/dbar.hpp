@@ -1115,7 +1115,7 @@ public:
 	/**
 	 * \copydoc SNPT_mf_empty
 	 */
-	bool empty() const; // TODO noexcept?
+	bool empty() const;
 
 	/**
 	 * \copydoc SNPT_mf_swap
