@@ -13,12 +13,12 @@
 #include <algorithm>        // for transform
 #include <array>            // for array
 #include <cmath>            // for log2
-#include <cstdint>          // for int32_t
 #include <initializer_list> // for initializer_list
 #include <iomanip>			// for setfill, setw
 #include <iterator>         // for begin, end, inserter
 #include <set>              // for set
 #include <stdexcept>        // for domain_error
+#include <sstream>          // for ostringstream
 #include <string>           // for string
 #include <type_traits>      // for underlying_type
 #include <utility>          // for pair, swap
@@ -352,8 +352,34 @@ bool ChecksumSet::equals(const ChecksumSet& rhs) const noexcept
 }
 
 
-// empty instances
+std::string ChecksumSet::to_string() const
+{
+	auto ss = std::ostringstream {};
+	ss << *this;
+	return ss.str();
+}
 
+
+std::ostream& operator << (std::ostream& out, const ChecksumSet& set)
+{
+	using std::cbegin;
+	using std::cend;
+	using value_t = ChecksumSet::storage_type::value_type;
+
+	std::for_each(cbegin(set.set_), cend(set.set_),
+		[&out](const value_t& pair)
+		{
+			out << checksum::type_name(pair.first) << ": " << pair.second
+				<< ' ';
+		}
+	);
+	out << '(' << set.length() << ')';
+
+	return out;
+}
+
+
+// empty instances
 
 const ChecksumSet EmptyChecksumSet { ChecksumSet {/* empty */} };
 

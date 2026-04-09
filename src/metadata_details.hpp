@@ -68,6 +68,14 @@ void validate_filenames_impl(const ToCData& toc_data,
 		const std::vector<std::string>& filenames);
 
 /**
+ * \brief Worker: Print an AudioSize.
+ *
+ * \param[in] out Stream to print to
+ * \param[in] s   AudioSize to print
+ */
+void print(std::ostream& out, const AudioSize& s);
+
+/**
  * \internal
  *
  * \brief Validations for ToCData.

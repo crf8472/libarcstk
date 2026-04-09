@@ -388,6 +388,11 @@ constexpr auto convert(const int32_t amount) -> int32_t
 	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
 }
 
+class AudioSize; // forward declaration
+
+
+// ensure to put declaration in this namespace
+std::ostream& operator << (std::ostream& out, const AudioSize& i);
 
 /**
  * \brief Uniform access to the size of the input audio information.
@@ -509,6 +514,11 @@ public:
 	{
 		return lhs.equals(rhs);
 	}
+
+	/**
+	 * \copydoc SNPT_nf_stream_in
+	 */
+	friend std::ostream& operator << (std::ostream& out, const AudioSize& i);
 
 	/**
 	 * \copydoc SNPT_nf_to_string

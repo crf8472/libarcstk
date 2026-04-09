@@ -241,6 +241,11 @@ private:
 };
 
 
+class ChecksumSet; // forward declaration
+
+// ensure to put declaration in this namespace
+std::ostream& operator << (std::ostream& out, const ChecksumSet& i);
+
 /**
  * \brief A set of Checksum instances of different types for a single track.
  *
@@ -494,7 +499,15 @@ public:
 	 */
 	bool equals(const ChecksumSet& rhs) const noexcept;
 
-	// TODO to_string()
+	/**
+	 * \copydoc SNPT_nf_stream_in
+	 */
+	friend std::ostream& operator << (std::ostream& out, const ChecksumSet& i);
+
+	/**
+	 * \copydoc SNPT_mf_to_string
+	 */
+	std::string to_string() const;
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -511,6 +524,14 @@ public:
 		noexcept
 	{
 		return lhs.equals(rhs);
+	}
+
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const ChecksumSet& i)
+	{
+		return i.to_string();
 	}
 };
 

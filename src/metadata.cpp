@@ -79,6 +79,12 @@ void validate_filenames_impl(const ToCData& toc_data,
 }
 
 
+void print(std::ostream& out, const AudioSize& s)
+{
+	out << s.frames() << " LBA frames";
+}
+
+
 namespace validate
 {
 
@@ -336,9 +342,16 @@ bool AudioSize::equals(const AudioSize& rhs) const noexcept
 
 std::string AudioSize::to_string() const
 {
-	using std::to_string;
+	auto ss = std::ostringstream {};
+	ss << *this;
+	return ss.str();
+}
 
-	return to_string(frames()) + " LBA frames";
+
+std::ostream& operator << (std::ostream& out, const AudioSize& i)
+{
+	details::print(out, i);
+	return out;
 }
 
 
