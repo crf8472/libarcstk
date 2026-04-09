@@ -607,7 +607,10 @@ public:
  *
  * Any Verifier is strict() by default.
  */
-class Verifier { virtual const ARId* do_actual_id() const noexcept = 0;
+class Verifier
+{
+	virtual const ARId* do_actual_id() const noexcept
+	= 0;
 
 	virtual const Checksums* do_actual_checksums() const noexcept
 	= 0;

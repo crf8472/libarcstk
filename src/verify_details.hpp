@@ -13,10 +13,6 @@
  * \brief Implementation details for verify.hpp.
  */
 
-#ifndef LIBARCSTK_VERIFY_HPP_
-#include "verify.hpp"
-#endif
-
 #include <cstddef>  // for size_t, ptrdiff_t
 #include <cstdint>  // for uint32_t
 #include <iterator> // for input_iterator_tag
@@ -24,6 +20,12 @@
 #include <utility>  // for swap
 #include <vector>   // for vector
 
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"            // for ChecksumSource, VerificationResult, ...
+#endif
+#ifndef LIBARCSTK_POLICIES_HPP_
+#include "policies.hpp"          // for Comparable
+#endif
 
 namespace arcstk
 {
@@ -592,6 +594,9 @@ class TrackSelector final : public Selector
 };
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+
 /**
  * \brief Iterates a ChecksumSource.
  *
@@ -600,7 +605,7 @@ class TrackSelector final : public Selector
  * information by \c current(), which is either the number of a block or a
  * track.
  */
-class SourceIterator final
+class SourceIterator final : Comparable<SourceIterator>
 {
 	/**
 	 * \brief The concrete Selector used by this instance.
@@ -675,11 +680,25 @@ public:
 	 */
 	ChecksumSource::size_type current() const;
 
+	/**
+	 * \copydoc SNPT_mf_deref
+	 */
 	reference       operator * ()  const;
-	pointer         operator -> () const;
-	SourceIterator& operator ++ ();
-	SourceIterator  operator ++ (int);
 
+	/**
+	 * \copydoc SNPT_mf_arrow
+	 */
+	pointer         operator -> () const;
+
+	/**
+	 * \copydoc SNPT_mf_inc_prefix
+	 */
+	SourceIterator& operator ++ ();
+
+	/**
+	 * \copydoc SNPT_mf_inc_postfix
+	 */
+	SourceIterator  operator ++ (int);
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -703,14 +722,9 @@ public:
 			&& lhs.current_ == rhs.current_
 			&& lhs.counter_ == rhs.counter_;
 	}
-
-	// TODO Implement by policies
-	friend bool operator != (const SourceIterator& lhs,
-			const SourceIterator& rhs)
-	{
-		return not(lhs == rhs);
-	}
 };
+
+#pragma GCC diagnostic pop
 
 
 /**
