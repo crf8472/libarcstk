@@ -27,6 +27,9 @@
 #ifndef LIBARCSTK_POLICIES_HPP_
 #include "policies.hpp"     // for Comparable
 #endif
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"      // for AudioSize
+#endif
 
 namespace arcstk
 {
@@ -259,7 +262,7 @@ private:
 	/**
 	 * \brief Track length as number of LBA frames.
 	 */
-	int32_t length_;
+	AudioSize length_;
 
 	/**
 	 * \brief Key type of the internal type map.
@@ -307,7 +310,7 @@ public:
 	 *
 	 * \copydoc SNPT_sm_default_ctor
 	 *
-	 * \details Constructs a ChecksumSet/track with unknown length (will be 0).
+	 * \details Constructs a ChecksumSet/track with unknown/zero length.
 	 */
 	ChecksumSet();
 
@@ -316,7 +319,7 @@ public:
 	 *
 	 * \param[in] length Length in LBA frames of the track
 	 */
-	explicit ChecksumSet(const int32_t length);
+	explicit ChecksumSet(const AudioSize& length);
 
 	/**
 	 * \brief Constructor for a known set of typed Checksums.
@@ -324,7 +327,7 @@ public:
 	 * \param[in] length Track length
 	 * \param[in] sums   Sequence of checksums represented as type-value pairs
 	 */
-	ChecksumSet(const int32_t length,
+	ChecksumSet(const AudioSize& length,
 			std::initializer_list<
 				std::pair<const checksum::type, value_type>> sums);
 	//NOTE We do not expose key_type. If key is not of key_type, it just breaks.
@@ -342,14 +345,14 @@ public:
 	 *
 	 * \return Length of this track in LBA frames
 	 */
-	int32_t length() const noexcept; //TODO AudioSize
+	AudioSize length() const noexcept;
 
 	/**
 	 * \brief Set the length (in LBA frames) of this track.
 	 *
 	 * \param[in] length New length for this instance
 	 */
-	void set_length(const int32_t length) noexcept; //TODO AudioSize
+	void set_length(const AudioSize& length) noexcept;
 
 	/**
 	 * \brief Returns \c TRUE iff the instance contains a Checksum of the type

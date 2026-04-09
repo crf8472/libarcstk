@@ -44,7 +44,7 @@ using cstype = checksum::type; // local, for Readability
 
 ChecksumSet Update<cstype::ARCS1>::value(const Subtotals& st) const
 {
-	return { 0, {{ cstype::ARCS1, st.subtotal_v1 }} };
+	return { AudioSize{/* zero */}, {{ cstype::ARCS1, st.subtotal_v1 }} };
 }
 
 
@@ -56,7 +56,7 @@ std::string Update<cstype::ARCS1>::id_string() const
 
 ChecksumSet Update<cstype::ARCS2>::value(const Subtotals& st) const
 {
-	return { 0, {{ cstype::ARCS2, st.subtotal_v2 }} };
+	return { AudioSize{/* zero */}, {{ cstype::ARCS2, st.subtotal_v2 }} };
 }
 
 
@@ -69,7 +69,7 @@ std::string Update<cstype::ARCS2>::id_string() const
 ChecksumSet Update<cstype::ARCS1, cstype::ARCS2>::value(
 		const Subtotals& st) const
 {
-	return { 0, {
+	return { AudioSize{/* zero */}, {
 		{ cstype::ARCS1, st.subtotal_v1 },
 		{ cstype::ARCS2, st.subtotal_v1 + st.subtotal_v2 },
 	} };
@@ -188,7 +188,7 @@ void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
 		const AudioSize& s)
 {
 	current_result_ = state_.value();
-	current_result_.set_length(s.frames());
+	current_result_.set_length(s);
 
 	state_.reset();
 	state_.set_multiplier(1);

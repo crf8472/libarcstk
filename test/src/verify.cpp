@@ -170,12 +170,14 @@ TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
 TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 {
 	using arcstk::ARId;
+	using arcstk::AudioSize;
 	using arcstk::AlbumVerifier;
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
 	using arcstk::ChecksumSet;
 	using arcstk::Checksums;
 	using arcstk::DBAR;
+	using arcstk::UNIT;
 
 	const auto id = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
@@ -244,63 +246,63 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
-	ChecksumSet track01( 5192);
+	ChecksumSet track01 { { 5192, UNIT::FRAMES } };
 	track01.insert(type::ARCS2, Checksum(0xB89992E5));
 	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
 
-	ChecksumSet track02( 2165);
+	ChecksumSet track02 { { 2165, UNIT::FRAMES } };
 	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
 	track02.insert(type::ARCS1, Checksum(0x475F57E9));
 
-	ChecksumSet track03(15885);
+	ChecksumSet track03 { { 15885, UNIT::FRAMES } };
 	track03.insert(type::ARCS2, Checksum(0x56582282));
 	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
 
-	ChecksumSet track04(12228);
+	ChecksumSet track04 { { 12228, UNIT::FRAMES } };
 	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
 	track04.insert(type::ARCS1, Checksum(0xF2472287));
 
-	ChecksumSet track05(13925);
+	ChecksumSet track05 { { 13925, UNIT::FRAMES } };
 	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
 	track05.insert(type::ARCS1, Checksum(0x881BC504));
 
-	ChecksumSet track06(19513);
+	ChecksumSet track06 { { 19513, UNIT::FRAMES } };
 	track06.insert(type::ARCS2, Checksum(0x01E7235F));
 	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
 
-	ChecksumSet track07(18155);
+	ChecksumSet track07 { { 18155, UNIT::FRAMES } };
 	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
 	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
 
-	ChecksumSet track08(18325);
+	ChecksumSet track08 { { 18325, UNIT::FRAMES } };
 	track08.insert(type::ARCS2, Checksum(0x8480223E));
 	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
 
-	ChecksumSet track09(33075);
+	ChecksumSet track09 { { 33075, UNIT::FRAMES } };
 	track09.insert(type::ARCS2, Checksum(0x42C5061C));
 	track09.insert(type::ARCS1, Checksum(0x2C736302));
 
-	ChecksumSet track10(18368);
+	ChecksumSet track10 { { 18368, UNIT::FRAMES } };
 	track10.insert(type::ARCS2, Checksum(0x47A70F02));
 	track10.insert(type::ARCS1, Checksum(0x1C955978));
 
-	ChecksumSet track11(40152);
+	ChecksumSet track11 { { 40152, UNIT::FRAMES } };
 	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
 	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
 
-	ChecksumSet track12(14798);
+	ChecksumSet track12 { { 14798, UNIT::FRAMES } };
 	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
 	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
 
-	ChecksumSet track13(11952);
+	ChecksumSet track13 { { 11952, UNIT::FRAMES } };
 	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
 	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
 
-	ChecksumSet track14( 8463);
+	ChecksumSet track14 { { 8463, UNIT::FRAMES } };
 	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
 	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
 
-	ChecksumSet track15(18935);
+	ChecksumSet track15 { { 18935, UNIT::FRAMES } };
 	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
 	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
 
@@ -760,12 +762,14 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 {
 	using arcstk::ARId;
+	using arcstk::AudioSize;
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
 	using arcstk::ChecksumSet;
 	using arcstk::Checksums;
 	using arcstk::DBAR;
 	using arcstk::TracksetVerifier;
+	using arcstk::UNIT;
 
 	const auto dBAR = DBAR {
 		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
@@ -830,63 +834,63 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
-	ChecksumSet track01( 5192);
+	ChecksumSet track01 { { 5192, UNIT::FRAMES } };
 	track01.insert(type::ARCS2, Checksum(0xB89992E5));
 	track01.insert(type::ARCS1, Checksum(0x98B10E0F));
 
-	ChecksumSet track02( 2165);
+	ChecksumSet track02 { { 2165, UNIT::FRAMES } };
 	track02.insert(type::ARCS2, Checksum(0x4F77EB03));
 	track02.insert(type::ARCS1, Checksum(0x475F57E9));
 
-	ChecksumSet track03(15885);
+	ChecksumSet track03 { { 15885, UNIT::FRAMES } };
 	track03.insert(type::ARCS2, Checksum(0x56582282));
 	track03.insert(type::ARCS1, Checksum(0x7304F1C4));
 
-	ChecksumSet track04(12228);
+	ChecksumSet track04 { { 12228, UNIT::FRAMES } };
 	track04.insert(type::ARCS2, Checksum(0x9E2187F9));
 	track04.insert(type::ARCS1, Checksum(0xF2472287));
 
-	ChecksumSet track05(13925);
+	ChecksumSet track05 { { 13925, UNIT::FRAMES } };
 	track05.insert(type::ARCS2, Checksum(0x6BE71E50));
 	track05.insert(type::ARCS1, Checksum(0x881BC504));
 
-	ChecksumSet track06(19513);
+	ChecksumSet track06 { { 19513, UNIT::FRAMES } };
 	track06.insert(type::ARCS2, Checksum(0x01E7235F));
 	track06.insert(type::ARCS1, Checksum(0xBB94BFD4));
 
-	ChecksumSet track07(18155);
+	ChecksumSet track07 { { 18155, UNIT::FRAMES } };
 	track07.insert(type::ARCS2, Checksum(0xD8F7763C));
 	track07.insert(type::ARCS1, Checksum(0xF9CAEE76));
 
-	ChecksumSet track08(18325);
+	ChecksumSet track08 { { 18325, UNIT::FRAMES } };
 	track08.insert(type::ARCS2, Checksum(0x8480223E));
 	track08.insert(type::ARCS1, Checksum(0xF9F60BC1));
 
-	ChecksumSet track09(33075);
+	ChecksumSet track09 { { 33075, UNIT::FRAMES } };
 	track09.insert(type::ARCS2, Checksum(0x42C5061C));
 	track09.insert(type::ARCS1, Checksum(0x2C736302));
 
-	ChecksumSet track10(18368);
+	ChecksumSet track10 { { 18368, UNIT::FRAMES } };
 	track10.insert(type::ARCS2, Checksum(0x47A70F02));
 	track10.insert(type::ARCS1, Checksum(0x1C955978));
 
-	ChecksumSet track11(40152);
+	ChecksumSet track11 { { 40152, UNIT::FRAMES } };
 	track11.insert(type::ARCS2, Checksum(0xBABF08CC));
 	track11.insert(type::ARCS1, Checksum(0xFDA6D833));
 
-	ChecksumSet track12(14798);
+	ChecksumSet track12 { { 14798, UNIT::FRAMES } };
 	track12.insert(type::ARCS2, Checksum(0x563EDCCB));
 	track12.insert(type::ARCS1, Checksum(0x3A57E5D1));
 
-	ChecksumSet track13(11952);
+	ChecksumSet track13 { { 11952, UNIT::FRAMES } };
 	track13.insert(type::ARCS2, Checksum(0xAB123C7C));
 	track13.insert(type::ARCS1, Checksum(0x6ED5F3E7));
 
-	ChecksumSet track14( 8463);
+	ChecksumSet track14 { { 8463, UNIT::FRAMES } };
 	track14.insert(type::ARCS2, Checksum(0xC65C20E4));
 	track14.insert(type::ARCS1, Checksum(0x4A5C3872));
 
-	ChecksumSet track15(18935);
+	ChecksumSet track15 { { 18935, UNIT::FRAMES } };
 	track15.insert(type::ARCS2, Checksum(0x58FC3C3E));
 	track15.insert(type::ARCS1, Checksum(0x5FE8B032));
 

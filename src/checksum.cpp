@@ -161,20 +161,20 @@ void print(std::ostream& out, const Checksum& c)
 
 
 ChecksumSet::ChecksumSet()
-	: ChecksumSet { 0 }
+	: ChecksumSet { AudioSize{ /* zero */} }
 {
 	// empty
 }
 
 
-ChecksumSet::ChecksumSet(const int32_t length)
+ChecksumSet::ChecksumSet(const AudioSize& length)
 	: ChecksumSet { length, { /* empty */ } }
 {
 	// empty
 }
 
 
-ChecksumSet::ChecksumSet(const int32_t length,
+ChecksumSet::ChecksumSet(const AudioSize& length,
 		std::initializer_list<
 			std::pair<const ChecksumSet::key_type,
 							ChecksumSet::value_type>> checksums)
@@ -185,13 +185,13 @@ ChecksumSet::ChecksumSet(const int32_t length,
 }
 
 
-int32_t ChecksumSet::length() const noexcept
+AudioSize ChecksumSet::length() const noexcept
 {
 	return length_;
 }
 
 
-void ChecksumSet::set_length(const int32_t l) noexcept
+void ChecksumSet::set_length(const AudioSize& l) noexcept
 {
 	length_ = l;
 }
@@ -259,7 +259,7 @@ std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
 
 void ChecksumSet::merge(ChecksumSet& rhs)
 {
-	if (this->length() != 0 && rhs.length() != 0)
+	if (!this->length().zero() && !rhs.length().zero())
 	{
 		// Non-zero lengths with different value indicates different tracks.
 		if (this->length() != rhs.length())
