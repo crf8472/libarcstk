@@ -270,7 +270,11 @@ constexpr auto as_integral_value(const E& value)
 /**
  * \brief Determine total number of units per frame.
  *
- * \tparam E
+ * \tparam E Unit
+ *
+ * \param[in] value Total number of units \c E in a single LBA frame
+ *
+ * \return Total number of units of type \c E in a single LBA frame
  */
 template <typename E>
 constexpr auto per_frame(const E& value)
@@ -336,6 +340,11 @@ constexpr auto factor() -> int
  * \brief Determine whether to multiply or divide when converting.
  *
  * \tparam B Iff TRUE perform multiplication, otherwise perform division
+ *
+ * \param[in] value  Value to apply factor on
+ * \param[in] factor Factor to be applied
+ *
+ * \return Result of applying \c factor to \c value
  */
 template <bool>
 constexpr auto op(const int32_t value, const int32_t factor) -> int32_t;

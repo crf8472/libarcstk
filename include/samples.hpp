@@ -50,6 +50,7 @@ inline namespace v_1_0_0
  *
  * \see arcstk::sample_t
  */
+// duplicate of metadata.hpp, documented there
 using sample_type = uint32_t;
 
 /**
@@ -72,7 +73,7 @@ using sample_type = uint32_t;
  * channel ordering is specified, the default is LEFT/RIGHT.
  *
  * A SampleSequence can wrap integer buffers of type T by member function
- * \link SampleSequence::wrap_int_buffer() wrap_int_buffer()\endlink.
+ * wrap_int_buffer().
  * Regardless for which T the SampleSequence is instantiated,
  * it will always be able to also wrap byte buffers by function
  * wrap_byte_buffer(). While wrap_int_buffer() expects samples of type T,
@@ -874,6 +875,8 @@ protected:
 
 	/**
 	 * \brief Pointer to actual SampleSequence.
+	 *
+	 * \return Pointer to actual SampleSequence
 	 */
 	virtual const SampleSequence<T, is_planar> *sequence() const
 	= 0;
