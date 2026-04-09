@@ -1278,11 +1278,6 @@ DBAR DBARBuilder::result()
 
 void DBARBuilder::reset()
 {
-	if (result_) // TODO unnecessary
-	{
-		result_.reset();
-	}
-
 	result_ = std::make_unique<DBAR::Impl>();
 }
 
