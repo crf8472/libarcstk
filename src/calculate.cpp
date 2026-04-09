@@ -877,15 +877,18 @@ Calculation::Impl::Impl(const Impl& rhs)
 }
 
 
-Calculation::Impl& Calculation::Impl::operator=(const Impl& rhs)
+Calculation::Impl& Calculation::Impl::operator = (const Impl& rhs)
 {
 	// FIXME Implement copy assignment without code duplication
 	// see: http://www.gotw.ca/gotw/059.htm
-	settings_      = rhs.settings_;
-	partitioner_   = rhs.partitioner_->clone();
-	result_buffer_ = std::make_unique<Checksums>(*rhs.result_buffer_);
-	algorithm_     = rhs.algorithm_->clone();
-	state_         = rhs.state_->clone_to(algorithm_.get());
+	if (&rhs != this)
+	{
+		settings_      = rhs.settings_;
+		partitioner_   = rhs.partitioner_->clone();
+		result_buffer_ = std::make_unique<Checksums>(*rhs.result_buffer_);
+		algorithm_     = rhs.algorithm_->clone();
+		state_         = rhs.state_->clone_to(algorithm_.get());
+	}
 	return *this;
 }
 
@@ -901,7 +904,7 @@ Calculation::Impl::Impl(Impl&& rhs) noexcept
 }
 
 
-Calculation::Impl& Calculation::Impl::operator=(Impl&& rhs) noexcept
+Calculation::Impl& Calculation::Impl::operator = (Impl&& rhs) noexcept
 {
 	// FIXME Implement move assignment without code duplication
 	// see: http://www.gotw.ca/gotw/059.htm
@@ -1104,9 +1107,12 @@ Calculation::Calculation(const Calculation& rhs)
 }
 
 
-Calculation& Calculation::operator=(const Calculation& rhs)
+Calculation& Calculation::operator = (const Calculation& rhs)
 {
-	impl_ = std::make_unique<Calculation::Impl>(*rhs.impl_);
+	if (&rhs != this)
+	{
+		impl_ = std::make_unique<Calculation::Impl>(*rhs.impl_);
+	}
 	return *this;
 }
 
@@ -1118,7 +1124,7 @@ Calculation::Calculation(Calculation&& rhs) noexcept
 }
 
 
-Calculation& Calculation::operator=(Calculation&& rhs) noexcept
+Calculation& Calculation::operator = (Calculation&& rhs) noexcept
 {
 	impl_ = std::move(rhs.impl_);
 	return *this;

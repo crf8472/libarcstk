@@ -346,10 +346,12 @@ public:
 	 */
 	SampleIterator& operator = (const SampleIterator<T, is_planar, false>& rhs)
 	{
-		seq_   = rhs.seq_;
-		pos_   = rhs.pos_;
-		cache_ = rhs.cache_;
-
+		if (&rhs != this)
+		{
+			seq_   = rhs.seq_;
+			pos_   = rhs.pos_;
+			cache_ = rhs.cache_;
+		}
 		return *this;
 	}
 	// Note: prior versions of g++ and clang++ accepted the following:

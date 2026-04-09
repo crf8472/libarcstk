@@ -415,10 +415,13 @@ Result::Result(const Result& rhs)
 }
 
 
-Result& Result::operator= (const Result& rhs)
+Result& Result::operator = (const Result& rhs)
 {
-	flags_  = rhs.flags_;
-	policy_ = rhs.policy_->clone();
+	if (&rhs != this)
+	{
+		flags_  = rhs.flags_;
+		policy_ = rhs.policy_->clone();
+	}
 	return *this;
 }
 
@@ -431,7 +434,7 @@ Result::Result(Result&& rhs) noexcept
 }
 
 
-Result& Result::operator= (Result&& rhs) noexcept
+Result& Result::operator = (Result&& rhs) noexcept
 {
 	flags_  = std::move(rhs.flags_);
 	policy_ = std::move(rhs.policy_);
@@ -694,10 +697,12 @@ TraversalPolicy::TraversalPolicy(const TraversalPolicy& rhs)
 
 TraversalPolicy& TraversalPolicy::operator = (const TraversalPolicy& rhs)
 {
-	source_   = rhs.source_;
-	selector_ = rhs.selector_->clone();
-	current_  = rhs.current_;
-
+	if (&rhs != this)
+	{
+		source_   = rhs.source_;
+		selector_ = rhs.selector_->clone();
+		current_  = rhs.current_;
+	}
 	return *this;
 }
 
