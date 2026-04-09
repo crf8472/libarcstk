@@ -36,7 +36,9 @@
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
-
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"                   // for CDDA
+#endif
 
 namespace arcstk
 {
@@ -202,7 +204,7 @@ ResultBits::size_type ResultBits::total_tracks_set(int b) const
 
 void ResultBits::validate(int blocks, int tracks) const
 {
-	if (tracks < 0 or tracks > 99) // FIXME CDDA::MAX_TRACKCOUNT)
+	if (tracks < 0 || tracks > CDDA::MAX_TRACKCOUNT)
 	{
 		using std::to_string;
 		throw std::out_of_range("Illegal number of tracks: "
