@@ -1128,10 +1128,10 @@ public: /* member functions */
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
 	 *
 	 * \param[in] index Index of a virtual 32 bit PCM sample
 	 *
@@ -1152,10 +1152,10 @@ public: /* member functions */
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
 	 *
 	 * Does bounds checking before accessing the sample.
 	 *
@@ -1173,6 +1173,11 @@ public: /* member functions */
 
 protected:
 
+	/**
+	 * \brief Read the sample sequence from subclasses.
+	 *
+	 * \return Internal sample sequence
+	 */
 	const SampleSequence<T, true> *sequence() const final
 	{
 		return this;
@@ -1396,10 +1401,10 @@ public: /* member functions */
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
 	 *
 	 * \param[in] index Index of a virtual 32 bit PCM sample
 	 *
@@ -1420,10 +1425,10 @@ public: /* member functions */
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
-	 * Bits 31-24: Left Channel MSB
-	 * Bits 23-16: Left Channel LSB
-	 * Bits 15-09: Right Channel MSB
-	 * Bits 08-00: Right Channel LSB
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
 	 *
 	 * Does bounds checking before accessing the sample.
 	 *
