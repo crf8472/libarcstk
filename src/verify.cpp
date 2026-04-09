@@ -220,7 +220,9 @@ void ResultBits::validate(int blocks, int tracks) const
 
 bool ResultBits::operator[](const int i) const
 {
-	return flag_[static_cast<decltype(flag_)::size_type>(i)];
+	using flag_size_type = decltype( flag_ )::size_type;
+
+	return flag_[static_cast<flag_size_type>(i)];
 }
 
 
@@ -253,7 +255,7 @@ void ResultBits::set_flag(const int offset, const bool value)
 {
 	using std::begin;
 
-	auto pos = begin(flag_) + offset; // TODO Work with index instead?
+	auto pos = begin(flag_) + offset; // XXX Work with index instead?
 	*pos = value;
 }
 
