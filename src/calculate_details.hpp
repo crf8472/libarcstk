@@ -618,7 +618,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	virtual ~CalculationState() noexcept;
+	virtual ~CalculationState() noexcept = default;
 
 	/**
 	 * \brief Offset of the current sample.
@@ -655,6 +655,13 @@ public:
 	const Algorithm* algorithm() const noexcept;
 
 	/**
+	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
+	 *
+	 * \return Amount of milliseconds elapsed so far by the Algorithm instance.
+	 */
+	std::chrono::duration<float> algo_time_elapsed() const noexcept;
+
+	/**
 	 * \brief Amount of milliseconds elapsed so far by updating this instance.
 	 *
 	 * \return Amount of milliseconds elapsed so far by updating.
@@ -668,13 +675,6 @@ public:
 	 */
 	void increment_update_time_elapsed(
 			const std::chrono::duration<float>& duration);
-
-	/**
-	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
-	 *
-	 * \return Amount of milliseconds elapsed so far by the Algorithm instance.
-	 */
-	std::chrono::duration<float> algo_time_elapsed() const noexcept;
 
 	/**
 	 * \brief Update the calculation state with an contigous amount of samples.
@@ -713,16 +713,22 @@ protected:
 	/**
 	 * \copydoc SNPT_sm_copy_ctor
 	 */
-	CalculationState(const CalculationState& rhs);
+	CalculationState(const CalculationState& rhs) = default;
 
-	// no copy assingment operator  // TODO deleted or defaulted?
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	CalculationState& operator = (const CalculationState& rhs) = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	CalculationState(CalculationState&& rhs) noexcept;
+	CalculationState(CalculationState&& rhs) noexcept = default;
 
-	// no move assingment operator  // TODO deleted or defaulted?
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	CalculationState& operator = (CalculationState&& rhs) noexcept = default;
 
 	/**
 	 * \brief Swap abstract part of the concrete subclass..
@@ -781,29 +787,9 @@ public:
 	explicit CalculationStateImpl(Algorithm* const algorithm);
 
 	/**
-	 * \copydoc SNPT_sm_copy_ctor
-	 */
-	CalculationStateImpl(const CalculationStateImpl& rhs);
-
-	/**
-	 * \copydoc SNPT_sm_copy_op
-	 */
-	CalculationStateImpl& operator = (const CalculationStateImpl& rhs);
-
-	/**
-	 * \copydoc SNPT_sm_move_ctor
-	 */
-	CalculationStateImpl(CalculationStateImpl&& rhs) noexcept;
-
-	/**
-	 * \copydoc SNPT_sm_move_op
-	 */
-	CalculationStateImpl& operator = (CalculationStateImpl&& rhs) noexcept;
-
-	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~CalculationStateImpl() noexcept final;
+	~CalculationStateImpl() noexcept final = default;
 
 	/**
 	 * \copydoc SNPT_nf_swap

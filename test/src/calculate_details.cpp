@@ -555,7 +555,7 @@ TEST_CASE ( "CalculationStateImpl",
 	{
 		CHECK ( std::is_copy_constructible<CalculationStateImpl>::value );
 
-		CHECK ( not
+		CHECK (
 			std::is_nothrow_copy_constructible<CalculationStateImpl>::value );
 	}
 
@@ -573,8 +573,12 @@ TEST_CASE ( "CalculationStateImpl",
 		auto impl2 { impl1 };
 
 		CHECK ( impl2.algorithm()         == algorithm.get() );
+		CHECK ( impl2.current_offset()    == 1000000 );
 		CHECK ( impl2.samples_processed() == 1000000 );
+		CHECK ( impl2.algo_time_elapsed()   > std::chrono::milliseconds::zero() );
 		CHECK ( impl2.update_time_elapsed() > std::chrono::milliseconds::zero() );
+		// track_samples_processed
+		// tracks_processed
 	}
 
 
@@ -583,8 +587,12 @@ TEST_CASE ( "CalculationStateImpl",
 		auto impl3 { std::move(impl1) };
 
 		CHECK ( impl3.algorithm()         == algorithm.get() );
+		CHECK ( impl3.current_offset()    == 1000000 );
 		CHECK ( impl3.samples_processed() == 1000000 );
+		CHECK ( impl3.algo_time_elapsed()   > std::chrono::milliseconds::zero() );
 		CHECK ( impl3.update_time_elapsed() > std::chrono::milliseconds::zero() );
+		// track_samples_processed
+		// tracks_processed
 	}
 
 

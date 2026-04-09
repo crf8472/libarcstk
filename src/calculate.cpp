@@ -357,45 +357,16 @@ int32_t am2ind(const int32_t amount)
 
 
 CalculationState::CalculationState(Algorithm* const algorithm)
-	: current_offset_      { 0 }
-	, samples_processed_   { 0 }
+	: current_offset_          { 0 }
+	, samples_processed_       { 0 }
 	, track_samples_processed_ { 0 }
-	, tracks_processed_    { 0 }
-	, algo_time_elapsed_   { 0 }
-	, update_time_elapsed_ { 0 }
-	, algorithm_           { algorithm }
+	, tracks_processed_        { 0 }
+	, algo_time_elapsed_       { 0 }
+	, update_time_elapsed_     { 0 }
+	, algorithm_               { algorithm }
 {
 	// empty
 }
-
-
-CalculationState::CalculationState(const CalculationState& rhs)
-	: current_offset_      { rhs.current_offset_      }
-	, samples_processed_   { rhs.samples_processed_   }
-	, track_samples_processed_ { rhs.track_samples_processed_ }
-	, tracks_processed_    { rhs.tracks_processed_    }
-	, algo_time_elapsed_   { rhs.algo_time_elapsed_   }
-	, update_time_elapsed_ { rhs.update_time_elapsed_ }
-	, algorithm_           { rhs.algorithm_           }
-{
-	// empty
-}
-
-
-CalculationState::CalculationState(CalculationState&& rhs) noexcept
-	: current_offset_      { std::move(rhs.current_offset_)    }
-	, samples_processed_   { std::move(rhs.samples_processed_) }
-	, track_samples_processed_ { std::move(rhs.track_samples_processed_) }
-	, tracks_processed_    { std::move(rhs.tracks_processed_)  }
-	, algo_time_elapsed_   { std::move(rhs.algo_time_elapsed_) }
-	, update_time_elapsed_ { std::move(rhs.update_time_elapsed_) }
-	, algorithm_           { std::move(rhs.algorithm_)         }
-{
-	// empty
-}
-
-
-CalculationState::~CalculationState() noexcept = default;
 
 
 void CalculationState::do_advance(const int32_t /* amount */)
@@ -558,23 +529,6 @@ CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
 }
 
 
-CalculationStateImpl::CalculationStateImpl(const CalculationStateImpl& rhs)
-	: CalculationState(rhs)
-{
-	// empty
-}
-
-
-CalculationStateImpl::CalculationStateImpl(CalculationStateImpl&& rhs) noexcept
-	: CalculationState(std::move(rhs))
-{
-	// empty
-}
-
-
-CalculationStateImpl::~CalculationStateImpl() noexcept = default;
-
-
 std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
 {
 	return base_clone();
@@ -593,33 +547,6 @@ std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
 std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
 {
 	return std::make_unique<CalculationStateImpl>(*this);
-}
-
-
-CalculationStateImpl& CalculationStateImpl::operator = (
-		const CalculationStateImpl& rhs)
-{
-	if (&rhs != this)
-	{
-		using std::swap;
-
-		auto tmp { CalculationStateImpl(rhs) }; // TODO pass-by-value for copy?
-		swap(*this, tmp);
-	}
-	return *this;
-}
-
-
-CalculationStateImpl& CalculationStateImpl::operator = (
-		CalculationStateImpl&& rhs) noexcept
-{
-	// TODO This is wrong and not performant
-
-	using std::swap;
-
-	auto tmp { std::move(rhs) };
-	swap(*this, tmp);
-	return *this;
 }
 
 
