@@ -437,9 +437,9 @@ public:
 	 * \copydoc SNPT_nf_inc_amount_rhs
 	 */
 	friend SampleInputIterator operator + (const int32_t amount,
-			SampleInputIterator lhs) noexcept
+			SampleInputIterator rhs) noexcept
 	{
-		return lhs + amount;
+		return rhs + amount;
 	}
 
 	/**
