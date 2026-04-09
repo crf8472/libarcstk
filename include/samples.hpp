@@ -935,7 +935,7 @@ public: /* member functions */
 	 */
 	SampleSequence(const bool left0_right1)
 		: Base    { left0_right1 }
-		, buffer_ { nullptr } // TODO Why nullptr? Couldn't just use {}?
+		, buffer_ { /* default */ }
 	{
 		// empty
 	}
