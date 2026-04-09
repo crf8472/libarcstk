@@ -25,6 +25,47 @@ inline namespace v_1_0_0
 /**
  * \internal
  *
+ * \brief Adds a non-member friend swap() calling a member swap() noexcept.
+ */
+template <typename T>
+struct FriendSwap
+{
+	virtual ~FriendSwap() = default;
+
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
+	friend void swap(const T& lhs, const T& rhs) noexcept
+	{
+		return lhs.swap(rhs);
+	}
+};
+
+
+/**
+ * \internal
+ *
+ * \brief Adds a non-member friend operator==() calling a member equals()
+ * noexcept.
+ */
+template <typename T>
+struct FriendEquals
+{
+	virtual ~FriendEquals() = default;
+
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
+	friend bool operator == (const T& lhs, const T& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+};
+
+
+/**
+ * \internal
+ *
  * \brief Adds inequality to classes defining equality operator==.
  */
 template <typename T>
