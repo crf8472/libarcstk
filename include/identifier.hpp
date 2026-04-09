@@ -107,7 +107,7 @@ std::ostream& operator << (std::ostream& out, const ARId& i);
  * alternative to constructing an empty ARId is to return a reference or pointer
  * to arcstk::EmptyARId.
  */
-class ARId final : public Comparable<ARId>
+class ARId final : Equality<ARId>, Comparable<ARId>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -232,14 +232,6 @@ public:
 	friend void swap(ARId& lhs, ARId& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept
-	{
-		return lhs.equals(rhs);
 	}
 
 	/**

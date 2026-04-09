@@ -145,7 +145,8 @@ class Checksum;
  *
  * A DBARBlockHeader is a POD and holds copies of the values.
  */
-class DBARBlockHeader final : public Comparable<DBARBlockHeader>
+class DBARBlockHeader final : Equality<DBARBlockHeader>,
+							  Comparable<DBARBlockHeader>
 {
 	/**
 	 * \brief Total number of tracks in this block as declared.
@@ -232,15 +233,6 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-    friend bool operator == (const DBARBlockHeader& lhs,
-			const DBARBlockHeader& rhs) noexcept
-	{
-		return lhs.equals(rhs);
-	}
-
-	/**
 	 * \copydoc SNPT_nf_to_string
 	 */
 	friend std::string to_string(const DBARBlockHeader& i)
@@ -259,7 +251,7 @@ public:
  *
  * A DBARTriplet is a POD and holds copies of the values.
  */
-class DBARTriplet final : public Comparable<DBARTriplet>
+class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>
 {
 	/**
 	 * \brief ARCS value.
@@ -335,15 +327,6 @@ public:
 	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-    friend bool operator == (const DBARTriplet& lhs,
-			const DBARTriplet& rhs) noexcept
-	{
-		return lhs.equals(rhs);
 	}
 
 	/**
@@ -631,7 +614,7 @@ class DBARBlock;
 /**
  * \brief Represents the content of dBAR file.
  */
-class DBAR final
+class DBAR final : Equality<DBAR>, Comparable<DBAR>
 {
 public:
 
@@ -732,7 +715,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~DBAR() noexcept;
+	~DBAR() noexcept final;
 
 	/**
 	 * \brief Total number of blocks.
@@ -914,15 +897,11 @@ public:
 	{
 		lhs.swap(rhs);
 	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (DBAR& lhs, DBAR& rhs) noexcept
-	{
-		return lhs.equals(rhs);
-	}
 };
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief A block in a DBAR.
@@ -939,7 +918,7 @@ public:
  * instance. Accessing a DBARBlock whose underlying DBAR instance was destroyed
  * results in undefined behaviour.
  */
-class DBARBlock final
+class DBARBlock final : Equality<DBARBlock>, Comparable<DBARBlock>
 {
 	/**
 	 * \brief Internal pointer to underlying DBAR.
@@ -1134,15 +1113,10 @@ public:
 	{
 		lhs.swap(rhs);
 	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (DBARBlock& lhs, DBARBlock& rhs) noexcept
-	{
-		return lhs.equals(rhs);
-	}
 };
+
+#pragma GCC diagnostic pop
+
 
 /**
  * \brief Returns TRUE iff the DBARBlock passed is valid.

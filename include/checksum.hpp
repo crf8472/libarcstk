@@ -125,7 +125,7 @@ void print(std::ostream& stream, const Checksum& checksum);
  * base '0x', all digits in upper case, and filled with leading zeros up to a
  * width of 8 digits.
  */
-class Checksum final : public Comparable<Checksum>
+class Checksum final : Equality<Checksum>, Comparable<Checksum>
 {
 public:
 
@@ -208,14 +208,6 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
-	{
-		return lhs.equals(rhs);
-	}
-
-	/**
 	 * \copydoc SNPT_nf_stream_in
 	 */
 	friend std::ostream& operator << (std::ostream& out, const Checksum& i)
@@ -253,7 +245,7 @@ std::ostream& operator << (std::ostream& out, const ChecksumSet& i);
  * holds optionally the track length as number of LBA frames for convenience.
  * The length may be zero which counts as "unknown".
  */
-class ChecksumSet final : public Comparable<ChecksumSet>
+class ChecksumSet final : Equality<ChecksumSet>, Comparable<ChecksumSet>
 {
 public:
 
@@ -515,15 +507,6 @@ public:
 	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
-		noexcept
-	{
-		return lhs.equals(rhs);
 	}
 
 	/**

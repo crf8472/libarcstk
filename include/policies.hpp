@@ -14,6 +14,7 @@
 #include <cstddef>          // for size_t, nullptr
 #include <limits>           // for numeric_limits
 #include <memory>           // for addressof
+#include <string>           // for string
 
 namespace arcstk
 {
@@ -28,9 +29,9 @@ inline namespace v_1_0_0
  * \brief Adds a non-member friend swap() calling a member swap() noexcept.
  */
 template <typename T>
-struct FriendSwap
+struct Swap
 {
-	virtual ~FriendSwap() = default;
+	virtual ~Swap() = default;
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -49,9 +50,9 @@ struct FriendSwap
  * noexcept.
  */
 template <typename T>
-struct FriendEquals
+struct Equality
 {
-	virtual ~FriendEquals() = default;
+	virtual ~Equality() = default;
 
 	/**
 	 * \copydoc SNPT_nf_equality
@@ -136,6 +137,26 @@ struct TotallyOrdered : public Comparable<T>
 	friend bool operator <= (const T& lhs, const T& rhs) noexcept
 	{
 		return !(lhs > rhs);
+	}
+};
+
+
+/**
+ * \internal
+ *
+ * \brief Adds a non-member friend to_string() calling a member to_string().
+ */
+template <typename T>
+struct ToString
+{
+	virtual ~ToString() = default;
+
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const T& i)
+	{
+		return i.to_string();
 	}
 };
 

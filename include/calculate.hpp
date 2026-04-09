@@ -584,7 +584,7 @@ bool any(const Context& c) noexcept;
 /**
  * \brief Settings for a Calculation.
  */
-class Settings final : public Comparable<Settings>
+class Settings final : Equality<Settings>, Comparable<Settings>
 {
 	/**
 	 * \brief Internal context.
@@ -642,14 +642,6 @@ public:
 	friend void swap(Settings& lhs, Settings& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const Settings& lhs, const Settings& rhs) noexcept
-	{
-		return lhs.equals(rhs);
 	}
 };
 

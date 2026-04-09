@@ -388,8 +388,8 @@ constexpr auto convert(const int32_t amount) -> int32_t
 	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
 }
 
-class AudioSize; // forward declaration
 
+class AudioSize; // forward declaration
 
 // ensure to put declaration in this namespace
 std::ostream& operator << (std::ostream& out, const AudioSize& i);
@@ -407,7 +407,8 @@ std::ostream& operator << (std::ostream& out, const AudioSize& i);
  * An AudioSize converts to TRUE if it is greater than 0. An AudioSize of 0
  * converts to FALSE.
  */
-class AudioSize final : TotallyOrdered<AudioSize>
+class AudioSize final : Equality<AudioSize>,
+						TotallyOrdered<AudioSize>
 {
 	/**
 	 * \brief Data: Total number of pcm sample bytes in the audio file.
@@ -504,15 +505,6 @@ public:
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const AudioSize& lhs, const AudioSize& rhs)
-		noexcept
-	{
-		return lhs.equals(rhs);
 	}
 
 	/**
@@ -744,7 +736,7 @@ std::ostream& operator << (std::ostream& out, const ToC& i);
 /**
  * \brief Table of contents of a compact disc.
  */
-class ToC final : public Comparable<ToC>
+class ToC final : Equality<ToC>, Comparable<ToC>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -901,14 +893,6 @@ public:
 	friend void swap(ToC& lhs, ToC& rhs) noexcept
 	{
 		lhs.swap(rhs);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept
-	{
-		return lhs.equals(rhs);
 	}
 
 	/**
