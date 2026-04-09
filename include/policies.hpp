@@ -104,8 +104,6 @@ struct TotallyOrdered : public Comparable<T>
  *
  * \brief Store current element together with its current index.
  *
- * Intended to be used with types without operator ->, e.g. primitive types.
- *
  * \tparam V Some value type
  * \tparam I Some index type, std::ptrdiff_t if omitted
  */
@@ -126,7 +124,14 @@ public:
 
 private:
 
+	/**
+	 * \brief Internal index position.
+	 */
 	index_type index_;
+
+	/**
+	 * \brief Internal value on index position.
+	 */
 	value_type element_;
 
 public:
@@ -174,13 +179,11 @@ public:
 		return element_;
 	}
 
-	// operator: conversion to pointer
-	operator const value_type* () const
-	{
-		return std::addressof(this->element_);
-	}
-
-	// operator: conversion to value_type
+	/**
+	 * \brief Explicit conversion to \c value_type.
+	 *
+	 * \return Element value
+	 */
 	explicit operator value_type() const
 	{
 		return this->element();
@@ -188,19 +191,23 @@ public:
 
 	// pointer stuff
 
-	// deref
+	/**
+	 * \copydoc SNPT_mf_deref
+	 */
 	const value_type& operator * () const
 	{
 		return this->element();
 	}
 
-	// pointer
-	// https://stackoverflow.com/a/4923639
-	// https://stackoverflow.com/a/64275124
+	/**
+	 * \copydoc SNPT_mf_arrow
+	 */
 	const value_type* operator -> () const
 	{
-		return this->operator const value_type* ();
+		return std::addressof(this->element_);
 	}
+	// https://stackoverflow.com/a/4923639
+	// https://stackoverflow.com/a/64275124
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

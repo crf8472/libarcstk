@@ -373,9 +373,7 @@ public:
 	~SampleInputIterator() noexcept final = default;
 
 	/**
-	 * \brief Dereferences the iterator to the sample pointed to.
-	 *
-	 * \return A sample_t sample, returned by value
+	 * \copydoc SNPT_mf_deref
 	 */
 	reference operator * () const noexcept // required by LegacyIterator
 	{
@@ -383,9 +381,7 @@ public:
 	}
 
 	/**
-	 * \brief Pointer to the value under the iterator.
-	 *
-	 * \return A sample_t sample, returned by pointer
+	 * \copydoc SNPT_mf_arrow
 	 */
 	pointer operator -> () noexcept
 	{
@@ -393,9 +389,7 @@ public:
 	}
 
 	/**
-	 * \brief Pre-increment iterator.
-	 *
-	 * \return Incremented iterator
+	 * \copydoc SNPT_mf_inc_prefix
 	 */
 	SampleInputIterator& operator ++ () noexcept // required by LegacyIterator
 	{
@@ -404,9 +398,7 @@ public:
 	}
 
 	/**
-	 * \brief Post-increment iterator.
-	 *
-	 * \return Iterator representing the state befor the increment
+	 * \copydoc SNPT_mf_inc_postfix
 	 */
 	SampleInputIterator operator ++ (int) noexcept
 	{
@@ -421,14 +413,19 @@ public:
 	 */
 	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
 	{
-		using std::swap;
+		if (&rhs != this)
+		{
+			using std::swap;
 
-		swap(*this, rhs);
+			swap(*this, rhs);
+		}
 		return *this;
 	}
 	// required by LegacyIterator
 
-
+	/**
+	 * \copydoc SNPT_nf_inc_amount_lhs
+	 */
 	friend SampleInputIterator operator + (SampleInputIterator lhs,
 			const int32_t amount) noexcept
 	{
@@ -436,13 +433,18 @@ public:
 		return lhs;
 	}
 
+	/**
+	 * \copydoc SNPT_nf_inc_amount_rhs
+	 */
 	friend SampleInputIterator operator + (const int32_t amount,
 			SampleInputIterator lhs) noexcept
 	{
 		return lhs + amount;
 	}
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(SampleInputIterator& lhs, SampleInputIterator& rhs)
 		noexcept
 	{
@@ -451,7 +453,9 @@ public:
 		swap(lhs.object_, rhs.object_);
 	} // required by LegacyIterator
 
-
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const SampleInputIterator& lhs,
 			const SampleInputIterator& rhs) noexcept
 	{

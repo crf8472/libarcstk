@@ -228,7 +228,9 @@ public:
 		return this->operator const value_type* ();
 	}
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(Cache& lhs, Cache& rhs) noexcept
 	{
 		using std::swap;
@@ -237,6 +239,9 @@ public:
 		swap(lhs.valid_, rhs.valid_);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const Cache& lhs, const Cache& rhs) noexcept
 	{
 		return lhs.value_ == rhs.value_ && lhs.valid_ == rhs.valid_;
@@ -378,9 +383,7 @@ public:
 	}
 
 	/**
-	 * \brief Dereference operator.
-	 *
-	 * \return The converted PCM 32 bit sample the iterator points to
+	 * \copydoc SNPT_mf_deref
 	 */
 	reference operator * () const
 	{
@@ -389,12 +392,11 @@ public:
 	}
 
 	/**
-	 * \brief Pointer operator.
+	 * \copydoc SNPT_mf_arrow
 	 *
+	 * \details
 	 * The value under the pointer obtained by calling this operator will be
 	 * invalidated by modifying the iterator.
-	 *
-	 * \return Pointer to the converted PCM 32 bit sample the iterator points to
 	 */
 	pointer operator -> () const
 	{
@@ -403,7 +405,7 @@ public:
 	}
 
 	/**
-	 * \brief Prefix increment operator.
+	 * \copydoc SNPT_mf_inc_prefix
 	 */
 	SampleIterator& operator ++ ()
 	{
@@ -413,7 +415,7 @@ public:
 	}
 
 	/**
-	 * \brief Postfix increment operator.
+	 * \copydoc SNPT_mf_inc_postfix
 	 */
 	SampleIterator operator ++ (int)
 	{
@@ -423,7 +425,7 @@ public:
 	}
 
 	/**
-	 * \brief Prefix decrement operator.
+	 * \copydoc SNPT_mf_dec_prefix
 	 */
 	SampleIterator& operator -- ()
 	{
@@ -433,7 +435,7 @@ public:
 	}
 
 	/**
-	 * \brief Postfix decrement operator.
+	 * \copydoc SNPT_mf_dec_postfix
 	 */
 	SampleIterator operator -- (int)
 	{
@@ -443,76 +445,56 @@ public:
 	}
 
 	/**
-	 * \brief Add-assign amount.
+	 * \copydoc SNPT_mf_inc_amount
 	 */
-	SampleIterator& operator += (const difference_type value)
+	SampleIterator& operator += (const difference_type amount)
 	{
-		pos_ += value;
+		pos_ += amount;
 		cache_.invalidate();
 		return *this;
 	}
 
 	/**
-	 * \brief Subtract-assign amount.
+	 * \copydoc SNPT_mf_dec_amount
 	 */
-	SampleIterator& operator -= (const difference_type value)
+	SampleIterator& operator -= (const difference_type amount)
 	{
-		pos_ -= value;
+		pos_ -= amount;
 		cache_.invalidate();
 		return *this;
 	}
 
 	/**
-	 * \brief Add amount.
-	 *
-	 * \param[in] lhs   Iterator to add amount
-	 * \param[in] value Amount to add
-	 *
-	 * \return Result of \c lhs + \c value
+	 * \copydoc SNPT_nf_inc_amount_lhs
 	 */
 	friend SampleIterator operator + (SampleIterator lhs,
-			const difference_type value) noexcept
+			const difference_type amount) noexcept
 	{
-		lhs += value;
+		lhs += amount;
 		return lhs;
 	}
 
 	/**
-	 * \brief Add amount.
-	 *
-	 * \param[in] value Amount to add
-	 * \param[in] rhs   Iterator to add amount
-	 *
-	 * \return Result of \c value + \c rhs
+	 * \copydoc SNPT_nf_inc_amount_rhs
 	 */
-	friend SampleIterator operator + (const difference_type value,
+	friend SampleIterator operator + (const difference_type amount,
 			SampleIterator rhs) noexcept
 	{
-		return rhs + value;
+		return rhs + amount;
 	}
 
 	/**
-	 * \brief Subtract amount.
-	 *
-	 * \param[in] lhs   Iterator to subtract amount from
-	 * \param[in] value Amount to subtract
-	 *
-	 * \return Result of \c lhs - \c value
+	 * \copydoc SNPT_nf_dec_amount
 	 */
 	friend SampleIterator operator - (SampleIterator lhs,
-			const difference_type value) noexcept
+			const difference_type amount) noexcept
 	{
-		lhs -= value;
+		lhs -= amount;
 		return lhs;
 	}
 
 	/**
-	 * \brief Subtract position.
-	 *
-	 * \param[in] lhs Iterator to subtract from
-	 * \param[in] rhs Iterator to be subtracted
-	 *
-	 * \return Arithmetical difference between \c lhs and \c rhs
+	 * \copydoc SNPT_nf_minus
 	 */
 	friend difference_type operator - (const SampleIterator& lhs,
 			const SampleIterator& rhs) noexcept
@@ -520,7 +502,9 @@ public:
 		return lhs.pos_ - rhs.pos_;
 	}
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
 	{
 		using std::swap;
@@ -530,7 +514,9 @@ public:
 		swap(lhs.cache_, rhs.cache_);
 	}
 
-
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const SampleIterator& lhs,
 			const SampleIterator& rhs) noexcept
 	{

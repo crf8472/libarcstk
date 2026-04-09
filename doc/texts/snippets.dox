@@ -195,6 +195,139 @@
  * \return A reverse iterator pointing before the first element.
  */
 
+/**
+ * \class SNPT_mf_arrow
+ *
+ * \brief Pointer to the current value.
+ *
+ * \return Pointer to current value
+ */
+
+/**
+ * \class SNPT_mf_deref
+ *
+ * \brief Dereference to the value pointed to.
+ *
+ * \return Value pointed to
+ */
+
+/**
+ * \class SNPT_mf_dec_amount
+ *
+ * \brief Decrement the instance by an amount.
+ *
+ * \param[in] amount Amount to decrement by
+ *
+ * \return Instance decremented by amount
+ */
+
+/**
+ * \class SNPT_mf_dec_prefix
+ *
+ * \brief Decrements the instance by 1.
+ *
+ * \return Decremented instance
+ */
+
+/**
+ * \class SNPT_mf_dec_postfix
+ *
+ * \brief Decrements the instance by 1 and returns the previous value.
+ *
+ * \return Instance with previous value
+ */
+
+/**
+ * \class SNPT_mf_inc_amount
+ *
+ * \brief Increment the instance by an amount.
+ *
+ * \param[in] amount Amount to increment by
+ *
+ * \return Instance incremented by amount
+ */
+
+/**
+ * \class SNPT_mf_inc_prefix
+ *
+ * \brief Increments the instance by 1.
+ *
+ * \return Incremented instance
+ */
+
+/**
+ * \class SNPT_mf_inc_postfix
+ *
+ * \brief Increments the instance by 1 and returns the previous value.
+ *
+ * \return Instance with previous value
+ */
+
+/* =====  SNPT_nf_*: non-member friend functions and operators  ===== */
+
+/**
+ * \class SNPT_nf_inc_amount_lhs
+ *
+ * \brief Increment the instance by an amount.
+ *
+ * \param[in] lhs    Instance to be incremented
+ * \param[in] amount Amount to increment by
+ *
+ * \return Instance incremented by amount
+ */
+
+/**
+ * \class SNPT_nf_inc_amount_rhs
+ *
+ * \brief Increment the instance by an amount.
+ *
+ * \param[in] amount Amount to increment by
+ * \param[in] rhs    Instance to be incremented
+ *
+ * \return Instance incremented by amount
+ */
+
+/**
+ * \class SNPT_nf_dec_amount
+ *
+ * \brief Decrement the instance by an amount.
+ *
+ * \param[in] lhs    Instance to be decremented
+ * \param[in] amount Amount to decrement by
+ *
+ * \return Instance decremented by amount
+ */
+
+/**
+ * \class SNPT_nf_minus
+ *
+ * \brief Difference of two instances
+ *
+ * \param[in] lhs Left hand side
+ * \param[in] rhs Right hand side
+ *
+ * \return Arithmetical difference of \c lhs and \c rhs
+ */
+
+/**
+ * \class SNPT_nf_swap
+ *
+ * \brief Swap two instances.
+ *
+ * \param[in] lhs Left hand side instance to swap
+ * \param[in] rhs Right hand side instance to swap
+ */
+
+/**
+ * \class SNPT_nf_equality
+ *
+ * \brief Return \c TRUE iff \c lhs is equal to \c rhs otherwise \c FALSE.
+ *
+ * \param[in] lhs Left hand side instance
+ * \param[in] rhs Right hand side instance
+ *
+ * \return \c TRUE iff \c lhs is equal to \c rhs, otherwise \c FALSE
+ */
 
 /* =====  SNPT_tp_*: typedefs  ===== */
 
