@@ -78,7 +78,7 @@ class ToC;
 class ARId; // forward declaration
 
 // ensure to put declaration in this namespace
-std::ostream& operator << (std::ostream& out, const ARId& arid);
+std::ostream& operator << (std::ostream& out, const ARId& i);
 
 /**
  * \brief AccurateRip identifier of a compact disc.
@@ -226,22 +226,33 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(ARId& lhs, ARId& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const ARId& lhs, const ARId& rhs) noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend std::ostream& operator << (std::ostream& out, const ARId& arid);
+	/**
+	 * \copydoc SNPT_nf_stream_in
+	 */
+	friend std::ostream& operator << (std::ostream& out, const ARId& i);
 
-	friend std::string to_string(const ARId& arid)
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const ARId& i)
 	{
-		return arid.to_string();
+		return i.to_string();
 	}
 };
 

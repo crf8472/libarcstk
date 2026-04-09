@@ -681,6 +681,9 @@ public:
 	SourceIterator  operator ++ (int);
 
 
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(SourceIterator& lhs, SourceIterator& rhs) noexcept
 	{
 		using std::swap;
@@ -690,6 +693,9 @@ public:
 		swap(lhs.counter_, rhs.counter_);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const SourceIterator& lhs, const SourceIterator&
 			rhs)
 	{

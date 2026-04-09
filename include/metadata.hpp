@@ -493,31 +493,37 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const AudioSize& lhs, const AudioSize& rhs)
 		noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const AudioSize& i)
 	{
-		return lhs.total_pcm_bytes_ < rhs.total_pcm_bytes_;
+		return i.to_string();
 	}
 
 	/**
-	 * \brief Create a string representation of the AudioSize instance.
-	 *
-	 * \param[in] s The instance to convert to a string
+	 * \copydoc SNPT_nf_less
 	 */
-	friend std::string to_string(const AudioSize& s)
+	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 	{
-		return s.to_string();
+		return lhs.total_pcm_bytes_ < rhs.total_pcm_bytes_;
 	}
 };
 
@@ -723,7 +729,7 @@ std::string to_string(const ToCData& toc_data);
 class ToC; // forward declaration
 
 // ensure to put declaration in this namespace
-std::ostream& operator << (std::ostream& out, const ToC& toc);
+std::ostream& operator << (std::ostream& out, const ToC& i);
 
 /**
  * \brief Table of contents of a compact disc.
@@ -879,22 +885,33 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(ToC& lhs, ToC& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const ToC& lhs, const ToC& rhs) noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend std::ostream& operator << (std::ostream& out, const ToC& toc);
+	/**
+	 * \copydoc SNPT_nf_stream_in
+	 */
+	friend std::ostream& operator << (std::ostream& out, const ToC& i);
 
-	friend std::string to_string(const ToC& toc)
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const ToC& i)
 	{
-		return toc.to_string();
+		return i.to_string();
 	}
 };
 

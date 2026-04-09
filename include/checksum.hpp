@@ -196,26 +196,37 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(Checksum& lhs, Checksum& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const Checksum& lhs, const Checksum& rhs) noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend std::ostream& operator << (std::ostream& out, const Checksum& c)
+	/**
+	 * \copydoc SNPT_nf_stream_in
+	 */
+	friend std::ostream& operator << (std::ostream& out, const Checksum& i)
 	{
-		checksum::print(out, c);
+		checksum::print(out, i);
 		return out;
 	}
 
-	friend std::string to_string(const Checksum& c)
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const Checksum& i)
 	{
-		return c.to_string();
+		return i.to_string();
 	}
 
 private:
@@ -482,12 +493,17 @@ public:
 
 	// TODO to_string()
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(ChecksumSet& lhs, ChecksumSet& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const ChecksumSet& lhs, const ChecksumSet& rhs)
 		noexcept
 	{

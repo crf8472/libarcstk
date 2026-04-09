@@ -341,6 +341,38 @@
  * \return \c TRUE iff \c lhs is equal to \c rhs, otherwise \c FALSE
  */
 
+/**
+ * \class SNPT_nf_to_string
+ *
+ * \brief Create a string representation of this instance.
+ *
+ * \param[in] i Instance to convert to string
+ *
+ * \return String representation of this instance
+ */
+
+/**
+ * \class SNPT_nf_less
+ *
+ * \brief Return \c TRUE iff \c lhs is less than \c rhs otherwise \c FALSE.
+ *
+ * \param[in] lhs Left hand side instance
+ * \param[in] rhs Right hand side instance
+ *
+ * \return \c TRUE iff \c lhs is less than \c rhs, otherwise \c FALSE
+ */
+
+/**
+ * \class SNPT_nf_stream_in
+ *
+ * \brief Output an instance to an output stream.
+ *
+ * \param[in] out Stream to output instance to
+ * \param[in] i   Instance to be output to stream
+ *
+ * \return Reference to stream
+ */
+
 /* =====  SNPT_tp_*: typedefs  ===== */
 
 /**

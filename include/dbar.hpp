@@ -223,21 +223,29 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
     friend bool operator == (const DBARBlockHeader& lhs,
 			const DBARBlockHeader& rhs) noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend std::string to_string(const DBARBlockHeader& h)
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const DBARBlockHeader& i)
 	{
-		return h.to_string();
+		return i.to_string();
 	}
 };
 
@@ -321,21 +329,29 @@ public:
 	 */
 	std::string to_string() const;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
     friend bool operator == (const DBARTriplet& lhs,
 			const DBARTriplet& rhs) noexcept
 	{
 		return lhs.equals(rhs);
 	}
 
-	friend std::string to_string(const DBARTriplet& t)
+	/**
+	 * \copydoc SNPT_nf_to_string
+	 */
+	friend std::string to_string(const DBARTriplet& i)
 	{
-		return t.to_string();
+		return i.to_string();
 	}
 };
 
@@ -891,12 +907,17 @@ public:
 	 */
 	bool equals(const DBAR& rhs) const noexcept;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(DBAR& lhs, DBAR& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (DBAR& lhs, DBAR& rhs) noexcept
 	{
 		return lhs.equals(rhs);
@@ -1106,12 +1127,17 @@ public:
 	 */
 	bool equals(const DBARBlock& rhs) const noexcept;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(DBARBlock& lhs, DBARBlock& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (DBARBlock& lhs, DBARBlock& rhs) noexcept
 	{
 		return lhs.equals(rhs);

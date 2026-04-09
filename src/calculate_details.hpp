@@ -805,7 +805,9 @@ public:
 	 */
 	~CalculationStateImpl() noexcept final;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(CalculationStateImpl& lhs, CalculationStateImpl& rhs)
 		noexcept
 	{

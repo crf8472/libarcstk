@@ -624,6 +624,9 @@ public:
 	// TODO equals()
 	// TODO to_string()
 
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(Settings& lhs, Settings& rhs) noexcept
 	{
 		using std::swap;
@@ -631,6 +634,9 @@ public:
 		swap(lhs.context_, rhs.context_);
 	}
 
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
 	friend bool operator == (const Settings& lhs, const Settings& rhs) noexcept
 	{
 		return lhs.context_ == rhs.context_;
@@ -999,7 +1005,9 @@ public:
 	 */
 	void swap(Calculation& rhs) noexcept;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(Calculation& lhs, Calculation& rhs) noexcept
 	{
 		lhs.swap(rhs);
