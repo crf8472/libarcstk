@@ -125,7 +125,8 @@ void print(std::ostream& stream, const Checksum& checksum);
  * base '0x', all digits in upper case, and filled with leading zeros up to a
  * width of 8 digits.
  */
-class Checksum final : Equality<Checksum>, Comparable<Checksum>, Swap<Checksum>
+class Checksum final : Equality<Checksum>, Comparable<Checksum>, Swap<Checksum>,
+						ToString<Checksum>
 {
 public:
 
@@ -208,14 +209,6 @@ public:
 		return out;
 	}
 
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const Checksum& i)
-	{
-		return i.to_string();
-	}
-
 private:
 
 	/**
@@ -238,7 +231,7 @@ std::ostream& operator << (std::ostream& out, const ChecksumSet& i);
  * The length may be zero which counts as "unknown".
  */
 class ChecksumSet final : Equality<ChecksumSet>, Comparable<ChecksumSet>,
-						  Swap<ChecksumSet>
+						  Swap<ChecksumSet>, ToString<ChecksumSet>
 {
 public:
 
@@ -493,14 +486,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const ChecksumSet& i)
-	{
-		return i.to_string();
-	}
 };
 
 /**

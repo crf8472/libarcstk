@@ -147,7 +147,8 @@ class Checksum;
  */
 class DBARBlockHeader final : Equality<DBARBlockHeader>,
 							  Comparable<DBARBlockHeader>,
-							  Swap<DBARBlockHeader>
+							  Swap<DBARBlockHeader>,
+							  ToString<DBARBlockHeader>
 {
 	/**
 	 * \brief Total number of tracks in this block as declared.
@@ -224,14 +225,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const DBARBlockHeader& i)
-	{
-		return i.to_string();
-	}
 };
 
 
@@ -245,7 +238,7 @@ public:
  * A DBARTriplet is a POD and holds copies of the values.
  */
 class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>,
-						  Swap<DBARTriplet>
+						  Swap<DBARTriplet>, ToString<DBARTriplet>
 {
 	/**
 	 * \brief ARCS value.
@@ -314,14 +307,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const DBARTriplet& i)
-	{
-		return i.to_string();
-	}
 };
 
 

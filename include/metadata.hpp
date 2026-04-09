@@ -407,9 +407,8 @@ std::ostream& operator << (std::ostream& out, const AudioSize& i);
  * An AudioSize converts to TRUE if it is greater than 0. An AudioSize of 0
  * converts to FALSE.
  */
-class AudioSize final : Equality<AudioSize>,
-						TotallyOrdered<AudioSize>,
-						Swap<AudioSize>
+class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
+						Swap<AudioSize>, ToString<AudioSize>
 {
 	/**
 	 * \brief Data: Total number of pcm sample bytes in the audio file.
@@ -504,14 +503,6 @@ public:
 	 * \copydoc SNPT_nf_stream_in
 	 */
 	friend std::ostream& operator << (std::ostream& out, const AudioSize& i);
-
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const AudioSize& i)
-	{
-		return i.to_string();
-	}
 
 	/**
 	 * \copydoc SNPT_nf_less
@@ -729,7 +720,7 @@ std::ostream& operator << (std::ostream& out, const ToC& i);
 /**
  * \brief Table of contents of a compact disc.
  */
-class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>
+class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>, ToString<ToC>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -884,14 +875,6 @@ public:
 	 * \copydoc SNPT_nf_stream_in
 	 */
 	friend std::ostream& operator << (std::ostream& out, const ToC& i);
-
-	/**
-	 * \copydoc SNPT_nf_to_string
-	 */
-	friend std::string to_string(const ToC& i)
-	{
-		return i.to_string();
-	}
 };
 
 /**
