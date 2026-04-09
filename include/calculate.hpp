@@ -39,7 +39,7 @@ inline namespace v_1_0_0
 class AudioSize;
 class ToC;
 
-// duplicate of metadata.hpp, documented there
+// redefined as in metadata.hpp, documented there
 using ToCData = std::vector<AudioSize>;
 
 
@@ -111,7 +111,7 @@ using ToCData = std::vector<AudioSize>;
  *
  * Bitwise operators are guaranteed to work as on unsigned types.
  */
-using sample_t = uint32_t;
+using sample_t = uint32_t; // also defined in samples.hpp
 
 
 namespace details

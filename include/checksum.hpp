@@ -501,7 +501,7 @@ public:
  * Each ChecksumSet represents a track. The order of the ChecksumSets follows
  * the order of tracks on the original compact disc.
  */
-using Checksums = std::vector<ChecksumSet>;
+using Checksums = std::vector<ChecksumSet>; // also defined in verify.hpp
 
 /**
  * \brief Global instance of an empty ChecksumSet.

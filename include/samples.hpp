@@ -37,7 +37,7 @@ inline namespace v_1_0_0
  * @{
  */
 
-// duplicate of calculate.hpp, documented there
+// redefined as in calculate.hpp, documented there
 using sample_t = uint32_t;
 
 /**

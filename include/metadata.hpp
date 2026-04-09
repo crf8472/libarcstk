@@ -591,7 +591,7 @@ inline std::vector<int32_t> convert(const std::vector<AudioSize>& values)
  * Leadout is on index 0, followed by the sequence of offsets. Offset indices
  * therefore correspond to track numbers, i.e. index 7 is offset of track 7.
  */
-using ToCData = std::vector<AudioSize>;
+using ToCData = std::vector<AudioSize>; // also defined in calculate.hpp
 
 
 /**

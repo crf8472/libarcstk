@@ -32,13 +32,14 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
-
+// avoid includes
 class ARId;
 class Checksum;
 class ChecksumSet;
 class DBAR;
 
-using Checksums = std::vector<ChecksumSet>; // duplicate from calculate.hpp
+// redefined as in checksum.hpp, documented there
+using Checksums = std::vector<ChecksumSet>;
 
 /**
  * \defgroup verify AccurateRip Checksum Verification
