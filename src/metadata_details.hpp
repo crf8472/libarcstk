@@ -14,7 +14,7 @@
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"
+#include "metadata.hpp"   // for MetadataRequirement
 #endif
 
 #include <cstdint>        // for int32_t
@@ -30,8 +30,6 @@ namespace details
 {
 
 /**
- * \internal
- *
  * \brief Convert \c value to the corrsponding number of bytes.
  *
  * \param[in] value Value to convert
@@ -42,8 +40,6 @@ namespace details
 int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 
 /**
- * \internal
- *
  * \brief Worker: implement leadout checks performed on every validation.
  *
  * Implements the common part of checking with or without completeness.
@@ -55,8 +51,6 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 void validate_leadout_impl(const int32_t leadout);
 
 /**
- * \internal
- *
  * \brief Worker: implement checks for offsets and filenames.
  *
  * \param[in] toc_data  ToC data to validate
@@ -68,12 +62,21 @@ void validate_filenames_impl(const ToCData& toc_data,
 		const std::vector<std::string>& filenames);
 
 /**
- * \brief Worker: Print an AudioSize.
+ * \brief Worker: Print ToCData to output stream.
+ *
+ * \param[in] out Stream to print to
+ * \param[in] d   ToCData to print
+ */
+void print(std::ostream& out, const ToCData& d);
+
+/**
+ * \brief Worker: Print an AudioSize to output stream.
  *
  * \param[in] out Stream to print to
  * \param[in] s   AudioSize to print
  */
 void print(std::ostream& out, const AudioSize& s);
+
 
 /**
  * \internal
@@ -196,6 +199,27 @@ void on_invalid_tocdata(const std::string& msg);
  * \param[in] msg Message
  */
 void on_nonstandard_tocdata(const std::string& msg);
+
+/**
+ * \brief Obtain the name of a MetadataRequirement.
+ *
+ * \param[in] r Requirement to get name of
+ *
+ * \return Name of type \c r
+ */
+std::string name(const MetadataRequirement r);
+
+/**
+ * \brief Default error message.
+ *
+ * \param[in] r Requirement violated
+ * \param[in] v Value that violated the requirement
+ * \param[in] i Index position that violated the requirement
+ *
+ * \return Default error message
+ */
+std::string default_error_message(const MetadataRequirement r,
+		const AudioSize& v, const ToCData::size_type i);
 
 } // namespace validate
 } // namespace details

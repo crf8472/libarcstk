@@ -14,6 +14,7 @@
 #endif
 
 #include <algorithm>     // for for_each, transform
+#include <array>         // for array
 #include <iterator>      // for begin, cbegin, cend, end
 #include <sstream>       // for ostringstream
 #include <stdexcept>     // for invalid_argument
@@ -76,6 +77,42 @@ void validate_filenames_impl(const ToCData& toc_data,
 			<< ")";
 		validate::on_invalid_tocdata(ss.str());
 	}
+}
+
+
+void print(std::ostream& out, const ToCData& toc_data)
+{
+	using std::cbegin;
+	using std::cend;
+
+	const auto sz = toc_data.size();
+
+	if (sz < 2)
+	{
+		return;
+	}
+
+	// offsets
+
+	if (sz == 2)
+	{
+		out << toc_data.back().frames();
+	} else
+	{
+		const auto last_track = cend(toc_data) - 1;
+
+		std::for_each(cbegin(toc_data) + 1, last_track,
+			[&out](const ToCData::value_type& offset)
+			{
+				out << offset.frames() << ',';
+			});
+
+		out << last_track->frames();
+	}
+
+	// leadout
+
+	out << ' ' << '(' << toc_data.front().frames() << ')';
 }
 
 
@@ -252,6 +289,42 @@ void on_invalid_tocdata(const std::string& msg)
 void on_nonstandard_tocdata(const std::string& /*msg*/)
 {
 	// do nothing
+}
+
+std::string name(const MetadataRequirement r)
+{
+	static const std::array<std::string, 11> names =
+	{
+		"LEGAL_TOTAL_TRACKS",
+		"TRACK_OFFSETS_HAVE_LEGAL_VALUES",
+		"TRACK_OFFSETS_HAVE_MIN_DIST",
+		"TRACK_OFFSETS_GIVE_MIN_LENGTH",
+		"LEADOUT_IS_PRESENT",
+		"LEADOUT_HAS_LEGAL_VALUE",
+		"LEADOUT_HAS_OFFSET_MIN_DIST",
+		"LEADOUT_GIVES_MIN_LENGTH",
+		"TRACK_LENGTHS_HAVE_MIN_SIZE",
+		"LAST_TRACK_HAS_MIN_SIZE",
+		"FILENAMES_MATCH_TOTAL_TRACKS"
+	};
+
+	using index_type = typename std::underlying_type<MetadataRequirement>::type;
+
+	return names.at(static_cast<index_type>(r));
+}
+
+std::string default_error_message(const MetadataRequirement r,
+		const AudioSize& v, const ToCData::size_type i)
+{
+	auto ss = std::ostringstream {};
+	ss << "Requirement "
+		<< name(r)
+		<< " was violated by value "
+		<< v.frames()
+		<< " on index "
+		<< i;
+
+	return ss.str();
 }
 
 } // namespace validate
@@ -497,46 +570,10 @@ void validate_without_completeness(const ToCData& toc_data)
 }
 
 
-void print(std::ostream& out, const ToCData& toc_data)
-{
-	using std::cbegin;
-	using std::cend;
-
-	const auto sz = toc_data.size();
-
-	if (sz < 2)
-	{
-		return;
-	}
-
-	// offsets
-
-	if (sz == 2)
-	{
-		out << toc_data.back().frames();
-	} else
-	{
-		const auto last_track = cend(toc_data) - 1;
-
-		std::for_each(cbegin(toc_data) + 1, last_track,
-			[&out](const ToCData::value_type& offset)
-			{
-				out << offset.frames() << ',';
-			});
-
-		out << last_track->frames();
-	}
-
-	// leadout
-
-	out << ' ' << '(' << toc_data.front().frames() << ')';
-}
-
-
 std::string to_string(const ToCData& toc_data)
 {
 	auto stream = std::ostringstream {};
-	print(stream, toc_data);
+	details::print(stream, toc_data);
 	return stream.str();
 }
 
@@ -630,7 +667,7 @@ bool ToC::Impl::complete() const noexcept
 
 void ToC::Impl::print(std::ostream& out)
 {
-	toc::print(out, toc_);
+	details::print(out, toc_);
 }
 
 

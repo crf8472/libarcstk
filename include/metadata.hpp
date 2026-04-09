@@ -17,7 +17,7 @@
 #endif
 
 #include <algorithm>      // for transform
-#include <cstdint>        // for uint32_t, int32_t
+#include <cstdint>        // for uint16_t, int32_t
 #include <memory>         // for unique_ptr
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
@@ -698,8 +698,6 @@ void validate_with_completeness(const ToCData& toc_data);
  */
 void validate_without_completeness(const ToCData& toc_data);
 
-void print(std::ostream& out, const ToCData& toc_data);
-
 /**
  * \brief Create a string representation of this instance.
  *
@@ -978,6 +976,24 @@ ToC validated_toc(const std::vector<int32_t>& offsets,
 ToC validated_toc(const std::vector<int32_t>& offsets);
 
 /**
+ * \brief Requirements for metadata validity.
+ */
+enum class MetadataRequirement : uint16_t
+{
+	LEGAL_TOTAL_TRACKS,
+	TRACK_OFFSETS_HAVE_LEGAL_VALUES,
+	TRACK_OFFSETS_HAVE_MIN_DIST,
+	TRACK_OFFSETS_GIVE_MIN_LENGTH,
+	LEADOUT_IS_PRESENT,
+	LEADOUT_HAS_LEGAL_VALUE,
+	LEADOUT_HAS_OFFSET_MIN_DIST,
+	LEADOUT_GIVES_MIN_LENGTH,
+	TRACK_LENGTHS_HAVE_MIN_SIZE,
+	LAST_TRACK_HAS_MIN_SIZE,
+	FILENAMES_MATCH_TOTAL_TRACKS
+};
+
+/**
  * \brief Reports invalid metadata for constructing a ToC.
  */
 class InvalidMetadataException final : public std::runtime_error
@@ -986,21 +1002,6 @@ class InvalidMetadataException final : public std::runtime_error
 	// TODO actual value that caused the ex
 	// TODO validation id that failed
 
-	// TODO enum for validations
-	// e.g.
-	// LEGAL_TOTAL_TRACKS
-	// TRACK_OFFSETS_HAVE_LEGAL_VALUES
-	// TRACK_OFFSETS_HAVE_MIN_DIST
-	// TRACK_OFFSETS_GIVE_MIN_LENGTH
-	// LEADOUT_IS_PRESENT
-	// LEADOUT_HAS_LEGAL_VALUE
-	// LEADOUT_HAS_OFFSET_MIN_DIST
-	// LEADOUT_GIVES_MIN_LENGTH
-	// TRACK_LENGTHS_HAVE_MIN_SIZE
-	// LAST_TRACK_HAS_MIN_SIZE
-	// FILENAMES_MATCH_TOTAL_TRACKS
-	//
-	// "Requirement TYPE was violated by value VAL on index IND"
 public:
 
 	/**

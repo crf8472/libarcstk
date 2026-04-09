@@ -125,8 +125,9 @@ static const std::array<std::string, 2> names {
 
 std::string type_name(const type t)
 {
-	return details::names.at(std::log2(
-		static_cast<typename std::underlying_type<checksum::type>::type>(t)));
+	using index_type = typename std::underlying_type<checksum::type>::type;
+
+	return details::names.at(std::log2(static_cast<index_type>(t)));
 }
 
 
