@@ -237,8 +237,6 @@ namespace conv
 {
 
 /**
- * \internal
- *
  * \brief Return the numeric value of a enum class value.
  *
  * \param[in] value Value to convert
@@ -270,8 +268,6 @@ constexpr auto as_integral_value(const E& value)
 // - determine whether at least one of the two UNITS is FRAMES
 
 /**
- * \internal
- *
  * \brief Determine total number of units per frame.
  *
  * \tparam E
@@ -285,8 +281,6 @@ constexpr auto per_frame(const E& value)
 
 
 /**
- * \internal
- *
  * \brief Implement factor selection for conversion.
  *
  * \tparam F The UNIT to convert from
@@ -324,8 +318,6 @@ struct factor_impl<F, T, false>
 
 
 /**
- * \internal
- *
  * \brief Determine factor to multiply or divide by when converting F to T.
  *
  * \tparam F The UNIT to convert from
@@ -341,8 +333,6 @@ constexpr auto factor() -> int
 
 
 /**
- * \internal
- *
  * \brief Determine whether to multiply or divide when converting.
  *
  * \tparam B Iff TRUE perform multiplication, otherwise perform division

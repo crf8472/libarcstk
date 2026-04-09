@@ -246,25 +246,21 @@ public:
 private:
 
 	/**
-	 * \internal
 	 * \brief Track length as number of LBA frames.
 	 */
 	int32_t length_;
 
 	/**
-	 * \internal
 	 * \brief Key type of the internal type map.
 	 */
 	using key_type = checksum::type;
 
 	/**
-	 * \internal
 	 * \brief Type of the internal storage of the ChecksumSet.
 	 */
 	using storage_type = std::unordered_map<key_type, value_type>;
 
 	/**
-	 * \internal
 	 * \brief Internal storage of the ChecksumSet.
 	 */
 	storage_type set_;

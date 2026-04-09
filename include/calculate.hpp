@@ -113,9 +113,11 @@ using ToCData = std::vector<AudioSize>;
  */
 using sample_t = uint32_t;
 
+
+namespace details
+{
+
 /**
- * \internal
- *
  * \brief Get value_type of Iterator.
  *
  * \tparam Iterator Iterator type to test
@@ -128,8 +130,6 @@ using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
 // in this context at the first place.
 
 /**
- * \internal
- *
  * \brief Check a given Iterator whether it iterates over type T.
  *
  * \tparam Iterator Iterator type to test
@@ -139,7 +139,6 @@ template<typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 /**
- * \internal
  * \brief Defined iff \c Iterator is an iterator over \c sample_t.
  *
  * \tparam Iterator Iterator type to test
@@ -147,6 +146,9 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 template<typename Iterator>
 using IsSampleIterator =
 	std::enable_if_t<is_iterator_over<Iterator, sample_t>::value>;
+
+} // namespace details
+
 
 /**
  * \internal
@@ -217,8 +219,6 @@ public:
 private:
 
 	/**
-	 * \internal
-	 *
 	 * \brief Internal interface to the type-erased object.
 	 */
 	struct Concept
@@ -273,8 +273,6 @@ private:
 	};
 
 	/**
-	 * \internal
-	 *
 	 * \brief Internal object representation
 	 *
 	 * \tparam Iterator The iterator type to wrap
@@ -343,7 +341,7 @@ public:
 	 *
 	 * \param[in] i Instance of an iterator over \c sample_t
 	 */
-	template <class Iterator, typename = IsSampleIterator<Iterator> >
+	template <class Iterator, typename = details::IsSampleIterator<Iterator> >
 	SampleInputIterator(const Iterator& i)
 		: object_ { std::make_unique<Model<Iterator>>(i) }
 	{

@@ -51,61 +51,75 @@ inline namespace v_1_0_0
  */
 namespace accuraterip
 {
+
+/**
+ * \internal
+ *
+ * \brief Implementation details of namespace accuraterip.
+ */
 namespace details
 {
 
 // Checksum calculation
 
 /**
- * \internal
- *
  * \brief Number of samples to skip at back and front.
  */
 struct NUM_SKIP_SAMPLES final
 {
+	/**
+	 * \brief Number of samples to be skipped before end of the last track.
+	 *
+	 * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
+	 * = 2940 samples. We derive the number of samples to be skipped at the
+	 * start of the first track by just subtracting 1 from this constant.
+	 */
+	constexpr static int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
-/**
- * \internal
- *
- * \brief Number of samples to be skipped before the end of the last track.
- *
- * There are 5 frames to be skipped, i.e. 5 frames * 588 samples/frame
- * = 2940 samples. We derive the number of samples to be skipped at the
- * start of the first track by just subtracting 1 from this constant.
- */
-constexpr static int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
-
-/**
- * \internal
- *
- * \brief Number of samples to be skipped after the start of the first track.
- *
- * There are 5 frames - 1 sample to be skipped, i.e.
- * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
- */
-constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
-
+	/**
+	 * \brief Number of samples to be skipped after start of the first track.
+	 *
+	 * There are 5 frames - 1 sample to be skipped, i.e.
+	 * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
+	 */
+	constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
 
 /**
  * \brief Helper for masking the lower 32 bits of a sample.
  */
-static constexpr uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
+constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 
 
 /**
- * \internal
- *
  * \brief Values of a calculation state.
  */
 struct Subtotals
 {
-	uint_fast64_t multiplier  = 1;  // multiplier
-	uint_fast64_t update      = 0;  // update factor
-	uint_fast32_t subtotal_v1 = 0;  // subtotal for ARCSv1
-	uint_fast32_t subtotal_v2 = 0;  // subtotal for ARCSv2
+	/**
+	 * \brief Current multiplier.
+	 */
+	uint_fast64_t multiplier  = 1;
 
+	/**
+	 * \brief Current update factor.
+	 */
+	uint_fast64_t update      = 0;
+
+	/**
+	 * \brief Current subtotal for ARCSv1.
+	 */
+	uint_fast32_t subtotal_v1 = 0;
+
+	/**
+	 * \brief Current subtotal for ARCSv2.
+	 */
+	uint_fast32_t subtotal_v2 = 0;
+
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(Subtotals& lhs, Subtotals& rhs) noexcept
 	{
 		using std::swap;
@@ -119,8 +133,6 @@ struct Subtotals
 
 
 /**
- * \internal
- *
  * \brief Functor for performing the actual update.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
@@ -205,8 +217,6 @@ struct Update<checksum::type::ARCS1,checksum::type::ARCS2>
 
 
 /**
- * \internal
- *
  * \brief Set of specified checksum types.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
@@ -217,8 +227,6 @@ std::unordered_set<checksum::type> types_set()
 
 
 /**
- * \internal
- *
  * \brief Interface and base class for updatable subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
@@ -304,7 +312,9 @@ public:
 	 */
 	void swap(AccurateRipCS& rhs) noexcept;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
 	{
 		lhs.swap(rhs);
@@ -313,8 +323,6 @@ public:
 
 
 /**
- * \internal
- *
  * \brief AccurateRip algorithm variants.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
@@ -359,7 +367,9 @@ public:
 	 */
 	void swap(ARCSAlgorithm& rhs) noexcept;
 
-
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
 	friend void swap(ARCSAlgorithm& lhs, ARCSAlgorithm& rhs) noexcept
 	{
 		lhs.swap(rhs);
@@ -368,9 +378,6 @@ public:
 
 } // namespace details
 
-// The following using declaratives are intended for testing.
-// For regular use, include header algorithms.hpp.
-
 /**
  * \internal
  *
@@ -378,6 +385,9 @@ public:
  */
 namespace algorithm
 {
+
+// The following using declaratives are intended for testing.
+// For regular use, include header algorithms.hpp.
 
 /**
  * \brief AccurateRip checksum algorithm version 1.
@@ -399,6 +409,8 @@ using Versions1and2 =
 
 
 /**
+ * \internal
+ *
  * \brief AccurateRip Id, URL, and filename calculation.
  */
 namespace id

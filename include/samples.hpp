@@ -110,12 +110,11 @@ class SampleSequence
 	// empty
 };
 
+
 namespace details
 {
 
 /**
- * \internal
- *
  * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
  */
 template <typename T>
@@ -127,8 +126,6 @@ using IsSampleType = std::enable_if_t<
 
 
 /**
- * \internal
- *
  * \brief Common code base for SampleSequence specializations.
  *
  * This class is not intended for polymorphic use.
@@ -580,12 +577,11 @@ private:
 	details::Cache<value_type> cache_;
 };
 
+
 namespace details
 {
 
 /**
- * \internal
- *
  * \brief Abstract base class for SampleSequences.
  *
  * \details
