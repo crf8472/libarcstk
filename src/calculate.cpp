@@ -473,20 +473,28 @@ std::chrono::duration<float> CalculationState::algo_time_elapsed() const
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
+	using fsec = std::chrono::duration<float>;
 	const auto amount { std::distance(start, stop) };
 
 	const auto start_time { std::chrono::steady_clock::now() };
 
-	do_update(start, stop); // TODO try and update counter in catch
+	try
+	{
+		do_update(start, stop);
+	} catch (...)
+	{
+		const auto stop_time { std::chrono::steady_clock::now() };
+
+		const fsec dur { stop_time - start_time };
+		algo_time_elapsed_ += dur;
+
+		throw;
+	}
 
 	const auto stop_time { std::chrono::steady_clock::now() };
 
-	// scope: update algorithm time
-	{
-		using fsec = std::chrono::duration<float>;
-		const fsec dur { stop_time - start_time };
-		algo_time_elapsed_ += dur;
-	}
+	const fsec dur { stop_time - start_time };
+	algo_time_elapsed_ += dur;
 
 	samples_processed_.increment(amount);
 	track_samples_processed_.increment(amount);
