@@ -449,6 +449,11 @@ public:
 private:
 
 	/**
+	 * \brief Container object to iterate over.
+	 */
+	const T* container_;
+
+	/**
 	 * \brief Current index position of the container.
 	 *
 	 * This index is the position to iterate over.
@@ -460,11 +465,6 @@ private:
 	 */
 	Increment<size_type, R> increment_;
 
-	/**
-	 * \brief Container object to iterate over.
-	 */
-	const T* container_;
-
 public:
 
 	/**
@@ -474,79 +474,127 @@ public:
 	 * \param[in] idx       Container index position to iterate over
 	 */
 	DBARForwardIterator(const T& container, const size_type idx)
-		: idx_       { idx }
+		: container_ { &container }
+		, idx_       { idx }
 		, increment_ { /* default */ }
-		, container_ { &container }
 	{
 		// empty
 	}
 
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
 	DBARForwardIterator(const DBARForwardIterator& rhs)
-		: idx_       { rhs.idx_ }
+		: container_ { rhs.container_ }
+		, idx_       { rhs.idx_ }
 		, increment_ { rhs.increment_ }
-		, container_ { rhs.container_ }
 	{
 		// empty
 	}
 
-	DBARForwardIterator& operator=(const DBARForwardIterator& rhs)
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	DBARForwardIterator& operator = (const DBARForwardIterator& rhs)
 	{
 		if (&rhs != this)
 		{
+			container_ = rhs.container_;
 			idx_       = rhs.idx_;
 			increment_ = rhs.increment_;
-			container_ = rhs.container_;
 		}
 		return *this;
 	}
 
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
 	DBARForwardIterator(DBARForwardIterator&& rhs) noexcept
-		: idx_       { std::move(rhs.idx_) }
+		: container_ { std::move(rhs.container_) }
+		, idx_       { std::move(rhs.idx_)       }
 		, increment_ { std::move(rhs.increment_) }
-		, container_ { std::move(rhs.container_) }
 	{
 		// empty
 	}
 
-	DBARForwardIterator& operator=(DBARForwardIterator&& rhs) noexcept
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	DBARForwardIterator& operator = (DBARForwardIterator&& rhs) noexcept
 	{
+		container_ = std::move(rhs.container_);
 		idx_       = std::move(rhs.idx_);
 		increment_ = std::move(rhs.increment_);
-		container_ = std::move(rhs.container_);
 
 		return *this;
 	}
 
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
 	~DBARForwardIterator() noexcept final = default;
 
-	reference operator*() const
-	{
-		return get_element(*this->container_, this->idx_);
-	}
-
-    pointer operator->() const
-	{
-		return pointer { idx_, get_element(*this->container_, this->idx_) };
-	}
-
-    DBARForwardIterator& operator++()
-	{
-		this->increment_(idx_);
-		return *this;
-	}
-
-    DBARForwardIterator operator++ (int)
-	{
-		DBARForwardIterator prev_val { *this };
-		this->operator++();
-		return prev_val;
-	}
-
+	/**
+	 * \brief Current index position.
+	 *
+	 * \return The current index position the iterator points to
+	 */
 	size_type index() const
 	{
 		return idx_;
 	}
 
+	/**
+	 * \copydoc SNPT_mf_deref
+	 */
+	reference operator * () const
+	{
+		return get_element(*this->container_, this->idx_);
+	}
+
+	/**
+	 * \copydoc SNPT_mf_arrow
+	 */
+    pointer operator -> () const
+	{
+		return pointer { idx_, get_element(*this->container_, this->idx_) };
+	}
+
+	/**
+	 * \copydoc SNPT_mf_inc_prefix
+	 */
+    DBARForwardIterator& operator ++ ()
+	{
+		this->increment_(idx_);
+		return *this;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_inc_postfix
+	 */
+    DBARForwardIterator operator ++ (int)
+	{
+		auto prev_val = DBARForwardIterator { *this };
+		this->operator++();
+		return prev_val;
+	}
+
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
+	friend void swap(DBARForwardIterator& lhs, DBARForwardIterator& rhs)
+		noexcept
+	{
+		using std::swap;
+
+		swap(lhs.container_, rhs.container_);
+		swap(lhs.index_,     rhs.index_);
+		// increment_ is not swapped
+	} // required by LegacyIterator
+
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
     friend bool operator == (const DBARForwardIterator& lhs,
 			const DBARForwardIterator& rhs)
 	{
