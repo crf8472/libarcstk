@@ -610,17 +610,17 @@ public:
 	/**
 	 * \copydoc SNPT_tp_value
 	 */
-	using value_type = sample_type;
+	using value_type     = sample_type;
 
 	/**
 	 * \copydoc SNPT_tp_size
 	 */
-	using size_type = std::size_t;
+	using size_type      = std::size_t;
 
 	/**
 	 * \brief Unspecified forward iterator type.
 	 */
-	using iterator = SampleIterator<T, is_planar, false>;
+	using iterator       = SampleIterator<T, is_planar, false>;
 
 	/**
 	 * \brief Unspecified constant forward iterator type.
@@ -632,7 +632,7 @@ public:
 	 */
 	iterator begin()
 	{
-		return iterator(*this->sequence(), 0);
+		return iterator { *this->sequence(), 0 };
 	}
 
 	/**
@@ -640,8 +640,9 @@ public:
 	 */
 	iterator end()
 	{
-		return iterator(*this->sequence(),
-			static_cast<typename iterator::difference_type>(this->size()));
+		using dif_t = typename iterator::difference_type;
+
+		return iterator { *this->sequence(), static_cast<dif_t>(this->size()) };
 	}
 
 	/**
@@ -649,7 +650,7 @@ public:
 	 */
 	const_iterator cbegin() const
 	{
-		return const_iterator(*this->sequence(), 0);
+		return const_iterator { *this->sequence(), 0 };
 	}
 
 	/**
@@ -657,8 +658,10 @@ public:
 	 */
 	const_iterator cend() const
 	{
-		return const_iterator(*this->sequence(), static_cast<
-				typename const_iterator::difference_type>(this->size()));
+		using diff_t = typename const_iterator::difference_type;
+
+		return const_iterator {
+			*this->sequence(), static_cast<diff_t>(this->size()) };
 	}
 
 	/**
