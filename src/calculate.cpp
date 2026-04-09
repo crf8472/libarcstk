@@ -778,6 +778,28 @@ Context Settings::context() const
 }
 
 
+void Settings::swap(Settings& rhs) noexcept
+{
+	using std::swap;
+
+	swap(this->context_, rhs.context_);
+}
+
+
+bool Settings::equals(const Settings& rhs) const noexcept
+{
+	return this->context_ == rhs.context_;
+}
+
+
+std::string Settings::to_string() const
+{
+	using std::to_string;
+
+	return "Context: " + to_string(this->context_);
+}
+
+
 // Algorithm
 
 

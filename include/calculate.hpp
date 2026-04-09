@@ -580,6 +580,7 @@ std::string to_string(const Context& c) noexcept;
  */
 bool any(const Context& c) noexcept;
 
+
 /**
  * \brief Settings for a Calculation.
  */
@@ -620,18 +621,27 @@ public:
 	 */
 	Context context() const;
 
-	// TODO swap()
-	// TODO equals()
-	// TODO to_string()
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(Settings& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const Settings& rhs) const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_to_string
+	 */
+	std::string to_string() const;
 
 	/**
 	 * \copydoc SNPT_nf_swap
 	 */
 	friend void swap(Settings& lhs, Settings& rhs) noexcept
 	{
-		using std::swap;
-
-		swap(lhs.context_, rhs.context_);
+		lhs.swap(rhs);
 	}
 
 	/**
@@ -639,7 +649,7 @@ public:
 	 */
 	friend bool operator == (const Settings& lhs, const Settings& rhs) noexcept
 	{
-		return lhs.context_ == rhs.context_;
+		return lhs.equals(rhs);
 	}
 };
 
