@@ -72,7 +72,8 @@ using sample_type = uint32_t;
  * channel ordering is specified, the default is LEFT/RIGHT.
  *
  * A SampleSequence can wrap integer buffers of type T by member function
- * wrap_int_buffer(). Regardless for which T the SampleSequence is instantiated,
+ * \link SampleSequence::wrap_int_buffer() wrap_int_buffer()\endlink.
+ * Regardless for which T the SampleSequence is instantiated,
  * it will always be able to also wrap byte buffers by function
  * wrap_byte_buffer(). While wrap_int_buffer() expects samples of type T,
  * wrap_byte_buffer() accepts a uint8_t typed buffer and converts those bytes to
@@ -947,8 +948,8 @@ public: /* member functions */
 	 * \param[in] left0_right1 The channel ordering
 	 */
 	SampleSequence(const bool left0_right1)
-		: Base(left0_right1)
-		, buffer_ { nullptr }
+		: Base    { left0_right1 }
+		, buffer_ { nullptr } // TODO Why nullptr? Couldn't just use {}?
 	{
 		// empty
 	}
@@ -960,7 +961,7 @@ public: /* member functions */
 	 * SampleSequence(true).
 	 */
 	SampleSequence()
-		: SampleSequence<T, true>(true)
+		: SampleSequence<T, true> { true }
 	{
 		// empty
 	}
@@ -978,8 +979,8 @@ public: /* member functions */
 	 */
 	SampleSequence(const T* buffer0, const T* buffer1, const size_type size,
 			const bool left0_right1)
-		: Base(left0_right1)
-		, buffer_ {}
+		: Base    { left0_right1  }
+		, buffer_ { /* default */ }
 	{
 		this->wrap_int_buffer(buffer0, buffer1, size, left0_right1);
 	}
@@ -995,8 +996,8 @@ public: /* member functions */
 	 * \param[in] size         Number of T's per buffer
 	 */
 	SampleSequence(const T* buffer0, const T* buffer1, const size_type size)
-		: Base(true)
-		, buffer_ {}
+		: Base    { true }
+		, buffer_ { /* default */ }
 	{
 		this->wrap_int_buffer(buffer0, buffer1, size, true);
 	}
@@ -1014,8 +1015,8 @@ public: /* member functions */
 	 */
 	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
 			const size_type size, const bool left0_right1)
-		: Base(left0_right1)
-		, buffer_ {}
+		: Base    { left0_right1  }
+		, buffer_ { /* default */ }
 	{
 		this->wrap_byte_buffer(buffer0, buffer1, size, left0_right1);
 	}
@@ -1032,8 +1033,8 @@ public: /* member functions */
 	 */
 	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
 			const size_type size)
-		: Base(true)
-		, buffer_ {}
+		: Base    { true }
+		, buffer_ { /* default */ }
 	{
 		this->wrap_byte_buffer(buffer0, buffer1, size, true);
 	}
