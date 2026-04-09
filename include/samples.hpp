@@ -139,6 +139,110 @@ template<typename T, bool is_planar, typename = IsSampleType<T>>
 class SampleSequenceImplBase; // IWYU pragma keep
 // forward declaration required by friend delcaration in SampleIterator
 
+
+/**
+ * \brief A very simple cache for a single value of type \c T.
+ *
+ * \tparam T Value type to cache
+ */
+template<typename T>
+class Cache
+{
+public:
+
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
+	using value_type = T;
+
+private:
+
+	/**
+	 * \brief Value cached.
+	 */
+	mutable value_type value_{/* default */};
+
+	/**
+	 * \brief Validity flag.
+	 */
+	mutable bool       valid_{/* default */};
+
+public:
+
+	/**
+	 * \brief Return the cached value.
+	 *
+	 * \return Cached value
+	 */
+	value_type value() const
+	{
+		return value_;
+	}
+
+	/**
+	 * \brief TRUE iff the current value in the cache is valid, otherwise FALSE.
+	 *
+	 * \return TRUE iff cache is valid, otherwise FALSE
+	 */
+	bool valid() const
+	{
+		return valid_;
+	}
+
+	/**
+	 * \brief Initialize \c cache_ with the value under \c pos_.
+	 *
+	 * \param[in] v Value to put in the cache
+	 */
+	void put(value_type&& v) const
+	{
+		value_ = std::move(v);
+		valid_ = true;
+	}
+
+	/**
+	 * \brief Invalidate the cache.
+	 */
+	void invalidate() const
+	{
+		valid_ = false;
+	}
+
+	/**
+	 * \brief Convert the cache to a pointer to its value.
+	 *
+	 * \return Pointer to cached value
+	 */
+	explicit operator const value_type* () const
+	{
+		return std::addressof(value_);
+	}
+
+	/**
+	 * \brief Return a pointer to the cached value.
+	 *
+	 * \return Pointer to cached value
+	 */
+	value_type* operator -> () const
+	{
+		return this->operator const value_type* ();
+	}
+
+
+	friend void swap(Cache& lhs, Cache& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(lhs.value_, rhs.value_);
+		swap(lhs.valid_, rhs.valid_);
+	}
+
+	friend bool operator == (const Cache& lhs, const Cache& rhs) noexcept
+	{
+		return lhs.value_ == rhs.value_ && lhs.valid_ == rhs.valid_;
+	}
+};
+
 } // namespace details
 
 
@@ -210,8 +314,7 @@ public:
 	SampleIterator()
 		: seq_   { nullptr }
 		, pos_   { 0 }
-		, cache_ { 0 }
-		, cache_valid_ { false }
+		, cache_ { /* default */ }
 	{
 		// empty
 	}
@@ -225,8 +328,7 @@ public:
 	SampleIterator(const SampleIterator<T, is_planar, false>& rhs)
 		: seq_   { rhs.seq_ } // works due to friendship
 		, pos_   { rhs.pos_ }
-		, cache_ { 0 }
-		, cache_valid_ { false }
+		, cache_ { /* default */ }
 	{
 		// empty
 	}
@@ -239,11 +341,9 @@ public:
 	 */
 	SampleIterator& operator = (const SampleIterator<T, is_planar, false>& rhs)
 	{
-		seq_ = rhs.seq_;
-		pos_ = rhs.pos_;
-
-		cache_       = rhs.cache_;
-		cache_valid_ = rhs.cache_valid_;
+		seq_   = rhs.seq_;
+		pos_   = rhs.pos_;
+		cache_ = rhs.cache_;
 
 		return *this;
 	}
@@ -285,7 +385,7 @@ public:
 	reference operator * () const
 	{
 		this->update_cache();
-		return cache_;
+		return cache_.value();
 	}
 
 	/**
@@ -299,7 +399,7 @@ public:
 	pointer operator -> () const
 	{
 		this->update_cache();
-		return std::addressof(cache_);
+		return static_cast<pointer>(cache_);
 	}
 
 	/**
@@ -308,7 +408,7 @@ public:
 	SampleIterator& operator ++ ()
 	{
 		++pos_;
-		this->invalidate_cache();
+		cache_.invalidate();
 		return *this;
 	}
 
@@ -328,7 +428,7 @@ public:
 	SampleIterator& operator -- ()
 	{
 		--pos_;
-		this->invalidate_cache();
+		cache_.invalidate();
 		return *this;
 	}
 
@@ -348,7 +448,7 @@ public:
 	SampleIterator& operator += (const difference_type value)
 	{
 		pos_ += value;
-		this->invalidate_cache();
+		cache_.invalidate();
 		return *this;
 	}
 
@@ -358,7 +458,7 @@ public:
 	SampleIterator& operator -= (const difference_type value)
 	{
 		pos_ -= value;
-		this->invalidate_cache();
+		cache_.invalidate();
 		return *this;
 	}
 
@@ -425,10 +525,9 @@ public:
 	{
 		using std::swap;
 
-		swap(lhs.seq_,         rhs.seq_);
-		swap(lhs.pos_,         rhs.pos_);
-		swap(lhs.cache_,       rhs.cache_);
-		swap(lhs.cache_valid_, rhs.cache_valid_);
+		swap(lhs.seq_,   rhs.seq_);
+		swap(lhs.pos_,   rhs.pos_);
+		swap(lhs.cache_, rhs.cache_);
 	}
 
 
@@ -453,50 +552,25 @@ private:
 			const difference_type pos)
 		: seq_   { &seq }
 		, pos_   { pos }
-		, cache_ { 0 }
-		, cache_valid_ { false }
+		, cache_ { /* default */ }
 	{
 		// empty
 	}
 
 	/**
-	 * \brief TRUE iff the current value in the cache is valid, otherwise FALSE.
-	 *
-	 * \return TRUE iff cache is valid, otherwise FALSE
-	 */
-	bool cache_valid() const
-	{
-		return cache_valid_;
-	}
-
-	/**
-	 * \brief Initialize \c cache_ with the value under \c pos_.
-	 */
-	void pos_to_cache() const
-	{
-		using index_type = typename SampleSequence<T, is_planar>::size_type;
-
-		cache_       = seq_->operator[](static_cast<index_type>(pos_));
-		cache_valid_ = true;
-	}
-
-	/**
 	 * \brief Update the cache if necessary.
+	 *
+	 * If the cache is not valid, put the current value under \c pos_ into the
+	 * cache.
 	 */
 	void update_cache() const
 	{
-		if (!this->cache_valid())
+		if (!this->cache_.valid())
 		{
-			pos_to_cache();
-		}
-	}
+			using index_type = typename SampleSequence<T, is_planar>::size_type;
 
-	/**
-	 * \brief Invalidate the cached value.
-	 */
-	void invalidate_cache() const
-	{
-		cache_valid_ = false;
+			cache_.put(seq_->operator[](static_cast<index_type>(pos_)));
+		}
 	}
 
 	/**
@@ -510,14 +584,9 @@ private:
 	difference_type pos_;
 
 	/**
-	 * \brief Cached sample value.
+	 * \brief Value cache.
 	 */
-	mutable value_type cache_;
-
-	/**
-	 * \brief Indicates whether content of \c cache_ is the value of pos_.
-	 */
-	mutable bool cache_valid_;
+	details::Cache<value_type> cache_;
 };
 
 namespace details
