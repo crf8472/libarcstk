@@ -421,6 +421,10 @@ public:
 
 	/**
 	 * \brief LegacyForwardIterator
+	 *
+	 * See <A
+	 * HREF="https://en.cppreference.com/w/cpp/named_req/ForwardIterator.html">
+	 * LegacyForwardIterator</A>
 	 */
 	using iterator_category = std::forward_iterator_tag;
 

@@ -262,12 +262,10 @@ public:
  * Equality between a \c const_iterator and an \c iterator works as expected.
  *
  * SampleIterator provides the following functionality:
- * <ul>
- *   <li>prefix- and postfix decrement,</li>
- *   <li>operators add-assign (+=) and subtract-assign (-=),</li>
- *   <li>binary operators for addition and substraction of values, and</li>
- *   <li>binary operators for addition and substraction of positions.</li>
- * </ul>
+ * - prefix- and postfix decrement,
+ * - operators add-assign (+=) and subtract-assign (-=),
+ * - binary operators for addition and substraction of values, and
+ * - binary operators for addition and substraction of positions.
  */
 template <typename T, bool is_planar, bool is_const>
 class SampleIterator final :
@@ -284,6 +282,10 @@ public:
 
 	/**
 	 * \brief LegacyBidirectionalIterator
+	 *
+	 * See <A
+	 * HREF="https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator.html">
+	 * LegacyBidirectionalIterator</A>
 	 */
 	using iterator_category = std::bidirectional_iterator_tag;
 

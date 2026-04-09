@@ -18,7 +18,6 @@
 #include <memory>           // for make_unique, unique_ptr
 #include <string>           // for string
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
-#include <typeinfo>         // for type_info
 #include <unordered_set>    // for unordered_set
 #include <utility>          // for declval, move, pair
 #include <vector>           // for vector
@@ -27,7 +26,7 @@
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
 #ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"     // for Comparable, IteratorValue
+#include "policies.hpp"     // for Comparable
 #endif
 
 namespace arcstk
@@ -36,7 +35,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
-
+// avoid includes
 class AudioSize;
 class ToC;
 
@@ -162,7 +161,7 @@ using IsSampleIterator =
  * SampleInputIterator can wrap any iterator with a value_type of uint32_t
  * except instances of itself, e.g. it can not be "nested".
  *
- * The type erasure interface only ensures that (most of) the requirements of a
+ * The type erasure interface only ensures that the requirements of a
  * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
  * LegacyInputIterator</A> are met. Those requirements are sufficient for
  * \link arcstk::Calculation::update() updating \endlink a Calculation.
@@ -183,7 +182,10 @@ class SampleInputIterator final : public Comparable<SampleInputIterator>
 public:
 
 	/**
-	 * \brief InputIterator
+	 * \brief LegacyInputIterator
+	 *
+	 * See <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
+	 * LegacyInputIterator</A>
 	 */
 	using iterator_category = std::input_iterator_tag;
 
