@@ -146,7 +146,8 @@ class Checksum;
  * A DBARBlockHeader is a POD and holds copies of the values.
  */
 class DBARBlockHeader final : Equality<DBARBlockHeader>,
-							  Comparable<DBARBlockHeader>
+							  Comparable<DBARBlockHeader>,
+							  Swap<DBARBlockHeader>
 {
 	/**
 	 * \brief Total number of tracks in this block as declared.
@@ -225,14 +226,6 @@ public:
 	std::string to_string() const;
 
 	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(DBARBlockHeader& lhs, DBARBlockHeader& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
-
-	/**
 	 * \copydoc SNPT_nf_to_string
 	 */
 	friend std::string to_string(const DBARBlockHeader& i)
@@ -251,7 +244,8 @@ public:
  *
  * A DBARTriplet is a POD and holds copies of the values.
  */
-class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>
+class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>,
+						  Swap<DBARTriplet>
 {
 	/**
 	 * \brief ARCS value.
@@ -320,14 +314,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(DBARTriplet& lhs, DBARTriplet& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 
 	/**
 	 * \copydoc SNPT_nf_to_string
@@ -614,7 +600,7 @@ class DBARBlock;
 /**
  * \brief Represents the content of dBAR file.
  */
-class DBAR final : Equality<DBAR>, Comparable<DBAR>
+class DBAR final : Equality<DBAR>, Comparable<DBAR>, Swap<DBAR>
 {
 public:
 
@@ -889,14 +875,6 @@ public:
 	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const DBAR& rhs) const noexcept;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(DBAR& lhs, DBAR& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 };
 
 
@@ -918,7 +896,8 @@ public:
  * instance. Accessing a DBARBlock whose underlying DBAR instance was destroyed
  * results in undefined behaviour.
  */
-class DBARBlock final : Equality<DBARBlock>, Comparable<DBARBlock>
+class DBARBlock final : Equality<DBARBlock>, Comparable<DBARBlock>,
+						Swap<DBARBlock>
 {
 	/**
 	 * \brief Internal pointer to underlying DBAR.
@@ -1105,14 +1084,6 @@ public:
 	 * \copydoc SNPT_mf_equals
 	 */
 	bool equals(const DBARBlock& rhs) const noexcept;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(DBARBlock& lhs, DBARBlock& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 };
 
 #pragma GCC diagnostic pop

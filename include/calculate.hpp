@@ -584,7 +584,7 @@ bool any(const Context& c) noexcept;
 /**
  * \brief Settings for a Calculation.
  */
-class Settings final : Equality<Settings>, Comparable<Settings>
+class Settings final : Equality<Settings>, Comparable<Settings>, Swap<Settings>
 {
 	/**
 	 * \brief Internal context.
@@ -635,14 +635,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(Settings& lhs, Settings& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 };
 
 
@@ -823,7 +815,7 @@ private:
  *
  * \see make_calculation
  */
-class Calculation final
+class Calculation final : Swap<Calculation>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -1006,14 +998,6 @@ public:
 	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(Calculation& rhs) noexcept;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(Calculation& lhs, Calculation& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 };
 
 

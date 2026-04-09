@@ -107,7 +107,7 @@ std::ostream& operator << (std::ostream& out, const ARId& i);
  * alternative to constructing an empty ARId is to return a reference or pointer
  * to arcstk::EmptyARId.
  */
-class ARId final : Equality<ARId>, Comparable<ARId>
+class ARId final : Equality<ARId>, Comparable<ARId>, Swap<ARId>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -225,14 +225,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(ARId& lhs, ARId& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 
 	/**
 	 * \copydoc SNPT_nf_stream_in

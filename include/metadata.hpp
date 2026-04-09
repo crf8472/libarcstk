@@ -408,7 +408,8 @@ std::ostream& operator << (std::ostream& out, const AudioSize& i);
  * converts to FALSE.
  */
 class AudioSize final : Equality<AudioSize>,
-						TotallyOrdered<AudioSize>
+						TotallyOrdered<AudioSize>,
+						Swap<AudioSize>
 {
 	/**
 	 * \brief Data: Total number of pcm sample bytes in the audio file.
@@ -498,14 +499,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(AudioSize& lhs, AudioSize& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 
 	/**
 	 * \copydoc SNPT_nf_stream_in
@@ -736,7 +729,7 @@ std::ostream& operator << (std::ostream& out, const ToC& i);
 /**
  * \brief Table of contents of a compact disc.
  */
-class ToC final : Equality<ToC>, Comparable<ToC>
+class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>
 {
 	class Impl;
 	std::unique_ptr<Impl> impl_;
@@ -886,14 +879,6 @@ public:
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(ToC& lhs, ToC& rhs) noexcept
-	{
-		lhs.swap(rhs);
-	}
 
 	/**
 	 * \copydoc SNPT_nf_stream_in
