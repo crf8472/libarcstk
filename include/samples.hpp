@@ -37,21 +37,8 @@ inline namespace v_1_0_0
  * @{
  */
 
-/**
- * \internal
- *
- * \brief Type to represent a 32 bit PCM stereo sample.
- *
- * This type must be defined assignable-to arcstk::sample_t. It has therefore
- * at most the size of arcstk::sample_t.
- *
- * \attention
- * Do not use this type in your code, use only arcstk::sample_t.
- *
- * \see arcstk::sample_t
- */
-// duplicate of metadata.hpp, documented there
-using sample_type = uint32_t;
+// duplicate of calculate.hpp, documented there
+using sample_t = uint32_t;
 
 /**
  * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
@@ -291,7 +278,7 @@ public:
 	/**
 	 * \copydoc SNPT_tp_value
 	 */
-	using value_type        = sample_type;
+	using value_type        = sample_t;
 
 	/**
 	 * \copydoc SNPT_tp_reference
@@ -598,7 +585,7 @@ public:
 	/**
 	 * \copydoc SNPT_tp_value
 	 */
-	using value_type     = sample_type;
+	using value_type     = sample_t;
 
 	/**
 	 * \copydoc SNPT_tp_size
@@ -795,14 +782,14 @@ protected:
 	 *
 	 * \return A PCM 32 bit sample with the higher and lower bits as passed
 	 */
-	sample_type combine(const T higher, const T lower) const
+	sample_t combine(const T higher, const T lower) const
 	{
-		return (static_cast<sample_type>(higher) << 16) |
-			(static_cast<sample_type>(lower) & 0x0000FFFF);
+		return (static_cast<sample_t>(higher) << 16) |
+			(static_cast<sample_t>(lower) & 0x0000FFFF);
 
 		// NOTE: This works because T cannot be anything but only signed or
 		// unsigned integers of either 32 or 64 bit length. Those variants can
-		// all be handled correctly by just casting them to sample_type.
+		// all be handled correctly by just casting them to sample_t.
 	}
 
 	/**
@@ -1135,7 +1122,7 @@ public: /* member functions */
 
 		// NOTE:
 		// Equivalent to, but seemingly not slower than:
-		//return (static_cast<sample_type>(buffer_[right_][index]) << 16)
+		//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
 		//	| static_cast<uint16_t>(buffer_[left_][index]);
 	}
 
@@ -1408,7 +1395,7 @@ public: /* member functions */
 
 		// NOTE:
 		// Equivalent to, but seemingly not slower than:
-		//return (static_cast<sample_type>(buffer_[2 * index + right_]) << 16)
+		//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
 		//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
 	}
 
