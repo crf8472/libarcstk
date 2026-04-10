@@ -15,6 +15,9 @@
 
 #include <type_traits>            // for is_*_{constructible,assignable}
 
+#include "type_traits.hpp"        // for is_comparable,
+								  // has_tostring_functionality
+
 
 TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 {
@@ -65,15 +68,29 @@ TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ARId> );
 	}
 
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::ARId> );
+	}
+
 	SECTION ("IS (nothrow) swappable")
 	{
 		CHECK ( std::is_swappable_v<arcstk::ARId> );
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ARId> );
 	}
 
-	SECTION ("HAS non-static members")
+	SECTION ("HAS comparability")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::ARId> );
+		using arcstk::meta::is_comparable_v;
+
+		CHECK ( is_comparable_v<arcstk::ARId> );
+	}
+
+	SECTION ("HAS string convertibility")
+	{
+		using arcstk::meta::has_tostring_functionality;
+
+		CHECK ( has_tostring_functionality<arcstk::ARId>::value );
 	}
 }
 

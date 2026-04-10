@@ -16,6 +16,9 @@
 #include <string>                 // for string
 #include <utility>                // for move
 
+#include "type_traits.hpp"        // for is_comparable,
+								  // has_tostring_functionality
+
 
 TEST_CASE ( "DBAR Type Traits", "[dbar]" )
 {
@@ -67,15 +70,22 @@ TEST_CASE ( "DBAR Type Traits", "[dbar]" )
 		//CHECK ( ! std::has_virtual_destructor_v<arcstk::DBAR> );
 	}
 
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::DBAR> );
+	}
+
 	SECTION ("IS (nothrow) swappable")
 	{
 		CHECK ( std::is_swappable_v<arcstk::DBAR> );
 		CHECK ( std::is_nothrow_swappable_v<arcstk::DBAR> );
 	}
 
-	SECTION ("HAS non-static members")
+	SECTION ("HAS comparability")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::DBAR> );
+		using arcstk::meta::is_comparable_v;
+
+		CHECK ( is_comparable_v<arcstk::DBAR> );
 	}
 }
 

@@ -15,6 +15,9 @@
 #include <string>                 // for string
 #include <vector>                 // for vector
 
+#include "type_traits.hpp"        // for is_comparable,
+								  // has_tostring_functionality
+
 
 TEST_CASE ( "Units", "[meta]" )
 {
@@ -83,8 +86,8 @@ TEST_CASE ( "convert<>()", "[convert] [meta]" )
 TEST_CASE ( "ToCData", "[tocdata] [meta]" )
 {
 	using arcstk::AudioSize;
-	using arcstk::toc::construct;
 	using arcstk::UNIT;
+	using arcstk::toc::construct;
 
 	const auto leadout { 253038 };
 
@@ -274,15 +277,29 @@ TEST_CASE ( "ToC Type Traits", "[toc] [meta]" )
 		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ToC> );
 	}
 
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::ToC> );
+	}
+
 	SECTION ("IS (nothrow) swappable")
 	{
 		CHECK ( std::is_swappable_v<arcstk::ToC> );
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ToC> );
 	}
 
-	SECTION ("HAS non-static members")
+	SECTION ("HAS comparability")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::ToC> );
+		using arcstk::meta::is_comparable_v;
+
+		CHECK ( is_comparable_v<arcstk::ToC> );
+	}
+
+	SECTION ("HAS string convertibility")
+	{
+		using arcstk::meta::has_tostring_functionality;
+
+		CHECK ( has_tostring_functionality<arcstk::ToC>::value );
 	}
 }
 
@@ -407,15 +424,29 @@ TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
 		//CHECK ( ! std::has_virtual_destructor_v<arcstk::AudioSize> );
 	}
 
+	SECTION ("HAS non-static members")
+	{
+		CHECK ( ! std::is_empty_v<arcstk::AudioSize> );
+	}
+
 	SECTION ("IS (nothrow) swappable")
 	{
 		CHECK ( std::is_swappable_v<arcstk::AudioSize> );
 		CHECK ( std::is_nothrow_swappable_v<arcstk::AudioSize> );
 	}
 
-	SECTION ("HAS non-static members")
+	SECTION ("HAS comparability")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::AudioSize> );
+		using arcstk::meta::is_comparable_v;
+
+		CHECK ( is_comparable_v<arcstk::AudioSize> );
+	}
+
+	SECTION ("HAS string convertibility")
+	{
+		using arcstk::meta::has_tostring_functionality;
+
+		CHECK ( has_tostring_functionality<arcstk::AudioSize>::value );
 	}
 }
 

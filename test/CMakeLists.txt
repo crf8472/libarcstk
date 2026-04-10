@@ -61,7 +61,6 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 	endforeach()
 
 	set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}
-		#"--param" "max-gcse-memory=140040"
 		"--param" "max-gcse-memory=140132"
 	)
 endif()
@@ -86,6 +85,7 @@ foreach (_testcase ${TEST_SETS} )
 		PRIVATE ${PROJECT_INCLUDE_DIR}      ## public headers
 		PRIVATE ${PROJECT_SOURCE_DIR}       ## private headers (*_details.hpp)
 		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ## generated sources
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ## testing helpers
 	)
 
 	target_link_libraries (${_testcase}_test
