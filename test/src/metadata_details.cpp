@@ -523,7 +523,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 		}
 	}
 
-	SECTION ( "Fails if FILENAMES_MATCH_TOTAL_TRACKS is violated" )
+	SECTION ( "Fails if TOTAL_FILENAMES_MATCH_TOTAL_TRACKS is violated" )
 	{
 		using arcstk::details::validate_filenames_impl;
 
@@ -544,7 +544,8 @@ TEST_CASE ("validate_offsets()", "[meta]")
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
 		{
-			CHECK ( e.requirement()     == Req::FILENAMES_MATCH_TOTAL_TRACKS );
+			CHECK ( e.requirement()     ==
+					Req::TOTAL_FILENAMES_MATCH_TOTAL_TRACKS );
 			CHECK ( e.violating_value() == 4 );
 			CHECK ( e.pos()             > CDDA::MAX_TRACKCOUNT );
 		}
@@ -556,7 +557,8 @@ TEST_CASE ("validate_offsets()", "[meta]")
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
 		{
-			CHECK ( e.requirement()     == Req::FILENAMES_MATCH_TOTAL_TRACKS );
+			CHECK ( e.requirement()     ==
+					Req::TOTAL_FILENAMES_MATCH_TOTAL_TRACKS );
 			CHECK ( e.violating_value() == 2 );
 			CHECK ( e.pos()             > CDDA::MAX_TRACKCOUNT );
 		}
