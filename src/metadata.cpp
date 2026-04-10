@@ -49,33 +49,23 @@ int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
 }
 
 
-void validate_leadout_impl(const int32_t leadout)
-{
-	// Note: zero leadout is validated
-
-	validate::is_legal_offset(leadout);
-
-	if (leadout > 0 && leadout < CDDA::MIN_TRACK_OFFSET_DIST)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Leadout " << leadout << " is smaller than minimum track length";
-		validate::on_invalid_tocdata(ss.str());
-	}
-}
-
-
 void validate_filenames_impl(const ToCData& toc_data,
 		const std::vector<std::string>& filenames)
 {
-	if (filenames.size() != toc::total_tracks(toc_data))
+	if (const auto total_filenames = filenames.size();
+			total_filenames != toc::total_tracks(toc_data))
 	{
 		auto ss = std::ostringstream {};
 		ss << "Passed number of filenames (="
-			<< filenames.size()
+			<< total_filenames
 			<< ") is not equal to total number of tracks (="
 			<< toc::total_tracks(toc_data)
 			<< ")";
-		validate::on_invalid_tocdata(ss.str());
+
+		validate::on_invalid_tocdata(ss.str(),
+				MetadataRequirement::TOTAL_FILENAMES_MATCH_TOTAL_TRACKS,
+				static_cast<int32_t>(total_filenames),
+				CDDA::MAX_TRACKCOUNT + 1);
 	}
 }
 
@@ -125,23 +115,9 @@ void print(std::ostream& out, const AudioSize& s)
 namespace validate
 {
 
-void is_legal_offset(const int32_t offset)
+void is_standard_offset(const int32_t offset)
 {
 	using std::to_string;
-
-	if (offset < 0)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Negative value " << offset << " is not an offset";
-		on_invalid_tocdata(ss.str());
-	}
-
-	if (offset > CDDA::MAX_BLOCK_ADDRESS)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset " << offset << " exceeds physical maximum";
-		on_invalid_tocdata(ss.str());
-	}
 
 	// The following cases are recognized but validation will not fail
 
@@ -170,116 +146,151 @@ void is_legal_offset(const int32_t offset)
 }
 
 
-void is_legal_length(const int32_t length)
+void validate_offsets_leadout(const ToCData& toc_data)
 {
-	if (length < CDDA::MIN_TRACK_LEN_FRAMES)
+	using Req = MetadataRequirement;
+
+	if (toc::leadout(toc_data).zero())
 	{
-		using std::to_string;
-
-		on_invalid_tocdata(to_string(length));
-	}
-}
-
-
-void validate_leadout(const ToCData& toc_data)
-{
-	const auto leadout { toc::leadout(toc_data).frames() };
-
-	details::validate_leadout_impl(leadout);
-}
-
-
-void validate_nonzero_leadout(const ToCData& toc_data)
-{
-	const auto leadout { toc::leadout(toc_data).frames() };
-
-	if (!leadout)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Leadout " << leadout << " is missing (is actually zero)";
-		on_invalid_tocdata(ss.str());
+		on_invalid_tocdata(Req::LEADOUT_IS_NONNEGATIVE, 0, 0);
 	}
 
-	details::validate_leadout_impl(leadout);
+	validate_offsets(toc_data);
 }
 
 
 void validate_offsets(const ToCData& toc_data)
 {
-	const auto offsets { toc::offsets(toc_data) };
+	// leadout is validated, but allowed to be zero
 
-	if (offsets.size() > CDDA::MAX_TRACKCOUNT)
+	using Req = MetadataRequirement;
+
+	const auto total_tracks { toc::total_tracks(toc_data) };
+	static const auto MORE_THAN_MAX = unsigned { 100 };
+
+	if (total_tracks <= 0)
 	{
 		auto ss = std::ostringstream {};
-		ss << "Number of tracks " << offsets.size()
-			<< " is bigger than maximum of " << CDDA::MAX_TRACKCOUNT;
-		on_invalid_tocdata(ss.str());
+		ss << "Number of tracks " << total_tracks << " is not non-negative";
+
+		on_invalid_tocdata(ss.str(), Req::TOTAL_TRACKS_IS_POSITIVE,
+				static_cast<int32_t>(total_tracks),
+				MORE_THAN_MAX /* no index pos */);
 	}
 
-	using std::cbegin;
-	using std::cend;
+	if (total_tracks > CDDA::MAX_TRACKCOUNT)
+	{
+		auto ss = std::ostringstream {};
+		ss << "Number of tracks " << total_tracks
+			<< " is bigger than maximum of " << CDDA::MAX_TRACKCOUNT;
 
-	auto pred { cbegin(offsets) };
+		on_invalid_tocdata(ss.str(), Req::TOTAL_TRACKS_IS_NOT_GREATER_THAN_MAX,
+				static_cast<int32_t>(total_tracks),
+				MORE_THAN_MAX /* no index pos */);
+	}
 
-	is_legal_offset(pred->frames());
+	auto curr_offset = int32_t { 0 }; // current offset
+	auto prev_offset = curr_offset;   // previous offset
+	auto length      = int32_t { 0 }; // current track length
 
-	auto track { 1 };
-	std::for_each(cbegin(offsets) + 1, cend(offsets),
-		[&pred,&track](const AudioSize& a)
+	auto track = ToCData::size_type { 1 }; // track number
+	auto c     = ToCData::size_type { 0 }; // count comparisons
+
+	const auto offsets { toc::offsets(toc_data) };
+
+	while (c < total_tracks)
+	{
+		// organize values (do not use offset() since we access index 0)
+
+		prev_offset = toc_data[track].frames();
+
+		++track;
+		track %= toc_data.size(); // after last track, flip back to 0
+
+		curr_offset = toc_data[track].frames();
+
+		++c;
+
+		// validation
+
+		if (curr_offset > CDDA::MAX_BLOCK_ADDRESS)// may cause length < 0
 		{
-			is_legal_offset(a.frames());
+			auto ss = std::ostringstream {};
+			ss << "Offset " << curr_offset << " exceeds physical maximum";
 
-			// Check required minimal distance to predecessor
+			on_invalid_tocdata(ss.str(), Req::OFFSETS_ARE_NOT_GREATER_THAN_MAX,
+					curr_offset, track);
+		}
 
-			++track;
-			if (pred->frames() - a.frames() < CDDA::MIN_TRACK_OFFSET_DIST)
+		if (curr_offset < 0)
+		{
+			auto ss = std::ostringstream {};
+			ss << "Negative value " << curr_offset << " is not a valid offset";
+
+			on_invalid_tocdata(ss.str(), Req::OFFSETS_ARE_NONNEGATIVE,
+					curr_offset, track);
+		}
+
+		// OFFSETS_ARE_NOT_GREATER_THAN_MAX fires intentionally before
+		// OFFSETS_ARE_STRICTLY_WELLORDERED, if both would be triggered
+
+		// curr_offset does never point to track 1, thus it is only allowed to
+		// be 0 if it points to leadout. For zero leadout only, length is 0.
+
+		length = (curr_offset) ? curr_offset - prev_offset : 0;
+
+		if (length < 0)
+		{
+			on_invalid_tocdata(Req::OFFSETS_ARE_STRICTLY_WELLORDERED,
+				curr_offset, track);
+		}
+
+		if (length == 0 && track > 1)
+		{
+			on_invalid_tocdata(Req::OFFSETS_ARE_STRICTLY_WELLORDERED,
+				curr_offset, track);
+		}
+
+		if (length > 0)
+		{
+			if (length < CDDA::MIN_TRACK_LEN_FRAMES /* 150 */)
+			{
+				auto ss = std::ostringstream {};
+				ss << "Track " << track << " has less length than minimum";
+
+				on_invalid_tocdata(ss.str(), Req::OFFSETS_PRODUCE_MIN_LENGTHS,
+					curr_offset, track);
+			}
+
+			if (length < CDDA::MIN_TRACK_OFFSET_DIST /* 300 */)
 			{
 				auto ss = std::ostringstream {};
 				ss << "The start offset of track " << track
 					<< " does not have the required minimal offset distance to "
 					" its predessessor track (is "
-					<< (pred->frames() - a.frames())
-					<< " frames but required is at least "
+					<< length
+					<< " frames but must be at least "
 					<< CDDA::MIN_TRACK_OFFSET_DIST
 					<< " frames)";
-				on_invalid_tocdata(ss.str());
+
+				on_invalid_tocdata(ss.str(), Req::OFFSETS_HAVE_MIN_DIST,
+					curr_offset, track);
 			}
-			++pred;
 		}
-	);
+	} // while
 }
 
-
-void validate_lengths(const ToCData& toc_data)
+void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
+		const int32_t v, const ToCData::size_type i)
 {
-	const auto lengths { toc::lengths(toc_data) };
-
-	using std::cbegin;
-	using std::cend;
-
-	auto track { 1 };
-	std::for_each(cbegin(lengths), cend(lengths),
-		[&track](const AudioSize& a)
-		{
-			try
-			{
-				is_legal_length(a.frames());
-			}
-			catch (const InvalidMetadataException& e)
-			{
-				using std::to_string;
-				auto ss = std::ostringstream {};
-				ss << "Illegal length: Track " << track
-					<< " is too short (length is " << e.what() << " frames)";
-
-				on_invalid_tocdata(ss.str());
-			}
-
-			++track;
-		}
-	);
+	throw InvalidMetadataException { msg, r, v, i };
 }
 
+void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
+		const ToCData::size_type i)
+{
+	throw InvalidMetadataException { r, v, i };
+}
 
 void on_invalid_tocdata(const std::string& msg)
 {
@@ -293,19 +304,17 @@ void on_nonstandard_tocdata(const std::string& /*msg*/)
 
 std::string name(const MetadataRequirement r)
 {
-	static const std::array<std::string, 11> names =
+	static const std::array<std::string, 9> names =
 	{
-		"LEGAL_TOTAL_TRACKS",
-		"TRACK_OFFSETS_HAVE_LEGAL_VALUES",
-		"TRACK_OFFSETS_HAVE_MIN_DIST",
-		"TRACK_OFFSETS_GIVE_MIN_LENGTH",
-		"LEADOUT_IS_PRESENT",
-		"LEADOUT_HAS_LEGAL_VALUE",
-		"LEADOUT_HAS_OFFSET_MIN_DIST",
-		"LEADOUT_GIVES_MIN_LENGTH",
-		"TRACK_LENGTHS_HAVE_MIN_SIZE",
-		"LAST_TRACK_HAS_MIN_SIZE",
-		"FILENAMES_MATCH_TOTAL_TRACKS"
+		"OFFSETS_ARE_NONNEGATIVE",
+		"OFFSETS_ARE_NOT_GREATER_THAN_MAX",
+		"OFFSETS_ARE_STRICTLY_WELLORDERED",
+		"OFFSETS_HAVE_MIN_DIST",
+		"OFFSETS_PRODUCE_MIN_LENGTHS",
+		"TOTAL_TRACKS_IS_POSITIVE",
+		"TOTAL_TRACKS_IS_NOT_GREATER_THAN_MAX",
+		"LEADOUT_IS_NONNEGATIVE",
+		"TOTAL_FILENAMES_MATCH_TOTAL_TRACKS"
 	};
 
 	using index_type = typename std::underlying_type<MetadataRequirement>::type;
@@ -314,13 +323,13 @@ std::string name(const MetadataRequirement r)
 }
 
 std::string default_error_message(const MetadataRequirement r,
-		const AudioSize& v, const ToCData::size_type i)
+		const int32_t v, const ToCData::size_type i)
 {
 	auto ss = std::ostringstream {};
 	ss << "Requirement "
 		<< name(r)
 		<< " was violated by value "
-		<< v.frames()
+		<< v
 		<< " on index "
 		<< i;
 
@@ -479,20 +488,9 @@ ToCData construct(const AudioSize& leadout,
 }
 
 
-void set_leadout(const AudioSize& leadout, ToCData& data)
+unsigned total_tracks(const ToCData& data)
 {
-	if (data.size() < 1)
-	{
-		data.resize(1);
-	}
-
-	data[0] = leadout;
-}
-
-
-AudioSize leadout(const ToCData& data)
-{
-	return data.empty() ? AudioSize { 0, UNIT::FRAMES } : data.front();
+	return data.size() - 1;
 }
 
 
@@ -507,6 +505,49 @@ std::vector<AudioSize> offsets(const ToCData& data)
 	using std::cend;
 
 	return { cbegin(data) + 1, cend(data) };
+}
+
+
+AudioSize leadout(const ToCData& data)
+{
+	return data.empty() ? AudioSize { 0, UNIT::FRAMES } : data.front();
+}
+
+
+AudioSize offset(const ToCData::size_type track, const ToCData& data)
+{
+	if (track == 0)
+	{
+		throw std::out_of_range { "" };
+	};
+
+	return data.at(track);
+}
+
+
+AudioSize length(const ToCData::size_type track, const ToCData& data)
+{
+	const auto next_track = (track + 1 == data.size()) ? 0 : track + 1;
+
+	return { data[next_track].frames() - data[track].frames(), UNIT::FRAMES };
+}
+
+
+void set_leadout(const AudioSize& leadout, ToCData& data)
+{
+	if (data.size() < 1)
+	{
+		data.resize(1);
+	}
+
+	data[0] = leadout;
+}
+
+
+void set_offset(const ToCData::size_type track, const int32_t offset,
+		ToCData& data)
+{
+	data[track] = AudioSize { offset, UNIT::FRAMES };
 }
 
 
@@ -542,12 +583,6 @@ std::vector<AudioSize> lengths(const ToCData& data)
 }
 
 
-unsigned total_tracks(const ToCData& data)
-{
-	return data.size() - 1;
-}
-
-
 bool complete(const ToCData& data)
 {
 	return !data.empty()  &&  !data[0].zero()  &&  total_tracks(data) > 0;
@@ -556,17 +591,13 @@ bool complete(const ToCData& data)
 
 void validate_with_completeness(const ToCData& toc_data)
 {
-	details::validate::validate_nonzero_leadout(toc_data);
-	details::validate::validate_offsets(toc_data);
-	details::validate::validate_lengths(toc_data);
+	details::validate::validate_offsets_leadout(toc_data);
 }
 
 
 void validate_without_completeness(const ToCData& toc_data)
 {
-	details::validate::validate_leadout(toc_data);
 	details::validate::validate_offsets(toc_data);
-	details::validate::validate_lengths(toc_data);
 }
 
 
@@ -868,7 +899,14 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
 	const auto toc_data { toc::construct(leadout, offsets) };
 
 	details::validate_filenames_impl(toc_data, filenames);
-	toc::validate_with_completeness(toc_data);
+
+	if (leadout)
+	{
+		toc::validate_with_completeness(toc_data);
+	} else
+	{
+		toc::validate_without_completeness(toc_data);
+	}
 
 	return ToC { toc_data, filenames };
 }
@@ -878,7 +916,13 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets)
 {
 	const auto toc_data { toc::construct(leadout, offsets) };
 
-	toc::validate_with_completeness(toc_data);
+	if (leadout)
+	{
+		toc::validate_with_completeness(toc_data);
+	} else
+	{
+		toc::validate_without_completeness(toc_data);
+	}
 
 	return ToC { toc_data };
 }
@@ -925,8 +969,33 @@ const ToC EmptyToC = ToC { {}, {} };
 // InvalidMetadataException
 
 
+InvalidMetadataException::InvalidMetadataException(const std::string& what_arg,
+	const MetadataRequirement r, const int32_t v, const ToCData::size_type i)
+	: std::runtime_error { what_arg }
+	, req_   { r }
+	, value_ { v }
+	, index_ { i }
+{
+	// empty
+}
+
+
+InvalidMetadataException::InvalidMetadataException(const MetadataRequirement r,
+	const int32_t v, const ToCData::size_type i)
+	: std::runtime_error { details::validate::default_error_message(r, v, i) }
+	, req_   { r }
+	, value_ { v }
+	, index_ { i }
+{
+	// empty
+}
+
+
 InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 	: std::runtime_error { what_arg }
+	, req_   { 0 }
+	, value_ { 0 }
+	, index_ { 0 }
 {
 	// empty
 }
@@ -934,8 +1003,26 @@ InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 
 InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 	: std::runtime_error { what_arg }
+	, req_   { 0 }
+	, value_ { 0 }
+	, index_ { 0 }
 {
 	// empty
+}
+
+MetadataRequirement InvalidMetadataException::requirement() const
+{
+	return req_;
+}
+
+int32_t InvalidMetadataException::violating_value() const
+{
+	return value_;
+}
+
+ToCData::size_type InvalidMetadataException::pos() const
+{
+	return index_;
 }
 
 } // namespace v_1_0_0

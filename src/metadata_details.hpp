@@ -40,17 +40,6 @@ namespace details
 int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
 
 /**
- * \brief Worker: implement leadout checks performed on every validation.
- *
- * Implements the common part of checking with or without completeness.
- *
- * \param[in] frames LBA frame amount to validate
- *
- * \throws InvalidMetadataException If validation fails
- */
-void validate_leadout_impl(const int32_t leadout);
-
-/**
  * \brief Worker: implement checks for offsets and filenames.
  *
  * \param[in] toc_data  ToC data to validate
@@ -107,59 +96,43 @@ static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 
 /**
+ * \deprecated
+ *
  * \internal
  *
  * \brief Worker to validate LBA frame offset for being in legal range.
  *
+ * The first element of the result is a boolean value that indicates by TRUE
+ * that validation was successful and by FALSE that validation failed. If the
+ * first element is FALSE, the second element contains the requirement that
+ * caused the failure. If the first element is TRUE the second element is
+ * without meaning and can have any value.
+ *
  * \param[in] frames LBA frame amount to validate
  *
+ * \return Success flag and violated requirement, if any
+ *
  * \throws InvalidMetadataException If validation fails
  */
-void is_legal_offset(const int32_t offset);
+void is_standard_offset(const int32_t offset);
 
 /**
  * \internal
  *
- * \brief Worker to validate track length in frames for being of legal size.
- *
- * \param[in] length Track length in LBA frames to validate
- *
- * \throws InvalidMetadataException If validation fails
- */
-void is_legal_length(const int32_t length);
-
-/**
- * \internal
- *
- * \brief Validate leadout.
- *
- * A leadout of 0 validates.
+ * \brief Validate all offsets and non-zero leadout.
  *
  * \param[in] toc_data ToCData to validate
  *
  * \throws InvalidMetadataException If validation fails
  */
-void validate_leadout(const ToCData& toc_data);
-
-/**
- * \internal
- *
- * \brief Validate a leadout.
- *
- * A leadout of 0 fails to validate.
- *
- * \param[in] toc_data ToCData to validate
- *
- * \throws InvalidMetadataException If validation fails
- */
-void validate_nonzero_leadout(const ToCData& toc_data);
+void validate_offsets_leadout(const ToCData& toc_data);
 
 /**
  * \internal
  *
  * \brief Validate all offsets.
  *
- * \param[in] toc_data ToCData to validate
+ * \param[in] toc_data        ToCData to validate
  *
  * \throws InvalidMetadataException If validation fails
  */
@@ -168,13 +141,35 @@ void validate_offsets(const ToCData& toc_data);
 /**
  * \internal
  *
- * \brief Validate all lengths.
+ * \brief Worker to call when ToCData validation fails.
  *
- * \param[in] toc_data ToCData to validate
+ * Throws an InvalidMetadataException.
  *
- * \throws InvalidMetadataException If validation fails
+ * \param[in] msg Error message
+ * \param[in] r   Requirement violated
+ * \param[in] v   Value that violated the requirement
+ * \param[in] i   Index position that violated the requirement
+ *
+ * \throws InvalidMetadataException On every call
  */
-void validate_lengths(const ToCData& toc_data);
+void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
+		const int32_t v, const ToCData::size_type i);
+
+/**
+ * \internal
+ *
+ * \brief Worker to call when ToCData validation fails.
+ *
+ * Throws an InvalidMetadataException.
+ *
+ * \param[in] r   Requirement violated
+ * \param[in] v   Value that violated the requirement
+ * \param[in] i   Index position that violated the requirement
+ *
+ * \throws InvalidMetadataException On every call
+ */
+void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
+		const ToCData::size_type i);
 
 /**
  * \internal
@@ -219,7 +214,7 @@ std::string name(const MetadataRequirement r);
  * \return Default error message
  */
 std::string default_error_message(const MetadataRequirement r,
-		const AudioSize& v, const ToCData::size_type i);
+		const int32_t v, const ToCData::size_type i);
 
 } // namespace validate
 } // namespace details

@@ -618,12 +618,22 @@ ToCData construct(const AudioSize& leadout,
 		const std::vector<AudioSize>& offsets);
 
 /**
- * \brief Set the leadout of a ToCData object.
+ * \brief Total tracks.
  *
- * \param[in] leadout Leadout to set
- * \param[in] data    ToCData to update
+ * \param[in] data ToCData to read from
+ *
+ * \return Total number of tracks
  */
-void set_leadout(const AudioSize& leadout, ToCData& data);
+unsigned total_tracks(const ToCData& data);
+
+/**
+ * \brief Offsets of a ToC object.
+ *
+ * \param[in] data ToCData to read from
+ *
+ * \return Offsets of a ToC object
+ */
+std::vector<AudioSize> offsets(const ToCData& data);
 
 /**
  * \brief Leadout of a ToC object.
@@ -635,13 +645,42 @@ void set_leadout(const AudioSize& leadout, ToCData& data);
 AudioSize leadout(const ToCData& data);
 
 /**
- * \brief Offsets of a ToC object.
+ * \brief Offset of track \c track.
  *
- * \param[in] data ToCData to read from
+ * \param[in] track Track number
+ * \param[in] data  ToCData to read from
  *
- * \return Offsets of a ToC object
+ * \return Offset of track \c track
  */
-std::vector<AudioSize> offsets(const ToCData& data);
+AudioSize offset(const ToCData::size_type track, const ToCData& data);
+
+/**
+ * \brief Length of track \c track.
+ *
+ * \param[in] track Track number
+ * \param[in] data  ToCData to read from
+ *
+ * \return Length of track \c track
+ */
+AudioSize length(const ToCData::size_type track, const ToCData& data);
+
+/**
+ * \brief Set the leadout of a ToCData object.
+ *
+ * \param[in] leadout Leadout to set
+ * \param[in] data    ToCData to update
+ */
+void set_leadout(const AudioSize& leadout, ToCData& data);
+
+/**
+ * \brief Set the offset of track \c track of a ToCData object.
+ *
+ * \param[in] track  Track number
+ * \param[in] offset Offset to set
+ * \param[in] data   ToCData to update
+ */
+void set_offset(const ToCData::size_type track, const int32_t offset,
+		ToCData& data);
 
 /**
  * \brief Lengths of tracks.
@@ -654,15 +693,6 @@ std::vector<AudioSize> offsets(const ToCData& data);
  * \return Track lengths
  */
 std::vector<AudioSize> lengths(const ToCData& data);
-
-/**
- * \brief Total tracks.
- *
- * \param[in] data ToCData to read from
- *
- * \return Total number of tracks
- */
-unsigned total_tracks(const ToCData& data);
 
 /**
  * \brief TRUE iff non-zero leadout and non-empty sequence of offsets are
@@ -980,17 +1010,17 @@ ToC validated_toc(const std::vector<int32_t>& offsets);
  */
 enum class MetadataRequirement : uint16_t
 {
-	LEGAL_TOTAL_TRACKS,
-	TRACK_OFFSETS_HAVE_LEGAL_VALUES,
-	TRACK_OFFSETS_HAVE_MIN_DIST,
-	TRACK_OFFSETS_GIVE_MIN_LENGTH,
-	LEADOUT_IS_PRESENT,
-	LEADOUT_HAS_LEGAL_VALUE,
-	LEADOUT_HAS_OFFSET_MIN_DIST,
-	LEADOUT_GIVES_MIN_LENGTH,
-	TRACK_LENGTHS_HAVE_MIN_SIZE,
-	LAST_TRACK_HAS_MIN_SIZE,
-	FILENAMES_MATCH_TOTAL_TRACKS
+	// mandatory for each ToC data
+	OFFSETS_ARE_NONNEGATIVE,
+	OFFSETS_ARE_NOT_GREATER_THAN_MAX,
+	OFFSETS_ARE_STRICTLY_WELLORDERED,
+	OFFSETS_HAVE_MIN_DIST,
+	OFFSETS_PRODUCE_MIN_LENGTHS,
+	TOTAL_TRACKS_IS_POSITIVE,
+	TOTAL_TRACKS_IS_NOT_GREATER_THAN_MAX,
+	// optional
+	LEADOUT_IS_NONNEGATIVE,
+	TOTAL_FILENAMES_MATCH_TOTAL_TRACKS
 };
 
 /**
@@ -998,11 +1028,44 @@ enum class MetadataRequirement : uint16_t
  */
 class InvalidMetadataException final : public std::runtime_error
 {
-	// TODO index in toc_data of the value that caused the ex
-	// TODO actual value that caused the ex
-	// TODO validation id that failed
+	/**
+	 * \brief Requirement that was violated.
+	 */
+	MetadataRequirement req_;
+
+	/**
+	 * \brief Value that violated the requirement.
+	 */
+	int32_t value_;
+
+	/**
+	 * \brief Index position where the violation occurred.
+	 */
+	ToCData::size_type index_;
 
 public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] what_arg What argument
+	 * \param[in] r        Requirement violated
+	 * \param[in] v        Value that violated the requirement
+	 * \param[in] i        Index position that violated the requirement
+	 */
+	InvalidMetadataException(const std::string& what_arg,
+		const MetadataRequirement r, const int32_t v,
+		const ToCData::size_type i);
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] r Requirement violated
+	 * \param[in] v Value that violated the requirement
+	 * \param[in] i Index position that violated the requirement
+	 */
+	InvalidMetadataException(const MetadataRequirement r,
+		const int32_t v, const ToCData::size_type i);
 
 	/**
 	 * \brief Constructor.
@@ -1017,6 +1080,31 @@ public:
 	 * \param[in] what_arg What argument
 	 */
 	explicit InvalidMetadataException(const char* what_arg);
+
+	/**
+	 * \brief Requirement that has been violated.
+	 *
+	 * \return Requirement having been violated
+	 */
+	MetadataRequirement requirement() const;
+
+	/**
+	 * \brief Value that has violated the requirement.
+	 *
+	 * \return Value that caused the violation
+	 */
+	int32_t violating_value() const;
+
+	/**
+	 * \brief Index position where the violation occurred.
+	 *
+	 * A value greater than CDDA::MAX_TRACKCOUNT indicates that the violation
+	 * did not occurr on a specific index position. This is the case for
+	 * illegal or mismatiching values for the total number of tracks.
+	 *
+	 * \return Index position for a track offset, 0 for leadout
+	 */
+	ToCData::size_type pos() const;
 };
 
 /** @} */
