@@ -45,37 +45,62 @@ TEST_CASE ( "toc::construct()", "[meta]" )
 	using arcstk::toc::construct;
 
 	// "Bach: Organ Concertos", Simon Preston, DGG
-	const auto toc0 = construct(
-		// leadout
-		253038,
-		// offsets
-		{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-		157863, 198495, 213368, 225320, 234103 }
-	);
+	const auto toc_data_0 = ToCData
+	{
+		AudioSize { 253038, UNIT::FRAMES },
+		AudioSize {     33, UNIT::FRAMES },
+		AudioSize {   5225, UNIT::FRAMES },
+		AudioSize {   7390, UNIT::FRAMES },
+		AudioSize {  23380, UNIT::FRAMES },
+		AudioSize {  35608, UNIT::FRAMES },
+		AudioSize {  49820, UNIT::FRAMES },
+		AudioSize {  69508, UNIT::FRAMES },
+		AudioSize {  87733, UNIT::FRAMES },
+		AudioSize { 106333, UNIT::FRAMES },
+		AudioSize { 139495, UNIT::FRAMES },
+		AudioSize { 157863, UNIT::FRAMES },
+		AudioSize { 198495, UNIT::FRAMES },
+		AudioSize { 213368, UNIT::FRAMES },
+		AudioSize { 225320, UNIT::FRAMES },
+		AudioSize { 234103, UNIT::FRAMES }
+	};
+
+	const auto leadout = AudioSize { 253038, UNIT::FRAMES };
+
+	const auto offsets = std::vector<AudioSize>
+	{
+		AudioSize {     33, UNIT::FRAMES },
+		AudioSize {   5225, UNIT::FRAMES },
+		AudioSize {   7390, UNIT::FRAMES },
+		AudioSize {  23380, UNIT::FRAMES },
+		AudioSize {  35608, UNIT::FRAMES },
+		AudioSize {  49820, UNIT::FRAMES },
+		AudioSize {  69508, UNIT::FRAMES },
+		AudioSize {  87733, UNIT::FRAMES },
+		AudioSize { 106333, UNIT::FRAMES },
+		AudioSize { 139495, UNIT::FRAMES },
+		AudioSize { 157863, UNIT::FRAMES },
+		AudioSize { 198495, UNIT::FRAMES },
+		AudioSize { 213368, UNIT::FRAMES },
+		AudioSize { 225320, UNIT::FRAMES },
+		AudioSize { 234103, UNIT::FRAMES }
+	};
 
 	SECTION ( "Succeeds for legal trackcount, offsets, non-zero leadout" )
 	{
-		const auto toc_data_0 = ToCData
-		{
-			AudioSize { 253038, UNIT::FRAMES },
-			AudioSize {     33, UNIT::FRAMES },
-			AudioSize {   5225, UNIT::FRAMES },
-			AudioSize {   7390, UNIT::FRAMES },
-			AudioSize {  23380, UNIT::FRAMES },
-			AudioSize {  35608, UNIT::FRAMES },
-			AudioSize {  49820, UNIT::FRAMES },
-			AudioSize {  69508, UNIT::FRAMES },
-			AudioSize {  87733, UNIT::FRAMES },
-			AudioSize { 106333, UNIT::FRAMES },
-			AudioSize { 139495, UNIT::FRAMES },
-			AudioSize { 157863, UNIT::FRAMES },
-			AudioSize { 198495, UNIT::FRAMES },
-			AudioSize { 213368, UNIT::FRAMES },
-			AudioSize { 225320, UNIT::FRAMES },
-			AudioSize { 234103, UNIT::FRAMES }
-		};
+		const auto toc0 = construct(
+			// leadout
+			253038,
+			// offsets
+			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
+			157863, 198495, 213368, 225320, 234103 }
+		);
 
 		CHECK ( toc0 == toc_data_0 );
+
+		const auto toc1 = construct(leadout, offsets);
+
+		CHECK ( toc1 == toc_data_0 );
 	}
 }
 
@@ -253,6 +278,33 @@ TEST_CASE ( "toc::offset()", "[meta]" )
 		CHECK_THROWS_AS ( offset(16, toc_data_0), std::out_of_range );
 	}
 
+}
+
+
+TEST_CASE ( "exceeds_maximum()", "[meta]" )
+{
+	using arcstk::details::validate::exceeds_maximum;
+	using arcstk::details::validate::MAX_OFFSET_99;
+	using arcstk::details::validate::MAX_OFFSET_90;
+	using arcstk::CDDA;
+
+	SECTION ( "Works correctly" )
+	{
+		CHECK ( exceeds_maximum(CDDA::MAX_BLOCK_ADDRESS + 1) ==
+				CDDA::MAX_BLOCK_ADDRESS);
+
+		CHECK ( exceeds_maximum(MAX_OFFSET_99 + 1) == MAX_OFFSET_99 );
+
+		CHECK ( exceeds_maximum(MAX_OFFSET_90 + 1) == MAX_OFFSET_90 );
+
+		CHECK ( exceeds_maximum(CDDA::MAX_OFFSET + 1) == CDDA::MAX_OFFSET );
+
+		CHECK ( exceeds_maximum(CDDA::MAX_OFFSET) == 0 );
+		CHECK ( exceeds_maximum(1) == 0 );
+
+		CHECK ( exceeds_maximum(-1) < 0 );
+		CHECK ( exceeds_maximum(-257) < 0 );
+	}
 }
 
 

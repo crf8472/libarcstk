@@ -96,25 +96,17 @@ static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 
 /**
- * \deprecated
- *
  * \internal
  *
- * \brief Worker to validate LBA frame offset for being in legal range.
+ * \brief Worker to check LBA frame offset for being in legal range.
  *
- * The first element of the result is a boolean value that indicates by TRUE
- * that validation was successful and by FALSE that validation failed. If the
- * first element is FALSE, the second element contains the requirement that
- * caused the failure. If the first element is TRUE the second element is
- * without meaning and can have any value.
+ * A return value of 0 indicates that no redbook standard was exceeded.
  *
- * \param[in] frames LBA frame amount to validate
+ * \param[in] frames LBA frame amount to check
  *
- * \return Success flag and violated requirement, if any
- *
- * \throws InvalidMetadataException If validation fails
+ * \return Return highest max value that was exceeded, 0 for no exceeding
  */
-void is_standard_offset(const int32_t offset);
+int32_t exceeds_maximum(const int32_t offset);
 
 /**
  * \internal
@@ -170,30 +162,6 @@ void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
  */
 void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
 		const ToCData::size_type i);
-
-/**
- * \internal
- *
- * \brief Worker to call when ToCData validation fails.
- *
- * Throws an InvalidMetadataException.
- *
- * \param[in] msg Error message
- *
- * \throws InvalidMetadataException On every call
- */
-void on_invalid_tocdata(const std::string& msg);
-
-/**
- * \internal
- *
- * \brief Worker to call when ToCData validation finds nonstandard data.
- *
- * Current implementation does nothing.
- *
- * \param[in] msg Message
- */
-void on_nonstandard_tocdata(const std::string& msg);
 
 /**
  * \brief Obtain the name of a MetadataRequirement.

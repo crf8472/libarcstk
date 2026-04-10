@@ -13,9 +13,9 @@
 #include "metadata_details.hpp"
 #endif
 
-#include <algorithm>     // for for_each, transform
+#include <algorithm>     // for for_each, transform, copy
 #include <array>         // for array
-#include <iterator>      // for begin, cbegin, cend, end
+#include <iterator>      // for begin, cbegin, cend, end, back_inserter
 #include <sstream>       // for ostringstream
 #include <stdexcept>     // for invalid_argument
 #include <string>        // for vector
@@ -115,34 +115,30 @@ void print(std::ostream& out, const AudioSize& s)
 namespace validate
 {
 
-void is_standard_offset(const int32_t offset)
+int32_t exceeds_maximum(const int32_t offset)
 {
-	using std::to_string;
+	// in order, from highest to lowest
+	static const std::array<int32_t, 5> MAX_FRAMES = {
+		CDDA::MAX_BLOCK_ADDRESS,
+		MAX_OFFSET_99,
+		MAX_OFFSET_90,
+		CDDA::MAX_OFFSET,
+		0
+	};
 
-	// The following cases are recognized but validation will not fail
+	using std::cbegin;
+	using std::cend;
 
-	if (offset > MAX_OFFSET_99)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset exceeds physical range of 99 min ("
-				<< to_string(MAX_OFFSET_99) << " offset)";
-		on_nonstandard_tocdata(ss.str());
-	}
+	const auto max {
+		std::find_if(cbegin(MAX_FRAMES), cend(MAX_FRAMES),
+			[&offset](const int32_t v) -> bool
+			{
+				return offset > v;
+			})
+	};
 
-	if (offset > MAX_OFFSET_90)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset exceeds frame "
-			<< to_string(MAX_OFFSET_90) << " (90 min)";
-		on_nonstandard_tocdata(ss.str());
-	}
-
-	if (offset > CDDA::MAX_OFFSET)
-	{
-		auto ss = std::ostringstream {};
-		ss << "Offset " << offset << " exceeds redbook maximum";
-		on_nonstandard_tocdata(ss.str());
-	}
+	// Return the highest maximum exceeded by offset or a negative value
+	return (cend(MAX_FRAMES) == max) ? offset/*means < 0*/ : *max;
 }
 
 
@@ -292,16 +288,6 @@ void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
 	throw InvalidMetadataException { r, v, i };
 }
 
-void on_invalid_tocdata(const std::string& msg)
-{
-	throw InvalidMetadataException { msg };
-}
-
-void on_nonstandard_tocdata(const std::string& /*msg*/)
-{
-	// do nothing
-}
-
 std::string name(const MetadataRequirement r)
 {
 	static const std::array<std::string, 9> names =
@@ -446,29 +432,27 @@ namespace toc
 ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets)
 {
 	const auto unit { UNIT::FRAMES };
-	auto toc = ToCData(1 + offsets.size());
+
+	auto toc = ToCData{};
+	toc.reserve(1 + offsets.size());
 
 	// Write leadout to first index position
 
-	using std::begin;
-	using std::end;
+	toc.push_back({ leadout, unit });
 
-	auto ptr { begin(toc) };
-	*ptr = AudioSize { leadout, unit };
-	++ptr;
-
-	// Write tracks in ascending order to index positions 1..n
+	// Write offsets in ascending order to index positions 1..n
 
 	using std::cbegin;
 	using std::cend;
 
-	std::transform(cbegin(offsets), cend(offsets), ptr,
+	std::transform(cbegin(offsets), cend(offsets),
+			std::back_inserter(toc),
 			[](const int32_t o) -> AudioSize
 			{
-				return AudioSize { o, unit };
+				return { o, unit };
 			});
 
-	toc.shrink_to_fit();
+	//toc.shrink_to_fit(); // Commented out, possibly unnecessary
 
 	return toc;
 }
@@ -477,12 +461,21 @@ ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets)
 ToCData construct(const AudioSize& leadout,
 		const std::vector<AudioSize>& offsets)
 {
-	auto toc = offsets;
+	auto toc = ToCData{};
+	toc.reserve(1 + offsets.size());
 
-	using std::begin;
-	toc.insert(begin(toc), leadout);
+	// Write leadout to first index position
 
-	toc.shrink_to_fit(); // For safety. Required?
+	toc.push_back(leadout);
+
+	// Write offsets in ascending order to index positions 1..n
+
+	using std::cbegin;
+	using std::cend;
+
+	std::copy(cbegin(offsets), cend(offsets), std::back_inserter(toc));
+
+	//toc.shrink_to_fit(); // Commented out, possibly unnecessary
 
 	return toc;
 }
