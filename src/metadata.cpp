@@ -23,7 +23,6 @@
 #include <utility>       // for move, swap
 #include <vector>        // for string
 
-
 namespace arcstk
 {
 inline namespace v_1_0_0
