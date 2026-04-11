@@ -1758,12 +1758,6 @@ std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
 	return details::parse_dbar_stream<CharT, TraitsT>(in, p, e);
 }
 
-//template std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
-//		ParseHandler* p, ParseErrorHandler* e);
-
-//template std::size_t parse_stream<char>(std::basic_istream<char>&,
-//		ParseHandler* p, ParseErrorHandler* e);
-
 
 // parse_file()
 

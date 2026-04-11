@@ -151,8 +151,6 @@ std::string default_positional_message(const byte_position_t byte_pos,
  * \throw StreamReadException If reading of the stream fails
  *
  * \return Number of parsed bytes
- *
- * \todo This implementation silently relies on a little endian plattform.
  */
 template <typename CharT, typename TraitsT = std::char_traits<CharT>>
 std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& stream,
