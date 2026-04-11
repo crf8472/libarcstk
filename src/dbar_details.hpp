@@ -39,6 +39,14 @@ namespace details
 {
 
 /**
+ * \brief Maximal file size to be accepted as input.
+ *
+ * Currently this is the equivalent of 8 MiB.
+ */
+static constexpr auto MAX_DBAR_BYTES_ACCEPTABLE = std::size_t {
+		static_cast<std::size_t>(8)/* MiB*/ * 1024 * 1024 };
+
+/**
  * \brief Size of bytes of a dBAR block header
  */
 static constexpr int BLOCK_HEADER_BYTES { 13 };
@@ -162,7 +170,13 @@ std::size_t parse_dbar_stream<char>(std::basic_istream<char>&, ParseHandler*,
 /**
  * \brief Worker method for parsing a dBAR file.
  *
- * Implemented by using file_content().
+ * This implementation reads the entire file by a single I/O read operation to a
+ * vector and then parses the vector as a stream. The expected advantage is to
+ * lower the cost of I/O by performing a single read operation. However, for
+ * small files - like dBAR files - this advantage is neglectable. The
+ * disadvantage is that memory consumption is doubled up by holding the file
+ * content as well as the parsed DBAR object in memory. Of course, this doubling
+ * is also neglectable. Implemented by using file_content().
  *
  * \param[in] filename The file to be parsed
  * \param[in] p        Parse handler
@@ -180,13 +194,9 @@ std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
  *
  * \brief Worker method for parsing a dBAR file.
  *
- * This is an alternate implementation of parse_dbar_file(): it reads the entire
- * file to a vector and then parses the vector as a stream. The expected
- * advantage is to lower the cost of I/O by performing a single read operation.
- * However, for small files - like dBAR files - this advantage is nearly not
- * measurable. The disadvantage is that memory consumption is doubled up by
- * holding the file content as well as the parsed DBAR object in memory. We
- * therefore stick with the regular implementation of the function.
+ * A former implementation of parse_dbar_file(): just opens the file as a stream
+ * and parses the stream. This is considerably slower than the default
+ * implementation.
  *
  * \param[in] filename The file to be parsed
  * \param[in] p        Parse handler
@@ -196,8 +206,19 @@ std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
  *
  * \return Number of parsed bytes
  */
-std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
+std::size_t parse_dbar_file0(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);
+
+/**
+ * \brief Determine file size of a filepath and throw on errors.
+ *
+ * \param[in] filepath The file to get the file size of
+ *
+ * \return File size of \c filepath
+ *
+ * \throw std::runtime_error If file does not exist or acquiring size fails
+ */
+std::uintmax_t file_size_or_throw(const std::string &filepath);
 
 /**
  * \deprecated

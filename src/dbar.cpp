@@ -403,7 +403,47 @@ template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
 std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 		ParseErrorHandler* e)
 {
-	// just opens the stream
+	// single read implementation
+
+	if (auto bytes = file_content(filepath, MAX_DBAR_BYTES_ACCEPTABLE))
+	{
+		auto byte_stream  = istream_wrapper<uint8_t>(bytes.value());
+		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
+
+		const auto total_bytes { parse_stream(input_stream, p, e) };
+
+		ARCS_LOG_DEBUG << "Successfully finished to parse file '"
+			<< filepath << "'.";
+
+		return total_bytes;
+	} else
+	{
+		return 0;
+	}
+}
+
+
+std::size_t parse_dbar_file0(const std::string& filepath, ParseHandler* p,
+		ParseErrorHandler* e)
+{
+	// Get file size
+
+	auto file_size = file_size_or_throw(filepath);
+
+	if (file_size == 0)
+	{
+		return 0;
+	}
+
+	if (file_size > MAX_DBAR_BYTES_ACCEPTABLE)
+	{
+		using std::to_string;
+
+		throw std::runtime_error("File too large, more than maximum of " +
+				to_string(MAX_DBAR_BYTES_ACCEPTABLE) + " bytes");
+	}
+
+	// just opens the stream to parse it manually (slow)
 
     auto input = std::ifstream { filepath, std::ios::binary };
 
@@ -423,38 +463,9 @@ std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 }
 
 
-std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
-		ParseErrorHandler* e)
-{
-	// single read implementation
-
-	static constexpr auto MAX_BYTES = std::size_t {
-		static_cast<std::size_t>(8)/* MiB*/ * 1024 * 1024 };
-
-	if (auto bytes = file_content(filename, MAX_BYTES))
-	{
-		auto byte_stream  = istream_wrapper<uint8_t>(bytes.value());
-
-		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
-
-		const auto byte_counter { parse_stream(input_stream, p, e) };
-
-		ARCS_LOG_DEBUG << "Successfully finished to parse file '"
-			<< filename << "'.";
-
-		return byte_counter;
-	} else
-	{
-		return 0;
-	}
-}
-
-
-std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
-		const std::uintmax_t max_size)
+std::uintmax_t file_size_or_throw(const std::string &filepath)
 {
 	namespace fs = std::filesystem;
-	using std::to_string;
 
 	// Check existence
 
@@ -472,18 +483,38 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 	{
 		throw std::runtime_error("Unable to determine file size for file '" +
 				filepath /* + "', error was: " + rc */);
-	} else
-	{
-		if (file_size == 0)
-		{
-			return std::nullopt;
-		}
+	}
 
-		if (file_size > max_size)
-		{
-			throw std::runtime_error("File too large, more than maximum of " +
-					to_string(max_size) + " bytes");
-		}
+	return file_size;
+}
+
+
+std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
+		const std::uintmax_t max_size)
+{
+	// Get file size
+
+	auto file_size = file_size_or_throw(filepath);
+
+	if (file_size == 0)
+	{
+		return std::nullopt;
+	}
+
+	if (file_size > max_size)
+	{
+		using std::to_string;
+
+		throw std::runtime_error("File too large, more than maximum of " +
+				to_string(max_size) + " bytes");
+	}
+
+	// has to be casted to signed type when passing it to ifstream::read()
+	if (file_size > static_cast<std::uintmax_t>(
+				std::numeric_limits<std::streamsize>::max()))
+	{
+		throw std::runtime_error(
+				"File too large, does not readable in a single read");
 	}
 
 	// Open file
@@ -502,7 +533,8 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 
     auto bytes = std::vector<uint8_t>(file_size);
 
-	input.read(reinterpret_cast<char*>(bytes.data()), file_size);
+	input.read(reinterpret_cast<char*>(bytes.data()),
+			static_cast<std::streamsize>(file_size));
 	// https://www.reddit.com/r/cpp_questions/comments/zl9p9p/is_there_a_better_way_to_read_a_file_into_a/
 	// https://stackoverflow.com/a/77038066
 
