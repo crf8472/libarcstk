@@ -212,6 +212,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/version.cpp.in"
 list (APPEND INTERFACE_HEADERS
 	"${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp"
 	"${PROJECT_INCLUDE_SOURCE_DIR}/algorithms.hpp"
+	"${PROJECT_INCLUDE_SOURCE_DIR}/bytes.hpp"
 	"${PROJECT_INCLUDE_SOURCE_DIR}/calculate.hpp"
 	"${PROJECT_INCLUDE_SOURCE_DIR}/checksum.hpp"
 	"${PROJECT_INCLUDE_SOURCE_DIR}/dbar.hpp"
@@ -228,6 +229,7 @@ list (APPEND INTERFACE_HEADERS
 
 add_library (${PROJECT_NAME} SHARED
 	"${PROJECT_SOURCE_DIR}/accuraterip.cpp"
+	"${PROJECT_SOURCE_DIR}/bytes.cpp"
 	"${PROJECT_SOURCE_DIR}/calculate.cpp"
 	"${PROJECT_SOURCE_DIR}/checksum.cpp"
 	"${PROJECT_SOURCE_DIR}/dbar.cpp"

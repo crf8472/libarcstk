@@ -16,7 +16,6 @@
 #include <fstream>                // for ifstream
 #include <stdexcept>              // for runtime_error
 #include <string>                 // for string
-
 /**
  * \brief Complete test of possible input
  *
@@ -52,8 +51,6 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	DBARBuilder builder;
 
 	std::ifstream file;
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
 
 
 	SECTION ( "Parse intact file" )
@@ -61,7 +58,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -82,7 +79,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -113,7 +110,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -144,7 +141,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -175,7 +172,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -206,7 +203,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -237,7 +234,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -268,7 +265,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -299,7 +296,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -330,7 +327,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -361,7 +358,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -392,7 +389,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -423,7 +420,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -454,7 +451,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -485,7 +482,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -517,7 +514,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -552,7 +549,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -583,7 +580,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -614,7 +611,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -648,7 +645,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -682,7 +679,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -713,7 +710,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{
@@ -744,7 +741,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		try
 		{
 			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin",
-					std::ifstream::in | std::ifstream::binary);
+					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
 		{

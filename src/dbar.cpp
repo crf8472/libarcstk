@@ -20,17 +20,22 @@
 #include <filesystem>       // for file_size
 #include <fstream>          // for basic_ifstream
 #include <initializer_list> // for initializer_list
+#include <iosfwd>           // for char_traits, streampos
 #include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr, make_unique
-#include <numeric>			// for accumulate
-#include <sstream>			// for ostringstream
-#include <stdexcept>		// for runtime_error
-#include <string>			// for string
-#include <tuple>			// for get, tuple
-#include <unordered_set>	// for unordered_set
-#include <utility>			// for pair, move
-#include <vector>			// for vector
+#include <numeric>          // for accumulate
+#include <optional>         // for optional, nullopt
+#include <sstream>          // for ostringstream
+#include <stdexcept>        // for runtime_error
+#include <string>           // for string
+#include <tuple>            // for get, tuple
+#include <unordered_set>    // for unordered_set
+#include <utility>          // for pair, move
+#include <vector>           // for vector
 
+#ifndef LIBARCSTK_BYTES_HPP_
+#include "bytes.hpp"               // for combine
+#endif
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"            // for checksum::print()
 #endif
@@ -44,7 +49,6 @@
 #include "logging.hpp"
 #endif
 
-
 namespace arcstk
 {
 inline namespace v_1_0_0
@@ -55,16 +59,6 @@ const DBAR EmptyDBAR = DBAR {};
 
 namespace details
 {
-
-uint32_t le_bytes_to_uint32(const char b1, const char b2, const char b3,
-		const char b4)
-{
-	return  static_cast<uint32_t>(b4 & 0xFF) << 24 |
-			static_cast<uint32_t>(b3 & 0xFF) << 16 |
-			static_cast<uint32_t>(b2 & 0xFF) <<  8 |
-			static_cast<uint32_t>(b1 & 0xFF);
-}
-
 
 void on_parse_error(const byte_position_t byte_pos, const unsigned block,
 		const byte_position_t block_byte_pos, ParseErrorHandler* e)
@@ -90,14 +84,15 @@ std::string default_positional_message(const byte_position_t byte_pos,
 		const unsigned block, const byte_position_t block_byte_pos)
 {
 	auto ss = std::ostringstream {};
-	ss << "Read error on input byte " << byte_pos << " (block " << block
+	ss << "Read error after input byte " << byte_pos << " (block " << block
 			<< ", byte " << block_byte_pos << ")";
 	return ss.str();
 }
 
 
-std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
-		ParseErrorHandler* e)
+template<typename CharT, typename TraitsT>
+std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
+		ParseHandler* p, ParseErrorHandler* e)
 {
 	if (!p)
 	{
@@ -109,9 +104,18 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	using details::BLOCK_HEADER_BYTES;
 	using details::TRIPLET_BYTES;
 
-	std::vector<char> id      (BLOCK_HEADER_BYTES * sizeof(char));
-	std::vector<char> triplet (TRIPLET_BYTES      * sizeof(char));
+	// fixed sizes of the DBAR format
+	constexpr auto TOTAL_HEADER_BYTES  { BLOCK_HEADER_BYTES * sizeof(CharT) };
+	constexpr auto TOTAL_TRIPLET_BYTES { TRIPLET_BYTES      * sizeof(CharT) };
 
+	constexpr auto SizeOf_4 = size_of_bytes_v<4, CharT>;
+	constexpr auto SizeOf_8 = size_of_bytes_v<8, CharT>;
+
+	// input buffers
+	std::vector<CharT> id    (TOTAL_HEADER_BYTES);
+	std::vector<CharT> t_buf (TOTAL_TRIPLET_BYTES);
+
+	// parsed entities
 	auto total_tracks  = unsigned { 0 };
 	auto discId1       = uint32_t { 0 };
 	auto discId2       = uint32_t { 0 };
@@ -120,95 +124,115 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 	auto trk_arcs      = uint32_t { 0 };
 	auto frame450_arcs = uint32_t { 0 };
 
-	auto bytes_read         = std::size_t     { 0 };
-	auto byte_counter       = byte_position_t { 0 };
-	auto block_counter      = unsigned        { 0 };
-	auto block_byte_counter = byte_position_t { 0 };
+	// counters
+	auto bytes_read        = std::streamsize { 0 };
+	auto bytes_total       = byte_position_t { 0 };
+	auto block_bytes_total = byte_position_t { 0 };
+	auto bytes_expected    = unsigned        { 0 };
+	auto byte_pos          = unsigned        { 0 };
+	auto block_counter     = unsigned        { 0 };
+	auto actual_tracks     = int             { 0 };
+	auto bytes_left        = int             { 0 };
 
 	p->start_input();
 
-	while (in.good() and in.peek() != EOF)
+	while (true)
 	{
 		++block_counter;
 
-		block_byte_counter = 0;
+		block_bytes_total = 0;
 		bytes_read = 0;
 
 		p->start_block();
 
 		// Read header of current block
 
-		try
+		if (!in.read(&id[0], TOTAL_HEADER_BYTES))
 		{
-			in.read(&id[0], BLOCK_HEADER_BYTES * sizeof(id[0]));
-			bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
+			bytes_read = in.gcount();
 
-		} catch (const std::istream::failure& flr)
+			if (bytes_read == 0)
+			{
+				if (in.eof())
+				{
+					// This is OK if total_bytes == expected file size
+					// Check result value!
+					break;
+				}
+
+				if (in.fail())
+				{
+					on_parse_error(bytes_total, block_counter,
+							block_bytes_total, e);
+				}
+
+			} // else
+			// on_parse_error() is called below after processing
+			// the bytes that were actually read
+		} else
 		{
-			bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
+			bytes_read = in.gcount();
 		}
 
 		ARCS_LOG(DEBUG2) << "Read " << bytes_read << " header bytes";
 
-		byte_counter       += bytes_read;
-		block_byte_counter += bytes_read;
+		bytes_total       += bytes_read;
+		block_bytes_total += bytes_read;
 
-		ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
+		ARCS_LOG(DEBUG2) << "Read " << bytes_total << " bytes total";
 
-		if (bytes_read == 0)
-		{
-			on_parse_error(byte_counter, block_counter, block_byte_counter, e);
-			break;
-		} else
+		if (bytes_read > 0)
 		{
 			// At least 1 byte has been read. We want to pass the bytes parsed
 			// so far to the content handler
 
 			total_tracks = id[0] & 0xFF;
 
-			if (bytes_read <= 4 * sizeof(id[0]))
+			if (bytes_read <= SizeOf_4) // discId1 unfinished
 			{
 				p->header(total_tracks, 0, 0, 0);
 
-				on_parse_error(byte_counter, block_counter, block_byte_counter,
+				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
+
 				break;
 			}
 
-			discId1 = le_bytes_to_uint32(id[1], id[ 2], id[ 3], id[ 4]);
+			discId1 = combine(std::byte(id[ 1]), std::byte(id[ 2]),
+							  std::byte(id[ 3]), std::byte(id[ 4]));
 
-			if (bytes_read <= 8 * sizeof(id[0]))
+			if (bytes_read <= SizeOf_8) // discId2 unfinished
 			{
 				p->header(total_tracks, discId1, 0, 0);
 
-				on_parse_error(byte_counter, block_counter, block_byte_counter,
+				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
 				break;
 			}
 
-			discId2 = le_bytes_to_uint32(id[5], id[ 6], id[ 7], id[ 8]);
+			discId2 = combine(std::byte(id[ 5]), std::byte(id[ 6]),
+							  std::byte(id[ 7]), std::byte(id[ 8]));
 
-			if (bytes_read <= 12 * sizeof(id[0]))
+			if (bytes_read <= size_of_bytes_v<12, CharT>) // cddbId unfinished
 			{
 				p->header(total_tracks, discId1, discId2, 0);
 
-				on_parse_error(byte_counter, block_counter, block_byte_counter,
+				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
 				break;
 			}
 
-			cddbId  = le_bytes_to_uint32(id[9], id[10], id[11], id[12]);
+			cddbId = combine(std::byte(id[ 9]), std::byte(id[10]),
+							 std::byte(id[11]), std::byte(id[12]));
 
 			ARCS_LOG(DEBUG1) << "New block (" << total_tracks
 				<< " tracks) starts. ID: "
 				<< ARId { total_tracks, discId1, discId2, cddbId }.filename();
 
 			p->header(total_tracks, discId1, discId2, cddbId);
-		}
-
-		if (not in.good())
+		} else
 		{
-			on_parse_error(byte_counter, block_counter, block_byte_counter, e);
+			on_parse_error(bytes_total, block_counter, block_bytes_total, e);
 			break;
 		}
 
@@ -218,78 +242,144 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 		// Read triplets of current block
 
-		for (auto trk = unsigned { 0 }; trk < total_tracks; ++trk)
+		bytes_expected = total_tracks * TOTAL_TRIPLET_BYTES;
+
+		if (t_buf.size() != bytes_expected)
 		{
-			try
-			{
-				in.read(&triplet[0], TRIPLET_BYTES * sizeof(triplet[0]));
-				bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
+			t_buf.resize(bytes_expected);
+		}
 
-			} catch (std::istream::failure& flr)
-			{
-				bytes_read = static_cast<decltype( bytes_read )>(in.gcount());
-			}
-
-			ARCS_LOG(DEBUG2) << "Read " << bytes_read << " triplet bytes";
-
-			byte_counter       += bytes_read;
-			block_byte_counter += bytes_read;
-
-			ARCS_LOG(DEBUG2) << "Read " << byte_counter << " bytes total";
+		if (!in.read(&t_buf[0], bytes_expected))
+		{
+			bytes_read = in.gcount();
 
 			if (bytes_read == 0)
 			{
-				on_parse_error(byte_counter, block_counter, block_byte_counter,
-						e);
-				break;
-			} else
+				if (in.eof())
+				{
+					ARCS_LOG(WARNING) << "Unexpected EOF after DBARBlockHeader"
+						<< ", read " << bytes_total << " bytes total";
+				}
+
+				if (in.fail())
+				{
+					on_parse_error(bytes_total, block_counter,
+							block_bytes_total, e);
+					break;
+				}
+
+			} // else
+			// on_parse_error() is called below after processing
+			// the bytes that were actually read
+		} else
+		{
+			bytes_read = in.gcount();
+		}
+
+		ARCS_LOG(DEBUG2) << "Read " << bytes_read << " triplet bytes";
+
+		bytes_total       += bytes_read;
+		block_bytes_total += bytes_read;
+
+		ARCS_LOG(DEBUG2) << "Read " << bytes_total << " bytes total";
+
+		if (bytes_read > 0)
+		{
+			actual_tracks = bytes_read / static_cast<int>(TOTAL_TRIPLET_BYTES);
+
+			byte_pos = 0;
+
+			for (auto track = int { 0 }; track < actual_tracks; ++track)
 			{
 				// At least 1 byte has been read. We want to pass the bytes
 				// parsed so far to the content handler
 
-				confidence = triplet[0] & 0xFF;
+				confidence    = t_buf [byte_pos] & 0xFF;
 
-				if (bytes_read <= 4 * sizeof(id[0]))
+				trk_arcs      = combine(std::byte(t_buf [byte_pos + 1]),
+										std::byte(t_buf [byte_pos + 2]),
+										std::byte(t_buf [byte_pos + 3]),
+										std::byte(t_buf [byte_pos + 4]));
+
+				frame450_arcs = combine(std::byte(t_buf [byte_pos + 5]),
+										std::byte(t_buf [byte_pos + 6]),
+										std::byte(t_buf [byte_pos + 7]),
+										std::byte(t_buf [byte_pos + 8]));
+
+				p->triplet(trk_arcs, confidence, frame450_arcs);
+
+				byte_pos += TRIPLET_BYTES;
+			} // for
+
+			// handle bytes left, if any
+
+			if (byte_pos != bytes_read)
+			{
+				bytes_left = static_cast<int>(bytes_read) -
+					static_cast<int>(byte_pos);
+
+				confidence = t_buf[byte_pos] & 0xFF;
+				++byte_pos;
+
+				if (bytes_left <= SizeOf_4)
 				{
 					// => We have read the confidence value, but reading
 					// failed on the actual ARCS.
 
 					p->triplet(UNPARSED_ARCS, confidence, UNPARSED_ARCS);
-					// ARCS + frame450 ARCS are not valid
+					// ARCS + frame450-ARCS are not valid
 
-					on_parse_error(byte_counter, block_counter,
-							block_byte_counter, e);
+					on_parse_error(bytes_total, block_counter,
+							block_bytes_total, e);
 					break;
 				}
 
-				trk_arcs = le_bytes_to_uint32(
-								triplet[1], triplet[2],
-								triplet[3], triplet[4]);
+				trk_arcs = combine( std::byte(t_buf[byte_pos + 1]),
+									std::byte(t_buf[byte_pos + 2]),
+									std::byte(t_buf[byte_pos + 3]),
+									std::byte(t_buf[byte_pos + 4]));
+				byte_pos += SizeOf_4;
 
-				if (bytes_read <= 8 * sizeof(id[0]))
+				if (bytes_left <= SizeOf_8)
 				{
 					p->triplet(trk_arcs, confidence, UNPARSED_ARCS);
-					// frame450 ARCS is not valid
+					// frame450-ARCS is not valid
 
-					on_parse_error(byte_counter, block_counter,
-							block_byte_counter, e);
+					on_parse_error(bytes_total, block_counter,
+							block_bytes_total, e);
 					break;
 				}
-
-				frame450_arcs = le_bytes_to_uint32(
-								triplet[5], triplet[6],
-								triplet[7], triplet[8]);
-
-				p->triplet(trk_arcs, confidence, frame450_arcs);
-				// everything is valid
-			}
-
-			if (not in.good())
+			} else
 			{
-				on_parse_error(byte_counter, block_counter, block_byte_counter,
-						e);
+				// No bytes left to process.
+				// But did we fail just on byte 0 of a triplet sequence?
+				if (bytes_read != bytes_expected)
+				{
+					on_parse_error(bytes_total, block_counter,
+							block_bytes_total, e);
+					break;
+				}
 			}
-		} // for
+		} else
+		{
+			// No bytes read, hence no bytes to process, but bytes expected!
+			on_parse_error(bytes_total, block_counter, block_bytes_total, e);
+			break;
+		}
+
+		if (in.eof())
+		{
+			ARCS_LOG(WARNING) << "Unexpected EOF after DBARTriplet, read "
+				<< bytes_total << " bytes total";
+			break;
+		}
+
+		if (in.fail())
+		{
+			on_parse_error(bytes_total, block_counter, block_bytes_total,
+					e);
+			break;
+		}
 
 		p->end_triplets();
 
@@ -298,87 +388,121 @@ std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
 
 	p->end_input();
 
-	ARCS_LOG(DEBUG1)  << "Parsed " << byte_counter << " bytes";
+	ARCS_LOG(DEBUG1)  << "Parsed " << bytes_total << " bytes";
 
-	return byte_counter;
+	return bytes_total;
 }
 
+template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
+		ParseHandler*, ParseErrorHandler*);
 
-std::size_t parse_dbar_file(const std::string& filename, ParseHandler* p,
+template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
+		ParseHandler*, ParseErrorHandler*);
+
+
+std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 		ParseErrorHandler* e)
 {
-	std::ifstream input_stream;
-	input_stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	// just opens the stream
 
-	try
-	{
-		input_stream.open(filename, std::ifstream::in | std::ifstream::binary);
-	}
-	catch (const std::ifstream::failure& f)
+    auto input = std::ifstream { filepath, std::ios::binary };
+
+    if (!input)
 	{
 		throw std::runtime_error(std::string{
-			"Failed to open file '" + filename + "'. Message: " + f.what()
+			"Failed to open file '" + filepath + "'"
 		});
-	}
+    }
 
-	const auto byte_counter { parse_stream(input_stream, p, e) };
+	const auto total_bytes { parse_stream(input, p, e) };
 
 	ARCS_LOG_DEBUG << "Successfully finished to parse file '"
-		<< filename << "'.";
+		<< filepath << "'.";
 
-	return byte_counter;
+	return total_bytes;
 }
 
 
 std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e)
 {
+	// single read implementation
+
 	static constexpr auto MAX_BYTES = std::size_t {
 		static_cast<std::size_t>(8)/* MiB*/ * 1024 * 1024 };
 
-	auto bytes        = file_content(filename, MAX_BYTES);
-	auto char_stream  = istream_wrapper(bytes);
-	auto input_stream = std::istream(&char_stream);
+	if (auto bytes = file_content(filename, MAX_BYTES))
+	{
+		auto byte_stream  = istream_wrapper<uint8_t>(bytes.value());
 
-	const auto byte_counter { parse_stream(input_stream, p, e) };
+		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
 
-	ARCS_LOG_DEBUG << "Successfully finished to parse file '"
-		<< filename << "'.";
+		const auto byte_counter { parse_stream(input_stream, p, e) };
 
-	return byte_counter;
+		ARCS_LOG_DEBUG << "Successfully finished to parse file '"
+			<< filename << "'.";
+
+		return byte_counter;
+	} else
+	{
+		return 0;
+	}
 }
 
 
-std::vector<char> file_content(const std::string &filepath, const
-		std::size_t max_size)
+std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
+		const std::uintmax_t max_size)
 {
+	namespace fs = std::filesystem;
+	using std::to_string;
+
+	// Check existence
+
+	if (!fs::exists(filepath))
+	{
+        throw std::runtime_error("File not found");
+    }
+
 	// Check file size
 
-    const auto length { std::filesystem::file_size(filepath) };
+	std::error_code rc;
+    const auto file_size { fs::file_size(filepath, rc) };
 
-	if (length > max_size)
+	if (rc)
 	{
-		using std::to_string;
+		throw std::runtime_error("Unable to determine file size for file '" +
+				filepath /* + "', error was: " + rc */);
+	} else
+	{
+		if (file_size == 0)
+		{
+			return std::nullopt;
+		}
 
-		throw std::runtime_error("File too large, more than maximum of " +
-				to_string(max_size) + " bytes");
+		if (file_size > max_size)
+		{
+			throw std::runtime_error("File too large, more than maximum of " +
+					to_string(max_size) + " bytes");
+		}
 	}
 
-	// Load file content into vector
+	// Open file
 
-    auto input = std::ifstream { filepath, std::ios::in | std::ios::binary };
+    auto input = std::ifstream { filepath, std::ios::binary };
 
-    if (!input.good())
+    if (!input)
 	{
-		using std::to_string;
-
 		throw std::runtime_error("Unable to correctly open file '" + filepath
 				+ "'");
     }
 
-    auto bytes = std::vector<char>(length);
+	input.exceptions(std::ios::failbit | std::ios::badbit);
 
-    input.read(bytes.data(), static_cast<int64_t>(length));
+	// Load file content into vector
+
+    auto bytes = std::vector<uint8_t>(file_size);
+
+	input.read(reinterpret_cast<char*>(bytes.data()), file_size);
 	// https://www.reddit.com/r/cpp_questions/comments/zl9p9p/is_there_a_better_way_to_read_a_file_into_a/
 	// https://stackoverflow.com/a/77038066
 
@@ -1595,11 +1719,21 @@ byte_position_t StreamParseException::block_byte_position() const noexcept
 // parse_stream()
 
 
-uint32_t parse_stream(std::istream& in, ParseHandler* p,
-		ParseErrorHandler* e)
+template<typename CharT, typename TraitsT>
+std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
+		ParseHandler* p, ParseErrorHandler* e)
 {
-	return details::parse_dbar_stream(in, p, e);
+	return details::parse_dbar_stream<CharT, TraitsT>(in, p, e);
 }
+
+//template std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
+//		ParseHandler* p, ParseErrorHandler* e);
+
+//template std::size_t parse_stream<char>(std::basic_istream<char>&,
+//		ParseHandler* p, ParseErrorHandler* e);
+
+
+// parse_file()
 
 
 uint32_t parse_file(const std::string& filename, ParseHandler* p,

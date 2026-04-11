@@ -17,8 +17,12 @@
 #include "dbar.hpp"            // for DBAR::size_type + ...
 #endif
 
+#include <cstring>   // for memmove, memcpy, memset
+#include <cstddef>   // for byte
 #include <cstdint>   // for uint32_t, uint8_t
+#include <iosfwd>    // for char_traits, streampos
 #include <istream>   // for istream
+#include <optional>  // for optional
 #include <string>    // for string
 #include <vector>    // for vector
 
@@ -45,19 +49,36 @@ static constexpr int BLOCK_HEADER_BYTES { 13 };
 static constexpr int TRIPLET_BYTES { 9 };
 
 /**
- * \brief Service method: Interpret 4 bytes as a 32 bit unsigned integer
- * with little endian storage, which means that the bits of b4 become the
- * most significant bits of the result.
+ * \brief Size in bytes of \c n occurrences of \c CharT.
  *
- * \param[in] b1 First input byte, least significant bits of the result
- * \param[in] b2 Second input byte
- * \param[in] b3 Third input byte
- * \param[in] b4 Fourth input byte, most significant bits of the result
+ * Provides the size as a signed value.
  *
- * \return The bytes as 32 bit unsigned integer
+ * \tparam n     Total occurrences
+ * \tparam CharT Char type
+ *
+ * \return Size in bytes
  */
-uint32_t le_bytes_to_uint32(const char b1, const char b2, const char b3,
-	const char b4);
+template <int n, typename CharT>
+struct size_of_bytes
+{
+	constexpr static int value = n * static_cast<int>(sizeof(CharT));
+};
+
+/**
+ * \brief Alias for size_of_bytes<n, CharT>::value.
+ *
+ * \tparam n     Total occurrences
+ * \tparam CharT Char type
+ *
+ * \return Size in bytes
+ */
+template <int n, typename CharT>
+constexpr int size_of_bytes_v = size_of_bytes<n, CharT>::value;
+
+/**
+ * \brief Indicates an invalid discId1, discId2 or cddbId value.
+ */
+static constexpr uint32_t UNPARSED_DISC_ID = 0;
 
 /**
  * \brief Indicates an invalid ARCS value.
@@ -125,8 +146,18 @@ std::string default_positional_message(const byte_position_t byte_pos,
  *
  * \todo This implementation silently relies on a little endian plattform.
  */
-std::size_t parse_dbar_stream(std::istream& in, ParseHandler* p,
-		ParseErrorHandler* e);
+template <typename CharT, typename TraitsT = std::char_traits<CharT>>
+std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& stream,
+		ParseHandler* p, ParseErrorHandler* e);
+
+// two explicit specializations for uint8_t and char
+extern template
+std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
+		ParseHandler*, ParseErrorHandler*);
+
+extern template
+std::size_t parse_dbar_stream<char>(std::basic_istream<char>&, ParseHandler*,
+		ParseErrorHandler*);
 
 /**
  * \brief Worker method for parsing a dBAR file.
@@ -182,8 +213,8 @@ std::size_t parse_dbar_file2(const std::string& filename, ParseHandler* p,
  *
  * \return File content as a sequence of bytes
  */
-std::vector<char> file_content(const std::string &filepath, const
-		std::size_t max_size);
+std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
+		const std::uintmax_t max_size);
 
 /**
  * \brief Convert a dBARHeader to an ARId;
@@ -508,6 +539,90 @@ public:
 } // namespace v_1_0_0
                                                                  /** \endcond */
 } // namespace arcstk
+
+
+namespace std
+{
+	// Define char_traits for uint8_t to use use uint8_t as a CharT.
+	// Motivation: put vector<uint8_t> into an istream_wrapper
+
+    template<>
+    struct char_traits<uint8_t>
+	{
+        using char_type  = uint8_t;
+        using int_type   = int;
+        using off_type   = std::streamoff;
+        using pos_type   = std::streampos;
+        using state_type = std::mbstate_t;
+
+        static void assign (char_type& r, const char_type& a) { r = a; }
+        static bool eq (char_type a, char_type b)             { return a == b; }
+        static bool lt (char_type a, char_type b)             { return a  < b; }
+
+        static int compare (const char_type* s1, const char_type* s2, size_t n)
+		{
+            return std::memcmp(s1, s2, n);
+        }
+
+        static size_t length (const char_type* s)
+		{
+            size_t len = 0;
+            while (s[len] != char_type(0)) { ++len; }
+            return len;
+        }
+
+        static const char_type* find (const char_type* s, size_t n,
+				const char_type& a)
+		{
+            for (size_t i = 0; i < n; ++i)
+			{
+                if (s[i] == a) return s + i;
+            }
+            return nullptr;
+        }
+
+        static char_type* copy (char_type* s1, const char_type* s2, size_t n)
+		{
+            return static_cast<char_type*>(std::memcpy(s1, s2, n));
+        }
+
+        static char_type* move (char_type* s1, const char_type* s2, size_t n)
+		{
+            return static_cast<char_type*>(std::memmove(s1, s2, n));
+        }
+
+        static char_type* assign (char_type* s, size_t n, char_type a)
+		{
+            return static_cast<char_type*>(
+					std::memset(s, static_cast<int>(a), n));
+        }
+
+        static constexpr int_type not_eof (int_type c)
+		{
+            return c == eof() ? 0 : c;
+        }
+
+        static constexpr char_type to_char_type (int_type c)
+		{
+            return static_cast<char_type>(c);
+        }
+
+        static constexpr int_type to_int_type (char_type c)
+		{
+            return static_cast<int_type>(c);
+        }
+
+        static constexpr bool eq_int_type (int_type c1, int_type c2)
+		{
+            return c1 == c2;
+        }
+
+        static constexpr int_type eof()
+		{
+            return -1;
+        }
+    };
+} // namespace std
 
 #endif
 
