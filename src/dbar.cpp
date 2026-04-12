@@ -437,10 +437,13 @@ std::size_t parse_dbar_file0(const std::string& filepath, ParseHandler* p,
 
 	if (file_size > MAX_DBAR_BYTES_ACCEPTABLE)
 	{
-		using std::to_string;
+		auto msg = std::ostringstream{};
 
-		throw std::runtime_error("File too large, more than maximum of " +
-				to_string(MAX_DBAR_BYTES_ACCEPTABLE) + " bytes");
+		msg << "File too large, more than maximum of "
+			<< MAX_DBAR_BYTES_ACCEPTABLE
+			<< " bytes";
+
+		throw std::runtime_error(msg.str());
 	}
 
 	// just opens the stream to parse it manually (slow)
@@ -449,9 +452,13 @@ std::size_t parse_dbar_file0(const std::string& filepath, ParseHandler* p,
 
     if (!input)
 	{
-		throw std::runtime_error(std::string{
-			"Failed to open file '" + filepath + "'"
-		});
+		auto msg = std::ostringstream{};
+
+		msg << "Failed to open file '"
+			<< filepath
+			<< "'";
+
+		throw std::runtime_error(msg.str());
     }
 
 	const auto total_bytes { parse_stream(input, p, e) };
@@ -481,8 +488,13 @@ std::uintmax_t file_size_or_throw(const std::string &filepath)
 
 	if (rc)
 	{
-		throw std::runtime_error("Unable to determine file size for file '" +
-				filepath /* + "', error was: " + rc */);
+		auto msg = std::ostringstream{};
+
+		msg << "Unable to determine file size for file '"
+			<< filepath
+			<< "'";/* + "', error was: " + rc */
+
+		throw std::runtime_error(msg.str());
 	}
 
 	return file_size;
@@ -503,10 +515,13 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 
 	if (file_size > max_size)
 	{
-		using std::to_string;
+		auto msg = std::ostringstream{};
 
-		throw std::runtime_error("File too large, more than maximum of " +
-				to_string(max_size) + " bytes");
+		msg << "File too large, more than maximum of "
+			<< max_size
+			<< " bytes";
+
+		throw std::runtime_error(msg.str());
 	}
 
 	// has to be casted to signed type when passing it to ifstream::read()
@@ -523,8 +538,13 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 
     if (!input)
 	{
-		throw std::runtime_error("Unable to correctly open file '" + filepath
-				+ "'");
+		auto msg = std::ostringstream{};
+
+		msg << "Unable to correctly open file '"
+			<< filepath
+			<< "'";
+
+		throw std::runtime_error(msg.str());
     }
 
 	input.exceptions(std::ios::failbit | std::ios::badbit);
@@ -1033,7 +1053,8 @@ DBAR::Impl::size_type DBAR::Impl::start_idx(
 		const size_type block_idx) const
 {
 	return block_idx * header_size
-		+ total_tracks_accumulated(block_idx) * track_size;
+		+ static_cast<size_type>(total_tracks_accumulated(block_idx))
+		* track_size;
 }
 
 
