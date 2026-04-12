@@ -117,7 +117,7 @@ int32_t exceeds_maximum(const int32_t offset);
  *
  * \throws InvalidMetadataException If validation fails
  */
-void validate_offsets_leadout(const ToCData& toc_data);
+void validate_offsets_and_leadout(const ToCData& toc_data);
 
 /**
  * \internal

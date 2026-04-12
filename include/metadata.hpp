@@ -707,26 +707,26 @@ std::vector<AudioSize> lengths(const ToCData& data);
 bool complete(const ToCData& data);
 
 /**
+ * \brief Validate ToCData object.
+ *
+ * The leadout is allowed to be 0 but validated if it is non-zero.
+ *
+ * \param[in] toc_data ToCData object to be validated
+ *
+ * \throws InvalidMetadataException If validation fails
+ */
+void validate(const ToCData& toc_data);
+
+/**
  * \brief Validate ToCData object requiring completeness.
  *
- * The leadout is validated and required to be non-zero.
+ * The leadout is always validated and required to be non-zero.
  *
  * \param[in] toc_data ToCData object to be validated
  *
  * \throws InvalidMetadataException If validation fails
  */
 void validate_with_completeness(const ToCData& toc_data);
-
-/**
- * \brief Validate ToCData object.
- *
- * The leadout is validated if it is non-zero.
- *
- * \param[in] toc_data ToCData object to be validated
- *
- * \throws InvalidMetadataException If validation fails
- */
-void validate_without_completeness(const ToCData& toc_data);
 
 /**
  * \brief Create a string representation of this instance.
@@ -849,7 +849,8 @@ public:
 	/**
 	 * \brief Validate the instance.
 	 *
-	 * The ToC instance is not required to be complete to prove as valid.
+	 * The ToC instance is not required to be complete validation success. If
+	 * the instance is complete, the leadout will be validated.
 	 *
 	 * \throws InvalidMetadataException If validation fails
 	 */

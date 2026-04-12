@@ -141,7 +141,7 @@ int32_t exceeds_maximum(const int32_t offset)
 }
 
 
-void validate_offsets_leadout(const ToCData& toc_data)
+void validate_offsets_and_leadout(const ToCData& toc_data)
 {
 	using Req = MetadataRequirement;
 
@@ -581,15 +581,15 @@ bool complete(const ToCData& data)
 }
 
 
-void validate_with_completeness(const ToCData& toc_data)
+void validate(const ToCData& toc_data)
 {
-	details::validate::validate_offsets_leadout(toc_data);
+	details::validate::validate_offsets(toc_data);
 }
 
 
-void validate_without_completeness(const ToCData& toc_data)
+void validate_with_completeness(const ToCData& toc_data)
 {
-	details::validate::validate_offsets(toc_data);
+	details::validate::validate_offsets_and_leadout(toc_data);
 }
 
 
@@ -667,13 +667,7 @@ bool ToC::Impl::is_single_file() const noexcept
 
 void ToC::Impl::validate() const
 {
-	if (complete())
-	{
-		toc::validate_without_completeness(toc_);
-	} else
-	{
-		toc::validate_with_completeness(toc_);
-	}
+	toc::validate(toc_); // with or without leadout
 
 	if (!filenames_.empty())
 	{
@@ -890,15 +884,8 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
 {
 	const auto toc_data { toc::construct(leadout, offsets) };
 
+	toc::validate(toc_data);
 	details::validate_filenames_impl(toc_data, filenames);
-
-	if (leadout)
-	{
-		toc::validate_with_completeness(toc_data);
-	} else
-	{
-		toc::validate_without_completeness(toc_data);
-	}
 
 	return ToC { toc_data, filenames };
 }
@@ -908,13 +895,7 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets)
 {
 	const auto toc_data { toc::construct(leadout, offsets) };
 
-	if (leadout)
-	{
-		toc::validate_with_completeness(toc_data);
-	} else
-	{
-		toc::validate_without_completeness(toc_data);
-	}
+	toc::validate(toc_data);
 
 	return ToC { toc_data };
 }
@@ -925,8 +906,8 @@ ToC validated_toc(const std::vector<int32_t>& offsets,
 {
 	const auto toc_data { toc::construct(0, offsets) };
 
+	toc::validate(toc_data);
 	details::validate_filenames_impl(toc_data, filenames);
-	toc::validate_without_completeness(toc_data);
 
 	return ToC { toc_data, filenames };
 }
@@ -936,7 +917,7 @@ ToC validated_toc(const std::vector<int32_t>& offsets)
 {
 	const auto toc_data { toc::construct(0, offsets) };
 
-	toc::validate_without_completeness(toc_data);
+	toc::validate(toc_data);
 
 	return ToC { toc_data };
 }

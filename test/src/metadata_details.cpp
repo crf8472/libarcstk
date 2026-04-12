@@ -310,7 +310,7 @@ TEST_CASE ( "exceeds_maximum()", "[meta]" )
 
 TEST_CASE ("validate_offsets()", "[meta]")
 {
-	using arcstk::details::validate::validate_offsets_leadout;
+	using arcstk::details::validate::validate_offsets_and_leadout;
 	using arcstk::details::validate::validate_offsets;
 	using arcstk::CDDA;
 	using arcstk::InvalidMetadataException;
@@ -346,7 +346,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 	SECTION ( "Succeeds for correct offsets with non-zero leadout" )
 	{
-		CHECK_NOTHROW ( validate_offsets_leadout(valid_nz) );
+		CHECK_NOTHROW ( validate_offsets_and_leadout(valid_nz) );
 		CHECK_NOTHROW ( validate_offsets(valid_nz) );
 	}
 
@@ -369,7 +369,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -395,7 +395,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -419,7 +419,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail_1);
+			validate_offsets_and_leadout(fail_1);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -440,7 +440,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail_2);
+			validate_offsets_and_leadout(fail_2);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -465,7 +465,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -491,7 +491,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -512,7 +512,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -533,7 +533,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(fail);
+			validate_offsets_and_leadout(fail);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -552,7 +552,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 	{
 		try
 		{
-			validate_offsets_leadout(valid_z);
+			validate_offsets_and_leadout(valid_z);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -564,7 +564,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_offsets_leadout(valid_z2);
+			validate_offsets_and_leadout(valid_z2);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)

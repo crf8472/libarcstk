@@ -34,8 +34,6 @@ namespace arcstk
 inline namespace v_1_0_0
 {
 
-const ARId EmptyARId = ARId { 0, 0, 0, 0 }; // defines emptiness for ARId
-
 
 // identifier_details.hpp
 
@@ -91,9 +89,9 @@ std::ostream& operator << (std::ostream& out, const ARId& arid)
 ARId::Impl::Impl(const unsigned total_tracks, const uint32_t id_1,
 		const uint32_t id_2, const uint32_t cddb_id) noexcept
 	: total_tracks_ { total_tracks }
-	, disc_id1_     { id_1 }
-	, disc_id2_     { id_2 }
-	, cddb_id_      { cddb_id }
+	, disc_id_1_    { id_1         }
+	, disc_id_2_    { id_2         }
+	, cddb_id_      { cddb_id      }
 {
 	// empty
 }
@@ -101,15 +99,15 @@ ARId::Impl::Impl(const unsigned total_tracks, const uint32_t id_1,
 
 std::string ARId::Impl::url() const noexcept
 {
-	return accuraterip::id::construct_url(total_tracks_, disc_id1_, disc_id2_,
+	return accuraterip::id::construct_url(total_tracks_, disc_id_1_, disc_id_2_,
 			cddb_id_);
 }
 
 
 std::string ARId::Impl::filename() const noexcept
 {
-	return accuraterip::id::construct_filename(total_tracks_, disc_id1_,
-			disc_id2_, cddb_id_);
+	return accuraterip::id::construct_filename(total_tracks_, disc_id_1_,
+			disc_id_2_, cddb_id_);
 }
 
 
@@ -121,13 +119,13 @@ unsigned ARId::Impl::total_tracks() const noexcept
 
 uint32_t ARId::Impl::disc_id_1() const noexcept
 {
-	return disc_id1_;
+	return disc_id_1_;
 }
 
 
 uint32_t ARId::Impl::disc_id_2() const noexcept
 {
-	return disc_id2_;
+	return disc_id_2_;
 }
 
 
@@ -139,7 +137,9 @@ uint32_t ARId::Impl::cddb_id() const noexcept
 
 bool ARId::Impl::empty() const noexcept
 {
-	return this->equals(*EmptyARId.impl_);
+	// Note: this checks actually for the result the actual implementation of
+	// the default ctor provides!
+	return !(total_tracks_ | disc_id_1_ | disc_id_2_ | cddb_id_ );
 }
 
 
@@ -148,29 +148,36 @@ void ARId::Impl::swap(Impl& rhs) noexcept
 	using std::swap;
 
 	swap(this->total_tracks_, rhs.total_tracks_);
-	swap(this->disc_id1_,    rhs.disc_id1_);
-	swap(this->disc_id2_,    rhs.disc_id2_);
-	swap(this->cddb_id_,     rhs.cddb_id_);
+	swap(this->disc_id_1_,    rhs.disc_id_1_);
+	swap(this->disc_id_2_,    rhs.disc_id_2_);
+	swap(this->cddb_id_,      rhs.cddb_id_);
 }
 
 
 bool ARId::Impl::equals(const ARId::Impl& rhs) const noexcept
 {
 	return     this->total_tracks_ == rhs.total_tracks_
-			&& this->disc_id1_     == rhs.disc_id1_
-			&& this->disc_id2_     == rhs.disc_id2_
+			&& this->disc_id_1_    == rhs.disc_id_1_
+			&& this->disc_id_2_    == rhs.disc_id_2_
 			&& this->cddb_id_      == rhs.cddb_id_;
 }
 
 
 std::string ARId::Impl::to_string() const
 {
-	return accuraterip::id::construct_id(total_tracks_, disc_id1_, disc_id2_,
+	return accuraterip::id::construct_id(total_tracks_, disc_id_1_, disc_id_2_,
 			cddb_id_);
 }
 
 
 // ARId
+
+
+ARId::ARId()
+	: ARId { 0, 0, 0, 0 }
+{
+	// empty
+}
 
 
 ARId::ARId(const std::size_t total_tracks,
@@ -310,7 +317,7 @@ ARId make_arid(const ToC& toc)
 ARId validated_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout)
 {
-	toc::validate_with_completeness(toc::construct(leadout, offsets));
+	toc::validate(toc::construct(leadout, offsets));
 
 	return make_arid(offsets, leadout);
 }
@@ -325,15 +332,6 @@ ARId validated_arid(const ToC& toc, const AudioSize& leadout)
 ARId validated_arid(const ToC& toc)
 {
 	return validated_arid(toc.offsets(), toc.leadout());
-}
-
-
-// make_empty_arid
-
-
-ARId make_empty_arid()
-{
-	return EmptyARId;
 }
 
 } // namespace v_1_0_0

@@ -28,9 +28,16 @@ TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 		CHECK ( std::is_final_v<arcstk::ARId> );
 	}
 
-	SECTION ( "is NOT default constructable")
+	SECTION ( "IS default constructable")
 	{
-		CHECK ( ! std::is_default_constructible_v<arcstk::ARId>);
+		CHECK ( std::is_default_constructible_v<arcstk::ARId>);
+	}
+
+	SECTION ( "Default constructed instance IS empty")
+	{
+		auto id = arcstk::ARId{};
+
+		CHECK ( id.empty() );
 	}
 
 	SECTION ( "IS copy-constructable")
@@ -225,6 +232,44 @@ TEST_CASE ( "ARId", "[arid] [id]" )
 }
 
 
+TEST_CASE ( "Empty ARIds", "[arid] [id]" )
+{
+	const auto id { arcstk::ARId{} };
+
+	REQUIRE ( id.empty() );
+
+	SECTION ( "Empty ARIds do not throw when url() is called" )
+	{
+		CHECK_NOTHROW( id.url() );
+	}
+
+	SECTION ( "Empty ARIds do not throw when filename() is called" )
+	{
+		CHECK_NOTHROW( id.filename() );
+	}
+
+	SECTION ( "Empty ARIds do not throw when to_string() is called" )
+	{
+		CHECK_NOTHROW( id.to_string() );
+	}
+
+	SECTION ( "Empty ARIds produce empty URLs" )
+	{
+		CHECK( id.url() == "" );
+	}
+
+	SECTION ( "Empty ARIds produce empty filenames" )
+	{
+		CHECK( id.filename() == "" );
+	}
+
+	SECTION ( "Empty ARIds produce empty strings" )
+	{
+		CHECK( id.to_string() == "" );
+	}
+}
+
+
 // make_arid
 
 
@@ -243,16 +288,16 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 		CHECK ( id1.total_tracks() == 15 );
-		CHECK ( id1.disc_id_1()   == 0x001b9178 );
-		CHECK ( id1.disc_id_2()   == 0x014be24e );
-		CHECK ( id1.cddb_id()     == 0xb40d2d0f );
+		CHECK ( id1.disc_id_1()    == 0x001b9178 );
+		CHECK ( id1.disc_id_2()    == 0x014be24e );
+		CHECK ( id1.cddb_id()      == 0xb40d2d0f );
 
-		CHECK ( id1.url()         ==
+		CHECK ( id1.url()          ==
 				"http://www.accuraterip.com/accuraterip"
 				"/8/7/1/"
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
-		CHECK ( id1.filename()    ==
+		CHECK ( id1.filename()     ==
 				"dBAR-015-001b9178-014be24e-b40d2d0f.bin" );
 
 		CHECK ( not id1.empty() );
@@ -272,16 +317,16 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 		CHECK ( id2.total_tracks() == 3 );
-		CHECK ( id2.disc_id_1()   == 0x0008100c );
-		CHECK ( id2.disc_id_2()   == 0x001ac008 );
-		CHECK ( id2.cddb_id()     == 0x190dcc03 );
+		CHECK ( id2.disc_id_1()    == 0x0008100c );
+		CHECK ( id2.disc_id_2()    == 0x001ac008 );
+		CHECK ( id2.cddb_id()      == 0x190dcc03 );
 
-		CHECK ( id2.url()         ==
+		CHECK ( id2.url()          ==
 				"http://www.accuraterip.com/accuraterip"
 				"/c/0/0/"
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
-		CHECK ( id2.filename()    ==
+		CHECK ( id2.filename()     ==
 				"dBAR-003-0008100c-001ac008-190dcc03.bin" );
 
 		CHECK ( not id2.empty() );
@@ -301,16 +346,16 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		);
 
 		CHECK ( id3.total_tracks() == 9 );
-		CHECK ( id3.disc_id_1()   == 0x001008a6 );
-		CHECK ( id3.disc_id_2()   == 0x007469b8 );
-		CHECK ( id3.cddb_id()     == 0x870af109 );
+		CHECK ( id3.disc_id_1()    == 0x001008a6 );
+		CHECK ( id3.disc_id_2()    == 0x007469b8 );
+		CHECK ( id3.cddb_id()      == 0x870af109 );
 
-		CHECK ( id3.url()         ==
+		CHECK ( id3.url()          ==
 				"http://www.accuraterip.com/accuraterip"
 				"/6/a/8/"
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
-		CHECK ( id3.filename()    ==
+		CHECK ( id3.filename()     ==
 				"dBAR-009-001008a6-007469b8-870af109.bin" );
 
 		CHECK ( not id3.empty() );
@@ -332,16 +377,16 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 
 
 		CHECK ( id4.total_tracks() == 18 );
-		CHECK ( id4.disc_id_1()   == 0x00307c78 );
-		CHECK ( id4.disc_id_2()   == 0x0281351d );
-		CHECK ( id4.cddb_id()     == 0x27114b12 );
+		CHECK ( id4.disc_id_1()    == 0x00307c78 );
+		CHECK ( id4.disc_id_2()    == 0x0281351d );
+		CHECK ( id4.cddb_id()      == 0x27114b12 );
 
-		CHECK ( id4.url()         ==
+		CHECK ( id4.url()          ==
 				"http://www.accuraterip.com/accuraterip"
 				"/8/7/c/"
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
-		CHECK ( id4.filename()    ==
+		CHECK ( id4.filename()     ==
 				"dBAR-018-00307c78-0281351d-27114b12.bin" );
 
 		CHECK ( not id4.empty() );
@@ -361,54 +406,22 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 
 
 		CHECK ( id5.total_tracks() == 1 );
-		CHECK ( id5.disc_id_1()   == 0x0003902d );
-		CHECK ( id5.disc_id_2()   == 0x00072039 );
-		CHECK ( id5.cddb_id()     == 0x020c2901 );
+		CHECK ( id5.disc_id_1()    == 0x0003902d );
+		CHECK ( id5.disc_id_2()    == 0x00072039 );
+		CHECK ( id5.cddb_id()      == 0x020c2901 );
 
-		CHECK ( id5.url()         ==
+		CHECK ( id5.url()          ==
 				"http://www.accuraterip.com/accuraterip"
 				"/d/2/0/"
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
-		CHECK ( id5.filename()    ==
+		CHECK ( id5.filename()     ==
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
 		CHECK ( not id5.empty() );
 	}
 }
 
-
-TEST_CASE ( "make_empty_arid builds empty ARIds", "[make_empty_arid] [id]" )
-{
-	SECTION ( "make_empty_arid produces empty result" )
-	{
-		auto empty_id = arcstk::make_empty_arid();
-
-		CHECK ( empty_id.empty() );
-	}
-
-	SECTION ( "make_empty_arid produces result that equals EmptyARId" )
-	{
-		auto empty_id = arcstk::make_empty_arid();
-
-		CHECK ( empty_id == arcstk::EmptyARId );
-	}
-
-	SECTION ( "make_empty_arid produces result with zero values" )
-	{
-		auto empty_id = arcstk::make_empty_arid();
-
-		CHECK ( empty_id.total_tracks() == 0 );
-		CHECK ( empty_id.disc_id_1()   == 0x00000000 );
-		CHECK ( empty_id.disc_id_2()   == 0x00000000 );
-		CHECK ( empty_id.cddb_id()     == 0x00000000 );
-
-		CHECK ( empty_id.url()         == "" );
-
-		CHECK ( empty_id.filename()    == "" );
-	}
-
-}
 
 // TODO validated_arid
 

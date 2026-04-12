@@ -88,12 +88,12 @@ class ARId::Impl final
 	/**
 	 * \brief Disc id no. 1
 	 */
-	uint32_t disc_id1_;
+	uint32_t disc_id_1_;
 
 	/**
 	 * \brief Disc id no. 2
 	 */
-	uint32_t disc_id2_;
+	uint32_t disc_id_2_;
 
 	/**
 	 * \brief CDDB disc id

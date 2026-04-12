@@ -61,16 +61,9 @@ class ToC;
  * not carry actual values which are meaningless though). It is not possible to
  * turn an empty ARId into a functional request URL.
  *
- * Empty ARIds will turn into FALSE when checked via operator bool() while every
- * non-empty ARId will turn into TRUE. A call of <tt>myARId.empty()</tt> will
- * yield TRUE iff <tt>myARId == arcstk::EmptyARId</tt> yields TRUE.
- *
- * An empty ARId can be used to indicate that no valid ARId could be provided
- * when nonetheless some ARId-typed value is required by the situation. This
- * use-case motivates function make_empty_arid() which constructs empty ARIds.
- * It is usually not required to explicitly construct a new empty ARId instance
- * since a reference or pointer to arcstk::EmptyARId maybe returned instead
- * without requiring additional memory.
+ * Every ARId constructed by the parameterless constructor is empty(). Empty
+ * ARIds will turn into FALSE when checked via operator bool() while every
+ * non-empty ARId will turn into TRUE.
  *
  * @{
  */
@@ -103,9 +96,8 @@ std::ostream& operator << (std::ostream& out, const ARId& i);
  * can usually be determined by the total number of input offsets.)
  *
  * An ARId can be empty() to indicate that it carries no actual identifier. An
- * ARId that qualifies as empty() can be constructed by make_empty_arid(). An
- * alternative to constructing an empty ARId is to return a reference or pointer
- * to arcstk::EmptyARId.
+ * ARId that qualifies as empty() can be constructed by the parameterless
+ * default constructor: <tt>ARId{}</tt>.
  */
 class ARId final : Equality<ARId>, Comparable<ARId>, Swap<ARId>, ToString<ARId>
 {
@@ -113,6 +105,11 @@ class ARId final : Equality<ARId>, Comparable<ARId>, Swap<ARId>, ToString<ARId>
 	std::unique_ptr<Impl> impl_;
 
 public:
+
+	/**
+	 * \brief Construct an empty ARId.
+	 */
+	ARId();
 
 	/**
 	 * \brief Construct ARId.
@@ -308,32 +305,6 @@ ARId validated_arid(const ToC& toc, const AudioSize& leadout);
  * \throw invalid_argument If \c toc is not complete or could not be validated.
  */
 ARId validated_arid(const ToC& toc);
-
-/**
- * \brief Global instance of an empty ARId.
- *
- * This is for convenience since in most cases, the creation of an empty
- * ARId can be avoided when a reference instance is at hand.
- *
- * The definition of EmptyARId defines emptiness for ARIds.
- */
-extern const ARId EmptyARId;
-
-/**
- * \brief Create an \link arcstk::ARId::empty() empty()\endlink ARId.
- *
- * An empty ARId is not a valid description of a CDDA conforming medium.
- *
- * Building an empty ARId also provides the possibility to just provide an
- * ARId on sites where an ARId is required without having to test for null.
- *
- * It may help provide an uniforming implementation of cases where
- * an ARId in fact is expected but cannot be provided due to missing
- * data, e.g. when processing single tracks without knowing the offset.
- *
- * \return An empty ARId
- */
-ARId make_empty_arid();
 
 /** @} */
 

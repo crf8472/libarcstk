@@ -1015,7 +1015,7 @@ void Verification::perform(VerificationResult& result,
 	const TraversalPolicy& traversal, const MatchPolicy& order) const
 {
 	// Always done once per block, regardless of traversal
-	if (actual_id == EmptyARId)
+	if (actual_id.empty())
 	{
 		set_all_ids_verified(result);
 	} else
@@ -1094,7 +1094,7 @@ void VerifierBase::set_strict(const bool strict) noexcept
 std::unique_ptr<VerificationResult> VerifierBase::perform(
 			const ChecksumSource& ref_sums) const
 {
-	const auto id = actual_id() ? *actual_id() : arcstk::EmptyARId;
+	const auto id = actual_id() ? *actual_id() : ARId{};
 	auto traversal = do_create_traversal();
 	traversal->set_source(ref_sums);
 	const auto order = do_create_order();
