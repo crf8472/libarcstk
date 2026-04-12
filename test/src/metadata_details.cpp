@@ -37,255 +37,11 @@ TEST_CASE ("convert_to_bytes()", "[meta]")
 }
 
 
-TEST_CASE ( "toc::construct()", "[meta]" )
-{
-	using arcstk::AudioSize;
-	using arcstk::UNIT;
-	using arcstk::ToCData;
-	using arcstk::toc::construct;
-
-	// "Bach: Organ Concertos", Simon Preston, DGG
-	const auto toc_data_0 = ToCData
-	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	const auto leadout = AudioSize { 253038, UNIT::FRAMES };
-
-	const auto offsets = std::vector<AudioSize>
-	{
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	SECTION ( "Succeeds for legal trackcount, offsets, non-zero leadout" )
-	{
-		const auto toc0 = construct(
-			// leadout
-			253038,
-			// offsets
-			{ 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
-			157863, 198495, 213368, 225320, 234103 }
-		);
-
-		CHECK ( toc0 == toc_data_0 );
-
-		const auto toc1 = construct(leadout, offsets);
-
-		CHECK ( toc1 == toc_data_0 );
-	}
-}
-
-
-TEST_CASE ( "toc::total_tracks()", "[meta]" )
-{
-	using arcstk::ToCData;
-	using arcstk::toc::total_tracks;
-
-	using arcstk::AudioSize;
-	using arcstk::UNIT;
-
-	const auto toc_data_0 = ToCData
-	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	SECTION ( "Succeeds for non-empty ToCData" )
-	{
-		CHECK ( total_tracks(toc_data_0) == 15 );
-	}
-}
-
-
-TEST_CASE ( "toc::offsets()", "[meta]" )
-{
-	using arcstk::ToCData;
-	using arcstk::toc::offsets;
-
-	using arcstk::AudioSize;
-	using arcstk::UNIT;
-
-	const auto toc_data_0 = ToCData
-	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	SECTION ( "Succeeds for valid, non-exceeding track number" )
-	{
-		CHECK ( offsets(toc_data_0) == std::vector<AudioSize>{
-			AudioSize {     33, UNIT::FRAMES },
-			AudioSize {   5225, UNIT::FRAMES },
-			AudioSize {   7390, UNIT::FRAMES },
-			AudioSize {  23380, UNIT::FRAMES },
-			AudioSize {  35608, UNIT::FRAMES },
-			AudioSize {  49820, UNIT::FRAMES },
-			AudioSize {  69508, UNIT::FRAMES },
-			AudioSize {  87733, UNIT::FRAMES },
-			AudioSize { 106333, UNIT::FRAMES },
-			AudioSize { 139495, UNIT::FRAMES },
-			AudioSize { 157863, UNIT::FRAMES },
-			AudioSize { 198495, UNIT::FRAMES },
-			AudioSize { 213368, UNIT::FRAMES },
-			AudioSize { 225320, UNIT::FRAMES },
-			AudioSize { 234103, UNIT::FRAMES } } );
-	}
-}
-
-
-TEST_CASE ( "toc::leadout()", "[meta]" )
-{
-	using arcstk::ToCData;
-	using arcstk::toc::leadout;
-
-	using arcstk::AudioSize;
-	using arcstk::UNIT;
-
-	const auto toc_data_0 = ToCData
-	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	SECTION ( "Succeeds for valid, non-exceeding track number" )
-	{
-		CHECK ( leadout(toc_data_0).frames() == 253038 );
-	}
-}
-
-
-TEST_CASE ( "toc::offset()", "[meta]" )
-{
-	using arcstk::ToCData;
-	using arcstk::toc::offset;
-
-	using arcstk::AudioSize;
-	using arcstk::UNIT;
-
-	const auto toc_data_0 = ToCData
-	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
-	};
-
-	SECTION ( "Succeeds for valid, non-exceeding track number" )
-	{
-		CHECK ( offset( 1, toc_data_0).frames() ==     33 );
-		CHECK ( offset( 2, toc_data_0).frames() ==   5225 );
-		CHECK ( offset( 3, toc_data_0).frames() ==   7390 );
-		CHECK ( offset( 4, toc_data_0).frames() ==  23380 );
-		CHECK ( offset( 5, toc_data_0).frames() ==  35608 );
-		CHECK ( offset( 6, toc_data_0).frames() ==  49820 );
-		CHECK ( offset( 7, toc_data_0).frames() ==  69508 );
-		CHECK ( offset( 8, toc_data_0).frames() ==  87733 );
-		CHECK ( offset( 9, toc_data_0).frames() == 106333 );
-		CHECK ( offset(10, toc_data_0).frames() == 139495 );
-		CHECK ( offset(11, toc_data_0).frames() == 157863 );
-		CHECK ( offset(12, toc_data_0).frames() == 198495 );
-		CHECK ( offset(13, toc_data_0).frames() == 213368 );
-		CHECK ( offset(14, toc_data_0).frames() == 225320 );
-		CHECK ( offset(15, toc_data_0).frames() == 234103 );
-	}
-
-	SECTION ( "Throws for invalid track number" )
-	{
-		CHECK_THROWS ( offset( 0, toc_data_0) );
-		CHECK_THROWS_AS ( offset(16, toc_data_0), std::out_of_range );
-	}
-
-}
-
-
 TEST_CASE ( "exceeds_maximum()", "[meta]" )
 {
-	using arcstk::details::validate::exceeds_maximum;
-	using arcstk::details::validate::MAX_OFFSET_99;
-	using arcstk::details::validate::MAX_OFFSET_90;
+	using arcstk::details::exceeds_maximum;
+	using arcstk::details::MAX_OFFSET_99;
+	using arcstk::details::MAX_OFFSET_90;
 	using arcstk::CDDA;
 
 	SECTION ( "Works correctly" )
@@ -310,8 +66,8 @@ TEST_CASE ( "exceeds_maximum()", "[meta]" )
 
 TEST_CASE ("validate_offsets()", "[meta]")
 {
-	using arcstk::details::validate::validate_offsets_and_leadout;
-	using arcstk::details::validate::validate_offsets;
+	using arcstk::toc::details::validate_offsets_and_leadout;
+	using arcstk::toc::details::validate_offsets;
 	using arcstk::CDDA;
 	using arcstk::InvalidMetadataException;
 	using Req = arcstk::MetadataRequirement;
@@ -577,7 +333,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 	SECTION ( "Fails if TOTAL_FILENAMES_MATCH_TOTAL_TRACKS is violated" )
 	{
-		using arcstk::details::validate_filenames_impl;
+		using arcstk::toc::details::validate_filenames;
 
 		const auto toc = construct(901, { 0, 301, 601 });
 
@@ -591,7 +347,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_filenames_impl(toc, too_many_filenames);
+			validate_filenames(toc, too_many_filenames);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
@@ -604,7 +360,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 
 		try
 		{
-			validate_filenames_impl(toc, too_less_filenames);
+			validate_filenames(toc, too_less_filenames);
 
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)

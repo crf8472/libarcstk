@@ -683,6 +683,22 @@ void set_offset(const ToCData::size_type track, const int32_t offset,
 		ToCData& data);
 
 /**
+ * \brief Set the offsets for this ToCData.
+ *
+ * \param[in] offsets Offsets, interpreted as LBA frames
+ * \param[in] data    ToCData to update
+ */
+void set_offsets(const std::vector<int32_t>& offsets, ToCData& data);
+
+/**
+ * \brief Set the offsets for this ToCData.
+ *
+ * \param[in] offsets Offsets, interpreted as LBA frames
+ * \param[in] data    ToCData to update
+ */
+void set_offsets(const std::vector<AudioSize>& offsets, ToCData& data);
+
+/**
  * \brief Lengths of tracks.
  *
  * If the leadout is zero, the length of the last track is unknown and the
@@ -729,6 +745,13 @@ void validate(const ToCData& toc_data);
 void validate_with_completeness(const ToCData& toc_data);
 
 /**
+ * \copydoc SNPT_mf_empty
+ *
+ * \param[in] toc_data ToCData object to be checked
+ */
+bool is_empty(const ToCData& toc_data);
+
+/**
  * \brief Create a string representation of this instance.
  *
  * \param[in] toc_data ToCData object to be converted
@@ -754,6 +777,11 @@ class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>, ToString<ToC>
 	std::unique_ptr<Impl> impl_;
 
 public:
+
+	/**
+	 * \brief Constructs an empty ToC.
+	 */
+	ToC();
 
 	/**
 	 * \brief Constructor.
@@ -803,6 +831,13 @@ public:
 	unsigned total_tracks() const noexcept;
 
 	/**
+	 * \brief Offsets of this ToC.
+	 *
+	 * \return Offsets
+	 */
+	std::vector<AudioSize> offsets() const;
+
+	/**
 	 * \brief Leadout LBA frame of this ToC.
 	 *
 	 * If the leadout is unknown, the AudioSize returned is <tt>zero()</tt>.
@@ -812,6 +847,20 @@ public:
 	AudioSize leadout() const noexcept;
 
 	/**
+	 * \brief Filenames of this ToC.
+	 *
+	 * \return Filenames
+	 */
+	std::vector<std::string> filenames() const;
+
+	/**
+	 * \brief Set the offsets.
+	 *
+	 * \param[in] offsets Offsets to set
+	 */
+	void set_offsets(const std::vector<AudioSize>& offsets);
+
+	/**
 	 * \brief Set the leadout LBA frame of this ToC.
 	 *
 	 * \param[in] leadout The leadout frame to set
@@ -819,18 +868,11 @@ public:
 	void set_leadout(const AudioSize& leadout) noexcept;
 
 	/**
-	 * \brief Offsets of this ToC.
+	 * \brief Set the filenames.
 	 *
-	 * \return Offsets
+	 * \param[in] filenames Filenames to set
 	 */
-	std::vector<AudioSize> offsets() const;
-
-	/**
-	 * \brief Filenames of this ToC.
-	 *
-	 * \return Filenames
-	 */
-	std::vector<std::string> filenames() const;
+	void set_filenames(const std::vector<std::string>& filenames);
 
 	/**
 	 * \brief TRUE iff the ToC specifies exactly one audiofile, otherwise FALSE.
@@ -905,14 +947,6 @@ public:
 	 */
 	friend std::ostream& operator << (std::ostream& out, const ToC& i);
 };
-
-/**
- * \brief Global instance of an empty ToC.
- *
- * This is for convenience since in most cases, the creation of an empty
- * ToC can be avoided when a reference instance is at hand.
- */
-extern const ToC EmptyToC;
 
 /**
  * \brief Create a ToC from leadout, offsets and filenames.

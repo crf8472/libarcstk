@@ -26,29 +26,16 @@ inline namespace v_1_0_0
 {
                                                                  /** \endcond */
 
-namespace details
+namespace toc
 {
 
 /**
- * \brief Convert \c value to the corrsponding number of bytes.
+ * \internal
  *
- * \param[in] value Value to convert
- * \param[in] unit  Unit of the value
- *
- * \return The equivalent number of bytes.
+ * \brief Implementation details of namespace toc.
  */
-int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
-
-/**
- * \brief Worker: implement checks for offsets and filenames.
- *
- * \param[in] toc_data  ToC data to validate
- * \param[in] filenames Audio filenames
- *
- * \throws InvalidMetadataException If validation fails
- */
-void validate_filenames_impl(const ToCData& toc_data,
-		const std::vector<std::string>& filenames);
+namespace details
+{
 
 /**
  * \brief Worker: Print ToCData to output stream.
@@ -59,59 +46,20 @@ void validate_filenames_impl(const ToCData& toc_data,
 void print(std::ostream& out, const ToCData& d);
 
 /**
- * \brief Worker: Print an AudioSize to output stream.
+ * \brief Validate all offsets.
  *
- * \param[in] out Stream to print to
- * \param[in] s   AudioSize to print
+ * The leadout is allowed to be 0 but validated if it is non-zero.
+ *
+ * \param[in] toc_data ToCData to validate
+ *
+ * \throws InvalidMetadataException If validation fails
  */
-void print(std::ostream& out, const AudioSize& s);
-
+void validate_offsets(const ToCData& toc_data);
 
 /**
- * \internal
- *
- * \brief Validations for ToCData.
- */
-namespace validate
-{
-
-/**
- * \internal
- *
- * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
- * frames).
- *
- * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
- */
-static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
-
-/**
- * \internal
- *
- * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
- * frames).
- *
- * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
- */
-static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
-
-/**
- * \internal
- *
- * \brief Worker to check LBA frame offset for being in legal range.
- *
- * A return value of 0 indicates that no redbook standard was exceeded.
- *
- * \param[in] frames LBA frame amount to check
- *
- * \return Return highest max value that was exceeded, 0 for no exceeding
- */
-int32_t exceeds_maximum(const int32_t offset);
-
-/**
- * \internal
- *
  * \brief Validate all offsets and non-zero leadout.
+ *
+ * The leadout is always validated and required to be non-zero.
  *
  * \param[in] toc_data ToCData to validate
  *
@@ -120,15 +68,35 @@ int32_t exceeds_maximum(const int32_t offset);
 void validate_offsets_and_leadout(const ToCData& toc_data);
 
 /**
- * \internal
+ * \brief Worker: implement checks for offsets and filenames.
  *
- * \brief Validate all offsets.
- *
- * \param[in] toc_data        ToCData to validate
+ * \param[in] toc_data  ToC data to validate
+ * \param[in] filenames Audio filenames
  *
  * \throws InvalidMetadataException If validation fails
  */
-void validate_offsets(const ToCData& toc_data);
+void validate_filenames(const ToCData& toc_data,
+		const std::vector<std::string>& filenames);
+
+} // namespace details
+
+
+/**
+ * \internal
+ *
+ * \brief Helpers for ToCData requirements.
+ */
+namespace req
+{
+
+/**
+ * \brief Obtain the name of a MetadataRequirement.
+ *
+ * \param[in] r Requirement to get name of
+ *
+ * \return Name of type \c r
+ */
+std::string name(const MetadataRequirement r);
 
 /**
  * \internal
@@ -164,15 +132,6 @@ void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
 		const ToCData::size_type i);
 
 /**
- * \brief Obtain the name of a MetadataRequirement.
- *
- * \param[in] r Requirement to get name of
- *
- * \return Name of type \c r
- */
-std::string name(const MetadataRequirement r);
-
-/**
  * \brief Default error message.
  *
  * \param[in] r Requirement violated
@@ -184,7 +143,64 @@ std::string name(const MetadataRequirement r);
 std::string default_error_message(const MetadataRequirement r,
 		const int32_t v, const ToCData::size_type i);
 
-} // namespace validate
+} // namespace req
+} // namespace toc
+
+
+namespace details
+{
+
+/**
+ * \brief Worker: Print an AudioSize to output stream.
+ *
+ * \param[in] out Stream to print to
+ * \param[in] s   AudioSize to print
+ */
+void print(std::ostream& out, const AudioSize& s);
+
+/**
+ * \brief Worker: Convert \c value to the corrsponding number of bytes.
+ *
+ * \param[in] value Value to convert
+ * \param[in] unit  Unit of the value
+ *
+ * \return The equivalent number of bytes.
+ */
+int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
+
+/**
+ * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
+ * frames).
+ *
+ * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
+ */
+static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
+
+/**
+ * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
+ * frames).
+ *
+ * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
+ */
+static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
+
+/**
+ * \brief Worker: Check LBA frame offset for exceeding some maximums.
+ *
+ * A return value of 0 indicates that no redbook standard was exceeded.
+ * A return value greater than 0 will be the greatest max value that was
+ * exceeded by \c offset. It will be one of the following values:
+ * - CDDA::MAX_BLOCK_ADDRESS,
+ * - MAX_OFFSET_99,
+ * - MAX_OFFSET_90,
+ * - CDDA::MAX_OFFSET,
+ *
+ * \param[in] frames LBA frame amount to check
+ *
+ * \return Return highest max value that was exceeded, 0 for no exceeding
+ */
+int32_t exceeds_maximum(const int32_t offset);
+
 } // namespace details
 
 
@@ -206,17 +222,23 @@ class ToC::Impl final
 
 public:
 
+	Impl();
+
 	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
 
 	unsigned total_tracks() const noexcept;
 
-	AudioSize leadout() const noexcept;
-
-	void set_leadout(const AudioSize& leadout) noexcept;
-
 	std::vector<AudioSize> offsets() const;
 
-	std::vector<std::string> filenames() const;
+	AudioSize leadout() const noexcept;
+
+	void set_offsets(const std::vector<AudioSize>& offsets);
+
+	void set_leadout(const AudioSize& leadout);
+
+	std::vector<std::string> filenames() const noexcept;
+
+	void set_filenames(const std::vector<std::string>& filenames);
 
 	bool has_filenames()  const noexcept;
 
