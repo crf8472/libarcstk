@@ -7,6 +7,7 @@ Checks: >
     cppcoreguidelines-*,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+    -cppcoreguidelines-pro-type-reinterpret-cast,
     google-*,
     performance-*,
 
