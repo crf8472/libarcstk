@@ -13,12 +13,11 @@
 #include "identifier_details.hpp"
 #endif
 
-#include <cstdint>           // for int32_t, uint32_t, uint64_t
-#include <iomanip>           // for operator<<, setw, setfill
-#include <memory>            // for unique_ptr, make_unique, operator==
-#include <sstream>           // for operator<<, basic_ostream, basic_strings...
-#include <string>            // for string, operator<<, char_traits
-#include <vector>            // for vector, vector<>::size_type
+#include <cstdint>           // for int32_t, uint32_t
+#include <memory>            // for unique_ptr, make_unique
+#include <ostream>           // for ostream
+#include <string>            // for string
+#include <vector>            // for vector
 
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
 #include "accuraterip.hpp"   // for print_id, disc_id_1, disc_id_2, cddb_id
