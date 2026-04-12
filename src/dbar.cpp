@@ -393,10 +393,10 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 	return bytes_total;
 }
 
-template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
+template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
 		ParseHandler*, ParseErrorHandler*);
 
-template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
+template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
 
 
