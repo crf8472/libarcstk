@@ -117,9 +117,9 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 
 	// parsed entities
 	auto total_tracks  = unsigned { 0 };
-	auto discId1       = uint32_t { 0 };
-	auto discId2       = uint32_t { 0 };
-	auto cddbId        = uint32_t { 0 };
+	auto disc_id_1     = uint32_t { 0 };
+	auto disc_id_2     = uint32_t { 0 };
+	auto cddb_id       = uint32_t { 0 };
 	auto confidence    = unsigned { 0 };
 	auto trk_arcs      = uint32_t { 0 };
 	auto frame450_arcs = uint32_t { 0 };
@@ -188,7 +188,7 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 
 			total_tracks = id[0] & 0xFF;
 
-			if (bytes_read <= SizeOf_4) // discId1 unfinished
+			if (bytes_read <= SizeOf_4) // disc_id_1 unfinished
 			{
 				p->header(total_tracks, 0, 0, 0);
 
@@ -198,38 +198,38 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 				break;
 			}
 
-			discId1 = combine(std::byte(id[ 1]), std::byte(id[ 2]),
-							  std::byte(id[ 3]), std::byte(id[ 4]));
+			disc_id_1 = combine(std::byte(id[ 1]), std::byte(id[ 2]),
+								std::byte(id[ 3]), std::byte(id[ 4]));
 
-			if (bytes_read <= SizeOf_8) // discId2 unfinished
+			if (bytes_read <= SizeOf_8) // disc_id_2 unfinished
 			{
-				p->header(total_tracks, discId1, 0, 0);
+				p->header(total_tracks, disc_id_1, 0, 0);
 
 				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
 				break;
 			}
 
-			discId2 = combine(std::byte(id[ 5]), std::byte(id[ 6]),
-							  std::byte(id[ 7]), std::byte(id[ 8]));
+			disc_id_2 = combine(std::byte(id[ 5]), std::byte(id[ 6]),
+								std::byte(id[ 7]), std::byte(id[ 8]));
 
-			if (bytes_read <= size_of_bytes_v<12, CharT>) // cddbId unfinished
+			if (bytes_read <= size_of_bytes_v<12, CharT>) // cddb_id unfinished
 			{
-				p->header(total_tracks, discId1, discId2, 0);
+				p->header(total_tracks, disc_id_1, disc_id_2, 0);
 
 				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
 				break;
 			}
 
-			cddbId = combine(std::byte(id[ 9]), std::byte(id[10]),
-							 std::byte(id[11]), std::byte(id[12]));
+			cddb_id = combine(std::byte(id[ 9]), std::byte(id[10]),
+							  std::byte(id[11]), std::byte(id[12]));
 
 			ARCS_LOG(DEBUG1) << "New block (" << total_tracks
 				<< " tracks) starts. ID: "
-				<< ARId { total_tracks, discId1, discId2, cddbId }.filename();
+				<< ARId { total_tracks, disc_id_1, disc_id_2, cddb_id };
 
-			p->header(total_tracks, discId1, discId2, cddbId);
+			p->header(total_tracks, disc_id_1, disc_id_2, cddb_id);
 		} else
 		{
 			on_parse_error(bytes_total, block_counter, block_bytes_total, e);

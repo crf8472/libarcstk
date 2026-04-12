@@ -85,7 +85,7 @@ template <int n, typename CharT>
 constexpr int size_of_bytes_v = size_of_bytes<n, CharT>::value;
 
 /**
- * \brief Indicates an invalid discId1, discId2 or cddbId value.
+ * \brief Indicates an invalid disc_id_1, disc_id_2 or cddb_id value.
  */
 static constexpr uint32_t UNPARSED_DISC_ID = 0;
 
