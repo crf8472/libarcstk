@@ -496,20 +496,6 @@ public:
  */
 using Checksums = std::vector<ChecksumSet>; // also defined in verify.hpp
 
-/**
- * \brief Global instance of an empty ChecksumSet.
- *
- * Avoid the creation of empty instances whenever possible.
- */
-extern const ChecksumSet EmptyChecksumSet;
-
-/**
- * \brief Global instance of empty Checksums.
- *
- * Avoid the creation of empty instances whenever possible.
- */
-extern const Checksums EmptyChecksums;
-
 /** @} */ // group calc
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

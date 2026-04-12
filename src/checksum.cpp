@@ -379,13 +379,6 @@ std::ostream& operator << (std::ostream& out, const ChecksumSet& set)
 	return out;
 }
 
-
-// empty instances
-
-const ChecksumSet EmptyChecksumSet { ChecksumSet {/* empty */} };
-
-const Checksums   EmptyChecksums   { Checksums   {/* empty */} };
-
 } // namespace v_1_0_0
 } // namespace arcstk
 

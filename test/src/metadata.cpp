@@ -558,6 +558,7 @@ TEST_CASE ( "ToC Type Traits", "[toc] [meta]" )
 		auto toc = arcstk::ToC{};
 
 		CHECK ( toc.empty() );
+		CHECK ( !toc );
 	}
 
 	SECTION ( "IS copy-constructable")
@@ -705,6 +706,14 @@ TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
 	SECTION ( "IS default constructable")
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::AudioSize>);
+	}
+
+	SECTION ( "Default constructed instance IS zero")
+	{
+		auto s = arcstk::AudioSize{};
+
+		CHECK ( s.zero() );
+		CHECK ( !s );
 	}
 
 	SECTION ( "IS (nothrow) copy-constructable")

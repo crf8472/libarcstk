@@ -271,6 +271,14 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 		CHECK ( cit == track01.cend() );
 	}
 
+	SECTION ( "Default constructed instance IS zero")
+	{
+		auto c = arcstk::Checksum{};
+
+		CHECK ( c.zero() );
+		CHECK ( !c );
+	}
+
 	SECTION ("IS (nothrow) swappable")
 	{
 		CHECK ( std::is_swappable_v<arcstk::ChecksumSet> );

@@ -35,6 +35,14 @@ TEST_CASE ( "DBAR Type Traits", "[dbar]" )
 		CHECK ( std::is_default_constructible_v<arcstk::DBAR>);
 	}
 
+	SECTION ( "Default constructed instance IS empty")
+	{
+		auto dbar = arcstk::DBAR{};
+
+		CHECK ( dbar.empty() );
+		CHECK ( !dbar );
+	}
+
 	SECTION ( "IS copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::DBAR>);

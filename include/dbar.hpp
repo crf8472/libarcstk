@@ -751,7 +751,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_ctor
 	 */
-	DBAR(); // required for use with IteratorElement
+	DBAR();
 
 	/**
 	 * \internal
@@ -1248,15 +1248,6 @@ auto get_element(const DBARBlock& object, const DBARBlock::size_type i)
 	-> DBARBlock::value_type;
 
 } // namespace details
-
-
-/**
- * \brief Global instance of an empty DBAR.
- *
- * This is for convenience since in most cases, the creation of an empty
- * DBAR can be avoided when a reference instance is at hand.
- */
-extern const DBAR EmptyDBAR;
 
 
 /**

@@ -38,6 +38,7 @@ TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
 		auto id = arcstk::ARId{};
 
 		CHECK ( id.empty() );
+		CHECK ( !id );
 	}
 
 	SECTION ( "IS copy-constructable")
