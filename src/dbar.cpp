@@ -162,6 +162,7 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 				{
 					on_parse_error(bytes_total, block_counter,
 							block_bytes_total, e);
+					break;
 				}
 
 			} // else
@@ -192,7 +193,6 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 
 				on_parse_error(bytes_total, block_counter, block_bytes_total,
 						e);
-
 				break;
 			}
 
