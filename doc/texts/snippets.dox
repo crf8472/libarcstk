@@ -435,3 +435,39 @@
  * \brief Type of iterator difference
  */
 
+
+/*  SNPT_dbar_*: specific for things in dbar.hpp and implementation */
+
+/**
+ * \class SNPT_dbar_ParseErrorDefaultBehaviour
+ *
+ * The default behaviour on parse errors is to throw a StreamParseException.
+ */
+
+/**
+ * \class SNPT_dbar_ParseErrorHandlerUse
+ *
+ * In case of a parse error, ParserErrorHandler::on_error() is called on \e
+ * if \c e is not \c nullptr. If a nullptr was passed for \c e the default
+ * behaviour on parse errors is applied instead.
+ */
+
+/**
+ * \class SNPT_dbar_ParsingDetails
+ *
+ * \param[in] p  Handler for parse events (required)
+ * \param[in] e  Handler for parse errors (or nullptr for default)
+ *
+ * \throw StreamReadException If reading of the stream fails
+ *
+ * \return Total number of bytes parsed
+ */
+
+/**
+ * \class SNPT_dbar_ValidityGuarantee
+ *
+ * The resulting DBAR is guaranteed to be valid if no exception occurrs and the
+ * default behaviour applies (\c e is nullptr). If \c e is not \c nullptr,
+ * giving any guarantees is up to the implementation of \c e.
+ */
+

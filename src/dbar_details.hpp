@@ -116,7 +116,7 @@ void on_parse_error(const byte_position_t byte_pos, const unsigned block,
 			const byte_position_t block_byte_pos, ParseErrorHandler* e);
 
 /**
- * \brief Worker: default behaviour on parse errors.
+ * \brief Worker: implements the default behaviour on parse errors.
  *
  * A StreamParseException with position data is thrown.
  *

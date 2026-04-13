@@ -1551,6 +1551,20 @@ public:
 	/**
 	 * \brief React on error.
 	 *
+	 * \details
+	 * While the implementation is not strictly required to throw it is however
+	 * encouraged to throw.
+	 *
+	 * If the implementation does not throw, the parsing process will proceed
+	 * after an error just by calling 'end_input' on the ParseHandler event
+	 * and stopping thereafter, thereby returning the total number of bytes read
+	 * up to the parse error. It is up to the caller to react on any 'end_input'
+	 * in a proper way.
+	 *
+	 * If the implementation throws, the 'end_input' event will only occur on
+	 * the regular end of the parsing process after an occurrence of
+	 * 'end_block' and the caller can just do a proper exception handling.
+	 *
 	 * \param[in] byte_counter       Absolute byte position of the error
 	 * \param[in] block_counter      Block in which the error occurred
 	 * \param[in] block_byte_counter Byte position relative to block start
@@ -1564,7 +1578,7 @@ public:
  * \brief Reports a read error during parsing a binary stream.
  *
  * \attention
- * All byte positions are interpreted as 1-based.
+ * All byte positions are 1-based.
  */
 class StreamParseException final : public std::runtime_error
 {
@@ -1636,25 +1650,20 @@ public:
 /**
  * \brief Parse an input stream.
  *
- * The input stream must not be open on call.
+ * The input stream must be open on call. While it is possible to activate
+ * exceptions on the stream, it is not necessary since StreamReadException is
+ * thrown anyway (if not altered by a custom ParseErrorHandler). It is of course
+ * encouraged to set std::ios::binary flag for parsing DBAR binary data.
  *
- * The parsing process acknowledges the track count values at the start of a
- * block and validates that the input has the expected length. On the premature
- * end of the input stream, ParserErrorHandler::on_error() is called or, in
- * case \c e is \c nullptr, a StreamParseException is thrown, which is the
- * default behaviour.
+ * \copydoc SNPT_dbar_ParseErrorHandlerUse
  *
- * The resulting DBAR is guaranteed to be valid if no exception occurrs and \c e
- * is \c nullptr. If \c e is not \c nullptr, it's up to the implementation of
- * \c e whether any guarantees are given.
+ * \copydoc SNPT_dbar_ParseErrorDefaultBehaviour
+ *
+ * \copydoc SNPT_dbar_ValidityGuarantee
  *
  * \param[in] in Input stream
- * \param[in] p  Handler for parse events
- * \param[in] e  Handler for parse errors
  *
- * \throw StreamReadException If reading of the stream fails
- *
- * \return Total number of bytes parsed
+ * \copydoc SNPT_dbar_ParsingDetails
  */
 template <typename CharT, typename TraitsT = std::char_traits<CharT>>
 std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
@@ -1663,16 +1672,17 @@ std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
 /**
  * \brief Parse a file.
  *
- * A StreamReadException is thrown if the input has not the expected length.
- * The resulting DBAR is guaranteed to be valid if no exception occurrs.
+ * \copydoc SNPT_dbar_ParseErrorHandlerUse
+ *
+ * \copydoc SNPT_dbar_ParseErrorDefaultBehaviour
+ *
+ * \copydoc SNPT_dbar_ValidityGuarantee
  *
  * \param[in] filename Name of the file to parse
- * \param[in] p        Handler for parse events
- * \param[in] e        Handler for parse errors
  *
- * \throw StreamReadException If reading of the file fails
+ * \copydoc SNPT_dbar_ParsingDetails
  *
- * \return Total number of bytes parsed
+ * \see parse_stream
  */
 uint32_t parse_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);

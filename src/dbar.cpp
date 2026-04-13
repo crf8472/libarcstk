@@ -311,7 +311,7 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 
 			// handle bytes left, if any
 
-			if (byte_pos != bytes_read)
+			if (byte_pos != bytes_read) // 1-8 bytes left
 			{
 				bytes_left = static_cast<int>(bytes_read) -
 					static_cast<int>(byte_pos);
@@ -347,12 +347,11 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 							block_bytes_total, e);
 					break;
 				}
-			} else
+			} else // 0 bytes left
 			{
-				// No bytes left to process.
-				// But did we fail just on byte 0 of a triplet sequence?
 				if (bytes_read != bytes_expected)
 				{
+					// failed just on byte 0 of a triplet sequence
 					on_parse_error(bytes_total, block_counter,
 							block_bytes_total, e);
 					break;
@@ -416,8 +415,10 @@ std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 		return total_bytes;
 	} else
 	{
-		return 0;
+		ARCS_LOG_INFO << "File '" << filepath << "' has size of 0, no parsing.";
 	}
+
+	return 0;
 }
 
 
@@ -522,12 +523,12 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 		throw std::runtime_error(msg.str());
 	}
 
-	// has to be casted to signed type when passing it to ifstream::read()
+	// Check before casting to signed type when passing it to ifstream::read()
 	if (file_size > static_cast<std::uintmax_t>(
 				std::numeric_limits<std::streamsize>::max()))
 	{
 		throw std::runtime_error(
-				"File too large, does not readable in a single read");
+				"File too large, is not readable in a single read operation");
 	}
 
 	// Open file
@@ -553,8 +554,6 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 
 	input.read(reinterpret_cast<char*>(bytes.data()),
 			static_cast<std::streamsize>(file_size));
-	// https://www.reddit.com/r/cpp_questions/comments/zl9p9p/is_there_a_better_way_to_read_a_file_into_a/
-	// https://stackoverflow.com/a/77038066
 
     return bytes;
 }
