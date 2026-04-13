@@ -656,7 +656,8 @@ using uint8_ostream = std::basic_ostream<uint8_t, uint8_traits>;
 } // namespace arcstk
 
 
-// If it seems inevitable to use std::char_traits one could to this
+// Use std::char_traits<uint8_t> only if it is impossilbe to use
+// arcstk::uint8_traits instead.
 
 template<>// NOLINTNEXTLINE(bugprone-std-namespace-modification)
 struct std::char_traits<uint8_t> final : arcstk::details::uint8_traits_impl

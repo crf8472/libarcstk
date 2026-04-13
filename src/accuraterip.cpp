@@ -18,7 +18,7 @@
 #include <utility>       // for pair
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"              // for type, ChecksumSet
+#include "checksum.hpp"              // for type, Checksum, ChecksumSet
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -44,7 +44,10 @@ using cstype = checksum::type; // local, for Readability
 
 ChecksumSet Update<cstype::ARCS1>::value(const Subtotals& st) const
 {
-	return { AudioSize{/* zero */}, {{ cstype::ARCS1, st.subtotal_v1 }} };
+	return {
+		AudioSize{/* zero */},
+		{{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) }}
+	};
 }
 
 
@@ -56,7 +59,10 @@ std::string Update<cstype::ARCS1>::id_string() const
 
 ChecksumSet Update<cstype::ARCS2>::value(const Subtotals& st) const
 {
-	return { AudioSize{/* zero */}, {{ cstype::ARCS2, st.subtotal_v2 }} };
+	return {
+		AudioSize{/* zero */},
+		{{ cstype::ARCS2, Checksum::from_fast(st.subtotal_v2) }}
+	};
 }
 
 
@@ -69,10 +75,14 @@ std::string Update<cstype::ARCS2>::id_string() const
 ChecksumSet Update<cstype::ARCS1, cstype::ARCS2>::value(
 		const Subtotals& st) const
 {
-	return { AudioSize{/* zero */}, {
-		{ cstype::ARCS1, st.subtotal_v1 },
-		{ cstype::ARCS2, st.subtotal_v1 + st.subtotal_v2 },
-	} };
+	return {
+		AudioSize{/* zero */},
+		{
+			{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) },
+			{ cstype::ARCS2, Checksum::from_fast(
+										st.subtotal_v1 + st.subtotal_v2) },
+		}
+	};
 }
 
 
@@ -425,6 +435,11 @@ void print_impl(std::ostream& out, const unsigned total_tracks,
 		const uint32_t id_2,
 		const uint32_t cddb_id, const std::string& delim)
 {
+	if (!out.good())
+	{
+		return;  // Maybe set badbit: out.setstate(std::ios_base::badbit);
+	}
+
 	static const auto fmt_flags =
 		[](const std::ostream& stream) -> std::ios_base::fmtflags
 		{
@@ -439,7 +454,7 @@ void print_impl(std::ostream& out, const unsigned total_tracks,
 			return flags;
 		};
 
-	const auto prev_flags = std::ios_base::fmtflags { out.flags() };
+	[[maybe_unused]] arcstk::details::StreamFlagsGuard guard { out };
 
 	out.flags(fmt_flags(out));
 
@@ -449,8 +464,6 @@ void print_impl(std::ostream& out, const unsigned total_tracks,
 		<< delim << std::setw(8) << std::setfill('0') << id_1
 		<< delim << std::setw(8) << std::setfill('0') << id_2
 		<< delim << std::setw(8) << std::setfill('0') << cddb_id;
-
-	out.flags(prev_flags);
 }
 
 

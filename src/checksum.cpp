@@ -64,6 +64,12 @@ Checksum::operator bool() const noexcept
 }
 
 
+Checksum::operator Checksum::value_type() const noexcept
+{
+	return value_;
+}
+
+
 void Checksum::swap(Checksum& rhs) noexcept
 {
 	using std::swap;
@@ -74,7 +80,13 @@ void Checksum::swap(Checksum& rhs) noexcept
 
 bool Checksum::equals(const Checksum& rhs) const noexcept
 {
-	return this->value_ == rhs.value_;
+	return this->equals_value(rhs.value());
+}
+
+
+bool Checksum::equals_value(const value_type rhs) const noexcept
+{
+	return this->value_ == rhs;
 }
 
 
@@ -109,12 +121,20 @@ std::string name(const type t)
 
 	using index_type = typename std::underlying_type<checksum::type>::type;
 
-	return names.at(std::log2(static_cast<index_type>(t)));
+	return names.at(static_cast<decltype( names )::size_type>(
+				std::log2(static_cast<index_type>(t))));
 }
 
 
 void print(std::ostream& out, const Checksum& c)
 {
+	if (!out.good())
+	{
+		return;  // Maybe set badbit: out.setstate(std::ios_base::badbit);
+	}
+
+	[[maybe_unused]] details::StreamFlagsGuard guard { out };
+
 	static const auto hex_flags =
 		[](const std::ostream& stream) -> std::ios_base::fmtflags
 		{
@@ -130,12 +150,10 @@ void print(std::ostream& out, const Checksum& c)
 			return flags;
 		};
 
-	const auto prev_flags = std::ios_base::fmtflags { out.flags() };
-
 	out.flags(hex_flags(out));
-	out << std::setw(static_cast<int>(Checksum::TOTAL_DIGITS))
+
+	out << std::setw(static_cast<int>(Checksum::TOTAL_HEX_DIGITS))
 		<< std::setfill('0') << c.value();
-	out.flags(prev_flags);
 }
 
 } // namespace checksum
@@ -344,8 +362,20 @@ std::string ChecksumSet::to_string() const
 }
 
 
+Checksum Checksum::from_fast(fast_type f) noexcept
+{
+    return Checksum(static_cast<value_type>(f));
+}
+
+
 std::ostream& operator << (std::ostream& out, const ChecksumSet& set)
 {
+	if (!out.good())
+	{
+		// Maybe set badbit: out.setstate(std::ios_base::badbit);
+		return out;
+	}
+
 	using std::cbegin;
 	using std::cend;
 	using value_t = ChecksumSet::storage_type::value_type;

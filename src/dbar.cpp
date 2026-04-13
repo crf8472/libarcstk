@@ -770,9 +770,9 @@ std::string DBARTriplet::to_string() const
 
 	// Order in which the values occurr in the byte stream
 	stream << to_string(confidence()) << ", ";
-	checksum::print(stream, arcs());
+	checksum::print(stream, Checksum { arcs() });
 	stream << ", ";
-	checksum::print(stream, frame450_arcs());
+	checksum::print(stream, Checksum { frame450_arcs() });
 
 	return stream.str();
 }

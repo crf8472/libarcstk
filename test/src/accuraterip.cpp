@@ -142,7 +142,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1).first) );
+		CHECK ( (checksums.get(type::ARCS1).first).equals_value(0x8FE8D29B) );
 	}
 
 
@@ -219,7 +219,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2).first) );
+		CHECK ( (checksums.get(type::ARCS2).first).equals_value(0xD15BB487) );
 	}
 
 
@@ -297,8 +297,8 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 2 /* types */ );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2).first) );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1).first) );
+		CHECK ( (checksums.get(type::ARCS2).first).equals_value(0xD15BB487) );
+		CHECK ( (checksums.get(type::ARCS1).first).equals_value(0x8FE8D29B) );
 	}
 
 

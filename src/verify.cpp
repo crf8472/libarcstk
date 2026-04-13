@@ -1002,7 +1002,7 @@ void Verification::perform_checksums(VerificationResult& result,
 
 		if (result.id(block)) // ARId matched?
 		{
-			order.perform(result, actual_sums, *t, block,
+			order.perform(result, actual_sums, Checksum { *t }, block,
 				traversal.current_track(t));
 		}
 	}
@@ -1201,9 +1201,10 @@ ARId DBARSource::do_id(const ChecksumSource::size_type block_idx) const
 Checksum DBARSource::do_checksum(const ChecksumSource::size_type block_idx,
 		const ChecksumSource::size_type idx) const
 {
-	return
+	return Checksum {
 		dbar_->block(static_cast<DBAR::size_type>(block_idx))
-			.triplet(static_cast<DBAR::size_type>(idx)).arcs();
+			.triplet(static_cast<DBAR::size_type>(idx)).arcs()
+	};
 }
 
 
@@ -1396,7 +1397,13 @@ std::unique_ptr<VerificationResult> VerificationResult::clone() const
 
 std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 {
-	std::ios_base::fmtflags prev_settings = out.flags();
+	if (!out.good())
+	{
+		// Maybe set badbit: out.setstate(std::ios_base::badbit);
+		return out;
+	}
+
+	[[maybe_unused]] arcstk::details::StreamFlagsGuard guard { out };
 
 	const auto indent = std::string { "  " };
 	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
@@ -1415,7 +1422,6 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 		}
 	}
 
-	out.flags(prev_settings);
 	return out;
 }
 

@@ -14,7 +14,6 @@
 
 #include <array>            // for array
 #include <climits>          // for CHAR_BIT
-#include <cmath>            // for log2
 #include <cstdint>          // for int32_t, uint32_t
 #include <initializer_list> // for initializer_list
 #include <ostream>          // for ostream
@@ -53,7 +52,7 @@ namespace checksum
  *
  * ARCS1 is AccurateRip v1 and ARCS2 is AccurateRip v2.
  */
-enum class type : unsigned int
+enum class type : uint8_t
 {
 	ARCS1   = 1,
 	ARCS2   = 2
@@ -138,12 +137,17 @@ public:
 	using value_type = uint32_t;
 
 	/**
+	 * \brief Plattform dependent "fast" variant of the value type.
+	 */
+	using fast_type = uint_fast32_t;
+
+	/**
 	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
-	constexpr static std::size_t TOTAL_DIGITS =
-		(sizeof(Checksum::value_type) * CHAR_BIT) / std::log2(16);
+	constexpr static std::size_t TOTAL_HEX_DIGITS = static_cast<std::size_t>(
+		static_cast<int>(sizeof(Checksum::value_type) * CHAR_BIT) / 4);
 	// 4 bits are required to represent a single hexadecimal digit
-	// (since 2^4 == 16). We express 4 as log_2(16).
+	// (since 2^4 == 16). We could express 4 as log_2(16).
 
 	/**
 	 * \copydoc SNPT_sm_default_ctor
@@ -157,7 +161,7 @@ public:
 	 *
 	 * \param[in] value Actual checksum value
 	 */
-	Checksum(const value_type value);
+	explicit Checksum(const value_type value);
 
 	/**
 	 * \brief Assignment operator to assign value_type values
@@ -186,6 +190,13 @@ public:
 	explicit operator bool() const noexcept;
 
 	/**
+	 * \brief Convert this instance to an equivalent raw \c value_type.
+	 *
+	 * \return Raw value
+	 */
+	explicit operator value_type() const noexcept;
+
+	/**
 	 * \copydoc SNPT_mf_swap
 	 */
 	void swap(Checksum& rhs) noexcept;
@@ -196,9 +207,23 @@ public:
 	bool equals(const Checksum& rhs) const noexcept;
 
 	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals_value(const value_type rhs) const noexcept;
+
+	/**
 	 * \copydoc SNPT_mf_to_string
 	 */
 	std::string to_string() const;
+
+	/**
+	 * \brief Convert from fast_type to value_type.
+	 *
+	 * \param[in] fast_value Value to be converted
+	 *
+	 * \return Checksum instance representing \c fast_value
+	 */
+	static Checksum from_fast(fast_type fast_value) noexcept;
 
 	/**
 	 * \copydoc SNPT_nf_stream_in
@@ -498,10 +523,60 @@ using Checksums = std::vector<ChecksumSet>; // also defined in verify.hpp
 
 /** @} */ // group calc
 
+
+namespace details
+{
+
+/**
+ * \brief Guard to ensure that any ostream gets its original flags back.
+ */
+class StreamFlagsGuard final
+{
+    std::ostream& out_;
+    std::ios_base::fmtflags prev_flags_;
+
+public:
+
+    explicit StreamFlagsGuard(std::ostream& out) noexcept
+        : out_        { out         }
+		, prev_flags_ { out.flags() }
+	{
+		// empty
+	}
+
+    ~StreamFlagsGuard() noexcept
+	{
+        out_.flags(prev_flags_);
+    }
+
+    StreamFlagsGuard(const StreamFlagsGuard&) = delete;
+
+    StreamFlagsGuard& operator = (const StreamFlagsGuard&) = delete;
+
+	StreamFlagsGuard(StreamFlagsGuard&&) noexcept = delete;
+
+    StreamFlagsGuard& operator =(StreamFlagsGuard&&) noexcept = delete;
+};
+
+} // namespace details
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
 } // namespace arcstk
+
+
+// provided to use arcstk::Checksum in std::set and std::unordered_set
+namespace std
+{
+	template <>// NOLINTNEXTLINE(bugprone-std-namespace-modification)
+	struct hash<arcstk::Checksum>
+	{
+		std::size_t operator()(const arcstk::Checksum& c) const noexcept
+		{
+			return std::hash<uint32_t>{}(c.value());
+		}
+	};
+} // namespace std
 
 #endif
 

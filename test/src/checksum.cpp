@@ -76,7 +76,7 @@ TEST_CASE ( "Checksum", "[checksum] [calc]" )
 
 	SECTION ( "TOTAL_DIGITS are 8" )
 	{
-		CHECK ( Checksum::TOTAL_DIGITS == 8 );
+		CHECK ( Checksum::TOTAL_HEX_DIGITS == 8 );
 	}
 }
 

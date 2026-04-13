@@ -1090,7 +1090,8 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 	auto track = Checksums::size_type { 0 };
 	for (const auto& ref : block)
 	{
-		track_order->perform(*result, actual_sums, ref.arcs(), 0, track);
+		track_order->perform(*result, actual_sums, Checksum { ref.arcs() }, 0,
+				track);
 		++track;
 	}
 
@@ -1275,7 +1276,8 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify]" )
 	auto track = Checksums::size_type { 0 };
 	for (const auto& ref : block)
 	{
-		track_order->perform(*result, actual_sums, ref.arcs(), 0, track);
+		track_order->perform(*result, actual_sums, Checksum { ref.arcs() }, 0,
+				track);
 		++track;
 	}
 

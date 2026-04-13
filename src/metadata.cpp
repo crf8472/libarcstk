@@ -38,6 +38,12 @@ namespace details
 
 void print(std::ostream& out, const ToCData& toc_data)
 {
+	if (!out.good())
+	{
+		// Maybe set badbit: out.setstate(std::ios_base::badbit);
+		return;
+	}
+
 	using std::cbegin;
 	using std::cend;
 
@@ -291,6 +297,12 @@ namespace details
 
 void print(std::ostream& out, const AudioSize& s)
 {
+	if (!out.good())
+	{
+		// Maybe set badbit: out.setstate(std::ios_base::badbit);
+		return;
+	}
+
 	out << s.frames() << " LBA frames";
 }
 

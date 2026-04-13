@@ -116,53 +116,53 @@ TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
 
 	SECTION ( "Access on DBAR data is correct" )
 	{
-		CHECK ( r.checksum(0,  0) == 0x98B10E0Fu );
-		CHECK ( r.checksum(0,  1) == 0x475F57E9u );
-		CHECK ( r.checksum(0,  2) == 0x7304F1C4u );
-		CHECK ( r.checksum(0,  3) == 0xF2472287u );
-		CHECK ( r.checksum(0,  4) == 0x881BC504u );
-		CHECK ( r.checksum(0,  5) == 0xBB94BFD4u );
-		CHECK ( r.checksum(0,  6) == 0xF9CAEE76u );
-		CHECK ( r.checksum(0,  7) == 0xF9F60BC1u );
-		CHECK ( r.checksum(0,  8) == 0x2C736302u );
-		CHECK ( r.checksum(0,  9) == 0x1C955978u );
-		CHECK ( r.checksum(0, 10) == 0xFDA6D833u );
-		CHECK ( r.checksum(0, 11) == 0x3A57E5D1u );
-		CHECK ( r.checksum(0, 12) == 0x6ED5F3E7u );
-		CHECK ( r.checksum(0, 13) == 0x4A5C3872u );
-		CHECK ( r.checksum(0, 14) == 0x5FE8B032u );
+		CHECK ( r.checksum(0,  0) .equals_value(0x98B10E0Fu) );
+		CHECK ( r.checksum(0,  1) .equals_value(0x475F57E9u) );
+		CHECK ( r.checksum(0,  2) .equals_value(0x7304F1C4u) );
+		CHECK ( r.checksum(0,  3) .equals_value(0xF2472287u) );
+		CHECK ( r.checksum(0,  4) .equals_value(0x881BC504u) );
+		CHECK ( r.checksum(0,  5) .equals_value(0xBB94BFD4u) );
+		CHECK ( r.checksum(0,  6) .equals_value(0xF9CAEE76u) );
+		CHECK ( r.checksum(0,  7) .equals_value(0xF9F60BC1u) );
+		CHECK ( r.checksum(0,  8) .equals_value(0x2C736302u) );
+		CHECK ( r.checksum(0,  9) .equals_value(0x1C955978u) );
+		CHECK ( r.checksum(0, 10) .equals_value(0xFDA6D833u) );
+		CHECK ( r.checksum(0, 11) .equals_value(0x3A57E5D1u) );
+		CHECK ( r.checksum(0, 12) .equals_value(0x6ED5F3E7u) );
+		CHECK ( r.checksum(0, 13) .equals_value(0x4A5C3872u) );
+		CHECK ( r.checksum(0, 14) .equals_value(0x5FE8B032u) );
 
-		CHECK ( r.checksum(1,  0) == 0xB89992E5u );
-		CHECK ( r.checksum(1,  1) == 0x4F77EB03u );
-		CHECK ( r.checksum(1,  2) == 0x56582282u );
-		CHECK ( r.checksum(1,  3) == 0x9E2187F9u );
-		CHECK ( r.checksum(1,  4) == 0x6BE71E50u );
-		CHECK ( r.checksum(1,  5) == 0x01E7235Fu );
-		CHECK ( r.checksum(1,  6) == 0xD8F7763Cu );
-		CHECK ( r.checksum(1,  7) == 0x8480223Eu );
-		CHECK ( r.checksum(1,  8) == 0x42C5061Cu );
-		CHECK ( r.checksum(1,  9) == 0x47A70F02u );
-		CHECK ( r.checksum(1, 10) == 0xBABF08CCu );
-		CHECK ( r.checksum(1, 11) == 0x563EDCCBu );
-		CHECK ( r.checksum(1, 12) == 0xAB123C7Cu );
-		CHECK ( r.checksum(1, 13) == 0xC65C20E4u );
-		CHECK ( r.checksum(1, 14) == 0x58FC3C3Eu );
+		CHECK ( r.checksum(1,  0) .equals_value(0xB89992E5u) );
+		CHECK ( r.checksum(1,  1) .equals_value(0x4F77EB03u) );
+		CHECK ( r.checksum(1,  2) .equals_value(0x56582282u) );
+		CHECK ( r.checksum(1,  3) .equals_value(0x9E2187F9u) );
+		CHECK ( r.checksum(1,  4) .equals_value(0x6BE71E50u) );
+		CHECK ( r.checksum(1,  5) .equals_value(0x01E7235Fu) );
+		CHECK ( r.checksum(1,  6) .equals_value(0xD8F7763Cu) );
+		CHECK ( r.checksum(1,  7) .equals_value(0x8480223Eu) );
+		CHECK ( r.checksum(1,  8) .equals_value(0x42C5061Cu) );
+		CHECK ( r.checksum(1,  9) .equals_value(0x47A70F02u) );
+		CHECK ( r.checksum(1, 10) .equals_value(0xBABF08CCu) );
+		CHECK ( r.checksum(1, 11) .equals_value(0x563EDCCBu) );
+		CHECK ( r.checksum(1, 12) .equals_value(0xAB123C7Cu) );
+		CHECK ( r.checksum(1, 13) .equals_value(0xC65C20E4u) );
+		CHECK ( r.checksum(1, 14) .equals_value(0x58FC3C3Eu) );
 
-		CHECK ( r.checksum(2,  0) == 0xC89192E5u );
-		CHECK ( r.checksum(2,  1) == 0x4F78EB03u );
-		CHECK ( r.checksum(2,  2) == 0x56582281u );
-		CHECK ( r.checksum(2,  3) == 0x0E2187F9u );
-		CHECK ( r.checksum(2,  4) == 0x2BE71E50u );
-		CHECK ( r.checksum(2,  5) == 0x01E7235Du );
-		CHECK ( r.checksum(2,  6) == 0xD8F6763Cu );
-		CHECK ( r.checksum(2,  7) == 0x8480331Eu );
-		CHECK ( r.checksum(2,  8) == 0x42F5061Cu );
-		CHECK ( r.checksum(2,  9) == 0x47D70F02u );
-		CHECK ( r.checksum(2, 10) == 0xBABF08AAu );
-		CHECK ( r.checksum(2, 11) == 0x563EFECBu );
-		CHECK ( r.checksum(2, 12) == 0xAB123C9Cu );
-		CHECK ( r.checksum(2, 13) == 0xB65C20E4u );
-		CHECK ( r.checksum(2, 14) == 0x68FC3C3Eu );
+		CHECK ( r.checksum(2,  0) .equals_value(0xC89192E5u) );
+		CHECK ( r.checksum(2,  1) .equals_value(0x4F78EB03u) );
+		CHECK ( r.checksum(2,  2) .equals_value(0x56582281u) );
+		CHECK ( r.checksum(2,  3) .equals_value(0x0E2187F9u) );
+		CHECK ( r.checksum(2,  4) .equals_value(0x2BE71E50u) );
+		CHECK ( r.checksum(2,  5) .equals_value(0x01E7235Du) );
+		CHECK ( r.checksum(2,  6) .equals_value(0xD8F6763Cu) );
+		CHECK ( r.checksum(2,  7) .equals_value(0x8480331Eu) );
+		CHECK ( r.checksum(2,  8) .equals_value(0x42F5061Cu) );
+		CHECK ( r.checksum(2,  9) .equals_value(0x47D70F02u) );
+		CHECK ( r.checksum(2, 10) .equals_value(0xBABF08AAu) );
+		CHECK ( r.checksum(2, 11) .equals_value(0x563EFECBu) );
+		CHECK ( r.checksum(2, 12) .equals_value(0xAB123C9Cu) );
+		CHECK ( r.checksum(2, 13) .equals_value(0xB65C20E4u) );
+		CHECK ( r.checksum(2, 14) .equals_value(0x68FC3C3Eu) );
 	}
 }
 
