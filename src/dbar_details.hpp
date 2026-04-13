@@ -261,6 +261,9 @@ public:
 	 */
 	explicit istream_wrapper(std::vector<CharT>& v)
 	{
+		using std::end;
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		this->setg(v.data(), v.data(), v.data() + v.size());
 	}
 
@@ -654,7 +657,8 @@ using uint8_ostream = std::basic_ostream<uint8_t, uint8_traits>;
 
 
 // If it seems inevitable to use std::char_traits one could to this
-template<>
+
+template<>// NOLINTNEXTLINE(bugprone-std-namespace-modification)
 struct std::char_traits<uint8_t> final : arcstk::details::uint8_traits_impl
 {
     static std::size_t length(const char_type*)

@@ -599,7 +599,9 @@ bool is_uniform(const DBAR& dbar)
 	std::for_each(cbegin(dbar), cend(dbar),
 			[&ids](const DBARBlock& block)
 			{
-				ids.insert(details::get_arid(block.header()).to_string());
+				using std::to_string;
+
+				ids.insert(to_string(details::get_arid(block.header())));
 			});
 
 	return ids.size() <= 1; /* 0 (empty) or 1 is uniform */
