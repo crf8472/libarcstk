@@ -657,7 +657,7 @@ using uint8_ostream = std::basic_ostream<uint8_t, uint8_traits>;
 template<>
 struct std::char_traits<uint8_t> final : arcstk::details::uint8_traits_impl
 {
-    static std::size_t length(const char_type*) noexcept
+    static std::size_t length(const char_type*)
 	{
 		throw std::logic_error("length() is not applicable for raw data");
 		return 0; // unreachable
