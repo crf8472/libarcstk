@@ -83,7 +83,7 @@ static const std::array<type, 2> types = {
  *
  * \return Name of type \c t
  */
-std::string type_name(const type t);
+std::string name(const type t);
 
 
 /**

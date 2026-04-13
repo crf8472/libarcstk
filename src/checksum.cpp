@@ -96,38 +96,20 @@ Checksum& Checksum::operator = (const Checksum::value_type rhs)
 namespace checksum
 {
 
-/// \internal \addtogroup calc
-/// @{
-
-/**
- * \internal
- * \brief Implementation details of namespace checksum.
- */
-namespace details
+std::string name(const type t)
 {
+	// The order of names in this aggregate must match the order of types in
+	// enum class checksum::type, otherwise function type_name() will fail.
+	static const std::array<std::string, 2> names {
+		"ARCSv1",
+		"ARCSv2",
+		// "THIRD_TYPE" ,
+		// "FOURTH_TYPE" ...
+	};
 
-/**
- * \brief Checksum type names.
- *
- * The order of names in this aggregate must match the order of types in
- * enum class checksum::type, otherwise function type_name() will fail.
- */
-static const std::array<std::string, 2> names {
-	"ARCSv1",
-	"ARCSv2",
-	// "THIRD_TYPE" ,
-	// "FOURTH_TYPE" ...
-};
-
-} // namespace details
-
-/** @} */
-
-std::string type_name(const type t)
-{
 	using index_type = typename std::underlying_type<checksum::type>::type;
 
-	return details::names.at(std::log2(static_cast<index_type>(t)));
+	return names.at(std::log2(static_cast<index_type>(t)));
 }
 
 
@@ -151,7 +133,8 @@ void print(std::ostream& out, const Checksum& c)
 	const auto prev_flags = std::ios_base::fmtflags { out.flags() };
 
 	out.flags(hex_flags(out));
-	out << std::setw(Checksum::TOTAL_DIGITS) << std::setfill('0') << c.value();
+	out << std::setw(static_cast<int>(Checksum::TOTAL_DIGITS))
+		<< std::setfill('0') << c.value();
 	out.flags(prev_flags);
 }
 
@@ -370,7 +353,7 @@ std::ostream& operator << (std::ostream& out, const ChecksumSet& set)
 	std::for_each(cbegin(set.set_), cend(set.set_),
 		[&out](const value_t& pair)
 		{
-			out << checksum::type_name(pair.first) << ": " << pair.second
+			out << checksum::name(pair.first) << ": " << pair.second
 				<< ' ';
 		}
 	);

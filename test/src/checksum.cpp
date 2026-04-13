@@ -16,16 +16,16 @@
 								  // has_tostring_functionality
 
 
-TEST_CASE ( "checksum::type_name provides correct names",
-		"[checksum::type_name] [calc]" )
+TEST_CASE ( "checksum::name provides correct names",
+		"[checksum::name] [calc]" )
 {
 	using arcstk::checksum::type;
-	using arcstk::checksum::type_name;
+	using arcstk::checksum::name;
 
-	CHECK ( type_name(type::ARCS1) == "ARCSv1" );
-	CHECK ( type_name(type::ARCS2) == "ARCSv2" );
-	//CHECK ( type_name(type::CRC32)   == "CRC32" );
-	//CHECK ( type_name(type::CRC32ns) == "CRC32ns" );
+	CHECK ( name(type::ARCS1) == "ARCSv1" );
+	CHECK ( name(type::ARCS2) == "ARCSv2" );
+	//CHECK ( name(type::CRC32)   == "CRC32" );
+	//CHECK ( name(type::CRC32ns) == "CRC32ns" );
 }
 
 
