@@ -11,6 +11,10 @@ Checks: >
     google-*,
     performance-*,
 
+CheckOptions:
+  - key:    cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value:  true
+
 HeaderFilterRegex:            '.*'
 
 HeaderFileExtensions:         ['hpp']
