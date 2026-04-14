@@ -975,9 +975,6 @@ public:
 };
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-
 /**
  * \brief A block in a DBAR.
  *
@@ -1182,8 +1179,6 @@ public:
 	 */
 	bool equals(const DBARBlock& rhs) const noexcept;
 };
-
-#pragma GCC diagnostic pop
 
 
 /**
