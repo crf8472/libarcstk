@@ -358,13 +358,31 @@ public:
 	}
 
 	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	SampleInputIterator& operator = (const SampleInputIterator& rhs) noexcept
+	{
+		if (&rhs != this)
+		{
+			using std::swap;
+
+			auto tmp = SampleInputIterator { rhs };
+			swap(*this, tmp);
+		}
+		return *this;
+	}
+	// required by LegacyIterator
+
+	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	SampleInputIterator(SampleInputIterator&& rhs) noexcept
-		: object_ { std::move(rhs.object_) }
-	{
-		// empty
-	}
+	SampleInputIterator(SampleInputIterator&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	SampleInputIterator& operator = (SampleInputIterator&& rhs) noexcept
+	= default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -406,21 +424,6 @@ public:
 		return prev_val;
 	}
 	// required by LegacyInputIterator
-
-	/**
-	 * \copydoc SNPT_sm_copy_op
-	 */
-	SampleInputIterator& operator = (SampleInputIterator rhs) noexcept
-	{
-		if (&rhs != this)
-		{
-			using std::swap;
-
-			swap(*this, rhs);
-		}
-		return *this;
-	}
-	// required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_nf_inc_amount_lhs
