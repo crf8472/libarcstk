@@ -113,12 +113,6 @@ void print(std::ostream& stream, const Checksum& checksum);
  * case it is converted by operator bool() to FALSE. Any Checksum that is not
  * zero() converts to TRUE.
  *
- * A Checksum has a converting constructor for its value_type, thus every
- * parameter that expects a checksum can be assigned a value of type value_type
- * instead of a Checksum. Some compilers will do the conversion with other
- * numerical types but issue a warning if a conversion from signed to unsigned
- * types is required (e.g. -Wsign-conversion).
- *
  * Operator << is overloaded for printing Checksums to streams. The Checksum
  * will then occurr in its standard layout: as a hexadecimal number without the
  * base '0x', all digits in upper case, and filled with leading zeros up to a
