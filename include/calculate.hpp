@@ -477,7 +477,7 @@ private:
  * checksums of the the first and last track of an album. Context represents
  * this information.
  */
-enum class Context : unsigned
+enum class Context : uint8_t
 {
 	/**
 	 * \brief Single track that is neither first or last track.
@@ -601,11 +601,11 @@ public:
 	Settings();
 
 	/**
-	 * \brief Converting constructor.
+	 * \brief Constructor.
 	 *
 	 * \param[in] c Context for a calculation
 	 */
-	Settings(const Context& c);
+	explicit Settings(const Context& c);
 
 	/**
 	 * \brief Set context for this algorithm.
@@ -656,6 +656,8 @@ using Points = std::vector<AudioSize>;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+// -Weffc++ is deactivated: warns about raw pointer member settings_
+// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \brief Interface: Checksum calculation algorithm.
@@ -681,7 +683,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	virtual ~Algorithm() noexcept;
+	virtual ~Algorithm() noexcept = default;
 
 	/**
 	 * \brief Configure the algorithm with settings.
@@ -788,7 +790,7 @@ private:
 	/**
 	 * \brief Internal settings of the algorithm.
 	 */
-	const Settings* settings_;
+	const Settings* settings_; // non-owning
 };
 
 #pragma GCC diagnostic pop

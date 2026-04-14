@@ -91,7 +91,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	const auto size      { AudioSize { 253038, UNIT::FRAMES } };
 
-	auto calculation     { Calculation(Context::ALBUM,
+	auto calculation     { Calculation(Settings { Context::ALBUM },
 			std::make_unique<V1andV2>(), size, toc.offsets()) };
 
 	const auto algorithm { calculation.algorithm() };

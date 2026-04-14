@@ -59,7 +59,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 	for (const auto& p : points)
 	{
 		if (real_lower >= p) { ++b; };
-		if (real_upper >= p) { ++e; } else break;
+		if (real_upper >= p) { ++e; } else { break; }
 	}
 
 	// Now, b-1 and e-1 are the indices of the tracks/segments in which the
@@ -197,9 +197,6 @@ Partitioner::Partitioner(const AudioSize& total_samples, const Points& points,
 {
 	// empty
 }
-
-
-Partitioner::~Partitioner() noexcept = default;
 
 
 Partitioning Partitioner::create_partitioning(
@@ -747,9 +744,6 @@ Algorithm::Algorithm()
 }
 
 
-Algorithm::~Algorithm() noexcept = default;
-
-
 void Algorithm::set_settings(const Settings* s) noexcept
 {
 	settings_ = s;
@@ -1040,21 +1034,16 @@ Calculation& Calculation::operator = (const Calculation& rhs)
 }
 
 
-Calculation::Calculation(Calculation&& rhs) noexcept
-	:impl_ { std::move(rhs.impl_) }
-{
-	// empty
-}
+// Pimpl requires definition in source file
+Calculation::Calculation(Calculation&& rhs) noexcept = default;
 
 
-Calculation& Calculation::operator = (Calculation&& rhs) noexcept
-{
-	impl_ = std::move(rhs.impl_);
-	return *this;
-}
+// Pimpl requires definition in source file
+Calculation& Calculation::operator = (Calculation&& rhs) noexcept = default;
 
 
-Calculation::~Calculation() noexcept = default; // Pimpl requirement
+// Pimpl requires definition in source file
+Calculation::~Calculation() noexcept = default;
 
 
 void Calculation::set_settings(const Settings& s) noexcept
@@ -1162,8 +1151,8 @@ std::unique_ptr<Calculation> make_calculation(
 		leadout = toc.leadout();
 	}
 
-	return std::make_unique<Calculation>(Context::ALBUM, std::move(algorithm),
-		leadout, toc.offsets());
+	return std::make_unique<Calculation>(Settings { Context::ALBUM },
+			std::move(algorithm), leadout, toc.offsets());
 }
 
 

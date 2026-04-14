@@ -64,12 +64,12 @@ class Interval final
 	/**
 	 * \brief First number in interval.
 	 */
-	const T a_;
+	T a_;
 
 	/**
 	 * \brief Last number in interval.
 	 */
-	const T b_;
+	T b_;
 
 public:
 
@@ -213,7 +213,27 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	virtual ~Partitioner() noexcept;
+	virtual ~Partitioner() noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
+	Partitioner(const Partitioner& rhs) = default;
+
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	Partitioner& operator = (const Partitioner& rhs) = delete;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	Partitioner(Partitioner&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Partitioner& operator = (Partitioner&& rhs) noexcept = delete;
 
 	/**
 	 * \brief Generates partitioning of the range of samples.
@@ -371,30 +391,30 @@ class Partition final
 	/**
 	 * \brief Relative offset of the first sample in this partition
 	 */
-	const int32_t begin_offset_;
+	int32_t begin_offset_;
 
 	/**
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
-	const int32_t end_offset_;
+	int32_t end_offset_;
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
 	 * sample in the track
 	 */
-	const bool starts_track_;
+	bool starts_track_;
 
 	/**
 	 * \brief TRUE iff the last sample in this partition is also the last sample
 	 * in the track
 	 */
-	const bool ends_track_;
+	bool ends_track_;
 
 	/**
 	 * \brief 1-based number of the track of which the samples in the partition
 	 * are part of
 	 */
-	const int track_;
+	int track_;
 
 public:
 
@@ -481,11 +501,11 @@ public:
 	using type = T;
 
 	/**
-	 * \brief Converting constructor for a counter.
+	 * \brief Constructor.
 	 *
 	 * \param[in] value Start value
 	 */
-	Counter(const T& value)
+	explicit Counter(const T& value)
 		: value_ { value }
 	{
 		// empty
@@ -538,9 +558,6 @@ int32_t ind2am(const int32_t index);
  */
 int32_t am2ind(const int32_t amount);
 
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief Current state of a Calculation.
@@ -744,8 +761,6 @@ protected:
 	void set_algorithm(Algorithm* const algorithm) noexcept;
 };
 
-#pragma GCC diagnostic pop
-
 
 // CalculationStateImpl
 
@@ -851,6 +866,11 @@ public:
 	 * \param[in] algorithm The algorithm to use in update()
 	 */
 	explicit Impl(std::unique_ptr<Algorithm> algorithm);
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Impl() noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_copy_ctor
