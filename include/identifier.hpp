@@ -147,7 +147,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~ARId() noexcept final;
+	~ARId() noexcept;
 
 	/**
 	 * \brief Return the AccurateRip request URL.

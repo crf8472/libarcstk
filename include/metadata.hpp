@@ -177,7 +177,7 @@ struct CDDA final
  *
  * Units are frames, samples or bytes.
  */
-enum class UNIT : int
+enum class UNIT : uint16_t
 {
 	FRAMES  = 1,
 	SAMPLES = CDDA::SAMPLES_PER_FRAME,
@@ -414,6 +414,7 @@ class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
 	 * \brief Data: Total number of pcm sample bytes in the audio file.
 	 */
 	int32_t total_pcm_bytes_;
+	// TODO use frames
 
 public:
 
@@ -452,6 +453,7 @@ public:
 	 * \return The size in stereo PCM samples
 	 */
 	int32_t samples() const noexcept;
+	// TODO inline getters
 
 	/**
 	 * \brief Update this size by an amount of stereo PCM samples.
@@ -821,7 +823,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~ToC() noexcept final;
+	~ToC() noexcept;
 
 	/**
 	 * \brief Total tracks in this ToC.
@@ -1043,7 +1045,7 @@ ToC validated_toc(const std::vector<int32_t>& offsets);
 /**
  * \brief Requirements for metadata validity.
  */
-enum class MetadataRequirement : uint16_t
+enum class MetadataRequirement : uint8_t
 {
 	// mandatory for each ToC data
 	OFFSETS_ARE_NONNEGATIVE,

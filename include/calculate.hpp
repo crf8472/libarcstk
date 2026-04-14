@@ -369,7 +369,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~SampleInputIterator() noexcept final = default;
+	~SampleInputIterator() noexcept = default;
 
 	/**
 	 * \copydoc SNPT_mf_deref

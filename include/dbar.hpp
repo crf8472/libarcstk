@@ -618,7 +618,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~DBARForwardIterator() noexcept final = default;
+	~DBARForwardIterator() noexcept = default;
 
 	/**
 	 * \brief Current index position.
@@ -798,7 +798,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~DBAR() noexcept final;
+	~DBAR() noexcept;
 
 	/**
 	 * \brief Total number of blocks.

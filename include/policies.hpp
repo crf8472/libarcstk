@@ -28,8 +28,6 @@ inline namespace v_1_0_0
 template <typename T>
 struct Swap
 {
-	virtual ~Swap() = default;
-
 	/**
 	 * \copydoc SNPT_nf_swap
 	 */
@@ -37,6 +35,10 @@ struct Swap
 	{
 		return lhs.swap(rhs);
 	}
+
+protected:
+
+	Swap() = default;
 };
 
 
@@ -49,8 +51,6 @@ struct Swap
 template <typename T>
 struct Equality
 {
-	virtual ~Equality() = default;
-
 	/**
 	 * \copydoc SNPT_nf_equality
 	 */
@@ -58,6 +58,10 @@ struct Equality
 	{
 		return lhs.equals(rhs);
 	}
+
+protected:
+
+	Equality() = default;
 };
 
 
@@ -69,8 +73,6 @@ struct Equality
 template <typename T>
 struct Comparable
 {
-	virtual ~Comparable() = default;
-
 	/**
 	 * \brief Inequality.
 	 *
@@ -83,6 +85,10 @@ struct Comparable
 	{
 		return !(lhs == rhs);
 	}
+
+protected:
+
+	Comparable() = default;
 };
 
 
@@ -95,8 +101,6 @@ struct Comparable
 template <typename T>
 struct TotallyOrdered : public Comparable<T>
 {
-	~TotallyOrdered() override = default;
-
 	/**
 	 * \brief Greater-than.
 	 *
@@ -135,6 +139,10 @@ struct TotallyOrdered : public Comparable<T>
 	{
 		return !(lhs > rhs);
 	}
+
+protected:
+
+	TotallyOrdered() = default;
 };
 
 
@@ -146,8 +154,6 @@ struct TotallyOrdered : public Comparable<T>
 template <typename T>
 struct ToString
 {
-	virtual ~ToString() = default;
-
 	/**
 	 * \copydoc SNPT_nf_to_string
 	 */
@@ -155,6 +161,10 @@ struct ToString
 	{
 		return i.to_string();
 	}
+
+protected:
+
+	ToString() = default;
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

@@ -719,7 +719,7 @@ TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
 	SECTION ( "IS (nothrow) copy-constructable")
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::AudioSize>);
-		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::AudioSize>);
+		CHECK ( std::is_trivially_copy_constructible_v<arcstk::AudioSize>);
 		CHECK ( std::is_nothrow_copy_constructible_v<arcstk::AudioSize>);
 	}
 
@@ -727,13 +727,13 @@ TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
 	{
 		CHECK ( std::is_move_constructible_v<arcstk::AudioSize>);
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::AudioSize>);
-		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::AudioSize>);
+		CHECK ( std::is_trivially_move_constructible_v<arcstk::AudioSize>);
 	}
 
 	SECTION ( "IS (nothrow) copy-assignable")
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::AudioSize>);
-		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::AudioSize>);
+		CHECK ( std::is_trivially_copy_assignable_v<arcstk::AudioSize>);
 		CHECK ( std::is_nothrow_copy_assignable_v<arcstk::AudioSize>);
 	}
 
@@ -741,7 +741,7 @@ TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
 	{
 		CHECK ( std::is_move_assignable_v<arcstk::AudioSize>);
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::AudioSize>);
-		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::AudioSize>);
+		CHECK ( std::is_trivially_move_assignable_v<arcstk::AudioSize>);
 	}
 
 	SECTION ("IS destructible")
