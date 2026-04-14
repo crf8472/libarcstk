@@ -250,7 +250,7 @@ public:
 	 *
 	 * \param[in] dbar DBAR instance to wrap
 	 */
-	DBARSource(const DBAR* dbar);
+	explicit DBARSource(const DBAR* dbar);
 
 	/**
 	 * \brief DBAR instance wrapped.
@@ -280,7 +280,7 @@ namespace best_block
 /**
  * \brief Element indices of type best_block_info_t.
  */
-enum class TUPLE_IDX : unsigned
+enum class TUPLE_IDX : uint8_t
 {
 	INDEX         = 0,
 	CHECKSUM_TYPE = 1,

@@ -120,7 +120,7 @@ public:
 	 *
 	 * \return TRUE if initialization was successful
 	 */
-	bool init(int blocks, int tracks);
+	bool init(const std::size_t blocks, const std::size_t tracks);
 
 	/**
 	 * \brief Set the verification flag for the ARCS specified by \c b, \c t and
@@ -187,7 +187,7 @@ protected:
 	 * \param[in] b     0-based index of the block in \c response
 	 * \param[in] t     0-based index of the track in \c response
 	 */
-	void validate(int b, int t) const;
+	void validate(const std::size_t b, const std::size_t t) const;
 
 	/**
 	 * \brief Value of the flag with index \c i.
@@ -478,12 +478,17 @@ public:
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Result(Result&& rhs) noexcept;
+	Result(Result&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Result& operator = (Result&& rhs) noexcept;
+	Result& operator = (Result&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Result() noexcept final = default;
 
 	/**
 	 * \brief Initializer helper.
@@ -494,7 +499,8 @@ public:
 	 * \param[in] total_blocks     Number of blocks
 	 * \param[in] tracks_per_block Number of tracks per block
 	 */
-	void init(const int total_blocks, const int tracks_per_block);
+	void init(const std::size_t total_blocks,
+			const std::size_t tracks_per_block);
 
 	/**
 	 * \brief VerificationPolicy used for interpreting the verification result.
@@ -518,7 +524,7 @@ public:
  *
  * \return VerificationResult object of the specified dimensions.
  */
-std::unique_ptr<VerificationResult> create_result(const int blocks,
+std::unique_ptr<VerificationResult> create_result(const std::size_t blocks,
 		const std::size_t tracks, std::unique_ptr<VerificationPolicy> p);
 
 
@@ -593,9 +599,6 @@ class TrackSelector final : public Selector
 			const ChecksumSource::size_type block) const final;
 };
 
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
 
 /**
  * \brief Iterates a ChecksumSource.
@@ -724,8 +727,6 @@ public:
 	}
 };
 
-#pragma GCC diagnostic pop
-
 
 /**
  * \brief Interface: policy for traversals.
@@ -804,6 +805,16 @@ protected:
 	 * \copydoc SNPT_sm_copy_op
 	 */
 	TraversalPolicy& operator = (const TraversalPolicy& rhs);
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	TraversalPolicy(TraversalPolicy&& rhs) = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	TraversalPolicy& operator = (TraversalPolicy&& rhs) = default;
 
 	/**
 	 * \brief The Selector of this instance
@@ -1188,6 +1199,8 @@ std::unique_ptr<VerificationResult> verify(
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+// -Weffc++ is deactivated: warns about raw pointer member actual_sums_
+// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \internal
@@ -1293,6 +1306,8 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+// -Weffc++ is deactivated: warns about raw pointer member actual_id_
+// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \internal
