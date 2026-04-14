@@ -466,9 +466,11 @@ void CalculationState::update(SampleInputIterator start,
 	const fsec dur { stop_time - start_time };
 	algo_time_elapsed_ += dur;
 
-	samples_processed_.increment(amount);
-	track_samples_processed_.increment(amount);
-	advance(amount);
+	const auto samples_amount = int32_t { static_cast<int32_t>(amount) };
+
+	samples_processed_.increment(samples_amount);
+	track_samples_processed_.increment(samples_amount);
+	advance(samples_amount);
 }
 
 
@@ -558,7 +560,8 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 		Checksums&         result_buffer)
 {
 	const auto start_pos        { state.current_offset() };
-	const auto samples_in_block { std::distance(start, stop) };
+	const auto samples_in_block { static_cast<int32_t>(
+			                               std::distance(start, stop)) };
 	const auto last_pos         { start_pos + am2ind(samples_in_block) };
 
 	ARCS_LOG(DEBUG1) << "Offsets: " << start_pos << " - " << last_pos;
