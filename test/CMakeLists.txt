@@ -61,7 +61,7 @@ if (CMAKE_COMPILER_IS_GNUCXX )
 	endforeach()
 
 	set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}
-		"--param" "max-gcse-memory=140132"
+		"--param" "max-gcse-memory=142720"
 	)
 endif()
 
