@@ -20,10 +20,10 @@
 #endif
 
 
-/* Policies widely used by libarcstk */
+/* Mixins widely used by libarcstk */
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include <arcstk/policies.hpp>
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include <arcstk/mixins.hpp>
 #endif
 
 

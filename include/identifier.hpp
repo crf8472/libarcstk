@@ -17,8 +17,8 @@
 #include <string>                // for string
 #include <vector>                // for vector
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"          // for Comparable
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"            // for Comparable
 #endif
 
 namespace arcstk

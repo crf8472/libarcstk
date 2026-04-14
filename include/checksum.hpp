@@ -23,11 +23,11 @@
 #include <string>           // for string
 #include <vector>           // for vector
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"     // for Comparable
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"       // for Comparable
 #endif
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"      // for AudioSize
+#include "metadata.hpp"     // for AudioSize
 #endif
 
 namespace arcstk

@@ -3,18 +3,18 @@
 /**
  * \file
  *
- * \brief Fixtures for policies.hpp.
+ * \brief Fixtures for mixins.hpp.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"         // TO BE TESTED
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"           // TO BE TESTED
 #endif
 
 #include <string>               // for string
 #include <vector>               // for vector
 
 
-TEST_CASE ( "IteratorElement", "[policies]" )
+TEST_CASE ( "IteratorElement", "[tools]" )
 {
 }
 

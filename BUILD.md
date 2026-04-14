@@ -50,15 +50,17 @@ more dependencies required.
 
 ### Installed files
 
-The following 18 files will be installed to your system:
+The following 20 files (not including softlinks) will be installed to your
+system:
 
-- The shared object libarcstk.so.x.y.z (along with a symbolic link
+- The shared object ``libarcstk.so.x.y.z`` (along with a symbolic link
   ``libarcstk.so``) in the standard library location (e.g. ``/usr/local/lib``).
-- The 12 public header files ``accuraterip.hpp``, ``algorithms.hpp``,
-  ``calculate.hpp``, ``checksum.hpp``, ``dbar.hpp``, ``identifier.hpp``,
-  ``logging.hpp``, ``metadata.hpp``, ``policies.hpp``, ``samples.hpp``,
-  ``verify.hpp``, and ``version.hpp`` in the the subfolder ``arcstk`` in the
-  default include location (e.g. ``/usr/local/include``).
+- The 14 public header files ``accuraterip.hpp``, ``algorithms.hpp``,
+  ``bytes.hpp``, ``calculate.hpp``, ``checksum.hpp``, ``dbar.hpp``,
+  ``identifier.hpp``, ``libarcstk.hpp``, ``logging.hpp``, ``metadata.hpp``,
+  ``mixins.hpp``, ``samples.hpp``, ``verify.hpp``, and ``version.hpp`` in the
+  subfolder ``arcstk`` in the default include location (e.g.
+  ``/usr/local/include``).
 - The 4 cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
   ``libarcstk-targets-release.cmake`` in directory ``libarcstk`` beneath the

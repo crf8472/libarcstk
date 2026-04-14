@@ -12,8 +12,8 @@
  * Part of the API for \link meta calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"   // for Comparable, TotallyOrdered
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"     // for Comparable, TotallyOrdered
 #endif
 
 #include <algorithm>      // for transform

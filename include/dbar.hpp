@@ -11,8 +11,8 @@
  * Parse dBAR-formatted data from files and streams.
  */
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"     // for Comparable
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"       // for Comparable
 #endif
 
 #include <cstddef>          // for size_t, nullptr

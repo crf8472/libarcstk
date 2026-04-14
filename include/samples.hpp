@@ -21,8 +21,8 @@
 #include <stdexcept>            // for out_of_range
 #include <type_traits>          // for is_same, enable_if_t
 
-#ifndef LIBARCSTK_POLICIES_HPP_
-#include "policies.hpp"         // for Comparable
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"           // for Comparable
 #endif
 
 namespace arcstk

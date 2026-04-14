@@ -1,10 +1,10 @@
-#ifndef LIBARCSTK_POLICIES_HPP_
-#define LIBARCSTK_POLICIES_HPP_
+#ifndef LIBARCSTK_MIXINS_HPP_
+#define LIBARCSTK_MIXINS_HPP_
 
 /**
  * \file
  *
- * \brief Policies for enhancing classes.
+ * \brief CRTP-Mixins for enhancing classes.
  *
  * \details
  *
