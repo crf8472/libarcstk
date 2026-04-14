@@ -206,6 +206,8 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
+// -Weffc++ is deactivated: warns about raw pointer member dbar_
+// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \brief Access DBAR as a ChecksumSource.
@@ -217,7 +219,7 @@ class DBARSource final : public ChecksumSource
 	/**
 	 * \brief Internal DBAR object.
 	 */
-	const DBAR* dbar_;
+	const DBAR* dbar_; // non-owning
 
 	// ChecksumSource
 
