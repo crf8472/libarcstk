@@ -19,6 +19,7 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
+// NOLINTBEGIN(bugprone-crtp-constructor-accessibility)
 
 /**
  * \internal
@@ -38,7 +39,8 @@ struct Swap
 
 protected:
 
-	Swap() = default;
+	Swap()  = default;
+	~Swap() = default;
 };
 
 
@@ -61,7 +63,8 @@ struct Equality
 
 protected:
 
-	Equality() = default;
+	Equality()  = default;
+	~Equality() = default;
 };
 
 
@@ -88,7 +91,8 @@ struct Comparable
 
 protected:
 
-	Comparable() = default;
+	Comparable()  = default;
+	~Comparable() = default;
 };
 
 
@@ -142,7 +146,8 @@ struct TotallyOrdered : public Comparable<T>
 
 protected:
 
-	TotallyOrdered() = default;
+	TotallyOrdered()  = default;
+	~TotallyOrdered() = default;
 };
 
 
@@ -164,8 +169,10 @@ struct ToString
 
 protected:
 
-	ToString() = default;
+	ToString()  = default;
+	~ToString() = default;
 };
+// NOLINTEND(bugprone-crtp-constructor-accessibility)
 
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
