@@ -1031,16 +1031,28 @@ public: /* member functions */
 	 * \param[in] buffer0 Buffer for channel 0
 	 * \param[in] buffer1 Buffer for channel 1
 	 * \param[in] size    Number of T's per buffer
-	 * \param[in] left0_right1 Channel ordering
+	 * \param[in] is_left0_right1 Channel ordering
 	 */
 	void wrap_int_buffer(const T* buffer0, const T* buffer1,
-			const size_type size, const bool left0_right1)
+			const size_type size, const bool is_left0_right1)
 	{
-		buffer_[this->left_channel()]  = buffer0;
-		buffer_[this->right_channel()] = buffer1;
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+			buffer_[1] = buffer0;
+			buffer_[0] = buffer1;
+		} else
+		{
+			buffer_[0] = buffer0;
+			buffer_[1] = buffer1;
+		}
+
+		// OLD VERSION (commented out)
+		//buffer_[static_cast<index_type>(this->left_channel()) ] = buffer0;
+		//buffer_[static_cast<index_type>(this->right_channel())] = buffer1;
 
 		this->set_size(size);
-		this->set_channel_ordering(left0_right1);
+		this->set_channel_ordering(is_left0_right1);
 	}
 
 	/**
@@ -1074,8 +1086,20 @@ public: /* member functions */
 	void wrap_byte_buffer(const uint8_t *buffer0, const uint8_t *buffer1,
 			const size_type size, const bool left0_right1)
 	{
-		buffer_[this->left_channel()]  = reinterpret_cast<const T *>(buffer0),
-		buffer_[this->right_channel()] = reinterpret_cast<const T *>(buffer1),
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+			buffer_[1] = reinterpret_cast<const T *>(buffer0);
+			buffer_[0] = reinterpret_cast<const T *>(buffer1);
+		} else
+		{
+			buffer_[0] = reinterpret_cast<const T *>(buffer0);
+			buffer_[1] = reinterpret_cast<const T *>(buffer1);
+		}
+
+		// OLD VERSION (commented out)
+		//buffer_[this->left_channel()]  = reinterpret_cast<const T *>(buffer0),
+		//buffer_[this->right_channel()] = reinterpret_cast<const T *>(buffer1),
 
 		this->set_size((size * sizeof(uint8_t)) / sizeof(T));
 		this->set_channel_ordering(left0_right1);
@@ -1116,8 +1140,22 @@ public: /* member functions */
 	 */
 	value_type operator [] (const size_type index) const
 	{
-		return this->combine(buffer_[this->right_channel()][index],
-				buffer_[this->left_channel()][index]);
+		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+			return this->combine(buffer_[0][index], buffer_[1][index]);
+		}
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		return this->combine(buffer_[1][index], buffer_[0][index]);
+
+		// OLD VERSION (commented out)
+		//return this->combine(buffer_[this->right_channel()][index],
+		//		buffer_[this->left_channel()][index]);
 		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
 
 		// NOTE:
@@ -1389,8 +1427,22 @@ public: /* member functions */
 	 */
 	value_type operator [] (const size_type index) const
 	{
-		return this->combine(buffer_[2 * index + this->right_channel()],
-				buffer_[2 * index + this->left_channel()]);
+		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+			return this->combine(buffer_[0 + 2 * index], buffer_[1 + 2 * index]);
+		}
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		return this->combine(buffer_[1 + 2 * index], buffer_[0 + 2 * index]);
+
+		// OLD VERSION (commented out)
+		//return this->combine(buffer_[2 * index + this->right_channel()],
+		//		buffer_[2 * index + this->left_channel()]);
 		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
 
 		// NOTE:
