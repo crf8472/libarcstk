@@ -324,7 +324,7 @@ public:
 		, cache_ { /* default */ }
 	{
 		// empty
-	}
+	} // TODO I think, this is not the best solution
 
 	/**
 	 * \brief Construct a constant SampleIterator from a non-constant
@@ -341,7 +341,7 @@ public:
 			cache_ = rhs.cache_;
 		}
 		return *this;
-	}
+	} // TODO I think, this is not the best solution
 	// Note: prior versions of g++ and clang++ accepted the following:
 	//SampleIterator& operator = (const SampleIterator& rhs) = default;
 	// but since this lets -Wdeprecated-copy fire at least on clang++ 14 we had
@@ -726,7 +726,7 @@ protected:
 	 *
 	 * \param[in] left0_right1 Channel ordering
 	 */
-	SampleSequenceImplBase(const bool left0_right1)
+	explicit SampleSequenceImplBase(const bool left0_right1)
 		: size_  { 0 }
 		, left_  { get_left_channel(left0_right1)  }
 		, right_ { get_right_channel(left0_right1) }
@@ -933,7 +933,7 @@ public: /* member functions */
 	 *
 	 * \param[in] left0_right1 The channel ordering
 	 */
-	SampleSequence(const bool left0_right1)
+	explicit SampleSequence(const bool left0_right1)
 		: Base    { left0_right1 }
 		, buffer_ { /* default */ }
 	{
@@ -1211,7 +1211,7 @@ public: /* member functions */
 	 *
 	 * \param[in] left0_right1 The channel ordering
 	 */
-	SampleSequence(const bool left0_right1)
+	explicit SampleSequence(const bool left0_right1)
 		: Base(left0_right1)
 		, buffer_ { nullptr }
 	{
