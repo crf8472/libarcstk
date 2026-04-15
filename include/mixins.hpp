@@ -12,6 +12,7 @@
  */
 
 #include <string>           // for string
+#include <type_traits>      // for is_convertible_v
 
 namespace arcstk
 {
@@ -20,6 +21,7 @@ inline namespace v_1_0_0
 {
                                                                  /** \endcond */
 // NOLINTBEGIN(bugprone-crtp-constructor-accessibility)
+// deactivated due to over-warning: protected constructor + no virtual functions
 
 /**
  * \internal
@@ -58,6 +60,9 @@ struct Equality
 	 */
 	friend bool operator == (const T& lhs, const T& rhs) noexcept
 	{
+		static_assert(has_equals<T>::value,
+			"Derived class must implement: bool equals(const T&) const");
+
 		return lhs.equals(rhs);
 	}
 
@@ -65,6 +70,31 @@ protected:
 
 	Equality()  = default;
 	~Equality() = default;
+
+private:
+
+		template <typename U, typename = void>
+		struct has_equals : std::false_type {};
+
+		template <typename U>
+		struct has_equals<U, std::void_t<
+			decltype(std::declval<const U>().equals(std::declval<const U&>()))
+		>> : std::true_type {};
+
+
+	/*
+	static_assert(
+		std::is_convertible_v<bool,
+			decltype( std::declval<const T>().equals(std::declval<const T&>) )
+		>,
+		// C++20:
+        //requires(const T& t1, const T& t2)
+		//{
+        //    { t1.equals(t2) } noexcept -> std::convertible_to<bool>;
+        //},
+        "Derived class must implement: bool equals(const T&) const noexcept"
+    );
+	*/
 };
 
 
