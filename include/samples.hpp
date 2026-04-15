@@ -16,7 +16,6 @@
 #include <cstddef>              // for ptrdiff_t, size_t
 #include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
 #include <iterator>             // for bidirectional_iterator_tag
-#include <memory>               // for addressof
 #include <sstream>              // for ostringstream
 #include <stdexcept>            // for out_of_range
 #include <type_traits>          // for is_same, enable_if_t
@@ -125,115 +124,6 @@ template<typename T, bool is_planar, typename = IsSampleType<T>>
 class SampleSequenceImplBase; // IWYU pragma keep
 // forward declaration required by friend delcaration in SampleIterator
 
-
-/**
- * \brief A very simple cache for a single value of type \c T.
- *
- * \tparam T Value type to cache
- */
-template<typename T>
-class Cache
-{
-public:
-
-	/**
-	 * \copydoc SNPT_tp_value
-	 */
-	using value_type = T;
-
-private:
-
-	/**
-	 * \brief Value cached.
-	 */
-	mutable value_type value_{/* default */};
-
-	/**
-	 * \brief Validity flag.
-	 */
-	mutable bool       valid_{/* default */};
-
-public:
-
-	/**
-	 * \brief Return the cached value.
-	 *
-	 * \return Cached value
-	 */
-	value_type value() const
-	{
-		return value_;
-	}
-
-	/**
-	 * \brief TRUE iff the current value in the cache is valid, otherwise FALSE.
-	 *
-	 * \return TRUE iff cache is valid, otherwise FALSE
-	 */
-	bool valid() const
-	{
-		return valid_;
-	}
-
-	/**
-	 * \brief Initialize \c cache_ with the value under \c pos_.
-	 *
-	 * \param[in] v Value to put in the cache
-	 */
-	void put(value_type&& v) const
-	{
-		value_ = std::move(v);
-		valid_ = true;
-	}
-
-	/**
-	 * \brief Invalidate the cache.
-	 */
-	void invalidate() const
-	{
-		valid_ = false;
-	}
-
-	/**
-	 * \brief Convert the cache to a pointer to its value.
-	 *
-	 * \return Pointer to cached value
-	 */
-	explicit operator const value_type* () const
-	{
-		return std::addressof(value_);
-	}
-
-	/**
-	 * \brief Return a pointer to the cached value.
-	 *
-	 * \return Pointer to cached value
-	 */
-	value_type* operator -> () const
-	{
-		return this->operator const value_type* ();
-	}
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(Cache& lhs, Cache& rhs) noexcept
-	{
-		using std::swap;
-
-		swap(lhs.value_, rhs.value_);
-		swap(lhs.valid_, rhs.valid_);
-	}
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const Cache& lhs, const Cache& rhs) noexcept
-	{
-		return lhs.value_ == rhs.value_ && lhs.valid_ == rhs.valid_;
-	}
-};
-
 } // namespace details
 
 
@@ -253,27 +143,22 @@ public:
  * - binary operators for addition and substraction of values, and
  * - binary operators for addition and substraction of positions.
  */
-template <typename T, bool is_planar, bool is_const>
+template <typename T, bool is_planar>
 class SampleIterator final :
-					public Comparable<SampleIterator<T, is_planar, is_const>>
+					public Comparable<SampleIterator<T, is_planar>>
 {
-	// Befriend the converse version of the type: const_iterator can access
-	// private members of iterator (and vice versa)
-	friend SampleIterator<T, is_planar, not is_const>;
-
 	// Allow use of private constructor
 	friend class details::SampleSequenceImplBase<T, is_planar>;
 
 public:
 
 	/**
-	 * \brief LegacyBidirectionalIterator
+	 * \brief LegacyInputIterator
 	 *
-	 * See <A
-	 * HREF="https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator.html">
-	 * LegacyBidirectionalIterator</A>
+	 * See <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
+	 * LegacyInputIterator</A>
 	 */
-	using iterator_category = std::bidirectional_iterator_tag;
+	using iterator_category = std::input_iterator_tag;
 
 	/**
 	 * \copydoc SNPT_tp_value
@@ -297,55 +182,6 @@ public:
 	 */
 	using difference_type   = std::ptrdiff_t;
 	// Must be at least as wide as SampleSequence::size_type
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 *
-	 * \details Inititalizes a SampleIterator pointing to \c nullptr on
-	 * position \c 0.
-	 */
-	SampleIterator()
-		: seq_   { nullptr }
-		, pos_   { 0 }
-		, cache_ { /* default */ }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Construct a constant SampleIterator from a non-constant
-	 * SampleIterator.
-	 *
-	 * \param[in] rhs The non-constant SampleIterator
-	 */
-	SampleIterator(const SampleIterator<T, is_planar, false>& rhs)
-		: seq_   { rhs.seq_ } // works due to friendship
-		, pos_   { rhs.pos_ }
-		, cache_ { /* default */ }
-	{
-		// empty
-	} // TODO I think, this is not the best solution
-
-	/**
-	 * \brief Construct a constant SampleIterator from a non-constant
-	 * SampleIterator.
-	 *
-	 * \param[in] rhs The non-constant SampleIterator
-	 */
-	SampleIterator& operator = (const SampleIterator<T, is_planar, false>& rhs)
-	{
-		if (&rhs != this)
-		{
-			seq_   = rhs.seq_;
-			pos_   = rhs.pos_;
-			cache_ = rhs.cache_;
-		}
-		return *this;
-	} // TODO I think, this is not the best solution
-	// Note: prior versions of g++ and clang++ accepted the following:
-	//SampleIterator& operator = (const SampleIterator& rhs) = default;
-	// but since this lets -Wdeprecated-copy fire at least on clang++ 14 we had
-	// to define the nonconst-to-const assignment operator explicitely.
 
 	/**
 	 * \brief Return a pointer to the SampleSequence.
@@ -377,21 +213,9 @@ public:
 	 */
 	reference operator * () const
 	{
-		this->update_cache();
-		return cache_.value();
-	}
+		using index_type = typename SampleSequence<T, is_planar>::size_type;
 
-	/**
-	 * \copydoc SNPT_mf_arrow
-	 *
-	 * \details
-	 * The value under the pointer obtained by calling this operator will be
-	 * invalidated by modifying the iterator.
-	 */
-	pointer operator -> () const
-	{
-		this->update_cache();
-		return static_cast<pointer>(cache_);
+		return seq_->operator[](static_cast<index_type>(pos_));
 	}
 
 	/**
@@ -400,7 +224,6 @@ public:
 	SampleIterator& operator ++ ()
 	{
 		++pos_;
-		cache_.invalidate();
 		return *this;
 	}
 
@@ -415,42 +238,11 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_mf_dec_prefix
-	 */
-	SampleIterator& operator -- ()
-	{
-		--pos_;
-		cache_.invalidate();
-		return *this;
-	}
-
-	/**
-	 * \copydoc SNPT_mf_dec_postfix
-	 */
-	SampleIterator operator -- (int)
-	{
-		auto prev_val = SampleIterator { *this };
-		this->operator--();
-		return prev_val;
-	}
-
-	/**
 	 * \copydoc SNPT_mf_inc_amount
 	 */
 	SampleIterator& operator += (const difference_type amount)
 	{
 		pos_ += amount;
-		cache_.invalidate();
-		return *this;
-	}
-
-	/**
-	 * \copydoc SNPT_mf_dec_amount
-	 */
-	SampleIterator& operator -= (const difference_type amount)
-	{
-		pos_ -= amount;
-		cache_.invalidate();
 		return *this;
 	}
 
@@ -474,25 +266,6 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_nf_dec_amount
-	 */
-	friend SampleIterator operator - (SampleIterator lhs,
-			const difference_type amount) noexcept
-	{
-		lhs -= amount;
-		return lhs;
-	}
-
-	/**
-	 * \copydoc SNPT_nf_minus
-	 */
-	friend difference_type operator - (const SampleIterator& lhs,
-			const SampleIterator& rhs) noexcept
-	{
-		return lhs.pos_ - rhs.pos_;
-	}
-
-	/**
 	 * \copydoc SNPT_nf_swap
 	 */
 	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
@@ -501,7 +274,6 @@ public:
 
 		swap(lhs.seq_,   rhs.seq_);
 		swap(lhs.pos_,   rhs.pos_);
-		swap(lhs.cache_, rhs.cache_);
 	}
 
 	/**
@@ -528,25 +300,8 @@ private:
 			const difference_type pos)
 		: seq_   { &seq }
 		, pos_   { pos }
-		, cache_ { /* default */ }
 	{
 		// empty
-	}
-
-	/**
-	 * \brief Update the cache if necessary.
-	 *
-	 * If the cache is not valid, put the current value under \c pos_ into the
-	 * cache.
-	 */
-	void update_cache() const
-	{
-		if (!this->cache_.valid())
-		{
-			using index_type = typename SampleSequence<T, is_planar>::size_type;
-
-			cache_.put(seq_->operator[](static_cast<index_type>(pos_)));
-		}
 	}
 
 	/**
@@ -558,11 +313,6 @@ private:
 	 * \brief Current index position.
 	 */
 	difference_type pos_;
-
-	/**
-	 * \brief Value cache.
-	 */
-	details::Cache<value_type> cache_;
 };
 
 
@@ -595,12 +345,12 @@ public:
 	/**
 	 * \brief Unspecified forward iterator type.
 	 */
-	using iterator       = SampleIterator<T, is_planar, false>;
+	using iterator       = SampleIterator<T, is_planar>;
 
 	/**
 	 * \brief Unspecified constant forward iterator type.
 	 */
-	using const_iterator = SampleIterator<T, is_planar, true>;
+	using const_iterator = SampleIterator<T, is_planar>;
 
 	/**
 	 * \copydoc SNPT_mf_begin

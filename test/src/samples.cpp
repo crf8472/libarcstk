@@ -104,7 +104,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
+		//CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xC711C2A5 );
@@ -169,7 +169,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		auto it_begin { sequence.cbegin() };
 
@@ -193,30 +192,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( *it_begin == 0xCBE1F9E6 );
 		++it_begin;
 		CHECK ( *it_begin == 0x0DF0F5F6 );
-
-		auto it_end { sequence.end() };
-
-		// end: last 10 samples
-		--it_end;
-		CHECK ( *it_end == 0x1571DD6D );
-		--it_end;
-		CHECK ( *it_end == 0xF617ABA8 );
-		--it_end;
-		CHECK ( *it_end == 0xD686E0EB );
-		--it_end;
-		CHECK ( *it_end == 0xA856E817 );
-		--it_end;
-		CHECK ( *it_end == 0xCA1A363F );
-		--it_end;
-		CHECK ( *it_end == 0x7A99BB36 );
-		--it_end;
-		CHECK ( *it_end == 0xA156A7ED );
-		--it_end;
-		CHECK ( *it_end == 0xE4D030D6 );
-		--it_end;
-		CHECK ( *it_end == 0x1B0FA419 );
-		--it_end;
-		CHECK ( *it_end == 0x338DE185 );
 
 		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]), 512,
 				true); // int16_t's
@@ -245,57 +220,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		CHECK ( *it_begin2 == 0xCBE1F9E6 );
 		++it_begin2;
 		CHECK ( *it_begin2 == 0x0DF0F5F6 );
-
-		auto it_end2 { sequence.cend() };
-
-		// end: last 10 samples
-		--it_end2;
-		CHECK ( *it_end2 == 0x1571DD6D );
-		--it_end2;
-		CHECK ( *it_end2 == 0xF617ABA8 );
-		--it_end2;
-		CHECK ( *it_end2 == 0xD686E0EB );
-		--it_end2;
-		CHECK ( *it_end2 == 0xA856E817 );
-		--it_end2;
-		CHECK ( *it_end2 == 0xCA1A363F );
-		--it_end2;
-		CHECK ( *it_end2 == 0x7A99BB36 );
-		--it_end2;
-		CHECK ( *it_end2 == 0xA156A7ED );
-		--it_end2;
-		CHECK ( *it_end2 == 0xE4D030D6 );
-		--it_end2;
-		CHECK ( *it_end2 == 0x1B0FA419 );
-		--it_end2;
-		CHECK ( *it_end2 == 0x338DE185 );
-
-
-		// Random tests for some operators
-
-		auto it { sequence.begin() };
-
-		it += 7;
-
-		CHECK ( *it == 0x1CFD8469 );
-
-		it -= 3;
-
-		CHECK ( *it == 0x4BB9979D );
-
-		auto it2 { it + 5 };
-
-		CHECK ( *it2 == 0x0DF0F5F6 );
-
-		auto it3 { it2 - 4 };
-
-		CHECK ( *it3 == 0xAE450C0F );
-
-		CHECK ( it3 != sequence.cbegin() );
-
-		it3 -= 4;
-
-		CHECK ( it3 == sequence.begin() + 1 );
 	}
 
 	SECTION ("Iteration and Subscript are equivalent for in16_t interleaved sequence")
@@ -307,7 +231,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		decltype( sequence )::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -342,7 +265,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0x9ECCC2A5 );
@@ -431,7 +353,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		InterleavedSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -464,7 +385,7 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
+		//CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -530,7 +451,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		PlanarSamples<int16_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -566,7 +486,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -656,7 +575,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		PlanarSamples<int32_t>::size_type index = 0;
 		for (const auto& sample : sequence)
@@ -692,7 +610,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xC711C2A5 );
@@ -755,7 +672,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -821,7 +737,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0x9ECCC2A5 );
@@ -910,7 +825,6 @@ TEST_CASE ( "SampleSequence index access works correctly",
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
 
 		// begin: first 10 samples
 		CHECK ( sequence[0] == 0xD9DBC2A5 );
@@ -1047,7 +961,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		const auto begin1 = sequence.begin();
 		auto begin2 = sequence.begin();
@@ -1076,31 +989,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		CHECK ( begin_other != begin2 );
 	}
 
-	SECTION ("Iterator is default constructible")
-	{
-		using arcstk::SampleIterator;
-
-		SampleIterator<int16_t,  true,  false> iterator1;
-		SampleIterator<int16_t,  false, false> iterator2;
-		SampleIterator<int16_t,  true,  true>  iterator3;
-		SampleIterator<int16_t,  false, true>  iterator4;
-
-		SampleIterator<uint16_t, true,  false> iterator5;
-		SampleIterator<uint16_t, false, false> iterator6;
-		SampleIterator<uint16_t, true,  true>  iterator7;
-		SampleIterator<uint16_t, false, true>  iterator8;
-
-		SampleIterator<int32_t,  true,  false> iterator9;
-		SampleIterator<int32_t,  false, false> iterator10;
-		SampleIterator<int32_t,  true,  true>  iterator11;
-		SampleIterator<int32_t,  false, true>  iterator12;
-
-		SampleIterator<uint32_t, true,  false> iterator13;
-		SampleIterator<uint32_t, false, false> iterator14;
-		SampleIterator<uint32_t, true,  true>  iterator15;
-		SampleIterator<uint32_t, false, true>  iterator16;
-	}
-
 	SECTION ("Iterator is destructible")
 	{
 		using arcstk::SampleIterator;
@@ -1111,10 +999,11 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
-		auto pointer = new SampleIterator<uint32_t, false, false>(
-				sequence.begin());
+		{
+			auto it = SampleIterator<uint32_t, false>(sequence.begin());
 
-		delete pointer;
+			static_cast<void>(it);
+		}
 	}
 
 	SECTION ("Iterator Copy Constructor")
@@ -1128,7 +1017,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1137,31 +1025,26 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		// Copy from const to const iterator
 
-		SampleIterator<uint32_t, false, true> const_copy { const_begin };
+		SampleIterator<uint32_t, false> const_copy { const_begin };
 
 		CHECK ( const_copy == const_begin );
 		CHECK ( not(const_copy != const_begin) );
 
 		// Copy from non-const to non-const iterator
 
-		SampleIterator<uint32_t, false, false> nonconst_copy(sequence.begin());
+		SampleIterator<uint32_t, false> nonconst_copy(sequence.begin());
 
 		CHECK ( nonconst_copy == sequence.begin() );
 		CHECK ( not(nonconst_copy != sequence.begin()) );
 
 		// Copy from non-const to const iterator
 
-		SampleIterator<uint32_t, false, true> const_copy2(sequence.begin());
+		SampleIterator<uint32_t, false> const_copy2(sequence.begin());
 
 		CHECK ( const_copy2 == sequence.begin() );
 		CHECK ( not(const_copy2 != sequence.begin()) );
 
 		// Copy from const to non-const iterator is forbidden!
-
-		//SampleIterator<uint32_t, false, false> const_copy3(sequence.cbegin());
-
-		//CHECK ( const_copy3 == sequence.begin() );
-		//CHECK ( not(const_copy3 != sequence.begin()) );
 	}
 
 	SECTION ("Iterator Copy Assignment")
@@ -1175,7 +1058,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1183,7 +1065,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		REQUIRE ( const_begin != const_end );
 
 
-		SampleIterator<uint32_t, false, true> const_it;
+		SampleIterator<uint32_t, false> const_it { sequence.cbegin() };
 
 		const_it = const_begin;
 
@@ -1207,7 +1089,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1235,7 +1116,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto const_begin { sequence.cbegin() };
 		auto const_end   { sequence.cend() };
@@ -1265,7 +1145,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		auto start { sequence.begin() };
 		auto stop  { sequence.end() };
@@ -1291,7 +1170,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
 
 		REQUIRE ( 128 == sequence.size() );
-		REQUIRE ( 128 == cend(sequence) - cbegin(sequence) );
 
 		REQUIRE ( *cbegin(sequence) == 0x9ECCC2A5 );
 
@@ -1299,9 +1177,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		const auto e = cbegin(sequence);
 
-		CHECK ( *(e.operator->()) == 0x9ECCC2A5 );
 		CHECK ( *e == 0x9ECCC2A5 );
-		//CHECK ( e.index()   == 0 );
 	}
 
 	SECTION ("Iterator 16 bit begin and end")
@@ -1310,17 +1186,11 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( 0 == sequence.size() );
-		CHECK ( 0 == cend(sequence) - cbegin(sequence) );
-		CHECK ( 0 == std::end(sequence) - std::begin(sequence) );
-		//CHECK ( sequence.empty() );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( 256 == sequence.size() );
-		CHECK ( 256 == cend(sequence) - cbegin(sequence) );
-		CHECK ( 256 == std::end(sequence) - std::begin(sequence) );
-		//CHECK ( not sequence.empty() );
 
 		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
 		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
@@ -1332,17 +1202,11 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		CHECK ( sequence.begin() == sequence.end() );
 		CHECK ( 0 == sequence.size() );
-		CHECK ( 0 == cend(sequence) - cbegin(sequence) );
-		CHECK ( 0 == std::end(sequence) - std::begin(sequence) );
-		//CHECK ( sequence.empty() );
 
 		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
 
 		CHECK ( sequence.begin() != sequence.end() );
 		CHECK ( 128 == sequence.size() );
-		CHECK ( 128 == cend(sequence) - cbegin(sequence) );
-		CHECK ( 128 == std::end(sequence) - std::begin(sequence) );
-		//CHECK ( not sequence.empty() );
 
 		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
 		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
@@ -1466,47 +1330,7 @@ TEST_CASE ( "SampleIterator increment and decrement",
 		CHECK ( ptr == sequence.end() );
 	}
 
-	SECTION ("Iterator prefix decrement begins on end and ends on beginning")
-	{
-		using std::cend;
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( sequence.size() == 128 );
-
-		auto ptr = cend(sequence);
-
-		// end: last 10 samples
-		CHECK ( *(--ptr) == 0xDD6DABA8 );
-		CHECK ( *(--ptr) == 0xE0EBE817 );
-		CHECK ( *(--ptr) == 0x363FBB36 );
-		CHECK ( *(--ptr) == 0xA7ED30D6 );
-		CHECK ( *(--ptr) == 0xA419E185 );
-		CHECK ( *(--ptr) == 0x31C575C7 );
-		CHECK ( *(--ptr) == 0x59952BDA );
-		CHECK ( *(--ptr) == 0x352BB52A );
-		CHECK ( *(--ptr) == 0xE46ECE70 );
-		CHECK ( *(--ptr) == 0xE6791252 ); // 118
-
-		ptr -= 108;
-
-		// begin: first 10 samples
-		CHECK ( *(--ptr) == 0x5BCA0129 );
-		CHECK ( *(--ptr) == 0x4A1FF5A5 );
-		CHECK ( *(--ptr) == 0x60F6FA60 );
-		CHECK ( *(--ptr) == 0x8E86AA07 );
-		CHECK ( *(--ptr) == 0xE6EAC2DA );
-		CHECK ( *(--ptr) == 0xF5F6F9E6 );
-		CHECK ( *(--ptr) == 0x84699BD5 );
-		CHECK ( *(--ptr) == 0x0C0F979D );
-		CHECK ( *(--ptr) == 0x65DC4D95 );
-		CHECK ( *(--ptr) == 0x9ECCC2A5 );
-
-		CHECK ( ptr == sequence.begin() );
-	}
-
+	/*
 	SECTION ("Iterator is reverse traversable by std::prev")
 	{
 		using std::end;
@@ -1586,5 +1410,6 @@ TEST_CASE ( "SampleIterator increment and decrement",
 
 		CHECK ( ptr == cbegin(sequence) );
 	}
+	*/
 }
 

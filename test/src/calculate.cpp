@@ -361,23 +361,6 @@ TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 		CHECK ( it == it2 );
 	}
 
-	SECTION ( "Pointer operator works" )
-	{
-		auto it2 = it + 89;
-
-		auto n = it2.operator->(); // SampleInputIterator
-
-		CHECK ( *n == 89 );
-		//CHECK ( n == nullptr );
-
-
-		//auto it3 = begin(object1) + 89;
-
-		//auto x = it3.operator->(); // Vector<sample_t>::iterator
-
-		//CHECK ( *x == 89 );
-		//CHECK ( x == nullptr );
-	}
 
 	SECTION ( "swap works" )
 	{

@@ -153,7 +153,7 @@ using IsSampleIterator =
 /**
  * \internal
  *
- * \brief Type erasing interface for iterators over PCM 32 bit samples.
+ * \brief Type erasing interface for LegacyInputIterators over 32 bit samples.
  *
  * Wraps the concrete iterator to be passed to
  * \link arcstk::Calculation::update() update \endlink a Calculation.
@@ -252,14 +252,6 @@ private:
 		= 0;
 
 		/**
-		 * \brief Pointer to the actual value under the iterator.
-		 *
-		 * \return Pointer to actual value.
-		 */
-		virtual pointer pointer_to() noexcept
-		= 0;
-
-		/**
 		 * \copydoc SNPT_mf_equals
 		 */
 		virtual bool equals(const Concept& rhs) const noexcept
@@ -296,15 +288,9 @@ private:
 			std::advance(iterator_, n);
 		}
 
-		reference/*not a reference type*/ dereference() noexcept final
+		reference dereference() noexcept final
 		{
 			return *iterator_;
-		}
-
-		pointer pointer_to() noexcept final
-		{
-			return iterator_.operator->();
-			//return nullptr; // Commented out, previous dummy implementation
 		}
 
 		bool equals(const Concept& rhs) const noexcept final
@@ -355,7 +341,7 @@ public:
 		: object_ { rhs.object_->clone() }
 	{
 		// empty
-	}
+	}                                            // required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_sm_copy_op
@@ -370,8 +356,7 @@ public:
 			swap(*this, tmp);
 		}
 		return *this;
-	}
-	// required by LegacyIterator
+	}                                            // required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
@@ -387,22 +372,14 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~SampleInputIterator() noexcept = default;
+	~SampleInputIterator() noexcept = default;   // required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_mf_deref
 	 */
-	reference operator * () const noexcept // required by LegacyIterator
+	reference operator * () const noexcept       // required by LegacyIterator
 	{
 		return object_->dereference();
-	}
-
-	/**
-	 * \copydoc SNPT_mf_arrow
-	 */
-	pointer operator -> () noexcept
-	{
-		return object_->pointer_to();
 	}
 
 	/**
@@ -422,8 +399,8 @@ public:
 		SampleInputIterator prev_val(*this);
 		object_->preincrement();
 		return prev_val;
-	}
-	// required by LegacyInputIterator
+	}                                       // required by LegacyInputIterator
+
 
 	/**
 	 * \copydoc SNPT_nf_inc_amount_lhs
@@ -453,7 +430,7 @@ public:
 		using std::swap;
 
 		swap(lhs.object_, rhs.object_);
-	} // required by LegacyIterator
+	}                                            // required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_nf_equality
@@ -462,7 +439,7 @@ public:
 			const SampleInputIterator& rhs) noexcept
 	{
 		return lhs.object_->equals(*rhs.object_);
-	}
+	}                                        // required by LegacyInputIterator
 
 private:
 
