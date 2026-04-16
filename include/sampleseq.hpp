@@ -16,6 +16,8 @@
 #include <cstddef>              // for ptrdiff_t, size_t
 #include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
 #include <iterator>             // for bidirectional_iterator_tag
+#include <sstream>              // for ostringstream
+#include <stdexcept>            // for out_of_range
 #include <type_traits>          // for is_same
 
 #ifndef LIBARCSTK_BYTES_HPP_
@@ -709,8 +711,67 @@ public:
 		return is_planar;
 	}
 
-	// TODO operator [] ?
-	// TODO at(const size_type) ?
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 */
+	sample_t operator [] (const size_type index) const
+	{
+		return buffer_[index];
+	}
+
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * Access performs bounds check
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 */
+	sample_t at(const size_type index) const
+	{
+		this->bounds_check(index);
+		return this->operator[](index);
+	}
+
+private:
+
+	/**
+	 * \brief Return amount that \c index exceeds <tt>size() - 1</tt>.
+	 *
+	 * 0 means that \c index is within legal access bounds.
+	 *
+	 * \param[in] index Index to check
+	 *
+	 * \return 0 if not out of bounds, otherwise <tt>index - 1 - size()</tt>.
+	 */
+	int out_of_range(const size_type index) const
+	{
+		return index > this->size() ? this->size() - 1 - index : 0;
+	}
+
+	/**
+	 * \brief Perform bounds check.
+	 *
+	 * \param[in] index Index to check
+	 *
+	 * \throws std::out_of_range if \c index is out of legal range
+	 */
+	void bounds_check(const size_type index) const
+	{
+		if (this->out_of_range(index))
+		{
+			auto msg = std::ostringstream {};
+			msg << "SampleSequence index out of bounds: " << index
+				<< ". Size: " << this->size();
+
+			throw std::out_of_range(msg.str());
+		}
+	}
 };
 
 } // namespace details
