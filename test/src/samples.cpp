@@ -6,61 +6,135 @@
  * \brief Fixtures for samples.hpp.
  */
 
-#ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples.hpp"            // TO BE TESTED
+#ifndef LIBARCSTK_SAMPLESEQ_HPP_
+#include "samples.hpp"          // TO BE TESTED
 #endif
 
 #include <cstdint>                // for int16_t, uint8_t, uint32_t, int32_t,...
 #include <fstream>                // for ifstream, istreambuf_iterator
 #include <iterator>               // for begin, end, next, prev
-#include <utility>                // for move
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "SampleSequence allows int16_t and int32_t",
-		"[samplesequence] [calc]" )
+TEST_CASE ( "channel", "[channel]" )
 {
-	using arcstk::PlanarSamples;
-	using arcstk::InterleavedSamples;
+	using arcstk::details::channel;
 
-	SECTION ( "Planar 16 bit samples" )
+	SECTION ( "left()")
 	{
-		auto seq_planar_16 = PlanarSamples<int16_t>{};
-
-		REQUIRE ( seq_planar_16.size() == 0 );
+		CHECK ( channel::left(false) == 0 );
+		CHECK ( channel::left(true)  == 1 );
 	}
 
-	SECTION ( "Interleaved 16 bit samples" )
+	SECTION ( "right()")
 	{
-		auto seq_interl_16 = InterleavedSamples<int16_t>{};
-
-		REQUIRE ( seq_interl_16.size() == 0 );
-	}
-
-	SECTION ( "Planar 32 bit samples" )
-	{
-		auto seq_planar_32 = PlanarSamples<int32_t>{};
-
-		REQUIRE ( seq_planar_32.size() == 0 );
-	}
-
-	SECTION ( "Interleaved 32 bit samples" )
-	{
-		auto seq_interl_32 = InterleavedSamples<int32_t>{};
-
-		REQUIRE ( seq_interl_32.size() == 0 );
+		CHECK ( channel::right(false) == 1 );
+		CHECK ( channel::right(true)  == 0 );
 	}
 }
 
 
-TEST_CASE ( "SampleSequence index access works correctly",
-		"[samplesequence] [calc]" )
+TEST_CASE ( "SampleBufferWrapper planar with local vector",
+		"[samplebufferwrapper]" )
 {
-	using arcstk::PlanarSamples;
-	using arcstk::InterleavedSamples;
+	using arcstk::details::SampleBufferWrapper;
+	using v_int32_t = std::vector<int32_t>;
 
-	using std::cbegin;
-	using std::cend;
+	const auto planar0 = v_int32_t {   1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA };
+	const auto planar1 = v_int32_t { 0xA, 9, 8, 7, 6, 5, 4, 3, 2,   1 };
+
+	SECTION ( "<int32_t> operator[] for channel ordering 0/1" )
+	{
+		SampleBufferWrapper<int32_t, true> buf { planar0.data(), planar1.data(),
+			10, false/* not swapped*/ };
+
+		REQUIRE ( 10 == buf.size() );
+
+		CHECK ( buf[0] == 0xA0001 ); // 655361
+		CHECK ( buf[1] == 0x90002 ); // 589826
+		CHECK ( buf[2] == 0x80003 ); // 524291
+		CHECK ( buf[3] == 0x70004 ); // 458756
+		CHECK ( buf[4] == 0x60005 ); // 393221
+		CHECK ( buf[5] == 0x50006 ); // 327686
+		CHECK ( buf[6] == 0x40007 ); // 262151
+		CHECK ( buf[7] == 0x30008 ); // 196616
+		CHECK ( buf[8] == 0x20009 ); // 131081
+		CHECK ( buf[9] == 0x1000A ); //  65546
+	}
+
+	SECTION ( "<int32_t> operator[] for channel ordering 1/0 (swapped)" )
+	{
+		SampleBufferWrapper<int32_t, true> buf
+			{ planar0.data(), planar1.data(), 10, true/* channels swapped*/ };
+
+		REQUIRE ( 10 == buf.size() );
+
+		CHECK ( buf[0] == 0x1000A ); //  65546
+		CHECK ( buf[1] == 0x20009 ); // 131081
+		CHECK ( buf[2] == 0x30008 ); // 196616
+		CHECK ( buf[3] == 0x40007 ); // 262151
+		CHECK ( buf[4] == 0x50006 ); // 327686
+		CHECK ( buf[5] == 0x60005 ); // 393221
+		CHECK ( buf[6] == 0x70004 ); // 458756
+		CHECK ( buf[7] == 0x80003 ); // 524291
+		CHECK ( buf[8] == 0x90002 ); // 589826
+		CHECK ( buf[9] == 0xA0001 ); // 655361
+	}
+}
+
+
+TEST_CASE ( "SampleBufferWrapper interleaved with local vector",
+		"[samplebufferwrapper]" )
+{
+	using arcstk::details::SampleBufferWrapper;
+	using v_int32_t = std::vector<int32_t>;
+
+	const auto interleaved = v_int32_t {
+		1, 0xA, 2, 9, 3, 8, 4, 7, 5, 6, 6, 5, 7, 4, 8, 3, 9, 2, 0xA, 1 };
+
+	SECTION ( "<int32_t> operator[] for channel ordering 0/1" )
+	{
+		SampleBufferWrapper<int32_t, false> buf
+			{ interleaved.data(), 20, false/* not swapped*/ };
+
+		REQUIRE ( 10 == buf.size() );
+
+		CHECK ( buf[0] == 0xA0001 ); // 655361
+		CHECK ( buf[1] == 0x90002 ); // 589826
+		CHECK ( buf[2] == 0x80003 ); // 524291
+		CHECK ( buf[3] == 0x70004 ); // 458756
+		CHECK ( buf[4] == 0x60005 ); // 393221
+		CHECK ( buf[5] == 0x50006 ); // 327686
+		CHECK ( buf[6] == 0x40007 ); // 262151
+		CHECK ( buf[7] == 0x30008 ); // 196616
+		CHECK ( buf[8] == 0x20009 ); // 131081
+		CHECK ( buf[9] == 0x1000A ); //  65546
+	}
+
+	SECTION ( "<int32_t> operator[] for channel ordering 1/0 (swapped)" )
+	{
+		SampleBufferWrapper<int32_t, false> buf
+			{ interleaved.data(), 20, true/* swapped*/ };
+
+		REQUIRE ( 10 == buf.size() );
+
+		CHECK ( buf[0] == 0x1000A ); //  65546
+		CHECK ( buf[1] == 0x20009 ); // 131081
+		CHECK ( buf[2] == 0x30008 ); // 196616
+		CHECK ( buf[3] == 0x40007 ); // 262151
+		CHECK ( buf[4] == 0x50006 ); // 327686
+		CHECK ( buf[5] == 0x60005 ); // 393221
+		CHECK ( buf[6] == 0x70004 ); // 458756
+		CHECK ( buf[7] == 0x80003 ); // 524291
+		CHECK ( buf[8] == 0x90002 ); // 589826
+		CHECK ( buf[9] == 0xA0001 ); // 655361
+	}
+}
+
+
+TEST_CASE ( "SampleBufferWrapper planar file", "[samplebufferwrapper]" )
+{
+	using arcstk::details::SampleBufferWrapper;
 
 	// Load example samples
 
@@ -90,831 +164,208 @@ TEST_CASE ( "SampleSequence index access works correctly",
 	REQUIRE ( bytes[   2] == 0x11 );
 	REQUIRE ( bytes[   3] == 0xC7 );
 	// ... all bytes between
+	REQUIRE ( bytes[ 512] == 0xDB );
+	REQUIRE ( bytes[ 513] == 0xD9 );
+	REQUIRE ( bytes[ 514] == 0x93 );
+	REQUIRE ( bytes[ 515] == 0x42 );
+	// ... all bytes between
 	REQUIRE ( bytes[1020] == 0x6D );
 	REQUIRE ( bytes[1021] == 0xDD );
 	REQUIRE ( bytes[1022] == 0x71 );
 	REQUIRE ( bytes[1023] == 0x15 );
 
-	SECTION ("Subscript in16_t interleaved sequence access works as expected")
+	SECTION ("uint16_t planar buffer access works as expected")
 	{
-		auto sequence = InterleavedSamples<int16_t>{};
+		// 1024 bytes == 1024 uint8_t
+		// 1024 uint8_t == 512 int16_t values
+		// 512 values / 2 channels == 256 pairs/samples
 
-		CHECK ( sequence.typesize() == 2 );
+		auto buf = SampleBufferWrapper<uint16_t, true> {
+			bytes.data(), bytes.data() + 512, 512, false };
 
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+		CHECK ( 256 == buf.size() );
 
-		CHECK ( 256 == sequence.size() );
-		//CHECK ( 256 == cend(sequence) - cbegin(sequence) );
+		CHECK ( buf.left_channel (0) == 0xC2A5 );
+		CHECK ( buf.right_channel(0) == 0xD9DB );
+		CHECK ( buf.left_channel (1) == 0xC711 );
+		CHECK ( buf.right_channel(1) == 0x4293 );
 
 		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xC711C2A5 );
-		CHECK ( sequence[1] == 0xF35B9ECC );
-		CHECK ( sequence[2] == 0x2C504D95 );
-		CHECK ( sequence[3] == 0x96BE65DC );
-		CHECK ( sequence[4] == 0x4BB9979D );
-		CHECK ( sequence[5] == 0xAE450C0F );
-		CHECK ( sequence[6] == 0xDCDE9BD5 );
-		CHECK ( sequence[7] == 0x1CFD8469 );
-		CHECK ( sequence[8] == 0xCBE1F9E6 );
-		CHECK ( sequence[9] == 0x0DF0F5F6 );
+		CHECK ( buf[  0] == 0xD9DBC2A5 );
+		CHECK ( buf[  1] == 0x4293C711 );
+		CHECK ( buf[  2] == 0x920a9ECC );
+		CHECK ( buf[  3] == 0x6C51F35B );
+		CHECK ( buf[  4] == 0x602D4D95 );
+		CHECK ( buf[  5] == 0xAEE52C50 );
+		CHECK ( buf[  6] == 0x870465DC );
+		CHECK ( buf[  7] == 0x3C1296BE );
+		CHECK ( buf[  8] == 0xB852979D );
+		CHECK ( buf[  9] == 0xFF364BB9 );
 
 		// end: last 10 samples
-		CHECK ( sequence[246] == 0x338DE185 );
-		CHECK ( sequence[247] == 0x1B0FA419 );
-		CHECK ( sequence[248] == 0xE4D030D6 );
-		CHECK ( sequence[249] == 0xA156A7ED );
-		CHECK ( sequence[250] == 0x7A99BB36 );
-		CHECK ( sequence[251] == 0xCA1A363F );
-		CHECK ( sequence[252] == 0xA856E817 );
-		CHECK ( sequence[253] == 0xD686E0EB );
-		CHECK ( sequence[254] == 0xF617ABA8 );
-		CHECK ( sequence[255] == 0x1571DD6D );
+		CHECK ( buf[246] == 0x363FDB43 );
+		CHECK ( buf[247] == 0xCA1A72F6 );
+		CHECK ( buf[248] == 0xE81714D8 );
+		CHECK ( buf[249] == 0xA856DB4A );
+		CHECK ( buf[250] == 0xE0EB1795 );
+		CHECK ( buf[251] == 0xD6862DFE );
+		CHECK ( buf[252] == 0xABA8E966 );
+		CHECK ( buf[253] == 0xF617700E );
+		CHECK ( buf[254] == 0xDD6D28EF );
+		CHECK ( buf[255] == 0x157171F9 );
+	}
 
-		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]), 512,
-				true); // int16_t's
+	SECTION ("int16_t planar buffer access works as expected")
+	{
+		// 1024 bytes each interpreted as int16_t == 512 int16_t values
+		// 512 values / 2 channels == 256 pairs/samples
 
-		CHECK ( 256 == sequence.size() );
+		auto buf = SampleBufferWrapper<int16_t, true> {
+			bytes.data(), bytes.data() + 512, 512, false };
+
+		CHECK ( 256 == buf.size() );
+
+		CHECK ( buf.left_channel (0) == -15707 ); // is now signed!
+		CHECK ( buf.right_channel(0) ==  -9765 );
+		CHECK ( buf.left_channel (1) == -14575 );
+		CHECK ( buf.right_channel(1) == 0x4293 );
 
 		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xC711C2A5 );
-		CHECK ( sequence[1] == 0xF35B9ECC );
-		CHECK ( sequence[2] == 0x2C504D95 );
-		CHECK ( sequence[3] == 0x96BE65DC );
-		CHECK ( sequence[4] == 0x4BB9979D );
-		CHECK ( sequence[5] == 0xAE450C0F );
-		CHECK ( sequence[6] == 0xDCDE9BD5 );
-		CHECK ( sequence[7] == 0x1CFD8469 );
-		CHECK ( sequence[8] == 0xCBE1F9E6 );
-		CHECK ( sequence[9] == 0x0DF0F5F6 );
+		CHECK ( buf[  0] == 0xD9DBC2A5 );
+		CHECK ( buf[  1] == 0x4293C711 );
+		CHECK ( buf[  2] == 0x920a9ECC );
+		CHECK ( buf[  3] == 0x6C51F35B );
+		CHECK ( buf[  4] == 0x602D4D95 );
+		CHECK ( buf[  5] == 0xAEE52C50 );
+		CHECK ( buf[  6] == 0x870465DC );
+		CHECK ( buf[  7] == 0x3C1296BE );
+		CHECK ( buf[  8] == 0xB852979D );
+		CHECK ( buf[  9] == 0xFF364BB9 );
 
 		// end: last 10 samples
-		CHECK ( sequence[246] == 0x338DE185 );
-		CHECK ( sequence[247] == 0x1B0FA419 );
-		CHECK ( sequence[248] == 0xE4D030D6 );
-		CHECK ( sequence[249] == 0xA156A7ED );
-		CHECK ( sequence[250] == 0x7A99BB36 );
-		CHECK ( sequence[251] == 0xCA1A363F );
-		CHECK ( sequence[252] == 0xA856E817 );
-		CHECK ( sequence[253] == 0xD686E0EB );
-		CHECK ( sequence[254] == 0xF617ABA8 );
-		CHECK ( sequence[255] == 0x1571DD6D );
+		CHECK ( buf[246] == 0x363FDB43 );
+		CHECK ( buf[247] == 0xCA1A72F6 );
+		CHECK ( buf[248] == 0xE81714D8 );
+		CHECK ( buf[249] == 0xA856DB4A );
+		CHECK ( buf[250] == 0xE0EB1795 );
+		CHECK ( buf[251] == 0xD6862DFE );
+		CHECK ( buf[252] == 0xABA8E966 );
+		CHECK ( buf[253] == 0xF617700E );
+		CHECK ( buf[254] == 0xDD6D28EF );
+		CHECK ( buf[255] == 0x157171F9 );
 	}
 
-	SECTION ("Iterating over a in16_t interleaved sequence works as expected")
+	SECTION ("uint32_t planar buffer access works as expected")
 	{
-		auto sequence = InterleavedSamples<int16_t>{};
+		// 1024 bytes each interpreted as uint32_t == 256 uint32_t values
+		// 256 values / 2 channels == 128 pairs/samples
 
-		CHECK ( sequence.typesize() == 2 );
+		auto buf = SampleBufferWrapper<uint32_t, true> {
+			bytes.data(), bytes.data() + 512, 512, false };
 
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+		CHECK ( 128 == buf.size() );
 
-		CHECK ( 256 == sequence.size() );
+		// This are now "other" samples than the 16 bit interpretations!
 
-		auto it_begin { sequence.cbegin() };
+		CHECK ( buf.left_channel (0) == 0xC711C2A5 );
+		CHECK ( buf.right_channel(0) == 0x4293D9DB );
+		CHECK ( buf.left_channel (1) == 0xF35B9ECC );
+		CHECK ( buf.right_channel(1) == 0x6C51920A );
 
 		// begin: first 10 samples
-		CHECK ( *it_begin == 0xC711C2A5 );
-		++it_begin;
-		CHECK ( *it_begin == 0xF35B9ECC );
-		++it_begin;
-		CHECK ( *it_begin == 0x2C504D95 );
-		++it_begin;
-		CHECK ( *it_begin == 0x96BE65DC );
-		++it_begin;
-		CHECK ( *it_begin == 0x4BB9979D );
-		++it_begin;
-		CHECK ( *it_begin == 0xAE450C0F );
-		++it_begin;
-		CHECK ( *it_begin == 0xDCDE9BD5 );
-		++it_begin;
-		CHECK ( *it_begin == 0x1CFD8469 );
-		++it_begin;
-		CHECK ( *it_begin == 0xCBE1F9E6 );
-		++it_begin;
-		CHECK ( *it_begin == 0x0DF0F5F6 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]), 512,
-				true); // int16_t's
-
-		CHECK ( sequence.size() == 256 );
-
-		auto it_begin2 { sequence.begin() };
-
-		// begin: first 10 samples
-		CHECK ( *it_begin2 == 0xC711C2A5 );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0xF35B9ECC );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0x2C504D95 );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0x96BE65DC );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0x4BB9979D );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0xAE450C0F );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0xDCDE9BD5 );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0x1CFD8469 );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0xCBE1F9E6 );
-		++it_begin2;
-		CHECK ( *it_begin2 == 0x0DF0F5F6 );
-	}
-
-	SECTION ("Iteration and Subscript are equivalent for in16_t interleaved sequence")
-	{
-		auto sequence = InterleavedSamples<int16_t>{};
-
-		CHECK ( sequence.typesize() == 2 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		CHECK ( 256 == sequence.size() );
-
-		decltype( sequence )::size_type index = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index] );
-			++index;
-		}
-
-		CHECK ( index == 256 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]), 512,
-				true); // int16_t's
-
-		CHECK ( sequence.size() == 256 );
-
-		InterleavedSamples<int16_t>::size_type index2 = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index2] );
-			++index2;
-		}
-
-		CHECK ( index2 == 256 );
-	}
-
-	SECTION ("Subscript int32_t interleaved sequence")
-	{
-		auto sequence = InterleavedSamples<int32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0x9ECCC2A5 );
-		CHECK ( sequence[1] == 0x65DC4D95 );
-		CHECK ( sequence[2] == 0x0C0F979D );
-		CHECK ( sequence[3] == 0x84699BD5 );
-		CHECK ( sequence[4] == 0xF5F6F9E6 );
-		CHECK ( sequence[5] == 0xE6EAC2DA );
-		CHECK ( sequence[6] == 0x8E86AA07 );
-		CHECK ( sequence[7] == 0x60F6FA60 );
-		CHECK ( sequence[8] == 0x4A1FF5A5 );
-		CHECK ( sequence[9] == 0x5BCA0129 );
+		CHECK ( buf[  0] == 0xD9DBC2A5 );
+		CHECK ( buf[  1] == 0x920A9ECC );
+		CHECK ( buf[  2] == 0x602D4D95 );
+		CHECK ( buf[  3] == 0x870465DC );
+		CHECK ( buf[  4] == 0xB852979D );
+		CHECK ( buf[  5] == 0xA2D90C0F );
+		CHECK ( buf[  6] == 0x001B9BD5 );
+		CHECK ( buf[  7] == 0xFDD48469 );
+		CHECK ( buf[  8] == 0x4A40F9E6 );
+		CHECK ( buf[  9] == 0xA4D8F5F6 );
 
 		// near mid 10 samples
-		CHECK ( sequence[54] == 0xE063C7F1 );
-		CHECK ( sequence[55] == 0x8F1BECB6 );
-		CHECK ( sequence[56] == 0x192C81F8 );
-		CHECK ( sequence[57] == 0x44687814 );
-		CHECK ( sequence[58] == 0xDDDA357B );
-		CHECK ( sequence[59] == 0x50036E87 );
-		CHECK ( sequence[60] == 0xB5BA4F16 );
-		CHECK ( sequence[61] == 0xDB434C76 );
-		CHECK ( sequence[62] == 0x179514D8 );
-		CHECK ( sequence[63] == 0x28EFE966 );
+		CHECK ( buf[ 54] == 0x0AA1B644 );
+		CHECK ( buf[ 55] == 0x444619CE );
+		CHECK ( buf[ 56] == 0xD3770215 );
+		CHECK ( buf[ 57] == 0xA54964E1 );
+		CHECK ( buf[ 58] == 0x3D925080 );
+		CHECK ( buf[ 59] == 0xABAA15C9 );
+		CHECK ( buf[ 60] == 0x386E5B27 );
+		CHECK ( buf[ 61] == 0xAAECFC5D );
+		CHECK ( buf[ 62] == 0x3628136F );
+		CHECK ( buf[ 63] == 0x0D4C7D86 );
 
 		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE6791252 );
-		CHECK ( sequence[119] == 0xE46ECE70 );
-		CHECK ( sequence[120] == 0x352BB52A );
-		CHECK ( sequence[121] == 0x59952BDA );
-		CHECK ( sequence[122] == 0x31C575C7 );
-		CHECK ( sequence[123] == 0xA419E185 );
-		CHECK ( sequence[124] == 0xA7ED30D6 );
-		CHECK ( sequence[125] == 0x363FBB36 );
-		CHECK ( sequence[126] == 0xE0EBE817 );
-		CHECK ( sequence[127] == 0xDD6DABA8 );
+		CHECK ( buf[118] == 0xE1856E87 );
+		CHECK ( buf[119] == 0xA4195003 );
+		CHECK ( buf[120] == 0x30D64F16 );
+		CHECK ( buf[121] == 0xA7EDB5BA );
+		CHECK ( buf[122] == 0xBB364C76 );
+		CHECK ( buf[123] == 0x363FDB43 );
+		CHECK ( buf[124] == 0xE81714D8 );
+		CHECK ( buf[125] == 0xE0EB1795 );
+		CHECK ( buf[126] == 0xABA8E966 );
+		CHECK ( buf[127] == 0xDD6D28EF );
+	}
 
-		sequence.wrap_int_buffer(reinterpret_cast<int32_t*>(&bytes[0]), 256,
-				true); // int32_t's
+	SECTION ("int32_t planar buffer access works as expected")
+	{
+		// 1024 bytes each interpreted as int32_t == 256 int32_t values
+		// 256 values / 2 channels == 128 pairs/samples
 
-		CHECK ( sequence.size() == 128 );
+		auto buf = SampleBufferWrapper<int32_t, true> {
+			bytes.data(), bytes.data() + 512, 512, false };
+
+		CHECK ( 128 == buf.size() );
+
+		CHECK ( buf.left_channel (0) == -955137371 ); // is now signed!
+		CHECK ( buf.right_channel(0) == 0x4293D9DB );
+		CHECK ( buf.left_channel (1) == -212099380 );
+		CHECK ( buf.right_channel(1) == 0x6C51920A );
 
 		// begin: first 10 samples
-		CHECK ( sequence[0] == 0x9ECCC2A5 );
-		CHECK ( sequence[1] == 0x65DC4D95 );
-		CHECK ( sequence[2] == 0x0C0F979D );
-		CHECK ( sequence[3] == 0x84699BD5 );
-		CHECK ( sequence[4] == 0xF5F6F9E6 );
-		CHECK ( sequence[5] == 0xE6EAC2DA );
-		CHECK ( sequence[6] == 0x8E86AA07 );
-		CHECK ( sequence[7] == 0x60F6FA60 );
-		CHECK ( sequence[8] == 0x4A1FF5A5 );
-		CHECK ( sequence[9] == 0x5BCA0129 );
+		CHECK ( buf[  0] == 0xD9DBC2A5 );
+		CHECK ( buf[  1] == 0x920A9ECC );
+		CHECK ( buf[  2] == 0x602D4D95 );
+		CHECK ( buf[  3] == 0x870465DC );
+		CHECK ( buf[  4] == 0xB852979D );
+		CHECK ( buf[  5] == 0xA2D90C0F );
+		CHECK ( buf[  6] == 0x001B9BD5 );
+		CHECK ( buf[  7] == 0xFDD48469 );
+		CHECK ( buf[  8] == 0x4A40F9E6 );
+		CHECK ( buf[  9] == 0xA4D8F5F6 );
 
 		// near mid 10 samples
-		CHECK ( sequence[54] == 0xE063C7F1 );
-		CHECK ( sequence[55] == 0x8F1BECB6 );
-		CHECK ( sequence[56] == 0x192C81F8 );
-		CHECK ( sequence[57] == 0x44687814 );
-		CHECK ( sequence[58] == 0xDDDA357B );
-		CHECK ( sequence[59] == 0x50036E87 );
-		CHECK ( sequence[60] == 0xB5BA4F16 );
-		CHECK ( sequence[61] == 0xDB434C76 );
-		CHECK ( sequence[62] == 0x179514D8 );
-		CHECK ( sequence[63] == 0x28EFE966 );
+		CHECK ( buf[ 54] == 0x0AA1B644 );
+		CHECK ( buf[ 55] == 0x444619CE );
+		CHECK ( buf[ 56] == 0xD3770215 );
+		CHECK ( buf[ 57] == 0xA54964E1 );
+		CHECK ( buf[ 58] == 0x3D925080 );
+		CHECK ( buf[ 59] == 0xABAA15C9 );
+		CHECK ( buf[ 60] == 0x386E5B27 );
+		CHECK ( buf[ 61] == 0xAAECFC5D );
+		CHECK ( buf[ 62] == 0x3628136F );
+		CHECK ( buf[ 63] == 0x0D4C7D86 );
 
 		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE6791252 );
-		CHECK ( sequence[119] == 0xE46ECE70 );
-		CHECK ( sequence[120] == 0x352BB52A );
-		CHECK ( sequence[121] == 0x59952BDA );
-		CHECK ( sequence[122] == 0x31C575C7 );
-		CHECK ( sequence[123] == 0xA419E185 );
-		CHECK ( sequence[124] == 0xA7ED30D6 );
-		CHECK ( sequence[125] == 0x363FBB36 );
-		CHECK ( sequence[126] == 0xE0EBE817 );
-		CHECK ( sequence[127] == 0xDD6DABA8 );
-	}
-
-	SECTION ("Iteration and Subscript are equivalent for int32_t interleaved sequence")
-	{
-		auto sequence = InterleavedSamples<int32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		InterleavedSamples<int32_t>::size_type index = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index] );
-			++index;
-		}
-
-		CHECK ( index == 128 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int32_t*>(&bytes[0]), 256,
-				true); // int32_t's
-
-		CHECK ( sequence.size() == 128 );
-
-		InterleavedSamples<int32_t>::size_type index2 = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index2] );
-			++index2;
-		}
-
-		CHECK ( index2 == 128 );
-	}
-
-	SECTION ("Subscript in16_t planar sequence")
-	{
-		auto sequence = PlanarSamples<int16_t>{};
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 256 == sequence.size() );
-		//CHECK ( 256 == cend(sequence) - cbegin(sequence) );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x4293C711 );
-		CHECK ( sequence[2] == 0x920a9ECC );
-		CHECK ( sequence[3] == 0x6C51F35B );
-		CHECK ( sequence[4] == 0x602D4D95 );
-		CHECK ( sequence[5] == 0xAEE52C50 );
-		CHECK ( sequence[6] == 0x870465DC );
-		CHECK ( sequence[7] == 0x3C1296BE );
-		CHECK ( sequence[8] == 0xB852979D );
-		CHECK ( sequence[9] == 0xFF364BB9 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x363FDB43 );
-		CHECK ( sequence[247] == 0xCA1A72F6 );
-		CHECK ( sequence[248] == 0xE81714D8 );
-		CHECK ( sequence[249] == 0xA856DB4A );
-		CHECK ( sequence[250] == 0xE0EB1795 );
-		CHECK ( sequence[251] == 0xD6862DFE );
-		CHECK ( sequence[252] == 0xABA8E966 );
-		CHECK ( sequence[253] == 0xF617700E );
-		CHECK ( sequence[254] == 0xDD6D28EF );
-		CHECK ( sequence[255] == 0x157171F9 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]),
-				reinterpret_cast<int16_t*>(&bytes[512]),
-				256, true); // int16_t's
-
-		CHECK ( sequence.size() == 256 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x4293C711 );
-		CHECK ( sequence[2] == 0x920a9ECC );
-		CHECK ( sequence[3] == 0x6C51F35B );
-		CHECK ( sequence[4] == 0x602D4D95 );
-		CHECK ( sequence[5] == 0xAEE52C50 );
-		CHECK ( sequence[6] == 0x870465DC );
-		CHECK ( sequence[7] == 0x3C1296BE );
-		CHECK ( sequence[8] == 0xB852979D );
-		CHECK ( sequence[9] == 0xFF364BB9 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x363FDB43 );
-		CHECK ( sequence[247] == 0xCA1A72F6 );
-		CHECK ( sequence[248] == 0xE81714D8 );
-		CHECK ( sequence[249] == 0xA856DB4A );
-		CHECK ( sequence[250] == 0xE0EB1795 );
-		CHECK ( sequence[251] == 0xD6862DFE );
-		CHECK ( sequence[252] == 0xABA8E966 );
-		CHECK ( sequence[253] == 0xF617700E );
-		CHECK ( sequence[254] == 0xDD6D28EF );
-		CHECK ( sequence[255] == 0x157171F9 );
-	}
-
-	SECTION ("Iteration and Subscript are equivalent for in16_t planar sequence")
-	{
-		auto sequence = PlanarSamples<int16_t>{};
-
-		CHECK ( sequence.typesize() == 2 );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 256 == sequence.size() );
-
-		PlanarSamples<int16_t>::size_type index = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index] );
-			++index;
-		}
-
-		CHECK ( index == 256 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int16_t*>(&bytes[0]),
-				reinterpret_cast<int16_t*>(&bytes[0]),
-				256, true); // int16_t's
-
-		CHECK ( sequence.size() == 256 );
-
-		PlanarSamples<int16_t>::size_type index2 = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index2] );
-			++index2;
-		}
-
-		CHECK ( index2 == 256 );
-	}
-
-	SECTION ("Subscript int32_t planar sequence")
-	{
-		auto sequence = PlanarSamples<int32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x920A9ECC );
-		CHECK ( sequence[2] == 0x602D4D95 );
-		CHECK ( sequence[3] == 0x870465DC );
-		CHECK ( sequence[4] == 0xB852979D );
-		CHECK ( sequence[5] == 0xA2D90C0F );
-		CHECK ( sequence[6] == 0x001B9BD5 );
-		CHECK ( sequence[7] == 0xFDD48469 );
-		CHECK ( sequence[8] == 0x4A40F9E6 );
-		CHECK ( sequence[9] == 0xA4D8F5F6 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0x0AA1B644 );
-		CHECK ( sequence[55] == 0x444619CE );
-		CHECK ( sequence[56] == 0xD3770215 );
-		CHECK ( sequence[57] == 0xA54964E1 );
-		CHECK ( sequence[58] == 0x3D925080 );
-		CHECK ( sequence[59] == 0xABAA15C9 );
-		CHECK ( sequence[60] == 0x386E5B27 );
-		CHECK ( sequence[61] == 0xAAECFC5D );
-		CHECK ( sequence[62] == 0x3628136F );
-		CHECK ( sequence[63] == 0x0D4C7D86 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE1856E87 );
-		CHECK ( sequence[119] == 0xA4195003 );
-		CHECK ( sequence[120] == 0x30D64F16 );
-		CHECK ( sequence[121] == 0xA7EDB5BA );
-		CHECK ( sequence[122] == 0xBB364C76 );
-		CHECK ( sequence[123] == 0x363FDB43 );
-		CHECK ( sequence[124] == 0xE81714D8 );
-		CHECK ( sequence[125] == 0xE0EB1795 );
-		CHECK ( sequence[126] == 0xABA8E966 );
-		CHECK ( sequence[127] == 0xDD6D28EF );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int32_t*>(&bytes[0]),
-				reinterpret_cast<int32_t*>(&bytes[512]),
-				128, true); // int32_t's
-
-		CHECK ( sequence.size() == 128 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x920A9ECC );
-		CHECK ( sequence[2] == 0x602D4D95 );
-		CHECK ( sequence[3] == 0x870465DC );
-		CHECK ( sequence[4] == 0xB852979D );
-		CHECK ( sequence[5] == 0xA2D90C0F );
-		CHECK ( sequence[6] == 0x001B9BD5 );
-		CHECK ( sequence[7] == 0xFDD48469 );
-		CHECK ( sequence[8] == 0x4A40F9E6 );
-		CHECK ( sequence[9] == 0xA4D8F5F6 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0x0AA1B644 );
-		CHECK ( sequence[55] == 0x444619CE );
-		CHECK ( sequence[56] == 0xD3770215 );
-		CHECK ( sequence[57] == 0xA54964E1 );
-		CHECK ( sequence[58] == 0x3D925080 );
-		CHECK ( sequence[59] == 0xABAA15C9 );
-		CHECK ( sequence[60] == 0x386E5B27 );
-		CHECK ( sequence[61] == 0xAAECFC5D );
-		CHECK ( sequence[62] == 0x3628136F );
-		CHECK ( sequence[63] == 0x0D4C7D86 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE1856E87 );
-		CHECK ( sequence[119] == 0xA4195003 );
-		CHECK ( sequence[120] == 0x30D64F16 );
-		CHECK ( sequence[121] == 0xA7EDB5BA );
-		CHECK ( sequence[122] == 0xBB364C76 );
-		CHECK ( sequence[123] == 0x363FDB43 );
-		CHECK ( sequence[124] == 0xE81714D8 );
-		CHECK ( sequence[125] == 0xE0EB1795 );
-		CHECK ( sequence[126] == 0xABA8E966 );
-		CHECK ( sequence[127] == 0xDD6D28EF );
-	}
-
-	SECTION ("Iteration and Subscript are equivalent for int32_t planar sequence")
-	{
-		auto sequence = PlanarSamples<int32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		PlanarSamples<int32_t>::size_type index = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index] );
-			++index;
-		}
-
-		CHECK ( index == 128 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<int32_t*>(&bytes[0]),
-				reinterpret_cast<int32_t*>(&bytes[0]),
-				128, true); // int32_t's
-
-		CHECK ( sequence.size() == 128 );
-
-		PlanarSamples<int32_t>::size_type index2 = 0;
-		for (const auto& sample : sequence)
-		{
-			CHECK ( sample == sequence[index2] );
-			++index2;
-		}
-
-		CHECK ( index2 == 128 );
-	}
-
-	SECTION ("Subscript uin16_t interleaved sequence")
-	{
-		auto sequence = InterleavedSamples<uint16_t>{};
-
-		CHECK ( sequence.typesize() == 2 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		CHECK ( 256 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xC711C2A5 );
-		CHECK ( sequence[1] == 0xF35B9ECC );
-		CHECK ( sequence[2] == 0x2C504D95 );
-		CHECK ( sequence[3] == 0x96BE65DC );
-		CHECK ( sequence[4] == 0x4BB9979D );
-		CHECK ( sequence[5] == 0xAE450C0F );
-		CHECK ( sequence[6] == 0xDCDE9BD5 );
-		CHECK ( sequence[7] == 0x1CFD8469 );
-		CHECK ( sequence[8] == 0xCBE1F9E6 );
-		CHECK ( sequence[9] == 0x0DF0F5F6 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x338DE185 );
-		CHECK ( sequence[247] == 0x1B0FA419 );
-		CHECK ( sequence[248] == 0xE4D030D6 );
-		CHECK ( sequence[249] == 0xA156A7ED );
-		CHECK ( sequence[250] == 0x7A99BB36 );
-		CHECK ( sequence[251] == 0xCA1A363F );
-		CHECK ( sequence[252] == 0xA856E817 );
-		CHECK ( sequence[253] == 0xD686E0EB );
-		CHECK ( sequence[254] == 0xF617ABA8 );
-		CHECK ( sequence[255] == 0x1571DD6D );
-
-		sequence.wrap_int_buffer(reinterpret_cast<uint16_t*>(&bytes[0]), 512,
-				true); // uint16_t
-
-		CHECK ( sequence.size() == 256 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xC711C2A5 );
-		CHECK ( sequence[1] == 0xF35B9ECC );
-		CHECK ( sequence[2] == 0x2C504D95 );
-		CHECK ( sequence[3] == 0x96BE65DC );
-		CHECK ( sequence[4] == 0x4BB9979D );
-		CHECK ( sequence[5] == 0xAE450C0F );
-		CHECK ( sequence[6] == 0xDCDE9BD5 );
-		CHECK ( sequence[7] == 0x1CFD8469 );
-		CHECK ( sequence[8] == 0xCBE1F9E6 );
-		CHECK ( sequence[9] == 0x0DF0F5F6 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x338DE185 );
-		CHECK ( sequence[247] == 0x1B0FA419 );
-		CHECK ( sequence[248] == 0xE4D030D6 );
-		CHECK ( sequence[249] == 0xA156A7ED );
-		CHECK ( sequence[250] == 0x7A99BB36 );
-		CHECK ( sequence[251] == 0xCA1A363F );
-		CHECK ( sequence[252] == 0xA856E817 );
-		CHECK ( sequence[253] == 0xD686E0EB );
-		CHECK ( sequence[254] == 0xF617ABA8 );
-		CHECK ( sequence[255] == 0x1571DD6D );
-	}
-
-	SECTION ("Subscript uin16_t planar sequence")
-	{
-		auto sequence = PlanarSamples<uint16_t>{};
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 256 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x4293C711 );
-		CHECK ( sequence[2] == 0x920a9ECC );
-		CHECK ( sequence[3] == 0x6C51F35B );
-		CHECK ( sequence[4] == 0x602D4D95 );
-		CHECK ( sequence[5] == 0xAEE52C50 );
-		CHECK ( sequence[6] == 0x870465DC );
-		CHECK ( sequence[7] == 0x3C1296BE );
-		CHECK ( sequence[8] == 0xB852979D );
-		CHECK ( sequence[9] == 0xFF364BB9 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x363FDB43 );
-		CHECK ( sequence[247] == 0xCA1A72F6 );
-		CHECK ( sequence[248] == 0xE81714D8 );
-		CHECK ( sequence[249] == 0xA856DB4A );
-		CHECK ( sequence[250] == 0xE0EB1795 );
-		CHECK ( sequence[251] == 0xD6862DFE );
-		CHECK ( sequence[252] == 0xABA8E966 );
-		CHECK ( sequence[253] == 0xF617700E );
-		CHECK ( sequence[254] == 0xDD6D28EF );
-		CHECK ( sequence[255] == 0x157171F9 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<uint16_t*>(&bytes[0]),
-				reinterpret_cast<uint16_t*>(&bytes[512]),
-				256, true); // uint16_t's
-
-		CHECK ( sequence.size() == 256 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x4293C711 );
-		CHECK ( sequence[2] == 0x920a9ECC );
-		CHECK ( sequence[3] == 0x6C51F35B );
-		CHECK ( sequence[4] == 0x602D4D95 );
-		CHECK ( sequence[5] == 0xAEE52C50 );
-		CHECK ( sequence[6] == 0x870465DC );
-		CHECK ( sequence[7] == 0x3C1296BE );
-		CHECK ( sequence[8] == 0xB852979D );
-		CHECK ( sequence[9] == 0xFF364BB9 );
-
-		// end: last 10 samples
-		CHECK ( sequence[246] == 0x363FDB43 );
-		CHECK ( sequence[247] == 0xCA1A72F6 );
-		CHECK ( sequence[248] == 0xE81714D8 );
-		CHECK ( sequence[249] == 0xA856DB4A );
-		CHECK ( sequence[250] == 0xE0EB1795 );
-		CHECK ( sequence[251] == 0xD6862DFE );
-		CHECK ( sequence[252] == 0xABA8E966 );
-		CHECK ( sequence[253] == 0xF617700E );
-		CHECK ( sequence[254] == 0xDD6D28EF );
-		CHECK ( sequence[255] == 0x157171F9 );
-	}
-
-	SECTION ("Subscript uint32_t interleaved sequence")
-	{
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0x9ECCC2A5 );
-		CHECK ( sequence[1] == 0x65DC4D95 );
-		CHECK ( sequence[2] == 0x0C0F979D );
-		CHECK ( sequence[3] == 0x84699BD5 );
-		CHECK ( sequence[4] == 0xF5F6F9E6 );
-		CHECK ( sequence[5] == 0xE6EAC2DA );
-		CHECK ( sequence[6] == 0x8E86AA07 );
-		CHECK ( sequence[7] == 0x60F6FA60 );
-		CHECK ( sequence[8] == 0x4A1FF5A5 );
-		CHECK ( sequence[9] == 0x5BCA0129 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0xE063C7F1 );
-		CHECK ( sequence[55] == 0x8F1BECB6 );
-		CHECK ( sequence[56] == 0x192C81F8 );
-		CHECK ( sequence[57] == 0x44687814 );
-		CHECK ( sequence[58] == 0xDDDA357B );
-		CHECK ( sequence[59] == 0x50036E87 );
-		CHECK ( sequence[60] == 0xB5BA4F16 );
-		CHECK ( sequence[61] == 0xDB434C76 );
-		CHECK ( sequence[62] == 0x179514D8 );
-		CHECK ( sequence[63] == 0x28EFE966 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE6791252 );
-		CHECK ( sequence[119] == 0xE46ECE70 );
-		CHECK ( sequence[120] == 0x352BB52A );
-		CHECK ( sequence[121] == 0x59952BDA );
-		CHECK ( sequence[122] == 0x31C575C7 );
-		CHECK ( sequence[123] == 0xA419E185 );
-		CHECK ( sequence[124] == 0xA7ED30D6 );
-		CHECK ( sequence[125] == 0x363FBB36 );
-		CHECK ( sequence[126] == 0xE0EBE817 );
-		CHECK ( sequence[127] == 0xDD6DABA8 );
-
-		sequence.wrap_int_buffer(reinterpret_cast<uint32_t*>(&bytes[0]), 256,
-				true); // uint32_t
-
-		CHECK ( sequence.size() == 128 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0x9ECCC2A5 );
-		CHECK ( sequence[1] == 0x65DC4D95 );
-		CHECK ( sequence[2] == 0x0C0F979D );
-		CHECK ( sequence[3] == 0x84699BD5 );
-		CHECK ( sequence[4] == 0xF5F6F9E6 );
-		CHECK ( sequence[5] == 0xE6EAC2DA );
-		CHECK ( sequence[6] == 0x8E86AA07 );
-		CHECK ( sequence[7] == 0x60F6FA60 );
-		CHECK ( sequence[8] == 0x4A1FF5A5 );
-		CHECK ( sequence[9] == 0x5BCA0129 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0xE063C7F1 );
-		CHECK ( sequence[55] == 0x8F1BECB6 );
-		CHECK ( sequence[56] == 0x192C81F8 );
-		CHECK ( sequence[57] == 0x44687814 );
-		CHECK ( sequence[58] == 0xDDDA357B );
-		CHECK ( sequence[59] == 0x50036E87 );
-		CHECK ( sequence[60] == 0xB5BA4F16 );
-		CHECK ( sequence[61] == 0xDB434C76 );
-		CHECK ( sequence[62] == 0x179514D8 );
-		CHECK ( sequence[63] == 0x28EFE966 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE6791252 );
-		CHECK ( sequence[119] == 0xE46ECE70 );
-		CHECK ( sequence[120] == 0x352BB52A );
-		CHECK ( sequence[121] == 0x59952BDA );
-		CHECK ( sequence[122] == 0x31C575C7 );
-		CHECK ( sequence[123] == 0xA419E185 );
-		CHECK ( sequence[124] == 0xA7ED30D6 );
-		CHECK ( sequence[125] == 0x363FBB36 );
-		CHECK ( sequence[126] == 0xE0EBE817 );
-		CHECK ( sequence[127] == 0xDD6DABA8 );
-	}
-
-	SECTION ("Subscript uint32_t planar sequence")
-	{
-		auto sequence = PlanarSamples<uint32_t>{};
-
-		CHECK ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( 128 == sequence.size() );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x920A9ECC );
-		CHECK ( sequence[2] == 0x602D4D95 );
-		CHECK ( sequence[3] == 0x870465DC );
-		CHECK ( sequence[4] == 0xB852979D );
-		CHECK ( sequence[5] == 0xA2D90C0F );
-		CHECK ( sequence[6] == 0x001B9BD5 );
-		CHECK ( sequence[7] == 0xFDD48469 );
-		CHECK ( sequence[8] == 0x4A40F9E6 );
-		CHECK ( sequence[9] == 0xA4D8F5F6 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0x0AA1B644 );
-		CHECK ( sequence[55] == 0x444619CE );
-		CHECK ( sequence[56] == 0xD3770215 );
-		CHECK ( sequence[57] == 0xA54964E1 );
-		CHECK ( sequence[58] == 0x3D925080 );
-		CHECK ( sequence[59] == 0xABAA15C9 );
-		CHECK ( sequence[60] == 0x386E5B27 );
-		CHECK ( sequence[61] == 0xAAECFC5D );
-		CHECK ( sequence[62] == 0x3628136F );
-		CHECK ( sequence[63] == 0x0D4C7D86 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE1856E87 );
-		CHECK ( sequence[119] == 0xA4195003 );
-		CHECK ( sequence[120] == 0x30D64F16 );
-		CHECK ( sequence[121] == 0xA7EDB5BA );
-		CHECK ( sequence[122] == 0xBB364C76 );
-		CHECK ( sequence[123] == 0x363FDB43 );
-		CHECK ( sequence[124] == 0xE81714D8 );
-		CHECK ( sequence[125] == 0xE0EB1795 );
-		CHECK ( sequence[126] == 0xABA8E966 );
-		CHECK ( sequence[127] == 0xDD6D28EF );
-
-		sequence.wrap_int_buffer(reinterpret_cast<uint32_t*>(&bytes[0]),
-				reinterpret_cast<uint32_t*>(&bytes[512]),
-				128, true); // uint32_t's
-
-		CHECK ( sequence.size() == 128 );
-
-		// begin: first 10 samples
-		CHECK ( sequence[0] == 0xD9DBC2A5 );
-		CHECK ( sequence[1] == 0x920A9ECC );
-		CHECK ( sequence[2] == 0x602D4D95 );
-		CHECK ( sequence[3] == 0x870465DC );
-		CHECK ( sequence[4] == 0xB852979D );
-		CHECK ( sequence[5] == 0xA2D90C0F );
-		CHECK ( sequence[6] == 0x001B9BD5 );
-		CHECK ( sequence[7] == 0xFDD48469 );
-		CHECK ( sequence[8] == 0x4A40F9E6 );
-		CHECK ( sequence[9] == 0xA4D8F5F6 );
-
-		// near mid 10 samples
-		CHECK ( sequence[54] == 0x0AA1B644 );
-		CHECK ( sequence[55] == 0x444619CE );
-		CHECK ( sequence[56] == 0xD3770215 );
-		CHECK ( sequence[57] == 0xA54964E1 );
-		CHECK ( sequence[58] == 0x3D925080 );
-		CHECK ( sequence[59] == 0xABAA15C9 );
-		CHECK ( sequence[60] == 0x386E5B27 );
-		CHECK ( sequence[61] == 0xAAECFC5D );
-		CHECK ( sequence[62] == 0x3628136F );
-		CHECK ( sequence[63] == 0x0D4C7D86 );
-
-		// end: last 10 samples
-		CHECK ( sequence[118] == 0xE1856E87 );
-		CHECK ( sequence[119] == 0xA4195003 );
-		CHECK ( sequence[120] == 0x30D64F16 );
-		CHECK ( sequence[121] == 0xA7EDB5BA );
-		CHECK ( sequence[122] == 0xBB364C76 );
-		CHECK ( sequence[123] == 0x363FDB43 );
-		CHECK ( sequence[124] == 0xE81714D8 );
-		CHECK ( sequence[125] == 0xE0EB1795 );
-		CHECK ( sequence[126] == 0xABA8E966 );
-		CHECK ( sequence[127] == 0xDD6D28EF );
+		CHECK ( buf[118] == 0xE1856E87 );
+		CHECK ( buf[119] == 0xA4195003 );
+		CHECK ( buf[120] == 0x30D64F16 );
+		CHECK ( buf[121] == 0xA7EDB5BA );
+		CHECK ( buf[122] == 0xBB364C76 );
+		CHECK ( buf[123] == 0x363FDB43 );
+		CHECK ( buf[124] == 0xE81714D8 );
+		CHECK ( buf[125] == 0xE0EB1795 );
+		CHECK ( buf[126] == 0xABA8E966 );
+		CHECK ( buf[127] == 0xDD6D28EF );
 	}
 }
 
 
-TEST_CASE ( "SampleIterator increment and decrement",
-		"[sampleiterator] [calc]" )
+TEST_CASE ( "SampleBufferWrapper interleaved file", "[samplebufferwrapper]" )
 {
-	using std::cbegin;
-	using std::cend;
-
-	using arcstk::PlanarSamples;
-	using arcstk::InterleavedSamples;
+	using arcstk::details::SampleBufferWrapper;
 
 	// Load example samples
 
@@ -950,466 +401,169 @@ TEST_CASE ( "SampleIterator increment and decrement",
 	REQUIRE ( bytes[1023] == 0x15 );
 
 
-	SECTION ("Iterator Equality")
+	SECTION ("uint16_t interleaved buffer access works as expected")
 	{
-		using arcstk::SampleIterator;
+		// 1024 bytes == 1024 uint8_t
+		// 1024 uint8_t == 512 uint16_t values
+		// 512 values / 2 channels == 256 pairs/samples
 
-		auto sequence = InterleavedSamples<uint32_t>{};
+		auto buf = SampleBufferWrapper<uint16_t, false> { bytes.data(), 1024,
+			false };
 
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		const auto begin1 = sequence.begin();
-		auto begin2 = sequence.begin();
-		auto begin3 = sequence.begin();
-
-		// const == non-const
-		CHECK ( begin1 == begin2 );
-		CHECK ( not(begin1 != begin2) );
-
-		// non-const == non-const
-		CHECK ( begin3 == begin2 );
-		CHECK ( not(begin3 != begin2) );
-
-		// move one of them
-		begin2++;
-		CHECK ( not(begin3 == begin2) );
-		CHECK ( begin3 != begin2 );
-
-		// take begin of other sequence
-
-		auto sequence_other = InterleavedSamples<uint32_t>{};
-		sequence_other.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-		auto begin_other = sequence_other.begin();
-
-		CHECK ( not(begin_other == begin2) );
-		CHECK ( begin_other != begin2 );
-	}
-
-	SECTION ("Iterator is destructible")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		{
-			auto it = SampleIterator<uint32_t, false>(sequence.begin());
-
-			static_cast<void>(it);
-		}
-	}
-
-	SECTION ("Iterator Copy Constructor")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		auto const_begin { sequence.cbegin() };
-		auto const_end   { sequence.cend() };
-
-		REQUIRE ( const_begin != const_end );
-
-		// Copy from const to const iterator
-
-		SampleIterator<uint32_t, false> const_copy { const_begin };
-
-		CHECK ( const_copy == const_begin );
-		CHECK ( not(const_copy != const_begin) );
-
-		// Copy from non-const to non-const iterator
-
-		SampleIterator<uint32_t, false> nonconst_copy(sequence.begin());
-
-		CHECK ( nonconst_copy == sequence.begin() );
-		CHECK ( not(nonconst_copy != sequence.begin()) );
-
-		// Copy from non-const to const iterator
-
-		SampleIterator<uint32_t, false> const_copy2(sequence.begin());
-
-		CHECK ( const_copy2 == sequence.begin() );
-		CHECK ( not(const_copy2 != sequence.begin()) );
-
-		// Copy from const to non-const iterator is forbidden!
-	}
-
-	SECTION ("Iterator Copy Assignment")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		auto const_begin { sequence.cbegin() };
-		auto const_end   { sequence.cend() };
-
-		REQUIRE ( const_begin != const_end );
-
-
-		SampleIterator<uint32_t, false> const_it { sequence.cbegin() };
-
-		const_it = const_begin;
-
-		CHECK ( const_it == const_begin );
-		CHECK ( const_it != const_end   );
-
-		const_it = const_end;
-
-		CHECK ( const_it != const_begin );
-		CHECK ( const_it == const_end   );
-	}
-
-	SECTION ("Iterator Move constructor")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		auto const_begin { sequence.cbegin() };
-		auto const_end   { sequence.cend() };
-
-		REQUIRE ( const_begin != const_end );
-
-
-		auto const_it1(std::move(const_begin)); // TODO Tests copy-or-move
-
-		CHECK ( const_it1 == sequence.cbegin() );
-
-		auto const_it2(std::move(const_end));
-
-		CHECK ( const_it2 == sequence.end() );
-	}
-
-	SECTION ("Iterator Move Assignment")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		auto const_begin { sequence.cbegin() };
-		auto const_end   { sequence.cend() };
-
-		REQUIRE ( const_begin != const_end );
-
-		auto const_it = sequence.cbegin();
-
-
-		const_it = std::move(const_end); // TODO Tests copy-or-move
-
-		CHECK ( const_it == sequence.cend() );
-
-		const_it = std::move(const_begin);
-
-		CHECK ( const_it == sequence.cbegin() );
-	}
-
-	SECTION ("Iterator Swap")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		auto start { sequence.begin() };
-		auto stop  { sequence.end() };
-
-		CHECK ( start == sequence.begin() );
-		CHECK ( stop  == sequence.end() );
-
-		using std::swap;
-		swap(start, stop);
-
-		CHECK ( stop  == sequence.begin() );
-		CHECK ( start == sequence.end() );
-	}
-
-	SECTION ("Iterator arrow operator")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-
-		REQUIRE ( sequence.typesize() == 4 );
-
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( 128 == sequence.size() );
-
-		REQUIRE ( *cbegin(sequence) == 0x9ECCC2A5 );
-
-		//
-
-		const auto e = cbegin(sequence);
-
-		CHECK ( *e == 0x9ECCC2A5 );
-	}
-
-	SECTION ("Iterator 16 bit begin and end")
-	{
-		auto sequence = PlanarSamples<int16_t>{};
-
-		CHECK ( sequence.begin() == sequence.end() );
-		CHECK ( 0 == sequence.size() );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( sequence.begin() != sequence.end() );
-		CHECK ( 256 == sequence.size() );
-
-		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
-		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
-	}
-
-	SECTION ("Iterator 32 bit begin and end")
-	{
-		auto sequence = PlanarSamples<int32_t>{};
-
-		CHECK ( sequence.begin() == sequence.end() );
-		CHECK ( 0 == sequence.size() );
-
-		sequence.wrap_byte_buffer(&bytes[0], &bytes[512], 512, true); // bytes
-
-		CHECK ( sequence.begin() != sequence.end() );
-		CHECK ( 128 == sequence.size() );
-
-		CHECK ( *sequence.begin()     == 0xD9DBC2A5 );
-		CHECK ( *std::begin(sequence) == 0xD9DBC2A5 );
-	}
-
-	SECTION ("Iterator prefix increment begins on beginning and ends on end")
-	{
-		using arcstk::SampleIterator;
-
-		auto sequence = InterleavedSamples<uint32_t>{};
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
-
-		REQUIRE ( sequence.size() == 128 );
-
-		auto ptr = cbegin(sequence);
+		CHECK ( 256 == buf.size() );
 
 		// begin: first 10 samples
-		CHECK (    *ptr  == 0x9ECCC2A5 );
-		CHECK ( *(++ptr) == 0x65DC4D95 );
-		CHECK ( *(++ptr) == 0x0C0F979D );
-		CHECK ( *(++ptr) == 0x84699BD5 );
-		CHECK ( *(++ptr) == 0xF5F6F9E6 );
-		CHECK ( *(++ptr) == 0xE6EAC2DA );
-		CHECK ( *(++ptr) == 0x8E86AA07 );
-		CHECK ( *(++ptr) == 0x60F6FA60 );
-		CHECK ( *(++ptr) == 0x4A1FF5A5 );
-		CHECK ( *(++ptr) == 0x5BCA0129 );
-
-		ptr += 109;
+		CHECK ( buf[  0] == 0xC711C2A5 );
+		CHECK ( buf[  1] == 0xF35B9ECC );
+		CHECK ( buf[  2] == 0x2C504D95 );
+		CHECK ( buf[  3] == 0x96BE65DC );
+		CHECK ( buf[  4] == 0x4BB9979D );
+		CHECK ( buf[  5] == 0xAE450C0F );
+		CHECK ( buf[  6] == 0xDCDE9BD5 );
+		CHECK ( buf[  7] == 0x1CFD8469 );
+		CHECK ( buf[  8] == 0xCBE1F9E6 );
+		CHECK ( buf[  9] == 0x0DF0F5F6 );
 
 		// end: last 10 samples
-		CHECK (    *ptr  == 0xE6791252 ); // 118
-		CHECK ( *(++ptr) == 0xE46ECE70 );
-		CHECK ( *(++ptr) == 0x352BB52A );
-		CHECK ( *(++ptr) == 0x59952BDA );
-		CHECK ( *(++ptr) == 0x31C575C7 );
-		CHECK ( *(++ptr) == 0xA419E185 );
-		CHECK ( *(++ptr) == 0xA7ED30D6 );
-		CHECK ( *(++ptr) == 0x363FBB36 );
-		CHECK ( *(++ptr) == 0xE0EBE817 );
-		CHECK ( *(++ptr) == 0xDD6DABA8 );
-
-		CHECK ( ++ptr == sequence.end() );
+		CHECK ( buf[246] == 0x338DE185 );
+		CHECK ( buf[247] == 0x1B0FA419 );
+		CHECK ( buf[248] == 0xE4D030D6 );
+		CHECK ( buf[249] == 0xA156A7ED );
+		CHECK ( buf[250] == 0x7A99BB36 );
+		CHECK ( buf[251] == 0xCA1A363F );
+		CHECK ( buf[252] == 0xA856E817 );
+		CHECK ( buf[253] == 0xD686E0EB );
+		CHECK ( buf[254] == 0xF617ABA8 );
+		CHECK ( buf[255] == 0x1571DD6D );
 	}
 
-	SECTION ("Iterator std::next begins on beginning and ends on end")
+	SECTION ("int16_t interleaved buffer access works as expected")
 	{
-		using std::cbegin;
-		using arcstk::SampleIterator;
+		// 1024 bytes each interpreted as int16_t == 512 int16_t values
+		// 512 values / 2 channels == 256 pairs/samples
 
-		auto sequence = InterleavedSamples<uint32_t>{};
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+		auto buf = SampleBufferWrapper<int16_t, false> { bytes.data(), 1024,
+			false };
 
-		REQUIRE ( sequence.size() == 128 );
-
-		auto ptr = cbegin(sequence);
+		CHECK ( 256 == buf.size() );
 
 		// begin: first 10 samples
-		CHECK ( *ptr  == 0x9ECCC2A5 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x65DC4D95 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x0C0F979D );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x84699BD5 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xF5F6F9E6 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xE6EAC2DA );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x8E86AA07 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x60F6FA60 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x4A1FF5A5 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x5BCA0129 );
-
-		ptr += 109;
+		CHECK ( buf[  0] == 0xC711C2A5 );
+		CHECK ( buf[  1] == 0xF35B9ECC );
+		CHECK ( buf[  2] == 0x2C504D95 );
+		CHECK ( buf[  3] == 0x96BE65DC );
+		CHECK ( buf[  4] == 0x4BB9979D );
+		CHECK ( buf[  5] == 0xAE450C0F );
+		CHECK ( buf[  6] == 0xDCDE9BD5 );
+		CHECK ( buf[  7] == 0x1CFD8469 );
+		CHECK ( buf[  8] == 0xCBE1F9E6 );
+		CHECK ( buf[  9] == 0x0DF0F5F6 );
 
 		// end: last 10 samples
-		CHECK ( *ptr  == 0xE6791252 ); // 118
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xE46ECE70 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x352BB52A );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x59952BDA );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x31C575C7 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xA419E185 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xA7ED30D6 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0x363FBB36 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xE0EBE817 );
-
-		ptr = std::next(ptr);
-		CHECK ( *ptr == 0xDD6DABA8 );
-
-		ptr = std::next(ptr);
-		CHECK ( ptr == sequence.end() );
+		CHECK ( buf[246] == 0x338DE185 );
+		CHECK ( buf[247] == 0x1B0FA419 );
+		CHECK ( buf[248] == 0xE4D030D6 );
+		CHECK ( buf[249] == 0xA156A7ED );
+		CHECK ( buf[250] == 0x7A99BB36 );
+		CHECK ( buf[251] == 0xCA1A363F );
+		CHECK ( buf[252] == 0xA856E817 );
+		CHECK ( buf[253] == 0xD686E0EB );
+		CHECK ( buf[254] == 0xF617ABA8 );
+		CHECK ( buf[255] == 0x1571DD6D );
 	}
 
-	/*
-	SECTION ("Iterator is reverse traversable by std::prev")
+	SECTION ("uint32_t interleaved buffer access works as expected")
 	{
-		using std::end;
-		using arcstk::SampleIterator;
+		// 1024 bytes each interpreted as uint32_t == 256 uint32_t values
+		// 256 values / 2 channels == 128 pairs/samples
 
-		auto sequence = InterleavedSamples<uint32_t>{};
-		sequence.wrap_byte_buffer(&bytes[0], 1024, true); // bytes
+		auto buf = SampleBufferWrapper<uint32_t, false> { bytes.data(), 1024,
+			false };
 
-		REQUIRE ( sequence.size() == 128 );
-
-		// Position on last element
-		auto ptr = std::prev(end(sequence));
-
-		// end: last 10 samples
-		CHECK ( *ptr == 0xDD6DABA8 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xE0EBE817 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x363FBB36 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xA7ED30D6 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xA419E185 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x31C575C7 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x59952BDA );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x352BB52A );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xE46ECE70 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xE6791252 ); // 118
-
-		ptr -= 108;
+		CHECK ( 128 == buf.size() );
 
 		// begin: first 10 samples
+		CHECK ( buf[  0] == 0x9ECCC2A5 );
+		CHECK ( buf[  1] == 0x65DC4D95 );
+		CHECK ( buf[  2] == 0x0C0F979D );
+		CHECK ( buf[  3] == 0x84699BD5 );
+		CHECK ( buf[  4] == 0xF5F6F9E6 );
+		CHECK ( buf[  5] == 0xE6EAC2DA );
+		CHECK ( buf[  6] == 0x8E86AA07 );
+		CHECK ( buf[  7] == 0x60F6FA60 );
+		CHECK ( buf[  8] == 0x4A1FF5A5 );
+		CHECK ( buf[  9] == 0x5BCA0129 );
 
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x5BCA0129 );
+		// near mid 10 samples
+		CHECK ( buf[ 54] == 0xE063C7F1 );
+		CHECK ( buf[ 55] == 0x8F1BECB6 );
+		CHECK ( buf[ 56] == 0x192C81F8 );
+		CHECK ( buf[ 57] == 0x44687814 );
+		CHECK ( buf[ 58] == 0xDDDA357B );
+		CHECK ( buf[ 59] == 0x50036E87 );
+		CHECK ( buf[ 60] == 0xB5BA4F16 );
+		CHECK ( buf[ 61] == 0xDB434C76 );
+		CHECK ( buf[ 62] == 0x179514D8 );
+		CHECK ( buf[ 63] == 0x28EFE966 );
 
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x4A1FF5A5 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x60F6FA60 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x8E86AA07 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xE6EAC2DA );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0xF5F6F9E6 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x84699BD5 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x0C0F979D );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x65DC4D95 );
-
-		ptr = std::prev(ptr);
-		CHECK ( *ptr == 0x9ECCC2A5 );
-
-		CHECK ( ptr == cbegin(sequence) );
+		// end: last 10 samples
+		CHECK ( buf[118] == 0xE6791252 );
+		CHECK ( buf[119] == 0xE46ECE70 );
+		CHECK ( buf[120] == 0x352BB52A );
+		CHECK ( buf[121] == 0x59952BDA );
+		CHECK ( buf[122] == 0x31C575C7 );
+		CHECK ( buf[123] == 0xA419E185 );
+		CHECK ( buf[124] == 0xA7ED30D6 );
+		CHECK ( buf[125] == 0x363FBB36 );
+		CHECK ( buf[126] == 0xE0EBE817 );
+		CHECK ( buf[127] == 0xDD6DABA8 );
 	}
-	*/
+
+	SECTION ("int32_t interleaved buffer access works as expected")
+	{
+		// 1024 bytes each interpreted as int32_t == 256 int32_t values
+		// 256 values / 2 channels == 128 pairs/samples
+
+		auto buf = SampleBufferWrapper<int32_t, false> { bytes.data(), 1024,
+			false };
+
+		CHECK ( 128 == buf.size() );
+
+		// begin: first 10 samples
+		CHECK ( buf[  0] == 0x9ECCC2A5 );
+		CHECK ( buf[  1] == 0x65DC4D95 );
+		CHECK ( buf[  2] == 0x0C0F979D );
+		CHECK ( buf[  3] == 0x84699BD5 );
+		CHECK ( buf[  4] == 0xF5F6F9E6 );
+		CHECK ( buf[  5] == 0xE6EAC2DA );
+		CHECK ( buf[  6] == 0x8E86AA07 );
+		CHECK ( buf[  7] == 0x60F6FA60 );
+		CHECK ( buf[  8] == 0x4A1FF5A5 );
+		CHECK ( buf[  9] == 0x5BCA0129 );
+
+		// near mid 10 samples
+		CHECK ( buf[ 54] == 0xE063C7F1 );
+		CHECK ( buf[ 55] == 0x8F1BECB6 );
+		CHECK ( buf[ 56] == 0x192C81F8 );
+		CHECK ( buf[ 57] == 0x44687814 );
+		CHECK ( buf[ 58] == 0xDDDA357B );
+		CHECK ( buf[ 59] == 0x50036E87 );
+		CHECK ( buf[ 60] == 0xB5BA4F16 );
+		CHECK ( buf[ 61] == 0xDB434C76 );
+		CHECK ( buf[ 62] == 0x179514D8 );
+		CHECK ( buf[ 63] == 0x28EFE966 );
+
+		// end: last 10 samples
+		CHECK ( buf[118] == 0xE6791252 );
+		CHECK ( buf[119] == 0xE46ECE70 );
+		CHECK ( buf[120] == 0x352BB52A );
+		CHECK ( buf[121] == 0x59952BDA );
+		CHECK ( buf[122] == 0x31C575C7 );
+		CHECK ( buf[123] == 0xA419E185 );
+		CHECK ( buf[124] == 0xA7ED30D6 );
+		CHECK ( buf[125] == 0x363FBB36 );
+		CHECK ( buf[126] == 0xE0EBE817 );
+		CHECK ( buf[127] == 0xDD6DABA8 );
+	}
 }
 

@@ -400,7 +400,7 @@ TEST_CASE ( "SampleInputIterator wraps SampleIterator",
 	{
 		using sequence_type = arcstk::InterleavedSamples<int32_t>;
 
-		const auto sequence = sequence_type { seq.data(), seq.size() };
+		const auto sequence = sequence_type { seq.data(), seq.size(), false };
 
 		auto it = SampleInputIterator { cbegin(sequence) };
 
@@ -412,8 +412,8 @@ TEST_CASE ( "SampleInputIterator wraps SampleIterator",
 	{
 		using sequence_type = arcstk::PlanarSamples<int32_t>;
 
-		const auto sequence = sequence_type {
-			seq.data(), seq.data() + seq.size()/2, seq.size()/2 };
+		const auto sequence = sequence_type { seq.data(),
+			seq.data() + seq.size()/2, seq.size()/2, false };
 
 		auto it = SampleInputIterator { cbegin(sequence) };
 

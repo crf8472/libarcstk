@@ -22,17 +22,35 @@ namespace details
 {
 
 /**
- * \brief Service method: Interpret 4 bytes as a 32 bit unsigned integer.
+ * \brief Worker template to mimic a disjunction.
  *
- * \param[in] b1 First input byte
- * \param[in] b2 Second input byte
- * \param[in] b3 Third input byte
- * \param[in] b4 Fourth input byte
- *
- * \return The bytes as 32 bit unsigned integer
+ * Intended for static_asserts.
  */
-uint32_t combine(const std::byte b1, const std::byte b2,
-		const std::byte b3, const std::byte b4);
+template <typename T, typename... Types>
+constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ...);
+
+/**
+ * \brief Worker template to mimic a disjunction.
+ *
+ * Intended for SFINAE.
+ */
+template <typename T, typename... Types>
+using is_one_of = std::enable_if_t<is_one_of_v<T, Types...>>;
+
+/**
+ * \brief TRUE iff T is one of the supported sample types, otherwise FALSE.
+ *
+ * \tparam T Type to check
+ */
+template <typename T, typename... Types>
+constexpr bool supported_sample_type =
+	is_one_of_v<T, int16_t, int32_t, uint16_t, uint32_t>;
+
+/**
+ * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
+ */
+template <typename T>
+using is_sample_type = std::enable_if_t<supported_sample_type<T>>;
 
 
 /**
@@ -89,15 +107,23 @@ namespace little
 	uint32_t combine(const std::byte b1, const std::byte b2,
 		const std::byte b3, const std::byte b4);
 
-	template <typename T>
+	template <typename T, typename = is_sample_type<T>>
 	uint32_t combine(const T higher, const T lower)
 	{
-		return (static_cast<uint32_t>(higher) << 16) |
-			(static_cast<uint32_t>(lower) & 0xFFFF);
-
+		// Previous implementation, commented out:
+		//return (static_cast<uint32_t>(higher) << 16) |
+		//	(static_cast<uint32_t>(lower) & 0xFFFF);
 		// NOTE: This works because T cannot be anything but only signed or
-		// unsigned integers of either 32 or 64 bit length. Those variants can
+		// unsigned integers of either 16  or 32 bit length. Those variants can
 		// all be handled correctly by just casting them to sample_t.
+
+		// Maske negative signed types korrekt
+		auto high = static_cast<uint32_t>(static_cast<uint16_t>(higher));
+
+		// Only use the lower 16 bits of the input values
+		auto low = static_cast<uint32_t>(static_cast<uint16_t>(lower));
+
+		return (high << 16) | (low & 0xFFFF);
 	}
 
 } // namespace little
@@ -108,7 +134,7 @@ namespace big
 	uint32_t combine(const std::byte b1, const std::byte b2,
 		const std::byte b3, const std::byte b4);
 
-	template <typename T>
+	template <typename T, typename = is_sample_type<T>>
 	uint32_t combine(const T higher, const T lower)
 	{
 		// TODO Implement big endian variant of combine()
@@ -117,35 +143,17 @@ namespace big
 } // namespace big
 
 /**
- * \brief Worker template to mimic a disjunction.
+ * \brief Service method: Interpret 4 bytes as a 32 bit unsigned integer.
  *
- * Intended for static_asserts.
- */
-template <typename T, typename... Types>
-constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ...);
-
-/**
- * \brief Worker template to mimic a disjunction.
+ * \param[in] b1 First input byte
+ * \param[in] b2 Second input byte
+ * \param[in] b3 Third input byte
+ * \param[in] b4 Fourth input byte
  *
- * Intended for SFINAE.
+ * \return The bytes as 32 bit unsigned integer
  */
-template <typename T, typename... Types>
-using is_one_of = std::enable_if_t<is_one_of_v<T, Types...>>;
-
-/**
- * \brief TRUE iff T is one of the supported sample types, otherwise FALSE.
- *
- * \tparam T Type to check
- */
-template <typename T, typename... Types>
-constexpr bool supported_sample_type =
-	is_one_of_v<T, int16_t, int32_t, uint16_t, uint32_t>;
-
-/**
- * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
- */
-template <typename T>
-using is_sample_type = std::enable_if_t<supported_sample_type<T>>;
+uint32_t combine(const std::byte b1, const std::byte b2,
+		const std::byte b3, const std::byte b4);
 
 /**
  * \brief Combine 2 16-bit samples to a 32-bit value.

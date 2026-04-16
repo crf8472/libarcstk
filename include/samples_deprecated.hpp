@@ -1,0 +1,1277 @@
+#ifndef LIBARCSTK_SAMPLES_HPP_
+#define LIBARCSTK_SAMPLES_HPP_
+
+/**
+ * \file
+ *
+ * \brief Represent and manage unconverted \link calc sequences of
+ * samples\endlink.
+ *
+ * \details
+ *
+ * Part of the API for \link calc calculating AccurateRip checksums\endlink.
+ */
+
+#include <array>                // for array
+#include <cstddef>              // for ptrdiff_t, size_t
+#include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
+#include <iterator>             // for bidirectional_iterator_tag
+#include <sstream>              // for ostringstream
+#include <stdexcept>            // for out_of_range
+#include <type_traits>          // for is_same, enable_if_t
+
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"           // for Comparable
+#endif
+
+namespace arcstk
+{
+                                                  /** \cond NAMESPACE_v_1_0_0 */
+inline namespace v_1_0_0
+{
+                                                                 /** \endcond */
+
+/**
+ * \addtogroup calc
+ * @{
+ */
+
+// redefined as in calculate.hpp, documented there
+using sample_t = uint32_t;
+
+/**
+ * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
+ *
+ * Calculation expects an update represented by two
+ * iterators that enumerate the audio input as a sequence of 32 bit unsigned
+ * integers of which each represents a pair of 16-bit stereo PCM samples.
+ * SampleSequence is a read-only compatibility wrapper for passing sample
+ * buffers of an integral sample format with 16 or 32 bit width to
+ * Calculation::update() in the appropriate update format.
+ *
+ * The use of a SampleSequence for providing the updates is optional, the caller
+ * may decide to provide the required sample format completely without using
+ * SampleSequence.
+ *
+ * When wrapping the original audio data in a SampleSequence, it must be
+ * correctly declared as either interleaved or planar. It is furthermore
+ * required to know the size of the input and its channel ordering. If no
+ * channel ordering is specified, the default is LEFT/RIGHT.
+ *
+ * A SampleSequence can wrap integer buffers of type T by member function
+ * wrap_int_buffer().
+ * Regardless for which T the SampleSequence is instantiated,
+ * it will always be able to also wrap byte buffers by function
+ * wrap_byte_buffer(). While wrap_int_buffer() expects samples of type T,
+ * wrap_byte_buffer() accepts a uint8_t typed buffer and converts those bytes to
+ * T.
+ *
+ * A SampleSequence instance can be reused by just calling wrap_int_buffer() or
+ * wrap_byte_buffer() on the existing instance. While channel ordering, size
+ * and the actual sample buffers can be changed, it is not possible to correctly
+ * wrap samples that are not represented by type T.
+ *
+ * Random reading access is provided by operator[] (without bounds check) or
+ * at() (providing bounds check). A SampleSequence provides also access via
+ * iterators.
+ *
+ * The caller is responsible for the lifetime of the wrapped sample buffer:
+ * SampleSequence will only provide a compatibility layer, it will not erase
+ * the wrapped buffers. A SampleSequence can therefore safely be destroyed
+ * without affecting the wrapped buffer.
+ *
+ * \attention
+ * For convenience, this template is not intended to be used directly. Instead,
+ * use one of the templates PlanarSamples or InterleavedSamples.
+ *
+ * \tparam T          The sample type to read
+ * \tparam is_planar  \c TRUE indicates two planar buffers while \c FALSE
+ *                    indicates an interleaved buffer
+ *
+ * \see PlanarSamples
+ * \see InterleavedSamples
+ */
+template <typename T, bool is_planar>
+class SampleSequence
+{
+	// empty
+};
+
+
+namespace details
+{
+
+/**
+ * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
+ */
+template <typename T>
+using IsSampleType = std::enable_if_t<
+				std::is_same<T,  int16_t>::value
+			or  std::is_same<T,  int32_t>::value
+			or  std::is_same<T, uint16_t>::value
+			or  std::is_same<T, uint32_t>::value>;
+
+
+/**
+ * \brief Common code base for SampleSequence specializations.
+ *
+ * This class is not intended for polymorphic use.
+ *
+ * \tparam T         Actual sample type
+ * \tparam is_planar TRUE indicates a planar sequence, FALSE is interleaved
+ */
+template<typename T, bool is_planar, typename = IsSampleType<T>>
+class SampleSequenceImplBase; // IWYU pragma keep
+// forward declaration required by friend delcaration in SampleIterator
+
+} // namespace details
+
+
+/**
+ * \internal
+ *
+ * \brief A \c bidirectional_iterator for samples in SampleSequence instances.
+ *
+ * Provides a representation of the 16 bit stereo samples for each channel as
+ * a single integer of an unsigned integer type assignable to \c sample_t.
+ *
+ * Equality between a \c const_iterator and an \c iterator works as expected.
+ *
+ * SampleIterator provides the following functionality:
+ * - prefix- and postfix decrement,
+ * - operators add-assign (+=) and subtract-assign (-=),
+ * - binary operators for addition and substraction of values, and
+ * - binary operators for addition and substraction of positions.
+ */
+template <typename T, bool is_planar>
+class SampleIterator final :
+					public Comparable<SampleIterator<T, is_planar>>
+{
+	// Allow use of private constructor
+	friend class details::SampleSequenceImplBase<T, is_planar>;
+
+public:
+
+	/**
+	 * \brief LegacyInputIterator
+	 *
+	 * See <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
+	 * LegacyInputIterator</A>
+	 */
+	using iterator_category = std::input_iterator_tag;
+
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
+	using value_type        = sample_t;
+
+	/**
+	 * \copydoc SNPT_tp_reference
+	 *
+	 * \details Not an actual reference type.
+	 */
+	using reference         = value_type;
+
+	/**
+	 * \copydoc SNPT_tp_pointer
+	 */
+	using pointer           = const value_type*;
+
+	/**
+	 * \copydoc SNPT_tp_difference
+	 */
+	using difference_type   = std::ptrdiff_t;
+	// Must be at least as wide as SampleSequence::size_type
+
+	/**
+	 * \brief Return a pointer to the SampleSequence.
+	 *
+	 * Pointer to the SampleSequence the iterator relates to.
+	 *
+	 * \return A pointer to the SampleSequence.
+	 */
+	const SampleSequence<T, is_planar>* sequence() const
+	{
+		return seq_;
+	}
+
+	/**
+	 * \brief Return the iterator position.
+	 *
+	 * Beginning of the sequence is 0 and a legal position is a positive integer
+	 * that is smaller than the size() of the sequence.
+	 *
+	 * \return Iterator position relative to the beginning.
+	 */
+	difference_type pos() const
+	{
+		return pos_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_deref
+	 */
+	reference operator * () const
+	{
+		using index_type = typename SampleSequence<T, is_planar>::size_type;
+
+		return seq_->operator[](static_cast<index_type>(pos_));
+	}
+
+	/**
+	 * \copydoc SNPT_mf_inc_prefix
+	 */
+	SampleIterator& operator ++ ()
+	{
+		++pos_;
+		return *this;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_inc_postfix
+	 */
+	SampleIterator operator ++ (int)
+	{
+		auto prev_val = SampleIterator { *this };
+		this->operator++();
+		return prev_val;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_inc_amount
+	 */
+	SampleIterator& operator += (const difference_type amount)
+	{
+		pos_ += amount;
+		return *this;
+	}
+
+	/**
+	 * \copydoc SNPT_nf_inc_amount_lhs
+	 */
+	friend SampleIterator operator + (SampleIterator lhs,
+			const difference_type amount) noexcept
+	{
+		lhs += amount;
+		return lhs;
+	}
+
+	/**
+	 * \copydoc SNPT_nf_inc_amount_rhs
+	 */
+	friend SampleIterator operator + (const difference_type amount,
+			SampleIterator rhs) noexcept
+	{
+		return rhs + amount;
+	}
+
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
+	friend void swap(SampleIterator& lhs, SampleIterator& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(lhs.seq_,   rhs.seq_);
+		swap(lhs.pos_,   rhs.pos_);
+	}
+
+	/**
+	 * \copydoc SNPT_nf_equality
+	 */
+	friend bool operator == (const SampleIterator& lhs,
+			const SampleIterator& rhs) noexcept
+	{
+		return lhs.seq_ == rhs.seq_ && lhs.pos_ == rhs.pos_;
+	}
+
+private:
+
+	/**
+	 * \brief Private constructor.
+	 *
+	 * Constructs a SampleIterator for the specified SampleSequence starting
+	 * at index \c pos.
+	 *
+	 * \param[in] seq SampleSequence to iterate
+	 * \param[in] pos Start index
+	 */
+	SampleIterator(const SampleSequence<T, is_planar>& seq,
+			const difference_type pos)
+		: seq_   { &seq }
+		, pos_   { pos }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief The SampleSequence to iterate.
+	 */
+	const SampleSequence<T, is_planar>* seq_;
+
+	/**
+	 * \brief Current index position.
+	 */
+	difference_type pos_;
+};
+
+
+namespace details
+{
+
+/**
+ * \brief Abstract base class for SampleSequences.
+ *
+ * \details
+ *
+ * Provides the iterators, size(), bounds check and a service method to
+ * combine to 16bit integer to a 32bit integer.
+ */
+template <typename T, bool is_planar, typename>
+class SampleSequenceImplBase
+{
+public:
+
+	/**
+	 * \copydoc SNPT_tp_value
+	 */
+	using value_type     = sample_t;
+
+	/**
+	 * \copydoc SNPT_tp_size
+	 */
+	using size_type      = std::size_t;
+
+	/**
+	 * \brief Unspecified forward iterator type.
+	 */
+	using iterator       = SampleIterator<T, is_planar>;
+
+	/**
+	 * \brief Unspecified constant forward iterator type.
+	 */
+	using const_iterator = SampleIterator<T, is_planar>;
+
+	/**
+	 * \copydoc SNPT_mf_begin
+	 */
+	iterator begin()
+	{
+		return iterator { *this->sequence(), 0 };
+	}
+
+	/**
+	 * \copydoc SNPT_mf_end
+	 */
+	iterator end()
+	{
+		using dif_t = typename iterator::difference_type;
+
+		return iterator { *this->sequence(), static_cast<dif_t>(this->size()) };
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
+	const_iterator cbegin() const
+	{
+		return const_iterator { *this->sequence(), 0 };
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
+	const_iterator cend() const
+	{
+		using diff_t = typename const_iterator::difference_type;
+
+		return const_iterator {
+			*this->sequence(), static_cast<diff_t>(this->size()) };
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cbegin
+	 */
+	const_iterator begin() const
+	{
+		return this->cbegin();
+	}
+
+	/**
+	 * \copydoc SNPT_mf_cend
+	 */
+	const_iterator end() const
+	{
+		return this->cend();
+	}
+
+	/**
+	 * \brief Return the number of 32 bit PCM samples represented by this
+	 * sequence.
+	 *
+	 * \return The number of 32 bit PCM samples represented by this sequence
+	 */
+	size_type size() const
+	{
+		return size_;
+	}
+
+	/**
+	 * \brief Get number of left channel (0 or 1).
+	 *
+	 * \return Number of the left channel
+	 */
+	size_type left_channel() const
+	{
+		return left_;
+	}
+
+	/**
+	 * \brief Get number of right channel (0 or 1).
+	 *
+	 * \return Number of the right channel
+	 */
+	size_type right_channel() const
+	{
+		return right_;
+	}
+
+	/**
+	 * \brief Get channel ordering flag, \c TRUE means left is 0 and right is 1.
+	 *
+	 * \return Channel ordering flag.
+	 */
+	bool channel_ordering() const
+	{
+		return left_ == 0 and right_ == 1;
+	}
+
+	/**
+	 * \brief Return the size of the template argument type in bytes.
+	 *
+	 * It is identical to <tt>sizeof(T)</tt> and was added for debugging.
+	 *
+	 * \return This of the template argument type in bytes.
+	 */
+	size_type typesize() const
+	{
+		return sizeof(T);
+	}
+
+protected:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 *
+	 * \details Establishes a size of 0 and a LEFT_RIGHT channel ordering.
+	 */
+	SampleSequenceImplBase()
+		: SampleSequenceImplBase{ true }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Protected constructor.
+	 *
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	explicit SampleSequenceImplBase(const bool left0_right1)
+		: size_  { 0 }
+		, left_  { get_left_channel(left0_right1)  }
+		, right_ { get_right_channel(left0_right1) }
+	{
+		// empty
+	}
+
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
+	SampleSequenceImplBase(const SampleSequenceImplBase& rhs)
+	= default;
+
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	SampleSequenceImplBase& operator = (const SampleSequenceImplBase& rhs)
+	= default;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	SampleSequenceImplBase(SampleSequenceImplBase&& rhs) noexcept
+	= default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	SampleSequenceImplBase& operator = (SampleSequenceImplBase&& rhs) noexcept
+	= default;
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~SampleSequenceImplBase() noexcept
+	= default;
+
+	/**
+	 * \brief Set the number 32 bit PCM samples in this buffer.
+	 *
+	 * \param[in] size number of 32 bit PCM samples in the buffer
+	 */
+	void set_size(const size_type size)
+	{
+		size_ = size;
+	}
+
+	/**
+	 * \brief Combine two 16 bit integers to a PCM 32 bit sample.
+	 *
+	 * \param[in] higher The higher 16 bit
+	 * \param[in] lower  The lower 16 bit
+	 *
+	 * \return A PCM 32 bit sample with the higher and lower bits as passed
+	 */
+	sample_t combine(const T higher, const T lower) const
+	{
+		return (static_cast<sample_t>(higher) << 16) |
+			(static_cast<sample_t>(lower) & 0x0000FFFF);
+
+		// NOTE: This works because T cannot be anything but only signed or
+		// unsigned integers of either 32 or 64 bit length. Those variants can
+		// all be handled correctly by just casting them to sample_t.
+	}
+
+	/**
+	 * \brief Return amount that \c index exceeds <tt>size() - 1</tt>.
+	 *
+	 * 0 means that \c index is within legal access bounds.
+	 *
+	 * \param[in] index Index to check
+	 *
+	 * \return 0 if not out of bounds, otherwise <tt>index - 1 - size()</tt>.
+	 */
+	int out_of_range(const size_type index) const
+	{
+		return index > this->size() ? this->size() - 1 - index : 0;
+	}
+
+	/**
+	 * \brief Perform bounds check.
+	 *
+	 * \param[in] index Index to check
+	 *
+	 * \throws std::out_of_range if \c index is out of legal range
+	 */
+	void bounds_check(const size_type index) const
+	{
+		if (this->out_of_range(index))
+		{
+			auto msg = std::ostringstream {};
+			msg << "Index out of bounds: " << index
+				<< ". Size: " << this->size();
+
+			throw std::out_of_range(msg.str());
+		}
+	}
+
+	/**
+	 * \brief Obtain the number of the left channel from the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 *
+	 * \return 0 in case of \c TRUE, otherwise 1
+	 */
+	size_type get_left_channel(const bool channel_ordering) const
+	{
+		return channel_ordering ? 0 : 1;
+	}
+
+	/**
+	 * \brief Obtain the number of the right channel from the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 *
+	 * \return 1 in case of \c TRUE, otherwise 0
+	 */
+	size_type get_right_channel(const bool channel_ordering) const
+	{
+		return channel_ordering ? 1 : 0;
+	}
+
+	/**
+	 * \brief Set the channel ordering according to the ordering flag.
+	 *
+	 * \param[in] channel_ordering The channel ordering flag
+	 */
+	void set_channel_ordering(const bool channel_ordering)
+	{
+		left_  = this->get_left_channel(channel_ordering);
+		right_ = this->get_right_channel(channel_ordering);
+	}
+
+	/**
+	 * \brief Pointer to actual SampleSequence.
+	 *
+	 * \return Pointer to actual SampleSequence
+	 */
+	virtual const SampleSequence<T, is_planar> *sequence() const
+	= 0;
+
+private:
+
+	/**
+	 * \brief State: Number of 16 bit samples in this sequence.
+	 */
+	size_type size_;
+
+	/**
+	 * \brief State: Number of the left channel
+	 */
+	size_type left_;
+
+	/**
+	 * \brief State: Number of the right channel
+	 */
+	size_type right_;
+};
+
+} // namespace details
+
+
+// SampleSequence: Full Specialization for planar sequences (is_planar == true)
+
+
+/**
+ * \internal
+ *
+ * \brief A planar sequence of samples.
+ *
+ * \details
+ *
+ * This class is intended to be used by its alias PlanarSamples<T>.
+ *
+ * SampleSequence<T,true> is movable but not copyable.
+ *
+ * \tparam T Actual sample type
+ */
+template <typename T>
+class SampleSequence<T, true> final :
+								public details::SampleSequenceImplBase<T, true>
+{
+	using Base = typename details::SampleSequenceImplBase<T, true>;
+
+public: /* typedefs */
+
+	using typename Base::value_type;
+
+	using typename Base::size_type;
+
+	using typename Base::iterator;
+
+	using typename Base::const_iterator;
+
+
+public: /* member functions */
+
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
+
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
+
+	/**
+	 * \brief Constructor for a sequence with specified channel ordering.
+	 *
+	 * \param[in] left0_right1 The channel ordering
+	 */
+	explicit SampleSequence(const bool left0_right1)
+		: Base    { left0_right1 }
+		, buffer_ { /* default */ }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Indicates channel ordering left:0, right:1. Equivalent to
+	 * SampleSequence(true).
+	 */
+	SampleSequence()
+		: SampleSequence<T, true> { true }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of T's per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequence(const T* buffer0, const T* buffer1, const size_type size,
+			const bool left0_right1)
+		: Base    { left0_right1  }
+		, buffer_ { /* default */ }
+	{
+		this->wrap_int_buffer(buffer0, buffer1, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of T's per buffer
+	 */
+	SampleSequence(const T* buffer0, const T* buffer1, const size_type size)
+		: Base    { true }
+		, buffer_ { /* default */ }
+	{
+		this->wrap_int_buffer(buffer0, buffer1, size, true);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size, const bool left0_right1)
+		: Base    { left0_right1  }
+		, buffer_ { /* default */ }
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 */
+	SampleSequence(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size)
+		: Base    { true }
+		, buffer_ { /* default */ }
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size, true);
+	}
+
+	/**
+	 * \brief Rewrap the specified integer buffers into this sample sequence.
+	 *
+	 * \param[in] buffer0 Buffer for channel 0
+	 * \param[in] buffer1 Buffer for channel 1
+	 * \param[in] size    Number of T's per buffer
+	 * \param[in] is_left0_right1 Channel ordering
+	 */
+	void wrap_int_buffer(const T* buffer0, const T* buffer1,
+			const size_type size, const bool is_left0_right1)
+	{
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+			buffer_[1] = buffer0;
+			buffer_[0] = buffer1;
+		} else
+		{
+			buffer_[0] = buffer0;
+			buffer_[1] = buffer1;
+		}
+
+		// OLD VERSION (commented out)
+		//buffer_[static_cast<index_type>(this->left_channel()) ] = buffer0;
+		//buffer_[static_cast<index_type>(this->right_channel())] = buffer1;
+
+		this->set_size(size);
+		this->set_channel_ordering(is_left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified integer buffers into this sample sequence.
+	 *
+	 * The current channel ordering is used.
+	 *
+	 * \param[in] buffer0 Buffer for channel 0
+	 * \param[in] buffer1 Buffer for channel 1
+	 * \param[in] size    Number of T's per buffer
+	 */
+	void wrap_int_buffer(const T* buffer0, const T* buffer1,
+			const size_type size)
+	{
+		this->wrap_int_buffer(buffer0, buffer1, size, this->channel_ordering());
+	}
+
+	/**
+	 * \brief Rewrap the specified byte buffers into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * \param[in] buffer0      Buffer for channel 0
+	 * \param[in] buffer1      Buffer for channel 1
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size, const bool left0_right1)
+	{
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+			buffer_[1] = reinterpret_cast<const T *>(buffer0);
+			buffer_[0] = reinterpret_cast<const T *>(buffer1);
+		} else
+		{
+			buffer_[0] = reinterpret_cast<const T *>(buffer0);
+			buffer_[1] = reinterpret_cast<const T *>(buffer1);
+		}
+
+		// OLD VERSION (commented out)
+		//buffer_[this->left_channel()]  = reinterpret_cast<const T *>(buffer0),
+		//buffer_[this->right_channel()] = reinterpret_cast<const T *>(buffer1),
+
+		this->set_size((size * sizeof(uint8_t)) / sizeof(T));
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified byte buffers into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * The current channel ordering is used.
+	 *
+	 * \param[in] buffer0 Buffer for channel 0
+	 * \param[in] buffer1 Buffer for channel 1
+	 * \param[in] size    Number of bytes per buffer
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer0, const uint8_t *buffer1,
+			const size_type size)
+	{
+		this->wrap_byte_buffer(buffer0, buffer1, size,
+				this->channel_ordering());
+	}
+
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 */
+	value_type operator [] (const size_type index) const
+	{
+		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+			return this->combine(buffer_[0][index], buffer_[1][index]);
+		}
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		return this->combine(buffer_[1][index], buffer_[0][index]);
+
+		// OLD VERSION (commented out)
+		//return this->combine(buffer_[this->right_channel()][index],
+		//		buffer_[this->left_channel()][index]);
+		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
+
+		// NOTE:
+		// Equivalent to, but seemingly not slower than:
+		//return (static_cast<sample_t>(buffer_[right_][index]) << 16)
+		//	| static_cast<uint16_t>(buffer_[left_][index]);
+	}
+
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
+	 *
+	 * Does bounds checking before accessing the sample.
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 *
+	 * \throw std::out_of_range if \c index is out of range
+	 */
+	value_type at(const size_type index) const
+	{
+		this->bounds_check(index);
+		return this->operator[](index);
+	}
+
+protected:
+
+	/**
+	 * \brief Read the sample sequence from subclasses.
+	 *
+	 * \return Internal sample sequence
+	 */
+	const SampleSequence<T, true> *sequence() const final
+	{
+		return this;
+	}
+
+private:
+
+	/**
+	 * \brief Internal planar buffer of 16 bit samples for two channels.
+	 */
+	std::array<const T*, 2> buffer_;
+};
+
+
+// SampleSequence: Full Specialization for interleaved sequences
+
+
+/**
+ * \internal
+ *
+ * \brief An interleaved sequence of samples.
+ *
+ * This class is intended to be used by its alias InterleavedSamples<T>.
+ *
+ * SampleSequence<T,false> is movable but not copyable.
+ *
+ * \tparam T Actual sample type
+ */
+template <typename T>
+class SampleSequence<T, false> final :
+								public details::SampleSequenceImplBase<T, false>
+{
+	using Base = typename details::SampleSequenceImplBase<T, false>;
+
+public: /* typedefs */
+
+	using typename Base::value_type;
+
+	using typename Base::size_type;
+
+	using typename Base::iterator;
+
+	using typename Base::const_iterator;
+
+
+public: /* member functions */
+
+	//Skip copy-ctor   SampleSequence(const SampleSequence& )
+
+	//Skip copy-asgnmt SampleSequence& operator = (const SampleSequence& )
+
+	/**
+	 * \brief Constructor for a sequence with specified channel ordering.
+	 *
+	 * \param[in] left0_right1 The channel ordering
+	 */
+	explicit SampleSequence(const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Indicates channel ordering left:0, right:1.
+	 *
+	 * Equivalent to SampleSequence(true).
+	 */
+	SampleSequence()
+		: SampleSequence<T, false>(true)
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of T's per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequence(const T* buffer, const size_type size,
+			const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
+	{
+		this->wrap_int_buffer(buffer, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of T's per buffer
+	 */
+	SampleSequence(const T* buffer, const size_type size)
+		: Base(true)
+		, buffer_ { nullptr }
+	{
+		this->wrap_int_buffer(buffer, size, true);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Channel ordering: \c TRUE indicates that left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of bytes per buffer
+	 * \param[in] left0_right1 Channel ordering
+	 */
+	SampleSequence(const uint8_t *buffer, const size_type size,
+			const bool left0_right1)
+		: Base(left0_right1)
+		, buffer_ { nullptr }
+	{
+		this->wrap_byte_buffer(buffer, size, left0_right1);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Uses default channel ordering in which left channel is 0, right channel
+	 * is 1.
+	 *
+	 * \param[in] buffer       Sample buffer
+	 * \param[in] size         Number of bytes per buffer
+	 */
+	SampleSequence(const uint8_t *buffer, const size_type size)
+		: Base(true)
+		, buffer_ { nullptr }
+	{
+		this->wrap_byte_buffer(buffer, size, true);
+	}
+
+	/**
+	 * \brief Rewrap the specified typed buffer into this sample sequence.
+	 *
+	 * Wraps the specified buffer, that must be of the same type as the
+	 * specified sample sequence.
+	 *
+	 * \param[in] buffer       Interleaved buffer
+	 * \param[in] size         Number of T's in the buffer
+	 * \param[in] left0_right1 \c TRUE for left == 0, right == 1, otherwise
+	 *                         \c FALSE
+	 */
+	void wrap_int_buffer(const T* buffer, const size_type size,
+			bool left0_right1)
+	{
+		buffer_ = buffer;
+
+		this->set_size(size / 2/* channels */);
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified typed buffer into this sample sequence.
+	 *
+	 * Wraps the specified buffer, that must be of the same type as the
+	 * specified sample sequence.
+	 *
+	 * The current channel ordering is reused.
+	 *
+	 * \param[in] buffer       Interleaved buffer
+	 * \param[in] size         Number of T's in the buffer
+	 */
+	void wrap_int_buffer(const T *buffer, const size_type size)
+	{
+		this->wrap_int_buffer(buffer, size, this->channel_ordering());
+	}
+
+	/**
+	 * \brief Rewrap the specified raw byte buffer into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * \param[in] buffer       Buffer for channel 0
+	 * \param[in] size         Number of bytes in buffer
+	 * \param[in] left0_right1 \c TRUE for left == 0, right == 1, otherwise
+	 *                         \c FALSE
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer, const size_type size,
+			bool left0_right1)
+	{
+		buffer_ = reinterpret_cast<const T*>(buffer);
+
+		this->set_size((size * sizeof(uint8_t) / 2/* channels */) / sizeof(T));
+		this->set_channel_ordering(left0_right1);
+	}
+
+	/**
+	 * \brief Rewrap the specified raw byte buffer into this sample sequence.
+	 *
+	 * This function does essentially the same as wrap_int_buffer() but converts
+	 * a sequence of uint8_t instances by reinterpreting the samples as
+	 * instances of type T. However, wrap_byte_buffer() expects bytes instead of
+	 * samples of type T.
+	 *
+	 * The current channel ordering is reused.
+	 *
+	 * \param[in] buffer       Buffer for channel 0
+	 * \param[in] size         Number of bytes in buffer
+	 */
+	void wrap_byte_buffer(const uint8_t *buffer, const size_type size)
+	{
+		this->wrap_byte_buffer(buffer, size, this->channel_ordering());
+	}
+
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 */
+	value_type operator [] (const size_type index) const
+	{
+		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+
+		if (1 == this->left_channel())
+		{
+			// channels are swapped
+
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+			return this->combine(buffer_[0 + 2 * index], buffer_[1 + 2 * index]);
+		}
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		return this->combine(buffer_[1 + 2 * index], buffer_[0 + 2 * index]);
+
+		// OLD VERSION (commented out)
+		//return this->combine(buffer_[2 * index + this->right_channel()],
+		//		buffer_[2 * index + this->left_channel()]);
+		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
+
+		// NOTE:
+		// Equivalent to, but seemingly not slower than:
+		//return (static_cast<sample_t>(buffer_[2 * index + right_]) << 16)
+		//	| static_cast<uint16_t>(buffer_[2 * index + left_]);
+	}
+
+	/**
+	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
+	 *
+	 * - Bits 31-24: Left Channel MSB
+	 * - Bits 23-16: Left Channel LSB
+	 * - Bits 15-09: Right Channel MSB
+	 * - Bits 08-00: Right Channel LSB
+	 *
+	 * Does bounds checking before accessing the sample.
+	 *
+	 * \param[in] index Index of a virtual 32 bit PCM sample
+	 *
+	 * \return The sample value of the virtual 32 bit PCM sample
+	 *
+	 * \throw std::out_of_range if \c index is out of range
+	 */
+	value_type at(const size_type index) const
+	{
+		this->bounds_check(index);
+		return this->operator[](index);
+	}
+
+protected:
+
+	const SampleSequence<T, false> *sequence() const final
+	{
+		return this;
+	}
+
+private:
+
+	/**
+	 * \brief Internal interleaved buffer of 16 bit samples for two channels.
+	 */
+	const T * buffer_;
+};
+
+/**
+ * \brief Planar sample sequence with samples of type T.
+ *
+ * A planar sequence has two separated input buffers, one for each channel.
+ *
+ * T can only be some signed or unsigned integral type of either 16 or 32 bit
+ * width.
+ *
+ * \see SampleSequence
+ */
+template <typename T>
+using PlanarSamples = SampleSequence<T, true>;
+
+
+/**
+ * \brief Interleaved sample sequence with samples of type T.
+ *
+ * An interleaved sequence has one input buffer, in which the samples for each
+ * channel occurr in order.
+ *
+ * T can only be some signed or unsigned integral type of either 16 or 32 bit
+ * width.
+ *
+ * \see SampleSequence
+ */
+template <typename T>
+using InterleavedSamples = SampleSequence<T, false>;
+
+/** @} */
+
+                                                  /** \cond NAMESPACE_v_1_0_0 */
+} // namespace v_1_0_0
+                                                                 /** \endcond */
+} // namespace arcstk
+
+#endif
+
