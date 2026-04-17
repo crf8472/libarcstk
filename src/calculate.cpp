@@ -853,11 +853,11 @@ Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
 
 
 Calculation::Impl::Impl(const Impl& rhs)
-	: settings_      { rhs.settings_                                    }
-	, partitioner_   { rhs.partitioner_->clone()                        }
-	, result_buffer_ { std::make_unique<Checksums>(*rhs.result_buffer_) }
-	, algorithm_     { rhs.algorithm_->clone()                          }
-	, state_         { rhs.state_->clone_to(algorithm_.get())           }
+	: settings_      { rhs.settings_                               }
+	, partitioner_   { rhs.partitioner_->clone()                   }
+	, result_buffer_ { Checksums { rhs.result_buffer_ }            }
+	, algorithm_     { rhs.algorithm_->clone()                     }
+	, state_         { rhs.state_->clone_to(algorithm_.get())      }
 {
 	// empty
 }
@@ -895,9 +895,9 @@ std::unique_ptr<details::CalculationStateImpl> Calculation::Impl::init_state(
 }
 
 
-std::unique_ptr<Checksums> Calculation::Impl::init_buffer()
+Checksums Calculation::Impl::init_buffer()
 {
-	return std::make_unique<Checksums>();
+	return Checksums{};
 }
 
 
@@ -992,7 +992,7 @@ void Calculation::Impl::update(SampleInputIterator& start,
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
 
 	if (perform_update_profiled(start, stop,
-				*partitioner_, *state_, *result_buffer_))
+				*partitioner_, *state_, result_buffer_))
 	{
 		completed();
 	}
@@ -1009,7 +1009,7 @@ void Calculation::Impl::update(const AudioSize& audiosize)
 
 Checksums Calculation::Impl::result() const noexcept
 {
-	return *result_buffer_;
+	return result_buffer_;
 }
 
 
