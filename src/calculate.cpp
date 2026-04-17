@@ -773,7 +773,7 @@ std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
 
 void Algorithm::update(SampleInputIterator start, SampleInputIterator stop)
 {
-	this->do_update(start, stop);
+	this->do_update(std::move(start), std::move(stop));
 }
 
 
