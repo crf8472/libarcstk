@@ -125,15 +125,15 @@ inline LOGLEVEL from_string(const std::string& level)
 {
 	static const std::unordered_map<std::string, LOGLEVEL> map
 	{
-		{ "NONE",    LOGLEVEL::NONE    },
-		{ "ERROR",   LOGLEVEL::ERROR   },
-		{ "WARNING", LOGLEVEL::WARNING },
-		{ "INFO",    LOGLEVEL::INFO    },
-		{ "DEBUG",   LOGLEVEL::DEBUG   },
-		{ "DEBUG1",  LOGLEVEL::DEBUG1  },
-		{ "DEBUG2",  LOGLEVEL::DEBUG2  },
-		{ "DEBUG3",  LOGLEVEL::DEBUG3  },
-		{ "DEBUG4",  LOGLEVEL::DEBUG4  },
+		{ to_string(LOGLEVEL::NONE),    LOGLEVEL::NONE    },
+		{ to_string(LOGLEVEL::ERROR),   LOGLEVEL::ERROR   },
+		{ to_string(LOGLEVEL::WARNING), LOGLEVEL::WARNING },
+		{ to_string(LOGLEVEL::INFO),    LOGLEVEL::INFO    },
+		{ to_string(LOGLEVEL::DEBUG),   LOGLEVEL::DEBUG   },
+		{ to_string(LOGLEVEL::DEBUG1),  LOGLEVEL::DEBUG1  },
+		{ to_string(LOGLEVEL::DEBUG2),  LOGLEVEL::DEBUG2  },
+		{ to_string(LOGLEVEL::DEBUG3),  LOGLEVEL::DEBUG3  },
+		{ to_string(LOGLEVEL::DEBUG4),  LOGLEVEL::DEBUG4  },
 	};
 
 	const auto it = map.find(level);
