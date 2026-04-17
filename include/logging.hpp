@@ -433,7 +433,7 @@ public:
 	 *
 	 * \return TRUE iff timestamps are logged, otherwise FALSE.
 	 */
-	bool has_timestamps() noexcept;
+	bool has_timestamps() const noexcept;
 
 	/**
 	 * \brief Add an appender to the internal Logger.
@@ -487,6 +487,7 @@ inline Appender::~Appender() noexcept
 {
 	if (stream_)
 	{
+		// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
 		std::fclose(stream_);
 	}
 }
@@ -630,7 +631,7 @@ inline Log::Log(const Logger& logger, LOGLEVEL msg_level)
 
 inline Log::~Log() noexcept
 {
-	// NOLINTNEXTLINe(performance-avoid-endl)
+	// NOLINTNEXTLINE(performance-avoid-endl)
 	os_ << std::endl; // We intend to flush here, endl is ok
 
 	if (logger_)
@@ -671,6 +672,7 @@ inline std::ostringstream& Log::get()
 
 inline std::string Log::to_string(LOGLEVEL level)
 {
+	// NOLINTNEXTLINE (cppcoreguidelines-avoid-c-arrays)
 	static const char* const buffer[] =
 	{
 		"NONE  ",
@@ -693,6 +695,7 @@ inline std::string Log::to_string(LOGLEVEL level)
 		return "INVALID";
 	}
 
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 	return buffer[idx];
 }
 
@@ -773,7 +776,7 @@ inline void Logging::set_timestamps(const bool& on_or_off)
 }
 
 
-inline bool Logging::has_timestamps() noexcept
+inline bool Logging::has_timestamps() const noexcept
 {
 	return logger_.has_timestamps();
 }
