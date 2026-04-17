@@ -864,7 +864,7 @@ class Calculation::Impl final
 	/**
 	 * \brief Collect calculated checksums.
 	 */
-	std::unique_ptr<Checksums> result_buffer_;
+	std::unique_ptr<Checksums> result_buffer_; // TODO Why pointer?
 
 	/**
 	 * \brief Algorithm to calculate checksums.

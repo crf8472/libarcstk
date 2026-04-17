@@ -441,7 +441,7 @@ std::chrono::duration<float> CalculationState::algo_time_elapsed() const
 void CalculationState::update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	using std::chrono::steady_clock;
+	using std::chrono::steady_clock; // or high_resolution_clock?
 	using fsec = std::chrono::duration<float>;
 
 	const auto amount { std::distance(start, stop) };
