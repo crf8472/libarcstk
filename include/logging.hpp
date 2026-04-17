@@ -735,7 +735,7 @@ inline Logger& Logging::on_logger_do()
 
 
 inline Logging::Logging()
-	: mutex_ {}
+	: mutex_ { /* default */ }
 	, level_ { LOGLEVEL::WARNING }
 {
 	// empty
@@ -744,7 +744,7 @@ inline Logging::Logging()
 
 inline const Logger& Logging::logger() const
 {
-	static auto logger = Logger{};
+	static Logger logger{};
 
 	return logger;
 }
@@ -752,10 +752,7 @@ inline const Logger& Logging::logger() const
 
 inline Logging& Logging::instance()
 {
-	// This should not introduce any memory leaks and is thread-safe when
-	// compiled with a C++11 conforming compiler
-
-	static Logging logging;
+	static Logging logging{};
 
 	return logging;
 }
@@ -782,7 +779,7 @@ inline bool Logging::has_level(LOGLEVEL level) noexcept
 
 inline void Logging::set_timestamps(const bool& on_or_off)
 {
-	std::lock_guard<std::mutex> lock(mutex_);
+	const auto lock = std::lock_guard { mutex_ };
 	on_logger_do().set_timestamps(on_or_off);
 }
 
@@ -795,14 +792,14 @@ inline bool Logging::has_timestamps() const noexcept
 
 inline void Logging::add_appender(std::unique_ptr<Appender> appender)
 {
-	std::lock_guard<std::mutex> lock(mutex_);
+	const auto lock = std::lock_guard { mutex_ };
 	on_logger_do().add_appender(std::move(appender));
 }
 
 
 inline void Logging::remove_appender(Appender *a)
 {
-	std::lock_guard<std::mutex> lock(mutex_);
+	const auto lock = std::lock_guard { mutex_ };
 	on_logger_do().remove_appender(a);
 }
 
