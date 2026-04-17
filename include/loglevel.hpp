@@ -27,7 +27,7 @@ inline namespace v_1_0_0
  * The loglevels are totally ordered in ascending order of verbosity starting
  * on the value 0 that represents the level where nothing is logged at all.
  */
-enum class LOGLEVEL : int16_t
+enum class LOGLEVEL : uint8_t
 {
 	NONE     = 0,
 	//
