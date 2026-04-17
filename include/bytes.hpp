@@ -64,7 +64,7 @@ namespace cpp17
  *
  * Recognize plattform endianess at compile time. Mimics C++20's std::endian.
  * Recognizes big endian and little endian plattforms and fails with an error.
- */
+ */        // NOLINTNEXTLINE(performance-enum-size)
 enum class endian
 {
 #if defined(__BYTE_ORDER__)

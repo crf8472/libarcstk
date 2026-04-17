@@ -499,6 +499,7 @@ inline void Appender::append(const std::string& msg) const
 		return;
 	}
 
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
 	std::fprintf(stream_, "%s", msg.c_str());
 	std::fflush(stream_);
 	// Note: According to
@@ -803,6 +804,7 @@ inline void Logging::remove_appender(Appender *a)
 /// \addtogroup logging
 /// @{
 
+// CLIP_LOGGING_LEVEL is commented but not yet removed
 /**
  * \brief Clipping for the log level.
  *
@@ -820,6 +822,8 @@ inline void Logging::remove_appender(Appender *a)
 #ifndef CLIP_LOGGING_LEVEL
 #    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
 #endif
+
+//NOLINTBEGIN(cppcoreguidelines-macro-usage)
 
 /**
  * \brief Send error message to log.
@@ -867,6 +871,7 @@ inline void Logging::remove_appender(Appender *a)
     else if (arcstk::LOGLEVEL::loglevel > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::loglevel).get()
 
+//NOLINTEND(cppcoreguidelines-macro-usage)
 
 // The ARCS_LOG* macros ensure a reduction of logging costs as follows:
 //
