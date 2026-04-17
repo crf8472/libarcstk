@@ -637,7 +637,7 @@ public:
 	/**
 	 * \copydoc SNPT_mf_inc_amount
 	 */
-	SampleIterator& operator += (const difference_type amount) noexcept
+	SampleIterator& operator += (const difference_type amount)
 	{
 		 #ifndef NDEBUG
         if (pos_ + amount > end_pos_) { out_of_bounds(); }
