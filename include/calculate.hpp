@@ -418,6 +418,7 @@ public:
 	friend SampleInputIterator operator + (const int32_t amount,
 			SampleInputIterator rhs) noexcept
 	{
+		// NOLINTNEXTLINE(performance-unnecessary-value-param)
 		return rhs + amount;
 	}
 
