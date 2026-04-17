@@ -18,7 +18,12 @@
  * Marginean, P: "Logging in C++: Part 2", 11/20/2009, http://www.ddj.com/cpp/221900468
  */
 
-#include <cstdint>        // for int16_t
+
+#ifndef LIBARCSTK_LOGLEVEL_HPP_
+#include "loglevel.hpp"
+#endif
+
+#include <atomic>         // for atomic
 #include <chrono>         // for milliseconds, seconds, duration_cast, opera...
 #include <cstdio>         // for fclose, fflush, FILE, fopen, fprintf
 #include <ctime>          // for localtime, time_t
@@ -30,6 +35,7 @@
 #include <string>         // for string, operator==, char_traits, operator<<
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
 #include <unordered_set>  // for unordered_set
+#include <unordered_map>  // for unordered_map
 #include <utility>        // for move
 
 namespace arcstk
@@ -47,38 +53,6 @@ inline namespace v_1_0_0
  * @{
  */
 
-/**
- * \brief Range of log levels
- *
- * The loglevels are totally ordered in ascending order of verbosity starting
- * on the value 0 that represents the level where nothing is logged at all.
- */
-enum class LOGLEVEL : int16_t
-{
-	NONE     = 0,
-	//
-	ERROR    = 1,
-	WARNING  = 2,
-	INFO     = 3,
-	DEBUG    = 4,
-	DEBUG1   = 5,
-	DEBUG2   = 6,
-	DEBUG3   = 7,
-	DEBUG4   = 8
-};
-
-
-/**
- * \brief Numeric representation of the minimal legal loglevel.
- */
-constexpr int LOGLEVEL_MIN = 0;
-
-
-/**
- * \brief Numeric representation of the maximum legal loglevel.
- */
-constexpr int LOGLEVEL_MAX = 8;
-
 
 /**
  * \brief A named logging output channel.
@@ -92,6 +66,15 @@ constexpr int LOGLEVEL_MAX = 8;
  */
 class Appender final
 {
+	/**
+	 * \brief Internal name of the Appender
+	 */
+	std::string name_;
+
+	/**
+	 * \brief Internal stream to append to
+	 */
+	FILE* stream_;
 
 public:
 
@@ -152,19 +135,6 @@ public:
 	 * \copydoc SNPT_sm_move_op
 	 */
 	inline Appender& operator = (Appender&& rhs) noexcept;
-
-
-private:
-
-	/**
-	 * \brief Internal name of the Appender
-	 */
-	std::string name_;
-
-	/**
-	 * \brief Internal stream to append to
-	 */
-	FILE* stream_;
 };
 
 
@@ -474,7 +444,7 @@ private:
 	/**
 	 * \brief Internal Logger instance.
 	 */
-	static thread_local Logger logger_;
+	static inline Logger logger_;
 
 	/**
 	 * \brief Mutex for thread-safe access to internal Logger instance.
@@ -484,7 +454,7 @@ private:
 	/**
 	 * \brief Internal log level.
 	 */
-	LOGLEVEL level_;
+	std::atomic<LOGLEVEL> level_;
 
 	/**
 	 * \brief Class is singleton.
@@ -597,11 +567,18 @@ inline void Logger::add_appender(std::unique_ptr<Appender> appender)
 
 inline void Logger::remove_appender(const Appender *appender)
 {
-	for (auto& app : appenders_)
+	using std::begin;
+	using std::cend;
+
+	auto it = begin(appenders_);
+
+	while (it != cend(appenders_))
 	{
-		if (app.get() == appender)
+		if (it->get() == appender)
 		{
-			appenders_.erase(app);
+			it = appenders_.erase(it);
+		} else {
+			++it;
 		}
 	}
 }
@@ -717,42 +694,38 @@ inline std::string Log::to_string(LOGLEVEL level)
 		"DEBUG4"
 	};
 
-	return buffer[
-		static_cast<typename std::underlying_type<LOGLEVEL>::type>(level)
-	];
+	using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
+
+	const auto idx = static_cast<loglevel_type>(level);
+
+	if (idx < 0 || idx > LOGLEVEL_MAX)
+	{
+		return "INVALID";
+	}
+
+	return buffer[idx];
 }
 
 
 inline LOGLEVEL Log::from_string(const std::string& level)
 {
-	if (level == "NONE")
-		{ return LOGLEVEL::NONE; }
+	static const std::unordered_map<std::string, LOGLEVEL> map
+	{
+		{ "NONE",    LOGLEVEL::NONE    },
+		{ "ERROR",   LOGLEVEL::ERROR   },
+		{ "WARNING", LOGLEVEL::WARNING },
+		{ "INFO",    LOGLEVEL::INFO    },
+		{ "DEBUG",   LOGLEVEL::DEBUG   },
+		{ "DEBUG1",  LOGLEVEL::DEBUG1  },
+		{ "DEBUG2",  LOGLEVEL::DEBUG2  },
+		{ "DEBUG3",  LOGLEVEL::DEBUG3  },
+		{ "DEBUG4",  LOGLEVEL::DEBUG4  },
+	};
 
-	if (level == "ERROR")
-		{ return LOGLEVEL::ERROR; }
+	const auto it = map.find(level);
 
-	if (level == "WARNING")
-		{ return LOGLEVEL::WARNING; }
-
-	if (level == "INFO")
-		{ return LOGLEVEL::INFO; }
-
-	if (level == "DEBUG")
-		{ return LOGLEVEL::DEBUG; }
-
-	if (level == "DEBUG1")
-		{ return LOGLEVEL::DEBUG1; }
-
-	if (level == "DEBUG2")
-		{ return LOGLEVEL::DEBUG2; }
-
-	if (level == "DEBUG3")
-		{ return LOGLEVEL::DEBUG3; }
-
-	if (level == "DEBUG4")
-		{ return LOGLEVEL::DEBUG4; }
-
-	return LOGLEVEL::NONE;
+	using std::cend;
+	return (it != cend(map)) ? it->second : LOGLEVEL::NONE;
 }
 
 
@@ -844,13 +817,16 @@ inline void Logging::remove_appender(Appender *a)
 /**
  * \brief Clipping for the log level.
  *
- * Every message that has not at least the CLIP_LOGGING_LEVEL is immediatly
- * discarded.
+ * Every message whose level is GREATER than CLIP_LOGGING_LEVEL is eliminated
+ * entirely by the compiler. This enables zero-overhead debug logging in
+ * production builds.
  *
- * Since this is a compile-time constant, the optimizer will recognize any
- * comparison loglevel == LOG_NONE and remove the statement in question
- * entirely. (See the definition of the ARCS_LOG_* macros to inspect how the
- * clipping level is checked.)
+ * Example:
+ *   - Development: CLIP_LOGGING_LEVEL = DEBUG4 -> All statements remain
+ *   - Production:  CLIP_LOGGING_LEVEL = INFO   -> All DEBUG* statements removed
+ *
+ * This is a compile-time constant, so the optimizer recognizes the comparison
+ * and eliminates code via dead-code elimination.
  */
 #ifndef CLIP_LOGGING_LEVEL
 #    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
