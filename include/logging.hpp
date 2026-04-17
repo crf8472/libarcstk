@@ -336,11 +336,6 @@ public:
 class Logging final
 {
 	/**
-	 * \brief Internal Logger instance.
-	 */
-	static inline Logger logger_;
-
-	/**
 	 * \brief Mutex for thread-safe access to internal Logger instance.
 	 */
 	std::mutex mutex_;
@@ -354,6 +349,13 @@ class Logging final
 	 * \brief Class is singleton.
 	 */
 	Logging();
+
+	/**
+	 * \brief Non-const access to the internal Logger.
+	 *
+	 * \return The internal logger object
+	 */
+	Logger& on_logger_do();
 
 public:
 
@@ -394,7 +396,7 @@ public:
 	 *
 	 * \return The internal logger object
 	 */
-	const Logger& logger();
+	const Logger& logger() const;
 
 	/**
 	 * \brief Returns the current log level.
@@ -460,7 +462,7 @@ inline Appender::Appender(const std::string& filename)
 {
 	if (!stream_)
 	{
-		std::ostringstream ss;
+		auto ss = std::ostringstream{};
 		ss << "File " << name_.c_str() << " could not be opened";
 		throw std::runtime_error(ss.str());
 	}
@@ -473,7 +475,7 @@ inline Appender::Appender(const std::string& name, FILE* stream)
 {
 	if (!stream)
 	{
-		std::ostringstream ss;
+		auto ss = std::ostringstream{};
 		ss << "Appender " << name_.c_str() << " has no stream to append to";
 		throw std::runtime_error(ss.str());
 	}
@@ -725,6 +727,13 @@ inline LOGLEVEL Log::from_string(const std::string& level)
 // Logging
 
 
+inline Logger& Logging::on_logger_do()
+{
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+	return const_cast<Logger&>(logger());
+}
+
+
 inline Logging::Logging()
 	: mutex_ {}
 	, level_ { LOGLEVEL::WARNING }
@@ -733,9 +742,11 @@ inline Logging::Logging()
 }
 
 
-inline const Logger& Logging::logger()
+inline const Logger& Logging::logger() const
 {
-	return logger_;
+	static auto logger = Logger{};
+
+	return logger;
 }
 
 
@@ -772,27 +783,27 @@ inline bool Logging::has_level(LOGLEVEL level) noexcept
 inline void Logging::set_timestamps(const bool& on_or_off)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	logger_.set_timestamps(on_or_off);
+	on_logger_do().set_timestamps(on_or_off);
 }
 
 
 inline bool Logging::has_timestamps() const noexcept
 {
-	return logger_.has_timestamps();
+	return logger().has_timestamps();
 }
 
 
 inline void Logging::add_appender(std::unique_ptr<Appender> appender)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	logger_.add_appender(std::move(appender));
+	on_logger_do().add_appender(std::move(appender));
 }
 
 
 inline void Logging::remove_appender(Appender *a)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	logger_.remove_appender(a);
+	on_logger_do().remove_appender(a);
 }
 
                                                   /** \cond NAMESPACE_v_1_0_0 */
