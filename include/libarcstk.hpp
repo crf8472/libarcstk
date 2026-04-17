@@ -9,35 +9,14 @@
  *
  * \details
  *
- * Include the entire API of libarcstk.
+ * Include the public API of libarcstk.
  */
-
-
-/* Logging macros */
-
-#ifndef LIBARCSTK_LOGGING_HPP_
-#include <arcstk/logging.hpp>
-#endif
-
-
-/* Mixins widely used by libarcstk */
-
-#ifndef LIBARCSTK_MIXINS_HPP_
-#include <arcstk/mixins.hpp>
-#endif
 
 
 /* Input: interfaces for toc metadata */
 
 #ifndef LIBARCSTK_METADATA_HPP_
 #include <arcstk/metadata.hpp>
-#endif
-
-
-/* Input: interfaces for audio samples */
-
-#ifndef LIBARCSTK_SAMPLES_HPP_
-#include <arcstk/samples.hpp>
 #endif
 
 
@@ -83,11 +62,25 @@
 #endif
 
 
+/* Input: interfaces for audio samples */
+
+#ifndef LIBARCSTK_SAMPLES_HPP_
+#include <arcstk/samples.hpp>
+#endif
+
+
 /* Version, Name and Release info */
 
 #ifndef LIBARCSTK_VERSION_HPP_
 #include <arcstk/version.hpp>
 #endif
+
+
+// The following 4 public headers are intentionally not included:
+// accuraterip.hpp
+// bytes.hpp
+// logging.hpp
+// mixins.hpp
 
 #endif
 
