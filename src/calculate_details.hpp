@@ -143,7 +143,6 @@ public:
 	}
 };
 
-
 /**
  * \brief Range of samples.
  */
@@ -153,13 +152,11 @@ using SampleRange = Interval<int32_t>;
 // Forward Declaration Required for Partitioner
 class Partition;
 
-
 /**
  * \internal
  * \brief Type of the partitioning of a range of samples.
  */
 using Partitioning = std::vector<Partition>;
-
 
 /**
  * \brief Create a partitioning for an interval in a legal range by a sequence
@@ -183,7 +180,6 @@ Partitioning get_partitioning(
 Partitioning get_partitioning(
 		const SampleRange& interval,
 		const SampleRange& legal);
-
 
 /**
  * \internal
@@ -321,7 +317,6 @@ private:
 	SampleRange legal_;
 };
 
-
 /**
  * \brief Provides partitions along track bounds.
  */
@@ -347,7 +342,6 @@ public:
 			const SampleRange& legal);
 };
 
-
 /**
  * \brief Type to represent 1-based track numbers.
  *
@@ -368,7 +362,6 @@ public:
  * It is not encouraged to use TrackNo in client code.
  */
 using TrackNo = int;
-
 
 /**
  * \ingroup calc
@@ -479,7 +472,6 @@ public:
 	std::size_t size() const;
 };
 
-
 /**
  * \brief Class template for an incrementable and readable counter.
  *
@@ -557,7 +549,6 @@ int32_t ind2am(const int32_t index);
  * \return Sample index equivalent to the amount passed
  */
 int32_t am2ind(const int32_t amount);
-
 
 /**
  * \brief Current state of a Calculation.
