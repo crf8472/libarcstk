@@ -450,7 +450,7 @@ void CalculationState::update(SampleInputIterator start,
 
 	try
 	{
-		do_update(start, stop);
+		do_update(std::move(start), std::move(stop));
 	} catch (...)
 	{
 		const auto stop_time { std::chrono::steady_clock::now() };
