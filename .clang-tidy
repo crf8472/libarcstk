@@ -10,6 +10,7 @@ Checks: >
     -cppcoreguidelines-pro-type-reinterpret-cast,
     -cppcoreguidelines-use-default-member-init,
     google-*,
+    -google-readability-todo,
     performance-*,
 
 CheckOptions:
