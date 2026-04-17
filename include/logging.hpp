@@ -103,9 +103,19 @@ public:
 	inline Appender(const Appender&) = delete;
 
 	/**
+	 * \copydoc SNPT_sm_non_copyable
+	 */
+	inline Appender& operator = (const Appender&) = delete;
+
+	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
 	inline Appender(Appender&& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	inline Appender& operator = (Appender&& rhs) noexcept;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -125,16 +135,6 @@ public:
 	 * \return Name of the Appender
 	 */
 	inline std::string name() const noexcept;
-
-	/**
-	 * \copydoc SNPT_sm_non_copyable
-	 */
-	inline Appender& operator = (const Appender&) = delete;
-
-	/**
-	 * \copydoc SNPT_sm_move_op
-	 */
-	inline Appender& operator = (Appender&& rhs) noexcept;
 };
 
 
@@ -147,6 +147,15 @@ public:
  */
 class Logger final
 {
+	/**
+	 * \brief Internal set of \link Appender Appenders \endlink
+	 */
+	std::unordered_set<std::unique_ptr<Appender>> appenders_;
+
+	/**
+	 * \brief Flag to activate/deactivate the logging of timestamps
+	 */
+	bool log_timestamps_;
 
 public:
 
@@ -161,9 +170,19 @@ public:
 	Logger(const Logger&) = delete;
 
 	/**
+	 * \copydoc SNPT_sm_non_copyable
+	 */
+	Logger& operator = (const Logger&) = delete;
+
+	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
 	Logger(Logger&& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Logger& operator = (Logger&& rhs) noexcept;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -204,29 +223,6 @@ public:
 	 * \param[in] msg The message to log
 	 */
 	void log(const std::string& msg) const;
-
-	/**
-	 * \copydoc SNPT_sm_non_copyable
-	 */
-	Logger& operator = (const Logger&) = delete;
-
-	/**
-	 * \copydoc SNPT_sm_move_op
-	 */
-	Logger& operator = (Logger&& rhs) noexcept;
-
-
-private:
-
-	/**
-	 * \brief Internal set of \link Appender Appenders \endlink
-	 */
-	std::unordered_set<std::unique_ptr<Appender>> appenders_;
-
-	/**
-	 * \brief Flag to activate/deactivate the logging of timestamps
-	 */
-	bool log_timestamps_;
 };
 
 
@@ -253,6 +249,20 @@ std::string now_time();
  */
 class Log final
 {
+	/**
+	 * Internal output stream representation
+	 */
+	std::ostringstream os_;
+
+	/**
+	 * Internal Logger to use
+	 */
+	const Logger *logger_;
+
+	/**
+	 * Loglevel of the message to log
+	 */
+	LOGLEVEL msg_level_;
 
 public:
 
@@ -270,9 +280,19 @@ public:
 	Log(const Log&) = delete;
 
 	/**
+	 * \copydoc SNPT_sm_non_copyable
+	 */
+	Log& operator = (const Log&) = delete;
+
+	/**
 	 * \copydoc SNPT_sm_non_moveable
 	 */
-	Log(Log&&) = delete;
+	Log(Log&&) noexcept = delete;
+
+	/**
+	 * \copydoc SNPT_sm_non_moveable
+	 */
+	Log& operator = (Log&&) noexcept = delete;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -304,34 +324,6 @@ public:
 	 * \return The log level represented by the string or the default log level
 	 */
 	static LOGLEVEL from_string(const std::string& level);
-
-	/**
-	 * \copydoc SNPT_sm_non_copyable
-	 */
-	Log& operator = (const Log&) = delete;
-
-	/**
-	 * \copydoc SNPT_sm_non_moveable
-	 */
-	Log& operator = (Log&&) noexcept = delete;
-
-
-private:
-
-	/**
-	 * Internal output stream representation
-	 */
-	std::ostringstream os_;
-
-	/**
-	 * Internal Logger to use
-	 */
-	const Logger *logger_;
-
-	/**
-	 * Loglevel of the message to log
-	 */
-	LOGLEVEL msg_level_;
 };
 
 
@@ -343,6 +335,25 @@ private:
  */
 class Logging final
 {
+	/**
+	 * \brief Internal Logger instance.
+	 */
+	static inline Logger logger_;
+
+	/**
+	 * \brief Mutex for thread-safe access to internal Logger instance.
+	 */
+	std::mutex mutex_;
+
+	/**
+	 * \brief Internal log level.
+	 */
+	std::atomic<LOGLEVEL> level_;
+
+	/**
+	 * \brief Class is singleton.
+	 */
+	Logging();
 
 public:
 
@@ -352,9 +363,19 @@ public:
 	Logging(const Logging&) = delete;
 
 	/**
+	 * \copydoc SNPT_sm_non_copyable
+	 */
+	Logging& operator = (Logging& rhs) = delete;
+
+	/**
 	 * \copydoc SNPT_sm_non_moveable
 	 */
 	Logging(Logging&&) noexcept = delete;
+
+	/**
+	 * \copydoc SNPT_sm_non_moveable
+	 */
+	Logging& operator = (Logging&& rhs) noexcept = delete;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -427,39 +448,6 @@ public:
 	 * \param[in] appender The Appender to remove
 	 */
 	void remove_appender(Appender *appender);
-
-	/**
-	 * \copydoc SNPT_sm_non_copyable
-	 */
-	Logging& operator = (Logging& rhs) = delete;
-
-	/**
-	 * \copydoc SNPT_sm_non_moveable
-	 */
-	Logging& operator = (Logging&& rhs) noexcept = delete;
-
-
-private:
-
-	/**
-	 * \brief Internal Logger instance.
-	 */
-	static inline Logger logger_;
-
-	/**
-	 * \brief Mutex for thread-safe access to internal Logger instance.
-	 */
-	std::mutex mutex_;
-
-	/**
-	 * \brief Internal log level.
-	 */
-	std::atomic<LOGLEVEL> level_;
-
-	/**
-	 * \brief Class is singleton.
-	 */
-	Logging();
 };
 
 /** @} */
@@ -534,7 +522,7 @@ inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
 
 
 inline Logger::Logger()
-	: appenders_ {}
+	: appenders_      { /* empty */ }
 	, log_timestamps_ { true }
 {
 	// empty
@@ -641,7 +629,8 @@ inline Log::Log(const Logger& logger, LOGLEVEL msg_level)
 
 inline Log::~Log() noexcept
 {
-	os_ << std::endl;
+	// NOLINTNEXTLINe(performance-avoid-endl)
+	os_ << std::endl; // We intend to flush here, endl is ok
 
 	if (logger_)
 	{
@@ -698,7 +687,7 @@ inline std::string Log::to_string(LOGLEVEL level)
 
 	const auto idx = static_cast<loglevel_type>(level);
 
-	if (idx < 0 || idx > LOGLEVEL_MAX)
+	if (idx > LOGLEVEL_MAX) // idx < 0 is not possible: idx has unsigned type
 	{
 		return "INVALID";
 	}
