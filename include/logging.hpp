@@ -35,7 +35,6 @@
 #include <string>         // for string, operator==, char_traits, operator<<
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
 #include <unordered_set>  // for unordered_set
-#include <unordered_map>  // for unordered_map
 #include <utility>        // for move
 
 namespace arcstk
@@ -53,6 +52,16 @@ inline namespace v_1_0_0
  * @{
  */
 
+/**
+ * \brief Returns the current time in the format
+ * <tt>'YYYY-MM-DD hh:mm:ss.lll'</tt>.
+ *
+ * Returns the current time as a string containing year, month, day, hours,
+ * minutes, seconds and milliseconds in the format 'YYYY-MM-DD hh:mm:ss.lll'.
+ *
+ * \return The current time as a string
+ */
+std::string now_time();
 
 /**
  * \brief A named logging output channel.
@@ -79,15 +88,6 @@ class Appender final
 public:
 
 	/**
-	 * \brief Constructs an Appender for appending to the given file.
-	 *
-	 * The \c filename becomes the name of the Appender.
-	 *
-	 * \param[in] filename File to append to and name of the Appender
-	 */
-	inline explicit Appender(const std::string& filename);
-
-	/**
 	 * \brief Constructs an Appender for appending to the given <tt>FILE</tt>.
 	 *
 	 * The \c stream may also be <tt>stdout</tt>, <tt>stderr</tt> etc.
@@ -95,46 +95,95 @@ public:
 	 * \param[in] name   Name of the Appender
 	 * \param[in] stream The <tt>FILE</tt> to append to
 	 */
-	inline Appender(const std::string& name, FILE* stream);
+	Appender(const std::string& name, FILE* stream)
+		: name_   { name }
+		, stream_ { stream }
+	{
+		if (!stream)
+		{
+			auto ss = std::ostringstream{};
+			ss << "Appender " << name_.c_str() << " has no stream to append to";
+
+			throw std::runtime_error(ss.str());
+		}
+	}
+
+	/**
+	 * \brief Constructs an Appender for appending to the given file.
+	 *
+	 * The \c filename becomes the name of the Appender.
+	 *
+	 * \param[in] filename File to append to and name of the Appender
+	 */
+	explicit Appender(const std::string& filename)
+		: Appender { filename, std::fopen(filename.c_str(), "a") }
+	{
+		// empty
+	}
 
 	/**
 	 * \copydoc SNPT_sm_non_copyable
 	 */
-	inline Appender(const Appender&) = delete;
+	Appender(const Appender&) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_non_copyable
 	 */
-	inline Appender& operator = (const Appender&) = delete;
+	Appender& operator = (const Appender&) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	inline Appender(Appender&& rhs) noexcept;
+	Appender(Appender&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	inline Appender& operator = (Appender&& rhs) noexcept;
+	Appender& operator = (Appender&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	inline ~Appender() noexcept;
+	~Appender() noexcept
+	{
+		if (stream_)
+		{
+			// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+			std::fclose(stream_);
+		}
+	}
 
 	/**
 	 * \brief Append the specified message
 	 *
 	 * \param[in] msg The message to append
 	 */
-	inline void append(const std::string& msg) const;
+	void append(const std::string& msg) const
+	{
+		if (!stream_)
+		{
+			return;
+		}
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+		std::fprintf(stream_, "%s", msg.c_str());
+		std::fflush(stream_);
+		// Note: According to
+		// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
+		// all stream operations are thread safe, ergo using fprintf buys us
+		// thread-safety in principle. This at least ensures that no lines are
+		// scrambled.
+	}
 
 	/**
 	 * \brief Name of the Appender
 	 *
 	 * \return Name of the Appender
 	 */
-	inline std::string name() const noexcept;
+	std::string name() const noexcept
+	{
+		return name_;
+	}
 };
 
 
@@ -162,7 +211,12 @@ public:
 	/**
 	 * \brief Constructor
 	 */
-	Logger();
+	Logger()
+		: appenders_      { /* empty */ }
+		, log_timestamps_ { true }
+	{
+		// empty
+	}
 
 	/**
 	 * \copydoc SNPT_sm_non_copyable
@@ -177,68 +231,85 @@ public:
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Logger(Logger&& rhs) noexcept;
+	Logger(Logger&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Logger& operator = (Logger&& rhs) noexcept;
+	Logger& operator = (Logger&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~Logger() noexcept;
+	~Logger() noexcept = default;
 
 	/**
 	 * \brief Activates or deactivates the output of timestamps.
 	 *
-	 * \param[in] onoff TRUE activates the logging of timestamps for this logger
+	 * \param[in] on_or_off TRUE activates the logging of timestamps
 	 */
-	void set_timestamps(const bool& onoff) noexcept;
+	void set_timestamps(const bool& on_or_off) noexcept
+	{
+		log_timestamps_ = on_or_off;
+	}
 
 	/**
 	 * \brief Returns TRUE iff this instance is configured to log timestamps.
 	 *
 	 * \return TRUE iff this instance will log timestamps.
 	 */
-	bool has_timestamps() const noexcept;
+	bool has_timestamps() const noexcept
+	{
+		return log_timestamps_;
+	}
 
 	/**
 	 * \brief Add an Appender to this Logger
 	 *
 	 * \param[in] appender An Appender to use
 	 */
-	void add_appender(std::unique_ptr<Appender> appender);
+	void add_appender(std::unique_ptr<Appender> appender)
+	{
+		appenders_.emplace(std::move(appender));
+	}
 
 	/**
 	 * \brief Remove the given Appender from this Logger.
 	 *
 	 * \param[in] appender An Appender to remove
 	 */
-	void remove_appender(const Appender *appender);
+	void remove_appender(const Appender *appender)
+	{
+		using std::begin;
+		using std::cend;
+
+		auto it = begin(appenders_);
+
+		while (it != cend(appenders_))
+		{
+			if (it->get() == appender)
+			{
+				it = appenders_.erase(it);
+			} else
+			{
+				++it;
+			}
+		}
+	}
 
 	/**
 	 * \brief Log the given message to all \link Appender Appenders \endlink.
 	 *
 	 * \param[in] msg The message to log
 	 */
-	void log(const std::string& msg) const;
+	void log(const std::string& msg) const
+	{
+		for (auto& appender : appenders_)
+		{
+			appender->append(msg);
+		}
+	}
 };
-
-
-// now_time
-
-
-/**
- * \brief Returns the current time in the format
- * <tt>'YYYY-MM-DD hh:mm:ss.lll'</tt>.
- *
- * Returns the current time as a string containing year, month, day, hours,
- * minutes, seconds and milliseconds in the format 'YYYY-MM-DD hh:mm:ss.lll'.
- *
- * \return The current time as a string
- */
-std::string now_time();
 
 
 /**
@@ -272,7 +343,13 @@ public:
 	 * \param[in] logger    Logger to use
 	 * \param[in] msg_level Loglevel of the message to log
 	 */
-	Log(const Logger& logger, LOGLEVEL msg_level);
+	Log(const Logger& logger, LOGLEVEL msg_level)
+		: os_        {}
+		, logger_    { &logger   }
+		, msg_level_ { msg_level }
+	{
+		// empty
+	}
 
 	/**
 	 * \copydoc SNPT_sm_non_copyable
@@ -295,35 +372,67 @@ public:
 	Log& operator = (Log&&) noexcept = delete;
 
 	/**
-	 * \copydoc SNPT_sm_default_dtor
+	 * \brief Destructor
+	 *
+	 * Add newline, immediately flush stream and log the resulting string.
 	 */
-	~Log() noexcept;
+	~Log() noexcept
+	{
+		// NOLINTNEXTLINE(performance-avoid-endl)
+		os_ << std::endl; // We intend to flush here, endl is ok
+
+		if (logger_)
+		{
+			logger_->log(os_.str());
+		}
+	}
+
+	/**
+	 * \brief Produce indent according to message level.
+	 *
+	 * \return Indent string (whitespace)
+	 */
+	std::string indent() const
+	{
+		using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
+
+		static constexpr auto step            = int { 2 };
+		static constexpr auto threshold_level = LOGLEVEL::DEBUG;
+		static constexpr auto whitespace      = char { ' ' };
+
+		// Indent messages with level 'threshold_level' and higher
+
+		// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
+		return std::string(
+			static_cast<std::string::size_type>(
+				msg_level_ > threshold_level
+				? step * (static_cast<loglevel_type>(msg_level_)
+						- static_cast<loglevel_type>(threshold_level)
+					)
+				: 0),
+			whitespace
+		);
+	}
 
 	/**
 	 * \brief Get the output stream to write to.
 	 *
 	 * \return Get the output stream to write to
 	 */
-	std::ostringstream& get();
+	std::ostringstream& get()
+	{
+		using std::to_string;
 
-	/**
-	 * \brief Turns a LOGLEVEL instance into a string representation.
-	 *
-	 * \param[in] level The log level to turn to a string
-	 *
-	 * \return A string representation of the log level
-	 */
-	static std::string to_string(LOGLEVEL level);
 
-	/**
-	 * \brief Turns a string representation of the log level to a LOGLEVEL
-	 * instance.
-	 *
-	 * \param[in] level The name of the log level to create
-	 *
-	 * \return The log level represented by the string or the default log level
-	 */
-	static LOGLEVEL from_string(const std::string& level);
+		if (logger_->has_timestamps())
+		{
+			os_ << "- " << now_time() << ' ';
+		}
+
+		os_ << to_string(msg_level_) << ": " << indent();
+
+		return os_;
+	}
 };
 
 
@@ -348,14 +457,23 @@ class Logging final
 	/**
 	 * \brief Class is singleton.
 	 */
-	Logging();
+	Logging()
+		: mutex_ { /* default */ }
+		, level_ { LOGLEVEL::WARNING }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Non-const access to the internal Logger.
 	 *
 	 * \return The internal logger object
 	 */
-	Logger& on_logger_do();
+	Logger& on_logger_do()
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+		return const_cast<Logger&>(logger());
+	}
 
 public:
 
@@ -389,28 +507,45 @@ public:
 	 *
 	 * \return This instance
 	 */
-	static Logging& instance();
+	static Logging& instance()
+	{
+		static Logging logging{};
+
+		return logging;
+	}
 
 	/**
 	 * \brief Access the internal Logger.
 	 *
 	 * \return The internal logger object
 	 */
-	const Logger& logger() const;
+	const Logger& logger() const
+	{
+		static Logger logger{};
+
+		return logger;
+	}
 
 	/**
 	 * \brief Returns the current log level.
 	 *
 	 * \return Current log level
 	 */
-	LOGLEVEL level() const;
+	LOGLEVEL level() const
+	{
+		return level_;
+	}
 
 	/**
 	 * \brief Set the log level.
 	 *
 	 * \param[in] level Set the log level
 	 */
-	void set_level(LOGLEVEL level);
+	void set_level(LOGLEVEL level)
+	{
+		const auto lock = std::lock_guard { mutex_ };
+		level_ = level;
+	}
 
 	/**
 	 * \brief Return TRUE iff the global log level is greater or equal than
@@ -420,14 +555,21 @@ public:
 	 *
 	 * \return TRUE iff Logger has at least the level passed
 	 */
-	bool has_level(LOGLEVEL level) noexcept;
+	bool has_level(LOGLEVEL level) noexcept
+	{
+		return level_ >= level;
+	}
 
 	/**
 	 * \brief Activates or deactivates the output of timestamps.
 	 *
-	 * \param[in] activate TRUE activates logging of timestamps
+	 * \param[in] on_or_off TRUE activates logging of timestamps
 	 */
-	void set_timestamps(const bool& activate);
+	void set_timestamps(const bool& on_or_off)
+	{
+		const auto lock = std::lock_guard { mutex_ };
+		on_logger_do().set_timestamps(on_or_off);
+	}
 
 	/**
 	 * \brief Returns TRUE iff output of timestamps is activated, otherwise
@@ -435,160 +577,35 @@ public:
 	 *
 	 * \return TRUE iff timestamps are logged, otherwise FALSE.
 	 */
-	bool has_timestamps() const noexcept;
+	bool has_timestamps() const noexcept
+	{
+		return logger().has_timestamps();
+	}
 
 	/**
 	 * \brief Add an appender to the internal Logger.
 	 *
 	 * \param[in] appender The Appender to add
 	 */
-	void add_appender(std::unique_ptr<Appender> appender);
+	void add_appender(std::unique_ptr<Appender> appender)
+	{
+		const auto lock = std::lock_guard { mutex_ };
+		on_logger_do().add_appender(std::move(appender));
+	}
 
 	/**
 	 * \brief Remove given appender from the internal Logger.
 	 *
 	 * \param[in] appender The Appender to remove
 	 */
-	void remove_appender(Appender *appender);
+	void remove_appender(Appender *appender)
+	{
+		const auto lock = std::lock_guard { mutex_ };
+		on_logger_do().remove_appender(appender);
+	}
 };
 
 /** @} */
-
-// Appender
-
-inline Appender::Appender(const std::string& filename)
-	: name_ { filename }
-	, stream_ { std::fopen(name_.c_str(), "a") }
-{
-	if (!stream_)
-	{
-		auto ss = std::ostringstream{};
-		ss << "File " << name_.c_str() << " could not be opened";
-		throw std::runtime_error(ss.str());
-	}
-}
-
-
-inline Appender::Appender(const std::string& name, FILE* stream)
-	: name_ { name }
-	, stream_ { stream }
-{
-	if (!stream)
-	{
-		auto ss = std::ostringstream{};
-		ss << "Appender " << name_.c_str() << " has no stream to append to";
-		throw std::runtime_error(ss.str());
-	}
-}
-
-
-inline Appender::Appender(Appender&& rhs) noexcept = default;
-
-
-inline Appender::~Appender() noexcept
-{
-	if (stream_)
-	{
-		// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-		std::fclose(stream_);
-	}
-}
-
-
-inline void Appender::append(const std::string& msg) const
-{
-	if (!stream_)
-	{
-		return;
-	}
-
-	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
-	std::fprintf(stream_, "%s", msg.c_str());
-	std::fflush(stream_);
-	// Note: According to
-	// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
-	// all stream operations are thread safe, ergo using fprintf buys us
-	// thread-safety in principle. This at least ensures that no lines are
-	// scrambled.
-}
-
-
-inline std::string Appender::name() const noexcept
-{
-	return name_;
-}
-
-
-inline Appender& Appender::operator = (Appender&& rhs) noexcept = default;
-
-
-// Logger
-
-
-inline Logger::Logger()
-	: appenders_      { /* empty */ }
-	, log_timestamps_ { true }
-{
-	// empty
-}
-
-
-inline Logger::Logger(Logger&& logger) noexcept = default;
-
-
-inline Logger::~Logger() noexcept = default;
-
-
-inline void Logger::set_timestamps(const bool& on_or_off) noexcept
-{
-	log_timestamps_ = on_or_off;
-}
-
-
-inline bool Logger::has_timestamps() const noexcept
-{
-	return log_timestamps_;
-}
-
-
-inline void Logger::add_appender(std::unique_ptr<Appender> appender)
-{
-	appenders_.emplace(std::move(appender));
-}
-
-
-inline void Logger::remove_appender(const Appender *appender)
-{
-	using std::begin;
-	using std::cend;
-
-	auto it = begin(appenders_);
-
-	while (it != cend(appenders_))
-	{
-		if (it->get() == appender)
-		{
-			it = appenders_.erase(it);
-		} else {
-			++it;
-		}
-	}
-}
-
-
-inline void Logger::log(const std::string& msg) const
-{
-	for (auto& appender : appenders_)
-	{
-		appender->append(msg);
-	}
-}
-
-
-inline Logger& Logger::operator = (Logger&& rhs) noexcept = default;
-
-
-// now_time()
 
 
 inline std::string now_time()
@@ -599,7 +616,7 @@ inline std::string now_time()
 	// Print year, month, day, hour, minute, second
 
 	{
-		const std::time_t now_time {
+		const auto now_time = std::time_t {
 			std::chrono::system_clock::to_time_t(now) };
 		ss << std::put_time(std::localtime(&now_time), "%Y-%m-%d %X");
 	}
@@ -618,191 +635,6 @@ inline std::string now_time()
 	return ss.str();
 }
 
-
-// Log
-
-
-inline Log::Log(const Logger& logger, LOGLEVEL msg_level)
-	: os_ {}
-	, logger_ { &logger }
-	, msg_level_ { msg_level }
-{
-	// empty
-}
-
-
-inline Log::~Log() noexcept
-{
-	// NOLINTNEXTLINE(performance-avoid-endl)
-	os_ << std::endl; // We intend to flush here, endl is ok
-
-	if (logger_)
-	{
-		logger_->log(os_.str());
-	}
-}
-
-
-inline std::ostringstream& Log::get()
-{
-	// Timestamp
-
-	if (logger_->has_timestamps())
-	{
-		os_ << "- " << now_time() << " ";
-	}
-
-	// Loglevel string
-
-	os_ << Log::to_string(msg_level_) << ": ";
-
-	// Indent messages with level DEBUG and higher
-
-	using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
-
-	os_ << std::string(
-		static_cast<std::string::size_type>(msg_level_ > LOGLEVEL::DEBUG
-			? 2 * (static_cast<loglevel_type>(msg_level_)
-					-
-					static_cast<loglevel_type>(LOGLEVEL::DEBUG)
-				)
-			: 0), ' ');
-
-	return os_;
-}
-
-
-inline std::string Log::to_string(LOGLEVEL level)
-{
-	// NOLINTNEXTLINE (cppcoreguidelines-avoid-c-arrays)
-	static const char* const buffer[] =
-	{
-		"NONE  ",
-		"ERROR ",
-		"WARN  ",
-		"INFO  ",
-		"DEBUG ",
-		"DEBUG1",
-		"DEBUG2",
-		"DEBUG3",
-		"DEBUG4"
-	};
-
-	using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
-
-	const auto idx = static_cast<loglevel_type>(level);
-
-	if (idx > LOGLEVEL_MAX) // idx < 0 is not possible: idx has unsigned type
-	{
-		return "INVALID";
-	}
-
-	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return buffer[idx];
-}
-
-
-inline LOGLEVEL Log::from_string(const std::string& level)
-{
-	static const std::unordered_map<std::string, LOGLEVEL> map
-	{
-		{ "NONE",    LOGLEVEL::NONE    },
-		{ "ERROR",   LOGLEVEL::ERROR   },
-		{ "WARNING", LOGLEVEL::WARNING },
-		{ "INFO",    LOGLEVEL::INFO    },
-		{ "DEBUG",   LOGLEVEL::DEBUG   },
-		{ "DEBUG1",  LOGLEVEL::DEBUG1  },
-		{ "DEBUG2",  LOGLEVEL::DEBUG2  },
-		{ "DEBUG3",  LOGLEVEL::DEBUG3  },
-		{ "DEBUG4",  LOGLEVEL::DEBUG4  },
-	};
-
-	const auto it = map.find(level);
-
-	using std::cend;
-	return (it != cend(map)) ? it->second : LOGLEVEL::NONE;
-}
-
-
-// Logging
-
-
-inline Logger& Logging::on_logger_do()
-{
-	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-	return const_cast<Logger&>(logger());
-}
-
-
-inline Logging::Logging()
-	: mutex_ { /* default */ }
-	, level_ { LOGLEVEL::WARNING }
-{
-	// empty
-}
-
-
-inline const Logger& Logging::logger() const
-{
-	static Logger logger{};
-
-	return logger;
-}
-
-
-inline Logging& Logging::instance()
-{
-	static Logging logging{};
-
-	return logging;
-}
-
-
-inline LOGLEVEL Logging::level() const
-{
-	return level_;
-}
-
-
-inline void Logging::set_level(LOGLEVEL level)
-{
-	std::lock_guard<std::mutex> lock(mutex_);
-	level_ = level;
-}
-
-
-inline bool Logging::has_level(LOGLEVEL level) noexcept
-{
-	return level_ >= level;
-}
-
-
-inline void Logging::set_timestamps(const bool& on_or_off)
-{
-	const auto lock = std::lock_guard { mutex_ };
-	on_logger_do().set_timestamps(on_or_off);
-}
-
-
-inline bool Logging::has_timestamps() const noexcept
-{
-	return logger().has_timestamps();
-}
-
-
-inline void Logging::add_appender(std::unique_ptr<Appender> appender)
-{
-	const auto lock = std::lock_guard { mutex_ };
-	on_logger_do().add_appender(std::move(appender));
-}
-
-
-inline void Logging::remove_appender(Appender *a)
-{
-	const auto lock = std::lock_guard { mutex_ };
-	on_logger_do().remove_appender(a);
-}
-
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
@@ -815,26 +647,26 @@ inline void Logging::remove_appender(Appender *a)
 /// \addtogroup logging
 /// @{
 
-// CLIP_LOGGING_LEVEL is commented but not yet removed
-/**
- * \brief Clipping for the log level.
- *
- * Every message whose level is GREATER than CLIP_LOGGING_LEVEL is eliminated
- * entirely by the compiler. This enables zero-overhead debug logging in
- * production builds.
- *
- * Example:
- *   - Development: CLIP_LOGGING_LEVEL = DEBUG4 -> All statements remain
- *   - Production:  CLIP_LOGGING_LEVEL = INFO   -> All DEBUG* statements removed
- *
- * This is a compile-time constant, so the optimizer recognizes the comparison
- * and eliminates code via dead-code elimination.
- */
-#ifndef CLIP_LOGGING_LEVEL
-#    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
-#endif
-
 //NOLINTBEGIN(cppcoreguidelines-macro-usage)
+
+// CLIP_LOGGING_LEVEL is commented but not yet removed
+///**
+// * \brief Clipping for the log level.
+// *
+// * Every message whose level is GREATER than CLIP_LOGGING_LEVEL is eliminated
+// * entirely by the compiler. This enables zero-overhead debug logging in
+// * production builds.
+// *
+// * Example:
+// *   - Development: CLIP_LOGGING_LEVEL = DEBUG4 -> All statements remain
+// *   - Production:  CLIP_LOGGING_LEVEL = INFO   -> All DEBUG* statements removed
+// *
+// * This is a compile-time constant, so the optimizer recognizes the comparison
+// * and eliminates code via dead-code elimination.
+// */
+//#ifndef CLIP_LOGGING_LEVEL
+//#    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
+//#endif
 
 /**
  * \brief Send error message to log.
