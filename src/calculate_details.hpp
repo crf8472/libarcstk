@@ -838,7 +838,7 @@ bool perform_update(const SampleInputIterator& start,
  *
  * \return FALSE iff more updates are required, otherwise TRUE
  */
-bool perform_update_with_time_measured(const SampleInputIterator& start,
+bool perform_update_profiled(const SampleInputIterator& start,
 		const SampleInputIterator& stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,

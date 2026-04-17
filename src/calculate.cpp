@@ -643,7 +643,7 @@ bool perform_update(const SampleInputIterator& start,
 }
 
 
-bool perform_update_with_time_measured(const SampleInputIterator& start,
+bool perform_update_profiled(const SampleInputIterator& start,
 		const SampleInputIterator& stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
@@ -991,7 +991,7 @@ void Calculation::Impl::update(SampleInputIterator& start,
 {
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
 
-	if (perform_update_with_time_measured(start, stop,
+	if (perform_update_profiled(start, stop,
 				*partitioner_, *state_, *result_buffer_))
 	{
 		completed();
