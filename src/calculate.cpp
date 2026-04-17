@@ -375,7 +375,7 @@ void CalculationState::do_advance(const int32_t /* amount */)
 void CalculationState::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
 {
-	algorithm_->update(start, stop);
+	algorithm_->update(std::move(start), std::move(stop));
 }
 
 
