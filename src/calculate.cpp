@@ -554,7 +554,8 @@ std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
 // perform_update
 
 
-bool perform_update(SampleInputIterator start, SampleInputIterator stop,
+bool perform_update(const SampleInputIterator& start,
+		const SampleInputIterator& stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer)
@@ -639,6 +640,35 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
 	/* Return TRUE iff the last relevant sample was in the current block. */
 	return SampleRange { start_pos, last_pos }.contains(
 			partitioner.legal_range().upper());
+}
+
+
+bool perform_update_with_time_measured(const SampleInputIterator& start,
+		const SampleInputIterator& stop,
+		const Partitioner& partitioner,
+		CalculationState&  state,
+		Checksums&         result_buffer)
+{
+	using std::chrono::steady_clock;
+
+	const auto start_time { steady_clock::now() };
+
+	const auto finished = bool {
+		perform_update(start, stop, partitioner, state, result_buffer) };
+
+	const auto stop_time  { steady_clock::now() };
+
+	state.increment_update_time_elapsed(stop_time - start_time);
+
+	// Previous version with explicit instantiation, commented out:
+	//
+	//using fsec = std::chrono::duration<float>;
+	//const fsec dur { stop_time - start_time }; // intentionally not auto
+	//// Type of the subtraction is high_resolution_clock::duration which is
+	//// not necessarily the same type as duration<float>.
+	//state_->increment_update_time_elapsed(dur);
+
+	return finished;
 }
 
 } // namespace details
@@ -931,32 +961,6 @@ bool Calculation::Impl::complete() const noexcept
 }
 
 
-bool Calculation::Impl::perform_update_with_time_measured(
-		SampleInputIterator& start, SampleInputIterator& stop)
-{
-	using std::chrono::steady_clock;
-
-	const auto start_time { steady_clock::now() };
-
-	const auto finished = bool {
-		perform_update(start, stop, *partitioner_, *state_, *result_buffer_) };
-
-	const auto stop_time  { steady_clock::now() };
-
-	state_->increment_update_time_elapsed(stop_time - start_time);
-
-	// Previous version with explicit instantiation, commented out:
-	//
-	//using fsec = std::chrono::duration<float>;
-	//const fsec dur { stop_time - start_time }; // intentionally not auto
-	//// Type of the subtraction is high_resolution_clock::duration which is
-	//// not necessarily the same type as duration<float>.
-	//state_->increment_update_time_elapsed(dur);
-
-	return finished;
-}
-
-
 void Calculation::Impl::completed()
 {
 	ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
@@ -987,7 +991,8 @@ void Calculation::Impl::update(SampleInputIterator& start,
 {
 	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
 
-	if (perform_update_with_time_measured(start, stop))
+	if (perform_update_with_time_measured(start, stop,
+				*partitioner_, *state_, *result_buffer_))
 	{
 		completed();
 	}

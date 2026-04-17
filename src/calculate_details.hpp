@@ -818,7 +818,28 @@ public:
  *
  * \return FALSE iff more updates are required, otherwise TRUE
  */
-bool perform_update(SampleInputIterator start, SampleInputIterator stop,
+bool perform_update(const SampleInputIterator& start,
+		const SampleInputIterator& stop,
+		const Partitioner& partitioner,
+		CalculationState&  state,
+		Checksums&         result_buffer);
+
+
+/**
+ * \brief Wrapper for perform_update that adds time measuring.
+ *
+ * The state is incremented by the update time elapsed.
+ *
+ * \param[in]     start         Iterator pointing to first sample in block
+ * \param[in]     stop          Iterator pointing behind last sample in block
+ * \param[in]     partitioner   Partition provider
+ * \param[in,out] state         Current calculation state
+ * \param[in,out] result_buffer Buffer for collecting results
+ *
+ * \return FALSE iff more updates are required, otherwise TRUE
+ */
+bool perform_update_with_time_measured(const SampleInputIterator& start,
+		const SampleInputIterator& stop,
 		const Partitioner& partitioner,
 		CalculationState&  state,
 		Checksums&         result_buffer);
@@ -830,19 +851,30 @@ bool perform_update(SampleInputIterator start, SampleInputIterator stop,
  */
 class Calculation::Impl final
 {
-	Settings                                    settings_;
-	std::unique_ptr<details::Partitioner>       partitioner_;
-	std::unique_ptr<Checksums>                  result_buffer_;
-	std::unique_ptr<Algorithm>                  algorithm_;
-	std::unique_ptr<details::CalculationState>  state_;
+	/**
+	 * \brief Internal settings for this calculation.
+	 */
+	Settings settings_;
 
 	/**
-	 * \brief Wrapper for perform_update that measures elapsed time.
-	 *
-	 * \return FALSE iff more updates are required, otherwise TRUE
+	 * \brief Partitioner to provide the stop positions.
 	 */
-	bool perform_update_with_time_measured(SampleInputIterator& start,
-		SampleInputIterator& stop);
+	std::unique_ptr<details::Partitioner> partitioner_;
+
+	/**
+	 * \brief Collect calculated checksums.
+	 */
+	std::unique_ptr<Checksums> result_buffer_;
+
+	/**
+	 * \brief Algorithm to calculate checksums.
+	 */
+	std::unique_ptr<Algorithm> algorithm_;
+
+	/**
+	 * \brief Internal current calculation state.
+	 */
+	std::unique_ptr<details::CalculationState> state_;
 
 	/**
 	 * \brief Hook: called after the update sequence is completed.
@@ -857,11 +889,6 @@ public:
 	 * \param[in] algorithm The algorithm to use in update()
 	 */
 	explicit Impl(std::unique_ptr<Algorithm> algorithm);
-
-	/**
-	 * \copydoc SNPT_sm_default_dtor
-	 */
-	~Impl() noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_copy_ctor
@@ -882,6 +909,12 @@ public:
 	 * \copydoc SNPT_sm_move_op
 	 */
 	Impl& operator = (Impl&& rhs) noexcept = delete;
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Impl() noexcept = default;
+
 
 	// Impl specific
 
