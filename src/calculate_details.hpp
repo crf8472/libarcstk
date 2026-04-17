@@ -826,7 +826,7 @@ bool perform_update(const SampleInputIterator& start,
 
 
 /**
- * \brief Wrapper for perform_update that adds time measuring.
+ * \brief Wrapper that adds time measuring to perform_update().
  *
  * The state is incremented by the update time elapsed.
  *

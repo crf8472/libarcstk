@@ -653,7 +653,7 @@ bool perform_update_profiled(const SampleInputIterator& start,
 
 	const auto start_time { steady_clock::now() };
 
-	const auto finished = bool {
+	const auto is_finished = bool {
 		perform_update(start, stop, partitioner, state, result_buffer) };
 
 	const auto stop_time  { steady_clock::now() };
@@ -668,7 +668,7 @@ bool perform_update_profiled(const SampleInputIterator& start,
 	//// not necessarily the same type as duration<float>.
 	//state_->increment_update_time_elapsed(dur);
 
-	return finished;
+	return is_finished;
 }
 
 } // namespace details
