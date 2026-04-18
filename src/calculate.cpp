@@ -283,11 +283,11 @@ std::unique_ptr<Partitioner> TrackPartitioner::do_clone() const
 
 
 Partition::Partition(
-		const int32_t& begin_offset,
-		const int32_t& end_offset,
-		const bool&    starts_track,
-		const bool&    ends_track,
-		const TrackNo& track
+		const int32_t begin_offset,
+		const int32_t end_offset,
+		const bool    starts_track,
+		const bool    ends_track,
+		const TrackNo track
 	)
 	: begin_offset_ { begin_offset }
 	, end_offset_   { end_offset   }
