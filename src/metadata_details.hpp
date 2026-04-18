@@ -151,24 +151,6 @@ namespace details
 {
 
 /**
- * \brief Worker: Print an AudioSize to output stream.
- *
- * \param[in] out Stream to print to
- * \param[in] s   AudioSize to print
- */
-void print(std::ostream& out, const AudioSize& s);
-
-/**
- * \brief Worker: Convert \c value to the corrsponding number of bytes.
- *
- * \param[in] value Value to convert
- * \param[in] unit  Unit of the value
- *
- * \return The equivalent number of bytes.
- */
-int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept;
-
-/**
  * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
  * frames).
  *

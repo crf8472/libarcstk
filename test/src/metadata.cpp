@@ -45,13 +45,41 @@ TEST_CASE ( "convert<>()", "[convert] [meta]" )
 	using arcstk::AudioSize;
 	using arcstk::convert;
 	using arcstk::UNIT;
+	using arcstk::cdda_max;
 
 	// 33, 5225, 7390, 23380, 35608, 49820, 69508, 87733, 106333, 139495,
 	//	157863, 198495, 213368, 225320, 234103
 
+	// FRAMES -> BYTES
+
+	SECTION ( "converts 0 frames to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::BYTES>(0) == 0 );
+	}
+
+	SECTION ( "converts frames max to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::BYTES>(cdda_max<UNIT::FRAMES>)
+				== cdda_max<UNIT::BYTES>);
+	}
+
 	SECTION ( "converts frames to bytes correctly" )
 	{
 		CHECK ( convert<UNIT::FRAMES, UNIT::BYTES>(5225) == 12289200 );
+		// TODO more...
+	}
+
+	// FRAMES -> SAMPLES
+
+	SECTION ( "converts 0 frames to samples correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::SAMPLES>(0) == 0 );
+	}
+
+	SECTION ( "converts frames max to samples correctly" )
+	{
+		CHECK ( convert<UNIT::FRAMES, UNIT::SAMPLES>(cdda_max<UNIT::FRAMES>)
+				== cdda_max<UNIT::SAMPLES>);
 	}
 
 	SECTION ( "converts frames to samples correctly" )
@@ -60,14 +88,17 @@ TEST_CASE ( "convert<>()", "[convert] [meta]" )
 		CHECK ( convert<UNIT::FRAMES, UNIT::SAMPLES>(253038) == 148786344 );
 	}
 
-	SECTION ( "converts bytes to frames correctly" )
+	// SAMPLES -> FRAMES
+
+	SECTION ( "converts 0 samples to frames correctly" )
 	{
-		CHECK ( convert<UNIT::BYTES, UNIT::FRAMES>(12289200) == 5225 );
+		CHECK ( convert<UNIT::SAMPLES, UNIT::FRAMES>(0) == 0 );
 	}
 
-	SECTION ( "converts bytes to samples correctly" )
+	SECTION ( "converts samples max to frames correctly" )
 	{
-		CHECK ( convert<UNIT::BYTES, UNIT::SAMPLES>(12289200) == 3072300 );
+		CHECK ( convert<UNIT::SAMPLES, UNIT::FRAMES>(cdda_max<UNIT::SAMPLES>)
+				== cdda_max<UNIT::FRAMES>);
 	}
 
 	SECTION ( "converts samples to frames correctly" )
@@ -76,9 +107,193 @@ TEST_CASE ( "convert<>()", "[convert] [meta]" )
 		CHECK ( convert<UNIT::SAMPLES, UNIT::FRAMES>(148786344) == 253038 );
 	}
 
+	// SAMPLES -> BYTES
+
+	SECTION ( "converts 0 samples to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::SAMPLES, UNIT::BYTES>(0) == 0 );
+	}
+
+	SECTION ( "converts samples max to bytes correctly" )
+	{
+		CHECK ( convert<UNIT::SAMPLES, UNIT::BYTES>(cdda_max<UNIT::SAMPLES>)
+				== cdda_max<UNIT::BYTES>);
+	}
+
 	SECTION ( "converts samples to bytes correctly" )
 	{
 		CHECK ( convert<UNIT::SAMPLES, UNIT::BYTES>(3072300) == 12289200 );
+	}
+
+    // BYTES -> FRAMES
+
+	SECTION ( "converts 0 bytes to frames correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::FRAMES>(0) == 0 );
+	}
+
+	SECTION ( "converts bytes max to frames correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::FRAMES>(cdda_max<UNIT::BYTES>)
+				== cdda_max<UNIT::FRAMES>);
+	}
+
+	SECTION ( "converts bytes to frames correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::FRAMES>(12289200) == 5225 );
+	}
+
+    // BYTES -> SAMPLES
+
+	SECTION ( "converts 0 bytes to samples correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::SAMPLES>(0) == 0 );
+	}
+
+	SECTION ( "converts bytes max to samples correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::SAMPLES>(cdda_max<UNIT::BYTES>)
+				== cdda_max<UNIT::SAMPLES>);
+	}
+
+	SECTION ( "converts bytes to samples correctly" )
+	{
+		CHECK ( convert<UNIT::BYTES, UNIT::SAMPLES>(12289200) == 3072300 );
+	}
+
+	// same
+
+	SECTION ( "converts same unit correctly")
+	{
+		CHECK ( convert<UNIT::FRAMES,  UNIT::FRAMES> (12289237) == 12289237 );
+		CHECK ( convert<UNIT::SAMPLES, UNIT::SAMPLES>(12289237) == 12289237 );
+		CHECK ( convert<UNIT::BYTES,   UNIT::BYTES>  (12289237) == 12289237 );
+	}
+}
+
+
+TEST_CASE ( "convert_to<>()", "[convert_to] [meta]" )
+{
+	using arcstk::convert_to;
+	using arcstk::UNIT;
+	using arcstk::cdda_max;
+
+	SECTION ( "converts 0 frames to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(0, UNIT::FRAMES) == 0 );
+	}
+
+	SECTION ( "converts frames max to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(cdda_max<UNIT::FRAMES>, UNIT::FRAMES)
+				== cdda_max<UNIT::BYTES>);
+	}
+
+	SECTION ( "converts frames to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(5225, UNIT::FRAMES) == 12289200 );
+		// TODO more...
+	}
+
+	// FRAMES -> SAMPLES
+
+	SECTION ( "converts 0 frames to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(0, UNIT::FRAMES) == 0 );
+	}
+
+	SECTION ( "converts frames max to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(cdda_max<UNIT::FRAMES>, UNIT::FRAMES)
+				== cdda_max<UNIT::SAMPLES>);
+	}
+
+	SECTION ( "converts frames to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(5225, UNIT::FRAMES) ==   3072300 );
+		CHECK ( convert_to<UNIT::SAMPLES>(253038, UNIT::FRAMES) == 148786344 );
+	}
+
+	// SAMPLES -> FRAMES
+
+	SECTION ( "converts 0 samples to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(0, UNIT::SAMPLES) == 0 );
+	}
+
+	SECTION ( "converts samples max to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(cdda_max<UNIT::SAMPLES>, UNIT::SAMPLES)
+				== cdda_max<UNIT::FRAMES>);
+	}
+
+	SECTION ( "converts samples to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(3072300, UNIT::SAMPLES) ==   5225 );
+		CHECK ( convert_to<UNIT::FRAMES>(148786344, UNIT::SAMPLES) == 253038 );
+	}
+
+	// SAMPLES -> BYTES
+
+	SECTION ( "converts 0 samples to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(0, UNIT::SAMPLES) == 0 );
+	}
+
+	SECTION ( "converts samples max to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(cdda_max<UNIT::SAMPLES>, UNIT::SAMPLES)
+				== cdda_max<UNIT::BYTES>);
+	}
+
+	SECTION ( "converts samples to bytes correctly" )
+	{
+		CHECK ( convert_to<UNIT::BYTES>(3072300, UNIT::SAMPLES) == 12289200 );
+	}
+
+    // BYTES -> FRAMES
+
+	SECTION ( "converts 0 bytes to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(0, UNIT::BYTES) == 0 );
+	}
+
+	SECTION ( "converts bytes max to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(cdda_max<UNIT::BYTES>, UNIT::BYTES)
+				== cdda_max<UNIT::FRAMES>);
+	}
+
+	SECTION ( "converts bytes to frames correctly" )
+	{
+		CHECK ( convert_to<UNIT::FRAMES>(12289200, UNIT::BYTES) == 5225 );
+	}
+
+    // BYTES -> SAMPLES
+
+	SECTION ( "converts 0 bytes to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(0, UNIT::BYTES) == 0 );
+	}
+
+	SECTION ( "converts bytes max to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(cdda_max<UNIT::BYTES>, UNIT::BYTES)
+				== cdda_max<UNIT::SAMPLES>);
+	}
+
+	SECTION ( "converts bytes to samples correctly" )
+	{
+		CHECK ( convert_to<UNIT::SAMPLES>(12289200, UNIT::BYTES) == 3072300 );
+	}
+
+	// same
+
+	SECTION ( "converts same unit correctly")
+	{
+		CHECK ( convert_to<UNIT::FRAMES>( 12289237, UNIT::FRAMES)  == 12289237 );
+		CHECK ( convert_to<UNIT::SAMPLES>(12289237, UNIT::SAMPLES) == 12289237 );
+		CHECK ( convert_to<UNIT::BYTES>(  12289237, UNIT::BYTES)   == 12289237 );
 	}
 }
 
@@ -93,43 +308,43 @@ TEST_CASE ( "toc::construct()", "[meta]" )
 	// "Bach: Organ Concertos", Simon Preston, DGG
 	const auto toc_data_0 = ToCData
 	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{ 253038, UNIT::FRAMES },
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	const auto leadout = AudioSize { 253038, UNIT::FRAMES };
 
 	const auto offsets = std::vector<AudioSize>
 	{
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	SECTION ( "Succeeds for legal trackcount, offsets, non-zero leadout" )
@@ -161,22 +376,22 @@ TEST_CASE ( "toc::total_tracks()", "[meta]" )
 
 	const auto toc_data_0 = ToCData
 	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{ 253038, UNIT::FRAMES },
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	SECTION ( "Succeeds for non-empty ToCData" )
@@ -196,42 +411,42 @@ TEST_CASE ( "toc::offsets()", "[meta]" )
 
 	const auto toc_data_0 = ToCData
 	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{ 253038, UNIT::FRAMES },
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	SECTION ( "Succeeds for valid, non-exceeding track number" )
 	{
 		CHECK ( offsets(toc_data_0) == std::vector<AudioSize>{
-			AudioSize {     33, UNIT::FRAMES },
-			AudioSize {   5225, UNIT::FRAMES },
-			AudioSize {   7390, UNIT::FRAMES },
-			AudioSize {  23380, UNIT::FRAMES },
-			AudioSize {  35608, UNIT::FRAMES },
-			AudioSize {  49820, UNIT::FRAMES },
-			AudioSize {  69508, UNIT::FRAMES },
-			AudioSize {  87733, UNIT::FRAMES },
-			AudioSize { 106333, UNIT::FRAMES },
-			AudioSize { 139495, UNIT::FRAMES },
-			AudioSize { 157863, UNIT::FRAMES },
-			AudioSize { 198495, UNIT::FRAMES },
-			AudioSize { 213368, UNIT::FRAMES },
-			AudioSize { 225320, UNIT::FRAMES },
-			AudioSize { 234103, UNIT::FRAMES } } );
+			{     33, UNIT::FRAMES },
+			{   5225, UNIT::FRAMES },
+			{   7390, UNIT::FRAMES },
+			{  23380, UNIT::FRAMES },
+			{  35608, UNIT::FRAMES },
+			{  49820, UNIT::FRAMES },
+			{  69508, UNIT::FRAMES },
+			{  87733, UNIT::FRAMES },
+			{ 106333, UNIT::FRAMES },
+			{ 139495, UNIT::FRAMES },
+			{ 157863, UNIT::FRAMES },
+			{ 198495, UNIT::FRAMES },
+			{ 213368, UNIT::FRAMES },
+			{ 225320, UNIT::FRAMES },
+			{ 234103, UNIT::FRAMES } } );
 	}
 }
 
@@ -246,22 +461,22 @@ TEST_CASE ( "toc::leadout()", "[meta]" )
 
 	const auto toc_data_0 = ToCData
 	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{ 253038, UNIT::FRAMES },
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	SECTION ( "Succeeds for valid, non-exceeding track number" )
@@ -281,22 +496,22 @@ TEST_CASE ( "toc::offset()", "[meta]" )
 
 	const auto toc_data_0 = ToCData
 	{
-		AudioSize { 253038, UNIT::FRAMES },
-		AudioSize {     33, UNIT::FRAMES },
-		AudioSize {   5225, UNIT::FRAMES },
-		AudioSize {   7390, UNIT::FRAMES },
-		AudioSize {  23380, UNIT::FRAMES },
-		AudioSize {  35608, UNIT::FRAMES },
-		AudioSize {  49820, UNIT::FRAMES },
-		AudioSize {  69508, UNIT::FRAMES },
-		AudioSize {  87733, UNIT::FRAMES },
-		AudioSize { 106333, UNIT::FRAMES },
-		AudioSize { 139495, UNIT::FRAMES },
-		AudioSize { 157863, UNIT::FRAMES },
-		AudioSize { 198495, UNIT::FRAMES },
-		AudioSize { 213368, UNIT::FRAMES },
-		AudioSize { 225320, UNIT::FRAMES },
-		AudioSize { 234103, UNIT::FRAMES }
+		{ 253038, UNIT::FRAMES },
+		{     33, UNIT::FRAMES },
+		{   5225, UNIT::FRAMES },
+		{   7390, UNIT::FRAMES },
+		{  23380, UNIT::FRAMES },
+		{  35608, UNIT::FRAMES },
+		{  49820, UNIT::FRAMES },
+		{  69508, UNIT::FRAMES },
+		{  87733, UNIT::FRAMES },
+		{ 106333, UNIT::FRAMES },
+		{ 139495, UNIT::FRAMES },
+		{ 157863, UNIT::FRAMES },
+		{ 198495, UNIT::FRAMES },
+		{ 213368, UNIT::FRAMES },
+		{ 225320, UNIT::FRAMES },
+		{ 234103, UNIT::FRAMES }
 	};
 
 	SECTION ( "Succeeds for valid, non-exceeding track number" )
@@ -340,32 +555,32 @@ TEST_CASE ( "toc::set_offsets()", "[meta]" )
 	auto offsets_i = std::vector<int32_t>   { 1, 2, 3, 6, 7, 9 };
 
 	auto toc_i = std::vector<AudioSize> {
-		AudioSize {},
-		AudioSize { 1, UNIT::FRAMES },
-		AudioSize { 2, UNIT::FRAMES },
-		AudioSize { 3, UNIT::FRAMES },
-		AudioSize { 6, UNIT::FRAMES },
-		AudioSize { 7, UNIT::FRAMES },
-		AudioSize { 9, UNIT::FRAMES }
+		{},
+		{ 1, UNIT::FRAMES },
+		{ 2, UNIT::FRAMES },
+		{ 3, UNIT::FRAMES },
+		{ 6, UNIT::FRAMES },
+		{ 7, UNIT::FRAMES },
+		{ 9, UNIT::FRAMES }
 	};
 
 	auto offsets_a = std::vector<AudioSize> {
-		AudioSize { 1, UNIT::FRAMES },
-		AudioSize { 3, UNIT::FRAMES },
-		AudioSize { 4, UNIT::FRAMES },
-		AudioSize { 5, UNIT::FRAMES },
-		AudioSize { 8, UNIT::FRAMES },
-		AudioSize { 9, UNIT::FRAMES }
+		{ 1, UNIT::FRAMES },
+		{ 3, UNIT::FRAMES },
+		{ 4, UNIT::FRAMES },
+		{ 5, UNIT::FRAMES },
+		{ 8, UNIT::FRAMES },
+		{ 9, UNIT::FRAMES }
 	};
 
 	auto toc_a = std::vector<AudioSize> {
-		AudioSize {},
-		AudioSize { 1, UNIT::FRAMES },
-		AudioSize { 3, UNIT::FRAMES },
-		AudioSize { 4, UNIT::FRAMES },
-		AudioSize { 5, UNIT::FRAMES },
-		AudioSize { 8, UNIT::FRAMES },
-		AudioSize { 9, UNIT::FRAMES }
+		{},
+		{ 1, UNIT::FRAMES },
+		{ 3, UNIT::FRAMES },
+		{ 4, UNIT::FRAMES },
+		{ 5, UNIT::FRAMES },
+		{ 8, UNIT::FRAMES },
+		{ 9, UNIT::FRAMES }
 	};
 
 	SECTION ( "set_offsets(int32_t) works correct on empty instance" )

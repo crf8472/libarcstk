@@ -17,8 +17,10 @@
 #endif
 
 #include <algorithm>      // for transform
+#include <array>          // for array
 #include <cstdint>        // for uint16_t, int32_t
 #include <memory>         // for unique_ptr
+#include <sstream>        // for ostringstream
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
 #include <type_traits>    // for underlying_type
@@ -363,8 +365,27 @@ constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
 	return value / factor;
 };
 
-} // namespace conv
 
+/**
+ * \brief Convert from UNIT F to UNIT T.
+ *
+ * Convert an amount auf UNIT F to the equivalent amount of UNIT T.
+ * It is not checked whether F and T are identical.
+ *
+ * \param[in] amount The amount to convert
+ *
+ * \tparam F The UNIT of \c amount to be converted
+ * \tparam T The UNIT to convert to
+ *
+ * \return The equivalent amount in UNIT T
+ */
+template <enum UNIT F, enum UNIT T>
+constexpr auto convert_impl(const int32_t amount) -> int32_t
+{
+	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
+};
+
+} // namespace conv
 
 /**
  * \brief Convert from UNIT F to UNIT T.
@@ -381,11 +402,95 @@ constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
 template <enum UNIT F, enum UNIT T>
 constexpr auto convert(const int32_t amount) -> int32_t
 {
-	using conv::op;
-	using conv::factor;
-	using conv::per_frame;
+	if constexpr (F == T)
+	{
+		return amount;
+	} else
+	{
+		return conv::convert_impl<F, T>(amount);
+	}
 
-	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
+	return 0; // unreachable
+};
+
+/**
+ * \brief Convert a value of a UNIT to the specified UNIT.
+ *
+ * \param[in] value The value to convert
+ * \param[in] unit  The unit to convert from
+ *
+ * \tparam U The UNIT to convert to
+ *
+ * \return Value of the specified unit
+ */
+template <UNIT U>
+auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
+{
+	// Note: this type must be unsigned!
+	using unit_type  = typename std::underlying_type<UNIT>::type;
+
+	if (U == unit)
+	{
+		return value;
+	} else
+	{
+		using int_func   = int32_t(*)(const int32_t);
+		using array_type = typename std::array<int_func, 3>;
+		using size_type  = typename array_type::size_type;
+
+		constexpr array_type converters =
+		{
+			+[](const int32_t v) noexcept {
+					return conv::convert_impl<UNIT::FRAMES,  U>(v); },
+			+[](const int32_t v) noexcept {
+					return conv::convert_impl<UNIT::SAMPLES, U>(v); },
+			+[](const int32_t v) noexcept {
+					return conv::convert_impl<UNIT::BYTES,   U>(v); },
+		};
+
+		// We convert the UNIT of parameter unit to UNIT U, hence we must pick
+		// func 0 for value 1, func 1 for value 588 and func 2 for value 2352.
+		// Since 1 is zero trailing 0s, 588 has 2 trailing 0s, 2352 has 4
+		// trailing zeros, we can just divide the number of trailing 0s by 2 and
+		// have a proper mapping function at hand.
+
+		// Determine correct conversion function
+
+		static constexpr auto count_trailing_zeros =
+			[](unit_type v) -> unit_type
+			{
+				auto count = unsigned { 0 };
+
+				// How many shifts to the right until an 1 occurrs on rightmost
+				// pos? (Would be cooler to do this by a de Brujin table.)
+				while ((v & 1) == 0)
+				{
+					++count;
+					v >>= 1;
+				}
+
+				return count;
+			};
+
+		static constexpr auto map_to_idx =
+			[](const unit_type v) -> size_type
+			{
+				return count_trailing_zeros(v) / 2;
+			};
+
+
+		const auto idx = map_to_idx(static_cast<unit_type>(unit));
+
+		if (idx < converters.size())
+		{
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+			return converters[idx](value);
+		}
+
+		return value; // fallback
+	}
+
+	return 0; // unreachable
 }
 
 
@@ -411,19 +516,11 @@ class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
 						Swap<AudioSize>, ToString<AudioSize>
 {
 	/**
-	 * \brief Data: Total number of pcm sample bytes in the audio file.
+	 * \brief Data: Total number of lba frames.
 	 */
-	int32_t total_pcm_bytes_;
-	// TODO use frames
+	int32_t frames_;
 
 public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Constructs an AudioSize of zero().
-	 */
-	AudioSize() noexcept;
 
 	/**
 	 * \brief Constructor.
@@ -431,87 +528,148 @@ public:
 	 * \param[in] value Size value
 	 * \param[in] unit  Unit for \c value
 	 */
-	AudioSize(const int32_t value, const UNIT unit) noexcept;
+	AudioSize(const int32_t value, const UNIT unit) noexcept
+		: frames_ { convert_to<UNIT::FRAMES>(value, unit) }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Constructs an AudioSize of zero().
+	 */
+	AudioSize() noexcept
+		: AudioSize { 0, UNIT::FRAMES }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Size in LBA frames.
 	 *
 	 * \return The size in LBA frames
 	 */
-	int32_t frames() const noexcept;
+	int32_t frames() const noexcept
+	{
+		return frames_;
+	}
 
 	/**
 	 * \brief Update this size by an amount of LBA frames
 	 *
 	 * \param[in] frames Updated size to set as an amount of LBA frames
 	 */
-	void set_frames(const int32_t frames) noexcept;
+	void set_frames(const int32_t frames) noexcept
+	{
+		frames_ = frames;
+	}
 
 	/**
 	 * \brief Size in stereo PCM samples.
 	 *
 	 * \return The size in stereo PCM samples
 	 */
-	int32_t samples() const noexcept;
-	// TODO inline getters
+	int32_t samples() const noexcept
+	{
+		return convert<UNIT::FRAMES, UNIT::SAMPLES>(frames_);
+	}
 
 	/**
 	 * \brief Update this size by an amount of stereo PCM samples.
 	 *
 	 * \param[in] samples Updated size to set as an amount of stereo PCM samples
 	 */
-	void set_samples(const int32_t samples) noexcept;
+	void set_samples(const int32_t samples) noexcept
+	{
+		frames_ = convert<UNIT::SAMPLES, UNIT::FRAMES>(samples);
+	}
 
 	/**
 	 * \brief Size in bytes.
 	 *
 	 * \return The size in bytes
 	 */
-	int32_t bytes() const noexcept;
+	int32_t bytes() const noexcept
+	{
+		return convert<UNIT::FRAMES, UNIT::BYTES>(frames_);
+	}
 
 	/**
 	 * \brief Update this size by an amount of bytes.
 	 *
 	 * \param[in] bytes Updated size to set as an amount of bytes
 	 */
-	void set_bytes(const int32_t bytes) noexcept;
+	void set_bytes(const int32_t bytes) noexcept
+	{
+		frames_ = convert<UNIT::BYTES, UNIT::FRAMES>(bytes);
+	}
 
 	/**
 	 * \copydoc SNPT_mf_zero
 	 */
-	bool zero() const noexcept;
+	bool zero() const noexcept
+	{
+		return 0 == frames_;
+	}
 
 	/**
 	 * \copydoc SNPT_mf_op_bool_if_zero
 	 */
-	explicit operator bool() const noexcept;
+	explicit operator bool() const noexcept
+	{
+		return !zero();
+	}
 
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(AudioSize& rhs) noexcept;
+	void swap(AudioSize& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(this->frames_, rhs.frames_);
+	}
 
 	/**
 	 * \copydoc SNPT_mf_equals
 	 */
-	bool equals(const AudioSize& rhs) const noexcept;
+	bool equals(const AudioSize& rhs) const noexcept
+	{
+		return this->frames_ == rhs.frames_;
+	}
 
 	/**
 	 * \copydoc SNPT_mf_to_string
 	 */
-	std::string to_string() const;
+	std::string to_string() const
+	{
+		auto ss = std::ostringstream {};
+		ss << *this;
+		return ss.str();
+	}
 
 	/**
 	 * \copydoc SNPT_nf_stream_in
 	 */
-	friend std::ostream& operator << (std::ostream& out, const AudioSize& i);
+	friend std::ostream& operator << (std::ostream& out, const AudioSize& i)
+	{
+		if (!out.good())
+		{
+			// Maybe set badbit: out.setstate(std::ios_base::badbit);
+			return out;
+		}
+
+		out << i.frames() << " LBA frames";
+		return out;
+	}
 
 	/**
 	 * \copydoc SNPT_nf_less
 	 */
 	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 	{
-		return lhs.total_pcm_bytes_ < rhs.total_pcm_bytes_;
+		return lhs.frames_ < rhs.frames_;
 	}
 };
 

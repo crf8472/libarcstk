@@ -15,28 +15,6 @@
 #endif
 
 
-TEST_CASE ("convert_to_bytes()", "[meta]")
-{
-	using arcstk::details::convert_to_bytes;
-	using arcstk::UNIT;
-
-	SECTION ( "Converts samples to bytes correctly" )
-	{
-		CHECK ( convert_to_bytes(3072300, UNIT::SAMPLES) == 12289200 );
-	}
-
-	SECTION ( "Converts frames to bytes correctly" )
-	{
-		CHECK ( convert_to_bytes(5225, UNIT::FRAMES) == 12289200 );
-	}
-
-	SECTION ( "Returns bytes when bytes were passed" )
-	{
-		CHECK ( convert_to_bytes(12345, UNIT::BYTES) == 12345 );
-	}
-}
-
-
 TEST_CASE ( "exceeds_maximum()", "[meta]" )
 {
 	using arcstk::details::exceeds_maximum;

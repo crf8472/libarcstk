@@ -295,31 +295,6 @@ std::string default_error_message(const MetadataRequirement r,
 namespace details
 {
 
-void print(std::ostream& out, const AudioSize& s)
-{
-	if (!out.good())
-	{
-		// Maybe set badbit: out.setstate(std::ios_base::badbit);
-		return;
-	}
-
-	out << s.frames() << " LBA frames";
-}
-
-
-int32_t convert_to_bytes(const int32_t value, const UNIT unit) noexcept
-{
-	switch (unit)
-	{
-		case UNIT::FRAMES:  return convert<UNIT::FRAMES,  UNIT::BYTES>(value);
-		case UNIT::SAMPLES: return convert<UNIT::SAMPLES, UNIT::BYTES>(value);
-		default:            return value;
-	}
-
-	return value;
-}
-
-
 int32_t exceeds_maximum(const int32_t offset)
 {
 	// in order, from highest to lowest
@@ -350,100 +325,6 @@ int32_t exceeds_maximum(const int32_t offset)
 
 
 // metadata.hpp
-
-
-// AudioSize
-
-
-AudioSize::AudioSize() noexcept
-	: AudioSize { 0, UNIT::BYTES }
-{
-	// empty
-}
-
-
-AudioSize::AudioSize(const int32_t value, const UNIT unit) noexcept
-	: total_pcm_bytes_ { details::convert_to_bytes(value, unit) }
-{
-	// empty
-}
-
-
-int32_t AudioSize::frames() const noexcept
-{
-	return convert<UNIT::BYTES, UNIT::FRAMES>(total_pcm_bytes_);
-}
-
-
-void AudioSize::set_frames(const int32_t frames) noexcept
-{
-	total_pcm_bytes_ = convert<UNIT::FRAMES, UNIT::BYTES>(frames);
-}
-
-
-int32_t AudioSize::samples() const noexcept
-{
-	return convert<UNIT::BYTES, UNIT::SAMPLES>(total_pcm_bytes_);
-}
-
-
-void AudioSize::set_samples(const int32_t samples) noexcept
-{
-	total_pcm_bytes_ = convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
-}
-
-
-int32_t AudioSize::bytes() const noexcept
-{
-	return total_pcm_bytes_;
-}
-
-
-void AudioSize::set_bytes(const int32_t bytes) noexcept
-{
-	total_pcm_bytes_ = bytes;
-}
-
-
-bool AudioSize::zero() const noexcept
-{
-	return 0 == bytes();
-}
-
-
-AudioSize::operator bool() const noexcept
-{
-	return !zero();
-}
-
-
-void AudioSize::swap(AudioSize& rhs) noexcept
-{
-	using std::swap;
-
-	swap(this->total_pcm_bytes_, rhs.total_pcm_bytes_);
-}
-
-
-bool AudioSize::equals(const AudioSize& rhs) const noexcept
-{
-	return this->total_pcm_bytes_ == rhs.total_pcm_bytes_;
-}
-
-
-std::string AudioSize::to_string() const
-{
-	auto ss = std::ostringstream {};
-	ss << *this;
-	return ss.str();
-}
-
-
-std::ostream& operator << (std::ostream& out, const AudioSize& i)
-{
-	details::print(out, i);
-	return out;
-}
 
 
 // ToCData
