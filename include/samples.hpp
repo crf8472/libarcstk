@@ -607,8 +607,9 @@ public:
 		// pos_ < 0 not required, since pos_ is not decrementable
         #endif
 
-		// FIXME Do something like:
+		// Doing something like would increase runtime safety.
 		//assert(seq_ != nullptr);
+		// But we do not know whether seq_ was just deleted meanwhile.
 
 		using index_type = typename SampleSequence<T, is_planar>::size_type;
 
@@ -694,12 +695,17 @@ private:
 	 * Constructs a SampleIterator for the specified SampleSequence starting
 	 * at index \c pos.
 	 *
+	 * A SampleIterator is part of a hot path and therefore primarily optimized
+	 * for performance, not for safety. The caller is responsible that the
+	 * SampleIterator instance MUST NOT outlive the sequence over which it was
+	 * constructed, otherwise the dereference operator will produce UB.
+	 *
 	 * \param[in] seq SampleSequence to iterate
 	 * \param[in] pos Start index
 	 */
 	SampleIterator(const SampleSequence<T, is_planar>& seq,
 			const difference_type pos)
-		: seq_ { &seq } // FIXME use a shared_ptr, iterator must not outlive seq
+		: seq_ { &seq } // SampleIterator _MUST_NOT_ outlive seq_
 		, pos_ { pos }
 		, end_pos_ { static_cast<difference_type>(seq.size()) }
 	{
