@@ -176,11 +176,9 @@ Partitioning get_partitioning(const SampleRange& interval,
 	ARCS_LOG(DEBUG3) << "Create partition from interval: " << partition_start
 		<< " - " << partition_end;
 
-	return { Partition {
-		{ partition_start },
-		{ partition_end   },
-		{ partition_start == legal.lower() }/* starts track ? */,
-		{ partition_end   == legal.upper() }/* ends track ? */,
+	return { Partition { partition_start, partition_end,
+		( partition_start == legal.lower() )/* starts track ? */,
+		( partition_end   == legal.upper() )/* ends track ? */,
 		0/* invalid track */
 	}};
 }
