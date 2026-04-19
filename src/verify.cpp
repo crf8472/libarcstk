@@ -69,14 +69,14 @@ best_block_info_t BestBlock::from(const VerificationResult& result) const
 	auto curr_diff_v1 = int { 0 };
 	auto curr_diff_v2 = int { 0 };
 
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < static_cast<int>(result.total_blocks()); ++b)
 	{
 		// Note: v2 matching will always be preferred over v1 matching
 
 		ARCS_LOG(DEBUG1) << "Check block " << b;
 
-		curr_diff_v1 = result.difference(b, false/*v1*/);
-		curr_diff_v2 = result.difference(b, true /*v2*/);
+		curr_diff_v1 = result.difference(b, checksum::type::ARCS1);
+		curr_diff_v2 = result.difference(b, checksum::type::ARCS2);
 
 		// Note the less-equal for v2: last match wins!
 		if (curr_diff_v2 <= best_diff or curr_diff_v1 < best_diff)
@@ -97,23 +97,29 @@ best_block_info_t BestBlock::from(const VerificationResult& result) const
 // ResultBits
 
 
+ResultBits::ResultBits(const size_type blocks, const size_type tracks)
+	: blocks_          { blocks }
+	, tracks_per_block_{ tracks }
+	, flag_            { create_flag_store(total_blocks() * flags_per_block()) }
+{
+	check_maximums(blocks, tracks);
+}
+
+
 ResultBits::ResultBits()
-	: blocks_ { 0 }
-	, tracks_per_block_ { 0 }
-	, size_ { 0 }
-	, flag_ ()
+	: ResultBits { 0, 0 }
 {
 	// empty
 }
 
 
-int ResultBits::blocks() const
+ResultBits::size_type ResultBits::total_blocks() const
 {
 	return blocks_;
 }
 
 
-int ResultBits::tracks_per_block() const
+ResultBits::size_type ResultBits::tracks_per_block() const
 {
 	return tracks_per_block_;
 }
@@ -125,31 +131,9 @@ ResultBits::size_type ResultBits::size() const
 }
 
 
-bool ResultBits::init(const std::size_t blocks, const std::size_t tracks)
+ResultBits::index_type ResultBits::set_id(ResultBits::index_type b, bool value)
 {
-	try {
-		validate(blocks, tracks);
-	} catch (const std::exception& e)
-	{
-		ARCS_LOG_ERROR << "Exception while validating: " << e.what();
-		return false;
-	}
-
-	blocks_ = static_cast<int>(blocks);
-	tracks_per_block_ = static_cast<int>(tracks);
-
-	size_ = static_cast<std::size_t>(blocks_) *
-		(2u * static_cast<std::size_t>(tracks_per_block_) + 1u);
-
-	flag_ = std::vector<bool>(size_, false); // No braces!
-
-	return true;
-}
-
-
-int ResultBits::set_id(int b, bool value)
-{
-	this->validate_block(b);
+	bounds_check_block(b);
 
 	const auto offset { block_offset(b) };
 	set_flag(offset, value);
@@ -158,18 +142,19 @@ int ResultBits::set_id(int b, bool value)
 }
 
 
-bool ResultBits::id(int b) const
+bool ResultBits::id(ResultBits::index_type b) const
 {
-	this->validate_block(b);
+	bounds_check_block(b);
 
 	return this->operator[](block_offset(b));
 }
 
 
-int ResultBits::set_track(int b, int t, bool v2, bool value)
+ResultBits::index_type ResultBits::set_track(ResultBits::index_type b,
+		ResultBits::index_type t, bool v2, bool value)
 {
-	this->validate_block(b);
-	this->validate_track(t);
+	bounds_check_block(b);
+	bounds_check_track(t);
 
 	const auto offset { index(b, t, v2) };
 
@@ -179,21 +164,29 @@ int ResultBits::set_track(int b, int t, bool v2, bool value)
 }
 
 
-bool ResultBits::track(int b, int t, bool v2) const
+bool ResultBits::track(ResultBits::index_type b, ResultBits::index_type t,
+		bool v2) const
 {
-	this->validate_block(b);
-	this->validate_track(t);
+	bounds_check_block(b);
+	bounds_check_track(t);
 
 	return this->operator[](index(b, t, v2));
 }
 
 
-ResultBits::size_type ResultBits::total_tracks_set(int b) const
+ResultBits::size_type ResultBits::total_tracks_set(ResultBits::index_type b)
+	const
 {
+	bounds_check_block(b);
+
+	const auto first_flag_in_block = block_offset(b) + 1; /* skip id */
+
+	const auto last_flag_in_block = block_offset(b) +
+			static_cast<index_type>(flags_per_block()) - 1;
+
 	auto count = size_type { 0 };
 
-	const auto end_block = block_offset(b) + 1 + 2 * tracks_per_block();
-	for (auto i = block_offset(b) + 1; i <= end_block; ++i)
+	for (auto i = first_flag_in_block; i <= last_flag_in_block; ++i)
 	{
 		count += this->operator[](i);
 	}
@@ -202,9 +195,57 @@ ResultBits::size_type ResultBits::total_tracks_set(int b) const
 }
 
 
-void ResultBits::validate(const std::size_t /*blocks*/,
-		const std::size_t tracks) const
+bool ResultBits::operator[](const ResultBits::index_type i) const
 {
+	using flag_size_type = decltype( flag_ )::size_type;
+
+	return flag_[static_cast<flag_size_type>(i)];
+}
+
+
+ResultBits::index_type ResultBits::index(ResultBits::index_type b,
+		ResultBits::index_type t, bool v2) const
+{
+	// b and t are 0-based
+	return block_offset(b) + track_offset(t, v2);
+}
+
+
+ResultBits::index_type ResultBits::block_offset(ResultBits::index_type b) const
+{
+	return b * static_cast<index_type>(flags_per_block());
+}
+
+
+ResultBits::index_type ResultBits::track_offset(ResultBits::index_type t,
+		bool v2) const
+{
+	return t + 1 + (v2 ? static_cast<index_type>(tracks_per_block_) : 0);
+}
+
+
+void ResultBits::set_flag(const ResultBits::index_type offset, const bool value)
+{
+	flag_[static_cast<std::size_t>(offset)] = value;
+}
+
+
+ResultBits::size_type ResultBits::flags_per_block() const
+{
+	return 2 /* v1 + v2 */ * tracks_per_block() + 1 /* id */;
+}
+
+
+void ResultBits::check_maximums(const ResultBits::size_type blocks,
+		const ResultBits::size_type tracks) const
+{
+	if (blocks > MAX_TOTAL_BLOCKS)
+	{
+		using std::to_string;
+		throw std::out_of_range("Illegal number of blocks: "
+				+ to_string(blocks));
+	}
+
 	if (tracks > CDDA::MAX_TRACKCOUNT)
 	{
 		using std::to_string;
@@ -214,51 +255,9 @@ void ResultBits::validate(const std::size_t /*blocks*/,
 }
 
 
-bool ResultBits::operator[](const int i) const
+void ResultBits::bounds_check_block(ResultBits::index_type b) const
 {
-	using flag_size_type = decltype( flag_ )::size_type;
-
-	return flag_[static_cast<flag_size_type>(i)];
-}
-
-
-int ResultBits::flags_per_block() const
-{
-	return 2 * tracks_per_block() + 1;
-}
-
-
-int ResultBits::index(int b, int t, bool v2) const
-{
-	// b and t are 0-based
-	return block_offset(b) + track_offset(t, v2);
-}
-
-
-int ResultBits::block_offset(int b) const
-{
-	return b * flags_per_block();
-}
-
-
-int ResultBits::track_offset(int t, bool v2) const
-{
-	return t + 1 + (v2 ? tracks_per_block_ : 0);
-}
-
-
-void ResultBits::set_flag(const int offset, const bool value)
-{
-	using std::begin;
-
-	auto pos = begin(flag_) + offset; // XXX Work with index instead?
-	*pos = value;
-}
-
-
-void ResultBits::validate_block(int b) const
-{
-	if (b >= blocks_)
+	if (b >= static_cast<index_type>(blocks_))
 	{
 		auto msg = std::ostringstream {};
 		msg << "Block index " << b << " too big, only " << blocks_
@@ -269,9 +268,9 @@ void ResultBits::validate_block(int b) const
 }
 
 
-void ResultBits::validate_track(int t) const
+void ResultBits::bounds_check_track(ResultBits::index_type t) const
 {
-	if (t >= tracks_per_block_)
+	if (t >= static_cast<index_type>(tracks_per_block_))
 	{
 		auto msg = std::ostringstream {};
 		msg << "Track index " << t << " too big, only " << tracks_per_block_
@@ -279,6 +278,12 @@ void ResultBits::validate_track(int t) const
 
 		throw std::runtime_error(msg.str());
 	}
+}
+
+
+std::vector<bool> ResultBits::create_flag_store(const size_type size) const
+{
+	return std::vector<bool>(size, false);
 }
 
 
@@ -292,8 +297,8 @@ bool VerificationPolicy::is_verified(const int track,
 }
 
 
-int VerificationPolicy::total_unverified_tracks(const VerificationResult& r)
-	const
+VerificationPolicy::size_type VerificationPolicy::total_unverified_tracks(
+		const VerificationResult& r) const
 {
 	return do_total_unverified_tracks(r);
 }
@@ -311,10 +316,10 @@ std::unique_ptr<VerificationPolicy> VerificationPolicy::clone() const
 }
 
 
-int VerificationPolicy::do_total_unverified_tracks(const VerificationResult& r)
-	const
+VerificationPolicy::size_type VerificationPolicy::do_total_unverified_tracks(
+		const VerificationResult& r) const
 {
-	const auto total_tracks = r.tracks_per_block();
+	const auto total_tracks = static_cast<int>(r.tracks_per_block());
 	auto total_unverified   = r.tracks_per_block();
 
 	for (auto t = int { 0 }; t < total_tracks; ++t)
@@ -337,16 +342,18 @@ bool StrictPolicy::do_is_verified(const int track, const VerificationResult& r)
 {
 	const auto bb = r.best_block();
 
-	return r.track(best_block::index(bb), track, best_block::typeflag(bb));
+	return r.track(best_block::index(bb), track, best_block::checksumtype(bb));
 }
 
 
-int StrictPolicy::do_total_unverified_tracks(const VerificationResult& r) const
+VerificationPolicy::size_type StrictPolicy::do_total_unverified_tracks(
+		const VerificationResult& r) const
 {
 	const auto bb = r.best_block();
 
 	// Do not count a non-matching id as unverified track
-	return best_block::difference(bb) - !r.id(best_block::index(bb));
+	return static_cast<size_type>(best_block::difference(bb))
+		- !r.id(best_block::index(bb));
 }
 
 
@@ -368,10 +375,11 @@ std::unique_ptr<VerificationPolicy> StrictPolicy::do_clone() const
 bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
 	const
 {
-	for (auto b = 0; b < r.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < static_cast<int>(r.total_blocks()); ++b)
 	{
 		// if track matches either v2 or v1
-		if (r.track(b, track, true) or r.track(b, track, false))
+		if (r.track(b, track, checksum::type::ARCS2) ||
+				r.track(b, track, checksum::type::ARCS1))
 		{
 			return true;
 		}
@@ -396,7 +404,7 @@ std::unique_ptr<VerificationPolicy> LiberalPolicy::do_clone() const
 
 
 Result::Result(std::unique_ptr<VerificationPolicy> p)
-	: flags_  { ResultBits() }
+	: flags_  {}
 	, policy_ { std::move(p) }
 {
 	// empty
@@ -421,91 +429,79 @@ Result& Result::operator = (const Result& rhs)
 	return *this;
 }
 
-/*
-Result::Result(Result&& rhs) noexcept
-	: flags_  { std::move(rhs.flags_)  }
-	, policy_ { std::move(rhs.policy_) }
+
+void Result::init(const size_type blocks, const size_type tracks)
 {
-	// empty
+	flags_ = ResultBits { blocks, tracks };
 }
 
 
-Result& Result::operator = (Result&& rhs) noexcept
-{
-	flags_  = std::move(rhs.flags_);
-	policy_ = std::move(rhs.policy_);
-	return *this;
-}
-*/
-
-void Result::init(const std::size_t blocks, const std::size_t tracks)
-{
-	flags_.init(blocks, tracks);
-}
-
-
-int Result::do_verify_id(int b)
+Result::index_type Result::do_verify_id(const index_type b)
 {
 	return flags_.set_id(b, true);
 }
 
 
-bool Result::do_id(int b) const
+bool Result::do_id(const index_type b) const
 {
 	return flags_.id(b);
 }
 
 
-int Result::do_verify_track(int b, int t, bool v2)
+Result::index_type Result::do_verify_track(const index_type b,
+		const index_type t, const checksum::type type )
 {
-	return flags_.set_track(b, t, v2, true);
+	return flags_.set_track(b, t, is_v2(type), true);
 }
 
 
-bool Result::do_track(int b, int t, bool v2) const
+bool Result::do_track(const index_type b, const index_type t,
+		const checksum::type type) const
 {
-	return flags_.track(b, t, v2);
+	return flags_.track(b, t, is_v2(type));
 }
 
 
-int Result::do_difference(int b, bool v2) const
+int Result::do_difference(const index_type b, const checksum::type type) const
 {
-	auto difference = int { (id(b) ? 0 : 1) }; // also calls validate_block()
+	const auto total_tracks = static_cast<int>(flags_.tracks_per_block());
 
-	for (auto t = int { 0 }; t < flags_.tracks_per_block(); ++t)
+	auto difference = int { (id(b) ? 0 : 1) }; // also calls bounds_check_block()
+
+	for (auto t = int { 0 }; t < total_tracks; ++t)
 	{
-		difference += ( track(b, t, v2) ? 0 : 1 );
+		difference += ( track(b, t, type) ? 0 : 1 );
 	}
 
 	return difference;
 }
 
 
-int Result::do_total_blocks() const
+Result::size_type Result::do_total_blocks() const
 {
-	return flags_.blocks();
+	return flags_.total_blocks();
 }
 
 
-int Result::do_tracks_per_block() const
+Result::size_type Result::do_tracks_per_block() const
 {
 	return flags_.tracks_per_block();
 }
 
 
-size_t Result::do_size() const
+Result::size_type Result::do_size() const
 {
 	return flags_.size();
 }
 
 
-bool Result::do_is_verified(const int track) const
+bool Result::do_is_verified(const index_type track) const
 {
 	return policy_->is_verified(track, *this);
 }
 
 
-int Result::do_total_unverified_tracks() const
+Result::size_type Result::do_total_unverified_tracks() const
 {
 	return policy_->total_unverified_tracks(*this);
 }
@@ -533,6 +529,12 @@ bool Result::do_strict() const
 const VerificationPolicy* Result::policy() const
 {
 	return policy_.get();
+}
+
+
+bool Result::is_v2(const checksum::type type) const
+{
+	return checksum::type::ARCS2 == type;
 }
 
 
@@ -664,7 +666,7 @@ SourceIterator& SourceIterator::operator ++ () // prefix increment
 
 SourceIterator SourceIterator::operator ++ (int) // postfix increment
 {
-	SourceIterator tmp = *this;
+	auto tmp = SourceIterator { *this };
 	++(*this);
 	return tmp;
 }
@@ -901,28 +903,27 @@ void MatchPolicy::perform_match(VerificationResult& result,
 		const ChecksumSet& actual, const Checksum& ref,
 		const int block, const Checksums::size_type track) const
 {
-	bool is_v2 {};
 	const auto track_no = static_cast<int>(track);
 
 	for (const auto& type : actual.types())
 	{
-		is_v2 = (type == arcstk::checksum::type::ARCS2);
-
 		if (const auto p = actual.get(type); is_match(p.first, ref))
 		{
-			const auto bitpos = result.verify_track(block, track_no, is_v2);
+			const auto bitpos = result.verify_track(block, track_no, type);
 
 			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
-				<< " v" << (is_v2 ? "2" : "1") << " verified: "
-				<< result.track(block, track_no, is_v2)
+				<< " v" << (checksum::type::ARCS2 == type ? "2" : "1")
+				<< " verified: "
+				<< result.track(block, track_no, type)
 				<< " (bit " << bitpos << ")";
 		} else
 		{
 			ARCS_LOG(DEBUG2) << "Track "
 				<< std::setw(2) << std::setfill('0') << (track + 1)
-				<< " v" << (is_v2 ? "2" : "1") << " not verified: "
-				<< result.track(block, track_no, is_v2);
+				<< " v" << (checksum::type::ARCS2 == type ? "2" : "1")
+				<< " not verified: "
+				<< result.track(block, track_no, type);
 		}
 	}
 }
@@ -960,7 +961,7 @@ void FindOrderPolicy::do_perform(VerificationResult& result,
 
 void Verification::set_all_ids_verified(VerificationResult& result) const
 {
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < static_cast<int>(result.total_blocks()); ++b)
 	{
 		result.verify_id(b);
 	}
@@ -1249,40 +1250,22 @@ std::unique_ptr<ChecksumSource> DBARSource::do_clone() const
 namespace best_block
 {
 
-
 int index(const best_block_info_t& bb)
 {
-	using tuple_t = std::underlying_type<TUPLE_IDX>::type;
-
-	constexpr static auto i = static_cast<tuple_t>(TUPLE_IDX::INDEX);
-
-	return std::get<i>(bb);
-}
-
-
-bool typeflag(const best_block_info_t& bb)
-{
-	using tuple_t = std::underlying_type<TUPLE_IDX>::type;
-
-	constexpr static auto i = static_cast<tuple_t>(TUPLE_IDX::CHECKSUM_TYPE);
-
-	return std::get<i>(bb);
+	return details::best_block_get<details::TUPLE_IDX::INDEX>(bb);
 }
 
 
 int difference(const best_block_info_t& bb)
 {
-	using tuple_t = std::underlying_type<TUPLE_IDX>::type;
-
-	constexpr static auto i = static_cast<tuple_t>(TUPLE_IDX::DIFFERENCE);
-
-	return std::get<i>(bb);
+	return details::best_block_get<details::TUPLE_IDX::DIFFERENCE>(bb);
 }
 
 
 checksum::type checksumtype(const best_block_info_t& bb)
 {
-	return typeflag(bb) ? checksum::types[1] : checksum::types[0];
+	// true -> ARCS2, false -> ARCS1
+	return details::typeflag(bb) ? checksum::types[1] : checksum::types[0];
 }
 
 
@@ -1302,61 +1285,66 @@ bool VerificationResult::all_tracks_verified() const
 }
 
 
-int VerificationResult::verify_id(int block)
+VerificationResult::index_type VerificationResult::verify_id(
+		const index_type block)
 {
 	return do_verify_id(block);
 }
 
 
-bool VerificationResult::id(int b) const
+bool VerificationResult::id(index_type b) const
 {
 	return do_id(b);
 }
 
 
-int VerificationResult::verify_track(int b, int t, bool v2)
+VerificationResult::index_type VerificationResult::verify_track(
+		const index_type b, const index_type t, checksum::type type)
 {
-	return do_verify_track(b, t, v2);
+	return do_verify_track(b, t, type);
 }
 
 
-bool VerificationResult::track(int b, int t, bool v2) const
+bool VerificationResult::track(const index_type b, const index_type t,
+		const checksum::type type) const
 {
-	return do_track(b, t, v2);
+	return do_track(b, t, type);
 }
 
 
-int VerificationResult::difference(int b, bool v2) const
+int VerificationResult::difference(const index_type b,
+		const checksum::type type) const
 {
-	return do_difference(b, v2);
+	return do_difference(b, type);
 }
 
 
-int VerificationResult::total_blocks() const
+VerificationResult::size_type VerificationResult::total_blocks() const
 {
 	return do_total_blocks();
 }
 
 
-int VerificationResult::tracks_per_block() const
+VerificationResult::size_type VerificationResult::tracks_per_block() const
 {
 	return do_tracks_per_block();
 }
 
 
-size_t VerificationResult::size() const
+VerificationResult::size_type VerificationResult::size() const
 {
 	return do_size();
 }
 
 
-bool VerificationResult::is_verified(const int track) const
+bool VerificationResult::is_verified(const index_type track) const
 {
 	return do_is_verified(track);
 }
 
 
-int VerificationResult::total_unverified_tracks() const
+VerificationResult::size_type VerificationResult::total_unverified_tracks()
+	const
 {
 	return do_total_unverified_tracks();
 }
@@ -1397,18 +1385,21 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 	[[maybe_unused]] arcstk::details::StreamFlagsGuard guard { out };
 
 	const auto indent = std::string { "  " };
-	for (auto b = int { 0 }; b < result.total_blocks(); ++b)
+	for (auto b = int { 0 }; b < static_cast<int>(result.total_blocks()); ++b)
 	{
 		out << "Block " << b << '\n';
 
 		out << indent << "Id match: "
 			<< std::boolalpha << result.id(b) << '\n';
 
-		for (auto t = int { 0 }; t < result.tracks_per_block(); ++t)
+		for (auto t = int { 0 };
+				t < static_cast<int>(result.tracks_per_block()); ++t)
 		{
 			out << indent << "Track " << std::setw(2) << (t + 1)
-				<< ": ARCSv1 is " << std::boolalpha << result.track(b, t, false)
-				<< ", ARCSv2 is " << std::boolalpha << result.track(b, t, true)
+				<< ": ARCSv1 is " << std::boolalpha
+				<< result.track(b, t, checksum::type::ARCS1)
+				<< ", ARCSv2 is " << std::boolalpha
+				<< result.track(b, t, checksum::type::ARCS2)
 				<< '\n';
 		}
 	}

@@ -13,12 +13,13 @@
  * \brief Implementation details for verify.hpp.
  */
 
-#include <cstddef>  // for size_t, ptrdiff_t
-#include <cstdint>  // for uint32_t
-#include <iterator> // for input_iterator_tag
-#include <memory>   // for unique_ptr
-#include <utility>  // for swap
-#include <vector>   // for vector
+#include <cstddef>           // for size_t, ptrdiff_t
+#include <cstdint>           // for uint32_t
+#include <iterator>          // for input_iterator_tag
+#include <memory>            // for unique_ptr
+#include <type_traits>       // for underlying_type
+#include <utility>           // for swap
+#include <vector>            // for vector
 
 #ifndef LIBARCSTK_VERIFY_HPP_
 #include "verify.hpp"            // for ChecksumSource, VerificationResult, ...
@@ -81,9 +82,30 @@ class ResultBits final
 public:
 
 	/**
-	 * \brief Size type of this class.
+	 * \brief Index type of this class.
+	 */
+	using index_type = int;
+
+	/**
+	 * \copydoc SNPT_tp_size
 	 */
 	using size_type = std::size_t;
+
+	/**
+	 * \brief Maximal accepted number of blocks.
+	 */
+	static constexpr auto MAX_TOTAL_BLOCKS = size_type { 500 };
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] blocks Total number of blocks
+	 * \param[in] tracks Total number of tracks per block
+	 *
+	 * \throw out_of_range If number of tracks is greater than
+	 * CDDA::MAX_TRACKCOUNT or total blocks is greater than MAX_TOTAL_BLOCKS
+	 */
+	ResultBits(const size_type blocks, const size_type tracks);
 
 	/**
 	 * \copydoc SNPT_sm_default_ctor
@@ -95,32 +117,19 @@ public:
 	 *
 	 * \return Number of blocks stored
 	 */
-	int blocks() const;
+	size_type total_blocks() const;
 
 	/**
 	 * \brief Total number of tracks per block.
 	 *
 	 * \return Total number of tracks per block
 	 */
-	int tracks_per_block() const;
+	size_type tracks_per_block() const;
 
 	/**
-	 * \brief Total number of flags in the store.
-	 *
-	 * \return Size of the store
+	 * \copydoc SNPT_mf_size
 	 */
 	size_type size() const;
-
-	/**
-	 * \brief Construct a flag store for the specified number of blocks and
-	 * tracks per block.
-	 *
-	 * \param[in] blocks Number of blocks
-	 * \param[in] tracks Number of tracks per block
-	 *
-	 * \return TRUE if initialization was successful
-	 */
-	bool init(const std::size_t blocks, const std::size_t tracks);
 
 	/**
 	 * \brief Set the verification flag for the ARCS specified by \c b, \c t and
@@ -135,7 +144,7 @@ public:
 	 *
 	 * \throws Iff \c b or \c t are out of range
 	 */
-	int set_track(int b, int t, bool v2, bool value);
+	index_type set_track(index_type b, index_type t, bool v2, bool value);
 
 	/**
 	 * \brief Value for the specified track.
@@ -145,7 +154,7 @@ public:
 	 *
 	 * \return Value for the specified track
 	 */
-	bool track(int b, int t, bool v2) const;
+	bool track(index_type b, index_type t, bool v2) const;
 
 	/**
 	 * \brief Set the verification flag for the ARId of block \b to \c value.
@@ -157,7 +166,7 @@ public:
 	 *
 	 * \throws Iff \c b is out of range
 	 */
-	int set_id(int b, bool value);
+	index_type set_id(index_type b, bool value);
 
 	/**
 	 * \brief Value for the id of the specified block.
@@ -166,7 +175,7 @@ public:
 	 *
 	 * \return Value for the specified track
 	 */
-	bool id(int b) const;
+	bool id(index_type b) const;
 
 	/**
 	 * \brief Total number of track flags in block \c b that are set to TRUE.
@@ -175,19 +184,9 @@ public:
 	 *
 	 * \return Number of tracks flagged as TRUE in specified block.
 	 */
-	size_type total_tracks_set(int b) const;
+	size_type total_tracks_set(index_type b) const;
 
-protected:
-
-	/**
-	 * \brief Validate position request.
-	 *
-	 * If this function does not throw, block and track index are valid
-	 *
-	 * \param[in] b     0-based index of the block in \c response
-	 * \param[in] t     0-based index of the track in \c response
-	 */
-	void validate(const std::size_t b, const std::size_t t) const;
+private:
 
 	/**
 	 * \brief Value of the flag with index \c i.
@@ -196,18 +195,10 @@ protected:
 	 *
 	 * \return Value of the flag with the specified absolute index.
 	 */
-	bool operator[](const int i) const;
+	bool operator[](const index_type i) const;
 
 	/**
-	 * \brief Total number of flags per block.
-	 *
-	 * \return Total number of flags per block
-	 */
-	int flags_per_block() const;
-
-	/**
-	 * \brief Converts a logical ARCS position in DBAR to an absolute
-	 * flag index.
+	 * \brief Converts a logical position to an absolute flag index.
 	 *
 	 * Equivalent to the sum of \c block_offset(b) and \c track_offset(t, v2).
 	 *
@@ -217,7 +208,7 @@ protected:
 	 *
 	 * \return Flag index for single ARCS
 	 */
-	int index(int b, int t, bool v2) const;
+	index_type index(index_type b, index_type t, bool v2) const;
 
 	/**
 	 * \brief Converts a logical block index to an absolute flag index.
@@ -229,7 +220,7 @@ protected:
 	 *
 	 * \return Index of the start for the logical block \c b
 	 */
-	int block_offset(int b) const;
+	index_type block_offset(index_type b) const;
 
 	/**
 	 * \brief Converts a 0-based track number to an offset position within a
@@ -240,7 +231,7 @@ protected:
 	 *
 	 * \return Offset for the flag index to be added to the start of the block
 	 */
-	int track_offset(int t, bool v2) const;
+	index_type track_offset(index_type t, bool v2) const;
 
 	/**
 	 * \brief Set the flag on position \c offset to \c value.
@@ -250,7 +241,24 @@ protected:
 	 *
 	 * \return Absolute index position the operation modified
 	 */
-	void set_flag(const int offset, const bool value);
+	void set_flag(const index_type offset, const bool value);
+
+	/**
+	 * \brief Total number of flags per block.
+	 *
+	 * \return Total number of flags per block
+	 */
+	size_type flags_per_block() const;
+
+	/**
+	 * \brief Validate position request.
+	 *
+	 * If this function does not throw, block and track index are valid
+	 *
+	 * \param[in] b 0-based index of the block in \c response
+	 * \param[in] t 0-based index of the track in \c response
+	 */
+	void check_maximums(const size_type b, const size_type t) const;
 
 	/**
 	 * \brief Ensures that \c b is a legal block value.
@@ -259,7 +267,7 @@ protected:
 	 *
 	 * \throws Iff \c b is out of range
 	 */
-	void validate_block(int b) const;
+	void bounds_check_block(index_type b) const;
 
 	/**
 	 * \brief Ensures that \c t is a legal track value.
@@ -268,24 +276,26 @@ protected:
 	 *
 	 * \throws Iff \c t is out of range
 	 */
-	void validate_track(int t) const;
+	void bounds_check_track(index_type t) const;
 
-private:
+	/**
+	 * \brief Create an initialized flag store.
+	 *
+	 * \param[in] size Total number of flags
+	 *
+	 * \return Initialized flagstore
+	 */
+	std::vector<bool> create_flag_store(const size_type size) const;
 
 	/**
 	 * \brief Number of blocks represented.
 	 */
-	int blocks_;
+	size_type blocks_;
 
 	/**
 	 * \brief Number of tracks in each block.
 	 */
-	int tracks_per_block_;
-
-	/**
-	 * \brief Number of flags stored.
-	 */
-	std::size_t size_;
+	size_type tracks_per_block_;
 
 	/**
 	 * \brief The result bits of the comparison.
@@ -315,19 +325,17 @@ private:
  */
 class VerificationPolicy
 {
-	virtual bool do_is_verified(const int track, const VerificationResult& r)
-		const
-	= 0;
-
-	virtual int do_total_unverified_tracks(const VerificationResult& r) const;
-
-	virtual bool do_is_strict() const
-	= 0;
-
-	virtual std::unique_ptr<VerificationPolicy> do_clone() const
-	= 0;
-
 public:
+
+	/**
+	 * \brief Index type of this class.
+	 */
+	using index_type = VerificationResult::index_type;
+
+	/**
+	 * \copydoc SNPT_tp_size
+	 */
+	using size_type = VerificationResult::size_type;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -345,7 +353,8 @@ public:
 	 *
 	 * \return TRUE if the track counts as verified, otherwise FALSE.
 	 */
-	bool is_verified(const int track, const VerificationResult& result) const;
+	bool is_verified(const index_type track, const VerificationResult& result)
+		const;
 
 	/**
 	 * \brief Total number of unverified tracks in the result.
@@ -354,7 +363,7 @@ public:
 	 *
 	 * \return Total number of unverified tracks
 	 */
-	int total_unverified_tracks(const VerificationResult& result) const;
+	size_type total_unverified_tracks(const VerificationResult& result) const;
 
 	/**
 	 * \brief TRUE iff this policy is strict.
@@ -372,6 +381,21 @@ public:
 	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<VerificationPolicy> clone() const;
+
+private:
+
+	virtual bool do_is_verified(const index_type track,
+			const VerificationResult& r) const
+	= 0;
+
+	virtual size_type do_total_unverified_tracks(
+			const VerificationResult& r) const;
+
+	virtual bool do_is_strict() const
+	= 0;
+
+	virtual std::unique_ptr<VerificationPolicy> do_clone() const
+	= 0;
 };
 
 
@@ -383,10 +407,10 @@ class StrictPolicy final : public VerificationPolicy
 {
 	// VerificationPolicy
 
-	bool do_is_verified(const int track, const VerificationResult& r)
+	bool do_is_verified(const index_type track, const VerificationResult& r)
 		const final;
 
-	int do_total_unverified_tracks(const VerificationResult& r) const
+	size_type do_total_unverified_tracks(const VerificationResult& r) const
 		final;
 
 	bool do_is_strict() const final;
@@ -402,7 +426,7 @@ class LiberalPolicy final : public VerificationPolicy
 {
 	// VerificationPolicy
 
-	bool do_is_verified(const int track, const VerificationResult& r)
+	bool do_is_verified(const index_type track, const VerificationResult& r)
 		const final;
 
 	bool do_is_strict() const final;
@@ -416,46 +440,6 @@ class LiberalPolicy final : public VerificationPolicy
  */
 class Result final : public VerificationResult
 {
-	/**
-	 * \brief The actual flags
-	 */
-	ResultBits flags_;
-
-	/**
-	 * \brief Policy to interpret the flags.
-	 */
-	std::unique_ptr<VerificationPolicy> policy_;
-
-	// VerificationResult
-
-	int  do_verify_id(const int b) final;
-
-	bool do_id(const int b) const final;
-
-	int  do_verify_track(const int b, const int t, const bool v2) final;
-
-	bool do_track(const int b, const int t, const bool v2) const final;
-
-	int  do_difference(const int b, const bool v2) const final;
-
-	int  do_total_blocks() const final;
-
-	int  do_tracks_per_block() const final;
-
-	size_t do_size() const final;
-
-	bool do_is_verified(const int track) const final;
-
-	int  do_total_unverified_tracks() const final;
-
-	best_block_info_t do_best_block() const final;
-
-	int  do_best_block_difference() const final;
-
-	bool do_strict() const final;
-
-	std::unique_ptr<VerificationResult> do_clone() const final;
-
 public:
 
 	/**
@@ -499,8 +483,8 @@ public:
 	 * \param[in] total_blocks     Number of blocks
 	 * \param[in] tracks_per_block Number of tracks per block
 	 */
-	void init(const std::size_t total_blocks,
-			const std::size_t tracks_per_block);
+	void init(const size_type total_blocks,
+			const size_type tracks_per_block);
 
 	/**
 	 * \brief VerificationPolicy used for interpreting the verification result.
@@ -508,6 +492,58 @@ public:
 	 * \return VerificationPolicy of this instance
 	 */
 	const VerificationPolicy* policy() const;
+
+private:
+
+	/**
+	 * \brief Implementation: actual result flags
+	 */
+	ResultBits flags_;
+
+	/**
+	 * \brief Policy to interpret the flags.
+	 */
+	std::unique_ptr<VerificationPolicy> policy_;
+
+	/**
+	 * \brief Convert checksum::type to bool.
+	 *
+	 * \return Return TRUE iff \c type is checksum::type::ARCS2, otherwise FALSE
+	 */
+	bool is_v2(const checksum::type type) const;
+
+	// VerificationResult
+
+	index_type do_verify_id(const index_type b) final;
+
+	bool do_id(const index_type b) const final;
+
+	index_type  do_verify_track(const index_type b, const index_type t,
+			const checksum::type type) final;
+
+	bool do_track(const index_type b, const index_type t,
+			const checksum::type type) const final;
+
+	index_type do_difference(const index_type b, const checksum::type type)
+		const final;
+
+	size_type do_total_blocks() const final;
+
+	size_type do_tracks_per_block() const final;
+
+	size_type do_size() const final;
+
+	bool do_is_verified(const index_type track) const final;
+
+	size_type do_total_unverified_tracks() const final;
+
+	best_block_info_t do_best_block() const final;
+
+	index_type  do_best_block_difference() const final;
+
+	bool do_strict() const final;
+
+	std::unique_ptr<VerificationResult> do_clone() const final;
 };
 
 
@@ -1303,6 +1339,53 @@ public:
 
 } // namespace details
 
+namespace best_block
+{
+
+/**
+ * \internal
+ *
+ * \brief Implementation details.
+ */
+namespace details
+{
+
+/**
+ * \brief Element indices of type best_block_info_t.
+ */
+enum class TUPLE_IDX : uint8_t
+{
+	INDEX         = 0,
+	CHECKSUM_TYPE = 1,
+	DIFFERENCE    = 2
+};
+
+/**
+ * \brief Abstract access to best_block_info_t.
+ */
+template <TUPLE_IDX TIDX>
+auto best_block_get(const best_block_info_t& bb)
+    -> std::tuple_element_t<static_cast<std::size_t>(TIDX), best_block_info_t>
+{
+    constexpr auto tuple_index = static_cast<std::size_t>(TIDX);
+    return std::get<tuple_index>(bb);
+}
+
+/**
+ *
+ * \brief Type flag of the best block in the VerificationResult.
+ *
+ * \param[in] bb The best_block_info_t to query
+ *
+ * \return Type flag of the best block
+ */
+inline bool typeflag(const best_block_info_t& bb)
+{
+	return details::best_block_get<TUPLE_IDX::CHECKSUM_TYPE>(bb);
+}
+
+} // namespace details
+} // namespace best_block
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"

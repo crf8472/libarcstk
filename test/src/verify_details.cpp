@@ -35,23 +35,28 @@ TEST_CASE ( "BestBlock", "[bestblock] [verify]" )
 	using arcstk::details::create_result;
 	using arcstk::details::StrictPolicy;
 
+	using arcstk::best_block::index;
+
+	// const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	auto r = create_result(4, 15, std::make_unique<StrictPolicy>());
 
 	r->verify_id(0);
-	r->verify_track(0,  1, true);
-	r->verify_track(0,  2, true);
-	r->verify_track(0,  3, true);
-	r->verify_track(0,  4, true);
-	r->verify_track(0,  5, true);
-	r->verify_track(0,  6, true);
-	r->verify_track(0,  7, true);
-	r->verify_track(0,  8, true);
-	r->verify_track(0,  9, true);
-	r->verify_track(0, 10, true);
-	r->verify_track(0, 11, true);
-	r->verify_track(0, 12, true);
-	r->verify_track(0, 13, true);
-	r->verify_track(0, 14, true);
+	r->verify_track(0,  1, ARCS2);
+	r->verify_track(0,  2, ARCS2);
+	r->verify_track(0,  3, ARCS2);
+	r->verify_track(0,  4, ARCS2);
+	r->verify_track(0,  5, ARCS2);
+	r->verify_track(0,  6, ARCS2);
+	r->verify_track(0,  7, ARCS2);
+	r->verify_track(0,  8, ARCS2);
+	r->verify_track(0,  9, ARCS2);
+	r->verify_track(0, 10, ARCS2);
+	r->verify_track(0, 11, ARCS2);
+	r->verify_track(0, 12, ARCS2);
+	r->verify_track(0, 13, ARCS2);
+	r->verify_track(0, 14, ARCS2);
 
 	const auto get_best_block = BestBlock{};
 
@@ -59,19 +64,48 @@ TEST_CASE ( "BestBlock", "[bestblock] [verify]" )
 
 	SECTION ( "Best block is found correctly" )
 	{
-		CHECK ( std::get<0>(best_block) == 0 );
+		CHECK ( index(best_block) == 0 );
 	}
 }
 
 
-// TODO details::ResultBits
+TEST_CASE ( "ResultBits", "[verify]" )
+{
+	using arcstk::details::ResultBits;
 
+	const auto ARCS2 = true;
+
+	auto result = ResultBits{ 2, 5 };
+
+	REQUIRE ( result.size() == 22 );
+	REQUIRE ( result.total_blocks() == 2 );
+	REQUIRE ( result.tracks_per_block() == 5 );
+	REQUIRE ( result.total_tracks_set(0) == 0);
+	REQUIRE ( result.total_tracks_set(1) == 0);
+
+	SECTION ( "set_track() works" )
+	{
+		CHECK ( result.set_id(1, true) == 11 );
+		CHECK ( result.set_track(1, 4, ARCS2, true) == 21 );
+
+		CHECK ( result.track(1, 4, ARCS2) == true );
+		CHECK ( result.id(1) == true );
+		CHECK ( result.total_tracks_set(0) == 0 );
+		CHECK ( result.total_tracks_set(1) == 1 );
+	}
+}
 
 
 TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify]" )
 {
+	using arcstk::best_block::index;
+	using arcstk::best_block::checksumtype;
+	using arcstk::best_block::difference;
 	using arcstk::details::create_result;
 	using arcstk::details::StrictPolicy;
+
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
 
 	auto result = create_result(4, 8, std::make_unique<StrictPolicy>());
 
@@ -85,29 +119,29 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify]" )
 	result->verify_id(2);
 	result->verify_id(3);
 
-	result->verify_track(0, 2, false); // v1
-	result->verify_track(0, 6, true); // v2
-	result->verify_track(0, 5, true);
+	result->verify_track(0, 2, ARCS1); // v1
+	result->verify_track(0, 6, ARCS2); // v2
+	result->verify_track(0, 5, ARCS2);
 
-	result->verify_track(1, 1, false); // v1
-	result->verify_track(1, 4, false);
-	result->verify_track(1, 2, false);
-	result->verify_track(1, 5, true); // v2
+	result->verify_track(1, 1, ARCS1); // v1
+	result->verify_track(1, 4, ARCS1);
+	result->verify_track(1, 2, ARCS1);
+	result->verify_track(1, 5, ARCS2); // v2
 
-	result->verify_track(2, 2, false); // v1
-	result->verify_track(2, 4, true); // v2
-	result->verify_track(2, 5, true);
+	result->verify_track(2, 2, ARCS1); // v1
+	result->verify_track(2, 4, ARCS2); // v2
+	result->verify_track(2, 5, ARCS2);
 
-	result->verify_track(3, 5, false); // v1
-	result->verify_track(3, 2, false);
-	result->verify_track(3, 4, true); // v2
-	result->verify_track(3, 6, true);
+	result->verify_track(3, 5, ARCS1); // v1
+	result->verify_track(3, 2, ARCS1);
+	result->verify_track(3, 4, ARCS2); // v2
+	result->verify_track(3, 6, ARCS2);
 
 	// Best block is 1 with best_diff in v1 type, hence 1,2 and 4 are verified.
 	// Tracks 0,3,5,6 and 7 are not verified.
 
 	REQUIRE ( result->strict() );
-	REQUIRE ( std::get<0>(result->best_block()) == 1 );
+	REQUIRE ( index(result->best_block()) == 1 );
 	// FIXME best_block should yield 3, since 3 has more v2 matches than 1)
 
 	REQUIRE ( result->total_unverified_tracks() == 5 );
@@ -150,6 +184,9 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify]" )
 	using arcstk::details::create_result;
 	using arcstk::details::LiberalPolicy;
 
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	auto result = create_result(4, 8, std::make_unique<LiberalPolicy>());
 
 	REQUIRE ( result->total_blocks() == 4 );
@@ -162,23 +199,23 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify]" )
 	result->verify_id(2);
 	result->verify_id(3);
 
-	result->verify_track(0, 2, false); // v1
-	result->verify_track(0, 6, true); // v2
-	result->verify_track(0, 5, true);
+	result->verify_track(0, 2, ARCS1); // v1
+	result->verify_track(0, 6, ARCS2); // v2
+	result->verify_track(0, 5, ARCS2);
 
-	result->verify_track(1, 1, false); // v1
-	result->verify_track(1, 4, false);
-	result->verify_track(1, 2, false);
-	result->verify_track(1, 5, true); // v2
+	result->verify_track(1, 1, ARCS1); // v1
+	result->verify_track(1, 4, ARCS1);
+	result->verify_track(1, 2, ARCS1);
+	result->verify_track(1, 5, ARCS2); // v2
 
-	result->verify_track(2, 2, false); // v1
-	result->verify_track(2, 4, true); // v2
-	result->verify_track(2, 5, true);
+	result->verify_track(2, 2, ARCS1); // v1
+	result->verify_track(2, 4, ARCS2); // v2
+	result->verify_track(2, 5, ARCS2);
 
-	result->verify_track(3, 5, false); // v1
-	result->verify_track(3, 2, false);
-	result->verify_track(3, 4, true); // v2
-	result->verify_track(3, 6, true);
+	result->verify_track(3, 5, ARCS1); // v1
+	result->verify_track(3, 2, ARCS1);
+	result->verify_track(3, 4, ARCS2); // v2
+	result->verify_track(3, 6, ARCS2);
 
 	// Tracks 0,3 and 7 are not verified.
 
@@ -222,6 +259,9 @@ TEST_CASE ( "Result", "[result] [verify]" )
 	using arcstk::details::create_result;
 	using arcstk::details::StrictPolicy;
 
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	auto r = create_result(2, 10, std::make_unique<StrictPolicy>());
 	// 2 block, 10 tracks each, every flag is 0
 
@@ -232,115 +272,115 @@ TEST_CASE ( "Result", "[result] [verify]" )
 
 	REQUIRE ( not r->id(0) );
 
-	REQUIRE ( not r->track(0, 0, false) );
-	REQUIRE ( not r->track(0, 1, false) );
-	REQUIRE ( not r->track(0, 2, false) );
-	REQUIRE ( not r->track(0, 3, false) );
-	REQUIRE ( not r->track(0, 4, false) );
-	REQUIRE ( not r->track(0, 5, false) );
-	REQUIRE ( not r->track(0, 6, false) );
-	REQUIRE ( not r->track(0, 7, false) );
-	REQUIRE ( not r->track(0, 8, false) );
-	REQUIRE ( not r->track(0, 9, false) );
+	REQUIRE ( not r->track(0, 0, ARCS1) );
+	REQUIRE ( not r->track(0, 1, ARCS1) );
+	REQUIRE ( not r->track(0, 2, ARCS1) );
+	REQUIRE ( not r->track(0, 3, ARCS1) );
+	REQUIRE ( not r->track(0, 4, ARCS1) );
+	REQUIRE ( not r->track(0, 5, ARCS1) );
+	REQUIRE ( not r->track(0, 6, ARCS1) );
+	REQUIRE ( not r->track(0, 7, ARCS1) );
+	REQUIRE ( not r->track(0, 8, ARCS1) );
+	REQUIRE ( not r->track(0, 9, ARCS1) );
 
-	REQUIRE ( not r->track(0, 0, true) );
-	REQUIRE ( not r->track(0, 1, true) );
-	REQUIRE ( not r->track(0, 2, true) );
-	REQUIRE ( not r->track(0, 3, true) );
-	REQUIRE ( not r->track(0, 4, true) );
-	REQUIRE ( not r->track(0, 5, true) );
-	REQUIRE ( not r->track(0, 6, true) );
-	REQUIRE ( not r->track(0, 7, true) );
-	REQUIRE ( not r->track(0, 8, true) );
-	REQUIRE ( not r->track(0, 9, true) );
+	REQUIRE ( not r->track(0, 0, ARCS2) );
+	REQUIRE ( not r->track(0, 1, ARCS2) );
+	REQUIRE ( not r->track(0, 2, ARCS2) );
+	REQUIRE ( not r->track(0, 3, ARCS2) );
+	REQUIRE ( not r->track(0, 4, ARCS2) );
+	REQUIRE ( not r->track(0, 5, ARCS2) );
+	REQUIRE ( not r->track(0, 6, ARCS2) );
+	REQUIRE ( not r->track(0, 7, ARCS2) );
+	REQUIRE ( not r->track(0, 8, ARCS2) );
+	REQUIRE ( not r->track(0, 9, ARCS2) );
 
 	REQUIRE ( not r->id(1) );
 
-	REQUIRE ( not r->track(1, 0, false) );
-	REQUIRE ( not r->track(1, 1, false) );
-	REQUIRE ( not r->track(1, 2, false) );
-	REQUIRE ( not r->track(1, 3, false) );
-	REQUIRE ( not r->track(1, 4, false) );
-	REQUIRE ( not r->track(1, 5, false) );
-	REQUIRE ( not r->track(1, 6, false) );
-	REQUIRE ( not r->track(1, 7, false) );
-	REQUIRE ( not r->track(1, 8, false) );
-	REQUIRE ( not r->track(1, 9, false) );
+	REQUIRE ( not r->track(1, 0, ARCS1) );
+	REQUIRE ( not r->track(1, 1, ARCS1) );
+	REQUIRE ( not r->track(1, 2, ARCS1) );
+	REQUIRE ( not r->track(1, 3, ARCS1) );
+	REQUIRE ( not r->track(1, 4, ARCS1) );
+	REQUIRE ( not r->track(1, 5, ARCS1) );
+	REQUIRE ( not r->track(1, 6, ARCS1) );
+	REQUIRE ( not r->track(1, 7, ARCS1) );
+	REQUIRE ( not r->track(1, 8, ARCS1) );
+	REQUIRE ( not r->track(1, 9, ARCS1) );
 
-	REQUIRE ( not r->track(1, 0, true) );
-	REQUIRE ( not r->track(1, 1, true) );
-	REQUIRE ( not r->track(1, 2, true) );
-	REQUIRE ( not r->track(1, 3, true) );
-	REQUIRE ( not r->track(1, 4, true) );
-	REQUIRE ( not r->track(1, 5, true) );
-	REQUIRE ( not r->track(1, 6, true) );
-	REQUIRE ( not r->track(1, 7, true) );
-	REQUIRE ( not r->track(1, 8, true) );
-	REQUIRE ( not r->track(1, 9, true) );
+	REQUIRE ( not r->track(1, 0, ARCS2) );
+	REQUIRE ( not r->track(1, 1, ARCS2) );
+	REQUIRE ( not r->track(1, 2, ARCS2) );
+	REQUIRE ( not r->track(1, 3, ARCS2) );
+	REQUIRE ( not r->track(1, 4, ARCS2) );
+	REQUIRE ( not r->track(1, 5, ARCS2) );
+	REQUIRE ( not r->track(1, 6, ARCS2) );
+	REQUIRE ( not r->track(1, 7, ARCS2) );
+	REQUIRE ( not r->track(1, 8, ARCS2) );
+	REQUIRE ( not r->track(1, 9, ARCS2) );
 
 
 	SECTION ( "Setting id and track flags has intended effects" )
 	{
 		r->verify_id(0);
-		r->verify_track(0, 2, false);
-		r->verify_track(0, 3, false);
-		r->verify_track(0, 9, false);
-		r->verify_track(0, 5, true);
-		r->verify_track(0, 7, true);
+		r->verify_track(0, 2, ARCS1);
+		r->verify_track(0, 3, ARCS1);
+		r->verify_track(0, 9, ARCS1);
+		r->verify_track(0, 5, ARCS2);
+		r->verify_track(0, 7, ARCS2);
 		r->verify_id(1);
-		r->verify_track(1, 1, false);
-		r->verify_track(1, 4, false);
-		r->verify_track(1, 6, false);
-		r->verify_track(1, 2, true);
-		r->verify_track(1, 9, true);
+		r->verify_track(1, 1, ARCS1);
+		r->verify_track(1, 4, ARCS1);
+		r->verify_track(1, 6, ARCS1);
+		r->verify_track(1, 2, ARCS2);
+		r->verify_track(1, 9, ARCS2);
 
 		CHECK ( r->id(0) );
 
-		CHECK ( not r->track(0, 0, false) );
-		CHECK ( not r->track(0, 1, false) );
-		CHECK (     r->track(0, 2, false) );
-		CHECK (     r->track(0, 3, false) );
-		CHECK ( not r->track(0, 4, false) );
-		CHECK ( not r->track(0, 5, false) );
-		CHECK ( not r->track(0, 6, false) );
-		CHECK ( not r->track(0, 7, false) );
-		CHECK ( not r->track(0, 8, false) );
-		CHECK (     r->track(0, 9, false) );
+		CHECK ( not r->track(0, 0, ARCS1) );
+		CHECK ( not r->track(0, 1, ARCS1) );
+		CHECK (     r->track(0, 2, ARCS1) );
+		CHECK (     r->track(0, 3, ARCS1) );
+		CHECK ( not r->track(0, 4, ARCS1) );
+		CHECK ( not r->track(0, 5, ARCS1) );
+		CHECK ( not r->track(0, 6, ARCS1) );
+		CHECK ( not r->track(0, 7, ARCS1) );
+		CHECK ( not r->track(0, 8, ARCS1) );
+		CHECK (     r->track(0, 9, ARCS1) );
 
-		CHECK ( not r->track(0, 0, true) );
-		CHECK ( not r->track(0, 1, true) );
-		CHECK ( not r->track(0, 2, true) );
-		CHECK ( not r->track(0, 3, true) );
-		CHECK ( not r->track(0, 4, true) );
-		CHECK (     r->track(0, 5, true) );
-		CHECK ( not r->track(0, 6, true) );
-		CHECK (     r->track(0, 7, true) );
-		CHECK ( not r->track(0, 8, true) );
-		CHECK ( not r->track(0, 9, true) );
+		CHECK ( not r->track(0, 0, ARCS2) );
+		CHECK ( not r->track(0, 1, ARCS2) );
+		CHECK ( not r->track(0, 2, ARCS2) );
+		CHECK ( not r->track(0, 3, ARCS2) );
+		CHECK ( not r->track(0, 4, ARCS2) );
+		CHECK (     r->track(0, 5, ARCS2) );
+		CHECK ( not r->track(0, 6, ARCS2) );
+		CHECK (     r->track(0, 7, ARCS2) );
+		CHECK ( not r->track(0, 8, ARCS2) );
+		CHECK ( not r->track(0, 9, ARCS2) );
 
 		CHECK ( r->id(1) );
 
-		CHECK ( not r->track(1, 0, false) );
-		CHECK (     r->track(1, 1, false) );
-		CHECK ( not r->track(1, 2, false) );
-		CHECK ( not r->track(1, 3, false) );
-		CHECK (     r->track(1, 4, false) );
-		CHECK ( not r->track(1, 5, false) );
-		CHECK (     r->track(1, 6, false) );
-		CHECK ( not r->track(1, 7, false) );
-		CHECK ( not r->track(1, 8, false) );
-		CHECK ( not r->track(1, 9, false) );
+		CHECK ( not r->track(1, 0, ARCS1) );
+		CHECK (     r->track(1, 1, ARCS1) );
+		CHECK ( not r->track(1, 2, ARCS1) );
+		CHECK ( not r->track(1, 3, ARCS1) );
+		CHECK (     r->track(1, 4, ARCS1) );
+		CHECK ( not r->track(1, 5, ARCS1) );
+		CHECK (     r->track(1, 6, ARCS1) );
+		CHECK ( not r->track(1, 7, ARCS1) );
+		CHECK ( not r->track(1, 8, ARCS1) );
+		CHECK ( not r->track(1, 9, ARCS1) );
 
-		CHECK ( not r->track(1, 0, true) );
-		CHECK ( not r->track(1, 1, true) );
-		CHECK (     r->track(1, 2, true) );
-		CHECK ( not r->track(1, 3, true) );
-		CHECK ( not r->track(1, 4, true) );
-		CHECK ( not r->track(1, 5, true) );
-		CHECK ( not r->track(1, 6, true) );
-		CHECK ( not r->track(1, 7, true) );
-		CHECK ( not r->track(1, 8, true) );
-		CHECK (     r->track(1, 9, true) );
+		CHECK ( not r->track(1, 0, ARCS2) );
+		CHECK ( not r->track(1, 1, ARCS2) );
+		CHECK (     r->track(1, 2, ARCS2) );
+		CHECK ( not r->track(1, 3, ARCS2) );
+		CHECK ( not r->track(1, 4, ARCS2) );
+		CHECK ( not r->track(1, 5, ARCS2) );
+		CHECK ( not r->track(1, 6, ARCS2) );
+		CHECK ( not r->track(1, 7, ARCS2) );
+		CHECK ( not r->track(1, 8, ARCS2) );
+		CHECK (     r->track(1, 9, ARCS2) );
 	}
 
 	SECTION ( "Moved Result can be manipulated as intended" )
@@ -348,65 +388,65 @@ TEST_CASE ( "Result", "[result] [verify]" )
 		auto m = std::move(r);
 
 		m->verify_id(0);
-		m->verify_track(0, 2, false);
-		m->verify_track(0, 3, false);
-		m->verify_track(0, 9, false);
-		m->verify_track(0, 5, true);
-		m->verify_track(0, 7, true);
+		m->verify_track(0, 2, ARCS1);
+		m->verify_track(0, 3, ARCS1);
+		m->verify_track(0, 9, ARCS1);
+		m->verify_track(0, 5, ARCS2);
+		m->verify_track(0, 7, ARCS2);
 		m->verify_id(1);
-		m->verify_track(1, 1, false);
-		m->verify_track(1, 4, false);
-		m->verify_track(1, 6, false);
-		m->verify_track(1, 2, true);
-		m->verify_track(1, 9, true);
+		m->verify_track(1, 1, ARCS1);
+		m->verify_track(1, 4, ARCS1);
+		m->verify_track(1, 6, ARCS1);
+		m->verify_track(1, 2, ARCS2);
+		m->verify_track(1, 9, ARCS2);
 
 		CHECK ( m->id(0) );
 
-		CHECK ( not m->track(0, 0, false) );
-		CHECK ( not m->track(0, 1, false) );
-		CHECK (     m->track(0, 2, false) );
-		CHECK (     m->track(0, 3, false) );
-		CHECK ( not m->track(0, 4, false) );
-		CHECK ( not m->track(0, 5, false) );
-		CHECK ( not m->track(0, 6, false) );
-		CHECK ( not m->track(0, 7, false) );
-		CHECK ( not m->track(0, 8, false) );
-		CHECK (     m->track(0, 9, false) );
+		CHECK ( not m->track(0, 0, ARCS1) );
+		CHECK ( not m->track(0, 1, ARCS1) );
+		CHECK (     m->track(0, 2, ARCS1) );
+		CHECK (     m->track(0, 3, ARCS1) );
+		CHECK ( not m->track(0, 4, ARCS1) );
+		CHECK ( not m->track(0, 5, ARCS1) );
+		CHECK ( not m->track(0, 6, ARCS1) );
+		CHECK ( not m->track(0, 7, ARCS1) );
+		CHECK ( not m->track(0, 8, ARCS1) );
+		CHECK (     m->track(0, 9, ARCS1) );
 
-		CHECK ( not m->track(0, 0, true) );
-		CHECK ( not m->track(0, 1, true) );
-		CHECK ( not m->track(0, 2, true) );
-		CHECK ( not m->track(0, 3, true) );
-		CHECK ( not m->track(0, 4, true) );
-		CHECK (     m->track(0, 5, true) );
-		CHECK ( not m->track(0, 6, true) );
-		CHECK (     m->track(0, 7, true) );
-		CHECK ( not m->track(0, 8, true) );
-		CHECK ( not m->track(0, 9, true) );
+		CHECK ( not m->track(0, 0, ARCS2) );
+		CHECK ( not m->track(0, 1, ARCS2) );
+		CHECK ( not m->track(0, 2, ARCS2) );
+		CHECK ( not m->track(0, 3, ARCS2) );
+		CHECK ( not m->track(0, 4, ARCS2) );
+		CHECK (     m->track(0, 5, ARCS2) );
+		CHECK ( not m->track(0, 6, ARCS2) );
+		CHECK (     m->track(0, 7, ARCS2) );
+		CHECK ( not m->track(0, 8, ARCS2) );
+		CHECK ( not m->track(0, 9, ARCS2) );
 
 		CHECK ( m->id(1) );
 
-		CHECK ( not m->track(1, 0, false) );
-		CHECK (     m->track(1, 1, false) );
-		CHECK ( not m->track(1, 2, false) );
-		CHECK ( not m->track(1, 3, false) );
-		CHECK (     m->track(1, 4, false) );
-		CHECK ( not m->track(1, 5, false) );
-		CHECK (     m->track(1, 6, false) );
-		CHECK ( not m->track(1, 7, false) );
-		CHECK ( not m->track(1, 8, false) );
-		CHECK ( not m->track(1, 9, false) );
+		CHECK ( not m->track(1, 0, ARCS1) );
+		CHECK (     m->track(1, 1, ARCS1) );
+		CHECK ( not m->track(1, 2, ARCS1) );
+		CHECK ( not m->track(1, 3, ARCS1) );
+		CHECK (     m->track(1, 4, ARCS1) );
+		CHECK ( not m->track(1, 5, ARCS1) );
+		CHECK (     m->track(1, 6, ARCS1) );
+		CHECK ( not m->track(1, 7, ARCS1) );
+		CHECK ( not m->track(1, 8, ARCS1) );
+		CHECK ( not m->track(1, 9, ARCS1) );
 
-		CHECK ( not m->track(1, 0, true) );
-		CHECK ( not m->track(1, 1, true) );
-		CHECK (     m->track(1, 2, true) );
-		CHECK ( not m->track(1, 3, true) );
-		CHECK ( not m->track(1, 4, true) );
-		CHECK ( not m->track(1, 5, true) );
-		CHECK ( not m->track(1, 6, true) );
-		CHECK ( not m->track(1, 7, true) );
-		CHECK ( not m->track(1, 8, true) );
-		CHECK (     m->track(1, 9, true) );
+		CHECK ( not m->track(1, 0, ARCS2) );
+		CHECK ( not m->track(1, 1, ARCS2) );
+		CHECK (     m->track(1, 2, ARCS2) );
+		CHECK ( not m->track(1, 3, ARCS2) );
+		CHECK ( not m->track(1, 4, ARCS2) );
+		CHECK ( not m->track(1, 5, ARCS2) );
+		CHECK ( not m->track(1, 6, ARCS2) );
+		CHECK ( not m->track(1, 7, ARCS2) );
+		CHECK ( not m->track(1, 8, ARCS2) );
+		CHECK (     m->track(1, 9, ARCS2) );
 	}
 }
 
@@ -959,6 +999,8 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 	using arcstk::DBARTriplet;
 	using arcstk::UNIT;
 
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	// From: "Bach: Organ Concertos", Simon Preston, DGG
 	// URL:       http://www.accuraterip.com/accuraterip/8/7/1/dBAR-015-001b9178-014be24e-b40d2d0f.bin
 	// Filename:  dBAR-015-001b9178-014be24e-b40d2d0f.bin
@@ -1064,7 +1106,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 	const auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
-	REQUIRE ( result->difference(0, true) == 16);
+	REQUIRE ( result->difference(0, ARCS2) == 16);
 	REQUIRE ( result->total_unverified_tracks() == 15 );
 
 	REQUIRE ( !result->all_tracks_verified() );
@@ -1099,7 +1141,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 	{
 		REQUIRE ( not result->id(0) );
 
-		CHECK ( result->difference(0, true) == 1);
+		CHECK ( result->difference(0, ARCS2) == 1);
 		CHECK ( result->total_unverified_tracks() == 0 );
 		CHECK ( result->all_tracks_verified() );
 	}
@@ -1110,7 +1152,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 
 		REQUIRE ( result->id(0) );
 
-		CHECK ( result->difference(0, true) == 0);
+		CHECK ( result->difference(0, ARCS2) == 0);
 		CHECK ( result->total_unverified_tracks() == 0 );
 		CHECK ( result->all_tracks_verified() );
 
@@ -1248,10 +1290,12 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify]" )
 			{ 0x58FC3C3E, 0, 0 }
 	};
 
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	const auto result = arcstk::details::create_result(3, 15,
 			std::make_unique<arcstk::details::StrictPolicy>());
 
-	REQUIRE ( result->difference(0, true) == 16);
+	REQUIRE ( result->difference(0, ARCS2) == 16);
 
 	REQUIRE ( !result->all_tracks_verified() );
 	REQUIRE ( !result->is_verified(0) );
@@ -1285,14 +1329,14 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify]" )
 	{
 		REQUIRE ( not result->id(0) );
 
-		CHECK ( result->difference(0, true) == 1);
+		CHECK ( result->difference(0, ARCS2) == 1);
 		CHECK ( result->total_unverified_tracks() == 0 );
 		CHECK ( result->all_tracks_verified() );
 	}
 
 	SECTION ( "FindOrderPolicy finds order in actual checksums" )
 	{
-		CHECK ( result->difference(0, true) == 1); // id was not matched
+		CHECK ( result->difference(0, ARCS2) == 1); // id was not matched
 
 		CHECK ( result->total_unverified_tracks() == 0 );
 		CHECK ( result->all_tracks_verified() );
@@ -1320,6 +1364,9 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 {
 	using arcstk::ARId;
 	using arcstk::AudioSize;
+	using arcstk::best_block::index;
+	using arcstk::best_block::checksumtype;
+	using arcstk::best_block::difference;
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
 	using arcstk::ChecksumSet;
@@ -1331,6 +1378,9 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 	using arcstk::details::Verification;
 	using arcstk::DBARSource;
 	using arcstk::UNIT;
+
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
 
 	const auto id = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
@@ -1491,7 +1541,7 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 
 		v->perform(*result, actual_sums, id, ref_sums, *traversal, *order);
 
-		CHECK ( std::get<0>(result->best_block()) == 1 );
+		CHECK ( index(result->best_block()) == 1 );
 		// Best is 1, the v2 block, but 0, the v1 block, also matches entirely!
 
 		CHECK ( result->best_block_difference() == 0 );
@@ -1516,16 +1566,16 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 		CHECK ( result->is_verified(14) );
 
 		CHECK ( result->id(0) );
-		CHECK ( result->difference(0, false) == 0);
-		CHECK ( result->difference(0, true)  == 15);
+		CHECK ( result->difference(0, ARCS1) == 0);
+		CHECK ( result->difference(0, ARCS2)  == 15);
 
 		CHECK ( result->id(1) );
-		CHECK ( result->difference(1, true)  == 0);
-		CHECK ( result->difference(1, false) == 15);
+		CHECK ( result->difference(1, ARCS2)  == 0);
+		CHECK ( result->difference(1, ARCS1) == 15);
 
 		CHECK ( not result->id(2) );
-		CHECK ( result->difference(2, true)  == 16); // id does not match either
-		CHECK ( result->difference(2, false) == 16);
+		CHECK ( result->difference(2, ARCS2)  == 16); // id does not match either
+		CHECK ( result->difference(2, ARCS1) == 16);
 	}
 
 	SECTION ("Verification by track order is correct")
@@ -1644,7 +1694,7 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 		// There is no single block that matches all tracks, hence some tracks
 		// got verified and others won't!
 
-		CHECK ( std::get<0>(b_result->best_block()) == 0 ); // 0 is the v1 block
+		CHECK ( index(b_result->best_block()) == 0 ); // 0 is the v1 block
 		CHECK ( b_result->best_block_difference() == 3 );
 
 		CHECK ( b_result->total_unverified_tracks() == 3 );
@@ -1667,16 +1717,16 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 		CHECK ( not b_result->is_verified(14) ); // mismatch v1
 
 		CHECK ( b_result->id(0) );
-		CHECK ( b_result->difference(0, false) == 3); // total v1 mismatches
-		CHECK ( b_result->difference(0, true)  == 15);
+		CHECK ( b_result->difference(0, ARCS1) == 3); // total v1 mismatches
+		CHECK ( b_result->difference(0, ARCS2) == 15);
 
 		CHECK ( b_result->id(1) );
-		CHECK ( b_result->difference(1, true)  == 4);  // total v2 mismatches
-		CHECK ( b_result->difference(1, false) == 15);
+		CHECK ( b_result->difference(1, ARCS2) == 4);  // total v2 mismatches
+		CHECK ( b_result->difference(1, ARCS1) == 15);
 
 		CHECK ( not b_result->id(2) );
-		CHECK ( b_result->difference(2, true)  == 16); // id does not match either
-		CHECK ( b_result->difference(2, false) == 16);
+		CHECK ( b_result->difference(2, ARCS2) == 16); // id does not match either
+		CHECK ( b_result->difference(2, ARCS1) == 16);
 
 		// TrackTraversal:
 		// There is no single block that matches all tracks, but all tracks
@@ -1702,16 +1752,16 @@ TEST_CASE ( "Verification", "[verififcation] [verify]" )
 		CHECK ( t_result->is_verified(14) );
 
 		CHECK ( t_result->id(0) );
-		CHECK ( t_result->difference(0, false) ==  3); // total v1 mismatches
-		CHECK ( t_result->difference(0, true)  == 15);
+		CHECK ( t_result->difference(0, ARCS1) ==  3); // total v1 mismatches
+		CHECK ( t_result->difference(0, ARCS2)  == 15);
 
 		CHECK ( t_result->id(1) );
-		CHECK ( t_result->difference(1, true)  ==  4);  // total v2 mismatches
-		CHECK ( t_result->difference(1, false) == 15);
+		CHECK ( t_result->difference(1, ARCS2)  ==  4);  // total v2 mismatches
+		CHECK ( t_result->difference(1, ARCS1) == 15);
 
 		CHECK ( not t_result->id(2) );
-		CHECK ( t_result->difference(2, true)  == 16); // id does not match either
-		CHECK ( t_result->difference(2, false) == 16);
+		CHECK ( t_result->difference(2, ARCS2)  == 16); // id does not match either
+		CHECK ( t_result->difference(2, ARCS1) == 16);
 	}
 }
 

@@ -179,6 +179,9 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 	using arcstk::DBAR;
 	using arcstk::UNIT;
 
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
+
 	const auto id = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F };
 
 	const auto dBAR = DBAR {
@@ -334,11 +337,6 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 	REQUIRE ( a.actual_id() == &id );
 	REQUIRE ( a.actual_checksums() == &actual_sums );
 
-	// common constants
-
-	const bool v1 = false;
-	const bool v2 = true;
-
 	// Strict verification (requires all matches in the same blocks)
 
 	SECTION ( "Strict track order verification result has correct size" )
@@ -356,11 +354,11 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 		CHECK_THROWS ( result->is_verified(15) ); // illegal track
 
 		CHECK_THROWS ( result->id(3) );            // illegal block
-		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
+		CHECK_THROWS ( result->track(3, 14, ARCS2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, ARCS2) ); //         track
 
-		CHECK_THROWS ( result->difference(3, v1) == 0 ); // illegal block
-		CHECK_THROWS ( result->difference(3, v2) == 0 );
+		CHECK_THROWS ( result->difference(3, ARCS1) == 0 ); // illegal block
+		CHECK_THROWS ( result->difference(3, ARCS2) == 0 );
 	}
 
 	SECTION ( "Strict track order verification result has correct differences" )
@@ -371,14 +369,14 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 
 		REQUIRE ( a.strict() );
 
-		CHECK ( result->difference(0, v1) ==  0 );
-		CHECK ( result->difference(0, v2) == 15 );
+		CHECK ( result->difference(0, ARCS1) ==  0 );
+		CHECK ( result->difference(0, ARCS2) == 15 );
 
-		CHECK ( result->difference(1, v1) == 15 );
-		CHECK ( result->difference(1, v2) ==  0 );
+		CHECK ( result->difference(1, ARCS1) == 15 );
+		CHECK ( result->difference(1, ARCS2) ==  0 );
 
-		CHECK ( result->difference(2, v1) == 16 );
-		CHECK ( result->difference(2, v2) == 16 );
+		CHECK ( result->difference(2, ARCS1) == 16 );
+		CHECK ( result->difference(2, ARCS2) == 16 );
 	}
 
 	SECTION ( "Strict track order verification contains correct flags" )
@@ -395,122 +393,126 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 		// block 0
 		CHECK ( result->id(0) );
 
-		CHECK ( result->track(0,  0, v1) );
-		CHECK ( result->track(0,  1, v1) );
-		CHECK ( result->track(0,  2, v1) );
-		CHECK ( result->track(0,  3, v1) );
-		CHECK ( result->track(0,  4, v1) );
-		CHECK ( result->track(0,  5, v1) );
-		CHECK ( result->track(0,  6, v1) );
-		CHECK ( result->track(0,  7, v1) );
-		CHECK ( result->track(0,  8, v1) );
-		CHECK ( result->track(0,  9, v1) );
-		CHECK ( result->track(0, 10, v1) );
-		CHECK ( result->track(0, 11, v1) );
-		CHECK ( result->track(0, 12, v1) );
-		CHECK ( result->track(0, 13, v1) );
-		CHECK ( result->track(0, 14, v1) );
+		CHECK ( result->track(0,  0, ARCS1) );
+		CHECK ( result->track(0,  1, ARCS1) );
+		CHECK ( result->track(0,  2, ARCS1) );
+		CHECK ( result->track(0,  3, ARCS1) );
+		CHECK ( result->track(0,  4, ARCS1) );
+		CHECK ( result->track(0,  5, ARCS1) );
+		CHECK ( result->track(0,  6, ARCS1) );
+		CHECK ( result->track(0,  7, ARCS1) );
+		CHECK ( result->track(0,  8, ARCS1) );
+		CHECK ( result->track(0,  9, ARCS1) );
+		CHECK ( result->track(0, 10, ARCS1) );
+		CHECK ( result->track(0, 11, ARCS1) );
+		CHECK ( result->track(0, 12, ARCS1) );
+		CHECK ( result->track(0, 13, ARCS1) );
+		CHECK ( result->track(0, 14, ARCS1) );
 
-		CHECK ( not result->track(0,  0, v2) );
-		CHECK ( not result->track(0,  1, v2) );
-		CHECK ( not result->track(0,  2, v2) );
-		CHECK ( not result->track(0,  3, v2) );
-		CHECK ( not result->track(0,  4, v2) );
-		CHECK ( not result->track(0,  5, v2) );
-		CHECK ( not result->track(0,  6, v2) );
-		CHECK ( not result->track(0,  7, v2) );
-		CHECK ( not result->track(0,  8, v2) );
-		CHECK ( not result->track(0,  9, v2) );
-		CHECK ( not result->track(0, 10, v2) );
-		CHECK ( not result->track(0, 11, v2) );
-		CHECK ( not result->track(0, 12, v2) );
-		CHECK ( not result->track(0, 13, v2) );
-		CHECK ( not result->track(0, 14, v2) );
+		CHECK ( not result->track(0,  0, ARCS2) );
+		CHECK ( not result->track(0,  1, ARCS2) );
+		CHECK ( not result->track(0,  2, ARCS2) );
+		CHECK ( not result->track(0,  3, ARCS2) );
+		CHECK ( not result->track(0,  4, ARCS2) );
+		CHECK ( not result->track(0,  5, ARCS2) );
+		CHECK ( not result->track(0,  6, ARCS2) );
+		CHECK ( not result->track(0,  7, ARCS2) );
+		CHECK ( not result->track(0,  8, ARCS2) );
+		CHECK ( not result->track(0,  9, ARCS2) );
+		CHECK ( not result->track(0, 10, ARCS2) );
+		CHECK ( not result->track(0, 11, ARCS2) );
+		CHECK ( not result->track(0, 12, ARCS2) );
+		CHECK ( not result->track(0, 13, ARCS2) );
+		CHECK ( not result->track(0, 14, ARCS2) );
 
 		// block 1
 		CHECK ( result->id(1) );
 
-		CHECK ( not result->track(1,  0, v1) );
-		CHECK ( not result->track(1,  1, v1) );
-		CHECK ( not result->track(1,  2, v1) );
-		CHECK ( not result->track(1,  3, v1) );
-		CHECK ( not result->track(1,  4, v1) );
-		CHECK ( not result->track(1,  5, v1) );
-		CHECK ( not result->track(1,  6, v1) );
-		CHECK ( not result->track(1,  7, v1) );
-		CHECK ( not result->track(1,  8, v1) );
-		CHECK ( not result->track(1,  9, v1) );
-		CHECK ( not result->track(1, 10, v1) );
-		CHECK ( not result->track(1, 11, v1) );
-		CHECK ( not result->track(1, 12, v1) );
-		CHECK ( not result->track(1, 13, v1) );
-		CHECK ( not result->track(1, 14, v1) );
+		CHECK ( not result->track(1,  0, ARCS1) );
+		CHECK ( not result->track(1,  1, ARCS1) );
+		CHECK ( not result->track(1,  2, ARCS1) );
+		CHECK ( not result->track(1,  3, ARCS1) );
+		CHECK ( not result->track(1,  4, ARCS1) );
+		CHECK ( not result->track(1,  5, ARCS1) );
+		CHECK ( not result->track(1,  6, ARCS1) );
+		CHECK ( not result->track(1,  7, ARCS1) );
+		CHECK ( not result->track(1,  8, ARCS1) );
+		CHECK ( not result->track(1,  9, ARCS1) );
+		CHECK ( not result->track(1, 10, ARCS1) );
+		CHECK ( not result->track(1, 11, ARCS1) );
+		CHECK ( not result->track(1, 12, ARCS1) );
+		CHECK ( not result->track(1, 13, ARCS1) );
+		CHECK ( not result->track(1, 14, ARCS1) );
 
-		CHECK ( result->track(1,  0, v2) );
-		CHECK ( result->track(1,  1, v2) );
-		CHECK ( result->track(1,  2, v2) );
-		CHECK ( result->track(1,  3, v2) );
-		CHECK ( result->track(1,  4, v2) );
-		CHECK ( result->track(1,  5, v2) );
-		CHECK ( result->track(1,  6, v2) );
-		CHECK ( result->track(1,  7, v2) );
-		CHECK ( result->track(1,  8, v2) );
-		CHECK ( result->track(1,  9, v2) );
-		CHECK ( result->track(1, 10, v2) );
-		CHECK ( result->track(1, 11, v2) );
-		CHECK ( result->track(1, 12, v2) );
-		CHECK ( result->track(1, 13, v2) );
-		CHECK ( result->track(1, 14, v2) );
+		CHECK ( result->track(1,  0, ARCS2) );
+		CHECK ( result->track(1,  1, ARCS2) );
+		CHECK ( result->track(1,  2, ARCS2) );
+		CHECK ( result->track(1,  3, ARCS2) );
+		CHECK ( result->track(1,  4, ARCS2) );
+		CHECK ( result->track(1,  5, ARCS2) );
+		CHECK ( result->track(1,  6, ARCS2) );
+		CHECK ( result->track(1,  7, ARCS2) );
+		CHECK ( result->track(1,  8, ARCS2) );
+		CHECK ( result->track(1,  9, ARCS2) );
+		CHECK ( result->track(1, 10, ARCS2) );
+		CHECK ( result->track(1, 11, ARCS2) );
+		CHECK ( result->track(1, 12, ARCS2) );
+		CHECK ( result->track(1, 13, ARCS2) );
+		CHECK ( result->track(1, 14, ARCS2) );
 
 		// block 2
 		CHECK ( not result->id(2) ); // different id! nothing verifies!
 
-		CHECK ( not result->track(2,  0, v1) );
-		CHECK ( not result->track(2,  1, v1) );
-		CHECK ( not result->track(2,  2, v1) );
-		CHECK ( not result->track(2,  3, v1) );
-		CHECK ( not result->track(2,  4, v1) );
-		CHECK ( not result->track(2,  5, v1) );
-		CHECK ( not result->track(2,  6, v1) );
-		CHECK ( not result->track(2,  7, v1) );
-		CHECK ( not result->track(2,  8, v1) );
-		CHECK ( not result->track(2,  9, v1) );
-		CHECK ( not result->track(2, 10, v1) );
-		CHECK ( not result->track(2, 11, v1) );
-		CHECK ( not result->track(2, 12, v1) );
-		CHECK ( not result->track(2, 13, v1) );
-		CHECK ( not result->track(2, 14, v1) );
+		CHECK ( not result->track(2,  0, ARCS1) );
+		CHECK ( not result->track(2,  1, ARCS1) );
+		CHECK ( not result->track(2,  2, ARCS1) );
+		CHECK ( not result->track(2,  3, ARCS1) );
+		CHECK ( not result->track(2,  4, ARCS1) );
+		CHECK ( not result->track(2,  5, ARCS1) );
+		CHECK ( not result->track(2,  6, ARCS1) );
+		CHECK ( not result->track(2,  7, ARCS1) );
+		CHECK ( not result->track(2,  8, ARCS1) );
+		CHECK ( not result->track(2,  9, ARCS1) );
+		CHECK ( not result->track(2, 10, ARCS1) );
+		CHECK ( not result->track(2, 11, ARCS1) );
+		CHECK ( not result->track(2, 12, ARCS1) );
+		CHECK ( not result->track(2, 13, ARCS1) );
+		CHECK ( not result->track(2, 14, ARCS1) );
 
-		CHECK ( not result->track(2,  0, v2) );
-		CHECK ( not result->track(2,  1, v2) );
-		CHECK ( not result->track(2,  2, v2) );
-		CHECK ( not result->track(2,  3, v2) );
-		CHECK ( not result->track(2,  4, v2) );
-		CHECK ( not result->track(2,  5, v2) );
-		CHECK ( not result->track(2,  6, v2) );
-		CHECK ( not result->track(2,  7, v2) );
-		CHECK ( not result->track(2,  8, v2) );
-		CHECK ( not result->track(2,  9, v2) );
-		CHECK ( not result->track(2, 10, v2) );
-		CHECK ( not result->track(2, 11, v2) );
-		CHECK ( not result->track(2, 12, v2) );
-		CHECK ( not result->track(2, 13, v2) );
-		CHECK ( not result->track(2, 14, v2) );
+		CHECK ( not result->track(2,  0, ARCS2) );
+		CHECK ( not result->track(2,  1, ARCS2) );
+		CHECK ( not result->track(2,  2, ARCS2) );
+		CHECK ( not result->track(2,  3, ARCS2) );
+		CHECK ( not result->track(2,  4, ARCS2) );
+		CHECK ( not result->track(2,  5, ARCS2) );
+		CHECK ( not result->track(2,  6, ARCS2) );
+		CHECK ( not result->track(2,  7, ARCS2) );
+		CHECK ( not result->track(2,  8, ARCS2) );
+		CHECK ( not result->track(2,  9, ARCS2) );
+		CHECK ( not result->track(2, 10, ARCS2) );
+		CHECK ( not result->track(2, 11, ARCS2) );
+		CHECK ( not result->track(2, 12, ARCS2) );
+		CHECK ( not result->track(2, 13, ARCS2) );
+		CHECK ( not result->track(2, 14, ARCS2) );
 	}
 
 	SECTION ( "Strict track order verification yields best block" )
 	{
+		using arcstk::best_block::index;
+		using arcstk::best_block::checksumtype;
+		using arcstk::best_block::difference;
+
 		REQUIRE ( a.strict() );
 
 		const auto result = a.perform(dBAR);
-		const auto best_block = result->best_block();
+		const auto bb = result->best_block();
 
 		REQUIRE ( a.strict() );
 
 
-		CHECK ( std::get<0>(best_block) == 1 );
-		CHECK ( std::get<1>(best_block) == v2 );
-		CHECK ( std::get<2>(best_block) == 0 );
+		CHECK ( index(bb) == 1 );
+		CHECK ( checksumtype(bb) == ARCS2 );
+		CHECK ( difference(bb) == 0 );
 		CHECK ( result->best_block_difference() == 0 );
 	}
 
@@ -563,11 +565,11 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 		CHECK_THROWS ( result->is_verified(15) );
 
 		CHECK_THROWS ( result->id(3) );            // illegal block
-		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
+		CHECK_THROWS ( result->track(3, 14, ARCS2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, ARCS2) ); //         track
 
-		CHECK_THROWS ( result->difference(3, v1) == 0 ); // illegal block
-		CHECK_THROWS ( result->difference(3, v2) == 0 );
+		CHECK_THROWS ( result->difference(3, ARCS1) == 0 ); // illegal block
+		CHECK_THROWS ( result->difference(3, ARCS2) == 0 );
 	}
 
 	SECTION ( "Non-strict track order verification result has correct differences" )
@@ -581,14 +583,14 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 		REQUIRE ( not a.strict() );
 
 
-		CHECK ( result->difference(0, v1) ==  0 );
-		CHECK ( result->difference(0, v2) == 15 );
+		CHECK ( result->difference(0, ARCS1) ==  0 );
+		CHECK ( result->difference(0, ARCS2) == 15 );
 
-		CHECK ( result->difference(1, v1) == 15 );
-		CHECK ( result->difference(1, v2) ==  0 );
+		CHECK ( result->difference(1, ARCS1) == 15 );
+		CHECK ( result->difference(1, ARCS2) ==  0 );
 
-		CHECK ( result->difference(2, v1) == 16 );
-		CHECK ( result->difference(2, v2) == 16 );
+		CHECK ( result->difference(2, ARCS1) == 16 );
+		CHECK ( result->difference(2, ARCS2) == 16 );
 	}
 
 	SECTION ( "Non-strict track order verification result has correct flags" )
@@ -607,111 +609,115 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 		// block 0
 		CHECK ( result->id(0) );
 
-		CHECK ( result->track(0,  0, v1) );
-		CHECK ( result->track(0,  1, v1) );
-		CHECK ( result->track(0,  2, v1) );
-		CHECK ( result->track(0,  3, v1) );
-		CHECK ( result->track(0,  4, v1) );
-		CHECK ( result->track(0,  5, v1) );
-		CHECK ( result->track(0,  6, v1) );
-		CHECK ( result->track(0,  7, v1) );
-		CHECK ( result->track(0,  8, v1) );
-		CHECK ( result->track(0,  9, v1) );
-		CHECK ( result->track(0, 10, v1) );
-		CHECK ( result->track(0, 11, v1) );
-		CHECK ( result->track(0, 12, v1) );
-		CHECK ( result->track(0, 13, v1) );
-		CHECK ( result->track(0, 14, v1) );
+		CHECK ( result->track(0,  0, ARCS1) );
+		CHECK ( result->track(0,  1, ARCS1) );
+		CHECK ( result->track(0,  2, ARCS1) );
+		CHECK ( result->track(0,  3, ARCS1) );
+		CHECK ( result->track(0,  4, ARCS1) );
+		CHECK ( result->track(0,  5, ARCS1) );
+		CHECK ( result->track(0,  6, ARCS1) );
+		CHECK ( result->track(0,  7, ARCS1) );
+		CHECK ( result->track(0,  8, ARCS1) );
+		CHECK ( result->track(0,  9, ARCS1) );
+		CHECK ( result->track(0, 10, ARCS1) );
+		CHECK ( result->track(0, 11, ARCS1) );
+		CHECK ( result->track(0, 12, ARCS1) );
+		CHECK ( result->track(0, 13, ARCS1) );
+		CHECK ( result->track(0, 14, ARCS1) );
 
-		CHECK ( not result->track(0,  0, v2) );
-		CHECK ( not result->track(0,  1, v2) );
-		CHECK ( not result->track(0,  2, v2) );
-		CHECK ( not result->track(0,  3, v2) );
-		CHECK ( not result->track(0,  4, v2) );
-		CHECK ( not result->track(0,  5, v2) );
-		CHECK ( not result->track(0,  6, v2) );
-		CHECK ( not result->track(0,  7, v2) );
-		CHECK ( not result->track(0,  8, v2) );
-		CHECK ( not result->track(0,  9, v2) );
-		CHECK ( not result->track(0, 10, v2) );
-		CHECK ( not result->track(0, 11, v2) );
-		CHECK ( not result->track(0, 12, v2) );
-		CHECK ( not result->track(0, 13, v2) );
-		CHECK ( not result->track(0, 14, v2) );
+		CHECK ( not result->track(0,  0, ARCS2) );
+		CHECK ( not result->track(0,  1, ARCS2) );
+		CHECK ( not result->track(0,  2, ARCS2) );
+		CHECK ( not result->track(0,  3, ARCS2) );
+		CHECK ( not result->track(0,  4, ARCS2) );
+		CHECK ( not result->track(0,  5, ARCS2) );
+		CHECK ( not result->track(0,  6, ARCS2) );
+		CHECK ( not result->track(0,  7, ARCS2) );
+		CHECK ( not result->track(0,  8, ARCS2) );
+		CHECK ( not result->track(0,  9, ARCS2) );
+		CHECK ( not result->track(0, 10, ARCS2) );
+		CHECK ( not result->track(0, 11, ARCS2) );
+		CHECK ( not result->track(0, 12, ARCS2) );
+		CHECK ( not result->track(0, 13, ARCS2) );
+		CHECK ( not result->track(0, 14, ARCS2) );
 
 		// 1
 		CHECK ( result->id(1) );
 
-		CHECK ( not result->track(1,  0, v1) );
-		CHECK ( not result->track(1,  1, v1) );
-		CHECK ( not result->track(1,  2, v1) );
-		CHECK ( not result->track(1,  3, v1) );
-		CHECK ( not result->track(1,  4, v1) );
-		CHECK ( not result->track(1,  5, v1) );
-		CHECK ( not result->track(1,  6, v1) );
-		CHECK ( not result->track(1,  7, v1) );
-		CHECK ( not result->track(1,  8, v1) );
-		CHECK ( not result->track(1,  9, v1) );
-		CHECK ( not result->track(1, 10, v1) );
-		CHECK ( not result->track(1, 11, v1) );
-		CHECK ( not result->track(1, 12, v1) );
-		CHECK ( not result->track(1, 13, v1) );
-		CHECK ( not result->track(1, 14, v1) );
+		CHECK ( not result->track(1,  0, ARCS1) );
+		CHECK ( not result->track(1,  1, ARCS1) );
+		CHECK ( not result->track(1,  2, ARCS1) );
+		CHECK ( not result->track(1,  3, ARCS1) );
+		CHECK ( not result->track(1,  4, ARCS1) );
+		CHECK ( not result->track(1,  5, ARCS1) );
+		CHECK ( not result->track(1,  6, ARCS1) );
+		CHECK ( not result->track(1,  7, ARCS1) );
+		CHECK ( not result->track(1,  8, ARCS1) );
+		CHECK ( not result->track(1,  9, ARCS1) );
+		CHECK ( not result->track(1, 10, ARCS1) );
+		CHECK ( not result->track(1, 11, ARCS1) );
+		CHECK ( not result->track(1, 12, ARCS1) );
+		CHECK ( not result->track(1, 13, ARCS1) );
+		CHECK ( not result->track(1, 14, ARCS1) );
 
-		CHECK ( result->track(1,  0, v2) );
-		CHECK ( result->track(1,  1, v2) );
-		CHECK ( result->track(1,  2, v2) );
-		CHECK ( result->track(1,  3, v2) );
-		CHECK ( result->track(1,  4, v2) );
-		CHECK ( result->track(1,  5, v2) );
-		CHECK ( result->track(1,  6, v2) );
-		CHECK ( result->track(1,  7, v2) );
-		CHECK ( result->track(1,  8, v2) );
-		CHECK ( result->track(1,  9, v2) );
-		CHECK ( result->track(1, 10, v2) );
-		CHECK ( result->track(1, 11, v2) );
-		CHECK ( result->track(1, 12, v2) );
-		CHECK ( result->track(1, 13, v2) );
-		CHECK ( result->track(1, 14, v2) );
+		CHECK ( result->track(1,  0, ARCS2) );
+		CHECK ( result->track(1,  1, ARCS2) );
+		CHECK ( result->track(1,  2, ARCS2) );
+		CHECK ( result->track(1,  3, ARCS2) );
+		CHECK ( result->track(1,  4, ARCS2) );
+		CHECK ( result->track(1,  5, ARCS2) );
+		CHECK ( result->track(1,  6, ARCS2) );
+		CHECK ( result->track(1,  7, ARCS2) );
+		CHECK ( result->track(1,  8, ARCS2) );
+		CHECK ( result->track(1,  9, ARCS2) );
+		CHECK ( result->track(1, 10, ARCS2) );
+		CHECK ( result->track(1, 11, ARCS2) );
+		CHECK ( result->track(1, 12, ARCS2) );
+		CHECK ( result->track(1, 13, ARCS2) );
+		CHECK ( result->track(1, 14, ARCS2) );
 
 		// 2
 		CHECK ( not result->id(2) ); // different id! nothing verifies!
 
-		CHECK ( not result->track(2,  0, v1) );
-		CHECK ( not result->track(2,  1, v1) );
-		CHECK ( not result->track(2,  2, v1) );
-		CHECK ( not result->track(2,  3, v1) );
-		CHECK ( not result->track(2,  4, v1) );
-		CHECK ( not result->track(2,  5, v1) );
-		CHECK ( not result->track(2,  6, v1) );
-		CHECK ( not result->track(2,  7, v1) );
-		CHECK ( not result->track(2,  8, v1) );
-		CHECK ( not result->track(2,  9, v1) );
-		CHECK ( not result->track(2, 10, v1) );
-		CHECK ( not result->track(2, 11, v1) );
-		CHECK ( not result->track(2, 12, v1) );
-		CHECK ( not result->track(2, 13, v1) );
-		CHECK ( not result->track(2, 14, v1) );
+		CHECK ( not result->track(2,  0, ARCS1) );
+		CHECK ( not result->track(2,  1, ARCS1) );
+		CHECK ( not result->track(2,  2, ARCS1) );
+		CHECK ( not result->track(2,  3, ARCS1) );
+		CHECK ( not result->track(2,  4, ARCS1) );
+		CHECK ( not result->track(2,  5, ARCS1) );
+		CHECK ( not result->track(2,  6, ARCS1) );
+		CHECK ( not result->track(2,  7, ARCS1) );
+		CHECK ( not result->track(2,  8, ARCS1) );
+		CHECK ( not result->track(2,  9, ARCS1) );
+		CHECK ( not result->track(2, 10, ARCS1) );
+		CHECK ( not result->track(2, 11, ARCS1) );
+		CHECK ( not result->track(2, 12, ARCS1) );
+		CHECK ( not result->track(2, 13, ARCS1) );
+		CHECK ( not result->track(2, 14, ARCS1) );
 
-		CHECK ( not result->track(2,  0, v2) );
-		CHECK ( not result->track(2,  1, v2) );
-		CHECK ( not result->track(2,  2, v2) );
-		CHECK ( not result->track(2,  3, v2) );
-		CHECK ( not result->track(2,  4, v2) );
-		CHECK ( not result->track(2,  5, v2) );
-		CHECK ( not result->track(2,  6, v2) );
-		CHECK ( not result->track(2,  7, v2) );
-		CHECK ( not result->track(2,  8, v2) );
-		CHECK ( not result->track(2,  9, v2) );
-		CHECK ( not result->track(2, 10, v2) );
-		CHECK ( not result->track(2, 11, v2) );
-		CHECK ( not result->track(2, 12, v2) );
-		CHECK ( not result->track(2, 13, v2) );
-		CHECK ( not result->track(2, 14, v2) );
+		CHECK ( not result->track(2,  0, ARCS2) );
+		CHECK ( not result->track(2,  1, ARCS2) );
+		CHECK ( not result->track(2,  2, ARCS2) );
+		CHECK ( not result->track(2,  3, ARCS2) );
+		CHECK ( not result->track(2,  4, ARCS2) );
+		CHECK ( not result->track(2,  5, ARCS2) );
+		CHECK ( not result->track(2,  6, ARCS2) );
+		CHECK ( not result->track(2,  7, ARCS2) );
+		CHECK ( not result->track(2,  8, ARCS2) );
+		CHECK ( not result->track(2,  9, ARCS2) );
+		CHECK ( not result->track(2, 10, ARCS2) );
+		CHECK ( not result->track(2, 11, ARCS2) );
+		CHECK ( not result->track(2, 12, ARCS2) );
+		CHECK ( not result->track(2, 13, ARCS2) );
+		CHECK ( not result->track(2, 14, ARCS2) );
 	}
 
 	SECTION ( "Non-strict track order verification yields best block" )
 	{
+		using arcstk::best_block::index;
+		using arcstk::best_block::checksumtype;
+		using arcstk::best_block::difference;
+
 		a.set_strict(false);
 
 		REQUIRE ( not a.strict() );
@@ -721,9 +727,9 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 
 		REQUIRE ( not a.strict() );
 
-		CHECK ( std::get<0>(best_block) == 1 );
-		CHECK ( std::get<1>(best_block) == v2 );
-		CHECK ( std::get<2>(best_block) == 0 );
+		CHECK ( index(best_block) == 1 );
+		CHECK ( checksumtype(best_block) == ARCS2 );
+		CHECK ( difference(best_block) == 0 );
 		CHECK ( result->best_block_difference() == 0 );
 	}
 
@@ -770,6 +776,9 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 	using arcstk::DBAR;
 	using arcstk::TracksetVerifier;
 	using arcstk::UNIT;
+
+	const auto ARCS1 = arcstk::checksum::type::ARCS1;
+	const auto ARCS2 = arcstk::checksum::type::ARCS2;
 
 	const auto dBAR = DBAR {
 		{ { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F },
@@ -921,11 +930,6 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 	REQUIRE ( t.actual_id() == nullptr );
 	REQUIRE ( t.actual_checksums() == &actual_sums );
 
-	// common constants
-
-	const bool v1 = false;
-	const bool v2 = true;
-
 
 	SECTION ( "Strict random order verification result has correct size" )
 	{
@@ -943,11 +947,11 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		CHECK_THROWS ( result->is_verified(15) );
 
 		CHECK_THROWS ( result->id(3) );            // illegal block
-		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
+		CHECK_THROWS ( result->track(3, 14, ARCS2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, ARCS2) ); //         track
 
-		CHECK_THROWS ( result->difference(3, v1) == 0 ); // illegal block
-		CHECK_THROWS ( result->difference(3, v2) == 0 );
+		CHECK_THROWS ( result->difference(3, ARCS1) == 0 ); // illegal block
+		CHECK_THROWS ( result->difference(3, ARCS2) == 0 );
 	}
 
 	SECTION ( "Strict random order verification result has correct "
@@ -960,14 +964,14 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		REQUIRE ( t.strict() );
 
 
-		CHECK ( result->difference(0, v1) == 15 );
-		CHECK ( result->difference(0, v2) == 15 );
+		CHECK ( result->difference(0, ARCS1) == 15 );
+		CHECK ( result->difference(0, ARCS2) == 15 );
 
-		CHECK ( result->difference(1, v1) ==  0 );
-		CHECK ( result->difference(1, v2) == 15 );
+		CHECK ( result->difference(1, ARCS1) ==  0 );
+		CHECK ( result->difference(1, ARCS2) == 15 );
 
-		CHECK ( result->difference(2, v1) == 15 );
-		CHECK ( result->difference(2, v2) ==  0 );
+		CHECK ( result->difference(2, ARCS1) == 15 );
+		CHECK ( result->difference(2, ARCS2) ==  0 );
 	}
 
 	SECTION ( "Strict random order verification result has correct flags" )
@@ -984,111 +988,115 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		// 0
 		CHECK ( result->id(0) ); // only mismatches
 
-		CHECK ( not result->track(0,  0, v1) );
-		CHECK ( not result->track(0,  1, v1) );
-		CHECK ( not result->track(0,  2, v1) );
-		CHECK ( not result->track(0,  3, v1) );
-		CHECK ( not result->track(0,  4, v1) );
-		CHECK ( not result->track(0,  5, v1) );
-		CHECK ( not result->track(0,  6, v1) );
-		CHECK ( not result->track(0,  7, v1) );
-		CHECK ( not result->track(0,  8, v1) );
-		CHECK ( not result->track(0,  9, v1) );
-		CHECK ( not result->track(0, 10, v1) );
-		CHECK ( not result->track(0, 11, v1) );
-		CHECK ( not result->track(0, 12, v1) );
-		CHECK ( not result->track(0, 13, v1) );
-		CHECK ( not result->track(0, 14, v1) );
+		CHECK ( not result->track(0,  0, ARCS1) );
+		CHECK ( not result->track(0,  1, ARCS1) );
+		CHECK ( not result->track(0,  2, ARCS1) );
+		CHECK ( not result->track(0,  3, ARCS1) );
+		CHECK ( not result->track(0,  4, ARCS1) );
+		CHECK ( not result->track(0,  5, ARCS1) );
+		CHECK ( not result->track(0,  6, ARCS1) );
+		CHECK ( not result->track(0,  7, ARCS1) );
+		CHECK ( not result->track(0,  8, ARCS1) );
+		CHECK ( not result->track(0,  9, ARCS1) );
+		CHECK ( not result->track(0, 10, ARCS1) );
+		CHECK ( not result->track(0, 11, ARCS1) );
+		CHECK ( not result->track(0, 12, ARCS1) );
+		CHECK ( not result->track(0, 13, ARCS1) );
+		CHECK ( not result->track(0, 14, ARCS1) );
 
-		CHECK ( not result->track(0,  0, v2) );
-		CHECK ( not result->track(0,  1, v2) );
-		CHECK ( not result->track(0,  2, v2) );
-		CHECK ( not result->track(0,  3, v2) );
-		CHECK ( not result->track(0,  4, v2) );
-		CHECK ( not result->track(0,  5, v2) );
-		CHECK ( not result->track(0,  6, v2) );
-		CHECK ( not result->track(0,  7, v2) );
-		CHECK ( not result->track(0,  8, v2) );
-		CHECK ( not result->track(0,  9, v2) );
-		CHECK ( not result->track(0, 10, v2) );
-		CHECK ( not result->track(0, 11, v2) );
-		CHECK ( not result->track(0, 12, v2) );
-		CHECK ( not result->track(0, 13, v2) );
-		CHECK ( not result->track(0, 14, v2) );
+		CHECK ( not result->track(0,  0, ARCS2) );
+		CHECK ( not result->track(0,  1, ARCS2) );
+		CHECK ( not result->track(0,  2, ARCS2) );
+		CHECK ( not result->track(0,  3, ARCS2) );
+		CHECK ( not result->track(0,  4, ARCS2) );
+		CHECK ( not result->track(0,  5, ARCS2) );
+		CHECK ( not result->track(0,  6, ARCS2) );
+		CHECK ( not result->track(0,  7, ARCS2) );
+		CHECK ( not result->track(0,  8, ARCS2) );
+		CHECK ( not result->track(0,  9, ARCS2) );
+		CHECK ( not result->track(0, 10, ARCS2) );
+		CHECK ( not result->track(0, 11, ARCS2) );
+		CHECK ( not result->track(0, 12, ARCS2) );
+		CHECK ( not result->track(0, 13, ARCS2) );
+		CHECK ( not result->track(0, 14, ARCS2) );
 
 		// 1
-		CHECK ( result->id(1) ); // all v1 match
+		CHECK ( result->id(1) ); // all ARCS1 match
 
-		CHECK ( result->track(1,  0, v1) );
-		CHECK ( result->track(1,  1, v1) );
-		CHECK ( result->track(1,  2, v1) );
-		CHECK ( result->track(1,  3, v1) );
-		CHECK ( result->track(1,  4, v1) );
-		CHECK ( result->track(1,  5, v1) );
-		CHECK ( result->track(1,  6, v1) );
-		CHECK ( result->track(1,  7, v1) );
-		CHECK ( result->track(1,  8, v1) );
-		CHECK ( result->track(1,  9, v1) );
-		CHECK ( result->track(1, 10, v1) );
-		CHECK ( result->track(1, 11, v1) );
-		CHECK ( result->track(1, 12, v1) );
-		CHECK ( result->track(1, 13, v1) );
-		CHECK ( result->track(1, 14, v1) );
+		CHECK ( result->track(1,  0, ARCS1) );
+		CHECK ( result->track(1,  1, ARCS1) );
+		CHECK ( result->track(1,  2, ARCS1) );
+		CHECK ( result->track(1,  3, ARCS1) );
+		CHECK ( result->track(1,  4, ARCS1) );
+		CHECK ( result->track(1,  5, ARCS1) );
+		CHECK ( result->track(1,  6, ARCS1) );
+		CHECK ( result->track(1,  7, ARCS1) );
+		CHECK ( result->track(1,  8, ARCS1) );
+		CHECK ( result->track(1,  9, ARCS1) );
+		CHECK ( result->track(1, 10, ARCS1) );
+		CHECK ( result->track(1, 11, ARCS1) );
+		CHECK ( result->track(1, 12, ARCS1) );
+		CHECK ( result->track(1, 13, ARCS1) );
+		CHECK ( result->track(1, 14, ARCS1) );
 
-		CHECK ( not result->track(1,  0, v2) );
-		CHECK ( not result->track(1,  1, v2) );
-		CHECK ( not result->track(1,  2, v2) );
-		CHECK ( not result->track(1,  3, v2) );
-		CHECK ( not result->track(1,  4, v2) );
-		CHECK ( not result->track(1,  5, v2) );
-		CHECK ( not result->track(1,  6, v2) );
-		CHECK ( not result->track(1,  7, v2) );
-		CHECK ( not result->track(1,  8, v2) );
-		CHECK ( not result->track(1,  9, v2) );
-		CHECK ( not result->track(1, 10, v2) );
-		CHECK ( not result->track(1, 11, v2) );
-		CHECK ( not result->track(1, 12, v2) );
-		CHECK ( not result->track(1, 13, v2) );
-		CHECK ( not result->track(1, 14, v2) );
+		CHECK ( not result->track(1,  0, ARCS2) );
+		CHECK ( not result->track(1,  1, ARCS2) );
+		CHECK ( not result->track(1,  2, ARCS2) );
+		CHECK ( not result->track(1,  3, ARCS2) );
+		CHECK ( not result->track(1,  4, ARCS2) );
+		CHECK ( not result->track(1,  5, ARCS2) );
+		CHECK ( not result->track(1,  6, ARCS2) );
+		CHECK ( not result->track(1,  7, ARCS2) );
+		CHECK ( not result->track(1,  8, ARCS2) );
+		CHECK ( not result->track(1,  9, ARCS2) );
+		CHECK ( not result->track(1, 10, ARCS2) );
+		CHECK ( not result->track(1, 11, ARCS2) );
+		CHECK ( not result->track(1, 12, ARCS2) );
+		CHECK ( not result->track(1, 13, ARCS2) );
+		CHECK ( not result->track(1, 14, ARCS2) );
 
 		// 2
-		CHECK ( result->id(2) ); // all v2 match
+		CHECK ( result->id(2) ); // all ARCS2 match
 
-		CHECK ( not result->track(2,  0, v1) );
-		CHECK ( not result->track(2,  1, v1) );
-		CHECK ( not result->track(2,  2, v1) );
-		CHECK ( not result->track(2,  3, v1) );
-		CHECK ( not result->track(2,  4, v1) );
-		CHECK ( not result->track(2,  5, v1) );
-		CHECK ( not result->track(2,  6, v1) );
-		CHECK ( not result->track(2,  7, v1) );
-		CHECK ( not result->track(2,  8, v1) );
-		CHECK ( not result->track(2,  9, v1) );
-		CHECK ( not result->track(2, 10, v1) );
-		CHECK ( not result->track(2, 11, v1) );
-		CHECK ( not result->track(2, 12, v1) );
-		CHECK ( not result->track(2, 13, v1) );
-		CHECK ( not result->track(2, 14, v1) );
+		CHECK ( not result->track(2,  0, ARCS1) );
+		CHECK ( not result->track(2,  1, ARCS1) );
+		CHECK ( not result->track(2,  2, ARCS1) );
+		CHECK ( not result->track(2,  3, ARCS1) );
+		CHECK ( not result->track(2,  4, ARCS1) );
+		CHECK ( not result->track(2,  5, ARCS1) );
+		CHECK ( not result->track(2,  6, ARCS1) );
+		CHECK ( not result->track(2,  7, ARCS1) );
+		CHECK ( not result->track(2,  8, ARCS1) );
+		CHECK ( not result->track(2,  9, ARCS1) );
+		CHECK ( not result->track(2, 10, ARCS1) );
+		CHECK ( not result->track(2, 11, ARCS1) );
+		CHECK ( not result->track(2, 12, ARCS1) );
+		CHECK ( not result->track(2, 13, ARCS1) );
+		CHECK ( not result->track(2, 14, ARCS1) );
 
-		CHECK ( result->track(2,  0, v2) );
-		CHECK ( result->track(2,  1, v2) );
-		CHECK ( result->track(2,  2, v2) );
-		CHECK ( result->track(2,  3, v2) );
-		CHECK ( result->track(2,  4, v2) );
-		CHECK ( result->track(2,  5, v2) );
-		CHECK ( result->track(2,  6, v2) );
-		CHECK ( result->track(2,  7, v2) );
-		CHECK ( result->track(2,  8, v2) );
-		CHECK ( result->track(2,  9, v2) );
-		CHECK ( result->track(2, 10, v2) );
-		CHECK ( result->track(2, 11, v2) );
-		CHECK ( result->track(2, 12, v2) );
-		CHECK ( result->track(2, 13, v2) );
-		CHECK ( result->track(2, 14, v2) );
+		CHECK ( result->track(2,  0, ARCS2) );
+		CHECK ( result->track(2,  1, ARCS2) );
+		CHECK ( result->track(2,  2, ARCS2) );
+		CHECK ( result->track(2,  3, ARCS2) );
+		CHECK ( result->track(2,  4, ARCS2) );
+		CHECK ( result->track(2,  5, ARCS2) );
+		CHECK ( result->track(2,  6, ARCS2) );
+		CHECK ( result->track(2,  7, ARCS2) );
+		CHECK ( result->track(2,  8, ARCS2) );
+		CHECK ( result->track(2,  9, ARCS2) );
+		CHECK ( result->track(2, 10, ARCS2) );
+		CHECK ( result->track(2, 11, ARCS2) );
+		CHECK ( result->track(2, 12, ARCS2) );
+		CHECK ( result->track(2, 13, ARCS2) );
+		CHECK ( result->track(2, 14, ARCS2) );
 	}
 
 	SECTION ( "Strict random order verification yields best block" )
 	{
+		using arcstk::best_block::index;
+		using arcstk::best_block::checksumtype;
+		using arcstk::best_block::difference;
+
 		REQUIRE ( t.strict() );
 
 		const auto result = t.perform(dBAR);
@@ -1097,9 +1105,9 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		REQUIRE ( t.strict() );
 
 
-		CHECK ( std::get<0>(best_block) == 2 );    // correct block
-		CHECK ( std::get<1>(best_block) == true ); // is v2
-		CHECK ( std::get<2>(best_block) == 0 );    // has zero difference
+		CHECK ( index(best_block)        == 2 );
+		CHECK ( checksumtype(best_block) == ARCS2 );
+		CHECK ( difference(best_block)   == 0 );
 
 		CHECK ( result->best_block_difference() == 0 );
 	}
@@ -1153,11 +1161,11 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		CHECK_THROWS ( result->is_verified(15) );
 
 		CHECK_THROWS ( result->id(3) );            // illegal block
-		CHECK_THROWS ( result->track(3, 14, v2) ); //         block
-		CHECK_THROWS ( result->track(2, 15, v2) ); //         track
+		CHECK_THROWS ( result->track(3, 14, ARCS2) ); //         block
+		CHECK_THROWS ( result->track(2, 15, ARCS2) ); //         track
 
-		CHECK_THROWS ( result->difference(3, v1) == 0 ); // illegal block
-		CHECK_THROWS ( result->difference(3, v2) == 0 );
+		CHECK_THROWS ( result->difference(3, ARCS1) == 0 ); // illegal block
+		CHECK_THROWS ( result->difference(3, ARCS2) == 0 );
 	}
 
 	SECTION ( "Non-strict random order verification result has correct "
@@ -1172,14 +1180,14 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		REQUIRE ( not t.strict() );
 
 
-		CHECK ( result->difference(0, v1) == 15 );
-		CHECK ( result->difference(0, v2) == 15 );
+		CHECK ( result->difference(0, ARCS1) == 15 );
+		CHECK ( result->difference(0, ARCS2) == 15 );
 
-		CHECK ( result->difference(1, v1) ==  0 );
-		CHECK ( result->difference(1, v2) == 15 );
+		CHECK ( result->difference(1, ARCS1) ==  0 );
+		CHECK ( result->difference(1, ARCS2) == 15 );
 
-		CHECK ( result->difference(2, v1) == 15 );
-		CHECK ( result->difference(2, v2) ==  0 );
+		CHECK ( result->difference(2, ARCS1) == 15 );
+		CHECK ( result->difference(2, ARCS2) ==  0 );
 	}
 
 	SECTION ( "Non-strict random order verification result has correct flags" )
@@ -1198,111 +1206,115 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		// 0
 		CHECK ( result->id(0) ); // only mismatches
 
-		CHECK ( not result->track(0,  0, v1) );
-		CHECK ( not result->track(0,  1, v1) );
-		CHECK ( not result->track(0,  2, v1) );
-		CHECK ( not result->track(0,  3, v1) );
-		CHECK ( not result->track(0,  4, v1) );
-		CHECK ( not result->track(0,  5, v1) );
-		CHECK ( not result->track(0,  6, v1) );
-		CHECK ( not result->track(0,  7, v1) );
-		CHECK ( not result->track(0,  8, v1) );
-		CHECK ( not result->track(0,  9, v1) );
-		CHECK ( not result->track(0, 10, v1) );
-		CHECK ( not result->track(0, 11, v1) );
-		CHECK ( not result->track(0, 12, v1) );
-		CHECK ( not result->track(0, 13, v1) );
-		CHECK ( not result->track(0, 14, v1) );
+		CHECK ( not result->track(0,  0, ARCS1) );
+		CHECK ( not result->track(0,  1, ARCS1) );
+		CHECK ( not result->track(0,  2, ARCS1) );
+		CHECK ( not result->track(0,  3, ARCS1) );
+		CHECK ( not result->track(0,  4, ARCS1) );
+		CHECK ( not result->track(0,  5, ARCS1) );
+		CHECK ( not result->track(0,  6, ARCS1) );
+		CHECK ( not result->track(0,  7, ARCS1) );
+		CHECK ( not result->track(0,  8, ARCS1) );
+		CHECK ( not result->track(0,  9, ARCS1) );
+		CHECK ( not result->track(0, 10, ARCS1) );
+		CHECK ( not result->track(0, 11, ARCS1) );
+		CHECK ( not result->track(0, 12, ARCS1) );
+		CHECK ( not result->track(0, 13, ARCS1) );
+		CHECK ( not result->track(0, 14, ARCS1) );
 
-		CHECK ( not result->track(0,  0, v2) );
-		CHECK ( not result->track(0,  1, v2) );
-		CHECK ( not result->track(0,  2, v2) );
-		CHECK ( not result->track(0,  3, v2) );
-		CHECK ( not result->track(0,  4, v2) );
-		CHECK ( not result->track(0,  5, v2) );
-		CHECK ( not result->track(0,  6, v2) );
-		CHECK ( not result->track(0,  7, v2) );
-		CHECK ( not result->track(0,  8, v2) );
-		CHECK ( not result->track(0,  9, v2) );
-		CHECK ( not result->track(0, 10, v2) );
-		CHECK ( not result->track(0, 11, v2) );
-		CHECK ( not result->track(0, 12, v2) );
-		CHECK ( not result->track(0, 13, v2) );
-		CHECK ( not result->track(0, 14, v2) );
+		CHECK ( not result->track(0,  0, ARCS2) );
+		CHECK ( not result->track(0,  1, ARCS2) );
+		CHECK ( not result->track(0,  2, ARCS2) );
+		CHECK ( not result->track(0,  3, ARCS2) );
+		CHECK ( not result->track(0,  4, ARCS2) );
+		CHECK ( not result->track(0,  5, ARCS2) );
+		CHECK ( not result->track(0,  6, ARCS2) );
+		CHECK ( not result->track(0,  7, ARCS2) );
+		CHECK ( not result->track(0,  8, ARCS2) );
+		CHECK ( not result->track(0,  9, ARCS2) );
+		CHECK ( not result->track(0, 10, ARCS2) );
+		CHECK ( not result->track(0, 11, ARCS2) );
+		CHECK ( not result->track(0, 12, ARCS2) );
+		CHECK ( not result->track(0, 13, ARCS2) );
+		CHECK ( not result->track(0, 14, ARCS2) );
 
 		// 1
-		CHECK ( result->id(1) ); // all v1 match
+		CHECK ( result->id(1) ); // all ARCS1 match
 
-		CHECK ( result->track(1,  0, v1) );
-		CHECK ( result->track(1,  1, v1) );
-		CHECK ( result->track(1,  2, v1) );
-		CHECK ( result->track(1,  3, v1) );
-		CHECK ( result->track(1,  4, v1) );
-		CHECK ( result->track(1,  5, v1) );
-		CHECK ( result->track(1,  6, v1) );
-		CHECK ( result->track(1,  7, v1) );
-		CHECK ( result->track(1,  8, v1) );
-		CHECK ( result->track(1,  9, v1) );
-		CHECK ( result->track(1, 10, v1) );
-		CHECK ( result->track(1, 11, v1) );
-		CHECK ( result->track(1, 12, v1) );
-		CHECK ( result->track(1, 13, v1) );
-		CHECK ( result->track(1, 14, v1) );
+		CHECK ( result->track(1,  0, ARCS1) );
+		CHECK ( result->track(1,  1, ARCS1) );
+		CHECK ( result->track(1,  2, ARCS1) );
+		CHECK ( result->track(1,  3, ARCS1) );
+		CHECK ( result->track(1,  4, ARCS1) );
+		CHECK ( result->track(1,  5, ARCS1) );
+		CHECK ( result->track(1,  6, ARCS1) );
+		CHECK ( result->track(1,  7, ARCS1) );
+		CHECK ( result->track(1,  8, ARCS1) );
+		CHECK ( result->track(1,  9, ARCS1) );
+		CHECK ( result->track(1, 10, ARCS1) );
+		CHECK ( result->track(1, 11, ARCS1) );
+		CHECK ( result->track(1, 12, ARCS1) );
+		CHECK ( result->track(1, 13, ARCS1) );
+		CHECK ( result->track(1, 14, ARCS1) );
 
-		CHECK ( not result->track(1,  0, v2) );
-		CHECK ( not result->track(1,  1, v2) );
-		CHECK ( not result->track(1,  2, v2) );
-		CHECK ( not result->track(1,  3, v2) );
-		CHECK ( not result->track(1,  4, v2) );
-		CHECK ( not result->track(1,  5, v2) );
-		CHECK ( not result->track(1,  6, v2) );
-		CHECK ( not result->track(1,  7, v2) );
-		CHECK ( not result->track(1,  8, v2) );
-		CHECK ( not result->track(1,  9, v2) );
-		CHECK ( not result->track(1, 10, v2) );
-		CHECK ( not result->track(1, 11, v2) );
-		CHECK ( not result->track(1, 12, v2) );
-		CHECK ( not result->track(1, 13, v2) );
-		CHECK ( not result->track(1, 14, v2) );
+		CHECK ( not result->track(1,  0, ARCS2) );
+		CHECK ( not result->track(1,  1, ARCS2) );
+		CHECK ( not result->track(1,  2, ARCS2) );
+		CHECK ( not result->track(1,  3, ARCS2) );
+		CHECK ( not result->track(1,  4, ARCS2) );
+		CHECK ( not result->track(1,  5, ARCS2) );
+		CHECK ( not result->track(1,  6, ARCS2) );
+		CHECK ( not result->track(1,  7, ARCS2) );
+		CHECK ( not result->track(1,  8, ARCS2) );
+		CHECK ( not result->track(1,  9, ARCS2) );
+		CHECK ( not result->track(1, 10, ARCS2) );
+		CHECK ( not result->track(1, 11, ARCS2) );
+		CHECK ( not result->track(1, 12, ARCS2) );
+		CHECK ( not result->track(1, 13, ARCS2) );
+		CHECK ( not result->track(1, 14, ARCS2) );
 
 		// 2
-		CHECK ( result->id(2) ); // all v2 match
+		CHECK ( result->id(2) ); // all ARCS2 match
 
-		CHECK ( not result->track(2,  0, v1) );
-		CHECK ( not result->track(2,  1, v1) );
-		CHECK ( not result->track(2,  2, v1) );
-		CHECK ( not result->track(2,  3, v1) );
-		CHECK ( not result->track(2,  4, v1) );
-		CHECK ( not result->track(2,  5, v1) );
-		CHECK ( not result->track(2,  6, v1) );
-		CHECK ( not result->track(2,  7, v1) );
-		CHECK ( not result->track(2,  8, v1) );
-		CHECK ( not result->track(2,  9, v1) );
-		CHECK ( not result->track(2, 10, v1) );
-		CHECK ( not result->track(2, 11, v1) );
-		CHECK ( not result->track(2, 12, v1) );
-		CHECK ( not result->track(2, 13, v1) );
-		CHECK ( not result->track(2, 14, v1) );
+		CHECK ( not result->track(2,  0, ARCS1) );
+		CHECK ( not result->track(2,  1, ARCS1) );
+		CHECK ( not result->track(2,  2, ARCS1) );
+		CHECK ( not result->track(2,  3, ARCS1) );
+		CHECK ( not result->track(2,  4, ARCS1) );
+		CHECK ( not result->track(2,  5, ARCS1) );
+		CHECK ( not result->track(2,  6, ARCS1) );
+		CHECK ( not result->track(2,  7, ARCS1) );
+		CHECK ( not result->track(2,  8, ARCS1) );
+		CHECK ( not result->track(2,  9, ARCS1) );
+		CHECK ( not result->track(2, 10, ARCS1) );
+		CHECK ( not result->track(2, 11, ARCS1) );
+		CHECK ( not result->track(2, 12, ARCS1) );
+		CHECK ( not result->track(2, 13, ARCS1) );
+		CHECK ( not result->track(2, 14, ARCS1) );
 
-		CHECK ( result->track(2,  0, v2) );
-		CHECK ( result->track(2,  1, v2) );
-		CHECK ( result->track(2,  2, v2) );
-		CHECK ( result->track(2,  3, v2) );
-		CHECK ( result->track(2,  4, v2) );
-		CHECK ( result->track(2,  5, v2) );
-		CHECK ( result->track(2,  6, v2) );
-		CHECK ( result->track(2,  7, v2) );
-		CHECK ( result->track(2,  8, v2) );
-		CHECK ( result->track(2,  9, v2) );
-		CHECK ( result->track(2, 10, v2) );
-		CHECK ( result->track(2, 11, v2) );
-		CHECK ( result->track(2, 12, v2) );
-		CHECK ( result->track(2, 13, v2) );
-		CHECK ( result->track(2, 14, v2) );
+		CHECK ( result->track(2,  0, ARCS2) );
+		CHECK ( result->track(2,  1, ARCS2) );
+		CHECK ( result->track(2,  2, ARCS2) );
+		CHECK ( result->track(2,  3, ARCS2) );
+		CHECK ( result->track(2,  4, ARCS2) );
+		CHECK ( result->track(2,  5, ARCS2) );
+		CHECK ( result->track(2,  6, ARCS2) );
+		CHECK ( result->track(2,  7, ARCS2) );
+		CHECK ( result->track(2,  8, ARCS2) );
+		CHECK ( result->track(2,  9, ARCS2) );
+		CHECK ( result->track(2, 10, ARCS2) );
+		CHECK ( result->track(2, 11, ARCS2) );
+		CHECK ( result->track(2, 12, ARCS2) );
+		CHECK ( result->track(2, 13, ARCS2) );
+		CHECK ( result->track(2, 14, ARCS2) );
 	}
 
 	SECTION ( "Non-strict random order verification yields best block" )
 	{
+		using arcstk::best_block::index;
+		using arcstk::best_block::checksumtype;
+		using arcstk::best_block::difference;
+
 		t.set_strict(false);
 
 		REQUIRE ( not t.strict() );
@@ -1313,9 +1325,9 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
 		REQUIRE ( not t.strict() );
 
 
-		CHECK ( std::get<0>(best_block) == 2 );    // correct block
-		CHECK ( std::get<1>(best_block) == true ); // is v2
-		CHECK ( std::get<2>(best_block) == 0 );    // has zero difference
+		CHECK ( index(best_block) == 2 );    // correct block
+		CHECK ( checksumtype(best_block) == ARCS2 ); // is ARCS2
+		CHECK ( difference(best_block) == 0 );    // has zero difference
 
 		CHECK ( result->best_block_difference() == 0 );
 	}

@@ -266,7 +266,7 @@ public:
 /**
  * \brief Type to refer to best block in result.
  *
- * The type is accessible via std::get.
+ * The type is accessible via functions in namespace best_block.
  */
 using best_block_info_t = std::tuple<int, bool, int>;
 
@@ -278,16 +278,6 @@ namespace best_block
 {
 
 /**
- * \brief Element indices of type best_block_info_t.
- */
-enum class TUPLE_IDX : uint8_t
-{
-	INDEX         = 0,
-	CHECKSUM_TYPE = 1,
-	DIFFERENCE    = 2
-};
-
-/**
  * \brief Index of the best block in the VerificationResult.
  *
  * \param[in] bb The best_block_info_t to query
@@ -295,15 +285,6 @@ enum class TUPLE_IDX : uint8_t
  * \return Index of the best block
  */
 int index(const best_block_info_t& bb);
-
-/**
- * \brief Type flag of the best block in the VerificationResult.
- *
- * \param[in] bb The best_block_info_t to query
- *
- * \return Type flag of the best block
- */
-bool typeflag(const best_block_info_t& bb);
 
 /**
  * \brief Total mismatches in the best block.
@@ -351,52 +332,17 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result);
  */
 class VerificationResult
 {
-	virtual int do_total_unverified_tracks() const
-	= 0;
-
-	virtual bool do_is_verified(const int track) const
-	= 0;
-
-	virtual int do_verify_track(const int b, const int t, const bool v2)
-	= 0;
-
-	virtual bool do_track(const int b, const int t, const bool v2) const
-	= 0;
-
-	virtual int do_verify_id(const int b)
-	= 0;
-
-	virtual bool do_id(const int b) const
-	= 0;
-
-	virtual int do_difference(const int b, const bool v2) const
-	= 0;
-
-	virtual int do_total_blocks() const
-	= 0;
-
-	virtual int do_tracks_per_block() const
-	= 0;
-
-	virtual size_t do_size() const
-	= 0;
-
-	virtual best_block_info_t do_best_block() const
-	= 0;
-
-	virtual int do_best_block_difference() const
-	= 0;
-
-	virtual bool do_strict() const
-	= 0;
-
-	virtual std::unique_ptr<VerificationResult> do_clone() const
-	= 0;
-
-	friend std::ostream& operator << (std::ostream&,
-			const VerificationResult& match);
-
 public:
+
+	/**
+	 * \brief Index type of this class.
+	 */
+	using index_type = int;
+
+	/**
+	 * \copydoc SNPT_tp_size
+	 */
+	using size_type = std::size_t;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -426,7 +372,7 @@ public:
 	 *
 	 * \return Total number of unverified tracks.
 	 */
-	int total_unverified_tracks() const;
+	size_type total_unverified_tracks() const;
 
 	/**
 	 * \brief TRUE iff specified 0-based track is verified, otherwise FALSE.
@@ -435,7 +381,7 @@ public:
 	 *
 	 * \return TRUE iff specified track is verified, otherwise FALSE
 	 */
-	bool is_verified(const int track) const;
+	bool is_verified(const index_type track) const;
 
 	/**
 	 * \brief Mark the checksum of a specified track in a specified block as
@@ -443,13 +389,14 @@ public:
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
 	 * \param[in] t  0-based index of the track to verify in the ChecksumSource
-	 * \param[in] v2 Verifies the ARCSv2 iff \c TRUE, otherwise ARCSv1
+	 * \param[in] type Verifies the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	int verify_track(int b, int t, bool v2);
+	index_type verify_track(const index_type b, const index_type t,
+			const checksum::type type);
 
 	/**
 	 * \brief Return the verification status of an ARCS of the specified track
@@ -466,13 +413,14 @@ public:
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
 	 * \param[in] t  0-based index of the track to verify in the ChecksumSource
-	 * \param[in] v2 Returns the ARCSv2 flag iff \c TRUE, otherwise ARCSv1
+	 * \param[in] type Returns the ARCSv2 flag iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
-	bool track(int b, int t, bool v2) const;
+	bool track(const index_type b, const index_type t,
+			const checksum::type type) const;
 
 	/**
 	 * \brief Mark the ARId of the specified block as 'matched'.
@@ -483,7 +431,7 @@ public:
 	 *
 	 * \return Index position to store the verification flag
 	 */
-	int verify_id(int block);
+	index_type verify_id(const index_type block);
 
 	/**
 	 * \brief \c TRUE iff the ARId of the specified block matches the ARId of
@@ -496,7 +444,7 @@ public:
 	 * \return \c TRUE iff the ARId of block \c b matches the ARId of the
 	 *         request
 	 */
-	bool id(int b) const;
+	bool id(const index_type b) const;
 
 	/**
 	 * \brief Returns the difference for block \c b .
@@ -515,13 +463,13 @@ public:
 	 * have a difference of only 15.
 	 *
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
-	 * \param[in] v2 Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
+	 * \param[in] type Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
 	 * \throws std::runtime_error Iff \c b is out of range
 	 *
 	 * \return Difference of block \c b
 	 */
-	int difference(int b, bool v2) const;
+	int difference(const index_type b, checksum::type type) const;
 
 	/**
 	 * \brief Returns the number of analyzed reference blocks.
@@ -530,7 +478,7 @@ public:
 	 *
 	 * \return Total number of analyzed blocks.
 	 */
-	int total_blocks() const;
+	size_type total_blocks() const;
 
 	/**
 	 * \brief Returns the number of compared tracks per reference block.
@@ -540,7 +488,7 @@ public:
 	 *
 	 * \return Total number of tracks per block.
 	 */
-	int tracks_per_block() const;
+	size_type tracks_per_block() const;
 
 	/**
 	 * \brief Returns the number of comparison flags stored.
@@ -555,7 +503,7 @@ public:
 	 *
 	 * \return Number of flags stored
 	 */
-	size_t size() const;
+	size_type size() const;
 
 	/**
 	 * \brief Identify best matching block (the one with smallest difference).
@@ -587,6 +535,56 @@ public:
 	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<VerificationResult> clone() const;
+
+private:
+
+	virtual size_type do_total_unverified_tracks() const
+	= 0;
+
+	virtual bool do_is_verified(const index_type track) const
+	= 0;
+
+	virtual index_type do_verify_track(const index_type b, const index_type t,
+			const checksum::type type)
+	= 0;
+
+	virtual bool do_track(const index_type b, const index_type t,
+			const checksum::type type) const
+	= 0;
+
+	virtual index_type do_verify_id(const index_type b)
+	= 0;
+
+	virtual bool do_id(const index_type b) const
+	= 0;
+
+	virtual int do_difference(const index_type b, const checksum::type type)
+		const
+	= 0;
+
+	virtual size_type do_total_blocks() const
+	= 0;
+
+	virtual size_type do_tracks_per_block() const
+	= 0;
+
+	virtual size_type do_size() const
+	= 0;
+
+	virtual best_block_info_t do_best_block() const
+	= 0;
+
+	virtual int do_best_block_difference() const
+	= 0;
+
+	virtual bool do_strict() const
+	= 0;
+
+	virtual std::unique_ptr<VerificationResult> do_clone() const
+	= 0;
+
+	friend std::ostream& operator << (std::ostream&,
+			const VerificationResult& match);
 };
 
 
