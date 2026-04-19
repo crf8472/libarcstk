@@ -672,7 +672,7 @@ inline std::string now_time()
  * \brief Send error message to log.
  */
 #define ARCS_LOG_ERROR \
-    if (arcstk::LOGLEVEL::ERROR > CLIP_LOGGING_LEVEL) ; \
+    if (arcstk::LOGLEVEL::ERROR > arcstk::CLIP_LOGGING_LEVEL) ; \
     else if (arcstk::LOGLEVEL::ERROR > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::ERROR).get()
 
@@ -680,7 +680,7 @@ inline std::string now_time()
  * \brief Send warning message to log.
  */
 #define ARCS_LOG_WARNING \
-    if (arcstk::LOGLEVEL::WARNING > CLIP_LOGGING_LEVEL) ; \
+    if (arcstk::LOGLEVEL::WARNING > arcstk::CLIP_LOGGING_LEVEL) ; \
     else if (arcstk::LOGLEVEL::WARNING > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::WARNING).get()
 
@@ -688,7 +688,7 @@ inline std::string now_time()
  * \brief Send info message to log.
  */
 #define ARCS_LOG_INFO \
-    if (arcstk::LOGLEVEL::INFO > CLIP_LOGGING_LEVEL) ; \
+    if (arcstk::LOGLEVEL::INFO > arcstk::CLIP_LOGGING_LEVEL) ; \
     else if (arcstk::LOGLEVEL::INFO > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::INFO).get()
 
@@ -696,7 +696,7 @@ inline std::string now_time()
  * \brief Send debug message to log.
  */
 #define ARCS_LOG_DEBUG \
-    if (arcstk::LOGLEVEL::DEBUG > CLIP_LOGGING_LEVEL) ; \
+    if (arcstk::LOGLEVEL::DEBUG > arcstk::CLIP_LOGGING_LEVEL) ; \
     else if (arcstk::LOGLEVEL::DEBUG > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::DEBUG).get()
 
@@ -710,7 +710,7 @@ inline std::string now_time()
  * \param[in] loglevel The LOGLEVEL to use
  */
 #define ARCS_LOG(loglevel) \
-    if (arcstk::LOGLEVEL::loglevel > CLIP_LOGGING_LEVEL) ; \
+    if (arcstk::LOGLEVEL::loglevel > arcstk::CLIP_LOGGING_LEVEL) ; \
     else if (arcstk::LOGLEVEL::loglevel > arcstk::Logging::instance().level()) ; \
     else arcstk::Log(arcstk::Logging::instance().logger(), arcstk::LOGLEVEL::loglevel).get()
 
