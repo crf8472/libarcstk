@@ -516,9 +516,9 @@ class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
 						Swap<AudioSize>, ToString<AudioSize>
 {
 	/**
-	 * \brief Data: Total number of lba frames.
+	 * \brief Data: Total number of bytes.
 	 */
-	int32_t frames_;
+	int32_t bytes_;
 
 public:
 
@@ -529,7 +529,7 @@ public:
 	 * \param[in] unit  Unit for \c value
 	 */
 	AudioSize(const int32_t value, const UNIT unit) noexcept
-		: frames_ { convert_to<UNIT::FRAMES>(value, unit) }
+		: bytes_ { convert_to<UNIT::BYTES>(value, unit) }
 	{
 		// empty
 	}
@@ -540,7 +540,7 @@ public:
 	 * Constructs an AudioSize of zero().
 	 */
 	AudioSize() noexcept
-		: AudioSize { 0, UNIT::FRAMES }
+		: AudioSize { 0, UNIT::BYTES }
 	{
 		// empty
 	}
@@ -552,7 +552,7 @@ public:
 	 */
 	int32_t frames() const noexcept
 	{
-		return frames_;
+		return convert<UNIT::BYTES, UNIT::FRAMES>(bytes_);
 	}
 
 	/**
@@ -562,7 +562,7 @@ public:
 	 */
 	void set_frames(const int32_t frames) noexcept
 	{
-		frames_ = frames;
+		bytes_ = convert<UNIT::FRAMES, UNIT::BYTES>(frames);
 	}
 
 	/**
@@ -572,7 +572,7 @@ public:
 	 */
 	int32_t samples() const noexcept
 	{
-		return convert<UNIT::FRAMES, UNIT::SAMPLES>(frames_);
+		return convert<UNIT::BYTES, UNIT::SAMPLES>(bytes_);
 	}
 
 	/**
@@ -582,7 +582,7 @@ public:
 	 */
 	void set_samples(const int32_t samples) noexcept
 	{
-		frames_ = convert<UNIT::SAMPLES, UNIT::FRAMES>(samples);
+		bytes_ = convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
 	}
 
 	/**
@@ -592,7 +592,7 @@ public:
 	 */
 	int32_t bytes() const noexcept
 	{
-		return convert<UNIT::FRAMES, UNIT::BYTES>(frames_);
+		return bytes_;
 	}
 
 	/**
@@ -602,7 +602,7 @@ public:
 	 */
 	void set_bytes(const int32_t bytes) noexcept
 	{
-		frames_ = convert<UNIT::BYTES, UNIT::FRAMES>(bytes);
+		bytes_ = bytes;
 	}
 
 	/**
@@ -610,7 +610,7 @@ public:
 	 */
 	bool zero() const noexcept
 	{
-		return 0 == frames_;
+		return 0 == bytes_;
 	}
 
 	/**
@@ -628,7 +628,7 @@ public:
 	{
 		using std::swap;
 
-		swap(this->frames_, rhs.frames_);
+		swap(this->bytes_, rhs.bytes_);
 	}
 
 	/**
@@ -636,7 +636,7 @@ public:
 	 */
 	bool equals(const AudioSize& rhs) const noexcept
 	{
-		return this->frames_ == rhs.frames_;
+		return this->bytes_ == rhs.bytes_;
 	}
 
 	/**
@@ -669,7 +669,7 @@ public:
 	 */
 	friend bool operator < (const AudioSize& lhs, const AudioSize& rhs) noexcept
 	{
-		return lhs.frames_ < rhs.frames_;
+		return lhs.bytes_ < rhs.bytes_;
 	}
 };
 
