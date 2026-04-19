@@ -86,6 +86,21 @@ std::string name(const type t);
 
 
 /**
+ * \copydoc SNPT_nf_stream_in
+ */
+inline std::ostream& operator << (std::ostream& out, const type checksum_type)
+{
+	if (!out.good())
+	{
+		return out;
+	}
+
+	out << name(checksum_type);
+	return out;
+}
+
+
+/**
  * \brief Print a checksum value to a stream.
  *
  * This defines how to print a Checksum by default.
