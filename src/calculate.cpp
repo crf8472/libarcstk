@@ -9,9 +9,6 @@
 #ifndef LIBARCSTK_CALCULATE_HPP_
 #include "calculate.hpp"
 #endif
-#ifndef LIBARCSTK_CALCULATE_DETAILS_HPP_
-#include "calculate_details.hpp"
-#endif
 
 #include <algorithm>   // for min, max
 #include <cstdint>     // for int32_t, uint16_t
@@ -31,9 +28,6 @@ inline namespace v_1_0_0
 {
 namespace details
 {
-
-// calculate_details.hpp
-
 
 // get_partitioning
 
@@ -220,25 +214,25 @@ Partitioning Partitioner::create_partitioning(
 }
 
 
-AudioSize Partitioner::total_samples() const
+AudioSize Partitioner::total_samples() const noexcept
 {
 	return total_samples_;
 }
 
 
-void Partitioner::set_total_samples(const AudioSize& total_samples)
+void Partitioner::set_total_samples(const AudioSize& total_samples) noexcept
 {
 	total_samples_ = total_samples;
 }
 
 
-SampleRange Partitioner::legal_range() const
+SampleRange Partitioner::legal_range() const noexcept
 {
 	return legal_;
 }
 
 
-Points Partitioner::points() const
+Points Partitioner::points() const noexcept
 {
 	return points_;
 }
@@ -351,42 +345,15 @@ int32_t am2ind(const int32_t amount)
 // CalculationState
 
 
-CalculationState::CalculationState(Algorithm* const algorithm)
+CalculationState::CalculationState()
 	: current_offset_          { 0 }
 	, samples_processed_       { 0 }
 	, track_samples_processed_ { 0 }
 	, tracks_processed_        { 0 }
 	, algo_time_elapsed_       { 0 }
 	, update_time_elapsed_     { 0 }
-	, algorithm_               { algorithm }
 {
 	// empty
-}
-
-
-void CalculationState::do_advance(const int32_t /* amount */)
-{
-	// empty
-}
-
-
-void CalculationState::do_update(SampleInputIterator start,
-		SampleInputIterator stop)
-{
-	algorithm_->update(std::move(start), std::move(stop));
-}
-
-
-ChecksumSet CalculationState::do_current_subtotal() const
-{
-	return algorithm_->result();
-}
-
-
-void CalculationState::do_track_finished()
-{
-	algorithm_->track_finished(tracks_processed_.value(),
-			AudioSize { track_samples_processed_.value(), UNIT::SAMPLES });
 }
 
 
@@ -396,22 +363,35 @@ int32_t CalculationState::current_offset() const noexcept
 }
 
 
-void CalculationState::advance(const int32_t amount)
-{
-	current_offset_.increment(amount);
-	do_advance(amount);
-}
-
-
 int32_t CalculationState::samples_processed() const noexcept
 {
 	return samples_processed_.value();
 }
 
 
-const Algorithm* CalculationState::algorithm() const noexcept
+int32_t CalculationState::track_samples_processed() const noexcept
 {
-	return algorithm_;
+	return track_samples_processed_.value();
+}
+
+
+int32_t CalculationState::tracks_processed() const noexcept
+{
+	return tracks_processed_.value();
+}
+
+
+std::chrono::duration<float> CalculationState::algo_time_elapsed() const
+	noexcept
+{
+	return algo_time_elapsed_;
+}
+
+
+void CalculationState::increment_algo_time_elapsed(
+			const std::chrono::duration<float>& duration)
+{
+	algo_time_elapsed_ += duration;
 }
 
 
@@ -429,76 +409,35 @@ void CalculationState::increment_update_time_elapsed(
 }
 
 
-std::chrono::duration<float> CalculationState::algo_time_elapsed() const
-	noexcept
+void CalculationState::advance(const int32_t amount)
 {
-	return algo_time_elapsed_;
+	current_offset_.increment(amount);
 }
 
 
-void CalculationState::update(SampleInputIterator start,
-		SampleInputIterator stop)
+void CalculationState::update(const int32_t samples_amount,
+		const std::chrono::duration<float>& algo_duration)
 {
-	using std::chrono::steady_clock; // or high_resolution_clock?
-	using fsec = std::chrono::duration<float>;
-
-	const auto amount { std::distance(start, stop) };
-
-	const auto start_time { std::chrono::steady_clock::now() };
-
-	try
-	{
-		do_update(std::move(start), std::move(stop));
-	} catch (...)
-	{
-		const auto stop_time { std::chrono::steady_clock::now() };
-
-		const fsec dur { stop_time - start_time };
-		algo_time_elapsed_ += dur;
-
-		throw;
-	}
-
-	const auto stop_time { std::chrono::steady_clock::now() };
-
-	const fsec dur { stop_time - start_time };
-	algo_time_elapsed_ += dur;
-
-	const auto samples_amount = int32_t { static_cast<int32_t>(amount) };
-
 	samples_processed_.increment(samples_amount);
 	track_samples_processed_.increment(samples_amount);
 	advance(samples_amount);
+
+	increment_algo_time_elapsed(algo_duration);
 }
 
 
-void CalculationState::track_finished()
+int32_t CalculationState::track_finished()
 {
-	tracks_processed_.increment(1);
-	this->do_track_finished();
+	const auto track_samples = track_samples_processed();
+
 	track_samples_processed_.reset();
+	tracks_processed_.increment(1);
+
+	return track_samples;
 }
 
 
-ChecksumSet CalculationState::current_subtotal() const
-{
-	return do_current_subtotal();
-}
-
-
-std::unique_ptr<CalculationState> CalculationState::clone() const
-{
-	return do_clone();
-}
-
-
-std::unique_ptr<CalculationState> CalculationState::clone_to(Algorithm* a) const
-{
-	return do_clone_to(a);
-}
-
-
-void CalculationState::swap_base(CalculationState& rhs)
+void CalculationState::swap(CalculationState& rhs) noexcept
 {
 	using std::swap;
 
@@ -508,167 +447,128 @@ void CalculationState::swap_base(CalculationState& rhs)
 	swap(this->tracks_processed_,        rhs.tracks_processed_        );
 	swap(this->algo_time_elapsed_,       rhs.algo_time_elapsed_       );
 	swap(this->update_time_elapsed_,     rhs.update_time_elapsed_     );
-	swap(this->algorithm_,               rhs.algorithm_               );
 }
 
 
-void CalculationState::set_algorithm(Algorithm* const algorithm) noexcept
+std::unique_ptr<details::Partitioner> make_partitioner(
+		const Algorithm& algorithm,
+		const Points& offsets, const AudioSize& leadout)
 {
-	algorithm_ = algorithm;
+	using details::SampleRange;
+	using details::TrackPartitioner;
+
+	const auto interval {
+		SampleRange { algorithm.range(leadout, offsets) }};
+
+	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
+
+	return std::make_unique<details::TrackPartitioner>(leadout,
+			offsets, interval);
 }
 
 
-// CalculationStateImpl
-
-
-CalculationStateImpl::CalculationStateImpl(Algorithm* const algorithm)
-	: CalculationState{ algorithm }
+void log_sample_stats(const Partition& partition,
+		const int32_t from, const int32_t to, const int32_t total)
 {
-	// empty
+	ARCS_LOG(DEBUG2) << "Samples "
+		<< std::setw(9) << std::right << from
+		<< " - "
+		<< std::setw(9) << std::right << to
+		<< " (Track " << partition.track() << ", "
+		<< (partition.starts_track()
+				? (partition.ends_track() ? "complete"  : "first part")
+				: (partition.ends_track() ? "last part" : "mid part"))
+		<< ")";
+
+	ARCS_LOG(DEBUG2) << "Samples total: " << total;
 }
 
 
-std::unique_ptr<CalculationState> CalculationStateImpl::do_clone() const
+void log_processing_stats(const Partitioner& partitioner,
+		const CalculationState& state)
 {
-	return base_clone();
+	ARCS_LOG(DEBUG1) << "Total samples declared:  "
+		<< partitioner.total_samples().samples();
+
+	ARCS_LOG(DEBUG1) << "Total samples processed: "
+		<< state.samples_processed()
+		<< " (== " << partitioner.legal_range().to_string() << ")";
+
+	using ms = std::chrono::milliseconds;
+
+	const ms update_time =
+		std::chrono::duration_cast<ms>(state.update_time_elapsed());
+
+	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
+		<< update_time.count();
+
+	const ms algo_time =
+		std::chrono::duration_cast<ms>(state.algo_time_elapsed());
+
+	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by Algorithm: "
+		<< algo_time.count();
 }
 
 
-std::unique_ptr<CalculationState> CalculationStateImpl::do_clone_to(
-		Algorithm* algorithm) const
+namespace update
 {
-	auto cloned { base_clone() };
-	cloned->set_algorithm(algorithm);
-	return cloned;
-}
 
 
-std::unique_ptr<CalculationStateImpl> CalculationStateImpl::base_clone() const
+std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
+		CalculationState& state)
 {
-	return std::make_unique<CalculationStateImpl>(*this);
-}
-
-
-// perform_update
-
-
-bool perform_update(const SampleInputIterator& start,
-		const SampleInputIterator& stop,
-		const Partitioner& partitioner,
-		CalculationState&  state,
-		Checksums&         result_buffer)
-{
-	const auto start_pos        { state.current_offset() };
-	const auto samples_in_block { static_cast<int32_t>(
-			                               std::distance(start, stop)) };
-	const auto last_pos         { start_pos + am2ind(samples_in_block) };
+	const auto start_pos { state.current_offset() };
+	const auto last_pos  { start_pos + am2ind(samples_in_block) };
 
 	ARCS_LOG(DEBUG1) << "Offsets: " << start_pos << " - " << last_pos;
 	ARCS_LOG(DEBUG1) << "Size:    " << samples_in_block   << " samples";
 
-	// Create a partitioning following the track bounds in this block
-
-	const auto partitioning { partitioner.create_partitioning(
-			start_pos, samples_in_block) };
-
-	if (partitioning.empty())
-	{
-		ARCS_LOG_DEBUG << "Skip block, advance";
-		state.advance(samples_in_block);
-		return state.current_offset() >= partitioner.legal_range().upper();
-	} else
-	{
-		// If we skipped some samples at the beginning of the partition, advance
-		// the state by this amount so that current_offset() will be correct on
-		// subsequent call.
-		const auto diff { partitioning.front().begin_offset() - start_pos };
-		if (diff > 0)
-		{
-			ARCS_LOG(DEBUG1) << "Skipped " << diff << " samples, advance";
-			state.advance(diff);
-		}
-	}
-
-	ARCS_LOG(DEBUG1) << "Partitions: " << partitioning.size();
-
-	// Update the state with each partition in this partitioning
-
-	auto partition_counter = uint16_t { 0 };
-
-	auto offset_first { 0 };
-	auto offset_last  { 0 };
-	auto total        { 0 };
-
-	for (const auto& partition : partitioning)
-	{
-		++partition_counter;
-
-		ARCS_LOG(DEBUG2) << "PARTITION " << partition_counter << "/" <<
-			partitioning.size();
-
-		offset_first = partition.begin_offset() - start_pos;
-		offset_last  = partition.end_offset()   - start_pos;
-		total        = offset_last + 1 - offset_first;
-
-		ARCS_LOG(DEBUG2) << "Samples "
-			<< std::setw(9) << std::right << (start_pos + offset_first)
-			<< " - "
-			<< std::setw(9) << std::right << (start_pos + offset_last)
-			<< " (Track " << partition.track() << ", "
-			<< (partition.starts_track()
-					? (partition.ends_track() ? "complete"  : "first part")
-					: (partition.ends_track() ? "last part" : "mid part"))
-			<< ")";
-		ARCS_LOG(DEBUG2) << "Samples total: " << total;
-
-		state.update(start + offset_first, start + offset_last + 1);
-		// +1 because the stop point has to be shifted _behind_ the last sample.
-		// The last sample would not be processed otherwise.
-
-		// If the current partition ends a track, save the ARCSs for this track
-		if (partition.ends_track())
-		{
-			ARCS_LOG(DEBUG3) << "Completed track:  " << partition.track();
-
-			state.track_finished();
-			result_buffer.push_back(state.current_subtotal());
-		}
-	}
-
-	/* Return TRUE iff the last relevant sample was in the current block. */
-	return SampleRange { start_pos, last_pos }.contains(
-			partitioner.legal_range().upper());
+	return { start_pos, last_pos };
 }
 
 
-bool perform_update_profiled(const SampleInputIterator& start,
-		const SampleInputIterator& stop,
+bool complete_after_skip_block(const int32_t& samples_in_block,
 		const Partitioner& partitioner,
-		CalculationState&  state,
-		Checksums&         result_buffer)
+		CalculationState& state)
 {
-	using std::chrono::steady_clock;
+	ARCS_LOG_DEBUG << "Skip block, advance";
 
-	const auto start_time { steady_clock::now() };
-
-	const auto is_finished = bool {
-		perform_update(start, stop, partitioner, state, result_buffer) };
-
-	const auto stop_time  { steady_clock::now() };
-
-	state.increment_update_time_elapsed(stop_time - start_time);
-
-	// Previous version with explicit instantiation, commented out:
-	//
-	//using fsec = std::chrono::duration<float>;
-	//const fsec dur { stop_time - start_time }; // intentionally not auto
-	//// Type of the subtraction is high_resolution_clock::duration which is
-	//// not necessarily the same type as duration<float>.
-	//state_->increment_update_time_elapsed(dur);
-
-	return is_finished;
+	state.advance(samples_in_block);
+	return state.current_offset() >= partitioner.legal_range().upper();
 }
 
+
+void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
+		CalculationState& state)
+{
+	const auto diff { partitioning.front().begin_offset() - start_pos };
+
+	if (diff > 0)
+	{
+		ARCS_LOG(DEBUG1) << "Skipped " << diff << " samples, advance";
+		state.advance(diff);
+	}
+}
+
+
+void complete_track(Algorithm& algorithm,
+		CalculationResultBuffer& result_buffer, CalculationState& state)
+{
+	// Updates + resets state as a side effect: order matters, since
+	// CalculationState::track_finished() will update tracks_processed_.
+	const auto track_length = AudioSize { state.track_finished(),
+				UNIT::SAMPLES };
+
+	// tracks_processed() reflects previous track_finished()
+	const auto track_number = state.tracks_processed();
+
+	algorithm.track_finished(track_number, track_length);
+
+	result_buffer.put_value(static_cast<std::size_t>(track_number),
+					algorithm.result());
+}
+
+} // namespace update
 } // namespace details
 
 
@@ -711,7 +611,6 @@ bool any(const Context& rhs) noexcept
 {
 	return static_cast<unsigned>(rhs) != 0;
 }
-
 
 
 // Settings
@@ -799,12 +698,6 @@ std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
 }
 
 
-void Algorithm::update(SampleInputIterator start, SampleInputIterator stop)
-{
-	this->do_update(std::move(start), std::move(stop));
-}
-
-
 void Algorithm::track_finished(const int t, const AudioSize& length)
 {
 	this->do_track_finished(t, length);
@@ -836,331 +729,103 @@ void Algorithm::swap_base(Algorithm& rhs)
 }
 
 
-// Calculation::Impl
+// Stateful
 
 
-Calculation::Impl::Impl(std::unique_ptr<Algorithm> algorithm)
-	: settings_      { Context::ALBUM /* just to have a default */ }
-	, partitioner_   { nullptr /* requires concrete input data */  }
-	, result_buffer_ { init_buffer()                               }
-	, algorithm_     { std::move(algorithm)                        }
-	, state_         { init_state(algorithm_.get())                }
+std::string name(const State s)
 {
-	// empty
+	// The order of names in this aggregate must match the order of types in
+	// enum class checksum::type, otherwise function type_name() will fail.
+	static const std::array<std::string, 5> names {
+		"INSTANTIATED",
+		"INITIALIZED",
+		"UPDATED",
+		"COMPLETED",
+		"INVALID"
+	};
+
+	return names.at(static_cast<decltype( names )::size_type>(s));
 }
 
 
-Calculation::Impl::Impl(const Impl& rhs)
-	: settings_      { rhs.settings_                               }
-	, partitioner_   { rhs.partitioner_->clone()                   }
-	, result_buffer_ { Checksums { rhs.result_buffer_ }            }
-	, algorithm_     { rhs.algorithm_->clone()                     }
-	, state_         { rhs.state_->clone_to(algorithm_.get())      }
-{
-	// empty
-}
+// CalculationBase
 
 
-void Calculation::Impl::init(const Settings& s, const ToCData& toc)
-{
-	using std::cbegin;
-	using std::cend;
-
-	return init(s, *cbegin(toc), { cbegin(toc) + 1, cend(toc) });
-}
-
-
-void Calculation::Impl::init(const Settings& s, const AudioSize& size,
-		const Points& points)
-{
-	using details::SampleRange;
-	using details::TrackPartitioner;
-
-	this->set_settings(s); // also sets up Algorithm
-
-	const auto interval { SampleRange { algorithm_->range(size, points) }};
-
-	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
-
-	partitioner_ = std::make_unique<TrackPartitioner>(size, points, interval);
-}
-
-
-std::unique_ptr<details::CalculationStateImpl> Calculation::Impl::init_state(
-		Algorithm* const algorithm)
-{
-	return std::make_unique<details::CalculationStateImpl>(algorithm);
-}
-
-
-Checksums Calculation::Impl::init_buffer()
-{
-	return Checksums{};
-}
-
-
-void Calculation::Impl::set_settings(const Settings& s) noexcept
-{
-	settings_ = s;
-	algorithm_->set_settings(&settings());
-}
-
-
-const Settings& Calculation::Impl::settings() const noexcept
-{
-	return settings_;
-}
-
-
-void Calculation::Impl::set_algorithm(std::unique_ptr<Algorithm> a) noexcept
-{
-	algorithm_     = std::move(a);
-	state_         = init_state(algorithm_.get());
-	result_buffer_ = init_buffer();
-}
-
-
-const Algorithm* Calculation::Impl::algorithm() const noexcept
-{
-	return algorithm_.get();
-}
-
-
-int32_t Calculation::Impl::samples_expected() const noexcept
-{
-	// Expected total number of input samples
-	return partitioner_->total_samples().samples();
-}
-
-
-int32_t Calculation::Impl::samples_processed() const noexcept
-{
-	return state_->samples_processed();
-}
-
-
-std::chrono::duration<float> Calculation::Impl::update_time_elapsed() const
-	noexcept
-{
-	return state_->update_time_elapsed();
-}
-
-
-std::chrono::duration<float> Calculation::Impl::algo_time_elapsed() const
-	noexcept
-{
-	return state_->algo_time_elapsed();
-}
-
-
-bool Calculation::Impl::complete() const noexcept
-{
-	return state_->current_offset() >= partitioner_->legal_range().upper();
-}
-
-
-void Calculation::Impl::completed()
+void Calculation::log_completion() noexcept
 {
 	ARCS_LOG(DEBUG1) << "Last block completed, calculation finished";
 
-	ARCS_LOG(DEBUG1) << "Total samples declared:  " << samples_expected();
-
-	ARCS_LOG(DEBUG1) << "Total samples processed: " << samples_processed()
-		<< " (== " << partitioner_->legal_range().to_string() << ")";
-
-	using ms = std::chrono::milliseconds;
-
-	const ms update_time =
-		std::chrono::duration_cast<ms>(state_->update_time_elapsed());
-
-	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by calculating ARCSs: "
-		<< update_time.count();
-
-	const ms algo_time =
-		std::chrono::duration_cast<ms>(state_->algo_time_elapsed());
-
-	ARCS_LOG(DEBUG1) << "Milliseconds elapsed by Algorithm: "
-		<< algo_time.count();
-}
-
-
-void Calculation::Impl::update(SampleInputIterator& start,
-		SampleInputIterator& stop)
-{
-	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
-
-	if (perform_update_profiled(start, stop,
-				*partitioner_, *state_, result_buffer_))
+	if constexpr (LOGLEVEL::DEBUG1 <= CLIP_LOGGING_LEVEL)
 	{
-		completed();
+		log_processing_stats(*partitioner_, state());
 	}
-
-	ARCS_LOG(DEBUG1) << "PROCESS BLOCK: END";
 }
 
 
-void Calculation::Impl::update(const AudioSize& audiosize)
+void Calculation::base_swap(Calculation& rhs) noexcept
 {
-	partitioner_->set_total_samples(audiosize);
+	Stateful::base_swap(rhs);
+
+	using std::swap;
+
+	swap(settings_,      rhs.settings_      );
+	swap(state_,         rhs.state_         );
+	swap(partitioner_ ,  rhs.partitioner_   );
+	swap(result_buffer_, rhs.result_buffer_ );
 }
 
 
-Checksums Calculation::Impl::result() const noexcept
+void Calculation::set_settings(const Settings& s)
 {
-	return result_buffer_;
-}
-
-
-// Calculation
-
-
-Calculation::Calculation(const Settings& settings,
-		std::unique_ptr<Algorithm> algorithm, const AudioSize& size,
-		const Points& points)
-	:impl_ { std::make_unique<Impl>(std::move(algorithm)) }
-{
-	impl_->init(settings, size, points);
-}
-
-
-Calculation::Calculation(const Calculation& rhs)
-	:impl_ { std::make_unique<Calculation::Impl>(*rhs.impl_) }
-{
-	// empty
-}
-
-
-Calculation& Calculation::operator = (const Calculation& rhs)
-{
-	if (&rhs != this)
+	if (state_earlier_than(State::UPDATED))
 	{
-		impl_ = std::make_unique<Calculation::Impl>(*rhs.impl_);
+		settings_ = s;
+		on_settings_changed();
+	} else
+	{
+		throw std::logic_error("Cannot change settings after first update");
 	}
-	return *this;
-}
-
-
-// Pimpl requires definition in source file
-Calculation::Calculation(Calculation&& rhs) noexcept = default;
-
-
-// Pimpl requires definition in source file
-Calculation& Calculation::operator = (Calculation&& rhs) noexcept = default;
-
-
-// Pimpl requires definition in source file
-Calculation::~Calculation() noexcept = default;
-
-
-void Calculation::set_settings(const Settings& s) noexcept
-{
-	impl_->set_settings(s);
-}
-
-
-Settings Calculation::settings() const noexcept
-{
-	return impl_->settings();
-}
-
-
-void Calculation::set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept
-{
-	impl_->set_algorithm(std::move(algorithm));
-}
-
-
-const Algorithm* Calculation::algorithm() const noexcept
-{
-	return impl_->algorithm();
-}
-
-
-ChecksumtypeSet Calculation::types() const noexcept
-{
-	return algorithm()->types();
-}
-
-
-int32_t Calculation::samples_expected() const noexcept
-{
-	return impl_->samples_expected();
-}
-
-
-int32_t Calculation::samples_processed() const noexcept
-{
-	return impl_->samples_processed();
-}
-
-
-int32_t Calculation::samples_todo() const noexcept
-{
-	return samples_expected() - samples_processed();
-}
-
-
-std::chrono::duration<float> Calculation::update_time_elapsed() const
-	noexcept
-{
-	return impl_->update_time_elapsed();
-}
-
-
-std::chrono::duration<float> Calculation::algo_time_elapsed() const noexcept
-{
-	return impl_->algo_time_elapsed();
 }
 
 
 bool Calculation::complete() const noexcept
 {
-	return impl_->complete();
-}
-
-
-void Calculation::update(SampleInputIterator start, SampleInputIterator stop)
-{
-	impl_->update(start, stop);
-}
-
-
-void Calculation::update(const AudioSize& audiosize)
-{
-	impl_->update(audiosize);
+	return state().current_offset() >= partitioner_->legal_range().upper();
 }
 
 
 Checksums Calculation::result() const noexcept
 {
-	return impl_->result();
-}
-
-
-void Calculation::swap(Calculation& rhs) noexcept
-{
-	using std::swap;
-	swap(impl_, rhs.impl_);
-}
-
-
-// make_calculation
-
-
-std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const ToC& toc)
-{
-	auto leadout = AudioSize{};
-
-	if (toc.complete())
+	if (state_earlier_than(State::COMPLETED))
 	{
-		leadout = toc.leadout();
+		ARCS_LOG_WARNING << "Calculation result accessed before completion";
 	}
 
-	return std::make_unique<Calculation>(Settings { Context::ALBUM },
-			std::move(algorithm), leadout, toc.offsets());
+	return result_buffer_.result();
 }
 
+
+// implementations
+
+/*
+template void Calculation::update_impl < int16_t, true>(
+		const details::SampleSequence  < int16_t, true>&);
+template void Calculation::update_impl < int32_t, true>(
+		const details::SampleSequence  < int32_t, true>&);
+template void Calculation::update_impl <uint16_t, true>(
+		const details::SampleSequence  <uint16_t, true>&);
+template void Calculation::update_impl <uint32_t, true>(
+		const details::SampleSequence  <uint32_t, true>&);
+
+template void Calculation::update_impl < int16_t, false>(
+		const details::SampleSequence  < int16_t, false>&);
+template void Calculation::update_impl < int32_t, false>(
+		const details::SampleSequence  < int32_t, false>&);
+template void Calculation::update_impl <uint16_t, false>(
+		const details::SampleSequence  <uint16_t, false>&);
+template void Calculation::update_impl <uint32_t, false>(
+		const details::SampleSequence  <uint32_t, false>&);
+*/
 
 } // namespace v_1_0_0
 } // namespace arcstk

@@ -15,7 +15,9 @@
 #include <cstddef>          // for ptrdiff_t
 #include <cstdint>          // for int32_t
 #include <iterator>         // for advance, input_iterator_tag
+#include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
+#include <sstream>          // for ostream
 #include <string>           // for string
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
 #include <unordered_set>    // for unordered_set
@@ -27,6 +29,12 @@
 #endif
 #ifndef LIBARCSTK_MIXINS_HPP_
 #include "mixins.hpp"       // for Comparable
+#endif
+#ifndef LIBARCSTK_SAMPLES_HPP_
+#include "samples.hpp"      // for SampleSequence
+#endif
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging.hpp"
 #endif
 
 namespace arcstk
@@ -122,7 +130,7 @@ namespace details
  *
  * \tparam Iterator Iterator type to test
  */
-template<typename Iterator>
+template <typename Iterator>
 using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
 // This is SFINAE compatible and respects bare pointers, which would not
 // have been respected when using std::iterator_traits<Iterator>::value_type.
@@ -135,7 +143,7 @@ using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
  * \tparam Iterator Iterator type to test
  * \tparam T        Type to test for
  */
-template<typename Iterator, typename T>
+template <typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 /**
@@ -143,312 +151,10 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
  *
  * \tparam Iterator Iterator type to test
  */
-template<typename Iterator>
-using IsSampleIterator =
-	std::enable_if_t<is_iterator_over<Iterator, sample_t>::value>;
+template <typename Iterator>
+using is_sample_iterator = std::is_same<it_value_type<Iterator>, sample_t>;
 
 } // namespace details
-
-
-/**
- * \internal
- *
- * \brief Type erasing interface for LegacyInputIterators over 32 bit samples.
- *
- * Wraps the concrete iterator to be passed to
- * \link arcstk::Calculation::update() update \endlink a Calculation.
- * This allows to pass in fact iterators of any type to a Calculation.
- *
- * SampleInputIterator can wrap any iterator with a value_type of uint32_t
- * except instances of itself, e.g. it can not be "nested".
- *
- * The type erasure interface only ensures that the requirements of a
- * <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
- * LegacyInputIterator</A> are met. Those requirements are sufficient for
- * \link arcstk::Calculation::update() updating \endlink a Calculation.
- *
- * Although SampleInputIterator is intended to provide the functionality of
- * an input iterator, it does not provide operator->() and does
- * therefore not completely fulfill the requirements for a LegacyInputIterator.
- *
- * SampleInputIterator provides iteration over values of type
- * \link arcstk::sample_t sample_t\endlink which is defined as a
- * primitve type. Since samples therefore do not have members, operator -> would
- * not provide any reasonable function.
- *
- * \see Calculation::update()
- */
-class SampleInputIterator final : public Comparable<SampleInputIterator>
-{
-public:
-
-	/**
-	 * \brief LegacyInputIterator
-	 *
-	 * See <A HREF="https://en.cppreference.com/w/cpp/named_req/InputIterator">
-	 * LegacyInputIterator</A>
-	 */
-	using iterator_category = std::input_iterator_tag;
-
-	/**
-	 * \copydoc SNPT_tp_value
-	 */
-	using value_type = sample_t;
-
-	/**
-	 * \copydoc SNPT_tp_reference
-	 *
-	 * \details Not an actual reference type.
-	 *
-	 * Note that some iterator types like SampleIterator for instance do not
-	 * yield lvalues, therefor no reference to the value under the iterator is
-	 * available.
-	 */
-	using reference = value_type;
-
-	/**
-	 * \copydoc SNPT_tp_pointer
-	 */
-	using pointer = const value_type*;
-
-	/**
-	 * \copydoc SNPT_tp_difference
-	 */
-	using difference_type = std::ptrdiff_t;
-
-private:
-
-	/**
-	 * \brief Internal interface to the type-erased object.
-	 */
-	struct Concept
-	{
-		/**
-		 * \copydoc SNPT_sm_default_dtor
-		 */
-		virtual ~Concept() noexcept
-		= default;
-
-		/**
-		 * \brief Preincrements the iterator.
-		 */
-		virtual void preincrement() noexcept
-		= 0;
-
-		/**
-		 * \brief Advances iterator by \c n positions
-		 *
-		 * \param[in] n Number of positions to advance
-		 */
-		virtual void advance(const int32_t n) noexcept
-		= 0;
-
-		/**
-		 * \brief Reference to the actual value under the iterator.
-		 *
-		 * \return Reference to actual value.
-		 */
-		virtual reference dereference() noexcept
-		= 0;
-
-		/**
-		 * \copydoc SNPT_mf_equals
-		 */
-		virtual bool equals(const Concept& rhs) const noexcept
-		= 0;
-
-		/**
-		 * \copydoc SNPT_mf_clone
-		 */
-		virtual std::unique_ptr<Concept> clone() const noexcept
-		= 0;
-	};
-
-	/**
-	 * \brief Internal object representation
-	 *
-	 * \tparam Iterator The iterator type to wrap
-	 */
-	template<class Iterator>
-	struct Model : Concept
-	{
-		explicit Model(Iterator iterator)
-			: iterator_ { iterator }
-		{
-			// empty
-		}
-
-		void preincrement() noexcept final
-		{
-			++iterator_;
-		}
-
-		void advance(const int32_t n) noexcept final
-		{
-			std::advance(iterator_, n);
-		}
-
-		reference dereference() noexcept final
-		{
-			return *iterator_;
-		}
-
-		bool equals(const Concept& rhs) const noexcept final
-		{
-			return iterator_ == static_cast<const Model&>(rhs).iterator_;
-		}
-
-		std::unique_ptr<Concept> clone() const noexcept final
-		{
-			return std::make_unique<Model>(*this);
-		}
-
-		friend void swap(Model& lhs, Model& rhs) noexcept
-		{
-			using std::swap;
-
-			swap(lhs.iterator_, rhs.iterator_);
-		}
-
-	private:
-
-		/**
-		 * \brief The type-erased iterator instance.
-		 */
-		Iterator iterator_;
-	};
-
-public:
-
-	/**
-	 * \brief Converting constructor.
-	 *
-	 * \tparam Iterator The iterator type to wrap
-	 *
-	 * \param[in] i Instance of an iterator over \c sample_t
-	 */
-	template <class Iterator, typename = details::IsSampleIterator<Iterator> >
-	SampleInputIterator(const Iterator& i)
-		: object_ { std::make_unique<Model<Iterator>>(i) }
-	{
-		// empty
-	}
-
-	/**
-	 * \copydoc SNPT_sm_copy_ctor
-	 */
-	SampleInputIterator(const SampleInputIterator& rhs)
-		: object_ { rhs.object_->clone() }
-	{
-		// empty
-	}                                            // required by LegacyIterator
-
-	/**
-	 * \copydoc SNPT_sm_copy_op
-	 */
-	SampleInputIterator& operator = (const SampleInputIterator& rhs) noexcept
-	{
-		if (&rhs != this)
-		{
-			using std::swap;
-
-			auto tmp = SampleInputIterator { rhs };
-			swap(*this, tmp);
-		}
-		return *this;
-	}                                            // required by LegacyIterator
-
-	/**
-	 * \copydoc SNPT_sm_move_ctor
-	 */
-	SampleInputIterator(SampleInputIterator&& rhs) noexcept = default;
-
-	/**
-	 * \copydoc SNPT_sm_move_op
-	 */
-	SampleInputIterator& operator = (SampleInputIterator&& rhs) noexcept
-	= default;
-
-	/**
-	 * \copydoc SNPT_sm_default_dtor
-	 */
-	~SampleInputIterator() noexcept = default;   // required by LegacyIterator
-
-	/**
-	 * \copydoc SNPT_mf_deref
-	 */
-	reference operator * () const noexcept       // required by LegacyIterator
-	{
-		return object_->dereference();
-	}
-
-	/**
-	 * \copydoc SNPT_mf_inc_prefix
-	 */
-	SampleInputIterator& operator ++ () noexcept // required by LegacyIterator
-	{
-		object_->preincrement();
-		return *this;
-	}
-
-	/**
-	 * \copydoc SNPT_mf_inc_postfix
-	 */
-	SampleInputIterator operator ++ (int) noexcept
-	{
-		SampleInputIterator prev_val(*this);
-		object_->preincrement();
-		return prev_val;
-	}                                       // required by LegacyInputIterator
-
-
-	/**
-	 * \copydoc SNPT_nf_inc_amount_lhs
-	 */
-	friend SampleInputIterator operator + (SampleInputIterator lhs,
-			const int32_t amount) noexcept
-	{
-		lhs.object_->advance(amount);
-		return lhs;
-	}
-
-	/**
-	 * \copydoc SNPT_nf_inc_amount_rhs
-	 */
-	friend SampleInputIterator operator + (const int32_t amount,
-			SampleInputIterator rhs) noexcept
-	{
-		// NOLINTNEXTLINE(performance-unnecessary-value-param)
-		return rhs + amount;
-	}
-
-	/**
-	 * \copydoc SNPT_nf_swap
-	 */
-	friend void swap(SampleInputIterator& lhs, SampleInputIterator& rhs)
-		noexcept
-	{
-		using std::swap;
-
-		swap(lhs.object_, rhs.object_);
-	}                                            // required by LegacyIterator
-
-	/**
-	 * \copydoc SNPT_nf_equality
-	 */
-	friend bool operator == (const SampleInputIterator& lhs,
-			const SampleInputIterator& rhs) noexcept
-	{
-		return lhs.object_->equals(*rhs.object_);
-	}                                        // required by LegacyInputIterator
-
-private:
-
-	/**
-	 * \brief Internal representation of wrapped object
-	 */
-	std::unique_ptr<Concept> object_;
-};
 
 
 /**
@@ -638,22 +344,20 @@ using Points = std::vector<AudioSize>;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 // -Weffc++ is deactivated: warns about raw pointer member settings_
-// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
+// Member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \brief Interface: Checksum calculation algorithm.
  *
- * An Algorithm instance can be updated with new input by the caller and
- * provides the result after the last update. The calculation of tracks is to be
- * finished manually by calling track_finished(). Algorithm instances hold the
- * concrete subtotals.
- *
- * The caller is required to instantiate and setup an Algorithm. However, it
- * should usually not be required to update the Algorithm instance directly.
- * This is performed via a Calculation.
+ * An Algorithm is a specific calculation method for checksums.
  */
 class Algorithm
 {
+	/**
+	 * \brief Internal settings of the algorithm.
+	 */
+	const Settings* settings_; // non-owning
+
 public:
 
 	/**
@@ -694,14 +398,6 @@ public:
 	 */
 	std::pair<int32_t,int32_t> range(const AudioSize& size,
 			const Points& points) const;
-
-	/**
-	 * \brief Update with a sequence of samples.
-	 *
-	 * \param[in] start Iterator pointing to the first sample of the sequence
-	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
-	 */
-	void update(SampleInputIterator start, SampleInputIterator stop);
 
 	/**
 	 * \brief Mark current track as finished.
@@ -753,9 +449,6 @@ private:
 			const Points& points) const
 	= 0;
 
-	virtual void do_update(SampleInputIterator begin, SampleInputIterator end)
-	= 0;
-
 	virtual void do_track_finished(const int t, const AudioSize& length)
 	= 0;
 
@@ -767,23 +460,1490 @@ private:
 
 	virtual std::unique_ptr<Algorithm> do_clone() const
 	= 0;
-
-	/**
-	 * \brief Internal settings of the algorithm.
-	 */
-	const Settings* settings_; // non-owning
 };
 
 #pragma GCC diagnostic pop
 
 
 /**
+ * \brief CRTP to add updateing capability to an algorithm.
+ *
+ * \tparam A Algorithm type
+ *
+ * An Updateable is an instance of an Algorithm that can be updated with new
+ * input by the caller. The calculation of tracks is to be finished manually by
+ * calling track_finished(). Algorithm instances hold the concrete subtotals.
+ *
+ * The caller is required to instantiate and setup an Algorithm. However, it
+ * should usually not be required to update the Algorithm instance directly.
+ * This is performed via a Calculation.
+ */
+template <typename A>
+class Updateable : public Algorithm
+{
+public:
+
+	/**
+	 * \brief Typedef to \c A.
+	 */
+	using algorithm_type = A;
+
+	/**
+	 * \brief Get a pointer to this instance typed by its concrete type.
+	 *
+	 * \return Pointer of type A* to this instance
+	 */
+	algorithm_type* as_algorithm_type()
+	{
+		return static_cast<algorithm_type*>(this);
+	}
+
+	/**
+	 * \brief Update the instance.
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the update sequence
+	 * \tparam E Type of iterator pointing to the end   of the update sequence
+	 *
+	 * \param[in] start Iterator pointing to the begin of the update sequence
+	 * \param[in] stop  Iterator pointing to the end   of the update sequence
+	 */
+	template <typename B, typename E>
+	void update(B start, E stop)
+	{
+		// An Algorithm must implement template<> perform_update() to be
+		// coverable as an Updateable.
+		as_algorithm_type()->perform_update(start, stop);
+	}
+
+protected:
+
+	// NOLINTNEXTLINE(bugprone-crtp-constructor-accessibility)
+	Updateable() = default;
+};
+
+namespace details
+{
+
+/**
+ * \internal
+ * \ingroup calc
+ *
+ * \brief A closed interval <tt>[a,b]</tt>.
+ *
+ * \tparam T Type with definition of <=
+ */
+template<typename T>
+class Interval final
+{
+	/**
+	 * \brief First number in interval.
+	 */
+	T a_;
+
+	/**
+	 * \brief Last number in interval.
+	 */
+	T b_;
+
+public:
+
+	/**
+	 * \brief Constructor for <tt>[a,b]</tt>.
+	 *
+	 * \param[in] a First number in closed interval
+	 * \param[in] b Last number in closed interval
+	 */
+	Interval(const T a, const T b)
+		: a_ { a }
+		, b_ { b }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor for <tt>[a,b]</tt>.
+	 *
+	 * \param[in] pair Pair of bounds in closed interval
+	 */
+	explicit Interval(const std::pair<T,T>& pair)
+		: Interval { pair.first, pair.second }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Smallest value of the interval.
+	 *
+	 * \return Smallest value of the interval
+	 */
+	T lower() const
+	{
+		return a_ <= b_ ? a_ : b_;
+	}
+
+	/**
+	 * \brief Greatest value of the interval.
+	 *
+	 * \return Greates value of the interval
+	 */
+	T upper() const
+	{
+		return a_ <= b_ ? b_ : a_;
+	}
+
+	/**
+	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise
+	 * FALSE.
+	 *
+	 * \param[in] i Number to test for containment in interval
+	 *
+	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
+	 */
+	bool contains(const T& i) const
+	{
+		return (a_ <= b_) ? a_ <= i && i <= b_ : b_ <= i && i <= a_;
+	}
+
+	/**
+	 * \brief Return a string representation of the interval.
+	 *
+	 * \return Interval as a string
+	 */
+	std::string to_string() const
+	{
+		using std::to_string;
+
+		return "[" + to_string(lower()) + "," + to_string(upper()) + "]";
+	}
+};
+
+/**
+ * \brief Range of samples.
+ */
+using SampleRange = Interval<int32_t>;
+
+
+// Forward Declaration Required for Partitioner
+class Partition;
+
+/**
+ * \internal
+ * \brief Type of the partitioning of a range of samples.
+ */
+using Partitioning = std::vector<Partition>;
+
+/**
+ * \brief Create a partitioning for an interval in a legal range by a sequence
+ * of points.
+ *
+ * \param[in] interval	Interval to create a partitioning for
+ * \param[in] legal		Relevant range within the interval
+ * \param[in] points    Points to define partition bounds
+ *
+ * \return Partitioning
+ */
+Partitioning get_partitioning(
+		const SampleRange& interval,
+		const SampleRange& legal,
+		const Points& points);
+
+/**
+ * \brief Create a single partition for an interval in a legal range.
+ *
+ * \param[in] interval	Interval to create a partitioning for
+ * \param[in] legal		Relevant range within the interval
+ *
+ * \return Partitioning
+ */
+Partitioning get_partitioning(
+		const SampleRange& interval,
+		const SampleRange& legal);
+
+/**
+ * \internal
+ * \ingroup calc
+ *
+ * \brief Interface for generating a partitioning over a sequence of samples.
+ *
+ * The partitioning is done along the track bounds according to the ToC such
+ * that every two partitions adjacent within the same sequence belong to
+ * different tracks. This way it is possible to entirely avoid checking for
+ * track bounds within the checksum calculation loop.
+ */
+class Partitioner
+{
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
+	 * \param[in] legal         Legal range of calculation
+	 */
+	Partitioner(const AudioSize& total_samples, const Points& points,
+			const SampleRange& legal);
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	virtual ~Partitioner() noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_copy_ctor
+	 */
+	Partitioner(const Partitioner& rhs) = default;
+
+	/**
+	 * \copydoc SNPT_sm_copy_op
+	 */
+	Partitioner& operator = (const Partitioner& rhs) = delete;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	Partitioner(Partitioner&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Partitioner& operator = (Partitioner&& rhs) noexcept = delete;
+
+	/**
+	 * \brief Generates partitioning of the range of samples.
+	 *
+	 * \param[in] offset                 Offset of the first sample
+	 * \param[in] total_samples_in_block Number of samples in the block
+	 *
+	 * \return Partitioning of \c samples as a sequence of partitions.
+	 */
+	Partitioning create_partitioning(
+			const int32_t offset,
+			const int32_t total_samples_in_block) const;
+
+	/**
+	 * \brief Total number of samples.
+	 *
+	 * \return Total number of samples
+	 */
+	AudioSize total_samples() const noexcept;
+
+	/**
+	 * \brief Set total number of samples.
+	 *
+	 * Maybe necessary when reading the last block reveals a different number of
+	 * samples than expected.
+	 *
+	 * \param[in] total_samples Total number of samples
+	 */
+	void set_total_samples(const AudioSize& total_samples) noexcept;
+
+	/**
+	 * \brief Legal range to occurr in partitions.
+	 *
+	 * The physical range of input samples may be bigger.
+	 *
+	 * \return The legal range of samples to be partitioned.
+	 */
+	SampleRange legal_range() const noexcept;
+
+	/**
+	 * \brief Partitioning bounds.
+	 *
+	 * \return Points to separate partitions.
+	 */
+	Points points() const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_clone
+	 */
+	std::unique_ptr<Partitioner> clone() const;
+
+private:
+
+	/**
+	 * \brief Implements Partitioner::create_partitioning() with a ToC.
+	 *
+	 * \param[in] current_interval Interval to build partitions from
+	 * \param[in] legal_range      Legal interval to process
+	 * \param[in] points           Splitting points
+	 *
+	 * \return Partitioning of \c samples as a sequence of partitions.
+	 */
+	virtual Partitioning do_create_partitioning(
+		const SampleRange& current_interval,
+		const SampleRange& legal_range,
+		const Points& points) const
+	= 0;
+
+	virtual std::unique_ptr<Partitioner> do_clone() const
+	= 0;
+
+	/**
+	 * \brief Total number of samples expected.
+	 */
+	AudioSize total_samples_;
+
+	/**
+	 * \brief Internal splitting points.
+	 */
+	Points points_;
+
+	/**
+	 * \brief Legal range of partitioning.
+	 */
+	SampleRange legal_;
+};
+
+/**
+ * \brief Provides partitions along track bounds.
+ */
+class TrackPartitioner final : public Partitioner
+{
+	Partitioning do_create_partitioning(
+		const SampleRange& sample_block,
+		const SampleRange& relevant_interval,
+		const Points& points) const final;
+
+	std::unique_ptr<Partitioner> do_clone() const final;
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] total_samples Total number of samples expected in input
+	 * \param[in] points        List of splitting points
+	 * \param[in] legal         Legal range of calculation
+	 */
+	TrackPartitioner(const AudioSize& total_samples, const Points& points,
+			const SampleRange& legal);
+};
+
+/**
+ * \brief Type to represent 1-based track numbers.
+ *
+ * A signed integer type.
+ *
+ * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
+ * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
+ * tracks or a counter for tracks.
+ *
+ * The intention of this typedef is to provide a marker for parameters that
+ * expect 1-based track numbers instead of 0-based track indices. TrackNo will
+ * not occurr as a return type in the API.
+ *
+ * A validation check is not provided, though. Every function that accepts a
+ * TrackNo will in fact accept 0 but will then either throw or return a default
+ * error value.
+ *
+ * It is not encouraged to use TrackNo in client code.
+ */
+using TrackNo = int;
+
+/**
+ * \ingroup calc
+ *
+ * \brief A contigous part of a sequence of samples.
+ *
+ * A partition does not hold any samples but provides access to a slice of the
+ * underlying sequence of samples.
+ */
+class Partition final
+{
+	// Partitioners are friends of Partition since they construct
+	// Partitions exclusively
+
+	friend Partitioner;
+
+	// NOTE: There is no default constructor since Partition have constant
+	// elements that cannot be default initialized
+
+	/**
+	 * \brief Relative offset of the first sample in this partition
+	 */
+	int32_t begin_offset_;
+
+	/**
+	 * \brief Relative offset of the last sample in this partition + 1
+	 */
+	int32_t end_offset_;
+
+	/**
+	 * \brief TRUE iff the first sample in this partition is also the first
+	 * sample in the track
+	 */
+	bool starts_track_;
+
+	/**
+	 * \brief TRUE iff the last sample in this partition is also the last sample
+	 * in the track
+	 */
+	bool ends_track_;
+
+	/**
+	 * \brief 1-based number of the track of which the samples in the partition
+	 * are part of
+	 */
+	int track_;
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] begin_offset Local index of the first sample in the partition
+	 * \param[in] end_offset   Local index of the last sample in the partition
+	 * \param[in] starts_track TRUE iff this partition starts its track
+	 * \param[in] ends_track   TRUE iff this partition ends its track
+	 * \param[in] track        Number of the track that contains the partition
+	 */
+	Partition(
+			const int32_t begin_offset,
+			const int32_t end_offset,
+			const bool    starts_track,
+			const bool    ends_track,
+			const TrackNo track);
+
+	/**
+	 * \brief Relative offset of the first sample in the partition.
+	 *
+	 * \return Relative offset of the first sample in the partition.
+	 */
+	int32_t begin_offset() const;
+
+	/**
+	 * \brief Relative offset of the last sample in the partition + 1.
+	 *
+	 * \return Relative offset of the last sample in the partition + 1.
+	 */
+	int32_t end_offset() const;
+
+	/**
+	 * \brief Returns TRUE iff the first sample of this partition is also the
+	 * first sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition starts a track
+	 */
+	bool starts_track() const;
+
+	/**
+	 * \brief Returns TRUE if the last sample of this partition is also the last
+	 * sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition ends a track
+	 */
+	bool ends_track() const;
+
+	/**
+	 * \brief The track of which the samples in the partition are part of.
+	 *
+	 * \return The track that contains this partition
+	 */
+	int track() const;
+
+	/**
+	 * \brief Number of samples in this partition.
+	 *
+	 * \return Number of samples in this partition
+	 */
+	std::size_t size() const;
+};
+
+/**
+ * \brief Class template for an incrementable and readable counter.
+ *
+ * \tparam T Type with definition of +=
+ */
+template<typename T>
+class Counter final
+{
+	/**
+	 * \brief Internal counter value.
+	 */
+	T value_;
+
+public:
+
+	/**
+	 * \brief Type of the counter value.
+	 */
+	using type = T;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] value Start value
+	 */
+	explicit Counter(const T& value)
+		: value_ { value }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Counter value.
+	 *
+	 * \return Current value of the Counter
+	 */
+	T value() const noexcept
+	{
+		return value_;
+	}
+
+	/**
+	 * \brief Increment the counter by the specified amount.
+	 *
+	 * \param[in] amount Amount to increment the Counter.
+	 */
+	void increment(T amount)
+	{
+		value_ += amount;
+	}
+
+	/**
+	 * \brief Reset the counted value to the default initializer of T..
+	 */
+	void reset()
+	{
+		value_ = T{};
+	}
+};
+
+/**
+ * \brief Convert a 0-based sample index to an equivalent amount of samples.
+ *
+ * \param[in] index The index to convert to an amount
+ *
+ * \return Amount of samples equivalent to the index passed
+ */
+int32_t ind2am(const int32_t index);
+
+/**
+ * \brief Convert a 1-based amount of samples to an equivalent index.
+ *
+ * \param[in] amount The amount to convert to an index
+ *
+ * \return Sample index equivalent to the amount passed
+ */
+int32_t am2ind(const int32_t amount);
+
+/**
+ * \brief Current state of a Calculation.
+ *
+ * A CalculationState provides the relevant counters for samples and time. It
+ * updates the algorithm and provides the current subtotal.
+ */
+class CalculationState final
+{
+	/**
+	 * \brief Internal 0-based current sample offset.
+	 */
+	Counter<int32_t> current_offset_;
+
+	/**
+	 * \brief Internal 0-based counter for samples processed.
+	 */
+	Counter<int32_t> samples_processed_;
+
+	/**
+	 * \brief Internal 0-based counter for track samples processed.
+	 */
+	Counter<int32_t> track_samples_processed_;
+
+	/**
+	 * \brief Internal 0-based counter for tracks..
+	 */
+	Counter<int32_t> tracks_processed_;
+
+	/**
+	 * \brief Internal time elapsed by processing.
+	 */
+	std::chrono::duration<float> algo_time_elapsed_;
+
+	/**
+	 * \brief Internal time elapsed by updating.
+	 */
+	std::chrono::duration<float> update_time_elapsed_;
+
+public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	CalculationState();
+
+	/**
+	 * \brief Offset of the current sample.
+	 *
+	 * This sample is not yet processed but will be the next sample to process.
+	 *
+	 * \return Current sample
+	 */
+	int32_t current_offset() const noexcept;
+
+	/**
+	 * \brief Return the total number of PCM 32 bit samples yet processed.
+	 *
+	 * This value is equivalent to samples_expected() - samples_todo().
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples processed.
+	 */
+	int32_t samples_processed() const noexcept;
+
+	/**
+	 * \brief Return the total number of PCM 32 bit samples in current track.
+	 *
+	 * \return Total number of PCM 32 bit samples processed in current track.
+	 */
+	int32_t track_samples_processed() const noexcept;
+
+	/**
+	 * \brief Return the total number of tracks yet processed.
+	 *
+	 * This value is incremented by track_finished().
+	 *
+	 * \return Total number of PCM 32 bit samples processed.
+	 */
+	int32_t tracks_processed() const noexcept;
+
+	/**
+	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
+	 *
+	 * \return Amount of milliseconds elapsed so far by the Algorithm instance.
+	 */
+	std::chrono::duration<float> algo_time_elapsed() const noexcept;
+
+	/**
+	 * \brief Increment the duration for updating.
+	 *
+	 * \param[in] duration Amount of duration to add
+	 */
+	void increment_algo_time_elapsed(
+			const std::chrono::duration<float>& duration);
+
+	/**
+	 * \brief Amount of milliseconds elapsed so far by updating this instance.
+	 *
+	 * \return Amount of milliseconds elapsed so far by updating.
+	 */
+	std::chrono::duration<float> update_time_elapsed() const noexcept;
+
+	/**
+	 * \brief Increment the duration for updating.
+	 *
+	 * \param[in] duration Amount of duration to add
+	 */
+	void increment_update_time_elapsed(
+			const std::chrono::duration<float>& duration);
+
+	/**
+	 * \brief Advance by some amount to a higher current offset.
+	 *
+	 * \param[in] amount Amount (in samples) to advance
+	 */
+	void advance(const int32_t amount);
+
+	/**
+	 * \brief Update the calculation state with amounts of samples and time.
+	 *
+	 * \param[in] amount    Samples processed in current algorithm update
+	 * \param[in] algo_time Time consumed by algorithm in current update
+	 */
+	void update(const int32_t amount,
+		const std::chrono::duration<float>& algo_time);
+
+	/**
+	 * \brief Mark track as finished.
+	 *
+	 * \return Samples processed in the course of this track
+	 */
+	int32_t track_finished();
+
+	/**
+	 * \brief Swap abstract part of the concrete subclass..
+	 *
+	 * \param[in] rhs Other instance to swap
+	 */
+	void swap(CalculationState& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_nf_swap
+	 */
+	friend void swap(CalculationState& lhs, CalculationState& rhs)
+		noexcept
+	{
+		lhs.swap(rhs);
+	}
+};
+
+
+/**
+ * \brief Result buffer for Calculation.
+ */
+class CalculationResultBuffer final : public Swap<CalculationResultBuffer>
+{
+	/**
+	 * \brief Collect calculated checksums.
+	 */
+	Checksums result_buffer_ {};
+
+protected:
+
+	/**
+	 * \brief Write access to buffer.
+	 *
+	 * \return Writable reference to internal result buffer
+	 */
+	Checksums& provide_buffer() noexcept
+	{
+		return result_buffer_;
+	}
+
+	/**
+	 * \brief Set buffer to initial state.
+	 */
+	void reset_buffer()
+	{
+		result_buffer_ = {};
+	}
+
+public:
+
+	/**
+	 * \brief Size of the buffer.
+	 *
+	 * \return Size of the buffer
+	 */
+	std::size_t size() const
+	{
+		return result_buffer_.size();
+	}
+
+	/**
+	 * \brief Set size of the buffer.
+	 *
+	 * \param[in] total_elements Total number of elements
+	 */
+	void set_size(const std::size_t total_elements)
+	{
+		result_buffer_.resize(total_elements);
+	}
+
+	/**
+	 * \brief Put a value in the buffer.
+	 *
+	 * When accessing an index that is out of bounds, size is increased
+	 * accordingly.
+	 *
+	 * \param[in] index Index position to set
+	 * \param[in] value Value to set
+	 */
+	void put_value(const std::size_t index, ChecksumSet&& value)
+	{
+		if (result_buffer_.size() > index)
+		{
+			result_buffer_[index] = std::move(value);
+		} else
+		{
+			result_buffer_.push_back(std::move(value));
+		}
+	}
+
+	/**
+	 * \brief Read access to buffer index.
+	 *
+	 * \param[in] index Index position to access
+	 *
+	 * \return Value on index position \c index
+	 */
+	const ChecksumSet& operator[] (const std::size_t index)
+	{
+		return result_buffer_[index];
+	}
+
+	/**
+	 * \brief Acquire the resulting Checksums.
+	 *
+	 * \return The computed Checksums
+	 */
+	Checksums result() const noexcept
+	{
+		return result_buffer_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(CalculationResultBuffer& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(result_buffer_, rhs.result_buffer_);
+	}
+};
+
+
+/**
+ * \brief Create a partitioner for specific values.
+ *
+ * \param[in] algorithm Algorithm to provide range
+ * \param[in] offsets   Offsets
+ * \param[in] leadout   Leadout
+ *
+ * \return Partitioner
+ */
+std::unique_ptr<Partitioner> make_partitioner(
+		const Algorithm& algorithm,
+		const Points& offsets, const AudioSize& leadout);
+
+/**
+ * \brief Worker: log partition stats.
+ *
+ * \param[in] partition Partition
+ * \param[in] from      From sample
+ * \param[in] to        To sample
+ * \param[in] total     Total samples
+ */
+void log_sample_stats(const Partition& partition,
+		const int32_t from, const int32_t to, const int32_t total);
+
+/**
+ * \brief Worker: log processing stats.
+ *
+ * \param[in] partitioner Partitioner to log
+ * \param[in] state       CalculationState to log
+ */
+void log_processing_stats(const Partitioner& partitioner,
+		const CalculationState& state);
+
+namespace update
+{
+
+/**
+ * \brief Updates a calculation process by a single partition.
+ *
+ * \tparam A Algorithm
+ * \tparam B Type of the begin iterator
+ * \tparam E Type of the end iterator
+ *
+ * \param[in]     partition Partition to update Calculation with
+ * \param[in]     start     Iterator pointing to first sample
+ * \param[in]     start_pos Current offset position
+ * \param[in,out] algorithm Algorithm to use for calculation
+ * \param[in,out] state     Current calculation state
+ */
+template <typename A, typename I>
+void update_partition(const Partition& partition,
+		I start, const int32_t start_pos,
+		Updateable<A>& algorithm, CalculationState& state)
+{
+	const auto offset_first = partition.begin_offset() - start_pos;
+	const auto offset_last  = partition.end_offset()   - start_pos;
+	const auto total        = offset_last + 1 - offset_first;
+
+	log_sample_stats(partition, start_pos + offset_first,
+				start_pos + offset_last, total);
+
+	using clock = std::chrono::steady_clock;
+
+	const auto start_time { clock::now() };
+
+	try
+	{
+		auto b = start; std::advance(b, offset_first);
+		auto e = start; std::advance(e, offset_last + 1);
+		// +1 because the stop point has to be shifted _behind_ the last
+		// sample. The last sample would not be processed otherwise.
+
+		algorithm.update(b, e);
+	} catch (...)
+	{
+		const auto stop_time { clock::now() };
+		state.increment_algo_time_elapsed(stop_time - start_time);
+
+		throw;
+	}
+
+	const auto stop_time { clock::now() };
+
+	state.update(total, stop_time - start_time);
+}
+
+/**
+ * \brief Get current first and last positions.
+ *
+ * \param[in] samples_in_block Total number of samples in block
+ * \param[in] state            Calculation state
+ *
+ * \return First and last samples
+ */
+std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
+		CalculationState& state);
+
+/**
+ * \brief Skip block and return whether this completed the Calculation.
+ *
+ * \param[in] samples_in_block Total number of samples in block
+ * \param[in] partitioner      Partitioner
+ * \param[in] state            Calculation state
+ *
+ * \return TRUE if Calculation is complete after skipping the specified amount
+ */
+bool complete_after_skip_block(const int32_t& samples_in_block,
+		const Partitioner& partitioner,
+		CalculationState& state);
+
+/**
+ * \brief Skip amount of samples.
+ *
+ * \param[in] start_pos    Start sample
+ * \param[in] partitioning Partitioning
+ * \param[in] state        Calculation state
+ */
+void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
+		CalculationState& state);
+
+/**
+ * \brief Inform all instances about the completion of a track.
+ *
+ * \param[in] algorithm     Algorithm
+ * \param[in] result_buffer Result buffer
+ * \param[in] state         Calculation state
+ */
+void complete_track(Algorithm& algorithm,
+		CalculationResultBuffer& result_buffer, CalculationState& state);
+
+/**
+ * \brief Updates a calculation process by a sample block.
+ *
+ * \tparam A Algorithm
+ * \tparam B Type of iterator pointing to the begin of the update sequence
+ * \tparam E Type of iterator pointing to the end   of the update sequence
+ *
+ * \param[in]     start         Iterator pointing to first sample in block
+ * \param[in]     stop          Iterator pointing behind last sample in block
+ * \param[in]     partitioner   Partition provider
+ * \param[in]     algorithm     Algorithm to use for calculation
+ * \param[in,out] state         Current calculation state
+ * \param[in,out] result_buffer Buffer for collecting results
+ *
+ * \return FALSE iff more updates are required, otherwise TRUE
+ */
+template <typename A, typename B, typename E>
+bool perform_update(B start, E stop, const Partitioner& partitioner,
+		Updateable<A>& algorithm, CalculationState& state,
+		CalculationResultBuffer& result_buffer)
+{
+	const auto samples_in_block {
+		static_cast<int32_t>(std::distance(start, stop)) };
+
+	const auto [ start_pos, last_pos ] = positions(samples_in_block, state);
+
+	const auto partitioning { partitioner.create_partitioning(
+			start_pos, samples_in_block) };
+
+	if (partitioning.empty())
+	{
+		return complete_after_skip_block(samples_in_block, partitioner, state);
+	} else
+	{
+		// If we skipped some samples at the beginning of the partition, advance
+		// the state by this amount so that current_offset() will be correct on
+		// subsequent call.
+		skip_amount(start_pos, partitioning, state);
+	}
+
+	ARCS_LOG(DEBUG1) << "Partitions: " << partitioning.size();
+
+	// Update the state with each partition in this partitioning
+
+	auto partition_counter = uint16_t { 0 };
+
+	for (const auto& partition : partitioning)
+	{
+		++partition_counter;
+
+		ARCS_LOG(DEBUG2) << "PARTITION " << partition_counter << "/" <<
+			partitioning.size();
+
+		update_partition(partition, start, start_pos, algorithm, state);
+
+		// If the current partition ends a track, save the ARCSs for this track
+		if (partition.ends_track())
+		{
+			ARCS_LOG(DEBUG3) << "Completed track:  " << partition.track();
+
+			complete_track(algorithm, result_buffer, state);
+		}
+	}
+
+	/* Return TRUE iff the last relevant sample was in the current block. */
+	return SampleRange { start_pos, last_pos }.contains(
+			partitioner.legal_range().upper());
+}
+
+} // namespace update
+} // namespace details
+
+
+/**
+ * \brief Calculation phases.
+ */
+enum class State : uint8_t
+{
+    INSTANTIATED,
+    INITIALIZED,
+    UPDATED,
+    COMPLETED,
+	INVALID
+};
+
+
+/**
+ * \brief Obtain the name of a State.
+ *
+ * \param[in] s State to get name of
+ *
+ * \return Name of State \c s
+ */
+std::string name(const State s);
+
+
+/**
+ * \brief Phase management of a Calculation.
+ */
+class Stateful
+{
+protected:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	Stateful() = default;
+
+	/**
+	 * \brief Transist from current state to target_state.
+	 *
+	 * \param[in] target_state State to transist to
+	 *
+	 * \throw logic_error If transition is not legal
+	 */
+    void transition_to(State target_state)
+	{
+        if (!is_valid_transition(state_, target_state))
+		{
+			auto ss = std::ostringstream{};
+			ss << "Illegal state transition requested from state "
+				<< static_cast<int>(state_)
+				<< " to state "
+				<< static_cast<int>(target_state);
+
+            throw std::logic_error(ss.str());
+        }
+
+        state_ = target_state;
+
+		ARCS_LOG(DEBUG2) << "New state: " << name(target_state);
+    }
+
+	/**
+	 * \brief TRUE iff current state is earlier than \c rhs.
+	 *
+	 * \param[in] rhs State to compare current state to
+	 *
+	 * \return TRUE iff current state is earlier than \c rhs
+	 */
+	bool state_earlier_than(State rhs) const
+	{
+		return static_cast<int>(current_state()) < static_cast<int>(rhs);
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void base_swap(Stateful& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(state_, rhs.state_);
+	}
+
+private:
+
+	/**
+	 * \brief Internal state.
+	 */
+    State state_ = State::INSTANTIATED;
+
+	/**
+	 * \brief Check whether transition between states is legal.
+	 *
+	 * \return TRUE if transition is legal, otherwise FALSE
+	 */
+    static bool is_valid_transition(State from, State to)
+	{
+        static const std::map<State, std::set<State>> allowed
+		{
+            { State::INSTANTIATED,/*->*/{ State::INITIALIZED }},
+            { State::INITIALIZED, /*->*/{ State::INITIALIZED, State::UPDATED }},
+            { State::UPDATED,     /*->*/{ State::UPDATED, State::COMPLETED }},
+            { State::COMPLETED,   /*->*/{} },
+            { State::INVALID,     /*->*/{} }
+        };
+
+        return allowed.at(from).count(to) > 0;
+    }
+
+public:
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor.
+	 */
+	virtual ~Stateful() noexcept = default;
+
+	/**
+	 * \brief Current state.
+	 *
+	 * \return Current state
+	 */
+    State current_state() const
+	{
+		return state_;
+	}
+};
+
+
+/**
+ * \brief Encapsulate the stateful parts of a Calculation.
+ *
+ * All these parts are independent of the concrete algorithm.
+ */
+class Calculation : public Stateful
+{
+	/**
+	 * \brief Internal settings for this calculation.
+	 */
+	Settings settings_ { /* default */ };
+
+	/**
+	 * \brief Internal current calculation state.
+	 */
+	details::CalculationState state_ { /* default */ };
+
+	/**
+	 * \brief Partitioner to provide the stop positions.
+	 */
+	std::unique_ptr<details::Partitioner> partitioner_ { nullptr };
+
+	/**
+	 * \brief Internal result buffer.
+	 */
+	details::CalculationResultBuffer result_buffer_ { /* default */ };
+
+	virtual const Algorithm* do_algorithm() const noexcept
+	= 0;
+
+	/**
+	 * \brief Hook: called after settings have been set.
+	 */
+	virtual void on_settings_changed()
+	= 0;
+
+	/**
+	 * \brief Hook: called after the update sequence is completed.
+	 */
+	virtual void on_completion()
+	= 0;
+
+protected:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] settings  The settings for the calculation
+	 */
+	explicit Calculation(const Settings& settings)
+		: settings_      { settings      }
+		, state_         { /* default */ }
+		, partitioner_   { nullptr       }
+		, result_buffer_ { /* default */ }
+	{
+		// empty
+	}
+
+
+	Calculation(const Calculation& rhs) = delete;
+
+	Calculation& operator = (const Calculation& rhs) = delete;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	Calculation(Calculation&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	Calculation& operator = (Calculation&& rhs) noexcept = default;
+
+	/**
+	 * \brief Worker: initialize internal partitioner.
+	 *
+	 * \param[in] algorithm Algorithm to use
+	 * \param[in] offsets   Offsets
+	 * \param[in] leadout   Leadout
+	 */
+	void init_partitioner(const Algorithm& algorithm,
+			const Points& offsets, const AudioSize& leadout)
+	{
+		if (state_earlier_than(State::UPDATED))
+		{
+			partitioner_ =
+				details::make_partitioner(algorithm, offsets, leadout);
+		} else
+		{
+			throw std::logic_error(
+					"Cannot change partitioner after first update");
+		}
+	}
+
+	/**
+	 * \brief Worker: initialize internal result buffer.
+	 *
+	 * \param[in] total_elements Total number of elements
+	 */
+	void init_resultbuffer(const std::size_t total_elements)
+	{
+		if (state_earlier_than(State::UPDATED))
+		{
+			result_buffer_.set_size(total_elements);
+		} else
+		{
+			throw std::logic_error(
+					"Cannot change buffer size after first update");
+		}
+	}
+
+	/**
+	 * \brief Update the instance with a new AudioSize.
+	 *
+	 * This can be done safely at any time before the last call of update().
+	 *
+	 * \param[in] audiosize The updated AudioSize
+	 */
+	void update_impl(const AudioSize& audiosize)
+	{
+		if (state_earlier_than(State::UPDATED))
+		{
+			partitioner_->set_total_samples(audiosize);
+		} else
+		{
+			throw std::logic_error("Cannot change size after first update");
+		}
+
+	}
+
+	/**
+	 * \brief Read the internal settings.
+	 *
+	 * \return Internal settings
+	 */
+	const Settings* settings_pointer() const noexcept
+	{
+		return std::addressof(settings_);
+	}
+
+	/**
+	 * \brief Read the internal state.
+	 *
+	 * \return Internal state
+	 */
+	const details::CalculationState& state() const noexcept
+	{
+		return state_;
+	}
+
+	/**
+	 * \brief Read the internal partitioner.
+	 *
+	 * \return Internal partitioner
+	 */
+	const details::Partitioner& partitioner() const noexcept
+	{
+		return *partitioner_;
+	}
+
+	/**
+	 * \brief Provide the internal state for write access.
+	 *
+	 * \return Writable reference to internal state
+	 */
+	details::CalculationState& provide_state() noexcept
+	{
+		return state_;
+	}
+
+	/**
+	 * \brief Provide the internal result buffer for write access.
+	 *
+	 * \return Writable reference to internal result buffer
+	 */
+	details::CalculationResultBuffer& provide_buffer() noexcept
+	{
+		return result_buffer_;
+	}
+
+	/**
+	 * \brief Worker: write log after completion.
+	 */
+	void log_completion() noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void base_swap(Calculation& rhs) noexcept;
+
+public:
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Calculation() override = default;
+
+	/**
+	 * \brief Returns the algorithm instance used by this Calculation.
+	 *
+	 * \return Algorithm used by this Calculation.
+	 */
+	const Algorithm* algorithm() const noexcept
+	{
+		return do_algorithm();
+	}
+
+	/**
+	 * \brief Returns the types requested to this Calculation.
+	 *
+	 * Convenience function for <tt>mycalculation.algorithm().types()</tt>.
+	 *
+	 * \return All requested Checksum types.
+	 */
+	ChecksumtypeSet types() const noexcept
+	{
+		return algorithm()->types();
+	}
+
+	/**
+	 * \brief Return the settings of this instance.
+	 *
+	 * \return Settings of this instance
+	 */
+	Settings settings() const noexcept
+	{
+		return settings_;
+	}
+
+	/**
+	 * \brief Configure the algorithm with settings.
+	 *
+	 * \param[in] s Settings to use on this instance
+	 */
+	void set_settings(const Settings& s);
+
+	/**
+	 * \brief Returns the total number for PCM 32 bit samples yet processed.
+	 *
+	 * This value is equivalent to samples_expected() - samples_todo().
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples processed.
+	 */
+	int32_t samples_processed() const noexcept
+	{
+		return state_.samples_processed();
+	}
+
+	/**
+	 * \brief Returns the total number of initially expected PCM 32 bit samples.
+	 *
+	 * This value is equivalent to samples_processed() + samples_todo(). It will
+	 * always remain constant for the given instance.
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples expected.
+	 */
+	int32_t samples_expected() const noexcept
+	{
+		// Expected total number of input samples
+		return partitioner_->total_samples().samples();
+	}
+
+	/**
+	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
+	 * processed.
+	 *
+	 * This value is equivalent to samples_expected() - samples_processed().
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of PCM 32 bit samples yet to process.
+	 */
+	int32_t samples_todo() const noexcept
+	{
+		return this->samples_expected() - this->samples_processed();
+	}
+
+	/**
+	 * \brief Amount of time elapsed so far by update().
+	 *
+	 * \return Amount of time elapsed so far by update().
+	 */
+	std::chrono::duration<float> update_time_elapsed() const noexcept
+	{
+		return state_.update_time_elapsed();
+	}
+
+	/**
+	 * \brief Amount of time elapsed so far by the algorithm instance.
+	 *
+	 * \return Amount of time elapsed so far by the algorithm instance.
+	 */
+	std::chrono::duration<float> algo_time_elapsed() const noexcept
+	{
+		return state_.algo_time_elapsed();
+	}
+
+	/**
+	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise
+	 * \c FALSE.
+	 *
+	 * If the instance returns \c TRUE it is safe to call result(). Value
+	 * \c FALSE indicates that the instance expects more updates.
+	 *
+	 * \return \c TRUE if the Calculation is completed, otherwise \c FALSE
+	 */
+	bool complete() const noexcept;
+
+	/**
+	 * \brief Acquire the resulting Checksums.
+	 *
+	 * \return The computed Checksums
+	 */
+	Checksums result() const noexcept;
+};
+
+
+/**
  * \brief Perform checksums calculation.
  *
- * A Calculation represents a concrete checksum calculation process. It is
- * manually performed by the caller by calling update().
+ * An Updater represents a Calculation for a concrete checksum calculation
+ * process. It is manually performed by the caller by calling update().
  *
- * Calculation instances must be initialized with the specific size of the input
+ * Updater instances must be initialized with the specific size of the input
  * audio file and an Algorithm that defines the type of the checksums. If
  * multiple tracks e.g. an entire disc content is to be processed, the ToC
  * information of the disc is required. Additionally, a Settings instance can be
@@ -798,168 +1958,99 @@ private:
  *
  * \see make_calculation
  */
-class Calculation final : Swap<Calculation>
+template <class A>
+class Updater final : public Calculation,
+					  public Swap<Updater<A>>
 {
-	class Impl;
-	std::unique_ptr<Impl> impl_;
+	/**
+	 * \brief Algorithm to calculate checksums.
+	 *
+	 * Internally represented as an Updateable.
+	 */
+	std::unique_ptr<Updateable<A>> algorithm_ { std::make_unique<A>() };
 
 public:
 
 	/**
 	 * \brief Constructor.
 	 *
-	 * If <tt>size.zero()</tt>, then first <tt>update()</tt> will throw.
+	 * If <tt>leadout.zero()</tt>, the leadout has to be published by
+	 * update(const AudioSize&) before transisting to UPDATED.
 	 *
-	 * \param[in] settings  The settings for the calculation
-	 * \param[in] algorithm The algorithm to use for calculating
-	 * \param[in] size      Size of the expected input
-	 * \param[in] points    Track offsets (as samples)
+	 * \param[in] settings The settings for the calculation
+	 * \param[in] offsets  Track offsets (as samples)
+	 * \param[in] leadout  Size of the expected input
 	 */
-	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
-			const AudioSize& size, const Points& points);
+	Updater(const Settings& settings,
+			const Points& offsets, const AudioSize& leadout)
+		: Calculation { settings }
+	{
+		algorithm_->set_settings(settings_pointer());
+		init(offsets, leadout);
+	}
 
 	/**
 	 * \brief Constructor.
 	 *
+	 * The ToC is not required to be complete. In this case, the leadout has to
+	 * be published by update(const AudioSize&) before transisting to UPDATED.
+	 *
 	 * \param[in] settings  The settings for the calculation
-	 * \param[in] algorithm The algorithm to use for calculating
 	 * \param[in] toc       Track offsets and leadout
 	 */
-	Calculation(const Settings& settings, std::unique_ptr<Algorithm> algorithm,
-			const ToCData& toc);
+	Updater(const Settings& settings, const ToC& toc)
+		: Updater { settings, toc.offsets(), toc.leadout() }
+	{
+		// empty
+	}
 
 	/**
-	 * \copydoc SNPT_sm_copy_ctor
+	 * \brief Constructor.
+	 *
+	 * The ToCData is not required to contain a leadout. In this case, the
+	 * leadout has to be published by update(const AudioSize&) before
+	 * transisting to UPDATED.
+	 *
+	 * \param[in] settings  The settings for the calculation
+	 * \param[in] toc       Track offsets and leadout
 	 */
-	Calculation(const Calculation& rhs);
+	Updater(const Settings& settings, const ToCData& toc)
+		: Updater { settings, toc::offsets(toc), toc::leadout(toc) }
+	{
+		// empty
+	}
 
-	/**
-	 * \copydoc SNPT_sm_copy_op
-	 */
-	Calculation& operator = (const Calculation& rhs);
+	Updater(const Updater& rhs) = delete;
+
+	Updater& operator = (const Updater& rhs) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Calculation(Calculation&& rhs) noexcept;
+	Updater(Updater&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Calculation& operator = (Calculation&& rhs) noexcept;
+	Updater& operator = (Updater&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~Calculation() noexcept;
+	~Updater() noexcept final = default;
 
 	/**
-	 * \brief Configure the algorithm with settings.
+	 * \brief Initialize this instance with metadata.
 	 *
-	 * \param[in] s Settings to use on this instance
+	 * \param[in] offsets Offsets
+	 * \param[in] leadout Leadout
 	 */
-	void set_settings(const Settings& s) noexcept;
-
-	/**
-	 * \brief Return the settings of this instance.
-	 *
-	 * \return Settings of this instance
-	 */
-	Settings settings() const noexcept;
-
-	/**
-	 * \brief Set the algorithm instance to use.
-	 *
-	 * Note that the algorithm is stateful and may therefore not be shared
-	 * between calculations.
-	 *
-	 * \param[in] algorithm Algorithm to use on update
-	 */
-	void set_algorithm(std::unique_ptr<Algorithm> algorithm) noexcept;
-
-	/**
-	 * \brief Returns the algorithm instance used by this Calculation.
-	 *
-	 * \return Algorithm used by this Calculation.
-	 */
-	const Algorithm* algorithm() const noexcept;
-
-	/**
-	 * \brief Returns the types requested to this Calculation.
-	 *
-	 * Convenience function for <tt>mycalculation.algorithm().types()</tt>.
-	 *
-	 * \return All requested Checksum types.
-	 */
-	ChecksumtypeSet types() const noexcept;
-
-	/**
-	 * \brief Returns the total number of initially expected PCM 32 bit samples.
-	 *
-	 * This value is equivalent to samples_processed() + samples_todo(). It will
-	 * always remain constant for the given instance.
-	 *
-	 * Intended for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples expected.
-	 */
-	int32_t samples_expected() const noexcept;
-
-	/**
-	 * \brief Returns the total number for PCM 32 bit samples yet processed.
-	 *
-	 * This value is equivalent to samples_expected() - samples_todo().
-	 *
-	 * Intended for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples processed.
-	 */
-	int32_t samples_processed() const noexcept;
-
-	/**
-	 * \brief Returns the total number of PCM 32 bit samples that is yet to be
-	 * processed.
-	 *
-	 * This value is equivalent to samples_expected() - samples_processed().
-	 *
-	 * Intended for debugging.
-	 *
-	 * \return Total number of PCM 32 bit samples yet to process.
-	 */
-	int32_t samples_todo() const noexcept;
-
-	/**
-	 * \brief Amount of time elapsed so far by update().
-	 *
-	 * \return Amount of time elapsed so far by update().
-	 */
-	std::chrono::duration<float> update_time_elapsed() const noexcept;
-
-	/**
-	 * \brief Amount of time elapsed so far by the algorithm instance.
-	 *
-	 * \return Amount of time elapsed so far by the algorithm instance.
-	 */
-	std::chrono::duration<float> algo_time_elapsed() const noexcept;
-
-	/**
-	 * \brief Returns \c TRUE iff this Calculation is completed, otherwise
-	 * \c FALSE.
-	 *
-	 * If the instance returns \c TRUE it is safe to call result(). Value
-	 * \c FALSE indicates that the instance expects more updates.
-	 *
-	 * \return \c TRUE if the Calculation is completed, otherwise \c FALSE
-	 */
-	bool complete() const noexcept;
-
-	/**
-	 * \brief Update with a sequence of samples.
-	 *
-	 * \param[in] start Iterator pointing to the first sample of the sequence
-	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
-	 */
-	void update(SampleInputIterator start, SampleInputIterator stop);
+	void init(const Points& offsets, const AudioSize& leadout)
+	{
+		init_partitioner(*algorithm_, offsets, leadout);
+		init_resultbuffer(offsets.size());
+		transition_to(State::INITIALIZED);
+	}
 
 	/**
 	 * \brief Update the instance with a new AudioSize.
@@ -968,36 +2059,114 @@ public:
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
-	void update(const AudioSize& audiosize);
+	void update(const AudioSize& audiosize)
+	{
+		update_impl(audiosize);
+	}
 
 	/**
-	 * \brief Acquire the resulting Checksums.
+	 * \brief Implements update for sample sequences.
 	 *
-	 * \return The computed Checksums
+	 * \tparam T The value_type of the SampleSequence
+	 * \tparam is_planar TRUE for planar SampleSequences, FALSE for interleaved
+	 *
+	 * \param[in] samples Sample sequence for update
 	 */
-	Checksums result() const noexcept;
+    template<typename T, bool is_planar>
+    void update(const details::SampleSequence<T, is_planar>& samples)
+	{
+		using std::cbegin;
+		using std::cend;
+
+		this->update(cbegin(samples), cend(samples));
+	}
+
+	/**
+	 * \brief Update with a planar sequence of samples.
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the update sequence
+	 * \tparam E Type of iterator pointing to the end   of the update sequence
+	 *
+	 * \param[in] start Iterator pointing to the first sample of the sequence
+	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
+	 */
+	template<typename B, typename E>
+    void update(B start, E stop)
+	{
+		this->update_impl(start, stop);
+    }
 
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(Calculation& rhs) noexcept;
+	void swap(Updater& rhs) noexcept
+	{
+		Calculation::base_swap(rhs);
+
+		using std::swap;
+
+		swap(algorithm_, rhs.algorithm_);
+	}
+
+private:
+
+	const Algorithm* do_algorithm() const noexcept final
+	{
+		return algorithm_.get();
+	}
+
+	void on_settings_changed() final
+	{
+		algorithm_->set_settings(settings_pointer());
+	}
+
+	void on_completion() final
+	{
+		transition_to(State::COMPLETED);
+		this->log_completion();
+	}
+
+	/**
+	 * \brief Implements update for iterators.
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the update sequence
+	 * \tparam E Type of iterator pointing to the end   of the update sequence
+	 */
+	template <typename B, typename E>
+	void update_impl(B start, E stop)
+	{
+		transition_to(State::UPDATED);
+
+		ARCS_LOG(DEBUG1) << "PROCESS BLOCK: START";
+
+		try
+		{
+			using std::chrono::steady_clock;
+
+			const auto start_time { steady_clock::now() };
+
+			const auto is_completed = bool { perform_update(start, stop,
+					partitioner(), *algorithm_,
+					provide_state(), provide_buffer()) };
+
+			const auto stop_time  { steady_clock::now() };
+
+			provide_state().increment_update_time_elapsed(
+					stop_time - start_time);
+
+			if (is_completed)
+			{
+				on_completion();
+			}
+		} catch (...)
+		{
+			transition_to(State::INVALID);
+			throw;
+		}
+
+		ARCS_LOG(DEBUG1) << "PROCESS BLOCK: END";
+	}
 };
-
-
-/**
- * \brief Create a Calculation from an Algorithm and a ToC.
- *
- * If the ToC is not \link arcstk::ToC::complete complete \endlink,
- * the Calculation must be updated with the correct
- * total number of input samples before calling Calculation::update().
- *
- * \param[in] algorithm The algorithm to use for calculating
- * \param[in] toc       Complete ToC to perform calculation for
- *
- * \return Calculation object using \c algorithm and \c toc.
- */
-std::unique_ptr<Calculation> make_calculation(
-		std::unique_ptr<Algorithm> algorithm, const ToC& toc);
 
 /** @} */
 

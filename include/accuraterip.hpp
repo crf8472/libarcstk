@@ -15,17 +15,20 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"     // for checksum::type, ChecksumSet
-#endif
-#ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"    // for Algorithm
-#endif
-
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for unique_ptr, swap
 #include <string>         // for string
 #include <unordered_set>  // for unordered_set
+
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"     // for checksum::type, ChecksumSet
+#endif
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate.hpp"    // for Algorithm, Updateable
+#endif
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging.hpp"
+#endif
 
 namespace arcstk
 {
@@ -134,27 +137,12 @@ struct Subtotals
 
 /**
  * \brief Functor for performing the actual update.
+ *
+ * \tparam T1 First checksum type
+ * \tparam T2 More checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-struct Update
-{
-	template <class B, class E>
-	void operator()(const B& /* start */, const E& /* stop */,
-			Subtotals& /* subtotals */) const
-	{
-		// empty
-	}
-
-	ChecksumSet value(Subtotals& /* st */) const
-	{
-		return {/* empty */};
-	}
-
-	std::string id_string() const
-	{
-		return {/* empty */};
-	}
-};
+struct Update;
 
 
 // AccurateRip v1
@@ -164,6 +152,7 @@ struct Update<checksum::type::ARCS1>
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			st.subtotal_v1 += st.multiplier * (*pos) & LOWER_32_BITS_;
@@ -182,6 +171,7 @@ struct Update<checksum::type::ARCS2>
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			st.update = st.multiplier * (*pos);
@@ -198,11 +188,12 @@ struct Update<checksum::type::ARCS2>
 
 // AccurateRip v1+2
 template <>
-struct Update<checksum::type::ARCS1,checksum::type::ARCS2>
+struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 {
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			st.update       = st.multiplier * (*pos);
@@ -230,7 +221,7 @@ std::unordered_set<checksum::type> types_set()
  * \brief Interface and base class for updatable subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
-class AccurateRipCS final
+class UpdateableSubtotals final
 {
 	/**
 	 * \brief Internal subtotals.
@@ -247,7 +238,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_ctor
 	 */
-	AccurateRipCS();
+	UpdateableSubtotals();
 
 	/**
 	 * \brief Current Multiplier of this instance.
@@ -266,11 +257,17 @@ public:
 	/**
 	 * \brief Update the instance by a sequence of samples.
 	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
 	 * \param[in] start The start position (part of update)
 	 * \param[in] stop  The stop position (not part of update)
 	 */
-	void update(const SampleInputIterator& start,
-			const SampleInputIterator& stop);
+	template <class B, class E>
+	void update(B start, E stop)
+	{
+		update_(start, stop, st_);
+	}
 
 	/**
 	 * \brief Get the current updated value from the Updatable.
@@ -310,12 +307,13 @@ public:
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(AccurateRipCS& rhs) noexcept;
+	void swap(UpdateableSubtotals& rhs) noexcept;
 
 	/**
 	 * \copydoc SNPT_nf_swap
 	 */
-	friend void swap(AccurateRipCS& lhs, AccurateRipCS& rhs) noexcept
+	friend void swap(UpdateableSubtotals& lhs, UpdateableSubtotals& rhs)
+		noexcept
 	{
 		lhs.swap(rhs);
 	}
@@ -326,12 +324,12 @@ public:
  * \brief AccurateRip algorithm variants.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
-class ARCSAlgorithm final : public Algorithm
+class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 {
 	/**
 	 * \brief Algorithm state..
 	 */
-	AccurateRipCS<T1, T2...> state_;
+	UpdateableSubtotals<T1, T2...> state_;
 
 	/**
 	 * \brief Current result of performing the algorithm.
@@ -341,8 +339,6 @@ class ARCSAlgorithm final : public Algorithm
 	// Algorithm
 
 	void do_setup(const Settings* s) final;
-
-	void do_update(SampleInputIterator start, SampleInputIterator stop) final;
 
 	void do_track_finished(const int t, const AudioSize& length) final;
 
@@ -361,6 +357,26 @@ public:
 	 * \copydoc SNPT_sm_default_ctor
 	 */
 	ARCSAlgorithm();
+
+	/**
+	 * \brief Update the instance by a sequence of samples.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position (part of update)
+	 * \param[in] stop  The stop position (not part of update)
+	 */
+	template <class B, class E>
+	void perform_update(B start, E stop)
+	{
+		ARCS_LOG(DEBUG3) << "First multiplier: " << state_.multiplier();
+
+		state_.update(start, stop);
+
+		ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
+		// -1 because multiplier_ has already been updated to next input
+	}
 
 	/**
 	 * \copydoc SNPT_mf_swap

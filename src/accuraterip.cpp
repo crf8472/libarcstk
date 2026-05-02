@@ -93,11 +93,11 @@ std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
 }
 
 
-// AccurateRipCS
+// UpdateableSubtotals
 
 
 template <cstype T1, cstype... T2>
-AccurateRipCS<T1, T2...>::AccurateRipCS()
+UpdateableSubtotals<T1, T2...>::UpdateableSubtotals()
 	: st_     { /*default*/ }
 	, update_ { /*default*/ }
 {
@@ -106,36 +106,36 @@ AccurateRipCS<T1, T2...>::AccurateRipCS()
 
 
 template <cstype T1, cstype... T2>
-uint_fast64_t AccurateRipCS<T1, T2...>::multiplier() const
+uint_fast64_t UpdateableSubtotals<T1, T2...>::multiplier() const
 {
 	return st_.multiplier;
 }
 
 
 template <cstype T1, cstype... T2>
-void AccurateRipCS<T1, T2...>::set_multiplier(const uint_fast64_t m)
+void UpdateableSubtotals<T1, T2...>::set_multiplier(const uint_fast64_t m)
 {
 	st_.multiplier = m;
 }
 
-
+/*
 template <cstype T1, cstype... T2>
-void AccurateRipCS<T1, T2...>::update(const SampleInputIterator& start,
+void UpdateableSubtotals<T1, T2...>::update(const SampleInputIterator& start,
 			const SampleInputIterator& stop)
 {
 	update_(start, stop, st_);
 }
-
+*/
 
 template <cstype T1, cstype... T2>
-ChecksumSet AccurateRipCS<T1, T2...>::value() const
+ChecksumSet UpdateableSubtotals<T1, T2...>::value() const
 {
 	return update_.value(st_);
 }
 
 
 template <cstype T1, cstype... T2>
-void AccurateRipCS<T1, T2...>::reset()
+void UpdateableSubtotals<T1, T2...>::reset()
 {
 	st_.update      = 0;
 	st_.subtotal_v1 = 0;
@@ -144,7 +144,7 @@ void AccurateRipCS<T1, T2...>::reset()
 
 
 template <cstype T1, cstype... T2>
-void AccurateRipCS<T1, T2...>::swap(AccurateRipCS& rhs) noexcept
+void UpdateableSubtotals<T1, T2...>::swap(UpdateableSubtotals& rhs) noexcept
 {
 	using std::swap;
 
@@ -158,7 +158,8 @@ void AccurateRipCS<T1, T2...>::swap(AccurateRipCS& rhs) noexcept
 
 template <cstype T1, cstype... T2>
 ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
-	: state_          { /* default */ }
+	: Updateable<ARCSAlgorithm<T1, T2...>>{ /* default */ }
+	, state_          { /* default */ }
 	, current_result_ { /* default */ }
 {
 	// empty
@@ -179,7 +180,7 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
 }
 
-
+/*
 template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 		SampleInputIterator stop)
@@ -191,7 +192,7 @@ void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
 	ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
 	// -1 because multiplier_ has already been updated to next input
 }
-
+*/
 
 template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
@@ -279,11 +280,11 @@ void ARCSAlgorithm<T1, T2...>::swap(ARCSAlgorithm& rhs) noexcept
 // Explicit instantiations
 
 
-template class AccurateRipCS<cstype::ARCS1>;
+template class UpdateableSubtotals<cstype::ARCS1>;
 
-template class AccurateRipCS<cstype::ARCS2>;
+template class UpdateableSubtotals<cstype::ARCS2>;
 
-template class AccurateRipCS<cstype::ARCS1, cstype::ARCS2>;
+template class UpdateableSubtotals<cstype::ARCS1, cstype::ARCS2>;
 
 
 template class ARCSAlgorithm<cstype::ARCS1>;

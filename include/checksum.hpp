@@ -88,14 +88,14 @@ std::string name(const type t);
 /**
  * \copydoc SNPT_nf_stream_in
  */
-inline std::ostream& operator << (std::ostream& out, const type checksum_type)
+inline std::ostream& operator << (std::ostream& out, const type i)
 {
 	if (!out.good())
 	{
 		return out;
 	}
 
-	out << name(checksum_type);
+	out << name(i);
 	return out;
 }
 

@@ -31,13 +31,13 @@
 #endif
 
 
-TEST_CASE ( "AccurateRipCS", "[updatable]" )
+TEST_CASE ( "UpdateableSubtotals", "[updatable]" )
 {
-	using arcstk::accuraterip::details::AccurateRipCS;
+	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::checksum::type;
 
-	AccurateRipCS<type::ARCS1,type::ARCS2> u1;
-	AccurateRipCS<type::ARCS1,type::ARCS2> u2;
+	UpdateableSubtotals<type::ARCS1,type::ARCS2> u1;
+	UpdateableSubtotals<type::ARCS1,type::ARCS2> u2;
 
 	std::vector<uint32_t> data { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
@@ -47,7 +47,7 @@ TEST_CASE ( "AccurateRipCS", "[updatable]" )
 	u1.set_multiplier(1);
 	u1.update(cbegin(data), cend(data));
 
-	SECTION( "Swapping instances of AccurateRipCS<> works" )
+	SECTION( "Swapping instances of UpdateableSubtotals<> works" )
 	{
 		CHECK ( u1.value().get(type::ARCS2).first.value() == 650 );
 		CHECK ( u2.value().get(type::ARCS2).first.value() ==   0 );
@@ -148,7 +148,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		auto state = arcstk::accuraterip::details::AccurateRipCS<
+		auto state = arcstk::accuraterip::details::UpdateableSubtotals<
 			type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
@@ -225,7 +225,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		auto state = arcstk::accuraterip::details::AccurateRipCS<type::ARCS1,
+		auto state = arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1,
 			 type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
@@ -305,7 +305,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
 		auto state =
-			arcstk::accuraterip::details::AccurateRipCS<type::ARCS1,
+			arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1,
 			type::ARCS2>{};
 
 		REQUIRE ( state.types() == std::unordered_set<type>{
@@ -669,7 +669,7 @@ TEST_CASE ( "construct_id", "[id]" )
 /*
 	SECTION ( "Correct ARCS1+2 with aligned blocks" )
 	{
-		arcstk::accuraterip::AccurateRipCS<type::ARCS1,type::ARCS2> state {};
+		arcstk::accuraterip::UpdateableSubtotals<type::ARCS1,type::ARCS2> state {};
 
 		// Initialize Buffer
 
