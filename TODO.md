@@ -7,17 +7,18 @@ expect that I really do anything of what I noted here any time soon.
 
 ## API
 
-- Make all concrete classes regular, whenever possible i.e.:
+- Public data classes in arcstk or its sub-namespaces are:
+	ARId, Checksum, ChecksumSet, DBAR, DBARBlockHeader, AudioSize, ToC,
+	ResultBits (Settings?)
+	They should behave like int (Stepanov regularity).
+- Make all data classes regular:
 	- Copy+Move ctor
 	- Copy+Move assignment
 	- define operators == and !=
-	- specialize std::less for class (or provide operator <)
+	- provide operator < (or specialize std::less if ordering is not natural)
 	- specialize std::hash for class
-	- Tipp: implement check and write a test for it
 	- Tipp: The moved-from state must be part of the classes invariant or the
 		class isn't moveable
-- Implement non-member non-friend functions as function objects
-
 
 ## Technical
 
