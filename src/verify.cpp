@@ -179,10 +179,12 @@ ResultBits::size_type ResultBits::total_tracks_set(ResultBits::index_type b)
 {
 	bounds_check_block(b);
 
-	const auto block_start = static_cast<size_type>(block_offset(b));
-	const auto block_len   = flags_per_block() > 0 ? flags_per_block() - 1 : 0;
+	const auto block_start = block_offset(b);
+	const auto block_len   = flags_per_block() > 0
+		? static_cast<index_type>(flags_per_block()) - 1
+		: 0;
 
-	const auto first_flag_in_tracks = block_start + 1u; /* skip id */
+	const auto first_flag_in_tracks = block_start + 1; /* skip id */
 	const auto last_flag_in_tracks  = block_start + block_len;
 
 	auto count = size_type { 0 };
