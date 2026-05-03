@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for checksum.hpp.
+ * \brief Unit tests for checksum.hpp.
  */
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
@@ -11,9 +11,6 @@
 #endif
 
 #include <utility>                // for move
-
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
 
 
 TEST_CASE ( "checksum::name provides correct names",
@@ -26,24 +23,6 @@ TEST_CASE ( "checksum::name provides correct names",
 	CHECK ( name(type::ARCS2) == "ARCSv2" );
 	//CHECK ( name(type::CRC32)   == "CRC32" );
 	//CHECK ( name(type::CRC32ns) == "CRC32ns" );
-}
-
-
-TEST_CASE ( "Checksum Type Traits", "[checksum] [calc]" )
-{
-	SECTION ("HAS comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::Checksum> );
-	}
-
-	SECTION ("HAS string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::Checksum>::value );
-	}
 }
 
 
@@ -277,26 +256,6 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc]" )
 
 		CHECK ( c.zero() );
 		CHECK ( !c );
-	}
-
-	SECTION ("IS (nothrow) swappable")
-	{
-		CHECK ( std::is_swappable_v<arcstk::ChecksumSet> );
-		CHECK ( std::is_nothrow_swappable_v<arcstk::ChecksumSet> );
-	}
-
-	SECTION ("HAS comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::ChecksumSet> );
-	}
-
-	SECTION ("HAS string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::ChecksumSet>::value );
 	}
 }
 

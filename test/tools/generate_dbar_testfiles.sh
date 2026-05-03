@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-
-## This script generates input files for all testcases of ARParser.
-## Each copy of the specified base file will be broken at a specific position
-## to test the parsers ability to handle the error correct.
+## Generate input dbar files for all testcases of DBAR parser.
+##
+## Each copy of the specified base file will end at a specific premature
+## position to enable testing the parsers ability to handle the error correct.
 ##
 ## Requirements: coreutils (head, tail)
 
@@ -20,10 +20,10 @@ FILE=dBAR-015-001b9178-014be24e-b40d2d0f.bin
 
 ## Constants
 
-## ARBlock headers are 13 bytes long
+## DBAR block headers are 13 bytes long
 (( header_len=13 ))
 
-## ARTriplets are 9 bytes long
+## DBAR triplets are 9 bytes long
 (( triplet_len=9 ))
 
 

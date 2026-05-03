@@ -1,10 +1,9 @@
 #include "catch2/catch_test_macros.hpp"
-#include <stdexcept>
 
 /**
  * \file
  *
- * \brief Fixtures for metadata_details.hpp.
+ * \brief Unit tests for metadata_details.hpp.
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_

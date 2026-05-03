@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for accuraterip_func.hpp.
+ * \brief Unit tests for accuraterip_func.hpp.
  */
 
 #ifndef LIBARCSTK_ACCURATERIP_FUNC_HPP_

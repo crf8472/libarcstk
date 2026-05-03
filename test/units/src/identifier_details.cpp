@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for identifier_details.hpp.
+ * \brief Unit tests for identifier_details.hpp.
  */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_

@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for bytes.hpp.
+ * \brief Unit tests for bytes.hpp.
  */
 
 #ifndef LIBARCSTK_BYTES_HPP_

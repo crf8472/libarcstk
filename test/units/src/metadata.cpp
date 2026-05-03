@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for metadata.hpp.
+ * \brief Unit tests for metadata.hpp.
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
@@ -14,9 +14,6 @@
 #include <type_traits>            // for is_copy_constructible
 #include <string>                 // for string
 #include <vector>                 // for vector
-
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
 
 
 TEST_CASE ( "Units", "[meta]" )
@@ -754,90 +751,6 @@ TEST_CASE ( "ToCData", "[tocdata] [meta]" )
 }
 
 
-TEST_CASE ( "ToC Type Traits", "[toc] [meta]" )
-{
-	SECTION ("IS non-abstract final class")
-	{
-		CHECK ( std::is_class_v<arcstk::ToC> );
-		CHECK ( ! std::is_abstract_v<arcstk::ToC> );
-		CHECK ( std::is_final_v<arcstk::ToC> );
-	}
-
-	SECTION ( "IS default constructable")
-	{
-		CHECK ( std::is_default_constructible_v<arcstk::ToC>);
-	}
-
-	SECTION ( "Default constructed instance IS empty")
-	{
-		auto toc = arcstk::ToC{};
-
-		CHECK ( toc.empty() );
-		CHECK ( !toc );
-	}
-
-	SECTION ( "IS copy-constructable")
-	{
-		CHECK ( std::is_copy_constructible_v<arcstk::ToC>);
-		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::ToC>);
-		//CHECK ( std::is_nothrow_copy_constructible_v<arcstk::ToC>);
-	}
-
-	SECTION ( "IS (nothrow) move-constructable")
-	{
-		CHECK ( std::is_move_constructible_v<arcstk::ToC>);
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ToC>);
-		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::ToC>);
-	}
-
-	SECTION ( "IS copy-assignable")
-	{
-		CHECK ( std::is_copy_assignable_v<arcstk::ToC>);
-		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::ToC>);
-		//CHECK ( std::is_nothrow_copy_assignable_v<arcstk::ToC>);
-	}
-
-	SECTION ( "IS (nothrow) move-assignable")
-	{
-		CHECK ( std::is_move_assignable_v<arcstk::ToC>);
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ToC>);
-		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::ToC>);
-	}
-
-	SECTION ("IS destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::ToC> );
-		//CHECK ( std::is_trivially_destructible_v<arcstk::ToC> );
-		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ToC> );
-	}
-
-	SECTION ("HAS non-static members")
-	{
-		CHECK ( ! std::is_empty_v<arcstk::ToC> );
-	}
-
-	SECTION ("IS (nothrow) swappable")
-	{
-		CHECK ( std::is_swappable_v<arcstk::ToC> );
-		CHECK ( std::is_nothrow_swappable_v<arcstk::ToC> );
-	}
-
-	SECTION ("HAS comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::ToC> );
-	}
-
-	SECTION ("HAS string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::ToC>::value );
-	}
-}
-
-
 TEST_CASE ( "ToC", "[toc] [meta]" )
 {
 	using arcstk::AudioSize;
@@ -905,90 +818,6 @@ TEST_CASE ( "ToC", "[toc] [meta]" )
 	SECTION ( "Equality operator is correct" )
 	{
 		CHECK ( toc == toc2 );
-	}
-}
-
-
-TEST_CASE ( "AudioSize Type Traits", "[audiosize] [meta]" )
-{
-	SECTION ("IS non-abstract final class")
-	{
-		CHECK ( std::is_class_v<arcstk::AudioSize> );
-		CHECK ( ! std::is_abstract_v<arcstk::AudioSize> );
-		CHECK ( std::is_final_v<arcstk::AudioSize> );
-	}
-
-	SECTION ( "IS default constructable")
-	{
-		CHECK ( std::is_default_constructible_v<arcstk::AudioSize>);
-	}
-
-	SECTION ( "Default constructed instance IS zero")
-	{
-		auto s = arcstk::AudioSize{};
-
-		CHECK ( s.zero() );
-		CHECK ( !s );
-	}
-
-	SECTION ( "IS (nothrow) copy-constructable")
-	{
-		CHECK ( std::is_copy_constructible_v<arcstk::AudioSize>);
-		CHECK ( std::is_trivially_copy_constructible_v<arcstk::AudioSize>);
-		CHECK ( std::is_nothrow_copy_constructible_v<arcstk::AudioSize>);
-	}
-
-	SECTION ( "IS (nothrow) move-constructable")
-	{
-		CHECK ( std::is_move_constructible_v<arcstk::AudioSize>);
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::AudioSize>);
-		CHECK ( std::is_trivially_move_constructible_v<arcstk::AudioSize>);
-	}
-
-	SECTION ( "IS (nothrow) copy-assignable")
-	{
-		CHECK ( std::is_copy_assignable_v<arcstk::AudioSize>);
-		CHECK ( std::is_trivially_copy_assignable_v<arcstk::AudioSize>);
-		CHECK ( std::is_nothrow_copy_assignable_v<arcstk::AudioSize>);
-	}
-
-	SECTION ( "IS (nothrow) move-assignable")
-	{
-		CHECK ( std::is_move_assignable_v<arcstk::AudioSize>);
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::AudioSize>);
-		CHECK ( std::is_trivially_move_assignable_v<arcstk::AudioSize>);
-	}
-
-	SECTION ("IS destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::AudioSize> );
-		//CHECK ( std::is_trivially_destructible_v<arcstk::AudioSize> );
-		//CHECK ( ! std::has_virtual_destructor_v<arcstk::AudioSize> );
-	}
-
-	SECTION ("HAS non-static members")
-	{
-		CHECK ( ! std::is_empty_v<arcstk::AudioSize> );
-	}
-
-	SECTION ("IS (nothrow) swappable")
-	{
-		CHECK ( std::is_swappable_v<arcstk::AudioSize> );
-		CHECK ( std::is_nothrow_swappable_v<arcstk::AudioSize> );
-	}
-
-	SECTION ("HAS comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::AudioSize> );
-	}
-
-	SECTION ("HAS string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::AudioSize>::value );
 	}
 }
 

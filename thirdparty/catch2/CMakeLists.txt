@@ -9,7 +9,7 @@ find_package (Git REQUIRED )
 ## --- Catch2 identifiers
 
 set (CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
-set (CATCH2_VERSION_TAG "v3.8.0" )
+set (CATCH2_VERSION_TAG "v3.14.0" )
 
 ## --- Define Catch2 to be checked out/updated while configuring {{{1
 
@@ -40,6 +40,8 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.11.0" )
 		endif()
 	endif()
 	# 2}}}
+
+	set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE )
 
 else()
 

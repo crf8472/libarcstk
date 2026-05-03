@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for mixins.hpp.
+ * \brief Unit tests for mixins.hpp.
  */
 
 #ifndef LIBARCSTK_MIXINS_HPP_

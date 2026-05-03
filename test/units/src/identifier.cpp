@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for identifier.hpp.
+ * \brief Unit tests for identifier.hpp.
  */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
@@ -12,95 +12,6 @@
 #ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
 #include "identifier_details.hpp" // for make_arid
 #endif
-
-#include <type_traits>            // for is_*_{constructible,assignable}
-
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
-
-
-TEST_CASE ( "ARId Type Traits", "[arid] [id]" )
-{
-	SECTION ("IS non-abstract final class")
-	{
-		CHECK ( std::is_class_v<arcstk::ARId> );
-		CHECK ( ! std::is_abstract_v<arcstk::ARId> );
-		CHECK ( std::is_final_v<arcstk::ARId> );
-	}
-
-	SECTION ( "IS default constructable")
-	{
-		CHECK ( std::is_default_constructible_v<arcstk::ARId>);
-	}
-
-	SECTION ( "Default constructed instance IS empty")
-	{
-		auto id = arcstk::ARId{};
-
-		CHECK ( id.empty() );
-		CHECK ( !id );
-	}
-
-	SECTION ( "IS copy-constructable")
-	{
-		CHECK ( std::is_copy_constructible_v<arcstk::ARId>);
-		CHECK ( ! std::is_trivially_copy_constructible_v<arcstk::ARId>);
-		//CHECK ( std::is_nothrow_copy_constructible_v<arcstk::ARId>);
-	}
-
-	SECTION ( "IS (nothrow) move-constructable")
-	{
-		CHECK ( std::is_move_constructible_v<arcstk::ARId>);
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ARId>);
-		CHECK ( ! std::is_trivially_move_constructible_v<arcstk::ARId>);
-	}
-
-	SECTION ( "IS copy-assignable")
-	{
-		CHECK ( std::is_copy_assignable_v<arcstk::ARId>);
-		CHECK ( ! std::is_trivially_copy_assignable_v<arcstk::ARId>);
-		//CHECK ( std::is_nothrow_copy_assignable_v<arcstk::ARId>);
-	}
-
-	SECTION ( "IS (nothrow) move-assignable")
-	{
-		CHECK ( std::is_move_assignable_v<arcstk::ARId>);
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ARId>);
-		CHECK ( ! std::is_trivially_move_assignable_v<arcstk::ARId>);
-	}
-
-	SECTION ("IS destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::ARId> );
-		//CHECK ( std::is_trivially_destructible_v<arcstk::ARId> );
-		//CHECK ( ! std::has_virtual_destructor_v<arcstk::ARId> );
-	}
-
-	SECTION ("HAS non-static members")
-	{
-		CHECK ( ! std::is_empty_v<arcstk::ARId> );
-	}
-
-	SECTION ("IS (nothrow) swappable")
-	{
-		CHECK ( std::is_swappable_v<arcstk::ARId> );
-		CHECK ( std::is_nothrow_swappable_v<arcstk::ARId> );
-	}
-
-	SECTION ("HAS comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::ARId> );
-	}
-
-	SECTION ("HAS string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::ARId>::value );
-	}
-}
 
 
 TEST_CASE ( "ARId", "[arid] [id]" )

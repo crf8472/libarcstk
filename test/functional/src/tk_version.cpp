@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for version.hpp.
+ * \brief Test constants of version.hpp.
  */
 
 #ifndef LIBARCSTK_VERSION_HPP_

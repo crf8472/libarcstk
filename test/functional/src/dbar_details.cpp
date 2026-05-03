@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for dbar_details.hpp.
+ * \brief Unit tests for dbar_details.hpp.
  */
 
 #ifndef LIBARCSTK_DBAR_HPP_
@@ -57,7 +57,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -78,7 +78,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+01.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -109,7 +109,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+02.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -140,7 +140,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+03.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -171,7 +171,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+04.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -202,7 +202,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+05.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -233,7 +233,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+06.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -264,7 +264,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+07.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -295,7 +295,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+08.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -326,7 +326,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+09.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -357,7 +357,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+10.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -388,7 +388,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+11.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -419,7 +419,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+12.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -450,7 +450,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_H+13.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -481,7 +481,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+0.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -513,7 +513,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+1.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -548,7 +548,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 		// triplet invalid, confidence ok, ARCS incomplete
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+2.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -579,7 +579,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+3.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -610,7 +610,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+4.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -644,7 +644,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+5.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -678,7 +678,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+6.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -709,7 +709,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+7.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)
@@ -740,7 +740,7 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
 	{
 		try
 		{
-			file.open("dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin",
+			file.open("data/dBAR-015-001b9178-014be24e-b40d2d0f_T+8.bin",
 					std::ios::binary);
 		}
 		catch (const std::ifstream::failure& f)

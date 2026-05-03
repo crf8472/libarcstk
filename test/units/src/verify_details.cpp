@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Fixtures for verify_details.hpp.
+ * \brief Unit tests for verify_details.hpp.
  */
 
 #ifndef LIBARCSTK_VERIFY_HPP_

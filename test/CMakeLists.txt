@@ -3,113 +3,48 @@
 ## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
-## --- Policies {{{1
 
-## Always link library files by full path when a full path is given to the
-## target_link_libraries() command.
-cmake_policy (SET CMP0003 NEW )
+# Specific for Catch2 made available by FetchContent {{{1
+# TODO Precondition: CMAKE_MODULE_PATH must contain ${catch2_SOURCE_DIR}/extras
+include(CTest)
+include(Catch)
+#1}}}
 
-## Link libraries by full path even in implicit directories.
-## See: https://cmake.org/cmake/help/latest/policy/CMP0060.html
-cmake_policy (SET CMP0060 NEW )
-## 1}}}
+add_custom_command (
+	OUTPUT  "${PROJECT_BINARY_DIR}/reports"
+	COMMAND "${CMAKE_COMMAND}"
+	ARGS    -E make_directory "${PROJECT_BINARY_DIR}/reports"
+	VERBATIM
+)
 
-
-set (TEST_SOURCE_DIR "src" )
-
-## --- Define testcases {{{1
-
-set (TEST_SETS )
-list (APPEND TEST_SETS accuraterip        )
-list (APPEND TEST_SETS accuraterip_func   )
-list (APPEND TEST_SETS bytes              )
-list (APPEND TEST_SETS calculate          )
-list (APPEND TEST_SETS checksum           )
-list (APPEND TEST_SETS dbar               )
-list (APPEND TEST_SETS dbar_details       )
-list (APPEND TEST_SETS identifier         )
-list (APPEND TEST_SETS identifier_details )
-list (APPEND TEST_SETS metadata           )
-list (APPEND TEST_SETS metadata_details   )
-#list (APPEND TEST_SETS mixins             )
-list (APPEND TEST_SETS samples            )
-list (APPEND TEST_SETS tk_version         )
-list (APPEND TEST_SETS verify             )
-list (APPEND TEST_SETS verify_details     )
+add_custom_target (libarcstk_create_reports_dir ALL
+	DEPENDS "${PROJECT_BINARY_DIR}/reports" )
 
 
-## Adjust compile options for tests.
-set (TEST_CXX_FLAGS_WARNINGS ${PROJECT_CXX_FLAGS_WARNINGS} )
-set (TEST_CXX_FLAGS )
-
-## --- Remove flags from g++ that pollute the output {{{1
-
-if (CMAKE_COMPILER_IS_GNUCXX )
-	## (g++ issues many warnings when compiling Catch2 v3.x tests)
-
-	## Remove some flags from the actual compile options, if they are present
-	list (APPEND GNUCXX_IGNORE_FLAGS
-		-Weffc++
-		-Wctor-dtor-privacy
-		-Wuseless-cast
-	)
-
-	foreach (_flag ${GNUCXX_IGNORE_FLAGS} )
-		message (STATUS
-			"Ignore compile flag ${_flag} when compiling Catch2-tests with g++" )
-		list (REMOVE_ITEM TEST_CXX_FLAGS_WARNINGS ${_flag} )
-	endforeach()
-
-	set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}
-		"--param" "max-gcse-memory=142720"
-	)
-endif()
+## Include common test helpers
+include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SetupEnvironment.cmake" )
+include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TestHelpers.cmake" )
 
 
-## --- Add common configuration for all testcases {{{1
+## Configure common test settings
+configure_test_environment()
 
-foreach (_testcase ${TEST_SETS} )
+## Add tests
+add_subdirectory (units )
+add_subdirectory (functional )
+add_subdirectory (type_traits )
 
-	set_property (
-		SOURCE "${TEST_SOURCE_DIR}/${_testcase}.cpp"
-		APPEND
-		PROPERTY COMPILE_OPTIONS ${TEST_CXX_FLAGS}
-	)
-
-	## Define executable for this testcase
-	add_executable (${_testcase}_test "${TEST_SOURCE_DIR}/${_testcase}.cpp" )
-
-	set_property (TARGET ${_testcase}_test PROPERTY CXX_STANDARD 17 )
-
-	target_include_directories (${_testcase}_test
-		PRIVATE ${PROJECT_INCLUDE_DIR}      ## public headers
-		PRIVATE ${PROJECT_SOURCE_DIR}       ## private headers (*_details.hpp)
-		PRIVATE ${PROJECT_BUILD_SOURCE_DIR} ## generated sources
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ## testing helpers
-	)
-
-	target_link_libraries (${_testcase}_test
-		PRIVATE
-		Catch2::Catch2WithMain
-		-Wl,--disable-new-dtags  ## set RPATH instead of RUNPATH
-		${PROJECT_NAME} ## libarcstk from build-tree, 0003 and 0060 are used
-	)
-	## Setting the RPATH forces loading the libarcstk.so from the build tree,
-	## even if a system-wide libarcstk is installed. Using RUNPATH instead of
-	## RPATH causes the testcase to load the system-wide libfile.
-
-	## Set same optimization flags as for project sources
-	target_compile_options (${_testcase}_test
-		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
-
-	## Add test to ctest set
-	add_test (
-		NAME    ${_testcase}_test
-		COMMAND "${_testcase}_test"
-				-o "${PROJECT_BINARY_DIR}/report.${_testcase}.xml"
-				-r junit
-		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data"
-	)
-
-endforeach()
+## Add test suites for use on CLI
+add_custom_target (test_units
+    COMMAND ${CMAKE_CTEST_COMMAND} -L "units" --verbose
+)
+add_custom_target(test_functional
+    COMMAND ${CMAKE_CTEST_COMMAND} -L "functional" --verbose
+)
+add_custom_target(test_type_traits
+    COMMAND ${CMAKE_CTEST_COMMAND} -L "type_traits" --verbose
+)
+add_custom_target (test_all
+    COMMAND ${CMAKE_CTEST_COMMAND} --verbose
+)
 
