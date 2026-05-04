@@ -18,7 +18,10 @@
 #include "logging.hpp"
 #endif
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"      // for AudioSize, ToC, CDDA
+#include "metadata.hpp"        // for AudioSize, ToC, CDDA
+#endif
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
+#include "algorithms.hpp"      // for AccurateRip::V1, V2 and V1andV2
 #endif
 
 
@@ -805,27 +808,43 @@ Checksums Calculation::result() const noexcept
 }
 
 
-// implementations
+// explicit instantiations
 
-/*
-template void Calculation::update_impl < int16_t, true>(
-		const details::SampleSequence  < int16_t, true>&);
-template void Calculation::update_impl < int32_t, true>(
-		const details::SampleSequence  < int32_t, true>&);
-template void Calculation::update_impl <uint16_t, true>(
-		const details::SampleSequence  <uint16_t, true>&);
-template void Calculation::update_impl <uint32_t, true>(
-		const details::SampleSequence  <uint32_t, true>&);
+template class Updater<AccurateRip::V1>;
+template class Updater<AccurateRip::V2>;
+template class Updater<AccurateRip::V1andV2>;
 
-template void Calculation::update_impl < int16_t, false>(
-		const details::SampleSequence  < int16_t, false>&);
-template void Calculation::update_impl < int32_t, false>(
-		const details::SampleSequence  < int32_t, false>&);
-template void Calculation::update_impl <uint16_t, false>(
-		const details::SampleSequence  <uint16_t, false>&);
-template void Calculation::update_impl <uint32_t, false>(
-		const details::SampleSequence  <uint32_t, false>&);
-*/
+// instantiate the 24 variants of Updater that are expected
+#define INSTANTIATE_UPDATE_FUNCTION(Algorithm, Type, IsPlanar) \
+template void Updater<Algorithm>::update<Type, IsPlanar>( \
+			const details::SampleSequence<Type, IsPlanar>&);
+
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint32_t, false);
+
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint32_t, false);
+
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, false);
 
 } // namespace v_1_0_0
 } // namespace arcstk

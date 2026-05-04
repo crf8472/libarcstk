@@ -464,7 +464,6 @@ private:
 
 #pragma GCC diagnostic pop
 
-
 /**
  * \brief CRTP to add updateing capability to an algorithm.
  *
@@ -482,6 +481,11 @@ template <typename A>
 class Updateable : public Algorithm
 {
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Updateable() override = default;
 
 	/**
 	 * \brief Typedef to \c A.
@@ -520,6 +524,7 @@ protected:
 	// NOLINTNEXTLINE(bugprone-crtp-constructor-accessibility)
 	Updateable() = default;
 };
+
 
 namespace details
 {
@@ -1734,7 +1739,7 @@ protected:
 	 *
 	 * \param[in] audiosize The updated AudioSize
 	 */
-	void update_impl(const AudioSize& audiosize)
+	void update_size(const AudioSize& audiosize)
 	{
 		if (state_earlier_than(State::UPDATED))
 		{
@@ -1936,6 +1941,12 @@ public:
 	Checksums result() const noexcept;
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+// -Wnon-virtual-dtor is deactivated: warns about protected non-virtual dtors in
+// the CRTP mixins. This is a false positive since the instances are never
+// destroyed by a pointer to Swap<T> or Equality<T> and a CRTP does normally
+// not have virtual members.
 
 /**
  * \brief Perform checksums calculation.
@@ -1970,6 +1981,17 @@ class Updater final : public Calculation,
 	std::unique_ptr<Updateable<A>> algorithm_ { std::make_unique<A>() };
 
 public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Instantiates Updater with default settings.
+	 */
+	Updater()
+		: Calculation { Settings{} }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Constructor.
@@ -2037,7 +2059,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~Updater() noexcept final = default;
+	~Updater() noexcept override = default;
 
 	/**
 	 * \brief Initialize this instance with metadata.
@@ -2061,7 +2083,7 @@ public:
 	 */
 	void update(const AudioSize& audiosize)
 	{
-		update_impl(audiosize);
+		this->update_size(audiosize);
 	}
 
 	/**
@@ -2145,9 +2167,11 @@ private:
 
 			const auto start_time { steady_clock::now() };
 
-			const auto is_completed = bool { perform_update(start, stop,
+			const auto is_completed = bool { details::update::perform_update(
+					start, stop,
 					partitioner(), *algorithm_,
-					provide_state(), provide_buffer()) };
+					provide_state(), provide_buffer())
+			};
 
 			const auto stop_time  { steady_clock::now() };
 
@@ -2167,6 +2191,8 @@ private:
 		ARCS_LOG(DEBUG1) << "PROCESS BLOCK: END";
 	}
 };
+
+#pragma GCC diagnostic pop
 
 /** @} */
 

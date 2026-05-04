@@ -104,7 +104,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	SECTION ("Default construction is as declared")
 	{
-		CHECK ( not std::is_default_constructible<Updater<V1andV2>>::value );
+		CHECK ( std::is_default_constructible<Updater<V1andV2>>::value );
 		CHECK ( not std::is_trivially_default_constructible<Updater<V1andV2>>::value );
 		CHECK ( not std::is_nothrow_default_constructible<Updater<V1andV2>>::value );
 	}

@@ -359,6 +359,11 @@ public:
 	ARCSAlgorithm();
 
 	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~ARCSAlgorithm() final = default;
+
+	/**
 	 * \brief Update the instance by a sequence of samples.
 	 *
 	 * \tparam B Type of the begin iterator

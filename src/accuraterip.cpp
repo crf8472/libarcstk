@@ -118,14 +118,6 @@ void UpdateableSubtotals<T1, T2...>::set_multiplier(const uint_fast64_t m)
 	st_.multiplier = m;
 }
 
-/*
-template <cstype T1, cstype... T2>
-void UpdateableSubtotals<T1, T2...>::update(const SampleInputIterator& start,
-			const SampleInputIterator& stop)
-{
-	update_(start, stop, st_);
-}
-*/
 
 template <cstype T1, cstype... T2>
 ChecksumSet UpdateableSubtotals<T1, T2...>::value() const
@@ -180,19 +172,6 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
 	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
 }
 
-/*
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::do_update(SampleInputIterator start,
-		SampleInputIterator stop)
-{
-	ARCS_LOG(DEBUG3) << "First multiplier: " << state_.multiplier();
-
-	state_.update(start, stop);
-
-	ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
-	// -1 because multiplier_ has already been updated to next input
-}
-*/
 
 template <cstype T1, cstype... T2>
 void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
