@@ -846,6 +846,39 @@ INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, false);
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, true);
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, false);
 
+#define INSTANTIATE_UPDATE_FUNCTION_IT(Algorithm, Type, IsPlanar) \
+template void Updater<Algorithm>::update \
+	<details::SampleIterator<Type, IsPlanar>>( \
+			details::SampleIterator<Type, IsPlanar>, \
+			details::SampleIterator<Type, IsPlanar> );
+
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint32_t, false);
+
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint32_t, false);
+
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, false);
+
 } // namespace v_1_0_0
 } // namespace arcstk
 
