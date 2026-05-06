@@ -6,7 +6,7 @@
 ##       LABEL "unit"
 ##       TIMEOUT 10
 ##   )
-macro (add_test_suite CATEGORY )
+function (add_test_suite CATEGORY )
 
 	set (options )
 	set (oneValueArgs LABEL TIMEOUT )
@@ -30,8 +30,9 @@ macro (add_test_suite CATEGORY )
 
 	## Standard configuration
 	set_target_properties (${CATEGORY}_tests PROPERTIES
-		CXX_STANDARD 17
+		CXX_STANDARD          17
 		CXX_STANDARD_REQUIRED ON
+		BUILD_RPATH           "${CMAKE_BINARY_DIR}"
 	)
 
 	target_compile_options (${CATEGORY}_tests
@@ -57,9 +58,9 @@ macro (add_test_suite CATEGORY )
 	)
 
 	## RPATH handling (force to load from build tree)
-	if (UNIX AND NOT APPLE )
-		target_link_options (${CATEGORY}_tests PRIVATE -Wl,--disable-new-dtags)
-	endif()
+	#if (UNIX AND NOT APPLE )
+	#	target_link_options (${CATEGORY}_tests PRIVATE -Wl,--disable-new-dtags)
+	#endif()
 
 	## Set properties for all discovered tests
 
@@ -84,5 +85,5 @@ macro (add_test_suite CATEGORY )
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		PROPERTIES        ${TEST_PROPERTIES}
 	)
-endmacro()
+endfunction()
 

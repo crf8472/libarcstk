@@ -4,6 +4,9 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
+set (CMAKE_BUILD_WITH_INSTALL_RPATH    FALSE )
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
+
 # Specific for Catch2 made available by FetchContent {{{1
 # TODO Precondition: CMAKE_MODULE_PATH must contain ${catch2_SOURCE_DIR}/extras
 include(CTest)
