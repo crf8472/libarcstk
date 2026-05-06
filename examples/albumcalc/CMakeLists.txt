@@ -35,8 +35,8 @@ endif()
 
 ## build with libcue for metadata parsing
 
-find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" )
-find_library (LIBCUE_LIBRARY     NAMES libcue.so )
+find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
+find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
 
 
 ## build
