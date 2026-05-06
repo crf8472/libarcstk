@@ -25,8 +25,8 @@ add_custom_target (libarcstk_create_reports_dir ALL
 
 
 ## Include common test helpers
-include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SetupEnvironment.cmake" )
-include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TestHelpers.cmake" )
+include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions/SetupEnvironment.cmake" )
+include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions/TestHelpers.cmake" )
 
 
 ## Configure common test settings
