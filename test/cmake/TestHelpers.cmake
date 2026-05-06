@@ -20,10 +20,10 @@ function (add_test_suite CATEGORY )
 
 	if (NOT TEST_SOURCES )
 		message (FATAL_ERROR
-			"No test sources found in ${CMAKE_CURRENT_SOURCE_DIR}/src/")
+			"No test sources found in ${CMAKE_CURRENT_SOURCE_DIR}/src/" )
 	endif()
 
-	message (STATUS "Found ${CATEGORY} tests: ${TEST_SOURCES}")
+	message (STATUS "Found ${CATEGORY} tests: ${TEST_SOURCES}" )
 
 	## Create executable
 	add_executable (${CATEGORY}_tests ${TEST_SOURCES} )
@@ -66,12 +66,12 @@ function (add_test_suite CATEGORY )
 
 	set (TEST_PROPERTIES)
 
-	if (SUITE_LABEL)
-		list (APPEND TEST_PROPERTIES LABELS ${SUITE_LABEL})
+	if (SUITE_LABEL )
+		list (APPEND TEST_PROPERTIES LABELS ${SUITE_LABEL} )
 	endif()
 
-	if (SUITE_TIMEOUT)
-		list (APPEND TEST_PROPERTIES TIMEOUT ${SUITE_TIMEOUT})
+	if (SUITE_TIMEOUT )
+		list (APPEND TEST_PROPERTIES TIMEOUT ${SUITE_TIMEOUT} )
 	endif()
 
 
