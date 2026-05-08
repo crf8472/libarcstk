@@ -3,11 +3,12 @@
 
 add_executable ( albumid albumid.cpp )
 
-set_target_properties ( albumid
-	PROPERTIES
+set_target_properties ( albumid PROPERTIES
 	CXX_STANDARD          17
 	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS        OFF )
+	CXX_EXTENSIONS        OFF
+	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
+)
 
 target_compile_options ( albumid PRIVATE -Wall -Wextra -pedantic )
 
@@ -35,23 +36,19 @@ endif()
 
 ## build with libcue for metadata parsing
 
-find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" )
-find_library (LIBCUE_LIBRARY     NAMES libcue.so )
+find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
+find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
 
 
 ## build
-
-set (PROJECT_BUILD_DIR "${PROJECT_ROOT_DIR}/build" )
 
 ## Always link to the libarcstk headers in the build/ dir - if another header
 ## is present, ignore it.
 target_include_directories ( albumid
 	PRIVATE ${LIBCUE_INCLUDE_DIR}
-	PRIVATE $<BUILD_INTERFACE:${PROJECT_BUILD_DIR}/arcstk> )
+	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.
-target_link_libraries ( albumid
-	PRIVATE ${LIBCUE_LIBRARY}
-	PRIVATE "-Wl,--disable-new-dtags,-rpath,${PROJECT_BUILD_DIR}/" libarcstk )
+target_link_libraries ( albumid PRIVATE ${LIBCUE_LIBRARY} PRIVATE libarcstk )
 

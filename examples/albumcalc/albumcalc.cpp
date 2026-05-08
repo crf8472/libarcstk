@@ -199,12 +199,13 @@ int main(int argc, char* argv[])
 
 	// Step 2: Choose an Algorithm. For this occasion we choose
 	// AccurateRip::V1andV2 to get checksums for ARCSv2 as well as for ARCSv1.
-	auto algorithm { std::make_unique<arcstk::AccurateRip::V1andV2>() };
+	//auto algorithm { std::make_unique<arcstk::AccurateRip::V1andV2>() };
 
 	// Step 3: Create a Calculation and provide it with the context.
 	// We do not specify a checksum type, thus the Calculation will provide
 	// ARCSv1 as well as ARCSv2 values as default result.
-	auto calculation { arcstk::make_calculation(std::move(algorithm), *toc) };
+	auto calculation { arcstk::Updater<arcstk::AccurateRip::V1andV2>(
+			arcstk::Settings{}, toc) };
 
 	// Let's enumerate the blocks in the output. This is just to give some
 	// informative logging.
@@ -227,7 +228,8 @@ int main(int argc, char* argv[])
 	// order, where the 16 bit sample for the left channel makes the start.
 	// Libarcstk is not interested in those details, so we provide the samples
 	// via a SampleSequence that abstracts the concrete format away:
-	arcstk::InterleavedSamples<int16_t> sequence;
+	//arcstk::InterleavedSamples<int16_t> sequence {};
+	using InterleavedSamples = arcstk::InterleavedSamples<int16_t>;
 	// NOTE: These prerequisites are just provided by libsndfile at this
 	// site in the code. In production code, you would of course verify
 	// things... If the channel order is switched, the sample format is
@@ -269,7 +271,7 @@ int main(int argc, char* argv[])
 			<< " (" << (buffer.size() / 2) << " samples)" << '\n';
 
 		// Wrap buffer in a reusable SampleSequence
-		sequence.wrap_int_buffer(&buffer[0], buffer.size());
+		auto sequence = InterleavedSamples { &buffer[0], buffer.size() };
 
 		// Count PCM 32 bit stereo samples processed.
 		samples_read += sequence.size();
@@ -292,11 +294,11 @@ int main(int argc, char* argv[])
 		// count the total number of samples read before the last update.
 
 		// Update calculation with next portion of normalized samples.
-		calculation->update(cbegin(sequence), cend(sequence));
+		calculation.update(cbegin(sequence), cend(sequence));
 	}
 
 	// Ok, no more samples. We demonstrate that the Calculation is complete:
-	if (calculation->complete())
+	if (calculation.complete())
 	{
 		std::cout << "Calculation complete" << '\n';
 	} else
@@ -306,7 +308,7 @@ int main(int argc, char* argv[])
 	std::cout << "Read " << samples_read << " samples" << '\n';
 
 	// Let's finally get us the result!
-	auto checksums { calculation->result() };
+	auto checksums { calculation.result() };
 
 	// And now, the time has come: print the actual checksums.
 	std::cout << "Track  ARCSv1    ARCSv2" << '\n';
@@ -317,10 +319,10 @@ int main(int argc, char* argv[])
 		std::cout << std::dec << " " << std::setw(2) << std::setfill(' ')
 			<< trk_no << "   " << std::hex << std::uppercase
 			<< std::setw(8) << std::setfill('0')
-			<< track_values.get(arcstk::checksum::type::ARCS1).value()
+			<< track_values.get(arcstk::checksum::type::ARCS1).first.value()
 			<< "  "
 			<< std::setw(8) << std::setfill('0')
-			<< track_values.get(arcstk::checksum::type::ARCS2).value()
+			<< track_values.get(arcstk::checksum::type::ARCS2).first.value()
 			<< '\n';
 
 		++trk_no;

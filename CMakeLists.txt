@@ -2,6 +2,7 @@
 ## vim:fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
+
 ## --- Policies {{{1
 
 ## Set variables corresponding to unspecified versions to the empty string.
@@ -15,61 +16,19 @@ cmake_policy (SET CMP0057 NEW )
 
 ## 1}}}
 
-
 project (libarcstk VERSION 0.3.1 LANGUAGES CXX )
 
-set (PROJECT_VERSION_SUFFIX "alpha.1" )
+set (LIBARCSTK_VERSION_SUFFIX "alpha.1" )
+set (LIBARCSTK_VERSION_STRING "${PROJECT_VERSION}-${LIBARCSTK_VERSION_SUFFIX}" )
 
-
-## --- Setup Short Description, URL and Version Information {{{1
-
-set (PROJECT_BRIEF_DESC
+set (PROJECT_DESCRIPTION
 	"Calculate and Verify AccurateRip Checksums and Ids" )
 
-set (PROJECT_URL "https://github.com/crf8472/${PROJECT_NAME}" )
-
-set (PROJECT_DEFAULT_BUILD_TYPE "Release" )
-
-set (PROJECT_VERSION_STRING_WITHOUT_SUFFIX
-	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
-	)
-
-set (PROJECT_VERSION_STRING "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
-
-if (PROJECT_VERSION_SUFFIX )
-	set (PROJECT_VERSION_STRING
-		"${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}-${PROJECT_VERSION_SUFFIX}" )
-endif (PROJECT_VERSION_SUFFIX )
-
-message (STATUS "Building ${PROJECT_NAME} ${PROJECT_VERSION_STRING}" )
-
-
-
-## --- Setup Default Build Type {{{1
-
-if (NOT CMAKE_BUILD_TYPE )
-
-	set (CMAKE_BUILD_TYPE "${PROJECT_DEFAULT_BUILD_TYPE}"
-		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
-
-	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
-endif (NOT CMAKE_BUILD_TYPE )
-
-message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
-
-
-
-## --- Trigger Configuration Step Whenever Git Index Changes {{{1
-
-set_property (DIRECTORY APPEND
-	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
-
-
+set (PROJECT_HOMEPAGE_URL "https://github.com/crf8472/${PROJECT_NAME}" )
 
 ## --- Abort Release-Builds on Big Endian Platforms {{{1
 
 include (TestBigEndian )
-
 TEST_BIG_ENDIAN (IS_BIG_ENDIAN )
 
 if (IS_BIG_ENDIAN )
@@ -85,163 +44,69 @@ if (IS_BIG_ENDIAN )
 
 endif()
 
+## 1}}}
 
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON) ## required for clang-tidy and iwyu
 
-## --- Project Directory Layout {{{1
+## --- Includes {{{1
+set (cmake_include_dir_ "${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
 
-## Source directory for markdown files
-set (PROJECT_ROOT_DIR           "${CMAKE_CURRENT_SOURCE_DIR}" )
+## Mandatory configuration
+include ("${cmake_include_dir_}/ProjectFilesAndDirectories.cmake" )
+include ("${cmake_include_dir_}/BuildTreeSetup.cmake" )
+include ("${cmake_include_dir_}/CompilerFlags.cmake" )
+include ("${cmake_include_dir_}/GitInfo.cmake" )
 
-## Root directory for sources
-set (PROJECT_SOURCE_DIR         "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+## Optional support for development
+include ("${cmake_include_dir_}/ToolClangTidy.cmake" )
+include ("${cmake_include_dir_}/ToolGraphViz.cmake" )
+include ("${cmake_include_dir_}/ToolClangIncludeGraph.cmake" )
 
-## Root directory for public/exported headers
-set (PROJECT_INCLUDE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+unset (cmake_include_dir_ )
+## 1}}}
 
-## Source directory for tests
-set (PROJECT_TEST_SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/test/src" )
+git_get_version_string (GIT_VERSION_STRING )
+git_get_commit_id (GIT_COMMIT_ID )
 
+enable_clang_tidy              (CLANG_TIDY_ENABLED )
+enable_target_dep_graph_by_dot (TARGET_DEPS_GRAPH_ENABLED )
+enable_clang_include_graph     (CLANG_INCLUDE_GRAPH_ENABLED )
 
-## Root directory for out-of-source build
-set (PROJECT_BINARY_DIR         "${CMAKE_CURRENT_BINARY_DIR}" )
+message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
-## Subdir for installing includes
-set (PROJECT_INCLUDE_INSTALL_SUBDIR "include/arcstk" )
+## --- Setup Default Build Type {{{1
 
-## Target directory for public/exported headers
-set (PROJECT_INCLUDE_BINARY_DIR "${PROJECT_BINARY_DIR}/${PROJECT_INCLUDE_INSTALL_SUBDIR}" )
+if (NOT CMAKE_BUILD_TYPE )
 
-## Target directory for non-cmake logs
-set (PROJECT_LOG_DIR            "${PROJECT_BINARY_DIR}/log" )
+	set (CMAKE_BUILD_TYPE "Release"
+		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
 
-## Target directory for generated sources and configuration
-set (PROJECT_GEN_SOURCES_DIR    "${PROJECT_BINARY_DIR}/generated-sources" )
+	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
+endif (NOT CMAKE_BUILD_TYPE )
+## 1}}}
 
+message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 
+## --- Setup Build Tree {{{1
+setup_build_tree()
 
-## --- Create build-tree directories {{{1
+# 1}}}
+## --- Trigger Configuration Step Whenever Git Index Changes {{{1
 
-## -- Log Directory {{{2
+set_property (DIRECTORY APPEND
+	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
 
-add_custom_command (
-	OUTPUT  "${PROJECT_LOG_DIR}"
-	COMMAND "${CMAKE_COMMAND}"
-	ARGS    -E make_directory "${PROJECT_LOG_DIR}"
-	VERBATIM
-)
-
-add_custom_target (libarcstk_create_log_dir ALL DEPENDS "${PROJECT_LOG_DIR}" )
-
-
-## -- Include Directory + Link {{{2
-
-add_custom_command (
-	OUTPUT  "${PROJECT_BINARY_DIR}/include"
-	COMMAND "${CMAKE_COMMAND}"
-	ARGS    -E make_directory "${PROJECT_BINARY_DIR}/include"
-	VERBATIM
-)
-
-add_custom_target (libarcstk_create_include_dir
-	DEPENDS "${PROJECT_BINARY_DIR}/include"
-	VERBATIM
-)
-
-## Create build-tree include directory (symlink)
-## This is useful for finding the includes when used as a subproject.
-add_custom_target (libarcstk_link_to_headers
-	COMMAND "${CMAKE_COMMAND}"
-		-E create_symlink
-		"${CMAKE_CURRENT_SOURCE_DIR}/include"
-		"${PROJECT_INCLUDE_BINARY_DIR}"
-	VERBATIM
-)
-
-add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
-
-
-
-## --- Update version.cpp with info from git {{{1
-
-find_package (Git QUIET REQUIRED )
-
-## Run 'git describe'
-execute_process (
-	COMMAND "${GIT_EXECUTABLE}" describe --always HEAD
-	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-	RESULT_VARIABLE GIT_EXIT_CODE
-	OUTPUT_VARIABLE GIT_VERSION_STRING
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-## Did running git work?
-if (GIT_EXIT_CODE EQUAL 0 )
-	message (STATUS "git describe --always HEAD: ${GIT_VERSION_STRING}" )
-else()
-	message (WARNING "Failed to run git describe --always HEAD" )
-endif()
-
-## Run 'git rev-parse'
-execute_process (
-	COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-	RESULT_VARIABLE GIT_EXIT_CODE
-	OUTPUT_VARIABLE GIT_COMMIT_ID
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-## Did running git work?
-if (GIT_EXIT_CODE EQUAL 0 )
-	message (STATUS "git rev-parse HEAD: ${GIT_COMMIT_ID}" )
-else()
-	message (WARNING "Failed to run git rev-parse HEAD" )
-endif()
-
-## This presupposes having CMAKE_CONFIGURE_DEPENDS set to .git/index
-configure_file ("${PROJECT_SOURCE_DIR}/version.cpp.in"
-	"${PROJECT_GEN_SOURCES_DIR}/version.cpp"
+configure_file ("${LIBARCSTK_SOURCE_DIR}/version.cpp.in"
+	"${LIBARCSTK_GENSRC_BINARY_DIR}/version.cpp"
 	@ONLY )
 
-
-
-
+# 1}}}
 ## --- Define Project Target {{{1
 
-## -- Specify Exported Headers {{{2
-
-list (APPEND INTERFACE_HEADERS
-	"${PROJECT_INCLUDE_SOURCE_DIR}/accuraterip.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/algorithms.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/bytes.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/calculate.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/checksum.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/dbar.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/identifier.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/logging.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/loglevel.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/metadata.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/mixins.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/samples.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/verify.hpp"
-	"${PROJECT_INCLUDE_SOURCE_DIR}/version.hpp"
-)
-
-## -- Specify Sources {{{2
-
 add_library (${PROJECT_NAME} SHARED
-	"${PROJECT_SOURCE_DIR}/accuraterip.cpp"
-	"${PROJECT_SOURCE_DIR}/bytes.cpp"
-	"${PROJECT_SOURCE_DIR}/calculate.cpp"
-	"${PROJECT_SOURCE_DIR}/checksum.cpp"
-	"${PROJECT_SOURCE_DIR}/dbar.cpp"
-	"${PROJECT_SOURCE_DIR}/identifier.cpp"
-	"${PROJECT_SOURCE_DIR}/metadata.cpp"
-	"${PROJECT_SOURCE_DIR}/samples.cpp"
-	"${PROJECT_SOURCE_DIR}/verify.cpp"
-	"${PROJECT_GEN_SOURCES_DIR}/version.cpp" )
-
-
-## -- Configure Target {{{2
+	${LIBARCSTK_SOURCES}
+	"${LIBARCSTK_GENSRC_BINARY_DIR}/version.cpp"
+)
 
 get_directory_property (HAS_PARENT PARENT_DIRECTORY )
 
@@ -249,7 +114,7 @@ if (HAS_PARENT )
 	## Make project's includes available to PARENT
 	target_include_directories (${PROJECT_NAME}
 		## public headers:
-		INTERFACE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+		INTERFACE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include>
 	)
 
 	## Provide a namespaced target also when added by add_subdirectory
@@ -258,171 +123,40 @@ endif()
 
 target_include_directories (${PROJECT_NAME}
 	PUBLIC
-		$<BUILD_INTERFACE:${PROJECT_INCLUDE_BINARY_DIR}>
-		$<INSTALL_INTERFACE:${PROJECT_INCLUDE_INSTALL_SUBDIR}>
+		$<BUILD_INTERFACE:${LIBARCSTK_INCLUDE_BINARY_DIR}>
+		$<INSTALL_INTERFACE:${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}>
 	PRIVATE
-		"${PROJECT_GEN_SOURCES_DIR}" ## for generated sources
+		"${LIBARCSTK_GENSRC_BINARY_DIR}" ## for generated sources
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD   17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF ## use -std=c++17 instead of std=gnu++17
-	PUBLIC_HEADER  "${INTERFACE_HEADERS}"
+	PUBLIC_HEADER  "${LIBARCSTK_PUBLIC_HEADERS}"
 	PREFIX         "" ## No 'lib' prefix in soname, PROJECT_NAME is prefixed
-	VERSION        "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}"
-	SOVERSION      "${PROJECT_VERSION_STRING_WITHOUT_SUFFIX}" )
+	VERSION        "${PROJECT_VERSION}"
+	SOVERSION      "${PROJECT_VERSION}" )
 
 add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 
-
-
+## 1}}}
 ## --- Compiler Specific Settings {{{1
 
-## -- Define Warning and Optimization Flags for g++ and clang++ {{{2
+apply_compiler_flags (${PROJECT_NAME} )
 
-## g++: Warnings
-set (PROJECT_CXX_GNU_FLAGS_WARNINGS
-	-Wall -Wextra -Wpedantic -Weffc++
-	-Wold-style-cast
-	-Wsuggest-override
-	-Wcast-align
-	-Wcast-qual
-	-Wctor-dtor-privacy
-	-Wdisabled-optimization
-	-Wformat=2
-	-Wlogical-op
-	-Wmissing-declarations
-	-Wmissing-include-dirs
-	-Wnoexcept
-	-Woverloaded-virtual
-	-Wredundant-decls
-	-Wshadow
-	-Wsign-conversion
-	-Wsign-promo
-	-Wstrict-null-sentinel
-	-Wstrict-overflow=5
-	-Wswitch-default
-	-Wundef
-	-Wuseless-cast
-	-Wzero-as-null-pointer-constant
-	)
+## 1}}}
 
-## g++: Optimize flags
-set (PROJECT_CXX_GNU_FLAGS_OPTIMIZE  -march=native -mtune=generic )
-
-
-## clang++: Warnings
-## Clang warnings are quite aggressive by default. Some of the g++ warnings are
-## either compatibility flags that do nothing or are activated by other meta
-## flags. Some are just on by default. The following list is intended to contain
-## only those flags that are off by default and no compatibility flags.
-set (PROJECT_CXX_CLANG_FLAGS_WARNINGS
-	-Wall -Wextra -Wpedantic -Weffc++
-	-Wold-style-cast
-	-Wcast-align
-	-Wcast-qual
-	-Wformat=2
-	-Wshadow
-	-Wsign-conversion
-	-Wundef
-	-Wunused
-	-Wzero-as-null-pointer-constant
-	# -- clang++ specific --
-	-Winconsistent-missing-destructor-override
-	)
-
-## clang++: Optimize flags
-set (PROJECT_CXX_CLANG_FLAGS_OPTIMIZE -march=native -mtune=generic )
-
-
-## -- Select Warning and Optimization Flags for Actual Compiler {{{2
-
-if (CMAKE_COMPILER_IS_GNUCXX ) ## for g++
-
-	message (STATUS "Select compile flags for g++" )
-
-	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_GNU_FLAGS_WARNINGS} )
-	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_GNU_FLAGS_OPTIMIZE} )
-
-elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"       ## for clang++
-		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-
-	message (STATUS "Select compile flags for clang++" )
-
-	set (PROJECT_CXX_FLAGS_WARNINGS ${PROJECT_CXX_CLANG_FLAGS_WARNINGS} )
-	set (PROJECT_CXX_FLAGS_OPTIMIZE ${PROJECT_CXX_CLANG_FLAGS_OPTIMIZE} )
-
-else()
-
-	message (WARNING "C++ Compiler seems to be neither g++ nor clang++" )
-	message (WARNING "No compile flags specified for the actual C++ compiler" )
-	message (WARNING "Try a generic compile without project specific flags" )
-
-endif()
-
-
-## -- Activate Compiler Warnings on Library Sources  {{{2
-
-## We do not use target_compile_options since those flags should not be
-## applied to Catch2 and tests.
-## TODO Find a way to use target_compile_options
-
-get_target_property (PROJECT_SOURCES ${PROJECT_NAME} SOURCES )
-
-foreach (_sourcefile ${PROJECT_SOURCES} )
-	set_property (
-		SOURCE "${_sourcefile}"
-		APPEND
-		PROPERTY COMPILE_OPTIONS ${PROJECT_CXX_FLAGS_WARNINGS}
-	)
-	#message (STATUS "${_sourcefile}: ${PROJECT_CXX_FLAGS_WARNINGS}" )
-endforeach()
-
-
-## -- Manage Optimization Flags  {{{2
-
-## - Optional: Activate Optimization Option (default ON for Release only) {{{3
-
-option (WITH_NATIVE "Use platform specific optimization on compiling" OFF )
-
-## For 'Release', Set Default ON
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-
-	set (WITH_NATIVE ON CACHE BOOL
-			"Release: Force platform specific optimization" FORCE )
-endif ()
-
-## - If Optimization Option Activated, Add Flags {{{3
-if (WITH_NATIVE )
-
-	message (STATUS "Build with platform specific optimization")
-
-	target_compile_options (${PROJECT_NAME}
-		PRIVATE ${PROJECT_CXX_FLAGS_OPTIMIZE} )
-else()
-
-	message (STATUS "Build without platform specific optimization" )
-
-endif (WITH_NATIVE )
-
-## - Status Message About Compile Flags {{{3
-
-get_target_property (PROJECT_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
-message (STATUS "Compile flags: ${PROJECT_CXX_FLAGS}" )
-
-
+get_target_property (LIBARCSTK_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
+message (STATUS "Compile flags: ${LIBARCSTK_CXX_FLAGS}" )
 
 ## --- Installation {{{1
 
 if (NOT SKIP_INSTALL_ALL )
-
 	add_subdirectory (install)
-
 endif ()
 
-
-
+## 1}}}
 ## --- Optional: Build Tests (default: OFF) {{{1
 
 option (WITH_TESTS "Build unit tests" OFF )
@@ -443,17 +177,13 @@ if (WITH_TESTS)
 
 endif (WITH_TESTS)
 
-
-
+## 1}}}
 ## --- Optional: Build documentation (default: OFF) {{{1
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
-## TODO Remove the following line
-option (USE_MCSS           "Build documentation using m.css"              OFF )
 option (WITH_EXAMPLES      "Build examples"                               OFF )
-
 
 ## -- Process configuration for building the documentation
 if (WITH_DOCS )
@@ -470,7 +200,7 @@ endif (WITH_DOCS )
 ## -- Require WITH_DOCS to use WITH_INTERNAL_DOCS
 if (WITH_INTERNAL_DOCS )
 
-# 	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
+#	set (WITH_DOCS ON CACHE BOOL "Build documentation for public API" FORCE )
 	if (NOT WITH_DOCS )
 		message (WARNING
 			"-DWITH_DOCS=ON is OFF but -DWITH_INTERNAL_DOCS=ON will only "
@@ -478,10 +208,12 @@ if (WITH_INTERNAL_DOCS )
 	endif()
 endif()
 
+## 1}}}
+## --- Process configuration for building the examples {{{1
 
-## -- Process configuration for building the examples
 if (WITH_EXAMPLES )
-
 	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
 endif()
+
+## 1}}}
 

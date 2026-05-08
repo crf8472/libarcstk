@@ -14,11 +14,11 @@ function (setup_test_compileflags )
 		foreach (_flag ${GNUCXX_IGNORE_FLAGS} )
 			message(STATUS
 				"Ignore compile flag ${_flag} when compiling Catch2 tests")
-			list(REMOVE_ITEM PROJECT_CXX_FLAGS_WARNINGS ${_flag} )
+			list(REMOVE_ITEM LIBARCSTK_CXX_FLAGS_WARNINGS ${_flag} )
 		endforeach()
 	endif()
 
-	set (TEST_CXX_FLAGS_WARNINGS ${PROJECT_CXX_FLAGS_WARNINGS} ) #PARENT_SCOPE )
+	set (TEST_CXX_FLAGS_WARNINGS ${LIBARCSTK_CXX_FLAGS_WARNINGS} ) #PARENT_SCOPE )
 endfunction()
 
 #set (TEST_CXX_FLAGS ${TEST_CXX_FLAGS_WARNINGS}

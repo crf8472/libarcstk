@@ -32,13 +32,13 @@ add_custom_target (doc )
 ## --- Some Variables {{{1
 
 ## Target directory for generated documentation
-set (DOC_GEN_DIR          "${PROJECT_BINARY_DIR}/generated-docs" )
+set (DOC_GEN_DIR          "${LIBARCSTK_BINARY_DIR}/generated-docs" )
 
 ## Construct comment for doc target
 set (DOC_COMMENT          "Build documentation for APIs" )
 
 ## Define input for documentation
-set (DOC_SOURCES          ${INTERFACE_HEADERS} )
+set (DOC_SOURCES          ${LIBARCSTK_PUBLIC_HEADERS} )
 
 ## Define the target name and location of the base Doxyfile to be included
 set (DOC_DOXYFILE_BASE_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in" )
@@ -76,9 +76,9 @@ add_custom_target (libarcstk_create_output_dir DEPENDS "${DOC_GEN_DIR}" )
 
 set (DOXYGEN_OUTPUT_DIRECTORY       "${DOC_GEN_DIR}/doxygen" )
 set (DOXYGEN_FILE_PATTERNS          "*.hpp" )
-set (DOXYGEN_STRIP_FROM_INC_PATH    "${PROJECT_INCLUDE_SOURCE_DIR}/" )
-set (DOXYGEN_STRIP_FROM_PATH        "${PROJECT_INCLUDE_SOURCE_DIR}/" )
-set (DOXYGEN_INPUT                  "${PROJECT_INCLUDE_SOURCE_DIR}/" )
+set (DOXYGEN_STRIP_FROM_INC_PATH    "${LIBARCSTK_INCLUDE_SOURCE_DIR}/" )
+set (DOXYGEN_STRIP_FROM_PATH        "${LIBARCSTK_INCLUDE_SOURCE_DIR}/" )
+set (DOXYGEN_INPUT                  "${LIBARCSTK_INCLUDE_SOURCE_DIR}/" )
 set (DOXYGEN_INTERNAL_DOCS          "NO" )
 
 ## Activate the inline namespace only for debug purposes, it's quite broken
@@ -100,14 +100,14 @@ if (WITH_INTERNAL_DOCS )
 
 	## passed to doxygen
 
-	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${PROJECT_SOURCE_DIR}/" )
-	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${PROJECT_GEN_SOURCES_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${LIBARCSTK_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_INC_PATH "${LIBARCSTK_GENSRC_BINARY_DIR}/" )
 
-	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${PROJECT_SOURCE_DIR}/" )
-	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${PROJECT_GEN_SOURCES_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${LIBARCSTK_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_STRIP_FROM_PATH     "${LIBARCSTK_GENSRC_BINARY_DIR}/" )
 
-	list (APPEND DOXYGEN_INPUT               "${PROJECT_SOURCE_DIR}/" )
-	list (APPEND DOXYGEN_INPUT               "${PROJECT_GEN_SOURCES_DIR}/" )
+	list (APPEND DOXYGEN_INPUT               "${LIBARCSTK_SOURCE_DIR}/" )
+	list (APPEND DOXYGEN_INPUT               "${LIBARCSTK_GENSRC_BINARY_DIR}/" )
 
 	set (DOXYGEN_INTERNAL_DOCS "YES" )
 

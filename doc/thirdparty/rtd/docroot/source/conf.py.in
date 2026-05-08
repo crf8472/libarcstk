@@ -31,7 +31,7 @@ copyright = '2019-2025 tristero'
 author = 'tristero'
 
 # The full version, including alpha/beta/rc tags
-release = '@PROJECT_VERSION_STRING@'
+release = '@LIBARCSTK_VERSION_STRING@'
 
 
 
@@ -97,7 +97,7 @@ exhale_args = {
                                    # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": @EXHALE_EXECUTES_DOXYGEN@,
     "exhaleUseDoxyfile":     @EXHALE_EXECUTES_DOXYGEN@
-    #"exhaleDoxygenStdin":    "INPUT = @PROJECT_INCLUDE_BINARY_DIR@"
+    #"exhaleDoxygenStdin":    "INPUT = @LIBARCSTK_INCLUDE_BINARY_DIR@"
     #"listingExclude":        [ r".*::v_1_0_0" ]
 }
 

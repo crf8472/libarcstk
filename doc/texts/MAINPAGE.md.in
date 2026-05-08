@@ -1,10 +1,10 @@
-\mainpage @PROJECT_NAME@ - @PROJECT_BRIEF_DESC@
+\mainpage @PROJECT_NAME@ - @PROJECT_DESCRIPTION@
 
 
 
 \section Home
 
-See the [project repository](@PROJECT_URL@/).
+See the [project repository](@PROJECT_HOMEPAGE_URL@/).
 
 
 
@@ -36,7 +36,7 @@ Libarcstk supports the following tasks for working with AccurateRip checksums:
 
 Build and install to just use the API:
 
-	$ git clone @PROJECT_URL@.git
+	$ git clone @PROJECT_HOMEPAGE_URL@.git
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
 	$ mkdir build && cd build
 	$ cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -48,5 +48,5 @@ Build and install to just use the API:
 \section Version
 
 This documentation was generated from commit
-[@GIT_VERSION_STRING@](@PROJECT_URL@/commit/@GIT_COMMIT_ID@).
+[@GIT_VERSION_STRING@](@PROJECT_HOMEPAGE_URL@/commit/@GIT_COMMIT_ID@).
 

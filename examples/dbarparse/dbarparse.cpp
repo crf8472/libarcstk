@@ -86,7 +86,10 @@ DBAR load_simple(const std::string& filename)
 {
 	// This shows a very simple way to parse a file with reasonable defaults.
 
-	return arcstk::load_file(filename);
+	arcstk::DBARBuilder builder;
+	arcstk::parse_file(filename, &builder, nullptr);
+
+	return builder.result();
 }
 
 

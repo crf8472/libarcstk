@@ -122,7 +122,7 @@ arcstk::Checksums parse_input_arcs(const char* list,
 			<< " - " << std::setw(3) << std::setfill(' ') << token_end << ")"
 			<< '\n';
 
-		auto track_sum = arcstk::ChecksumSet { 0 };
+		auto track_sum = arcstk::ChecksumSet {};
 		track_sum.insert(t, arcstk::Checksum(arcs));
 		checksums.push_back(track_sum);
 
@@ -157,7 +157,10 @@ arcstk::DBAR parse_match_arcs(const std::string &filename)
 		throw std::runtime_error("Filename must not be empty!");
 	}
 
-	return arcstk::load_file(filename);
+	arcstk::DBARBuilder builder;
+	arcstk::parse_file(filename, &builder, nullptr);
+
+	return builder.result();
 }
 
 
@@ -249,8 +252,7 @@ int main(int argc, char* argv[])
 		// has performed. Thus, the result of the matching can be queried on the
 		// match object by just giving the coordinate block/track/version.
 		is_match =
-			result->track(block, trackno,
-					type == arcstk::checksum::type::ARCS2);
+			result->track(block, trackno, arcstk::checksum::type::ARCS2);
 
 		std::cout << " " << std::dec << std::setw(2) << std::setfill('0')
 			<< (trackno + 1) << ":  ";
@@ -258,7 +260,7 @@ int main(int argc, char* argv[])
 		std::cout << std::hex << std::uppercase;
 
 		std::cout << std::setw(8) << std::setfill('0')
-			<< checksums[trackno].get(type).value();
+			<< checksums[trackno].get(type).first.value();
 
 		std::cout << (is_match ? " = " : "   ") ;
 

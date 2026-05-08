@@ -814,6 +814,8 @@ template class Updater<AccurateRip::V1>;
 template class Updater<AccurateRip::V2>;
 template class Updater<AccurateRip::V1andV2>;
 
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
+
 // instantiate the 24 variants of Updater that are expected
 #define INSTANTIATE_UPDATE_FUNCTION(Algorithm, Type, IsPlanar) \
 template void Updater<Algorithm>::update<Type, IsPlanar>( \
@@ -846,11 +848,13 @@ INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, false);
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, true);
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, false);
 
+// NOLINTBEGIN(bugprone-macro-parentheses)
 #define INSTANTIATE_UPDATE_FUNCTION_IT(Algorithm, Type, IsPlanar) \
 template void Updater<Algorithm>::update \
 	<details::SampleIterator<Type, IsPlanar>>( \
 			details::SampleIterator<Type, IsPlanar>, \
 			details::SampleIterator<Type, IsPlanar> );
+// NOLINTEND(bugprone-macro-parentheses)
 
 INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, true);
 INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, false);
@@ -878,6 +882,7 @@ INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, true);
 INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, false);
 INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, true);
 INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, false);
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 } // namespace v_1_0_0
 } // namespace arcstk
