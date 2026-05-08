@@ -58,6 +58,11 @@ function (add_test_suite CATEGORY )
 		PRIVATE ${PROJECT_NAME} ## libarcstk from build-tree
 	)
 
+	## RPATH handling (force to load from build tree)
+	#if (UNIX AND NOT APPLE )
+	#	target_link_options (${CATEGORY}_tests PRIVATE -Wl,--disable-new-dtags)
+	#endif()
+
 	## Set properties for all discovered tests
 
 	set (TEST_PROPERTIES)
