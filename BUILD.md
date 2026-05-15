@@ -148,7 +148,7 @@ used.
 |--------------------|------------------------------------------------|-------|
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix   |*plattform defined*|
-|CMAKE_EXPORT_COMPILE_COMMANDS|Rebuild a [compilation database](#using-a-compilation-database) when configuring          |OFF    |
+|CMAKE_EXPORT_COMPILE_COMMANDS|Rebuild compilation database when configuring |ON    |
 |USE_DOC_TOOL        |Set 'MCSS' to [use m.css](#website-mcss-with-html5-and-css3-via-doxygens-xml) to build the documentation. Set 'LUALATEX' to build the manual (experimental). | *none* |
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                                     |OFF    |
 |WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-onoff) on compiling                          |       |
