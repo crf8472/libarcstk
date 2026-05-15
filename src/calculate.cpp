@@ -184,10 +184,10 @@ Partitioning get_partitioning(const SampleRange& interval,
 // Partitioner
 
 
-Partitioner::Partitioner(const AudioSize& total_samples, const Points& points,
+Partitioner::Partitioner(const Points& points, const AudioSize& total_samples,
 		const SampleRange& legal)
-	: total_samples_ { total_samples }
-	, points_        { points        }
+	: points_        { points        }
+	, total_samples_ { total_samples }
 	, legal_         { legal         }
 {
 	// empty
@@ -250,10 +250,10 @@ std::unique_ptr<Partitioner> Partitioner::clone() const
 // TrackPartitioner
 
 
-TrackPartitioner::TrackPartitioner(const AudioSize& total_samples,
-			const Points&      points,
-			const SampleRange& legal)
-	: Partitioner(total_samples, points, legal)
+TrackPartitioner::TrackPartitioner(const Points& points,
+		const AudioSize&   total_samples,
+		const SampleRange& legal)
+	: Partitioner(points, total_samples, legal)
 {
 	// empty
 }
@@ -330,13 +330,16 @@ std::size_t Partition::size() const
 }
 
 
-// calculate_impl.hpp
+// ind2am()
 
 
 int32_t ind2am(const int32_t index)
 {
 	return index + 1;
 }
+
+
+// am2ind()
 
 
 int32_t am2ind(const int32_t amount)
@@ -454,19 +457,20 @@ void CalculationState::swap(CalculationState& rhs) noexcept
 
 
 std::unique_ptr<details::Partitioner> make_partitioner(
-		const Algorithm& algorithm,
-		const Points& offsets, const AudioSize& leadout)
+		//const Algorithm& algorithm,
+		const Points& offsets, const AudioSize& leadout,
+		const SampleRange& interval)
 {
-	using details::SampleRange;
-	using details::TrackPartitioner;
+	//using details::SampleRange;
+	//using details::TrackPartitioner;
 
-	const auto interval {
-		SampleRange { algorithm.range(leadout, offsets) }};
+	//const auto interval {
+	//	SampleRange { algorithm.range(leadout, offsets) }};
 
 	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
 
-	return std::make_unique<details::TrackPartitioner>(leadout,
-			offsets, interval);
+	return std::make_unique<details::TrackPartitioner>(offsets, leadout,
+			interval);
 }
 
 
@@ -575,47 +579,6 @@ void complete_track(Algorithm& algorithm,
 } // namespace details
 
 
-// calculate.hpp
-
-
-// Context
-
-
-void swap(Context& lhs, Context& rhs) noexcept
-{
-	Context tmp { lhs };
-	lhs = rhs;
-	rhs = tmp;
-}
-
-
-std::string name(const Context& c) noexcept
-{
-	switch (c)
-	{
-		case Context::ALBUM:       return "ALBUM";
-		case Context::LAST_TRACK:  return "LAST_TRACK";
-		case Context::FIRST_TRACK: return "FIRST_TRACK";
-		case Context::TRACK:       return "TRACK";
-		default: ;
-	}
-
-	return {};
-}
-
-
-std::string to_string(const Context& c) noexcept
-{
-	return name(c);
-}
-
-
-bool any(const Context& rhs) noexcept
-{
-	return static_cast<unsigned>(rhs) != 0;
-}
-
-
 // Settings
 
 
@@ -667,71 +630,6 @@ std::string Settings::to_string() const
 }
 
 
-// Algorithm
-
-
-Algorithm::Algorithm()
-	:settings_ { nullptr }
-{
-	// empty
-}
-
-
-void Algorithm::set_settings(const Settings* s) noexcept
-{
-	settings_ = s;
-
-	if (s)
-	{
-		do_setup(s);
-	}
-}
-
-
-const Settings* Algorithm::settings() const noexcept
-{
-	return settings_;
-}
-
-
-std::pair<int32_t, int32_t> Algorithm::range(const AudioSize& size,
-		const Points& points) const
-{
-	return this->do_range(size, points);
-}
-
-
-void Algorithm::track_finished(const int t, const AudioSize& length)
-{
-	this->do_track_finished(t, length);
-}
-
-
-ChecksumSet Algorithm::result() const
-{
-	return this->do_result();
-}
-
-
-ChecksumtypeSet Algorithm::types() const
-{
-	return this->do_types();
-}
-
-
-std::unique_ptr<Algorithm> Algorithm::clone() const
-{
-	return this->do_clone();
-}
-
-
-void Algorithm::swap_base(Algorithm& rhs)
-{
-	using std::swap;
-	swap(settings_, rhs.settings_);
-}
-
-
 // Stateful
 
 
@@ -780,14 +678,11 @@ void Calculation::base_swap(Calculation& rhs) noexcept
 
 void Calculation::set_settings(const Settings& s)
 {
-	if (state_earlier_than(State::UPDATED))
-	{
-		settings_ = s;
-		on_settings_changed();
-	} else
-	{
-		throw std::logic_error("Cannot change settings after first update");
-	}
+	allowed_only_before(State::UPDATED,
+				"Cannot change settings after first update");
+
+	settings_ = s;
+	on_settings_changed();
 }
 
 
@@ -799,7 +694,7 @@ bool Calculation::complete() const noexcept
 
 Checksums Calculation::result() const noexcept
 {
-	if (state_earlier_than(State::COMPLETED))
+	if (current_state() != State::COMPLETED)
 	{
 		ARCS_LOG_WARNING << "Calculation result accessed before completion";
 	}

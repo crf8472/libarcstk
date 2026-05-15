@@ -56,7 +56,6 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 	/* use Bach, Organ Concertos, Simon Preston, DGG */
 	const auto partitioner { TrackPartitioner {
-		AudioSize { 253038 * 588 /* 148786344 */, UNIT::SAMPLES },
 		{ /* split points (track offsets) */
 			{     33 * 588, UNIT::SAMPLES },
 			{   5225 * 588, UNIT::SAMPLES },
@@ -74,6 +73,7 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 			{ 225320 * 588, UNIT::SAMPLES },
 			{ 234103 * 588, UNIT::SAMPLES }
 		},
+		{ 253038 * 588 /* 148786344 */, UNIT::SAMPLES },
 		/* legal range w/ skips */ { 33 * 588 + 2939, 253038 * 588 - 2940 },
 	}};
 
@@ -84,10 +84,8 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 	// Algorithm
 
-	const auto s { Settings { Context::ALBUM } };
-
 	auto algorithm { std::make_unique<V1andV2>() };
-	algorithm->set_settings(&s);
+	algorithm->set_context(Context::ALBUM);
 
 	// State
 

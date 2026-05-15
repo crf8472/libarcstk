@@ -14,6 +14,7 @@
 #include <chrono>           // for duration
 #include <cstddef>          // for ptrdiff_t
 #include <cstdint>          // for int32_t
+#include <functional>       // for function
 #include <iterator>         // for advance, input_iterator_tag
 #include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
@@ -24,6 +25,12 @@
 #include <utility>          // for declval, move, pair
 #include <vector>           // for vector
 
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"    // for ChecksumtypeSet, Points, Algorithm, Context
+#endif
+#ifndef LIBARCSTK_ALGORITHMS_HPP_
+#include "algorithms.hpp"   // for AccurateRip::V1andV2, ::V1, ::V2
+#endif
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
@@ -153,381 +160,6 @@ using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
  */
 template <typename Iterator>
 using is_sample_iterator = std::is_same<it_value_type<Iterator>, sample_t>;
-
-} // namespace details
-
-
-/**
- * \brief Indicate the track context.
- *
- * AccurateRip algorithms imply different restrictions for calculating the
- * checksums of the the first and last track of an album. Context represents
- * this information.
- */
-enum class Context : uint8_t
-{
-	/**
-	 * \brief Single track that is neither first or last track.
-	 */
-	TRACK       = 0,
-
-	/**
-	 * \brief First track is first track of an album.
-	 */
-	FIRST_TRACK = 1,
-
-	/**
-	 * \brief Last track is last track of an album.
-	 */
-	LAST_TRACK  = 2,
-
-	/**
-	 * \brief Entire album, hence first as well as last track.
-	 */
-	ALBUM       = 3
-};
-
-/**
- * \brief Logical OR for two contexts.
- *
- * \param[in] lhs Left hand side
- * \param[in] rhs Right hand side
- *
- * \return Context that respresents the result of lhs-OR-rhs
- */
-inline constexpr Context operator | (const Context lhs, const Context rhs)
-{
-	return static_cast<Context>(
-			static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
-}
-
-/**
- * \brief Logical AND for two contexts.
- *
- * \param[in] lhs Left hand side
- * \param[in] rhs Right hand side
- *
- * \return Context that respresents the result of lhs-AND-rhs
- */
-inline constexpr Context operator & (const Context lhs, const Context rhs)
-{
-	return static_cast<Context>(
-			static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
-}
-
-/**
- * \brief Equality for two contexts.
- *
- * \param[in] lhs Left hand side
- * \param[in] rhs Right hand side
- *
- * \return TRUE if \c lhs equals \c rhs, otherwise FALSE
- */
-inline constexpr bool operator == (const Context lhs, const Context rhs)
-{
-	return static_cast<unsigned>(lhs) == static_cast<unsigned>(rhs);
-}
-
-/**
- * \brief Swap two Context instances.
- *
- * \param[in] lhs Left hand side to swap
- * \param[in] rhs Right hand side to swap
- */
-void swap(Context& lhs, Context& rhs) noexcept;
-
-/**
- * \brief Name of the specified Context.
- *
- * \param[in] c Context to provide name of
- *
- * \return Name of context \c
- */
-std::string name(const Context& c) noexcept;
-
-/**
- * \brief String representation of a Context.
- *
- * This will return the name of the context. It is equivalent to name().
- *
- * \param[in] c Context to transform to a string
- *
- * \return String representation of context \c
- */
-std::string to_string(const Context& c) noexcept;
-
-/**
- * \brief Returns TRUE iff \c c is not equivalent to Context::TRACK.
- *
- * Equivalent to <code>c != Context::TRACK</code>.
- *
- * \param[in] c Context to evaluate
- *
- * \return TRUE iff \c c is not equivalent to Context::TRACK
- */
-bool any(const Context& c) noexcept;
-
-
-/**
- * \brief Settings for a Calculation.
- */
-class Settings final : Equality<Settings>, Comparable<Settings>, Swap<Settings>
-{
-	/**
-	 * \brief Internal context.
-	 */
-	Context context_;
-
-public:
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 *
-	 * \details Initializes the Context of the Settings instance as ALBUM.
-	 */
-	Settings();
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] c Context for a calculation
-	 */
-	explicit Settings(const Context& c);
-
-	/**
-	 * \brief Set context for this algorithm.
-	 *
-	 * \param[in] c Context to set on this instance
-	 */
-	void set_context(const Context c);
-
-	/**
-	 * \brief Current context of this algorithm.
-	 *
-	 * \return Context of this instance
-	 */
-	Context context() const;
-
-	/**
-	 * \copydoc SNPT_mf_swap
-	 */
-	void swap(Settings& rhs) noexcept;
-
-	/**
-	 * \copydoc SNPT_mf_equals
-	 */
-	bool equals(const Settings& rhs) const noexcept;
-
-	/**
-	 * \copydoc SNPT_mf_to_string
-	 */
-	std::string to_string() const;
-};
-
-
-/**
- * \brief Set of \link arcstk::checksum::type Checksum types \endlink.
- *
- * Guaranteed to be iterable and duplicate-free.
- */
-using ChecksumtypeSet = std::unordered_set<checksum::type>;
-
-
-/**
- * \brief List of split points within a range of samples.
- *
- * Guaranteed to be forward iterable and have operator [].
- */
-using Points = std::vector<AudioSize>;
-
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-// -Weffc++ is deactivated: warns about raw pointer member settings_
-// Member is non-owning. Default copy + move is therefore ok. Rule of zero.
-
-/**
- * \brief Interface: Checksum calculation algorithm.
- *
- * An Algorithm is a specific calculation method for checksums.
- */
-class Algorithm
-{
-	/**
-	 * \brief Internal settings of the algorithm.
-	 */
-	const Settings* settings_; // non-owning
-
-public:
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	Algorithm();
-
-	/**
-	 * \copydoc SNPT_sm_default_dtor
-	 */
-	virtual ~Algorithm() noexcept = default;
-
-	/**
-	 * \brief Configure the algorithm with settings.
-	 *
-	 * \param[in] s Settings to use on this instance
-	 */
-	void set_settings(const Settings* s) noexcept;
-
-	/**
-	 * \brief Return the settings of this instance.
-	 *
-	 * \return Settings of this instance
-	 */
-	const Settings* settings() const noexcept;
-
-	/**
-	 * \brief Determine the legal range of samples for the calculation performed
-	 * on the input amount.
-	 *
-	 * The algorithm may request to process only a part of the input - e.g. it
-	 * may skip an amount of samples at the beginning and at the end.
-	 *
-	 * \param[in] size   The input size of samples to process
-	 * \param[in] points The offset points in number of PCM samples
-	 *
-	 * \return Input range of 1-based sample indices to use for calculation.
-	 */
-	std::pair<int32_t,int32_t> range(const AudioSize& size,
-			const Points& points) const;
-
-	/**
-	 * \brief Mark current track as finished.
-	 *
-	 * What the instance has to do whenever a track is finished can be
-	 * implemented in this hook.
-	 *
-	 * \param[in] trackno Track number
-	 * \param[in] length  Track length as calculated
-	 */
-	void track_finished(const int trackno, const AudioSize& length);
-
-	/**
-	 * \brief Return the result of the algorithm.
-	 *
-	 * \return Calculation result.
-	 */
-	ChecksumSet result() const;
-
-	/**
-	 * \brief Types of checksums the algorithm calculates.
-	 *
-	 * \return Checksum types calculated by this algorithm
-	 */
-	ChecksumtypeSet types() const;
-
-	/**
-	 * \copydoc SNPT_mf_clone
-	 */
-	std::unique_ptr<Algorithm> clone() const;
-
-protected:
-
-	/**
-	 * \brief Implementation of swap for the base class.
-	 *
-	 * This is to be called by swap() implementations for subclasses.
-	 *
-	 * \param[in] rhs Instance to swap
-	 */
-	void swap_base(Algorithm& rhs);
-
-private:
-
-	virtual void do_setup(const Settings* s)
-	= 0;
-
-	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
-			const Points& points) const
-	= 0;
-
-	virtual void do_track_finished(const int t, const AudioSize& length)
-	= 0;
-
-	virtual ChecksumSet do_result() const
-	= 0;
-
-	virtual ChecksumtypeSet do_types() const
-	= 0;
-
-	virtual std::unique_ptr<Algorithm> do_clone() const
-	= 0;
-};
-
-#pragma GCC diagnostic pop
-
-/**
- * \brief CRTP to add updateing capability to an algorithm.
- *
- * \tparam A Algorithm type
- *
- * An Updateable is an instance of an Algorithm that can be updated with new
- * input by the caller. The calculation of tracks is to be finished manually by
- * calling track_finished(). Algorithm instances hold the concrete subtotals.
- *
- * The caller is required to instantiate and setup an Algorithm. However, it
- * should usually not be required to update the Algorithm instance directly.
- * This is performed via a Calculation.
- */
-template <typename A>
-class Updateable : public Algorithm
-{
-public:
-
-	/**
-	 * \copydoc SNPT_sm_default_dtor
-	 */
-	~Updateable() override = default;
-
-	/**
-	 * \brief Typedef to \c A.
-	 */
-	using algorithm_type = A;
-
-	/**
-	 * \brief Get a pointer to this instance typed by its concrete type.
-	 *
-	 * \return Pointer of type A* to this instance
-	 */
-	algorithm_type* as_algorithm_type()
-	{
-		return static_cast<algorithm_type*>(this);
-	}
-
-	/**
-	 * \brief Update the instance.
-	 *
-	 * \tparam B Type of iterator pointing to the begin of the update sequence
-	 * \tparam E Type of iterator pointing to the end   of the update sequence
-	 *
-	 * \param[in] start Iterator pointing to the begin of the update sequence
-	 * \param[in] stop  Iterator pointing to the end   of the update sequence
-	 */
-	template <typename B, typename E>
-	void update(B start, E stop)
-	{
-		// An Algorithm must implement template<> perform_update() to be
-		// coverable as an Updateable.
-		as_algorithm_type()->perform_update(start, stop);
-	}
-
-protected:
-
-	// NOLINTNEXTLINE(bugprone-crtp-constructor-accessibility)
-	Updateable() = default;
-};
-
-
-namespace details
-{
 
 /**
  * \internal
@@ -682,11 +314,11 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] points        List of splitting points
+	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] legal         Legal range of calculation
 	 */
-	Partitioner(const AudioSize& total_samples, const Points& points,
+	Partitioner(const Points& points, const AudioSize& total_samples,
 			const SampleRange& legal);
 
 	/**
@@ -785,14 +417,14 @@ private:
 	= 0;
 
 	/**
-	 * \brief Total number of samples expected.
-	 */
-	AudioSize total_samples_;
-
-	/**
 	 * \brief Internal splitting points.
 	 */
 	Points points_;
+
+	/**
+	 * \brief Total number of samples expected.
+	 */
+	AudioSize total_samples_;
 
 	/**
 	 * \brief Legal range of partitioning.
@@ -817,11 +449,11 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] points        List of splitting points
+	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] legal         Legal range of calculation
 	 */
-	TrackPartitioner(const AudioSize& total_samples, const Points& points,
+	TrackPartitioner(const Points& points, const AudioSize& total_samples,
 			const SampleRange& legal);
 };
 
@@ -1294,15 +926,15 @@ public:
 /**
  * \brief Create a partitioner for specific values.
  *
- * \param[in] algorithm Algorithm to provide range
- * \param[in] offsets   Offsets
- * \param[in] leadout   Leadout
+ * \param[in] offsets  Offsets
+ * \param[in] leadout  Leadout
+ * \param[in] interval Legal interval
  *
  * \return Partitioner
  */
-std::unique_ptr<Partitioner> make_partitioner(
-		const Algorithm& algorithm,
-		const Points& offsets, const AudioSize& leadout);
+std::unique_ptr<details::Partitioner> make_partitioner(
+		const Points& offsets, const AudioSize& leadout,
+		const details::SampleRange& interval);
 
 /**
  * \brief Worker: log partition stats.
@@ -1495,6 +1127,63 @@ bool perform_update(B start, E stop, const Partitioner& partitioner,
 
 
 /**
+ * \brief Settings for a Calculation.
+ */
+class Settings final : Equality<Settings>, Comparable<Settings>, Swap<Settings>
+{
+	/**
+	 * \brief Internal context.
+	 */
+	Context context_;
+
+public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 *
+	 * \details Initializes the Context of the Settings instance as ALBUM.
+	 */
+	Settings();
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] c Context for a calculation
+	 */
+	explicit Settings(const Context& c);
+
+	/**
+	 * \brief Set context for this algorithm.
+	 *
+	 * \param[in] c Context to set on this instance
+	 */
+	void set_context(const Context c);
+
+	/**
+	 * \brief Current context of this algorithm.
+	 *
+	 * \return Context of this instance
+	 */
+	Context context() const;
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(Settings& rhs) noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const Settings& rhs) const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_to_string
+	 */
+	std::string to_string() const;
+};
+
+
+/**
  * \brief Calculation phases.
  */
 enum class State : uint8_t
@@ -1555,15 +1244,51 @@ protected:
     }
 
 	/**
-	 * \brief TRUE iff current state is earlier than \c rhs.
+	 * \brief Iff state is not before \c s, throw.
 	 *
-	 * \param[in] rhs State to compare current state to
+	 * \param[in] s State to compare current state to
+	 * \param[in] error_msg Error message
 	 *
-	 * \return TRUE iff current state is earlier than \c rhs
+	 * \throw std::logic_error If current_state() is not before \c s
 	 */
-	bool state_earlier_than(State rhs) const
+	void allowed_only_before(State s, const std::string& error_msg)
 	{
-		return static_cast<int>(current_state()) < static_cast<int>(rhs);
+		if (!state_earlier_than(s))
+		{
+			throw std::logic_error(error_msg);
+		}
+	}
+
+	/**
+	 * \brief Iff state is not \c s, throw.
+	 *
+	 * \param[in] s State to compare current state to
+	 * \param[in] error_msg Error message
+	 *
+	 * \throw std::logic_error If current_state() is not \c s
+	 */
+	void allowed_only_for(State s, const std::string& error_msg)
+	{
+		if (current_state() != s)
+		{
+			throw std::logic_error(error_msg);
+		}
+	}
+
+	/**
+	 * \brief Iff state is not after \c s, throw.
+	 *
+	 * \param[in] s State to compare current state to
+	 * \param[in] error_msg Error message
+	 *
+	 * \throw std::logic_error If current_state() is not after \c s
+	 */
+	void allowed_only_after(State s, const std::string& error_msg)
+	{
+		if (state_earlier_than(s) || current_state() == s)
+		{
+			throw std::logic_error(error_msg);
+		}
 	}
 
 	/**
@@ -1582,6 +1307,18 @@ private:
 	 * \brief Internal state.
 	 */
     State state_ = State::INSTANTIATED;
+
+	/**
+	 * \brief TRUE iff current state is earlier than \c rhs.
+	 *
+	 * \param[in] rhs State to compare current state to
+	 *
+	 * \return TRUE iff current state is earlier than \c rhs
+	 */
+	bool state_earlier_than(State rhs) const
+	{
+		return static_cast<int>(current_state()) < static_cast<int>(rhs);
+	}
 
 	/**
 	 * \brief Check whether transition between states is legal.
@@ -1648,7 +1385,21 @@ class Calculation : public Stateful
 	 */
 	details::CalculationResultBuffer result_buffer_ { /* default */ };
 
+	/**
+	 * \brief Implements algorithm().
+	 *
+	 * \return The Algorithm used by this instance
+	 */
 	virtual const Algorithm* do_algorithm() const noexcept
+	= 0;
+
+	/**
+	 * \brief Initialize this Upater with input data.
+	 *
+	 * \param[in] offsets Offsets
+	 * \param[in] leadout Leadout
+	 */
+	virtual void do_init(const Points& offsets, const AudioSize& leadout)
 	= 0;
 
 	/**
@@ -1679,7 +1430,6 @@ protected:
 		// empty
 	}
 
-
 	Calculation(const Calculation& rhs) = delete;
 
 	Calculation& operator = (const Calculation& rhs) = delete;
@@ -1695,24 +1445,32 @@ protected:
 	Calculation& operator = (Calculation&& rhs) noexcept = default;
 
 	/**
+	 * \brief Initialize internal algorithm.
+	 *
+	 * \param[in] algorithm Algorithm to initialize
+	 */
+	void init_algo(Algorithm& algorithm)
+	{
+		allowed_only_before(State::UPDATED,
+				"Cannot change context after first update");
+
+		algorithm.set_context(settings_.context());
+	}
+
+	/**
 	 * \brief Worker: initialize internal partitioner.
 	 *
-	 * \param[in] algorithm Algorithm to use
-	 * \param[in] offsets   Offsets
-	 * \param[in] leadout   Leadout
+	 * \param[in] offsets Offsets
+	 * \param[in] leadout Leadout
+	 * \param[in] legal   Legal interval
 	 */
-	void init_partitioner(const Algorithm& algorithm,
-			const Points& offsets, const AudioSize& leadout)
+	void init_partitioner(const Points& offsets,
+			const AudioSize& leadout, const details::SampleRange& legal)
 	{
-		if (state_earlier_than(State::UPDATED))
-		{
-			partitioner_ =
-				details::make_partitioner(algorithm, offsets, leadout);
-		} else
-		{
-			throw std::logic_error(
-					"Cannot change partitioner after first update");
-		}
+		allowed_only_before(State::UPDATED,
+				"Cannot change partitioner after first update");
+
+		partitioner_ = details::make_partitioner(offsets, leadout, legal);
 	}
 
 	/**
@@ -1722,43 +1480,29 @@ protected:
 	 */
 	void init_resultbuffer(const std::size_t total_elements)
 	{
-		if (state_earlier_than(State::UPDATED))
-		{
-			result_buffer_.set_size(total_elements);
-		} else
-		{
-			throw std::logic_error(
-					"Cannot change buffer size after first update");
-		}
+		allowed_only_before(State::UPDATED,
+				"Cannot change buffer size after first update");
+
+		result_buffer_.set_size(total_elements);
 	}
 
 	/**
-	 * \brief Update the instance with a new AudioSize.
+	 * \brief Initialize internal data parts.
 	 *
-	 * This can be done safely at any time before the last call of update().
-	 *
-	 * \param[in] audiosize The updated AudioSize
+	 * \param[in] offsets  Offsets
+	 * \param[in] leadout  Leadout
+	 * \param[in] interval Legal interval
 	 */
-	void update_size(const AudioSize& audiosize)
+	void init_data(const Points& offsets,
+			const AudioSize& leadout, const details::SampleRange& interval)
 	{
-		if (state_earlier_than(State::UPDATED))
-		{
-			partitioner_->set_total_samples(audiosize);
-		} else
-		{
-			throw std::logic_error("Cannot change size after first update");
-		}
+		allowed_only_before(State::UPDATED,
+				"Cannot modify offsets, leadout or range after first update");
 
-	}
+		init_partitioner(offsets, leadout, interval);
+		init_resultbuffer(offsets.size());
 
-	/**
-	 * \brief Read the internal settings.
-	 *
-	 * \return Internal settings
-	 */
-	const Settings* settings_pointer() const noexcept
-	{
-		return std::addressof(settings_);
+		transition_to(State::INITIALIZED);
 	}
 
 	/**
@@ -1817,6 +1561,20 @@ public:
 	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Calculation() override = default;
+
+	/**
+	 * \brief Initialize this Upater with input data.
+	 *
+	 * \param[in] offsets Offsets
+	 * \param[in] leadout Leadout
+	 */
+	void init(const Points& offsets, const AudioSize& leadout)
+	{
+		allowed_only_before(State::UPDATED,
+				"Cannot modify offsets or leadout after first update");
+
+		do_init(offsets, leadout);
+	}
 
 	/**
 	 * \brief Returns the algorithm instance used by this Calculation.
@@ -1939,7 +1697,21 @@ public:
 	 * \return The computed Checksums
 	 */
 	Checksums result() const noexcept;
+
+	/**
+	 * \brief Update the instance with a new AudioSize.
+	 *
+	 * \param[in] audiosize The updated AudioSize
+	 */
+	void update(const AudioSize& audiosize)
+	{
+		allowed_only_before(State::UPDATED,
+				"Cannot change size after first update");
+
+		partitioner_->set_total_samples(audiosize);
+	}
 };
+
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
@@ -1983,12 +1755,17 @@ class Updater final : public Calculation,
 public:
 
 	/**
+	 * \brief Type of the internal algorithm.
+	 */
+	using algorithm_type = A;
+
+	/**
 	 * \brief Constructor.
 	 *
 	 * Instantiates Updater with default settings.
 	 */
 	Updater()
-		: Calculation { Settings{} }
+		: Calculation { Settings {/*default*/} }
 	{
 		// empty
 	}
@@ -2007,8 +1784,9 @@ public:
 			const Points& offsets, const AudioSize& leadout)
 		: Calculation { settings }
 	{
-		algorithm_->set_settings(settings_pointer());
-		init(offsets, leadout);
+		init_algo(*algorithm_);
+		init_data(offsets, leadout,
+			details::SampleRange { algorithm_->range(leadout, offsets) });
 	}
 
 	/**
@@ -2062,31 +1840,6 @@ public:
 	~Updater() noexcept override = default;
 
 	/**
-	 * \brief Initialize this instance with metadata.
-	 *
-	 * \param[in] offsets Offsets
-	 * \param[in] leadout Leadout
-	 */
-	void init(const Points& offsets, const AudioSize& leadout)
-	{
-		init_partitioner(*algorithm_, offsets, leadout);
-		init_resultbuffer(offsets.size());
-		transition_to(State::INITIALIZED);
-	}
-
-	/**
-	 * \brief Update the instance with a new AudioSize.
-	 *
-	 * This can be done safely at any time before the last call of update().
-	 *
-	 * \param[in] audiosize The updated AudioSize
-	 */
-	void update(const AudioSize& audiosize)
-	{
-		this->update_size(audiosize);
-	}
-
-	/**
 	 * \brief Implements update for sample sequences.
 	 *
 	 * \tparam T The value_type of the SampleSequence
@@ -2137,9 +1890,15 @@ private:
 		return algorithm_.get();
 	}
 
+	void do_init(const Points& offsets, const AudioSize& leadout) final
+	{
+		init_data(offsets, leadout,
+			details::SampleRange { algorithm_->range(leadout, offsets) });
+	}
+
 	void on_settings_changed() final
 	{
-		algorithm_->set_settings(settings_pointer());
+		init_algo(*algorithm_);
 	}
 
 	void on_completion() final
@@ -2193,6 +1952,327 @@ private:
 };
 
 #pragma GCC diagnostic pop
+
+
+/**
+ * \brief A set of Calculations.
+ *
+ * \tparam B Type of start iterator
+ * \tparam E Type of stop iterator
+ *
+ * Specifiy a set of calculations updateable by types B and E.
+ *
+ * \see make_calculationset
+ */
+template<typename B, typename E>
+class CalculationSet
+{
+	/**
+	 * \brief Internal Updater instances for each algorithm.
+	 */
+    std::vector<std::unique_ptr<Calculation>> updaters_;
+
+	/**
+	 * \brief Internal callers for update<B, E>().
+	 */
+    std::vector<std::function<void(B, E)>> handlers_;
+
+public:
+
+	/**
+	 * \brief Function for registering the concrete algorithms.
+	 */
+    using RegistrationFunc_t = std::function<void(
+			const Settings& settings, CalculationSet&)>;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] settings Settings to apply to each algorithm
+	 * \param[in] register_algorithms Register function for algorithms
+	 */
+    CalculationSet(const Settings& settings,
+			RegistrationFunc_t register_algorithms)
+	{
+        register_algorithms(settings, *this);  // populate handlers_
+    }
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Configurable settings, AccurateRip v1 and v2.
+	 *
+	 * \param[in] settings Settings to apply to each algorithm
+	 */
+	explicit CalculationSet(const Settings& settings)
+		: CalculationSet { settings, default_algos }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Settings for ALBUM, configurable algorithms.
+	 *
+	 * \param[in] register_algorithms Register function for algorithms
+	 */
+    explicit CalculationSet(RegistrationFunc_t register_algorithms)
+		: CalculationSet { Settings{}, register_algorithms }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Settings for ALBUM, AccurateRip v1 and v2.
+	 */
+	CalculationSet()
+		: CalculationSet { Settings{}, default_algos }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Register an Algorithm.
+	 *
+	 * \tparam A Type of the algorithm to add
+	 *
+	 * \param[in] settings Settings to set for this algorithm
+	 */
+    template<class A>
+    void add(const Settings& settings)
+	{
+        auto updater = std::make_unique<Updater<A>>(settings);
+        Updater<A>* upd_ptr = updater.get();
+        updaters_.push_back(std::move(updater));
+
+        // connect algorithm A and the iterators set (B, E) at compile-time
+        handlers_.push_back(
+			[upd_ptr](B start, E stop)
+			{
+				upd_ptr->template update<B, E>(start, stop);
+			}
+		);
+    }
+
+	/**
+	 * \brief Initialize with data.
+	 *
+	 * \param[in] offsets Offsets
+	 * \param[in] leadout Leadout
+	 */
+	void init(const Points& offsets, const AudioSize& leadout)
+	{
+		for (auto& calculation : updaters_)
+		{
+			calculation->init(offsets, leadout);
+		}
+	}
+
+	/**
+	 * \brief Initialize with data.
+	 *
+	 * \param[in] toc ToC
+	 */
+	void init(const ToC& toc)
+	{
+		this->init(toc.offsets(), toc.leadout());
+	}
+
+	/**
+	 * \brief Initialize with data.
+	 *
+	 * \param[in] toc_data ToCData
+	 */
+	void init(const ToCData& toc_data)
+	{
+		this->init(toc::offsets(toc_data), toc::leadout(toc_data));
+	}
+
+	/**
+	 * \brief Update the instance with a new AudioSize.
+	 *
+	 * \param[in] audiosize The updated AudioSize
+	 */
+	void update(const AudioSize& audiosize)
+	{
+		for (auto& calculation : updaters_)
+		{
+			calculation->update(audiosize);
+		}
+	}
+
+	/**
+	 * \brief Update all Updater-instances in the set.
+	 *
+	 * \param[in] start Start iterator
+	 * \param[in] stop  Stop iterator
+	 */
+    void update(B start, E stop)
+	{
+        for (auto& call_update : handlers_)
+		{
+            call_update(start, stop);
+        }
+    }
+
+	// TODO Checksums result() const
+	/*
+	Checksums result() const
+	{
+		for (auto& calculation : updaters_)
+		{
+			//calculation->result();
+		}
+	}
+	*/
+
+	// TODO ChecksumtypeSet types() const noexcept
+	// TODO bool complete() const noexcept
+
+private:
+
+	static constexpr RegistrationFunc_t default_algos =
+		[](const Settings& settings, CalculationSet& set)
+		{
+			set.add<AccurateRip::V1andV2>(settings);
+		};
+};
+
+/*
+template <typename... Args>
+class AlgorithmTypes;
+
+template <typename A>
+class AlgorithmTypes <A> // exactly one
+{
+
+};
+*/
+
+//template <typename A1, typename A2, typename... Args>
+template <typename A1, typename... Args>
+class AlgorithmTypes //<A1, A2, Args...> // two or more
+{
+	template<typename B, typename E>
+	void configure_impl(const Settings& settings, CalculationSet<B, E>& set)
+		const
+	{
+		set.template add<A1>(settings);
+		set.template add<Args...>(settings);
+	}
+
+	/*
+	std::tuple<A1, Args...> types_;
+
+	template<std::size_t... Is>
+    void* get_algorithm_impl(std::size_t index, std::index_sequence<Is...>)
+	{
+        void* result = nullptr;
+        ((index == Is ? (result = &std::get<Is>(types_), true) : false), ...);
+        return result;
+    }
+
+	template<typename Func>
+    void for_all(Func&& func)
+	{
+        std::apply(
+			[&](auto&... algos)
+			{
+				(func(algos), ...);
+			},
+			types_
+		);
+	}
+	*/
+
+public:
+
+	/*
+	std::size_t size() const
+	{
+        return std::tuple_size_v<decltype(types_)>;
+    }
+
+	template<typename T>
+    T* algorithm(const std::size_t index)
+	{
+        return static_cast<T*>(
+            get_algorithm_impl(index, std::make_index_sequence<count>{})
+        );
+    }
+	*/
+
+	static constexpr std::size_t count { 1 + sizeof...(Args) };
+
+	template<typename B, typename E>
+	void configure(const Settings& settings, CalculationSet<B, E>& set) const
+	{
+		this->configure_impl(settings, set);
+	}
+
+	template<typename B, typename E>
+	CalculationSet<B, E> calculationset_for(const Settings& settings)
+	{
+		return CalculationSet<B, E> { settings, &configure };
+	}
+};
+
+
+template<typename B, typename E>
+inline auto make_calculationset(const ChecksumtypeSet& types, const Settings& s)
+{
+	using V1_only   = AlgorithmTypes<AccurateRip::V1>;
+	using V2_only   = AlgorithmTypes<AccurateRip::V1>;
+	using V1_and_V2 = AlgorithmTypes<AccurateRip::V1andV2>;
+
+	if (types.size() == 1) // either V1-only or V2-only requested
+	{
+		using std::cbegin;
+
+		if (checksum::type::ARCS1 == *cbegin(types))
+		{
+			return V1_only{}.calculationset_for<B,E>(s);
+			/*
+			return CalculationSet<B, E> {
+				settings,
+				[](const Settings& s, auto& calc_set)
+				{
+					calc_set.template add<AccurateRip::V1>(s);
+				}
+			};
+			*/
+		} else
+		{
+			return V2_only{}.calculationset_for<B,E>(s);
+			/*
+			return CalculationSet<B, E> {
+				settings,
+				[](const Settings& s, auto& calc_set)
+				{
+					calc_set.template add<AccurateRip::V2>(s);
+				}
+			};
+			*/
+		}
+
+	} else
+	{
+		// V1andV2 is correct for case 0 (default) and case 2 (all)
+		return V1_and_V2{}.calculationset_for<B,E>(s);
+		/*
+		return CalculationSet<B, E> {
+			settings,
+			[](const Settings& s, auto& calc_set)
+			{
+				calc_set.template add<AccurateRip::V1andV2>(s);
+			}
+		};
+		*/
+	}
+}
 
 /** @} */
 

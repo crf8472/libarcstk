@@ -20,11 +20,11 @@
 #include <string>         // for string
 #include <unordered_set>  // for unordered_set
 
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"    // for Algorithm, Updateable
+#endif
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for checksum::type, ChecksumSet
-#endif
-#ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"    // for Algorithm, Updateable
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
@@ -338,7 +338,7 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 
 	// Algorithm
 
-	void do_setup(const Settings* s) final;
+	void do_setup(const Context s) final;
 
 	void do_track_finished(const int t, const AudioSize& length) final;
 

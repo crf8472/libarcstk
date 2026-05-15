@@ -20,17 +20,31 @@
 #endif
 
 
-/* Identifiers */
+/* Identifier interface */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include <arcstk/identifier.hpp>
 #endif
 
 
-/* Checksum types */
+/* Checksum interface and types */
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include <arcstk/checksum.hpp>
+#endif
+
+
+/* Input: interfaces for audio samples */
+
+#ifndef LIBARCSTK_SAMPLES_HPP_
+#include <arcstk/samples.hpp>
+#endif
+
+
+/* Algorithm interface */
+
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include <arcstk/algorithm.hpp>
 #endif
 
 
@@ -62,13 +76,6 @@
 #endif
 
 
-/* Input: interfaces for audio samples */
-
-#ifndef LIBARCSTK_SAMPLES_HPP_
-#include <arcstk/samples.hpp>
-#endif
-
-
 /* Version, Name and Release info */
 
 #ifndef LIBARCSTK_VERSION_HPP_
@@ -76,10 +83,11 @@
 #endif
 
 
-// The following 4 public headers are intentionally not included:
+// The following 5 public headers are intentionally not included:
 // accuraterip.hpp
 // bytes.hpp
 // logging.hpp
+// loglevel.hpp
 // mixins.hpp
 
 #endif

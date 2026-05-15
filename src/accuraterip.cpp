@@ -160,11 +160,11 @@ ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 
 
 template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::do_setup(const Settings* s)
+void ARCSAlgorithm<T1, T2...>::do_setup(const Context c)
 {
-	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(s->context());
+	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
 
-	if (any(Context::FIRST_TRACK & s->context()))
+	if (any(Context::FIRST_TRACK & c))
 	{
 		state_.set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
 	}
@@ -203,7 +203,7 @@ template <cstype T1, cstype... T2>
 std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
 		const AudioSize& size, const Points& points) const
 {
-	const auto ctx = this->settings()->context();
+	const auto ctx = this->context();
 
 	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
 
