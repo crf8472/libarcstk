@@ -356,6 +356,7 @@ CalculationState::CalculationState()
 	, samples_processed_       { 0 }
 	, track_samples_processed_ { 0 }
 	, tracks_processed_        { 0 }
+	, sequences_processed_     { 0 }
 	, algo_time_elapsed_       { 0 }
 	, update_time_elapsed_     { 0 }
 {
@@ -384,6 +385,12 @@ int32_t CalculationState::track_samples_processed() const noexcept
 int32_t CalculationState::tracks_processed() const noexcept
 {
 	return tracks_processed_.value();
+}
+
+
+int32_t CalculationState::sequences_processed() const noexcept
+{
+	return sequences_processed_.value();
 }
 
 
@@ -427,6 +434,8 @@ void CalculationState::update(const int32_t samples_amount,
 	samples_processed_.increment(samples_amount);
 	track_samples_processed_.increment(samples_amount);
 	advance(samples_amount);
+
+	sequences_processed_.increment(1);
 
 	increment_algo_time_elapsed(algo_duration);
 }

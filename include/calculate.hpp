@@ -689,9 +689,14 @@ class CalculationState final
 	Counter<int32_t> track_samples_processed_;
 
 	/**
-	 * \brief Internal 0-based counter for tracks..
+	 * \brief Internal 0-based counter for tracks.
 	 */
 	Counter<int32_t> tracks_processed_;
+
+	/**
+	 * \brief Internal 0-based counter for sample sequences.
+	 */
+	Counter<int32_t> sequences_processed_;
 
 	/**
 	 * \brief Internal time elapsed by processing.
@@ -745,6 +750,13 @@ public:
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
 	int32_t tracks_processed() const noexcept;
+
+	/**
+	 * \brief Returns the total number of sample sequences yet processed.
+	 *
+	 * \return Total number of sample sequences processed.
+	 */
+	int32_t sequences_processed() const noexcept;
 
 	/**
 	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
@@ -1661,6 +1673,18 @@ public:
 	}
 
 	/**
+	 * \brief Returns the total number of sample sequences yet processed.
+	 *
+	 * Intended for debugging.
+	 *
+	 * \return Total number of sample sequences processed.
+	 */
+	int32_t sequences_processed() const noexcept
+	{
+		return state_.sequences_processed();
+	}
+
+	/**
 	 * \brief Amount of time elapsed so far by update().
 	 *
 	 * \return Amount of time elapsed so far by update().
@@ -1953,109 +1977,23 @@ private:
 
 #pragma GCC diagnostic pop
 
-
 /**
- * \brief A set of Calculations.
- *
- * \tparam B Type of start iterator
- * \tparam E Type of stop iterator
- *
- * Specifiy a set of calculations updateable by types B and E.
- *
- * \see make_calculationset
+ * \brief Interface for a set of Calculations.
  */
-template<typename B, typename E>
 class CalculationSet
 {
-	/**
-	 * \brief Internal Updater instances for each algorithm.
-	 */
-    std::vector<std::unique_ptr<Calculation>> updaters_;
+	virtual void do_init(const Points& offsets, const AudioSize& leadout)
+	= 0;
 
-	/**
-	 * \brief Internal callers for update<B, E>().
-	 */
-    std::vector<std::function<void(B, E)>> handlers_;
+	virtual void do_update(const AudioSize& audiosize)
+	= 0;
+
+	virtual Checksums do_result() const
+	= 0;
 
 public:
 
-	/**
-	 * \brief Function for registering the concrete algorithms.
-	 */
-    using RegistrationFunc_t = std::function<void(
-			const Settings& settings, CalculationSet&)>;
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] settings Settings to apply to each algorithm
-	 * \param[in] register_algorithms Register function for algorithms
-	 */
-    CalculationSet(const Settings& settings,
-			RegistrationFunc_t register_algorithms)
-	{
-        register_algorithms(settings, *this);  // populate handlers_
-    }
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Configurable settings, AccurateRip v1 and v2.
-	 *
-	 * \param[in] settings Settings to apply to each algorithm
-	 */
-	explicit CalculationSet(const Settings& settings)
-		: CalculationSet { settings, default_algos }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Settings for ALBUM, configurable algorithms.
-	 *
-	 * \param[in] register_algorithms Register function for algorithms
-	 */
-    explicit CalculationSet(RegistrationFunc_t register_algorithms)
-		: CalculationSet { Settings{}, register_algorithms }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * Settings for ALBUM, AccurateRip v1 and v2.
-	 */
-	CalculationSet()
-		: CalculationSet { Settings{}, default_algos }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Register an Algorithm.
-	 *
-	 * \tparam A Type of the algorithm to add
-	 *
-	 * \param[in] settings Settings to set for this algorithm
-	 */
-    template<class A>
-    void add(const Settings& settings)
-	{
-        auto updater = std::make_unique<Updater<A>>(settings);
-        Updater<A>* upd_ptr = updater.get();
-        updaters_.push_back(std::move(updater));
-
-        // connect algorithm A and the iterators set (B, E) at compile-time
-        handlers_.push_back(
-			[upd_ptr](B start, E stop)
-			{
-				upd_ptr->template update<B, E>(start, stop);
-			}
-		);
-    }
+	virtual ~CalculationSet() noexcept = default;
 
 	/**
 	 * \brief Initialize with data.
@@ -2065,10 +2003,7 @@ public:
 	 */
 	void init(const Points& offsets, const AudioSize& leadout)
 	{
-		for (auto& calculation : updaters_)
-		{
-			calculation->init(offsets, leadout);
-		}
+		do_init(offsets, leadout);
 	}
 
 	/**
@@ -2098,11 +2033,117 @@ public:
 	 */
 	void update(const AudioSize& audiosize)
 	{
-		for (auto& calculation : updaters_)
-		{
-			calculation->update(audiosize);
-		}
+		do_update(audiosize);
 	}
+
+	Checksums result() const
+	{
+		return do_result();
+	}
+};
+
+/**
+ * \brief A set of Calculations.
+ *
+ * \tparam B Type of start iterator
+ * \tparam E Type of stop iterator
+ *
+ * Specifiy a set of calculations updateable by types B and E.
+ *
+ * \see make_calculationset
+ */
+template<typename B, typename E>
+class UpdateableCalculationSet final : CalculationSet
+{
+	/**
+	 * \brief Internal Updater instances for each algorithm.
+	 */
+    std::vector<std::unique_ptr<Calculation>> updaters_;
+
+	/**
+	 * \brief Internal callers for update<B, E>().
+	 */
+    std::vector<std::function<void(B, E)>> handlers_;
+
+public:
+
+	/**
+	 * \brief Function for registering the concrete algorithms.
+	 */
+    using RegistrationFunc_t = std::function<void(
+			const Settings& settings, UpdateableCalculationSet&)>;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] settings Settings to apply to each algorithm
+	 * \param[in] register_algorithms Register function for algorithms
+	 */
+    UpdateableCalculationSet(const Settings& settings,
+			RegistrationFunc_t register_algorithms)
+	{
+        register_algorithms(settings, *this);  // populate handlers_
+    }
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Configurable settings, AccurateRip v1 and v2.
+	 *
+	 * \param[in] settings Settings to apply to each algorithm
+	 */
+	explicit UpdateableCalculationSet(const Settings& settings)
+		: UpdateableCalculationSet { settings, default_algos }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Settings for ALBUM, configurable algorithms.
+	 *
+	 * \param[in] register_algorithms Register function for algorithms
+	 */
+    explicit UpdateableCalculationSet(RegistrationFunc_t register_algorithms)
+		: UpdateableCalculationSet { Settings{}, register_algorithms }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * Settings for ALBUM, AccurateRip v1 and v2.
+	 */
+	UpdateableCalculationSet()
+		: UpdateableCalculationSet { Settings{}, default_algos }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Register an Algorithm.
+	 *
+	 * \tparam A Type of the algorithm to add
+	 *
+	 * \param[in] settings Settings to set for this algorithm
+	 */
+    template<class A>
+    void add(const Settings& settings)
+	{
+        auto updater = std::make_unique<Updater<A>>(settings);
+        Updater<A>* upd_ptr = updater.get();
+        updaters_.push_back(std::move(updater));
+
+        // connect algorithm A and the iterators set (B, E) at compile-time
+        handlers_.push_back(
+			[upd_ptr](B start, E stop)
+			{
+				upd_ptr->template update<B, E>(start, stop);
+			}
+		);
+    }
 
 	/**
 	 * \brief Update all Updater-instances in the set.
@@ -2118,24 +2159,78 @@ public:
         }
     }
 
-	// TODO Checksums result() const
-	/*
-	Checksums result() const
-	{
-		for (auto& calculation : updaters_)
-		{
-			//calculation->result();
-		}
-	}
-	*/
-
 	// TODO ChecksumtypeSet types() const noexcept
 	// TODO bool complete() const noexcept
 
 private:
 
+	void do_init(const Points& offsets, const AudioSize& leadout) final
+	{
+		for (auto& calculation : updaters_)
+		{
+			calculation->init(offsets, leadout);
+		}
+	}
+
+	void do_update(const AudioSize& audiosize) final
+	{
+		for (auto& calculation : updaters_)
+		{
+			calculation->update(audiosize);
+		}
+	}
+
+	Checksums do_result() const final
+	{
+		return this->merge_results(updaters_);
+	}
+
+	std::size_t total_tracks()
+	{
+		return updaters_[0]->result().size();
+	}
+
+	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
+			calculations)
+	{
+		auto tracks { Checksums(total_tracks(), ChecksumSet { {/*0*/} }) };
+
+		using std::begin;
+		using std::cbegin;
+		using std::cend;
+
+		std::for_each(cbegin(calculations), cend(calculations),
+			[&tracks](const std::unique_ptr<Calculation>& c)
+			{
+				auto checksums { c->result() };
+
+				std::transform(cbegin(checksums), cend(checksums), cbegin(tracks),
+					begin(tracks),
+					[](ChecksumSet& s, ChecksumSet& t) -> ChecksumSet
+					{
+						t.merge(s);
+						t.set_length(s.length());
+						// FIXME Supposing lengths all-equal is an error
+						return t;
+					}
+				);
+			});
+
+		// Convert to Checksums
+
+		/*
+		auto result = Checksums{};
+
+		std::for_each(cbegin(tracks), cend(tracks),
+			[&result](const ChecksumSet& s) { result.push_back(s); });
+
+		return result;
+		*/
+		return tracks;
+	}
+
 	static constexpr RegistrationFunc_t default_algos =
-		[](const Settings& settings, CalculationSet& set)
+		[](const Settings& settings, UpdateableCalculationSet& set)
 		{
 			set.add<AccurateRip::V1andV2>(settings);
 		};
@@ -2157,8 +2252,8 @@ template <typename A1, typename... Args>
 class AlgorithmTypes //<A1, A2, Args...> // two or more
 {
 	template<typename B, typename E>
-	void configure_impl(const Settings& settings, CalculationSet<B, E>& set)
-		const
+	void configure_impl(const Settings& settings,
+			UpdateableCalculationSet<B, E>& set) const
 	{
 		set.template add<A1>(settings);
 		set.template add<Args...>(settings);
@@ -2208,15 +2303,24 @@ public:
 	static constexpr std::size_t count { 1 + sizeof...(Args) };
 
 	template<typename B, typename E>
-	void configure(const Settings& settings, CalculationSet<B, E>& set) const
+	void configure(const Settings& settings,
+			UpdateableCalculationSet<B, E>& set) const
 	{
 		this->configure_impl(settings, set);
 	}
 
 	template<typename B, typename E>
-	CalculationSet<B, E> calculationset_for(const Settings& settings)
+	UpdateableCalculationSet<B, E> typed_calculationset_for(
+			const Settings& settings)
 	{
-		return CalculationSet<B, E> { settings, &configure };
+		return UpdateableCalculationSet<B, E> { settings, &configure };
+	}
+
+	template<typename B, typename E>
+	std::unique_ptr<CalculationSet> calculationset_for(const Settings& settings)
+	{
+		using calculationset_type = UpdateableCalculationSet<B, E>;
+		return std::make_unique<calculationset_type>(settings, &configure);
 	}
 };
 
