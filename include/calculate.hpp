@@ -1797,6 +1797,17 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
+	 * \param[in] settings The settings for the calculation
+	 */
+	explicit Updater(const Settings& settings)
+		: Calculation { settings }
+	{
+		// empty
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
 	 * If <tt>leadout.zero()</tt>, the leadout has to be published by
 	 * update(const AudioSize&) before transisting to UPDATED.
 	 *
@@ -2053,7 +2064,7 @@ public:
  * \see make_calculationset
  */
 template<typename B, typename E>
-class UpdateableCalculationSet final : CalculationSet
+class UpdateableCalculationSet final : public CalculationSet
 {
 	/**
 	 * \brief Internal Updater instances for each algorithm.
@@ -2093,7 +2104,7 @@ public:
 	 * \param[in] settings Settings to apply to each algorithm
 	 */
 	explicit UpdateableCalculationSet(const Settings& settings)
-		: UpdateableCalculationSet { settings, default_algos }
+		: UpdateableCalculationSet { settings, default_algos_ }
 	{
 		// empty
 	}
@@ -2117,7 +2128,7 @@ public:
 	 * Settings for ALBUM, AccurateRip v1 and v2.
 	 */
 	UpdateableCalculationSet()
-		: UpdateableCalculationSet { Settings{}, default_algos }
+		: UpdateableCalculationSet { Settings{}, default_algos_ }
 	{
 		// empty
 	}
@@ -2185,13 +2196,13 @@ private:
 		return this->merge_results(updaters_);
 	}
 
-	std::size_t total_tracks()
+	std::size_t total_tracks() const
 	{
 		return updaters_[0]->result().size();
 	}
 
 	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
-			calculations)
+			calculations) const
 	{
 		auto tracks { Checksums(total_tracks(), ChecksumSet { {/*0*/} }) };
 
@@ -2204,13 +2215,17 @@ private:
 			{
 				auto checksums { c->result() };
 
-				std::transform(cbegin(checksums), cend(checksums), cbegin(tracks),
-					begin(tracks),
-					[](ChecksumSet& s, ChecksumSet& t) -> ChecksumSet
+				std::transform(cbegin(checksums), cend(checksums), // input
+					begin(tracks), // input (but has to be non-const)
+					begin(tracks), // output
+					[](const ChecksumSet& s, ChecksumSet& t) -> ChecksumSet
 					{
-						t.merge(s);
-						t.set_length(s.length());
+						auto set { s };
+						t.merge(set);
+
 						// FIXME Supposing lengths all-equal is an error
+						t.set_length(set.length());
+
 						return t;
 					}
 				);
@@ -2229,11 +2244,12 @@ private:
 		return tracks;
 	}
 
-	static constexpr RegistrationFunc_t default_algos =
+	RegistrationFunc_t default_algos_ {
 		[](const Settings& settings, UpdateableCalculationSet& set)
 		{
 			set.add<AccurateRip::V1andV2>(settings);
-		};
+		}
+	};
 };
 
 /*
@@ -2251,14 +2267,6 @@ class AlgorithmTypes <A> // exactly one
 template <typename A1, typename... Args>
 class AlgorithmTypes //<A1, A2, Args...> // two or more
 {
-	template<typename B, typename E>
-	void configure_impl(const Settings& settings,
-			UpdateableCalculationSet<B, E>& set) const
-	{
-		set.template add<A1>(settings);
-		set.template add<Args...>(settings);
-	}
-
 	/*
 	std::tuple<A1, Args...> types_;
 
@@ -2303,24 +2311,27 @@ public:
 	static constexpr std::size_t count { 1 + sizeof...(Args) };
 
 	template<typename B, typename E>
-	void configure(const Settings& settings,
-			UpdateableCalculationSet<B, E>& set) const
+	static void configure(const Settings& settings,
+			UpdateableCalculationSet<B, E>& set)
 	{
-		this->configure_impl(settings, set);
+		set.template add<A1>(settings);
+		(set.template add<Args>(settings), ...);
 	}
 
 	template<typename B, typename E>
-	UpdateableCalculationSet<B, E> typed_calculationset_for(
+	static UpdateableCalculationSet<B, E> typed_calculationset_for(
 			const Settings& settings)
 	{
-		return UpdateableCalculationSet<B, E> { settings, &configure };
+		return UpdateableCalculationSet<B, E> { settings,
+			&AlgorithmTypes<A1, Args...>::configure<B,E> };
 	}
 
 	template<typename B, typename E>
-	std::unique_ptr<CalculationSet> calculationset_for(const Settings& settings)
+	static std::unique_ptr<CalculationSet> calculationset_for(
+			const Settings& settings)
 	{
-		using calculationset_type = UpdateableCalculationSet<B, E>;
-		return std::make_unique<calculationset_type>(settings, &configure);
+		return std::make_unique<UpdateableCalculationSet<B, E>>(settings,
+			&AlgorithmTypes<A1, Args...>::configure<B,E>);
 	}
 };
 
@@ -2338,43 +2349,16 @@ inline auto make_calculationset(const ChecksumtypeSet& types, const Settings& s)
 
 		if (checksum::type::ARCS1 == *cbegin(types))
 		{
-			return V1_only{}.calculationset_for<B,E>(s);
-			/*
-			return CalculationSet<B, E> {
-				settings,
-				[](const Settings& s, auto& calc_set)
-				{
-					calc_set.template add<AccurateRip::V1>(s);
-				}
-			};
-			*/
+			return V1_only::calculationset_for<B,E>(s);
 		} else
 		{
-			return V2_only{}.calculationset_for<B,E>(s);
-			/*
-			return CalculationSet<B, E> {
-				settings,
-				[](const Settings& s, auto& calc_set)
-				{
-					calc_set.template add<AccurateRip::V2>(s);
-				}
-			};
-			*/
+			return V2_only::calculationset_for<B,E>(s);
 		}
 
 	} else
 	{
 		// V1andV2 is correct for case 0 (default) and case 2 (all)
-		return V1_and_V2{}.calculationset_for<B,E>(s);
-		/*
-		return CalculationSet<B, E> {
-			settings,
-			[](const Settings& s, auto& calc_set)
-			{
-				calc_set.template add<AccurateRip::V1andV2>(s);
-			}
-		};
-		*/
+		return V1_and_V2::calculationset_for<B,E>(s);
 	}
 }
 

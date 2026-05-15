@@ -857,6 +857,26 @@ TEST_CASE ( "CalculationState", "[calculationstate] [calc]" )
 }
 
 
+TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )
+{
+	using arcstk::AlgorithmTypes;
+	using arcstk::AccurateRip::V1andV2;
+
+	std::vector<uint32_t> samples { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+	using start_type = decltype( samples.cbegin() );
+	using stop_type  = decltype( samples.cend() );
+
+	auto calc_set = AlgorithmTypes<V1andV2>{}
+			.typed_calculationset_for<start_type, stop_type>({});
+
+	SECTION ("Result of an instantiated CalculationSet is empty")
+	{
+		CHECK ( calc_set.result().empty() );
+	}
+}
+
+
 /*
 TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 {
