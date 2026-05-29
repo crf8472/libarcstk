@@ -861,14 +861,25 @@ TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )
 {
 	using arcstk::AlgorithmTypes;
 	using arcstk::AccurateRip::V1andV2;
+	using arcstk::UNIT;
+
+	using std::cbegin;
+	using std::cend;
 
 	std::vector<uint32_t> samples { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 	using start_type = decltype( samples.cbegin() );
 	using stop_type  = decltype( samples.cend() );
 
-	auto calc_set = AlgorithmTypes<V1andV2>{}
-			.typed_calculationset_for<start_type, stop_type>({});
+	auto calc_set =
+	AlgorithmTypes<V1andV2>::typed_calculationset_for<start_type, stop_type>({});
+
+	REQUIRE ( calc_set.result().empty() );
+
+	calc_set.init({}, { 10, UNIT::SAMPLES });
+
+	calc_set.update(cbegin(samples),     cbegin(samples) + 4);
+	calc_set.update(cbegin(samples) + 5, cbegin(samples) + 9);
 
 	SECTION ("Result of an instantiated CalculationSet is empty")
 	{
