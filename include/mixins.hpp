@@ -41,8 +41,8 @@ struct Swap
 
 protected:
 
-	Swap()  = default;
-	~Swap() = default;
+	Swap() = default;
+	~Swap() noexcept = default;
 };
 
 
@@ -68,8 +68,8 @@ struct Equality
 
 protected:
 
-	Equality()  = default;
-	~Equality() = default;
+	Equality() = default;
+	~Equality() noexcept = default;
 
 private:
 
@@ -121,8 +121,8 @@ struct Comparable
 
 protected:
 
-	Comparable()  = default;
-	~Comparable() = default;
+	Comparable() = default;
+	~Comparable() noexcept = default;
 };
 
 
@@ -176,8 +176,8 @@ struct TotallyOrdered : public Comparable<T>
 
 protected:
 
-	TotallyOrdered()  = default;
-	~TotallyOrdered() = default;
+	TotallyOrdered() = default;
+	~TotallyOrdered() noexcept = default;
 };
 
 
@@ -199,8 +199,8 @@ struct ToString
 
 protected:
 
-	ToString()  = default;
-	~ToString() = default;
+	ToString() = default;
+	~ToString() noexcept = default;
 };
 // NOLINTEND(bugprone-crtp-constructor-accessibility)
 
