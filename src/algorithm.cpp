@@ -102,6 +102,12 @@ ChecksumtypeSet Algorithm::types() const
 }
 
 
+std::string Algorithm::name() const
+{
+	return this->do_name();
+}
+
+
 std::unique_ptr<Algorithm> Algorithm::clone() const
 {
 	return this->do_clone();

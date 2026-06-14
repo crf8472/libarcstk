@@ -15,6 +15,8 @@
 
 #include <cstdint>       // for int32_t, uint_fast64_t
 #include <memory>        // for make_unique, unique_ptr
+#include <sstream>       // for ostringstream
+#include <string>        // for string
 #include <utility>       // for pair
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
@@ -196,6 +198,23 @@ template <cstype T1, cstype... T2>
 std::unordered_set<cstype> ARCSAlgorithm<T1, T2...>::do_types() const
 {
 	return state_.types();
+}
+
+
+template <cstype T1, cstype... T2>
+std::string ARCSAlgorithm<T1, T2...>::do_name() const
+{
+	auto ss = std::ostringstream {};
+
+    const auto append = [&ss](const auto& type_val)
+	{
+		ss << ", " << type_val;
+	};
+
+	ss <<  "AccurateRip " << T1;
+    (append(T2), ...);
+
+	return ss.str();
 }
 
 

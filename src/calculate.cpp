@@ -198,6 +198,8 @@ Partitioning Partitioner::create_partitioning(
 		const int32_t offset,
 		const int32_t total_samples_in_block) const
 {
+	ARCS_LOG(DEBUG2) << "Create partitioning for offset " << offset;
+
 	const SampleRange current_interval {
 		offset, offset + am2ind(total_samples_in_block)
 	};

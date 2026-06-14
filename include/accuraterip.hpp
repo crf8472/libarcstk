@@ -346,6 +346,8 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 
 	std::unordered_set<checksum::type> do_types() const final;
 
+	std::string do_name() const final;
+
 	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
 			const Points& points) const final;
 

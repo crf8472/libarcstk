@@ -1482,6 +1482,8 @@ protected:
 		allowed_only_before(State::UPDATED,
 				"Cannot change partitioner after first update");
 
+		ARCS_LOG(DEBUG3) << "Initialize partitioner";
+
 		partitioner_ = details::make_partitioner(offsets, leadout, legal);
 	}
 
@@ -1494,6 +1496,8 @@ protected:
 	{
 		allowed_only_before(State::UPDATED,
 				"Cannot change buffer size after first update");
+
+		ARCS_LOG(DEBUG3) << "Initialize result buffer";
 
 		result_buffer_.set_size(total_elements);
 	}
@@ -1819,6 +1823,9 @@ public:
 			const Points& offsets, const AudioSize& leadout)
 		: Calculation { settings }
 	{
+		ARCS_LOG(DEBUG3) << "Initialize Updater for algorithm '"
+			<< algorithm_->name() << "' with data";
+
 		init_algo(*algorithm_);
 		init_data(offsets, leadout,
 			details::SampleRange { algorithm_->range(leadout, offsets) });
@@ -1905,6 +1912,16 @@ public:
 	{
 		this->update_impl(start, stop);
     }
+
+	/**
+	 * \brief Return the name of the wrapped algorithm.
+	 *
+	 * \return Name of the algorithm wrapped by this instance
+	 */
+	std::string algorithm_name()
+	{
+		return this->algorithm_->name();
+	}
 
 	/**
 	 * \copydoc SNPT_mf_swap
@@ -2047,6 +2064,11 @@ public:
 		do_update(audiosize);
 	}
 
+	/**
+	 * \brief Return calculation result.
+	 *
+	 * \return Resulting Checksums
+	 */
 	Checksums result() const
 	{
 		return do_result();
@@ -2144,6 +2166,10 @@ public:
     void add(const Settings& settings)
 	{
         auto updater = std::make_unique<Updater<A>>(settings);
+
+		ARCS_LOG(DEBUG3) << "Add Updater for algorithm '"
+			<< updater->algorithm_name() << "' to CalculationSet";
+
         Updater<A>* upd_ptr = updater.get();
         updaters_.push_back(std::move(updater));
 
@@ -2263,9 +2289,8 @@ class AlgorithmTypes <A> // exactly one
 };
 */
 
-//template <typename A1, typename A2, typename... Args>
 template <typename A1, typename... Args>
-class AlgorithmTypes //<A1, A2, Args...> // two or more
+class AlgorithmTypes
 {
 	/*
 	std::tuple<A1, Args...> types_;
@@ -2339,25 +2364,29 @@ public:
 template<typename B, typename E>
 inline auto make_calculationset(const ChecksumtypeSet& types, const Settings& s)
 {
-	using V1_only   = AlgorithmTypes<AccurateRip::V1>;
-	using V2_only   = AlgorithmTypes<AccurateRip::V1>;
-	using V1_and_V2 = AlgorithmTypes<AccurateRip::V1andV2>;
-
 	if (types.size() == 1) // either V1-only or V2-only requested
 	{
+		using V1_only   = AlgorithmTypes<AccurateRip::V1>;
+		using V2_only   = AlgorithmTypes<AccurateRip::V1>;
+
 		using std::cbegin;
 
 		if (checksum::type::ARCS1 == *cbegin(types))
 		{
+			ARCS_LOG(DEBUG3) << "Create CalculationSet for AccurateRip v1";
 			return V1_only::calculationset_for<B,E>(s);
 		} else
 		{
+			ARCS_LOG(DEBUG3) << "Create CalculationSet for AccurateRip v2";
 			return V2_only::calculationset_for<B,E>(s);
 		}
 
 	} else
 	{
 		// V1andV2 is correct for case 0 (default) and case 2 (all)
+
+		using V1_and_V2 = AlgorithmTypes<AccurateRip::V1andV2>;
+		ARCS_LOG(DEBUG3) << "Create CalculationSet for AccurateRip v1 and v2";
 		return V1_and_V2::calculationset_for<B,E>(s);
 	}
 }

@@ -241,6 +241,13 @@ public:
 	ChecksumtypeSet types() const;
 
 	/**
+	 * \brief Name of this algorithm.
+	 *
+	 * \return Name of algorithm
+	 */
+	std::string name() const;
+
+	/**
 	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Algorithm> clone() const;
@@ -275,6 +282,9 @@ private:
 	= 0;
 
 	virtual std::unique_ptr<Algorithm> do_clone() const
+	= 0;
+
+	virtual std::string do_name() const
 	= 0;
 };
 
@@ -316,6 +326,16 @@ public:
 	algorithm_type* as_algorithm_type()
 	{
 		return static_cast<algorithm_type*>(this);
+	}
+
+	/**
+	 * \brief Return the name of the wrapped algorithm.
+	 *
+	 * \return Name of the algorithm wrapped by this instance
+	 */
+	std::string algorithm_name()
+	{
+		return as_algorithm_type()->name();
 	}
 
 	/**
