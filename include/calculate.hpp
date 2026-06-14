@@ -1737,7 +1737,10 @@ public:
 		allowed_only_before(State::UPDATED,
 				"Cannot change size after first update");
 
-		partitioner_->set_total_samples(audiosize);
+		if (partitioner_)
+		{
+			partitioner_->set_total_samples(audiosize);
+		}
 	}
 };
 
