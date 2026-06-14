@@ -1390,7 +1390,7 @@ class Calculation : public Stateful
 	/**
 	 * \brief Partitioner to provide the stop positions.
 	 */
-	std::unique_ptr<details::Partitioner> partitioner_ { nullptr };
+	std::unique_ptr<details::Partitioner> partitioner_ {}; /* nullptr */
 
 	/**
 	 * \brief Internal result buffer.
@@ -1436,7 +1436,7 @@ protected:
 	explicit Calculation(const Settings& settings)
 		: settings_      { settings      }
 		, state_         { /* default */ }
-		, partitioner_   { nullptr       }
+		, partitioner_   {}  /* nullptr */
 		, result_buffer_ { /* default */ }
 	{
 		// empty
@@ -1539,6 +1539,7 @@ protected:
 	const details::Partitioner& partitioner() const noexcept
 	{
 		return *partitioner_;
+		// TODO broken, if created with only settings
 	}
 
 	/**
@@ -2010,6 +2011,15 @@ private:
  */
 class CalculationSet
 {
+public:
+
+	/**
+	 * \brief Size type of this CalculationSet.
+	 */
+	using size_type = std::size_t;
+
+private:
+
 	virtual void do_init(const Points& offsets, const AudioSize& leadout)
 	= 0;
 
@@ -2019,8 +2029,20 @@ class CalculationSet
 	virtual Checksums do_result() const
 	= 0;
 
+	virtual size_type do_size() const
+	= 0;
+
+	virtual bool do_empty() const
+	= 0;
+
+	virtual bool do_complete() const
+	= 0;
+
 public:
 
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
 	virtual ~CalculationSet() noexcept = default;
 
 	/**
@@ -2073,6 +2095,38 @@ public:
 	{
 		return do_result();
 	}
+
+	/**
+	 * \brief Size of this instance, i.e. total number of Calculation instances.
+	 *
+	 * \return Size of this instance
+	 */
+	size_type size() const
+	{
+		return do_size();
+	}
+
+	/**
+	 * \brief Return TRUE if this instance is empty, i.e. size() is 0
+	 *
+	 * \return TRUE iff instance is empty, otherwise FALSE
+	 */
+	bool empty() const
+	{
+		return do_empty();
+	}
+
+	/**
+	 * \brief TRUE if each Calculation is complete, otherwise FALSE.
+	 *
+	 * \return Completion status
+	 */
+	bool complete() const
+	{
+		return do_complete();
+	}
+
+	// TODO ChecksumtypeSet types() const noexcept
 };
 
 /**
@@ -2091,12 +2145,12 @@ class UpdateableCalculationSet final : public CalculationSet
 	/**
 	 * \brief Internal Updater instances for each algorithm.
 	 */
-    std::vector<std::unique_ptr<Calculation>> updaters_;
+    std::vector<std::unique_ptr<Calculation>> updaters_ {};
 
 	/**
 	 * \brief Internal callers for update<B, E>().
 	 */
-    std::vector<std::function<void(B, E)>> handlers_;
+    std::vector<std::function<void(B, E)>> handlers_ {};
 
 public:
 
@@ -2126,7 +2180,7 @@ public:
 	 * \param[in] settings Settings to apply to each algorithm
 	 */
 	explicit UpdateableCalculationSet(const Settings& settings)
-		: UpdateableCalculationSet { settings, default_algos_ }
+		: UpdateableCalculationSet { settings, register_default_algos }
 	{
 		// empty
 	}
@@ -2150,7 +2204,7 @@ public:
 	 * Settings for ALBUM, AccurateRip v1 and v2.
 	 */
 	UpdateableCalculationSet()
-		: UpdateableCalculationSet { Settings{}, default_algos_ }
+		: UpdateableCalculationSet { Settings{}, register_default_algos }
 	{
 		// empty
 	}
@@ -2171,9 +2225,11 @@ public:
 			<< updater->algorithm_name() << "' to CalculationSet";
 
         Updater<A>* upd_ptr = updater.get();
+
+		// Add updater for algorithm
         updaters_.push_back(std::move(updater));
 
-        // connect algorithm A and the iterators set (B, E) at compile-time
+        // Connect algorithm A and the iterators set (B, E) at compile-time
         handlers_.push_back(
 			[upd_ptr](B start, E stop)
 			{
@@ -2195,9 +2251,6 @@ public:
             call_update(start, stop);
         }
     }
-
-	// TODO ChecksumtypeSet types() const noexcept
-	// TODO bool complete() const noexcept
 
 private:
 
@@ -2222,9 +2275,45 @@ private:
 		return this->merge_results(updaters_);
 	}
 
+	size_type do_size() const final
+	{
+		return updaters_.size();
+	}
+
+	bool do_empty() const final
+	{
+		return updaters_.empty();
+	}
+
+	bool do_complete() const final
+	{
+		if (empty())
+		{
+			return false;
+		}
+
+		for (auto& calculation : updaters_)
+		{
+			if (calculation && !calculation->complete())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	//
+
+    template<class A>
+    void create(const Settings& settings)
+	{
+        auto updater = std::make_unique<Updater<A>>(settings);
+	}
+
 	std::size_t total_tracks() const
 	{
-		return updaters_[0]->result().size();
+		return updaters_[0] ? updaters_[0]->result().size() : 0;
 	}
 
 	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
@@ -2270,12 +2359,12 @@ private:
 		return tracks;
 	}
 
-	RegistrationFunc_t default_algos_ {
-		[](const Settings& settings, UpdateableCalculationSet& set)
-		{
-			set.add<AccurateRip::V1andV2>(settings);
-		}
-	};
+	static void register_default_algos(const Settings& settings,
+        UpdateableCalculationSet& set)
+    {
+        set.add<AccurateRip::V1andV2>(settings);
+    }
+
 };
 
 /*

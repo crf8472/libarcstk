@@ -861,7 +861,9 @@ TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )
 {
 	using arcstk::AlgorithmTypes;
 	using arcstk::AccurateRip::V1andV2;
+	using arcstk::AudioSize;
 	using arcstk::UNIT;
+	using arcstk::checksum::type;
 
 	using std::cbegin;
 	using std::cend;
@@ -871,19 +873,38 @@ TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )
 	using start_type = decltype( samples.cbegin() );
 	using stop_type  = decltype( samples.cend() );
 
-	auto calc_set =
-	AlgorithmTypes<V1andV2>::typed_calculationset_for<start_type, stop_type>({});
+	auto calc_set = AlgorithmTypes<V1andV2>::typed_calculationset_for<
+		start_type, stop_type>({});
 
+	REQUIRE ( calc_set.size() == 1 );
+	REQUIRE ( ! calc_set.complete() );
 	REQUIRE ( calc_set.result().empty() );
 
-	calc_set.init({}, { 10, UNIT::SAMPLES });
+	calc_set.init({ { 0, UNIT::FRAMES } }, { 10, UNIT::SAMPLES });
 
 	calc_set.update(cbegin(samples),     cbegin(samples) + 4);
 	calc_set.update(cbegin(samples) + 5, cbegin(samples) + 9);
 
-	SECTION ("Result of an instantiated CalculationSet is empty")
+	const auto checksums = calc_set.result();
+	const auto& track = checksums[0];
+	const auto types = track.types();
+	const auto [ checksum1, exists1 ] = track.get(type::ARCS1);
+	const auto [ checksum2, exists2 ] = track.get(type::ARCS2);
+
+	SECTION ("Result of an instantiated CalculationSet is as expected")
 	{
-		CHECK ( calc_set.result().empty() );
+		CHECK ( not checksums.empty() );
+		CHECK ( checksums.size() == 1 );
+
+		CHECK ( track.length() == AudioSize { 0, UNIT::SAMPLES } );
+		CHECK ( ! track.contains( type::ARCS1 ) );
+		CHECK ( ! track.contains( type::ARCS2 ) );
+
+		CHECK ( ! exists1 );
+		CHECK ( checksum1.zero() );
+
+		CHECK ( ! exists2 );
+		CHECK ( checksum2.zero() );
 	}
 }
 

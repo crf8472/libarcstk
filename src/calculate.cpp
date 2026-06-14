@@ -660,7 +660,7 @@ std::string name(const State s)
 }
 
 
-// CalculationBase
+// Calculation
 
 
 void Calculation::log_completion() noexcept
@@ -699,7 +699,8 @@ void Calculation::set_settings(const Settings& s)
 
 bool Calculation::complete() const noexcept
 {
-	return state().current_offset() >= partitioner_->legal_range().upper();
+	return partitioner_ &&
+		state().current_offset() >= partitioner_->legal_range().upper();
 }
 
 
