@@ -2178,19 +2178,6 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Configurable settings, AccurateRip v1 and v2.
-	 *
-	 * \param[in] settings Settings to apply to each algorithm
-	 */
-	explicit UpdateableCalculationSet(const Settings& settings)
-		: UpdateableCalculationSet { settings, register_default_algos }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Constructor.
-	 *
 	 * Settings for ALBUM, configurable algorithms.
 	 *
 	 * \param[in] register_algorithms Register function for algorithms
@@ -2204,10 +2191,23 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
+	 * Configurable settings, AccurateRip v1 and v2.
+	 *
+	 * \param[in] settings Settings to apply to each algorithm
+	 */
+	explicit UpdateableCalculationSet(const Settings& settings)
+	{
+		// Define default algorithms
+        this->add<AccurateRip::V1andV2>(settings);
+	}
+
+	/**
+	 * \brief Constructor.
+	 *
 	 * Settings for ALBUM, AccurateRip v1 and v2.
 	 */
 	UpdateableCalculationSet()
-		: UpdateableCalculationSet { Settings{}, register_default_algos }
+		: UpdateableCalculationSet { Settings{} }
 	{
 		// empty
 	}
@@ -2308,11 +2308,11 @@ private:
 
 	//
 
-    template<class A>
-    void create(const Settings& settings)
-	{
-        auto updater = std::make_unique<Updater<A>>(settings);
-	}
+	//    template<class A>
+	//    void create(const Settings& settings)
+	// {
+	//        auto updater = std::make_unique<Updater<A>>(settings);
+	// }
 
 	std::size_t total_tracks() const
 	{
@@ -2361,13 +2361,6 @@ private:
 		*/
 		return tracks;
 	}
-
-	static void register_default_algos(const Settings& settings,
-        UpdateableCalculationSet& set)
-    {
-        set.add<AccurateRip::V1andV2>(settings);
-    }
-
 };
 
 /*
