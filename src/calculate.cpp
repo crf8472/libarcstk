@@ -572,15 +572,19 @@ void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
 void complete_track(Algorithm& algorithm,
 		CalculationResultBuffer& result_buffer, CalculationState& state)
 {
-	// Updates + resets state as a side effect: order matters, since
-	// CalculationState::track_finished() will update tracks_processed_.
+	// tracks_processed() reflects previous track_finished(), starting with 0
+	const auto track_number = state.tracks_processed();
+
+	// track_finished() updates + resets state as a side effect and
+	// updates tracks_processed_. Therefore, this must come after track_number.
 	const auto track_length = AudioSize { state.track_finished(),
 				UNIT::SAMPLES };
 
-	// tracks_processed() reflects previous track_finished()
-	const auto track_number = state.tracks_processed();
-
 	algorithm.track_finished(track_number, track_length);
+
+	ARCS_LOG(DEBUG3) << "Save checksum for track "
+		<< track_number
+		<< ": " << algorithm.result();
 
 	result_buffer.put_value(static_cast<std::size_t>(track_number),
 					algorithm.result());

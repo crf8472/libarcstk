@@ -1497,7 +1497,8 @@ protected:
 		allowed_only_before(State::UPDATED,
 				"Cannot change buffer size after first update");
 
-		ARCS_LOG(DEBUG3) << "Initialize result buffer";
+		ARCS_LOG(DEBUG3) << "Initialize result buffer for " << total_elements
+			<< " tracks";
 
 		result_buffer_.set_size(total_elements);
 	}
@@ -1794,21 +1795,21 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Instantiates Updater with default settings.
+	 * \param[in] settings The settings for the calculation
 	 */
-	Updater()
-		: Calculation { Settings {/*default*/} }
+	explicit Updater(const Settings& settings)
+		: Calculation { settings }
 	{
-		// empty
+		init_algo(*algorithm_);
 	}
 
 	/**
 	 * \brief Constructor.
 	 *
-	 * \param[in] settings The settings for the calculation
+	 * Instantiates Updater with default settings.
 	 */
-	explicit Updater(const Settings& settings)
-		: Calculation { settings }
+	Updater()
+		: Updater { Settings {/*default*/} }
 	{
 		// empty
 	}
@@ -1828,7 +1829,8 @@ public:
 		: Calculation { settings }
 	{
 		ARCS_LOG(DEBUG3) << "Initialize Updater for algorithm '"
-			<< algorithm_->name() << "' with data";
+			<< algorithm_->name() << "' with data for context "
+			<< name(settings.context());
 
 		init_algo(*algorithm_);
 		init_data(offsets, leadout,
@@ -2225,7 +2227,8 @@ public:
         auto updater = std::make_unique<Updater<A>>(settings);
 
 		ARCS_LOG(DEBUG3) << "Add Updater for algorithm '"
-			<< updater->algorithm_name() << "' to CalculationSet";
+			<< updater->algorithm_name() << "' to CalculationSet"
+			<< " with context " << name(settings.context());
 
         Updater<A>* upd_ptr = updater.get();
 
@@ -2322,7 +2325,12 @@ private:
 	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
 			calculations) const
 	{
-		auto tracks { Checksums(total_tracks(), ChecksumSet { {/*0*/} }) };
+		ARCS_LOG(DEBUG3) << "Allocate result for " << total_tracks()
+			<< " tracks";
+
+		//auto tracks { Checksums(total_tracks(), ChecksumSet { {/*0*/} }) };
+		auto tracks = Checksums{};
+		tracks.resize(total_tracks());
 
 		using std::begin;
 		using std::cbegin;
