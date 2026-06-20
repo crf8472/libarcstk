@@ -43,6 +43,53 @@ inline namespace v_1_0_0
 // redefined as in calculate.hpp, documented there
 using sample_t = uint32_t;
 
+/**
+ * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
+ *
+ * Calculation expects an update represented by two iterators that enumerate the
+ * audio input as a sequence of 32 bit unsigned integers of which each
+ * represents a pair of 16-bit stereo PCM samples.
+ * SampleSequence is a read-only compatibility wrapper for passing sample
+ * buffers of an integral sample format with 16 or 32 bit width to
+ * Calculation::update() in the appropriate update format.
+ *
+ * The use of a SampleSequence for providing the updates is optional, the caller
+ * may decide to provide the required sample format completely without using
+ * SampleSequence.
+ *
+ * When wrapping the original audio data in a SampleSequence, it must be
+ * correctly declared as either interleaved or planar. It is furthermore
+ * required to know the size of the input and its channel ordering. If no
+ * channel ordering is specified, the default is LEFT/RIGHT.
+ *
+ * Random reading access is provided by operator[] (without bounds check) or
+ * at() (providing bounds check). A SampleSequence provides also access via
+ * iterators.
+ *
+ * The caller is responsible for the lifetime of the wrapped sample buffer:
+ * SampleSequence will only provide a compatibility layer, it will not erase
+ * the wrapped buffers. A SampleSequence can therefore safely be destroyed
+ * without affecting the wrapped buffer.
+ *
+ * An iterator instance created on a SampleSequence will get invalidated if the
+ * SampleSequence instance that created it gets destroyed. It is not safe to
+ * call any functions on such an iterator or to pass it to a caller.
+ *
+ * \attention
+ * For convenience, this template is not intended to be used directly. Instead,
+ * use one of the templates PlanarSamples or InterleavedSamples.
+ *
+ * \tparam T          The sample type to read
+ * \tparam is_planar  \c TRUE indicates two planar buffers while \c FALSE
+ *                    indicates an interleaved buffer
+ *
+ * \see PlanarSamples
+ * \see InterleavedSamples
+ */
+template<typename T, bool is_planar, typename = details::is_sample_type<T>>
+class SampleSequence; // IWYU pragma keep
+// forward declaration required by SampleSequenceBase::cbegin()/cend()
+
 
 namespace details
 {
@@ -453,53 +500,6 @@ public:
 	}
 };
 
-/**
- * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
- *
- * Calculation expects an update represented by two iterators that enumerate the
- * audio input as a sequence of 32 bit unsigned integers of which each
- * represents a pair of 16-bit stereo PCM samples.
- * SampleSequence is a read-only compatibility wrapper for passing sample
- * buffers of an integral sample format with 16 or 32 bit width to
- * Calculation::update() in the appropriate update format.
- *
- * The use of a SampleSequence for providing the updates is optional, the caller
- * may decide to provide the required sample format completely without using
- * SampleSequence.
- *
- * When wrapping the original audio data in a SampleSequence, it must be
- * correctly declared as either interleaved or planar. It is furthermore
- * required to know the size of the input and its channel ordering. If no
- * channel ordering is specified, the default is LEFT/RIGHT.
- *
- * Random reading access is provided by operator[] (without bounds check) or
- * at() (providing bounds check). A SampleSequence provides also access via
- * iterators.
- *
- * The caller is responsible for the lifetime of the wrapped sample buffer:
- * SampleSequence will only provide a compatibility layer, it will not erase
- * the wrapped buffers. A SampleSequence can therefore safely be destroyed
- * without affecting the wrapped buffer.
- *
- * An iterator instance created on a SampleSequence will get invalidated if the
- * SampleSequence instance that created it gets destroyed. It is not safe to
- * call any functions on such an iterator or to pass it to a caller.
- *
- * \attention
- * For convenience, this template is not intended to be used directly. Instead,
- * use one of the templates PlanarSamples or InterleavedSamples.
- *
- * \tparam T          The sample type to read
- * \tparam is_planar  \c TRUE indicates two planar buffers while \c FALSE
- *                    indicates an interleaved buffer
- *
- * \see PlanarSamples
- * \see InterleavedSamples
- */
-template<typename T, bool is_planar, typename = is_sample_type<T>>
-class SampleSequence; // IWYU pragma keep
-// forward declaration required by SampleSequenceBase::cbegin()/cend()
-
 // forward declaration required by friend declaration in SampleIterator
 template<typename T, bool is_planar>
 class SampleSequenceBase;
@@ -754,7 +754,7 @@ class SampleSequenceBase
 	/**
 	 * \brief Type of the internal sample buffer.
 	 */
-	using buffer_type = SampleBufferWrapper<T, is_planar>;
+	using buffer_type = details::SampleBufferWrapper<T, is_planar>;
 
 	/**
 	 * \brief Internal sample buffer.
@@ -797,7 +797,7 @@ public:
 	/**
 	 * \brief Unspecified constant forward iterator type.
 	 */
-	using const_iterator = SampleIterator<T, is_planar>;
+	using const_iterator = details::SampleIterator<T, is_planar>;
 
 	/**
 	 * \copydoc SNPT_mf_cbegin
@@ -918,13 +918,15 @@ private:
 	}
 };
 
+} // namespace details
+
 
 // specialization for 'true'
 template<typename T>
-class SampleSequence<T, true/* PLANAR */, is_sample_type<T>> final
-    : public SampleSequenceBase<T, true>
+class SampleSequence<T, true/* PLANAR */, details::is_sample_type<T>> final
+    : public details::SampleSequenceBase<T, true>
 {
-    using Base = SampleSequenceBase<T, true>;
+    using Base = details::SampleSequenceBase<T, true>;
 
 public:
 
@@ -960,10 +962,10 @@ public:
 
 // specialization for 'false'
 template<typename T>
-class SampleSequence<T, false/* INTERLEAVED */, is_sample_type<T>> final
-    : public SampleSequenceBase<T, false>
+class SampleSequence<T, false/* INTERLEAVED */, details::is_sample_type<T>> final
+    : public details::SampleSequenceBase<T, false>
 {
-    using Base = SampleSequenceBase<T, false>;
+    using Base = details::SampleSequenceBase<T, false>;
 
 public:
 
@@ -993,8 +995,6 @@ public:
     }
 };
 
-} // namespace details
-
 
 /**
  * \brief A sequence of samples in planar layout.
@@ -1002,7 +1002,7 @@ public:
  * \tparam T Input buffer type
  */
 template <typename T>
-using PlanarSamples = details::SampleSequence<T, true>;
+using PlanarSamples = SampleSequence<T, true>;
 
 /**
  * \brief A sequence of samples in interleaved layout.
@@ -1010,7 +1010,7 @@ using PlanarSamples = details::SampleSequence<T, true>;
  * \tparam T Input buffer type
  */
 template <typename T>
-using InterleavedSamples = details::SampleSequence<T, false>;
+using InterleavedSamples = SampleSequence<T, false>;
 
 /** @} */
 

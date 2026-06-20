@@ -730,7 +730,7 @@ template class Updater<AccurateRip::V1andV2>;
 // instantiate the 24 variants of Updater that are expected
 #define INSTANTIATE_UPDATE_FUNCTION(Algorithm, Type, IsPlanar) \
 template void Updater<Algorithm>::update<Type, IsPlanar>( \
-			const details::SampleSequence<Type, IsPlanar>&);
+			const SampleSequence<Type, IsPlanar>&);
 
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, true);
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, false);

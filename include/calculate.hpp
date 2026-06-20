@@ -1896,7 +1896,7 @@ public:
 	 * \param[in] samples Sample sequence for update
 	 */
     template<typename T, bool is_planar>
-    void update(const details::SampleSequence<T, is_planar>& samples)
+    void update(const SampleSequence<T, is_planar>& samples)
 	{
 		using std::cbegin;
 		using std::cend;
