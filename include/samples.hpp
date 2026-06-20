@@ -928,6 +928,8 @@ class SampleSequence<T, true/* PLANAR */, details::is_sample_type<T>> final
 {
     using Base = details::SampleSequenceBase<T, true>;
 
+	static constexpr auto no_buffer = static_cast<T*>(nullptr);
+
 public:
 
 	/**
@@ -962,7 +964,7 @@ public:
 	 * \brief Constructor.
 	 */
 	SampleSequence()
-		: SampleSequence { nullptr, nullptr, 0 }
+		: SampleSequence { no_buffer, no_buffer, 0 }
 	{
 		// empty
 	}
@@ -975,6 +977,8 @@ class SampleSequence<T, false/* INTERLEAVED */, details::is_sample_type<T>> fina
     : public details::SampleSequenceBase<T, false>
 {
     using Base = details::SampleSequenceBase<T, false>;
+
+	static constexpr auto no_buffer = static_cast<T*>(nullptr);
 
 public:
 
@@ -1007,7 +1011,7 @@ public:
 	 * \brief Constructor.
 	 */
 	SampleSequence()
-		: SampleSequence { nullptr, 0 }
+		: SampleSequence { no_buffer, 0 }
 	{
 		// empty
 	}
