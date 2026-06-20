@@ -830,112 +830,6 @@ public:
 
 
 /**
- * \brief Result buffer for Calculation.
- */
-class CalculationResultBuffer final : public Swap<CalculationResultBuffer>
-{
-	/**
-	 * \brief Collect calculated checksums.
-	 */
-	Checksums result_buffer_ {};
-
-protected:
-
-	/**
-	 * \brief Write access to buffer.
-	 *
-	 * \return Writable reference to internal result buffer
-	 */
-	Checksums& provide_buffer() noexcept
-	{
-		return result_buffer_;
-	}
-
-	/**
-	 * \brief Set buffer to initial state.
-	 */
-	void reset_buffer()
-	{
-		result_buffer_ = {};
-	}
-
-public:
-
-	/**
-	 * \brief Size of the buffer.
-	 *
-	 * \return Size of the buffer
-	 */
-	std::size_t size() const
-	{
-		return result_buffer_.size();
-	}
-
-	/**
-	 * \brief Set size of the buffer.
-	 *
-	 * \param[in] total_elements Total number of elements
-	 */
-	void set_size(const std::size_t total_elements)
-	{
-		result_buffer_.resize(total_elements);
-	}
-
-	/**
-	 * \brief Put a value in the buffer.
-	 *
-	 * When accessing an index that is out of bounds, size is increased
-	 * accordingly.
-	 *
-	 * \param[in] index Index position to set
-	 * \param[in] value Value to set
-	 */
-	void put_value(const std::size_t index, ChecksumSet&& value)
-	{
-		if (result_buffer_.size() > index)
-		{
-			result_buffer_[index] = std::move(value);
-		} else
-		{
-			result_buffer_.push_back(std::move(value));
-		}
-	}
-
-	/**
-	 * \brief Read access to buffer index.
-	 *
-	 * \param[in] index Index position to access
-	 *
-	 * \return Value on index position \c index
-	 */
-	const ChecksumSet& operator[] (const std::size_t index)
-	{
-		return result_buffer_[index];
-	}
-
-	/**
-	 * \brief Acquire the resulting Checksums.
-	 *
-	 * \return The computed Checksums
-	 */
-	Checksums result() const noexcept
-	{
-		return result_buffer_;
-	}
-
-	/**
-	 * \copydoc SNPT_mf_swap
-	 */
-	void swap(CalculationResultBuffer& rhs) noexcept
-	{
-		using std::swap;
-
-		swap(result_buffer_, rhs.result_buffer_);
-	}
-};
-
-
-/**
  * \brief Create a partitioner for specific values.
  *
  * \param[in] offsets  Offsets
@@ -1062,7 +956,7 @@ void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
  * \param[in] state         Calculation state
  */
 void complete_track(Algorithm& algorithm,
-		CalculationResultBuffer& result_buffer, CalculationState& state);
+		Checksums& result_buffer, CalculationState& state);
 
 /**
  * \brief Updates a calculation process by a sample block.
@@ -1083,7 +977,7 @@ void complete_track(Algorithm& algorithm,
 template <typename A, typename B, typename E>
 bool perform_update(B start, E stop, const Partitioner& partitioner,
 		Updateable<A>& algorithm, CalculationState& state,
-		CalculationResultBuffer& result_buffer)
+		Checksums& result_buffer)
 {
 	const auto samples_in_block {
 		static_cast<int32_t>(std::distance(start, stop)) };
@@ -1394,7 +1288,7 @@ class Calculation : public Stateful
 	/**
 	 * \brief Internal result buffer.
 	 */
-	details::CalculationResultBuffer result_buffer_ { /* default */ };
+	Checksums result_buffer_ { /* default */ };
 
 	virtual const Algorithm* do_algorithm() const noexcept
 	= 0;
@@ -1497,7 +1391,7 @@ protected:
 		ARCS_LOG(DEBUG3) << "Initialize result buffer for " << total_elements
 			<< " tracks";
 
-		result_buffer_.set_size(total_elements);
+		result_buffer_.resize(total_elements);
 	}
 
 	/**
@@ -1554,7 +1448,7 @@ protected:
 	 *
 	 * \return Writable reference to internal result buffer
 	 */
-	details::CalculationResultBuffer& provide_buffer() noexcept
+	Checksums& provide_buffer() noexcept
 	{
 		return result_buffer_;
 	}

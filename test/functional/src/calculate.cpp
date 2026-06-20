@@ -93,9 +93,7 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 
 	// Result buffer
 
-	Checksums checksums { Checksums{}  };
-
-	arcstk::details::CalculationResultBuffer buffer {};
+	Checksums buffer {};
 
 	REQUIRE ( buffer.size() == 0 );
 

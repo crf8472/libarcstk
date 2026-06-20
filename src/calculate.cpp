@@ -563,7 +563,7 @@ void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
 
 
 void complete_track(Algorithm& algorithm,
-		CalculationResultBuffer& result_buffer, CalculationState& state)
+		Checksums& result_buffer, CalculationState& state)
 {
 	// tracks_processed() reflects previous track_finished(), starting with 0
 	const auto track_number = state.tracks_processed();
@@ -575,12 +575,22 @@ void complete_track(Algorithm& algorithm,
 
 	algorithm.track_finished(track_number, track_length);
 
-	ARCS_LOG(DEBUG3) << "Save checksum for track "
-		<< track_number
-		<< ": " << algorithm.result();
+	auto value = algorithm.result();
 
-	result_buffer.put_value(static_cast<std::size_t>(track_number),
-					algorithm.result());
+	ARCS_LOG(DEBUG3) << "Save checksum for track " << track_number << ": "
+		<< value;
+
+	//result_buffer.put_value(static_cast<std::size_t>(track_number),
+	//				algorithm.result());
+
+	auto index = static_cast<std::size_t>(track_number);
+	if (result_buffer.size() > index)
+	{
+		result_buffer[index] = std::move(value);
+	} else
+	{
+		result_buffer.push_back(std::move(value));
+	}
 }
 
 } // namespace update
@@ -708,7 +718,7 @@ Checksums Calculation::result() const noexcept
 		ARCS_LOG_WARNING << "Calculation result accessed before completion";
 	}
 
-	return result_buffer_.result();
+	return result_buffer_;
 }
 
 
