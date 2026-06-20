@@ -1396,20 +1396,18 @@ class Calculation : public Stateful
 	 */
 	details::CalculationResultBuffer result_buffer_ { /* default */ };
 
-	/**
-	 * \brief Implements algorithm().
-	 *
-	 * \return The Algorithm used by this instance
-	 */
 	virtual const Algorithm* do_algorithm() const noexcept
 	= 0;
 
-	/**
-	 * \brief Initialize this Upater with input data.
-	 *
-	 * \param[in] offsets Offsets
-	 * \param[in] leadout Leadout
-	 */
+	virtual std::size_t do_total_tracks() const
+	= 0;
+
+	virtual Points do_offsets() const
+	= 0;
+
+	virtual AudioSize do_leadout() const
+	= 0;
+
 	virtual void do_init(const Points& offsets, const AudioSize& leadout)
 	= 0;
 
@@ -1536,10 +1534,9 @@ protected:
 	 *
 	 * \return Internal partitioner
 	 */
-	const details::Partitioner& partitioner() const noexcept
+	const details::Partitioner* partitioner() const noexcept
 	{
-		return *partitioner_;
-		// TODO broken, if created with only settings
+		return partitioner_.get();
 	}
 
 	/**
@@ -1631,6 +1628,36 @@ public:
 	 * \param[in] s Settings to use on this instance
 	 */
 	void set_settings(const Settings& s);
+
+	/**
+	 * \brief Total tracks to be processed by this instance.
+	 *
+	 * \return Total tracks
+	 */
+	std::size_t total_tracks() const
+	{
+		return do_total_tracks();
+	}
+
+	/**
+	 * \brief Offsets used by this instance.
+	 *
+	 * \return Offsets
+	 */
+	Points offsets() const
+	{
+		return do_offsets();
+	}
+
+	/**
+	 * \brief Leadout used by this instance.
+	 *
+	 * \return Leadout
+	 */
+	AudioSize leadout() const
+	{
+		return do_leadout();
+	}
 
 	/**
 	 * \brief Returns the total number for PCM 32 bit samples yet processed.
@@ -1951,6 +1978,21 @@ private:
 		return algorithm_.get();
 	}
 
+	std::size_t do_total_tracks() const final
+	{
+		return offsets().size();
+	}
+
+	Points do_offsets() const final
+	{
+		return partitioner() ? partitioner()->points() : Points{};
+	}
+
+	AudioSize do_leadout() const final
+	{
+		return partitioner() ? partitioner()->total_samples() : AudioSize{};
+	}
+
 	void do_init(const Points& offsets, const AudioSize& leadout) final
 	{
 		init_data(offsets, leadout,
@@ -1987,9 +2029,15 @@ private:
 
 			const auto start_time { steady_clock::now() };
 
+			const auto* part_er = partitioner();
+
+			if (!part_er)
+			{
+				throw std::runtime_error("No partitioner available");
+			}
+
 			const auto is_completed = bool { details::update::perform_update(
-					start, stop,
-					partitioner(), *algorithm_,
+					start, stop, *part_er, *algorithm_,
 					provide_state(), provide_buffer())
 			};
 
@@ -2029,6 +2077,15 @@ public:
 private:
 
 	virtual void do_init(const Points& offsets, const AudioSize& leadout)
+	= 0;
+
+	virtual std::size_t do_total_tracks() const
+	= 0;
+
+	virtual Points do_offsets() const
+	= 0;
+
+	virtual AudioSize do_leadout() const
 	= 0;
 
 	virtual void do_update(const AudioSize& audiosize)
@@ -2082,6 +2139,36 @@ public:
 	void init(const ToCData& toc_data)
 	{
 		this->init(toc::offsets(toc_data), toc::leadout(toc_data));
+	}
+
+	/**
+	 * \brief Total number of tracks.
+	 *
+	 * \return Total tracks
+	 */
+	std::size_t total_tracks() const
+	{
+		return do_total_tracks();
+	}
+
+	/**
+	 * \brief Offsets used by this instance.
+	 *
+	 * \return Offsets
+	 */
+	Points offsets() const
+	{
+		return do_offsets();
+	}
+
+	/**
+	 * \brief Leadout used by this instance.
+	 *
+	 * \return Leadout
+	 */
+	AudioSize leadout() const
+	{
+		return do_leadout();
 	}
 
 	/**
@@ -2271,6 +2358,31 @@ private:
 		}
 	}
 
+	std::size_t do_total_tracks() const final
+	{
+		return offsets().size();
+	}
+
+	Points do_offsets() const final
+	{
+		if (const auto* calc = updaters_[0].get(); calc)
+		{
+			return calc->offsets();
+		}
+
+		return {};
+	}
+
+	AudioSize do_leadout() const final
+	{
+		if (const auto* calc = updaters_[0].get(); calc)
+		{
+			return calc->leadout();
+		}
+
+		return {};
+	}
+
 	void do_update(const AudioSize& audiosize) final
 	{
 		for (auto& calculation : updaters_)
@@ -2314,20 +2426,17 @@ private:
 
 	//
 
-	std::size_t total_tracks() const
-	{
-		return updaters_[0] ? updaters_[0]->result().size() : 0;
-	}
-
 	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
 			calculations) const
 	{
-		ARCS_LOG(DEBUG3) << "Allocate result for " << total_tracks()
-			<< " tracks";
+		const auto total_tracks =
+			updaters_[0] ? updaters_[0]->result().size() : 0;
 
-		//auto tracks { Checksums(total_tracks(), ChecksumSet { {/*0*/} }) };
+		ARCS_LOG(DEBUG3) << "Allocate result for " << total_tracks << " tracks";
+
+		//auto tracks { Checksums(total_tracks, ChecksumSet { {/*0*/} }) };
 		auto tracks = Checksums{};
-		tracks.resize(total_tracks());
+		tracks.resize(total_tracks);
 
 		using std::begin;
 		using std::cbegin;
