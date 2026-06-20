@@ -24,7 +24,7 @@
 #include "metadata.hpp"           // for AudioSize
 #endif
 #ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples.hpp"            // for sample_t
+#include "samples.hpp"            // for csample_t
 #endif
 
 
@@ -32,7 +32,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
-	using arcstk::sample_t;
+	using arcstk::csample_t;
 
 	// fits calculation-test-01.bin
 	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
@@ -44,7 +44,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(80000); // samples
+		std::vector<csample_t> buffer(80000); // samples
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -122,7 +122,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(80000); // samples
+		std::vector<csample_t> buffer(80000); // samples
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -200,7 +200,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(80000); // samples
+		std::vector<csample_t> buffer(80000); // samples
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -280,7 +280,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(80000); // samples
+		std::vector<csample_t> buffer(80000); // samples
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -383,7 +383,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(181251); // samples
+		std::vector<csample_t> buffer(181251); // samples
 
 		// => forms 4 blocks with 181251 samples each
 		// (total: 725004 samples, 2900016 bytes)
@@ -459,11 +459,11 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 	SECTION ( "Correct ARCS1+2 with non-aligned blocks" )
 	{
-		using arcstk::sample_t;
+		using arcstk::csample_t;
 
 		// Initialize Buffer
 
-		std::vector<sample_t> buffer(241584); // samples
+		std::vector<csample_t> buffer(241584); // samples
 
 		// => forms 3 blocks: 2 x 241584 samples and 1 x 252 samples
 		// (total: 725004 samples, 2900016 bytes)

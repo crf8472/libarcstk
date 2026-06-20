@@ -915,10 +915,10 @@ TEST_CASE ( "SampleInputIterator", "[sampleinputiterator]" )
 	using std::begin;
 	using std::end;
 
-	using arcstk::sample_t;
+	using arcstk::csample_t;
 	using arcstk::SampleInputIterator;
 
-	auto object1 = std::vector<sample_t>(100);   // vector with 100 samples
+	auto object1 = std::vector<csample_t>(100);   // vector with 100 samples
 	std::iota (begin(object1), end(object1), 0); // fill with 0, 1, ..., 99.
 
 	auto it = SampleInputIterator { begin(object1) };
@@ -1023,7 +1023,7 @@ TEST_CASE ( "SampleInputIterator wraps SampleIterator",
 	using std::cend;
 	using std::end;
 
-	//using arcstk::sample_t;
+	//using arcstk::csample_t;
 	using arcstk::SampleInputIterator;
 
 	auto seq = std::vector<int32_t>(100);   // vector with 100 samples

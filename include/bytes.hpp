@@ -115,7 +115,7 @@ namespace little
 		//	(static_cast<uint32_t>(lower) & 0xFFFF);
 		// NOTE: This works because T cannot be anything but only signed or
 		// unsigned integers of either 16  or 32 bit length. Those variants can
-		// all be handled correctly by just casting them to sample_t.
+		// all be handled correctly by just casting them to csample_t.
 
 		// Maske negative signed types korrekt
 		auto high = static_cast<uint32_t>(static_cast<uint16_t>(higher));

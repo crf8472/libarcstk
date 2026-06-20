@@ -41,7 +41,7 @@ inline namespace v_1_0_0
  */
 
 // redefined as in calculate.hpp, documented there
-using sample_t = uint32_t;
+using csample_t = uint32_t;
 
 /**
  * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
@@ -397,7 +397,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	sample_t operator [] (const size_type index) const
+	csample_t operator [] (const size_type index) const
 	{
 		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
 		return combine(right_channel(index), left_channel(index));
@@ -499,7 +499,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	sample_t operator [] (const size_type index) const
+	csample_t operator [] (const size_type index) const
 	{
 		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
 		return combine(right_channel(index), left_channel(index));
@@ -515,7 +515,7 @@ class SampleSequenceBase;
  *
  * Provides a representation of the 16 bit stereo samples pair for each channel
  * as a single 32 bit integer of an unsigned integer type assignable to
- * \c sample_t.
+ * \c csample_t.
  *
  * SampleIterator provides the following functionality of InputIterator:
  * - prefix- and postfix increment,
@@ -556,7 +556,7 @@ public:
 	/**
 	 * \copydoc SNPT_tp_value
 	 */
-	using value_type        = sample_t;
+	using value_type        = csample_t;
 
 	/**
 	 * \copydoc SNPT_tp_reference
@@ -881,7 +881,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	sample_t operator [] (const size_type index) const
+	csample_t operator [] (const size_type index) const
 	{
 		return buffer_[index];
 	}
@@ -895,7 +895,7 @@ public:
 	 *
 	 * \return The sample value of the virtual 32 bit PCM sample
 	 */
-	sample_t at(const size_type index) const
+	csample_t at(const size_type index) const
 	{
 		this->bounds_check(index);
 		return this->operator[](index);
@@ -929,7 +929,7 @@ private:
 
 // specialization for 'true'
 template<typename T>
-class SampleSequence<T, true/* PLANAR */, details::is_sample_type<T>> final
+class SampleSequence<T, true/*PLANAR*/, details::is_sample_type<T>> final
     : public details::SampleSequenceBase<T, true>
 {
     using Base = details::SampleSequenceBase<T, true>;
@@ -979,7 +979,7 @@ public:
 
 // specialization for 'false'
 template<typename T>
-class SampleSequence<T, false/* INTERLEAVED */, details::is_sample_type<T>> final
+class SampleSequence<T, false/*INTERLEAVED*/, details::is_sample_type<T>> final
     : public details::SampleSequenceBase<T, false>
 {
     using Base = details::SampleSequenceBase<T, false>;

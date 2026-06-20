@@ -58,8 +58,7 @@ class ToC;
 using ToCData = std::vector<AudioSize>;
 
 
-/**
- * \defgroup calc AccurateRip Checksum Calculation
+/** \defgroup calc AccurateRip Checksum Calculation
  *
  * \brief Calculate checksums of audio tracks.
  *
@@ -94,21 +93,21 @@ using ToCData = std::vector<AudioSize>;
  *
  * Updating a Calculation with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any LegacyInputIterator with a
- * \c value_type of sample_t is allowed. Type sample_t is the declared type for
+ * represent start and stop of the update. Any LegacyInputIterator with a \c
+ * value_type of csample_t is allowed. Type csample_t is the declared type for
  * PCM 32 bit samples. Using a SampleSequence may be of convenience for
  * establishing compatibility of the sample input format.
  *
- * As soon as a Calculation is
- * \link arcstk::Calculation::complete() complete() \endlink its result can be
- * provided. The resulting Checksums represent the result for all requested
- * checksum types and all tracks of the audio input. It is an aggregation of the
- * ChecksumSet for each track of an respective audio input. Depending on the
- * input, it can represent either an entire album or a single track.
+ * As soon as a Calculation is \link arcstk::Calculation::complete() complete()
+ * \endlink its result can be provided. The resulting Checksums represent the
+ * result for all requested checksum types and all tracks of the audio input. It
+ * is an aggregation of the ChecksumSet for each track of an respective audio
+ * input. Depending on the input, it can represent either an entire album or a
+ * single track.
  *
  * ChecksumSet is a set of \link arcstk::Checksum Checksums \endlink of
- * different \link arcstk::checksum::type checksum::types \endlink of
- * the same track.
+ * different \link arcstk::checksum::type checksum::types \endlink of the same
+ * track.
  *
  * A Checksum refers to a particular track and a particular checksum::type.
  * Checksums are calculated by updating a Calculation with a sequence of sample
@@ -118,7 +117,7 @@ using ToCData = std::vector<AudioSize>;
  */
 
 /**
- * \brief Represent a 32 bit wide PCM stereo sample.
+ * \brief Represent a "combined" PCM stereo sample (of two CDDA samples).
  *
  * An unsigned integer of exact 32 bit length.
  *
@@ -126,7 +125,7 @@ using ToCData = std::vector<AudioSize>;
  *
  * Bitwise operators are guaranteed to work as on unsigned types.
  */
-using sample_t = uint32_t; // also defined in samples.hpp
+using csample_t = uint32_t; // also defined in samples.hpp
 
 
 namespace details
@@ -154,12 +153,12 @@ template <typename Iterator, typename T>
 using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 /**
- * \brief Defined iff \c Iterator is an iterator over \c sample_t.
+ * \brief Defined iff \c Iterator is an iterator over \c csample_t.
  *
  * \tparam Iterator Iterator type to test
  */
 template <typename Iterator>
-using is_sample_iterator = std::is_same<it_value_type<Iterator>, sample_t>;
+using is_sample_iterator = std::is_same<it_value_type<Iterator>, csample_t>;
 
 /**
  * \internal
