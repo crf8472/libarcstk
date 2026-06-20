@@ -25,10 +25,6 @@ find_package (Doxygen ) ## must be >= 1.9.8
 #find_package (Doxygen 1.8.15...1.8.20 )
 
 
-## --- Provide target
-add_custom_target (doc )
-
-
 ## --- Some Variables {{{1
 
 ## Target directory for generated documentation
@@ -122,7 +118,9 @@ endif (WITH_INTERNAL_DOCS)
 ## --- Configure Doxyfile-base {{{1
 
 ## Normalize path lists for doxygen
-string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH "${DOXYGEN_STRIP_FROM_INC_PATH}" )
+string (REPLACE ";" " " DOXYGEN_STRIP_FROM_INC_PATH
+		"${DOXYGEN_STRIP_FROM_INC_PATH}" )
+
 string (REPLACE ";" " " DOXYGEN_STRIP_FROM_PATH "${DOXYGEN_STRIP_FROM_PATH}" )
 string (REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT}" )
 
@@ -221,6 +219,10 @@ else() # If no Generators are Specified, Just Use Doxygen's Stock HTML
 	add_subdirectory (doxygen-html )
 endif()
 ## 1}}}
+
+
+## --- Provide target doc
+add_custom_target (doc )
 
 add_dependencies (doc libarcstk_doc )
 
