@@ -32,9 +32,10 @@ set (LIBARCSTK_CXX_GNU_FLAGS_WARNINGS
 ## 1}}}
 ## --- g++ Flags: Optimize {{{1
 
-set ( LIBARCSTK_CXX_GNU_FLAGS_OPTIMIZE
+set (LIBARCSTK_CXX_GNU_FLAGS_OPTIMIZE
 	-march=native
-	-mtune=generic)
+	-mtune=generic
+)
 
 ## 1}}}
 
@@ -63,7 +64,10 @@ set (LIBARCSTK_CXX_CLANG_FLAGS_WARNINGS
 ## 1}}}
 ## --- clang++ Flags: Optimize {{{1
 
-set(LIBARCSTK_CXX_CLANG_FLAGS_OPTIMIZE -march=native -mtune=generic)
+set (LIBARCSTK_CXX_CLANG_FLAGS_OPTIMIZE
+	-march=native
+	-mtune=generic
+)
 
 ## 1}}}
 

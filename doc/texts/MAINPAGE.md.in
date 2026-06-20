@@ -48,5 +48,5 @@ Build and install to just use the API:
 \section Version
 
 This documentation was generated from commit
-[@GIT_VERSION_STRING@](@PROJECT_HOMEPAGE_URL@/commit/@GIT_COMMIT_ID@).
+[@LIBARCSTK_GIT_VERSION_STRING@](@PROJECT_HOMEPAGE_URL@/commit/@LIBARCSTK_GIT_COMMIT_ID@).
 

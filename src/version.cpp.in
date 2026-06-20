@@ -30,7 +30,7 @@ extern const std::string LIBARCSTK_VERSION_SUFFIX = "@LIBARCSTK_VERSION_SUFFIX@"
 
 extern const std::string LIBARCSTK_VERSION = "@LIBARCSTK_VERSION_STRING@";
 
-extern const std::string LIBARCSTK_GIT_VERSION = "@GIT_VERSION_STRING@";
+extern const std::string LIBARCSTK_GIT_VERSION = "@LIBARCSTK_GIT_VERSION_STRING@";
 
 
 /**

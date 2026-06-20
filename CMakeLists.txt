@@ -65,12 +65,12 @@ include ("${cmake_include_dir_}/ToolClangIncludeGraph.cmake" )
 unset (cmake_include_dir_ )
 ## 1}}}
 
-git_get_version_string (GIT_VERSION_STRING )
-git_get_commit_id (GIT_COMMIT_ID )
+git_get_version_string (LIBARCSTK_GIT_VERSION_STRING )
+git_get_commit_id      (LIBARCSTK_GIT_COMMIT_ID )
 
-enable_clang_tidy              (CLANG_TIDY_ENABLED )
-enable_target_dep_graph_by_dot (TARGET_DEPS_GRAPH_ENABLED )
-enable_clang_include_graph     (CLANG_INCLUDE_GRAPH_ENABLED )
+enable_clang_tidy              (LIBARCSTK_CLANG_TIDY_ENABLED )
+enable_target_dep_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
+enable_clang_include_graph     (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
 
 message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 

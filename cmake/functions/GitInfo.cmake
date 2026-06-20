@@ -6,7 +6,7 @@ find_package (Git QUIET REQUIRED )
 ## Execute git
 function (_git_execute_command OUT_VAR )
 
-	# ARGN enthält alle weiteren Argumente nach OUT_VAR
+	# ARGN contains all arguments after OUT_VAR
 	execute_process (
 		COMMAND "${GIT_EXECUTABLE}" ${ARGN}
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -20,12 +20,12 @@ function (_git_execute_command OUT_VAR )
 		return()
 	endif()
 
-	set (${OUTPUT_VAR} "UNKNOWN" PARENT_SCOPE )
+	set (${OUT_VAR} "UNKNOWN" PARENT_SCOPE )
 endfunction()
 
 
 # Get git version string
-function(git_get_version_string VERSION_VAR )
+function (git_get_version_string VERSION_VAR )
 
 	_git_execute_command(GIT_VERSION describe --always HEAD )
 
@@ -42,7 +42,7 @@ function(git_get_version_string VERSION_VAR )
 endfunction()
 
 # Get git commit id
-function(git_get_commit_id COMMIT_VAR )
+function (git_get_commit_id COMMIT_VAR )
 
 	_git_execute_command(GIT_COMMIT_ID rev-parse HEAD )
 
