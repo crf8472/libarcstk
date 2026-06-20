@@ -468,16 +468,9 @@ void CalculationState::swap(CalculationState& rhs) noexcept
 
 
 std::unique_ptr<details::Partitioner> make_partitioner(
-		//const Algorithm& algorithm,
 		const Points& offsets, const AudioSize& leadout,
 		const SampleRange& interval)
 {
-	//using details::SampleRange;
-	//using details::TrackPartitioner;
-
-	//const auto interval {
-	//	SampleRange { algorithm.range(leadout, offsets) }};
-
 	ARCS_LOG(DEBUG1) << "Calculation interval is " << interval.to_string();
 
 	return std::make_unique<details::TrackPartitioner>(offsets, leadout,

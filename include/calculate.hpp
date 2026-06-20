@@ -975,8 +975,7 @@ namespace update
  * \brief Updates a calculation process by a single partition.
  *
  * \tparam A Algorithm
- * \tparam B Type of the begin iterator
- * \tparam E Type of the end iterator
+ * \tparam I Iterator type
  *
  * \param[in]     partition Partition to update Calculation with
  * \param[in]     start     Iterator pointing to first sample
@@ -1461,7 +1460,7 @@ protected:
 	 *
 	 * \param[in] algorithm Algorithm to initialize
 	 */
-	void init_algo(Algorithm& algorithm)
+	void init_algorithm(Algorithm& algorithm)
 	{
 		allowed_only_before(State::UPDATED,
 				"Cannot change context after first update");
@@ -1754,7 +1753,9 @@ public:
 // not have virtual members.
 
 /**
- * \brief Perform checksums calculation.
+ * \brief Calculation instance that can be updated by custom types.
+ *
+ * \tparam A Algorithm to use for Calculation
  *
  * An Updater represents a Calculation for a concrete checksum calculation
  * process. It is manually performed by the caller by calling update().
@@ -1772,7 +1773,7 @@ public:
  * request. The calculated Checksums are represented as an iterable aggregate of
  * \link arcstk::ChecksumSet ChecksumSets \endlink.
  *
- * \see make_calculation
+ * \see make_calculationset
  */
 template <class A>
 class Updater final : public Calculation,
@@ -1800,7 +1801,7 @@ public:
 	explicit Updater(const Settings& settings)
 		: Calculation { settings }
 	{
-		init_algo(*algorithm_);
+		init_algorithm(*algorithm_);
 	}
 
 	/**
@@ -1832,7 +1833,7 @@ public:
 			<< algorithm_->name() << "' with data for context "
 			<< name(settings.context());
 
-		init_algo(*algorithm_);
+		init_algorithm(*algorithm_);
 		init_data(offsets, leadout,
 			details::SampleRange { algorithm_->range(leadout, offsets) });
 	}
@@ -1868,8 +1869,8 @@ public:
 		// empty
 	}
 
-	Updater(const Updater& rhs) = delete;
-
+	// non-copyable
+	Updater(const Updater& rhs)              = delete;
 	Updater& operator = (const Updater& rhs) = delete;
 
 	/**
@@ -1943,6 +1944,8 @@ public:
 
 private:
 
+	// Calculation
+
 	const Algorithm* do_algorithm() const noexcept final
 	{
 		return algorithm_.get();
@@ -1956,7 +1959,7 @@ private:
 
 	void on_settings_changed() final
 	{
-		init_algo(*algorithm_);
+		init_algorithm(*algorithm_);
 	}
 
 	void on_completion() final
@@ -2137,8 +2140,8 @@ public:
 /**
  * \brief A set of Calculations.
  *
- * \tparam B Type of start iterator
- * \tparam E Type of stop iterator
+ * \tparam B Type of begin iterator
+ * \tparam E Type of end   iterator
  *
  * Specifiy a set of calculations updateable by types B and E.
  *
@@ -2174,7 +2177,7 @@ public:
     UpdateableCalculationSet(const Settings& settings,
 			RegistrationFunc_t register_algorithms)
 	{
-        register_algorithms(settings, *this);  // populate handlers_
+        register_algorithms(settings, *this);
     }
 
 	/**
@@ -2199,7 +2202,7 @@ public:
 	 */
 	explicit UpdateableCalculationSet(const Settings& settings)
 	{
-		// Define default algorithms
+		// Define default algorithms to register HERE:
         this->add<AccurateRip::V1andV2>(settings);
 	}
 
@@ -2227,12 +2230,10 @@ public:
         auto updater = std::make_unique<Updater<A>>(settings);
 
 		ARCS_LOG(DEBUG3) << "Add Updater for algorithm '"
-			<< updater->algorithm_name() << "' to CalculationSet"
+			<< updater->algorithm_name()
 			<< " with context " << name(settings.context());
 
         Updater<A>* upd_ptr = updater.get();
-
-		// Add updater for algorithm
         updaters_.push_back(std::move(updater));
 
         // Connect algorithm A and the iterators set (B, E) at compile-time
@@ -2259,6 +2260,8 @@ public:
     }
 
 private:
+
+	// CalculationSet
 
 	void do_init(const Points& offsets, const AudioSize& leadout) final
 	{
@@ -2311,12 +2314,6 @@ private:
 
 	//
 
-	//    template<class A>
-	//    void create(const Settings& settings)
-	// {
-	//        auto updater = std::make_unique<Updater<A>>(settings);
-	// }
-
 	std::size_t total_tracks() const
 	{
 		return updaters_[0] ? updaters_[0]->result().size() : 0;
@@ -2357,77 +2354,37 @@ private:
 				);
 			});
 
-		// Convert to Checksums
-
-		/*
-		auto result = Checksums{};
-
-		std::for_each(cbegin(tracks), cend(tracks),
-			[&result](const ChecksumSet& s) { result.push_back(s); });
-
-		return result;
-		*/
 		return tracks;
 	}
 };
 
-/*
-template <typename... Args>
-class AlgorithmTypes;
 
-template <typename A>
-class AlgorithmTypes <A> // exactly one
-{
-
-};
-*/
-
+/**
+ * \brief Specification of a set of algorithms.
+ *
+ * A specification of a set of algorithms. Represents job and target for one or
+ * more Calculation instances.
+ *
+ * \tparam A1   Algorithm type
+ * \tparam Args 0 or more Algorithm types
+ */
 template <typename A1, typename... Args>
-class AlgorithmTypes
+struct AlgorithmTypes final
 {
-	/*
-	std::tuple<A1, Args...> types_;
-
-	template<std::size_t... Is>
-    void* get_algorithm_impl(std::size_t index, std::index_sequence<Is...>)
-	{
-        void* result = nullptr;
-        ((index == Is ? (result = &std::get<Is>(types_), true) : false), ...);
-        return result;
-    }
-
-	template<typename Func>
-    void for_all(Func&& func)
-	{
-        std::apply(
-			[&](auto&... algos)
-			{
-				(func(algos), ...);
-			},
-			types_
-		);
-	}
-	*/
-
-public:
-
-	/*
-	std::size_t size() const
-	{
-        return std::tuple_size_v<decltype(types_)>;
-    }
-
-	template<typename T>
-    T* algorithm(const std::size_t index)
-	{
-        return static_cast<T*>(
-            get_algorithm_impl(index, std::make_index_sequence<count>{})
-        );
-    }
-	*/
-
+	/**
+	 * \brief Total number of algorithm types.
+	 */
 	static constexpr std::size_t count { 1 + sizeof...(Args) };
 
+	/**
+	 * \brief Configure an existing Updater by this set of algorithms.
+	 *
+	 * \tparam B Type of begin iterator
+	 * \tparam E Type of end   iterator
+	 *
+	 * \param[in] settings Settings for Updater
+	 * \param[in] set      CalculationSet to configure
+	 */
 	template<typename B, typename E>
 	static void configure(const Settings& settings,
 			UpdateableCalculationSet<B, E>& set)
@@ -2436,6 +2393,16 @@ public:
 		(set.template add<Args>(settings), ...);
 	}
 
+	/**
+	 * \brief Create and configure an UpdateableCalculationSet for two types
+	 *
+	 * \tparam B Type of begin iterator
+	 * \tparam E Type of end   iterator
+	 *
+	 * \param[in] settings Settings to use for configuration
+	 *
+	 * \return Configured UpdateableCalculationSet
+	 */
 	template<typename B, typename E>
 	static UpdateableCalculationSet<B, E> typed_calculationset_for(
 			const Settings& settings)
@@ -2444,6 +2411,16 @@ public:
 			&AlgorithmTypes<A1, Args...>::configure<B,E> };
 	}
 
+	/**
+	 * \brief Create and configure a CalculationSet for two types
+	 *
+	 * \tparam B Type of begin iterator
+	 * \tparam E Type of end   iterator
+	 *
+	 * \param[in] settings Settings to use for configuration
+	 *
+	 * \return Configured CalculationSet
+	 */
 	template<typename B, typename E>
 	static std::unique_ptr<CalculationSet> calculationset_for(
 			const Settings& settings)
@@ -2454,13 +2431,24 @@ public:
 };
 
 
+/**
+ * \brief Create a CalculationSet for specified checksum types and Settings.
+ *
+ * \tparam B Type of begin iterator
+ * \tparam E Type of end   iterator
+ *
+ * \param[in] types Set of checksum types to calculate
+ * \param[in] s     Settings for Calculation
+ *
+ * \return CalculationSet for checksum types \c types, configured by \c s
+ */
 template<typename B, typename E>
 inline auto make_calculationset(const ChecksumtypeSet& types, const Settings& s)
 {
 	if (types.size() == 1) // either V1-only or V2-only requested
 	{
-		using V1_only   = AlgorithmTypes<AccurateRip::V1>;
-		using V2_only   = AlgorithmTypes<AccurateRip::V1>;
+		using V1_only = AlgorithmTypes<AccurateRip::V1>;
+		using V2_only = AlgorithmTypes<AccurateRip::V1>;
 
 		using std::cbegin;
 
