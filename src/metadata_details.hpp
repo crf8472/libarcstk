@@ -193,14 +193,14 @@ class ToC::Impl final
 	 *
 	 * \brief Internal ToCData.
 	 */
-	ToCData toc_;
+	ToCData toc_ {};
 
 	/**
 	 * \internal
 	 *
 	 * \brief Internal filenames.
 	 */
-	std::vector<std::string> filenames_;
+	std::vector<std::string> filenames_ {};
 
 public:
 

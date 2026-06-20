@@ -83,22 +83,22 @@ class ARId::Impl final
 	/**
 	 * \brief Number of tracks
 	 */
-	unsigned total_tracks_;
+	unsigned total_tracks_ {};
 
 	/**
 	 * \brief Disc id no. 1
 	 */
-	uint32_t disc_id_1_;
+	uint32_t disc_id_1_ {};
 
 	/**
 	 * \brief Disc id no. 2
 	 */
-	uint32_t disc_id_2_;
+	uint32_t disc_id_2_ {};
 
 	/**
 	 * \brief CDDB disc id
 	 */
-	uint32_t cddb_id_;
+	uint32_t cddb_id_ {};
 
 public:
 

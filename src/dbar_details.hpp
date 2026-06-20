@@ -285,7 +285,7 @@ class DBAR::Impl final
 	 * total number of tracks in the block with the respektive 0-based index
 	 * position.
 	 */
-	std::vector<unsigned> total_tracks_;
+	std::vector<unsigned> total_tracks_ {};
 
 	/**
 	 * \brief List of confidence values.
@@ -295,7 +295,7 @@ class DBAR::Impl final
 	 * of values is identical to the respective order of tracks in the DBAR
 	 * object.
 	 */
-	std::vector<unsigned> confidence_;
+	std::vector<unsigned> confidence_ {};
 
 	/**
 	 * \brief Header ids, track ARCS values and ARCS values of frame 450.
@@ -304,7 +304,7 @@ class DBAR::Impl final
 	 * the sum of the constant header size (== 3) plus the product of the total
 	 * number of tracks in this block and the constant track size (== 2).
 	 */
-	std::vector<uint32_t> sums_;  // header ids + arcss + frame450s
+	std::vector<uint32_t> sums_ {};  // header ids + arcss + frame450s
 
 	/**
 	 * \brief Number of index positions of a header.
@@ -431,22 +431,22 @@ class CheckingDBARBuilderState final
 	/**
 	 * \brief Cached previous ARId constants.
 	 */
-	id_type current_id_;
+	id_type current_id_ {};
 
 	/**
 	 * \brief Count triplets in current block.
 	 */
-	std::size_t triplet_counter_;
+	std::size_t triplet_counter_ {};
 
 	/**
 	 * \brief Current validity value.
 	 */
-	bool is_valid_;
+	bool is_valid_ {};
 
 	/**
 	 * \brief Current uniformity value.
 	 */
-	bool is_uniform_;
+	bool is_uniform_ {};
 
 	/**
 	 * \brief Update uniformity state.
@@ -516,12 +516,12 @@ class CheckingDBARBuilder::Impl final
 	/**
 	 * \brief Internal DBARBuilder.
 	 */
-	DBARBuilder builder_;
+	DBARBuilder builder_ {};
 
 	/**
 	 * \brief Internal state.
 	 */
-	CheckingDBARBuilderState state_;
+	CheckingDBARBuilderState state_ {};
 
 public:
 

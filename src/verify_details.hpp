@@ -290,17 +290,17 @@ private:
 	/**
 	 * \brief Number of blocks represented.
 	 */
-	size_type blocks_;
+	size_type blocks_ {};
 
 	/**
 	 * \brief Number of tracks in each block.
 	 */
-	size_type tracks_per_block_;
+	size_type tracks_per_block_ {};
 
 	/**
 	 * \brief The result bits of the comparison.
 	 */
-	std::vector<bool> flag_;
+	std::vector<bool> flag_ {};
 	// layout is:
 	// id(1),v1,v1,v1, ... ,v2,v2,v2,id(2),v1,v1,v1, ... ,v2,v2,v2
 	// with 1 + t * v1 + t * v2 flags in each block
@@ -498,12 +498,12 @@ private:
 	/**
 	 * \brief Implementation: actual result flags
 	 */
-	ResultBits flags_;
+	ResultBits flags_ {};
 
 	/**
 	 * \brief Policy to interpret the flags.
 	 */
-	std::unique_ptr<VerificationPolicy> policy_;
+	std::unique_ptr<VerificationPolicy> policy_ {};
 
 	/**
 	 * \brief Convert checksum::type to bool.
@@ -649,22 +649,22 @@ class SourceIterator final : Comparable<SourceIterator>
 	/**
 	 * \brief The concrete Selector used by this instance.
 	 */
-	const Selector* selector_;
+	const Selector* selector_ {};
 
 	/**
 	 * \brief ChecksumSource to iterate over.
 	 */
-	const ChecksumSource* source_;
+	const ChecksumSource* source_ {};
 
 	/**
 	 * \brief Value of the current fixed position.
 	 */
-	ChecksumSource::size_type current_;
+	ChecksumSource::size_type current_ {};
 
 	/**
 	 * \brief Value of the current counted position.
 	 */
-	ChecksumSource::size_type counter_;
+	ChecksumSource::size_type counter_ {};
 
 public:
 
@@ -776,19 +776,19 @@ class TraversalPolicy
 	/**
 	 * \brief ChecksumSource to traverse
 	 */
-	const ChecksumSource* source_;
+	const ChecksumSource* source_ {};
 
 	/**
 	 * \brief Concrete selector to use.
 	 */
-	std::unique_ptr<Selector> selector_;
+	std::unique_ptr<Selector> selector_ {};
 
 	/**
 	 * \brief Fixed position to traverse.
 	 *
 	 * This can either be the block or the track.
 	 */
-	ChecksumSource::size_type current_;
+	ChecksumSource::size_type current_ {};
 
 
 	virtual Checksums::size_type do_current_block(const SourceIterator& i) const
@@ -1248,12 +1248,12 @@ class VerifierBase
 	/**
 	 * \brief Actual checksums to be verified.
 	 */
-	const Checksums* actual_sums_;
+	const Checksums* actual_sums_ {};
 
 	/**
 	 * \brief Flag to indicate strictness.
 	 */
-	bool is_strict_;
+	bool is_strict_ {};
 
 	/**
 	 * \brief Provide actual ARId.
@@ -1402,7 +1402,7 @@ class AlbumVerifier::Impl final : public details::VerifierBase
 	/**
 	 * \brief Internal actual ARId.
 	 */
-	const ARId* actual_id_;
+	const ARId* actual_id_ {};
 
 	// VerifierBase
 

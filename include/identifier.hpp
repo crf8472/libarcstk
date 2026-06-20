@@ -102,7 +102,9 @@ std::ostream& operator << (std::ostream& out, const ARId& i);
 class ARId final : Equality<ARId>, Comparable<ARId>, Swap<ARId>, ToString<ARId>
 {
 	class Impl;
-	std::unique_ptr<Impl> impl_;
+
+	// intentionally undocumented
+	std::unique_ptr<Impl> impl_ {};
 
 public:
 

@@ -173,7 +173,7 @@ std::string ARId::Impl::to_string() const
 // ARId
 
 
-ARId::ARId()
+ARId::ARId() // TODO redundant? could just be defaulted
 	: ARId { 0, 0, 0, 0 }
 {
 	// empty

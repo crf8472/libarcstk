@@ -219,7 +219,7 @@ class DBARSource final : public ChecksumSource
 	/**
 	 * \brief Internal DBAR object.
 	 */
-	const DBAR* dbar_; // non-owning
+	const DBAR* dbar_ {}; // non-owning
 
 	// ChecksumSource
 
@@ -710,7 +710,9 @@ public:
 class AlbumVerifier final : public Verifier
 {
 	class Impl;
-	std::unique_ptr<Impl> impl_;
+
+	// intentionally undocumented
+	std::unique_ptr<Impl> impl_ {};
 
 	// Verifier
 
@@ -799,7 +801,9 @@ public:
 class TracksetVerifier final : public Verifier
 {
 	class Impl;
-	std::unique_ptr<Impl> impl_;
+
+	// intentionally undocumented
+	std::unique_ptr<Impl> impl_ {};
 
 	// Verifier
 

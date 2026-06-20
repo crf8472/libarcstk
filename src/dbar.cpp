@@ -707,7 +707,7 @@ std::string DBARBlockHeader::to_string() const
 // DBARTriplet
 
 
-DBARTriplet::DBARTriplet()
+DBARTriplet::DBARTriplet() // TODO redundant? could just be defaulted
 	: arcs_          { 0 }
 	, confidence_    { 0 }
 	, frame450_arcs_ { 0 }
@@ -781,7 +781,7 @@ std::string DBARTriplet::to_string() const
 // DBARBlock
 
 
-DBARBlock::DBARBlock()
+DBARBlock::DBARBlock() // TODO redundant? could just be defaulted
 	: dBAR_ { nullptr }
 	, idx_  { 0 }
 {
@@ -934,7 +934,7 @@ bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
 // DBAR::Impl
 
 
-DBAR::Impl::Impl()
+DBAR::Impl::Impl() // TODO redundant? could just be defaulted
 	: total_tracks_ { /* default */ }
 	, confidence_   { /* default */ }
 	, sums_         { /* default */ }
@@ -1381,7 +1381,7 @@ void ParseHandler::end_input()
 // DBARBuilder
 
 
-DBARBuilder::DBARBuilder()
+DBARBuilder::DBARBuilder() // TODO redundant? could just be defaulted
 	: result_ { nullptr }
 {
 	// empty
@@ -1537,7 +1537,7 @@ void CheckingDBARBuilderState::reset()
 // CheckingDBARBuilder::Impl
 
 
-CheckingDBARBuilder::Impl::Impl()
+CheckingDBARBuilder::Impl::Impl() // TODO redundant? could just be defaulted
 	: builder_ { /* default */ }
 	, state_   { /* default */ }
 {

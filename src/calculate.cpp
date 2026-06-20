@@ -353,7 +353,7 @@ int32_t am2ind(const int32_t amount)
 // CalculationState
 
 
-CalculationState::CalculationState()
+CalculationState::CalculationState() // TODO redundant?
 	: current_offset_          { 0 }
 	, samples_processed_       { 0 }
 	, track_samples_processed_ { 0 }

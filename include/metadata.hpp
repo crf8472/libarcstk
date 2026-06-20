@@ -518,7 +518,7 @@ class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
 	/**
 	 * \brief Data: Total number of bytes.
 	 */
-	int32_t bytes_;
+	int32_t bytes_ {};
 
 public:
 
@@ -934,7 +934,9 @@ std::ostream& operator << (std::ostream& out, const ToC& i);
 class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>, ToString<ToC>
 {
 	class Impl;
-	std::unique_ptr<Impl> impl_;
+
+	// intentionally undocumented
+	std::unique_ptr<Impl> impl_ {};
 
 public:
 
@@ -1226,17 +1228,17 @@ class InvalidMetadataException final : public std::runtime_error
 	/**
 	 * \brief Requirement that was violated.
 	 */
-	MetadataRequirement req_;
+	MetadataRequirement req_ {};
 
 	/**
 	 * \brief Value that violated the requirement.
 	 */
-	int32_t value_;
+	int32_t value_ {};
 
 	/**
 	 * \brief Index position where the violation occurred.
 	 */
-	ToCData::size_type index_;
+	ToCData::size_type index_ {};
 
 public:
 

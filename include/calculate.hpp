@@ -174,14 +174,20 @@ class Interval final
 	/**
 	 * \brief First number in interval.
 	 */
-	T a_;
+	T a_ {};
 
 	/**
 	 * \brief Last number in interval.
 	 */
-	T b_;
+	T b_ {};
 
 public:
+
+	/**
+	 * \brief Default constructor.
+	 */
+	Interval() = default;
+
 
 	/**
 	 * \brief Constructor for <tt>[a,b]</tt>.
@@ -418,17 +424,17 @@ private:
 	/**
 	 * \brief Internal splitting points.
 	 */
-	Points points_;
+	Points points_ {};
 
 	/**
 	 * \brief Total number of samples expected.
 	 */
-	AudioSize total_samples_;
+	AudioSize total_samples_ {};
 
 	/**
 	 * \brief Legal range of partitioning.
 	 */
-	SampleRange legal_;
+	SampleRange legal_ {};
 };
 
 /**
@@ -498,30 +504,30 @@ class Partition final
 	/**
 	 * \brief Relative offset of the first sample in this partition
 	 */
-	int32_t begin_offset_;
+	int32_t begin_offset_ {};
 
 	/**
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
-	int32_t end_offset_;
+	int32_t end_offset_ {};
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
 	 * sample in the track
 	 */
-	bool starts_track_;
+	bool starts_track_ {};
 
 	/**
 	 * \brief TRUE iff the last sample in this partition is also the last sample
 	 * in the track
 	 */
-	bool ends_track_;
+	bool ends_track_ {};
 
 	/**
 	 * \brief 1-based number of the track of which the samples in the partition
 	 * are part of
 	 */
-	int track_;
+	int track_ {};
 
 public:
 
@@ -597,7 +603,7 @@ class Counter final
 	/**
 	 * \brief Internal counter value.
 	 */
-	T value_;
+	T value_ {};
 
 public:
 
@@ -605,6 +611,11 @@ public:
 	 * \brief Type of the counter value.
 	 */
 	using type = T;
+
+	/**
+	 * \brief Default constructor.
+	 */
+	Counter() = default;
 
 	/**
 	 * \brief Constructor.
@@ -675,37 +686,37 @@ class CalculationState final
 	/**
 	 * \brief Internal 0-based current sample offset.
 	 */
-	Counter<int32_t> current_offset_;
+	Counter<int32_t> current_offset_ {};
 
 	/**
 	 * \brief Internal 0-based counter for samples processed.
 	 */
-	Counter<int32_t> samples_processed_;
+	Counter<int32_t> samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for track samples processed.
 	 */
-	Counter<int32_t> track_samples_processed_;
+	Counter<int32_t> track_samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for tracks.
 	 */
-	Counter<int32_t> tracks_processed_;
+	Counter<int32_t> tracks_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for sample sequences.
 	 */
-	Counter<int32_t> sequences_processed_;
+	Counter<int32_t> sequences_processed_ {};
 
 	/**
 	 * \brief Internal time elapsed by processing.
 	 */
-	std::chrono::duration<float> algo_time_elapsed_;
+	std::chrono::duration<float> algo_time_elapsed_ {};
 
 	/**
 	 * \brief Internal time elapsed by updating.
 	 */
-	std::chrono::duration<float> update_time_elapsed_;
+	std::chrono::duration<float> update_time_elapsed_ {};
 
 public:
 
@@ -1038,7 +1049,7 @@ class Settings final : Equality<Settings>, Comparable<Settings>, Swap<Settings>
 	/**
 	 * \brief Internal context.
 	 */
-	Context context_;
+	Context context_ {};
 
 public:
 

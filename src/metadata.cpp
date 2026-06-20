@@ -517,7 +517,7 @@ std::string to_string(const ToCData& toc_data)
 // ToC::Impl
 
 
-ToC::Impl::Impl()
+ToC::Impl::Impl() // TODO redundant? could just be defaulted
 	: toc_       {}
 	, filenames_ {}
 {

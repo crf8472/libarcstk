@@ -103,22 +103,22 @@ struct Subtotals
 	/**
 	 * \brief Current multiplier.
 	 */
-	uint_fast64_t multiplier  = 1;
+	uint_fast64_t multiplier  { 1 };
 
 	/**
 	 * \brief Current update factor.
 	 */
-	uint_fast64_t update      = 0;
+	uint_fast64_t update      { 0 };
 
 	/**
 	 * \brief Current subtotal for ARCSv1.
 	 */
-	uint_fast32_t subtotal_v1 = 0;
+	uint_fast32_t subtotal_v1 { 0 };
 
 	/**
 	 * \brief Current subtotal for ARCSv2.
 	 */
-	uint_fast32_t subtotal_v2 = 0;
+	uint_fast32_t subtotal_v2 { 0 };
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -226,12 +226,12 @@ class UpdateableSubtotals final
 	/**
 	 * \brief Internal subtotals.
 	 */
-	Subtotals st_;
+	Subtotals st_ {};
 
 	/**
 	 * \brief Internal update strategy.
 	 */
-	Update<T1, T2...> update_;
+	Update<T1, T2...> update_ {};
 
 public:
 
@@ -329,12 +329,12 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 	/**
 	 * \brief Algorithm state..
 	 */
-	UpdateableSubtotals<T1, T2...> state_;
+	UpdateableSubtotals<T1, T2...> state_ {};
 
 	/**
 	 * \brief Current result of performing the algorithm.
 	 */
-	ChecksumSet current_result_;
+	ChecksumSet current_result_ {};
 
 	// Algorithm
 

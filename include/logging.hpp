@@ -78,12 +78,12 @@ class Appender final
 	/**
 	 * \brief Internal name of the Appender
 	 */
-	std::string name_;
+	std::string name_ {};
 
 	/**
 	 * \brief Internal stream to append to
 	 */
-	FILE* stream_;
+	FILE* stream_ {};
 
 public:
 
@@ -199,12 +199,12 @@ class Logger final
 	/**
 	 * \brief Internal set of \link Appender Appenders \endlink
 	 */
-	std::unordered_set<std::unique_ptr<Appender>> appenders_;
+	std::unordered_set<std::unique_ptr<Appender>> appenders_ {};
 
 	/**
 	 * \brief Flag to activate/deactivate the logging of timestamps
 	 */
-	bool log_timestamps_;
+	bool log_timestamps_ {};
 
 public:
 
@@ -323,17 +323,17 @@ class Log final
 	/**
 	 * Internal output stream representation
 	 */
-	std::ostringstream os_;
+	std::ostringstream os_ {};
 
 	/**
 	 * Internal Logger to use
 	 */
-	const Logger *logger_;
+	const Logger *logger_ {};
 
 	/**
 	 * Loglevel of the message to log
 	 */
-	LOGLEVEL msg_level_;
+	LOGLEVEL msg_level_ {};
 
 public:
 
@@ -447,12 +447,12 @@ class Logging final
 	/**
 	 * \brief Mutex for thread-safe access to internal Logger instance.
 	 */
-	std::mutex mutex_;
+	std::mutex mutex_ {};
 
 	/**
 	 * \brief Internal log level.
 	 */
-	std::atomic<LOGLEVEL> level_;
+	std::atomic<LOGLEVEL> level_ {};
 
 	/**
 	 * \brief Class is singleton.

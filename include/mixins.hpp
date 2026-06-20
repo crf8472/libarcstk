@@ -80,21 +80,6 @@ private:
 		struct has_equals<U, std::void_t<
 			decltype(std::declval<const U>().equals(std::declval<const U&>()))
 		>> : std::true_type {};
-
-
-	/*
-	static_assert(
-		std::is_convertible_v<bool,
-			decltype( std::declval<const T>().equals(std::declval<const T&>) )
-		>,
-		// C++20:
-        //requires(const T& t1, const T& t2)
-		//{
-        //    { t1.equals(t2) } noexcept -> std::convertible_to<bool>;
-        //},
-        "Derived class must implement: bool equals(const T&) const noexcept"
-    );
-	*/
 };
 
 

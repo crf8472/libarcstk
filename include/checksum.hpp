@@ -248,7 +248,7 @@ private:
 	/**
 	 * \brief Actual checksum value;
 	 */
-	value_type value_;
+	value_type value_ {};
 };
 
 
@@ -279,7 +279,7 @@ private:
 	/**
 	 * \brief Track length as number of LBA frames.
 	 */
-	AudioSize length_;
+	AudioSize length_ {};
 
 	/**
 	 * \brief Key type of the internal type map.
@@ -294,7 +294,7 @@ private:
 	/**
 	 * \brief Internal storage of the ChecksumSet.
 	 */
-	storage_type set_;
+	storage_type set_ {};
 
 	// intentionally undocumented
 	using unspecified_forward_iterator_type = storage_type::iterator;
@@ -542,7 +542,7 @@ namespace details
 class StreamFlagsGuard final
 {
     std::ostream& out_;
-    std::ios_base::fmtflags prev_flags_;
+    std::ios_base::fmtflags prev_flags_ {};
 
 public:
 

@@ -215,17 +215,17 @@ class BufferBase
 	/**
 	 * \brief Internal number of 16 bit sample pairs in this buffer.
 	 */
-	std::size_t size_;
+	std::size_t size_ {};
 
 	/**
 	 * \brief Internal index of the left channel.
 	 */
-	std::size_t left_;
+	std::size_t left_ {};
 
 	/**
 	 * \brief Internal index of the right channel.
 	 */
-	std::size_t right_;
+	std::size_t right_ {};
 
 public:
 
@@ -320,7 +320,7 @@ private:
 	/**
 	 * \brief Internal planar buffer of 16 bit samples for two channels.
 	 */
-	std::array<const T*, 2> buffer_;
+	std::array<const T*, 2> buffer_ {};
 
 public:
 
@@ -426,7 +426,7 @@ private:
 	/**
 	 * \brief Internal interleaved buffer of 16 bit samples for two channels.
 	 */
-	const T* buffer_;
+	const T* buffer_ {};
 
 public:
 
@@ -733,12 +733,12 @@ private:
 	/**
 	 * \brief The SampleSequence to iterate.
 	 */
-	const SampleSequence<T, is_planar>* seq_;
+	const SampleSequence<T, is_planar>* seq_ {};
 
 	/**
 	 * \brief Current index position.
 	 */
-	difference_type pos_;
+	difference_type pos_ {};
 
 	/**
 	 * \brief Sequence end position.
@@ -749,7 +749,7 @@ private:
 	 * Since the size of a SampleSequence is fix during is lifetime, it can just
 	 * be cached.
 	 */
-	difference_type end_pos_;
+	difference_type end_pos_ {};
 };
 
 
@@ -765,7 +765,7 @@ class SampleSequenceBase
 	/**
 	 * \brief Internal sample buffer.
 	 */
-	buffer_type buffer_;
+	buffer_type buffer_ {};
 
 	/**
 	 * \brief SNPT_sm_default_ctor.

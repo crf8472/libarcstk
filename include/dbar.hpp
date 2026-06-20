@@ -154,22 +154,22 @@ class DBARBlockHeader final : Equality<DBARBlockHeader>,
 	/**
 	 * \brief Total number of tracks in this block as declared.
 	 */
-	unsigned total_tracks_;
+	unsigned total_tracks_ {};
 
 	/**
 	 * \brief Id1.
 	 */
-	uint32_t id1_;
+	uint32_t id1_ {};
 
 	/**
 	 * \brief Id2.
 	 */
-	uint32_t id2_;
+	uint32_t id2_ {};
 
 	/**
 	 * \brief CDDB Id.
 	 */
-	uint32_t cddb_id_;
+	uint32_t cddb_id_ {};
 
 public:
 
@@ -244,17 +244,17 @@ class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>,
 	/**
 	 * \brief ARCS value.
 	 */
-	uint32_t arcs_;
+	uint32_t arcs_ {};
 
 	/**
 	 * \brief Confidence value.
 	 */
-	unsigned confidence_;
+	unsigned confidence_ {};
 
 	/**
 	 * \brief ARCS value of frame 450 of this track.
 	 */
-	uint32_t frame450_arcs_;
+	uint32_t frame450_arcs_ {};
 
 public:
 
@@ -339,12 +339,12 @@ private:
 	/**
 	 * \brief Internal index position.
 	 */
-	index_type index_;
+	index_type index_ {};
 
 	/**
 	 * \brief Internal value on index position.
 	 */
-	value_type element_;
+	value_type element_ {};
 
 public:
 
@@ -537,19 +537,19 @@ private:
 	/**
 	 * \brief Container object to iterate over.
 	 */
-	const T* container_;
+	const T* container_ {};
 
 	/**
 	 * \brief Current index position of the container.
 	 *
 	 * This index is the position to iterate over.
 	 */
-	size_type idx_;
+	size_type idx_ {};
 
 	/**
 	 * \brief Internal incrementor.
 	 */
-	Increment<size_type, R> increment_;
+	Increment<size_type, R> increment_ {};
 
 public:
 
@@ -706,7 +706,7 @@ public:
 private:
 
 	// intentionally undocumented
-	std::unique_ptr<Impl> impl_;
+	std::unique_ptr<Impl> impl_ {};
 
 	// intentionally undocumented
 	using unspecified_forward_iterator_type =
@@ -996,12 +996,12 @@ class DBARBlock final : Equality<DBARBlock>, Comparable<DBARBlock>,
 	/**
 	 * \brief Internal pointer to underlying DBAR.
 	 */
-	const DBAR* dBAR_;
+	const DBAR* dBAR_ {};
 
 	/**
 	 * \brief Internal index of this block.
 	 */
-	DBAR::size_type idx_;
+	DBAR::size_type idx_ {};
 
 	// intentionally undocumented
 	using unspecified_forward_iterator_type =
@@ -1386,7 +1386,7 @@ class DBARBuilder final : public ParseHandler
 	/**
 	 * \brief Internal result representation
 	 */
-	std::unique_ptr<DBAR::Impl> result_;
+	std::unique_ptr<DBAR::Impl> result_ {};
 
 	// ParseHandler
 
@@ -1450,7 +1450,7 @@ class CheckingDBARBuilder final : public ParseHandler
 {
 	class Impl;
 
-	std::unique_ptr<Impl> impl_;
+	std::unique_ptr<Impl> impl_ {};
 
 	// ParseHandler
 
@@ -1580,19 +1580,19 @@ class StreamParseException final : public std::runtime_error
 	/**
 	 * \brief Last 1-based global byte position before the exception occurred.
 	 */
-	byte_position_t byte_pos_;
+	byte_position_t byte_pos_ {};
 
 	/**
 	 * \brief The 1-based block number of the block in which the exception
 	 * occurred.
 	 */
-	unsigned block_;
+	unsigned block_ {};
 
 	/**
 	 * \brief Last 1-based block-relative byte position read before the
 	 * exception.
 	 */
-	byte_position_t block_byte_pos_;
+	byte_position_t block_byte_pos_ {};
 
 public:
 
