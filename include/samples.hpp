@@ -957,6 +957,15 @@ public:
     {
 		// empty
     }
+
+	/**
+	 * \brief Constructor.
+	 */
+	SampleSequence()
+		: SampleSequence { nullptr, nullptr, 0 }
+	{
+		// empty
+	}
 };
 
 
@@ -993,6 +1002,15 @@ public:
     {
 		// empty
     }
+
+	/**
+	 * \brief Constructor.
+	 */
+	SampleSequence()
+		: SampleSequence { nullptr, 0 }
+	{
+		// empty
+	}
 };
 
 
