@@ -355,6 +355,9 @@ public:
 		}
 	}
 
+	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
 	/**
 	 * \brief Virtual value under index \c index from left channel.
 	 *
@@ -378,6 +381,9 @@ public:
 	{
 		return buffer_[right()][index];
 	}
+
+	// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
