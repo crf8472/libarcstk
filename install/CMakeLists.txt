@@ -1,11 +1,5 @@
 ## CMake script for installation
-##
 ## vim:fdm=marker
-##
-## Prerequisistes from PARENT:
-##
-## - Variables: LIBARCSTK_GENSRC_BINARY_DIR, LIBARCSTK_INCLUDE_INSTALL_SUBDIR,
-##              PROJECT_NAME
 
 
 ## --- Variables
@@ -32,28 +26,9 @@ install (EXPORT ${LIBARCSTK_EXPORT_SET}
 
 
 
-## --- Install pkgconfig and *.cmake files
+## --- Install *.cmake packaging files
 
 if (NOT SKIP_INSTALL_FILES )
-
-
-	## -- Support pkgconfig
-
-	string (REPLACE lib "" LIBARCSTK_PKG_BIND_NAME "${PROJECT_NAME}" )
-
-	configure_file (
-		"${CMAKE_CURRENT_SOURCE_DIR}/libarcstk.pc.in"
-		"${LIBARCSTK_GENSRC_BINARY_DIR}/libarcstk.pc"
-		@ONLY
-	)
-
-	unset (LIBARCSTK_PKG_BIND_NAME )
-
-	install (FILES "${LIBARCSTK_GENSRC_BINARY_DIR}/libarcstk.pc"
-		DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" )
-
-
-	## -- Support CMake Packaging
 
 	include (CMakePackageConfigHelpers )
 
@@ -63,21 +38,31 @@ if (NOT SKIP_INSTALL_FILES )
 
 	configure_package_config_file (
 		"${CMAKE_CURRENT_SOURCE_DIR}/${LIBARCSTK_CONFIG_FILE}.in"
-		"${LIBARCSTK_GENSRC_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
+		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
 		INSTALL_DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}"
 	)
 
 	write_basic_package_version_file (
-		"${LIBARCSTK_GENSRC_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
+		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
 		VERSION        ${PROJECT_VERSION}
 		COMPATIBILITY  SameMajorVersion
 	)
 
 	install (FILES
-		"${LIBARCSTK_GENSRC_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
-		"${LIBARCSTK_GENSRC_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
+		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
+		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
 		DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}"
 	)
+
+endif ()
+
+
+
+## --- pkgconfig
+
+if (NOT SKIP_INSTALL_FILES )
+
+	add_subdirectory (pkgconfig )
 
 endif ()
 

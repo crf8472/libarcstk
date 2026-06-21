@@ -153,7 +153,8 @@ message (STATUS "Compile flags: ${LIBARCSTK_CXX_FLAGS}" )
 ## --- Installation {{{1
 
 if (NOT SKIP_INSTALL_ALL )
-	add_subdirectory (install)
+
+	add_subdirectory (install )
 endif ()
 
 ## 1}}}
