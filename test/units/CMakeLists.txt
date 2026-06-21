@@ -4,7 +4,7 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
-add_test_suite (unit
+add_test_suite (libarcstk_unit
 	LABEL "unit"
 	TIMEOUT 10 )
 

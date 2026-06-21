@@ -4,7 +4,7 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
-add_test_suite (type_traits
+add_test_suite (libarcstk_type_traits
 	LABEL "type_traits"
 	TIMEOUT 10 )
 
