@@ -1,6 +1,5 @@
 @PACKAGE_INIT@
 
 ## Import targets exported by the project
-get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include (${_DIR}/libarcstk-targets.cmake )
+include ("${CMAKE_CURRENT_LIST_FILE}/@PROJECT_NAME@-targets.cmake" )
 
