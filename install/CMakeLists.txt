@@ -2,17 +2,10 @@
 ## vim:fdm=marker
 
 
-## --- Variables
-
-set (LIBARCSTK_INSTALL_CMAKECONFIG_DIR
-	"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
-	CACHE PATH "Installation directory for cmake package files" )
-
-set (LIBARCSTK_EXPORT_SET "${PROJECT_NAME}-targets" )
+set (LIBARCSTK_EXPORT_SET   "${PROJECT_NAME}-targets" )
 
 
-
-## --- Install binary and exported header files
+## --- Install binary and public headers
 
 install (TARGETS ${PROJECT_NAME}
 	EXPORT "${LIBARCSTK_EXPORT_SET}"
@@ -20,21 +13,20 @@ install (TARGETS ${PROJECT_NAME}
 	PUBLIC_HEADER DESTINATION
 			"${CMAKE_INSTALL_PREFIX}/${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}" )
 
-install (EXPORT ${LIBARCSTK_EXPORT_SET}
-	NAMESPACE libarcstk::
-	DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}" )
 
-
-
-## --- Install *.cmake packaging files
+## --- Install cmake config, version and targets file
 
 if (NOT SKIP_INSTALL_FILES )
 
 	include (CMakePackageConfigHelpers )
 
-	set (LIBARCSTK_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
+	set (LIBARCSTK_INSTALL_CMAKECONFIG_DIR
+		"${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}"
+		CACHE PATH "Installation directory for cmake package files" )
 
-	set (LIBARCSTK_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
+	## libarcstk-config.cmake
+
+	set (LIBARCSTK_CONFIG_FILE "${PROJECT_NAME}-config.cmake" )
 
 	configure_package_config_file (
 		"${CMAKE_CURRENT_SOURCE_DIR}/${LIBARCSTK_CONFIG_FILE}.in"
@@ -42,15 +34,37 @@ if (NOT SKIP_INSTALL_FILES )
 		INSTALL_DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}"
 	)
 
+	## libarcstk-config-version.cmake
+
+	set (LIBARCSTK_CONFIG_VERSION_FILE "${PROJECT_NAME}-config-version.cmake")
+
 	write_basic_package_version_file (
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
 		VERSION        ${PROJECT_VERSION}
 		COMPATIBILITY  SameMajorVersion
 	)
 
+	## libarcstk-targets.cmake
+
+	set (LIBARCSTK_TARGETS_FILE "${LIBARCSTK_EXPORT_SET}.cmake" )
+
+	install (EXPORT ${LIBARCSTK_EXPORT_SET}
+		FILE "${LIBARCSTK_TARGETS_FILE}"
+		NAMESPACE libarcstk::
+		DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}" )
+
+	# export targets file to build dir for debugging + convenience
+	export (EXPORT ${LIBARCSTK_EXPORT_SET}
+		FILE "${LIBARCSTK_TARGETS_FILE}"
+		NAMESPACE libarcstk:: )
+
+
+	## install all 3 files
+
 	install (FILES
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
+		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake"
 		DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}"
 	)
 
