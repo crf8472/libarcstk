@@ -14,7 +14,7 @@ install (TARGETS ${PROJECT_NAME}
 			"${CMAKE_INSTALL_PREFIX}/${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}" )
 
 
-## --- Install cmake config, version and targets file
+## --- Install cmake config, version and targets file {{{1
 
 if (NOT SKIP_INSTALL_FILES )
 
@@ -64,12 +64,12 @@ if (NOT SKIP_INSTALL_FILES )
 	install (FILES
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_FILE}"
 		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_CONFIG_VERSION_FILE}"
-		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake"
+		"${CMAKE_CURRENT_BINARY_DIR}/${LIBARCSTK_TARGETS_FILE}"
 		DESTINATION "${LIBARCSTK_INSTALL_CMAKECONFIG_DIR}"
 	)
 
 endif ()
-
+# 1}}}
 
 
 ## --- pkgconfig
