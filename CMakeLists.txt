@@ -173,6 +173,8 @@ if (WITH_TESTS)
 	## (i.e. if PARENT did not include it)
 	if (NOT TARGET Catch2::Catch2 )
 		add_subdirectory (thirdparty/catch2 EXCLUDE_FROM_ALL )
+	else()
+		message (WARNING "Catch2 skipped since target already exists" )
 	endif()
 
 	## Add tests
