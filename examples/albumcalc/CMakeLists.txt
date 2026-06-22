@@ -56,3 +56,5 @@ target_include_directories ( libarcstk_albumcalc
 target_link_libraries ( libarcstk_albumcalc
 	PRIVATE ${LIBCUE_LIBRARY} PRIVATE libarcstk )
 
+add_dependencies ( libarcstk_examples libarcstk_albumcalc )
+

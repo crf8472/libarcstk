@@ -21,3 +21,5 @@ target_include_directories ( libarcstk_dbarparse
 ## is present, ignore it.
 target_link_libraries ( libarcstk_dbarparse PRIVATE libarcstk )
 
+add_dependencies ( libarcstk_examples libarcstk_dbarparse )
+
