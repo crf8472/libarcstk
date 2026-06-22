@@ -210,7 +210,7 @@ endif()
 ## --- Setup development tools {{{1
 enable_clang_tidy               (LIBARCSTK_CLANG_TIDY_ENABLED )
 enable_clang_include_graph      (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
-enable_code_coverage            (LIBARCSTK_CLANG_COVERAGE_ENABLED )
+enable_code_coverage            (LIBARCSTK_CODE_COVERAGE_ENABLED )
 enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
 
