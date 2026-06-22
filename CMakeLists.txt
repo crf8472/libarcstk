@@ -166,9 +166,11 @@ if (WITH_TESTS)
 
 	message (STATUS "Build with tests" )
 
+	## idempotent (does not matter whether top-level or submodule)
 	enable_testing()
 
 	## Add Catch2 test framework if it is not already present
+	## (i.e. if PARENT did not include it)
 	if (NOT TARGET Catch2::Catch2 )
 		add_subdirectory (thirdparty/catch2 EXCLUDE_FROM_ALL )
 	endif()
