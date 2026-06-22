@@ -12,8 +12,6 @@ function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR )
 	cmake_parse_arguments (GRAPH
 		"${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-	set (${OUT_VAR} FALSE PARENT_SCOPE )
-
 	## Find dot
 
 	find_program (DOT_EXECUTABLE dot )

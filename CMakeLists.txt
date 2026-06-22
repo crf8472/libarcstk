@@ -70,7 +70,6 @@ endif (NOT CMAKE_BUILD_TYPE )
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 ## 2}}}
 ## 1}}}
-
 ## --- Setup Build Tree {{{1
 libarcstk_setup_build_tree()
 

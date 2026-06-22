@@ -30,7 +30,7 @@ function (libarcstk_git_get_version_string VERSION_VAR )
 
 	set (${VERSION_VAR} "v0.0.0-nogit" PARENT_SCOPE )
 
-	_libarcstk_git_execute_command(GIT_VERSION describe --always HEAD )
+	_libarcstk_git_execute_command (GIT_VERSION describe --always HEAD )
 
 	if (GIT_VERSION STREQUAL "UNKNOWN" )
 		message (WARNING "Git describe failed, using fallback: ${VERSION_VAR}" )
@@ -46,7 +46,7 @@ function (libarcstk_git_get_commit_id COMMIT_VAR )
 
 	set (${COMMIT_VAR} "00000000" PARENT_SCOPE )
 
-	_libarcstk_git_execute_command(GIT_COMMIT_ID rev-parse HEAD )
+	_libarcstk_git_execute_command (GIT_COMMIT_ID rev-parse HEAD )
 
 	if (GIT_COMMIT_ID STREQUAL "UNKNOWN")
 		message (WARNING "Git rev-parse failed, using fallback: ${COMMIT_VAR}" )
