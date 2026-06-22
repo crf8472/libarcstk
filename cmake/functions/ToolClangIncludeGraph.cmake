@@ -1,7 +1,7 @@
 ## libarcstk: CMake functions for drawing an include graph
 ## vim:fdm=marker
 
-function (libarcstk_enable_clang_include_graph )
+function (libarcstk_enable_clang_include_graph OUT_VAR )
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
