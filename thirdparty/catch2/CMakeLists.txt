@@ -1,83 +1,25 @@
-## CMake file for single-header version of Catch2
-##
+## CMake file for fetching Catch2
 ## vim:fdm=marker
 
-cmake_minimum_required (VERSION 3.10 )
+#cmake_minimum_required (VERSION 3.11 ) ## FetchContent available
+cmake_minimum_required (VERSION 3.14 )  ## FetchContent_MakeAvailable available
 
 find_package (Git REQUIRED )
 
-## --- Catch2 identifiers
 
-set (CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
+## make Catch2 available
+
 set (CATCH2_VERSION_TAG "v3.14.0" )
+set (CATCH2_REPO_URL    "https://github.com/catchorg/Catch2.git" )
 
-## --- Define Catch2 to be checked out/updated while configuring {{{1
+include (FetchContent )
 
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.11.0" )
+FetchContent_Declare(
+	catch2
+	GIT_REPOSITORY ${CATCH2_REPO_URL}
+	GIT_TAG        ${CATCH2_VERSION_TAG}
+)
+FetchContent_MakeAvailable (catch2 )
 
-	## --- FetchContent {{{2
-
-	include (FetchContent )
-
-	FetchContent_Declare(
-		catch2
-		GIT_REPOSITORY    ${CATCH2_REPO_URL}
-		GIT_TAG           ${CATCH2_VERSION_TAG}
-	)
-
-	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.14.0" )
-
-		FetchContent_MakeAvailable (catch2 )
-
-	else()
-
-		FetchContent_GetProperties (catch2 )
-
-		if (NOT catch2_POPULATED )
-
-			FetchContent_Populate (catch2 )
-			add_subdirectory ("${catch2_SOURCE_DIR}" "${catch2_BINARY_DIR}" )
-		endif()
-	endif()
-	# 2}}}
-
-	set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE )
-
-else()
-
-	## --- ExternalProject (will be updated on build) {{{2
-
-	include (ExternalProject )
-
-	ExternalProject_Add(
-		catch2
-		GIT_REPOSITORY    ${CATCH2_REPO_URL}
-		GIT_TAG           ${CATCH2_VERSION_TAG}
-		GIT_SHALLOW       ON
-		GIT_PROGRESS      ON
-		TIMEOUT           10
-		UPDATE_COMMAND    "${GIT_EXECUTABLE}" pull
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND     ""
-		INSTALL_COMMAND   ""
-		LOG_DOWNLOAD      ON
-	)
-
-	ExternalProject_Get_Property(catch2 SOURCE_DIR BINARY_DIR TMP_DIR )
-
-	## --- Actually fetch Catch2 using the config created by ExternalProject_Add
-	execute_process(
-		COMMAND "${CMAKE_COMMAND}" -P "${TMP_DIR}/catch2-gitclone.cmake"
-		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-	)
-
-	## --- Load Catch2 CMake config
-	add_subdirectory ("${SOURCE_DIR}" "${BINARY_DIR}" )
-
-	unset (SOURCE_DIR )
-	unset (BINARY_DIR )
-	unset (TMP_DIR )
-	# 2}}}
-
-endif()
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE )
 
