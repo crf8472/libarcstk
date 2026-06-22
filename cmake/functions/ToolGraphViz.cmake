@@ -3,6 +3,8 @@
 
 function (enable_target_deps_graph_by_dot OUT_VAR )
 
+	set (${OUT_VAR} FALSE PARENT_SCOPE )
+
 	set (options      KEEP_DOT_FILES )
 	set (oneValueArgs FORMAT OUTPUT_DIR )
 	set (multiValueArgs )

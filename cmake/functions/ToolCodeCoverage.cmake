@@ -3,6 +3,7 @@
 
 ## Enable code coverage by gcovr
 function (enable_code_coverage_by_gcovr OUT_VAR )
+
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
 	find_program (GCOVR_BINARY gcovr )
@@ -34,6 +35,7 @@ endfunction()
 
 ## Enable code coverage by lcov
 function (enable_code_coverage_by_lcov OUT_VAR )
+
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
 	find_program (LCOV_BINARY    lcov    )
@@ -78,6 +80,7 @@ endmacro()
 
 ## Enable tools and compiler switches
 function (enable_code_coverage OUT_VAR )
+
 	set(${OUT_VAR} FALSE PARENT_SCOPE )
 
 	if (NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" )

@@ -2,6 +2,7 @@
 ## vim:fdm=marker
 
 function (enable_clang_tidy OUT_VAR )
+
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
 	find_program (CLANG_TIDY_BINARY

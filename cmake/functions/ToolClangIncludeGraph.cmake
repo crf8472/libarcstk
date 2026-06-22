@@ -3,6 +3,8 @@
 
 function (enable_clang_include_graph )
 
+	set (${OUT_VAR} FALSE PARENT_SCOPE )
+
 	set (options      KEEP_DOT_FILES )
 	set (oneValueArgs FORMAT OUTPUT_DIR )
 	set (multiValueArgs )
@@ -10,14 +12,13 @@ function (enable_clang_include_graph )
 	cmake_parse_arguments (GRAPH
 		"${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-	set (${OUT_VAR} FALSE PARENT_SCOPE )
-
 	## Find clang-include-graph
 
 	find_program (CLANG_INCLUDE_GRAPH_EXECUTABLE clang-include-graph )
 
 	if (NOT CLANG_INCLUDE_GRAPH_EXECUTABLE )
-		message(WARNING "clang-include-graph executable not found.")
+		message (WARNING "Target ${PROJECT_NAME}_include-graph not available"
+			", since executable 'clang-include-graph' was not found." )
 		return()
 	endif()
 
@@ -46,7 +47,7 @@ function (enable_clang_include_graph )
 	set (IMAGE_FILE
 		"${GRAPH_OUTPUT_DIR}/${PROJECT_NAME}_includes.${GRAPH_FORMAT}" )
 
-	file(MAKE_DIRECTORY ${GRAPH_OUTPUT_DIR} )
+	file (MAKE_DIRECTORY ${GRAPH_OUTPUT_DIR} )
 
 	## Collect commands
 
