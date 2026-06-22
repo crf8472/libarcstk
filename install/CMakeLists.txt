@@ -2,7 +2,7 @@
 ## vim:fdm=marker
 
 
-set (LIBARCSTK_EXPORT_SET   "${PROJECT_NAME}-targets" )
+set (LIBARCSTK_EXPORT_SET "${PROJECT_NAME}-targets" )
 
 
 ## --- Install binary and public headers
@@ -12,7 +12,8 @@ install (TARGETS ${PROJECT_NAME}
 	LIBRARY       DESTINATION lib
 	ARCHIVE       DESTINATION lib ## for .a/.lib files
 	RUNTIME       DESTINATION bin ## for .dll files (Windows)
-	PUBLIC_HEADER DESTINATION "${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}" )
+	PUBLIC_HEADER DESTINATION "${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}"
+)
 
 
 ## --- Install cmake config, version and targets file {{{1
