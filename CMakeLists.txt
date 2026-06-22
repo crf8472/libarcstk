@@ -16,7 +16,7 @@ cmake_policy (SET CMP0057 NEW )
 
 ## 1}}}
 
-project (libarcstk VERSION 0.3.1 LANGUAGES CXX )
+project (libarcstk VERSION 0.9.0 LANGUAGES CXX )
 
 set (LIBARCSTK_VERSION_SUFFIX "alpha.1" )
 set (LIBARCSTK_VERSION_STRING "${PROJECT_VERSION}-${LIBARCSTK_VERSION_SUFFIX}" )
