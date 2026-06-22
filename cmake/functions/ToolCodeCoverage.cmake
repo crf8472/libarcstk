@@ -43,7 +43,7 @@ function (enable_code_coverage_by_lcov OUT_VAR )
 		return()
 	endif()
 
-	add_custom_target (coverage
+	add_custom_target (${PROJECT_NAME}_coverage
 		COMMAND ${CMAKE_COMMAND} -E remove -f coverage.info
 		COMMAND ${LCOV_BINARY}
 			--ignore-errors inconsistent,source
