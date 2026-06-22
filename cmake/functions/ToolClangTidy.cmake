@@ -29,7 +29,7 @@ function (enable_clang_tidy OUT_VAR )
 	set (REPORT_FILE   "${LIBARCSTK_BINARY_DIR}/clang_tidy_report.txt" )
 	set (LOG_FILE      "${LIBARCSTK_BINARY_DIR}/clang_tidy_report.log" )
 
-	add_custom_target(clang-tidy
+	add_custom_target(${PROJECT_NAME}_clang-tidy
 		COMMAND ${CMAKE_COMMAND}
 			-DCLANG_TIDY_BINARY="${CLANG_TIDY_BINARY}"
 			-DSOURCES_DIR="${LIBARCSTK_SOURCE_DIR}"

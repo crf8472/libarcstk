@@ -68,7 +68,7 @@ function (enable_clang_include_graph )
 			COMMAND ${CMAKE_COMMAND} -E rm -f ${DOT_FILE} )
 	endif()
 
-	add_custom_target (include_graph
+	add_custom_target (${PROJECT_NAME}_include-graph
 		${GRAPH_COMMANDS}
 		WORKING_DIRECTORY ${LIBARCSTK_BINARY_DIR}
 		BYPRODUCTS ${IMAGE_FILE}

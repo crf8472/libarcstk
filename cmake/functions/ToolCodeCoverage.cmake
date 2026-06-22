@@ -14,7 +14,7 @@ function (enable_code_coverage_by_gcovr OUT_VAR )
 
 	message (STATUS "gcovr found: ${GCOVR_BINARY}" )
 
-	add_custom_target (coverage
+	add_custom_target (${PROJECT_NAME}_coverage
 		COMMAND ${CMAKE_COMMAND} -E make_directory coverage-report
 		COMMAND ${GCOVR_BINARY}
 			--root .

@@ -1,7 +1,7 @@
 ## libarcstk: CMake functions for drawing a target dependency graph
 ## vim:fdm=marker
 
-function (enable_target_dep_graph_by_dot OUT_VAR )
+function (enable_target_deps_graph_by_dot OUT_VAR )
 
 	set (options      KEEP_DOT_FILES )
 	set (oneValueArgs FORMAT OUTPUT_DIR )
@@ -52,7 +52,7 @@ function (enable_target_dep_graph_by_dot OUT_VAR )
 			COMMAND ${CMAKE_COMMAND} -E rm -f ${DOT_FILE} )
 	endif()
 
-	add_custom_target (target_deps
+	add_custom_target (${PROJECT_NAME}_target-deps
 		${GRAPH_COMMANDS}
 		WORKING_DIRECTORY ${LIBARCSTK_BINARY_DIR}
 		BYPRODUCTS ${IMAGE_FILE}

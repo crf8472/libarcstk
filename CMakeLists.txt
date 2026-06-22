@@ -3,19 +3,6 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
-## --- Policies {{{1
-
-## Set variables corresponding to unspecified versions to the empty string.
-## Required for specifying the project version along with the name in project().
-## See: https://cmake.org/cmake/help/latest/policy/CMP0048.html
-cmake_policy (SET CMP0048 NEW )
-
-## Support IN_LIST if() operator
-## https://cmake.org/cmake/help/latest/policy/CMP0057.html
-cmake_policy (SET CMP0057 NEW )
-
-## 1}}}
-
 project (libarcstk VERSION 0.9.0 LANGUAGES CXX )
 
 set (LIBARCSTK_VERSION_SUFFIX "alpha.1" )
@@ -46,7 +33,7 @@ endif()
 
 ## 1}}}
 
-set (CMAKE_EXPORT_COMPILE_COMMANDS ON) ## required for clang-tidy and iwyu
+message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
 ## --- Includes {{{1
 set (cmake_include_dir_ "${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
@@ -59,22 +46,17 @@ include ("${cmake_include_dir_}/GitInfo.cmake" )
 
 ## Optional support for development
 include ("${cmake_include_dir_}/ToolClangTidy.cmake" )
-include ("${cmake_include_dir_}/ToolGraphViz.cmake" )
 include ("${cmake_include_dir_}/ToolClangIncludeGraph.cmake" )
+include ("${cmake_include_dir_}/ToolCodeCoverage.cmake" )
+include ("${cmake_include_dir_}/ToolGraphViz.cmake" )
 
 unset (cmake_include_dir_ )
 ## 1}}}
+## --- CMake Setup {{{1
 
-git_get_version_string (LIBARCSTK_GIT_VERSION_STRING )
-git_get_commit_id      (LIBARCSTK_GIT_COMMIT_ID )
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON ) ## required for clang-tidy and iwyu
 
-enable_clang_tidy              (LIBARCSTK_CLANG_TIDY_ENABLED )
-enable_target_dep_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
-enable_clang_include_graph     (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
-
-message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
-
-## --- Setup Default Build Type {{{1
+## --- Setup Default Build Type {{{2
 
 if (NOT CMAKE_BUILD_TYPE )
 
@@ -83,9 +65,10 @@ if (NOT CMAKE_BUILD_TYPE )
 
 	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
 endif (NOT CMAKE_BUILD_TYPE )
-## 1}}}
 
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
+## 2}}}
+## 1}}}
 
 ## --- Setup Build Tree {{{1
 setup_build_tree()
@@ -95,6 +78,8 @@ setup_build_tree()
 
 set_property (DIRECTORY APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
+
+git_get_version_string (LIBARCSTK_GIT_VERSION_STRING )
 
 configure_file ("${LIBARCSTK_SOURCE_DIR}/version.cpp.in"
 	"${LIBARCSTK_GENSRC_BINARY_DIR}/version.cpp"
@@ -126,7 +111,8 @@ target_include_directories (${PROJECT_NAME}
 		$<BUILD_INTERFACE:${LIBARCSTK_INCLUDE_BINARY_DIR}>
 		$<INSTALL_INTERFACE:${LIBARCSTK_INCLUDE_INSTALL_SUBDIR}>
 	PRIVATE
-		"${LIBARCSTK_GENSRC_BINARY_DIR}" ## for generated sources
+		#$<BUILD_INTERFACE:${LIBARCSTK_SOURCE_DIR}> ## private headers
+		$<BUILD_INTERFACE:${LIBARCSTK_GENSRC_BINARY_DIR}> ## generated sources
 	)
 
 set_target_properties (${PROJECT_NAME} PROPERTIES
@@ -158,11 +144,11 @@ if (NOT SKIP_INSTALL_ALL )
 endif ()
 
 ## 1}}}
-## --- Optional: Build Tests (default: OFF) {{{1
+## --- Option: WITH_TESTS {{{1
 
 option (WITH_TESTS "Build unit tests" OFF )
 
-if (WITH_TESTS)
+if (WITH_TESTS )
 
 	message (STATUS "Build with tests" )
 
@@ -180,14 +166,14 @@ if (WITH_TESTS)
 	## Add tests
 	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/test" )
 
-endif (WITH_TESTS)
+endif (WITH_TESTS )
 
 ## 1}}}
-## --- Optional: Build documentation (default: OFF) {{{1
+## --- Options: Build documentation {{{1
 
 option (WITH_DOCS          "Build documentation for public API"           OFF )
-option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
+option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
 option (WITH_EXAMPLES      "Build examples"                               OFF )
 
 ## -- Process configuration for building the documentation
@@ -214,11 +200,17 @@ if (WITH_INTERNAL_DOCS )
 endif()
 
 ## 1}}}
-## --- Process configuration for building the examples {{{1
+## --- Setup examples {{{1
 
 if (WITH_EXAMPLES )
 	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
 endif()
 
+## 1}}}
+## --- Setup development tools {{{1
+enable_clang_tidy               (LIBARCSTK_CLANG_TIDY_ENABLED )
+enable_clang_include_graph      (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
+enable_code_coverage            (LIBARCSTK_CLANG_COVERAGE_ENABLED )
+enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
 
