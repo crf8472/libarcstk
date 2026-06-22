@@ -126,7 +126,7 @@ endif()
 
 ## --- Apply Compiler Flags to Library Sources (not to Test Sources) {{{1
 
-function (apply_compiler_flags TARGET_NAME )
+function (libarcstk_apply_compiler_flags TARGET_NAME )
 
 	## Apply warning flags
 

@@ -1,7 +1,7 @@
 ## libarcstk: Setup build tree
 ## vim:fdm=marker
 
-function (setup_build_tree)
+function (libarcstk_setup_build_tree )
 
 ## -- Log Directory {{{1
 
@@ -41,7 +41,7 @@ add_custom_target (libarcstk_link_to_headers
 )
 
 add_dependencies (libarcstk_link_to_headers libarcstk_create_include_dir )
+##}}}1
 
 endfunction()
-##}}}1
 

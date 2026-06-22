@@ -1,7 +1,7 @@
 ## libarcstk: CMake functions for drawing a target dependency graph
 ## vim:fdm=marker
 
-function (enable_target_deps_graph_by_dot OUT_VAR )
+function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR )
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 

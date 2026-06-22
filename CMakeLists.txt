@@ -36,21 +36,22 @@ endif()
 message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
 ## --- Includes {{{1
-set (cmake_include_dir_ "${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
+set (_libarcstk_cmake_functions_dir
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
 
 ## Mandatory configuration
-include ("${cmake_include_dir_}/ProjectFilesAndDirectories.cmake" )
-include ("${cmake_include_dir_}/BuildTreeSetup.cmake" )
-include ("${cmake_include_dir_}/CompilerFlags.cmake" )
-include ("${cmake_include_dir_}/GitInfo.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/ProjectFilesAndDirectories.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/BuildTreeSetup.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/CompilerFlags.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/GitInfo.cmake" )
 
 ## Optional support for development
-include ("${cmake_include_dir_}/ToolClangTidy.cmake" )
-include ("${cmake_include_dir_}/ToolClangIncludeGraph.cmake" )
-include ("${cmake_include_dir_}/ToolCodeCoverage.cmake" )
-include ("${cmake_include_dir_}/ToolGraphViz.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/ToolClangTidy.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/ToolClangIncludeGraph.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/ToolCodeCoverage.cmake" )
+include ("${_libarcstk_cmake_functions_dir}/ToolGraphViz.cmake" )
 
-unset (cmake_include_dir_ )
+unset (_libarcstk_cmake_functions_dir )
 ## 1}}}
 ## --- CMake Setup {{{1
 
@@ -71,7 +72,7 @@ message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 ## 1}}}
 
 ## --- Setup Build Tree {{{1
-setup_build_tree()
+libarcstk_setup_build_tree()
 
 # 1}}}
 ## --- Trigger Configuration Step Whenever Git Index Changes {{{1
@@ -79,7 +80,7 @@ setup_build_tree()
 set_property (DIRECTORY APPEND
 	PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/index" )
 
-git_get_version_string (LIBARCSTK_GIT_VERSION_STRING )
+libarcstk_git_get_version_string (LIBARCSTK_GIT_VERSION_STRING )
 
 configure_file ("${LIBARCSTK_SOURCE_DIR}/version.cpp.in"
 	"${LIBARCSTK_GENSRC_BINARY_DIR}/version.cpp"
@@ -129,7 +130,7 @@ add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 ## 1}}}
 ## --- Compiler Specific Settings {{{1
 
-apply_compiler_flags (${PROJECT_NAME} )
+libarcstk_apply_compiler_flags (${PROJECT_NAME} )
 
 ## 1}}}
 
@@ -208,9 +209,9 @@ endif()
 
 ## 1}}}
 ## --- Setup development tools {{{1
-enable_clang_tidy               (LIBARCSTK_CLANG_TIDY_ENABLED )
-enable_clang_include_graph      (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
-enable_code_coverage            (LIBARCSTK_CODE_COVERAGE_ENABLED )
-enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
+libarcstk_enable_clang_tidy (LIBARCSTK_CLANG_TIDY_ENABLED )
+libarcstk_enable_clang_include_graph (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
+libarcstk_enable_code_coverage (LIBARCSTK_CODE_COVERAGE_ENABLED )
+libarcstk_enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
 

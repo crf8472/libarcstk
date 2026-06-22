@@ -1,7 +1,7 @@
 ## libarcstk: CMake functions for static code analysis
 ## vim:fdm=marker
 
-function (enable_clang_tidy OUT_VAR )
+function (libarcstk_enable_clang_tidy OUT_VAR )
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
