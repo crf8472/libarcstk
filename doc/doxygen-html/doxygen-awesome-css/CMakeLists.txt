@@ -15,7 +15,7 @@
 cmake_minimum_required (VERSION 3.10 )
 ## --- Policies {{{1
 
-## Set the timestamps of downloaded files to their respective server time.
+## 3.24: Set the timestamps of downloaded files to their respective server time.
 ## https://cmake.org/cmake/help/latest/policy/CMP0135.html
 cmake_policy (SET CMP0135 NEW )
 ## 1}}}
