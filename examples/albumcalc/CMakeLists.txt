@@ -11,8 +11,8 @@ set_target_properties (libarcstk_example_albumcalc PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS        OFF
 	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
-	#BUILD_WITH_INSTALL_RPATH    FALSE
-	#INSTALL_RPATH_USE_LINK_PATH TRUE
+	BUILD_WITH_INSTALL_RPATH    FALSE
+	INSTALL_RPATH_USE_LINK_PATH TRUE
 )
 
 target_compile_options (libarcstk_example_albumcalc

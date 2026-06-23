@@ -3,8 +3,8 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
-set (CMAKE_BUILD_WITH_INSTALL_RPATH    FALSE )
-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE  )
+#set (CMAKE_BUILD_WITH_INSTALL_RPATH    FALSE )
+#set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE  )
 
 ## If set to 'ON' the examples target will be build with the default target,
 ## 'OFF' means the examples target has to be built explicitly.
