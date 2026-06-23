@@ -1,0 +1,66 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux (GCC)
+          - os: ubuntu-latest
+            compiler: g++
+          # Linux (Clang)
+          - os: ubuntu-latest
+            compiler: clang++
+          # macOS
+          - os: macos-latest
+            compiler: clang++
+          # Windows (optional für später)
+          # - os: windows-latest
+          #   compiler: msvc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Set up dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DWITH_TESTS=ON \
+            -DWITH_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Build examples
+        run: cmake --build build --target libarcstk_examples
+
+      - name: Run unit tests
+        run: ctest --test-dir build --output-on-failure -V
+
+      - name: Run examples
+        run: |
+          cd examples
+          # ./example_program testdata/sample.txt
