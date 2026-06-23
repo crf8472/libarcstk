@@ -41,7 +41,7 @@ jobs:
       - name: Set up dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install cmake ninja libsndfile libcue
+          brew install cmake ninja
 
       - name: Configure CMake
         run: |
