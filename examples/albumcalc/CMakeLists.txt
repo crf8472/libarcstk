@@ -10,6 +10,7 @@ set_target_properties (libarcstk_example_albumcalc PROPERTIES
 	CXX_STANDARD          17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS        OFF
+	OUTPUT_NAME           albumcalc
 	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
 	BUILD_WITH_INSTALL_RPATH    FALSE
 	INSTALL_RPATH_USE_LINK_PATH TRUE
@@ -32,15 +33,15 @@ if (TARGET SndFile::sndfile )
 else()
 	## found by cmake/Modules/Findlibsndfile.cmake
 
-	if (NOT libsndfile_LIBRARIES )
-		find_package (libsndfile 1.0.17 REQUIRED )
-	endif()
+	#if (NOT libsndfile_LIBRARIES )
+	#	find_package (libsndfile 1.0.17 REQUIRED )
+	#endif()
 
 	target_include_directories (libarcstk_example_albumcalc
-		PRIVATE ${libsndfile_INCLUDE_DIRS} )
+		PRIVATE ${SndFile_INCLUDE_DIRS} )
 
 	target_link_libraries      (libarcstk_example_albumcalc
-		PUBLIC  ${libsndfile_LIBRARIES} )
+		PUBLIC  ${SndFile_LIBRARIES} )
 endif()
 
 

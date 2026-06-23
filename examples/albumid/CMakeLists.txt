@@ -10,6 +10,7 @@ set_target_properties (libarcstk_example_albumid PROPERTIES
 	CXX_STANDARD          17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS        OFF
+	OUTPUT_NAME           albumid
 	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
 	BUILD_WITH_INSTALL_RPATH    FALSE
 	INSTALL_RPATH_USE_LINK_PATH TRUE
@@ -30,24 +31,24 @@ if (TARGET SndFile::sndfile )
 	target_link_libraries (libarcstk_example_albumid
 		PRIVATE SndFile::sndfile )
 else()
-	## found by cmake/Modules/Findlibsndfile.cmake
+	## found by cmake/Modules/FindSndFile.cmake
 
-	if (NOT libsndfile_LIBRARIES )
-		find_package (libsndfile 1.0.17 REQUIRED )
-	endif()
+	#if (NOT SndFile_LIBRARIES )
+	#	find_package (SndFile 1.0.17 REQUIRED )
+	#endif()
 
 	target_include_directories (libarcstk_example_albumid
-		PRIVATE ${libsndfile_INCLUDE_DIRS} )
+		PRIVATE ${SndFile_INCLUDE_DIRS} )
 
 	target_link_libraries      (libarcstk_example_albumid
-		PUBLIC  ${libsndfile_LIBRARIES} )
+		PUBLIC  ${SndFile_LIBRARIES} )
 endif()
 
 
 ## build with libcue for metadata parsing
 
 find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
-find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
+find_library (LIBCUE_LIBRARY     NAMES libcue.so libcue2.so REQUIRED )
 
 
 ## build

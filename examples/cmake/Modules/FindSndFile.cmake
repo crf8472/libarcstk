@@ -2,10 +2,10 @@
 ##
 ## Defines the following variables:
 ##
-## libsndfile_FOUND
-## libsndfile_INCLUDE_DIRS
-## libsndfile_LIBRARIES
-## libsndfile_VERSION
+## SndFile_FOUND
+## SndFile_INCLUDE_DIRS
+## SndFile_LIBRARIES
+## SndFile_VERSION
 
 if (LIBSNDFILE_INCLUDE_DIR AND LIBSNDFILE_LIBRARY )
 
@@ -21,7 +21,7 @@ if (PkgConfig_FOUND )
 
 	PKG_CHECK_MODULES (PC_LIBSNDFILE QUIET sndfile )
 
-	set (libsndfile_VERSION ${PC_LIBSNDFILE_VERSION} )
+	set (SndFile_VERSION ${PC_LIBSNDFILE_VERSION} )
 endif (PkgConfig_FOUND )
 
 ## 2: find includes
@@ -46,15 +46,15 @@ find_library(LIBSNDFILE_LIBRARY
 
 include (FindPackageHandleStandardArgs )
 
-find_package_handle_standard_args (libsndfile
+find_package_handle_standard_args (SndFile
 	REQUIRED_VARS LIBSNDFILE_LIBRARY LIBSNDFILE_INCLUDE_DIR
-	VERSION_VAR   libsndfile_VERSION
+	VERSION_VAR   SndFile_VERSION
     FAIL_MESSAGE  DEFAULT_MSG )
 
 ## 5: set declared variables
 
-set (libsndfile_LIBRARIES    ${LIBSNDFILE_LIBRARY} )
-set (libsndfile_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR} )
+set (SndFile_LIBRARIES    ${LIBSNDFILE_LIBRARY} )
+set (SndFile_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR} )
 
 mark_as_advanced (LIBSNDFILE_INCLUDE_DIR LIBSNDFILE_LIBRARY )
 

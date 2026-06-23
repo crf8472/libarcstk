@@ -9,6 +9,7 @@ set_target_properties (libarcstk_example_dbarparse PROPERTIES
 	CXX_STANDARD          17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS        OFF
+	OUTPUT_NAME           dbarparse
 	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
 	BUILD_WITH_INSTALL_RPATH    FALSE
 	INSTALL_RPATH_USE_LINK_PATH TRUE
