@@ -64,5 +64,8 @@ jobs:
 
       - name: Run examples
         run: |
-          build/examples/albumcalc/albumcalc
+          ./build/examples/albumcalc/albumcalc
+          ./build/examples/albumid/albumid
+          ./build/examples/albumverify/albumverify
+          ./build/examples/dbarparse/dbarparse
 
