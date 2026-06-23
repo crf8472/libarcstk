@@ -33,7 +33,8 @@ endif()
 
 ## 1}}}
 
-message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
+include (cmake/functions/Banner.cmake )
+banner (BEGIN "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
 ## --- Includes {{{1
 set (_libarcstk_cmake_functions_dir
@@ -174,7 +175,6 @@ endif (WITH_TESTS )
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
-option (WITH_EXAMPLES      "Build examples"                               OFF )
 
 ## -- Process configuration for building the documentation
 if (WITH_DOCS )
@@ -202,10 +202,7 @@ endif()
 ## 1}}}
 ## --- Setup examples {{{1
 
-if (WITH_EXAMPLES )
-	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
-endif()
-
+add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
 ## 1}}}
 ## --- Setup development tools {{{1
 libarcstk_enable_clang_tidy (LIBARCSTK_CLANG_TIDY_ENABLED )
@@ -213,4 +210,6 @@ libarcstk_enable_clang_include_graph (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
 libarcstk_enable_code_coverage (LIBARCSTK_CODE_COVERAGE_ENABLED )
 libarcstk_enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
+
+banner (END "Completed ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 

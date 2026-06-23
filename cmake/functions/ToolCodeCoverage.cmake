@@ -1,8 +1,10 @@
 ## libarcstk: CMake functions for using code coverage
 ## vim:fdm=marker
 
+cmake_minimum_required (VERSION 3.18 )
+
 ## Enable code coverage by gcovr
-function (libarcstk_enable_code_coverage_by_gcovr OUT_VAR )
+function (libarcstk_enable_code_coverage_by_gcovr OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
@@ -30,11 +32,10 @@ function (libarcstk_enable_code_coverage_by_gcovr OUT_VAR )
 	)
 
 	set (${OUT_VAR} TRUE PARENT_SCOPE )
-endfunction()
-
+endfunction() # 1}}}
 
 ## Enable code coverage by lcov
-function (libarcstk_enable_code_coverage_by_lcov OUT_VAR )
+function (libarcstk_enable_code_coverage_by_lcov OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
@@ -68,24 +69,23 @@ function (libarcstk_enable_code_coverage_by_lcov OUT_VAR )
 	)
 
 	set (${OUT_VAR} TRUE PARENT_SCOPE )
-endfunction()
+endfunction() # 1}}}
 
-
-## Activate code coverage on compiler
-macro (libarcstk_activate_code_coverage_on_compiler )
+## Add compiler switches for code coverage
+macro (libarcstk_activate_code_coverage_on_compiler ) # {{{1
 	add_compile_options (--coverage)
 	add_link_options    (--coverage)
-endmacro()
+endmacro() # 1}}}
 
-
-## Enable tools and compiler switches
-function (libarcstk_enable_code_coverage OUT_VAR )
+## Enable code coverage functionality
+function (libarcstk_enable_code_coverage OUT_VAR ) # {{{1
 
 	set(${OUT_VAR} FALSE PARENT_SCOPE )
 
 	if (NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" )
 
-		message (WARNING "Code coverage only supported by g++/clang++" )
+		message (WARNING "Target ${PROJECT_NAME}_coverage not provided"
+			" since code coverage is only supported by g++/clang++" )
 		return()
 	endif()
 
@@ -97,7 +97,8 @@ function (libarcstk_enable_code_coverage OUT_VAR )
 	libarcstk_enable_code_coverage_by_gcovr (GCOVR_ENABLED )
 
 	if (GCOVR_ENABLED )
-		message (STATUS "Use gcovr for code coverage" )
+		message (STATUS "Target ${PROJECT_NAME}_coverage:"
+			" Use gcovr for code coverage" )
 
 		libarcstk_activate_code_coverage_on_compiler()
 		set (${OUT_VAR} TRUE PARENT_SCOPE )
@@ -110,7 +111,8 @@ function (libarcstk_enable_code_coverage OUT_VAR )
 	libarcstk_enable_code_coverage_by_lcov (LCOV_ENABLED )
 
 	if (LCOV_ENABLED )
-		message (STATUS "Use lcov for code coverage" )
+		message (STATUS "Target ${PROJECT_NAME}_coverage:"
+			" Use lcov for code coverage" )
 
 		libarcstk_activate_code_coverage_on_compiler()
 		set (${OUT_VAR} TRUE PARENT_SCOPE )
@@ -119,7 +121,10 @@ function (libarcstk_enable_code_coverage OUT_VAR )
 
 	## No coverage tool available
 
-	message (WARNING "Found neither gcovr nor lcov" )
+	message (WARNING "Target ${PROJECT_NAME}_coverage: not provided"
+		" since no coverage tool was found."
+		" This message is for developers only, ignore it for regular builds."
+	)
 
-endfunction()
+endfunction() # 1}}}
 

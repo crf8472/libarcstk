@@ -1,6 +1,8 @@
 ## libarcstk: Compiler-specific warning and optimization flags
 ## vim:fdm=marker
 
+cmake_minimum_required (VERSION 3.10 )
+
 ## --- g++ Flags: Warnings {{{1
 
 set (LIBARCSTK_CXX_GNU_FLAGS_WARNINGS
