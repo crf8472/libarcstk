@@ -21,9 +21,14 @@ function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR ) # {{{1
 
 	if (NOT DOT_EXECUTABLE )
 		message (WARNING "Target ${PROJECT_NAME}_target-deps: not provided"
-			" since dot (graphviz) not found")
+			" since dot (graphviz) not found."
+			" This message is for developers only,"
+			" ignore it for regular builds."
+		)
 		return()
 	endif()
+
+	message (STATUS "dot found: ${DOT_EXECUTABLE}" )
 
 	## Defaults
 

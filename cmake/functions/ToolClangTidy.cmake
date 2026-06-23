@@ -14,7 +14,11 @@ function (libarcstk_enable_clang_tidy OUT_VAR ) # {{{1
 	)
 
 	if (NOT CLANG_TIDY_BINARY )
-		message (WARNING "clang-tidy not found. Install clang-tools.")
+		message (WARNING "Target ${PROJECT_NAME}_clang-tidy: not provided"
+			" since clang-tidy was not found."
+			" This message is for developers only,"
+			" ignore it for regular builds."
+		)
 		return()
 	endif()
 
@@ -24,7 +28,10 @@ function (libarcstk_enable_clang_tidy OUT_VAR ) # {{{1
 		"${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/run_clang_tidy.cmake" )
 
 	if (NOT EXISTS "${CLANG_TIDY_SCRIPT}" )
-		message(WARNING "clang-tidy script not found: ${CLANG_TIDY_SCRIPT}")
+		message (WARNING "Target ${PROJECT_NAME}_clang-tidy: not provided"
+			" since clang-tidy script not found: ${CLANG_TIDY_SCRIPT}."
+			" This message is for developers only, ignore it for regular builds."
+		)
 		return()
 	endif()
 

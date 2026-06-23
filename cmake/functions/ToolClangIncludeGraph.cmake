@@ -21,9 +21,15 @@ function (libarcstk_enable_clang_include_graph OUT_VAR ) # {{{1
 
 	if (NOT CLANG_INCLUDE_GRAPH_EXECUTABLE )
 		message (WARNING "Target ${PROJECT_NAME}_include-graph: not provided"
-			" since executable 'clang-include-graph' was not found." )
+			" since executable 'clang-include-graph' was not found."
+			" This message is for developers only,"
+			" ignore it for regular builds."
+		)
 		return()
 	endif()
+
+	message (STATUS
+		"clang-include-graph found: ${CLANG_INCLUDE_GRAPH_EXECUTABLE}" )
 
 	## Find dot
 
@@ -31,9 +37,14 @@ function (libarcstk_enable_clang_include_graph OUT_VAR ) # {{{1
 
 	if (NOT DOT_EXECUTABLE )
 		message (WARNING "Target ${PROJECT_NAME}_include-graph: not provided"
-			" since dot (graphviz) not found")
+			" since dot (graphviz) not found."
+			" This message is for developers only,"
+			" ignore it for regular builds."
+		)
 		return()
 	endif()
+
+	message (STATUS "dot found: ${DOT_EXECUTABLE}" )
 
 	## Defaults
 
