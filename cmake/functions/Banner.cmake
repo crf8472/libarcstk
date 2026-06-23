@@ -1,5 +1,6 @@
 ## libarcstk: let cmake print a colored banner
 ## vim:fdm=marker
+## inspired by https://stackoverflow.com/a/19578320
 
 cmake_minimum_required (VERSION 3.10 )
 

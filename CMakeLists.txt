@@ -175,7 +175,6 @@ endif (WITH_TESTS )
 option (WITH_DOCS          "Build documentation for public API"           OFF )
 option (USE_DOC_TOOL       "Build documentation using specified tool"     OFF )
 option (WITH_INTERNAL_DOCS "Build documentation also for internal APIs"   OFF )
-option (WITH_EXAMPLES      "Build examples"                               OFF )
 
 ## -- Process configuration for building the documentation
 if (WITH_DOCS )
@@ -203,10 +202,7 @@ endif()
 ## 1}}}
 ## --- Setup examples {{{1
 
-if (WITH_EXAMPLES )
-	add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
-endif()
-
+add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/examples" )
 ## 1}}}
 ## --- Setup development tools {{{1
 libarcstk_enable_clang_tidy (LIBARCSTK_CLANG_TIDY_ENABLED )

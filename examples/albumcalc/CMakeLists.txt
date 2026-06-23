@@ -1,18 +1,24 @@
 ## Build example application 'albumcalc'
 ## vim: fdm=marker
 
-add_executable ( libarcstk_albumcalc albumcalc.cpp )
+cmake_minimum_required (VERSION 3.10 )
 
-set_target_properties ( libarcstk_albumcalc PROPERTIES
+add_executable (libarcstk_example_albumcalc EXCLUDE_FROM_ALL albumcalc.cpp )
+add_dependencies (libarcstk_examples  libarcstk_example_albumcalc )
+
+set_target_properties (libarcstk_example_albumcalc PROPERTIES
 	CXX_STANDARD          17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS        OFF
 	BUILD_RPATH           "${LIBARCSTK_BINARY_DIR}"
+	#BUILD_WITH_INSTALL_RPATH    FALSE
+	#INSTALL_RPATH_USE_LINK_PATH TRUE
 )
 
-target_compile_options ( libarcstk_albumcalc PRIVATE -Wall -Wextra -pedantic )
+target_compile_options (libarcstk_example_albumcalc
+	PRIVATE -Wall -Wextra -pedantic )
 
-add_dependencies ( libarcstk_albumcalc libarcstk )
+add_dependencies (libarcstk_example_albumcalc libarcstk )
 
 
 ## build with libsndfile for audio reading
@@ -21,7 +27,8 @@ find_package (SndFile 1.0.17 REQUIRED )
 
 if (TARGET SndFile::sndfile )
 	## found by libsndfile's cmake config
-	target_link_libraries (libarcstk_albumcalc PRIVATE SndFile::sndfile )
+	target_link_libraries (libarcstk_example_albumcalc
+		PRIVATE SndFile::sndfile )
 else()
 	## found by cmake/Modules/Findlibsndfile.cmake
 
@@ -29,10 +36,10 @@ else()
 		find_package (libsndfile 1.0.17 REQUIRED )
 	endif()
 
-	target_include_directories ( libarcstk_albumcalc
+	target_include_directories (libarcstk_example_albumcalc
 		PRIVATE ${libsndfile_INCLUDE_DIRS} )
 
-	target_link_libraries      ( libarcstk_albumcalc
+	target_link_libraries      (libarcstk_example_albumcalc
 		PUBLIC  ${libsndfile_LIBRARIES} )
 endif()
 
@@ -47,12 +54,12 @@ find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
 
 ## Always link to the libarcstk headers in the build/ dir - if another header
 ## is present, ignore it.
-target_include_directories ( libarcstk_albumcalc
+target_include_directories (libarcstk_example_albumcalc
 	PRIVATE ${LIBCUE_INCLUDE_DIR}
 	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.
-target_link_libraries ( libarcstk_albumcalc
+target_link_libraries (libarcstk_example_albumcalc
 	PRIVATE ${LIBCUE_LIBRARY} PRIVATE libarcstk )
 
