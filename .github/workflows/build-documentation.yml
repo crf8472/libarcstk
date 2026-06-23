@@ -39,7 +39,7 @@ jobs:
       - name: Set up dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install cmake ninja doxygen ghostscript python virtualenv texlive
+          brew install cmake ninja doxygen ghostscript python virtualenv dvisvgm
 
       - name: Configure CMake
         run: |
