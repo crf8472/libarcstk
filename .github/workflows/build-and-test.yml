@@ -49,7 +49,7 @@ jobs:
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DWITH_TESTS=ON \
-            -DWITH_EXAMPLES=ON
+            -DWITH_EXAMPLES=OFF
 
       - name: Build
         run: cmake --build build
