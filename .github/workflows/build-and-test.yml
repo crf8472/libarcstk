@@ -51,16 +51,13 @@ jobs:
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DWITH_TESTS=ON \
-            -DWITH_EXAMPLES=OFF
+            -DWITH_EXAMPLES=ON
 
       - name: Build
         run: cmake --build build
 
       - name: Run unit tests
         run: ctest --test-dir build --output-on-failure -V
-
-      - name: Build examples
-        run: cmake --build build --target libarcstk_examples
 
       - name: Run examples
         run: |
