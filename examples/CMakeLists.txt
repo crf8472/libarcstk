@@ -17,6 +17,9 @@ else()
 	add_custom_target (libarcstk_examples )
 endif()
 
+## Search path for cmake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+
 add_subdirectory ( "albumcalc" )
 add_subdirectory ( "albumid" )
 add_subdirectory ( "albumverify" )
