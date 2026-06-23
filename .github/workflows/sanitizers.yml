@@ -1,0 +1,68 @@
+name: Sanitizers
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  asan-ubsan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.compiler }} cmake ninja-build
+
+      - name: Configure with AddressSanitizer & UBSan
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }} \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+            -DWITH_TESTS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests with sanitizers
+        run: cd build && ctest --verbose
+        env:
+          ASAN_OPTIONS: "halt_on_error=1:strict_string_checks=1"
+          UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
+
+  msan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build libc++-dev
+
+      - name: Configure with MemorySanitizer
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_FLAGS="-fsanitize=memory -fno-omit-frame-pointer -g" \
+            -DWITH_TESTS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests with MemorySanitizer
+        run: cd build && ctest --verbose
+        env:
+          MSAN_OPTIONS: "halt_on_error=1"
+
