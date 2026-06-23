@@ -22,5 +22,5 @@ add_subdirectory ( "albumid" )
 add_subdirectory ( "albumverify" )
 add_subdirectory ( "dbarparse" )
 
-add_dependencies ( libarcstk::libarcstk libarcstk_examples )
+#add_dependencies ( ${PROJECT_NAME} libarcstk_examples )
 

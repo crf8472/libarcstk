@@ -27,5 +27,5 @@ target_include_directories (libarcstk_example_albumverify
 ## is present, ignore it.
 target_link_libraries (libarcstk_example_albumverify PRIVATE libarcstk )
 
-add_dependencies ( libarcstk_examples libarcstk_albumverify )
+add_dependencies ( libarcstk_examples libarcstk_example_albumverify )
 

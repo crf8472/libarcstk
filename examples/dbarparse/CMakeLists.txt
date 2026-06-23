@@ -26,7 +26,5 @@ target_include_directories (libarcstk_example_dbarparse
 ## is present, ignore it.
 target_link_libraries (libarcstk_example_dbarparse PRIVATE libarcstk )
 
-add_dependencies (libarcstk_examples  libarcstk_example_dbarparse )
-
-add_dependencies ( libarcstk_examples libarcstk_dbarparse )
+add_dependencies (libarcstk_examples libarcstk_example_dbarparse )
 
