@@ -1,10 +1,12 @@
 ## libarcstk: Acquire git version info
 ## vim:fdm=marker
 
+cmake_minimum_required (VERSION 3.10 )
+
 find_package (Git QUIET REQUIRED )
 
-## Execute git
-function (_libarcstk_git_execute_command OUT_VAR )
+## Worker: execute git
+function (_libarcstk_git_execute_command OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} "UNKNOWN" PARENT_SCOPE )
 
@@ -22,11 +24,10 @@ function (_libarcstk_git_execute_command OUT_VAR )
 		return()
 	endif()
 
-endfunction()
+endfunction() ## 1}}}
 
-
-# Get git version string
-function (libarcstk_git_get_version_string VERSION_VAR )
+## Get git version string
+function (libarcstk_git_get_version_string VERSION_VAR ) # {{{1
 
 	set (${VERSION_VAR} "v0.0.0-nogit" PARENT_SCOPE )
 
@@ -39,10 +40,10 @@ function (libarcstk_git_get_version_string VERSION_VAR )
 	endif()
 
 	set (${VERSION_VAR} "${GIT_VERSION}" PARENT_SCOPE )
-endfunction()
+endfunction() ## 1}}}
 
-# Get git commit id
-function (libarcstk_git_get_commit_id COMMIT_VAR )
+## Get git commit id
+function (libarcstk_git_get_commit_id COMMIT_VAR ) # {{{1
 
 	set (${COMMIT_VAR} "00000000" PARENT_SCOPE )
 
@@ -55,5 +56,5 @@ function (libarcstk_git_get_commit_id COMMIT_VAR )
 	endif()
 
 	set (${COMMIT_VAR} "${GIT_COMMIT_ID}" PARENT_SCOPE )
-endfunction()
+endfunction() ## 1}}}
 

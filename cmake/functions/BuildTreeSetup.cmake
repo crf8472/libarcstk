@@ -1,6 +1,8 @@
 ## libarcstk: Setup build tree
 ## vim:fdm=marker
 
+cmake_minimum_required (VERSION 3.10 )
+
 function (libarcstk_setup_build_tree )
 
 ## -- Log Directory {{{1
