@@ -31,15 +31,9 @@ if (TARGET SndFile::sndfile )
 	target_link_libraries (libarcstk_example_albumcalc
 		PRIVATE SndFile::sndfile )
 else()
-	## found by cmake/Modules/Findlibsndfile.cmake
-
-	#if (NOT libsndfile_LIBRARIES )
-	#	find_package (libsndfile 1.0.17 REQUIRED )
-	#endif()
-
+	## found by cmake/Modules/FindSndFile.cmake
 	target_include_directories (libarcstk_example_albumcalc
 		PRIVATE ${SndFile_INCLUDE_DIRS} )
-
 	target_link_libraries      (libarcstk_example_albumcalc
 		PUBLIC  ${SndFile_LIBRARIES} )
 endif()
@@ -47,22 +41,24 @@ endif()
 
 ## build with libcue for metadata parsing
 
-find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
-find_library (LIBCUE_LIBRARY     NAMES libcue.so libcue-2.so libcue.2.so REQUIRED )
-
+## commented out: version without Findlibcue.cmake worked on linux not on macos
+#find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
+#find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
+find_package (libcue 2.0.0 REQUIRED )
 
 ## build
 
 ## Always link to the libarcstk headers in the build/ dir - if another header
 ## is present, ignore it.
 target_include_directories (libarcstk_example_albumcalc
-	PRIVATE ${LIBCUE_INCLUDE_DIR}
+	PRIVATE ${libcue_INCLUDE_DIRS}
 	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.
 target_link_libraries (libarcstk_example_albumcalc
-	PRIVATE ${LIBCUE_LIBRARY} PRIVATE libarcstk )
+	PRIVATE ${libcue_LIBRARIES}
+	PRIVATE libarcstk )
 
 add_dependencies ( libarcstk_examples libarcstk_example_albumcalc )
 
