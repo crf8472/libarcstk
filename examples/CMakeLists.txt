@@ -17,13 +17,13 @@ else()
 	add_custom_target (libarcstk_examples )
 endif()
 
-## Search path for cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+## Search path for cmake modules (note that this does _not_ go to PARENT_SCOPE!)
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" )
 
-add_subdirectory ( "albumcalc" )
-add_subdirectory ( "albumid" )
-add_subdirectory ( "albumverify" )
-add_subdirectory ( "dbarparse" )
+add_subdirectory (albumcalc   )
+add_subdirectory (albumid     )
+add_subdirectory (albumverify )
+add_subdirectory (dbarparse   )
 
 #add_dependencies ( ${PROJECT_NAME} libarcstk_examples )
 
