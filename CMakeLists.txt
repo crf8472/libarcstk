@@ -33,7 +33,8 @@ endif()
 
 ## 1}}}
 
-message (STATUS "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
+include (cmake/functions/Banner.cmake )
+banner (BEGIN "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
 ## --- Includes {{{1
 set (_libarcstk_cmake_functions_dir
@@ -213,4 +214,6 @@ libarcstk_enable_clang_include_graph (LIBARCSTK_CLANG_INCLUDE_GRAPH_ENABLED )
 libarcstk_enable_code_coverage (LIBARCSTK_CODE_COVERAGE_ENABLED )
 libarcstk_enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
+
+banner (END "Completed ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
