@@ -1,4 +1,4 @@
-name: Build documentation with m.css
+name: Build documentation
 
 on:
   push:
@@ -8,25 +8,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  mcss:
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux (GCC)
+          # Linux
           - os: ubuntu-latest
-            compiler: g++
-          # Linux (Clang)
-          - os: ubuntu-latest
-            compiler: clang++
           # macOS
           - os: macos-latest
-            compiler: clang++
           # Windows (commented out, untested)
           # - os: windows-latest
-          #   compiler: msvc
 
     steps:
       - name: Checkout repository
