@@ -1,7 +1,10 @@
 ## libarcstk: CMake functions for drawing an include graph
 ## vim:fdm=marker
 
-function (libarcstk_enable_clang_include_graph OUT_VAR )
+cmake_minimum_required (VERSION 3.18 )
+
+## Enable include-dependency graph functionality
+function (libarcstk_enable_clang_include_graph OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
@@ -17,8 +20,8 @@ function (libarcstk_enable_clang_include_graph OUT_VAR )
 	find_program (CLANG_INCLUDE_GRAPH_EXECUTABLE clang-include-graph )
 
 	if (NOT CLANG_INCLUDE_GRAPH_EXECUTABLE )
-		message (WARNING "Target ${PROJECT_NAME}_include-graph not available"
-			", since executable 'clang-include-graph' was not found." )
+		message (WARNING "Target ${PROJECT_NAME}_include-graph: not provided"
+			" since executable 'clang-include-graph' was not found." )
 		return()
 	endif()
 
@@ -27,7 +30,8 @@ function (libarcstk_enable_clang_include_graph OUT_VAR )
 	find_program (DOT_EXECUTABLE dot )
 
 	if (NOT DOT_EXECUTABLE )
-		message(WARNING "dot executable not found. Install Graphviz.")
+		message (WARNING "Target ${PROJECT_NAME}_include-graph: not provided"
+			" since dot (graphviz) not found")
 		return()
 	endif()
 
@@ -77,5 +81,5 @@ function (libarcstk_enable_clang_include_graph OUT_VAR )
 	)
 
 	set(${OUT_VAR} TRUE PARENT_SCOPE)
-endfunction()
+endfunction() # 1}}}
 

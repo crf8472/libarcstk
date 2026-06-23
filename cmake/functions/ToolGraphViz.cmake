@@ -1,7 +1,10 @@
 ## libarcstk: CMake functions for drawing a target dependency graph
 ## vim:fdm=marker
 
-function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR )
+cmake_minimum_required (VERSION 3.18 )
+
+## Enable target dependency graph functionality
+function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
@@ -17,7 +20,8 @@ function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR )
 	find_program (DOT_EXECUTABLE dot )
 
 	if (NOT DOT_EXECUTABLE )
-		message(WARNING "dot executable not found. Install Graphviz.")
+		message (WARNING "Target ${PROJECT_NAME}_target-deps: not provided"
+			" since dot (graphviz) not found")
 		return()
 	endif()
 
@@ -60,5 +64,5 @@ function (libarcstk_enable_target_deps_graph_by_dot OUT_VAR )
 	)
 
 	set(${OUT_VAR} TRUE PARENT_SCOPE)
-endfunction()
+endfunction() # 1}}}
 
