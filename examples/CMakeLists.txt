@@ -1,4 +1,4 @@
-## Build examples
+## Build all examples
 ## vim: fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
@@ -14,6 +14,10 @@ if (WITH_EXAMPLES )
 	## Search path for cmake modules
 	## (Note that this does _not_ go to PARENT_SCOPE!)
 	list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" )
+	## The legacy find modules are required to find the dependencies also on
+	## platforms on which the workflow build-examples.yml runs. Consult
+	## cmake/Modules/README.md for details. However, we will not see those
+	## Modules in the parent.
 
 	add_subdirectory (albumcalc   )
 	add_subdirectory (albumid     )

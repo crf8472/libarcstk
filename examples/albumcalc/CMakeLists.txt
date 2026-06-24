@@ -23,11 +23,10 @@ add_dependencies (libarcstk_example_albumcalc libarcstk )
 
 
 ## build with libsndfile for audio reading
-
 find_package (SndFile 1.0.17 REQUIRED )
 
 if (TARGET SndFile::sndfile )
-	## found by libsndfile's cmake config
+	## found by libsndfile's original cmake config
 	target_link_libraries (libarcstk_example_albumcalc
 		PRIVATE SndFile::sndfile )
 else()
@@ -38,13 +37,9 @@ else()
 		PUBLIC  ${SndFile_LIBRARIES} )
 endif()
 
-
 ## build with libcue for metadata parsing
-
-## commented out: version without Findlibcue.cmake worked on linux not on macos
-#find_path    (LIBCUE_INCLUDE_DIR NAMES "libcue/libcue.h" REQUIRED )
-#find_library (LIBCUE_LIBRARY     NAMES libcue.so         REQUIRED )
 find_package (libcue 2.0.0 REQUIRED )
+
 
 ## build
 
@@ -59,6 +54,4 @@ target_include_directories (libarcstk_example_albumcalc
 target_link_libraries (libarcstk_example_albumcalc
 	PRIVATE ${libcue_LIBRARIES}
 	PRIVATE libarcstk )
-
-add_dependencies ( libarcstk_examples libarcstk_example_albumcalc )
 
