@@ -14,10 +14,6 @@
 #include "dbar_details.hpp"
 #endif
 
-#ifdef LIBARCSTK_MACOS_BUILD
-#include <locale>           // required by <istream> on MacOS
-#endif
-
 #include <algorithm>        // for for_each
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
