@@ -40,6 +40,8 @@ function (compile_flags OUT_VAR )
 		return ()
 	endif()
 
+	set (${OUT_VAR} "" PARENT_SCOPE )
+
 endfunction ()
 
 ## Create a test executable from all .cpp files in a directory
