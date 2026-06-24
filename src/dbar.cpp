@@ -397,37 +397,38 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
 		ParseHandler*, ParseErrorHandler*);
 
+#ifndef LIBARCSTK_MACOS_BUILD
 template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
+#endif
 
 
-std::size_t parse_bytes(std::vector<uint8_t>& bytes, ParseHandler* p,
+std::size_t parse_bytes(ByteVector& bytes, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	constexpr bool is_macos_build =
-#ifdef __APPLE__
+#ifdef LIBARCSTK_MACOS_BUILD
 		true;
 #else
 		false;
 #endif
 
-	if constexpr (is_macos_build)
-	{
+#ifdef LIBARCSTK_MACOS_BUILD
 		// on MacOS, we read chars
-		auto byte_stream  = istream_conv_wrapper<uint8_t, char>(bytes);
+		//auto byte_stream  = istream_conv_wrapper<uint8_t, char>(bytes);
+		auto byte_stream  = istream_wrapper<char>(bytes);
 		auto input_stream = std::basic_istream<char>(&byte_stream);
 
 		return parse_stream(input_stream, p, e);
-	} else
-	{
+#else
 		// on any other platform, we read uint8_t's
 		auto byte_stream  = istream_wrapper<uint8_t>(bytes);
 		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
 
 		return parse_stream(input_stream, p, e);
-	}
+#endif
 
-	return 0;
+	//return 0;
 }
 
 
@@ -539,7 +540,7 @@ std::uintmax_t file_size_or_throw(const std::string &filepath)
 }
 
 
-std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
+std::optional<ByteVector> file_content(const std::string &filepath,
 		const std::uintmax_t max_size)
 {
 	// Get file size
@@ -589,10 +590,25 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 
 	// Load file content into vector
 
-    auto bytes = std::vector<uint8_t>(file_size);
+	auto bytes = ByteVector(file_size);
 
-	input.read(reinterpret_cast<char*>(bytes.data()),
-			static_cast<std::streamsize>(file_size));
+	constexpr bool is_macos_build =
+#ifdef LIBARCSTK_MACOS_BUILD
+		true;
+#else
+		false;
+#endif
+
+	if constexpr (is_macos_build)
+	{
+		input.read(reinterpret_cast<char*>(bytes.data()),
+				static_cast<std::streamsize>(file_size));
+	}
+	else
+	{
+		input.read(reinterpret_cast<char*>(bytes.data()),
+				static_cast<std::streamsize>(file_size));
+	}
 
     return bytes;
 }

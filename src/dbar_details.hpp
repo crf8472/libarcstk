@@ -157,15 +157,22 @@ template <typename CharT, typename TraitsT = std::char_traits<CharT>>
 std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& stream,
 		ParseHandler* p, ParseErrorHandler* e);
 
-// two explicit specializations for uint8_t and char
+// two explicit specializations for char and uint8_t
 
 extern template
 std::size_t parse_dbar_stream<char>(std::basic_istream<char>&, ParseHandler*,
 		ParseErrorHandler*);
 
+#ifndef LIBARCSTK_MACOS_BUILD
 extern template
 std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
+
+using ByteVector = std::vector<uint8_t>;
+#else
+
+using ByteVector = std::vector<char>;
+#endif
 
 /**
  * \brief Worker method for parsing dBAR data in a vector.
@@ -181,7 +188,7 @@ std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
  *
  * \return Number of parsed bytes
  */
-std::size_t parse_bytes(std::vector<uint8_t>& bytes, ParseHandler* p,
+std::size_t parse_bytes(ByteVector& bytes, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
@@ -251,7 +258,7 @@ std::uintmax_t file_size_or_throw(const std::string &filepath);
  *
  * \return File content as a sequence of bytes
  */
-std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
+std::optional<ByteVector> file_content(const std::string &filepath,
 		const std::uintmax_t max_size);
 
 /**
@@ -609,6 +616,9 @@ public:
 	void reset();
 };
 
+
+#ifndef LIBARCSTK_MACOS_BUILD
+
 namespace details
 {
 
@@ -684,7 +694,6 @@ struct uint8_traits_impl
 
 } // namespace details
 
-
 /**
  * \brief Char traits for uint8_t.
  *
@@ -699,12 +708,15 @@ struct uint8_traits final : details::uint8_traits_impl
 using uint8_istream = std::basic_istream<uint8_t, uint8_traits>;
 using uint8_ostream = std::basic_ostream<uint8_t, uint8_traits>;
 
+#endif
+// LIBARCSTK_MACOS_BUILD
 
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
 } // namespace arcstk
 
+#ifndef LIBARCSTK_MACOS_BUILD
 
 // Use std::char_traits<uint8_t> only if it is impossilbe to use
 // arcstk::uint8_traits instead.
@@ -718,6 +730,9 @@ struct std::char_traits<uint8_t> final : arcstk::details::uint8_traits_impl
 		return 0; // unreachable
 	}
 };
+
+#endif
+// LIBARCSTK_MACOS_BUILD
 
 #endif
 
