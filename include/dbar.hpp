@@ -11,6 +11,10 @@
  * Parse dBAR-formatted data from files and streams.
  */
 
+#ifdef LIBARCSTK_MACOS_BUILD
+#include <locale>           // required by <istream> on MacOS
+#endif
+
 #ifndef LIBARCSTK_MIXINS_HPP_
 #include "mixins.hpp"       // for Comparable
 #endif

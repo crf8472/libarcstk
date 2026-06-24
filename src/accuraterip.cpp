@@ -206,10 +206,15 @@ std::string ARCSAlgorithm<T1, T2...>::do_name() const
 {
 	auto ss = std::ostringstream {};
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
     const auto append = [&ss](const auto& type_val)
 	{
 		ss << ", " << type_val;
 	};
+
+	#pragma GCC diagnostic pop
 
 	ss <<  "AccurateRip " << T1;
     (append(T2), ...);

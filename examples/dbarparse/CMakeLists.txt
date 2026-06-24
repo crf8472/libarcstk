@@ -4,6 +4,7 @@
 cmake_minimum_required (VERSION 3.10 )
 
 add_executable (libarcstk_example_dbarparse EXCLUDE_FROM_ALL dbarparse.cpp )
+add_dependencies (libarcstk_examples libarcstk_example_dbarparse )
 
 set_target_properties (libarcstk_example_dbarparse PROPERTIES
 	CXX_STANDARD          17
@@ -26,6 +27,4 @@ target_include_directories (libarcstk_example_dbarparse
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.
 target_link_libraries (libarcstk_example_dbarparse PRIVATE libarcstk )
-
-add_dependencies (libarcstk_examples libarcstk_example_dbarparse )
 

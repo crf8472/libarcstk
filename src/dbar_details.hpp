@@ -168,6 +168,23 @@ std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
 
 /**
+ * \brief Worker method for parsing dBAR data in a vector.
+ *
+ * The worker abstracts away the technical details of byte parsing, which may
+ * differ between different platforms.
+ *
+ * \param[in] bytes The byte vector to be parsed
+ * \param[in] p     Parse handler
+ * \param[in] e     Error handler
+ *
+ * \throw StreamReadException If reading of the stream fails
+ *
+ * \return Number of parsed bytes
+ */
+std::size_t parse_bytes(std::vector<uint8_t>& bytes, ParseHandler* p,
+		ParseErrorHandler* e);
+
+/**
  * \brief Worker method for parsing a dBAR file.
  *
  * This implementation reads the entire file by a single I/O read operation to a
@@ -247,7 +264,7 @@ std::optional<std::vector<uint8_t>> file_content(const std::string &filepath,
 ARId get_arid(const DBARBlockHeader& header);
 
 /**
- * \brief Wrap a vector of some char type in an istream.
+ * \brief Wrap a vector of some char type in an istream of the same type.
  */
 template<typename CharT, typename TraitsT = std::char_traits<CharT> >
 class istream_wrapper : public std::basic_streambuf<CharT, TraitsT>
@@ -268,6 +285,39 @@ public:
 	}
 
 	// https://stackoverflow.com/a/8815308
+};
+
+/**
+ * \brief Wrap a vector of some char type in an istream of another type.
+ *
+ * \tparam CharT   Source type
+ * \tparam TargetT Target type
+ */
+template<typename CharT, typename TargetT,
+	typename TraitsT = std::char_traits<TargetT>>
+class istream_conv_wrapper : public std::basic_streambuf<TargetT, TraitsT>
+{
+public:
+
+	/**
+	 * \brief Constructor
+	 *
+	 * \param[in] v The vector to wrap
+	 */
+    explicit istream_conv_wrapper(std::vector<CharT>& v)
+    {
+        auto* data = reinterpret_cast<TargetT*>(v.data());
+
+		// Safety check: only convert convertible types
+        auto size = v.size() * sizeof(CharT) / sizeof(TargetT);
+        static_assert(
+            sizeof(CharT) % sizeof(TargetT) == 0 ||
+            sizeof(TargetT) % sizeof(CharT) == 0,
+            "Source type and target type must be of mutually compatible size"
+        );
+
+        this->setg(data, data, data + size);
+    }
 };
 
 } // namespace details
