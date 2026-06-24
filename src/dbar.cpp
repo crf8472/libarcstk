@@ -14,6 +14,10 @@
 #include "dbar_details.hpp"
 #endif
 
+#ifdef LIBARCSTK_MACOS_BUILD
+#include <locale>           // required by <istream> on MacOS
+#endif
+
 #include <algorithm>        // for for_each
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
@@ -397,6 +401,36 @@ template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
 
 
+std::size_t parse_bytes(std::vector<uint8_t>& bytes, ParseHandler* p,
+		ParseErrorHandler* e)
+{
+	constexpr bool is_macos_build =
+#ifdef __APPLE__
+		true;
+#else
+		false;
+#endif
+
+	if constexpr (is_macos_build)
+	{
+		// on MacOS, we read chars
+		auto byte_stream  = istream_conv_wrapper<uint8_t, char>(bytes);
+		auto input_stream = std::basic_istream<char>(&byte_stream);
+
+		return parse_stream(input_stream, p, e);
+	} else
+	{
+		// on any other platform, we read uint8_t's
+		auto byte_stream  = istream_wrapper<uint8_t>(bytes);
+		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
+
+		return parse_stream(input_stream, p, e);
+	}
+
+	return 0;
+}
+
+
 std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 		ParseErrorHandler* e)
 {
@@ -404,10 +438,15 @@ std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 
 	if (auto bytes = file_content(filepath, MAX_DBAR_BYTES_ACCEPTABLE))
 	{
+		const auto total_bytes { parse_bytes(bytes.value(), p, e) };
+
+		// Previous working implementation is commented out but not yet removed
+		/*
 		auto byte_stream  = istream_wrapper<uint8_t>(bytes.value());
 		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
 
 		const auto total_bytes { parse_stream(input_stream, p, e) };
+		*/
 
 		ARCS_LOG_DEBUG << "Successfully finished to parse file '"
 			<< filepath << "'.";
