@@ -132,22 +132,8 @@ function (libarcstk_apply_compiler_flags TARGET_NAME )
 
 	## Apply warning flags
 
-	## We do not use target_compile_options since those flags should not be
-	## applied to Catch2 and tests.
-	## TODO Find a way to use target_compile_options
-
-	## Apply warning flags to each source file
-	## (not applied to Catch2 or test sources)
-	get_target_property (LIBARCSTK_SOURCES ${TARGET_NAME} SOURCES )
-
-	foreach (_sourcefile ${LIBARCSTK_SOURCES} )
-
-		set_property (SOURCE "${_sourcefile}"
-			APPEND
-			PROPERTY COMPILE_OPTIONS ${LIBARCSTK_CXX_FLAGS_WARNINGS}
-		)
-
-	endforeach()
+	target_compile_options(${TARGET_NAME}
+		PRIVATE ${LIBARCSTK_CXX_FLAGS_WARNINGS})
 
 	message(STATUS "Applied warning flags to ${TARGET_NAME}")
 
