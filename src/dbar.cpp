@@ -406,29 +406,10 @@ template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 std::size_t parse_bytes(ByteVector& bytes, ParseHandler* p,
 		ParseErrorHandler* e)
 {
-	constexpr bool is_macos_build =
-#ifdef LIBARCSTK_MACOS_BUILD
-		true;
-#else
-		false;
-#endif
+	auto byte_stream  = istream_wrapper<byte_t>(bytes);
+	auto input_stream = std::basic_istream<byte_t>(&byte_stream);
 
-#ifdef LIBARCSTK_MACOS_BUILD
-		// on MacOS, we read chars
-		//auto byte_stream  = istream_conv_wrapper<uint8_t, char>(bytes);
-		auto byte_stream  = istream_wrapper<char>(bytes);
-		auto input_stream = std::basic_istream<char>(&byte_stream);
-
-		return parse_stream(input_stream, p, e);
-#else
-		// on any other platform, we read uint8_t's
-		auto byte_stream  = istream_wrapper<uint8_t>(bytes);
-		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
-
-		return parse_stream(input_stream, p, e);
-#endif
-
-	//return 0;
+	return parse_stream(input_stream, p, e);
 }
 
 
@@ -440,14 +421,6 @@ std::size_t parse_dbar_file(const std::string& filepath, ParseHandler* p,
 	if (auto bytes = file_content(filepath, MAX_DBAR_BYTES_ACCEPTABLE))
 	{
 		const auto total_bytes { parse_bytes(bytes.value(), p, e) };
-
-		// Previous working implementation is commented out but not yet removed
-		/*
-		auto byte_stream  = istream_wrapper<uint8_t>(bytes.value());
-		auto input_stream = std::basic_istream<uint8_t>(&byte_stream);
-
-		const auto total_bytes { parse_stream(input_stream, p, e) };
-		*/
 
 		ARCS_LOG_DEBUG << "Successfully finished to parse file '"
 			<< filepath << "'.";
@@ -592,23 +565,12 @@ std::optional<ByteVector> file_content(const std::string &filepath,
 
 	auto bytes = ByteVector(file_size);
 
-	constexpr bool is_macos_build =
-#ifdef LIBARCSTK_MACOS_BUILD
-		true;
-#else
-		false;
-#endif
-
-	if constexpr (is_macos_build)
-	{
-		input.read(reinterpret_cast<char*>(bytes.data()),
+	// Note that this is the right thing in any case: we read char* from fs
+	// either way and if ByteVector is uint8_t typed on this platform, the
+	// chars will just be converted. However, note that this may or may not
+	// lead to bytes being of type char!
+	input.read(reinterpret_cast<char*>(bytes.data()),
 				static_cast<std::streamsize>(file_size));
-	}
-	else
-	{
-		input.read(reinterpret_cast<char*>(bytes.data()),
-				static_cast<std::streamsize>(file_size));
-	}
 
     return bytes;
 }

@@ -166,12 +166,25 @@ std::size_t parse_dbar_stream<char>(std::basic_istream<char>&, ParseHandler*,
 extern template
 std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
-
-using ByteVector = std::vector<uint8_t>;
-#else
-
-using ByteVector = std::vector<char>;
 #endif
+
+
+/**
+ * \brief Type to provide binary data read from fs.
+ */
+using byte_t =
+#ifdef LIBARCSTK_MACOS_BUILD
+	char
+#else
+	uint8_t
+#endif
+	;
+
+
+/**
+ * \brief A vector of byte types.
+ */
+using ByteVector = std::vector<byte_t>;
 
 
 /**
@@ -292,39 +305,6 @@ public:
 	}
 
 	// https://stackoverflow.com/a/8815308
-};
-
-/**
- * \brief Wrap a vector of some char type in an istream of another type.
- *
- * \tparam CharT   Source type
- * \tparam TargetT Target type
- */
-template<typename CharT, typename TargetT,
-	typename TraitsT = std::char_traits<TargetT>>
-class istream_conv_wrapper : public std::basic_streambuf<TargetT, TraitsT>
-{
-public:
-
-	/**
-	 * \brief Constructor
-	 *
-	 * \param[in] v The vector to wrap
-	 */
-    explicit istream_conv_wrapper(std::vector<CharT>& v)
-    {
-        auto* data = reinterpret_cast<TargetT*>(v.data());
-
-		// Safety check: only convert convertible types
-        auto size = v.size() * sizeof(CharT) / sizeof(TargetT);
-        static_assert(
-            sizeof(CharT) % sizeof(TargetT) == 0 ||
-            sizeof(TargetT) % sizeof(CharT) == 0,
-            "Source type and target type must be of mutually compatible size"
-        );
-
-        this->setg(data, data, data + size);
-    }
 };
 
 } // namespace details
