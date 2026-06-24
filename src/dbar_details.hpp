@@ -157,11 +157,10 @@ template <typename CharT, typename TraitsT = std::char_traits<CharT>>
 std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& stream,
 		ParseHandler* p, ParseErrorHandler* e);
 
-// two explicit specializations for char and uint8_t
-
 extern template
 std::size_t parse_dbar_stream<char>(std::basic_istream<char>&, ParseHandler*,
 		ParseErrorHandler*);
+
 
 #ifndef LIBARCSTK_MACOS_BUILD
 extern template
@@ -173,6 +172,7 @@ using ByteVector = std::vector<uint8_t>;
 
 using ByteVector = std::vector<char>;
 #endif
+
 
 /**
  * \brief Worker method for parsing dBAR data in a vector.

@@ -1668,15 +1668,16 @@ template <typename CharT, typename TraitsT = std::char_traits<CharT>>
 std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
 		ParseHandler* p, ParseErrorHandler* e);
 
-// two explicit specializations for uint8_t and char
-
 extern template
 std::size_t parse_stream<char>(std::basic_istream<char>&, ParseHandler*,
 		ParseErrorHandler*);
 
+#ifdef LIBARCSTK_MACOS_BUILD
 extern template
 std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
+#endif
+
 
 /**
  * \brief Parse a file.
