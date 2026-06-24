@@ -1836,8 +1836,10 @@ std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
 template std::size_t parse_stream<char>(std::basic_istream<char>&,
 		ParseHandler*, ParseErrorHandler*);
 
+#ifndef LIBARCSTK_MACOS_BUILD
 template std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
 		ParseHandler*, ParseErrorHandler*);
+#endif
 
 
 // parse_file()
