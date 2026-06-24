@@ -29,9 +29,6 @@ include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions/SetupEnvironment.cmake" )
 include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions/TestHelpers.cmake" )
 
 
-## Configure common test settings
-configure_test_environment()
-
 ## Add tests
 add_subdirectory (units )
 add_subdirectory (functional )
