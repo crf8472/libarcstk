@@ -103,25 +103,26 @@ endif ()
 
 ## --- Select Flags for Actual Compiler {{{1
 
-if (CMAKE_COMPILER_IS_GNUCXX )                      ## for g++
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 
 	set (LIBARCSTK_CXX_FLAGS_WARNINGS ${LIBARCSTK_CXX_GNU_FLAGS_WARNINGS} )
 	set (LIBARCSTK_CXX_FLAGS_OPTIMIZE ${LIBARCSTK_CXX_GNU_FLAGS_OPTIMIZE} )
 
 	message(STATUS "Compiler: g++ (selected appropriate flags)" )
 
-elseif (CMAKE_CXX_COMPILER MATCHES ".*clang"        ## for clang++
-		OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+elseif (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" )
 
 	set (LIBARCSTK_CXX_FLAGS_WARNINGS ${LIBARCSTK_CXX_CLANG_FLAGS_WARNINGS} )
 	set (LIBARCSTK_CXX_FLAGS_OPTIMIZE ${LIBARCSTK_CXX_CLANG_FLAGS_OPTIMIZE} )
 
 	message (STATUS "Compiler: clang++ (selected appropriate flags)" )
 
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
+
+	message (WARNING "Compiler: msvc is currently not supported" )
 else()
 
 	message (WARNING "Unknown compiler: no specific flags will be applied" )
-
 endif()
 
 ## 1}}}
