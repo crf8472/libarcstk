@@ -15,6 +15,10 @@
 #include "mixins.hpp"       // for Comparable
 #endif
 
+#ifdef LIBARCSTK_MACOS_BUILD
+#include <locale>           // required by <istream> on MacOS
+#endif
+
 #include <cstddef>          // for size_t, nullptr
 #include <cstdint>          // for uint32_t
 #include <initializer_list> // for initializer_list

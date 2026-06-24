@@ -125,6 +125,10 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	VERSION        "${PROJECT_VERSION}"
 	SOVERSION      "${PROJECT_VERSION}" )
 
+if (APPLE)
+	target_compile_definitions (${PROJECT_NAME} PRIVATE LIBARCSTK_MACOS_BUILD )
+endif ()
+
 add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 
 ## 1}}}
