@@ -135,7 +135,7 @@ namespace big
 		const std::byte b3, const std::byte b4);
 
 	template <typename T, typename = is_sample_type<T>>
-	uint32_t combine(const T higher, const T lower)
+	uint32_t combine(const T /* higher */, const T /* lower */)
 	{
 		// TODO Implement big endian variant of combine()
 		return 0;
