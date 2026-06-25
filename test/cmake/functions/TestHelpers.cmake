@@ -1,49 +1,6 @@
 ## libarcstk: CMake build script for configuring and building tests
 ## vim:fdm=marker
 
-## Make existing list of flags compliant for libarcstk tests
-function (_compile_flags_TEST OUT_VAR )
-
-	cmake_parse_arguments (CFLAGS "" "" "FLAGS" ${ARGN} )
-
-	set (_result "${CFLAGS_FLAGS}" )
-
-	## --- g++: Remove flags that pollute the output with false positives
-	if (CMAKE_COMPILER_IS_GNUCXX )
-
-		list (REMOVE_ITEM _result -Weffc++ )
-		list (REMOVE_ITEM _result -Wctor-dtor-privacy )
-		list (REMOVE_ITEM _result -Wuseless-cast )
-	endif()
-
-	set (${OUT_VAR} "${_result}" PARENT_SCOPE )
-endfunction ()
-
-##
-function (compile_flags OUT_VAR )
-
-	set (options TESTCASE )
-	set (multiValueArgs CURRENT )
-
-	cmake_parse_arguments (CFLAGS "${options}" "" "${multiValueArgs}" ${ARGN} )
-
-	##
-
-	if (CFLAGS_TESTCASE AND CFLAGS_CURRENT )
-
-		set (_actual_cxx_flags "${CFLAGS_CURRENT}" )
-
-		#_compile_flags_TEST (_actual_cxx_flags FLAGS "${_actual_cxx_flags}" )
-		_compile_flags_TEST (_actual_cxx_flags FLAGS ${_actual_cxx_flags} )
-
-		set (${OUT_VAR} ${_actual_cxx_flags} PARENT_SCOPE )
-		return ()
-	endif()
-
-	set (${OUT_VAR} "" PARENT_SCOPE )
-
-endfunction ()
-
 ## Create a test executable from all .cpp files in a directory
 ## and register tests found with catch_discover_tests.
 ##
@@ -54,7 +11,7 @@ endfunction ()
 ##   )
 ##
 ## This produces a target called "unit_tests".
-function (add_test_suite CATEGORY )
+function (add_test_suite CATEGORY ) # {{{1
 
 	set (options )
 	set (oneValueArgs LABEL TIMEOUT )
@@ -85,13 +42,8 @@ function (add_test_suite CATEGORY )
 		SKIP_RPATH             OFF
 	)
 
-	## Use flags from main target as a starting point
-	get_target_property (TEST_CXX_FLAGS ${PROJECT_NAME} COMPILE_OPTIONS )
-
 	## Generate flag set for tests from flag set of main target
-	compile_flags (TEST_CXX_FLAGS TESTCASE CURRENT ${TEST_CXX_FLAGS} )
-
-	target_compile_options (${CATEGORY}_tests PRIVATE ${TEST_CXX_FLAGS} )
+	libarcstk_apply_compiler_flags (TEST TARGET ${CATEGORY}_tests )
 
 	get_target_property (${CATEGORY}_tests_CXX_FLAGS ${CATEGORY}_tests
 		COMPILE_OPTIONS )
@@ -135,4 +87,5 @@ function (add_test_suite CATEGORY )
 		PROPERTIES        ${TEST_PROPERTIES}
 	)
 endfunction()
+# 1}}}
 

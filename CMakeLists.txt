@@ -36,6 +36,23 @@ endif()
 include (cmake/functions/Banner.cmake )
 banner (BEGIN "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
+## --- CMake Setup {{{1
+
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON ) ## required for clang-tidy and iwyu
+
+## --- Setup Default Build Type {{{2
+
+if (NOT CMAKE_BUILD_TYPE )
+
+	set (CMAKE_BUILD_TYPE "Release"
+		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
+
+	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
+endif (NOT CMAKE_BUILD_TYPE )
+
+message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
+## 2}}}
+## 1}}}
 ## --- Includes {{{1
 set (_libarcstk_cmake_functions_dir
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
@@ -53,23 +70,6 @@ include ("${_libarcstk_cmake_functions_dir}/ToolCodeCoverage.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/ToolGraphViz.cmake" )
 
 unset (_libarcstk_cmake_functions_dir )
-## 1}}}
-## --- CMake Setup {{{1
-
-set (CMAKE_EXPORT_COMPILE_COMMANDS ON ) ## required for clang-tidy and iwyu
-
-## --- Setup Default Build Type {{{2
-
-if (NOT CMAKE_BUILD_TYPE )
-
-	set (CMAKE_BUILD_TYPE "Release"
-		CACHE STRING "Choose the type of build (e.g. Debug or Release)" FORCE )
-
-	message (STATUS "No build type specified, set to ${CMAKE_BUILD_TYPE}" )
-endif (NOT CMAKE_BUILD_TYPE )
-
-message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
-## 2}}}
 ## 1}}}
 ## --- Setup Build Tree {{{1
 libarcstk_setup_build_tree()
@@ -134,7 +134,7 @@ add_dependencies (${PROJECT_NAME} libarcstk_link_to_headers )
 ## 1}}}
 ## --- Compiler Specific Settings {{{1
 
-libarcstk_apply_compiler_flags (${PROJECT_NAME} )
+libarcstk_apply_compiler_flags (MAIN TARGET ${PROJECT_NAME} )
 
 ## 1}}}
 
