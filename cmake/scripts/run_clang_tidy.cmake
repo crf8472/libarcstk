@@ -24,7 +24,7 @@ execute_process(
 message (STATUS "clang-tidy report written to: ${REPORT_FILE}" )
 message (STATUS "clang-tidy log written to: ${LOG_FILE}" )
 
-file (SIZE ${REPORT_FILE} FILE_SIZE )
+file (SIZE "${REPORT_FILE}" FILE_SIZE )
 
 ## Determine exit code
 if (IGNORE_ISSUES )
@@ -33,10 +33,10 @@ else ()
 	set (EXIT_CODE ${FILE_SIZE} )
 endif ()
 
-message (STATUS "clang-tidy found issues, report size: ${FILE_SIZE} bytes" )
-
 ## Fail on error
 if (EXIT_CODE GREATER 0 )
-  message (FATAL_ERROR "clang-tidy issues found (exit code: ${EXIT_CODE})" )
+	message (FATAL_ERROR "clang-tidy issues found (exit code: ${EXIT_CODE})" )
+else ()
+	message (STATUS "clang-tidy did not find any issues" )
 endif ()
 
