@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  asan-ubsan:
+  asan:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,7 +18,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
           sudo apt-get install -y ${{ matrix.compiler }} cmake ninja-build
 
       - name: Configure with AddressSanitizer & UBSan
@@ -27,7 +26,7 @@ jobs:
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_CXX_COMPILER=${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }} \
-            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer -g" \
             -DWITH_TESTS=ON
 
       - name: Build
@@ -37,6 +36,34 @@ jobs:
         run: ctest --test-dir build --verbose
         env:
           ASAN_OPTIONS: "halt_on_error=1:strict_string_checks=1"
+
+  ubsan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y ${{ matrix.compiler }} cmake ninja-build
+
+      - name: Configure with AddressSanitizer & UBSan
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }} \
+            -DCMAKE_CXX_FLAGS="-fsanitize=undefined -fno-omit-frame-pointer -g" \
+            -DWITH_TESTS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests with sanitizers
+        run: ctest --test-dir build --verbose
+        env:
           UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
 
   msan:
@@ -46,7 +73,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
           sudo apt-get install -y cmake ninja-build clang libc++-dev
 
       - name: Configure with MemorySanitizer
