@@ -542,7 +542,7 @@ namespace details
 class StreamFlagsGuard final
 {
     std::ostream& out_;
-    std::ios_base::fmtflags prev_flags_ {};
+    std::ios_base::fmtflags prev_flags_;
 
 public:
 
