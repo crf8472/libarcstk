@@ -23,15 +23,15 @@ All notable changes to this project will be documented in this file.
   - API: Calculation and Algorithm interfaces are no longer updateable
   - API: No converting constructors in public API, (Settings, Checksum,...)
   - API: checksum::type_name(checksum::type) renamed to checksum::name()
-  - API change: ChecksumSet::length() will return AudioSize
-  - API change: ChecksumSet::set_length() will accept only AudioSize
-  - API change: ChecksumSet::get() will return std::pair with a success flag
-  - API change: Checksum::empty() is replaced by Checksum::zero()
-  - API change: ARId::track_count() is renamed to ARId::total_tracks()
-  - API change: make_arid() will produce ARId instead of std::unique_ptr<ARId>
-  - API change: make_toc() will produce ToC instead of std::unique_ptr<ToC>
-  - API change: new DBAR parser events: start_triplets + end_triplets
-  - API change: remove is_valid_arcs() and is_valid_confidence()
+  - API: ChecksumSet::length() will return AudioSize
+  - API: ChecksumSet::set_length() will accept only AudioSize
+  - API: ChecksumSet::get() will return std::pair with a success flag
+  - API: Checksum::empty() is replaced by Checksum::zero()
+  - API: ARId::track_count() is renamed to ARId::total_tracks()
+  - API: make_arid() will produce ARId instead of std::unique_ptr<ARId>
+  - API: make_toc() will produce ToC instead of std::unique_ptr<ToC>
+  - API: new DBAR parser events: start_triplets + end_triplets
+  - API: remove is_valid_arcs() and is_valid_confidence()
 
 ### Deprecated
   - nothing
@@ -49,4 +49,182 @@ All notable changes to this project will be documented in this file.
 
 ### Security
   - Added commit triggered workflows for build & test, ASAN/UBSAN and clang-tidy
+
+
+## [0.3.1-alpha.1] - 2025-12-31
+
+### Changed
+  - Build: Deprecate configure switches -DUSE_* in favour of -DUSE_DOC_TOOL=*
+  - Build: Default-deactivate LaTeX on target 'doc'
+  - Build: Improve doxygen postprocessing, fix some annoyances in output
+  - Build: Some fixes in build management
+  - Build: Add experimental support for doxygen-awesome-css
+  - Build: Add GraphViz options for debugging cmake targets
+  - Documentation: Start to write some HowTos (work-in-progress)
+  - Documentation: Add BUILD.md to doxygen documentation
+
+### Fixed
+  - Minor cleaning in code
+
+
+## [0.3.0-alpha.1] - 2025-03-02
+
+### Changed
+  - Compileable as C++17. Support for C++14 is dropped in main branch. (Use
+    branch 0.2 if you require C++14.)
+  - Client code using version 0.2* will not be compileable anymore with version
+    0.3 and above.
+  - API: Rewrite of all classes and functions in modules 'id' and 'calc'.
+  - API: Interfaces of classes Calculation, TOC and AudioSize have changed
+    fundamentally.
+  - API: TOC is replaced by ToC which does not hold lengths at the moment.
+  - Class Checksums is a mere typedef.
+  - The logs will be make use of more log levels and be more compact in general.
+
+### Removed
+  - Class CalcContext is removed.
+  - Most of the template magic in calculate.hpp will be removed as well as the
+    templated versions of make_toc().
+  - Public headers in arcstk/details and the contained classes ARIdBuilder and
+    TOCBuilder
+  - Forced validation of ToC objects is dropped. Validation of toc data is
+    completely rewritten and fully optional.
+
+
+## [0.2.1-alpha.1] - 2022-02-22
+
+### Fixed
+  - Fix pkgconfig file
+  - Fix cmake warning about wrong usage of PRE_BUILD when configuring
+  - Minor fixes when using include-what-you-use
+  - Ignore Session.vim
+
+
+## [0.2.0-alpha.1] - 2024-04-01
+
+### Changed
+  - API breaking: Module Verify replaces module 'match'
+  - API breaking: Module DBAR replaces module 'parse'
+  - Use branch "0.1" for API 0.1.x
+
+### Deprecated
+  - API 0.1.x: unmaintained, do not expect further development
+
+
+## [0.1.1-beta.2] - 2023-08-01
+
+### Changed
+  - Minor changes in logging when parsing an ARResponse
+  - Update Catch2 to 3.4.0
+  - Determine minimum CMake version to 3.6
+
+
+## [0.1.1-beta.1] - 2023-03-12
+
+### Changed
+  - InvalidMetadataException and NonstandardMetadataException are now runtime_error
+
+### Fixed
+  - Bugfix: Functions involved while updating the audiosize are no longer noexcept
+  - Add build config to be cloned as a submodule
+  - Several bugfixes
+
+
+## [0.1.0] - 2023-01-07
+
+### Removed
+  - Remove confusing messages during build
+  - Remove unnecessary output on example code
+
+### Fixed
+  - Better support for compiling as a submodule
+
+
+## [0.1.0-rc.4] - 2022-10-02
+
+### Changed
+  - Adjust warnings flags for sources and tests
+  - Upgrade to Catch2 v3.1.0
+
+### Fixed
+  - Force unsigned hex literals in version test to avoid compile warnings
+  - Compile warnings for calculate.hpp and samples.hpp
+
+
+## [0.1.0-rc.3] - 2022-01-03
+
+### Changed
+  - API: Move version info from .hpp to .cpp file
+  - Recreate version.cpp on every build
+
+### Fixed
+  - Link examples to locally compiled SO when building
+  - Build: recreate documentation output directory after removing
+  - Build: remove overflow warnings when compiling with g++11
+
+
+## [0.1.0-rc.2] - 2021-09-25
+
+### Changed
+  - API: made CDDA a struct with static members, so CDDA.x becomes CDDA::x
+  - API: AudioSize::set_pcm_byte_count() becomes AudioSize::set_pcm_total_bytes()
+  - API: SampleSequence::wrap() becomes SampleSequence::wrap_int_buffer()
+  - API: SampleSequence::wrap_bytes() becomes SampleSequence::wrap_byte_buffer()
+
+### Fixed
+  - Internal fixes
+  - Update documentation
+
+
+## [0.1.0-rc.1]
+
+### Added
+  - Improve documentation (more work needed)
+
+### Changed
+  - API: class names, function signatures
+  - API: tried to make things more sound and complete (e.g. operators)
+  - API: use custom types for numeric ranges (sample_type, lba_count)
+  - Templatized builders and validators for TOC and ARId
+  - Major reorganizations in cmake files
+  - "Minimized" Doxyfiles
+
+
+## [0.1.0-beta.1]
+
+### Added
+  - Specify compilation warnings for clang and g++
+
+### Changed
+  - Reorganize compilation settings
+  - Adjust some libarcstk warning messages
+
+### Fixed
+  - Minor fixes
+
+
+## [0.1.0-alpha.3]
+
+### Added
+  - Install cmake config files (making release a cmake package)
+
+### Removed
+  - Remove duplicate output: Do not log exceptions, just throw them
+
+### Fixed
+  - Many bugfixes in cmake's install instructions
+  - Fix building the m.css based documentation
+  - Use CHECK instead of REQUIRE in all tests
+
+
+## [0.1.0-alpha.2]
+
+### Fixed
+  - Installation of public headers
+
+
+## [0.1.0-alpha.1]
+
+### Added
+  - Initial pre-release
 
