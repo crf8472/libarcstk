@@ -182,6 +182,25 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0-rc.1] - 2020-05-03
 
+### Changed
+  - API improvements (little changes, but too many to enumerate)
+  - Add operator == and swap() to many more classes
+  - Add more unit tests
+  - Coding style: prefer braced initializations
+  - Represent amounts of samples or frames by signed types
+
+### Removed
+  - Remove broken static build option (#5)
+  - Remove inheritance from ChecksumSet and hide details consequently (#3)
+
+### Fixed
+  - ARStreamParser no longer throws an exception on errors if an ErrorHandler is
+    present
+  - Remove "type leaks" by iterators in ARBlock and ARRresponse (#7)
+
+
+## [0.1.0-beta.2] - 2020-02-23
+
 ### Added
   - Improve documentation (more work needed)
 
@@ -192,9 +211,6 @@ All notable changes to this project will be documented in this file.
   - Templatized builders and validators for TOC and ARId
   - Major reorganizations in cmake files
   - "Minimized" Doxyfiles
-
-
-## [0.1.0-beta.2] - 2020-02-23
 
 
 ## [0.1.0-beta.1] - 2019-11-03
