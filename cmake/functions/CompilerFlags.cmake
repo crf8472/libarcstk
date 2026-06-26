@@ -133,8 +133,7 @@ function (_compile_flags OUT_VAR ) # {{{1
 
 	set (_options MAIN TEST )
 
-	cmake_parse_arguments (CXX_FLAGS
-		"${_options}" "COMPILER" "" ${ARGN} )
+	cmake_parse_arguments (CXX_FLAGS "${_options}" "COMPILER" "" ${ARGN} )
 
 	##
 

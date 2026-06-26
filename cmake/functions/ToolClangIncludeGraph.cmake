@@ -8,12 +8,11 @@ function (libarcstk_enable_clang_include_graph OUT_VAR ) # {{{1
 
 	set (${OUT_VAR} FALSE PARENT_SCOPE )
 
-	set (options      KEEP_DOT_FILES )
-	set (oneValueArgs FORMAT OUTPUT_DIR )
-	set (multiValueArgs )
+	set (_options        KEEP_DOT_FILES )
+	set (_one_value_args FORMAT OUTPUT_DIR )
 
 	cmake_parse_arguments (GRAPH
-		"${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+		"${options}" "${one_value_args}" "" ${ARGN} )
 
 	## Find clang-include-graph
 
