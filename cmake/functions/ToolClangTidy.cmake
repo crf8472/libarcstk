@@ -12,7 +12,7 @@ function (_libarcstk_add_clang_tidy_target )
 
 	cmake_parse_arguments (TIDY "${options}" "${one_value_args}" "" ${ARGN} )
 
-	##
+	## add cutom clang-tidy command
 
 	set (_REPORT_NAME "${LIBARCSTK_BINARY_DIR}/${TIDY_TARGET_NAME}_report" )
 	set (_REPORT_FILE "${_REPORT_NAME}.txt" )
@@ -24,7 +24,7 @@ function (_libarcstk_add_clang_tidy_target )
 			-DCLANG_TIDY_BINARY="${CLANG_TIDY_BINARY}"
 			-DSOURCES_DIR="${LIBARCSTK_SOURCE_DIR}"
 			-DCOMPILEDB_DIR="${LIBARCSTK_BINARY_DIR}/"
-			-DINCLUDE_DIR="${LIBARCSTK_INCLUDE_BINARY_DIR}"
+			-DINCLUDE_DIR="${LIBARCSTK_INCLUDE_SOURCE_DIR}"
 			-DREPORT_FILE="${_REPORT_FILE}"
 			-DLOG_FILE="${_LOG_FILE}"
 			-DIGNORE_ISSUES="${TIDY_IGNORE_ISSUES}"
