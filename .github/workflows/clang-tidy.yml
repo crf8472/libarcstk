@@ -1,0 +1,31 @@
+name: Clang-Tidy Analysis
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y cmake ninja-build clang clang-tidy
+
+      - name: Configure with clang-tidy
+        run: |
+          cmake -B build \
+            -G Ninja \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DWITH_TESTS=ON \
+            -DCMAKE_CXX_CLANG_TIDY="clang-tidy;-checks=*,-readability-magic-numbers" \
+
+      - name: Build (clang-tidy runs during compilation)
+        run: cmake --build build
+

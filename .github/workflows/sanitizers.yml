@@ -2,25 +2,28 @@ name: Sanitizers
 
 on:
   push:
-    branches: [main, dev]
+    branches: [ main, dev ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   asan:
+    name: Run Tests with ASAN
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        compiler: [g++, clang++]
+        compiler: [ g++, clang++ ]
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get install -y ${{ matrix.compiler }} cmake ninja-build
 
-      - name: Configure with AddressSanitizer & UBSan
+      - name: Configure with AddressSanitizer
         run: |
           cmake -B build \
             -G Ninja \
@@ -32,24 +35,27 @@ jobs:
       - name: Build
         run: cmake --build build
 
-      - name: Run tests with sanitizers
+      - name: Run tests with ASAN
         run: ctest --test-dir build --verbose
         env:
           ASAN_OPTIONS: "halt_on_error=1:strict_string_checks=1"
 
   ubsan:
+    name: Run Tests with UBSAN
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        compiler: [g++, clang++]
+        compiler: [ g++, clang++ ]
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Set up dependencies
         run: |
           sudo apt-get install -y ${{ matrix.compiler }} cmake ninja-build
 
-      - name: Configure with AddressSanitizer & UBSan
+      - name: Configure with UBSAN
         run: |
           cmake -B build \
             -G Ninja \
@@ -61,7 +67,7 @@ jobs:
       - name: Build
         run: cmake --build build
 
-      - name: Run tests with sanitizers
+      - name: Run tests with UBSAN
         run: ctest --test-dir build --verbose
         env:
           UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
