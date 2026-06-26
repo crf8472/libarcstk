@@ -3,6 +3,42 @@
 
 cmake_minimum_required (VERSION 3.18 )
 
+
+##
+function (_libarcstk_add_clang_tidy_target )
+
+	set (options        IGNORE_ISSUES )
+	set (one_value_args TARGET_NAME   )
+
+	cmake_parse_arguments (TIDY "${options}" "${one_value_args}" "" ${ARGN} )
+
+	##
+
+	set (_REPORT_NAME "${LIBARCSTK_BINARY_DIR}/${TIDY_TARGET_NAME}_report" )
+	set (_REPORT_FILE "${_REPORT_NAME}.txt" )
+	set (_LOG_FILE    "${_REPORT_NAME}.log" )
+
+	add_custom_command(
+		OUTPUT "${_REPORT_FILE}"
+		COMMAND ${CMAKE_COMMAND}
+			-DCLANG_TIDY_BINARY="${CLANG_TIDY_BINARY}"
+			-DSOURCES_DIR="${LIBARCSTK_SOURCE_DIR}"
+			-DCOMPILEDB_DIR="${LIBARCSTK_BINARY_DIR}/"
+			-DINCLUDE_DIR="${LIBARCSTK_INCLUDE_BINARY_DIR}"
+			-DREPORT_FILE="${_REPORT_FILE}"
+			-DLOG_FILE="${_LOG_FILE}"
+			-DIGNORE_ISSUES="${TIDY_IGNORE_ISSUES}"
+			-P "${CLANG_TIDY_SCRIPT}"
+		WORKING_DIRECTORY "${LIBARCSTK_ROOT_DIR}"
+		BYPRODUCTS "${_LOG_FILE}"
+		COMMENT "Running clang-tidy..."
+	)
+
+	add_custom_target (${TIDY_TARGET_NAME} DEPENDS "${_REPORT_FILE}" )
+
+endfunction ()
+
+
 ## Enable static analysis functionality
 function (libarcstk_enable_clang_tidy OUT_VAR ) # {{{1
 
@@ -35,23 +71,12 @@ function (libarcstk_enable_clang_tidy OUT_VAR ) # {{{1
 		return()
 	endif()
 
-	set (COMPILEDB_DIR "${LIBARCSTK_BINARY_DIR}/" )
-	set (INCLUDE_DIR   "${LIBARCSTK_INCLUDE_BINARY_DIR}" )
-	set (REPORT_FILE   "${LIBARCSTK_BINARY_DIR}/clang_tidy_report.txt" )
-	set (LOG_FILE      "${LIBARCSTK_BINARY_DIR}/clang_tidy_report.log" )
+	_libarcstk_add_clang_tidy_target (TARGET_NAME ${PROJECT_NAME}_clang-tidy
+		IGNORE_ISSUES
+	)
 
-	add_custom_target(${PROJECT_NAME}_clang-tidy
-		COMMAND ${CMAKE_COMMAND}
-			-DCLANG_TIDY_BINARY="${CLANG_TIDY_BINARY}"
-			-DSOURCES_DIR="${LIBARCSTK_SOURCE_DIR}"
-			-DCOMPILEDB_DIR="${COMPILEDB_DIR}"
-			-DINCLUDE_DIR="${INCLUDE_DIR}"
-			-DREPORT_FILE="${REPORT_FILE}"
-			-DLOG_FILE="${LOG_FILE}"
-			-P "${CLANG_TIDY_SCRIPT}"
-		WORKING_DIRECTORY "${LIBARCSTK_ROOT_DIR}"
-		BYPRODUCTS "${REPORT_FILE}" "${LOG_FILE}"
-		COMMENT "Running clang-tidy..."
+	_libarcstk_add_clang_tidy_target (
+		TARGET_NAME ${PROJECT_NAME}_clang-tidy-workflow
 	)
 
 	set(${OUT_VAR} TRUE PARENT_SCOPE)

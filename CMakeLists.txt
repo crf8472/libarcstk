@@ -53,7 +53,7 @@ endif (NOT CMAKE_BUILD_TYPE )
 message (STATUS "Build type: ${CMAKE_BUILD_TYPE}" )
 ## 2}}}
 ## 1}}}
-## --- Includes {{{1
+## --- Mandatory includes {{{1
 set (_libarcstk_cmake_functions_dir
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions" )
 
@@ -62,8 +62,12 @@ include ("${_libarcstk_cmake_functions_dir}/ProjectFilesAndDirectories.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/BuildTreeSetup.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/CompilerFlags.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/GitInfo.cmake" )
+## 1}}}
+## --- Setup Build Tree {{{1
+libarcstk_setup_build_tree()
 
-## Optional support for development
+# 1}}}
+## --- Includes for optional development support {{{1
 include ("${_libarcstk_cmake_functions_dir}/ToolClangTidy.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/ToolClangIncludeGraph.cmake" )
 include ("${_libarcstk_cmake_functions_dir}/ToolCodeCoverage.cmake" )
@@ -71,10 +75,6 @@ include ("${_libarcstk_cmake_functions_dir}/ToolGraphViz.cmake" )
 
 unset (_libarcstk_cmake_functions_dir )
 ## 1}}}
-## --- Setup Build Tree {{{1
-libarcstk_setup_build_tree()
-
-# 1}}}
 ## --- Trigger Configuration Step Whenever Git Index Changes {{{1
 
 set_property (DIRECTORY APPEND
