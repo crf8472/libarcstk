@@ -51,7 +51,7 @@ All notable changes to this project will be documented in this file.
   - Added commit triggered workflows for build & test, ASAN/UBSAN and clang-tidy
 
 
-## [0.3.1-alpha.1] - 2025-12-31
+## [0.3.1-alpha.1] - 2025-12-30
 
 ### Changed
   - Build: Deprecate configure switches -DUSE_* in favour of -DUSE_DOC_TOOL=*
@@ -100,7 +100,7 @@ All notable changes to this project will be documented in this file.
   - Ignore Session.vim
 
 
-## [0.2.0-alpha.1] - 2024-04-01
+## [0.2.0-alpha.1] - 2024-04-04
 
 ### Changed
   - API breaking: Module Verify replaces module 'match'
@@ -122,10 +122,12 @@ All notable changes to this project will be documented in this file.
 ## [0.1.1-beta.1] - 2023-03-12
 
 ### Changed
-  - InvalidMetadataException and NonstandardMetadataException are now runtime_error
+  - InvalidMetadataException and NonstandardMetadataException are now
+    runtime_error
 
 ### Fixed
-  - Bugfix: Functions involved while updating the audiosize are no longer noexcept
+  - Bugfix: Functions involved while updating the audiosize are no longer
+    noexcept
   - Add build config to be cloned as a submodule
   - Several bugfixes
 
@@ -163,20 +165,22 @@ All notable changes to this project will be documented in this file.
   - Build: remove overflow warnings when compiling with g++11
 
 
-## [0.1.0-rc.2] - 2021-09-25
+## [0.1.0-rc.2] - 2021-03-11
 
 ### Changed
   - API: made CDDA a struct with static members, so CDDA.x becomes CDDA::x
-  - API: AudioSize::set_pcm_byte_count() becomes AudioSize::set_pcm_total_bytes()
-  - API: SampleSequence::wrap() becomes SampleSequence::wrap_int_buffer()
-  - API: SampleSequence::wrap_bytes() becomes SampleSequence::wrap_byte_buffer()
+  - API: AudioSize::set_pcm_byte_count() is renamed to
+    AudioSize::set_pcm_total_bytes()
+  - API: SampleSequence::wrap() is renamed to SampleSequence::wrap_int_buffer()
+  - API: SampleSequence::wrap_bytes() is renamed to
+    SampleSequence::wrap_byte_buffer()
 
 ### Fixed
   - Internal fixes
   - Update documentation
 
 
-## [0.1.0-rc.1]
+## [0.1.0-rc.1] - 2020-05-03
 
 ### Added
   - Improve documentation (more work needed)
@@ -190,7 +194,10 @@ All notable changes to this project will be documented in this file.
   - "Minimized" Doxyfiles
 
 
-## [0.1.0-beta.1]
+## [0.1.0-beta.2] - 2020-02-23
+
+
+## [0.1.0-beta.1] - 2019-11-03
 
 ### Added
   - Specify compilation warnings for clang and g++
@@ -203,7 +210,7 @@ All notable changes to this project will be documented in this file.
   - Minor fixes
 
 
-## [0.1.0-alpha.3]
+## [0.1.0-alpha.3] - 2019-06-02
 
 ### Added
   - Install cmake config files (making release a cmake package)
@@ -217,13 +224,13 @@ All notable changes to this project will be documented in this file.
   - Use CHECK instead of REQUIRE in all tests
 
 
-## [0.1.0-alpha.2]
+## [0.1.0-alpha.2] - 2019-05-01
 
 ### Fixed
   - Installation of public headers
 
 
-## [0.1.0-alpha.1]
+## [0.1.0-alpha.1] - 2019-04-27
 
 ### Added
   - Initial pre-release
