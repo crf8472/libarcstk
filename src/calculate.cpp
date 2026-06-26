@@ -77,7 +77,10 @@ Partitioning get_partitioning(const SampleRange& interval,
 	auto track { b };
 	{
 		const auto start_of_track = track == 0 ? 0 : points[track - 1];
-		const auto end_of_track   = points[track] - 1;
+		const auto end_of_track { track < points.size()
+			? points[track] - 1
+			: real_upper
+		};
 
 		// start of the first (and maybe only) partition
 		const auto p0_lower { real_lower };
@@ -145,7 +148,8 @@ Partitioning get_partitioning(const SampleRange& interval,
 		// upper bound to the real upper bound.
 		partitions.emplace_back(pN_lower, pN_upper,
 			true,/*a previous partition is guaranteed that ends on track end*/
-			pN_upper == points[track] - 1 || pN_upper == legal.upper(),
+			pN_upper == legal.upper() ||
+				(track < points.size() ? pN_upper == points[track] - 1 : true),
 			static_cast<TrackNo>(track)
 		);
 	} // back
