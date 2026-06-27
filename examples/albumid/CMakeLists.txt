@@ -47,7 +47,7 @@ find_package (libcue 2.0.0 REQUIRED )
 ## is present, ignore it.
 target_include_directories (libarcstk_example_albumid
 	PRIVATE ${libcue_INCLUDE_DIRS}
-	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
+	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_INCLUDE_SOURCE_DIR}> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.

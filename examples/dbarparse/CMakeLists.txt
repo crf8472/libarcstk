@@ -22,7 +22,7 @@ target_compile_options (libarcstk_example_dbarparse
 ## Always link to the libarcstk headers in the build/ dir - if another header
 ## is present, ignore it.
 target_include_directories (libarcstk_example_dbarparse
-	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
+	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_INCLUDE_SOURCE_DIR}> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.

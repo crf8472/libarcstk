@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.10 )
 
 add_executable (libarcstk_example_albumverify EXCLUDE_FROM_ALL albumverify.cpp )
-add_dependencies (libarcstk_examples  libarcstk_example_albumverify )
+add_dependencies (libarcstk_examples libarcstk_example_albumverify )
 
 set_target_properties (libarcstk_example_albumverify PROPERTIES
 	CXX_STANDARD          17
@@ -22,7 +22,7 @@ target_compile_options (libarcstk_example_albumverify
 ## Always link to the libarcstk headers in the build/ dir - if another header
 ## is present, ignore it.
 target_include_directories (libarcstk_example_albumverify
-	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_BINARY_DIR}/include/arcstk> )
+	PRIVATE $<BUILD_INTERFACE:${LIBARCSTK_INCLUDE_SOURCE_DIR}> )
 
 ## Always link to the libarcstk binary in the build/ dir - if another binary
 ## is present, ignore it.
