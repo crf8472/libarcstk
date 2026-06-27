@@ -35,6 +35,8 @@ endif ()
 
 ## Fail on error
 if (EXIT_CODE GREATER 0 )
+	file (READ "${REPORT_FILE}" CLANG_TIDY_ISSUES )
+	message (STATUS "clang-tidy report: ${CLANG_TIDY_ISSUES}" )
 	message (FATAL_ERROR "clang-tidy issues found (exit code: ${EXIT_CODE})" )
 else ()
 	message (STATUS "clang-tidy did not find any issues" )
