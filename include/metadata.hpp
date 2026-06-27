@@ -1,6 +1,10 @@
 #ifndef LIBARCSTK_METADATA_HPP_
 #define LIBARCSTK_METADATA_HPP_
 
+#if __cplusplus < 201703L
+	#error "C++17 is required to compile libarcstk"
+#endif
+
 /**
  * \file
  *

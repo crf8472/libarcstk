@@ -77,8 +77,9 @@ private:
 		struct has_equals : std::false_type {};
 
 
-#if defined(LIBARCSTK_MACOS_BUILD) && !defined(__cpp_lib_void_t)
-		// Workaround for old libc++ auf macOS
+#ifdef  LIBARCSTK_MACOS_BUILD
+		// Workaround for old libc++ on macOS
+		// TODO Check regularly whether this is still required
 		template<typename...>
 		using void_type = void;
 #else
