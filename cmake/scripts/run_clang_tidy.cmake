@@ -13,6 +13,7 @@ file (GLOB_RECURSE ALL_SOURCES "${SOURCES_DIR}/*.cpp" )
 
 execute_process(
 	COMMAND ${CLANG_TIDY_BINARY} ${ALL_SOURCES}
+		--config-file=${CLANG_TIDY_CONFIG}
 		-p ${COMPILEDB_DIR}
 		--
 		-I${INCLUDE_DIR}
