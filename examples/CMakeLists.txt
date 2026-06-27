@@ -3,25 +3,19 @@
 
 cmake_minimum_required (VERSION 3.10 )
 
-## If set to 'ON' the examples target will be build with the default target,
-## 'OFF' means the examples target does not exist.
-option (WITH_EXAMPLES "Build examples" OFF )
+message (STATUS "Build the examples" )
+add_custom_target (libarcstk_examples ALL )
 
-if (WITH_EXAMPLES )
-	message (STATUS "Build the examples" )
-	add_custom_target (libarcstk_examples ALL )
+## Search path for cmake modules
+## (Note that this does _not_ go to PARENT_SCOPE!)
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" )
+## The legacy find modules are required to find the dependencies also on
+## platforms on which the workflow build-examples.yml runs. Consult
+## cmake/Modules/README.md for details. However, we will not see those
+## Modules in the parent.
 
-	## Search path for cmake modules
-	## (Note that this does _not_ go to PARENT_SCOPE!)
-	list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" )
-	## The legacy find modules are required to find the dependencies also on
-	## platforms on which the workflow build-examples.yml runs. Consult
-	## cmake/Modules/README.md for details. However, we will not see those
-	## Modules in the parent.
-
-	add_subdirectory (albumcalc   )
-	add_subdirectory (albumid     )
-	add_subdirectory (albumverify )
-	add_subdirectory (dbarparse   )
-endif()
+add_subdirectory (albumcalc   )
+add_subdirectory (albumid     )
+add_subdirectory (albumverify )
+add_subdirectory (dbarparse   )
 
