@@ -1,4 +1,4 @@
-## Build example application 'albumverify'
+## Build example application 'albumverify', part of libarcstk
 ## vim: fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )

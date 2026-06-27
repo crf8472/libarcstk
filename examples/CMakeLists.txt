@@ -1,4 +1,4 @@
-## Build all examples
+## libarcstk: Build all examples
 ## vim: fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )

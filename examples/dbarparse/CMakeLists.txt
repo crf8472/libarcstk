@@ -1,4 +1,4 @@
-## Build example application 'dbarparse'
+## Build example application 'dbarparse', part of libarcstk
 ## vim: fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )

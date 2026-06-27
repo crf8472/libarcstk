@@ -1,4 +1,4 @@
-## Build example application 'albumid'
+## Build example application 'albumid', part of libarcstk
 ## vim: fdm=marker
 
 cmake_minimum_required (VERSION 3.10 )
