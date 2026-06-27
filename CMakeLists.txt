@@ -125,6 +125,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 	SOVERSION      "${PROJECT_VERSION}" )
 
 if (APPLE)
+	## Use this as a preprocessor condition
 	target_compile_definitions (${PROJECT_NAME} PRIVATE LIBARCSTK_MACOS_BUILD )
 endif ()
 

@@ -438,7 +438,7 @@ auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
 		using array_type = typename std::array<int_func, 3>;
 		using size_type  = typename array_type::size_type;
 
-		constexpr array_type converters =
+		const array_type converters =
 		{
 			+[](const int32_t v) noexcept {
 					return conv::convert_impl<UNIT::FRAMES,  U>(v); },

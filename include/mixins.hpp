@@ -76,8 +76,18 @@ private:
 		template <typename U, typename = void>
 		struct has_equals : std::false_type {};
 
+
+#if defined(LIBARCSTK_MACOS_BUILD) && !defined(__cpp_lib_void_t)
+		// Workaround for old libc++ auf macOS
+		template<typename...>
+		using void_type = void;
+#else
+		template<typename... Args>
+		using void_type = std::void_t<Args...>;
+#endif
+
 		template <typename U>
-		struct has_equals<U, std::void_t<
+		struct has_equals<U, void_type<
 			decltype(std::declval<const U>().equals(std::declval<const U&>()))
 		>> : std::true_type {};
 };

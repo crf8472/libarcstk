@@ -543,7 +543,7 @@ public:
 	 */
 	void set_level(LOGLEVEL level)
 	{
-		const auto lock = std::lock_guard { mutex_ };
+		const auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
 		level_ = level;
 	}
 
@@ -567,7 +567,7 @@ public:
 	 */
 	void set_timestamps(const bool& on_or_off)
 	{
-		const auto lock = std::lock_guard { mutex_ };
+		const auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
 		on_logger_do().set_timestamps(on_or_off);
 	}
 
@@ -589,7 +589,7 @@ public:
 	 */
 	void add_appender(std::unique_ptr<Appender> appender)
 	{
-		const auto lock = std::lock_guard { mutex_ };
+		const auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
 		on_logger_do().add_appender(std::move(appender));
 	}
 
@@ -600,7 +600,7 @@ public:
 	 */
 	void remove_appender(Appender *appender)
 	{
-		const auto lock = std::lock_guard { mutex_ };
+		const auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
 		on_logger_do().remove_appender(appender);
 	}
 };
