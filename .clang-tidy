@@ -13,9 +13,11 @@ Checks: >
     google-*,
     -google-readability-todo,
     misc-*,
+    -misc-no-recursion,
     modernize-*,
     -modernize-use-nodiscard,
     -modernize-use-trailing-return-type,
+    -modernize-concat-nested-namespaces,
     performance-*,
     portability-*,
 
