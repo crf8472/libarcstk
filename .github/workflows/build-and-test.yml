@@ -34,13 +34,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up dependencies (Ubuntu)
+      - name: Set up dependencies (ubuntu-latest)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build
 
-      - name: Set up dependencies (macOS)
+      - name: Set up dependencies (macos-latest)
         if: runner.os == 'macOS'
         run: |
           brew install cmake ninja

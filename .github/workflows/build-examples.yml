@@ -34,7 +34,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up dependencies (Ubuntu)
+      - name: Set up dependencies (ubuntu-latest)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
@@ -42,7 +42,7 @@ jobs:
           sudo apt-get install -y libsndfile1 libsndfile1-dev
           sudo apt-get install -y libcue2     libcue-dev
 
-      - name: Set up dependencies (macOS)
+      - name: Set up dependencies (macos-latest)
         if: runner.os == 'macOS'
         run: |
           brew install cmake ninja libsndfile libcue
