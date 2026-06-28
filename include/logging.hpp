@@ -29,7 +29,7 @@
 #include <ctime>          // for localtime, time_t
 #include <iomanip>        // for operator<<, put_time
 #include <memory>         // for unique_ptr, hash, operator==
-#include <mutex>          // for mutex, lock_guard
+#include <mutex>          // for mutex, scoped_lock
 #include <sstream>        // for operator<<, basic_ostream, ostringstream
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string, operator==, char_traits, operator<<
@@ -543,7 +543,7 @@ public:
 	 */
 	void set_level(LOGLEVEL level)
 	{
-		auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
 		level_ = level;
 	}
 
@@ -567,7 +567,7 @@ public:
 	 */
 	void set_timestamps(const bool& on_or_off)
 	{
-		auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
 		on_logger_do().set_timestamps(on_or_off);
 	}
 
@@ -589,7 +589,7 @@ public:
 	 */
 	void add_appender(std::unique_ptr<Appender> appender)
 	{
-		auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
 		on_logger_do().add_appender(std::move(appender));
 	}
 
@@ -600,7 +600,7 @@ public:
 	 */
 	void remove_appender(Appender *appender)
 	{
-		auto lock = std::lock_guard<decltype( mutex_ )> { mutex_ };
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
 		on_logger_do().remove_appender(appender);
 	}
 };
