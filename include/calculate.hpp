@@ -825,8 +825,7 @@ public:
 	/**
 	 * \copydoc SNPT_nf_swap
 	 */
-	friend void swap(CalculationState& lhs, CalculationState& rhs)
-		noexcept
+	friend void swap(CalculationState& lhs, CalculationState& rhs) noexcept
 	{
 		lhs.swap(rhs);
 	}
@@ -979,7 +978,8 @@ void complete_track(Algorithm& algorithm,
  * \return FALSE iff more updates are required, otherwise TRUE
  */
 template <typename A, typename B, typename E>
-bool perform_update(B start, E stop, const Partitioner& partitioner,
+[[nodiscard]] bool perform_update(B start, E stop,
+		const Partitioner& partitioner,
 		Updateable<A>& algorithm, CalculationState& state,
 		Checksums& result_buffer)
 {
