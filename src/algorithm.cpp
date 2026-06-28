@@ -8,7 +8,14 @@
 #include "algorithm.hpp"
 #endif
 
+#include <cstdint>       // for uint32_t
+#include <memory>        // for unique_ptr
 #include <string>        // for string
+#include <utility>       // for pair
+
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"  // for ChecksumSet
+#endif
 
 namespace arcstk
 {

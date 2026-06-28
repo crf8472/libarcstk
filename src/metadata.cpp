@@ -15,11 +15,15 @@
 
 #include <algorithm>     // for for_each, transform, copy
 #include <array>         // for array
+#include <cstdint>       // for int32_t
 #include <iterator>      // for begin, cbegin, cend, end, inserter
+#include <memory>        // for make_unique
+#include <ostream>       // for ostream
 #include <sstream>       // for ostringstream
 #include <stdexcept>     // for invalid_argument
 #include <string>        // for vector
 #include <set>           // for set
+#include <type_traits>   // for underlying_type
 #include <utility>       // for move, swap
 #include <vector>        // for string
 

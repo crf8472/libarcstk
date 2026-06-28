@@ -15,19 +15,23 @@
 #endif
 
 #include <algorithm>        // for for_each
+#include <cstddef>          // for byte
 #include <cstdint>          // for uint32_t
 #include <cstdio>           // for EOF
 #include <filesystem>       // for file_size
 #include <fstream>          // for basic_ifstream
 #include <initializer_list> // for initializer_list
+#include <ios>              // for streamsize
 #include <iosfwd>           // for char_traits, streampos
 #include <limits>           // for numeric_limits
 #include <memory>           // for unique_ptr, make_unique
 #include <numeric>          // for accumulate
 #include <optional>         // for optional, nullopt
+#include <ostream>          // for ostream
 #include <sstream>          // for ostringstream
 #include <stdexcept>        // for runtime_error
 #include <string>           // for string
+#include <system_error>     // for error_code
 #include <tuple>            // for get, tuple
 #include <unordered_set>    // for unordered_set
 #include <utility>          // for pair, move

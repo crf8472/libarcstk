@@ -11,14 +11,31 @@
 #endif
 
 #include <algorithm>   // for min, max
+#include <array>       // for array
+#include <chrono>      // for duration, duration_cast, milliseconds
+#include <cstddef>     // for size_t
 #include <cstdint>     // for int32_t, uint16_t
-#include <iomanip>     // for setw, right
+#include <iomanip>     // for setw
+#include <ios>         // for right
+#include <memory>      // for make_unique, unique_ptr
+#include <string>      // for string
+#include <utility>     // for move, pair
+#include <vector>      // for vector
 
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
+#ifndef LIBARCSTK_LOGLEVEL_HPP_
+#include "loglevel.hpp"
+#endif
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"
+#endif
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"        // for AudioSize, ToC, CDDA
+#endif
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"       // for Algorithm
 #endif
 #ifndef LIBARCSTK_ALGORITHMS_HPP_
 #include "algorithms.hpp"      // for AccurateRip::V1, V2 and V1andV2

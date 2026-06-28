@@ -15,7 +15,9 @@
 #include <cmath>            // for log2
 #include <initializer_list> // for initializer_list
 #include <iomanip>			// for setfill, setw
+#include <ios>              // for ios_base
 #include <iterator>         // for begin, end, inserter
+#include <ostream>          // for ostream
 #include <set>              // for set
 #include <stdexcept>        // for domain_error
 #include <sstream>          // for ostringstream

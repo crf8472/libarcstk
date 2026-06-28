@@ -14,11 +14,20 @@
 #endif
 
 #include <cstdint>       // for int32_t, uint_fast64_t
+#include <ios>           // for dec, hex
+#include <iomanip>       // for setfill, setw
+#include <ios>           // for ios_base
 #include <memory>        // for make_unique, unique_ptr
+#include <ostream>       // for ostream
 #include <sstream>       // for ostringstream
 #include <string>        // for string
+#include <unordered_set> // for unordered_set
 #include <utility>       // for pair
+#include <vector>        // for vector
 
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"             // for Context, Updateable
+#endif
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"              // for type, Checksum, ChecksumSet
 #endif

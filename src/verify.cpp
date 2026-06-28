@@ -13,14 +13,16 @@
 #include "verify_details.hpp"
 #endif
 
+#include <cstddef>        // for size_t
 #include <cstdint>        // for uint32_t
-#include <exception>      // for exception
 #include <iomanip>        // for setw, setfill
+#include <ios>            // for boolalpha
+#include <memory>         // for addressof, make_unique
+#include <ostream>        // for ostream
 #include <sstream>        // for ostringstream
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
 #include <tuple>          // for tuple
-#include <type_traits>    // for underlying_type
 #include <utility>        // for move
 #include <vector>         // for vector
 

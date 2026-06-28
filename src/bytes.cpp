@@ -11,6 +11,7 @@
 #endif
 
 #include <cstddef>      // for byte
+#include <cstdint>      // for uint32_t
 
 namespace arcstk
 {
