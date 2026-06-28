@@ -95,8 +95,8 @@ public:
 	 * \param[in] name   Name of the Appender
 	 * \param[in] stream The <tt>FILE</tt> to append to
 	 */
-	Appender(const std::string& name, FILE* stream)
-		: name_   { name }
+	Appender(std::string name, FILE* stream)
+		: name_   { std::move(name) }
 		, stream_ { stream }
 	{
 		if (!stream)

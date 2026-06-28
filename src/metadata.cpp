@@ -521,17 +521,9 @@ std::string to_string(const ToCData& toc_data)
 // ToC::Impl
 
 
-ToC::Impl::Impl() // TODO redundant? could just be defaulted
-	: toc_       {}
-	, filenames_ {}
-{
-	// empty
-}
-
-
-ToC::Impl::Impl(const ToCData& toc, const std::vector<std::string>& filenames)
-	: toc_       { toc       }
-	, filenames_ { filenames }
+ToC::Impl::Impl(ToCData toc, std::vector<std::string> filenames)
+	: toc_       { std::move(toc)       }
+	, filenames_ { std::move(filenames) }
 {
 	// empty
 }

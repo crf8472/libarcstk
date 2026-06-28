@@ -261,7 +261,7 @@ public:
 	/**
 	 * \brief Constructor of an empty triplet.
 	 */
-	DBARTriplet();
+	DBARTriplet() = default;
 
 	/**
 	 * \brief Constructor.
@@ -1044,7 +1044,7 @@ public:
 	/**
 	 * \copydoc SNPT_sm_default_ctor
 	 */
-	DBARBlock(); // required by IteratorElement
+	DBARBlock() = default; // required by IteratorElement
 
 	/**
 	 * \brief Constructor
@@ -1408,11 +1408,6 @@ class DBARBuilder final : public ParseHandler
 	void do_end_input() final;
 
 public:
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	DBARBuilder();
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor

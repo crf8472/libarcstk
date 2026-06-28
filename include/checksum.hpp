@@ -163,7 +163,11 @@ public:
 	 *
 	 * \details Creates an empty Checksum.
 	 */
-	Checksum();
+	Checksum()
+		: Checksum { 0 }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Converting constructor for value_type instances.

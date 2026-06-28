@@ -347,8 +347,6 @@ public:
 
 	using size_type = DBAR::size_type;
 
-	Impl();
-
 	size_type size() const noexcept;
 
 	size_type size(const size_type block_idx) const;
@@ -551,8 +549,6 @@ class CheckingDBARBuilder::Impl final
 	CheckingDBARBuilderState state_ {};
 
 public:
-
-	Impl();
 
 	// ParseHandler API mimicked
 

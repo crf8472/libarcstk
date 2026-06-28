@@ -175,13 +175,6 @@ std::string ARId::Impl::to_string() const
 // ARId
 
 
-ARId::ARId() // TODO redundant? could just be defaulted
-	: ARId { 0, 0, 0, 0 }
-{
-	// empty
-}
-
-
 ARId::ARId(const std::size_t total_tracks,
 		const uint32_t id_1,
 		const uint32_t id_2,

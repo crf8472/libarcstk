@@ -34,13 +34,6 @@ inline namespace v_1_0_0
 // Checksum
 
 
-Checksum::Checksum() // TODO redundant? could just be defaulted
-	: Checksum { 0 }
-{
-	// empty
-}
-
-
 Checksum::Checksum(const Checksum::value_type value)
 	: value_ { value }
 {

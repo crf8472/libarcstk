@@ -108,13 +108,6 @@ ResultBits::ResultBits(const size_type blocks, const size_type tracks)
 }
 
 
-ResultBits::ResultBits() // TODO redundant? could just be default
-	: ResultBits { 0, 0 }
-{
-	// empty
-}
-
-
 ResultBits::size_type ResultBits::total_blocks() const
 {
 	return blocks_;

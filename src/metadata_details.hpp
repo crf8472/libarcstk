@@ -204,9 +204,9 @@ class ToC::Impl final
 
 public:
 
-	Impl();
+	Impl() = default;
 
-	Impl(const ToCData& toc_data, const std::vector<std::string>& filenames);
+	Impl(ToCData toc_data, std::vector<std::string> filenames);
 
 	unsigned total_tracks() const noexcept;
 

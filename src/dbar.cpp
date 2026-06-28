@@ -928,15 +928,6 @@ bool DBARBlock::equals(const DBARBlock& rhs) const noexcept
 // DBAR::Impl
 
 
-DBAR::Impl::Impl() // TODO redundant? could just be defaulted
-	: total_tracks_ { /* default */ }
-	, confidence_   { /* default */ }
-	, sums_         { /* default */ }
-{
-	// empty
-}
-
-
 DBAR::Impl::size_type DBAR::Impl::size() const noexcept
 {
 	return total_tracks_.size();
@@ -1375,13 +1366,6 @@ void ParseHandler::end_input()
 // DBARBuilder
 
 
-DBARBuilder::DBARBuilder() // TODO redundant? could just be defaulted
-	: result_ { nullptr }
-{
-	// empty
-}
-
-
 DBARBuilder::~DBARBuilder() noexcept = default; // Pimpl requirement
 
 
@@ -1528,14 +1512,6 @@ void CheckingDBARBuilderState::reset()
 
 
 // CheckingDBARBuilder::Impl
-
-
-CheckingDBARBuilder::Impl::Impl() // TODO redundant? could just be defaulted
-	: builder_ { /* default */ }
-	, state_   { /* default */ }
-{
-	// empty
-}
 
 
 void CheckingDBARBuilder::Impl::start_input()

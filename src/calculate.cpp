@@ -205,11 +205,11 @@ Partitioning get_partitioning(const SampleRange& interval,
 // Partitioner
 
 
-Partitioner::Partitioner(const Points& points, const AudioSize& total_samples,
-		const SampleRange& legal)
-	: points_        { points        }
-	, total_samples_ { total_samples }
-	, legal_         { legal         }
+Partitioner::Partitioner(Points points, AudioSize total_samples,
+		SampleRange legal)
+	: points_        { std::move(points) }
+	, total_samples_ { total_samples     }
+	, legal_         { legal             }
 {
 	// empty
 }
@@ -372,19 +372,6 @@ int32_t am2ind(const int32_t amount)
 
 
 // CalculationState
-
-
-CalculationState::CalculationState() // TODO redundant?
-	: current_offset_          { 0 }
-	, samples_processed_       { 0 }
-	, track_samples_processed_ { 0 }
-	, tracks_processed_        { 0 }
-	, sequences_processed_     { 0 }
-	, algo_time_elapsed_       { 0 }
-	, update_time_elapsed_     { 0 }
-{
-	// empty
-}
 
 
 int32_t CalculationState::current_offset() const noexcept

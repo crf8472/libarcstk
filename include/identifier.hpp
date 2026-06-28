@@ -111,7 +111,11 @@ public:
 	/**
 	 * \brief Construct an empty ARId.
 	 */
-	ARId();
+	ARId()
+		: ARId { 0, 0, 0, 0 }
+	{
+		// empty
+	}
 
 	/**
 	 * \brief Construct ARId.

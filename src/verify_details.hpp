@@ -97,6 +97,15 @@ public:
 	static constexpr auto MAX_TOTAL_BLOCKS = size_type { 500 };
 
 	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	ResultBits()
+		: ResultBits { 0, 0 }
+	{
+		// empty
+	}
+
+	/**
 	 * \brief Constructor.
 	 *
 	 * \param[in] blocks Total number of blocks
@@ -106,11 +115,6 @@ public:
 	 * CDDA::MAX_TRACKCOUNT or total blocks is greater than MAX_TOTAL_BLOCKS
 	 */
 	ResultBits(const size_type blocks, const size_type tracks);
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	ResultBits();
 
 	/**
 	 * \brief Number of blocks in the store.

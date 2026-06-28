@@ -323,8 +323,7 @@ public:
 	 * \param[in] total_samples Total number of samples expected in input
 	 * \param[in] legal         Legal range of calculation
 	 */
-	Partitioner(const Points& points, const AudioSize& total_samples,
-			const SampleRange& legal);
+	Partitioner(Points points, AudioSize total_samples, SampleRange legal);
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -719,11 +718,6 @@ class CalculationState final
 	std::chrono::duration<float> update_time_elapsed_ {};
 
 public:
-
-	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	CalculationState();
 
 	/**
 	 * \brief Offset of the current sample.
