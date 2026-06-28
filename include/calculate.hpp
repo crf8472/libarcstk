@@ -2450,7 +2450,8 @@ struct AlgorithmTypes final
  * \return CalculationSet for checksum types \c types, configured by \c s
  */
 template<typename B, typename E>
-inline auto make_calculationset(const ChecksumtypeSet& types, const Settings& s)
+[[nodiscard]] inline auto make_calculationset(const ChecksumtypeSet& types,
+		const Settings& s)
 {
 	if (types.size() == 1) // either V1-only or V2-only requested
 	{

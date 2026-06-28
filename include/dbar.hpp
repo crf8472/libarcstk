@@ -1697,7 +1697,7 @@ uint32_t parse_file(const std::string& filename, ParseHandler* p,
  *
  * \return DBAR object representing the file content
  */
-DBAR make_dbar(const std::string& filename);
+[[nodiscard]] DBAR make_dbar(const std::string& filename);
 
 /**
  * \brief Read an AccurateRip response file to a DBAR object.
@@ -1716,7 +1716,8 @@ DBAR make_dbar(const std::string& filename);
  *
  * \return Tuple. 0: DBAR object, 1: validity flag, 2: uniformity flag
  */
-std::tuple<DBAR,bool,bool> validated_dbar(const std::string& filename);
+[[nodiscard]] std::tuple<DBAR,bool,bool> validated_dbar(
+		const std::string& filename);
 
 /** @} */
 

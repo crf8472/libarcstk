@@ -246,7 +246,8 @@ public:
  *
  * \return ARId
  */
-ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout);
+[[nodiscard]] ARId make_arid(const std::vector<AudioSize>& offsets,
+					const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a ToC and a leadout.
@@ -256,7 +257,7 @@ ARId make_arid(const std::vector<AudioSize>& offsets, const AudioSize& leadout);
  *
  * \return ARId
  */
-ARId make_arid(const ToC& toc, const AudioSize& leadout);
+[[nodiscard]] ARId make_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a ToC.
@@ -265,7 +266,7 @@ ARId make_arid(const ToC& toc, const AudioSize& leadout);
  *
  * \return ARId
  */
-ARId make_arid(const ToC& toc);
+[[nodiscard]] ARId make_arid(const ToC& toc);
 
 /**
  * \brief Create an ARId from validated offsets and validated leadout.
@@ -280,7 +281,7 @@ ARId make_arid(const ToC& toc);
  *
  * \throw invalid_argument If \c offsets or \c leadout could not be validated.
  */
-ARId validated_arid(const std::vector<AudioSize>& offsets,
+[[nodiscard]] ARId validated_arid(const std::vector<AudioSize>& offsets,
 		const AudioSize& leadout);
 
 /**
@@ -296,7 +297,7 @@ ARId validated_arid(const std::vector<AudioSize>& offsets,
  *
  * \throw invalid_argument If \c toc or \c leadout could not be validated.
  */
-ARId validated_arid(const ToC& toc, const AudioSize& leadout);
+[[nodiscard]] ARId validated_arid(const ToC& toc, const AudioSize& leadout);
 
 /**
  * \brief Create an ARId from a
@@ -310,7 +311,7 @@ ARId validated_arid(const ToC& toc, const AudioSize& leadout);
  *
  * \throw invalid_argument If \c toc is not complete or could not be validated.
  */
-ARId validated_arid(const ToC& toc);
+[[nodiscard]] ARId validated_arid(const ToC& toc);
 
 /** @} */
 

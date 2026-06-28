@@ -1123,7 +1123,8 @@ public:
  *
  * \return ToC created from leadout, offsets and filenames
  */
-ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC make_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1134,7 +1135,8 @@ ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
  *
  * \return ToC created from leadout and offsets
  */
-ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC make_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets);
 
 /**
  * \brief Create a ToC from offsets and filenames.
@@ -1144,7 +1146,7 @@ ToC make_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
  *
  * \return ToC created from offsets and filenames
  */
-ToC make_toc(const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC make_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1154,7 +1156,7 @@ ToC make_toc(const std::vector<int32_t>& offsets,
  *
  * \return ToC created from offsets.
  */
-ToC make_toc(const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC make_toc(const std::vector<int32_t>& offsets);
 
 /**
  * \brief Create a validated ToC from leadout, offsets and filenames.
@@ -1167,7 +1169,8 @@ ToC make_toc(const std::vector<int32_t>& offsets);
  *
  * \throws InvalidMetadataException If validation fails
  */
-ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC validated_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1180,7 +1183,8 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets,
  *
  * \throws InvalidMetadataException If validation fails
  */
-ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC validated_toc(const int32_t leadout,
+		const std::vector<int32_t>& offsets);
 
 /**
  * \brief Create a validated ToC from offsets and filenames.
@@ -1192,7 +1196,7 @@ ToC validated_toc(const int32_t leadout, const std::vector<int32_t>& offsets);
  *
  * \throws InvalidMetadataException If validation fails
  */
-ToC validated_toc(const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1204,7 +1208,7 @@ ToC validated_toc(const std::vector<int32_t>& offsets,
  *
  * \throws InvalidMetadataException If validation fails
  */
-ToC validated_toc(const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets);
 
 /**
  * \brief Requirements for metadata validity.
