@@ -15,9 +15,10 @@ Checks: >
     misc-*,
     -misc-no-recursion,
     modernize-*,
+    -modernize-concat-nested-namespaces,
+    -modernize-type-traits,
     -modernize-use-nodiscard,
     -modernize-use-trailing-return-type,
-    -modernize-concat-nested-namespaces,
     performance-*,
     portability-*,
 
