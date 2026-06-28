@@ -800,25 +800,25 @@ void DBARBlock::set(const DBAR& dBAR, const DBAR::size_type block_idx)
 
 DBARBlock::iterator DBARBlock::begin()
 {
-	return DBARBlock::iterator(*this, 0);
+	return {*this, 0};
 }
 
 
 DBARBlock::iterator DBARBlock::end()
 {
-	return DBARBlock::iterator(*this, dBAR_->size(idx_));
+	return { *this, dBAR_->size(idx_) };
 }
 
 
 DBARBlock::const_iterator DBARBlock::cbegin() const
 {
-	return DBARBlock::const_iterator(*this, 0);
+	return {*this, 0};
 }
 
 
 DBARBlock::const_iterator DBARBlock::cend() const
 {
-	return DBARBlock::const_iterator(*this, dBAR_->size(idx_));
+	return { *this, dBAR_->size(idx_) };
 }
 
 

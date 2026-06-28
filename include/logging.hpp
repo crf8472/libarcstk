@@ -403,6 +403,7 @@ public:
 		// Indent messages with level 'threshold_level' and higher
 
 		// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
+		// NOLINTBEGIN(modernize-return-braced-init-list)
 		return std::string(
 			static_cast<std::string::size_type>(
 				msg_level_ > threshold_level
@@ -412,6 +413,7 @@ public:
 				: 0),
 			whitespace
 		);
+		// NOLINTEND(modernize-return-braced-init-list)
 	}
 
 	/**
