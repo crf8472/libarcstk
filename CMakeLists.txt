@@ -34,7 +34,7 @@ endif()
 ## 1}}}
 
 include (cmake/functions/Banner.cmake )
-banner (BEGIN "Building ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
+banner (BEGIN "Configure ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
 ## --- CMake Setup {{{1
 
@@ -220,5 +220,6 @@ libarcstk_enable_code_coverage (LIBARCSTK_CODE_COVERAGE_ENABLED )
 libarcstk_enable_target_deps_graph_by_dot (LIBARCSTK_TARGET_DEPS_GRAPH_ENABLED )
 ## 1}}}
 
-banner (END "Completed ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
+banner (END
+	"Configuration completed: ${PROJECT_NAME} ${LIBARCSTK_VERSION_STRING}" )
 
