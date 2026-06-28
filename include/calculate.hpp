@@ -1343,10 +1343,6 @@ protected:
 		// empty
 	}
 
-	Calculation(const Calculation& rhs) = delete;
-
-	Calculation& operator = (const Calculation& rhs) = delete;
-
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
@@ -1474,6 +1470,10 @@ protected:
 	void base_swap(Calculation& rhs) noexcept;
 
 public:
+
+	Calculation(const Calculation& rhs) = delete;
+
+	Calculation& operator = (const Calculation& rhs) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
