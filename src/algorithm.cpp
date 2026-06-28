@@ -20,7 +20,7 @@ inline namespace v_1_0_0
 
 void swap(Context& lhs, Context& rhs) noexcept
 {
-	Context tmp { lhs };
+	const Context tmp { lhs };
 	lhs = rhs;
 	rhs = tmp;
 }

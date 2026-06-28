@@ -1385,7 +1385,7 @@ std::ostream& operator << (std::ostream& out, const VerificationResult& result)
 		return out;
 	}
 
-	[[maybe_unused]] arcstk::details::StreamFlagsGuard guard { out };
+	[[maybe_unused]] const arcstk::details::StreamFlagsGuard guard { out };
 
 	const auto indent = std::string { "  " };
 	for (auto b = int { 0 }; b < static_cast<int>(result.total_blocks()); ++b)

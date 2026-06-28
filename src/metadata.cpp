@@ -591,7 +591,7 @@ bool ToC::Impl::is_single_file() const noexcept
 	using std::cbegin;
 	using std::cend;
 
-	std::set<std::string> names(cbegin(filenames_), cend(filenames_));
+	const std::set<std::string> names(cbegin(filenames_), cend(filenames_));
 
 	return names.size() == 1;
 }

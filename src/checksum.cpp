@@ -133,7 +133,7 @@ void print(std::ostream& out, const Checksum& c)
 		return;  // Maybe set badbit: out.setstate(std::ios_base::badbit);
 	}
 
-	[[maybe_unused]] details::StreamFlagsGuard guard { out };
+	[[maybe_unused]] const details::StreamFlagsGuard guard { out };
 
 	static const auto hex_flags =
 		[](const std::ostream& stream) -> std::ios_base::fmtflags

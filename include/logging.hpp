@@ -521,7 +521,7 @@ public:
 	 */
 	const Logger& logger() const
 	{
-		static Logger logger{};
+		static const Logger logger{};
 
 		return logger;
 	}

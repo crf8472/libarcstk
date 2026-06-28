@@ -458,7 +458,7 @@ void print_impl(std::ostream& out, const unsigned total_tracks,
 			return flags;
 		};
 
-	[[maybe_unused]] arcstk::details::StreamFlagsGuard guard { out };
+	[[maybe_unused]] const arcstk::details::StreamFlagsGuard guard { out };
 
 	out.flags(fmt_flags(out));
 
