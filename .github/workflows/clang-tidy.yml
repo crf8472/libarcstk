@@ -2,9 +2,15 @@ name: Clang-Tidy Analysis
 
 on:
   push:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   clang-tidy:
@@ -13,17 +19,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      # Minimal configuration of libarcstk
+
+      - name: Set up dependencies (ubuntu-latest == 24.04 "Noble Noumbat")
         run: |
           sudo apt-get install -y cmake ninja-build clang-tidy
 
       - name: Configure with clang-tidy
         run: |
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DWITH_TESTS=ON
+          cmake -B build
 
       - name: Create clang-tidy report
-        run: cmake --build build --target libarcstk_clang-tidy-workflow
+        run: |
+          cmake --build build --target libarcstk_clang-tidy-workflow
 
