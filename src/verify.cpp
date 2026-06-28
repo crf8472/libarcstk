@@ -681,9 +681,7 @@ SourceIterator SourceIterator::operator ++ (int) // postfix increment
 
 
 TraversalPolicy::TraversalPolicy(std::unique_ptr<Selector> selector)
-	: source_   { nullptr }
-	, selector_ { std::move(selector) }
-	, current_  { 0 }
+	: selector_ { std::move(selector) }
 {
 	// empty
 }

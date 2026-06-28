@@ -110,7 +110,6 @@ std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
 template <cstype T1, cstype... T2>
 UpdateableSubtotals<T1, T2...>::UpdateableSubtotals()
 	: st_     { /*default*/ }
-	, update_ { /*default*/ }
 {
 	// empty
 }
@@ -162,7 +161,6 @@ void UpdateableSubtotals<T1, T2...>::swap(UpdateableSubtotals& rhs) noexcept
 template <cstype T1, cstype... T2>
 ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 	: Updateable<ARCSAlgorithm<T1, T2...>>{ /* default */ }
-	, state_          { /* default */ }
 	, current_result_ { /* default */ }
 {
 	// empty

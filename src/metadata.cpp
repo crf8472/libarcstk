@@ -915,9 +915,6 @@ InvalidMetadataException::InvalidMetadataException(const MetadataRequirement r,
 
 InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 	: std::runtime_error { what_arg }
-	, req_   { 0 }
-	, value_ { 0 }
-	, index_ { 0 }
 {
 	// empty
 }
@@ -925,9 +922,6 @@ InvalidMetadataException::InvalidMetadataException(const std::string& what_arg)
 
 InvalidMetadataException::InvalidMetadataException(const char *what_arg)
 	: std::runtime_error { what_arg }
-	, req_   { 0 }
-	, value_ { 0 }
-	, index_ { 0 }
 {
 	// empty
 }

@@ -718,15 +718,6 @@ std::string DBARBlockHeader::to_string() const
 // DBARTriplet
 
 
-DBARTriplet::DBARTriplet() // TODO redundant? could just be defaulted
-	: arcs_          { 0 }
-	, confidence_    { 0 }
-	, frame450_arcs_ { 0 }
-{
-	// empty
-}
-
-
 DBARTriplet::DBARTriplet(const uint32_t arcs, const unsigned confidence,
 		const uint32_t frame450_arcs)
 	: arcs_          { arcs }
@@ -790,14 +781,6 @@ std::string DBARTriplet::to_string() const
 
 
 // DBARBlock
-
-
-DBARBlock::DBARBlock() // TODO redundant? could just be defaulted
-	: dBAR_ { nullptr }
-	, idx_  { 0 }
-{
-	// empty
-}
 
 
 DBARBlock::DBARBlock(const DBAR& dBAR, const DBAR::size_type block_idx)
@@ -1474,7 +1457,6 @@ void DBARBuilder::reset()
 
 CheckingDBARBuilderState::CheckingDBARBuilderState()
 	: current_id_      { UNINITIALIZED_ID }
-	, triplet_counter_ { 0    }
 	, is_valid_        { true }
 	, is_uniform_      { true }
 {

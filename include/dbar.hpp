@@ -353,7 +353,6 @@ public:
 	 */
 	IteratorElement()
 		: index_   { std::numeric_limits<decltype( index_ )>::max() }
-		, element_ { /* default */ }
 	{
 		// empty
 	} // XXX Max value is not strongly guaranteed to never occurr in real life
@@ -562,7 +561,6 @@ public:
 	DBARForwardIterator(const T& container, const size_type idx)
 		: container_ { &container }
 		, idx_       { idx }
-		, increment_ { /* default */ }
 	{
 		// empty
 	}
