@@ -1410,6 +1410,11 @@ class DBARBuilder final : public ParseHandler
 public:
 
 	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	DBARBuilder();
+
+	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~DBARBuilder() noexcept final;

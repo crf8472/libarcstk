@@ -1367,6 +1367,9 @@ void ParseHandler::end_input()
 // DBARBuilder
 
 
+DBARBuilder::DBARBuilder() = default; // Pimpl requirement
+
+
 DBARBuilder::~DBARBuilder() noexcept = default; // Pimpl requirement
 
 
