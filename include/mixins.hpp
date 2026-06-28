@@ -76,11 +76,6 @@ private:
 		template <typename U, typename = void>
 		struct has_equals : std::false_type {};
 
-		// Workaround for old libc++ on macOS
-		// TODO Check regularly whether this is still required
-		//template<typename...>
-		//using void_type = void;
-
 		template<typename... Args>
 		using void_type = std::void_t<Args...>;
 
