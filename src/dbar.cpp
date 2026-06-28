@@ -93,7 +93,8 @@ std::string default_positional_message(const byte_position_t byte_pos,
 
 
 template<typename CharT, typename TraitsT>
-std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
+[[nodiscard]] std::size_t parse_dbar_stream(
+		std::basic_istream<CharT, TraitsT>& in,
 		ParseHandler* p, ParseErrorHandler* e)
 {
 	if (!p)
@@ -558,7 +559,7 @@ std::optional<ByteVector> file_content(const std::string &filepath,
 
 	// Load file content into vector
 
-	auto bytes = ByteVector(file_size);
+	auto bytes = ByteVector(file_size); // parenthesis
 
 	// Note that this is the right thing in any case: we read char* from fs
 	// either way and if ByteVector is uint8_t typed on this platform, the

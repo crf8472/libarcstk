@@ -248,11 +248,9 @@ std::size_t parse_dbar_file0(const std::string& filename, ParseHandler* p,
 std::uintmax_t file_size_or_throw(const std::string &filepath);
 
 /**
- * \deprecated
- *
  * \brief Load the content of a file into a vector.
  *
- * This is a partial implementation of parse_dbar_file2().
+ * This is a partial implementation of parse_dbar_file().
  *
  * \param[in] filename Name of the file to load
  * \param[in] max_size Do not load file if size in bytes exceeds this value
@@ -261,8 +259,8 @@ std::uintmax_t file_size_or_throw(const std::string &filepath);
  *
  * \return File content as a sequence of bytes
  */
-std::optional<ByteVector> file_content(const std::string &filepath,
-		const std::uintmax_t max_size);
+[[nodiscard]] std::optional<ByteVector> file_content(
+		const std::string &filepath, const std::uintmax_t max_size);
 
 /**
  * \brief Convert a dBARHeader to an ARId;
