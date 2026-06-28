@@ -393,11 +393,6 @@ std::size_t parse_dbar_stream(std::basic_istream<CharT, TraitsT>& in,
 template std::size_t parse_dbar_stream<char>(std::basic_istream<char>&,
 		ParseHandler*, ParseErrorHandler*);
 
-#ifndef LIBARCSTK_MACOS_BUILD
-template std::size_t parse_dbar_stream<uint8_t>(std::basic_istream<uint8_t>&,
-		ParseHandler*, ParseErrorHandler*);
-#endif
-
 
 std::size_t parse_bytes(ByteVector& bytes, ParseHandler* p,
 		ParseErrorHandler* e)
@@ -565,8 +560,7 @@ std::optional<ByteVector> file_content(const std::string &filepath,
 	// either way and if ByteVector is uint8_t typed on this platform, the
 	// chars will just be converted. However, note that this may or may not
 	// lead to bytes being of type char!
-	input.read(reinterpret_cast<char*>(bytes.data()),
-				static_cast<std::streamsize>(file_size));
+	input.read(bytes.data(), static_cast<std::streamsize>(file_size));
 
     return bytes;
 }
@@ -1793,11 +1787,6 @@ std::size_t parse_stream(std::basic_istream<CharT, TraitsT>& in,
 
 template std::size_t parse_stream<char>(std::basic_istream<char>&,
 		ParseHandler*, ParseErrorHandler*);
-
-#ifndef LIBARCSTK_MACOS_BUILD
-template std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
-		ParseHandler*, ParseErrorHandler*);
-#endif
 
 
 // parse_file()

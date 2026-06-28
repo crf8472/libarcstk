@@ -1668,12 +1668,6 @@ extern template
 std::size_t parse_stream<char>(std::basic_istream<char>&, ParseHandler*,
 		ParseErrorHandler*);
 
-#ifndef LIBARCSTK_MACOS_BUILD
-extern template
-std::size_t parse_stream<uint8_t>(std::basic_istream<uint8_t>&,
-		ParseHandler*, ParseErrorHandler*);
-#endif
-
 
 /**
  * \brief Parse a file.
