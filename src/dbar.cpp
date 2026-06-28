@@ -612,6 +612,7 @@ bool is_uniform(const DBAR& dbar)
 			{
 				using std::to_string;
 
+				// NOLINTNEXTLINE(misc-include-cleaner)
 				ids.insert(to_string(details::get_arid(block.header())));
 			});
 
