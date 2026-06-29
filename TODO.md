@@ -20,10 +20,6 @@ expect that I really do anything of what I noted here any time soon.
 	- Tipp: The moved-from state must be part of the classes invariant or the
 		class isn't moveable
 
-## Technical
-
-- Make project compileable on Windows
-
 
 ## Features
 
