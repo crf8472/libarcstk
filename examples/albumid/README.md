@@ -8,20 +8,20 @@ AccurateRip request id of a already ripped album.
 
 - libcue >= 2.0.0 (For parsing the Cuesheet)
 - libsndfile >= 1.0.17 (For decoding the audio data)
-- The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
+- The compiled libarcstk binary object in the ``build/`` folder (e.g.
+  ``libarcstk.so`` under Linux)
 
 
 ## Build
 
-The Makefile uses g++ to compile the sources.
+Do a regular build after setting switch ``-DWITH_EXAMPLES=ON``. Find executable
+``albumid`` in ``build/examples/albumid``.
 
-Build application with just
 
-	$ make
+## Libcue bug with EOF
 
-For removing all compiled and temporary files, just use
-
-	$ make clean
+Note that libcue 2.2.1 and before has a bug that shows a syntax error for
+some Cuesheets that end with whitespace. Use libcue 2.3+ to avoid this.
 
 
 ## Usage

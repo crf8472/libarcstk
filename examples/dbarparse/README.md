@@ -7,20 +7,14 @@ provided as a file or as piped command line input.
 
 ## Requirements
 
-- The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
+- The compiled libarcstk binary object in the ``build/`` folder (e.g.
+  ``libarcstk.so`` under Linux)
 
 
 ## Build
 
-The Makefile uses g++ to compile the sources.
-
-Build application with just
-
-	$ make
-
-For removing all compiled and temporary files, just use
-
-	$ make clean
+Do a regular build after setting switch ``-DWITH_EXAMPLES=ON``. Find executable
+``albumverify`` in ``build/examples/albumverify``.
 
 
 ## Usage

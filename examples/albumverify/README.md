@@ -9,7 +9,8 @@ can only verify entire albums.
 
 Dependencies for building and running:
 
-- The compiled libarcstk shared object ``libarcstk.so`` in the ``build/`` folder
+- The compiled libarcstk binary object in the ``build/`` folder (e.g.
+  ``libarcstk.so`` under Linux)
 
 Install a http-client like ``curl`` if you want to send actual queries to
 AccurateRip.
@@ -17,15 +18,8 @@ AccurateRip.
 
 ## Build
 
-The Makefile uses g++ to compile the sources.
-
-Build application with just
-
-	$ make
-
-For removing all compiled and temporary files, just use
-
-	$ make clean
+Do a regular build after setting switch ``-DWITH_EXAMPLES=ON``. Find executable
+``albumverify`` in ``build/examples/albumverify``.
 
 
 ## Usage

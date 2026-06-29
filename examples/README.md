@@ -1,23 +1,20 @@
 # Example applications
 
-libarcstk comes with 4 mini examples for what can be done with libarcstk and how
-this is to be done. Each of the examples refers to one of the main modules of
-libarcstk.
+libarcstk comes with 4 optional executables. Those are mini-examples for what
+can be done with libarcstk and how this is to be done. Each of the examples
+refers to one of the main modules of libarcstk (calculate, id, dbar, verify).
 
-Building the examples requires libarcstk to have been successfully build (e.g.
-the .so-file residing in ``build/``.). If you do not intend to use g++, adjust
-the Makefiles to your compiler before building the examples. It is also possible
-to compile the examples regularly in the course of the build process when
-configuring ``-DWITH_EXAMPLES=ON``. In this case, find the compiled binaries in
-your directory ``build/examples/`` where a build directory for each example is
-located after build.
+To build the examples set the switch ``-DWITH_EXAMPLES=ON`` when configuring the
+project. In this case, find the compiled binaries after build in your directory
+``build/examples/`` where a build directory for each example is located.
 
-The example applications are linked against the libarcstk.so object in the build
-tree! Use each example application exclusively in the directory it was compiled
-since it is only guaranteed to work from there.
+The example applications are linked against the compiled libarcstk binary in the
+build tree! They are not suited to work in a regular system install. Do not
+install them to another platform and do not rely on them in your production!
 
-The motivation of the examples is demonstration, not productive use. Backup any
-file before using it as input for the example applications!
+The motivation of the examples is demonstration, not productive use. It is
+necessary to carefully backup any file before using it as input for the example
+applications!
 
 Note: The example applications do exclusively target situations where an entire
 album as a single audio file along with its metadata (as a Cuesheet) is to be
