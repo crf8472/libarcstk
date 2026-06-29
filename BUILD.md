@@ -5,7 +5,7 @@
 ## Quickstart
 
 We presuppose you have downloaded and unpacked or git-cloned libarcstk to a
-folder named ``libarcstk``. Thereafter do:
+local folder named ``libarcstk``. Thereafter do:
 
 	$ cd libarcstk       # your libarcstk root folder where README.md resides
 	$ mkdir build && cd build  # create build folder for out-of-source-build
@@ -21,18 +21,17 @@ your project.
 
 ## Building libarcstk on Linux and \*BSD
 
-Libarcstk >= 0.3 is compiled as C++17. It was developed mainly (but not
-exclusively) for Linux and has no runtime dependencies other than the C++
+Libarcstk is compiled as C++17 since release 0.3. It was developed mainly (but
+not exclusively) for Linux and has no runtime dependencies other than the C++
 standard library. It was not tested whether libarcstk builds out-of-the-box on
 BSDs but don't expect major issues.
 
 
 ### Mandatory Buildtime Dependencies
 
-- C++-17-compliant-compiler with C++ standard library
+- C++-17-compliant-compiler with C++ standard library (e.g. g++ or clang++)
 - ``cmake`` >= 3.10
-- ``make`` or some other build tool compatible to cmake (the examples suppose
-  ``make`` nonetheless)
+- ``make``, ``ninja`` or some other build tool compatible to cmake
 
 
 ### Optional Buildtime Dependencies
@@ -46,7 +45,7 @@ more dependencies required.
 |**Doxygen**           |Documentation          |Build documentation in HTML (graphviz/dot is not required) |
 |**virtualenv**/Python |Documentation          |Build documentation in HTML styled with [m.css][3] |
 |**LaTeX**             |Documentation          |Build documentation manual     |
-
+|**libsndfile**, **libcue** |Examples          |When building the examples     |
 
 ### Installed files
 
@@ -55,12 +54,12 @@ system:
 
 - The shared object ``libarcstk.so.x.y.z`` (along with a symbolic link
   ``libarcstk.so``) in the standard library location (e.g. ``/usr/local/lib``).
-- The 14 public header files ``accuraterip.hpp``, ``algorithms.hpp``,
-  ``bytes.hpp``, ``calculate.hpp``, ``checksum.hpp``, ``dbar.hpp``,
-  ``identifier.hpp``, ``libarcstk.hpp``, ``logging.hpp``, ``metadata.hpp``,
-  ``mixins.hpp``, ``samples.hpp``, ``verify.hpp``, and ``version.hpp`` in the
-  subfolder ``arcstk`` in the default include location (e.g.
-  ``/usr/local/include``).
+- The 16 public header files ``accuraterip.hpp``, ``algorithm.hpp``,
+  ``algorithms.hpp``, ``bytes.hpp``, ``calculate.hpp``, ``checksum.hpp``,
+  ``dbar.hpp``, ``identifier.hpp``, ``libarcstk.hpp``, ``logging.hpp``,
+  ``loglevel.hpp``, ``metadata.hpp``, ``mixins.hpp``, ``samples.hpp``,
+  ``verify.hpp``, and ``version.hpp`` in the subfolder ``arcstk`` in the default
+  include location (e.g. ``/usr/local/include``).
 - The 4 cmake packaging files ``libarcstk-config.cmake``,
   ``libarcstk-config-version.cmake``, ``libarcstk-targets.cmake`` and
   ``libarcstk-targets-release.cmake`` in directory ``libarcstk`` beneath the
@@ -148,6 +147,7 @@ used.
 |--------------------|------------------------------------------------|-------|
 |CMAKE_BUILD_TYPE    |Build type for release or debug             |``Release``|
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix   |*plattform defined*|
+|CMAKE_CXX_COMPILER  |Choose compiler                                  |g++   |
 |CMAKE_EXPORT_COMPILE_COMMANDS|Rebuild compilation database when configuring |ON    |
 |USE_DOC_TOOL        |Set 'MCSS' to [use m.css](#website-mcss-with-html5-and-css3-via-doxygens-xml) to build the documentation. Set 'LUALATEX' to build the manual (experimental). | *none* |
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)                                     |OFF    |
@@ -165,22 +165,9 @@ the HTML version as well as the manual in one build run is achieved by:
 
 ### Switch between clang++ and g++
 
-Libarcstk is tested to compile with clang++ as well as with g++.
-
-If you want to switch the compiler, you should just hint CMake what compiler to
-use. On unixoid systems you can usually do this via the environment variables
-``CC`` and ``CXX``.
-
-If your current compiler is not clang++ and you want to use your installed
-clang++:
-
-	$ export CC=$(type -p clang)
-	$ export CXX=$(type -p clang++)
-
-If your current compiler is not g++ and you want to use your installed g++:
-
-	$ export CC=$(type -p gcc)
-	$ export CXX=$(type -p g++)
+Libarcstk is tested to compile with clang++ as well as with g++, where the
+platform default is used. (Compilation is known to work with mingw but this path
+is not yet fully supported.)
 
 Delete your directory ``build`` since it contains metadata from the previous
 compiler. Start off cleanly.
@@ -191,7 +178,10 @@ compiler. Start off cleanly.
 CMake-reconfigure the project to have the change take effect:
 
 	$ mkdir build && cd build
-	$ cmake ..
+	$ cmake -DCMAKE_CXX_COMPILER=clang++ ..
+
+You may combine this with more of the above compile switches according to your
+needs.
 
 To check whether your setting took effect, observe the CMake output. During the
 configure step, CMake informs about the actual C++-compiler like:
@@ -199,6 +189,16 @@ configure step, CMake informs about the actual C++-compiler like:
 	-- The CXX compiler identification is Clang 19.1.7
 	...
 	-- Check for working CXX compiler: /usr/bin/clang++ - works
+
+
+### Building as a git-submodule
+
+Libarcstk supports being build as a submodule. However, there is a usual caveat:
+If the parent uses any of the switches that affect build on its own, e.g.
+``WITH_TESTS`` or ``WITH_EXAMPLES``, then the parent is responsible for whether
+the libarcstk submodule should see (and therefore react on) those switches. For
+example, if the parent should be tested without also testing the libarcstk
+submodule, the switch must be handled appropriately by the parent.
 
 
 ### Turn optimizing on/off
@@ -209,7 +209,7 @@ using ``-DWITH_NATIVE=ON``. For now, this switch has only influence when using
 g++ or clang++. For other compilers, default settings apply.
 
 
-### Run unit tests
+### Run tests
 
 Note that ``-DWITH_TESTS=ON`` will try to git-clone the testing framework
 [Catch2][2] within your ``build`` directory and fail if this does not work.
@@ -218,9 +218,19 @@ Running the unit tests is *not* part of the build process. To run the tests,
 invoke ``ctest`` manually in the ``build`` directory after ``cmake --build .``
 is completed.
 
-Note that ctest will write report files in the ``build`` folder, their name
-pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
-``.cpp``-file in ``test/src``.
+Note that ctest will write report files in the folder ``build/reports``. Their
+name pattern is ``report.<testcase>.xml`` where ``<testcase>`` corresponds to a
+Catch2 TEST_CASE name.
+
+Many but not all parts of libarcstk are tested. There are three categories of
+tests:
+
+  - Some but still few functional tests that will fail when the calculation of
+    checksums is not correct.
+  - Unit tests for most of the API artefacts libarcstk offers.
+  - For currently some of the classes, their type traits are tested (e.g.
+	whether the special members work and they have the members they should
+	have).
 
 
 ### Examples
@@ -261,8 +271,7 @@ For example, to build the albumcalc example:
 If the examples were built by the regular build phase, it is sufficient to just
 remove the corresponding subdirectory:
 
-	$ cd build
-	$ rm -r examples/
+	$ rm -r build/examples
 
 If the examples were built manually, the current example folder can be cleaned
 by:
@@ -330,11 +339,11 @@ JavaScript).
 
 The [public APIdoc of libarcstk is build with m.css][5].
 
-This APIdoc can be built locally by the following steps:
+This APIdoc can be built locally by the following steps (when in folder
+``libarcstk``):
 
-	$ cd build
-	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=MCSS ..
-	$ cmake --build . --target doc
+	$ cmake -B build -DWITH_DOCS=ON -DUSE_DOC_TOOL=MCSS
+	$ cmake --build build --target doc
 
 CMake then creates a local python sandbox in directory ``build`` using
 ``virtualenv``, installs jinja2 and Pygments in it, then clones [m.css][3], and
@@ -362,13 +371,12 @@ It will thereby be typeset by building the ``doc`` target.
 
 The entire process:
 
-	$ cd build
-	$ cmake -DWITH_DOCS=ON -DUSE_DOC_TOOL=LUALATEX ..
-	$ cmake --build . --target doc
+	$ cmake -B -DWITH_DOCS=ON -DUSE_DOC_TOOL=LUALATEX
+	$ cmake --build build --target doc
 
-This will create the manual ``refman.pdf`` in folder
-``build/generated-docs/doxygen/lualatex`` (while issuing loads of warnings,
-which is perfectly normal).
+This will create the document
+``build/generated-docs/doxygen/lualatex/refman.pdf`` (while issuing loads of
+warnings, which is perfectly normal).
 
 Note that I did never give any love to the manual. It will build. Not more.
 However, it will not be convenient to read or look good at its current stage.
@@ -379,7 +387,7 @@ However, it will not be convenient to read or look good at its current stage.
 Distclean the documentation by removing the generated markdown pages and
 generated documentation output:
 
-	$ rm -rf doc/texts/ generated-docs/ && cmake --build . --target doc
+	$ rm -rf build/doc/texts/ build/generated-docs/ && cmake --build build --target doc
 
 
 ## Compilation database
@@ -398,7 +406,7 @@ The compilation database is not only required for LSP servers (and therefore
 deep language support by clang++) but also for some of the targets supporting
 development, like clang-tidy and iwyu.
 
-However, if do not require the compilation database, say, because you do not
+However, if you do not require the compilation database, say, because you do not
 intend to do any development, it is strongly advised to just ignore it and leave
 it as it is. Do not turn it off except you know what you are doing and for good
 reasons.
@@ -410,7 +418,7 @@ reasons.
 
 For analyzing and improving the coverage of the tests, use
 
-	$ cmake --build . --target coverage
+	$ cmake --build build --target libarcstk_coverage
 
 to generate code coverage reports. Either gcovr or lcov is required to generate
 coverage reports. If both tools are available, gcovr is used. In either case
@@ -421,17 +429,18 @@ after building the target the coverage report is generated in
 
 For static analysis of the entire codebase with clang-tidy, use
 
-	$ cmake --build . --target clang-tidy
+	$ cmake --build build --target libarcstk_clang-tidy
 
 to generate a report by clang-tidy. The binary ``clang-tidy`` is required to be
 available in the ``PATH``. After building the target, the report is generated
-in ``build/clang_tidy_report.txt``.
+in ``build/libarcstk_clang-tidy_report.txt``. It contains ASCII SGR codes,
+view it with ``less`` to have them rendered.
 
 ### Dependency graph for header ``#include``-relationships
 
 To visualize the dependencies between C++ headers, use
 
-	$ cmake --build . --target include_graph
+	$ cmake --build build --target libarcstk_include-graph
 
 to generate a dependency graph in PNG format that shows the dependencies between
 C++ headers. [ClangIncludeGraph][6] as well as GraphViz with dot are required to
@@ -443,7 +452,7 @@ dependency graph is generated as
 
 To visualize the dependencies between CMake custom targets, use
 
-	$ cmake --build . --target target_deps
+	$ cmake --build build --target libarcstk_target-deps
 
 to generate a dependency graph in PNG format that shows the dependencies between
 custom targets. GraphViz with dot is required to generate the dependency graph
@@ -451,19 +460,11 @@ for CMake custom targets. After building the target, the dependency graph is
 generated as ``build/graphviz/libarcstk_targets.png``.
 
 
-## Build on Windows ... duh!
+## Build on Windows
 
-No Windows port yet :-(
-
-In fact, as a lack of requirement, libarcstk has not yet even been tried to be
-built on Windows.
-
-To avoid any show-stoppers for porting libarcstk to Windows or other platforms,
-libarcstk relies completely on pure C++ and the C++ standard library. It does
-not require any other dependencies. In fact, it is intended to not use platform
-specific operations at all. Code that breaks platform independence will be
-considered being a bug. The porting is expected not to be difficult, but is
-just not done. Help will be appreciated.
+The default release-building process on Windows with mingw is possible if the
+mandatory buildtime dependencies are available. The tests run successful
+thereafter. No further work has been done on that.
 
 
 [1]: https://include-what-you-use.org/
