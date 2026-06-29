@@ -26,9 +26,8 @@ jobs:
             compiler: clang++
           - os: macos-latest
             compiler: clang++
-          # Windows (commented out, untested)
-          # - os: windows-latest
-          #   compiler: msvc
+          - os: windows-latest
+            compiler: msvc
 
     steps:
       - name: Checkout repository
@@ -45,12 +44,14 @@ jobs:
         run: |
           brew install cmake ninja
 
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install cmake ninja -y
+
       - name: Configure
         run: |
-          cmake -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DWITH_TESTS=ON
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=ON
 
       - name: Build
         run: cmake --build build

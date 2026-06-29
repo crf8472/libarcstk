@@ -63,6 +63,16 @@ function (add_test_suite CATEGORY ) # {{{1
 		PRIVATE ${PROJECT_NAME} ## libarcstk from build-tree
 	)
 
+	## Windows: Copy runtime DLLs to directory with test executables
+	if (WIN32 )
+		add_custom_command (TARGET ${CATEGORY}_tests POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				$<TARGET_RUNTIME_DLLS:${CATEGORY}_tests>
+				$<TARGET_FILE_DIR:${CATEGORY}_tests>
+			COMMAND_EXPAND_LISTS
+		)
+	endif ()
+
 	## Set properties for all discovered tests
 
 	set (TEST_PROPERTIES)
