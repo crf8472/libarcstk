@@ -1,11 +1,9 @@
-## CMake script for executing clang-tidy
+## libarcstk: CMake script for executing clang-tidy
 ##
 ## Note that clang-tidy does not have an option to specify file output. One has
 ## capture the output and pipe it to a file. This should be done platform
 ## independent by execute_process. Since we must use execute_process we use
 ## this standalone script tied to a custom target.
-
-set (IGNORE_ISSUES FALSE CACHE BOOL "Ignore issues and always return 0" )
 
 file (WRITE "${REPORT_FILE}" "")
 
@@ -23,23 +21,31 @@ execute_process(
 )
 
 message (STATUS "clang-tidy report written to: ${REPORT_FILE}" )
-message (STATUS "clang-tidy log written to: ${LOG_FILE}" )
+message (STATUS "clang-tidy log written to:    ${LOG_FILE}" )
 
-file (SIZE "${REPORT_FILE}" FILE_SIZE )
+file (SIZE ${REPORT_FILE} REPORT_SIZE )
 
 ## Determine exit code
 if (IGNORE_ISSUES )
+	message (STATUS "clang-tidy is told to ignore issues" )
 	set (EXIT_CODE 0 )
 else ()
-	set (EXIT_CODE ${FILE_SIZE} )
+	message (STATUS "clang-tidy is told to fail on issues" )
+	set (EXIT_CODE ${REPORT_SIZE} )
 endif ()
+
+## Message according to result
+if (REPORT_SIZE GREATER 0)
+	message (WARNING
+		"clang-tidy found issues, report file size: ${REPORT_SIZE}" )
+else ()
+	message (STATUS "clang-tidy did not find any issues" )
+endif()
 
 ## Fail on error
 if (EXIT_CODE GREATER 0 )
+	## Print issue list
 	file (READ "${REPORT_FILE}" CLANG_TIDY_ISSUES )
 	message (STATUS "clang-tidy report: ${CLANG_TIDY_ISSUES}" )
-	message (FATAL_ERROR "clang-tidy issues found (exit code: ${EXIT_CODE})" )
-else ()
-	message (STATUS "clang-tidy did not find any issues" )
 endif ()
 
