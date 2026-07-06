@@ -15,6 +15,7 @@ execute_process(
 		-p ${COMPILEDB_DIR}
 		--
 		-I${INCLUDE_DIR}
+		-I${SOURCES_DIR}
 		-std=c++17
 	OUTPUT_FILE "${REPORT_FILE}"
 	ERROR_FILE  "${LOG_FILE}"
