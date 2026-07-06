@@ -93,7 +93,7 @@ constexpr LOGLEVEL CLIP_LOGGING_LEVEL = arcstk::LOGLEVEL::DEBUG4;
 
 inline std::string to_string(LOGLEVEL level)
 {
-	// NOLINTNEXTLINE (cppcoreguidelines-avoid-c-arrays)
+	// NOLINTNEXTLINE(*-avoid-c-arrays)
 	static const char* const buffer[] =
 	{
 		"NONE  ",
