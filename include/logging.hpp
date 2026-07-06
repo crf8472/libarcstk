@@ -394,7 +394,7 @@ public:
 	 */
 	std::string indent() const
 	{
-		using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
+		using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
 
 		static constexpr auto step            = int { 2 };
 		static constexpr auto threshold_level = LOGLEVEL::DEBUG;

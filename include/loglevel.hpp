@@ -107,7 +107,7 @@ inline std::string to_string(LOGLEVEL level)
 		"DEBUG4"
 	};
 
-	using loglevel_type = typename std::underlying_type<LOGLEVEL>::type;
+	using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
 
 	const auto idx = static_cast<loglevel_type>(level);
 

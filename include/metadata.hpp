@@ -253,9 +253,9 @@ namespace conv
  */
 template <typename E>
 constexpr auto as_integral_value(const E& value)
-	-> typename std::underlying_type<E>::type
+	-> typename std::underlying_type_t<E>
 {
-	return static_cast<typename std::underlying_type<E>::type>(value);
+	return static_cast<typename std::underlying_type_t<E>>(value);
 }
 
 
@@ -283,8 +283,7 @@ constexpr auto as_integral_value(const E& value)
  * \return Total number of units of type \c E in a single LBA frame
  */
 template <typename E>
-constexpr auto per_frame(const E& value)
-	-> typename std::underlying_type<E>::type
+constexpr auto per_frame(const E& value) -> typename std::underlying_type_t<E>
 {
 	return as_integral_value(value);
 }
@@ -431,7 +430,7 @@ template <UNIT U>
 auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
 {
 	// Note: this type must be unsigned!
-	using unit_type  = typename std::underlying_type<UNIT>::type;
+	using unit_type  = typename std::underlying_type_t<UNIT>;
 
 	if (U == unit)
 	{
