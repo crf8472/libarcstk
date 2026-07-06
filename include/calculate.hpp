@@ -2160,7 +2160,7 @@ public:
 	 * \param[in] register_algorithms Register function for algorithms
 	 */
     UpdateableCalculationSet(const Settings& settings,
-			RegistrationFunc_t register_algorithms)
+			const RegistrationFunc_t& register_algorithms)
 	{
         register_algorithms(settings, *this);
     }
@@ -2172,7 +2172,8 @@ public:
 	 *
 	 * \param[in] register_algorithms Register function for algorithms
 	 */
-    explicit UpdateableCalculationSet(RegistrationFunc_t register_algorithms)
+    explicit UpdateableCalculationSet(
+			const RegistrationFunc_t& register_algorithms)
 		: UpdateableCalculationSet { Settings{}, register_algorithms }
 	{
 		// empty
