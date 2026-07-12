@@ -179,12 +179,19 @@ ResultBits::size_type ResultBits::total_tracks_set(ResultBits::index_type b)
 		? static_cast<index_type>(flags_per_block()) - 1
 		: 0;
 
-	const auto first_flag_in_tracks = block_start + 1; /* skip id */
+	const auto first_flag_in_tracks = block_start + 1; /*skip id*/
 	const auto last_flag_in_tracks  = block_start + block_len;
 
 	auto count = size_type { 0 };
 
-	for (auto i = first_flag_in_tracks; i <= last_flag_in_tracks; ++i)
+	// Outcommented, throws false-positive -Wstrict-overflow
+	// for (auto i = first_flag_in_tracks; i <= last_flag_in_tracks; ++i)
+	// {
+	// 	count += this->operator[](i);
+	// }
+
+	// Iterate backwards to avoid noise by -Wstrict-overflow
+	for (auto i = last_flag_in_tracks; i >= first_flag_in_tracks; --i)
 	{
 		count += this->operator[](i);
 	}
