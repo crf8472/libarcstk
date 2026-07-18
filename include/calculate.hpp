@@ -1494,8 +1494,8 @@ protected:
 
 public:
 
+	// non-copyable // TODO Why non-copyable?
 	Calculation(const Calculation& rhs) = delete;
-
 	Calculation& operator = (const Calculation& rhs) = delete;
 
 	/**
@@ -1764,7 +1764,7 @@ public:
 	 * Instantiates Updater with default settings.
 	 */
 	Updater()
-		: Updater { Settings {/*default*/} }
+		: Updater { Settings { /*default*/ } }
 	{
 		// empty
 	}
