@@ -10,11 +10,11 @@ This versioning policy intends to obey the requirements of
 [semantic versioning][1] while introducing the following fortifications:
 
 - Development releases will always have a "pre-release suffix"
-- Stable releases will never have a suffix
 - Suffixes are of the form ``-alpha.X``, ``-beta.X`` or ``-rc.X``
   with X being a positive unprefixed integer. This entails that
   for example ``0.1.0-alpha.1`` is a lower version than ``0.1.0-rc.1`` which is
   lower than ``0.1.0``.
+- Stable releases will never have such a suffix
 
 
 ## Development releases

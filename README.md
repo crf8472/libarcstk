@@ -50,10 +50,9 @@ mostly ARCSs.
 Build and install to just use the libarcstk API:
 
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
-	$ mkdir build && cd build
-	$ cmake ..           # configure default 'Release' build
-	$ cmake --build .
-	$ sudo make install  # installs to /usr/local
+	$ cmake -B build     # generate directory 'build', configure a release build
+	$ cmake --build build          # start actual build
+	$ sudo cmake --install build   # install to /usr/local
 
 See a [detailed HowTo](BUILD.md) explaining different build scenarios and all
 build switches.
@@ -63,8 +62,8 @@ build switches.
 ## How to Use
 
 - Provide the ToC data, pass the samples in a sequence of portions and get the
-  checksums or the id. Verify the checksums by matching them against reference
-  checksums you provide.
+  checksums or the id of the album. Verify the checksums by matching them
+  against reference checksums you provide.
 - Each supported usecase is illustrated by a corresponding [example
   application](./examples/) in the ``examples/`` folder. Building the examples
   is requested by adding ``-DWITH_EXAMPLES=ON`` to the cmake configure step.
@@ -85,7 +84,7 @@ build switches.
 - No production release yet - will be 1.0.0.
 - API is not considered stable before 1.0.0 (may change any time in any way
   while major release number is 0).
-- Supports only little endian plattforms. Release-build on big endian plattforms
+- Supports only little endian platforms. Release-build on big endian platforms
   is therefore ruled out by cmake for the moment.
 - Builds on Linux, MacOS and Windows. However, it is not well tested on MacOS
   and Windows and the support of those platforms should be considered

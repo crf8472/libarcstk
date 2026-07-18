@@ -11,6 +11,13 @@ libarcstk.
 
 
 
+## Compiler feedback
+
+- Eliminate *all* compiler warnings for *all* supported compilers from your
+  code. (CMake config declares the compilers to support and the switches to
+  generate feedback.)
+
+
 ## Character encoding and newlines
 
 - Libarcstk project files have unix line endings (== line feed,``0x0A``).
@@ -38,22 +45,35 @@ libarcstk.
   with leading ``:`` or ``,`` and indented one step to the constructor name.
 
 
-## Compiler feedback
+## Declarations and Definitions
 
-- Eliminate *all* compiler warnings for *all* supported compilers from your
-  code. (Root ``CMakeLists.txt`` declares the compilers to support and the
-  switches to generate feedback.)
-
-
-## Headers, Declarations, Definitions
-
-- Header file names end with ``.hpp`` (not ``.h``,``.hh`` or anything else).
-- Headers do not contain definitions, except for template (member) functions or
-  for functions the compiler must be able to inline (as SampleInputIterator and
-  the functions in the logging API).
-- Avoid inline definitions in the body of non-template classes.
+- Prefer definitions in the source file, not in the header. Exceptions are for
+  template classes, template functions and functions the compiler must be able
+  to inline (as the functions in the logging API). Good reasons for inline
+  implementations are performance-critical code or very frequently called code.
+- For non-template class declarations with inline definitions prefer
+  readability: move the inline implementation out of the class declaration and
+  tag it as ``inline`` except it is only few lines or is completely
+  trivial/expectable. Special members are allowed to be
+  class-declaration-inline since they are always short.
 - For templates, use ``typename`` for sites where base types are allowed and use
   ``class`` for sites where own class definitions are required.
+
+
+## Headers
+
+- Header file names end with ``.hpp`` (not ``.h``,``.hh`` or anything else).
+- Any header file only declares symbols that are intentionally part of its API.
+  Symbols in a header may not exist "by accident" or for "technical reasons".
+  If you absolutely must provide a symbol in a header that is not considered
+  part of the public API enclose it in the namespace ``arcstk::details``.
+  Of course forward declared implementation pointers are ok.
+- If it is not part of the public API but needs to be tested, move it to a
+  separate header in the source directory and include that by the test class.
+- Consider to reuse the filename of the public header and append ``_details``
+  to its basename to make clear which source file depends on that header's
+  contents. If the header is included in other source files consider giving it a
+  specific name.
 
 
 ## Documentation
@@ -66,8 +86,8 @@ libarcstk.
   documentation comment.
 - Implementation classes and their members may or may not have documentation
   comments.
-- Use Doxygens ``\todo`` tags sparingly and only for issues that are about to
-  change the API, not for mere implementation issues.
+- Use Doxygens ``\todo`` tags only for issues that are about to change the API,
+  not for mere implementation issues.
 - If something involves an index, document whether the index is 1-based or
   0-based or whatever its start value may be.
 
@@ -85,38 +105,15 @@ libarcstk.
 - Don't use ``/*`` ``*/`` for commenting out multiple lines. Use ``//`` on
   every line instead.
 - If something is wrong but can't be corrected immediately, describe the bug
-  leaving a FIXME tag explaining the need at its very site in the code.
+  leaving a ``FIXME`` tag explaining the need at its very site in the code.
 - Use ``TODO`` tags within the code generously to mark sites were non-bug,
   non-API issues are to do. For bugs, use ``FIXME``. If unsure, use ``XXX``.
 
 
-## Macros
-
-- Avoid new macros whenever possible. Macros are the natural solution for
-  inclusion guards. Avoid them for any other use. Using a macro when you could
-  use a constant is considered a bug.
-
-
-## C-Style things
-
-- Absolutely *never* use C-style casts, they are totally forbidden. Use
-  only C++-casts. For conversions of arithmetic types prefer braced initializers
-  (e.g. ``uint32_t { foo }``).
-- Avoid using the C-API entirely wherever possible, do things C++style.
-- If you absolutely must use the C-API for now, use it via its C++-headers
-  whenever possible (e.g. ``cstdint`` instead of ``stdint.h``) to avoid
-  polluting the global namespace.
-- If you absolutely must use the C-API for now, document the very code site with
-  a ``TODO`` tag and mark it with the string ``C-style stuff:`` followed by an
-  explanation of the overwhelming excellent reasons why the use of the C-API was
-  completely unavoidable. (For example: using libfoo imposes using C-style code
-  but not using libfoo would reinvent the wheel.)
-
-
 ## Names
 
-- Variable naming style is lower_snake_case: ``sample_seq``,
-  ``first_idx``, etc.
+- Variable naming style is lower_snake_case: ``sample_seq``, ``first_idx``, etc.
+  No exceptions.
 - Class names are UpperCamelCase: ``AudioSize``, ``ContentHandler``, etc.
 - Non-public class member variables are suffixed with an underscore:
   ``config_``, ``handler_``, etc.
@@ -124,7 +121,7 @@ libarcstk.
 - Macro names are upper case ASCII-letters and may contain underscores
   (``[A-Z_]``)
 - If something involves a value, make the unit of the value maximally clear
-  (good: ``bytes_per_frame``, ``total_samples`` - ``bad: ``frame_size``,
+  (good: ``bytes_per_frame``, ``total_samples`` - bad: ``frame_size``,
   ``samples``).
 - For input, you may also use ``using`` declarations to hint on further
   restrictions of types, e.g. TrackNo transports a hint that values from 1-99
@@ -143,11 +140,11 @@ libarcstk.
 - Owning raw pointers are absolutely forbidden, use ``std::unique_ptr`` instead.
 - Use STL data types whenever possible: ``std::string`` instead of
   ``foo::myStr``.
-- Prefer smart pointers over raw pointers. Prefer to use C++14's
-  ``std::make_unique`` if possible.
-- Use non-owning raw pointers sparingly, except for very good reasons.
-- Prefer ``using``-declaratives over classical ``typedef``'s:
-  ``using A = foo::A`` instead of ``typedef foo::A A``.
+- Prefer smart pointers over raw pointers. Prefer to use ``std::make_unique`` if
+  possible.
+- Use non-owning raw pointers sparingly, except for good reasons.
+- Prefer ``using``-declaratives over classical ``typedef``'s: ``using A =
+  foo::A`` instead of ``typedef foo::A A``.
 - Prefer choosing the minimal possible scope for a ``using`` declarative.
   Declaratives of type ``using namespace`` in any non-leaf namespace are
   considered a bug.
@@ -160,21 +157,21 @@ libarcstk.
 
 - Absolutely avoid class member variables that are ``public`` and non-const. Use
   accessors and mutators instead. Also trivial accessors and mutators are ok.
-- Classes in exported header files should be Pimpls if they hold non-trivial
-  private members. (It could be ok to use non-Pimpl layout for classes without
-  private members but private member functions.) The forward declaration and the
-  opaque pointer in the Pimpl class are ``private``. The pointer to the impl
-  class is always a ``unique_ptr``.
-- Any non-template class declaration contains only declaration of its members,
-  but not their inline implementation. (Inlining is no reason, static is no
-  reason.)
+- For classes in exported header files consider to make them Pimpls if they hold
+  non-trivial private members. (It could be ok to use non-Pimpl layout for
+  classes without private members but only private member functions. It could
+  also be ok for classes that hold trivial implementations.)
+- For Pimpls, the forward declaration and the opaque pointer in the Pimpl class
+  are ``private``. The pointer to the Impl class is always a
+  ``std::unique_ptr``, no exceptions.
 - The definitions of ``= delete`` and ``= default`` are preferred to be in the
   header not in the source file since they are considered part of the API.
   However, for Pimpls the defaulting of the destructor may be done in the source
-  file.
+  file if indicated.
+- For non-Pimpls, prefer trivially instantiatable classes, if possible.
 
 
-## Linkage
+## Linkage and namespaces
 
 - Libarcstk does never ever put anything in the global namespace. Period.
   Everything that is part of libarcstk *must* reside in the ``arcstk``
@@ -187,18 +184,39 @@ libarcstk.
   whenever possible.
 
 
-## Header files
+## C-Style things
 
-- Any header file only declares symbols that are intentionally part of its API.
-  Symbols in a header may not exist "by accident" or for "technical reasons".
-  If you absolutely must provide a symbol in a header that is not considered
-  part of the public API enclose it in the namespace ``arcstk::details``.
-  Of course forward declared implementation pointers are ok.
-- If it is not part of the public API but needs to be tested, move it to a
-  separate header in the source directory and include that by the test class.
-- Consider to reuse the filename of the public header and append ``_details``
-  to its basename to make clear which source file depends on that header's
-  contents.
+- Absolutely *never* use C-style casts, they are totally forbidden. Use
+  only C++-casts. For conversions of arithmetic types prefer braced initializers
+  (e.g. ``uint32_t { foo }``).
+- Avoid using the C-API entirely wherever possible, do things C++style.
+- If you absolutely must use the C-API for now, use it via its C++-headers
+  whenever possible (e.g. ``cstdint`` instead of ``stdint.h``) to avoid
+  polluting the global namespace.
+- If you absolutely must use the C-API for now, document the very code site with
+  a ``TODO`` tag and mark it with the string ``C-style stuff:`` followed by an
+  explanation of the overwhelming excellent reasons why the use of the C-API was
+  completely unavoidable. (For example: using libfoo imposes using C-style code
+  but not using libfoo would reinvent the wheel.)
+
+
+## Macros
+
+- Avoid new macros whenever possible. Macros are the natural solution for
+  inclusion guards. Avoid them for any other use. Using a macro when you could
+  use a constant is considered a bug.
+- If you absolutely must use a macro, consider to let it be controlled by
+  CMake.
+
+
+## Tests
+
+- If it does anything non-trivial, add a unit test for it.
+- If it provides API functionality, add a functional test for it.
+- For unit tests, keep one testcase file per TU since compiling tests is
+  expensive.
+- If you made the type trivially instantiatable, add a type trait test that
+  proves the triviality.
 
 
 ## Dependencies
@@ -206,15 +224,8 @@ libarcstk.
 - Do not introduce any new external dependencies. For runtime, prefer standard
   library whenever reasonably possible and for buildtime stick to the tools
   already involved (CMake, Catch2).
-- For documentation stick to the tools already involved (doxygen, m.css). Any
-  additional buildtime dependencies must be deactivated by default and only
-  optionally activated by a CMake buildstep-switch.
-
-
-## Tests
-
-- If it does anything non-trivial, add a unit test for it.
-- Keep one testcase file per TU since compiling tests is expensive.
+- For documentation, any additional buildtime dependencies must be deactivated
+  by default and only optionally activated by a CMake buildtime-switch.
 
 [1]: https://herbsutter.com/2013/08/12/gotw-94-solution-aaa-style-almost-always-auto/
 
