@@ -67,36 +67,56 @@ using ToCData = std::vector<AudioSize>;
  * AccurateRip checksums are calculated from a sequence of input sample
  * sequences. The caller is responsible for determining an Algorithm and
  * providing the entire sequence of audio sample sequences to a Calculation
- * instance. The result is provided in a Checksums instance.
+ * instance. The resulting checksums are provided in a Checksums instance.
  *
  * An Algorithm specifies a method to calculate Checksums over a sequence of
  * audio samples. AccurateRip specifies two distinct algorithms for calculating
- * a checksum, v1 and v2. A v1 checksum can be materialized as a subtotal when
- * calculating a v2 checksum. Therefore a calculation of a v2 value can also
- * provide the v1 value for the input. Hence there are three variants of the
- * Algorithm available: \e V1, \e V2 and \e V1and2. The latter provides v1 as
- * well as v2.
+ * a checksum, v1 and v2. There is an arithmetical relationship: a v1 checksum
+ * can be materialized as a subtotal while calculating a v2 checksum. Therefore
+ * a calculation of a v2 value can also provide the v1 value for the input.
+ * Hence there are three variants of the Algorithm available: \e V1, \e V2 and
+ * \e V1and2. The latter provides v1 as well as v2.
  *
  * Class Settings provides an interface for configuring an Algorithm or the
  * calculation process.
  *
- * As part of the Settings there exists a Context in which the Calculation is
- * performed. The Algorithm is aware of the Context. The Context indicates if
- * either FIRST_TRACK, LAST_TRACK, or both have to be treated specially when
- * calculating.
+ * As part of the Settings there exists a Context in which the Calculation is to
+ * be performed. The Context indicates if either FIRST_TRACK, LAST_TRACK, or
+ * both have to be treated specially during calculation.
  *
  * A Calculation represents the technical process of calculating Checksums by an
  * Algorithm. It has to be parametized with an Algorithm, initialized with the
  * offsets and the leadout of the audio image and then subsequently be updated
- * with portions of samples in their correct order. A Calculation works fine
- * with the default settings, but can be finetuned by providing custom Settings.
+ * with portions of samples in their correct order.
  *
- * Updating a Calculation with an actual sequence of samples is done by
+ * Calculation is therefore a \link arcstk::Stateful stateful \endlink class
+ * that is designed to transist four consecutive \link arcstk::State
+ * states\endlink: instantiation, initialization, updating, and completion.
+ * Improper input may change the state to INVALID.
+ *
+ * After instantiation Calculation is in state INSTANTIATED. When passing toc
+ * data to it, it changes to state INITIALIZED and will accept updates only from
+ * then on. When INITIALIZED, a Calculation accepts toc data nonetheless.
+ *
+ * The only concrete subclass of Calculation is Updater, which represents a
+ * Calculation that can be updated by concrete chunks of samples .
+ *
+ * Updating an Updater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any LegacyInputIterator with a \c
- * value_type of csample_t is allowed. Type csample_t is the declared type for
- * PCM 32 bit samples. Using a SampleSequence may be of convenience for
- * establishing compatibility of the sample input format.
+ * represent start and stop of the update. Any LegacyInputIterator with a
+ * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
+ * is the declared type for a combined representation of two PCM 16 bit stereo
+ * samples. Algorithm instances process samples in this format. Using a
+ * SampleSequence may be of convenience for establishing compatibility of the
+ * sample input format.
+ *
+ * After the first update by a sequence of samples, the Calculation will
+ * transist to state UPDATED and not accept any change of the toc data anymore.
+ * It remains in this state after the total number of input samples has been
+ * passed that is to be declared by the ToC passed when initializing.
+ *
+ * After the expected input has been passed as update, the Calculation will
+ * transist to state COMPLETED and accept no more input.
  *
  * As soon as a Calculation is \link arcstk::Calculation::complete() complete()
  * \endlink its result can be provided. The resulting Checksums represent the
@@ -112,6 +132,15 @@ using ToCData = std::vector<AudioSize>;
  * A Checksum refers to a particular track and a particular checksum::type.
  * Checksums are calculated by updating a Calculation with a sequence of sample
  * sequences.
+ *
+ * CalculationSet is an aggregate type of Updaters. An UpdateableCalculationSet
+ * accepts multiple Algorithms and updates multiple Updaters with the same
+ * portion of samples. For now, the recommended way to calculate AccurateRip v1
+ * and v2 checksums is not to use a CalculationSet but to just use Algorithm
+ * AccurateRip::V1andV2 on a single Updater.
+ *
+ * The ususal way to create a CalculationSet is via a list of requested
+ * algorithms, represented by template class AlgorithmTypes.
  *
  * @{
  */
