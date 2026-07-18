@@ -2457,7 +2457,7 @@ template<typename B, typename E>
 	if (types.size() == 1) // either V1-only or V2-only requested
 	{
 		using V1_only = AlgorithmTypes<AccurateRip::V1>;
-		using V2_only = AlgorithmTypes<AccurateRip::V1>;
+		using V2_only = AlgorithmTypes<AccurateRip::V2>;
 
 		using std::cbegin;
 
