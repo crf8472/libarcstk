@@ -158,12 +158,12 @@ verify which compiler settings and build commands are actually used.
 |CMAKE_INSTALL_PREFIX|Top-level install location prefix    |*platform defined*|
 |CMAKE_CXX_COMPILER  |Choose compiler                      |*platform defined*|
 |CMAKE_EXPORT_COMPILE_COMMANDS|Rebuild compilation database when configuring |ON    |
-|USE_DOC_TOOL        |Set 'MCSS' to [use m.css](#website-mcss-with-html5-and-css3-via-doxygens-xml) to build the documentation. Set 'LUALATEX' to build the manual (experimental). | *none* |
+|USE_DOC_TOOL        |Set 'MCSS' to [use m.css](#html-pages-mcss-with-html5-and-css3-via-doxygens-xml) to build the documentation. Set 'LUALATEX' to build the manual (experimental). | *none* |
 |WITH_DOCS           |Configure for [documentation](#building-the-api-documentation)               |OFF    |
 |WITH_NATIVE         |Use platform [specific optimization](#turn-optimizing-onoff) on compiling    |       |
 |                    |CMAKE_BUILD_TYPE=Debug                                                       |OFF    |
 |                    |CMAKE_BUILD_TYPE=Release                                                     |ON     |
-|WITH_TESTS          |Compile [tests](#run-unit-tests) (but don't run them)                        |OFF    |
+|WITH_TESTS          |Compile [tests](#run-tests) (but don't run them)                             |OFF    |
 |WITH_EXAMPLES       |Compile [examples](#examples), requires libsndfile and libcue                |OFF    |
 
 Note that ``USE_DOC_TOOL`` can be passed multiple values. For example, building
@@ -335,7 +335,7 @@ using ``-DUSE_DOC_TOOL``:
 
 |USE_DOC_TOOL      |Tools    |Output        |Status                 |
 |------------------|---------|--------------|-----------------------|
-|<empty> (default) |doxygen  |HTML pages    |supported              |
+|(default: empty)  |doxygen  |HTML pages    |supported              |
 |MCSS              |m.css    |HTML pages    |experimental, tested   |
 |LUALATEX          |lualatex |PDF manual    |experimental, untested |
 
