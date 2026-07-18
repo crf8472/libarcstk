@@ -114,7 +114,7 @@ std::string name(const type t)
 		// "FOURTH_TYPE" ...
 	};
 
-	using index_type = typename std::underlying_type<checksum::type>::type;
+	using index_type = typename std::underlying_type_t<checksum::type>;
 
 	return names.at(static_cast<decltype( names )::size_type>(
 				std::log2(static_cast<index_type>(t))));

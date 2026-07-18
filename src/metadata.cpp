@@ -258,7 +258,7 @@ std::string name(const MetadataRequirement r)
 		"TOTAL_FILENAMES_MATCH_TOTAL_TRACKS"
 	};
 
-	using index_type = typename std::underlying_type<MetadataRequirement>::type;
+	using index_type = typename std::underlying_type_t<MetadataRequirement>;
 
 	return names.at(static_cast<index_type>(r));
 }
