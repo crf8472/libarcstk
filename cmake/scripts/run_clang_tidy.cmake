@@ -28,7 +28,7 @@ file (SIZE ${REPORT_FILE} REPORT_SIZE )
 
 ## Determine exit code
 if (IGNORE_ISSUES )
-	message (STATUS "clang-tidy is told to ignore issues" )
+	message (STATUS "clang-tidy is told to not fail on issues" )
 	set (EXIT_CODE 0 )
 else ()
 	message (STATUS "clang-tidy is told to fail on issues" )
