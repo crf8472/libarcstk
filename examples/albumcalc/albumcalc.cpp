@@ -20,7 +20,7 @@
 #endif
 
 extern "C" {
-#include <libcue/libcue.h>        // libcue for parsing the CUEsheet
+#include <libcue/libcue.h>        // libcue for parsing the Cuesheet
 }
 #include <sndfile.hh>             // libsndfile for reading the audio file
 
@@ -42,12 +42,12 @@ extern "C" {
 
 
 /**
- * \brief Parse a CUEsheet and return offsets and implicitly the track count.
+ * \brief Parse a Cuesheet and return offsets and implicitly the track count.
  *
  * This method is implemented without any use of libarcstk. It just has to be
  * available for parsing the Cuesheet.
  *
- * @param[in] cuefilename Name of the CUEsheet file to parse
+ * @param[in] cuefilename Name of the Cuesheet file to parse
  *
  * @return STL-like container with a size_type holding offsets
  */
@@ -57,22 +57,22 @@ auto get_offsets(const std::string &cuefilename) -> std::vector<int32_t>
 
 	if (!f)
 	{
-		std::cerr << "Failed to open CUEsheet: " << cuefilename << '\n';
-		throw std::runtime_error("Failed to open CUEsheet");
+		std::cerr << "Failed to open Cuesheet file: " << cuefilename << '\n';
+		throw std::runtime_error("Failed to open Cuesheet file");
 	}
 
 	::Cd* cdinfo = ::cue_parse_file(f);
 
 	if (std::fclose(f))
 	{
-		std::cerr << "Failed to close CUEsheet: " << cuefilename << '\n';
+		std::cerr << "Failed to close Cuesheet file: " << cuefilename << '\n';
 	}
 	f = nullptr;
 
 	if (!cdinfo)
 	{
-		std::cerr << "Failed to parse CUEsheet: " << cuefilename << '\n';
-		throw std::runtime_error("Failed to parse CUEsheet");
+		std::cerr << "Failed to parse Cuesheet file: " << cuefilename << '\n';
+		throw std::runtime_error("Failed to parse Cuesheet file");
 	}
 
 	const auto track_count = ::cd_get_ntrack(cdinfo);
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 	// 2. the number of tracks
 	// 3. the track offset for each track
 
-	// Since the CUEsheet usually does not know the length of the last track, we
+	// Since the Cuesheet usually does not know the length of the last track, we
 	// have to derive the leadout frame from the audio data.  We could do this
 	// quite convenient by using libarcstk's AudioReader::acquire_size() method.
 	// But thanks to libsndfile, this is not even necessary: the information is
@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 	// integers, one per channel.
 
 	// We derive 2. total number of tracks and 3. actual track offsets from
-	// parsing the CUEsheet.  We skip the details here for libarcstk does not
+	// parsing the Cuesheet.  We skip the details here for libarcstk does not
 	// provide this functionality and the author just did a quick hack with
 	// libcue.  (Just consult the implementation of function parse_cuesheet()
 	// if you are interested in the details, but this is libcue, not libarcstk.)

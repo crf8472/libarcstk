@@ -57,22 +57,22 @@ auto get_offsets(const std::string &cuefilename) -> std::vector<int32_t>
 
 	if (!f)
 	{
-		std::cerr << "Failed to open Cuesheet: " << cuefilename << '\n';
-		throw std::runtime_error("Failed to open Cuesheet");
+		std::cerr << "Failed to open Cuesheet file: " << cuefilename << '\n';
+		throw std::runtime_error("Failed to open Cuesheet file");
 	}
 
 	::Cd* cdinfo = ::cue_parse_file(f);
 
 	if (std::fclose(f))
 	{
-		std::cerr << "Failed to close Cuesheet: " << cuefilename << '\n';
+		std::cerr << "Failed to close Cuesheet file: " << cuefilename << '\n';
 	}
 	f = nullptr;
 
 	if (!cdinfo)
 	{
-		std::cerr << "Failed to parse Cuesheet: " << cuefilename << '\n';
-		throw std::runtime_error("Failed to parse Cuesheet");
+		std::cerr << "Failed to parse Cuesheet file: " << cuefilename << '\n';
+		throw std::runtime_error("Failed to parse Cuesheet file");
 	}
 
 	const auto track_count { ::cd_get_ntrack(cdinfo) };
