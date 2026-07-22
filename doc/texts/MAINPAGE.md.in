@@ -12,12 +12,12 @@ See the [project repository](@PROJECT_HOMEPAGE_URL@/).
 
 Libarcstk supports the following tasks for working with AccurateRip checksums:
 
-- Verify AccurateRip checksums against their reference sums from AccurateRip.
 - Calculate the AccurateRip checksums of a sequence of audio samples, may it
   be a single track or an album.
+- Verify AccurateRip checksums against their reference sums from AccurateRip.
 - Calculate the AccurateRip Id of a CD from its toc information (along with the
   request URL and the canonical response filename).
-- Parse the responses AccurateRip sends to database requests to plaintext.
+- Parse the responses AccurateRip sends to database requests to plain text.
 
 
 
@@ -38,10 +38,9 @@ Build and install to just use the API:
 
 	$ git clone @PROJECT_HOMEPAGE_URL@.git
 	$ cd libarcstk       # your libarcstk root directory where README.md resides
-	$ mkdir build && cd build
-	$ cmake -DCMAKE_BUILD_TYPE=Release ..
-	$ cmake --build .
-	$ sudo make install  # installs to /usr/local
+	$ cmake -B build     # generate directory 'build', configure a release build
+	$ cmake --build build          # start actual build
+	$ sudo cmake --install build   # install to /usr/local
 
 
 

@@ -15,7 +15,7 @@ Libarcstk supports the following tasks:
 - Calculate the AccurateRip checksums of a sequence of decoded samples.
 - Verify local AccurateRip checksums against their reference values provided by
   AccurateRip.
-- Calculate the AccurateRip ID of a CD image from TOC information.
+- Calculate the AccurateRip ID of a CD image from its toc information.
 - Parse the response from AccurateRip database to plain text.
 
 Libarcstk provides:
