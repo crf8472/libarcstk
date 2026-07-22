@@ -156,9 +156,9 @@ bool any(const Context& c) noexcept;
 // Member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
- * \brief Interface: Checksum calculation algorithm.
+ * \brief Interface: An algorithm for Checksum calculation.
  *
- * An Algorithm is a specific calculation method for checksums.
+ * An Algorithm represents a specific calculation method for checksums.
  */
 class Algorithm
 {
@@ -187,16 +187,16 @@ public:
 	virtual ~Algorithm() noexcept = default;
 
 	/**
-	 * \brief Configure the algorithm with settings.
+	 * \brief Setup the algorithm with a Context.
 	 *
 	 * \param[in] c Context for this instance
 	 */
 	void set_context(const Context c) noexcept;
 
 	/**
-	 * \brief Return the settings of this instance.
+	 * \brief Return the Context of this instance.
 	 *
-	 * \return Settings of this instance
+	 * \return Context of this instance
 	 */
 	Context context() const noexcept;
 
@@ -291,17 +291,19 @@ private:
 #pragma GCC diagnostic pop
 
 /**
- * \brief CRTP to add updateing capability to an algorithm.
+ * \brief CRTP to add updateing capability to a concrete Algorithm.
  *
  * \tparam A Algorithm type
  *
- * An Updateable is an instance of an Algorithm that can be updated with new
- * input by the caller. The calculation of tracks is to be finished manually by
- * calling track_finished(). Algorithm instances hold the concrete subtotals.
+ * An Updateable is a base class of an Algorithm that can be updated with new
+ * input by the caller.
  *
  * The caller is required to instantiate and setup an Algorithm. However, it
  * should usually not be required to update the Algorithm instance directly.
  * This is performed via a Calculation.
+ *
+ * The calculation of a track is to be finished manually by calling
+ * track_finished(). Algorithm instances hold the concrete subtotals.
  */
 template <typename A>
 class Updateable : public Algorithm

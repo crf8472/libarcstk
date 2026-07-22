@@ -65,52 +65,42 @@ using ToCData = std::vector<AudioSize>;
  * \details
  *
  * AccurateRip checksums are calculated from a sequence of input sample
- * sequences. The caller is responsible for determining an Algorithm and
- * providing the entire sequence of audio sample sequences to a Calculation
- * instance. The resulting checksums are provided in a Checksums instance.
- *
- * An Algorithm specifies a method to calculate Checksums over a sequence of
- * audio samples. AccurateRip specifies two distinct algorithms for calculating
- * a checksum, v1 and v2. There is an arithmetical relationship: a v1 checksum
- * can be materialized as a subtotal while calculating a v2 checksum. Therefore
- * a calculation of a v2 value can also provide the v1 value for the input.
- * Hence there are three variants of the Algorithm available: \e V1, \e V2 and
- * \e V1and2. The latter provides v1 as well as v2.
- *
- * Class Settings provides an interface for configuring an Algorithm or the
- * calculation process.
- *
- * As part of the Settings there exists a Context in which the Calculation is to
- * be performed. The Context indicates if either FIRST_TRACK, LAST_TRACK, or
- * both have to be treated specially during calculation.
+ * sequences. The caller is responsible for providing the entire sequence of
+ * audio sample sequences to an Updater instance which provides a Calculation
+ * interface. The resulting checksums are provided in a Checksums instance.
  *
  * A Calculation represents the technical process of calculating Checksums by an
- * Algorithm. It has to be parametized with an Algorithm, initialized with the
- * offsets and the leadout of the audio image and then subsequently be updated
- * with portions of samples in their correct order.
+ * Algorithm thereby respecting Settings. A Calculation has to be parametized
+ * with an Algorithm, initialized with the offsets and the leadout of the audio
+ * image and then subsequently be updated with portions of samples in their
+ * correct order.
  *
  * Calculation is therefore a \link arcstk::Stateful stateful \endlink class
  * that is designed to transist four consecutive \link arcstk::State
- * states\endlink: instantiation, initialization, updating, and completion.
+ * states\endlink: INSTANTIATED, INITIALIZED, UPDATED, and COMPLETED.
  * Improper input may change the state to INVALID.
  *
  * After instantiation Calculation is in state INSTANTIATED. When passing toc
  * data to it, it changes to state INITIALIZED and will accept updates only from
- * then on. When INITIALIZED, a Calculation accepts toc data nonetheless.
+ * then on. When INITIALIZED, a Calculation accepts toc data nonetheless but
+ * every new input data overwrites the previous. The first passing of concrete
+ * samples moves the Calculation to state UPDATED.
  *
- * The only concrete subclass of Calculation is Updater, which represents a
- * Calculation that can be updated by concrete chunks of samples .
+ * The Calculation interface does not provide updating capabilities on its own.
+ * These are exclusively provided by the only concrete subclass of Calculation,
+ * Updater. Updater represents a Calculation that can be updated by concrete
+ * chunks of samples.
  *
  * Updating an Updater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any LegacyInputIterator with a
+ * represent start and stop of the update. Any C++-LegacyInputIterator with a
  * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
  * is the declared type for a combined representation of two PCM 16 bit stereo
  * samples. Algorithm instances process samples in this format. Using a
  * SampleSequence may be of convenience for establishing compatibility of the
  * sample input format.
  *
- * After the first update by a sequence of samples, the Calculation will
+ * After the first update by a sequence of samples, the Updater will
  * transist to state UPDATED and not accept any change of the toc data anymore.
  * It remains in this state after the total number of input samples has been
  * passed that is to be declared by the ToC passed when initializing.
@@ -133,14 +123,33 @@ using ToCData = std::vector<AudioSize>;
  * Checksums are calculated by updating a Calculation with a sequence of sample
  * sequences.
  *
- * CalculationSet is an aggregate type of Updaters. An UpdateableCalculationSet
- * accepts multiple Algorithms and updates multiple Updaters with the same
- * portion of samples. For now, the recommended way to calculate AccurateRip v1
- * and v2 checksums is not to use a CalculationSet but to just use Algorithm
- * AccurateRip::V1andV2 on a single Updater.
+ * CalculationSet is an interface for an aggregate of Updaters. An
+ * UpdateableCalculationSet accepts multiple Algorithms and updates multiple
+ * Updaters with the same portion of samples. For now, the recommended way to
+ * calculate AccurateRip v1 and v2 checksums is not to use a CalculationSet but
+ * to just use Algorithm AccurateRip::V1andV2 on a single Updater.
  *
  * The ususal way to create a CalculationSet is via a list of requested
  * algorithms, represented by template class AlgorithmTypes.
+ *
+ * A Calculation is parametized by an Algorithm. While the Calculation defines
+ * how to calculate the result, the Algorithm defines which kind of results are
+ * to be calculated.
+ *
+ * An Algorithm specifies a method to calculate Checksums over a sequence of
+ * audio samples. AccurateRip specifies two distinct algorithms for calculating
+ * a checksum, v1 and v2. There is an arithmetical relationship: a v1 checksum
+ * can be materialized as a subtotal while calculating a v2 checksum. Therefore
+ * a calculation of a v2 value can also provide the v1 value for the input.
+ * Hence there are three variants of the Algorithm available: \e V1, \e V2 and
+ * \e V1and2. The latter provides v1 as well as v2.
+ *
+ * Class Settings provides an interface for configuring a Calculation for the
+ * calculation process.
+ *
+ * As part of the Settings there exists a Context in which the Calculation is to
+ * be performed. The Context indicates if either FIRST_TRACK, LAST_TRACK, or
+ * both have to be treated specially during calculation.
  *
  * @{
  */
@@ -197,7 +206,7 @@ using is_sample_iterator = std::is_same<it_value_type<Iterator>, csample_t>;
  *
  * \tparam T Type with definition of <=
  */
-template<typename T>
+template <typename T>
 class Interval final
 {
 	/**
@@ -625,7 +634,7 @@ public:
  *
  * \tparam T Type with definition of +=
  */
-template<typename T>
+template <typename T>
 class Counter final
 {
 	/**
@@ -704,10 +713,9 @@ int32_t ind2am(const int32_t index);
 int32_t am2ind(const int32_t amount);
 
 /**
- * \brief Current state of a Calculation.
+ * \brief Current qualified state of a Calculation.
  *
- * A CalculationState provides the relevant counters for samples and time. It
- * updates the algorithm and provides the current subtotal.
+ * Provides the relevant counters for samples, tracks and time.
  */
 class CalculationState final
 {
@@ -838,7 +846,7 @@ public:
 		const std::chrono::duration<float>& algo_time);
 
 	/**
-	 * \brief Mark track as finished.
+	 * \brief Recognize track as finished.
 	 *
 	 * \return Samples processed in the course of this track
 	 */
@@ -1066,6 +1074,8 @@ template <typename A, typename B, typename E>
 
 /**
  * \brief Settings for a Calculation.
+ *
+ * The API provides this as a kind of hook for settings attributes to add later.
  */
 class Settings final : Equality<Settings>, Comparable<Settings>, Swap<Settings>
 {
@@ -1091,14 +1101,14 @@ public:
 	explicit Settings(const Context& c);
 
 	/**
-	 * \brief Set context for this algorithm.
+	 * \brief Set context for this calculation.
 	 *
 	 * \param[in] c Context to set on this instance
 	 */
 	void set_context(const Context c);
 
 	/**
-	 * \brief Current context of this algorithm.
+	 * \brief Current context of this calculation.
 	 *
 	 * \return Context of this instance
 	 */
@@ -1122,7 +1132,7 @@ public:
 
 
 /**
- * \brief Calculation phases.
+ * \brief Consecutive state of a Calculation.
  */
 enum class State : uint8_t
 {
@@ -1145,7 +1155,12 @@ std::string name(const State s);
 
 
 /**
- * \brief Phase management of a Calculation.
+ * \brief State behaviour for a calculation process.
+ *
+ * A stateful object keeps a current state.
+ *
+ * It may perform a legal transition to another state according to its internal
+ * map of legal transitions for its current state.
  */
 class Stateful
 {
@@ -1205,7 +1220,7 @@ protected:
 	 *
 	 * \throw std::logic_error If current_state() is not \c s
 	 */
-	void allowed_only_for(State s, const std::string& error_msg)
+	void allowed_only_in(State s, const std::string& error_msg)
 	{
 		if (current_state() != s)
 		{
@@ -1297,9 +1312,7 @@ public:
 
 
 /**
- * \brief Encapsulate the stateful parts of a Calculation.
- *
- * All these parts are independent of the concrete algorithm.
+ * \brief Interface: Encapsulate the stateful parts of a calculation process.
  */
 class Calculation : public Stateful
 {
@@ -1712,7 +1725,7 @@ public:
  * \tparam A Algorithm to use for Calculation
  *
  * An Updater represents a Calculation for a concrete checksum calculation
- * process. It is manually performed by the caller by calling update().
+ * process. It is manually performed by the caller calling update().
  *
  * Updater instances must be initialized with the specific size of the input
  * audio file and an Algorithm that defines the type of the checksums. If
@@ -1850,7 +1863,7 @@ public:
 	 *
 	 * \param[in] samples Sample sequence for update
 	 */
-    template<typename T, bool is_planar>
+    template <typename T, bool is_planar>
     void update(const SampleSequence<T, is_planar>& samples)
 	{
 		using std::cbegin;
@@ -1868,7 +1881,7 @@ public:
 	 * \param[in] start Iterator pointing to the first sample of the sequence
 	 * \param[in] stop  Iterator pointing behind the last sample of the sequence
 	 */
-	template<typename B, typename E>
+	template <typename B, typename E>
     void update(B start, E stop)
 	{
 		this->update_impl(start, stop);
@@ -1942,6 +1955,9 @@ private:
 	 *
 	 * \tparam B Type of iterator pointing to the begin of the update sequence
 	 * \tparam E Type of iterator pointing to the end   of the update sequence
+	 *
+	 * \param[in] start Start iterator
+	 * \param[in] stop  Stop iterator
 	 */
 	template <typename B, typename E>
 	void update_impl(B start, E stop)
@@ -1990,7 +2006,7 @@ private:
 #pragma GCC diagnostic pop
 
 /**
- * \brief Interface for a set of Calculations.
+ * \brief Interface: a set of Calculations.
  */
 class CalculationSet
 {
@@ -2152,7 +2168,7 @@ public:
 };
 
 /**
- * \brief A set of Calculations.
+ * \brief An updateable set of Calculations.
  *
  * \tparam B Type of begin iterator
  * \tparam E Type of end   iterator
@@ -2161,7 +2177,7 @@ public:
  *
  * \see make_calculationset
  */
-template<typename B, typename E>
+template <typename B, typename E>
 class UpdateableCalculationSet final : public CalculationSet
 {
 	/**
@@ -2239,7 +2255,7 @@ public:
 	 *
 	 * \param[in] settings Settings to set for this algorithm
 	 */
-    template<class A>
+    template <class A>
     void add(const Settings& settings)
 	{
         auto updater = std::make_unique<Updater<A>>(settings);
@@ -2352,8 +2368,15 @@ private:
 		return true;
 	}
 
-	//
+	// own
 
+	/**
+	 * \brief Worker method for combining the results of all Updaters.
+	 *
+	 * \param[in] calculations List of calculations to merge
+	 *
+	 * \return Combined result
+	 */
 	Checksums merge_results(const std::vector<std::unique_ptr<Calculation>>&
 			calculations) const
 	{
@@ -2397,10 +2420,11 @@ private:
 
 
 /**
- * \brief Specification of a set of algorithms.
+ * \brief Factory to produce a CalculationSet for a declared set of \link
+ * Algorithm Algorithms\endlink.
  *
- * A specification of a set of algorithms. Represents job and target for one or
- * more Calculation instances.
+ * A compile-time declared set of one or more algorithms used as a factory to
+ * create a corresponding CalculationSet.
  *
  * \tparam A1   Algorithm type
  * \tparam Args 0 or more Algorithm types
@@ -2414,7 +2438,7 @@ struct AlgorithmTypes final
 	static constexpr std::size_t count { 1 + sizeof...(Args) };
 
 	/**
-	 * \brief Configure an existing Updater by this set of algorithms.
+	 * \brief Configure all Updaters of a CalculationSet by these algorithms.
 	 *
 	 * \tparam B Type of begin iterator
 	 * \tparam E Type of end   iterator
@@ -2422,7 +2446,7 @@ struct AlgorithmTypes final
 	 * \param[in] settings Settings for Updater
 	 * \param[in] set      CalculationSet to configure
 	 */
-	template<typename B, typename E>
+	template <typename B, typename E>
 	static void configure(const Settings& settings,
 			UpdateableCalculationSet<B, E>& set)
 	{
@@ -2431,7 +2455,8 @@ struct AlgorithmTypes final
 	}
 
 	/**
-	 * \brief Create and configure an UpdateableCalculationSet for two types
+	 * \brief Create and configure an UpdateableCalculationSet for update
+	 * iterator types.
 	 *
 	 * \tparam B Type of begin iterator
 	 * \tparam E Type of end   iterator
@@ -2440,7 +2465,7 @@ struct AlgorithmTypes final
 	 *
 	 * \return Configured UpdateableCalculationSet
 	 */
-	template<typename B, typename E>
+	template <typename B, typename E>
 	static UpdateableCalculationSet<B, E> typed_calculationset_for(
 			const Settings& settings)
 	{
@@ -2449,7 +2474,7 @@ struct AlgorithmTypes final
 	}
 
 	/**
-	 * \brief Create and configure a CalculationSet for two types
+	 * \brief Create and configure an CalculationSet for update iterator types.
 	 *
 	 * \tparam B Type of begin iterator
 	 * \tparam E Type of end   iterator
@@ -2458,7 +2483,7 @@ struct AlgorithmTypes final
 	 *
 	 * \return Configured CalculationSet
 	 */
-	template<typename B, typename E>
+	template <typename B, typename E>
 	static std::unique_ptr<CalculationSet> calculationset_for(
 			const Settings& settings)
 	{
@@ -2479,8 +2504,8 @@ struct AlgorithmTypes final
  *
  * \return CalculationSet for checksum types \c types, configured by \c s
  */
-template<typename B, typename E>
-[[nodiscard]] inline auto make_calculationset(const ChecksumtypeSet& types,
+template <typename B, typename E>
+[[nodiscard]] auto make_calculationset(const ChecksumtypeSet& types,
 		const Settings& s)
 {
 	if (types.size() == 1) // either V1-only or V2-only requested
@@ -2511,7 +2536,6 @@ template<typename B, typename E>
 }
 
 /** @} */
-
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
