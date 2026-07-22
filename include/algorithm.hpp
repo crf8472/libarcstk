@@ -150,11 +150,6 @@ std::string to_string(const Context& c) noexcept;
 bool any(const Context& c) noexcept;
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-// -Weffc++ is deactivated: warns about raw pointer member settings_
-// Member is non-owning. Default copy + move is therefore ok. Rule of zero.
-
 /**
  * \brief Interface: An algorithm for Checksum calculation.
  *
@@ -288,7 +283,6 @@ private:
 	= 0;
 };
 
-#pragma GCC diagnostic pop
 
 /**
  * \brief CRTP to add updateing capability to a concrete Algorithm.

@@ -17,7 +17,6 @@
 #include <cstdint>           // for uint32_t
 #include <iterator>          // for input_iterator_tag
 #include <memory>            // for unique_ptr
-#include <type_traits>       // for underlying_type
 #include <utility>           // for swap
 #include <vector>            // for vector
 
@@ -1237,11 +1236,6 @@ std::unique_ptr<VerificationResult> verify(
 		const TraversalPolicy& traversal, const MatchPolicy& match);
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-// -Weffc++ is deactivated: warns about raw pointer member actual_sums_
-// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
-
 /**
  * \internal
  *
@@ -1252,7 +1246,7 @@ class VerifierBase
 	/**
 	 * \brief Actual checksums to be verified.
 	 */
-	const Checksums* actual_sums_ {};
+	const Checksums* actual_sums_ {}; // non-owning
 
 	/**
 	 * \brief Flag to indicate strictness.
@@ -1294,6 +1288,17 @@ protected:
 	explicit VerifierBase(const Checksums* actual_sums);
 
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	VerifierBase() = default;
+
+	VerifierBase(const VerifierBase&) = default;
+	VerifierBase& operator= (const VerifierBase&) = default;
+
+	VerifierBase(VerifierBase&&) noexcept = default;
+	VerifierBase& operator= (VerifierBase&&) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -1338,8 +1343,6 @@ public:
 	std::unique_ptr<VerificationResult> perform(const ChecksumSource& ref_sums)
 		const;
 };
-
-#pragma GCC diagnostic pop
 
 } // namespace details
 
@@ -1391,10 +1394,6 @@ inline bool typeflag(const best_block_info_t& bb)
 } // namespace details
 } // namespace best_block
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-// -Weffc++ is deactivated: warns about raw pointer member actual_id_
-// The member is non-owning. Default copy + move is therefore ok. Rule of zero.
 
 /**
  * \internal
@@ -1406,7 +1405,7 @@ class AlbumVerifier::Impl final : public details::VerifierBase
 	/**
 	 * \brief Internal actual ARId.
 	 */
-	const ARId* actual_id_ {};
+	const ARId* actual_id_ {}; // non-owning
 
 	// VerifierBase
 
@@ -1423,9 +1422,16 @@ public:
 	 * \param[in] actual_id   Actual ARId to check for
 	 */
 	Impl(const Checksums& actual_sums, const ARId& actual_id);
-};
 
-#pragma GCC diagnostic pop
+	Impl() = default;
+	~Impl() noexcept final = default;
+
+	Impl(const Impl&) = default;
+	Impl& operator= (const Impl&) = default;
+
+	Impl(Impl&&) noexcept = default;
+	Impl& operator= (Impl&&) noexcept = default;
+};
 
 
 /**
