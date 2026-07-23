@@ -78,7 +78,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 	using arcstk::Settings;
 	using arcstk::ToC;
 	using arcstk::UNIT;
-	using arcstk::Updater;
+	using arcstk::CalculationUpdater;
 	using arcstk::checksum::type;
 	using arcstk::make_toc;
 
@@ -93,7 +93,8 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	const auto size      { AudioSize { 253038, UNIT::FRAMES } };
 
-	auto calculation     { Updater<V1andV2>(Settings { Context::ALBUM },
+	auto calculation     { CalculationUpdater<V1andV2>(
+			Settings { Context::ALBUM },
 			toc.offsets(), size) };
 
 	const auto algorithm { calculation.algorithm() };
@@ -102,27 +103,26 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	//
 
-	SECTION ("Default construction is as declared")
+	SECTION ("Is default constructible")
 	{
-		CHECK ( std::is_default_constructible<Updater<V1andV2>>::value );
-		CHECK ( not std::is_trivially_default_constructible<Updater<V1andV2>>::value );
-		CHECK ( not std::is_nothrow_default_constructible<Updater<V1andV2>>::value );
+		CHECK ( std::is_default_constructible<
+				CalculationUpdater<V1andV2>>::value );
 	}
 
 
 	SECTION ("Parametized construction is as declared")
 	{
-		CHECK ( std::is_constructible<Updater<V1andV2>,
+		CHECK ( std::is_constructible<CalculationUpdater<V1andV2>,
 				const Settings&,
 				const Points&, const AudioSize&>::value
 				);
 
-		CHECK ( not std::is_trivially_constructible<Updater<V1andV2>,
+		CHECK ( not std::is_trivially_constructible<CalculationUpdater<V1andV2>,
 				const Settings&,
 				const Points&, const AudioSize&>::value
 				);
 
-		CHECK ( not std::is_nothrow_constructible<Updater<V1andV2>,
+		CHECK ( not std::is_nothrow_constructible<CalculationUpdater<V1andV2>,
 				const Settings&,
 				const Points&, const AudioSize&>::value
 				);
@@ -188,9 +188,11 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	SECTION ("Move construction is as declared")
 	{
-		CHECK ( std::is_move_constructible<Updater<V1andV2>>::value );
+		CHECK ( std::is_move_constructible<
+				CalculationUpdater<V1andV2>>::value );
 
-		CHECK ( std::is_nothrow_move_constructible<Updater<V1andV2>>::value );
+		CHECK ( std::is_nothrow_move_constructible<
+				CalculationUpdater<V1andV2>>::value );
 	}
 
 
@@ -221,7 +223,7 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 	SECTION ("Instantiating a vector<Calculation> succeeds")
 	{
-		auto calculations = std::vector<Updater<V1andV2>>();
+		auto calculations = std::vector<CalculationUpdater<V1andV2>>();
 		calculations.reserve(5);
 
 		CHECK ( calculations.capacity() == 5 );
@@ -244,7 +246,10 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		const auto algo_types = algorithmV1V2->types();
 
-		auto calc { Updater<V1andV2>(Settings { Context::ALBUM }, toc_1) };
+		auto calc { CalculationUpdater<V1andV2>(
+				Settings { Context::ALBUM },
+				toc_1)
+		};
 
 		CHECK ( calc.samples_expected()  == 253038 * 588 );
 		CHECK ( calc.samples_processed() == 0 );
@@ -272,7 +277,10 @@ TEST_CASE ( "Calculation", "[calculation] [calc]" )
 
 		auto algorithmV1V2 { std::make_unique<V1andV2>() };
 
-		auto c { Updater<V1andV2>(Settings { Context::ALBUM }, toc_1) };
+		auto c { CalculationUpdater<V1andV2>(
+				Settings { Context::ALBUM },
+				toc_1)
+		};
 
 		CHECK ( c.types() ==
 				std::unordered_set<type>{ type::ARCS1, type::ARCS2 } );

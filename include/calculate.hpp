@@ -66,8 +66,9 @@ using ToCData = std::vector<AudioSize>;
  *
  * AccurateRip checksums are calculated from a sequence of input sample
  * sequences. The caller is responsible for providing the entire sequence of
- * audio sample sequences to an Updater instance which provides a Calculation
- * interface. The resulting checksums are provided in a Checksums instance.
+ * audio sample sequences to an CalculationUpdater instance which provides a
+ * Calculation interface. The resulting checksums are provided in a Checksums
+ * instance.
  *
  * A Calculation represents the technical process of calculating Checksums by an
  * Algorithm thereby respecting Settings. A Calculation has to be parametized
@@ -88,10 +89,10 @@ using ToCData = std::vector<AudioSize>;
  *
  * The Calculation interface does not provide updating capabilities on its own.
  * These are exclusively provided by the only concrete subclass of Calculation,
- * Updater. Updater represents a Calculation that can be updated by concrete
- * chunks of samples.
+ * CalculationUpdater. CalculationUpdater represents a Calculation that can be
+ * updated by concrete chunks of samples.
  *
- * Updating an Updater with an actual sequence of samples is done by
+ * Updating an CalculationUpdater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
  * represent start and stop of the update. Any C++-LegacyInputIterator with a
  * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
@@ -100,7 +101,7 @@ using ToCData = std::vector<AudioSize>;
  * SampleSequence may be of convenience for establishing compatibility of the
  * sample input format.
  *
- * After the first update by a sequence of samples, the Updater will
+ * After the first update by a sequence of samples, the CalculationUpdater will
  * transist to state UPDATED and not accept any change of the toc data anymore.
  * It remains in this state after the total number of input samples has been
  * passed that is to be declared by the ToC passed when initializing.
@@ -123,11 +124,12 @@ using ToCData = std::vector<AudioSize>;
  * Checksums are calculated by updating a Calculation with a sequence of sample
  * sequences.
  *
- * CalculationSet is an interface for an aggregate of Updaters. An
+ * CalculationSet is an interface for an aggregate of CalculationUpdaters. An
  * UpdateableCalculationSet accepts multiple Algorithms and updates multiple
- * Updaters with the same portion of samples. For now, the recommended way to
- * calculate AccurateRip v1 and v2 checksums is not to use a CalculationSet but
- * to just use Algorithm AccurateRip::V1andV2 on a single Updater.
+ * CalculationUpdaters with the same portion of samples. For now, the
+ * recommended way to calculate AccurateRip v1 and v2 checksums is not to use a
+ * CalculationSet but to just use Algorithm AccurateRip::V1andV2 on a single
+ * CalculationUpdater.
  *
  * The ususal way to create a CalculationSet is via a list of requested
  * algorithms, represented by template class AlgorithmTypes.
@@ -1724,12 +1726,12 @@ public:
  *
  * \tparam A Algorithm to use for Calculation
  *
- * An Updater represents a Calculation for a concrete checksum calculation
- * process. It is manually performed by the caller calling update().
+ * An CalculationUpdater represents a Calculation for a concrete checksum
+ * calculation process. It is manually performed by the caller calling update().
  *
- * Updater instances must be initialized with the specific size of the input
- * audio file and an Algorithm that defines the type of the checksums. If
- * multiple tracks e.g. an entire disc content is to be processed, the ToC
+ * CalculationUpdater instances must be initialized with the specific size of
+ * the input audio file and an Algorithm that defines the type of the checksums.
+ * If multiple tracks e.g. an entire disc content is to be processed, the ToC
  * information of the disc is required. Additionally, a Settings instance can be
  * specified. Currently, the only supported Settings attribute is Context.
  *
@@ -1743,8 +1745,8 @@ public:
  * \see make_calculationset
  */
 template <class A>
-class Updater final : public Calculation,
-					  public Swap<Updater<A>>
+class CalculationUpdater final : public Calculation,
+					  public Swap<CalculationUpdater<A>>
 {
 	/**
 	 * \brief Algorithm to calculate checksums.
@@ -1765,7 +1767,7 @@ public:
 	 *
 	 * \param[in] settings The settings for the calculation
 	 */
-	explicit Updater(const Settings& settings)
+	explicit CalculationUpdater(const Settings& settings)
 		: Calculation { settings }
 	{
 		init_algorithm(*algorithm_);
@@ -1774,10 +1776,10 @@ public:
 	/**
 	 * \brief Constructor.
 	 *
-	 * Instantiates Updater with default settings.
+	 * Instantiates CalculationUpdater with default settings.
 	 */
-	Updater()
-		: Updater { Settings { /*default*/ } }
+	CalculationUpdater()
+		: CalculationUpdater { Settings { /*default*/ } }
 	{
 		// empty
 	}
@@ -1792,11 +1794,11 @@ public:
 	 * \param[in] offsets  Track offsets (as samples)
 	 * \param[in] leadout  Size of the expected input
 	 */
-	Updater(const Settings& settings,
+	CalculationUpdater(const Settings& settings,
 			const Points& offsets, const AudioSize& leadout)
 		: Calculation { settings }
 	{
-		ARCS_LOG(DEBUG3) << "Initialize Updater for algorithm '"
+		ARCS_LOG(DEBUG3) << "Initialize CalculationUpdater for algorithm '"
 			<< algorithm_->name() << "' with data for context "
 			<< name(settings.context());
 
@@ -1814,8 +1816,8 @@ public:
 	 * \param[in] settings  The settings for the calculation
 	 * \param[in] toc       Track offsets and leadout
 	 */
-	Updater(const Settings& settings, const ToC& toc)
-		: Updater { settings, toc.offsets(), toc.leadout() }
+	CalculationUpdater(const Settings& settings, const ToC& toc)
+		: CalculationUpdater { settings, toc.offsets(), toc.leadout() }
 	{
 		// empty
 	}
@@ -1830,30 +1832,31 @@ public:
 	 * \param[in] settings  The settings for the calculation
 	 * \param[in] toc       Track offsets and leadout
 	 */
-	Updater(const Settings& settings, const ToCData& toc)
-		: Updater { settings, toc::offsets(toc), toc::leadout(toc) }
+	CalculationUpdater(const Settings& settings, const ToCData& toc)
+		: CalculationUpdater { settings, toc::offsets(toc), toc::leadout(toc) }
 	{
 		// empty
 	}
 
 	// non-copyable
-	Updater(const Updater& rhs)              = delete;
-	Updater& operator = (const Updater& rhs) = delete;
+	CalculationUpdater(const CalculationUpdater& rhs)              = delete;
+	CalculationUpdater& operator = (const CalculationUpdater& rhs) = delete;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Updater(Updater&& rhs) noexcept = default;
+	CalculationUpdater(CalculationUpdater&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Updater& operator = (Updater&& rhs) noexcept = default;
+	CalculationUpdater& operator = (CalculationUpdater&& rhs) noexcept
+	= default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
-	~Updater() noexcept override = default;
+	~CalculationUpdater() noexcept override = default;
 
 	/**
 	 * \brief Implements update for sample sequences.
@@ -1900,7 +1903,7 @@ public:
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(Updater& rhs) noexcept
+	void swap(CalculationUpdater& rhs) noexcept
 	{
 		Calculation::base_swap(rhs);
 
@@ -2181,7 +2184,7 @@ template <typename B, typename E>
 class UpdateableCalculationSet final : public CalculationSet
 {
 	/**
-	 * \brief Internal Updater instances for each algorithm.
+	 * \brief Internal CalculationUpdater instances for each algorithm.
 	 */
     std::vector<std::unique_ptr<Calculation>> updaters_ {};
 
@@ -2258,13 +2261,13 @@ public:
     template <class A>
     void add(const Settings& settings)
 	{
-        auto updater = std::make_unique<Updater<A>>(settings);
+        auto updater = std::make_unique<CalculationUpdater<A>>(settings);
 
-		ARCS_LOG(DEBUG3) << "Add Updater for algorithm '"
+		ARCS_LOG(DEBUG3) << "Add CalculationUpdater for algorithm '"
 			<< updater->algorithm_name()
 			<< " with context " << name(settings.context());
 
-        Updater<A>* upd_ptr = updater.get();
+        CalculationUpdater<A>* upd_ptr = updater.get();
         updaters_.push_back(std::move(updater));
 
         // Connect algorithm A and the iterators set (B, E) at compile-time
@@ -2277,7 +2280,7 @@ public:
     }
 
 	/**
-	 * \brief Update all Updater-instances in the set.
+	 * \brief Update all CalculationUpdater-instances in the set.
 	 *
 	 * \param[in] start Start iterator
 	 * \param[in] stop  Stop iterator
@@ -2371,7 +2374,8 @@ private:
 	// own
 
 	/**
-	 * \brief Worker method for combining the results of all Updaters.
+	 * \brief Worker method for combining the results of all
+	 * CalculationUpdaters.
 	 *
 	 * \param[in] calculations List of calculations to merge
 	 *
@@ -2438,12 +2442,13 @@ struct AlgorithmTypes final
 	static constexpr std::size_t count { 1 + sizeof...(Args) };
 
 	/**
-	 * \brief Configure all Updaters of a CalculationSet by these algorithms.
+	 * \brief Configure all CalculationUpdaters of a CalculationSet by these
+	 * algorithms.
 	 *
 	 * \tparam B Type of begin iterator
 	 * \tparam E Type of end   iterator
 	 *
-	 * \param[in] settings Settings for Updater
+	 * \param[in] settings Settings for CalculationUpdater
 	 * \param[in] set      CalculationSet to configure
 	 */
 	template <typename B, typename E>

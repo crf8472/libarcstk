@@ -732,15 +732,15 @@ Checksums Calculation::result() const noexcept
 
 // explicit instantiations
 
-template class Updater<AccurateRip::V1>;
-template class Updater<AccurateRip::V2>;
-template class Updater<AccurateRip::V1andV2>;
+template class CalculationUpdater<AccurateRip::V1>;
+template class CalculationUpdater<AccurateRip::V2>;
+template class CalculationUpdater<AccurateRip::V1andV2>;
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 
-// instantiate the 24 variants of Updater that are expected
+// instantiate the 24 variants of CalculationUpdater that are expected
 #define INSTANTIATE_UPDATE_FUNCTION(Algorithm, Type, IsPlanar) \
-template void Updater<Algorithm>::update<Type, IsPlanar>( \
+template void CalculationUpdater<Algorithm>::update<Type, IsPlanar>( \
 			const SampleSequence<Type, IsPlanar>&);
 
 INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, true);
@@ -772,7 +772,7 @@ INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, false);
 
 // NOLINTBEGIN(bugprone-macro-parentheses)
 #define INSTANTIATE_UPDATE_FUNCTION_IT(Algorithm, Type, IsPlanar) \
-template void Updater<Algorithm>::update \
+template void CalculationUpdater<Algorithm>::update \
 	<details::SampleIterator<Type, IsPlanar>>( \
 			details::SampleIterator<Type, IsPlanar>, \
 			details::SampleIterator<Type, IsPlanar> );
