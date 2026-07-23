@@ -125,7 +125,7 @@ using ToCData = std::vector<AudioSize>;
  * sequences.
  *
  * CalculationSet is an interface for an aggregate of CalculationUpdaters. An
- * UpdateableCalculationSet accepts multiple Algorithms and updates multiple
+ * CalculationSetUpdater accepts multiple Algorithms and updates multiple
  * CalculationUpdaters with the same portion of samples. For now, the
  * recommended way to calculate AccurateRip v1 and v2 checksums is not to use a
  * CalculationSet but to just use Algorithm AccurateRip::V1andV2 on a single
@@ -1746,7 +1746,7 @@ public:
  */
 template <class A>
 class CalculationUpdater final : public Calculation,
-					  public Swap<CalculationUpdater<A>>
+                                 public Swap<CalculationUpdater<A>>
 {
 	/**
 	 * \brief Algorithm to calculate checksums.
@@ -2181,7 +2181,7 @@ public:
  * \see make_calculationset
  */
 template <typename B, typename E>
-class UpdateableCalculationSet final : public CalculationSet
+class CalculationSetUpdater final : public CalculationSet
 {
 	/**
 	 * \brief Internal CalculationUpdater instances for each algorithm.
@@ -2199,7 +2199,7 @@ public:
 	 * \brief Function for registering the concrete algorithms.
 	 */
     using RegistrationFunc_t = std::function<void(
-			const Settings& settings, UpdateableCalculationSet&)>;
+			const Settings& settings, CalculationSetUpdater&)>;
 
 	/**
 	 * \brief Constructor.
@@ -2207,7 +2207,7 @@ public:
 	 * \param[in] settings Settings to apply to each algorithm
 	 * \param[in] register_algorithms Register function for algorithms
 	 */
-    UpdateableCalculationSet(const Settings& settings,
+    CalculationSetUpdater(const Settings& settings,
 			const RegistrationFunc_t& register_algorithms)
 	{
         register_algorithms(settings, *this);
@@ -2220,9 +2220,9 @@ public:
 	 *
 	 * \param[in] register_algorithms Register function for algorithms
 	 */
-    explicit UpdateableCalculationSet(
+    explicit CalculationSetUpdater(
 			const RegistrationFunc_t& register_algorithms)
-		: UpdateableCalculationSet { Settings{}, register_algorithms }
+		: CalculationSetUpdater { Settings{}, register_algorithms }
 	{
 		// empty
 	}
@@ -2234,7 +2234,7 @@ public:
 	 *
 	 * \param[in] settings Settings to apply to each algorithm
 	 */
-	explicit UpdateableCalculationSet(const Settings& settings)
+	explicit CalculationSetUpdater(const Settings& settings)
 	{
 		// Define default algorithms to register HERE:
         this->add<AccurateRip::V1andV2>(settings);
@@ -2245,8 +2245,8 @@ public:
 	 *
 	 * Settings for ALBUM, AccurateRip v1 and v2.
 	 */
-	UpdateableCalculationSet()
-		: UpdateableCalculationSet { Settings{} }
+	CalculationSetUpdater()
+		: CalculationSetUpdater { Settings{} }
 	{
 		// empty
 	}
@@ -2453,14 +2453,14 @@ struct AlgorithmTypes final
 	 */
 	template <typename B, typename E>
 	static void configure(const Settings& settings,
-			UpdateableCalculationSet<B, E>& set)
+			CalculationSetUpdater<B, E>& set)
 	{
 		set.template add<A1>(settings);
 		(set.template add<Args>(settings), ...);
 	}
 
 	/**
-	 * \brief Create and configure an UpdateableCalculationSet for update
+	 * \brief Create and configure an CalculationSetUpdater for update
 	 * iterator types.
 	 *
 	 * \tparam B Type of begin iterator
@@ -2468,13 +2468,13 @@ struct AlgorithmTypes final
 	 *
 	 * \param[in] settings Settings to use for configuration
 	 *
-	 * \return Configured UpdateableCalculationSet
+	 * \return Configured CalculationSetUpdater
 	 */
 	template <typename B, typename E>
-	static UpdateableCalculationSet<B, E> typed_calculationset_for(
+	static CalculationSetUpdater<B, E> typed_calculationset_for(
 			const Settings& settings)
 	{
-		return UpdateableCalculationSet<B, E> { settings,
+		return CalculationSetUpdater<B, E> { settings,
 			&AlgorithmTypes<A1, Args...>::configure<B,E> };
 	}
 
@@ -2492,7 +2492,7 @@ struct AlgorithmTypes final
 	static std::unique_ptr<CalculationSet> calculationset_for(
 			const Settings& settings)
 	{
-		return std::make_unique<UpdateableCalculationSet<B, E>>(settings,
+		return std::make_unique<CalculationSetUpdater<B, E>>(settings,
 			&AlgorithmTypes<A1, Args...>::configure<B,E>);
 	}
 };
