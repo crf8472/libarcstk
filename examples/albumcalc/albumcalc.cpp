@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 	// Step 3: Create a Calculation and provide it with the context.
 	// We do not specify a checksum type, thus the Calculation will provide
 	// ARCSv1 as well as ARCSv2 values as default result.
-	auto calculation { arcstk::Updater<arcstk::AccurateRip::V1andV2>(
+	auto calculation { arcstk::CalculationUpdater<arcstk::AccurateRip::V1andV2>(
 			arcstk::Settings{}, toc) };
 
 	// Let's enumerate the blocks in the output. This is just to give some
