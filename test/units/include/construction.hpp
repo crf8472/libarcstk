@@ -7,6 +7,8 @@
  * \brief Test helpers for unit tests: construction.
  */
 
+#include <utility>  // for move
+
 namespace arcstk
 {
 namespace testing

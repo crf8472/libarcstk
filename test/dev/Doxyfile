@@ -1,0 +1,8 @@
+## Generate XML from all libarcstk compounds
+
+INPUT                  = ../../include ../../src
+EXCLUDE_PATTERNS       = */test/*
+GENERATE_HTML          = NO
+GENERATE_LATEX         = NO
+GENERATE_XML           = YES
+
