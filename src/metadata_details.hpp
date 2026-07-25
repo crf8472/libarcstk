@@ -177,7 +177,7 @@ static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
  * - MAX_OFFSET_90,
  * - CDDA::MAX_OFFSET,
  *
- * \param[in] frames LBA frame amount to check
+ * \param[in] offset LBA frame amount to check
  *
  * \return Return highest max value that was exceeded, 0 for no exceeding
  */

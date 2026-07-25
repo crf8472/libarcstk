@@ -560,6 +560,7 @@ private:
  *
  * \param[in] blocks Number of blocks
  * \param[in] tracks Number of tracks per block
+ * \param[in] p      VerificationPolicy to apply
  *
  * \return VerificationResult object of the specified dimensions.
  */
