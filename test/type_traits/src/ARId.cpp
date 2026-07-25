@@ -3,11 +3,11 @@
 /**
  * \file
  *
- * \brief Type traits for ARId.
+ * \brief Type traits testcases for ARId.
  */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"         // for ARId
+#include "identifier.hpp"          // for ARId
 #endif
 
 #include <type_traits>            // for is_*_{constructible,assignable}
@@ -37,16 +37,12 @@ TEST_CASE ( "ARId is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "ARId special members", "[arid] [id] [identifier]" )
+TEST_CASE ( "ARId special members",
+		"[arid] [id] [identifier]" )
 {
 	SECTION ( "is default constructable")
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::ARId>);
-	}
-
-	SECTION ("is destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::ARId> );
 	}
 
 	SECTION ( "is copy-constructable")
@@ -61,30 +57,17 @@ TEST_CASE ( "ARId special members", "[arid] [id] [identifier]" )
 
 	SECTION ( "is nothrow move-constructable")
 	{
-		CHECK ( std::is_move_constructible_v<arcstk::ARId>);
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ARId>);
 	}
 
 	SECTION ( "is nothrow move-assignable")
 	{
-		CHECK ( std::is_move_assignable_v<arcstk::ARId>);
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ARId>);
 	}
-}
 
-
-TEST_CASE ( "ARId default construction", "[arid] [id] [identifier]" )
-{
-	const auto id = arcstk::ARId{};
-
-	SECTION ( "is empty")
+	SECTION ("is destructible")
 	{
-		CHECK ( id.empty() );
-	}
-
-	SECTION ( "converts to FALSE")
-	{
-		CHECK ( !id );
+		CHECK ( std::is_destructible_v<arcstk::ARId> );
 	}
 }
 
@@ -95,7 +78,6 @@ TEST_CASE ( "ARId is swappable, comparable, string convertible",
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ARId> );
-		CHECK ( std::is_swappable_v<arcstk::ARId> );
 	}
 
 	SECTION ("has comparability")

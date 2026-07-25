@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Unit tests for identifier.hpp.
+ * \brief Functional tests for module id.
  */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
@@ -12,174 +12,6 @@
 #ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
 #include "identifier_details.hpp" // for make_arid
 #endif
-
-
-TEST_CASE ( "ARId", "[arid] [id]" )
-{
-	using arcstk::ARId;
-
-	ARId id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
-
-	SECTION ( "Constructor" )
-	{
-		CHECK ( id.total_tracks() == 10 );
-		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
-		CHECK ( id.disc_id_2()   == 0x01f880cc );
-		CHECK ( id.cddb_id()     == 0xbc55023f );
-
-		CHECK ( id.url()         ==
-				"http://www.accuraterip.com/accuraterip"
-				"/0/d/f/"
-				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-
-		CHECK ( id.filename()    ==
-				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-
-		CHECK ( not id.empty() );
-	}
-
-
-	SECTION ( "Equality and inequality operators" )
-	{
-		ARId same_id(10, 0x02c34fd0, 0x01f880cc, 0xbc55023f);
-
-		CHECK ( id == id );
-		CHECK ( not (id != id) );
-
-		CHECK ( id == same_id );
-		CHECK ( not (id != same_id) );
-
-
-		ARId id1(15, 0x001B9178, 0x014BE24E, 0xB40D2D0F);
-		ARId id2(16, 0x001B9178, 0x014BE24E, 0xB40D2D0F); // different track
-		ARId id3(15, 0x001B9179, 0x014BE24E, 0xB40D2D0F); // different id 1
-		ARId id4(15, 0x001B9178, 0x014BE24D, 0xB40D2D0F); // different id 2
-		ARId id5(15, 0x001B9178, 0x014BE24E, 0xC40D2D0F); // different cddb id
-
-		CHECK ( id1 != id2 );
-		CHECK ( not (id1 == id2) );
-
-		CHECK ( id1 != id3 );
-		CHECK ( not (id1 == id3) );
-
-		CHECK ( id1 != id4 );
-		CHECK ( not (id1 == id4) );
-
-		CHECK ( id1 != id5 );
-		CHECK ( not (id1 == id5) );
-
-		CHECK ( id2 != id3 );
-		CHECK ( not (id2 == id3) );
-
-		CHECK ( id2 != id4 );
-		CHECK ( not (id2 == id4) );
-
-		CHECK ( id2 != id5 );
-		CHECK ( not (id2 == id5) );
-
-		CHECK ( id3 != id4 );
-		CHECK ( not (id3 == id4) );
-
-		CHECK ( id3 != id5 );
-		CHECK ( not (id3 == id5) );
-
-		CHECK ( id4 != id5 );
-		CHECK ( not (id4 == id5) );
-	}
-
-
-	SECTION ( "Copy constructor" )
-	{
-		ARId copied_id(id);
-
-
-		CHECK ( copied_id.total_tracks() == 10 );
-		CHECK ( copied_id.disc_id_1()   == 0x02c34fd0 );
-		CHECK ( copied_id.disc_id_2()   == 0x01f880cc );
-		CHECK ( copied_id.cddb_id()     == 0xbc55023f );
-
-		CHECK ( copied_id.url()         ==
-				"http://www.accuraterip.com/accuraterip"
-				"/0/d/f/"
-				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-
-		CHECK ( copied_id.filename()    ==
-				"dBAR-010-02c34fd0-01f880cc-bc55023f.bin" );
-
-		CHECK ( not copied_id.empty() );
-	}
-
-
-	SECTION ( "Copy assignment operator" )
-	{
-		// id is as defined above
-		CHECK ( id.total_tracks() == 10 );
-		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
-		CHECK ( id.disc_id_2()   == 0x01f880cc );
-		CHECK ( id.cddb_id()     == 0xbc55023f );
-
-		const ARId other_id(11, 0x02c34fd0, 0x04e880bb, 0xbc55023f);
-
-		CHECK ( id != other_id );
-
-		id = other_id;
-
-		CHECK ( id == other_id );
-
-		CHECK ( id.total_tracks() == 11 );
-		CHECK ( id.disc_id_1()   == 0x02c34fd0 );
-		CHECK ( id.disc_id_2()   == 0x04e880bb );
-		CHECK ( id.cddb_id()     == 0xbc55023f );
-
-		CHECK ( id.url()         ==
-				"http://www.accuraterip.com/accuraterip"
-				"/0/d/f/"
-				"dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
-
-		CHECK ( id.filename()    ==
-				"dBAR-011-02c34fd0-04e880bb-bc55023f.bin" );
-
-		CHECK ( not id.empty() );
-	}
-}
-
-
-TEST_CASE ( "Empty ARIds", "[arid] [id]" )
-{
-	const auto id { arcstk::ARId{} };
-
-	REQUIRE ( id.empty() );
-
-	SECTION ( "Empty ARIds do not throw when url() is called" )
-	{
-		CHECK_NOTHROW( id.url() );
-	}
-
-	SECTION ( "Empty ARIds do not throw when filename() is called" )
-	{
-		CHECK_NOTHROW( id.filename() );
-	}
-
-	SECTION ( "Empty ARIds do not throw when to_string() is called" )
-	{
-		CHECK_NOTHROW( id.to_string() );
-	}
-
-	SECTION ( "Empty ARIds produce empty URLs" )
-	{
-		CHECK( id.url() == "" );
-	}
-
-	SECTION ( "Empty ARIds produce empty filenames" )
-	{
-		CHECK( id.filename() == "" );
-	}
-
-	SECTION ( "Empty ARIds produce empty strings" )
-	{
-		CHECK( id.to_string() == "" );
-	}
-}
 
 
 // make_arid
@@ -322,12 +154,12 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 		CHECK ( id5.disc_id_2()    == 0x00072039 );
 		CHECK ( id5.cddb_id()      == 0x020c2901 );
 
-		CHECK ( id5.url()          ==
+		CHECK ( id5.url() ==
 				"http://www.accuraterip.com/accuraterip"
 				"/d/2/0/"
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
-		CHECK ( id5.filename()     ==
+		CHECK ( id5.filename() ==
 				"dBAR-001-0003902d-00072039-020c2901.bin" );
 
 		CHECK ( not id5.empty() );

@@ -8,3 +8,7 @@ add_test_suite (libarcstk_unit
 	LABEL "unit"
 	TIMEOUT 10 )
 
+target_include_directories (libarcstk_unit_tests
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
