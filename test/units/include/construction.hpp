@@ -42,7 +42,7 @@ class Move
 {
 public:
 
-	static T construct(T&& instance)
+	static T construct(T& instance)
 	{
 		return T { std::move(instance) };
 	}
