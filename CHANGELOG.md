@@ -16,14 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - API: DBAR and DBARBlock are now reverse iterable (issues #9, #10)
   - API: ToC and ARId have now operator <<
   - API: manage global request url via ACCURATERIP
-  - API: ARId::bool() provided, TRUE iff ARId is empty()
-  - API: added some member swap()s, equals()s etc.
+  - API: ARId::bool() provided, TRUE iff ARId is not empty()
+  - API: added some member swap()s, equals()s, to_string()s etc.
   - Build: Add build switch WITH_EXAMPLES (ON pulls dependencies!)
   - Portability: DBAR parsing has experimental support for big endian plattforms
 
 ### Changed
-  - API: no more type erasure on iterators, use template function instead
-  - API: Use Updater<A> instead of Calculation with Algorithm A
+  - API: templatize update() functions
+  - API: Use CalculationUpdater<A> instead of Calculation with Algorithm A
   - API: Calculation and Algorithm interfaces are no longer updateable
   - API: No converting constructors in public API, (Settings, Checksum,...)
   - API: checksum::type_name(checksum::type) renamed to checksum::name()
