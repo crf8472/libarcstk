@@ -9,9 +9,6 @@
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum_details.hpp"  // for
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"       // for Copy, Move
