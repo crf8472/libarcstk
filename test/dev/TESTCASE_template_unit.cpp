@@ -57,7 +57,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied ${CLASS} {};
+		auto copied = ${CLASS} {};
 		Copy<${CLASS}>::assign(copied, instance);
 
 		// --
@@ -69,7 +69,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved ${CLASS} {};
+		auto moved = ${CLASS} {};
 		Move<${CLASS}>::assign(moved, instance);
 
 		// --

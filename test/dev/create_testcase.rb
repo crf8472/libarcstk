@@ -60,7 +60,7 @@ def expand_template(line, replacements)
         line << "\tSECTION (\"#{f} is correct\")\n"
         line << "\t{\n"
         line << "\t\tFAIL (\"#{f} test is missing\");\n"
-        line << "\t}\n"
+        line << "\t}\n\n"
       end
       return line
     end
