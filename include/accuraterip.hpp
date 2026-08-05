@@ -236,23 +236,24 @@ class UpdateableSubtotals final
 public:
 
 	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	UpdateableSubtotals();
-
-	/**
 	 * \brief Current Multiplier of this instance.
 	 *
 	 * \return Current multiplier
 	 */
-	uint_fast64_t multiplier() const;
+	uint_fast64_t multiplier() const
+	{
+		return st_.multiplier;
+	}
 
 	/**
 	 * \brief Set multiplier to a new value.
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m);
+	void set_multiplier(const uint_fast64_t m)
+	{
+		st_.multiplier = m;
+	}
 
 	/**
 	 * \brief Update the instance by a sequence of samples.
@@ -277,12 +278,20 @@ public:
 	 *
 	 * \return The current subtotal
 	 */
-	ChecksumSet value() const;
+	ChecksumSet value() const
+	{
+		return update_.value(st_);
+	}
 
 	/**
 	 * \brief Reset the instance to its initial state.
 	 */
-	void reset();
+	void reset()
+	{
+		st_.update      = 0;
+		st_.subtotal_v1 = 0;
+		st_.subtotal_v2 = 0;
+	}
 
 	/**
 	 * \brief Get the ID string from the Updatable.
@@ -307,7 +316,13 @@ public:
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(UpdateableSubtotals& rhs) noexcept;
+	void swap(UpdateableSubtotals& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(this->st_,     rhs.st_);
+		swap(this->update_, rhs.update_);
+	}
 
 	/**
 	 * \copydoc SNPT_nf_swap

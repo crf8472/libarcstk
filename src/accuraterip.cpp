@@ -56,7 +56,7 @@ using cstype = checksum::type; // local, for Readability
 ChecksumSet Update<cstype::ARCS1>::value(const Subtotals& st) const
 {
 	return {
-		AudioSize{/* zero */},
+		AudioSize {/* zero */},
 		{{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) }}
 	};
 }
@@ -71,7 +71,7 @@ std::string Update<cstype::ARCS1>::id_string() const
 ChecksumSet Update<cstype::ARCS2>::value(const Subtotals& st) const
 {
 	return {
-		AudioSize{/* zero */},
+		AudioSize {/* zero */},
 		{{ cstype::ARCS2, Checksum::from_fast(st.subtotal_v2) }}
 	};
 }
@@ -87,7 +87,7 @@ ChecksumSet Update<cstype::ARCS1, cstype::ARCS2>::value(
 		const Subtotals& st) const
 {
 	return {
-		AudioSize{/* zero */},
+		AudioSize {/* zero */},
 		{
 			{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) },
 			{ cstype::ARCS2, Checksum::from_fast(
@@ -104,57 +104,6 @@ std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
 }
 
 
-// UpdateableSubtotals
-
-
-template <cstype T1, cstype... T2>
-UpdateableSubtotals<T1, T2...>::UpdateableSubtotals()
-	: st_     { /*default*/ }
-{
-	// empty
-}
-
-
-template <cstype T1, cstype... T2>
-uint_fast64_t UpdateableSubtotals<T1, T2...>::multiplier() const
-{
-	return st_.multiplier;
-}
-
-
-template <cstype T1, cstype... T2>
-void UpdateableSubtotals<T1, T2...>::set_multiplier(const uint_fast64_t m)
-{
-	st_.multiplier = m;
-}
-
-
-template <cstype T1, cstype... T2>
-ChecksumSet UpdateableSubtotals<T1, T2...>::value() const
-{
-	return update_.value(st_);
-}
-
-
-template <cstype T1, cstype... T2>
-void UpdateableSubtotals<T1, T2...>::reset()
-{
-	st_.update      = 0;
-	st_.subtotal_v1 = 0;
-	st_.subtotal_v2 = 0;
-}
-
-
-template <cstype T1, cstype... T2>
-void UpdateableSubtotals<T1, T2...>::swap(UpdateableSubtotals& rhs) noexcept
-{
-	using std::swap;
-
-	swap(this->st_,     rhs.st_);
-	swap(this->update_, rhs.update_);
-}
-
-
 // ARCSAlgorithm
 
 
@@ -163,7 +112,6 @@ ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
 	: Updateable<ARCSAlgorithm<T1, T2...>>{ /* default */ }
 	, current_result_ { /* default */ }
 {
-	// empty
 	ARCS_LOG_DEBUG << "Use algorithm: AccurateRip " << state_.id_string();
 }
 
@@ -173,6 +121,7 @@ void ARCSAlgorithm<T1, T2...>::do_setup(const Context c)
 {
 	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
 
+	// Adjust multiplier only for Context FIRST_TRACK
 	if (any(Context::FIRST_TRACK & c))
 	{
 		state_.set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
