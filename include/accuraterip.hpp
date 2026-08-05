@@ -98,7 +98,7 @@ constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 /**
  * \brief Values of a calculation state.
  */
-struct Subtotals
+struct Subtotals final
 {
 	/**
 	 * \brief Current multiplier.
@@ -261,8 +261,8 @@ public:
 	 * \tparam B Type of the begin iterator
 	 * \tparam E Type of the end iterator
 	 *
-	 * \param[in] start The start position (part of update)
-	 * \param[in] stop  The stop position (not part of update)
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
 	 */
 	template <class B, class E>
 	void update(B start, E stop)
