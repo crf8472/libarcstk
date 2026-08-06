@@ -164,9 +164,11 @@ Partitioning get_partitioning(const SampleRange& interval,
 		// Add last partition: from the beginning of the track that contains the
 		// upper bound to the real upper bound.
 		partitions.emplace_back(pN_lower, pN_upper,
-			true,/*a previous partition is guaranteed that ends on track end*/
-			pN_upper == legal.upper() ||
-				(track < points.size() ? pN_upper == points[track] - 1 : true),
+			/* a previous partition ending with previous track is guaranteed */
+			true,
+			/* does this partition end with last track or another track? */
+			pN_upper == legal.upper()
+				|| (track < points.size() && pN_upper == points[track] - 1),
 			static_cast<TrackNo>(track)
 		);
 	} // back
