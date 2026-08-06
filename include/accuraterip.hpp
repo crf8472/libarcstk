@@ -179,7 +179,6 @@ struct Update<checksum::type::ARCS1>
 template <>
 struct Update<checksum::type::ARCS2>
 {
-
 	std::string id_string() const
 	{
 		return "v2";
@@ -247,7 +246,7 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
  * \brief Set of specified checksum types.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-std::unordered_set<checksum::type> types_set()
+inline std::unordered_set<checksum::type> types_set()
 {
 	return { T1, T2... };
 }
@@ -455,7 +454,8 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 		{
 			from += points[0].samples(); // start on first offset
 
-			ARCS_LOG(DEBUG2) << "Skip first " << from << " samples due to offset";
+			ARCS_LOG(DEBUG2) << "Skip first " << from
+				<< " samples due to offset";
 		}
 
 		if (any(Context::FIRST_TRACK & ctx))
