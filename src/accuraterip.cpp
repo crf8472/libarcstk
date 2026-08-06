@@ -17,12 +17,9 @@
 #include <ios>           // for dec, hex
 #include <iomanip>       // for setfill, setw
 #include <ios>           // for ios_base
-#include <memory>        // for make_unique, unique_ptr
 #include <ostream>       // for ostream
 #include <sstream>       // for ostringstream
 #include <string>        // for string
-#include <unordered_set> // for unordered_set
-#include <utility>       // for pair
 #include <vector>        // for vector
 
 #ifndef LIBARCSTK_ALGORITHM_HPP_
@@ -48,138 +45,6 @@ namespace details
 {
 
 using cstype = checksum::type; // local, for Readability
-
-
-// ARCSAlgorithm
-
-
-template <cstype T1, cstype... T2>
-ARCSAlgorithm<T1, T2...>::ARCSAlgorithm()
-	: Updateable<ARCSAlgorithm<T1, T2...>>{ /* default */ }
-	, current_result_ { /* default */ }
-{
-	ARCS_LOG_DEBUG << "Use algorithm: AccurateRip " << state_.id_string();
-}
-
-
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::do_setup(const Context c)
-{
-	ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
-
-	// Adjust multiplier only for Context FIRST_TRACK
-	if (any(Context::FIRST_TRACK & c))
-	{
-		state_.set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
-	}
-
-	ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
-}
-
-
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::do_track_finished(const int /*t*/,
-		const AudioSize& s)
-{
-	current_result_ = state_.value();
-	current_result_.set_length(s);
-
-	state_.reset();
-	state_.set_multiplier(1);
-}
-
-
-template <cstype T1, cstype... T2>
-ChecksumSet ARCSAlgorithm<T1, T2...>::do_result() const
-{
-	return current_result_;
-}
-
-
-template <cstype T1, cstype... T2>
-std::unordered_set<cstype> ARCSAlgorithm<T1, T2...>::do_types() const
-{
-	return state_.types();
-}
-
-
-template <cstype T1, cstype... T2>
-std::string ARCSAlgorithm<T1, T2...>::do_name() const
-{
-	auto ss = std::ostringstream {};
-
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
-    const auto append = [&ss](const auto& type_val)
-	{
-		ss << ", " << type_val;
-	};
-
-	#pragma GCC diagnostic pop
-
-	ss <<  "AccurateRip " << T1;
-    (append(T2), ...);
-
-	return ss.str();
-}
-
-
-template <cstype T1, cstype... T2>
-std::pair<int32_t, int32_t> ARCSAlgorithm<T1, T2...>::do_range(
-		const AudioSize& size, const Points& points) const
-{
-	const auto ctx = this->context();
-
-	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
-
-	auto from = int32_t { 0 };
-	auto to   = int32_t { size.samples() - 1 };
-
-	if (!points.empty())
-	{
-		from += points[0].samples(); // start on first offset
-
-		ARCS_LOG(DEBUG2) << "Skip first " << from << " samples due to offset";
-	}
-
-	if (any(Context::FIRST_TRACK & ctx))
-	{
-		from += NUM_SKIP_SAMPLES::FRONT;
-
-		ARCS_LOG(DEBUG2) << "Skip " << NUM_SKIP_SAMPLES::FRONT
-			<< " samples after beginning";
-	}
-
-	if (any(Context::LAST_TRACK & ctx))
-	{
-		to -= NUM_SKIP_SAMPLES::BACK;
-
-		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
-			<< " samples";
-	}
-
-	ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
-
-	return { from, to };
-}
-
-
-template <cstype T1, cstype... T2>
-std::unique_ptr<Algorithm> ARCSAlgorithm<T1, T2...>::do_clone() const
-{
-	return std::make_unique<ARCSAlgorithm>(*this);
-}
-
-
-template <cstype T1, cstype... T2>
-void ARCSAlgorithm<T1, T2...>::swap(ARCSAlgorithm& rhs) noexcept
-{
-	using std::swap;
-
-	swap(this->state_,          rhs.state_);
-	swap(this->current_result_, rhs.current_result_);
-}
 
 
 // Explicit instantiations
