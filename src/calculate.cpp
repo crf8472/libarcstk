@@ -587,13 +587,10 @@ void complete_track(Algorithm& algorithm,
 
 	auto value = algorithm.result();
 
-	ARCS_LOG(DEBUG3) << "Save checksum for track " << track_number << ": "
+	ARCS_LOG(DEBUG3) << "Save checksum for track " << (1 + track_number) << ": "
 		<< value;
 
-	//result_buffer.put_value(static_cast<std::size_t>(track_number),
-	//				algorithm.result());
-
-	auto index = static_cast<std::size_t>(track_number);
+	const auto index = static_cast<std::size_t>(track_number);
 	if (result_buffer.size() > index)
 	{
 		result_buffer[index] = std::move(value);
