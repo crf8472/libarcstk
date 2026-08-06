@@ -525,6 +525,8 @@ public:
 	 */
 	void swap(ARCSAlgorithm& rhs) noexcept
 	{
+		this->swap_base(rhs);
+
 		using std::swap;
 
 		swap(this->state_,          rhs.state_);
