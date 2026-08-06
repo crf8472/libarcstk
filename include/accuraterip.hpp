@@ -18,7 +18,6 @@
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
 #include <string>         // for string
-#include <unordered_set>  // for unordered_set
 #include <utility>        // for pair
 
 #ifndef LIBARCSTK_ALGORITHM_HPP_
@@ -246,7 +245,7 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
  * \brief Set of specified checksum types.
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-inline std::unordered_set<checksum::type> types_set()
+inline ChecksumtypeSet types_set()
 {
 	return { T1, T2... };
 }
@@ -343,7 +342,7 @@ public:
 	 *
 	 * \return Set of types calculated by this instance
 	 */
-	std::unordered_set<checksum::type> types() const
+	ChecksumtypeSet types() const
 	{
 		return types_set<T1, T2...>();
 	}
@@ -415,7 +414,7 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 		return current_result_;
 	}
 
-	std::unordered_set<checksum::type> do_types() const final
+	ChecksumtypeSet do_types() const final
 	{
 		return state_.types();
 	}
