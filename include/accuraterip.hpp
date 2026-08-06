@@ -149,6 +149,11 @@ struct Update;
 template <>
 struct Update<checksum::type::ARCS1>
 {
+	std::string id_string() const
+	{
+		return "v1";
+	}
+
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
@@ -159,8 +164,13 @@ struct Update<checksum::type::ARCS1>
 		}
 	}
 
-	ChecksumSet value(const Subtotals& st) const;
-	std::string id_string() const;
+	ChecksumSet value(const Subtotals& st) const
+	{
+		return {
+			AudioSize {/* zero */},
+			{{ checksum::type::ARCS1, Checksum::from_fast(st.subtotal_v1) }}
+		};
+	}
 };
 
 
@@ -168,6 +178,11 @@ struct Update<checksum::type::ARCS1>
 template <>
 struct Update<checksum::type::ARCS2>
 {
+	std::string id_string() const
+	{
+		return "v2";
+	}
+
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
@@ -181,8 +196,13 @@ struct Update<checksum::type::ARCS2>
 		}
 	}
 
-	ChecksumSet value(const Subtotals& st) const;
-	std::string id_string() const;
+	ChecksumSet value(const Subtotals& st) const
+	{
+		return {
+			AudioSize {/* zero */},
+			{{ checksum::type::ARCS2, Checksum::from_fast(st.subtotal_v2) }}
+		};
+	}
 };
 
 
@@ -190,6 +210,11 @@ struct Update<checksum::type::ARCS2>
 template <>
 struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 {
+	std::string id_string() const
+	{
+		return "v1+2";
+	}
+
 	template <class B, class E>
 	void operator()(const B& start, const E& stop, Subtotals& st) const
 	{
@@ -202,8 +227,17 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 		}
 	}
 
-	ChecksumSet value(const Subtotals& st) const;
-	std::string id_string() const;
+	ChecksumSet value(const Subtotals& st) const
+	{
+		return {
+			AudioSize {/* zero */},
+			{
+				{ checksum::type::ARCS1, Checksum::from_fast(st.subtotal_v1) },
+				{ checksum::type::ARCS2, Checksum::from_fast(
+											st.subtotal_v1 + st.subtotal_v2) },
+			}
+		};
+	}
 };
 
 

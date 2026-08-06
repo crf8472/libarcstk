@@ -50,60 +50,6 @@ namespace details
 using cstype = checksum::type; // local, for Readability
 
 
-// Update
-
-
-ChecksumSet Update<cstype::ARCS1>::value(const Subtotals& st) const
-{
-	return {
-		AudioSize {/* zero */},
-		{{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) }}
-	};
-}
-
-
-std::string Update<cstype::ARCS1>::id_string() const
-{
-	return "v1";
-}
-
-
-ChecksumSet Update<cstype::ARCS2>::value(const Subtotals& st) const
-{
-	return {
-		AudioSize {/* zero */},
-		{{ cstype::ARCS2, Checksum::from_fast(st.subtotal_v2) }}
-	};
-}
-
-
-std::string Update<cstype::ARCS2>::id_string() const
-{
-	return "v2";
-}
-
-
-ChecksumSet Update<cstype::ARCS1, cstype::ARCS2>::value(
-		const Subtotals& st) const
-{
-	return {
-		AudioSize {/* zero */},
-		{
-			{ cstype::ARCS1, Checksum::from_fast(st.subtotal_v1) },
-			{ cstype::ARCS2, Checksum::from_fast(
-										st.subtotal_v1 + st.subtotal_v2) },
-		}
-	};
-}
-
-
-std::string Update<cstype::ARCS1, cstype::ARCS2>::id_string()
-	const
-{
-	return "v1+2";
-}
-
-
 // ARCSAlgorithm
 
 
