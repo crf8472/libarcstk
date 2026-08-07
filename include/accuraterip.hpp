@@ -335,6 +335,9 @@ inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
 
 /**
  * \brief Interface and base class for updatable subtotals.
+ *
+ * \tparam T1 First Checksum type
+ * \tparam T2 Trailing Checksum types
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class UpdateableSubtotals final
@@ -453,12 +456,15 @@ public:
 
 /**
  * \brief AccurateRip algorithm variants.
+ *
+ * \tparam T1 First Checksum type
+ * \tparam T2 Trailing Checksum types
  */
 template<enum checksum::type T1, enum checksum::type... T2>
 class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 {
 	/**
-	 * \brief Algorithm state..
+	 * \brief Algorithm state.
 	 */
 	UpdateableSubtotals<T1, T2...> state_ {};
 
