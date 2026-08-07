@@ -242,12 +242,47 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 
 
 /**
- * \brief Set of specified checksum types.
+ * \brief Set of specified Checksum types.
+ *
+ * \tparam T1 First Checksum type
+ * \tparam T2 Trailing Checksum types
+ *
+ * \return Set of Checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
 inline ChecksumtypeSet types_set()
 {
 	return { T1, T2... };
+}
+
+
+/**
+ * \brief AccurateRip algorithm name string.
+ *
+ * \tparam T1 First Checksum type
+ * \tparam T2 Trailing Checksum types
+ *
+ * \return Name of the Algorithm computing the specified Checksum types
+ */
+template <enum checksum::type T1, enum checksum::type... T2>
+inline std::string name_string()
+{
+	auto ss = std::ostringstream {};
+
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+	const auto append = [&ss](const auto& type_val)
+	{
+		ss << ", " << type_val;
+	};
+
+	#pragma GCC diagnostic pop
+
+	ss <<  "AccurateRip " << T1;
+	(append(T2), ...);
+
+	return ss.str();
 }
 
 
@@ -421,22 +456,7 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 
 	std::string do_name() const final
 	{
-		auto ss = std::ostringstream {};
-
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
-		const auto append = [&ss](const auto& type_val)
-		{
-			ss << ", " << type_val;
-		};
-
-		#pragma GCC diagnostic pop
-
-		ss <<  "AccurateRip " << T1;
-		(append(T2), ...);
-
-		return ss.str();
+		return name_string<T1, T2...>();
 	}
 
 	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
