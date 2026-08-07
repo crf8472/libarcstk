@@ -526,14 +526,6 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 public:
 
 	/**
-	 * \copydoc SNPT_sm_default_ctor
-	 */
-	ARCSAlgorithm()
-	{
-		ARCS_LOG_DEBUG << "Use algorithm: AccurateRip " << state_.id_string();
-	}
-
-	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~ARCSAlgorithm() final = default;
