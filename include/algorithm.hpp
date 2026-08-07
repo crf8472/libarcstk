@@ -182,6 +182,13 @@ public:
 	virtual ~Algorithm() noexcept = default;
 
 	/**
+	 * \brief Return the Context of this instance.
+	 *
+	 * \return Context of this instance
+	 */
+	Context context() const noexcept;
+
+	/**
 	 * \brief Setup the algorithm with a Context.
 	 *
 	 * \param[in] c Context for this instance
@@ -189,11 +196,18 @@ public:
 	void set_context(const Context c) noexcept;
 
 	/**
-	 * \brief Return the Context of this instance.
+	 * \brief Name of this algorithm.
 	 *
-	 * \return Context of this instance
+	 * \return Name of algorithm
 	 */
-	Context context() const noexcept;
+	std::string name() const;
+
+	/**
+	 * \brief Types of checksums the algorithm calculates.
+	 *
+	 * \return Checksum types calculated by this algorithm
+	 */
+	ChecksumtypeSet types() const;
 
 	/**
 	 * \brief Determine the legal range of samples for the calculation performed
@@ -205,7 +219,7 @@ public:
 	 * \param[in] size   The input size of samples to process
 	 * \param[in] points The offset points in number of PCM samples
 	 *
-	 * \return Input range of 1-based sample indices to use for calculation.
+	 * \return Input range of 1-based sample indices to use for calculation
 	 */
 	std::pair<int32_t,int32_t> range(const AudioSize& size,
 			const Points& points) const;
@@ -224,23 +238,9 @@ public:
 	/**
 	 * \brief Return the result of the algorithm.
 	 *
-	 * \return Calculation result.
+	 * \return Calculation result
 	 */
 	ChecksumSet result() const;
-
-	/**
-	 * \brief Types of checksums the algorithm calculates.
-	 *
-	 * \return Checksum types calculated by this algorithm
-	 */
-	ChecksumtypeSet types() const;
-
-	/**
-	 * \brief Name of this algorithm.
-	 *
-	 * \return Name of algorithm
-	 */
-	std::string name() const;
 
 	/**
 	 * \copydoc SNPT_mf_clone
