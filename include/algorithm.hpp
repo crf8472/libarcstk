@@ -116,7 +116,12 @@ inline constexpr bool operator == (const Context lhs, const Context rhs)
  * \param[in] lhs Left hand side to swap
  * \param[in] rhs Right hand side to swap
  */
-void swap(Context& lhs, Context& rhs) noexcept;
+inline void swap(Context& lhs, Context& rhs) noexcept
+{
+	const Context tmp { lhs };
+	lhs = rhs;
+	rhs = tmp;
+}
 
 /**
  * \brief Name of the specified Context.
@@ -125,7 +130,19 @@ void swap(Context& lhs, Context& rhs) noexcept;
  *
  * \return Name of context \c
  */
-std::string name(const Context& c) noexcept;
+inline std::string name(const Context& c) noexcept
+{
+	switch (c)
+	{
+		case Context::ALBUM:       return "ALBUM";
+		case Context::LAST_TRACK:  return "LAST_TRACK";
+		case Context::FIRST_TRACK: return "FIRST_TRACK";
+		case Context::TRACK:       return "TRACK";
+		default: ;
+	}
+
+	return {};
+}
 
 /**
  * \brief String representation of a Context.
@@ -136,7 +153,10 @@ std::string name(const Context& c) noexcept;
  *
  * \return String representation of context \c
  */
-std::string to_string(const Context& c) noexcept;
+inline std::string to_string(const Context& c) noexcept
+{
+	return name(c);
+}
 
 /**
  * \brief Returns TRUE iff \c c is not equivalent to Context::TRACK.
@@ -147,7 +167,10 @@ std::string to_string(const Context& c) noexcept;
  *
  * \return TRUE iff \c c is not equivalent to Context::TRACK
  */
-bool any(const Context& c) noexcept;
+inline bool any(const Context& rhs) noexcept
+{
+	return static_cast<unsigned>(rhs) != 0;
+}
 
 
 /**
@@ -169,7 +192,11 @@ public:
 	 *
 	 * \param[in] c Context for this instance
 	 */
-	explicit Algorithm(const Context c);
+	explicit Algorithm(const Context c)
+		: context_ { c }
+	{
+		// empty
+	}
 
 	/**
 	 * \copydoc SNPT_sm_default_ctor
@@ -186,28 +213,42 @@ public:
 	 *
 	 * \return Context of this instance
 	 */
-	Context context() const noexcept;
+	Context context() const noexcept
+	{
+		return context_;
+	}
 
 	/**
 	 * \brief Setup the algorithm with a Context.
 	 *
 	 * \param[in] c Context for this instance
 	 */
-	void set_context(const Context c) noexcept;
+	void set_context(const Context c) noexcept
+	{
+		context_ = c;
+
+		do_setup(c);
+	}
 
 	/**
 	 * \brief Name of this algorithm.
 	 *
 	 * \return Name of algorithm
 	 */
-	std::string name() const;
+	std::string name() const
+	{
+		return this->do_name();
+	}
 
 	/**
 	 * \brief Types of checksums the algorithm calculates.
 	 *
 	 * \return Checksum types calculated by this algorithm
 	 */
-	ChecksumtypeSet types() const;
+	ChecksumtypeSet types() const
+	{
+		return this->do_types();
+	}
 
 	/**
 	 * \brief Determine the legal range of samples for the calculation performed
@@ -222,7 +263,10 @@ public:
 	 * \return Input range of 1-based sample indices to use for calculation
 	 */
 	std::pair<int32_t,int32_t> range(const AudioSize& size,
-			const Points& points) const;
+			const Points& points) const
+	{
+		return this->do_range(size, points);
+	}
 
 	/**
 	 * \brief Mark current track as finished.
@@ -233,19 +277,28 @@ public:
 	 * \param[in] trackno Track number
 	 * \param[in] length  Track length as calculated
 	 */
-	void track_finished(const int trackno, const AudioSize& length);
+	void track_finished(const int trackno, const AudioSize& length)
+	{
+		this->do_track_finished(trackno, length);
+	}
 
 	/**
 	 * \brief Return the result of the algorithm.
 	 *
 	 * \return Calculation result
 	 */
-	ChecksumSet result() const;
+	ChecksumSet result() const
+	{
+		return this->do_result();
+	}
 
 	/**
 	 * \copydoc SNPT_mf_clone
 	 */
-	std::unique_ptr<Algorithm> clone() const;
+	std::unique_ptr<Algorithm> clone() const
+	{
+		return this->do_clone();
+	}
 
 protected:
 
@@ -256,7 +309,11 @@ protected:
 	 *
 	 * \param[in] rhs Instance to swap
 	 */
-	void swap_base(Algorithm& rhs);
+	void swap_base(Algorithm& rhs)
+	{
+		using std::swap;
+		swap(context_, rhs.context_);
+	}
 
 private:
 

@@ -62,7 +62,6 @@ list (APPEND LIBARCSTK_PUBLIC_HEADERS
 
 list (APPEND LIBARCSTK_SOURCES
 	"${LIBARCSTK_SOURCE_DIR}/accuraterip.cpp"
-	"${LIBARCSTK_SOURCE_DIR}/algorithm.cpp"
 	"${LIBARCSTK_SOURCE_DIR}/bytes.cpp"
 	"${LIBARCSTK_SOURCE_DIR}/calculate.cpp"
 	"${LIBARCSTK_SOURCE_DIR}/checksum.cpp"
