@@ -81,16 +81,16 @@
 // }
 
 
-TEST_CASE ( "DBARBlock default constructed instance",
-		"[dbarblock] [dbar] [dbar]" )
-{
-	const auto instance = arcstk::DBARBlock{};
-
-	// SECTION ( "is empty()")
-	// {
-	// 	CHECK ( instance.empty() );
-	// }
-}
+// TEST_CASE ( "DBARBlock default constructed instance",
+// 		"[dbarblock] [dbar] [dbar]" )
+// {
+// 	const auto instance = arcstk::DBARBlock{};
+//
+// 	SECTION ( "is empty()")
+// 	{
+// 		CHECK ( instance.empty() );
+// 	}
+// }
 
 
 // TEST_CASE ( "DBARBlock property", "[dbarblock] [dbar] [dbar]" )
