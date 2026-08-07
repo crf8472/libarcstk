@@ -339,7 +339,7 @@ inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
  * \tparam T1 First Checksum type
  * \tparam T2 Trailing Checksum types
  */
-template<enum checksum::type T1, enum checksum::type... T2>
+template <enum checksum::type T1, enum checksum::type... T2>
 class UpdateableSubtotals final
 {
 	/**
@@ -460,7 +460,7 @@ public:
  * \tparam T1 First Checksum type
  * \tparam T2 Trailing Checksum types
  */
-template<enum checksum::type T1, enum checksum::type... T2>
+template <enum checksum::type T1, enum checksum::type... T2>
 class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 {
 	/**
