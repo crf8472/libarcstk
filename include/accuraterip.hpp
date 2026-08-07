@@ -287,6 +287,53 @@ inline std::string name_string()
 
 
 /**
+ * \brief Determine the legal range of samples for the AccurateRip calculation.
+ *
+ * \param[in] ctx    The Context for calculation
+ * \param[in] size   The input size of samples to process
+ * \param[in] points The offset points in number of PCM samples
+ *
+ * \return Input range of 1-based sample indices to use for calculation
+ */
+inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
+		const AudioSize& size, const Points& points)  // TODO why inline?
+{
+	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
+
+	auto from = int32_t { 0 };
+	auto to   = int32_t { size.samples() - 1 };
+
+	if (!points.empty())
+	{
+		from += points[0].samples(); // start on first offset
+
+		ARCS_LOG(DEBUG2) << "Skip first " << from
+			<< " samples due to offset";
+	}
+
+	if (any(Context::FIRST_TRACK & ctx))
+	{
+		from += NUM_SKIP_SAMPLES::FRONT;
+
+		ARCS_LOG(DEBUG2) << "Skip " << NUM_SKIP_SAMPLES::FRONT
+			<< " samples after beginning";
+	}
+
+	if (any(Context::LAST_TRACK & ctx))
+	{
+		to -= NUM_SKIP_SAMPLES::BACK;
+
+		ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
+			<< " samples";
+	}
+
+	ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
+
+	return { from, to };
+}
+
+
+/**
  * \brief Interface and base class for updatable subtotals.
  */
 template<enum checksum::type T1, enum checksum::type... T2>
@@ -462,40 +509,7 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
 			const Points& points) const final
 	{
-		const auto ctx = this->context();
-
-		ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
-
-		auto from = int32_t { 0 };
-		auto to   = int32_t { size.samples() - 1 };
-
-		if (!points.empty())
-		{
-			from += points[0].samples(); // start on first offset
-
-			ARCS_LOG(DEBUG2) << "Skip first " << from
-				<< " samples due to offset";
-		}
-
-		if (any(Context::FIRST_TRACK & ctx))
-		{
-			from += NUM_SKIP_SAMPLES::FRONT;
-
-			ARCS_LOG(DEBUG2) << "Skip " << NUM_SKIP_SAMPLES::FRONT
-				<< " samples after beginning";
-		}
-
-		if (any(Context::LAST_TRACK & ctx))
-		{
-			to -= NUM_SKIP_SAMPLES::BACK;
-
-			ARCS_LOG(DEBUG2) << "Skip last " << NUM_SKIP_SAMPLES::BACK
-				<< " samples";
-		}
-
-		ARCS_LOG(DEBUG2) << "Legal range is: " << from << " - " << to;
-
-		return { from, to };
+		return legal_range(this->context(), size, points);
 	}
 
 	std::unique_ptr<Algorithm> do_clone() const final
