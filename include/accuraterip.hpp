@@ -488,6 +488,22 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 		ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
 	}
 
+	std::string do_name() const final
+	{
+		return name_string<T1, T2...>();
+	}
+
+	ChecksumtypeSet do_types() const final
+	{
+		return state_.types();
+	}
+
+	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
+			const Points& points) const final
+	{
+		return legal_range(this->context(), size, points);
+	}
+
 	void do_track_finished(const int /*t*/, const AudioSize& length) final
 	{
 		current_result_ = state_.value();
@@ -500,22 +516,6 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 	ChecksumSet do_result() const final
 	{
 		return current_result_;
-	}
-
-	ChecksumtypeSet do_types() const final
-	{
-		return state_.types();
-	}
-
-	std::string do_name() const final
-	{
-		return name_string<T1, T2...>();
-	}
-
-	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
-			const Points& points) const final
-	{
-		return legal_range(this->context(), size, points);
 	}
 
 	std::unique_ptr<Algorithm> do_clone() const final
