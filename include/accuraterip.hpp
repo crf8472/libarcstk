@@ -489,7 +489,6 @@ public:
 	 * \copydoc SNPT_sm_default_ctor
 	 */
 	ARCSAlgorithm()
-		: Updateable<ARCSAlgorithm<T1, T2...>>{ /* default */ }
 	{
 		ARCS_LOG_DEBUG << "Use algorithm: AccurateRip " << state_.id_string();
 	}
