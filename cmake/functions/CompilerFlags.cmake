@@ -262,6 +262,20 @@ function (libarcstk_apply_compiler_flags ) # {{{1
 
 	endif ()
 
+	## Any actual flags passed directly?
+
+	if (CMAKE_CXX_FLAGS )
+		list (APPEND _actual_cxx_flags ${CMAKE_CXX_FLAGS} )
+	endif()
+
+	string (TOUPPER ${CMAKE_BUILD_TYPE} _build_type_name )
+
+	if (CMAKE_CXX_FLAGS_${_build_type_name} )
+		list (APPEND _actual_cxx_flags ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}} )
+	endif()
+
+	## Put it all together
+
 	target_compile_options(${CXX_TARGET} PRIVATE ${_actual_cxx_flags})
 
 	message(STATUS "Applied libarcstk's C++ compile flags"
