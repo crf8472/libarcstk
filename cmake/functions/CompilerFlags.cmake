@@ -17,6 +17,21 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif ()
 # }}}1
 
+function (_FLAGS_TO_LIST OUT_VAR ) # {{{1
+
+	set (${OUT_VAR} "" PARENT_SCOPE )
+
+	set (_one_value_args STR )
+
+	cmake_parse_arguments (CLIFLAGS "" "${_one_value_args}" "" ${ARGN} )
+
+	if (CLIFLAGS_STR )
+		string (REGEX REPLACE "[ \t\r\n]+" ";" _flag_list ${CLIFLAGS_STR} )
+		set (${OUT_VAR} "${_flag_list}" PARENT_SCOPE )
+	endif()
+
+endfunction () # 1}}}
+
 ## --- g++ Flags: Warnings {{{1
 
 function (_GNU_flags_warning OUT_VAR )
@@ -265,13 +280,15 @@ function (libarcstk_apply_compiler_flags ) # {{{1
 	## Any actual flags passed directly?
 
 	if (CMAKE_CXX_FLAGS )
-		list (APPEND _actual_cxx_flags ${CMAKE_CXX_FLAGS} )
+		_FLAGS_TO_LIST (_flag_list STR "${CMAKE_CXX_FLAGS}" )
+		list (APPEND _actual_cxx_flags ${_flag_list} )
 	endif()
 
-	string (TOUPPER ${CMAKE_BUILD_TYPE} _build_type_name )
+	string (TOUPPER ${CMAKE_BUILD_TYPE} _build_type )
 
-	if (CMAKE_CXX_FLAGS_${_build_type_name} )
-		list (APPEND _actual_cxx_flags ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}} )
+	if (CMAKE_CXX_FLAGS_${_build_type} )
+		_FLAGS_TO_LIST (_flag_list STR "${CMAKE_CXX_FLAGS_${_build_type}}")
+		list (APPEND _actual_cxx_flags "${_flag_list}" )
 	endif()
 
 	## Put it all together
