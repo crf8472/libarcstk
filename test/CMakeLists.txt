@@ -29,19 +29,19 @@ include ("${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions/TestHelpers.cmake" )
 
 
 ## Add tests
+add_subdirectory (type_traits )
 add_subdirectory (units )
 add_subdirectory (functional )
-add_subdirectory (type_traits )
 
 ## Add test suites for use on CLI
+add_custom_target(libarcstk_test_type_traits
+    COMMAND ${CMAKE_CTEST_COMMAND} -L "type_traits" --verbose
+)
 add_custom_target (libarcstk_test_units
     COMMAND ${CMAKE_CTEST_COMMAND} -L "units" --verbose
 )
 add_custom_target(libarcstk_test_functional
     COMMAND ${CMAKE_CTEST_COMMAND} -L "functional" --verbose
-)
-add_custom_target(libarcstk_test_type_traits
-    COMMAND ${CMAKE_CTEST_COMMAND} -L "type_traits" --verbose
 )
 add_custom_target (libarcstk_test_all
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
