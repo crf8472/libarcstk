@@ -107,7 +107,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default constructed instance",
 	SECTION ( "is ok")
 	{
 		// just to call sth
-		CHECK ( instance.name() == "AccurateRip ARCSv1, ARCSv2" );
+		CHECK ( instance.name() == "AccurateRip v1+2" );
 	}
 
 	// SECTION ( "is empty()")
@@ -195,7 +195,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> functions",
 
 	SECTION ("name() is correct")
 	{
-		CHECK ( instance.name() == "AccurateRip ARCSv1, ARCSv2" );
+		CHECK ( instance.name() == "AccurateRip v1+2" );
 	}
 
 	SECTION ("types() is correct")

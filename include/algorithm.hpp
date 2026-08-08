@@ -14,6 +14,9 @@
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for ChecksumSet, Checksums
 #endif
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"     // for AudioSize
+#endif
 
 namespace arcstk
 {
@@ -21,8 +24,6 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
-// avoid includes
-class AudioSize;
 
 /**
  * \brief Set of \link arcstk::checksum::type Checksum types \endlink.
@@ -188,17 +189,6 @@ class Algorithm
 public:
 
 	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] c Context for this instance
-	 */
-	explicit Algorithm(const Context c)
-		: context_ { c }
-	{
-		// empty
-	}
-
-	/**
 	 * \copydoc SNPT_sm_default_ctor
 	 */
 	Algorithm() = default;
@@ -227,7 +217,7 @@ public:
 	{
 		context_ = c;
 
-		do_setup(c);
+		this->do_setup(c);
 	}
 
 	/**
@@ -269,20 +259,6 @@ public:
 	}
 
 	/**
-	 * \brief Mark current track as finished.
-	 *
-	 * What the instance has to do whenever a track is finished can be
-	 * implemented in this hook.
-	 *
-	 * \param[in] trackno Track number
-	 * \param[in] length  Track length as calculated
-	 */
-	void track_finished(const int trackno, const AudioSize& length)
-	{
-		this->do_track_finished(trackno, length);
-	}
-
-	/**
 	 * \brief Return the result of the algorithm.
 	 *
 	 * \return Calculation result
@@ -303,6 +279,20 @@ public:
 protected:
 
 	/**
+	 * \brief Constructor.
+	 *
+	 * This skips the call of do_setup() and the caller is responsible for
+	 * setting up the instance with the context passed.
+	 *
+	 * \param[in] c Context for this instance
+	 */
+	explicit Algorithm(const Context c)
+		: context_ { c }
+	{
+		// empty
+	}
+
+	/**
 	 * \brief Implementation of swap for the base class.
 	 *
 	 * This is to be called by swap() implementations for subclasses.
@@ -320,51 +310,56 @@ private:
 	virtual void do_setup(const Context c)
 	= 0;
 
-	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
-			const Points& points) const
-	= 0;
-
-	virtual void do_track_finished(const int t, const AudioSize& length)
-	= 0;
-
-	virtual ChecksumSet do_result() const
+	virtual std::string do_name() const
 	= 0;
 
 	virtual ChecksumtypeSet do_types() const
 	= 0;
 
-	virtual std::unique_ptr<Algorithm> do_clone() const
+	virtual std::pair<int32_t,int32_t> do_range(const AudioSize& size,
+			const Points& points) const
 	= 0;
 
-	virtual std::string do_name() const
+	virtual ChecksumSet do_result() const
+	= 0;
+
+	virtual std::unique_ptr<Algorithm> do_clone() const
 	= 0;
 };
 
 
 /**
- * \brief CRTP to add updateing capability to a concrete Algorithm.
+ * \brief Add updating capability to a concrete Algorithm.
  *
  * \tparam A Algorithm type
  *
- * An Updateable is a base class of an Algorithm that can be updated with new
- * input by the caller.
+ * An Updateable is a wrapper for a concrete Algorithm that bestows updating
+ * capabilities upon the Algorithm instance.
  *
- * The caller is required to instantiate and setup an Algorithm. However, it
- * should usually not be required to update the Algorithm instance directly.
- * This is performed via a Calculation.
+ * The interface of Algorithm does not allow to alter the instance except
+ * for some configuration. Creating an Updateable of an Algorithm makes it
+ * possible to update the instance with new input by the caller.
  *
- * The calculation of a track is to be finished manually by calling
- * track_finished(). Algorithm instances hold the concrete subtotals.
+ * However, it should usually not be required to manipulate the Updateable
+ * instance directly. This is usually performed via a Calculation. Updateable
+ * is a low level interface intended for testing and for implementations that do
+ * not use the Calculation interface. It makes it possible to distinguish
+ * contexts of reading an Algorithm from contexts were it is acutally used for
+ * calculating.
+ *
+ * The calculation process is promoted by calling update(). A track is to be
+ * finished manually by calling finish_track(). Algorithm instances hold the
+ * concrete subtotals.
  */
 template <typename A>
-class Updateable : public Algorithm
+class Updateable final
 {
-public:
-
 	/**
-	 * \copydoc SNPT_sm_default_dtor
+	 * \brief Internal algorithm instance.
 	 */
-	~Updateable() override = default;
+	std::unique_ptr<A> algorithm_ { std::make_unique<A>() };
+
+public:
 
 	/**
 	 * \brief Typedef to \c A.
@@ -372,23 +367,58 @@ public:
 	using algorithm_type = A;
 
 	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	Updateable() = default; // NOLINT(bugprone-crtp-constructor-accessibility)
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] Args Arguments for this Algorithm
+	 */
+	template <typename ...Args>
+	explicit Updateable(const Args&... args)
+		: algorithm_ { std::make_unique<A>(args...) }
+	{
+		// empty
+	}
+
+	/**
+	 * \copydoc SNPT_sm_copy_ctor.
+	 */
+	Updateable(const Updateable& rhs)
+		: algorithm_ { std::make_unique<A>(*rhs.algorithm_) }
+	{
+		// empty
+	}
+
+	/**
+	 * \copydoc SNPT_sm_copy_op.
+	 */
+	Updateable& operator= (const Updateable& rhs)
+	{
+		auto copy { rhs };
+
+		using std::swap;
+		swap (*this, copy);
+	}
+
+	Updateable(Updateable&& rhs) noexcept = default;
+	Updateable& operator= (Updateable&& rhs) = default;
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~Updateable() = default;
+
+	/**
 	 * \brief Get a pointer to this instance typed by its concrete type.
 	 *
 	 * \return Pointer of type A* to this instance
 	 */
-	algorithm_type* as_algorithm_type()
+	algorithm_type* algorithm() const
 	{
-		return static_cast<algorithm_type*>(this);
-	}
-
-	/**
-	 * \brief Return the name of the wrapped algorithm.
-	 *
-	 * \return Name of the algorithm wrapped by this instance
-	 */
-	std::string algorithm_name()
-	{
-		return as_algorithm_type()->name();
+		return algorithm_.get();
 	}
 
 	/**
@@ -405,13 +435,52 @@ public:
 	{
 		// An Algorithm must implement template<> perform_update() to be
 		// coverable as an Updateable.
-		as_algorithm_type()->perform_update(start, stop);
+		algorithm_->perform_update(start, stop);
 	}
 
-protected:
+	/**
+	 * \brief Mark current track as finished.
+	 *
+	 * What the instance has to do whenever a track is finished can be
+	 * implemented in this hook.
+	 *
+	 * \param[in] trackno Track number
+	 * \param[in] length  Track length as calculated
+	 */
+	void finish_track(const int trackno, const AudioSize& length)
+	{
+		return algorithm_->perform_finish_track(trackno, length);
+	}
 
-	// NOLINTNEXTLINE(bugprone-crtp-constructor-accessibility)
-	Updateable() = default;
+
+	// Wrapper functions for read-access to the internal algorithm instance
+
+
+	std::string name() const
+	{
+		return algorithm_->name();
+	}
+
+	ChecksumtypeSet types() const
+	{
+		return algorithm_->types();
+	}
+
+	Context context() const
+	{
+		return algorithm_->context();
+	}
+
+	std::pair<int32_t,int32_t> range(const AudioSize& size,
+			const Points& points) const
+	{
+		return algorithm_->range(size, points);
+	}
+
+	ChecksumSet result() const
+	{
+		return algorithm_->result();
+	}
 };
 
                                                   /** \cond NAMESPACE_v_1_0_0 */

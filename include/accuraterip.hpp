@@ -26,6 +26,9 @@
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"     // for checksum::type, ChecksumSet
 #endif
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"     // for AudioSize
+#endif
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"
 #endif
@@ -241,49 +244,49 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 };
 
 
-/**
- * \brief Set of specified Checksum types.
- *
- * \tparam T1 First Checksum type
- * \tparam T2 Trailing Checksum types
- *
- * \return Set of Checksum types
- */
-template <enum checksum::type T1, enum checksum::type... T2>
-inline ChecksumtypeSet types_set()
-{
-	return { T1, T2... };
-}
+// /**
+//  * \brief Set of specified Checksum types.
+//  *
+//  * \tparam T1 First Checksum type
+//  * \tparam T2 Trailing Checksum types
+//  *
+//  * \return Set of Checksum types
+//  */
+// template <enum checksum::type T1, enum checksum::type... T2>
+// inline ChecksumtypeSet types_set()
+// {
+// 	return { T1, T2... };
+// }
 
 
-/**
- * \brief AccurateRip algorithm name string.
- *
- * \tparam T1 First Checksum type
- * \tparam T2 Trailing Checksum types
- *
- * \return Name of the Algorithm computing the specified Checksum types
- */
-template <enum checksum::type T1, enum checksum::type... T2>
-inline std::string name_string()
-{
-	auto ss = std::ostringstream {};
-
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
-	const auto append = [&ss](const auto& type_val)
-	{
-		ss << ", " << type_val;
-	};
-
-	#pragma GCC diagnostic pop
-
-	ss <<  "AccurateRip " << T1;
-	(append(T2), ...);
-
-	return ss.str();
-}
+// /**
+//  * \brief AccurateRip algorithm name string.
+//  *
+//  * \tparam T1 First Checksum type
+//  * \tparam T2 Trailing Checksum types
+//  *
+//  * \return Name of the Algorithm computing the specified Checksum types
+//  */
+// template <enum checksum::type T1, enum checksum::type... T2>
+// inline std::string name_string()
+// {
+// 	auto ss = std::ostringstream {};
+//
+// 	#pragma GCC diagnostic push
+// 	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+//
+// 	const auto append = [&ss](const auto& type_val)
+// 	{
+// 		ss << ", " << type_val;
+// 	};
+//
+// 	#pragma GCC diagnostic pop
+//
+// 	ss <<  "AccurateRip " << T1;
+// 	(append(T2), ...);
+//
+// 	return ss.str();
+// }
 
 
 /**
@@ -429,7 +432,7 @@ public:
 	 */
 	ChecksumtypeSet types() const
 	{
-		return types_set<T1, T2...>();
+		return { T1, T2... };
 	}
 
 	/**
@@ -461,7 +464,7 @@ public:
  * \tparam T2 Trailing Checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
+class ARCSAlgorithm final : public Algorithm
 {
 	/**
 	 * \brief Algorithm state.
@@ -473,9 +476,10 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 	 */
 	ChecksumSet current_result_ {};
 
-	// Algorithm
-
-	void do_setup(const Context c) final
+	/**
+	 * \brief Non-virtual implementation of do_setup() for constructor.
+	 */
+	void do_setup_impl(const Context c)
 	{
 		ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
 
@@ -488,9 +492,16 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 		ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
 	}
 
+	// Algorithm
+
+	void do_setup(const Context c) final
+	{
+		this->do_setup_impl(c);
+	}
+
 	std::string do_name() const final
 	{
-		return name_string<T1, T2...>();
+		return "AccurateRip " + state_.id_string();
 	}
 
 	ChecksumtypeSet do_types() const final
@@ -504,15 +515,6 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 		return legal_range(this->context(), size, points);
 	}
 
-	void do_track_finished(const int /*t*/, const AudioSize& length) final
-	{
-		current_result_ = state_.value();
-		current_result_.set_length(length);
-
-		state_.reset();
-		state_.set_multiplier(1);
-	}
-
 	ChecksumSet do_result() const final
 	{
 		return current_result_;
@@ -524,6 +526,22 @@ class ARCSAlgorithm final : public Updateable<ARCSAlgorithm<T1, T2...>>
 	}
 
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	ARCSAlgorithm() = default;
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] c Context for this Algorithm
+	 */
+	explicit ARCSAlgorithm(const Context c)
+		: Algorithm { c }
+	{
+		this->do_setup_impl(c);
+	}
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
@@ -548,6 +566,23 @@ public:
 
 		ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
 		// -1 because multiplier_ has already been updated to next input
+	}
+
+	/**
+	 * \brief Finish current track.
+	 *
+	 * Save the subtotals for current track and start next track.
+	 *
+	 * \param[in] t       Track number (ignored)
+	 * \param[in] length  Track length as calculated
+	 */
+	void perform_finish_track(const int /*t*/, const AudioSize& length)
+	{
+		current_result_ = state_.value();
+		current_result_.set_length(length);
+
+		state_.reset();
+		state_.set_multiplier(1);
 	}
 
 	/**

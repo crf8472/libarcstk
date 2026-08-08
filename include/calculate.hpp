@@ -997,8 +997,34 @@ void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
  * \param[in] result_buffer Result buffer
  * \param[in] state         Calculation state
  */
-void complete_track(Algorithm& algorithm,
-		Checksums& result_buffer, CalculationState& state);
+template <typename A>
+void complete_track(Updateable<A>& algorithm,
+		Checksums& result_buffer, CalculationState& state)
+{
+	// tracks_processed() reflects previous track_finished(), starting with 0
+	const auto track_number = state.tracks_processed();
+
+	// track_finished() updates + resets state as a side effect and
+	// updates tracks_processed_. Therefore, this must come after track_number.
+	const auto track_length = AudioSize { state.track_finished(),
+				UNIT::SAMPLES };
+
+	algorithm.finish_track(track_number, track_length);
+
+	auto value = algorithm.result();
+
+	ARCS_LOG(DEBUG3) << "Save checksum for track " << (1 + track_number) << ": "
+		<< value;
+
+	const auto index = static_cast<std::size_t>(track_number);
+	if (result_buffer.size() > index)
+	{
+		result_buffer[index] = std::move(value);
+	} else
+	{
+		result_buffer.push_back(std::move(value));
+	}
+}
 
 /**
  * \brief Updates a calculation process by a sample block.
@@ -1019,7 +1045,7 @@ void complete_track(Algorithm& algorithm,
 template <typename A, typename B, typename E>
 [[nodiscard]] bool perform_update(B start, E stop,
 		const Partitioner& partitioner,
-		Updateable<A>& algorithm, CalculationState& state,
+		Updateable<A>& updateable, CalculationState& state,
 		Checksums& result_buffer)
 {
 	const auto samples_in_block {
@@ -1054,14 +1080,14 @@ template <typename A, typename B, typename E>
 		ARCS_LOG(DEBUG2) << "PARTITION " << partition_counter << "/" <<
 			partitioning.size();
 
-		update_partition(partition, start, start_pos, algorithm, state);
+		update_partition(partition, start, start_pos, updateable, state);
 
 		// If the current partition ends a track, save the ARCSs for this track
 		if (partition.ends_track())
 		{
 			ARCS_LOG(DEBUG3) << "Completed track:  " << partition.track();
 
-			complete_track(algorithm, result_buffer, state);
+			complete_track(updateable, result_buffer, state);
 		}
 	}
 
@@ -1753,7 +1779,7 @@ class CalculationUpdater final : public Calculation,
 	 *
 	 * Internally represented as an Updateable.
 	 */
-	std::unique_ptr<Updateable<A>> algorithm_ { std::make_unique<A>() };
+	Updateable<A> updateable_ { };
 
 public:
 
@@ -1770,7 +1796,7 @@ public:
 	explicit CalculationUpdater(const Settings& settings)
 		: Calculation { settings }
 	{
-		init_algorithm(*algorithm_);
+		init_algorithm(*updateable_.algorithm());
 	}
 
 	/**
@@ -1799,12 +1825,12 @@ public:
 		: Calculation { settings }
 	{
 		ARCS_LOG(DEBUG3) << "Initialize CalculationUpdater for algorithm '"
-			<< algorithm_->name() << "' with data for context "
+			<< algorithm_name() << "' with data for context "
 			<< name(settings.context());
 
-		init_algorithm(*algorithm_);
+		init_algorithm(*updateable_.algorithm());
 		init_data(offsets, leadout,
-			details::SampleRange { algorithm_->range(leadout, offsets) });
+			details::SampleRange { updateable_.range(leadout, offsets) });
 	}
 
 	/**
@@ -1897,7 +1923,7 @@ public:
 	 */
 	std::string algorithm_name()
 	{
-		return this->algorithm_->name();
+		return this->updateable_.name();
 	}
 
 	/**
@@ -1909,7 +1935,7 @@ public:
 
 		using std::swap;
 
-		swap(algorithm_, rhs.algorithm_);
+		swap(updateable_, rhs.updateable_);
 	}
 
 private:
@@ -1918,7 +1944,7 @@ private:
 
 	const Algorithm* do_algorithm() const noexcept final
 	{
-		return algorithm_.get();
+		return updateable_.algorithm();
 	}
 
 	std::size_t do_total_tracks() const final
@@ -1939,12 +1965,12 @@ private:
 	void do_init(const Points& offsets, const AudioSize& leadout) final
 	{
 		init_data(offsets, leadout,
-			details::SampleRange { algorithm_->range(leadout, offsets) });
+			details::SampleRange { updateable_.range(leadout, offsets) });
 	}
 
 	void on_settings_changed() final
 	{
-		init_algorithm(*algorithm_);
+		init_algorithm(*updateable_.algorithm());
 	}
 
 	void on_completion() final
@@ -1983,7 +2009,7 @@ private:
 			}
 
 			const auto is_completed = bool { details::update::perform_update(
-					start, stop, *part_er, *algorithm_,
+					start, stop, *part_er, updateable_,
 					provide_state(), provide_buffer())
 			};
 

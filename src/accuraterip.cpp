@@ -50,18 +50,18 @@ using cstype = checksum::type; // local, for Readability
 // Explicit instantiations
 
 
-template class UpdateableSubtotals<cstype::ARCS1>;
+template class UpdateableSubtotals <cstype::ARCS1>;
 
-template class UpdateableSubtotals<cstype::ARCS2>;
+template class UpdateableSubtotals <cstype::ARCS2>;
 
-template class UpdateableSubtotals<cstype::ARCS1, cstype::ARCS2>;
+template class UpdateableSubtotals <cstype::ARCS1, cstype::ARCS2>;
 
 
-template class ARCSAlgorithm<cstype::ARCS1>;
+template class ARCSAlgorithm <cstype::ARCS1>;
 
-template class ARCSAlgorithm<cstype::ARCS2>;
+template class ARCSAlgorithm <cstype::ARCS2>;
 
-template class ARCSAlgorithm<cstype::ARCS1, cstype::ARCS2>;
+template class ARCSAlgorithm <cstype::ARCS1, cstype::ARCS2>;
 
 } // namespace details
 

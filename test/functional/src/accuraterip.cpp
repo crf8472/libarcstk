@@ -36,14 +36,19 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
 	using arcstk::csample_t;
+	using arcstk::Updateable;
+
+	using ARv1 = arcstk::accuraterip::algorithm::Version1;
 
 	// fits calculation-test-01.bin
 	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		auto algo = arcstk::accuraterip::algorithm::Version1{};
-		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
+		//auto algo = arcstk::accuraterip::algorithm::Version1{};
+		//REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
+
+		auto algo = Updateable<ARv1>{};
 
 		// Initialize Buffer
 
@@ -103,7 +108,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		in.close();
 
 		algo.update(buffer.begin(), buffer.end());
-		algo.track_finished(1, AudioSize{});
+		algo.finish_track(1, AudioSize{});
 
 		//CHECK ( calculation.complete() );
 
