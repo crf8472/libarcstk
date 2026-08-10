@@ -388,7 +388,7 @@ public:
 	/**
 	 * \brief Return the \ref Checksum for the specified \c type and a boolean.
 	 *
-	 * The boolean is TRUE iff the search was successfull and the Checksum is an
+	 * The boolean is TRUE iff the search was successful and the Checksum is an
 	 * actual search result. If there is no Checksum represented for the
 	 * \c type, the Checksum returned will be
 	 * \link Checksum::zero() zero()\endlink and the boolean value will be
@@ -399,6 +399,21 @@ public:
 	 * \return The checksum for the specified type
 	 */
 	std::pair<Checksum, bool> get(const checksum::type type) const;
+
+	/**
+	 * \brief Return the \ref Checksum for the specified \c type or throw.
+	 *
+	 * If there is no Checksum represented for the \c type, a runtime_error will
+	 * be thrown.
+	 *
+	 * \param[in] type The checksum::type to return the value
+	 *
+	 * \return The checksum for the specified type
+	 *
+	 * \throws std::runtime_error If the ChecksumSet does not contain a Checksum
+	 * of the specified \c type
+	 */
+	Checksum checksum(const checksum::type type) const;
 
 	/**
 	 * \brief Return the checksum types present in this ChecksumSet
