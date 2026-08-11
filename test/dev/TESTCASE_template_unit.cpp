@@ -39,8 +39,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 		// --
 
-        //CHECK(copied.value() == instance.value());
-        //CHECK(copied.name()  == instance.name());
+        //CHECK ( copied.value() == instance.value() );
+        //CHECK ( copied.name()  == instance.name() );
 		FAIL ( "Copy construction test is missing" );
 	}
 
@@ -50,8 +50,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 		// --
 
-        //CHECK(moved.value() == instance.value());
-        //CHECK(moved.name()  == instance.name());
+        //CHECK ( moved.value() == instance.value() );
+        //CHECK ( moved.name()  == instance.name() );
 		FAIL ( "Move construction test is missing" );
 	}
 
@@ -62,8 +62,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 		// --
 
-        //CHECK(copied.value() == instance.value());
-        //CHECK(copied.name()  == instance.name());
+        //CHECK ( copied.value() == instance.value() );
+        //CHECK ( copied.name()  == instance.name() );
 		FAIL ( "Copy assignment test is missing" );
 	}
 
@@ -74,8 +74,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 		// --
 
-        //CHECK(moved.value() == instance.value());
-        //CHECK(moved.name()  == instance.name());
+        //CHECK ( moved.value() == instance.value() );
+        //CHECK ( moved.name()  == instance.name() );
 		FAIL ( "Move assignment test is missing" );
 	}
 }
@@ -84,16 +84,16 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 TEST_CASE ( "${CLASS} default constructed instance",
 		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
 {
-	const auto instance = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::${CLASS}{};
 
 	SECTION ( "is empty()")
 	{
-		CHECK ( instance.empty() );
+		CHECK ( defaulted.empty() );
 	}
 
 	SECTION ( "converts to FALSE")
 	{
-		CHECK ( !instance );
+		CHECK ( !defaulted );
 	}
 }
 
@@ -102,7 +102,7 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 {
 	using arcstk::${CLASS};
 
-	auto defaulted = ${CLASS} {};
+	auto instance = ${CLASS} {};
 
 
 	SECTION ("Equality operator == is correct")
