@@ -694,6 +694,8 @@ public:
 	{
 		value_ = T{};
 	}
+
+	// TODO explicit operator bool()
 };
 
 /**
