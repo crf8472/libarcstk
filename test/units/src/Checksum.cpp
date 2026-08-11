@@ -182,9 +182,9 @@ TEST_CASE ( "Checksum functions", "[checksum] [calc] [checksum]" )
 		FAIL ("to_string test is missing");
 	}
 
-	SECTION ("from_fast is correct")
+	SECTION ("checksum is correct")
 	{
-		FAIL ("from_fast test is missing");
+		FAIL ("checksum test is missing");
 	}
 }
 	*/
