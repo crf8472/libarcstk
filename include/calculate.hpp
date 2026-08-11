@@ -1923,7 +1923,7 @@ public:
 	 *
 	 * \return Name of the algorithm wrapped by this instance
 	 */
-	std::string algorithm_name()
+	std::string algorithm_name() const
 	{
 		return this->updateable_.name();
 	}
