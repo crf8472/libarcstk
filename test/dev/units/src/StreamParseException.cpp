@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for StreamParseException.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamParseException", "[streamparseexception] [dbar] [dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::StreamParseException;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamParseException {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const StreamParseException copied { Copy<StreamParseException>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const StreamParseException moved { Move<StreamParseException>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = StreamParseException {};
+		Copy<StreamParseException>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = StreamParseException {};
+		Move<StreamParseException>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "StreamParseException default constructed instance",
+		"[streamparseexception] [dbar] [dbar]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::StreamParseException{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamParseException property", "[streamparseexception] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StreamParseException;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamParseException {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,31 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamParseException functions", "[streamparseexception] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StreamParseException;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamParseException {};
 
-	$<SECTIONS>
+	SECTION ("StreamParseException() is correct")
+	{
+		FAIL ("StreamParseException() test is missing");
+	}
+
+	SECTION ("byte_position() is correct")
+	{
+		FAIL ("byte_position() test is missing");
+	}
+
+	SECTION ("block() is correct")
+	{
+		FAIL ("block() test is missing");
+	}
+
+	SECTION ("block_byte_position() is correct")
+	{
+		FAIL ("block_byte_position() test is missing");
+	}
+
 }
 

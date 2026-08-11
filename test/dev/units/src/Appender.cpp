@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for Appender.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Appender", "[appender] [logging] [logging]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::Appender;
 
-	auto instance = ${CLASS} {};
+	auto instance = Appender {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const Appender copied { Copy<Appender>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const Appender moved { Move<Appender>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = Appender {};
+		Copy<Appender>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = Appender {};
+		Move<Appender>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "Appender default constructed instance",
+		"[appender] [logging] [logging]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::Appender{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Appender property", "[appender] [logging] [logging]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Appender;
 
-	auto instance = ${CLASS} {};
+	auto instance = Appender {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,36 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Appender functions", "[appender] [logging] [logging]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Appender;
 
-	auto instance = ${CLASS} {};
+	auto instance = Appender {};
 
-	$<SECTIONS>
+	SECTION ("Appender() is correct")
+	{
+		FAIL ("Appender() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
+	SECTION ("~Appender() is correct")
+	{
+		FAIL ("~Appender() test is missing");
+	}
+
+	SECTION ("append() is correct")
+	{
+		FAIL ("append() test is missing");
+	}
+
+	SECTION ("name() is correct")
+	{
+		FAIL ("name() test is missing");
+	}
+
 }
 

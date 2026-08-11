@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for TrackPartitioner.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc] [calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::TrackPartitioner;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackPartitioner {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const TrackPartitioner copied { Copy<TrackPartitioner>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const TrackPartitioner moved { Move<TrackPartitioner>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = TrackPartitioner {};
+		Copy<TrackPartitioner>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = TrackPartitioner {};
+		Move<TrackPartitioner>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "TrackPartitioner default constructed instance",
+		"[trackpartitioner] [calc] [calculate]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::TrackPartitioner{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackPartitioner property", "[trackpartitioner] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::TrackPartitioner;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackPartitioner {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,26 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackPartitioner functions", "[trackpartitioner] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::TrackPartitioner;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackPartitioner {};
 
-	$<SECTIONS>
+	SECTION ("do_create_partitioning() is correct")
+	{
+		FAIL ("do_create_partitioning() test is missing");
+	}
+
+	SECTION ("do_clone() is correct")
+	{
+		FAIL ("do_clone() test is missing");
+	}
+
+	SECTION ("TrackPartitioner() is correct")
+	{
+		FAIL ("TrackPartitioner() test is missing");
+	}
+
 }
 

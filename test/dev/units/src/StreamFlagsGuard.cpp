@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for StreamFlagsGuard.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamFlagsGuard", "[streamflagsguard] [calc] [checksum]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::StreamFlagsGuard;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamFlagsGuard {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const StreamFlagsGuard copied { Copy<StreamFlagsGuard>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const StreamFlagsGuard moved { Move<StreamFlagsGuard>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = StreamFlagsGuard {};
+		Copy<StreamFlagsGuard>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = StreamFlagsGuard {};
+		Move<StreamFlagsGuard>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "StreamFlagsGuard default constructed instance",
+		"[streamflagsguard] [calc] [checksum]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::StreamFlagsGuard{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamFlagsGuard property", "[streamflagsguard] [calc] [checksum]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StreamFlagsGuard;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamFlagsGuard {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,26 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StreamFlagsGuard functions", "[streamflagsguard] [calc] [checksum]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StreamFlagsGuard;
 
-	auto instance = ${CLASS} {};
+	auto instance = StreamFlagsGuard {};
 
-	$<SECTIONS>
+	SECTION ("StreamFlagsGuard() is correct")
+	{
+		FAIL ("StreamFlagsGuard() test is missing");
+	}
+
+	SECTION ("~StreamFlagsGuard() is correct")
+	{
+		FAIL ("~StreamFlagsGuard() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
 }
 

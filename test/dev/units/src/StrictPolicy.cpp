@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for StrictPolicy.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify] [verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::StrictPolicy;
 
-	auto instance = ${CLASS} {};
+	auto instance = StrictPolicy {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const StrictPolicy copied { Copy<StrictPolicy>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const StrictPolicy moved { Move<StrictPolicy>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = StrictPolicy {};
+		Copy<StrictPolicy>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = StrictPolicy {};
+		Move<StrictPolicy>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "StrictPolicy default constructed instance",
+		"[strictpolicy] [verify] [verify]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::StrictPolicy{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StrictPolicy property", "[strictpolicy] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StrictPolicy;
 
-	auto instance = ${CLASS} {};
+	auto instance = StrictPolicy {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,31 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "StrictPolicy functions", "[strictpolicy] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::StrictPolicy;
 
-	auto instance = ${CLASS} {};
+	auto instance = StrictPolicy {};
 
-	$<SECTIONS>
+	SECTION ("do_is_verified() is correct")
+	{
+		FAIL ("do_is_verified() test is missing");
+	}
+
+	SECTION ("do_total_unverified_tracks() is correct")
+	{
+		FAIL ("do_total_unverified_tracks() test is missing");
+	}
+
+	SECTION ("do_is_strict() is correct")
+	{
+		FAIL ("do_is_strict() test is missing");
+	}
+
+	SECTION ("do_clone() is correct")
+	{
+		FAIL ("do_clone() test is missing");
+	}
+
 }
 

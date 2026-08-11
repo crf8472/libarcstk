@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for DBARSource.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARSource", "[dbarsource] [verify] [verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::DBARSource;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARSource {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const DBARSource copied { Copy<DBARSource>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const DBARSource moved { Move<DBARSource>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = DBARSource {};
+		Copy<DBARSource>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = DBARSource {};
+		Move<DBARSource>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "DBARSource default constructed instance",
+		"[dbarsource] [verify] [verify]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::DBARSource{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARSource property", "[dbarsource] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::DBARSource;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARSource {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,66 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARSource functions", "[dbarsource] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::DBARSource;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARSource {};
 
-	$<SECTIONS>
+	SECTION ("do_id() is correct")
+	{
+		FAIL ("do_id() test is missing");
+	}
+
+	SECTION ("do_checksum() is correct")
+	{
+		FAIL ("do_checksum() test is missing");
+	}
+
+	SECTION ("do_arcs_value() is correct")
+	{
+		FAIL ("do_arcs_value() test is missing");
+	}
+
+	SECTION ("do_confidence() is correct")
+	{
+		FAIL ("do_confidence() test is missing");
+	}
+
+	SECTION ("do_frame450_arcs_value() is correct")
+	{
+		FAIL ("do_frame450_arcs_value() test is missing");
+	}
+
+	SECTION ("do_size() is correct")
+	{
+		FAIL ("do_size() test is missing");
+	}
+
+	SECTION ("do_clone() is correct")
+	{
+		FAIL ("do_clone() test is missing");
+	}
+
+	SECTION ("DBARSource() is correct")
+	{
+		FAIL ("DBARSource() test is missing");
+	}
+
+	SECTION ("~DBARSource() is correct")
+	{
+		FAIL ("~DBARSource() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
+	SECTION ("dbar() is correct")
+	{
+		FAIL ("dbar() test is missing");
+	}
+
 }
 

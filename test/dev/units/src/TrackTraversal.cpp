@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for TrackTraversal.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackTraversal", "[tracktraversal] [verify] [verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::TrackTraversal;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackTraversal {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const TrackTraversal copied { Copy<TrackTraversal>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const TrackTraversal moved { Move<TrackTraversal>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = TrackTraversal {};
+		Copy<TrackTraversal>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = TrackTraversal {};
+		Move<TrackTraversal>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "TrackTraversal default constructed instance",
+		"[tracktraversal] [verify] [verify]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::TrackTraversal{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackTraversal property", "[tracktraversal] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::TrackTraversal;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackTraversal {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,46 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "TrackTraversal functions", "[tracktraversal] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::TrackTraversal;
 
-	auto instance = ${CLASS} {};
+	auto instance = TrackTraversal {};
 
-	$<SECTIONS>
+	SECTION ("create_track_policy() is correct")
+	{
+		FAIL ("create_track_policy() test is missing");
+	}
+
+	SECTION ("create_selector() is correct")
+	{
+		FAIL ("create_selector() test is missing");
+	}
+
+	SECTION ("do_current_block() is correct")
+	{
+		FAIL ("do_current_block() test is missing");
+	}
+
+	SECTION ("do_current_track() is correct")
+	{
+		FAIL ("do_current_track() test is missing");
+	}
+
+	SECTION ("do_end_current() is correct")
+	{
+		FAIL ("do_end_current() test is missing");
+	}
+
+	SECTION ("do_end_counter() is correct")
+	{
+		FAIL ("do_end_counter() test is missing");
+	}
+
+	SECTION ("TrackTraversal() is correct")
+	{
+		FAIL ("TrackTraversal() test is missing");
+	}
+
 }
 

@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for InvalidMetadataException.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "InvalidMetadataException", "[invalidmetadataexception] [metadata] [metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::InvalidMetadataException;
 
-	auto instance = ${CLASS} {};
+	auto instance = InvalidMetadataException {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const InvalidMetadataException copied { Copy<InvalidMetadataException>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const InvalidMetadataException moved { Move<InvalidMetadataException>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = InvalidMetadataException {};
+		Copy<InvalidMetadataException>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = InvalidMetadataException {};
+		Move<InvalidMetadataException>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "InvalidMetadataException default constructed instance",
+		"[invalidmetadataexception] [metadata] [metadata]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::InvalidMetadataException{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "InvalidMetadataException property", "[invalidmetadataexception] [metadata] [metadata]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::InvalidMetadataException;
 
-	auto instance = ${CLASS} {};
+	auto instance = InvalidMetadataException {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,31 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "InvalidMetadataException functions", "[invalidmetadataexception] [metadata] [metadata]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::InvalidMetadataException;
 
-	auto instance = ${CLASS} {};
+	auto instance = InvalidMetadataException {};
 
-	$<SECTIONS>
+	SECTION ("InvalidMetadataException() is correct")
+	{
+		FAIL ("InvalidMetadataException() test is missing");
+	}
+
+	SECTION ("requirement() is correct")
+	{
+		FAIL ("requirement() test is missing");
+	}
+
+	SECTION ("violating_value() is correct")
+	{
+		FAIL ("violating_value() test is missing");
+	}
+
+	SECTION ("pos() is correct")
+	{
+		FAIL ("pos() test is missing");
+	}
+
 }
 

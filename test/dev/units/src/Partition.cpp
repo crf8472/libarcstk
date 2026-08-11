@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for Partition.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Partition", "[partition] [calc] [calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::Partition;
 
-	auto instance = ${CLASS} {};
+	auto instance = Partition {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const Partition copied { Copy<Partition>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const Partition moved { Move<Partition>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = Partition {};
+		Copy<Partition>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = Partition {};
+		Move<Partition>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "Partition default constructed instance",
+		"[partition] [calc] [calculate]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::Partition{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Partition property", "[partition] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Partition;
 
-	auto instance = ${CLASS} {};
+	auto instance = Partition {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,46 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Partition functions", "[partition] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Partition;
 
-	auto instance = ${CLASS} {};
+	auto instance = Partition {};
 
-	$<SECTIONS>
+	SECTION ("Partition() is correct")
+	{
+		FAIL ("Partition() test is missing");
+	}
+
+	SECTION ("begin_offset() is correct")
+	{
+		FAIL ("begin_offset() test is missing");
+	}
+
+	SECTION ("end_offset() is correct")
+	{
+		FAIL ("end_offset() test is missing");
+	}
+
+	SECTION ("starts_track() is correct")
+	{
+		FAIL ("starts_track() test is missing");
+	}
+
+	SECTION ("ends_track() is correct")
+	{
+		FAIL ("ends_track() test is missing");
+	}
+
+	SECTION ("track() is correct")
+	{
+		FAIL ("track() test is missing");
+	}
+
+	SECTION ("size() is correct")
+	{
+		FAIL ("size() test is missing");
+	}
+
 }
 

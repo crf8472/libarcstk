@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for AlbumVerifier.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify] [verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::AlbumVerifier;
 
-	auto instance = ${CLASS} {};
+	auto instance = AlbumVerifier {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const AlbumVerifier copied { Copy<AlbumVerifier>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const AlbumVerifier moved { Move<AlbumVerifier>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = AlbumVerifier {};
+		Copy<AlbumVerifier>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = AlbumVerifier {};
+		Move<AlbumVerifier>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "AlbumVerifier default constructed instance",
+		"[albumverifier] [verify] [verify]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::AlbumVerifier{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "AlbumVerifier property", "[albumverifier] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::AlbumVerifier;
 
-	auto instance = ${CLASS} {};
+	auto instance = AlbumVerifier {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,56 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "AlbumVerifier functions", "[albumverifier] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::AlbumVerifier;
 
-	auto instance = ${CLASS} {};
+	auto instance = AlbumVerifier {};
 
-	$<SECTIONS>
+	SECTION ("do_actual_id() is correct")
+	{
+		FAIL ("do_actual_id() test is missing");
+	}
+
+	SECTION ("do_actual_checksums() is correct")
+	{
+		FAIL ("do_actual_checksums() test is missing");
+	}
+
+	SECTION ("do_strict() is correct")
+	{
+		FAIL ("do_strict() test is missing");
+	}
+
+	SECTION ("do_set_strict() is correct")
+	{
+		FAIL ("do_set_strict() test is missing");
+	}
+
+	SECTION ("do_perform() is correct")
+	{
+		FAIL ("do_perform() test is missing");
+	}
+
+	SECTION ("do_clone() is correct")
+	{
+		FAIL ("do_clone() test is missing");
+	}
+
+	SECTION ("AlbumVerifier() is correct")
+	{
+		FAIL ("AlbumVerifier() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
+	SECTION ("~AlbumVerifier() is correct")
+	{
+		FAIL ("~AlbumVerifier() test is missing");
+	}
+
 }
 

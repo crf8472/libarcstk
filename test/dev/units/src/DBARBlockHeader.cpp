@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for DBARBlockHeader.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARBlockHeader", "[dbarblockheader] [dbar] [dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::DBARBlockHeader;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARBlockHeader {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const DBARBlockHeader copied { Copy<DBARBlockHeader>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const DBARBlockHeader moved { Move<DBARBlockHeader>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = DBARBlockHeader {};
+		Copy<DBARBlockHeader>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = DBARBlockHeader {};
+		Move<DBARBlockHeader>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "DBARBlockHeader default constructed instance",
+		"[dbarblockheader] [dbar] [dbar]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::DBARBlockHeader{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARBlockHeader property", "[dbarblockheader] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::DBARBlockHeader;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARBlockHeader {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,51 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "DBARBlockHeader functions", "[dbarblockheader] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::DBARBlockHeader;
 
-	auto instance = ${CLASS} {};
+	auto instance = DBARBlockHeader {};
 
-	$<SECTIONS>
+	SECTION ("DBARBlockHeader() is correct")
+	{
+		FAIL ("DBARBlockHeader() test is missing");
+	}
+
+	SECTION ("total_tracks() is correct")
+	{
+		FAIL ("total_tracks() test is missing");
+	}
+
+	SECTION ("id1() is correct")
+	{
+		FAIL ("id1() test is missing");
+	}
+
+	SECTION ("id2() is correct")
+	{
+		FAIL ("id2() test is missing");
+	}
+
+	SECTION ("cddb_id() is correct")
+	{
+		FAIL ("cddb_id() test is missing");
+	}
+
+	SECTION ("swap() is correct")
+	{
+		FAIL ("swap() test is missing");
+	}
+
+	SECTION ("equals() is correct")
+	{
+		FAIL ("equals() test is missing");
+	}
+
+	SECTION ("to_string() is correct")
+	{
+		FAIL ("to_string() test is missing");
+	}
+
 }
 

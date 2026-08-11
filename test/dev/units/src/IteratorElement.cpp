@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for IteratorElement.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "IteratorElement", "[iteratorelement] [dbar] [dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::IteratorElement;
 
-	auto instance = ${CLASS} {};
+	auto instance = IteratorElement {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const IteratorElement copied { Copy<IteratorElement>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const IteratorElement moved { Move<IteratorElement>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = IteratorElement {};
+		Copy<IteratorElement>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = IteratorElement {};
+		Move<IteratorElement>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "IteratorElement default constructed instance",
+		"[iteratorelement] [dbar] [dbar]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::IteratorElement{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "IteratorElement property", "[iteratorelement] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::IteratorElement;
 
-	auto instance = ${CLASS} {};
+	auto instance = IteratorElement {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,41 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "IteratorElement functions", "[iteratorelement] [dbar] [dbar]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::IteratorElement;
 
-	auto instance = ${CLASS} {};
+	auto instance = IteratorElement {};
 
-	$<SECTIONS>
+	SECTION ("IteratorElement() is correct")
+	{
+		FAIL ("IteratorElement() test is missing");
+	}
+
+	SECTION ("index() is correct")
+	{
+		FAIL ("index() test is missing");
+	}
+
+	SECTION ("element() is correct")
+	{
+		FAIL ("element() test is missing");
+	}
+
+	SECTION ("operator value_type() is correct")
+	{
+		FAIL ("operator value_type() test is missing");
+	}
+
+	SECTION ("operator*() is correct")
+	{
+		FAIL ("operator*() test is missing");
+	}
+
+	SECTION ("operator->() is correct")
+	{
+		FAIL ("operator->() test is missing");
+	}
+
 }
 

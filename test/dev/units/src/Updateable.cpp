@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for Updateable.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Updateable", "[updateable] [calc] [algorithm]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::Updateable;
 
-	auto instance = ${CLASS} {};
+	auto instance = Updateable {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const Updateable copied { Copy<Updateable>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const Updateable moved { Move<Updateable>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = Updateable {};
+		Copy<Updateable>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = Updateable {};
+		Move<Updateable>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "Updateable default constructed instance",
+		"[updateable] [calc] [algorithm]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::Updateable{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Updateable property", "[updateable] [calc] [algorithm]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Updateable;
 
-	auto instance = ${CLASS} {};
+	auto instance = Updateable {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,66 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Updateable functions", "[updateable] [calc] [algorithm]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Updateable;
 
-	auto instance = ${CLASS} {};
+	auto instance = Updateable {};
 
-	$<SECTIONS>
+	SECTION ("Updateable() is correct")
+	{
+		FAIL ("Updateable() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
+	SECTION ("~Updateable() is correct")
+	{
+		FAIL ("~Updateable() test is missing");
+	}
+
+	SECTION ("algorithm() is correct")
+	{
+		FAIL ("algorithm() test is missing");
+	}
+
+	SECTION ("update() is correct")
+	{
+		FAIL ("update() test is missing");
+	}
+
+	SECTION ("finish_track() is correct")
+	{
+		FAIL ("finish_track() test is missing");
+	}
+
+	SECTION ("name() is correct")
+	{
+		FAIL ("name() test is missing");
+	}
+
+	SECTION ("types() is correct")
+	{
+		FAIL ("types() test is missing");
+	}
+
+	SECTION ("context() is correct")
+	{
+		FAIL ("context() test is missing");
+	}
+
+	SECTION ("range() is correct")
+	{
+		FAIL ("range() test is missing");
+	}
+
+	SECTION ("result() is correct")
+	{
+		FAIL ("result() test is missing");
+	}
+
 }
 

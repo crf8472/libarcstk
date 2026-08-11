@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for SourceIterator.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_VERIFY_HPP_
+#include "verify_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "SourceIterator", "[sourceiterator] [verify] [verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::SourceIterator;
 
-	auto instance = ${CLASS} {};
+	auto instance = SourceIterator {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const SourceIterator copied { Copy<SourceIterator>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const SourceIterator moved { Move<SourceIterator>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = SourceIterator {};
+		Copy<SourceIterator>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = SourceIterator {};
+		Move<SourceIterator>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "SourceIterator default constructed instance",
+		"[sourceiterator] [verify] [verify]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::SourceIterator{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "SourceIterator property", "[sourceiterator] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::SourceIterator;
 
-	auto instance = ${CLASS} {};
+	auto instance = SourceIterator {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,41 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "SourceIterator functions", "[sourceiterator] [verify] [verify]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::SourceIterator;
 
-	auto instance = ${CLASS} {};
+	auto instance = SourceIterator {};
 
-	$<SECTIONS>
+	SECTION ("SourceIterator() is correct")
+	{
+		FAIL ("SourceIterator() test is missing");
+	}
+
+	SECTION ("counter() is correct")
+	{
+		FAIL ("counter() test is missing");
+	}
+
+	SECTION ("current() is correct")
+	{
+		FAIL ("current() test is missing");
+	}
+
+	SECTION ("operator*() is correct")
+	{
+		FAIL ("operator*() test is missing");
+	}
+
+	SECTION ("operator->() is correct")
+	{
+		FAIL ("operator->() test is missing");
+	}
+
+	SECTION ("operator++() is correct")
+	{
+		FAIL ("operator++() test is missing");
+	}
+
 }
 

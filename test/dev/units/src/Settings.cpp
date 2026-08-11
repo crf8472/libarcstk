@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for Settings.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Settings", "[settings] [calc] [calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::Settings;
 
-	auto instance = ${CLASS} {};
+	auto instance = Settings {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const Settings copied { Copy<Settings>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const Settings moved { Move<Settings>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = Settings {};
+		Copy<Settings>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = Settings {};
+		Move<Settings>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "Settings default constructed instance",
+		"[settings] [calc] [calculate]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::Settings{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Settings property", "[settings] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Settings;
 
-	auto instance = ${CLASS} {};
+	auto instance = Settings {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,41 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Settings functions", "[settings] [calc] [calculate]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Settings;
 
-	auto instance = ${CLASS} {};
+	auto instance = Settings {};
 
-	$<SECTIONS>
+	SECTION ("Settings() is correct")
+	{
+		FAIL ("Settings() test is missing");
+	}
+
+	SECTION ("set_context() is correct")
+	{
+		FAIL ("set_context() test is missing");
+	}
+
+	SECTION ("context() is correct")
+	{
+		FAIL ("context() test is missing");
+	}
+
+	SECTION ("swap() is correct")
+	{
+		FAIL ("swap() test is missing");
+	}
+
+	SECTION ("equals() is correct")
+	{
+		FAIL ("equals() test is missing");
+	}
+
+	SECTION ("to_string() is correct")
+	{
+		FAIL ("to_string() test is missing");
+	}
+
 }
 

@@ -3,14 +3,14 @@
 /**
  * \file
  *
- * \brief Unit tests for ${CLASS}.
+ * \brief Unit tests for Logging.
  */
 
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}_details.hpp"  // for
+#ifndef LIBARCSTK_LOGGING_HPP_
+#include "logging_details.hpp"  // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Logging", "[logging] [logging] [logging]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::${CLASS};
+	using arcstk::Logging;
 
-	auto instance = ${CLASS} {};
+	auto instance = Logging {};
 
 
 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy construction is correct")
 	{
-		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
+		const Logging copied { Copy<Logging>::construct(instance) };
 
 		// --
 
@@ -46,7 +46,7 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move construction is correct")
 	{
-		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
+		const Logging moved { Move<Logging>::construct(instance) };
 
 		// --
 
@@ -57,8 +57,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = ${CLASS} {};
-		Copy<${CLASS}>::assign(copied, instance);
+		auto copied = Logging {};
+		Copy<Logging>::assign(copied, instance);
 
 		// --
 
@@ -69,8 +69,8 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = ${CLASS} {};
-		Move<${CLASS}>::assign(moved, instance);
+		auto moved = Logging {};
+		Move<Logging>::assign(moved, instance);
 
 		// --
 
@@ -81,10 +81,10 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "Logging default constructed instance",
+		"[logging] [logging] [logging]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::Logging{};
 
 	SECTION ( "is empty()")
 	{
@@ -98,11 +98,11 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Logging property", "[logging] [logging] [logging]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Logging;
 
-	auto instance = ${CLASS} {};
+	auto instance = Logging {};
 
 
 	SECTION ("Equality operator == is correct")
@@ -147,12 +147,76 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "Logging functions", "[logging] [logging] [logging]" )
 {
-	using arcstk::${CLASS};
+	using arcstk::Logging;
 
-	auto instance = ${CLASS} {};
+	auto instance = Logging {};
 
-	$<SECTIONS>
+	SECTION ("Logging() is correct")
+	{
+		FAIL ("Logging() test is missing");
+	}
+
+	SECTION ("on_logger_do() is correct")
+	{
+		FAIL ("on_logger_do() test is missing");
+	}
+
+	SECTION ("operator=() is correct")
+	{
+		FAIL ("operator=() test is missing");
+	}
+
+	SECTION ("~Logging() is correct")
+	{
+		FAIL ("~Logging() test is missing");
+	}
+
+	SECTION ("logger() is correct")
+	{
+		FAIL ("logger() test is missing");
+	}
+
+	SECTION ("level() is correct")
+	{
+		FAIL ("level() test is missing");
+	}
+
+	SECTION ("set_level() is correct")
+	{
+		FAIL ("set_level() test is missing");
+	}
+
+	SECTION ("has_level() is correct")
+	{
+		FAIL ("has_level() test is missing");
+	}
+
+	SECTION ("set_timestamps() is correct")
+	{
+		FAIL ("set_timestamps() test is missing");
+	}
+
+	SECTION ("has_timestamps() is correct")
+	{
+		FAIL ("has_timestamps() test is missing");
+	}
+
+	SECTION ("add_appender() is correct")
+	{
+		FAIL ("add_appender() test is missing");
+	}
+
+	SECTION ("remove_appender() is correct")
+	{
+		FAIL ("remove_appender() test is missing");
+	}
+
+	SECTION ("instance() is correct")
+	{
+		FAIL ("instance() test is missing");
+	}
+
 }
 
