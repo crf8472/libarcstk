@@ -227,6 +227,20 @@ std::pair<Checksum, bool> ChecksumSet::get(const checksum::type type) const
 }
 
 
+Checksum ChecksumSet::checksum(const checksum::type type) const
+{
+	if (const auto result { get(type ) }; result.second)
+	{
+		return result.first;
+	}
+
+	throw std::runtime_error("No checksum of type " + checksum::name(type)
+			+ " in set");
+
+	return {}; // unreachable
+}
+
+
 std::set<checksum::type> ChecksumSet::types() const
 {
 	auto keys { std::set<checksum::type>{} };
