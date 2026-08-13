@@ -151,6 +151,7 @@ TEST_CASE ( "Counter<> functions", "[counter] [calc] [calculate]" )
 	using arcstk::details::Counter;
 
 	auto instance = Counter<int> { 479 };
+	// https://github.com/catchorg/Catch2/issues/2910
 
 	REQUIRE ( instance.value() == 479 );
 
@@ -167,12 +168,44 @@ TEST_CASE ( "Counter<> functions", "[counter] [calc] [calculate]" )
 		CHECK ( instance.value() == 479 + 28496 );
 	}
 
+	SECTION ("repeated increment() is correct")
+	{
+		auto counter = Counter<int> {};
+
+		REQUIRE ( counter.value() == 0 );
+
+		// ***
+
+		counter.increment(5);
+		counter.increment(28);
+		counter.increment(10191);
+
+		CHECK ( counter.value() == 5 + 28 + 10191 );
+
+	}
+
 	SECTION ("reset() is correct")
 	{
 		instance.reset();
 
 		CHECK ( instance.value() == 0 );
-	}
 
+		// ***
+
+		auto counter = Counter<int> {};
+
+		REQUIRE ( counter.value() == 0 );
+
+		// --
+
+		counter.increment(6);
+		counter.increment(782);
+
+		REQUIRE ( counter.value() == 788 );
+
+		counter.reset();
+
+		CHECK ( counter.value() == 0 );
+	}
 }
 

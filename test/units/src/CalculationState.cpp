@@ -14,6 +14,112 @@
 #include "construction.hpp"       // for Copy, Move
 #endif
 
+#include <chrono>                 // for steady_clock::now
+#include <iterator>               // for begin, cbegin, cend, end
+#include <memory>                 // for make_unique, unique_ptr
+#include <numeric>                // for iota
+#include <type_traits>            // for is_default_constructible,....
+#include <utility>                // for move
+#include <vector>                 // for vector
+
+
+TEST_CASE ( "CalculationState-Old", "[calculationstate] [calc] [calculate]" )
+{
+	using arcstk::AccurateRip::V1andV2;
+	using arcstk::Algorithm;
+	using arcstk::details::CalculationState;
+
+	using std::begin;
+	using std::end;
+
+	auto algorithm { std::make_unique<V1andV2>() };
+	auto state1 = CalculationState{};
+
+	{
+		const auto start_time { std::chrono::steady_clock::now() };
+
+		auto dummy_data = std::vector<uint32_t>(1000000);
+		std::iota(begin(dummy_data), end(dummy_data), 1);
+
+		const auto time_elapsed {
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::steady_clock::now() - start_time)
+		};
+
+		state1.update(1000000, time_elapsed);
+		state1.track_finished();
+
+		//state1.increment_update_time_elapsed(time_elapsed);
+	}
+
+
+	SECTION ("Construction is correct")
+	{
+		auto impl { CalculationState {} };
+
+		CHECK ( impl.samples_processed() == 0 );
+	}
+
+
+	SECTION ("Copy construction is as declared")
+	{
+		CHECK ( std::is_copy_constructible<CalculationState>::value );
+
+		CHECK (
+			std::is_nothrow_copy_constructible<CalculationState>::value );
+	}
+
+
+	SECTION ("Move construction is as declared")
+	{
+		CHECK ( std::is_move_constructible<CalculationState>::value );
+
+		CHECK ( std::is_nothrow_move_constructible<CalculationState>::value );
+	}
+
+
+	SECTION ("Copy construction is correct")
+	{
+		auto impl2 { state1 };
+
+		CHECK ( impl2.current_offset()    == 1000000 );
+		CHECK ( impl2.samples_processed() == 1000000 );
+		CHECK ( impl2.track_samples_processed() == 0 );
+		CHECK ( impl2.tracks_processed()  == 1 );
+		//CHECK ( impl2.algo_time_elapsed()   > std::chrono::milliseconds::zero() );
+		//CHECK ( impl2.update_time_elapsed() > std::chrono::milliseconds::zero() );
+	}
+
+
+	SECTION ("Move construction is correct")
+	{
+		auto impl3 { std::move(state1) };
+
+		CHECK ( impl3.current_offset()    == 1000000 );
+		CHECK ( impl3.samples_processed() == 1000000 );
+		CHECK ( impl3.track_samples_processed() == 0 );
+		CHECK ( impl3.tracks_processed()  == 1 );
+		//CHECK ( impl3.algo_time_elapsed()   > std::chrono::milliseconds::zero() );
+		//CHECK ( impl3.update_time_elapsed() > std::chrono::milliseconds::zero() );
+		// track_samples_processed
+		// tracks_processed
+	}
+
+
+	SECTION ("update() counts the amount of samples processed correctly")
+	{
+		CHECK ( state1.samples_processed() == 1000000 );
+	}
+
+
+	/*
+	SECTION ("increment_update_time_elapsed() updates time counter")
+	{
+		CHECK ( state1.update_time_elapsed() > std::chrono::milliseconds::zero() );
+	}
+	*/
+}
+
 
 TEST_CASE ( "CalculationState", "[calculationstate] [calc] [calculate]" )
 {
