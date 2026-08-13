@@ -304,9 +304,127 @@ public:
  */
 using SampleRange = Interval<int32_t>;
 
+/**
+ * \brief Type to represent 1-based track numbers.
+ *
+ * A signed integer type.
+ *
+ * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
+ * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
+ * tracks or a counter for tracks.
+ *
+ * The intention of this typedef is to provide a marker for parameters that
+ * expect 1-based track numbers instead of 0-based track indices. TrackNo will
+ * not occurr as a return type in the API.
+ *
+ * A validation check is not provided, though. Every function that accepts a
+ * TrackNo will in fact accept 0 but will then either throw or return a default
+ * error value.
+ *
+ * It is not encouraged to use TrackNo in client code.
+ */
+using TrackNo = int;
 
-// Forward Declaration Required for Partitioner
-class Partition;
+/**
+ * \ingroup calc
+ *
+ * \brief A contigous part of a sequence of samples.
+ *
+ * A partition does not hold any samples but provides access to a slice of the
+ * underlying sequence of samples.
+ */
+class Partition final
+{
+	/**
+	 * \brief Relative offset of the first sample in this partition
+	 */
+	int32_t begin_offset_ {};
+
+	/**
+	 * \brief Relative offset of the last sample in this partition + 1
+	 */
+	int32_t end_offset_ {};
+
+	/**
+	 * \brief TRUE iff the first sample in this partition is also the first
+	 * sample in the track
+	 */
+	bool starts_track_ {};
+
+	/**
+	 * \brief TRUE iff the last sample in this partition is also the last sample
+	 * in the track
+	 */
+	bool ends_track_ {};
+
+	/**
+	 * \brief 1-based number of the track of which the samples in the partition
+	 * are part of
+	 */
+	int track_ {};
+
+public:
+
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] begin_offset Local index of the first sample in the partition
+	 * \param[in] end_offset   Local index of the last sample in the partition
+	 * \param[in] starts_track TRUE iff this partition starts its track
+	 * \param[in] ends_track   TRUE iff this partition ends its track
+	 * \param[in] track        Number of the track that contains the partition
+	 */
+	Partition(
+			const int32_t begin_offset,
+			const int32_t end_offset,
+			const bool    starts_track,
+			const bool    ends_track,
+			const TrackNo track);
+
+	/**
+	 * \brief Relative offset of the first sample in the partition.
+	 *
+	 * \return Relative offset of the first sample in the partition.
+	 */
+	int32_t begin_offset() const;
+
+	/**
+	 * \brief Relative offset of the last sample in the partition + 1.
+	 *
+	 * \return Relative offset of the last sample in the partition + 1.
+	 */
+	int32_t end_offset() const;
+
+	/**
+	 * \brief Returns TRUE iff the first sample of this partition is also the
+	 * first sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition starts a track
+	 */
+	bool starts_track() const;
+
+	/**
+	 * \brief Returns TRUE if the last sample of this partition is also the last
+	 * sample of the track which the partition is part of.
+	 *
+	 * \return TRUE iff this is partition ends a track
+	 */
+	bool ends_track() const;
+
+	/**
+	 * \brief The track of which the samples in the partition are part of.
+	 *
+	 * \return The track that contains this partition
+	 */
+	int track() const;
+
+	/**
+	 * \brief Number of samples in this partition.
+	 *
+	 * \return Number of samples in this partition
+	 */
+	std::size_t size() const;
+};
 
 /**
  * \internal
@@ -499,136 +617,6 @@ public:
 	 */
 	TrackPartitioner(const Points& points, const AudioSize& total_samples,
 			const SampleRange& legal);
-};
-
-/**
- * \brief Type to represent 1-based track numbers.
- *
- * A signed integer type.
- *
- * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
- * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
- * tracks or a counter for tracks.
- *
- * The intention of this typedef is to provide a marker for parameters that
- * expect 1-based track numbers instead of 0-based track indices. TrackNo will
- * not occurr as a return type in the API.
- *
- * A validation check is not provided, though. Every function that accepts a
- * TrackNo will in fact accept 0 but will then either throw or return a default
- * error value.
- *
- * It is not encouraged to use TrackNo in client code.
- */
-using TrackNo = int;
-
-/**
- * \ingroup calc
- *
- * \brief A contigous part of a sequence of samples.
- *
- * A partition does not hold any samples but provides access to a slice of the
- * underlying sequence of samples.
- */
-class Partition final
-{
-	// Partitioners are friends of Partition since they construct
-	// Partitions exclusively
-
-	friend Partitioner;
-
-	// NOTE: There is no default constructor since Partition have constant
-	// elements that cannot be default initialized
-
-	/**
-	 * \brief Relative offset of the first sample in this partition
-	 */
-	int32_t begin_offset_ {};
-
-	/**
-	 * \brief Relative offset of the last sample in this partition + 1
-	 */
-	int32_t end_offset_ {};
-
-	/**
-	 * \brief TRUE iff the first sample in this partition is also the first
-	 * sample in the track
-	 */
-	bool starts_track_ {};
-
-	/**
-	 * \brief TRUE iff the last sample in this partition is also the last sample
-	 * in the track
-	 */
-	bool ends_track_ {};
-
-	/**
-	 * \brief 1-based number of the track of which the samples in the partition
-	 * are part of
-	 */
-	int track_ {};
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] begin_offset Local index of the first sample in the partition
-	 * \param[in] end_offset   Local index of the last sample in the partition
-	 * \param[in] starts_track TRUE iff this partition starts its track
-	 * \param[in] ends_track   TRUE iff this partition ends its track
-	 * \param[in] track        Number of the track that contains the partition
-	 */
-	Partition(
-			const int32_t begin_offset,
-			const int32_t end_offset,
-			const bool    starts_track,
-			const bool    ends_track,
-			const TrackNo track);
-
-	/**
-	 * \brief Relative offset of the first sample in the partition.
-	 *
-	 * \return Relative offset of the first sample in the partition.
-	 */
-	int32_t begin_offset() const;
-
-	/**
-	 * \brief Relative offset of the last sample in the partition + 1.
-	 *
-	 * \return Relative offset of the last sample in the partition + 1.
-	 */
-	int32_t end_offset() const;
-
-	/**
-	 * \brief Returns TRUE iff the first sample of this partition is also the
-	 * first sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition starts a track
-	 */
-	bool starts_track() const;
-
-	/**
-	 * \brief Returns TRUE if the last sample of this partition is also the last
-	 * sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition ends a track
-	 */
-	bool ends_track() const;
-
-	/**
-	 * \brief The track of which the samples in the partition are part of.
-	 *
-	 * \return The track that contains this partition
-	 */
-	int track() const;
-
-	/**
-	 * \brief Number of samples in this partition.
-	 *
-	 * \return Number of samples in this partition
-	 */
-	std::size_t size() const;
 };
 
 /**
