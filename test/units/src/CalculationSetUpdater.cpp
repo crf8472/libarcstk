@@ -9,217 +9,227 @@
 #ifndef LIBARCSTK_CALCULATE_HPP_
 #include "calculate.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate_details.hpp"  // for
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"       // for Copy, Move
 #endif
 
 
-TEST_CASE ( "CalculationSetUpdater",
-		"[calculationsetupdater] [calc] [calculate]" )
-{
-	using arcstk::testing::Copy;
-	using arcstk::testing::Move;
-
-	using arcstk::CalculationSetUpdater;
-
-	auto instance = CalculationSetUpdater {};
-
-
-	SECTION ("Parametized construction is correct")
-	{
-		FAIL ( "Parametized construction test is missing" );
-	}
-
-	SECTION ("Copy construction is correct")
-	{
-		const CalculationSetUpdater copied { Copy<CalculationSetUpdater>::construct(instance) };
-
-		// --
-
-        //CHECK ( copied.value() == instance.value() );
-        //CHECK ( copied.name()  == instance.name() );
-		FAIL ( "Copy construction test is missing" );
-	}
-
-	SECTION ("Move construction is correct")
-	{
-		const CalculationSetUpdater moved { Move<CalculationSetUpdater>::construct(instance) };
-
-		// --
-
-        //CHECK ( moved.value() == instance.value() );
-        //CHECK ( moved.name()  == instance.name() );
-		FAIL ( "Move construction test is missing" );
-	}
-
-	SECTION ("Copy assignment is correct")
-	{
-		auto copied = CalculationSetUpdater {};
-		Copy<CalculationSetUpdater>::assign(copied, instance);
-
-		// --
-
-        //CHECK ( copied.value() == instance.value() );
-        //CHECK ( copied.name()  == instance.name() );
-		FAIL ( "Copy assignment test is missing" );
-	}
-
-	SECTION ("Move assignment is correct")
-	{
-		auto moved = CalculationSetUpdater {};
-		Move<CalculationSetUpdater>::assign(moved, instance);
-
-		// --
-
-        //CHECK ( moved.value() == instance.value() );
-        //CHECK ( moved.name()  == instance.name() );
-		FAIL ( "Move assignment test is missing" );
-	}
-}
+// TEST_CASE ( "CalculationSetUpdater",
+// 		"[calculationsetupdater] [calc] [calculate]" )
+// {
+// 	using arcstk::testing::Copy;
+// 	using arcstk::testing::Move;
+//
+// 	using arcstk::AccurateRip::V1;
+// 	using arcstk::AccurateRip::V2;
+// 	using arcstk::CalculationSetUpdater;
+//
+// 	auto instance = CalculationSetUpdater<V1,V2> {};
+//
+//
+// 	// SECTION ("Parametized construction is correct")
+// 	// {
+// 	// 	FAIL ( "Parametized construction test is missing" );
+// 	// }
+//
+// 	SECTION ("Copy construction is correct")
+// 	{
+// 		using MyType = CalculationSetUpdater<V1,V2>;
+//
+// 		const MyType copied { Copy<MyType>::construct(instance) };
+//
+// 		// --
+//
+//         //CHECK ( copied.value() == instance.value() );
+//         //CHECK ( copied.name()  == instance.name() );
+// 	}
+//
+// 	SECTION ("Move construction is correct")
+// 	{
+// 		using MyType = CalculationSetUpdater<V1,V2>;
+//
+// 		const MyType moved { Move<MyType>::construct(instance) };
+//
+// 		// --
+//
+//         //CHECK ( moved.value() == instance.value() );
+//         //CHECK ( moved.name()  == instance.name() );
+// 	}
+//
+// 	SECTION ("Copy assignment is correct")
+// 	{
+// 		using MyType = CalculationSetUpdater<V1,V2>;
+//
+// 		auto copied = MyType {};
+// 		Copy<MyType>::assign(copied, instance);
+//
+// 		// --
+//
+//         //CHECK ( copied.value() == instance.value() );
+//         //CHECK ( copied.name()  == instance.name() );
+// 	}
+//
+// 	SECTION ("Move assignment is correct")
+// 	{
+// 		using MyType = CalculationSetUpdater<V1,V2>;
+//
+// 		auto moved = MyType {};
+// 		Move<MyType>::assign(moved, instance);
+//
+// 		// --
+//
+//         //CHECK ( moved.value() == instance.value() );
+//         //CHECK ( moved.name()  == instance.name() );
+// 	}
+// }
 
 
 TEST_CASE ( "CalculationSetUpdater default constructed instance",
 		"[calculationsetupdater] [calc] [calculate]" )
 {
-	const auto defaulted = arcstk::CalculationSetUpdater{};
+	using arcstk::csample_t;
+	using ci_t = std::vector<csample_t>::const_iterator;
+	using arcstk::CalculationSetUpdater;
+
+	const auto defaulted = CalculationSetUpdater<ci_t,ci_t> {};
 
 	SECTION ( "is empty()")
 	{
-		CHECK ( defaulted.empty() );
-	}
-
-	SECTION ( "converts to FALSE")
-	{
-		CHECK ( !defaulted );
+		CHECK ( ! defaulted.empty() ); // V1andV2 is default
+		CHECK ( defaulted.size() == 1 );
 	}
 }
 
 
-TEST_CASE ( "CalculationSetUpdater property", "[calculationsetupdater] [calc] [calculate]" )
-{
-	using arcstk::CalculationSetUpdater;
+// TEST_CASE ( "CalculationSetUpdater property",
+// 		"[calculationsetupdater] [calc] [calculate]" )
+// {
+// 	using arcstk::AccurateRip::V1;
+// 	using arcstk::AccurateRip::V2;
+// 	using arcstk::CalculationSetUpdater;
+//
+// 	auto instance = CalculationSetUpdater<V1,V2> {};
+//
+//
+// 	SECTION ("Equality operator == is correct")
+// 	{
+// 		FAIL ( "Equality operator test is missing" );
+// 	}
+//
+// 	SECTION ("Stream-in operator << is correct")
+// 	{
+// 		FAIL ( "Stream-in operator << test is missing" );
+// 	}
+//
+// 	SECTION ("operator bool() is correct")
+// 	{
+// 		FAIL ( "operator bool() test is missing" );
+// 	}
+//
+// 	SECTION ("swap() is correct")
+// 	{
+// 		FAIL ( "swap() test is missing" );
+// 	}
+//
+// 	SECTION ("to_string() is correct")
+// 	{
+// 		FAIL ( "to_string() test is missing" );
+// 	}
+//
+// 	SECTION ("clone() is correct")
+// 	{
+// 		FAIL ( "clone() test is missing" );
+// 	}
+//
+// 	SECTION ("size() is correct")
+// 	{
+// 		FAIL ( "size() test is missing" );
+// 	}
+//
+// 	SECTION ("empty() is correct")
+// 	{
+// 		FAIL ( "empty() test is missing" );
+// 	}
+// }
 
-	auto instance = CalculationSetUpdater {};
 
+// TEST_CASE ( "CalculationSetUpdater functions",
+// 		"[calculationsetupdater] [calc] [calculate]" )
+// {
+// 	using arcstk::AccurateRip::V1;
+// 	using arcstk::AccurateRip::V2;
+// 	using arcstk::CalculationSetUpdater;
+//
+// 	auto instance = CalculationSetUpdater<V1,V2> {};
+//
+// 	SECTION ("CalculationSetUpdater() is correct")
+// 	{
+// 		FAIL ("CalculationSetUpdater() test is missing");
+// 	}
+//
+// 	SECTION ("add() is correct")
+// 	{
+// 		FAIL ("add() test is missing");
+// 	}
+//
+// 	SECTION ("update() is correct")
+// 	{
+// 		FAIL ("update() test is missing");
+// 	}
+//
+// 	SECTION ("do_init() is correct")
+// 	{
+// 		FAIL ("do_init() test is missing");
+// 	}
+//
+// 	SECTION ("do_total_tracks() is correct")
+// 	{
+// 		FAIL ("do_total_tracks() test is missing");
+// 	}
+//
+// 	SECTION ("do_offsets() is correct")
+// 	{
+// 		FAIL ("do_offsets() test is missing");
+// 	}
+//
+// 	SECTION ("do_leadout() is correct")
+// 	{
+// 		FAIL ("do_leadout() test is missing");
+// 	}
+//
+// 	SECTION ("do_update() is correct")
+// 	{
+// 		FAIL ("do_update() test is missing");
+// 	}
+//
+// 	SECTION ("do_result() is correct")
+// 	{
+// 		FAIL ("do_result() test is missing");
+// 	}
+//
+// 	SECTION ("do_size() is correct")
+// 	{
+// 		FAIL ("do_size() test is missing");
+// 	}
+//
+// 	SECTION ("do_empty() is correct")
+// 	{
+// 		FAIL ("do_empty() test is missing");
+// 	}
+//
+// 	SECTION ("do_complete() is correct")
+// 	{
+// 		FAIL ("do_complete() test is missing");
+// 	}
+//
+// 	SECTION ("merge_results() is correct")
+// 	{
+// 		FAIL ("merge_results() test is missing");
+// 	}
+//
+// }
 
-	SECTION ("Equality operator == is correct")
-	{
-		FAIL ( "Equality operator test is missing" );
-	}
-
-	SECTION ("Stream-in operator << is correct")
-	{
-		FAIL ( "Stream-in operator << test is missing" );
-	}
-
-	SECTION ("operator bool() is correct")
-	{
-		FAIL ( "operator bool() test is missing" );
-	}
-
-	SECTION ("swap() is correct")
-	{
-		FAIL ( "swap() test is missing" );
-	}
-
-	SECTION ("to_string() is correct")
-	{
-		FAIL ( "to_string() test is missing" );
-	}
-
-	SECTION ("clone() is correct")
-	{
-		FAIL ( "clone() test is missing" );
-	}
-
-	SECTION ("size() is correct")
-	{
-		FAIL ( "size() test is missing" );
-	}
-
-	SECTION ("empty() is correct")
-	{
-		FAIL ( "empty() test is missing" );
-	}
-}
-
-
-TEST_CASE ( "CalculationSetUpdater functions", "[calculationsetupdater] [calc] [calculate]" )
-{
-	using arcstk::CalculationSetUpdater;
-
-	auto instance = CalculationSetUpdater {};
-
-	SECTION ("CalculationSetUpdater() is correct")
-	{
-		FAIL ("CalculationSetUpdater() test is missing");
-	}
-
-	SECTION ("add() is correct")
-	{
-		FAIL ("add() test is missing");
-	}
-
-	SECTION ("update() is correct")
-	{
-		FAIL ("update() test is missing");
-	}
-
-	SECTION ("do_init() is correct")
-	{
-		FAIL ("do_init() test is missing");
-	}
-
-	SECTION ("do_total_tracks() is correct")
-	{
-		FAIL ("do_total_tracks() test is missing");
-	}
-
-	SECTION ("do_offsets() is correct")
-	{
-		FAIL ("do_offsets() test is missing");
-	}
-
-	SECTION ("do_leadout() is correct")
-	{
-		FAIL ("do_leadout() test is missing");
-	}
-
-	SECTION ("do_update() is correct")
-	{
-		FAIL ("do_update() test is missing");
-	}
-
-	SECTION ("do_result() is correct")
-	{
-		FAIL ("do_result() test is missing");
-	}
-
-	SECTION ("do_size() is correct")
-	{
-		FAIL ("do_size() test is missing");
-	}
-
-	SECTION ("do_empty() is correct")
-	{
-		FAIL ("do_empty() test is missing");
-	}
-
-	SECTION ("do_complete() is correct")
-	{
-		FAIL ("do_complete() test is missing");
-	}
-
-	SECTION ("merge_results() is correct")
-	{
-		FAIL ("merge_results() test is missing");
-	}
-
-}
 
 // This test is broken due to false partitioning
 // TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )

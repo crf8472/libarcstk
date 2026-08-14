@@ -20,152 +20,98 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc] [calculate]" )
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::TrackPartitioner;
+	using arcstk::AudioSize;
+	using arcstk::UNIT;
+	using arcstk::details::TrackPartitioner;
 
-	auto instance = TrackPartitioner {};
+	auto instance = TrackPartitioner {
+		{ /* use Bach, Organ Concertos, Simon Preston, DGG */
+			{     33 * 588, UNIT::SAMPLES },
+			{   5225 * 588, UNIT::SAMPLES },
+			{   7390 * 588, UNIT::SAMPLES },
+			{  23380 * 588, UNIT::SAMPLES },
+			{  35608 * 588, UNIT::SAMPLES },
+			{  49820 * 588, UNIT::SAMPLES },
+			{  69508 * 588, UNIT::SAMPLES },
+			{  87733 * 588, UNIT::SAMPLES },
+			{ 106333 * 588, UNIT::SAMPLES },
+			{ 139495 * 588, UNIT::SAMPLES },
+			{ 157863 * 588, UNIT::SAMPLES },
+			{ 198495 * 588, UNIT::SAMPLES },
+			{ 213368 * 588, UNIT::SAMPLES },
+			{ 225320 * 588, UNIT::SAMPLES },
+			{ 234103 * 588, UNIT::SAMPLES }
+		},
+		{ 253038 * 588, UNIT::SAMPLES },
+		{ /* accuraterip range */ 33 * 588 + 2939, 253038 * 588 - 2940 }
+	};
 
 
 	SECTION ("Parametized construction is correct")
 	{
-		FAIL ( "Parametized construction test is missing" );
+		CHECK ( instance.total_samples()       ==
+				AudioSize { 253038 * 588, UNIT::SAMPLES } );
+		CHECK ( instance.legal_range().lower() == 33 * 588 + 2939 );
+		CHECK ( instance.legal_range().upper() == 253038 * 588 - 2940 );
 	}
 
 	SECTION ("Copy construction is correct")
 	{
-		const TrackPartitioner copied { Copy<TrackPartitioner>::construct(instance) };
+		const TrackPartitioner copied {
+			Copy<TrackPartitioner>::construct(instance) };
 
 		// --
 
-        //CHECK ( copied.value() == instance.value() );
-        //CHECK ( copied.name()  == instance.name() );
-		FAIL ( "Copy construction test is missing" );
+		CHECK ( copied.total_samples() ==
+				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
 	SECTION ("Move construction is correct")
 	{
-		const TrackPartitioner moved { Move<TrackPartitioner>::construct(instance) };
+		const TrackPartitioner moved {
+			Move<TrackPartitioner>::construct(instance) };
 
 		// --
 
-        //CHECK ( moved.value() == instance.value() );
-        //CHECK ( moved.name()  == instance.name() );
-		FAIL ( "Move construction test is missing" );
+		CHECK ( moved.total_samples() ==
+				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
 	SECTION ("Copy assignment is correct")
 	{
-		auto copied = TrackPartitioner {};
+		auto copied = TrackPartitioner { /* empty */ {}, {}, {} };
 		Copy<TrackPartitioner>::assign(copied, instance);
 
 		// --
 
-        //CHECK ( copied.value() == instance.value() );
-        //CHECK ( copied.name()  == instance.name() );
-		FAIL ( "Copy assignment test is missing" );
+		CHECK ( copied.total_samples() ==
+				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
 	SECTION ("Move assignment is correct")
 	{
-		auto moved = TrackPartitioner {};
+		auto moved = TrackPartitioner { /* empty */ {}, {}, {} };
 		Move<TrackPartitioner>::assign(moved, instance);
 
 		// --
 
-        //CHECK ( moved.value() == instance.value() );
-        //CHECK ( moved.name()  == instance.name() );
-		FAIL ( "Move assignment test is missing" );
+		CHECK ( moved.total_samples() ==
+				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 }
 
-
-TEST_CASE ( "TrackPartitioner default constructed instance",
-		"[trackpartitioner] [calc] [calculate]" )
-{
-	const auto defaulted = arcstk::TrackPartitioner{};
-
-	SECTION ( "is empty()")
-	{
-		CHECK ( defaulted.empty() );
-	}
-
-	SECTION ( "converts to FALSE")
-	{
-		CHECK ( !defaulted );
-	}
-}
-
-
-TEST_CASE ( "TrackPartitioner property",
-		"[trackpartitioner] [calc] [calculate]" )
-{
-	using arcstk::TrackPartitioner;
-
-	auto instance = TrackPartitioner {};
-
-
-	SECTION ("Equality operator == is correct")
-	{
-		FAIL ( "Equality operator test is missing" );
-	}
-
-	SECTION ("Stream-in operator << is correct")
-	{
-		FAIL ( "Stream-in operator << test is missing" );
-	}
-
-	SECTION ("operator bool() is correct")
-	{
-		FAIL ( "operator bool() test is missing" );
-	}
-
-	SECTION ("swap() is correct")
-	{
-		FAIL ( "swap() test is missing" );
-	}
-
-	SECTION ("to_string() is correct")
-	{
-		FAIL ( "to_string() test is missing" );
-	}
-
-	SECTION ("clone() is correct")
-	{
-		FAIL ( "clone() test is missing" );
-	}
-
-	SECTION ("size() is correct")
-	{
-		FAIL ( "size() test is missing" );
-	}
-
-	SECTION ("empty() is correct")
-	{
-		FAIL ( "empty() test is missing" );
-	}
-}
-
-
-TEST_CASE ( "TrackPartitioner functions",
-		"[trackpartitioner] [calc] [calculate]" )
-{
-	using arcstk::TrackPartitioner;
-
-	auto instance = TrackPartitioner {};
-
-	SECTION ("do_create_partitioning() is correct")
-	{
-		FAIL ("do_create_partitioning() test is missing");
-	}
-
-	SECTION ("do_clone() is correct")
-	{
-		FAIL ("do_clone() test is missing");
-	}
-
-	SECTION ("TrackPartitioner() is correct")
-	{
-		FAIL ("TrackPartitioner() test is missing");
-	}
-
-}
+// TODO Implement function test
+// TEST_CASE ( "TrackPartitioner functions",
+// 		"[trackpartitioner] [calc] [calculate]" )
+// {
+// 	using arcstk::details::TrackPartitioner;
+//
+// 	auto instance = TrackPartitioner {};
+//
+//
+// 	SECTION ("create_partitioning() is correct")
+// 	{
+// 		FAIL ("do_create_partitioning() test is missing");
+// 	}
+// }
 

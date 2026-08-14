@@ -8,8 +8,11 @@
  */
 
 #include <cstdint>  // for int32_t
-#include <utility>  // for move
 #include <vector>   // for vector
+
+#ifndef LIBARCSTK_METADATA_HPP_
+#include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
+#endif
 
 namespace arcstk
 {
@@ -18,33 +21,54 @@ namespace testing
 namespace data
 {
 
-	const auto toc_1 = make_toc(
-		// leadout
-		253038,
-		// offsets
-		std::vector<int32_t>{ 33, 5225, 7390, 23380, 35608, 49820, 69508,
-					87733, 106333, 139495, 157863, 198495, 213368, 225320, 234103 }
-	);
+/**
+ * \brief Data set 1.
+ */
+namespace toc1
+{
+	/* Bach, Organ Concertos, Simon Preston, DGG */
 
-	const auto points = std::vector<int32_t> {
-		/* Bach, Organ Concertos, Simon Preston, DGG */
-		    33 * 588,
-		  5225 * 588,
-		  7390 * 588,
-		 23380 * 588,
-		 35608 * 588,
-		 49820 * 588,
-		 69508 * 588,
-		 87733 * 588,
-		106333 * 588,
-		139495 * 588,
-		157863 * 588,
-		198495 * 588,
-		213368 * 588,
-		225320 * 588,
-		234103 * 588
+	using arcstk::AudioSize;
+	using arcstk::UNIT;
+
+	const auto offsets = std::vector<int32_t> {
+		    33,
+		  5225,
+		  7390,
+		 23380,
+		 35608,
+		 49820,
+		 69508,
+		 87733,
+		106333,
+		139495,
+		157863,
+		198495,
+		213368,
+		225320,
+		234103
 	};
 
+	const auto leadout = int32_t { 253038 };
+
+	const auto points = std::vector<AudioSize> {
+		AudioSize {     33 * 588, UNIT::SAMPLES },
+		AudioSize {   5225 * 588, UNIT::SAMPLES },
+		AudioSize {   7390 * 588, UNIT::SAMPLES },
+		AudioSize {  23380 * 588, UNIT::SAMPLES },
+		AudioSize {  35608 * 588, UNIT::SAMPLES },
+		AudioSize {  49820 * 588, UNIT::SAMPLES },
+		AudioSize {  69508 * 588, UNIT::SAMPLES },
+		AudioSize {  87733 * 588, UNIT::SAMPLES },
+		AudioSize { 106333 * 588, UNIT::SAMPLES },
+		AudioSize { 139495 * 588, UNIT::SAMPLES },
+		AudioSize { 157863 * 588, UNIT::SAMPLES },
+		AudioSize { 198495 * 588, UNIT::SAMPLES },
+		AudioSize { 213368 * 588, UNIT::SAMPLES },
+		AudioSize { 225320 * 588, UNIT::SAMPLES },
+		AudioSize { 234103 * 588, UNIT::SAMPLES }
+	};
+} // namespace toc1
 
 } // namespace data
 } // namespace testing
