@@ -491,22 +491,22 @@ public:
 	/**
 	 * \copydoc SNPT_sm_copy_ctor
 	 */
-	Partitioner(const Partitioner& rhs) = default;
+	//Partitioner(const Partitioner& rhs) = default;
 
 	/**
 	 * \copydoc SNPT_sm_copy_op
 	 */
-	Partitioner& operator = (const Partitioner& rhs) = delete;
+	//Partitioner& operator = (const Partitioner& rhs) = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_ctor
 	 */
-	Partitioner(Partitioner&& rhs) noexcept = default;
+	//Partitioner(Partitioner&& rhs) noexcept = default;
 
 	/**
 	 * \copydoc SNPT_sm_move_op
 	 */
-	Partitioner& operator = (Partitioner&& rhs) noexcept = delete;
+	//Partitioner& operator = (Partitioner&& rhs) noexcept = default;
 
 	/**
 	 * \brief Generates partitioning of the range of samples.
@@ -617,6 +617,12 @@ public:
 	 */
 	TrackPartitioner(const Points& points, const AudioSize& total_samples,
 			const SampleRange& legal);
+
+	TrackPartitioner(const TrackPartitioner& rhs)                 = default;
+	TrackPartitioner& operator= (const TrackPartitioner& rhs)     = default;
+	TrackPartitioner(TrackPartitioner&& rhs) noexcept             = default;
+	TrackPartitioner& operator= (TrackPartitioner&& rhs) noexcept = default;
+	~TrackPartitioner() noexcept final                            = default;
 };
 
 /**
@@ -2262,7 +2268,7 @@ public:
 	 * Settings for ALBUM, AccurateRip v1 and v2.
 	 */
 	CalculationSetUpdater()
-		: CalculationSetUpdater { Settings{} }
+		: CalculationSetUpdater { Settings {} }
 	{
 		// empty
 	}
