@@ -29,8 +29,11 @@ extern "C" {
 #include <cstdlib>   // for EXIT_SUCCESS
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
+#include <limits>    // for numeric_limits
+#include <memory>    // for make_unique, unique_ptr
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
+#include <vector>    // for vector
 
 
 // ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
@@ -47,9 +50,9 @@ extern "C" {
  * This method is implemented without any use of libarcstk. It just has to be
  * available for parsing the Cuesheet.
  *
- * @param[in] cuefilename Name of the Cuesheet file to parse
+ * \param[in] cuefilename Name of the Cuesheet file to parse
  *
- * @return STL-like container with a size_type holding offsets
+ * \return STL-like container with a size_type holding offsets
  */
 auto get_offsets(const std::string &cuefilename) -> std::vector<int32_t>
 {

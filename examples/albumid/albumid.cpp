@@ -3,8 +3,6 @@
 // represented by a CueSheet and a single losslessly encoded audio file.
 //
 
-
-#include <limits>
 #ifndef LIBARCSTK_CALCULATE_HPP_  // libarcstk: calculate ARCSs
 #include "calculate.hpp"
 #endif
@@ -28,6 +26,8 @@ extern "C" {
 #include <cstdlib>   // for EXIT_SUCCESS
 #include <iomanip>   // for setw, setfill, hex
 #include <iostream>  // for cerr, cout
+#include <limits>    // for numeric_limits
+#include <memory>    // for make_unique
 #include <stdexcept> // for runtime_error
 #include <string>    // for string
 #include <vector>    // for vector

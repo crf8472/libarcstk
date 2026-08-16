@@ -4,13 +4,13 @@
 //
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"              // for Checksums
+#include "checksum.hpp"           // for Checksums
 #endif
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"                  // for DBAR
+#include "dbar.hpp"               // for DBAR
 #endif
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"            // for ARId
+#include "identifier.hpp"         // for ARId
 #endif
 #ifndef LIBARCSTK_LOGGING_HPP_    // libarcstk: log what you do
 #include "logging.hpp"
@@ -20,7 +20,7 @@
 #endif
 
 #include <algorithm> // for count
-#include <cstdint>   // for uint32_t etc.
+#include <cstdint>   // for uint16_t, uint32_t
 #include <cstdlib>   // for EXIT_SUCCESS
 #include <cstring>   // for strtok
 #include <iomanip>   // for setw, setfill, hex
@@ -76,7 +76,7 @@ arcstk::ARId parse_arid(const char* input_id)
 	const uint32_t id_2 = std::stoul(id_str.substr(13, 8), nullptr, 16);
 	const uint32_t cddb_id = std::stoul(id_str.substr(22, 8), nullptr, 16);
 
-	return arcstk::ARId(track_count, id_1, id_2, cddb_id);
+	return arcstk::ARId { track_count, id_1, id_2, cddb_id };
 }
 
 
@@ -96,8 +96,10 @@ arcstk::Checksums parse_input_arcs(const char* list,
 	const auto total_tracks { static_cast<std::size_t>(
 		1 + std::count(checksum_list.begin(), checksum_list.end(), ',')) };
 
-	std::string::size_type token_start { 0 };
-	std::string::size_type token_end   { checksum_list.find_first_of(',') };
+	using std::string;
+
+	string::size_type token_start { 0 };
+	string::size_type token_end   { checksum_list.find_first_of(',') };
 
 	auto prev_settings { std::cout.flags() };
 	std::cout << "My checksums to match:" << '\n';
