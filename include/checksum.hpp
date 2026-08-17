@@ -146,11 +146,6 @@ public:
 	using value_type = uint32_t;
 
 	/**
-	 * \brief Plattform dependent "fast" variant of the value type.
-	 */
-	using fast_type = uint_fast32_t;
-
-	/**
 	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
 	constexpr static std::size_t TOTAL_HEX_DIGITS = static_cast<std::size_t>(

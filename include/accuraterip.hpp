@@ -253,6 +253,18 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	 */
 	mutable uint_fast64_t update_ { 0 };
 
+	/**
+	 * \brief Provide subtotal for type ARCS2.
+	 *
+	 * \param[in] st Subtotals
+	 *
+	 * \return Subtotal for type ARCS2
+	 */
+	uint32_t subtotal_v2(const Subtotals& st) const
+	{
+		return st.subtotal_v1 + st.subtotal_v2;
+	}
+
 	using type = checksum::type;
 
 public:
@@ -280,9 +292,8 @@ public:
 		return {
 			track_size(st.multiplier),
 			{
-				{ type::ARCS1, Checksum { to_value(st.subtotal_v1) } },
-				{ type::ARCS2, Checksum { to_value(
-						st.subtotal_v1 + st.subtotal_v2) } },
+				{ type::ARCS1, Checksum { to_value(st.subtotal_v1)  } },
+				{ type::ARCS2, Checksum { to_value(subtotal_v2(st)) } },
 			}
 		};
 	}
@@ -345,7 +356,7 @@ public:
  */
 inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
 		const AudioSize& size, const Points& points)
-{
+{   // required inline since used in ARCSAlgorithm::do_range()
 	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
 
 	auto from = int32_t { 0 };
@@ -523,7 +534,7 @@ class ARCSAlgorithm final : public Algorithm
 	/**
 	 * \brief Non-virtual implementation of do_setup() for constructor.
 	 */
-	void do_setup_impl(const Context c)
+	void setup_impl(const Context c)
 	{
 		ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
 
@@ -540,7 +551,7 @@ class ARCSAlgorithm final : public Algorithm
 
 	void do_setup(const Context c) final
 	{
-		this->do_setup_impl(c);
+		this->setup_impl(c);
 	}
 
 	std::string do_name() const final
@@ -584,7 +595,7 @@ public:
 	explicit ARCSAlgorithm(const Context c)
 		: Algorithm { c }
 	{
-		this->do_setup_impl(c);
+		this->setup_impl(c);
 	}
 
 	/**
@@ -654,10 +665,11 @@ public:
 	 * \param[in] t       Track number (ignored)
 	 * \param[in] length  Track length as calculated
 	 */
-	void perform_finish_track(const int /*t*/, const AudioSize& length)
+	void perform_finish_track(const int /*t*/, const AudioSize& /*length*/)
 	{
 		current_result_ = state_.value();
-		current_result_.set_length(length);
+		//current_result_.set_length(length);
+		//Commented out: already done in Update<>::value(), not fixed by length
 
 		state_.reset();
 		state_.set_multiplier(1);

@@ -1042,7 +1042,7 @@ template <typename A, typename B, typename E>
 
 	// starts before legal range + ends after first physical sample
 	if (const auto first_phys_smpl = partitioner.points()[0].samples();
-			start_pos < partitioner.legal_range().lower()
+		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
 		const auto dist1 = first_phys_smpl - start_pos;

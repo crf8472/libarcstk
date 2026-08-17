@@ -162,7 +162,7 @@ struct CDDA final
 	 * \brief Two subsequenct offsets must have a distance of at least 300 LBA
 	 * frames.
 	 *
-	 * The CDDA conforming minimal track length is 4 seconcs including 2 seconds
+	 * The CDDA conforming minimal track length is 4 seconds including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
 	constexpr static int32_t MIN_TRACK_OFFSET_DIST { 300 };
@@ -171,7 +171,7 @@ struct CDDA final
 	 * \brief Minimal number of LBA frames a track contains is 150.
 	 *
 	 * The CDDA conforming minmal track length is 4 seconds including 2 seconds
-	 * pause but the pause does not contribute to the track lengths, thus
+	 * pause but the pause does not contribute to the track length, thus
 	 * 2 sec * 75 frames/sec == 150 frames.
 	 */
 	constexpr static int32_t MIN_TRACK_LEN_FRAMES { 150 };
