@@ -139,6 +139,35 @@ struct Subtotals final
 
 
 /**
+ * \brief Return Checksum value type.
+ *
+ * \param[in] v Subtotal
+ *
+ * \return Result as Checksum value
+ */
+inline Checksum::value_type to_value(const uint_fast32_t v)
+{
+	return static_cast<Checksum::value_type>(v);
+}
+
+
+/**
+ * \brief Convert multiplier to AudioSize.
+ *
+ * \param[in] m Multiplier to convert
+ *
+ * \return AudioSize of track
+ */
+inline AudioSize track_size(const uint_fast64_t m)
+{
+	using arcstk::UNIT;
+
+	// cast is save for valid input data
+	return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
+}
+
+
+/**
  * \brief Functor for performing the actual update.
  *
  * \tparam T1 First checksum type
@@ -152,6 +181,8 @@ struct Update;
 template <>
 struct Update<checksum::type::ARCS1>
 {
+	using type = checksum::type;
+
 	std::string id_string() const
 	{
 		return "v1";
@@ -170,8 +201,8 @@ struct Update<checksum::type::ARCS1>
 	ChecksumSet value(const Subtotals& st) const
 	{
 		return {
-			AudioSize {/* zero */},
-			{{ checksum::type::ARCS1, Checksum::from_fast(st.subtotal_v1) }}
+			track_size(st.multiplier),
+			{{ type::ARCS1, Checksum { to_value(st.subtotal_v1) } }}
 		};
 	}
 };
@@ -181,6 +212,8 @@ struct Update<checksum::type::ARCS1>
 template <>
 struct Update<checksum::type::ARCS2>
 {
+	using type = checksum::type;
+
 	std::string id_string() const
 	{
 		return "v2";
@@ -202,8 +235,8 @@ struct Update<checksum::type::ARCS2>
 	ChecksumSet value(const Subtotals& st) const
 	{
 		return {
-			AudioSize {/* zero */},
-			{{ checksum::type::ARCS2, Checksum::from_fast(st.subtotal_v2) }}
+			track_size(st.multiplier),
+			{{ type::ARCS2, Checksum { to_value(st.subtotal_v2) } }}
 		};
 	}
 };
@@ -213,6 +246,8 @@ struct Update<checksum::type::ARCS2>
 template <>
 struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 {
+	using type = checksum::type;
+
 	std::string id_string() const
 	{
 		return "v1+2";
@@ -233,11 +268,11 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	ChecksumSet value(const Subtotals& st) const
 	{
 		return {
-			AudioSize {/* zero */},
+			track_size(st.multiplier),
 			{
-				{ checksum::type::ARCS1, Checksum::from_fast(st.subtotal_v1) },
-				{ checksum::type::ARCS2, Checksum::from_fast(
-											st.subtotal_v1 + st.subtotal_v2) },
+				{ type::ARCS1, Checksum { to_value(st.subtotal_v1) } },
+				{ type::ARCS2, Checksum { to_value(
+						st.subtotal_v1 + st.subtotal_v2) } },
 			}
 		};
 	}
@@ -299,7 +334,7 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
  * \return Input range of 1-based sample indices to use for calculation
  */
 inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
-		const AudioSize& size, const Points& points)  // TODO why inline?
+		const AudioSize& size, const Points& points)
 {
 	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
 
@@ -549,6 +584,24 @@ public:
 	~ARCSAlgorithm() final = default;
 
 	/**
+	 * \brief Pass samples coming before the actual range of the algorithm.
+	 *
+	 * Implements Algorithm::pre_range().
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the sample sequence
+	 * \tparam E Type of iterator pointing to the end   of the sample sequence
+	 *
+	 * \param[in] start Iterator pointing to the begin of the sample sequence
+	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 */
+	template <class B, class E>
+	void perform_pre_range(B /* start */, E /* stop */)
+	{
+			//this->skip(start, stop, pre_);
+			//ARCS_LOG(DEBUG3) << "Pre-sum is: " << pre_;
+	}
+
+	/**
 	 * \brief Update the instance by a sequence of samples.
 	 *
 	 * \tparam B Type of the begin iterator
@@ -566,6 +619,24 @@ public:
 
 		ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
 		// -1 because multiplier_ has already been updated to next input
+	}
+
+	/**
+	 * \brief Pass samples coming after the actual range of the algorithm.
+	 *
+	 * Implements Algorithm::post_range().
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the sample sequence
+	 * \tparam E Type of iterator pointing to the end   of the sample sequence
+	 *
+	 * \param[in] start Iterator pointing to the begin of the sample sequence
+	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 */
+	template <class B, class E>
+	void perform_post_range(B /* start */, E /* stop */)
+	{
+			//this->skip(start, stop, post_);
+			//ARCS_LOG(DEBUG3) << "Post-sum is: " << post_;
 	}
 
 	/**

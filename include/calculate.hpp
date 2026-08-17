@@ -1049,11 +1049,36 @@ template <typename A, typename B, typename E>
 
 	const auto [ start_pos, last_pos ] = positions(samples_in_block, state);
 
+	// starts before legal range + ends after first physical sample
+	if (const auto first_phys_smpl = partitioner.points()[0].samples();
+			start_pos < partitioner.legal_range().lower()
+			&& last_pos >= first_phys_smpl)
+	{
+		const auto dist1 = first_phys_smpl - start_pos;
+		const auto diff  = partitioner.legal_range().lower() - start_pos;
+		const auto dist2 = std::min(diff, last_pos - start_pos - 1);
+
+		ARCS_LOG(DEBUG2) << "Samples "
+			<< start_pos
+			<< " - "
+			<< start_pos + dist1 - 1
+			<< " are ignored";
+
+		ARCS_LOG(DEBUG2) << "Samples "
+			<< start_pos + dist1
+			<< " - "
+			<< start_pos + dist2 - 1
+			<< " do not contribute to current checksum";
+
+		updateable.pre_range(start + dist1, start + dist2);
+	}
+
 	const auto partitioning { partitioner.create_partitioning(
 			start_pos, samples_in_block) };
 
 	if (partitioning.empty())
 	{
+		// TODO This is not actually allowed. Throw?
 		return complete_after_skip_block(samples_in_block, partitioner, state);
 	} else
 	{
@@ -1085,6 +1110,24 @@ template <typename A, typename B, typename E>
 
 			complete_track(updateable, result_buffer, state);
 		}
+	}
+
+	// starts after legal range and ends on last audio sample
+	if (state.current_offset() > partitioner.legal_range().upper()
+			&& state.current_offset() < partitioner.total_samples().samples())
+	{
+		const auto diff = partitioner.total_samples().samples()
+			- state.current_offset();
+		const auto dist = std::min(diff, last_pos - state.current_offset());
+
+		ARCS_LOG(DEBUG2) << "Samples "
+			<< state.current_offset()
+			<< " - "
+			<< state.current_offset() + dist
+			<< " do not contribute to current checksum";
+
+		updateable.post_range(start + (state.current_offset() - start_pos),
+				start + (state.current_offset() - start_pos) + dist);
 	}
 
 	/* Return TRUE iff the last relevant sample was in the current block. */

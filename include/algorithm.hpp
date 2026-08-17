@@ -422,6 +422,21 @@ public:
 	}
 
 	/**
+	 * \brief Pass samples coming before the actual range of the algorithm.
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the sample sequence
+	 * \tparam E Type of iterator pointing to the end   of the sample sequence
+	 *
+	 * \param[in] start Iterator pointing to the begin of the sample sequence
+	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 */
+	template <typename B, typename E>
+	void pre_range(B start, E stop)
+	{
+		algorithm_->perform_pre_range(start, stop);
+	}
+
+	/**
 	 * \brief Update the instance.
 	 *
 	 * \tparam B Type of iterator pointing to the begin of the update sequence
@@ -436,6 +451,21 @@ public:
 		// An Algorithm must implement template<> perform_update() to be
 		// coverable as an Updateable.
 		algorithm_->perform_update(start, stop);
+	}
+
+	/**
+	 * \brief Pass samples coming after the actual range of the algorithm.
+	 *
+	 * \tparam B Type of iterator pointing to the begin of the sample sequence
+	 * \tparam E Type of iterator pointing to the end   of the sample sequence
+	 *
+	 * \param[in] start Iterator pointing to the begin of the sample sequence
+	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 */
+	template <typename B, typename E>
+	void post_range(B start, E stop)
+	{
+		algorithm_->perform_post_range(start, stop);
 	}
 
 	/**

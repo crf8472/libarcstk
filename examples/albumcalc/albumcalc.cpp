@@ -133,8 +133,8 @@ int main(int argc, char* argv[])
 			std::make_unique<arcstk::Appender>("stdout", stdout));
 
 	// 'INFO' means you should probably not see anything unless you give
-	// libarcstk unexpected input.  Try 'DEBUG' or 'DEBUG1' if you want to
-	// see more about what libarcstk is doing with your input.
+	// libarcstk unexpected input.  Try 'DEBUG' or 'DEBUG1' (up to 'DEBUG4') if
+	// you want to see more about what libarcstk is doing with your input.
 	arcstk::Logging::instance().set_level(arcstk::LOGLEVEL::INFO);
 
 	// Define input block size in number of samples, where 'sample' means a

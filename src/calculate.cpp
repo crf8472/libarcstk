@@ -538,13 +538,13 @@ namespace update
 std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
 		CalculationState& state)
 {
-	const auto start_pos { state.current_offset() };
-	const auto last_pos  { start_pos + am2ind(samples_in_block) };
+	const auto first_pos { state.current_offset() };
+	const auto last_pos  { first_pos + am2ind(samples_in_block) };
 
-	ARCS_LOG(DEBUG1) << "Offsets: " << start_pos << " - " << last_pos;
+	ARCS_LOG(DEBUG1) << "Offsets: " << first_pos << " - " << last_pos;
 	ARCS_LOG(DEBUG1) << "Size:    " << samples_in_block   << " samples";
 
-	return { start_pos, last_pos };
+	return { first_pos, last_pos };
 }
 
 
