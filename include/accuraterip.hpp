@@ -109,11 +109,6 @@ struct Subtotals final
 	uint_fast64_t multiplier  { 1 };
 
 	/**
-	 * \brief Current update factor.
-	 */
-	uint_fast64_t update      { 0 };
-
-	/**
 	 * \brief Current subtotal for ARCSv1.
 	 */
 	uint_fast32_t subtotal_v1 { 0 };
@@ -131,7 +126,6 @@ struct Subtotals final
 		using std::swap;
 
 		swap(lhs.multiplier,  rhs.multiplier);
-		swap(lhs.update,      rhs.update);
 		swap(lhs.subtotal_v1, rhs.subtotal_v1);
 		swap(lhs.subtotal_v2, rhs.subtotal_v2);
 	}
@@ -174,14 +168,16 @@ inline AudioSize track_size(const uint_fast64_t m)
  * \tparam T2 More checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-struct Update;
+class Update;
 
 
 // AccurateRip v1
 template <>
-struct Update<checksum::type::ARCS1>
+class Update<checksum::type::ARCS1>
 {
 	using type = checksum::type;
+
+public:
 
 	std::string id_string() const
 	{
@@ -210,9 +206,16 @@ struct Update<checksum::type::ARCS1>
 
 // AccurateRip v2
 template <>
-struct Update<checksum::type::ARCS2>
+class Update<checksum::type::ARCS2>
 {
+	/**
+	 * \brief Current update factor.
+	 */
+	mutable uint_fast64_t update_ { 0 };
+
 	using type = checksum::type;
+
+public:
 
 	std::string id_string() const
 	{
@@ -225,10 +228,9 @@ struct Update<checksum::type::ARCS2>
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
-			st.update = st.multiplier * (*pos);
+			update_ = st.multiplier * (*pos);
 
-			st.subtotal_v2 +=
-				(st.update & LOWER_32_BITS_) + (st.update >> 32u);
+			st.subtotal_v2 += (update_ & LOWER_32_BITS_) + (update_ >> 32u);
 		}
 	}
 
@@ -244,9 +246,16 @@ struct Update<checksum::type::ARCS2>
 
 // AccurateRip v1+2
 template <>
-struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
+class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 {
+	/**
+	 * \brief Current update factor.
+	 */
+	mutable uint_fast64_t update_ { 0 };
+
 	using type = checksum::type;
+
+public:
 
 	std::string id_string() const
 	{
@@ -259,9 +268,10 @@ struct Update<checksum::type::ARCS1, checksum::type::ARCS2>
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
-			st.update       = st.multiplier * (*pos);
-			st.subtotal_v1 += st.update & LOWER_32_BITS_;
-			st.subtotal_v2 += (st.update >> 32u);
+			update_ = st.multiplier * (*pos);
+
+			st.subtotal_v1 += update_ & LOWER_32_BITS_;
+			st.subtotal_v2 += (update_ >> 32u);
 		}
 	}
 
@@ -445,7 +455,6 @@ public:
 	 */
 	void reset()
 	{
-		st_.update      = 0;
 		st_.subtotal_v1 = 0;
 		st_.subtotal_v2 = 0;
 	}
@@ -597,8 +606,7 @@ public:
 	template <class B, class E>
 	void perform_pre_range(B /* start */, E /* stop */)
 	{
-			//this->skip(start, stop, pre_);
-			//ARCS_LOG(DEBUG3) << "Pre-sum is: " << pre_;
+		//this->skip(start, stop, pre_);
 	}
 
 	/**
@@ -635,8 +643,7 @@ public:
 	template <class B, class E>
 	void perform_post_range(B /* start */, E /* stop */)
 	{
-			//this->skip(start, stop, post_);
-			//ARCS_LOG(DEBUG3) << "Post-sum is: " << post_;
+		//this->skip(start, stop, post_);
 	}
 
 	/**
