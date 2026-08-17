@@ -560,15 +560,6 @@ public:
 
 private:
 
-	/**
-	 * \brief Implements Partitioner::create_partitioning() with a ToC.
-	 *
-	 * \param[in] current_interval Interval to build partitions from
-	 * \param[in] legal_range      Legal interval to process
-	 * \param[in] points           Splitting points
-	 *
-	 * \return Partitioning of \c samples as a sequence of partitions.
-	 */
 	virtual Partitioning do_create_partitioning(
 		const SampleRange& current_interval,
 		const SampleRange& legal_range,

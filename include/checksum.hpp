@@ -230,15 +230,6 @@ public:
 	std::string to_string() const;
 
 	/**
-	 * \brief Convert from fast_type to value_type.
-	 *
-	 * \param[in] fast_value Value to be converted
-	 *
-	 * \return Checksum instance representing \c fast_value
-	 */
-	static Checksum from_fast(fast_type fast_value) noexcept;
-
-	/**
 	 * \copydoc SNPT_nf_stream_in
 	 */
 	friend std::ostream& operator << (std::ostream& out, const Checksum& i)

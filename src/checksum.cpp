@@ -371,12 +371,6 @@ std::string ChecksumSet::to_string() const
 }
 
 
-Checksum Checksum::from_fast(fast_type f) noexcept
-{
-    return Checksum(static_cast<value_type>(f));
-}
-
-
 std::ostream& operator << (std::ostream& out, const ChecksumSet& set)
 {
 	if (!out.good())
