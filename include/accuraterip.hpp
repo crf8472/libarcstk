@@ -198,31 +198,6 @@ struct AccessSt
 		// cast is save for valid input data
 		return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
 	}
-
-	/**
-	 * \brief Array index for the first k > 0 samples.
-	 *
-	 * \param[in] k Drive offset
-	 *
-	 * \return Index of the first k samples value
-	 */
-	static std::size_t idx_front(const int k)
-	{
-		return static_cast<std::size_t>(std::abs(k));
-	}
-
-	/**
-	 * \brief Array index for accessing value for the last <tt>k > 0</tt>
-	 * samples.
-	 *
-	 * \param[in] k Drive offset
-	 *
-	 * \return Index of the k last samples value
-	 */
-	static std::size_t idx_back(const int k)
-	{
-		return 5879u - static_cast<std::size_t>(std::abs(k)) + 1;
-	}
 };
 
 
@@ -345,7 +320,7 @@ inline const uint_fast32_t& cs_sum(const std::size_t i, const Subtotals& st)
 	static constexpr uint_fast32_t ZERO = 0;
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return (i) ? st.sums[i] : ZERO;
+	return (i == 0 || i > 5879u) ? ZERO : st.sums[i];
 }
 
 
@@ -1124,9 +1099,9 @@ class ARCSAlgorithm final : public Algorithm
 			ssum  -= cs_sum(k_abs, st);
 			factor = -factor;
 
-			if (t == tracks_.size() - 1 - 1) // last
+			if (t == this->total_tracks() - 1) // last
 			{
-				// for k == 2940, second call of last() gets 0
+				// for k == 2940, second factors impose under- and overflow
 				a_wsum   = last<TYPE>(2940, st) - last<TYPE>(2940 - k_abs, st);
 				a_ssum   = cs_sum(2940, st) - cs_sum(2940 + k_abs, st);
 				a_factor = -k;
@@ -1210,7 +1185,7 @@ class ARCSAlgorithm final : public Algorithm
 
 	std::size_t do_total_tracks() const final
 	{
-		return tracks_.size();
+		return tracks_.size() - 1;
 	}
 
 	ChecksumSet do_track(const TrackNo t, const int k) const final
