@@ -147,10 +147,12 @@ SampleRange Partitioner::legal_range() const noexcept
 }
 
 
-AudioSize Partitioner::length(const TrackNo t) const
+AudioSize Partitioner::length(const TrackNo track_no) const
 {
-	return { points_[static_cast<std::size_t>(t)].bytes()
-		- points_[static_cast<std::size_t>(t - 1)].bytes(), UNIT::BYTES };
+	const auto t = static_cast<std::size_t>(track_no);
+	const auto next = (t == points_.size()) ? total_samples_ : points_[t];
+
+	return { next.bytes() - points_[(t - 1)].bytes(), UNIT::BYTES };
 }
 
 
