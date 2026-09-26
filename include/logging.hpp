@@ -666,9 +666,9 @@ inline std::string now_time()
 // * This is a compile-time constant, so the optimizer recognizes the comparison
 // * and eliminates code via dead-code elimination.
 // */
-//#ifndef CLIP_LOGGING_LEVEL
-//#    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
-//#endif
+//#: ifndef CLIP_LOGGING_LEVEL
+//#:    define CLIP_LOGGING_LEVEL arcstk::LOGLEVEL::DEBUG4
+//#: endif
 
 /**
  * \brief Send error message to log.

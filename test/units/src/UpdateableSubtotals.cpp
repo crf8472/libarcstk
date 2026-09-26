@@ -112,7 +112,11 @@ TEST_CASE ( "UpdateableSubtotals property",
 	auto u1 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 	REQUIRE (u1.multiplier() == 1);
 
-	u1.update(cbegin(data), cend(data));
+	u1.update(cbegin(data), cend(data), 12);
+
+	// REQUIRE ( u1.subtotal_v1(0)     == 650 );
+	// REQUIRE ( u1.subtotal_v2(0)     == 0 );
+	// REQUIRE ( u1.sum_accumulated(0) == 78 );
 
 	auto u2 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 
@@ -133,8 +137,11 @@ TEST_CASE ( "UpdateableSubtotals property",
 
 	SECTION ("swap() is correct")
 	{
-		REQUIRE ( u1.value().get(type::ARCS2).first.value() == 650 );
-		REQUIRE ( u2.value().get(type::ARCS2).first.value() ==   0 );
+		// REQUIRE ( u1.value().get(type::ARCS2).first.value() == 650 );
+		// REQUIRE ( u2.value().get(type::ARCS2).first.value() ==   0 );
+
+		REQUIRE ( u1.value<type::ARCS2>() == 650 );
+		REQUIRE ( u2.value<type::ARCS2>() ==   0 );
 
 		using std::swap;
 		swap(u1, u2);
@@ -142,8 +149,11 @@ TEST_CASE ( "UpdateableSubtotals property",
 		// --
 
 		// TODO More CHECKs
-		CHECK ( u1.value().get(type::ARCS2).first.value() ==   0 );
-		CHECK ( u2.value().get(type::ARCS2).first.value() == 650 );
+		// CHECK ( u1.value().get(type::ARCS2).first.value() ==   0 );
+		// CHECK ( u2.value().get(type::ARCS2).first.value() == 650 );
+
+		CHECK ( u1.value<type::ARCS2>() ==   0 );
+		CHECK ( u2.value<type::ARCS2>() == 650 );
 	}
 
 	// SECTION ("to_string() is correct")

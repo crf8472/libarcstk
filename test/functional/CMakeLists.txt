@@ -8,3 +8,7 @@ add_test_suite (libarcstk_functional
 	LABEL "functional"
 	TIMEOUT 10 )
 
+target_include_directories (libarcstk_functional_tests
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+

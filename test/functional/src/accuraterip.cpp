@@ -30,6 +30,8 @@
 #include "samples.hpp"            // for csample_t
 #endif
 
+#include "ref_data.hpp"           // for standard_data
+
 
 TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 {
@@ -38,17 +40,14 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 	using arcstk::csample_t;
 	using arcstk::Updateable;
 
-	using ARv1 = arcstk::accuraterip::algorithm::Version1;
-
 	// fits calculation-test-01.bin
 	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		//auto algo = arcstk::accuraterip::algorithm::Version1{};
-		//REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
+		auto algo = Updateable<arcstk::accuraterip::algorithm::Version1>{};
 
-		auto algo = Updateable<ARv1>{};
+		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
 
 		// Initialize Buffer
 
@@ -85,7 +84,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				algo.update(buffer.begin(), buffer.end());
+				algo.update(buffer.begin(), buffer.end(), 80000);
 			} catch (...)
 			{
 				in.close();
@@ -107,17 +106,15 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		algo.update(buffer.begin(), buffer.end());
-		algo.finish_track(1, AudioSize{});
+		algo.update(buffer.cbegin(), buffer.cend(), 36608);
+		algo.finalize_track(1, AudioSize{ 36608, arcstk::UNIT::SAMPLES });
 
-		//CHECK ( calculation.complete() );
-
-		auto checksums { algo.result() };
+		auto checksums { algo.track(1) };
 
 		// Only track with correct ARCSs
 
 		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( (checksums.get(type::ARCS1).first).equals_value(0x8FE8D29B) );
+		CHECK ( (checksums.get(type::ARCS1).first.value()) == 0x8FE8D29B );
 	}
 
 
@@ -163,7 +160,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end());
+				state.update(buffer.begin(), buffer.end(), 80000);
 			} catch (...)
 			{
 				in.close();
@@ -185,16 +182,11 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end());
-
-		//CHECK ( calculation.complete() );
-
-		auto checksums { state.value() };
+		state.update(buffer.begin(), buffer.end(), 36608);
 
 		// Only track with correct ARCSs
 
-		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( (checksums.get(type::ARCS2).first).equals_value(0xD15BB487) );
+		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
 	}
 
 
@@ -241,7 +233,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end());
+				state.update(buffer.begin(), buffer.end(), 80000);
 			} catch (...)
 			{
 				in.close();
@@ -263,17 +255,12 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end());
-
-		//CHECK ( calculation.complete() );
-
-		auto checksums { state.value() };
+		state.update(buffer.begin(), buffer.end(), 36608);
 
 		// Only track with correct ARCSs
 
-		CHECK ( checksums.size() == 2 /* types */ );
-		CHECK ( (checksums.get(type::ARCS2).first).equals_value(0xD15BB487) );
-		CHECK ( (checksums.get(type::ARCS1).first).equals_value(0x8FE8D29B) );
+		CHECK ( state.value<type::ARCS1>() == 0x8FE8D29B );
+		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
 	}
 
 
@@ -321,7 +308,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end());
+				state.update(buffer.begin(), buffer.end(), 80000);
 			} catch (...)
 			{
 				in.close();
@@ -343,18 +330,442 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end());
-
-		//CHECK ( calculation.complete() );
-
-		auto checksums { state.value() };
+		state.update(buffer.begin(), buffer.end(), 36608);
 
 		// Only track with correct ARCSs
 
-		CHECK ( checksums.size() == 2 );
-		CHECK ( 0xD15BB487 == (checksums.get(type::ARCS2)).first.value() );
-		CHECK ( 0x8FE8D29B == (checksums.get(type::ARCS1)).first.value() );
+		CHECK ( state.value<type::ARCS1>() == 0x8FE8D29B );
+		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
 	}
+}
+
+
+TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
+{
+	using arcstk::AudioSize;
+	using arcstk::checksum::type;
+	using arcstk::csample_t;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
+	using arcstk::Updateable;
+
+	using arcstk::testing::data::standard_data;
+
+	using std::cbegin;
+	using std::cend;
+
+	const auto sdata = standard_data(3052896);
+	// length of Bach, Organ Concertos, Track 1
+
+	REQUIRE ( sdata[      0] ==       1 );
+	REQUIRE ( sdata[3052895] == 3052896 );
+
+	REQUIRE ( *cbegin(sdata) == 1 );
+	REQUIRE ( *cbegin(sdata) + 2939 - 1 == 2939 );
+
+	// 3049957
+	REQUIRE ( *(cbegin(sdata) + (3052896 - 2940)) == 3052896 - 2940 + 1 );
+	REQUIRE ( *(cend(sdata) - 1) == 3052896 );
+
+	// for convenience: extract ARCSv1 from ChecksumSet
+	const auto checksum_value = [](const ChecksumSet& s)
+		-> Checksum::value_type
+	{
+		return s.get(type::ARCS1).first.value();
+	};
+
+	SECTION ("Trying to shift by k < -2939 throws")
+	{
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+		v1.update(cbegin(sdata), cend(sdata), 3052896);
+		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		CHECK_THROWS ( checksum_value(v1.track(1, -2940)) );
+	}
+
+	SECTION ("Trying to shift by k > 2940 throws")
+	{
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+		v1.update(cbegin(sdata), cend(sdata), 3052896);
+		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		CHECK_THROWS ( checksum_value(v1.track(1, 2941)) );
+	}
+
+	SECTION ("Shift inner track by k > 0 with ARCSv1")
+	{
+		const auto track2 = standard_data(3000, 3052897);
+
+		REQUIRE ( track2[0] == 3052897 );
+		REQUIRE ( track2[1] == 3052898 );
+		REQUIRE ( track2[2] == 3052899 );
+		REQUIRE ( track2.size() == 3000 );
+
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		// v1.start_track()
+		v1.update(cbegin(sdata), cend(sdata), 3052896);
+		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		// v1.start_track()
+		v1.update(cbegin(track2), cend(track2), 3000);
+		v1.finalize_track(2, AudioSize { 3000, arcstk::UNIT::SAMPLES });
+
+		REQUIRE ( checksum_value(v1.track(1)) == 0x2434B590 );
+
+		// Reproduce checksum manually:
+
+		auto cs = uint32_t { 1 };
+		auto arcs_v1_track = uint32_t { 0 };
+		for (uint64_t i = 1; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_track == 0x2434B590 ); /* Checksum is correct */
+
+
+		/* Reproduce shifted checksum arithmetically */
+
+		// first, calculate simple sum of remaining part (4 to 3052896)
+		auto sum = uint32_t { 0 };
+		for (uint32_t i = 4; i <= 3052896; ++i)
+		{
+			sum += i & 0xFFFFFFFF;
+		}
+
+		REQUIRE ( sum == 49003690 );
+
+		const auto shifted_checksum = (0x2434B590
+			- (1 * 1) - (2 * 2) - (3 * 3)) - 3 * sum
+			+ (3052894 * 3052897u & 0xFFFFFFFF)
+			+ (3052895 * 3052898u & 0xFFFFFFFF)
+			+ (3052896 * 3052899u & 0xFFFFFFFF);
+
+		REQUIRE ( shifted_checksum == 0x2CF7EBA0 );
+
+
+		/* Reproduce shifted checksum manually */
+
+		auto arcs_v1_3_track = uint32_t { 0 };
+		cs = 4;
+		for (uint64_t i = 1; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_3_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_3_track == 0x2CF7EBA0 );
+
+
+		/* Verify that both shifting methods lead to equivalent results */
+
+		REQUIRE ( arcs_v1_3_track == shifted_checksum ); // == 754445216
+
+
+		CHECK ( checksum_value(v1.track(1, 3)) == 0x2CF7EBA0 );
+
+		// More k > 0 ...
+		CHECK ( checksum_value(v1.track(1,    1)) == 0x27207240 );
+		CHECK ( checksum_value(v1.track(1,    2)) == 0x2A0C2EF0 );
+		CHECK ( checksum_value(v1.track(1,    3)) == 0x2CF7EBA0 );
+		CHECK ( checksum_value(v1.track(1,    4)) == 0x2FE3A850 );
+		CHECK ( checksum_value(v1.track(1,    5)) == 0x32CF6500 );
+		// ...
+		CHECK ( checksum_value(v1.track(1, 2936)) == 0xA3D0B810 );
+		CHECK ( checksum_value(v1.track(1, 2937)) == 0xA6BC74C0 );
+		CHECK ( checksum_value(v1.track(1, 2938)) == 0xA9A83170 );
+		CHECK ( checksum_value(v1.track(1, 2939)) == 0xAC93EE20 );
+		CHECK ( checksum_value(v1.track(1, 2940)) == 0x98E9C050 );
+	}
+
+	SECTION ("Shift last track by k > 0 with ARCSv1")
+	{
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		REQUIRE ( v1.total_tracks() == 1 );
+
+		// Consider sdata as a last track without the trailing 2940 samples
+		v1.start_track(1, AudioSize { 3052896 - 2940, arcstk::UNIT::SAMPLES });
+		v1.update(cbegin(sdata), cbegin(sdata) + (3052896 - 2940),
+				3052896 - 2940);
+		v1.post_range(cbegin(sdata) + (3052896 - 2940), cend(sdata));
+		v1.finalize_track(1,
+				AudioSize { 3052896 - 2940, arcstk::UNIT::SAMPLES });
+
+		REQUIRE ( v1.total_tracks() == 2 );
+		REQUIRE ( checksum_value(v1.track(1)) == 0x050E83EE );
+
+		/* Reproduce checksum manually */
+
+		auto arcs_v1_track = uint32_t { 0 };
+		auto cs = uint32_t { 1 };
+		for (uint64_t i = 1; i <= 3052896 - 2940; ++i, ++cs)
+		{
+			arcs_v1_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_track == 0x050E83EE ); /* Checksum is correct */
+
+
+		/* Reproduce shifted checksum arithmetically */
+
+		// shift with k = 3 ("forward by 3"):
+
+		auto shifted_checksum = arcs_v1_track - (1 * 1) - (2 * 2) - (3 * 3);
+		// shift the remaining part
+
+		// first, calculate simple sum of remaining part (4 - 3052896)
+		auto sum = uint32_t { 0 };
+		for (uint32_t i = 4; i <= 3052896 - 2940; ++i)
+		{
+			sum += i & 0xFFFFFFFF;
+		}
+
+		REQUIRE ( sum == 3962711668 );
+
+		shifted_checksum = shifted_checksum - 3 * sum;
+		// Now, 1*4 is the start while 3052893 * 3052896 is the end
+
+		// add next 3 samples
+		// those are the 2940-last, 2941-last and 2942-last samples
+		shifted_checksum += (3049954 * 3049957u & 0xFFFFFFFF)
+			+ (3049955 * 3049958u & 0xFFFFFFFF)
+			+ (3049956 * 3049959u & 0xFFFFFFFF);
+
+		REQUIRE ( shifted_checksum == 0xC9A50F5C );
+
+
+		/* Reproduce shifted checksum manually */
+
+		auto arcs_v1_3_track = uint32_t { 0 };
+		cs = 4;
+		for (uint64_t i = 1; i <= 3052896 - 2940; ++i, ++cs)
+		{
+			arcs_v1_3_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_3_track == 0xC9A50F5C );
+
+		using arcstk::testing::data::arcs1_over_standard_data;
+		REQUIRE ( arcs1_over_standard_data(4, 3052896 - 2940) == 0xC9A50F5C );
+
+
+		CHECK ( checksum_value(v1.track(1, 3)) == 0xC9A50F5C );
+
+		// More k > 0 ...
+		CHECK ( checksum_value(v1.track(1,    1)) == 0xF140B268 );
+		CHECK ( checksum_value(v1.track(1,    2)) == 0xDD72E0E2 );
+		CHECK ( checksum_value(v1.track(1,    3)) == 0xC9A50F5C );
+		CHECK ( checksum_value(v1.track(1,    4)) == 0xB5D73DD6 );
+		CHECK ( checksum_value(v1.track(1,    5)) == 0xA2096C50 );
+		// ...
+		CHECK ( checksum_value(v1.track(1, 2936)) == 0xE4938B1E );
+		CHECK ( checksum_value(v1.track(1, 2937)) == 0xD0C5B998 );
+		CHECK ( checksum_value(v1.track(1, 2938)) == 0xBCF7E812 );
+		CHECK ( checksum_value(v1.track(1, 2939)) == 0xA92A168C );
+		CHECK ( checksum_value(v1.track(1, 2940)) == 0x8BBC48D2 );
+	}
+
+	SECTION ("Shift inner track by k < 0 with ARCSv1")
+	{
+		using arcstk::testing::data::arcs1_over_standard_data;
+
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		REQUIRE ( v1.total_tracks() == 1 );
+
+		// Consider sdata as a last track without the trailing 2940 samples
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+		v1.update(cbegin(sdata), cend(sdata), 3052896);
+		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		v1.start_track(2, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+		v1.update(cbegin(sdata), cend(sdata), 3052896);
+		v1.finalize_track(2, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		REQUIRE ( v1.total_tracks() == 3 );
+		REQUIRE ( checksum_value(v1.track(2)) == 0x2434B590 );
+
+		/* Reproduce shifted checksum arithmetically */
+
+		auto sum = uint32_t { 0 };
+		for (uint64_t i = 1; i <= (3052896 - 3); ++i)
+		{
+			sum += i & 0xFFFFFFFF;
+		}
+
+		const auto arcs_v1_shifted = ((0x2434B590
+			- (3052894 * 3052894u & 0xFFFFFFFF)
+			- (3052895 * 3052895u & 0xFFFFFFFF)
+			- (3052896 * 3052896u & 0xFFFFFFFF)) + 3 * sum)
+			+ (1 * 3052894 & 0xFFFFFFFF)
+			+ (2 * 3052895 & 0xFFFFFFFF)
+			+ (3 * 3052896 & 0xFFFFFFFF);
+
+		REQUIRE ( arcs_v1_shifted == 0x1C88FFC0 );
+
+		/* Reproduce shifted checksum manually */
+
+		auto arcs_v1_3_track = uint32_t { 0 };
+
+		auto cs = uint32_t { 1 };
+		for (uint64_t i = (1 + 3); i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_3_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_3_track == 0x1B717F84 );
+
+		arcs_v1_3_track += (1 * 3052894 & 0xFFFFFFFF);
+		arcs_v1_3_track += (2 * 3052895 & 0xFFFFFFFF);
+		arcs_v1_3_track += (3 * 3052896 & 0xFFFFFFFF);
+
+		REQUIRE ( arcs_v1_3_track == 0x1C88FFC0 );
+
+		//
+
+		CHECK ( checksum_value(v1.track(2, -3)) == 0x1C88FFC0 );
+
+		// More k < 0 ...
+		CHECK ( checksum_value(v1.track(1,    -1)) == 0x21ccd174 );
+		CHECK ( checksum_value(v1.track(1,    -2)) == 0x1f64ed58 );
+		CHECK ( checksum_value(v1.track(1,    -3)) == 0x1cfd093c );
+
+		CHECK ( checksum_value(v1.track(2,    -1)) == 0x21778E40 );
+		CHECK ( checksum_value(v1.track(2,    -2)) == 0x1EE8FC50 );
+		CHECK ( checksum_value(v1.track(2,    -3)) == 0x1C88FFC0 );
+		CHECK ( checksum_value(v1.track(2,    -4)) == 0x1A579890 );
+		CHECK ( checksum_value(v1.track(2,    -5)) == 0x1854C6C0 );
+		// ...
+		CHECK ( checksum_value(v1.track(2, -2935)) == 0x39F40940 );
+		CHECK ( checksum_value(v1.track(2, -2936)) == 0x4D497190 );
+		CHECK ( checksum_value(v1.track(2, -2937)) == 0x60CD6F40 );
+		CHECK ( checksum_value(v1.track(2, -2938)) == 0x74800250 );
+		CHECK ( checksum_value(v1.track(2, -2939)) == 0x88612AC0 );
+	}
+
+	SECTION ("Shift first track by k < 0 with ARCSv1")
+	{
+		using arcstk::testing::data::arcs1_over_standard_data;
+
+		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		REQUIRE ( v1.total_tracks() == 1 );
+
+		// Consider sdata as a last track without the trailing 2940 samples
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+		v1.pre_range(cbegin(sdata), cbegin(sdata) + 2939);
+		v1.update(cbegin(sdata) + 2939, cend(sdata), 3052896 - 2939);
+		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
+
+		REQUIRE ( v1.total_tracks() == 2 );
+		REQUIRE ( checksum_value(v1.track(1)) == 0x2B91986E );
+
+		/* Reproduce checksum manually */
+
+		auto arcs_v1_track = uint32_t { 0 };
+		auto cs = uint32_t { 2940 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_track == 0x2B91986E );
+
+		/* Reproduce shifted checksums manually */
+
+		auto arcs_v1_1_track = uint32_t { 0 };
+		cs = uint32_t { 2939 }; // skip first 2938
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_1_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_1_track == 0x28E7C808 ); // -1
+
+		auto arcs_v1_2_track = uint32_t { 0 };
+		cs = uint32_t { 2938 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_2_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_2_track == 0x263DF7A2 ); // -2
+
+		auto arcs_v1_3_track = uint32_t { 0 };
+		cs = uint32_t { 2937 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_3_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_3_track == 0x2394273C ); // -3
+
+		auto arcs_v1_4_track = uint32_t { 0 };
+		cs = uint32_t { 2936 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_4_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_4_track == 0x20EA56D6 ); // -4
+
+		auto arcs_v1_5_track = uint32_t { 0 };
+		cs = uint32_t { 2935 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_5_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_5_track == 0x1E408670 ); // -5
+
+		// More k < 0 ...
+		CHECK ( checksum_value(v1.track(1,    -1)) == 0x28E7C808 );
+		CHECK ( checksum_value(v1.track(1,    -2)) == 0x263DF7A2 );
+		CHECK ( checksum_value(v1.track(1,    -3)) == 0x2394273C );
+		CHECK ( checksum_value(v1.track(1,    -4)) == 0x20EA56D6 );
+		CHECK ( checksum_value(v1.track(1,    -5)) == 0x1E408670 );
+		// ...
+		CHECK ( checksum_value(v1.track(1, -2935)) == 0xA2AD5704 );
+		CHECK ( checksum_value(v1.track(1, -2936)) == 0xA003869E );
+		CHECK ( checksum_value(v1.track(1, -2937)) == 0x9D59B638 );
+		CHECK ( checksum_value(v1.track(1, -2938)) == 0x9AAFE5D2 );
+		CHECK ( checksum_value(v1.track(1, -2939)) == 0x9806156C );
+
+		auto arcs_v1_2938_track = uint32_t { 0 };
+		cs = uint32_t { 2 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_2938_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_2938_track == 0x9AAFE5D2 ); // -2938
+
+		auto arcs_v1_2939_track = uint32_t { 0 };
+		cs = uint32_t { 1 };
+		for (uint64_t i = 2940; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_2939_track += (i * cs & 0xFFFFFFFF);
+		}
+		REQUIRE ( arcs_v1_2939_track == 0x9806156C ); // -2939
+	}
+
+	// SECTION ("Use ARCSv2 shifted by k == 3 on inner track")
+	// {
+	// 	auto algo_v2 = Updateable<arcstk::accuraterip::algorithm::Version2>{};
+	// 	// TODO
+	// }
+
+	// SECTION ("Use ARCSv2 shifted by k == 3 on last track")
+	// {
+	// 	auto algo_v2 = Updateable<arcstk::accuraterip::algorithm::Version2>{};
+	// 	// TODO
+	// }
+
+	// SECTION ("Use ARCSv2 shifted by k == -3 on inner track")
+	// {
+	// 	auto algo_v2 = Updateable<arcstk::accuraterip::algorithm::Version2>{};
+	// 	// TODO
+	// }
+
+	// SECTION ("Use ARCSv2 shifted by k == -3 on first track")
+	// {
+	// 	auto algo_v2 = Updateable<arcstk::accuraterip::algorithm::Version2>{};
+	// 	// TODO
+	// }
 }
 
 
@@ -683,7 +1094,7 @@ TEST_CASE ( "construct_id", "[id]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end());
+				state.update(buffer.begin(), buffer.end(), 181251);
 			} catch (...)
 			{
 				in.close();
@@ -761,7 +1172,7 @@ TEST_CASE ( "construct_id", "[id]" )
 
 			try
 			{
-				calculation.update(buffer.begin(), buffer.end());
+				calculation.update(buffer.begin(), buffer.end(), 241584);
 			} catch (...)
 			{
 				in.close();
@@ -782,7 +1193,7 @@ TEST_CASE ( "construct_id", "[id]" )
 
 		in.close();
 
-		calculation.update(buffer.begin(), buffer.end());
+		calculation.update(buffer.begin(), buffer.end(), 241584);
 
 		CHECK ( calculation.complete() );
 

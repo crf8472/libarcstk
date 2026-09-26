@@ -176,8 +176,8 @@ namespace details
  *
  * \tparam Iterator Iterator type to test
  */
-template <typename Iterator>
-using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
+// template <typename Iterator>
+// using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
 // This is SFINAE compatible and respects bare pointers, which would not
 // have been respected when using std::iterator_traits<Iterator>::value_type.
 // Nonetheless I am not quite sure whether bare pointers indeed should be used
@@ -189,432 +189,16 @@ using it_value_type = std::decay_t<decltype( *std::declval<Iterator>() )>;
  * \tparam Iterator Iterator type to test
  * \tparam T        Type to test for
  */
-template <typename Iterator, typename T>
-using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
+// template <typename Iterator, typename T>
+// using is_iterator_over = std::is_same< it_value_type<Iterator>, T >;
 
 /**
  * \brief Defined iff \c Iterator is an iterator over \c csample_t.
  *
  * \tparam Iterator Iterator type to test
  */
-template <typename Iterator>
-using is_sample_iterator = std::is_same<it_value_type<Iterator>, csample_t>;
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief A closed interval <tt>[a,b]</tt>.
- *
- * \tparam T Type with definition of <=
- */
-template <typename T>
-class Interval final
-{
-	/**
-	 * \brief First number in interval.
-	 */
-	T a_ {};
-
-	/**
-	 * \brief Last number in interval.
-	 */
-	T b_ {};
-
-public:
-
-	/**
-	 * \brief Default constructor.
-	 */
-	Interval() = default;
-
-
-	/**
-	 * \brief Constructor for <tt>[a,b]</tt>.
-	 *
-	 * \param[in] a First number in closed interval
-	 * \param[in] b Last number in closed interval
-	 */
-	Interval(const T a, const T b)
-		: a_ { a }
-		, b_ { b }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Constructor for <tt>[a,b]</tt>.
-	 *
-	 * \param[in] pair Pair of bounds in closed interval
-	 */
-	explicit Interval(const std::pair<T,T>& pair)
-		: Interval { pair.first, pair.second }
-	{
-		// empty
-	}
-
-	/**
-	 * \brief Smallest value of the interval.
-	 *
-	 * \return Smallest value of the interval
-	 */
-	T lower() const
-	{
-		return a_ <= b_ ? a_ : b_;
-	}
-
-	/**
-	 * \brief Greatest value of the interval.
-	 *
-	 * \return Greates value of the interval
-	 */
-	T upper() const
-	{
-		return a_ <= b_ ? b_ : a_;
-	}
-
-	/**
-	 * \brief Returns TRUE iff the closed interval contains \c i, otherwise
-	 * FALSE.
-	 *
-	 * \param[in] i Number to test for containment in interval
-	 *
-	 * \return TRUE iff \c i is contained in the Interval, otherwise FALSE
-	 */
-	bool contains(const T& i) const
-	{
-		return (a_ <= b_) ? a_ <= i && i <= b_ : b_ <= i && i <= a_;
-	}
-
-	/**
-	 * \brief Return a string representation of the interval.
-	 *
-	 * \return Interval as a string
-	 */
-	std::string to_string() const
-	{
-		using std::to_string;
-
-		return "[" + to_string(lower()) + "," + to_string(upper()) + "]";
-	}
-};
-
-/**
- * \brief Range of samples.
- */
-using SampleRange = Interval<int32_t>;
-
-/**
- * \brief Type to represent 1-based track numbers.
- *
- * A signed integer type.
- *
- * Valid track numbers are in the range of 1-99. Note that 0 is not a valid
- * TrackNo. Hence, a TrackNo is not suitable to represent a total number of
- * tracks or a counter for tracks.
- *
- * The intention of this typedef is to provide a marker for parameters that
- * expect 1-based track numbers instead of 0-based track indices. TrackNo will
- * not occurr as a return type in the API.
- *
- * A validation check is not provided, though. Every function that accepts a
- * TrackNo will in fact accept 0 but will then either throw or return a default
- * error value.
- *
- * It is not encouraged to use TrackNo in client code.
- */
-using TrackNo = int;
-
-/**
- * \ingroup calc
- *
- * \brief A contigous part of a sequence of samples.
- *
- * A partition does not hold any samples but provides access to a slice of the
- * underlying sequence of samples.
- */
-class Partition final
-{
-	/**
-	 * \brief Relative offset of the first sample in this partition
-	 */
-	int32_t begin_offset_ {};
-
-	/**
-	 * \brief Relative offset of the last sample in this partition + 1
-	 */
-	int32_t end_offset_ {};
-
-	/**
-	 * \brief TRUE iff the first sample in this partition is also the first
-	 * sample in the track
-	 */
-	bool starts_track_ {};
-
-	/**
-	 * \brief TRUE iff the last sample in this partition is also the last sample
-	 * in the track
-	 */
-	bool ends_track_ {};
-
-	/**
-	 * \brief 1-based number of the track of which the samples in the partition
-	 * are part of
-	 */
-	int track_ {};
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] begin_offset Local index of the first sample in the partition
-	 * \param[in] end_offset   Local index of the last sample in the partition
-	 * \param[in] starts_track TRUE iff this partition starts its track
-	 * \param[in] ends_track   TRUE iff this partition ends its track
-	 * \param[in] track        Number of the track that contains the partition
-	 */
-	Partition(
-			const int32_t begin_offset,
-			const int32_t end_offset,
-			const bool    starts_track,
-			const bool    ends_track,
-			const TrackNo track);
-
-	/**
-	 * \brief Relative offset of the first sample in the partition.
-	 *
-	 * \return Relative offset of the first sample in the partition.
-	 */
-	int32_t begin_offset() const;
-
-	/**
-	 * \brief Relative offset of the last sample in the partition + 1.
-	 *
-	 * \return Relative offset of the last sample in the partition + 1.
-	 */
-	int32_t end_offset() const;
-
-	/**
-	 * \brief Returns TRUE iff the first sample of this partition is also the
-	 * first sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition starts a track
-	 */
-	bool starts_track() const;
-
-	/**
-	 * \brief Returns TRUE if the last sample of this partition is also the last
-	 * sample of the track which the partition is part of.
-	 *
-	 * \return TRUE iff this is partition ends a track
-	 */
-	bool ends_track() const;
-
-	/**
-	 * \brief The track of which the samples in the partition are part of.
-	 *
-	 * \return The track that contains this partition
-	 */
-	int track() const;
-
-	/**
-	 * \brief Number of samples in this partition.
-	 *
-	 * \return Number of samples in this partition
-	 */
-	std::size_t size() const;
-};
-
-/**
- * \internal
- * \brief Type of the partitioning of a range of samples.
- */
-using Partitioning = std::vector<Partition>;
-
-/**
- * \brief Create a partitioning for an interval in a legal range by a sequence
- * of points.
- *
- * \param[in] interval	Interval to create a partitioning for
- * \param[in] legal		Relevant range within the interval
- * \param[in] points    Points to define partition bounds
- *
- * \return Partitioning
- */
-Partitioning get_partitioning(
-		const SampleRange& interval,
-		const SampleRange& legal,
-		const Points& points);
-
-/**
- * \brief Create a single partition for an interval in a legal range.
- *
- * \param[in] interval	Interval to create a partitioning for
- * \param[in] legal		Relevant range within the interval
- *
- * \return Partitioning
- */
-Partitioning get_partitioning(
-		const SampleRange& interval,
-		const SampleRange& legal);
-
-/**
- * \internal
- * \ingroup calc
- *
- * \brief Interface for generating a partitioning over a sequence of samples.
- *
- * The partitioning is done along the track bounds according to the ToC such
- * that every two partitions adjacent within the same sequence belong to
- * different tracks. This way it is possible to entirely avoid checking for
- * track bounds within the checksum calculation loop.
- */
-class Partitioner
-{
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] points        List of splitting points
-	 * \param[in] total_samples Total number of samples expected in input
-	 * \param[in] legal         Legal range of calculation
-	 */
-	Partitioner(Points points, AudioSize total_samples, SampleRange legal);
-
-	/**
-	 * \copydoc SNPT_sm_default_dtor
-	 */
-	virtual ~Partitioner() noexcept = default;
-
-	/**
-	 * \copydoc SNPT_sm_copy_ctor
-	 */
-	//Partitioner(const Partitioner& rhs) = default;
-
-	/**
-	 * \copydoc SNPT_sm_copy_op
-	 */
-	//Partitioner& operator = (const Partitioner& rhs) = default;
-
-	/**
-	 * \copydoc SNPT_sm_move_ctor
-	 */
-	//Partitioner(Partitioner&& rhs) noexcept = default;
-
-	/**
-	 * \copydoc SNPT_sm_move_op
-	 */
-	//Partitioner& operator = (Partitioner&& rhs) noexcept = default;
-
-	/**
-	 * \brief Generates partitioning of the range of samples.
-	 *
-	 * \param[in] offset                 Offset of the first sample
-	 * \param[in] total_samples_in_block Number of samples in the block
-	 *
-	 * \return Partitioning of \c samples as a sequence of partitions.
-	 */
-	Partitioning create_partitioning(
-			const int32_t offset,
-			const int32_t total_samples_in_block) const;
-
-	/**
-	 * \brief Total number of samples.
-	 *
-	 * \return Total number of samples
-	 */
-	AudioSize total_samples() const noexcept;
-
-	/**
-	 * \brief Set total number of samples.
-	 *
-	 * Maybe necessary when reading the last block reveals a different number of
-	 * samples than expected.
-	 *
-	 * \param[in] total_samples Total number of samples
-	 */
-	void set_total_samples(const AudioSize& total_samples) noexcept;
-
-	/**
-	 * \brief Legal range to occurr in partitions.
-	 *
-	 * The physical range of input samples may be bigger.
-	 *
-	 * \return The legal range of samples to be partitioned.
-	 */
-	SampleRange legal_range() const noexcept;
-
-	/**
-	 * \brief Partitioning bounds.
-	 *
-	 * \return Points to separate partitions.
-	 */
-	Points points() const noexcept;
-
-	/**
-	 * \copydoc SNPT_mf_clone
-	 */
-	std::unique_ptr<Partitioner> clone() const;
-
-private:
-
-	virtual Partitioning do_create_partitioning(
-		const SampleRange& current_interval,
-		const SampleRange& legal_range,
-		const Points& points) const
-	= 0;
-
-	virtual std::unique_ptr<Partitioner> do_clone() const
-	= 0;
-
-	/**
-	 * \brief Internal splitting points.
-	 */
-	Points points_ {};
-
-	/**
-	 * \brief Total number of samples expected.
-	 */
-	AudioSize total_samples_ {};
-
-	/**
-	 * \brief Legal range of partitioning.
-	 */
-	SampleRange legal_ {};
-};
-
-/**
- * \brief Provides partitions along track bounds.
- */
-class TrackPartitioner final : public Partitioner
-{
-	Partitioning do_create_partitioning(
-		const SampleRange& sample_block,
-		const SampleRange& relevant_interval,
-		const Points& points) const final;
-
-	std::unique_ptr<Partitioner> do_clone() const final;
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] points        List of splitting points
-	 * \param[in] total_samples Total number of samples expected in input
-	 * \param[in] legal         Legal range of calculation
-	 */
-	TrackPartitioner(const Points& points, const AudioSize& total_samples,
-			const SampleRange& legal);
-
-	TrackPartitioner(const TrackPartitioner& rhs)                 = default;
-	TrackPartitioner& operator= (const TrackPartitioner& rhs)     = default;
-	TrackPartitioner(TrackPartitioner&& rhs) noexcept             = default;
-	TrackPartitioner& operator= (TrackPartitioner&& rhs) noexcept = default;
-	~TrackPartitioner() noexcept final                            = default;
-};
+// template <typename Iterator>
+// using is_sample_iterator = std::is_same<it_value_type<Iterator>, csample_t>;
 
 /**
  * \brief Class template for an incrementable and readable counter.
@@ -682,24 +266,6 @@ public:
 
 	// TODO explicit operator bool()
 };
-
-/**
- * \brief Convert a 0-based sample index to an equivalent amount of samples.
- *
- * \param[in] index The index to convert to an amount
- *
- * \return Amount of samples equivalent to the index passed
- */
-int32_t ind2am(const int32_t index);
-
-/**
- * \brief Convert a 1-based amount of samples to an equivalent index.
- *
- * \param[in] amount The amount to convert to an index
- *
- * \return Sample index equivalent to the amount passed
- */
-int32_t am2ind(const int32_t amount);
 
 /**
  * \brief Current qualified state of a Calculation.
@@ -775,7 +341,7 @@ public:
 	/**
 	 * \brief Return the total number of tracks yet processed.
 	 *
-	 * This value is incremented by track_finished().
+	 * This value is incremented by track_finalized().
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
@@ -835,11 +401,11 @@ public:
 		const std::chrono::duration<float>& algo_time);
 
 	/**
-	 * \brief Recognize track as finished.
+	 * \brief Recognize track as finalized.
 	 *
 	 * \return Samples processed in the course of this track
 	 */
-	int32_t track_finished();
+	int32_t track_finalized();
 
 	/**
 	 * \brief Swap abstract part of the concrete subclass..
@@ -857,19 +423,6 @@ public:
 	}
 };
 
-
-/**
- * \brief Create a partitioner for specific values.
- *
- * \param[in] offsets  Offsets
- * \param[in] leadout  Leadout
- * \param[in] interval Legal interval
- *
- * \return Partitioner
- */
-std::unique_ptr<details::Partitioner> make_partitioner(
-		const Points& offsets, const AudioSize& leadout,
-		const details::SampleRange& interval);
 
 /**
  * \brief Worker: log partition stats.
@@ -915,6 +468,8 @@ void update_partition(const Partition& partition,
 	const auto offset_last  = partition.end_offset()   - start_pos;
 	const auto total        = offset_last + 1 - offset_first;
 
+	// TODO total < 0 ?
+
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
 
@@ -929,7 +484,8 @@ void update_partition(const Partition& partition,
 		// +1 because the stop point has to be shifted _behind_ the last
 		// sample. The last sample would not be processed otherwise.
 
-		algorithm.update(b, e);
+		algorithm.update(b, e, static_cast<std::size_t>(total));
+
 	} catch (...)
 	{
 		const auto stop_time { clock::now() };
@@ -988,22 +544,28 @@ template <typename A>
 void complete_track(Updateable<A>& algorithm,
 		Checksums& result_buffer, CalculationState& state)
 {
-	// tracks_processed() reflects previous track_finished(), starting with 0
-	const auto track_number = state.tracks_processed();
+	// Buffer index for the checksums to save
+	const auto index = static_cast<std::size_t>(state.tracks_processed());
 
-	// track_finished() updates + resets state as a side effect and
+	// tracks_processed() reflects previous track_finalized(), starting with 0
+	const auto track_number = 1 + index;
+
+	// track_finalized() updates + resets state as a side effect and
 	// updates tracks_processed_. Therefore, this must come after track_number.
-	const auto track_length = AudioSize { state.track_finished(),
+	const auto track_length = AudioSize { state.track_finalized(),
 				UNIT::SAMPLES };
 
-	algorithm.finish_track(track_number, track_length);
+	algorithm.finalize_track(track_number, track_length);
 
-	auto value = algorithm.result();
+	auto value = algorithm.track(track_number);
 
-	ARCS_LOG(DEBUG3) << "Save checksum for track " << (1 + track_number) << ": "
+	ARCS_LOG(DEBUG3) << "Save checksum for track " << track_number << ": "
 		<< value;
 
-	const auto index = static_cast<std::size_t>(track_number);
+	ARCS_LOG(DEBUG4) << "Write checksums for track " << track_number
+		<< " to buffer index " << index
+		<< " (buffer size: " << result_buffer.size() << ")";
+
 	if (result_buffer.size() > index)
 	{
 		result_buffer[index] = std::move(value);
@@ -1023,7 +585,7 @@ void complete_track(Updateable<A>& algorithm,
  * \param[in]     start         Iterator pointing to first sample in block
  * \param[in]     stop          Iterator pointing behind last sample in block
  * \param[in]     partitioner   Partition provider
- * \param[in]     algorithm     Algorithm to use for calculation
+ * \param[in]     updateable    Algorithm to use for calculation
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Buffer for collecting results
  *
@@ -1091,6 +653,17 @@ template <typename A, typename B, typename E>
 
 		ARCS_LOG(DEBUG2) << "PARTITION " << partition_counter << "/" <<
 			partitioning.size();
+
+		if (partition.starts_track())
+		{
+			const auto trackno = partition.track();
+			const auto length  = partitioner.length(trackno);
+
+			ARCS_LOG(DEBUG3) << "Start track:  " << trackno
+				<< ", length: " << length.samples() << " samples";
+
+			updateable.start_track(trackno, length);
+		}
 
 		update_partition(partition, start, start_pos, updateable, state);
 
@@ -1362,7 +935,7 @@ public:
 	 *
 	 * \return Current state
 	 */
-    State current_state() const
+    State current_state() const noexcept
 	{
 		return state_;
 	}
@@ -1387,7 +960,7 @@ class Calculation : public Stateful
 	/**
 	 * \brief Partitioner to provide the stop positions.
 	 */
-	std::unique_ptr<details::Partitioner> partitioner_ {}; /* nullptr */
+	std::unique_ptr<Partitioner> partitioner_ {}; /* nullptr */
 
 	/**
 	 * \brief Internal result buffer.
@@ -1461,21 +1034,19 @@ protected:
 	}
 
 	/**
-	 * \brief Worker: initialize internal partitioner.
+	 * \brief Set the partitioner.
 	 *
-	 * \param[in] offsets Offsets
-	 * \param[in] leadout Leadout
-	 * \param[in] legal   Legal interval
+	 * \param[in] partitioner The Partitioner to set
 	 */
-	void init_partitioner(const Points& offsets,
-			const AudioSize& leadout, const details::SampleRange& legal)
+	void set_partitioner(std::unique_ptr<Partitioner> partitioner)
 	{
 		allowed_only_before(State::UPDATED,
-				"Cannot change partitioner after first update");
+				"Cannot modify offsets, leadout or range after first update");
 
-		ARCS_LOG(DEBUG3) << "Initialize partitioner";
+		ARCS_LOG(DEBUG1) << "Calculation interval is "
+			<< partitioner->legal_range().to_string();
 
-		partitioner_ = details::make_partitioner(offsets, leadout, legal);
+		partitioner_ = std::move(partitioner);
 	}
 
 	/**
@@ -1497,17 +1068,18 @@ protected:
 	/**
 	 * \brief Initialize internal data parts.
 	 *
-	 * \param[in] offsets  Offsets
-	 * \param[in] leadout  Leadout
-	 * \param[in] interval Legal interval
+	 * \param[in] offsets   Offsets
+	 * \param[in] leadout   Leadout
+	 * \param[in] algorithm Algorithm
 	 */
-	void init_data(const Points& offsets,
-			const AudioSize& leadout, const details::SampleRange& interval)
+	void init_data(const Points& offsets, const AudioSize& leadout,
+			const Algorithm& algorithm)
 	{
 		allowed_only_before(State::UPDATED,
 				"Cannot modify offsets, leadout or range after first update");
 
-		init_partitioner(offsets, leadout, interval);
+		set_partitioner(algorithm.partitioner(offsets, leadout));
+
 		init_resultbuffer(offsets.size());
 
 		transition_to(State::INITIALIZED);
@@ -1528,7 +1100,7 @@ protected:
 	 *
 	 * \return Internal partitioner
 	 */
-	const details::Partitioner* partitioner() const noexcept
+	const Partitioner* partitioner() const noexcept
 	{
 		return partitioner_.get();
 	}
@@ -1586,6 +1158,8 @@ public:
 				"Cannot modify offsets or leadout after first update");
 
 		do_init(offsets, leadout);
+
+		transition_to(State::INITIALIZED);
 	}
 
 	/**
@@ -1748,9 +1322,21 @@ public:
 	/**
 	 * \brief Acquire the resulting Checksums.
 	 *
-	 * \return The computed Checksums
+	 * \return The calculated Checksums
 	 */
-	Checksums result() const noexcept;
+	Checksums result() const noexcept
+	{
+		return this->result(0);
+	}
+
+	/**
+	 * \brief Acquire the resulting Checksums, thereby applying offset \c k.
+	 *
+	 * \param[in] k Offset value
+	 *
+	 * \return The calculated, shifted Checksums
+	 */
+	Checksums result(const int k) const;
 
 	/**
 	 * \brief Update the instance with a new AudioSize.
@@ -1859,8 +1445,8 @@ public:
 			<< name(settings.context());
 
 		init_algorithm(*updateable_.algorithm());
-		init_data(offsets, leadout,
-			details::SampleRange { updateable_.range(leadout, offsets) });
+
+		init_data(offsets, leadout, *updateable_.algorithm());
 	}
 
 	/**
@@ -1994,8 +1580,7 @@ private:
 
 	void do_init(const Points& offsets, const AudioSize& leadout) final
 	{
-		init_data(offsets, leadout,
-			details::SampleRange { updateable_.range(leadout, offsets) });
+		init_data(offsets, leadout, *updateable_.algorithm());
 	}
 
 	void on_settings_changed() final
@@ -2093,7 +1678,7 @@ private:
 	virtual void do_update(const AudioSize& audiosize)
 	= 0;
 
-	virtual Checksums do_result() const
+	virtual Checksums do_result(const int k) const
 	= 0;
 
 	virtual size_type do_size() const
@@ -2190,7 +1775,19 @@ public:
 	 */
 	Checksums result() const
 	{
-		return do_result();
+		return this->result(0);
+	}
+
+	/**
+	 * \brief Return calculation result.
+	 *
+	 * \param[in] k Amount to shift checksums
+	 *
+	 * \return Resulting Checksums shifted by \c k
+	 */
+	Checksums result(const int k) const
+	{
+		return do_result(k);
 	}
 
 	/**
@@ -2394,8 +1991,15 @@ private:
 		}
 	}
 
-	Checksums do_result() const final
+	Checksums do_result(const int k) const final
 	{
+		if (0 == k)
+		{
+			return this->merge_results(updaters_);
+		}
+
+		ARCS_LOG_ERROR << "CalculationSet does not implement drive offsets";
+
 		return this->merge_results(updaters_);
 	}
 
