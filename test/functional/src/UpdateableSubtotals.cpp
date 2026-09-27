@@ -184,7 +184,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		// Check accumulated subtotals for ARCSv1
 
-		// CHECK ( st.subtotals_v1[0] ==  1 );
+		CHECK ( st.subtotals_v1[0] ==  1 );
 		// CHECK ( st.subtotals_v1[1] ==  5 );
 		// CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
