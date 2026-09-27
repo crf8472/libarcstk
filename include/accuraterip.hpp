@@ -1161,14 +1161,14 @@ class ARCSAlgorithm final : public Algorithm
 		}
 
 		// persistent part: present in previous and shifted sum
-		auto wsum   = checksum<TYPE>(st);     // weighted sum
-		auto ssum   = current_cs_sum(st);     // simple sum
-		auto factor = int64_t { std::abs(drive_offset) }; // factor (signed)
+		auto wsum   = checksum<TYPE>(st); // weighted sum
+		auto ssum   = current_cs_sum(st); // simple sum
+		auto factor = int64_t { std::abs(drive_offset) }; // multiplier (signed)
 
 		// added correction: present only in shifted sum
 		auto a_wsum   = uint32_t { 0 };   // weighted sum
 		auto a_ssum   = uint32_t { 0 };   // simple sum
-		auto a_factor =  int64_t { 0 };   // factor (signed)
+		auto a_factor =  int64_t { 0 };   // multiplier (signed)
 
 		// absolute (unsigned) amount of drive_offset
 		const auto k = static_cast<std::size_t>(std::abs(drive_offset));
@@ -1220,18 +1220,12 @@ class ARCSAlgorithm final : public Algorithm
 			}
 		}
 
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wsign-conversion"
-
 		// Shift the part persistent in unshifted as well as shifted checksum.
 		// Add shifted correction of incoming samples.
-
 		return wsum + factor * ssum + (a_wsum + a_factor * a_ssum);
 
-		// Note that the silent overflows are necessary since we ignore the
+		// Note that the silent overflows are correct since we ignore the
 		// overflows also deliberately on the original checksum.
-
-		#pragma GCC diagnostic pop
 	}
 
 	/**
