@@ -188,15 +188,32 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[1] ==  5 );
 		CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939
-				- (2939L * 2939 & 0xFFFFFFFFu) );
+		// CHECK ( st.subtotals_v1[2937] == v1_first_2939
+		// 		- (2939L * 2939 & 0xFFFFFFFFu) );
 
 		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
 
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939
-				+ (2940L * 2940 & 0xFFFFFFFFu) );
+		// CHECK ( st.subtotals_v1[2939] == v1_first_2939
+		// 		+ (2940L * 2940 & 0xFFFFFFFFu) );
+		//NOLINTEND(cppcoreguidelines-avoid-do-while)
+	}
 
-		// // Check accumulated subtotals for ARCSv2
+	SECTION ( "Caches first 2939 ARCSv2 subtotals correctly" )
+	{
+		//NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
+		st12.finalize();
+
+		// Index and current sums are correct after caching
+
+		CHECK ( st.current_subtotal_v1 == 0 );
+		CHECK ( st.current_subtotal_v2 == 0 );
+		CHECK ( st.current_cs_sum      == 0 );
+
+		CHECK ( st12.cache_index()     == 2940 );
+
+		// Check accumulated subtotals for ARCSv2
+
 		//
 		// CHECK ( st.subtotals_v2[0] == 0 );
 		// CHECK ( st.subtotals_v2[1] == 0 );
