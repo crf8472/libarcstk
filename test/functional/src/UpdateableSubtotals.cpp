@@ -22,6 +22,7 @@
 
 #include "ref_data.hpp"           // for standard_data
 
+//TODO no linting for cppcoreguidelines-avoid-do-while
 
 TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		"[updateablesubtotals] [calc] [accuraterip]" )
@@ -143,6 +144,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Cache first 2939 values is correct" )
 	{
+		//NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
 		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
 		st12.finalize();
 
@@ -171,10 +173,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[1] ==  5 );
 		CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
+		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939L * 2939) );
 		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
 
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940 &
+		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940L * 2940 &
 				0xFFFFFFFFu) );
 
 		// Check accumulated subtotals for ARCSv2
@@ -188,6 +190,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		CHECK ( st.subtotals_v2[2940] == 0 );
 		CHECK ( st.subtotals_v2[2941] == 0 );
+		//NOLINTEND(cppcoreguidelines-avoid-do-while)
 	}
 
 	// SECTION ( "Caches first 2939 and last 2940 values correctly" )
