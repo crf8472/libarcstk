@@ -141,55 +141,55 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 
 
-	// SECTION ( "Cache first 2939 values is correct" )
-	// {
-	// 	st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
-	// 	st12.finalize();
-	//
-	// 	// Index is correct after caching
-	//
-	// 	CHECK ( st12.cache_index() == 2940 );
-	// 	CHECK ( st.current_subtotal_v1 == 0 );
-	// 	CHECK ( st.current_subtotal_v2 == 0 );
-	// 	CHECK ( st.current_cs_sum      == 0 );
-	//
-	// 	// Check accumulated simple sums
-	//
-	// 	CHECK ( st.sums[   0] == 1 );
-	// 	CHECK ( st.sums[   1] == 3 );
-	// 	CHECK ( st.sums[   2] == 6 );
-	// 	// ...
-	// 	CHECK ( st.sums[2936] == sum_first_2939 - 2939 - 2938 );
-	// 	CHECK ( st.sums[2937] == sum_first_2939 - 2939 );
-	// 	CHECK ( st.sums[2938] == sum_first_2939 );
-	//
-	// 	CHECK ( st.sums[2939] == sum_first_2939 + 2940 );
-	//
-	// 	// Check accumulated subtotals for ARCSv1
-	//
-	// 	CHECK ( st.subtotals_v1[0] ==  1 );
-	// 	CHECK ( st.subtotals_v1[1] ==  5 );
-	// 	CHECK ( st.subtotals_v1[2] == 14 );
-	// 	// ...
-	// 	CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
-	// 	CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
-	//
-	// 	CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940 &
-	// 			0xFFFFFFFFu) );
-	//
-	// 	// Check accumulated subtotals for ARCSv2
-	//
-	// 	CHECK ( st.subtotals_v2[0] == 0 );
-	// 	CHECK ( st.subtotals_v2[1] == 0 );
-	// 	CHECK ( st.subtotals_v2[2] == 0 );
-	// 	//
-	// 	CHECK ( st.subtotals_v2[2938] == 0 );
-	// 	CHECK ( st.subtotals_v2[2939] == 0 );
-	//
-	// 	CHECK ( st.subtotals_v2[2940] == 0 );
-	// 	CHECK ( st.subtotals_v2[2941] == 0 );
-	// }
-	//
+	SECTION ( "Cache first 2939 values is correct" )
+	{
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
+		st12.finalize();
+
+		// Index is correct after caching
+
+		CHECK ( st12.cache_index() == 2940 );
+		CHECK ( st.current_subtotal_v1 == 0 );
+		CHECK ( st.current_subtotal_v2 == 0 );
+		CHECK ( st.current_cs_sum      == 0 );
+
+		// Check accumulated simple sums
+
+		CHECK ( st.sums[   0] == 1 );
+		CHECK ( st.sums[   1] == 3 );
+		CHECK ( st.sums[   2] == 6 );
+		// ...
+		CHECK ( st.sums[2936] == sum_first_2939 - 2939 - 2938 );
+		CHECK ( st.sums[2937] == sum_first_2939 - 2939 );
+		CHECK ( st.sums[2938] == sum_first_2939 );
+
+		CHECK ( st.sums[2939] == sum_first_2939 + 2940 );
+
+		// Check accumulated subtotals for ARCSv1
+
+		CHECK ( st.subtotals_v1[0] ==  1 );
+		CHECK ( st.subtotals_v1[1] ==  5 );
+		CHECK ( st.subtotals_v1[2] == 14 );
+		// ...
+		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
+		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
+
+		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940 &
+				0xFFFFFFFFu) );
+
+		// Check accumulated subtotals for ARCSv2
+
+		CHECK ( st.subtotals_v2[0] == 0 );
+		CHECK ( st.subtotals_v2[1] == 0 );
+		CHECK ( st.subtotals_v2[2] == 0 );
+		//
+		CHECK ( st.subtotals_v2[2938] == 0 );
+		CHECK ( st.subtotals_v2[2939] == 0 );
+
+		CHECK ( st.subtotals_v2[2940] == 0 );
+		CHECK ( st.subtotals_v2[2941] == 0 );
+	}
+
 	// SECTION ( "Caches first 2939 and last 2940 values correctly" )
 	// {
 	// 	st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
