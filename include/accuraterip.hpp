@@ -505,7 +505,7 @@ public:
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
-			st.subtotals_v2[i] += st.subtotals_v2[i - 1]; // FIXME
+			st.subtotals_v2[i] += st.subtotals_v2[i - 1];
 			st.sums[i]         += st.sums[i - 1];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
@@ -515,7 +515,7 @@ public:
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
-			st.subtotals_v2[i - 1] += st.subtotals_v2[i]; // FIXME
+			st.subtotals_v2[i - 1] += st.subtotals_v2[i];
 			st.sums[i - 1]         += st.sums[i];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
@@ -955,6 +955,10 @@ public:
 		const auto f_remaining = std::size_t
 			{ st_.multiplier <= 2940 ? 2940 - (st_.multiplier - 1) : 0 };
 
+		// Note that we cache the first 2940 values (instead of 2939)
+		// since we need front_index 2940 for shifting with k == 2940.
+
+		// samples left to process in the track
 		const auto todo = current_length_ - (st_.multiplier - 1);
 
 		// trailing samples to be cached
@@ -1297,6 +1301,7 @@ class ARCSAlgorithm final : public Algorithm
 
 		result.set_length(AccessSt::track_size(
 					tracks_[static_cast<std::size_t>(t - 1)].multiplier()));
+		// FIXME For the last track, this will be 2940 samples too less
 
         return result;
 	}
