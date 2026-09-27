@@ -13,8 +13,8 @@
 #include "accuraterip.hpp"        // TO BE TESTED
 #endif
 
+#include <cstddef>                // for ptrdiff_t
 #include <cstdint>                // for uint32_t
-#include <numeric>                // for accumulate
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for checksum::type
@@ -44,72 +44,106 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	REQUIRE ( st.multiplier      == 1 );
 
 
+	auto to_ptrdiff = [](const int64_t amount) -> std::ptrdiff_t
+	{
+		return static_cast<std::ptrdiff_t>(amount);
+	};
+
 	// init data
 
 	using arcstk::testing::data::standard_data;
 
-	const auto sdata = standard_data(3052896);
+	const auto tsize  = int64_t { 3052896 };
 	// length of Bach, Organ Concertos, Track 1
 
-	REQUIRE ( sdata[      0] ==       1 );
-	REQUIRE ( sdata[3052895] == 3052896 );
+	const auto fskip  = int64_t { 2939 };
+	const auto bskip  = int64_t { 2940 };
 
+	const auto sdata = standard_data(tsize);
+
+	// reuse this
+	auto count = uint64_t { 0 };
+
+	REQUIRE ( sdata[      0] ==     1 );
+	REQUIRE ( sdata[3052895] == tsize );
+
+	// first equals 1
 	REQUIRE ( *cbegin(sdata) == 1 );
-	REQUIRE ( *cbegin(sdata) + 2939 - 1 == 2939 );
+
+	// last equals tsize
+	REQUIRE ( *(cend(sdata) - to_ptrdiff(1)) == tsize );
+
+	// 2939
+	REQUIRE ( *cbegin(sdata) + to_ptrdiff(fskip - 1) == fskip );
 
 	// 3049957
-	REQUIRE ( *(cbegin(sdata) + (3052896 - 2940)) == 3052896 - 2940 + 1 );
-	REQUIRE ( *(cend(sdata) - 1) == 3052896 );
+	REQUIRE ( *(cbegin(sdata) + to_ptrdiff(tsize - bskip)) == tsize - bskip + 1 );
 
 
-	// sum of first 2939 samples
+	// simple sum of first 2939 samples
 
-	const auto sum_first_2939 =
-		std::accumulate(cbegin(sdata), cbegin(sdata) + 2939, 0u);
-
-	REQUIRE (sum_first_2939 == 4320330 );
-
-
-	// sum of last 2940 samples
-
-	auto j = uint64_t { 0 };
-	for (int i = 3052896; i > 3052896 - 2940; --i)
+	count = 0;
+	for (int64_t i = 1; i <= 2939; ++i)
 	{
-		j += static_cast<uint32_t>(i);
+		count += sdata[static_cast<std::size_t>(i - 1)];
 	}
-	auto sum_last_2940 = j;
+	const auto sum_first_2939 = count;
 
-	REQUIRE (sum_last_2940 == 8971193910 );
+	REQUIRE (sum_first_2939 == 4320330LL );
+
+	// Simpler variant, kept for reference:
+	// const auto sum_first_2939 =
+	// 	std::accumulate(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2939), 0u);
+
+
+	// simple sum of last 2940 samples
+
+	count = 0;
+	for (int64_t i = 3052896LL; i > 3052896LL - 2940LL; --i)
+	{
+		count += sdata[static_cast<std::size_t>(i - 1)];
+	}
+	const auto sum_last_2940 = count;
+
+	REQUIRE (sum_last_2940 == 8971193910LL );
 
 
 	// subtotal_v1 of first 2939 samples
 
-	const uint64_t v1_first_2939 = std::inner_product(
-		cbegin(sdata),
-		cbegin(sdata) + 2939,
-		cbegin(sdata), // multiply with itself, no overflows in this range
-		static_cast<uint64_t>(0)
-	);
+	count = 0;
+	for (int64_t i = 1; i <= 2939; ++i)
+	{
+		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
+	}
+	const auto v1_first_2939 = count;
 
-	REQUIRE ( v1_first_2939 == 8466406690 );
+	REQUIRE ( v1_first_2939 == 8466406690LL );
+
+	// Interesting alternative, kept for reference:
+	// const uint64_t v1_first_2939 = std::inner_product(
+	// 	cbegin(sdata),
+	// 	cbegin(sdata) + 2939,
+	// 	cbegin(sdata), // multiply with itself, no overflows in this range
+	// 	static_cast<uint64_t>(0)
+	// );
 
 
 	// subtotal_v1 of last 2940 samples
 
-	j = 0;
+	count = 0;
 	for (uint64_t i = 3052896; i > 3052896 - 2940; --i)
 	{
-		j += (i * static_cast<uint32_t>(i) & 0xFFFFFFFF);
+		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
 	}
-	const auto v1_last_2940 = j;
+	const auto v1_last_2940 = count;
 
-	REQUIRE ( v1_last_2940 == 6477333279138 );
+	REQUIRE ( v1_last_2940 == 6477333279138LL );
 
 
 
 	SECTION ( "Cache first 2939 values is correct" )
 	{
-		st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
 		st12.finalize();
 
 		// Index is correct after caching
@@ -141,7 +175,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
 
 		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940 &
-				0xFFFFFFFF) );
+				0xFFFFFFFFu) );
 
 		// Check accumulated subtotals for ARCSv2
 
@@ -196,9 +230,9 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		//REQUIRE ( st.subtotals_v1[5880] == 0 );
 
-		REQUIRE ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFF) );
-		REQUIRE ( st.subtotals_v1[5878] == (3052895u * 3052895u & 0xFFFFFFFF) );
-		REQUIRE ( st.subtotals_v1[5877] == (3052894u * 3052894u & 0xFFFFFFFF) );
+		REQUIRE ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFFu) );
+		REQUIRE ( st.subtotals_v1[5878] == (3052895u * 3052895u & 0xFFFFFFFFu) );
+		REQUIRE ( st.subtotals_v1[5877] == (3052894u * 3052894u & 0xFFFFFFFFu) );
 		// ...
 		REQUIRE ( st.subtotals_v1[2942] == ((static_cast<uint64_t>(3052896 - 2940 + 3) * static_cast<uint32_t>(3052896 - 2940 + 3)) & 0xFFFFFFFFu) );
 		REQUIRE ( st.subtotals_v1[2941] == ((static_cast<uint64_t>(3052896 - 2940 + 2) * static_cast<uint32_t>(3052896 - 2940 + 2)) & 0xFFFFFFFFu) );
@@ -242,12 +276,12 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		//CHECK ( st.subtotals_v1[5880] == 0 );
 
-		CHECK ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFF) );
-		CHECK ( st.subtotals_v1[5878] == (3052896u * 3052896u & 0xFFFFFFFF)
-			+ (3052895u * 3052895u & 0xFFFFFFFF));
-		CHECK ( st.subtotals_v1[5877] == (3052896u * 3052896u & 0xFFFFFFFF)
-			+ (3052895u * 3052895u & 0xFFFFFFFF)
-			+ (3052894u * 3052894u & 0xFFFFFFFF));
+		CHECK ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFFu) );
+		CHECK ( st.subtotals_v1[5878] == (3052896u * 3052896u & 0xFFFFFFFFu)
+			+ (3052895u * 3052895u & 0xFFFFFFFFu));
+		CHECK ( st.subtotals_v1[5877] == (3052896u * 3052896u & 0xFFFFFFFFu)
+			+ (3052895u * 3052895u & 0xFFFFFFFFu)
+			+ (3052894u * 3052894u & 0xFFFFFFFFu));
 		// ...
 		// CHECK ( st.subtotals_v1[2942] == v1_last_2940 - (2939 * 2939) );
 		// CHECK ( st.subtotals_v1[2941] == v1_last_2940 - (2939 * 2939) );
