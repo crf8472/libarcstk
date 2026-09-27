@@ -188,11 +188,13 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[1] ==  5 );
 		CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939L * 2939) );
+		CHECK ( st.subtotals_v1[2937] == v1_first_2939
+				- (2939L * 2939 & 0xFFFFFFFFu) );
+
 		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
 
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940L * 2940 &
-				0xFFFFFFFFu) );
+		CHECK ( st.subtotals_v1[2939] == v1_first_2939
+				+ (2940L * 2940 & 0xFFFFFFFFu) );
 
 		// // Check accumulated subtotals for ARCSv2
 		//
