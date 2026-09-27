@@ -883,7 +883,7 @@ public:
 	 * \return Value of checksum type \c TYPE
 	 */
 	template <enum checksum::type TYPE>
-	Checksum::value_type value() const // TODO Rename to checksum()
+	Checksum::value_type value() const
 	{
 		return checksum<TYPE>(st_);
 	}
@@ -981,9 +981,7 @@ public:
 		auto end_front  = start + static_cast<int>(f_remaining);
 		auto begin_back = start + static_cast<int>(size - b_remaining);
 
-		// cache remaining part in front
 		update_(start,      end_front,  st_, true );
-		// TODO Frame 450
 		update_(end_front,  begin_back, st_, false);
 		update_(begin_back, stop,       st_, true );
 	}
