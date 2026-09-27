@@ -1133,85 +1133,92 @@ class ARCSAlgorithm final : public Algorithm
 	/**
 	 * \brief Get checksum for track \c track_no, shifted by offset \c k.
 	 *
-	 * \param[in] track_no Track number from [1,99] (checked)
-	 * \param[in] k        Drive offset from [-2939,2940] (checked)
+	 * \param[in] track_no     Track number from [1,99] (checked)
+	 * \param[in] drive_offset Drive offset from [-2939,2940] (checked)
 	 *
-	 * \return Checksum value for track \c track_no, shifted by value \c k
+	 * \return Checksum value for track \c track_no, shifted by value
+	 * \c drive_offset
 	 */
 	template <enum checksum::type TYPE>
-	Checksum::value_type shift(const TrackNo track_no, const int k) const
+	Checksum::value_type shift(const TrackNo track_no,
+			const int drive_offset) const
 	{
-		if (k < -2939 || k > 2940)
+		if (drive_offset < -2939 || drive_offset > 2940)
 		{
-			throw std::runtime_error("Illegal value for k");
+			throw std::runtime_error("Illegal drive offset requested");
 		}
 
-		const auto t  = static_cast<std::size_t>(track_no - 1);
+		const auto t = static_cast<std::size_t>(track_no - 1);
 
 		if (t >= total_tracks() || t > CDDA::MAX_TRACKCOUNT)
 		{
-			throw std::runtime_error("Illegal track number");
+			throw std::runtime_error("Illegal track number requested");
 		}
 
 		const auto st = tracks_[t].subtotals();
 
-		if (k == 0) // do not shift
+		if (drive_offset == 0) // no actual shift required
 		{
 			return checksum<TYPE>(st);
 		}
 
-		const auto k_abs = static_cast<std::size_t>(std::abs(k));
-
 		// persistent part: present in previous and shifted sum
-		auto wsum   = checksum<TYPE>(st); // weighted sum
-		auto ssum   = current_cs_sum(st); // simple sum
-		auto factor = std::abs(k);        // factor
+		auto wsum   = checksum<TYPE>(st);     // weighted sum
+		auto ssum   = current_cs_sum(st);     // simple sum
+		auto factor = std::abs(drive_offset); // factor (signed)
 
 		// added correction: present only in shifted sum
 		auto a_wsum   = uint32_t { 0 };   // weighted sum
 		auto a_ssum   = uint32_t { 0 };   // simple sum
-		auto a_factor =  int32_t { 0 };   // factor
+		auto a_factor =  int32_t { 0 };   // factor (signed)
 
-		if (k < 0) // shift "leftwards": remove k highest, add k lower indices
+		// absolute (unsigned) amount of drive_offset
+		const auto k = static_cast<std::size_t>(std::abs(drive_offset));
+
+		if (drive_offset < 0)
 		{
-			wsum -= last<TYPE> (k_abs, st);
-			ssum -= cs_sum_last(k_abs, st);
+			// shift "leftwards": remove k highest indices, add k lower indices
 
-			if (t == 0) // first
+			wsum -= last<TYPE> (k, st);
+			ssum -= cs_sum_last(k, st);
+
+			if (t == 0) // first track
 			{
-				a_wsum = first<TYPE> (2939, st) - first<TYPE> (2939 - k_abs, st);
-				a_ssum = cs_sum_first(2939, st) - cs_sum_first(2939 - k_abs, st);
-				a_factor = -k;
+				a_wsum = first<TYPE> (2939, st) - first<TYPE> (2939 - k, st);
+				a_ssum = cs_sum_first(2939, st) - cs_sum_first(2939 - k, st);
+				a_factor = -drive_offset;
 			} else // other than first
 			{
 				const auto prev = tracks_[t - 1].subtotals();
 				const auto sz = AccessSt::track_size(prev.multiplier).samples();
 
-				a_wsum   = last<TYPE> (k_abs, prev);
-				a_ssum   = cs_sum_last(k_abs, prev);
-				a_factor = -(sz - static_cast<int>(k_abs));
+				a_wsum   = last<TYPE> (k, prev);
+				a_ssum   = cs_sum_last(k, prev);
+				a_factor = -(sz - static_cast<int>(k));
 			}
 		}
 
-		if (k > 0) // shift "rightwards": remove k lowest, add k higher indices
+		if (drive_offset > 0)
 		{
-			wsum  -= first<TYPE> (k_abs, st);
-			ssum  -= cs_sum_first(k_abs, st);
+			// shift "rightwards": remove k lowest indices, add k higher indices
+
+			wsum  -= first<TYPE> (k, st);
+			ssum  -= cs_sum_first(k, st);
 			factor = -factor;
 
-			if (t == this->total_tracks() - 1) // last
+			if (t == this->total_tracks() - 1) // last track
 			{
-				a_wsum = last<TYPE> (2940, st) - last<TYPE> (2940 - k_abs, st);
-				a_ssum = cs_sum_last(2940, st) - cs_sum_last(2940 - k_abs, st);
-				a_factor = -k;
+				a_wsum = last<TYPE> (2940, st) - last<TYPE> (2940 - k, st);
+				a_ssum = cs_sum_last(2940, st) - cs_sum_last(2940 - k, st);
+				a_factor = -drive_offset;
 			} else // other than last
 			{
 				const auto next = tracks_[t + 1].subtotals();
 				const auto sz = AccessSt::track_size(st.multiplier).samples();
 
-				a_wsum   = first<TYPE> (k_abs, next);
-				a_ssum   = cs_sum_first(k_abs, next);
-				a_factor = sz - static_cast<int>(k_abs);
+				a_wsum   = first<TYPE> (k, next);
+				a_ssum   = cs_sum_first(k, next);
+				a_factor = sz - static_cast<int>(k);
 			}
 		}
 
@@ -1348,7 +1355,7 @@ public:
 	template <class B, class E>
 	void perform_pre_range(B start, E stop)
 	{
-		current_subtotals().cache(start, stop);
+		current_subtotals().cache(start, stop); // increases multiplier
 
 		ARCS_LOG(DEBUG2) << "Multiplier after caching is: "
 			<< current_track().multiplier();
