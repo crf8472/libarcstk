@@ -250,6 +250,10 @@ struct AccessSt
 
 	/**
 	 * \brief TRUE iff \c k is in <tt>[1,2940]</tt>.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return TRUE iff \c k is valid
 	 */
 	static bool valid(const std::size_t k)
 	{
