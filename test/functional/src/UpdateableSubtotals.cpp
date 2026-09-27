@@ -83,7 +83,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// simple sum of first 2939 samples
 
 	count = 0;
-	for (int64_t i = 1; i <= 2939; ++i)
+	for (int64_t i = 1; i <= fskip/*2939*/; ++i)
 	{
 		count += sdata[static_cast<std::size_t>(i - 1)];
 	}
@@ -99,7 +99,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// simple sum of last 2940 samples
 
 	count = 0;
-	for (int64_t i = 3052896LL; i > 3052896LL - 2940LL; --i)
+	for (int64_t i = 3052896LL; i > (3052896LL - bskip); --i)
 	{
 		count += sdata[static_cast<std::size_t>(i - 1)];
 	}
@@ -111,7 +111,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// subtotal_v1 of first 2939 samples
 
 	count = 0;
-	for (int64_t i = 1; i <= 2939; ++i)
+	for (int64_t i = 1; i <= fskip/*2939*/; ++i)
 	{
 		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
 	}
@@ -131,7 +131,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// subtotal_v1 of last 2940 samples
 
 	count = 0;
-	for (uint64_t i = 3052896; i > 3052896 - 2940; --i)
+	for (uint64_t i = 3052896LL; i > (3052896LL - bskip); --i)
 	{
 		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
 	}
@@ -143,7 +143,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Cache first 2939 values is correct" )
 	{
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
 		st12.finalize();
 
 		// Index is correct after caching
