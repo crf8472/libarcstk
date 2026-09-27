@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+  - API: provide drive offset calculation
   - API: provide class CalculationSet for multi-algorithm calculations
   - API: provide include-all header libarcstk.hpp
   - API: Provide class CheckingDBARBuilder

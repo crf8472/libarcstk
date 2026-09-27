@@ -24,6 +24,8 @@
 #include <string>         // for string
 #include <vector>         // for vector
 
+#include <iostream>
+
 #ifndef LIBARCSTK_ALGORITHM_HPP_
 #include "algorithm.hpp"    // for Algorithm, Updateable
 #endif
@@ -110,10 +112,9 @@ struct Subtotals final
 	/**
 	 * \brief Total number of subtotals.
 	 */
-	static constexpr std::size_t SIZE { 2939 + 2940 + 1 };
+	static constexpr std::size_t SIZE { 2940 + 2940 };
 
-	//            0 : current (k == 0)
-	//    1 -  2939 : first i samples of the track (in order from i == 1)
+	//    0 -  2939 : first i samples of the track (in order from i == 1)
 	// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
 
 	// 5879+
@@ -147,10 +148,26 @@ struct Subtotals final
 	 */
 	storage_type sums {/* all 0 */};
 
+
 	/**
 	 * \brief Current multiplier.
 	 */
 	uint_fast64_t multiplier { 1 };
+
+	/**
+	 * \brief Current subtotal for ARCSv1.
+	 */
+	uint_fast32_t current_subtotal_v1 { 0 };
+
+	/**
+	 * \brief Current subtotal for ARCSv2.
+	 */
+	uint_fast32_t current_subtotal_v2 { 0 };
+
+	/**
+	 * \brief Current sum of subtotals.
+	 */
+	uint_fast32_t current_cs_sum { 0 };
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -162,7 +179,10 @@ struct Subtotals final
 		swap(lhs.subtotals_v1, rhs.subtotals_v1);
 		swap(lhs.subtotals_v2, rhs.subtotals_v2);
 		swap(lhs.sums,         rhs.sums);
-		swap(lhs.multiplier,   rhs.multiplier);
+
+		swap(lhs.multiplier,          rhs.multiplier);
+		swap(lhs.current_subtotal_v1, rhs.current_subtotal_v1);
+		swap(lhs.current_subtotal_v2, rhs.current_subtotal_v2);
 	}
 };
 
@@ -172,6 +192,11 @@ struct Subtotals final
  */
 struct AccessSt
 {
+	/**
+	 * \brief Constant \c 0.
+	 */
+	static constexpr uint_fast32_t ZERO = 0;
+
 	/**
 	 * \brief Return Checksum value type.
 	 *
@@ -198,6 +223,38 @@ struct AccessSt
 		// cast is save for valid input data
 		return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
 	}
+
+	/**
+	 * \brief Index for representing first \c k positions.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return Subtotals index for first \c k positions
+	 */
+	static std::size_t idx_front(const std::size_t k)
+	{
+		return k - 1u; // 0 - 2939
+	}
+
+	/**
+	 * \brief Index for representing last \c k positions.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return Subtotals index for first \c k positions
+	 */
+	static std::size_t idx_back(const std::size_t k)
+	{
+		return 5879u - k + 1u; // 2940 - 5879
+	}
+
+	/**
+	 * \brief TRUE iff \c k is in <tt>[1,2940]</tt>.
+	 */
+	static bool valid(const std::size_t k)
+	{
+		return !(k == 0 || k > 2940u);
+	}
 };
 
 
@@ -221,6 +278,11 @@ struct Access<checksum::type::ARCS1>
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         return st.subtotals_v1[i];
     }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+		return st.current_subtotal_v1;
+	}
 };
 
 
@@ -234,6 +296,11 @@ struct Access<checksum::type::ARCS2>
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 		return st.subtotals_v1[i]/* == 0 */ + st.subtotals_v2[i];
     }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+		return st.current_subtotal_v1 + st.current_subtotal_v2;
+	}
 };
 
 
@@ -249,7 +316,7 @@ struct Access<checksum::type::ARCS2>
 template <enum checksum::type T>
 auto checksum(const Subtotals& st) -> Checksum::value_type
 {
-	return Access<T>::subtotal(st, 0);
+	return Access<T>::checksum(st);
 }
 
 
@@ -262,7 +329,7 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
  */
 inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 {
-	return st.sums[0];
+	return st.current_cs_sum;
 }
 
 
@@ -281,7 +348,9 @@ inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 template <enum checksum::type T>
 auto first(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
-	return (k) ? Access<T>::subtotal(st, k) : 0;
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	return Access<T>::subtotal(st, AccessSt::idx_front(k));
 }
 
 
@@ -300,27 +369,47 @@ auto first(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 template <enum checksum::type T>
 auto last(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
-	return (k) ? Access<T>::subtotal(st, 5879u - k + 1u) : 0;
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	return Access<T>::subtotal(st, AccessSt::idx_back(k));
 }
 
 
 /**
- * \brief Simple sum of combined samples on index <tt>i &gt; 0</tt> and value
- * <tt>0</tt> for index <tt>i == 0</tt>.
+ * \brief Simple sum of first \c k combined samples with \c k in
+ * <tt>[1,2940]</tt> and value \c 0 otherwise.
  *
- * This function only accesses sums for subtotals, not for the current checksum.
- *
- * \param[in] i  Index position
+ * \param[in] k  Amount of values
  * \param[in] st Subtotals to access
  *
- * \return Sum of combined samples on index \c i
+ * \return Sum of first \c k combined samples
  */
-inline const uint_fast32_t& cs_sum(const std::size_t i, const Subtotals& st)
+inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
+	-> Checksum::value_type
 {
-	static constexpr uint_fast32_t ZERO = 0;
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return (i == 0 || i > 5879u) ? ZERO : st.sums[i];
+	return st.sums[AccessSt::idx_front(k)];
+}
+
+
+/**
+ * \brief Simple sum of last \c k combined samples with \c k in
+ * <tt>[1,2940]</tt> and value \c 0 otherwise.
+ *
+ * \param[in] k  Amount of values
+ * \param[in] st Subtotals to access
+ *
+ * \return Sum of last \c k combined samples
+ */
+inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
+	-> Checksum::value_type
+{
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+	return st.sums[AccessSt::idx_back(k)];
 }
 
 
@@ -350,7 +439,7 @@ protected:
 	 * \brief Next index of vectors.
 	 */
 	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
-	mutable std::size_t idx_ { 1 };
+	mutable std::size_t idx_ { 0 };
 
 public:
 
@@ -408,10 +497,11 @@ public:
 	void accumulate(Subtotals& st) const
 	{
 		// accumulate first 2939 in track
-		for (auto i = std::size_t { 2 }; i <= 2939; ++i)
+		for (auto i = std::size_t { 1 }; i <= 2939; ++i)
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
+			st.subtotals_v2[i] += st.subtotals_v2[i - 1]; // FIXME
 			st.sums[i]         += st.sums[i - 1];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
@@ -421,6 +511,7 @@ public:
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
+			st.subtotals_v2[i - 1] += st.subtotals_v2[i]; // FIXME
 			st.sums[i - 1]         += st.sums[i];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
@@ -474,8 +565,8 @@ class Update<checksum::type::ARCS1>
 		{
 			update_ = arcs_v1(st.multiplier, *pos);
 
-			st.subtotals_v1[0] += update_;
-			st.sums[0]         += *pos;
+			st.current_subtotal_v1 += update_;
+			st.current_cs_sum      += *pos;
 
 			if constexpr (KEEP)
 			{
@@ -562,8 +653,8 @@ class Update<checksum::type::ARCS2>
 		{
 			update_ = arcs_v2(st.multiplier, *pos);
 
-			st.subtotals_v2[0] += update_;
-			st.sums[0]         += *pos;
+			st.current_subtotal_v2 += update_;
+			st.current_cs_sum      += *pos;
 
 			if constexpr (KEEP)
 			{
@@ -639,9 +730,9 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 		{
 			update_ = st.multiplier * (*pos);
 
-			st.subtotals_v1[0] += update_ & LOWER_32_BITS_;
-			st.subtotals_v2[0] += (update_ >> 32u);
-			st.sums[0]         += *pos;
+			st.current_subtotal_v1 += update_ & LOWER_32_BITS_;
+			st.current_subtotal_v2 += (update_ >> 32u);
+			st.current_cs_sum      += *pos;
 
 			if constexpr (KEEP)
 			{
@@ -858,7 +949,7 @@ public:
 	{
 		// leading samples to be cached
 		const auto f_remaining = std::size_t
-			{ st_.multiplier <= 2939 ? 2939 - (st_.multiplier - 1) : 0 };
+			{ st_.multiplier <= 2940 ? 2940 - (st_.multiplier - 1) : 0 };
 
 		const auto todo = current_length_ - (st_.multiplier - 1);
 
@@ -1047,12 +1138,13 @@ class ARCSAlgorithm final : public Algorithm
 			throw std::runtime_error("Illegal value for k");
 		}
 
-		if (track_no > CDDA::MAX_TRACKCOUNT)
+		const auto t  = static_cast<std::size_t>(track_no - 1);
+
+		if (t >= total_tracks() || t > CDDA::MAX_TRACKCOUNT)
 		{
 			throw std::runtime_error("Illegal track number");
 		}
 
-		const auto t  = static_cast<std::size_t>(track_no - 1);
 		const auto st = tracks_[t].subtotals();
 
 		if (k == 0) // do not shift
@@ -1062,56 +1154,55 @@ class ARCSAlgorithm final : public Algorithm
 
 		const auto k_abs = static_cast<std::size_t>(std::abs(k));
 
-		auto wsum   = checksum<TYPE>(st); // weighted sum of persistent part
-		auto ssum   = current_cs_sum(st); // simple sum of persistent part
-		//auto ssum   = tracks_[t].sum(0);  // simple sum of persistent part
-		auto factor = std::abs(k);        // factor for persistent part
+		// persistent part: present in previous and shifted sum
+		auto wsum   = checksum<TYPE>(st); // weighted sum
+		auto ssum   = current_cs_sum(st); // simple sum
+		auto factor = std::abs(k);        // factor
 
-		auto a_wsum   = uint32_t { 0 };   // weighted sum of added correction
-		auto a_ssum   = uint32_t { 0 };   // simple sum of added correction
-		auto a_factor =  int32_t { 0 };   // factor for added correction
+		// added correction: present only in shifted sum
+		auto a_wsum   = uint32_t { 0 };   // weighted sum
+		auto a_ssum   = uint32_t { 0 };   // simple sum
+		auto a_factor =  int32_t { 0 };   // factor
 
 		if (k < 0) // shift "leftwards": remove k highest, add k lower indices
 		{
-			wsum -= last<TYPE>(k_abs, st);
-			ssum -= cs_sum(5879 - k_abs + 1, st);
+			wsum -= last<TYPE> (k_abs, st);
+			ssum -= cs_sum_last(k_abs, st);
 
 			if (t == 0) // first
 			{
-				// for k == -2939, second call of first() gets 0
-				a_wsum = first<TYPE>(2939, st) - first<TYPE>(2939 - k_abs, st);
-				a_ssum = cs_sum(2939, st) - cs_sum(2939 - k_abs, st);
+				a_wsum = first<TYPE> (2939, st) - first<TYPE> (2939 - k_abs, st);
+				a_ssum = cs_sum_first(2939, st) - cs_sum_first(2939 - k_abs, st);
 				a_factor = -k;
 			} else // other than first
 			{
 				const auto prev = tracks_[t - 1].subtotals();
 				const auto sz = AccessSt::track_size(prev.multiplier).samples();
 
-				a_wsum   = last<TYPE>(k_abs, prev);
-				a_ssum   = cs_sum(5879 - k_abs + 1, prev);
+				a_wsum   = last<TYPE> (k_abs, prev);
+				a_ssum   = cs_sum_last(k_abs, prev);
 				a_factor = -(sz - static_cast<int>(k_abs));
 			}
 		}
 
 		if (k > 0) // shift "rightwards": remove k lowest, add k higher indices
 		{
-			wsum  -= first<TYPE>(k_abs, st);
-			ssum  -= cs_sum(k_abs, st);
+			wsum  -= first<TYPE> (k_abs, st);
+			ssum  -= cs_sum_first(k_abs, st);
 			factor = -factor;
 
 			if (t == this->total_tracks() - 1) // last
 			{
-				// for k == 2940, second factors impose under- and overflow
-				a_wsum   = last<TYPE>(2940, st) - last<TYPE>(2940 - k_abs, st);
-				a_ssum   = cs_sum(2940, st) - cs_sum(2940 + k_abs, st);
+				a_wsum = last<TYPE> (2940, st) - last<TYPE> (2940 - k_abs, st);
+				a_ssum = cs_sum_last(2940, st) - cs_sum_last(2940 - k_abs, st);
 				a_factor = -k;
 			} else // other than last
 			{
 				const auto next = tracks_[t + 1].subtotals();
 				const auto sz = AccessSt::track_size(st.multiplier).samples();
 
-				a_wsum   = first<TYPE>(k_abs, next);
-				a_ssum   = cs_sum(k_abs, next);
+				a_wsum   = first<TYPE> (k_abs, next);
+				a_ssum   = cs_sum_first(k_abs, next);
 				a_factor = sz - static_cast<int>(k_abs);
 			}
 		}

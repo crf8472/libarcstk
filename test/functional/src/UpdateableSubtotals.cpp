@@ -34,7 +34,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 
-	REQUIRE ( st12.cache_index() == 1 );
+	REQUIRE ( st12.cache_index() == 0 );
 
 	const auto& st = st12.subtotals();
 
@@ -109,56 +109,58 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Cache first 2939 values is correct" )
 	{
-		st12.cache(cbegin(sdata), cbegin(sdata) + 2939);
+		st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
 		st12.finalize();
 
 		// Index is correct after caching
 
 		CHECK ( st12.cache_index() == 2940 );
-		CHECK ( st.sums[0] == 0 );
-		CHECK ( st.subtotals_v1[0] == 0 );
-		CHECK ( st.subtotals_v2[0] == 0 );
+		CHECK ( st.current_subtotal_v1 == 0 );
+		CHECK ( st.current_subtotal_v2 == 0 );
+		CHECK ( st.current_cs_sum      == 0 );
 
 		// Check accumulated simple sums
 
-		CHECK ( st.sums[   1] == 1 );
-		CHECK ( st.sums[   2] == 3 );
-		CHECK ( st.sums[   3] == 6 );
+		CHECK ( st.sums[   0] == 1 );
+		CHECK ( st.sums[   1] == 3 );
+		CHECK ( st.sums[   2] == 6 );
 		// ...
-		CHECK ( st.sums[2937] == sum_first_2939 - 2939 - 2938 );
-		CHECK ( st.sums[2938] == sum_first_2939 - 2939 );
-		CHECK ( st.sums[2939] == sum_first_2939 );
+		CHECK ( st.sums[2936] == sum_first_2939 - 2939 - 2938 );
+		CHECK ( st.sums[2937] == sum_first_2939 - 2939 );
+		CHECK ( st.sums[2938] == sum_first_2939 );
 
-		CHECK ( st.sums[2940] == 0 );
+		CHECK ( st.sums[2939] == sum_first_2939 + 2940 );
 
 		// Check accumulated subtotals for ARCSv1
 
-		CHECK ( st.subtotals_v1[1] ==  1 );
-		CHECK ( st.subtotals_v1[2] ==  5 );
-		CHECK ( st.subtotals_v1[3] == 14 );
+		CHECK ( st.subtotals_v1[0] ==  1 );
+		CHECK ( st.subtotals_v1[1] ==  5 );
+		CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
-		CHECK ( st.subtotals_v1[2938] == v1_first_2939 - (2939 * 2939) );
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939 );
+		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
+		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
 
-		CHECK ( st.subtotals_v1[2941] == 0 );
+		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940 &
+				0xFFFFFFFF) );
 
 		// Check accumulated subtotals for ARCSv2
 
+		CHECK ( st.subtotals_v2[0] == 0 );
 		CHECK ( st.subtotals_v2[1] == 0 );
 		CHECK ( st.subtotals_v2[2] == 0 );
-		CHECK ( st.subtotals_v2[2] == 0 );
 		//
+		CHECK ( st.subtotals_v2[2938] == 0 );
 		CHECK ( st.subtotals_v2[2939] == 0 );
-		CHECK ( st.subtotals_v2[2940] == 0 );
 
+		CHECK ( st.subtotals_v2[2940] == 0 );
 		CHECK ( st.subtotals_v2[2941] == 0 );
 	}
 
 	SECTION ( "Caches first 2939 and last 2940 values correctly" )
 	{
-		st12.cache(cbegin(sdata), cbegin(sdata) + 2939);
+		st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
 
-		REQUIRE ( st.sums[2939] == 2939 );
+		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
 		REQUIRE ( st12.cache_index() == 2940 );
@@ -166,7 +168,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		st12.set_multiplier(3052896 - 2940 + 1);
 		st12.cache(cbegin(sdata) + (3052896 - 2940), cend(sdata));
 
-		REQUIRE ( st.sums[2939] == 2939 );
+		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
 		REQUIRE ( st12.cache_index() == 5880 );
@@ -183,12 +185,12 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.sums[2941] == 3052896 - 2940 + 2 );
 		REQUIRE ( st.sums[2940] == 3052896 - 2940 + 1 );
 
-		REQUIRE ( st.sums[2939] == 2939 );
-		REQUIRE ( st.sums[2938] == 2938 );
+		REQUIRE ( st.sums[2939] == 2940 );
+		REQUIRE ( st.sums[2938] == 2939 );
 		// ...
-		REQUIRE ( st.sums[   3] == 3 );
-		REQUIRE ( st.sums[   2] == 2 );
-		REQUIRE ( st.sums[   1] == 1 );
+		REQUIRE ( st.sums[   3] == 4 );
+		REQUIRE ( st.sums[   2] == 3 );
+		REQUIRE ( st.sums[   1] == 2 );
 
 		// Values subtotals v1 are correctly stored
 
@@ -202,12 +204,12 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.subtotals_v1[2941] == ((static_cast<uint64_t>(3052896 - 2940 + 2) * static_cast<uint32_t>(3052896 - 2940 + 2)) & 0xFFFFFFFFu) );
 		REQUIRE ( st.subtotals_v1[2940] == ((static_cast<uint64_t>(3052896 - 2940 + 1) * static_cast<uint32_t>(3052896 - 2940 + 1)) & 0xFFFFFFFFu) );
 
-		REQUIRE ( st.subtotals_v1[2939] == 2939 * 2939 );
-		REQUIRE ( st.subtotals_v1[2938] == 2938 * 2938 );
+		REQUIRE ( st.subtotals_v1[2939] == 2940 * 2940 );
+		REQUIRE ( st.subtotals_v1[2938] == 2939 * 2939 );
 		// ...
-		REQUIRE ( st.subtotals_v1[   3] == 3 * 3 );
-		REQUIRE ( st.subtotals_v1[   2] == 2 * 2 );
-		REQUIRE ( st.subtotals_v1[   1] == 1 * 1 );
+		REQUIRE ( st.subtotals_v1[   2] == 3 * 3 );
+		REQUIRE ( st.subtotals_v1[   1] == 2 * 2 );
+		REQUIRE ( st.subtotals_v1[   0] == 1 * 1 );
 
 		// Perform accumulation
 
@@ -226,13 +228,14 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.sums[2941] == sum_last_2940 - (3052896 - 2940 + 1) );
 		CHECK ( st.sums[2940] == sum_last_2940 );
 
-		CHECK ( st.sums[2939] == sum_first_2939 );
-		CHECK ( st.sums[2938] == sum_first_2939 - 2939 );
-		CHECK ( st.sums[2937] == sum_first_2939 - 2939 - 2938 );
+		CHECK ( st.sums[2939] == sum_first_2939 + 2940 );
+		CHECK ( st.sums[2938] == sum_first_2939 );
+		CHECK ( st.sums[2937] == sum_first_2939 - 2939 );
+		CHECK ( st.sums[2936] == sum_first_2939 - 2939 - 2938 );
 		// ...
-		CHECK ( st.sums[   3] == 6 );
-		CHECK ( st.sums[   2] == 3 );
-		CHECK ( st.sums[   1] == 1 );
+		CHECK ( st.sums[   2] == 6 );
+		CHECK ( st.sums[   1] == 3 );
+		CHECK ( st.sums[   0] == 1 );
 
 
 		// TODO Check accumulated subtotals for ARCSv1
@@ -250,24 +253,25 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		// CHECK ( st.subtotals_v1[2941] == v1_last_2940 - (2939 * 2939) );
 		CHECK ( st.subtotals_v1[2940] == v1_last_2940 );
 
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939 );
-		CHECK ( st.subtotals_v1[2938] == v1_first_2939 - (2939 * 2939) );
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) - (2938 * 2938) );
+		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940) );
+		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
+		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
+		CHECK ( st.subtotals_v1[2936] == v1_first_2939 - (2939 * 2939) - (2938 * 2938) );
 		// ...
-		CHECK ( st.subtotals_v1[   3] == 3 * 3 + 2 * 2 + 1 * 1 );
-		CHECK ( st.subtotals_v1[   2] == 2 * 2 + 1 * 1 );
-		CHECK ( st.subtotals_v1[   1] == 1 * 1 );
+		CHECK ( st.subtotals_v1[   2] == 3 * 3 + 2 * 2 + 1 * 1 );
+		CHECK ( st.subtotals_v1[   1] == 2 * 2 + 1 * 1 );
+		CHECK ( st.subtotals_v1[   0] == 1 * 1 );
 
 		// Check subtotals for ARCSv2
 
 		CHECK ( st.subtotals_v2[5879] == 2170 );
-		CHECK ( st.subtotals_v2[5878] == 2170 );
-		CHECK ( st.subtotals_v2[5877] == 2170 );
+		CHECK ( st.subtotals_v2[5878] == 4340 );
+		CHECK ( st.subtotals_v2[5877] == 6510 );
 		// ...
-		CHECK ( st.subtotals_v2[2942] == 2165 );
-		CHECK ( st.subtotals_v2[2941] == 2165 );
-		CHECK ( st.subtotals_v2[2940] == 2165 );
-
+		CHECK ( st.subtotals_v2[2942] == 6367887 );
+		CHECK ( st.subtotals_v2[2941] == 6370052 );
+		CHECK ( st.subtotals_v2[2940] == 6372217 );
+		//
 		CHECK ( st.subtotals_v2[2939] == 0 );
 		CHECK ( st.subtotals_v2[2938] == 0 );
 		CHECK ( st.subtotals_v2[2937] == 0 );
@@ -278,16 +282,16 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		//
 
-		CHECK ( st.subtotals_v1[0] == 0 );
-		CHECK ( st.subtotals_v2[0] == 0 );
-		CHECK ( st.sums[0]         == 0 );
+		CHECK ( st.current_subtotal_v1 == 0 );
+		CHECK ( st.current_subtotal_v2 == 0 );
+		CHECK ( st.current_cs_sum      == 0 );
 	}
 
 
 
 	SECTION ( "Update over first 2940 values is correct" )
 	{
-		CHECK ( st12.cache_index() == 1 );
+		CHECK ( st12.cache_index() == 0 );
 		CHECK ( *cbegin(sdata) == 1 );
 		CHECK ( *cbegin(sdata) + 2939 - 1 == 2939 );
 
@@ -296,7 +300,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		// Index is correct after caching
 
 		//CHECK ( st12.cache_index() == 2941 );
-		CHECK ( st.sums[0] == sum_first_2939 );
+		CHECK ( st.current_cs_sum == sum_first_2939 );
 
 		// Check simple sums
 
@@ -328,8 +332,8 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		//
 
-		CHECK ( st.subtotals_v1[0] == v1_first_2939 );
-		CHECK ( st.subtotals_v2[0] == 0 );
+		CHECK ( st.current_subtotal_v1 == v1_first_2939 );
+		CHECK ( st.current_subtotal_v2 == 0 );
 
 		// CHECK ( st.subtotals_v1[0] ==  607434128 ); // ?
 		// CHECK ( st.subtotals_v2[0] == 2206772158 ); // ?

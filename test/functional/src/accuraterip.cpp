@@ -340,6 +340,137 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 }
 
 
+TEST_CASE ( "first<>() is correct", "[arcsalgorithm] [calc]" )
+{
+	using arcstk::accuraterip::details::UpdateableSubtotals;
+	using arcstk::accuraterip::details::first;
+	using arcstk::checksum::type;
+
+	using arcstk::testing::data::standard_data;
+
+	using std::cbegin;
+	using std::cend;
+
+	const auto sdata = standard_data(3052896);
+
+	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
+	st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+	st12.finalize();
+
+	const auto st = st12.subtotals();
+
+	SECTION ( "for 0" )
+	{
+		CHECK ( first<type::ARCS1>(0, st) == 0 );
+	}
+
+	SECTION ( "from 1 to 2940" )
+	{
+		CHECK ( first<type::ARCS1>(1, st) == 1 * 1 );
+		CHECK ( first<type::ARCS1>(2, st) == 1 * 1 + 2 * 2 );
+		CHECK ( first<type::ARCS1>(3, st) == 1 * 1 + 2 * 2 + 3 * 3 );
+		// ...
+		CHECK ( first<type::ARCS1>(2940, st) == 4180082994 );
+	}
+
+	SECTION ( "for illegal values (> 2940)" )
+	{
+		CHECK ( first<type::ARCS1>(2941, st) == 0 );
+		CHECK ( first<type::ARCS1>(2942, st) == 0 );
+		CHECK ( first<type::ARCS1>(2943, st) == 0 );
+		//CHECK ( first<type::ARCS1>(6000, st) == 0 );
+	}
+}
+
+
+TEST_CASE ( "last<>() is correct", "[arcsalgorithm] [calc]" )
+{
+	using arcstk::accuraterip::details::UpdateableSubtotals;
+	using arcstk::accuraterip::details::last;
+	using arcstk::checksum::type;
+
+	using arcstk::testing::data::standard_data;
+
+	using std::cbegin;
+	using std::cend;
+
+	const auto sdata = standard_data(3052896);
+
+	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
+	st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+	//st12.cache(cbegin(sdata) + (3052896 - 2940), cend(sdata));
+	st12.finalize();
+
+	const auto st = st12.subtotals();
+
+	SECTION ( "for 0" )
+	{
+		CHECK ( last<type::ARCS1>(0, st) == 0 );
+	}
+
+	// SECTION ( "from 1 to 2940" )
+	// {
+	// 	CHECK ( st.subtotals_v1[5879] == (3052896 * 3052896 & 0xFFFFFFFF) );
+	// 	CHECK ( last<type::ARCS1>(1, st) == (3052896 * 3052896 & 0xFFFFFFFF) );
+	// 	CHECK ( last<type::ARCS1>(2, st) == 1 * 1 + 2 * 2 );
+	// 	CHECK ( last<type::ARCS1>(3, st) == 1 * 1 + 2 * 2 + 3 * 3 );
+	// 	// ...
+	// 	CHECK ( last<type::ARCS1>(2940, st) == 4180082994 );
+	// }
+
+	// SECTION ( "for illegal values (> 2940)" )
+	// {
+	// 	CHECK ( last<type::ARCS1>(2941, st) == 0 );
+	// 	CHECK ( last<type::ARCS1>(2942, st) == 0 );
+	// 	CHECK ( last<type::ARCS1>(2943, st) == 0 );
+	// 	CHECK ( last<type::ARCS1>(6000, st) == 0 );
+	// }
+}
+
+
+// TEST_CASE ( "cs_sum() is correct", "[arcsalgorithm] [calc]" )
+// {
+// 	using arcstk::accuraterip::details::UpdateableSubtotals;
+// 	using arcstk::accuraterip::details::cs_sum;
+// 	using arcstk::checksum::type;
+//
+// 	using arcstk::testing::data::standard_data;
+//
+// 	using std::cbegin;
+// 	using std::cend;
+//
+// 	const auto sdata = standard_data(3052896);
+//
+// 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
+// 	st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+// 	st12.finalize();
+//
+// 	const auto st = st12.subtotals();
+//
+// 	SECTION ( "for 0" )
+// 	{
+// 		CHECK ( cs_sum(0, st) == 0 );
+// 	}
+//
+// 	SECTION ( "from 1 to 2940" )
+// 	{
+// 		CHECK ( cs_sum(1, st) == 1  );
+// 		CHECK ( cs_sum(2, st) == 1 + 2 );
+// 		CHECK ( cs_sum(3, st) == 1 + 2 + 3 );
+// 		// ...
+// 		//CHECK ( cs_sum(2940, st) == 4323270 );
+// 	}
+//
+// 	SECTION ( "for illegal values (> 5880)" )
+// 	{
+// 		CHECK ( cs_sum(2941, st) == 0 );
+// 		CHECK ( cs_sum(2942, st) == 0 );
+// 		CHECK ( cs_sum(2943, st) == 0 );
+// 		CHECK ( cs_sum(6000, st) == 0 );
+// 	}
+// }
+
+
 TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 {
 	using arcstk::AudioSize;
@@ -462,12 +593,19 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 		REQUIRE ( arcs_v1_3_track == shifted_checksum ); // == 754445216
 
 
-		CHECK ( checksum_value(v1.track(1, 3)) == 0x2CF7EBA0 );
+		auto arcs_v1_2940_track = uint32_t { 0 };
+		cs = 2941;
+		for (uint64_t i = 1; i <= 3052896; ++i, ++cs)
+		{
+			arcs_v1_2940_track += (i * cs & 0xFFFFFFFF);
+		}
+
+		REQUIRE ( arcs_v1_2940_track == 0xAF7FAAD0 );
 
 		// More k > 0 ...
 		CHECK ( checksum_value(v1.track(1,    1)) == 0x27207240 );
 		CHECK ( checksum_value(v1.track(1,    2)) == 0x2A0C2EF0 );
-		CHECK ( checksum_value(v1.track(1,    3)) == 0x2CF7EBA0 );
+		CHECK ( checksum_value(v1.track(1,    3)) == 0x2CF7EBA0 ); //
 		CHECK ( checksum_value(v1.track(1,    4)) == 0x2FE3A850 );
 		CHECK ( checksum_value(v1.track(1,    5)) == 0x32CF6500 );
 		// ...
@@ -475,7 +613,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 		CHECK ( checksum_value(v1.track(1, 2937)) == 0xA6BC74C0 );
 		CHECK ( checksum_value(v1.track(1, 2938)) == 0xA9A83170 );
 		CHECK ( checksum_value(v1.track(1, 2939)) == 0xAC93EE20 );
-		CHECK ( checksum_value(v1.track(1, 2940)) == 0x98E9C050 );
+		CHECK ( checksum_value(v1.track(1, 2940)) == 0xAF7FAAD0 ); //
 	}
 
 	SECTION ("Shift last track by k > 0 with ARCSv1")
@@ -550,21 +688,6 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 		REQUIRE ( arcs1_over_standard_data(4, 3052896 - 2940) == 0xC9A50F5C );
 
 
-		CHECK ( checksum_value(v1.track(1, 3)) == 0xC9A50F5C );
-
-		// More k > 0 ...
-		CHECK ( checksum_value(v1.track(1,    1)) == 0xF140B268 );
-		CHECK ( checksum_value(v1.track(1,    2)) == 0xDD72E0E2 );
-		CHECK ( checksum_value(v1.track(1,    3)) == 0xC9A50F5C );
-		CHECK ( checksum_value(v1.track(1,    4)) == 0xB5D73DD6 );
-		CHECK ( checksum_value(v1.track(1,    5)) == 0xA2096C50 );
-		// ...
-		CHECK ( checksum_value(v1.track(1, 2936)) == 0xE4938B1E );
-		CHECK ( checksum_value(v1.track(1, 2937)) == 0xD0C5B998 );
-		CHECK ( checksum_value(v1.track(1, 2938)) == 0xBCF7E812 );
-		CHECK ( checksum_value(v1.track(1, 2939)) == 0xA92A168C );
-		//CHECK ( checksum_value(v1.track(1, 2940)) == 0x955C4506 );
-
 		auto arcs_v1_2940_track = uint32_t { 0 };
 		cs = 2941;
 		for (uint64_t i = 1; i <= 3052896 - 2940; ++i, ++cs)
@@ -572,6 +695,23 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 			arcs_v1_2940_track += (i * cs & 0xFFFFFFFF);
 		}
 		REQUIRE ( arcs_v1_2940_track == 0x955C4506 ); // 2940
+		REQUIRE ( arcs1_over_standard_data(2941, 3052896 - 2940) == 0x955C4506 );
+
+
+		//CHECK ( checksum_value(v1.track(1, 3)) == 0xC9A50F5C );
+
+		// More k > 0 ...
+		CHECK ( checksum_value(v1.track(1,    1)) == 0xF140B268 );
+		CHECK ( checksum_value(v1.track(1,    2)) == 0xDD72E0E2 );
+		CHECK ( checksum_value(v1.track(1,    3)) == 0xC9A50F5C ); //
+		CHECK ( checksum_value(v1.track(1,    4)) == 0xB5D73DD6 );
+		CHECK ( checksum_value(v1.track(1,    5)) == 0xA2096C50 );
+		// ...
+		CHECK ( checksum_value(v1.track(1, 2936)) == 0xE4938B1E );
+		CHECK ( checksum_value(v1.track(1, 2937)) == 0xD0C5B998 );
+		CHECK ( checksum_value(v1.track(1, 2938)) == 0xBCF7E812 );
+		CHECK ( checksum_value(v1.track(1, 2939)) == 0xA92A168C );
+		CHECK ( checksum_value(v1.track(1, 2940)) == 0x955C4506 ); //
 	}
 
 	SECTION ("Shift inner track by k < 0 with ARCSv1")
@@ -632,8 +772,6 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 
 		//
 
-		CHECK ( checksum_value(v1.track(2, -3)) == 0x1C88FFC0 );
-
 		// More k < 0 ...
 		CHECK ( checksum_value(v1.track(1,    -1)) == 0x21ccd174 );
 		CHECK ( checksum_value(v1.track(1,    -2)) == 0x1f64ed58 );
@@ -641,7 +779,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 
 		CHECK ( checksum_value(v1.track(2,    -1)) == 0x21778E40 );
 		CHECK ( checksum_value(v1.track(2,    -2)) == 0x1EE8FC50 );
-		CHECK ( checksum_value(v1.track(2,    -3)) == 0x1C88FFC0 );
+		CHECK ( checksum_value(v1.track(2,    -3)) == 0x1C88FFC0 ); //
 		CHECK ( checksum_value(v1.track(2,    -4)) == 0x1A579890 );
 		CHECK ( checksum_value(v1.track(2,    -5)) == 0x1854C6C0 );
 		// ...
@@ -722,17 +860,17 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 		REQUIRE ( arcs_v1_5_track == 0x1E408670 ); // -5
 
 		// More k < 0 ...
-		CHECK ( checksum_value(v1.track(1,    -1)) == 0x28E7C808 );
-		CHECK ( checksum_value(v1.track(1,    -2)) == 0x263DF7A2 );
-		CHECK ( checksum_value(v1.track(1,    -3)) == 0x2394273C );
-		CHECK ( checksum_value(v1.track(1,    -4)) == 0x20EA56D6 );
-		CHECK ( checksum_value(v1.track(1,    -5)) == 0x1E408670 );
+		CHECK ( checksum_value(v1.track(1,    -1)) == 0x28E7C808 ); //
+		CHECK ( checksum_value(v1.track(1,    -2)) == 0x263DF7A2 ); //
+		CHECK ( checksum_value(v1.track(1,    -3)) == 0x2394273C ); //
+		CHECK ( checksum_value(v1.track(1,    -4)) == 0x20EA56D6 ); //
+		CHECK ( checksum_value(v1.track(1,    -5)) == 0x1E408670 ); //
 		// ...
 		CHECK ( checksum_value(v1.track(1, -2935)) == 0xA2AD5704 );
 		CHECK ( checksum_value(v1.track(1, -2936)) == 0xA003869E );
 		CHECK ( checksum_value(v1.track(1, -2937)) == 0x9D59B638 );
-		CHECK ( checksum_value(v1.track(1, -2938)) == 0x9AAFE5D2 );
-		CHECK ( checksum_value(v1.track(1, -2939)) == 0x9806156C );
+		CHECK ( checksum_value(v1.track(1, -2938)) == 0x9AAFE5D2 ); //
+		CHECK ( checksum_value(v1.track(1, -2939)) == 0x9806156C ); //
 
 		auto arcs_v1_2938_track = uint32_t { 0 };
 		cs = uint32_t { 2 };
