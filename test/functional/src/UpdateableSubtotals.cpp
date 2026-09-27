@@ -192,7 +192,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Caches first 2939 and last 2940 values correctly" )
 	{
-		st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
@@ -200,7 +200,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st12.cache_index() == 2940 );
 
 		st12.set_multiplier(3052896 - 2940 + 1);
-		st12.cache(cbegin(sdata) + (3052896 - 2940), cend(sdata));
+		st12.cache(cbegin(sdata) + to_ptrdiff(3052896 - 2940), cend(sdata));
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
@@ -327,9 +327,9 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	{
 		CHECK ( st12.cache_index() == 0 );
 		CHECK ( *cbegin(sdata) == 1 );
-		CHECK ( *cbegin(sdata) + 2939 - 1 == 2939 );
+		CHECK ( *cbegin(sdata) + to_ptrdiff(2939 - 1) == 2939 );
 
-		st12.update(cbegin(sdata), cbegin(sdata) + 2939, 2939);
+		st12.update(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2939), 2939);
 
 		// Index is correct after caching
 
