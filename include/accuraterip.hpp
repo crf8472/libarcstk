@@ -938,6 +938,42 @@ public:
 		current_length_ = samples;
 	}
 
+	/*
+	template <class B, class E>
+	void update_f450(B start, E stop)
+	{
+		// Frame 450:
+		// This index is 0-based, so it is the 451. frame counted
+		// 450 * 588 == 264.600 Samples  ->  264.601 is 1st sample in f450
+		// 451 * 588 == 265.188 Samples  ->  265.188 is last sample in f450
+		// To shift -2939 we need the 5 frames before: 445 - 449
+		// To shift +2940 we need the 4 frames after:  451 - 454
+		// 445 * 588 == 261.660 Samples  ->  261.661 is 1st sample in f445
+		// 454 * 588 == 266.952 Samples  ->  266.952 is last sample in f454
+
+		static constexpr auto f445_1st  = std::size_t { 261661u };
+		static constexpr auto f450_1st  = std::size_t { 264601u };
+		static constexpr auto f450_last = std::size_t { 265188u };
+		static constexpr auto f454_last = std::size_t { 266952u };
+
+		const auto left_before_start = std::size_t
+			{ st_.multiplier <= f445_1st ? f445_1st - (st_.multiplier - 1) : 0 };
+
+		const auto left_before_end = std::size_t
+			{ st_.multiplier <= f454_last ? f454_last - (st_.multiplier - 1) : 0 };
+
+		const auto amount_left_to_cache = left_before_end - (size +
+				st_.multiplier - 1);
+
+		if ()
+		{
+			// b = start + static_cast<int>(left_before_start)
+			// e = start + static_cast<int>(amount_left_to_cache)
+			// cache(b, e);
+		}
+	}
+	*/
+
 	/**
 	 * \brief Update the instance by a sequence of samples.
 	 *
