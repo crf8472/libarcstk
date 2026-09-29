@@ -130,7 +130,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	const auto sum_last_2940 = cachevar;
 
 	//REQUIRE (sum_last_2940 == 381259318 ); // with overflow
-	REQUIRE (v32(sum_last_2940) == v32(8971193910) );
+	REQUIRE (v32(sum_last_2940) == v32(8971193910) ); // -Woverflow
 
 
 	// subtotal_v1 of first 2939 samples
@@ -143,7 +143,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	const auto v1_first_2939 = cachevar;
 
 	//REQUIRE ( v1_first_2939 == 4171439394 ); // with overflow
-	REQUIRE ( v32(v1_first_2939) == v32(8466406690) );
+	REQUIRE ( v32(v1_first_2939) == v32(8466406690) ); // -Woverflow
 
 
 	// subtotal_v1 of last 2940 samples
@@ -156,7 +156,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	const auto v1_last_2940 = cachevar;
 
 	//REQUIRE ( v1_last_2940 == 522596770 ); // with overflow
-	REQUIRE ( v32(v1_last_2940) == v32(6477333279138) );
+	REQUIRE ( v32(v1_last_2940) == v32(6477333279138) ); // -Woverflow
 
 
 	SECTION ( "Store and accumulate first 2939 and last 2940 simple sums"
@@ -403,8 +403,8 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		// Checksums are correct
 
-		CHECK ( st.current_subtotal_v1 == v1_first_2939 + arcs_v1(2940, 2940) );
-		CHECK ( st.current_subtotal_v1 == 8475050290 );
+		CHECK ( v32(st.current_subtotal_v1) == v32(v1_first_2939 + arcs_v1(2940, 2940)) );
+		CHECK ( v32(st.current_subtotal_v1) == v32(8475050290) );
 
 		CHECK ( st.current_subtotal_v2 == 0 ); // no bits higher than 31
 
