@@ -78,7 +78,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	REQUIRE ( *(cbegin(sdata) + to_ptrdiff(tsize - bskip)) == tsize - bskip + 1 );
 
 	using multiplier_t = uint_fast64_t; // type of the multiplier
-	using cachevar_t   = uint_fast32_t; // type of the accumulating variable
+	using cachevar_t   = uint32_t; // type of the accumulating variable
 
 	// same types as in Update<>
 	auto arcs_v1 = [](const multiplier_t m, const uint32_t v) -> uint32_t
@@ -87,7 +87,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	};
 
 	// reuse this
-	auto cachevar = uint64_t { 0 };
+	auto cachevar = cachevar_t { 0 };
 
 	auto index = [](const multiplier_t m) -> std::size_t
 	{
