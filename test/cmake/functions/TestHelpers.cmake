@@ -89,11 +89,11 @@ function (add_test_suite CATEGORY ) # {{{1
 	## Discover and register all tests from the executable to CTest
 	catch_discover_tests (${CATEGORY}_tests
 		TEST_PREFIX       "${CATEGORY}/"
-		REPORTER          "console"
-		# REPORTER          "junit"
-		# OUTPUT_DIR        "${LIBARCSTK_BINARY_DIR}/reports"
-		# OUTPUT_PREFIX     "report."
-		# OUTPUT_SUFFIX     ".xml"
+		# REPORTER          "console" # Activate to see errors in Github/Actions
+		REPORTER          "junit"
+		OUTPUT_DIR        "${LIBARCSTK_BINARY_DIR}/reports"
+		OUTPUT_PREFIX     "report."
+		OUTPUT_SUFFIX     ".xml"
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		PROPERTIES        ${TEST_PROPERTIES}
 	)
