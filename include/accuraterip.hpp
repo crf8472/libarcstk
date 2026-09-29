@@ -959,6 +959,11 @@ public:
 		const auto left_before_start = std::size_t
 			{ st_.multiplier <= f445_1st ? f445_1st - (st_.multiplier - 1) : 0 };
 
+		if (left_before_start < size)
+		{
+			// f450 area starts in this update
+		}
+
 		const auto left_before_end = std::size_t
 			{ st_.multiplier <= f454_last ? f454_last - (st_.multiplier - 1) : 0 };
 
