@@ -54,11 +54,11 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	using arcstk::testing::data::standard_data;
 
-	const auto tsize  = int64_t { 3052896 };
+	const auto tsize  = uint64_t { 3052896 };
 	// length of Bach, Organ Concertos, Track 1
 
-	const auto fskip  = int64_t { 2939 };
-	const auto bskip  = int64_t { 2940 };
+	const auto fskip  = uint64_t { 2939 };
+	const auto bskip  = uint64_t { 2940 };
 
 	const auto sdata = standard_data(tsize);
 
@@ -102,6 +102,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// reuse this
 	auto cachevar = cachevar_t { 0 };
 
+	// turn multiplier to index
 	auto index = [](const multiplier_t m) -> std::size_t
 	{
 		return static_cast<std::size_t>(m);
@@ -122,7 +123,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// simple sum of last 2940 samples
 
 	cachevar = 0;
-	for (multiplier_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	for (multiplier_t i = 3052896; i > (3052896 - bskip); --i)
 	{
 		cachevar += sdata[index(i - 1)];
 	}
@@ -148,7 +149,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// subtotal_v1 of last 2940 samples
 
 	cachevar = 0;
-	for (multiplier_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	for (multiplier_t i = 3052896; i > (3052896 - bskip); --i)
 	{
 		cachevar += arcs_v1(i, sdata[index(i - 1)]);
 	}
