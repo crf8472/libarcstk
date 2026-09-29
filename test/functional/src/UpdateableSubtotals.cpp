@@ -54,16 +54,13 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	using arcstk::testing::data::standard_data;
 
-	const auto tsize  = int64_t { 3052896 };
+	const auto tsize  = uint64_t { 3052896 };
 	// length of Bach, Organ Concertos, Track 1
 
-	const auto fskip  = int64_t { 2939 };
-	const auto bskip  = int64_t { 2940 };
+	const auto fskip  = uint64_t { 2939 };
+	const auto bskip  = uint64_t { 2940 };
 
 	const auto sdata = standard_data(tsize);
-
-	// reuse this
-	auto count = uint64_t { 0 };
 
 	REQUIRE ( sdata[      0] ==     1 );
 	REQUIRE ( sdata[3052895] == tsize );
@@ -80,65 +77,86 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// 3049957
 	REQUIRE ( *(cbegin(sdata) + to_ptrdiff(tsize - bskip)) == tsize - bskip + 1 );
 
+	using multiplier_t = uint_fast64_t; // type of the multiplier
+	using cachevar_t   = uint_fast32_t; // type of the accumulating variable
+
+	// NOTE: type uint_fast32_t is allowed to be bigger than 32 bit.
+	// The width of the caching type that is used to accumulate the products
+	// is therefore platform dependent: it is at least 32 bit but may be bigger.
+	// If we accept this, we MUST normalize the access to ensure deterministic
+	// overflows in the result. We just have to cast values that are bigger than
+	// 2^{32} - 1 to 32 bit.
+
+	// same types as in Update<>
+	auto arcs_v1 = [](const multiplier_t m, const uint32_t v) -> uint32_t
+	{
+		return m * v & 0xFFFFFFFF;
+	};
+
+	// convert to uint32_t (in case uint_fast32_t is not 32 bit wide)
+	auto v32 = [](const cachevar_t v) -> uint32_t
+	{
+		return static_cast<uint32_t>(v);
+	};
+
+	// reuse this
+	auto cachevar = cachevar_t { 0 };
+
+	// turn multiplier to index
+	auto index = [](const multiplier_t m) -> std::size_t
+	{
+		return static_cast<std::size_t>(m);
+	};
 
 	// simple sum of first 2939 samples
 
-	count = 0;
-	for (int64_t i = 1; i <= fskip/*2939*/; ++i)
+	cachevar = 0;
+	for (multiplier_t i = 1; i <= fskip/*2939*/; ++i)
 	{
-		count += sdata[static_cast<std::size_t>(i - 1)];
+		cachevar += sdata[index(i - 1)];
 	}
-	const auto sum_first_2939 = count;
+	const auto sum_first_2939 = cachevar;
 
-	REQUIRE (sum_first_2939 == 4320330LL );
-
-	// Simpler variant, kept for reference:
-	// const auto sum_first_2939 =
-	// 	std::accumulate(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2939), 0u);
+	REQUIRE (sum_first_2939 == 4320330 );
 
 
 	// simple sum of last 2940 samples
 
-	count = 0;
-	for (int64_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	cachevar = 0;
+	for (multiplier_t i = 3052896; i > (3052896 - bskip); --i)
 	{
-		count += sdata[static_cast<std::size_t>(i - 1)];
+		cachevar += sdata[index(i - 1)];
 	}
-	const auto sum_last_2940 = count;
+	const auto sum_last_2940 = cachevar;
 
-	REQUIRE (sum_last_2940 == 8971193910LL );
+	//REQUIRE (sum_last_2940 == 381259318 ); // with overflow
+	REQUIRE (v32(sum_last_2940) == v32(8971193910) ); // -Woverflow
 
 
 	// subtotal_v1 of first 2939 samples
 
-	count = 0;
-	for (/*unsigned*/uint64_t i = 1; i <= fskip/*2939*/; ++i)
+	cachevar = 0;
+	for (multiplier_t i = 1; i <= fskip/*2939*/; ++i)
 	{
-		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
+		cachevar += arcs_v1(i, sdata[index(i - 1)]);
 	}
-	const auto v1_first_2939 = count;
+	const auto v1_first_2939 = cachevar;
 
-	REQUIRE ( v1_first_2939 == 8466406690UL );
-
-	// Interesting alternative, kept for reference:
-	// const uint64_t v1_first_2939 = std::inner_product(
-	// 	cbegin(sdata),
-	// 	cbegin(sdata) + 2939,
-	// 	cbegin(sdata), // multiply with itself, no overflows in this range
-	// 	static_cast<uint64_t>(0)
-	// );
+	//REQUIRE ( v1_first_2939 == 4171439394 ); // with overflow
+	REQUIRE ( v32(v1_first_2939) == v32(8466406690) ); // -Woverflow
 
 
 	// subtotal_v1 of last 2940 samples
 
-	count = 0;
-	for (uint64_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	cachevar = 0;
+	for (multiplier_t i = 3052896; i > (3052896 - bskip); --i)
 	{
-		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
+		cachevar += arcs_v1(i, sdata[index(i - 1)]);
 	}
-	const auto v1_last_2940 = count;
+	const auto v1_last_2940 = cachevar;
 
-	REQUIRE ( v1_last_2940 == 6477333279138LL );
+	//REQUIRE ( v1_last_2940 == 522596770 ); // with overflow
+	REQUIRE ( v32(v1_last_2940) == v32(6477333279138) ); // -Woverflow
 
 
 	SECTION ( "Store and accumulate first 2939 and last 2940 simple sums"
@@ -187,9 +205,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.sums[5878] == 3052896 + 3052895 );
 		CHECK ( st.sums[5877] == 3052896 + 3052895 + 3052894 );
 		// ...
-		CHECK ( st.sums[2942] == sum_last_2940 - (3052896 - 2940 + 1) - (3052896 - 2940 + 2) );
-		CHECK ( st.sums[2941] == sum_last_2940 - (3052896 - 2940 + 1) );
-		CHECK ( st.sums[2940] == sum_last_2940 );
+		// for overflowing values, test 32bit version
+		CHECK ( v32(st.sums[2942]) == v32(sum_last_2940 - (3052896 - 2940 + 1) - (3052896 - 2940 + 2)) );
+		CHECK ( v32(st.sums[2941]) == v32(sum_last_2940 - (3052896 - 2940 + 1)) );
+		CHECK ( v32(st.sums[2940]) == v32(sum_last_2940) );
 		// first part begins
 		CHECK ( st.sums[2939] == sum_first_2939 + 2940 );
 		CHECK ( st.sums[2938] == sum_first_2939 );
@@ -247,14 +266,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[1] ==  5 );
 		CHECK ( st.subtotals_v1[2] == 14 );
 		// ...
-		// FIXME The following correct part fails under Windows and MacOS
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939
-				- (2939L * 2939 & 0xFFFFFFFFu) );
-
-		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
-
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939
-				+ (2940L * 2940 & 0xFFFFFFFFu) );
+		// for overflowing values, test 32bit version
+		CHECK ( v32(st.subtotals_v1[2937]) == v32(v1_first_2939 - arcs_v1(2939, 2939)) );
+		CHECK ( v32(st.subtotals_v1[2938]) == v32(v1_first_2939) );
+		CHECK ( v32(st.subtotals_v1[2939]) == v32(v1_first_2939 + arcs_v1(2940, 2940)) );
 		//NOLINTEND(cppcoreguidelines-avoid-do-while)
 	}
 
@@ -313,17 +328,17 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.subtotals_v1[   1] == 2 * 2 );
 		REQUIRE ( st.subtotals_v1[   2] == 3 * 3 );
 		// ...
-		REQUIRE ( st.subtotals_v1[2938] == 2939 * 2939 );
-		REQUIRE ( st.subtotals_v1[2939] == 2940 * 2940 );
+		REQUIRE ( st.subtotals_v1[2938] == 2939l * 2939u );
+		REQUIRE ( st.subtotals_v1[2939] == 2940l * 2940u );
 		// last part begins
-		// FIXME The following correct part fails under Windows and MacOS
-		REQUIRE ( st.subtotals_v1[2940] == ((static_cast<uint64_t>(3052896 - 2940 + 1) * static_cast<uint32_t>(3052896 - 2940 + 1)) & 0xFFFFFFFFu) );
-		REQUIRE ( st.subtotals_v1[2941] == ((static_cast<uint64_t>(3052896 - 2940 + 2) * static_cast<uint32_t>(3052896 - 2940 + 2)) & 0xFFFFFFFFu) );
-		REQUIRE ( st.subtotals_v1[2942] == ((static_cast<uint64_t>(3052896 - 2940 + 3) * static_cast<uint32_t>(3052896 - 2940 + 3)) & 0xFFFFFFFFu) );
+		// for overflowing values, test 32bit version
+		REQUIRE ( v32(st.subtotals_v1[2940]) == arcs_v1(3052896 - 2940 + 1, 3052896 - 2940 + 1) );
+		REQUIRE ( v32(st.subtotals_v1[2941]) == arcs_v1(3052896 - 2940 + 2, 3052896 - 2940 + 2) );
+		REQUIRE ( v32(st.subtotals_v1[2942]) == arcs_v1(3052896 - 2940 + 3, 3052896 - 2940 + 3) );
 		// ...
-		REQUIRE ( st.subtotals_v1[5877] == (3052894u * 3052894u & 0xFFFFFFFFu) );
-		REQUIRE ( st.subtotals_v1[5878] == (3052895u * 3052895u & 0xFFFFFFFFu) );
-		REQUIRE ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFFu) );
+		REQUIRE ( v32(st.subtotals_v1[5877]) == arcs_v1(3052894, 3052894) );
+		REQUIRE ( v32(st.subtotals_v1[5878]) == arcs_v1(3052895, 3052895) );
+		REQUIRE ( v32(st.subtotals_v1[5879]) == arcs_v1(3052896, 3052896) );
 
 		// TODO Values subtotals v2 are correctly stored
 
@@ -336,20 +351,20 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		// Check accumulated subtotals for ARCSv1
 
-		// FIXME The following correct part fails under Windows and MacOS
-		CHECK ( st.subtotals_v1[5879] == (3052896u * 3052896u & 0xFFFFFFFFu) );
-		CHECK ( st.subtotals_v1[5878] == (3052896u * 3052896u & 0xFFFFFFFFu)
-			+ (3052895u * 3052895u & 0xFFFFFFFFu));
-		CHECK ( st.subtotals_v1[5877] == (3052896u * 3052896u & 0xFFFFFFFFu)
-			+ (3052895u * 3052895u & 0xFFFFFFFFu)
-			+ (3052894u * 3052894u & 0xFFFFFFFFu));
+		// for overflowing values, test 32bit version
+		CHECK ( v32(st.subtotals_v1[5879]) == arcs_v1(3052896, 3052896) );
+		CHECK ( v32(st.subtotals_v1[5878]) == arcs_v1(3052896, 3052896)
+				+ arcs_v1(3052896 - 1, 3052896 - 1) );
+		CHECK ( v32(st.subtotals_v1[5877]) == arcs_v1(3052896, 3052896)
+				+ arcs_v1(3052896 - 1, 3052896 - 1)
+				+ arcs_v1(3052896 - 2, 3052896 - 2) );
 		// ...
-		CHECK ( st.subtotals_v1[2940] == v1_last_2940 );
+		CHECK ( v32(st.subtotals_v1[2940]) == v32(v1_last_2940) );
 
-		CHECK ( st.subtotals_v1[2939] == v1_first_2939 + (2940 * 2940) );
-		CHECK ( st.subtotals_v1[2938] == v1_first_2939 );
-		CHECK ( st.subtotals_v1[2937] == v1_first_2939 - (2939 * 2939) );
-		CHECK ( st.subtotals_v1[2936] == v1_first_2939 - (2939 * 2939) - (2938 * 2938) );
+		CHECK ( v32(st.subtotals_v1[2939]) == v32(v1_first_2939 + (2940l * 2940u)) );
+		CHECK ( v32(st.subtotals_v1[2938]) == v32(v1_first_2939) );
+		CHECK ( v32(st.subtotals_v1[2937]) == v32(v1_first_2939 - (2939l * 2939u)) );
+		CHECK ( v32(st.subtotals_v1[2936]) == v32(v1_first_2939 - (2939l * 2939u) - (2938l * 2938u)) );
 		// ...
 		CHECK ( st.subtotals_v1[   2] == 3 * 3 + 2 * 2 + 1 * 1 );
 		CHECK ( st.subtotals_v1[   1] == 2 * 2 + 1 * 1 );
@@ -388,9 +403,8 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		// Checksums are correct
 
-		CHECK ( st.current_subtotal_v1 == v1_first_2939
-				+ (2940 * 2940 & 0xFFFFFFFF) );
-		CHECK ( st.current_subtotal_v1 == 8475050290 );
+		CHECK ( v32(st.current_subtotal_v1) == v32(v1_first_2939 + arcs_v1(2940, 2940)) );
+		CHECK ( v32(st.current_subtotal_v1) == v32(8475050290) );
 
 		CHECK ( st.current_subtotal_v2 == 0 ); // no bits higher than 31
 
@@ -415,9 +429,9 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[1] == 4 );
 		CHECK ( st.subtotals_v1[2] == 9 );
 		// ...
-		CHECK ( st.subtotals_v1[2937] == (2938 * 2938u & 0xFFFFFFFFu) );
-		CHECK ( st.subtotals_v1[2938] == (2939 * 2939u & 0xFFFFFFFFu) );
-		CHECK ( st.subtotals_v1[2939] == (2940 * 2940u & 0xFFFFFFFFu) );
+		CHECK ( v32(st.subtotals_v1[2937]) == arcs_v1(2938, 2938) );
+		CHECK ( v32(st.subtotals_v1[2938]) == arcs_v1(2939, 2939) );
+		CHECK ( v32(st.subtotals_v1[2939]) == arcs_v1(2940, 2940) );
 
 		// Subtotals for ARCSv2
 
