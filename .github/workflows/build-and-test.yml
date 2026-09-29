@@ -57,5 +57,5 @@ jobs:
         run: cmake --build build
 
       - name: Run tests
-        run: ctest --test-dir build --output-on-failure -VV
+        run: ctest --test-dir build --output-on-failure -V
 
