@@ -80,6 +80,13 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	using multiplier_t = uint_fast64_t; // type of the multiplier
 	using cachevar_t   = uint_fast32_t; // type of the accumulating variable
 
+	// NOTE: type uint_fast32_t is allowed to be bigger than 32 bit.
+	// The width of the caching type that is used to accumulate the products
+	// is therefore platform dependent: it is at least 32 bit but may be bigger.
+	// If we accept this, we MUST normalize the access to ensure deterministic
+	// overflows in the result. We just have to cast values that are bigger than
+	// 2^{32} - 1 to 32 bit.
+
 	// same types as in Update<>
 	auto arcs_v1 = [](const multiplier_t m, const uint32_t v) -> uint32_t
 	{
