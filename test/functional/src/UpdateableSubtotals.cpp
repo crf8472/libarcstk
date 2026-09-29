@@ -62,9 +62,6 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	const auto sdata = standard_data(tsize);
 
-	// reuse this
-	auto count = uint64_t { 0 };
-
 	REQUIRE ( sdata[      0] ==     1 );
 	REQUIRE ( sdata[3052895] == tsize );
 
@@ -80,15 +77,26 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	// 3049957
 	REQUIRE ( *(cbegin(sdata) + to_ptrdiff(tsize - bskip)) == tsize - bskip + 1 );
 
+	using multiplier_t = uint_fast64_t; // type of the multiplier
+	using cachevar_t   = uint_fast32_t; // type of the accumulating variable
+
+	// same types as in Update<>
+	auto arcs_v1 = [](const multiplier_t m, const uint32_t v) -> uint32_t
+	{
+		return m * v & 0xFFFFFFFF;
+	};
+
+	// reuse this
+	auto cachevar = uint64_t { 0 };
 
 	// simple sum of first 2939 samples
 
-	count = 0;
-	for (int64_t i = 1; i <= fskip/*2939*/; ++i)
+	cachevar = 0;
+	for (multiplier_t i = 1; i <= fskip/*2939*/; ++i)
 	{
-		count += sdata[static_cast<std::size_t>(i - 1)];
+		cachevar += sdata[static_cast<std::size_t>(i - 1)];
 	}
-	const auto sum_first_2939 = count;
+	const auto sum_first_2939 = cachevar;
 
 	REQUIRE (sum_first_2939 == 4320330LL );
 
@@ -99,24 +107,24 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	// simple sum of last 2940 samples
 
-	count = 0;
-	for (int64_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	cachevar = 0;
+	for (multiplier_t i = 3052896LL; i > (3052896LL - bskip); --i)
 	{
-		count += sdata[static_cast<std::size_t>(i - 1)];
+		cachevar += sdata[static_cast<std::size_t>(i - 1)];
 	}
-	const auto sum_last_2940 = count;
+	const auto sum_last_2940 = cachevar;
 
 	REQUIRE (sum_last_2940 == 8971193910LL );
 
 
 	// subtotal_v1 of first 2939 samples
 
-	count = 0;
-	for (/*unsigned*/uint64_t i = 1; i <= fskip/*2939*/; ++i)
+	cachevar = 0;
+	for (multiplier_t i = 1; i <= fskip/*2939*/; ++i)
 	{
-		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
+		cachevar += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
 	}
-	const auto v1_first_2939 = count;
+	const auto v1_first_2939 = cachevar;
 
 	REQUIRE ( v1_first_2939 == 8466406690UL );
 
@@ -131,12 +139,12 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	// subtotal_v1 of last 2940 samples
 
-	count = 0;
-	for (uint64_t i = 3052896LL; i > (3052896LL - bskip); --i)
+	cachevar = 0;
+	for (multiplier_t i = 3052896LL; i > (3052896LL - bskip); --i)
 	{
-		count += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
+		cachevar += (i * sdata[static_cast<std::size_t>(i - 1)] & 0xFFFFFFFFu);
 	}
-	const auto v1_last_2940 = count;
+	const auto v1_last_2940 = cachevar;
 
 	REQUIRE ( v1_last_2940 == 6477333279138LL );
 
