@@ -18,9 +18,10 @@
 #include <algorithm>      // for fill
 #include <array>          // for array
 #include <cmath>          // for abs
-#include <cstddef>
+#include <cstddef>        // for ptrdiff_t
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
+#include <numeric>        // for accumulate
 #include <string>         // for string
 #include <vector>         // for vector
 
@@ -938,72 +939,25 @@ public:
 		current_length_ = samples;
 	}
 
-	/*
+	// TODO Remove this function as soon as it is not required anymore
 	template <class B, class E>
-	void update_f450(B start, E stop)
+	void update_legacy(B start, E stop, const std::size_t size)
 	{
-		// Frame 450:
-		// This index is 0-based, so it is the 451. frame counted
-		// 450 * 588 == 264.600 Samples  ->  264.601 is 1st sample in f450
-		// 451 * 588 == 265.188 Samples  ->  265.188 is last sample in f450
-		// To shift -2939 we need the 5 frames before: 445 - 449
-		// To shift +2940 we need the 4 frames after:  451 - 454
-		// 445 * 588 == 261.660 Samples  ->  261.661 is 1st sample in f445
-		// 454 * 588 == 266.952 Samples  ->  266.952 is last sample in f454
+		using std::ptrdiff_t;
+		using std::size_t;
 
-		static constexpr auto f445_1st  = std::size_t { 261661u };
-		static constexpr auto f450_1st  = std::size_t { 264601u };
-		static constexpr auto f450_last = std::size_t { 265188u };
-		static constexpr auto f454_last = std::size_t { 266952u };
-
-		const auto left_before_start = std::size_t
-			{ st_.multiplier <= f445_1st ? f445_1st - (st_.multiplier - 1) : 0 };
-
-		if (left_before_start < size)
-		{
-			// f450 area starts in this update
-		}
-
-		const auto left_before_end = std::size_t
-			{ st_.multiplier <= f454_last ? f454_last - (st_.multiplier - 1) : 0 };
-
-		const auto amount_left_to_cache = left_before_end - (size +
-				st_.multiplier - 1);
-
-		if ()
-		{
-			// b = start + static_cast<int>(left_before_start)
-			// e = start + static_cast<int>(amount_left_to_cache)
-			// cache(b, e);
-		}
-	}
-	*/
-
-	/**
-	 * \brief Update the instance by a sequence of samples.
-	 *
-	 * \tparam B Type of the begin iterator
-	 * \tparam E Type of the end iterator
-	 *
-	 * \param[in] start The start position
-	 * \param[in] stop  The stop position
-	 * \param[in] size  Size of the partition
-	 */
-	template <class B, class E>
-	void update(B start, E stop, const std::size_t size)
-	{
-		// leading samples to be cached
-		const auto f_remaining = std::size_t
+		// leading 2940 samples to be cached
+		const auto f_remaining = size_t
 			{ st_.multiplier <= 2940 ? 2940 - (st_.multiplier - 1) : 0 };
 
-		// Note that we cache the first 2940 values (instead of 2939)
+		// NOTE: we cache the first _2940_ values (instead of 2939)
 		// since we need front_index 2940 for shifting with k == 2940.
 
 		// samples left to process in the track
 		const auto todo = current_length_ - (st_.multiplier - 1);
 
-		// trailing samples to be cached
-		const auto b_remaining = std::size_t
+		// trailing 2940 samples to be cached
+		const auto b_remaining = size_t
 			{ todo - size <= 2940 ? 2940 - (todo - size) : 0 };
 
 		// cache everything
@@ -1019,12 +973,179 @@ public:
 		ARCS_LOG(DEBUG3) << "First " << f_remaining << " samples go to cache";
 		ARCS_LOG(DEBUG3) << "Last "  << b_remaining << " samples go to cache";
 
-		auto end_front  = start + static_cast<int>(f_remaining);
-		auto begin_back = start + static_cast<int>(size - b_remaining);
+		auto end_front  = start + static_cast<ptrdiff_t>(f_remaining);
+		auto begin_back = start + static_cast<ptrdiff_t>(size - b_remaining);
 
 		update_(start,      end_front,  st_, true );
 		update_(end_front,  begin_back, st_, false);
 		update_(begin_back, stop,       st_, true );
+	}
+
+
+	// Frame 450:
+	// This index is 0-based, so it is the 451. frame counted
+	// 450 * 588 == 264.600 Samples  ->  264.601 is 1st sample in f450
+	// 451 * 588 == 265.188 Samples  ->  265.188 is last sample in f450
+	// To shift -2939 we need the 5 frames before: 445 - 449
+	// To shift +2940 we need the 4 frames after:  451 - 454
+	// 445 * 588 == 261.660 Samples  ->  261.661 is 1st sample in f445
+	// 454 * 588 == 266.952 Samples  ->  266.952 is last sample in f454
+
+	// static constexpr auto f445_1st  = std::size_t { 261661u };
+	// static constexpr auto f450_1st  = std::size_t { 264601u };
+	// static constexpr auto f450_last = std::size_t { 265188u };
+	// static constexpr auto f454_last = std::size_t { 266952u };
+
+
+	/**
+	 * \brief Update sections for caching and optional frame450.
+	 *
+	 * \param[in] m             Current 1-based track-relative index
+	 * \param[in] size          Total number of samples in the current update
+	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
+	 * \param[in] frame450      Add sections for frame450 iff TRUE
+	 */
+	auto sections(const int32_t m, const std::size_t size,
+			const bool drive_offsets, const bool frame450)
+	{
+		// return type
+		using data_t = std::array<ptrdiff_t, 6>;
+
+		using std::ptrdiff_t;
+		using std::size_t;
+
+		// collect potential split points: offsets to the start iterator
+		auto points = data_t { /* 0 */ };
+
+		// signed version of the update size (convenience)
+		const auto ssize = static_cast<int64_t>(size);
+
+		if (drive_offsets) // cache subtotals for first + last 2940 samples
+		{
+			// end of first 2939: cache before, don't cache afterwards
+			points[0] = ptrdiff_t { 2940 - (m - 1) };
+
+			// samples left to process in the track
+			const auto track_todo = current_length_ - (st_.multiplier - 1);
+			const auto todo = track_todo - size;
+			const auto trailing = (todo <= 2940) ? size - (2940 - todo) : 0;
+
+			// begin of last 2940: don't cache before, cache afterwards
+			points[5] = ptrdiff_t { static_cast<ptrdiff_t>(trailing) };
+
+			ARCS_LOG(DEBUG4) << "m: " << m << ", ssize: " << ssize
+				<< ", f: " << points[0] << ", b: " << points[5];
+
+			// Shortcut: entire update must go to cache
+			if (ssize <= points[0] || ssize <= points[5])
+			{
+				ARCS_LOG(DEBUG4) << "Parition goes to cache entirely";
+
+				return data_t { 0, 0, 0, 0, 0, 0 };
+				// frame 445 is beyond this update
+			}
+		}
+
+
+		if (frame450) // cache frames 445-454 + update frame 450
+		{
+			// static constexpr auto f445s { 261661 };
+			// static constexpr auto f450s { 264601 };
+			// static constexpr auto f450e { 265188 };
+			// static constexpr auto f454e { 266952 };
+
+			// begin of frame 445: don't cache before, cache afterwards
+			const auto sc = ptrdiff_t { 445 * 588 + 1 - m };
+
+			// begin of frame 450: don't update before, update afterwards
+			const auto s4 = ptrdiff_t { 450 * 588 + 1 - m };
+
+			// end of frame 450: update before, don't update afterwards
+			const auto e4 = ptrdiff_t { 451 * 588 - m };
+
+			// end of frame 454: cache before, don't cache afterwards
+			const auto ec = ptrdiff_t { 454 * 588 - m };
+
+			points[1] = (drive_offsets && sc < ssize) ? sc : 0;
+			points[2] = (s4 < ssize) ? s4 : 0;
+			points[3] = (e4 < ssize) ? e4 : 0;
+			points[4] = (drive_offsets && ec < ssize) ? ec : 0;
+		}
+
+		// Now, every point that is > 0 is a split point,
+		// before points 1+5 no caching is done
+		return points;
+	}
+
+
+	/**
+	 * \brief Update the instance by a sequence of samples.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] size  Size of the partition
+	 */
+	template <class B, class E>
+	void update(B start, E stop, const std::size_t size)
+	{
+		using std::ptrdiff_t;
+		using std::size_t;
+
+		const auto drv_offsets = bool { true }; // request subtotals caching
+		const auto f450        = bool { true }; // request frame 450
+
+		const auto points = sections(st_.multiplier, size, drv_offsets, f450);
+
+		using std::cbegin;
+		using std::cend;
+
+		if (!drv_offsets || std::reduce(cbegin(points), cend(points), 0))
+		{
+			auto last     = ptrdiff_t { 0 };
+			auto do_cache = bool { false };
+
+			// use the non-zero points for splitting the update
+			for (auto i = size_t { 0 }; i < points.size(); ++i)
+			{
+				if (points[i] > 0)
+				{
+					// don't cache for points 1 and 5
+					do_cache = ((i - 1) * (i - 5)) > 0;
+
+					ARCS_LOG(DEBUG4) << "update from " << last
+						<< " to " << points[i] << ", cache "
+						<< std::boolalpha << do_cache;
+
+					//update_(start + last, start + points[i], st_, do_cache);
+					// TODO Decide which subtotals instance to use
+
+					last = points[i];
+				}
+			}
+
+			// TODO If all points are 0, last == 0 but remainder has to be done
+			if (last > 0 && static_cast<size_t>(last) < size)
+			{
+				ARCS_LOG(DEBUG4) << "update from " << last
+						<< " to " << size << ", cache "
+						<< std::boolalpha << false;
+
+				//update_(start + last, stop, st_, do_cache);
+			}
+		} else
+		{
+			// drive offsets requested and every split point is 0:
+			// entire update sequence goes to cache
+			ARCS_LOG(DEBUG4) << "entire update goes to cache";
+			//update_(start, stop, st_, true);
+		}
+
+		//
+
+		update_legacy<B, E>(start, stop, size); // TODO Remove
 	}
 
 	/**
