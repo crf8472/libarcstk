@@ -1,4 +1,4 @@
-# AccurateRip Algorithm
+# AccurateRip Checksums
 
 
 ## Motivation
