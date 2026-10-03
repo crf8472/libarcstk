@@ -1258,7 +1258,7 @@ public:
 	int32_t samples_expected() const noexcept
 	{
 		// Expected total number of input samples
-		return partitioner_->total_samples().samples();
+		return partitioner_ ? partitioner_->total_samples().samples() : 0;
 	}
 
 	/**
