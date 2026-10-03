@@ -1118,27 +1118,29 @@ public:
 	{
 		using std::ptrdiff_t;
 		using std::size_t;
+		using std::cbegin;
+		using std::cend;
 
 		const auto drv_offsets = bool { true };  // request subtotals caching
 		const auto f450        = bool { false }; // request frame 450
 
 		const auto points = sections(multiplier(), size, drv_offsets, f450);
 
-		ARCS_LOG(DEBUG4) << "points: 0:" << points[0] << ", 1:" << points[1]
-					<< ", 2:" << points[2] << ", 3:" << points[3]
-					<< ", 4:" << points[3] << ", 5:" << points[5];
-
-		using std::cbegin;
-		using std::cend;
+		ARCS_LOG(DEBUG4) << "split points: 0:" << points[0]
+			<< ", 1:" << points[1] << ", 2:" << points[2]
+			<< ", 3:" << points[3] << ", 4:" << points[3]
+			<< ", 5:" << points[5];
 
 		const auto has_points { std::any_of(cbegin(points), cend(points),
                                [](int x) { return x > 0; }) };
 
-		if (!drv_offsets || has_points)
+		// flag to turn caching (while updating) on/off
+		auto do_cache = bool { false };
+
+		if (has_points)
 		{
-			auto last     = ptrdiff_t { 0 };
-			auto do_cache = bool { false };
-			auto i        = size_t { 0 };
+			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
+			auto i    = size_t { 0 };    // counter
 
 			// use the positive points for splitting the update
 			for (; i < points.size(); ++i)
@@ -1159,11 +1161,11 @@ public:
 				}
 			}
 
-			// TODO If all points are 0, last == 0 but remainder has to be done
-			if (last > 0 && static_cast<size_t>(last) < size)
+			// section between point 5 and the end of the update
+			if (static_cast<size_t>(last) < size)
 			{
 				// cache iff this is the section from points[5] to end
-				do_cache = points.size() == i && points.back() > 0;
+				do_cache = (points.size() == i) && (points.back() > 0);
 
 				const auto amount = size - static_cast<size_t>(last);
 
@@ -1177,17 +1179,31 @@ public:
 			}
 		} else
 		{
-			// drive offsets requested but no actual split points
+			// without points, the update has to be either entirely cached or
+			// entirely uncached
 
-			ARCS_LOG(DEBUG4) << "update goes to cache: "
-				<< (size <= 2940)
-				<< " (" << size << " samples)";
+			if (drv_offsets)
+			{
+				// drive offsets requested but no actual split points:
+				// cache iff the update is entirely in the first or last 2940
+				// samples.
 
-			const auto track_remain { current_length_ - (multiplier() - 1) };
-			const auto remainder    { track_remain - size };
+				ARCS_LOG(DEBUG4) << "update goes to cache: "
+					<< (size <= 2940)
+					<< " (" << size << " samples)";
 
-			update_(start, stop, st_,
-					remainder <= 2940 || remainder >= track_remain - 2940);
+				const auto track_remain { current_length_ - (multiplier() - 1) };
+				const auto remainder    { track_remain - size };
+
+				do_cache = remainder <= 2940 || remainder >= track_remain - 2940;
+			}
+
+			if (f450)
+			{
+				// TODO ?
+			}
+
+			update_(start, stop, st_, do_cache);
 		}
 	}
 
