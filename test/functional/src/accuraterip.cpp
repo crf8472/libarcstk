@@ -37,17 +37,43 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
+	using arcstk::Checksum;
+	using arcstk::ChecksumSet;
 	using arcstk::csample_t;
+	using arcstk::UNIT;
 	using arcstk::Updateable;
 
+	using std::cbegin;
+	using std::cend;
+
 	// fits calculation-test-01.bin
-	//auto audiosize = AudioSize { 196608, UNIT::SAMPLES };
+	const auto calculation_test_01_size = AudioSize { 196608, UNIT::SAMPLES };
+
+	// for convenience: extract ARCSv1 from ChecksumSet
+	const auto checksum_v1_value = [](const ChecksumSet& s)
+		-> Checksum::value_type
+	{
+		return s.get(type::ARCS1).first.value();
+	};
+
+	// for convenience: extract ARCSv1 from ChecksumSet
+	// const auto checksum_v2_value = [](const ChecksumSet& s)
+	// 	-> Checksum::value_type
+	// {
+	// 	return s.get(type::ARCS2).first.value();
+	// };
+
 
 	SECTION ( "Updating ARCS 1 singletrack & aligned blocks is correct" )
 	{
-		auto algo = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+		using arcstk::accuraterip::algorithm::Version1;
+
+		auto algo = Updateable<Version1>{};
 
 		REQUIRE ( algo.types() == std::unordered_set<type>{ type::ARCS1 } );
+
+		algo.start_track(2, calculation_test_01_size);
+
 
 		// Initialize Buffer
 
@@ -84,14 +110,12 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				algo.update(buffer.begin(), buffer.end(), 80000);
+				algo.update(cbegin(buffer), cend(buffer), 80000);
 			} catch (...)
 			{
 				in.close();
 				FAIL ("Error while updating buffer");
 			}
-
-			//CHECK ( not calculation.complete() );
 		}
 		try // last block is smaller
 		{
@@ -107,23 +131,27 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		in.close();
 
 		algo.update(buffer.cbegin(), buffer.cend(), 36608);
-		algo.finalize_track(1, AudioSize{ 36608, arcstk::UNIT::SAMPLES });
 
-		auto checksums { algo.track(1) };
+		algo.finalize_track(2, calculation_test_01_size);
 
 		// Only track with correct ARCSs
 
-		CHECK ( checksums.size() == 1 /* types */ );
-		CHECK ( (checksums.get(type::ARCS1).first.value()) == 0x8FE8D29B );
+		CHECK ( algo.track(1).size() == 1 /* types */ );
+		CHECK ( (checksum_v1_value(algo.track(1))) == 0x8FE8D29B );
 	}
 
 
 	SECTION ( "Updating ARCS 2 singletrack & aligned blocks is correct" )
 	{
-		auto state = arcstk::accuraterip::details::UpdateableSubtotals<
-			type::ARCS2>{};
+		using arcstk::accuraterip::details::UpdateableSubtotals;
+		//using sections_t = std::array<std::ptrdiff_t, 6>;
 
-		REQUIRE ( state.types() == std::unordered_set<type>{ type::ARCS2 } );
+		auto st = UpdateableSubtotals<type::ARCS2>{};
+
+		st.set_current_length(196608);
+
+		REQUIRE ( st.types() == std::unordered_set<type>{ type::ARCS2 } );
+		REQUIRE ( st.current_length() == 196608 );
 
 		// Initialize Buffer
 
@@ -145,30 +173,56 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 			FAIL ("Could not open test data file calculation-test-01.bin");
 		}
 
-		for (int i = 0; i < 2; ++i)
+		try
 		{
-			try
-			{
-				in.read(reinterpret_cast<char*>(&buffer[0]), 320000);
-				// 320000 bytes == 80000 samples
+			in.read(reinterpret_cast<char*>(&buffer[0]), 80000 * 4/*bytes*/);
+			// 320000 bytes == 80000 samples
 
-			} catch (const std::ifstream::failure& f)
-			{
-				in.close();
-				FAIL ("Error while reading from file calculation-test-01.bin");
-			}
-
-			try
-			{
-				state.update(buffer.begin(), buffer.end(), 80000);
-			} catch (...)
-			{
-				in.close();
-				FAIL ("Error while updating buffer");
-			}
-
-			//CHECK ( not calculation.complete() );
+		} catch (const std::ifstream::failure& f)
+		{
+			in.close();
+			FAIL ("Error while reading from file calculation-test-01.bin");
 		}
+
+		try
+		{
+			st.update(cbegin(buffer), cend(buffer), 80000);
+
+			// CHECK ( sections[i] ==
+			// 		st.sections(st.multiplier(), 80000, true, false) );
+		} catch (...)
+		{
+			in.close();
+			FAIL ("Error while updating buffer");
+		}
+
+		CHECK ( st.multiplier() == 80001 );
+
+		try
+		{
+			in.read(reinterpret_cast<char*>(&buffer[0]), 80000 * 4/*bytes*/);
+			// 320000 bytes == 80000 samples
+
+		} catch (const std::ifstream::failure& f)
+		{
+			in.close();
+			FAIL ("Error while reading from file calculation-test-01.bin");
+		}
+
+		try
+		{
+			st.update(cbegin(buffer), cend(buffer), 80000);
+
+			// CHECK ( sections[i] ==
+			// 		st.sections(st.multiplier(), 80000, true, false) );
+		} catch (...)
+		{
+			in.close();
+			FAIL ("Error while updating buffer");
+		}
+
+		CHECK ( st.multiplier() == 160001 );
+
 		try // last block is smaller
 		{
 			buffer.resize(36608);
@@ -182,20 +236,24 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end(), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608);
+		//st.finalize();
 
 		// Only track with correct ARCSs
 
-		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
+		CHECK ( st.value<type::ARCS2>() == 0xD15BB487 );
 	}
 
 
 	SECTION ( "Updating ARCS v1+2 singletrack & aligned blocks is correct" )
 	{
-		auto state = arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1,
-			 type::ARCS2>{};
+		using arcstk::accuraterip::details::UpdateableSubtotals;
 
-		REQUIRE ( state.types() == std::unordered_set<type>{
+		auto st = UpdateableSubtotals<type::ARCS1, type::ARCS2>{};
+
+		st.set_current_length(196608);
+
+		REQUIRE ( st.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
@@ -233,14 +291,12 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end(), 80000);
+				st.update(cbegin(buffer), cend(buffer), 80000);
 			} catch (...)
 			{
 				in.close();
 				FAIL ("Error while updating buffer");
 			}
-
-			//CHECK ( not calculation.complete() );
 		}
 		try // last block is smaller
 		{
@@ -255,22 +311,25 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end(), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608);
+		st.finalize();
 
 		// Only track with correct ARCSs
 
-		CHECK ( state.value<type::ARCS1>() == 0x8FE8D29B );
-		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
+		CHECK ( st.value<type::ARCS1>() == 0x8FE8D29B );
+		CHECK ( st.value<type::ARCS2>() == 0xD15BB487 );
 	}
 
 
 	SECTION ( "Updating ARCS v1+2 singletrack & non-aligned blocks is correct" )
 	{
-		auto state =
-			arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1,
-			type::ARCS2>{};
+		using arcstk::accuraterip::details::UpdateableSubtotals;
 
-		REQUIRE ( state.types() == std::unordered_set<type>{
+		auto st = UpdateableSubtotals<type::ARCS1, type::ARCS2>{};
+
+		st.set_current_length(196608);
+
+		REQUIRE ( st.types() == std::unordered_set<type>{
 				type::ARCS1, type::ARCS2 } );
 
 		// Initialize Buffer
@@ -308,7 +367,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				state.update(buffer.begin(), buffer.end(), 80000);
+				st.update(cbegin(buffer), cend(buffer), 80000);
 			} catch (...)
 			{
 				in.close();
@@ -330,12 +389,12 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		state.update(buffer.begin(), buffer.end(), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608);
 
 		// Only track with correct ARCSs
 
-		CHECK ( state.value<type::ARCS1>() == 0x8FE8D29B );
-		CHECK ( state.value<type::ARCS2>() == 0xD15BB487 );
+		CHECK ( st.value<type::ARCS1>() == 0x8FE8D29B );
+		CHECK ( st.value<type::ARCS2>() == 0xD15BB487 );
 	}
 }
 
@@ -508,6 +567,8 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 	SECTION ("Trying to shift by k < -2939 throws")
 	{
 		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 		v1.update(cbegin(sdata), cend(sdata), 3052896);
 		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 
@@ -517,6 +578,8 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 	SECTION ("Trying to shift by k > 2940 throws")
 	{
 		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
+
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 		v1.update(cbegin(sdata), cend(sdata), 3052896);
 		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 
@@ -534,11 +597,11 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 
 		auto v1 = Updateable<arcstk::accuraterip::algorithm::Version1>{};
 
-		// v1.start_track()
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 		v1.update(cbegin(sdata), cend(sdata), 3052896);
 		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 
-		// v1.start_track()
+		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 		v1.update(cbegin(track2), cend(track2), 3000);
 		v1.finalize_track(2, AudioSize { 3000, arcstk::UNIT::SAMPLES });
 

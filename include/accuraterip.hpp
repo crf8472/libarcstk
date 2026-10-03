@@ -15,7 +15,7 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
-#include <algorithm>      // for fill
+#include <algorithm>      // for fill, any_of
 #include <array>          // for array
 #include <cmath>          // for abs
 #include <cstddef>        // for ptrdiff_t
@@ -956,6 +956,8 @@ public:
 		// samples left to process in the track
 		const auto todo = current_length_ - (st_.multiplier - 1);
 
+		ARCS_LOG(DEBUG4) << "todo: " << todo;
+
 		// trailing 2940 samples to be cached
 		const auto b_remaining = size_t
 			{ todo - size <= 2940 ? 2940 - (todo - size) : 0 };
@@ -972,6 +974,9 @@ public:
 
 		ARCS_LOG(DEBUG3) << "First " << f_remaining << " samples go to cache";
 		ARCS_LOG(DEBUG3) << "Last "  << b_remaining << " samples go to cache";
+
+		ARCS_LOG(DEBUG4) << "m: " << st_.multiplier << ", size: " << size
+				<< ", f: " << f_remaining << ", b: " << (size - b_remaining);
 
 		auto end_front  = start + static_cast<ptrdiff_t>(f_remaining);
 		auto begin_back = start + static_cast<ptrdiff_t>(size - b_remaining);
@@ -996,7 +1001,6 @@ public:
 	// static constexpr auto f450_last = std::size_t { 265188u };
 	// static constexpr auto f454_last = std::size_t { 266952u };
 
-
 	/**
 	 * \brief Update sections for caching and optional frame450.
 	 *
@@ -1005,39 +1009,53 @@ public:
 	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
 	 * \param[in] frame450      Add sections for frame450 iff TRUE
 	 */
-	auto sections(const int32_t m, const std::size_t size,
+	auto sections(const uint_fast64_t m, const std::size_t size,
 			const bool drive_offsets, const bool frame450)
 	{
+		using std::ptrdiff_t;
+		using std::size_t;
+
 		// return type
 		using data_t = std::array<ptrdiff_t, 6>;
 
-		using std::ptrdiff_t;
-		using std::size_t;
+		const auto shift_m = ptrdiff_t { static_cast<uint32_t>(m) - 1 };
+		const auto ssize   = static_cast<ptrdiff_t>(size);
 
 		// collect potential split points: offsets to the start iterator
 		auto points = data_t { /* 0 */ };
 
-		// signed version of the update size (convenience)
-		const auto ssize = static_cast<int64_t>(size);
-
 		if (drive_offsets) // cache subtotals for first + last 2940 samples
 		{
 			// end of first 2939: cache before, don't cache afterwards
-			points[0] = ptrdiff_t { 2940 - (m - 1) };
+			points[0] = ptrdiff_t { 2940 - shift_m };
 
 			// samples left to process in the track
-			const auto track_todo = current_length_ - (st_.multiplier - 1);
-			const auto todo = track_todo - size;
-			const auto trailing = (todo <= 2940) ? size - (2940 - todo) : 0;
+			const auto track_remain =
+				static_cast<ptrdiff_t>(current_length_) - shift_m;
+			const auto remainder = track_remain - ssize;
 
-			// begin of last 2940: don't cache before, cache afterwards
-			points[5] = ptrdiff_t { static_cast<ptrdiff_t>(trailing) };
+			ARCS_LOG(DEBUG4) << "samples remain in track: "  << track_remain;
+			ARCS_LOG(DEBUG4) << "samples remain in update: " << remainder;
+
+			if (remainder > 0) // update does not end track
+			{
+				// a part of the last 2940 samples is in this update
+				if (remainder < 2940)
+				{
+					// begin of last 2940: don't cache before, cache afterwards
+					points[5] = ptrdiff_t { ssize - (2940 - remainder) };
+				}
+			} else // update ends track
+			{
+				// last 2940: don't cache before, cache afterwards
+				points[5] = ptrdiff_t { ssize - 2940 };
+			}
 
 			ARCS_LOG(DEBUG4) << "m: " << m << ", ssize: " << ssize
 				<< ", f: " << points[0] << ", b: " << points[5];
 
 			// Shortcut: entire update must go to cache
-			if (ssize <= points[0] || ssize <= points[5])
+			if (ssize <= points[0] || (ssize <= points[5] && ssize <= 2940) )
 			{
 				ARCS_LOG(DEBUG4) << "Parition goes to cache entirely";
 
@@ -1055,16 +1073,16 @@ public:
 			// static constexpr auto f454e { 266952 };
 
 			// begin of frame 445: don't cache before, cache afterwards
-			const auto sc = ptrdiff_t { 445 * 588 + 1 - m };
+			const auto sc = ptrdiff_t { 445 * 588 + 1 - shift_m };
 
 			// begin of frame 450: don't update before, update afterwards
-			const auto s4 = ptrdiff_t { 450 * 588 + 1 - m };
+			const auto s4 = ptrdiff_t { 450 * 588 + 1 - shift_m };
 
 			// end of frame 450: update before, don't update afterwards
-			const auto e4 = ptrdiff_t { 451 * 588 - m };
+			const auto e4 = ptrdiff_t { 451 * 588     - shift_m };
 
 			// end of frame 454: cache before, don't cache afterwards
-			const auto ec = ptrdiff_t { 454 * 588 - m };
+			const auto ec = ptrdiff_t { 454 * 588     - shift_m };
 
 			points[1] = (drive_offsets && sc < ssize) ? sc : 0;
 			points[2] = (s4 < ssize) ? s4 : 0;
@@ -1091,35 +1109,50 @@ public:
 	template <class B, class E>
 	void update(B start, E stop, const std::size_t size)
 	{
+		update_impl<B, E>(start, stop, size);
+		//update_legacy<B, E>(start, stop, size);
+	}
+
+	template <class B, class E>
+	void update_impl(B start, E stop, const std::size_t size)
+	{
 		using std::ptrdiff_t;
 		using std::size_t;
 
-		const auto drv_offsets = bool { true }; // request subtotals caching
-		const auto f450        = bool { true }; // request frame 450
+		const auto drv_offsets = bool { true };  // request subtotals caching
+		const auto f450        = bool { false }; // request frame 450
 
-		const auto points = sections(st_.multiplier, size, drv_offsets, f450);
+		const auto points = sections(multiplier(), size, drv_offsets, f450);
+
+		ARCS_LOG(DEBUG4) << "points: 0:" << points[0] << ", 1:" << points[1]
+					<< ", 2:" << points[2] << ", 3:" << points[3]
+					<< ", 4:" << points[3] << ", 5:" << points[5];
 
 		using std::cbegin;
 		using std::cend;
 
-		if (!drv_offsets || std::reduce(cbegin(points), cend(points), 0))
+		const auto has_points { std::any_of(cbegin(points), cend(points),
+                               [](int x) { return x > 0; }) };
+
+		if (!drv_offsets || has_points)
 		{
 			auto last     = ptrdiff_t { 0 };
 			auto do_cache = bool { false };
+			auto i        = size_t { 0 };
 
-			// use the non-zero points for splitting the update
-			for (auto i = size_t { 0 }; i < points.size(); ++i)
+			// use the positive points for splitting the update
+			for (; i < points.size(); ++i)
 			{
 				if (points[i] > 0)
 				{
-					// don't cache for points 1 and 5
+					// don't cache for points 1 and 5 (as "to")
 					do_cache = ((i - 1) * (i - 5)) > 0;
 
-					ARCS_LOG(DEBUG4) << "update from " << last
-						<< " to " << points[i] << ", cache "
-						<< std::boolalpha << do_cache;
+					ARCS_LOG(DEBUG4) << "update " << i
+						<< ": from " << last << " to " << points[i]
+						<< ", cache: " << std::boolalpha << do_cache;
 
-					//update_(start + last, start + points[i], st_, do_cache);
+					update_(start + last, start + points[i], st_, do_cache);
 					// TODO Decide which subtotals instance to use
 
 					last = points[i];
@@ -1129,23 +1162,33 @@ public:
 			// TODO If all points are 0, last == 0 but remainder has to be done
 			if (last > 0 && static_cast<size_t>(last) < size)
 			{
-				ARCS_LOG(DEBUG4) << "update from " << last
-						<< " to " << size << ", cache "
-						<< std::boolalpha << false;
+				// cache iff this is the section from points[5] to end
+				do_cache = points.size() == i && points.back() > 0;
 
-				//update_(start + last, stop, st_, do_cache);
+				const auto amount = size - static_cast<size_t>(last);
+
+				// TODO If (amount == 2940 && is_last_track) { return };
+
+				ARCS_LOG(DEBUG4) << "update _: from "
+						<< last << " to " << size << " (" << amount << ")"
+						<< ", cache: " << std::boolalpha << do_cache;
+
+				update_(start + last, stop, st_, do_cache);
 			}
 		} else
 		{
-			// drive offsets requested and every split point is 0:
-			// entire update sequence goes to cache
-			ARCS_LOG(DEBUG4) << "entire update goes to cache";
-			//update_(start, stop, st_, true);
+			// drive offsets requested but no actual split points
+
+			ARCS_LOG(DEBUG4) << "update goes to cache: "
+				<< (size <= 2940)
+				<< " (" << size << " samples)";
+
+			const auto track_remain { current_length_ - (multiplier() - 1) };
+			const auto remainder    { track_remain - size };
+
+			update_(start, stop, st_,
+					remainder <= 2940 || remainder >= track_remain - 2940);
 		}
-
-		//
-
-		update_legacy<B, E>(start, stop, size); // TODO Remove
 	}
 
 	/**
@@ -1570,7 +1613,7 @@ public:
 	{
 		// Note that update() wouldn't have known that it saw the last track.
 		// We will have to overwrite the last 2940 cache values.
-		// TODO Can we avoid the useless caching of update() on the last track?
+		// TODO Avoid useless caching of update() by publishing total samples
 		current_subtotals().set_cache_start_suffix();
 
 		current_subtotals().cache(start, stop);
