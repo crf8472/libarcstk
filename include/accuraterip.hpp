@@ -21,7 +21,6 @@
 #include <cstddef>        // for ptrdiff_t
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
-#include <numeric>        // for accumulate
 #include <string>         // for string
 #include <vector>         // for vector
 
@@ -126,6 +125,11 @@ struct Subtotals final
 	 * \brief Type of subtotals buffer.
 	 */
 	using storage_type = std::array<uint_fast32_t, SIZE>;
+
+	/**
+	 * \brief Next index of vectors.
+	 */
+	std::size_t idx_ { 0 };
 
 	/**
 	 * \brief Actual subtotals for required indices.
@@ -438,35 +442,7 @@ inline void set_to_zero(Subtotals::storage_type& s)
 template <class Derived>
 class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 {
-protected:
-
-	/**
-	 * \brief Next index of vectors.
-	 */
-	// NOLINTNEXTLINE(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
-	mutable std::size_t idx_ { 0 };
-
 public:
-
-	/**
-	 * \brief Current caching index.
-	 *
-	 * \return Index position to get next cache value
-	 */
-	std::size_t cache_index() const
-	{
-		return idx_;
-	}
-
-	/**
-	 * \brief Set cache index.
-	 *
-	 * \param[in] idx New cache index
-	 */
-	void set_cache_index(const std::size_t idx) const
-	{
-		idx_ = idx;
-	}
 
 	/**
 	 * \brief Call operator.
@@ -576,10 +552,10 @@ class Update<checksum::type::ARCS1>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v1[idx_] = update_;
-				st.sums[idx_]         = *pos;
+				st.subtotals_v1[st.idx_] = update_;
+				st.sums[st.idx_]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++idx_;
+				++st.idx_;
 			}
 		}
 	}
@@ -604,10 +580,10 @@ public:
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[idx_] = arcs_v1(st.multiplier, *pos);
-			st.sums[idx_]         = *pos;
+			st.subtotals_v1[st.idx_] = arcs_v1(st.multiplier, *pos);
+			st.sums[st.idx_]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++idx_;
+			++st.idx_;
 		}
 	}
 
@@ -664,10 +640,10 @@ class Update<checksum::type::ARCS2>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v2[idx_] = update_;
-				st.sums[idx_]         = *pos;
+				st.subtotals_v2[st.idx_] = update_;
+				st.sums[st.idx_]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++idx_;
+				++st.idx_;
 			}
 		}
 	}
@@ -692,10 +668,10 @@ public:
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v2[idx_] = arcs_v2(st.multiplier, *pos);
-			st.sums[idx_]         = *pos;
+			st.subtotals_v2[st.idx_] = arcs_v2(st.multiplier, *pos);
+			st.sums[st.idx_]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++idx_;
+			++st.idx_;
 		}
 	}
 
@@ -742,11 +718,11 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v1[idx_] = update_ & LOWER_32_BITS_;
-				st.subtotals_v2[idx_] = (update_ >> 32u);
-				st.sums[idx_]         = *pos;
+				st.subtotals_v1[st.idx_] = update_ & LOWER_32_BITS_;
+				st.subtotals_v2[st.idx_] = (update_ >> 32u);
+				st.sums[st.idx_]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++idx_;
+				++st.idx_;
 			}
 		}
 	}
@@ -773,11 +749,11 @@ public:
 			update_ = st.multiplier * (*pos);
 
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[idx_] = update_ & LOWER_32_BITS_;
-			st.subtotals_v2[idx_] = (update_ >> 32u);
-			st.sums[idx_]         = *pos;
+			st.subtotals_v1[st.idx_] = update_ & LOWER_32_BITS_;
+			st.subtotals_v2[st.idx_] = (update_ >> 32u);
+			st.sums[st.idx_]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++idx_;
+			++st.idx_;
 		}
 	}
 
@@ -876,9 +852,9 @@ public:
 	 *
 	 * \return Current cache pointer
 	 */
-	std::size_t cache_index() const
+	std::size_t cache_index_subtotals() const
 	{
-		return update_.cache_index();
+		return st_.idx_;
 	}
 
 	/**
@@ -1210,7 +1186,8 @@ public:
 	 */
 	void set_cache_start_suffix()
 	{
-		update_.set_cache_index(2940);
+		// first index position where a part of the suffix is to be stored
+		st_.idx_ = 2940;
 	}
 
 	/**

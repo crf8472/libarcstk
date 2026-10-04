@@ -35,7 +35,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 
-	REQUIRE ( st12.cache_index() == 0 );
+	REQUIRE ( st12.cache_index_subtotals() == 0 );
 
 	const auto& st = st12.subtotals();
 
@@ -168,7 +168,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index() == 2940 );
+		REQUIRE ( st12.cache_index_subtotals() == 2940 );
 
 		st12.set_multiplier(3052896 - 2940 + 1);
 
@@ -178,7 +178,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index() == 5880 );
+		REQUIRE ( st12.cache_index_subtotals() == 5880 );
 
 		// Values for sums are correctly stored (before accumulation)
 
@@ -232,7 +232,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index()     == 2940 );
+		CHECK ( st12.cache_index_subtotals()     == 2940 );
 
 		// simple sums 0 - 2939
 
@@ -258,7 +258,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index()     == 2940 );
+		CHECK ( st12.cache_index_subtotals()     == 2940 );
 
 		// Check accumulated subtotals for ARCSv1
 
@@ -285,7 +285,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index()     == 2940 );
+		CHECK ( st12.cache_index_subtotals()     == 2940 );
 
 		// Check accumulated subtotals for ARCSv2
 
@@ -310,7 +310,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index() == 2940 );
+		REQUIRE ( st12.cache_index_subtotals() == 2940 );
 
 		st12.set_multiplier(3052896 - 2940 + 1);
 
@@ -320,7 +320,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index() == 5880 );
+		REQUIRE ( st12.cache_index_subtotals() == 5880 );
 
 		// Values subtotals v1 are correctly stored
 
@@ -391,7 +391,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Update over first 2940 values is correct" )
 	{
-		CHECK ( st12.cache_index() == 0 );
+		CHECK ( st12.cache_index_subtotals() == 0 );
 		CHECK ( *cbegin(sdata) == 1 );
 		CHECK ( *cbegin(sdata) + to_ptrdiff(2939) == 2940 );
 
@@ -399,7 +399,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		// Cache index is correct after updating
 
-		CHECK ( st12.cache_index() == 2940 );
+		CHECK ( st12.cache_index_subtotals() == 2940 );
 
 		// Checksums are correct
 
