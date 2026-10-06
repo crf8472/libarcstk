@@ -1117,11 +1117,13 @@ public:
 		const auto has_points { std::any_of(cbegin(points), cend(points),
                                [](int x) { return x > 0; }) };
 
-		// flag to turn caching (while updating) on/off
-		auto do_cache = bool { false };
+		// flag to turn caching on/off (while updating)
+		auto is_cache_point = bool { false };
 
 		if (has_points)
 		{
+			const auto cache_requested = bool { do_drive_offsets() };
+
 			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
 			auto i    = size_t    { 0 }; // counter
 
@@ -1131,23 +1133,24 @@ public:
 				if (points[i] > 0)
 				{
 					// don't cache for points 1 and 5 (as "to")
-					do_cache = ((i - 1) * (i - 5)) > 0;
+					is_cache_point = ((i - 1) * (i - 5)) > 0;
 
 					ARCS_LOG(DEBUG4) << "update " << i
 						<< ": from " << last << " to " << points[i]
 						<< " (" << (points[i] - last) << "),"
-						<< " cache: " << std::boolalpha << do_cache;
+						<< " cache: " << std::boolalpha << is_cache_point;
 
 					if (i >= 2 && i <= 4)
 					{
 						ARCS_LOG(DEBUG4) << "(frame450)";
 
-						//update_(start + last, start + points[i], f450_, do_cache);
+						//update_(start + last, start + points[i], f450_, is_cache_point);
 						update_(start + last, start + points[i], st_, false);
 
 					} else
 					{
-						update_(start + last, start + points[i], st_, do_cache);
+						update_(start + last, start + points[i], st_,
+								cache_requested && is_cache_point);
 					}
 
 					last = points[i];
@@ -1158,7 +1161,7 @@ public:
 			if (static_cast<size_t>(last) < size)
 			{
 				// cache iff this is the section from points[5] to end
-				do_cache = (points.size() == i) && (points.back() > 0);
+				is_cache_point = (points.size() == i) && (points.back() > 0);
 
 				const auto amount = size - static_cast<size_t>(last);
 
@@ -1166,9 +1169,10 @@ public:
 
 				ARCS_LOG(DEBUG4) << "update _: from "
 						<< last << " to " << size << " (" << amount << ")"
-						<< ", cache: " << std::boolalpha << do_cache;
+						<< ", cache: " << std::boolalpha << is_cache_point;
 
-				update_(start + last, stop, st_, do_cache);
+				update_(start + last, stop, st_,
+						cache_requested && is_cache_point);
 			}
 		} else
 		{
@@ -1181,22 +1185,23 @@ public:
 				// cache iff the update is entirely in the first or last 2940
 				// samples.
 
-				ARCS_LOG(DEBUG4) << "update goes to cache: "
-					<< (size <= 2940)
-					<< " (" << size << " samples)";
-
 				const auto track_remain { current_length_ - (multiplier() - 1) };
 				const auto remainder    { track_remain - size };
 
-				do_cache = remainder <= 2940 || remainder >= track_remain - 2940;
+				is_cache_point =
+					remainder <= 2940 || remainder >= track_remain - 2940;
+
+				ARCS_LOG(DEBUG4) << "update is for cache: "
+					<< (do_drive_offsets() && is_cache_point)
+					<< " (" << size << " samples)";
 			}
 
 			if (do_frame450())
 			{
-				// TODO ?
+				// TODO Must this case be handled?
 			}
 
-			update_(start, stop, st_, do_cache);
+			update_(start, stop, st_, do_drive_offsets() && is_cache_point);
 		}
 	}
 
