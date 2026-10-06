@@ -99,32 +99,42 @@ struct NUM_SKIP_SAMPLES final
 
 
 /**
- * \brief Helper for masking the lower 32 bits of a sample.
- */
-constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
-
-
-/**
  * \brief Values of a calculation state.
  */
 struct Subtotals final
 {
 	/**
+	 * \brief Type for the multiplier.
+	 *
+	 * An unsigned type of at least 64 bit.
+	 */
+	using factor_type = uint_fast64_t;
+
+	/**
+	 * \brief Type for variables accumulating weighted and simple sums.
+	 *
+	 * An unsigned type of at least 32 bit.
+	 *
+	 * Note that this type may be in fact bigger than 32 bit and hence must
+	 * be casted to uint32_t to before representing a checksum value.
+	 */
+	using cache_type  = uint_fast32_t;
+
+	/**
 	 * \brief Total number of subtotals.
 	 */
-	static constexpr std::size_t SIZE { 2940 + 2940 };
+	static constexpr std::size_t SIZE { 2940 + 2940 /*+ 2940 + 2940 */};
 
 	//    0 -  2939 : first i samples of the track (in order from i == 1)
 	// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
 
-	// 5879+
-	//    1 -  2939 : segment from 1st sample of frame 445 to last sample of 449
-	// 2940 -  5879 : segment from 1st sample of frame 451 to last sample of 455
+	// 5880 -  8819 : from 1st sample of frame 445 to last sample of 449
+	// 8820 - 11759 : from 1st sample of frame 450 to last sample of 454
 
 	/**
 	 * \brief Type of subtotals buffer.
 	 */
-	using storage_type = std::array<uint_fast32_t, SIZE>;
+	using storage_type = std::array<cache_type, SIZE>;
 
 	/**
 	 * \brief Next index of vectors.
@@ -157,22 +167,22 @@ struct Subtotals final
 	/**
 	 * \brief Current multiplier.
 	 */
-	uint_fast64_t multiplier { 1 };
+	factor_type multiplier { 1 };
 
 	/**
 	 * \brief Current subtotal for ARCSv1.
 	 */
-	uint_fast32_t current_subtotal_v1 { 0 };
+	cache_type current_subtotal_v1 { 0 };
 
 	/**
 	 * \brief Current subtotal for ARCSv2.
 	 */
-	uint_fast32_t current_subtotal_v2 { 0 };
+	cache_type current_subtotal_v2 { 0 };
 
 	/**
 	 * \brief Current sum of subtotals.
 	 */
-	uint_fast32_t current_cs_sum { 0 };
+	cache_type current_cs_sum { 0 };
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -193,6 +203,12 @@ struct Subtotals final
 
 
 /**
+ * \brief Helper for masking the lower 32 bits of a sample.
+ */
+constexpr static Subtotals::cache_type LOWER_32_BITS_ { 0xFFFFFFFF };
+
+
+/**
  * \brief Provide service functions for all AccessSt<> specializations.
  */
 struct AccessSt
@@ -200,16 +216,16 @@ struct AccessSt
 	/**
 	 * \brief Constant \c 0.
 	 */
-	static constexpr uint_fast32_t ZERO = 0;
+	static constexpr Subtotals::cache_type ZERO = 0;
 
 	/**
-	 * \brief Return Checksum value type.
+	 * \brief Return Checksum value type from a value of cache_type.
 	 *
 	 * \param[in] v Subtotal
 	 *
 	 * \return Result as Checksum value
 	 */
-	static Checksum::value_type to_value(const uint_fast32_t v)
+	static Checksum::value_type to_value(const Subtotals::cache_type v)
 	{
 		return static_cast<Checksum::value_type>(v);
 	}
@@ -221,7 +237,7 @@ struct AccessSt
 	 *
 	 * \return AudioSize of track
 	 */
-	static AudioSize track_size(const uint_fast64_t m)
+	static AudioSize track_size(const Subtotals::factor_type m)
 	{
 		using arcstk::UNIT;
 
@@ -285,12 +301,12 @@ struct Access<checksum::type::ARCS1>
 			const std::size_t i)
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        return st.subtotals_v1[i];
+        return AccessSt::to_value(st.subtotals_v1[i]);
     }
 
 	static inline Checksum::value_type checksum(const Subtotals& st)
 	{
-		return st.current_subtotal_v1;
+		return AccessSt::to_value(st.current_subtotal_v1);
 	}
 };
 
@@ -302,13 +318,16 @@ struct Access<checksum::type::ARCS2>
 	static inline Checksum::value_type subtotal(const Subtotals& st,
 			const std::size_t i)
 	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-		return st.subtotals_v1[i]/* == 0 */ + st.subtotals_v2[i];
+		// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+		return AccessSt::to_value(st.subtotals_v1[i])/* == 0 */
+			+  AccessSt::to_value(st.subtotals_v2[i]);
+		// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
     }
 
 	static inline Checksum::value_type checksum(const Subtotals& st)
 	{
-		return st.current_subtotal_v1 + st.current_subtotal_v2;
+		return AccessSt::to_value(st.current_subtotal_v1)
+			+  AccessSt::to_value(st.current_subtotal_v2);
 	}
 };
 
@@ -338,7 +357,7 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
  */
 inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 {
-	return st.current_cs_sum;
+	return AccessSt::to_value(st.current_cs_sum);
 }
 
 
@@ -399,7 +418,7 @@ inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return st.sums[AccessSt::idx_front(k)];
+	return AccessSt::to_value(st.sums[AccessSt::idx_front(k)]);
 }
 
 
@@ -418,7 +437,7 @@ inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return st.sums[AccessSt::idx_back(k)];
+	return AccessSt::to_value(st.sums[AccessSt::idx_back(k)]);
 }
 
 
@@ -522,15 +541,15 @@ class Update<checksum::type::ARCS1>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Calculate ARCSv1.
 	 *
 	 * Also known as ARCF ("AccurateRip Checksum Flawed"),
 	 */
-	uint32_t arcs_v1(const uint_fast64_t multiplier, const uint32_t csample)
-		const
+	uint32_t arcs_v1(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
 	{
 		return multiplier * csample & LOWER_32_BITS_;
 	}
@@ -610,13 +629,13 @@ class Update<checksum::type::ARCS2>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Calculate ARCSv2.
 	 */
-	uint32_t arcs_v2(const uint_fast64_t multiplier, const uint32_t csample)
-		const
+	uint32_t arcs_v2(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
 	{
 		update_ = multiplier * csample; // TODO Make update_ local?
 
@@ -698,7 +717,7 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Implementation of update operation.
@@ -885,7 +904,7 @@ public:
 	 *
 	 * \return Current multiplier
 	 */
-	uint_fast64_t multiplier() const
+	Subtotals::factor_type multiplier() const
 	{
 		return st_.multiplier;
 	}
@@ -895,7 +914,7 @@ public:
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m)
+	void set_multiplier(const Subtotals::factor_type m)
 	{
 		st_.multiplier = m;
 	}
@@ -964,7 +983,7 @@ public:
 	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
 	 * \param[in] frame450      Add sections for frame450 iff TRUE
 	 */
-	auto sections(const uint_fast64_t m, const std::size_t usize,
+	auto sections(const Subtotals::factor_type m, const std::size_t usize,
 			const std::size_t tsize,
 			const bool drive_offsets, const bool frame450)
 	{
