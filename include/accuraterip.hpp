@@ -97,6 +97,21 @@ struct NUM_SKIP_SAMPLES final
 	constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
+/**
+ * \brief Available cache sizes.
+ */
+enum class CacheSize : std::size_t //NOLINT(performance-enum-size)
+{
+	ZERO     =          0,
+	SHIFTING =       5880,
+	FRAME450 = 2ul * 5880u
+};
+
+//    0 -  2939 : first i samples of the track (in order from i == 1)
+// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
+
+// 5880 -  8819 : from 1st sample of frame 445 to last sample of 449
+// 8820 - 11759 : from 1st sample of frame 450 to last sample of 454
 
 /**
  * \brief Values of a calculation state.
@@ -118,28 +133,22 @@ struct Subtotals final
 	 * Note that this type may be in fact bigger than 32 bit and hence must
 	 * be casted to uint32_t to before representing a checksum value.
 	 */
-	using cache_type  = uint_fast32_t;
-
-	/**
-	 * \brief Total number of subtotals.
-	 */
-	static constexpr std::size_t SIZE { 2940 + 2940 /*+ 2940 + 2940 */};
-
-	//    0 -  2939 : first i samples of the track (in order from i == 1)
-	// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
-
-	// 5880 -  8819 : from 1st sample of frame 445 to last sample of 449
-	// 8820 - 11759 : from 1st sample of frame 450 to last sample of 454
+	using cache_type = uint_fast32_t;
 
 	/**
 	 * \brief Type of subtotals buffer.
 	 */
-	using storage_type = std::array<cache_type, SIZE>;
+	using storage_type = std::vector<cache_type>;
 
 	/**
 	 * \brief Next index of vectors.
 	 */
 	std::size_t idx_ { 0 };
+
+	/**
+	 * \brief Next index of vectors for frame 450.
+	 */
+	std::size_t f_idx_ { 0 };
 
 	/**
 	 * \brief Actual subtotals for required indices.
@@ -461,6 +470,46 @@ inline void set_to_zero(Subtotals::storage_type& s)
 template <class Derived>
 class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 {
+	/**
+	 * \brief Accumulate values from index \c from up to index \c upto.
+	 *
+	 * \param[in] from Start index
+	 * \param[in] upto Included end index
+	 * \param[in] st   Subtotals to accumulate
+	 */
+	void accumulate_upwards(const std::size_t from, const std::size_t upto,
+			Subtotals& st) const
+	{
+		for (auto i = std::size_t { from }; i <= upto; ++i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
+			st.subtotals_v2[i] += st.subtotals_v2[i - 1];
+			st.sums[i]         += st.sums[i - 1];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
+	/**
+	 * \brief Accumulate values from index \c from down to index \c downto.
+	 *
+	 * \param[in] from   Start index
+	 * \param[in] downto Not-included stop index
+	 * \param[in] st     Subtotals to accumulate
+	 */
+	void accumulate_downwards(const std::size_t from, const std::size_t downto,
+			Subtotals& st) const
+	{
+		for (auto i = std::size_t { from }; i > downto; --i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
+			st.subtotals_v2[i - 1] += st.subtotals_v2[i];
+			st.sums[i - 1]         += st.sums[i];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
 public:
 
 	/**
@@ -505,6 +554,7 @@ public:
 			st.sums[i]         += st.sums[i - 1];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
+		// TODO accumulate_upwards(1, 2939, st);
 
 		// accumulate last 2940 in track
 		for (auto i = std::size_t { 5879 }; i > 2940; --i)
@@ -515,6 +565,18 @@ public:
 			st.sums[i - 1]         += st.sums[i];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
+		// TODO accumulate_downwards(5879, 2940, st);
+	}
+
+	/**
+	 * \brief Accumulate values from 5880 to 8819 and from (n - 2940) to n.
+	 *
+	 * \param[in] st Subtotals to accumulate
+	 */
+	void accumulate_f450(Subtotals& st) const
+	{
+		accumulate_upwards  ( 5880, 8819, st);
+		accumulate_downwards(11759, 8820, st);
 	}
 };
 
@@ -855,16 +917,41 @@ class UpdateableSubtotals final
 	Subtotals st_ {};
 
 	/**
-	 * \brief Internal subtotals for frame 450.
-	 */
-	Subtotals f450_ {};
-
-	/**
 	 * \brief Internal update strategy for subtotals.
 	 */
 	Update<T1, T2...> update_ {};
 
+	/**
+	 * \brief Initialize subtotals size.
+	 *
+	 * \param[in] st Subtotals
+	 */
+	void init_cache_size(Subtotals& st)
+	{
+		auto size = CacheSize::ZERO;
+
+		if (do_frame450())
+		{
+			size = CacheSize::FRAME450;
+		} else if (do_drive_offsets())
+		{
+			size = CacheSize::SHIFTING;
+		}
+
+		st.subtotals_v1.resize(static_cast<size_t>(size));
+		st.subtotals_v2.resize(static_cast<size_t>(size));
+		st.sums.resize(static_cast<size_t>(size));
+	}
+
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	UpdateableSubtotals()
+	{
+		init_cache_size(st_);
+	}
 
 	/**
 	 * \brief Index of next cache position.
@@ -1066,7 +1153,7 @@ public:
 			// end of frame 450: update before, don't update afterwards
 			const auto e4 = ptrdiff_t { 451 * 588 - shift_m };
 
-			// end of frame 455: cache before, don't cache afterwards
+			// end of frame 454: cache before, don't cache afterwards
 			const auto ec = ptrdiff_t { 455 * 588 - shift_m };
 
 			points[1] = (drive_offsets && sc < ssize) ? sc : 0;
@@ -1106,8 +1193,10 @@ public:
 		using std::cbegin;
 		using std::cend;
 
+		const auto cache_requested = bool { do_drive_offsets() };
+
 		const auto points = sections(multiplier(), size, current_length(),
-				do_drive_offsets(), do_frame450());
+				cache_requested, do_frame450());
 
 		ARCS_LOG(DEBUG4) << "split points: 0:" << points[0]
 			<< ", 1:" << points[1] << ", 2:" << points[2]
@@ -1122,7 +1211,6 @@ public:
 
 		if (has_points)
 		{
-			const auto cache_requested = bool { do_drive_offsets() };
 
 			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
 			auto i    = size_t    { 0 }; // counter
@@ -1144,7 +1232,7 @@ public:
 					{
 						ARCS_LOG(DEBUG4) << "(frame450)";
 
-						//update_(start + last, start + points[i], f450_, is_cache_point);
+						// update the cache values for frame 450
 						update_(start + last, start + points[i], st_, false);
 
 					} else
@@ -1179,7 +1267,7 @@ public:
 			// without points, the update has to be either entirely cached or
 			// entirely uncached
 
-			if (do_drive_offsets())
+			if (cache_requested)
 			{
 				// drive offsets requested but no actual split points:
 				// cache iff the update is entirely in the first or last 2940
@@ -1201,7 +1289,7 @@ public:
 				// TODO Must this case be handled?
 			}
 
-			update_(start, stop, st_, do_drive_offsets() && is_cache_point);
+			update_(start, stop, st_, cache_requested && is_cache_point);
 		}
 	}
 
@@ -1239,22 +1327,14 @@ public:
 	{
 		ARCS_LOG(DEBUG4) << "Finalize track";
 
-		if (do_frame450())
-		{
-			if (do_drive_offsets())
-			{
-				update_.accumulate(f450_); // do this exactly 1x
-			}
-
-			ARCS_LOG(DEBUG4) << "Respect Frame 450 subtotals";
-
-			st_.current_subtotal_v1 += f450_.current_subtotal_v1;
-			st_.current_subtotal_v2 += f450_.current_subtotal_v2;
-		}
-
 		if (do_drive_offsets())
 		{
 			update_.accumulate(st_); // do this exactly 1x
+		}
+
+		if (do_frame450())
+		{
+			update_.accumulate_f450(st_); // do this exactly 1x
 		}
 	}
 
