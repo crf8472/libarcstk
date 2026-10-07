@@ -142,33 +142,43 @@ struct Subtotals final
 
 	/**
 	 * \brief Next index of vectors.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 0, ends on index 5879.
 	 */
 	std::size_t idx_ { 0 };
 
 	/**
 	 * \brief Next index of vectors for frame 450.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 5880, ends on index 11759.
 	 */
-	std::size_t f_idx_ { 0 };
+	std::size_t idx_f450_ { 5880 };
 
 	/**
 	 * \brief Actual subtotals for required indices.
 	 *
-	 * Aka S_A for v1, contains lower bits of i * sample_i.
+	 * Weighted sum of samples, contains lower bits of <tt>i * sample_i</tt>.
 	 */
 	storage_type subtotals_v1 {/* all 0 */};
 
 	/**
 	 * \brief Actual subtotals for required indices.
 	 *
-	 * Higher bits required for S_A for v2, or maybe higher and lower bits
-	 * of i * sample_i.
+	 * Either higher bits required for weighted sum for v2, or maybe higher and
+	 * lower bits of <tt>i * sample_i</tt>.
 	 */
 	storage_type subtotals_v2 {/* all 0 */};
 
 	/**
 	 * \brief Unweighted samples sums for required indices.
 	 *
-	 * Aka S_B, just sum of sample_i from 0 to i.
+	 * Simple sum of sample_i from 0 to i.
 	 */
 	storage_type sums {/* all 0 */};
 
