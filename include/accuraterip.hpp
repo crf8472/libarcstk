@@ -557,26 +557,26 @@ public:
 	void accumulate(Subtotals& st) const
 	{
 		// accumulate first 2939 in track
-		for (auto i = std::size_t { 1 }; i <= 2939; ++i)
-		{
-			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
-			st.subtotals_v2[i] += st.subtotals_v2[i - 1];
-			st.sums[i]         += st.sums[i - 1];
-			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-		}
-		// TODO accumulate_upwards(1, 2939, st);
+		// for (auto i = std::size_t { 1 }; i <= 2939; ++i)
+		// {
+		// 	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+		// 	st.subtotals_v1[i] += st.subtotals_v1[i - 1];
+		// 	st.subtotals_v2[i] += st.subtotals_v2[i - 1];
+		// 	st.sums[i]         += st.sums[i - 1];
+		// 	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		// }
+		accumulate_upwards(1, 2939, st);
 
 		// accumulate last 2940 in track
-		for (auto i = std::size_t { 5879 }; i > 2940; --i)
-		{
-			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
-			st.subtotals_v2[i - 1] += st.subtotals_v2[i];
-			st.sums[i - 1]         += st.sums[i];
-			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-		}
-		// TODO accumulate_downwards(5879, 2940, st);
+		// for (auto i = std::size_t { 5879 }; i > 2940; --i)
+		// {
+		// 	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+		// 	st.subtotals_v1[i - 1] += st.subtotals_v1[i];
+		// 	st.subtotals_v2[i - 1] += st.subtotals_v2[i];
+		// 	st.sums[i - 1]         += st.sums[i];
+		// 	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		// }
+		accumulate_downwards(5879, 2940, st);
 	}
 
 	/**
