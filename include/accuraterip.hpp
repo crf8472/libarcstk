@@ -98,12 +98,21 @@ struct NUM_SKIP_SAMPLES final
 	constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
-
 /**
- * \brief Helper for masking the lower 32 bits of a sample.
+ * \brief Available cache sizes.
  */
-constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
+enum class CacheSize : std::size_t //NOLINT(performance-enum-size)
+{
+	ZERO     =          0,
+	SHIFTING =       5880,
+	FRAME450 = 2ul * 5880u
+};
 
+//    0 -  2939 : first i samples of the track (in order from i == 1)
+// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
+
+// 5880 -  8819 : from 1st sample of frame 445 to last sample of 449
+// 8820 - 11759 : from 1st sample of frame 450 to last sample of 454
 
 /**
  * \brief Values of a calculation state.
@@ -111,45 +120,66 @@ constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
 struct Subtotals final
 {
 	/**
-	 * \brief Total number of subtotals.
+	 * \brief Type for the multiplier.
+	 *
+	 * An unsigned type of at least 64 bit.
 	 */
-	static constexpr std::size_t SIZE { 2940 + 2940 };
+	using factor_type = uint_fast64_t;
 
-	//    0 -   2939 : first i samples of the track (in order from i == 1)
-	// 2940 -   5879 : last 2940-i samples of the track (in order from i == 0)
-
-	// 5880 -   8819 : segment from 1st sample of frame 445 to last sample of 449
-	// 8820 -  11760 : segment from 1st sample of frame 451 to last sample of 455
+	/**
+	 * \brief Type for variables accumulating weighted and simple sums.
+	 *
+	 * An unsigned type of at least 32 bit.
+	 *
+	 * Note that this type may be in fact bigger than 32 bit and hence must
+	 * be casted to uint32_t to before representing a checksum value.
+	 */
+	using cache_type = uint_fast32_t;
 
 	/**
 	 * \brief Type of subtotals buffer.
 	 */
-	using storage_type = std::array<uint_fast32_t, SIZE>;
+	using storage_type = std::vector<cache_type>;
 
 	/**
 	 * \brief Next index of vectors.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 0, ends on index 5879.
 	 */
 	std::size_t idx_ { 0 };
 
 	/**
+	 * \brief Next index of vectors for frame 450.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 5880, ends on index 11759.
+	 */
+	std::size_t idx_f450_ { 5880 };
+
+	/**
 	 * \brief Actual subtotals for required indices.
 	 *
-	 * Aka S_A for v1, contains lower bits of i * sample_i.
+	 * Weighted sum of samples, contains lower bits of <tt>i * sample_i</tt>.
 	 */
 	storage_type subtotals_v1 {/* all 0 */};
 
 	/**
 	 * \brief Actual subtotals for required indices.
 	 *
-	 * Higher bits required for S_A for v2, or maybe higher and lower bits
-	 * of i * sample_i.
+	 * Either higher bits required for weighted sum for v2, or maybe higher and
+	 * lower bits of <tt>i * sample_i</tt>.
 	 */
 	storage_type subtotals_v2 {/* all 0 */};
 
 	/**
 	 * \brief Unweighted samples sums for required indices.
 	 *
-	 * Aka S_B, just sum of sample_i from 0 to i.
+	 * Simple sum of sample_i from 0 to i.
 	 */
 	storage_type sums {/* all 0 */};
 
@@ -157,22 +187,22 @@ struct Subtotals final
 	/**
 	 * \brief Current multiplier.
 	 */
-	uint_fast64_t multiplier { 1 };
+	factor_type multiplier { 1 };
 
 	/**
 	 * \brief Current subtotal for ARCSv1.
 	 */
-	uint_fast32_t current_subtotal_v1 { 0 };
+	cache_type current_subtotal_v1 { 0 };
 
 	/**
 	 * \brief Current subtotal for ARCSv2.
 	 */
-	uint_fast32_t current_subtotal_v2 { 0 };
+	cache_type current_subtotal_v2 { 0 };
 
 	/**
 	 * \brief Current sum of subtotals.
 	 */
-	uint_fast32_t current_cs_sum { 0 };
+	cache_type current_cs_sum { 0 };
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -193,6 +223,12 @@ struct Subtotals final
 
 
 /**
+ * \brief Helper for masking the lower 32 bits of a sample.
+ */
+constexpr static Subtotals::cache_type LOWER_32_BITS_ { 0xFFFFFFFF };
+
+
+/**
  * \brief Provide service functions for all AccessSt<> specializations.
  */
 struct AccessSt
@@ -200,16 +236,16 @@ struct AccessSt
 	/**
 	 * \brief Constant \c 0.
 	 */
-	static constexpr uint_fast32_t ZERO = 0;
+	static constexpr Subtotals::cache_type ZERO = 0;
 
 	/**
-	 * \brief Return Checksum value type.
+	 * \brief Return Checksum value type from a value of cache_type.
 	 *
 	 * \param[in] v Subtotal
 	 *
 	 * \return Result as Checksum value
 	 */
-	static Checksum::value_type to_value(const uint_fast32_t v)
+	static Checksum::value_type to_value(const Subtotals::cache_type v)
 	{
 		return static_cast<Checksum::value_type>(v);
 	}
@@ -221,7 +257,7 @@ struct AccessSt
 	 *
 	 * \return AudioSize of track
 	 */
-	static AudioSize track_size(const uint_fast64_t m)
+	static AudioSize track_size(const Subtotals::factor_type m)
 	{
 		using arcstk::UNIT;
 
@@ -285,12 +321,12 @@ struct Access<checksum::type::ARCS1>
 			const std::size_t i)
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        return st.subtotals_v1[i];
+        return AccessSt::to_value(st.subtotals_v1[i]);
     }
 
 	static inline Checksum::value_type checksum(const Subtotals& st)
 	{
-		return st.current_subtotal_v1;
+		return AccessSt::to_value(st.current_subtotal_v1);
 	}
 };
 
@@ -302,13 +338,16 @@ struct Access<checksum::type::ARCS2>
 	static inline Checksum::value_type subtotal(const Subtotals& st,
 			const std::size_t i)
 	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-		return st.subtotals_v1[i]/* == 0 */ + st.subtotals_v2[i];
+		// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+		return AccessSt::to_value(st.subtotals_v1[i])/* == 0 */
+			+  AccessSt::to_value(st.subtotals_v2[i]);
+		// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
     }
 
 	static inline Checksum::value_type checksum(const Subtotals& st)
 	{
-		return st.current_subtotal_v1 + st.current_subtotal_v2;
+		return AccessSt::to_value(st.current_subtotal_v1)
+			+  AccessSt::to_value(st.current_subtotal_v2);
 	}
 };
 
@@ -338,7 +377,7 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
  */
 inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 {
-	return st.current_cs_sum;
+	return AccessSt::to_value(st.current_cs_sum);
 }
 
 
@@ -399,7 +438,7 @@ inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return st.sums[AccessSt::idx_front(k)];
+	return AccessSt::to_value(st.sums[AccessSt::idx_front(k)]);
 }
 
 
@@ -418,7 +457,7 @@ inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return st.sums[AccessSt::idx_back(k)];
+	return AccessSt::to_value(st.sums[AccessSt::idx_back(k)]);
 }
 
 
@@ -442,6 +481,46 @@ inline void set_to_zero(Subtotals::storage_type& s)
 template <class Derived>
 class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 {
+	/**
+	 * \brief Accumulate values from index \c from up to index \c upto.
+	 *
+	 * \param[in] from Start index
+	 * \param[in] upto Included end index
+	 * \param[in] st   Subtotals to accumulate
+	 */
+	void accumulate_upwards(const std::size_t from, const std::size_t upto,
+			Subtotals& st) const
+	{
+		for (auto i = std::size_t { from }; i <= upto; ++i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
+			st.subtotals_v2[i] += st.subtotals_v2[i - 1];
+			st.sums[i]         += st.sums[i - 1];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
+	/**
+	 * \brief Accumulate values from index \c from down to index \c downto.
+	 *
+	 * \param[in] from   Start index
+	 * \param[in] downto Not-included stop index
+	 * \param[in] st     Subtotals to accumulate
+	 */
+	void accumulate_downwards(const std::size_t from, const std::size_t downto,
+			Subtotals& st) const
+	{
+		for (auto i = std::size_t { from }; i > downto; --i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
+			st.subtotals_v2[i - 1] += st.subtotals_v2[i];
+			st.sums[i - 1]         += st.sums[i];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
 public:
 
 	/**
@@ -486,6 +565,7 @@ public:
 			st.sums[i]         += st.sums[i - 1];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
+		// TODO accumulate_upwards(1, 2939, st);
 
 		// accumulate last 2940 in track
 		for (auto i = std::size_t { 5879 }; i > 2940; --i)
@@ -496,6 +576,18 @@ public:
 			st.sums[i - 1]         += st.sums[i];
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 		}
+		// TODO accumulate_downwards(5879, 2940, st);
+	}
+
+	/**
+	 * \brief Accumulate values from 5880 to 8819 and from (n - 2940) to n.
+	 *
+	 * \param[in] st Subtotals to accumulate
+	 */
+	void accumulate_f450(Subtotals& st) const
+	{
+		accumulate_upwards  ( 5880, 8819, st);
+		accumulate_downwards(11759, 8820, st);
 	}
 };
 
@@ -522,15 +614,15 @@ class Update<checksum::type::ARCS1>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Calculate ARCSv1.
 	 *
 	 * Also known as ARCF ("AccurateRip Checksum Flawed"),
 	 */
-	uint32_t arcs_v1(const uint_fast64_t multiplier, const uint32_t csample)
-		const
+	uint32_t arcs_v1(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
 	{
 		return multiplier * csample & LOWER_32_BITS_;
 	}
@@ -610,13 +702,13 @@ class Update<checksum::type::ARCS2>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Calculate ARCSv2.
 	 */
-	uint32_t arcs_v2(const uint_fast64_t multiplier, const uint32_t csample)
-		const
+	uint32_t arcs_v2(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
 	{
 		update_ = multiplier * csample; // TODO Make update_ local?
 
@@ -698,7 +790,7 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	/**
 	 * \brief Current update factor.
 	 */
-	mutable uint_fast64_t update_ { 0 };
+	mutable Subtotals::factor_type update_ { 0 };
 
 	/**
 	 * \brief Implementation of update operation.
@@ -836,16 +928,41 @@ class UpdateableSubtotals final
 	Subtotals st_ {};
 
 	/**
-	 * \brief Internal subtotals for frame 450.
-	 */
-	Subtotals f450_ {};
-
-	/**
 	 * \brief Internal update strategy for subtotals.
 	 */
 	Update<T1, T2...> update_ {};
 
+	/**
+	 * \brief Initialize subtotals size.
+	 *
+	 * \param[in] st Subtotals
+	 */
+	void init_cache_size(Subtotals& st)
+	{
+		auto size = CacheSize::ZERO;
+
+		if (do_frame450())
+		{
+			size = CacheSize::FRAME450;
+		} else if (do_drive_offsets())
+		{
+			size = CacheSize::SHIFTING;
+		}
+
+		st.subtotals_v1.resize(static_cast<size_t>(size));
+		st.subtotals_v2.resize(static_cast<size_t>(size));
+		st.sums.resize(static_cast<size_t>(size));
+	}
+
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	UpdateableSubtotals()
+	{
+		init_cache_size(st_);
+	}
 
 	/**
 	 * \brief Index of next cache position.
@@ -885,7 +1002,7 @@ public:
 	 *
 	 * \return Current multiplier
 	 */
-	uint_fast64_t multiplier() const
+	Subtotals::factor_type multiplier() const
 	{
 		return st_.multiplier;
 	}
@@ -895,7 +1012,7 @@ public:
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m)
+	void set_multiplier(const Subtotals::factor_type m)
 	{
 		st_.multiplier = m;
 	}
@@ -964,7 +1081,7 @@ public:
 	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
 	 * \param[in] frame450      Add sections for frame450 iff TRUE
 	 */
-	auto sections(const uint_fast64_t m, const std::size_t usize,
+	auto sections(const Subtotals::factor_type m, const std::size_t usize,
 			const std::size_t tsize,
 			const bool drive_offsets, const bool frame450)
 	{
@@ -1047,7 +1164,7 @@ public:
 			// end of frame 450: update before, don't update afterwards
 			const auto e4 = ptrdiff_t { 451 * 588 - shift_m };
 
-			// end of frame 455: cache before, don't cache afterwards
+			// end of frame 454: cache before, don't cache afterwards
 			const auto ec = ptrdiff_t { 455 * 588 - shift_m };
 
 			points[1] = (drive_offsets && sc < ssize) ? sc : 0;
@@ -1087,8 +1204,10 @@ public:
 		using std::cbegin;
 		using std::cend;
 
+		const auto cache_requested = bool { do_drive_offsets() };
+
 		const auto points = sections(multiplier(), size, current_length(),
-				do_drive_offsets(), do_frame450());
+				cache_requested, do_frame450());
 
 		ARCS_LOG(DEBUG4) << "split points: 0:" << points[0]
 			<< ", 1:" << points[1] << ", 2:" << points[2]
@@ -1098,11 +1217,12 @@ public:
 		const auto has_points { std::any_of(cbegin(points), cend(points),
                                [](int x) { return x > 0; }) };
 
-		// flag to turn caching (while updating) on/off
-		auto do_cache = bool { false };
+		// flag to turn caching on/off (while updating)
+		auto is_cache_point = bool { false };
 
 		if (has_points)
 		{
+
 			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
 			auto i    = size_t    { 0 }; // counter
 
@@ -1112,23 +1232,24 @@ public:
 				if (points[i] > 0)
 				{
 					// don't cache for points 1 and 5 (as "to")
-					do_cache = ((i - 1) * (i - 5)) > 0;
+					is_cache_point = ((i - 1) * (i - 5)) > 0;
 
 					ARCS_LOG(DEBUG4) << "update " << i
 						<< ": from " << last << " to " << points[i]
 						<< " (" << (points[i] - last) << "),"
-						<< " cache: " << std::boolalpha << do_cache;
+						<< " cache: " << std::boolalpha << is_cache_point;
 
 					if (i >= 2 && i <= 4)
 					{
 						ARCS_LOG(DEBUG4) << "(frame450)";
 
-						//update_(start + last, start + points[i], f450_, do_cache);
+						// update the cache values for frame 450
 						update_(start + last, start + points[i], st_, false);
 
 					} else
 					{
-						update_(start + last, start + points[i], st_, do_cache);
+						update_(start + last, start + points[i], st_,
+								cache_requested && is_cache_point);
 					}
 
 					last = points[i];
@@ -1139,7 +1260,7 @@ public:
 			if (static_cast<size_t>(last) < size)
 			{
 				// cache iff this is the section from points[5] to end
-				do_cache = (points.size() == i) && (points.back() > 0);
+				is_cache_point = (points.size() == i) && (points.back() > 0);
 
 				const auto amount = size - static_cast<size_t>(last);
 
@@ -1147,37 +1268,39 @@ public:
 
 				ARCS_LOG(DEBUG4) << "update _: from "
 						<< last << " to " << size << " (" << amount << ")"
-						<< ", cache: " << std::boolalpha << do_cache;
+						<< ", cache: " << std::boolalpha << is_cache_point;
 
-				update_(start + last, stop, st_, do_cache);
+				update_(start + last, stop, st_,
+						cache_requested && is_cache_point);
 			}
 		} else
 		{
 			// without points, the update has to be either entirely cached or
 			// entirely uncached
 
-			if (do_drive_offsets())
+			if (cache_requested)
 			{
 				// drive offsets requested but no actual split points:
 				// cache iff the update is entirely in the first or last 2940
 				// samples.
 
-				ARCS_LOG(DEBUG4) << "update goes to cache: "
-					<< (size <= 2940)
-					<< " (" << size << " samples)";
-
 				const auto track_remain { current_length_ - (multiplier() - 1) };
 				const auto remainder    { track_remain - size };
 
-				do_cache = remainder <= 2940 || remainder >= track_remain - 2940;
+				is_cache_point =
+					remainder <= 2940 || remainder >= track_remain - 2940;
+
+				ARCS_LOG(DEBUG4) << "update is for cache: "
+					<< (do_drive_offsets() && is_cache_point)
+					<< " (" << size << " samples)";
 			}
 
 			if (do_frame450())
 			{
-				// TODO ?
+				// TODO Must this case be handled?
 			}
 
-			update_(start, stop, st_, do_cache);
+			update_(start, stop, st_, cache_requested && is_cache_point);
 		}
 	}
 
@@ -1215,23 +1338,14 @@ public:
 	{
 		ARCS_LOG(DEBUG4) << "Finalize track";
 
-		if (do_frame450())
-		{
-			if (do_drive_offsets())
-			{
-				update_.accumulate(f450_); // do this exactly 1x
-			}
-
-			ARCS_LOG(DEBUG4) << "Respect Frame 450 subtotals";
-
-			st_.current_subtotal_v1 += f450_.current_subtotal_v1;
-			st_.current_subtotal_v2 += f450_.current_subtotal_v2;
-			st_.current_cs_sum      += f450_.current_cs_sum;
-		}
-
 		if (do_drive_offsets())
 		{
 			update_.accumulate(st_); // do this exactly 1x
+		}
+
+		if (do_frame450())
+		{
+			update_.accumulate_f450(st_); // do this exactly 1x
 		}
 	}
 
