@@ -22,6 +22,7 @@
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
 #include <string>         // for string
+#include <type_traits>    // for underlying_type
 #include <vector>         // for vector
 
 #include <iostream>
@@ -114,12 +115,11 @@ struct Subtotals final
 	 */
 	static constexpr std::size_t SIZE { 2940 + 2940 };
 
-	//    0 -  2939 : first i samples of the track (in order from i == 1)
-	// 2940 -  5879 : last 2940-i samples of the track (in order from i == 0)
+	//    0 -   2939 : first i samples of the track (in order from i == 1)
+	// 2940 -   5879 : last 2940-i samples of the track (in order from i == 0)
 
-	// 5879+
-	//    1 -  2939 : segment from 1st sample of frame 445 to last sample of 449
-	// 2940 -  5879 : segment from 1st sample of frame 451 to last sample of 455
+	// 5880 -   8819 : segment from 1st sample of frame 445 to last sample of 449
+	// 8820 -  11760 : segment from 1st sample of frame 451 to last sample of 455
 
 	/**
 	 * \brief Type of subtotals buffer.
@@ -1226,6 +1226,7 @@ public:
 
 			st_.current_subtotal_v1 += f450_.current_subtotal_v1;
 			st_.current_subtotal_v2 += f450_.current_subtotal_v2;
+			st_.current_cs_sum      += f450_.current_cs_sum;
 		}
 
 		if (do_drive_offsets())
