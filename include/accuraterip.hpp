@@ -142,26 +142,6 @@ struct Subtotals final
 	using storage_type = std::vector<cache_type>;
 
 	/**
-	 * \brief Next index of vectors.
-	 *
-	 * This is a transitional state helper. It is only increased during the
-	 * UPDATE state and remains unchanged thereafter.
-	 *
-	 * Starts on index 0, ends on index 5879.
-	 */
-	std::size_t idx_ { 0 };
-
-	/**
-	 * \brief Next index of vectors for frame 450.
-	 *
-	 * This is a transitional state helper. It is only increased during the
-	 * UPDATE state and remains unchanged thereafter.
-	 *
-	 * Starts on index 5880, ends on index 11759.
-	 */
-	std::size_t idx_f450_ { 5880 };
-
-	/**
 	 * \brief Actual subtotals for required indices.
 	 *
 	 * Weighted sum of samples, contains lower bits of <tt>i * sample_i</tt>.
@@ -536,16 +516,17 @@ public:
 	 * \param[in] c     TRUE requests caching values, FALSE discards caching
 	 */
 	template <class B, class E>
-	void operator()(const B& start, const E& stop, Subtotals& st, bool c) const
+	void operator()(const B& start, const E& stop, Subtotals& st, bool c,
+			std::size_t& idx) const
 	{
 		const auto* self = static_cast<const Derived*>(this);
 
 		if (c)
 		{
-			self->template calloperator_impl<true>(start, stop, st);
+			self->template calloperator_impl<true>(start, stop, st, idx);
 		} else
 		{
-			self->template calloperator_impl<false>(start, stop, st);
+			self->template calloperator_impl<false>(start, stop, st, idx);
 		}
 	}
 
@@ -631,7 +612,8 @@ class Update<checksum::type::ARCS1>
 	 * \brief Implementation of update operation.
 	 */
 	template <bool KEEP, class B, class E>
-	void calloperator_impl(const B& start, const E& stop, Subtotals& st) const
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
@@ -644,10 +626,10 @@ class Update<checksum::type::ARCS1>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v1[st.idx_] = update_;
-				st.sums[st.idx_]         = *pos;
+				st.subtotals_v1[idx] = update_;
+				st.sums[idx]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++st.idx_;
+				++idx;
 			}
 		}
 	}
@@ -666,16 +648,17 @@ public:
 	 * \brief Cache this sequence.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st) const
+	void cache(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[st.idx_] = arcs_v1(st.multiplier, *pos);
-			st.sums[st.idx_]         = *pos;
+			st.subtotals_v1[idx] = arcs_v1(st.multiplier, *pos);
+			st.sums[idx]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++st.idx_;
+			++idx;
 		}
 	}
 
@@ -719,7 +702,8 @@ class Update<checksum::type::ARCS2>
 	 * \brief Implementation of update operation.
 	 */
 	template <bool KEEP, class B, class E>
-	void calloperator_impl(const B& start, const E& stop, Subtotals& st) const
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
@@ -732,10 +716,10 @@ class Update<checksum::type::ARCS2>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v2[st.idx_] = update_;
-				st.sums[st.idx_]         = *pos;
+				st.subtotals_v2[idx] = update_;
+				st.sums[idx]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++st.idx_;
+				++idx;
 			}
 		}
 	}
@@ -754,16 +738,17 @@ public:
 	 * \brief Cache this sequence.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st) const
+	void cache(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v2[st.idx_] = arcs_v2(st.multiplier, *pos);
-			st.sums[st.idx_]         = *pos;
+			st.subtotals_v2[idx] = arcs_v2(st.multiplier, *pos);
+			st.sums[idx]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++st.idx_;
+			++idx;
 		}
 	}
 
@@ -796,7 +781,8 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	 * \brief Implementation of update operation.
 	 */
 	template <bool KEEP, class B, class E>
-	void calloperator_impl(const B& start, const E& stop, Subtotals& st) const
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
@@ -810,11 +796,11 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v1[st.idx_] = update_ & LOWER_32_BITS_;
-				st.subtotals_v2[st.idx_] = (update_ >> 32u);
-				st.sums[st.idx_]         = *pos;
+				st.subtotals_v1[idx] = update_ & LOWER_32_BITS_;
+				st.subtotals_v2[idx] = (update_ >> 32u);
+				st.sums[idx]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-				++st.idx_;
+				++idx;
 			}
 		}
 	}
@@ -833,7 +819,8 @@ public:
 	 * \brief Cache this sequence.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st) const
+	void cache(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
@@ -841,11 +828,11 @@ public:
 			update_ = st.multiplier * (*pos);
 
 			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-			st.subtotals_v1[st.idx_] = update_ & LOWER_32_BITS_;
-			st.subtotals_v2[st.idx_] = (update_ >> 32u);
-			st.sums[st.idx_]         = *pos;
+			st.subtotals_v1[idx] = update_ & LOWER_32_BITS_;
+			st.subtotals_v2[idx] = (update_ >> 32u);
+			st.sums[idx]         = *pos;
 			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-			++st.idx_;
+			++idx;
 		}
 	}
 
@@ -962,16 +949,6 @@ public:
 	UpdateableSubtotals()
 	{
 		init_cache_size(st_);
-	}
-
-	/**
-	 * \brief Index of next cache position.
-	 *
-	 * \return Current cache pointer
-	 */
-	std::size_t cache_index_subtotals() const
-	{
-		return st_.idx_;
 	}
 
 	/**
@@ -1188,16 +1165,10 @@ public:
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
 	 * \param[in] size  Size of the partition
+	 * \param[in] idx   Cache position
 	 */
 	template <class B, class E>
-	void update(B start, E stop, const std::size_t size)
-	{
-		update_impl<B, E>(start, stop, size);
-		//update_legacy<B, E>(start, stop, size);
-	}
-
-	template <class B, class E>
-	void update_impl(B start, E stop, const std::size_t size)
+	void update(B start, E stop, const std::size_t size, std::size_t& idx)
 	{
 		using std::ptrdiff_t;
 		using std::size_t;
@@ -1223,8 +1194,9 @@ public:
 		if (has_points)
 		{
 
-			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
-			auto i    = size_t    { 0 }; // counter
+			auto last = ptrdiff_t { 0 };   // last split point, 0 == start
+			auto i    = size_t    { 0 };   // counter
+			//auto dummy = std::size_t { 0 }; // cache index
 
 			// use the positive points for splitting the update
 			for (; i < points.size(); ++i)
@@ -1244,12 +1216,13 @@ public:
 						ARCS_LOG(DEBUG4) << "(frame450)";
 
 						// update the cache values for frame 450
-						update_(start + last, start + points[i], st_, false);
+						update_(start + last, start + points[i], st_, false,
+								idx);
 
 					} else
 					{
 						update_(start + last, start + points[i], st_,
-								cache_requested && is_cache_point);
+								cache_requested && is_cache_point, idx);
 					}
 
 					last = points[i];
@@ -1271,7 +1244,7 @@ public:
 						<< ", cache: " << std::boolalpha << is_cache_point;
 
 				update_(start + last, stop, st_,
-						cache_requested && is_cache_point);
+						cache_requested && is_cache_point, idx);
 			}
 		} else
 		{
@@ -1300,17 +1273,8 @@ public:
 				// TODO Must this case be handled?
 			}
 
-			update_(start, stop, st_, cache_requested && is_cache_point);
+			update_(start, stop, st_, cache_requested && is_cache_point, idx);
 		}
-	}
-
-	/**
-	 * \brief Set cache index position to start caching a track suffix.
-	 */
-	void set_cache_start_suffix()
-	{
-		// first index position where a part of the suffix is to be stored
-		st_.idx_ = 2940;
 	}
 
 	/**
@@ -1321,11 +1285,12 @@ public:
 	 *
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
+	 * \param[in] idx   Cache position
 	 */
 	template <class B, class E>
-	void cache(B start, E stop)
+	void cache(B start, E stop, std::size_t& idx)
 	{
-		update_.cache(start, stop, st_);
+		update_.cache(start, stop, st_, idx);
 	}
 
 	/**
@@ -1421,6 +1386,26 @@ class ARCSAlgorithm final : public Algorithm
 	mutable std::vector<subtotals_t> tracks_ { {/*first*/} };
 
 	/**
+	 * \brief Next index of subtotals.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 0, ends on index 5879.
+	 */
+	std::size_t idx_ { 0 };
+
+	/**
+	 * \brief Next index of subtotals for frame 450.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 5880, ends on index 11759.
+	 */
+	std::size_t idx_f450_ { 5880 };
+
+	/**
 	 * \brief Current track subtotals.
 	 *
 	 * \return Current track
@@ -1458,6 +1443,22 @@ class ARCSAlgorithm final : public Algorithm
 
 		ARCS_LOG(DEBUG1) << "Initialize multiplier to: "
 			<< current_track().multiplier();
+	}
+
+	/**
+	 * \brief Reset internal cache index to its initial value.
+	 */
+	void reset_idx()
+	{
+		idx_ = 0;
+	}
+
+	/**
+	 * \brief Reset internal cache index to its initial value.
+	 */
+	void reset_idx_f450()
+	{
+		idx_f450_ = 0;
 	}
 
 	/**
@@ -1679,7 +1680,7 @@ public:
 	template <class B, class E>
 	void perform_pre_range(B start, E stop)
 	{
-		current_subtotals().cache(start, stop); // increases multiplier
+		current_subtotals().cache(start, stop, idx_); // increases multiplier
 
 		ARCS_LOG(DEBUG2) << "Multiplier after caching is: "
 			<< current_track().multiplier();
@@ -1717,7 +1718,7 @@ public:
 
 		ARCS_LOG(DEBUG3) << "First multiplier: " << m;
 
-		current_subtotals().update(start, stop, size);
+		current_subtotals().update(start, stop, size, idx_);
 
 		ARCS_LOG(DEBUG3) << "Last multiplier:  "
 			<< (current_track().multiplier() - 1);
@@ -1741,9 +1742,10 @@ public:
 		// Note that update() wouldn't have known that it saw the last track.
 		// We will have to overwrite the last 2940 cache values.
 		// TODO Avoid useless caching of update() by publishing total samples
-		current_subtotals().set_cache_start_suffix();
+		//current_subtotals().set_cache_start_suffix();
+		idx_ = 2940;
 
-		current_subtotals().cache(start, stop);
+		current_subtotals().cache(start, stop, idx_);
 
 		ARCS_LOG(DEBUG1) << "After caching post-range samples, multiplier is: "
 			<< current_track().multiplier();
@@ -1760,6 +1762,9 @@ public:
 	void perform_finalize_track(const int /*t*/, const AudioSize& /*updated*/)
 	{
 		current_subtotals().finalize();
+
+		reset_idx();
+		reset_idx_f450();
 		tracks_.emplace_back(subtotals_t {});
 	}
 

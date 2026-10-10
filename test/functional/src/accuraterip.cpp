@@ -79,6 +79,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		std::vector<csample_t> buffer(80000); // samples
 
+
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
 		// Read Entire File Block-Wise and Update Calculation With the Blocks
@@ -156,6 +157,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Initialize Buffer
 
 		std::vector<csample_t> buffer(80000); // samples
+		auto idx = std::size_t { 0 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -186,10 +188,10 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		try
 		{
-			st.update(cbegin(buffer), cend(buffer), 80000);
+			st.update(cbegin(buffer), cend(buffer), 80000, idx);
 
 			// CHECK ( sections[i] ==
-			// 		st.sections(st.multiplier(), 80000, true, false) );
+			//		st.sections(st.multiplier(), 80000, true, false) );
 		} catch (...)
 		{
 			in.close();
@@ -211,10 +213,10 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		try
 		{
-			st.update(cbegin(buffer), cend(buffer), 80000);
+			st.update(cbegin(buffer), cend(buffer), 80000, idx);
 
 			// CHECK ( sections[i] ==
-			// 		st.sections(st.multiplier(), 80000, true, false) );
+			//		st.sections(st.multiplier(), 80000, true, false) );
 		} catch (...)
 		{
 			in.close();
@@ -236,7 +238,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx);
 		//st.finalize();
 
 		// Only track with correct ARCSs
@@ -259,6 +261,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Initialize Buffer
 
 		std::vector<csample_t> buffer(80000); // samples
+		auto idx = std::size_t { 0 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -291,7 +294,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				st.update(cbegin(buffer), cend(buffer), 80000);
+				st.update(cbegin(buffer), cend(buffer), 80000, idx);
 			} catch (...)
 			{
 				in.close();
@@ -311,7 +314,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx);
 		st.finalize();
 
 		// Only track with correct ARCSs
@@ -335,6 +338,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 		// Initialize Buffer
 
 		std::vector<csample_t> buffer(80000); // samples
+		auto idx = std::size_t { 0 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -367,7 +371,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				st.update(cbegin(buffer), cend(buffer), 80000);
+				st.update(cbegin(buffer), cend(buffer), 80000, idx);
 			} catch (...)
 			{
 				in.close();
@@ -389,7 +393,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx);
 
 		// Only track with correct ARCSs
 
@@ -411,9 +415,10 @@ TEST_CASE ( "first<>() is correct", "[arcsalgorithm] [calc]" )
 	using std::cend;
 
 	const auto sdata = standard_data(3052896);
+	auto idx = std::size_t { 0 };
 
 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
-	st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+	st12.cache(cbegin(sdata), cbegin(sdata) + 2940, idx);
 	st12.finalize();
 
 	const auto st = st12.subtotals();
@@ -454,9 +459,10 @@ TEST_CASE ( "last<>() is correct", "[arcsalgorithm] [calc]" )
 	using std::cend;
 
 	const auto sdata = standard_data(3052896);
+	auto idx = std::size_t { 0 };
 
 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
-	st12.cache(cbegin(sdata), cbegin(sdata) + 2940);
+	st12.cache(cbegin(sdata), cbegin(sdata) + 2940, idx);
 	//st12.cache(cbegin(sdata) + (3052896 - 2940), cend(sdata));
 	st12.finalize();
 

@@ -112,7 +112,9 @@ TEST_CASE ( "UpdateableSubtotals property",
 	auto u1 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 	REQUIRE (u1.multiplier() == 1);
 
-	u1.update(cbegin(data), cend(data), 12);
+	auto idx = std::size_t { 0 };
+
+	u1.update(cbegin(data), cend(data), 12, idx);
 
 	// REQUIRE ( u1.subtotal_v1(0)     == 650 );
 	// REQUIRE ( u1.subtotal_v2(0)     == 0 );

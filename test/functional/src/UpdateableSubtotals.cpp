@@ -35,8 +35,6 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 
-	REQUIRE ( st12.cache_index_subtotals() == 0 );
-
 	const auto& st = st12.subtotals();
 
 	REQUIRE ( st.subtotals_v1[0] == 0 );
@@ -162,23 +160,25 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	SECTION ( "Store and accumulate first 2939 and last 2940 simple sums"
 			" correctly" )
 	{
+		std::size_t idx = 0;
 		// cache first 2940 values
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), idx);
+
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index_subtotals() == 2940 );
+		REQUIRE ( idx == 2940 );
 
 		st12.set_multiplier(3052896 - 2940 + 1);
 
 		// cache last 2940 values
-		st12.cache(cbegin(sdata) + to_ptrdiff(3052896 - 2940), cend(sdata));
+		st12.cache(cbegin(sdata) + to_ptrdiff(3052896 - 2940), cend(sdata), idx);
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index_subtotals() == 5880 );
+		REQUIRE ( idx == 5880 );
 
 		// Values for sums are correctly stored (before accumulation)
 
@@ -222,8 +222,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Caches first 2939 simple sums correctly" )
 	{
+		std::size_t idx = 0;
+
 		//NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip), idx);
 		st12.finalize();
 
 		// Index and current sums are correct after caching
@@ -232,7 +234,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index_subtotals()     == 2940 );
+		CHECK ( idx == 2940 );
 
 		// simple sums 0 - 2939
 
@@ -248,8 +250,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Caches first 2939 ARCSv1 subtotals correctly" )
 	{
+		std::size_t idx = 0;
+
 		//NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip), idx);
 		st12.finalize();
 
 		// Index and current sums are correct after caching
@@ -258,7 +262,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index_subtotals()     == 2940 );
+		CHECK ( idx == 2940 );
 
 		// Check accumulated subtotals for ARCSv1
 
@@ -275,8 +279,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Caches first 2939 ARCSv2 subtotals correctly" )
 	{
+		std::size_t idx = 0;
+
 		//NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(bskip), idx);
 		st12.finalize();
 
 		// Index and current sums are correct after caching
@@ -285,7 +291,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.current_subtotal_v2 == 0 );
 		CHECK ( st.current_cs_sum      == 0 );
 
-		CHECK ( st12.cache_index_subtotals()     == 2940 );
+		CHECK ( idx == 2940 );
 
 		// Check accumulated subtotals for ARCSv2
 
@@ -304,23 +310,25 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	SECTION ( "Store and accumulate first 2939 and last 2940 ARCSv1 and ARCSv2"
 			" subtotals correctly" )
 	{
+		std::size_t idx = 0;
+
 		// cache first 2940 values
-		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940));
+		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), idx);
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index_subtotals() == 2940 );
+		CHECK ( idx == 2940 );
 
 		st12.set_multiplier(3052896 - 2940 + 1);
 
 		// cache last 2940 values
-		st12.cache(cbegin(sdata) + to_ptrdiff(3052896 - 2940), cend(sdata));
+		st12.cache(cbegin(sdata) + to_ptrdiff(3052896 - 2940), cend(sdata), idx);
 
 		REQUIRE ( st.sums[2939] == 2940 );
 
 		// Index is correct after caching
-		REQUIRE ( st12.cache_index_subtotals() == 5880 );
+		CHECK ( idx == 5880 );
 
 		// Values subtotals v1 are correctly stored
 
@@ -391,15 +399,16 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Update over first 2940 values is correct" )
 	{
-		CHECK ( st12.cache_index_subtotals() == 0 );
+		std::size_t idx = 0;
 		CHECK ( *cbegin(sdata) == 1 );
 		CHECK ( *cbegin(sdata) + to_ptrdiff(2939) == 2940 );
 
-		st12.update(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), 2939);
+		st12.update(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), 2939, idx);
+
 
 		// Cache index is correct after updating
 
-		CHECK ( st12.cache_index_subtotals() == 2940 );
+		CHECK ( idx == 2940 );
 
 		// Checksums are correct
 
