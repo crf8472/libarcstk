@@ -429,19 +429,6 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
 
 
 /**
- * \brief Current sum of combined samples.
- *
- * \param[in] st Subtotals to get sum of
- *
- * \return Current sum of combined samples
- */
-inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
-{
-	return AccessSt::to_value(st.current_cs_sum);
-} // TODO Implement variant for frame450
-
-
-/**
  * \brief Current subtotals of type \c TYPE for the first \c k values.
  *
  * For <tt>i == 0</tt> this function returns \c 0.
@@ -484,6 +471,22 @@ auto last(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 
 
 /**
+ * \brief Current sum of combined samples.
+ *
+ * \param[in] st Subtotals to get sum of
+ *
+ * \return Current sum of combined samples
+ */
+inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
+{
+	return AccessSt::to_value(st.current_cs_sum);
+}
+
+
+// TODO Implement variant for frame450: st.sums[8820] - st.sums[9408]
+
+
+/**
  * \brief Simple sum of first \c k combined samples with \c k in
  * <tt>[1,2940]</tt> and value \c 0 otherwise.
  *
@@ -499,7 +502,12 @@ inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 	return AccessSt::to_value(st.sums[AccessSt::idx_front(k)]);
-} // TODO Index for frame450
+}
+
+
+// TODO Index for frame450: st.sums[AccessSt::idx_front(k) + 5880]
+// or
+// TODO Index for frame450: st.sums[Access<T>::idx_front(k)]
 
 
 /**
@@ -518,7 +526,12 @@ inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 	return AccessSt::to_value(st.sums[AccessSt::idx_back(k)]);
-} // TODO Index for frame450
+}
+
+
+// TODO Index for frame450: st.sums[AccessSt::idx_back(k) + 5880]
+// or
+// TODO Index for frame450: st.sums[Access<T>::idx_back(k)]
 
 
 /**
@@ -619,26 +632,7 @@ public:
 	 */
 	void accumulate(Subtotals& st) const
 	{
-		// accumulate first 2939 in track
-		// for (auto i = std::size_t { 1 }; i <= 2939; ++i)
-		// {
-		// 	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-		// 	st.subtotals_v1[i] += st.subtotals_v1[i - 1];
-		// 	st.subtotals_v2[i] += st.subtotals_v2[i - 1];
-		// 	st.sums[i]         += st.sums[i - 1];
-		// 	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-		// }
-		accumulate_upwards(1, 2939, st);
-
-		// accumulate last 2940 in track
-		// for (auto i = std::size_t { 5879 }; i > 2940; --i)
-		// {
-		// 	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-		// 	st.subtotals_v1[i - 1] += st.subtotals_v1[i];
-		// 	st.subtotals_v2[i - 1] += st.subtotals_v2[i];
-		// 	st.sums[i - 1]         += st.sums[i];
-		// 	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
-		// }
+		accumulate_upwards  (   1, 2939, st);
 		accumulate_downwards(5879, 2940, st);
 	}
 
