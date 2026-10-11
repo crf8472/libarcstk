@@ -607,6 +607,7 @@ template <typename A, typename B, typename E>
 		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
+		// TODO Must be ptrdiff_t
 		const auto dist1 = first_phys_smpl - start_pos;
 		const auto diff  = partitioner.legal_range().lower() - start_pos;
 		const auto dist2 = std::min(diff, last_pos - start_pos - 1);
@@ -623,7 +624,7 @@ template <typename A, typename B, typename E>
 			<< start_pos + dist2 - 1
 			<< " do not contribute to current checksum";
 
-		updateable.pre_range(start + dist1, start + dist2);
+		updateable.pre_range(start + dist1, start + dist2, dist2 - dist1);
 	}
 
 	const auto partitioning { partitioner.create_partitioning(
@@ -691,7 +692,7 @@ template <typename A, typename B, typename E>
 			<< " do not contribute to current checksum";
 
 		updateable.post_range(start + (state.current_offset() - start_pos),
-				start + (state.current_offset() - start_pos) + dist);
+				start + (state.current_offset() - start_pos) + dist, dist);
 	}
 
 	/* Return TRUE iff the last relevant sample was in the current block. */

@@ -947,11 +947,12 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  Input size
 	 */
 	template <typename B, typename E>
-	void pre_range(B start, E stop)
+	void pre_range(B start, E stop, const std::size_t size)
 	{
-		algorithm_->perform_pre_range(start, stop);
+		algorithm_->perform_pre_range(start, stop, size);
 	}
 
 	/**
@@ -991,11 +992,12 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  Input size
 	 */
 	template <typename B, typename E>
-	void post_range(B start, E stop)
+	void post_range(B start, E stop, const std::size_t size)
 	{
-		algorithm_->perform_post_range(start, stop);
+		algorithm_->perform_post_range(start, stop, size);
 	}
 
 	/**

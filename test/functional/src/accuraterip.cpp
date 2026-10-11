@@ -698,7 +698,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 		v1.start_track(1, AudioSize { 3052896 - 2940, arcstk::UNIT::SAMPLES });
 		v1.update(cbegin(sdata), cbegin(sdata) + (3052896 - 2940),
 				3052896 - 2940);
-		v1.post_range(cbegin(sdata) + (3052896 - 2940), cend(sdata));
+		v1.post_range(cbegin(sdata) + (3052896 - 2940), cend(sdata), 2940);
 		v1.finalize_track(1,
 				AudioSize { 3052896 - 2940, arcstk::UNIT::SAMPLES });
 
@@ -872,7 +872,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 
 		// Consider sdata as a last track without the trailing 2940 samples
 		v1.start_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
-		v1.pre_range(cbegin(sdata), cbegin(sdata) + 2939);
+		v1.pre_range(cbegin(sdata), cbegin(sdata) + 2939, 2939);
 		v1.update(cbegin(sdata) + 2939, cend(sdata), 3052896 - 2939);
 		v1.finalize_track(1, AudioSize { 3052896, arcstk::UNIT::SAMPLES });
 

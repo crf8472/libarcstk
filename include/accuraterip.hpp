@@ -1797,7 +1797,7 @@ public:
 	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_pre_range(B start, E stop/*, const std::size_t size*/)
+	void perform_pre_range(B start, E stop, const std::size_t /*size*/)
 	{
 		current_subtotals().cache(start, stop, idx_); // increases multiplier
 
@@ -1857,7 +1857,7 @@ public:
 	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_post_range(B start, E stop/*, const std::size_t size*/)
+	void perform_post_range(B start, E stop, const std::size_t size)
 	{
 		// Note that update() wouldn't have known that it saw the last track.
 		// We will have to overwrite the last 2940 cache values.
