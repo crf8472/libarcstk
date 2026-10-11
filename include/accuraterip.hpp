@@ -549,12 +549,9 @@ inline void set_to_zero(Subtotals::storage_type& s)
 
 
 /**
- * \brief Provide operator() for all Update<> specializations.
- *
- * Also provide other useful functions for specializations of Update.
+ * \brief Accumulate samples sums on Subtotals.
  */
-template <class Derived>
-class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
+class Accumulate final
 {
 	/**
 	 * \brief Accumulate values from index \c from up to index \c upto.
@@ -563,8 +560,8 @@ class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 	 * \param[in] upto Included end index
 	 * \param[in] st   Subtotals to accumulate
 	 */
-	void accumulate_upwards(const std::size_t from, const std::size_t upto,
-			Subtotals& st) const
+	static void upwards(const std::size_t from, const std::size_t upto,
+			Subtotals& st)
 	{
 		for (auto i = std::size_t { from }; i <= upto; ++i)
 		{
@@ -583,8 +580,8 @@ class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 	 * \param[in] downto Not-included stop index
 	 * \param[in] st     Subtotals to accumulate
 	 */
-	void accumulate_downwards(const std::size_t from, const std::size_t downto,
-			Subtotals& st) const
+	static void downwards(const std::size_t from, const std::size_t downto,
+			Subtotals& st)
 	{
 		for (auto i = std::size_t { from }; i > downto; --i)
 		{
@@ -599,41 +596,14 @@ class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
 public:
 
 	/**
-	 * \brief Call operator.
-	 *
-	 * Perform a full update on the current subtotals.
-	 *
-	 * Caching can be either turned on or off for the entire input.
-	 *
-	 * \param[in] start The start position
-	 * \param[in] stop  The stop position
-	 * \param[in] st    Subtotals to update
-	 * \param[in] c     TRUE requests caching values, FALSE discards caching
-	 */
-	template <class B, class E>
-	void operator()(const B& start, const E& stop, Subtotals& st, bool c,
-			std::size_t& idx) const
-	{
-		const auto* self = static_cast<const Derived*>(this);
-
-		if (c)
-		{
-			self->template calloperator_impl<true>(start, stop, st, idx);
-		} else
-		{
-			self->template calloperator_impl<false>(start, stop, st, idx);
-		}
-	}
-
-	/**
 	 * \brief Accumulate values from 1 to 2939 and from (n - 2940) to n.
 	 *
 	 * \param[in] st Subtotals to accumulate
 	 */
-	void accumulate(Subtotals& st) const
+	static void drive_offsets_cache(Subtotals& st)
 	{
-		accumulate_upwards  (   1, 2939, st);
-		accumulate_downwards(5879, 2940, st);
+		upwards  (   1, 2939, st);
+		downwards(5879, 2940, st);
 	}
 
 	/**
@@ -641,39 +611,28 @@ public:
 	 *
 	 * \param[in] st Subtotals to accumulate
 	 */
-	void accumulate_f450(Subtotals& st) const
+	static void frame450_cache(Subtotals& st)
 	{
-		accumulate_upwards  ( 5880, 8819, st);
-		accumulate_downwards(11759, 8820, st);
+		upwards  ( 5880, 8819, st);
+		downwards(11759, 8820, st);
 	}
+
 };
 
 
 /**
- * \brief Functor for performing the actual update.
+ * \brief Implementation of the actual update
  *
  * \tparam T1 First checksum type
  * \tparam T2 More checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-class Update;
+struct UpdateImpl;
 
 
-// AccurateRip v1
 template <>
-class Update<checksum::type::ARCS1>
-	: public UpdateBase<Update<checksum::type::ARCS1>>
+struct UpdateImpl<checksum::type::ARCS1>
 {
-	using type = checksum::type; // convenience
-
-	friend class UpdateBase<Update<type::ARCS1>>;
-	// because calloperator_impl<>() is private
-
-	/**
-	 * \brief Current update factor.
-	 */
-	mutable Subtotals::factor_type update_ { 0 };
-
 	/**
 	 * \brief Calculate ARCSv1.
 	 *
@@ -692,18 +651,20 @@ class Update<checksum::type::ARCS1>
 	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
 			std::size_t& idx) const
 	{
+		Subtotals::factor_type update { 0 };
+
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
 		{
-			update_ = arcs_v1(st.multiplier, *pos);
+			update = arcs_v1(st.multiplier, *pos);
 
-			st.current_subtotal_v1 += update_;
+			st.current_subtotal_v1 += update;
 			st.current_cs_sum      += *pos;
 
 			if constexpr (KEEP)
 			{
 				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-				st.subtotals_v1[idx] = update_;
+				st.subtotals_v1[idx] = update;
 				st.sums[idx]         = *pos;
 				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 				++idx;
@@ -711,21 +672,11 @@ class Update<checksum::type::ARCS1>
 		}
 	}
 
-public:
-
 	/**
-	 * \brief ID string of this update.
-	 */
-	std::string id_string() const
-	{
-		return "v1";
-	}
-
-	/**
-	 * \brief Cache this sequence.
+	 * \brief Implementation of cache function.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st,
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
 			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -740,26 +691,24 @@ public:
 	}
 
 	/**
-	 * \brief Reset the subtotals.
+	 * \brief Implementation of reset function.
 	 */
-	void reset(Subtotals& st) const
+	void reset_impl(Subtotals& st) const
 	{
 		set_to_zero(st.subtotals_v1);
 		set_to_zero(st.sums);
 	}
+
+	std::string id_string() const
+	{
+		return "v1";
+	}
 };
 
 
-// AccurateRip v2
 template <>
-class Update<checksum::type::ARCS2>
-	: public UpdateBase<Update<checksum::type::ARCS2>>
+struct UpdateImpl<checksum::type::ARCS2>
 {
-	using type = checksum::type; // convenience
-
-	friend class UpdateBase<Update<type::ARCS2>>;
-	// because calloperator_impl<>() is private
-
 	/**
 	 * \brief Current update factor.
 	 */
@@ -802,21 +751,11 @@ class Update<checksum::type::ARCS2>
 		}
 	}
 
-public:
-
 	/**
-	 * \brief ID string of this update.
-	 */
-	std::string id_string() const
-	{
-		return "v2";
-	}
-
-	/**
-	 * \brief Cache this sequence.
+	 * \brief Implementation of cache function.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st,
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
 			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -831,26 +770,24 @@ public:
 	}
 
 	/**
-	 * \brief Reset the subtotals.
+	 * \brief Implementation of reset function.
 	 */
-	void reset(Subtotals& st) const
+	void reset_impl(Subtotals& st) const
 	{
 		set_to_zero(st.subtotals_v2);
 		set_to_zero(st.sums);
 	}
+
+	std::string id_string() const
+	{
+		return "v2";
+	}
 };
 
 
-// AccurateRip v1+2
 template <>
-class Update<checksum::type::ARCS1, checksum::type::ARCS2>
-	: public UpdateBase<Update<checksum::type::ARCS1, checksum::type::ARCS2>>
+struct UpdateImpl<checksum::type::ARCS1, checksum::type::ARCS2>
 {
-	using type = checksum::type; // convenience
-
-	friend class UpdateBase<Update<type::ARCS1, type::ARCS2>>;
-	// because calloperator_impl<>() is private
-
 	/**
 	 * \brief Current update factor.
 	 */
@@ -884,21 +821,11 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 		}
 	}
 
-public:
-
 	/**
-	 * \brief ID string of this update.
-	 */
-	std::string id_string() const
-	{
-		return "v1+2";
-	}
-
-	/**
-	 * \brief Cache this sequence.
+	 * \brief Implementation of cache function.
 	 */
 	template <class B, class E>
-	void cache(const B& start, const E& stop, Subtotals& st,
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
 			std::size_t& idx) const
 	{
 		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -916,21 +843,138 @@ public:
 	}
 
 	/**
-	 * \brief Reset the subtotals.
+	 * \brief Implementation of reset function.
 	 */
-	void reset(Subtotals& st) const
+	void reset_impl(Subtotals& st) const
 	{
 		set_to_zero(st.subtotals_v1);
 		set_to_zero(st.subtotals_v2);
 		set_to_zero(st.sums);
+	}
+
+	std::string id_string() const
+	{
+		return "v1+2";
+	}
+};
+
+
+/**
+ * \brief Check whether \c TARGET occurrs in \c VALUES.
+ *
+ * \tparam TARGET Values to find
+ * \tparam VALUES Values to search
+ */
+template <enum checksum::type TARGET, enum checksum::type... VALUES>
+struct ContainsValue
+{
+    static constexpr bool value = ((TARGET == VALUES) || ...);
+};
+
+
+/**
+ * \brief Check whether each of \c TARGETS occurrs in \c VALUES.
+ *
+ * \tparam TARGET Values to find
+ */
+template <enum checksum::type... TARGETS>
+struct Contains
+{
+	/**
+	 * \brief TRUE iff \c VALUES contain each of \c TARGET, otherwise FALSE.
+	 *
+	 * \tparam VALUES Values to search
+	 */
+    template <enum checksum::type... VALUES>
+    static constexpr bool all()
+    {
+        return (ContainsValue<TARGETS, VALUES...>::value && ...);
+    }
+};
+
+
+/**
+ * \brief Functor for performing the actual update.
+ *
+ * \tparam T1 First checksum type
+ * \tparam T2 More checksum types
+ */
+template <enum checksum::type T1, enum checksum::type... T2>
+class Update
+{
+	/**
+	 * \brief Internal implementation.
+	 */
+	UpdateImpl<T1, T2...> impl_ {};
+
+public:
+
+	/**
+	 * \brief Call operator.
+	 *
+	 * Perform a full update on the current subtotals.
+	 *
+	 * Caching can be either turned on or off for the entire input.
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in] cache TRUE requests caching values, FALSE discards caching
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void operator()(const B& start, const E& stop, Subtotals& st, bool cache,
+			std::size_t& idx) const
+	{
+		if (cache)
+		{
+			impl_.template calloperator_impl<true>(start, stop, st, idx);
+		} else
+		{
+			impl_.template calloperator_impl<false>(start, stop, st, idx);
+		}
+	}
+
+	/**
+	 * \brief Cache this sequence.
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void cache(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		impl_.template cache_impl<B, E>(start, stop, st, idx);
+	}
+
+	/**
+	 * \brief Reset specified Subtotals instance.
+	 *
+	 * \param[in] st Subtotals to reset
+	 */
+	void reset(Subtotals& st) const
+	{
+		impl_.reset_impl(st);
+	}
+
+	/**
+	 * \brief ID string of the class.
+	 *
+	 * \return ID string
+	 */
+	std::string id_string() const
+	{
+		return impl_.id_string();
 	}
 };
 
 
 template <>
 class Update<checksum::type::ARCS1, checksum::type::F4501> final
-	: public UpdateBase<Update<checksum::type::ARCS1, checksum::type::F4501>>
-	, public Update<checksum::type::ARCS1> // take implementation from here
+	: public Update<checksum::type::ARCS1>
 {
 	// empty
 };
@@ -938,8 +982,7 @@ class Update<checksum::type::ARCS1, checksum::type::F4501> final
 
 template <>
 class Update<checksum::type::ARCS2, checksum::type::F4502> final
-	: public UpdateBase<Update<checksum::type::ARCS2, checksum::type::F4502>>
-	, public Update<checksum::type::ARCS2> // take implementation from here
+	: public Update<checksum::type::ARCS2>
 {
 	// empty
 };
@@ -948,9 +991,7 @@ class Update<checksum::type::ARCS2, checksum::type::F4502> final
 template <>
 class Update<checksum::type::ARCS1, checksum::type::ARCS2,
 	  checksum::type::F4501, checksum::type::F4502> final
-	: public UpdateBase<Update<checksum::type::ARCS1, checksum::type::ARCS2,
-		checksum::type::F4501, checksum::type::F4502>>
-	, public Update<checksum::type::ARCS1, checksum::type::ARCS2>
+	: public Update<checksum::type::ARCS1, checksum::type::ARCS2>
 {
 	// empty
 };
@@ -1034,12 +1075,14 @@ class UpdateableSubtotals final
 	 */
 	void init_cache_size(Subtotals& st)
 	{
+		using checksum::type;
+
 		auto size = CacheSize::ZERO;
 
-		if (do_frame450())
+		if constexpr (do_frame450())
 		{
 			size = CacheSize::FRAME450;
-		} else if (do_drive_offsets())
+		} else if constexpr (do_drive_offsets())
 		{
 			size = CacheSize::SHIFTING;
 		}
@@ -1137,7 +1180,7 @@ public:
 	 *
 	 * \return TRUE iff drive offsets are calculated
 	 */
-	bool do_drive_offsets() const
+	constexpr bool do_drive_offsets() const
 	{
 		return true;
 	}
@@ -1148,9 +1191,11 @@ public:
 	 *
 	 * \return TRUE iff checksums for frame450 are calculated
 	 */
-	bool do_frame450() const
+	constexpr bool do_frame450() const
 	{
-		return true;
+		using checksum::type;
+
+		return Contains<type::F4501, type::F4502>::all<T1, T2...>();
 	}
 
 	// Frame 450:
@@ -1421,24 +1466,15 @@ public:
 	{
 		ARCS_LOG(DEBUG4) << "Finalize track";
 
-		if (do_drive_offsets())
+		if constexpr (do_drive_offsets())
 		{
-			update_.accumulate(st_); // do this exactly 1x
+			Accumulate::drive_offsets_cache(st_); // do this exactly 1x
 		}
 
-		if (do_frame450())
+		if constexpr (do_frame450())
 		{
-			update_.accumulate_f450(st_); // do this exactly 1x
+			Accumulate::frame450_cache(st_); // do this exactly 1x
 		}
-	}
-
-	/**
-	 * \brief Reset the instance to its initial state.
-	 */
-	void reset()
-	{
-		update_.reset(st_);
-		//st_.multiplier = 1; // TODO Why not?
 	}
 
 	/**
