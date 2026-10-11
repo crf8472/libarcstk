@@ -455,5 +455,45 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v2[2939] == 0 );
 		CHECK ( st.subtotals_v2[2940] == 0 );
 	}
+
+	SECTION ( "sections() provides correct split points" )
+	{
+		REQUIRE ( st12.cache_size()  == 11760 );
+		REQUIRE ( st12.do_frame450() == true );
+
+		// frames 445 - 454
+		st12.set_current_length(sdata.size());
+		st12.set_multiplier((445 * 588) + 1);
+
+		REQUIRE ( st12.current_length() == 3052896 );
+		REQUIRE ( st12.multiplier()     == 261661 );
+
+		const auto secs = st12.sections(261661 /*multiplier*/,
+				5880 /*usize*/, 3052896 /*tsize*/,
+				false /* no regular cache */, true /* but do frame 450 */);
+
+		CHECK ( secs[0] == -1 ); // no first 2940
+		CHECK ( secs[1] == -1 ); // FALSE
+		CHECK ( secs[2] == 2940 );
+		CHECK ( secs[3] == 3528 );
+		CHECK ( secs[4] == -1 );
+		CHECK ( secs[5] == -1 );
+		//CHECK ( secs[5] == st12.current_length() - 2940 );
+	}
+
+	// SECTION ( "Update over frame 450 values is correct" )
+	// {
+	//
+	// 	// st12.update(cbegin(sdata) + to_ptrdiff(445 * 588),
+	// 	// 		cbegin(sdata) + to_ptrdiff(455 * 588),
+	// 	// 		5880, idx, idx_f450);
+	// 	//
+	// 	// CHECK ( idx == 0 );
+	// 	// CHECK ( idx_f450 == 11760 );
+	// 	//
+	// 	// CHECK ( st.subtotals_v2[5880]  == v32(71577651600) );
+	//
+	// 	//CHECK ( st.subtotals_v2[11759] == 0 );
+	// }
 }
 

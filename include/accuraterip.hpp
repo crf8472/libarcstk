@@ -1114,7 +1114,7 @@ public:
 
 		if (!drive_offsets && !frame450) // no sections required
 		{
-			return data_t { /* 0 */ };
+			return data_t { -1, -1, -1, -1, -1, -1 };
 		}
 
 		const auto ssize = static_cast<ptrdiff_t>(usize);
@@ -1123,7 +1123,7 @@ public:
 		const auto shift_m = ptrdiff_t { static_cast<uint32_t>(m) - 1 };
 
 		// collect potential split points: offsets to the start iterator
-		auto points = data_t { /* 0 */ };
+		auto points = data_t { -1, -1, -1, -1, -1, -1 };
 
 
 		if (drive_offsets) // cache subtotals for first + last 2940 samples
@@ -1163,7 +1163,7 @@ public:
 			{
 				ARCS_LOG(DEBUG4) << "Parition goes to cache entirely";
 
-				return data_t { 0, 0, 0, 0, 0, 0 };
+				return data_t { -1, -1, -1, -1, -1, -1 };
 				// frame 445 is beyond this update
 			}
 		}
@@ -1188,10 +1188,10 @@ public:
 			// end of frame 454: cache before, don't cache afterwards
 			const auto ec = ptrdiff_t { 455 * 588 - shift_m };
 
-			points[1] = (drive_offsets && sc < ssize) ? sc : 0;
-			points[2] = (s4 < ssize) ? s4 : 0;
-			points[3] = (e4 < ssize) ? e4 : 0;
-			points[4] = (drive_offsets && ec < ssize) ? ec : 0;
+			points[1] = (drive_offsets && sc < ssize) ? sc : -1;
+			points[2] = (s4 < ssize) ? s4 : -1;
+			points[3] = (e4 < ssize) ? e4 : -1;
+			points[4] = (drive_offsets && ec < ssize) ? ec : -1;
 		}
 
 		// Now, every point that is > 0 is a split point,
@@ -1270,7 +1270,10 @@ public:
 						update_(start + last, start + points[i], st_,
 								cache_requested && is_cache_point, idx);
 					}
+				}
 
+				if (points[i] >= 0)
+				{
 					last = points[i];
 				}
 			}
