@@ -1242,7 +1242,6 @@ public:
 
 			auto last = ptrdiff_t { 0 };   // last split point, 0 == start
 			auto i    = size_t    { 0 };   // counter
-			//auto dummy = std::size_t { 0 }; // cache index
 
 			// use the positive points for splitting the update
 			for (; i < points.size(); ++i)
@@ -1274,6 +1273,7 @@ public:
 
 				if (points[i] >= 0)
 				{
+					// points[i] == 0 means "start from here" (start + 0)
 					last = points[i];
 				}
 			}
