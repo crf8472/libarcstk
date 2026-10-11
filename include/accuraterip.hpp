@@ -457,6 +457,8 @@ inline void set_to_zero(Subtotals::storage_type& s)
 
 /**
  * \brief Provide operator() for all Update<> specializations.
+ *
+ * Also provide other useful functions for specializations of Update.
  */
 template <class Derived>
 class UpdateBase // NOLINT(bugprone-crtp-constructor-accessibility)
@@ -591,6 +593,7 @@ class Update<checksum::type::ARCS1>
 	using type = checksum::type; // convenience
 
 	friend class UpdateBase<Update<type::ARCS1>>;
+	// because calloperator_impl<>() is private
 
 	/**
 	 * \brief Current update factor.
@@ -681,6 +684,7 @@ class Update<checksum::type::ARCS2>
 	using type = checksum::type; // convenience
 
 	friend class UpdateBase<Update<type::ARCS2>>;
+	// because calloperator_impl<>() is private
 
 	/**
 	 * \brief Current update factor.
@@ -771,6 +775,7 @@ class Update<checksum::type::ARCS1, checksum::type::ARCS2>
 	using type = checksum::type; // convenience
 
 	friend class UpdateBase<Update<type::ARCS1, type::ARCS2>>;
+	// because calloperator_impl<>() is private
 
 	/**
 	 * \brief Current update factor.
@@ -845,6 +850,35 @@ public:
 		set_to_zero(st.subtotals_v2);
 		set_to_zero(st.sums);
 	}
+};
+
+
+template <>
+class Update<checksum::type::ARCS1, checksum::type::F4501> final
+	: public UpdateBase<Update<checksum::type::ARCS1, checksum::type::F4501>>
+	, public Update<checksum::type::ARCS1> // take implementation from here
+{
+	// empty
+};
+
+
+template <>
+class Update<checksum::type::ARCS2, checksum::type::F4502> final
+	: public UpdateBase<Update<checksum::type::ARCS2, checksum::type::F4502>>
+	, public Update<checksum::type::ARCS2> // take implementation from here
+{
+	// empty
+};
+
+
+template <>
+class Update<checksum::type::ARCS1, checksum::type::ARCS2,
+	  checksum::type::F4501, checksum::type::F4502> final
+	: public UpdateBase<Update<checksum::type::ARCS1, checksum::type::ARCS2,
+		checksum::type::F4501, checksum::type::F4502>>
+	, public Update<checksum::type::ARCS1, checksum::type::ARCS2>
+{
+	// empty
 };
 
 
@@ -962,6 +996,16 @@ public:
 	Checksum::value_type value() const
 	{
 		return checksum<TYPE>(st_);
+	}
+
+	/**
+	 * \brief Size of the internal cache.
+	 *
+	 * \return Internal cache size
+	 */
+	std::size_t cache_size() const
+	{
+		return st_.subtotals_v1.size();
 	}
 
 	/**
@@ -1166,9 +1210,11 @@ public:
 	 * \param[in] stop  The stop position
 	 * \param[in] size  Size of the partition
 	 * \param[in] idx   Cache position
+	 * \param[in] idx_f450 Cache position for frame 450
 	 */
 	template <class B, class E>
-	void update(B start, E stop, const std::size_t size, std::size_t& idx)
+	void update(B start, E stop, const std::size_t size, std::size_t& idx,
+			std::size_t& idx_f450)
 	{
 		using std::ptrdiff_t;
 		using std::size_t;
@@ -1216,8 +1262,8 @@ public:
 						ARCS_LOG(DEBUG4) << "(frame450)";
 
 						// update the cache values for frame 450
-						update_(start + last, start + points[i], st_, false,
-								idx);
+						update_(start + last, start + points[i], st_,
+								do_frame450(), idx_f450);
 
 					} else
 					{
@@ -1458,7 +1504,7 @@ class ARCSAlgorithm final : public Algorithm
 	 */
 	void reset_idx_f450()
 	{
-		idx_f450_ = 0;
+		idx_f450_ = 5880;
 	}
 
 	/**
@@ -1676,9 +1722,10 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_pre_range(B start, E stop)
+	void perform_pre_range(B start, E stop/*, const std::size_t size*/)
 	{
 		current_subtotals().cache(start, stop, idx_); // increases multiplier
 
@@ -1718,7 +1765,7 @@ public:
 
 		ARCS_LOG(DEBUG3) << "First multiplier: " << m;
 
-		current_subtotals().update(start, stop, size, idx_);
+		current_subtotals().update(start, stop, size, idx_, idx_f450_);
 
 		ARCS_LOG(DEBUG3) << "Last multiplier:  "
 			<< (current_track().multiplier() - 1);
@@ -1735,14 +1782,14 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_post_range(B start, E stop)
+	void perform_post_range(B start, E stop/*, const std::size_t size*/)
 	{
 		// Note that update() wouldn't have known that it saw the last track.
 		// We will have to overwrite the last 2940 cache values.
 		// TODO Avoid useless caching of update() by publishing total samples
-		//current_subtotals().set_cache_start_suffix();
 		idx_ = 2940;
 
 		current_subtotals().cache(start, stop, idx_);

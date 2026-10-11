@@ -113,8 +113,9 @@ TEST_CASE ( "UpdateableSubtotals property",
 	REQUIRE (u1.multiplier() == 1);
 
 	auto idx = std::size_t { 0 };
+	auto idx_f450 = std::size_t { 5880 };
 
-	u1.update(cbegin(data), cend(data), 12, idx);
+	u1.update(cbegin(data), cend(data), 12, idx, idx_f450);
 
 	// REQUIRE ( u1.subtotal_v1(0)     == 650 );
 	// REQUIRE ( u1.subtotal_v2(0)     == 0 );

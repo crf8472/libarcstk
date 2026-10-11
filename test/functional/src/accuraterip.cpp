@@ -158,6 +158,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		std::vector<csample_t> buffer(80000); // samples
 		auto idx = std::size_t { 0 };
+		auto idx_f450 = std::size_t { 5880 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -188,7 +189,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		try
 		{
-			st.update(cbegin(buffer), cend(buffer), 80000, idx);
+			st.update(cbegin(buffer), cend(buffer), 80000, idx, idx_f450);
 
 			// CHECK ( sections[i] ==
 			//		st.sections(st.multiplier(), 80000, true, false) );
@@ -213,7 +214,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		try
 		{
-			st.update(cbegin(buffer), cend(buffer), 80000, idx);
+			st.update(cbegin(buffer), cend(buffer), 80000, idx, idx_f450);
 
 			// CHECK ( sections[i] ==
 			//		st.sections(st.multiplier(), 80000, true, false) );
@@ -238,7 +239,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608, idx);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx, idx_f450);
 		//st.finalize();
 
 		// Only track with correct ARCSs
@@ -262,6 +263,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		std::vector<csample_t> buffer(80000); // samples
 		auto idx = std::size_t { 0 };
+		auto idx_f450 = std::size_t { 5880 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -294,7 +296,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				st.update(cbegin(buffer), cend(buffer), 80000, idx);
+				st.update(cbegin(buffer), cend(buffer), 80000, idx, idx_f450);
 			} catch (...)
 			{
 				in.close();
@@ -314,7 +316,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608, idx);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx, idx_f450);
 		st.finalize();
 
 		// Only track with correct ARCSs
@@ -339,6 +341,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		std::vector<csample_t> buffer(80000); // samples
 		auto idx = std::size_t { 0 };
+		auto idx_f450 = std::size_t { 5880 };
 
 		// => forms 3 blocks: 2 x 80000 samples and 1 x 36608 samples
 
@@ -371,7 +374,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 			try
 			{
-				st.update(cbegin(buffer), cend(buffer), 80000, idx);
+				st.update(cbegin(buffer), cend(buffer), 80000, idx, idx_f450);
 			} catch (...)
 			{
 				in.close();
@@ -393,7 +396,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 
 		in.close();
 
-		st.update(cbegin(buffer), cend(buffer), 36608, idx);
+		st.update(cbegin(buffer), cend(buffer), 36608, idx, idx_f450);
 
 		// Only track with correct ARCSs
 

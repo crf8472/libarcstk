@@ -161,6 +161,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 			" correctly" )
 	{
 		std::size_t idx = 0;
+
 		// cache first 2940 values
 		st12.cache(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), idx);
 
@@ -399,11 +400,14 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Update over first 2940 values is correct" )
 	{
-		std::size_t idx = 0;
+		auto idx = std::size_t { 0 };
+		auto idx_f450 = std::size_t { 5880 };
+
 		CHECK ( *cbegin(sdata) == 1 );
 		CHECK ( *cbegin(sdata) + to_ptrdiff(2939) == 2940 );
 
-		st12.update(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), 2939, idx);
+		st12.update(cbegin(sdata), cbegin(sdata) + to_ptrdiff(2940), 2939, idx,
+				idx_f450);
 
 
 		// Cache index is correct after updating
