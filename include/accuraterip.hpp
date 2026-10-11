@@ -297,6 +297,16 @@ struct Access;
 template <>
 struct Access<checksum::type::ARCS1>
 {
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return AccessSt::idx_front(k);
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return AccessSt::idx_back(k);
+	}
+
 	static inline Checksum::value_type subtotal(const Subtotals& st,
 			const std::size_t i)
 	{
@@ -315,6 +325,16 @@ struct Access<checksum::type::ARCS1>
 template <>
 struct Access<checksum::type::ARCS2>
 {
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return AccessSt::idx_front(k);
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return AccessSt::idx_back(k);
+	}
+
 	static inline Checksum::value_type subtotal(const Subtotals& st,
 			const std::size_t i)
 	{
@@ -328,6 +348,66 @@ struct Access<checksum::type::ARCS2>
 	{
 		return AccessSt::to_value(st.current_subtotal_v1)
 			+  AccessSt::to_value(st.current_subtotal_v2);
+	}
+};
+
+
+// AccurateRip v1 of Frame 450
+template <>
+struct Access<checksum::type::F4501>
+{
+	using type = arcstk::checksum::type;
+
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return Access<type::ARCS1>::idx_front(k) + 5880;
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return Access<type::ARCS1>::idx_back(k) + 5880;
+	}
+
+	static inline Checksum::value_type subtotal(const Subtotals& st,
+			const std::size_t i)
+	{
+        return Access<type::ARCS1>::subtotal(st, i);
+    }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+        return Access<type::ARCS1>::subtotal(st, 8820)
+			- Access<type::ARCS1>::subtotal(st, 9408);
+	}
+};
+
+
+// AccurateRip v2 of Frame 450
+template <>
+struct Access<checksum::type::F4502>
+{
+	using type = arcstk::checksum::type;
+
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return Access<type::ARCS2>::idx_front(k) + 5880;
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return Access<type::ARCS2>::idx_back(k) + 5880;
+	}
+
+	static inline Checksum::value_type subtotal(const Subtotals& st,
+			const std::size_t i)
+	{
+        return Access<type::ARCS2>::subtotal(st, i);
+    }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+        return Access<type::ARCS2>::subtotal(st, 8820)
+			- Access<type::ARCS2>::subtotal(st, 9408);
 	}
 };
 
@@ -358,7 +438,7 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
 inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 {
 	return AccessSt::to_value(st.current_cs_sum);
-}
+} // TODO Implement variant for frame450
 
 
 /**
@@ -378,7 +458,7 @@ auto first(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
-	return Access<T>::subtotal(st, AccessSt::idx_front(k));
+	return Access<T>::subtotal(st, Access<T>::idx_front(k));
 }
 
 
@@ -399,7 +479,7 @@ auto last(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
-	return Access<T>::subtotal(st, AccessSt::idx_back(k));
+	return Access<T>::subtotal(st, Access<T>::idx_back(k));
 }
 
 
@@ -419,7 +499,7 @@ inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 	return AccessSt::to_value(st.sums[AccessSt::idx_front(k)]);
-}
+} // TODO Index for frame450
 
 
 /**
@@ -438,7 +518,7 @@ inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
 	return AccessSt::to_value(st.sums[AccessSt::idx_back(k)]);
-}
+} // TODO Index for frame450
 
 
 /**
@@ -1188,10 +1268,10 @@ public:
 			// end of frame 454: cache before, don't cache afterwards
 			const auto ec = ptrdiff_t { 455 * 588 - shift_m };
 
-			points[1] = (drive_offsets && sc < ssize) ? sc : -1;
-			points[2] = (s4 < ssize) ? s4 : -1;
-			points[3] = (e4 < ssize) ? e4 : -1;
-			points[4] = (drive_offsets && ec < ssize) ? ec : -1;
+			points[1] = (drive_offsets && sc <= ssize) ? sc : -1;
+			points[2] = (s4 <= ssize) ? s4 : -1;
+			points[3] = (e4 <= ssize) ? e4 : -1;
+			points[4] = (drive_offsets && ec <= ssize) ? ec : -1;
 		}
 
 		// Now, every point that is > 0 is a split point,
@@ -1239,7 +1319,6 @@ public:
 
 		if (has_points)
 		{
-
 			auto last = ptrdiff_t { 0 };   // last split point, 0 == start
 			auto i    = size_t    { 0 };   // counter
 
@@ -1248,7 +1327,7 @@ public:
 			{
 				if (points[i] > 0)
 				{
-					// don't cache for points 1 and 5 (as "to")
+					// don't cache section before points 1 and 5
 					is_cache_point = ((i - 1) * (i - 5)) > 0;
 
 					ARCS_LOG(DEBUG4) << "update " << i
@@ -1269,11 +1348,7 @@ public:
 						update_(start + last, start + points[i], st_,
 								cache_requested && is_cache_point, idx);
 					}
-				}
 
-				if (points[i] >= 0)
-				{
-					// points[i] == 0 means "start from here" (start + 0)
 					last = points[i];
 				}
 			}

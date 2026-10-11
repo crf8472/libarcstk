@@ -468,32 +468,59 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE ( st12.current_length() == 3052896 );
 		REQUIRE ( st12.multiplier()     == 261661 );
 
-		const auto secs = st12.sections(261661 /*multiplier*/,
+		// only frame 445 - frame 455
+		const auto secs1 = st12.sections(261661 /*multiplier*/,
 				5880 /*usize*/, 3052896 /*tsize*/,
 				false /* no regular cache */, true /* but do frame 450 */);
 
-		CHECK ( secs[0] == -1 ); // no first 2940
-		CHECK ( secs[1] == -1 ); // FALSE
-		CHECK ( secs[2] == 2940 );
-		CHECK ( secs[3] == 3528 );
-		CHECK ( secs[4] == -1 );
-		CHECK ( secs[5] == -1 );
-		//CHECK ( secs[5] == st12.current_length() - 2940 );
+		CHECK ( secs1[0] == -1 ); // no first 2940
+		CHECK ( secs1[1] == -1 );
+		CHECK ( secs1[2] == 2940 );
+		CHECK ( secs1[3] == 3528 );
+		CHECK ( secs1[4] == -1 ); // no drive offstes, no end of frame 455
+		CHECK ( secs1[5] == -1 ); // no last 2940
+
+		// only frame 445 - frame 455
+		const auto secs2 = st12.sections(261661 /*multiplier*/,
+				5880 /*usize*/, 3052896 /*tsize*/,
+				true /* do drive offsets */, true /* but do frame 450 */);
+
+		CHECK ( secs2[0] == -258720 ); // no first 2940
+		CHECK ( secs2[1] == 0 ); // start here
+		CHECK ( secs2[2] == 2940 );
+		CHECK ( secs2[3] == 3528 );
+		CHECK ( secs2[4] == 5880 ); // no end of frame 455
+		CHECK ( secs2[5] == -1 ); // no last 2940
 	}
 
-	// SECTION ( "Update over frame 450 values is correct" )
-	// {
-	//
-	// 	// st12.update(cbegin(sdata) + to_ptrdiff(445 * 588),
-	// 	// 		cbegin(sdata) + to_ptrdiff(455 * 588),
-	// 	// 		5880, idx, idx_f450);
-	// 	//
-	// 	// CHECK ( idx == 0 );
-	// 	// CHECK ( idx_f450 == 11760 );
-	// 	//
-	// 	// CHECK ( st.subtotals_v2[5880]  == v32(71577651600) );
-	//
-	// 	//CHECK ( st.subtotals_v2[11759] == 0 );
-	// }
+	SECTION ( "Update over frame 450 values is correct" )
+	{
+		REQUIRE ( st12.cache_size()  == 11760 );
+		REQUIRE ( st12.do_frame450() == true );
+
+		// frames 445 - 454
+		st12.set_current_length(sdata.size());
+		st12.set_multiplier((445 * 588) + 1);
+
+		REQUIRE ( st12.current_length() == 3052896 );
+		REQUIRE ( st12.multiplier()     == 261661 ); // start of frame 445
+
+
+		auto idx = std::size_t { 0 };
+		auto idx_f450 = std::size_t { 5880 };
+
+		// only frame 445 - frame 455
+		st12.update(cbegin(sdata) + to_ptrdiff(445 * 588),
+				cbegin(sdata) + to_ptrdiff(455 * 588),
+				5880, idx, idx_f450);
+
+		CHECK ( idx_f450 == 11760 );
+		CHECK ( idx == 0 );
+
+
+		CHECK ( st.subtotals_v1[5880]  == v32(68466478921) ); // 261661 ^ 2
+
+		// TODO...
+	}
 }
 
