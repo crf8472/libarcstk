@@ -33,7 +33,8 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	using std::cbegin;
 	using std::cend;
 
-	auto st12 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
+	auto st12 = UpdateableSubtotals<
+		type::ARCS1, type::ARCS2, type::F4501, type::F4502> {};
 
 	const auto& st = st12.subtotals();
 
@@ -219,6 +220,8 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.sums[   2] == 6 );
 		CHECK ( st.sums[   1] == 3 );
 		CHECK ( st.sums[   0] == 1 );
+
+		// TODO Check 5580 - 11759
 	}
 
 	SECTION ( "Caches first 2939 simple sums correctly" )
@@ -518,9 +521,10 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( idx == 0 );
 
 
-		CHECK ( st.subtotals_v1[5880]  == v32(68466478921) ); // 261661 ^ 2
+		CHECK ( st.subtotals_v1[ 5880] == v32(68466478921) ); // (445 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[11759] == v32(71577651600) ); // (455 * 588) ^ 2
 
-		// TODO...
+		// TODO Check more indices for correct values
 	}
 }
 
