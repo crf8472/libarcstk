@@ -597,6 +597,11 @@ template <typename A, typename B, typename E>
 		Updateable<A>& updateable, CalculationState& state,
 		Checksums& result_buffer)
 {
+	using std::int32_t;
+	using std::ptrdiff_t;
+	using std::size_t;
+	using std::uint16_t;
+
 	const auto samples_in_block {
 		static_cast<int32_t>(std::distance(start, stop)) };
 
@@ -607,10 +612,10 @@ template <typename A, typename B, typename E>
 		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
-		// TODO Must be ptrdiff_t
-		const auto dist1 = first_phys_smpl - start_pos;
+		const auto dist1 = static_cast<ptrdiff_t>(first_phys_smpl) - start_pos;
 		const auto diff  = partitioner.legal_range().lower() - start_pos;
-		const auto dist2 = std::min(diff, last_pos - start_pos - 1);
+		const auto dist2 = static_cast<ptrdiff_t>(
+				std::min(diff, last_pos - start_pos - 1));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< start_pos
@@ -624,7 +629,8 @@ template <typename A, typename B, typename E>
 			<< start_pos + dist2 - 1
 			<< " do not contribute to current checksum";
 
-		updateable.pre_range(start + dist1, start + dist2, dist2 - dist1);
+		updateable.pre_range(start + dist1, start + dist2,
+				static_cast<size_t>(dist2 - dist1));
 	}
 
 	const auto partitioning { partitioner.create_partitioning(
@@ -683,7 +689,8 @@ template <typename A, typename B, typename E>
 	{
 		const auto diff = partitioner.total_samples().samples()
 			- state.current_offset();
-		const auto dist = std::min(diff, last_pos - state.current_offset());
+		const auto dist = static_cast<ptrdiff_t>(
+				std::min(diff, last_pos - state.current_offset()));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< state.current_offset()
@@ -691,8 +698,11 @@ template <typename A, typename B, typename E>
 			<< state.current_offset() + dist
 			<< " do not contribute to current checksum";
 
-		updateable.post_range(start + (state.current_offset() - start_pos),
-				start + (state.current_offset() - start_pos) + dist, dist);
+		const auto offset = static_cast<ptrdiff_t>(
+				state.current_offset() - start_pos);
+
+		updateable.post_range(start + offset, start + (offset + dist),
+				static_cast<size_t>(dist));
 	}
 
 	/* Return TRUE iff the last relevant sample was in the current block. */
