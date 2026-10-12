@@ -1922,8 +1922,13 @@ public:
 
 		current_subtotals().cache(start, stop, idx_);
 
+		// FIXME Multiplier is reset to 1 by perform_finalize_track() when
+		// entering here. This means, shifting forward into false indices!
 		ARCS_LOG(DEBUG1) << "After caching post-range samples, multiplier is: "
 			<< current_track().multiplier();
+
+		// TODO Restore multiplier of current_track to
+		// tracks_[tracks_.size() - 2].multiplier()
 	}
 
 	/**

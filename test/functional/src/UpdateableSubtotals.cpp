@@ -523,11 +523,34 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 		CHECK ( st.subtotals_v1[ 5880] == v32(68466478921) ); // (445 * 588 + 1) ^ 2
 		CHECK ( st.subtotals_v1[ 8819] == v32(70013160000) ); // (450 * 588) ^ 2
-															  //
+
 		CHECK ( st.subtotals_v1[ 8820] == v32(70013689201) ); // (450 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 9408] == v32(70325205721) ); // (451 * 588 + 1) ^ 2
 		CHECK ( st.subtotals_v1[11759] == v32(71577651600) ); // (455 * 588) ^ 2
 
 		// TODO Check more indices for correct values
+
+
+		// subtotal_v1 of first 2939 samples
+
+		cachevar = 0;
+		for (multiplier_t i = 450 * 588 + 1; i <= (451 * 588); ++i)
+		{
+			cachevar += arcs_v1(i, sdata[index(i - 1)]);
+		}
+		const auto v1_f450 = cachevar;
+
+		REQUIRE ( v1_f450 == 852393145226 ); // -Woverflow
+		REQUIRE ( v32(v1_f450) == v32(852393145226) );
+		REQUIRE ( v32(v1_f450) == 0x7697338A );
+
+		st12.finalize();
+
+		// TODO Check accumulated values for frame 450
+
+		CHECK ( st12.value<type::F4501>() == 0x7697338A );
+
+		CHECK ( v32(st.subtotals_v1[8820] - st.subtotals_v1[9408]) == 0x7697338A );
 	}
 }
 
