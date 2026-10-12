@@ -521,14 +521,23 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( idx == 0 );
 
 
+		// upwards
 		CHECK ( st.subtotals_v1[ 5880] == v32(68466478921) ); // (445 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 6468] == v32(68774538001) ); // (446 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 7056] == v32(69083288569) ); // (447 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 7644] == v32(69392730625) ); // (448 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 8232] == v32(69702864169) ); // (449 * 588 + 1) ^ 2
+		//
 		CHECK ( st.subtotals_v1[ 8819] == v32(70013160000) ); // (450 * 588) ^ 2
 
+		// downwards
 		CHECK ( st.subtotals_v1[ 8820] == v32(70013689201) ); // (450 * 588 + 1) ^ 2
 		CHECK ( st.subtotals_v1[ 9408] == v32(70325205721) ); // (451 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 9996] == v32(70637413729) ); // (452 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[10584] == v32(70950313225) ); // (453 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[11172] == v32(71263904209) ); // (454 * 588 + 1) ^ 2
+		//
 		CHECK ( st.subtotals_v1[11759] == v32(71577651600) ); // (455 * 588) ^ 2
-
-		// TODO Check more indices for correct values
 
 
 		// subtotal_v1 of first 2939 samples
@@ -540,7 +549,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		}
 		const auto v1_f450 = cachevar;
 
-		REQUIRE ( v1_f450 == 852393145226 ); // -Woverflow
+		REQUIRE (     v1_f450  ==     852393145226  ); // -Woverflow
 		REQUIRE ( v32(v1_f450) == v32(852393145226) );
 		REQUIRE ( v32(v1_f450) == 0x7697338A );
 
