@@ -1084,10 +1084,10 @@ class UpdateableSubtotals final
 
 		auto size = CacheSize::ZERO;
 
-		if constexpr (do_frame450())
+		if (do_frame450())
 		{
 			size = CacheSize::FRAME450;
-		} else if constexpr (do_drive_offsets())
+		} else if (do_drive_offsets())
 		{
 			size = CacheSize::SHIFTING;
 		}
@@ -1474,12 +1474,12 @@ public:
 	{
 		ARCS_LOG(DEBUG4) << "Finalize track";
 
-		if constexpr (do_drive_offsets())
+		if (do_drive_offsets())
 		{
 			Accumulate::drive_offsets_cache(st_); // do this exactly 1x
 		}
 
-		if constexpr (do_frame450())
+		if (do_frame450())
 		{
 			Accumulate::frame450_cache(st_); // do this exactly 1x
 		}
