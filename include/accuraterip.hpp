@@ -376,10 +376,8 @@ struct Access<checksum::type::F4501>
 
 	static inline Checksum::value_type checksum(const Subtotals& st)
 	{
-        const auto wsum = Access<type::ARCS1>::subtotal(st, 8820)
-			- Access<type::ARCS1>::subtotal(st, 9408);
-
-		const auto ssum = st.sums[8820] - st.sums[9408];
+		const auto wsum = subtotal(st, 8820) - subtotal(st, 9408);
+		const auto ssum = st.sums[8820]      - st.sums[9408];
 
 		// shift leftwards, so first multiplier is 1
 		return wsum - (450l * 588) * ssum;
