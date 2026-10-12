@@ -615,7 +615,7 @@ public:
 	 */
 	static void frame450_cache(Subtotals& st)
 	{
-		upwards  ( 5880, 8819, st);
+		upwards  ( 5881, 8819, st);
 		downwards(11759, 8820, st);
 	}
 
