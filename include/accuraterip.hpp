@@ -549,7 +549,7 @@ inline void set_to_zero(Subtotals::storage_type& s)
 
 
 /**
- * \brief Accumulate samples sums on Subtotals.
+ * \brief Accumulate subtotals and samples sums.
  */
 class Accumulate final
 {
@@ -972,6 +972,7 @@ public:
 };
 
 
+// Use ARCS1 for F4501
 template <>
 class Update<checksum::type::ARCS1, checksum::type::F4501> final
 	: public Update<checksum::type::ARCS1>
@@ -980,6 +981,7 @@ class Update<checksum::type::ARCS1, checksum::type::F4501> final
 };
 
 
+// Use ARCS2 for F4502
 template <>
 class Update<checksum::type::ARCS2, checksum::type::F4502> final
 	: public Update<checksum::type::ARCS2>
@@ -988,6 +990,7 @@ class Update<checksum::type::ARCS2, checksum::type::F4502> final
 };
 
 
+// Use ARCS1+ARCS2 for F4501+F4502
 template <>
 class Update<checksum::type::ARCS1, checksum::type::ARCS2,
 	  checksum::type::F4501, checksum::type::F4502> final
@@ -1893,7 +1896,7 @@ public:
 	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_post_range(B start, E stop, const std::size_t size)
+	void perform_post_range(B start, E stop, const std::size_t /*size*/)
 	{
 		// Note that update() wouldn't have known that it saw the last track.
 		// We will have to overwrite the last 2940 cache values.
