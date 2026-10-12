@@ -540,7 +540,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		CHECK ( st.subtotals_v1[11759] == v32(71577651600) ); // (455 * 588) ^ 2
 
 
-		// subtotal_v1 of first 2939 samples
+		// ARCSv1 of frame 450
 
 		cachevar = 0;
 		for (multiplier_t i = 450 * 588 + 1; i <= (451 * 588); ++i)
