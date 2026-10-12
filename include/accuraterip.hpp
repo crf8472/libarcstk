@@ -1236,9 +1236,12 @@ public:
 		// return type
 		using data_t = std::array<ptrdiff_t, 6>;
 
+		// "no value" value
+		const auto X = ptrdiff_t { -1 };
+
 		if (!drive_offsets && !frame450) // no sections required
 		{
-			return data_t { -1, -1, -1, -1, -1, -1 };
+			return data_t { X, X, X, X, X, X };
 		}
 
 		const auto ssize = static_cast<ptrdiff_t>(usize);
@@ -1247,7 +1250,7 @@ public:
 		const auto shift_m = ptrdiff_t { static_cast<uint32_t>(m) - 1 };
 
 		// collect potential split points: offsets to the start iterator
-		auto points = data_t { -1, -1, -1, -1, -1, -1 };
+		auto points = data_t { X, X, X, X, X, X };
 
 
 		if (drive_offsets) // cache subtotals for first + last 2940 samples
@@ -1287,7 +1290,7 @@ public:
 			{
 				ARCS_LOG(DEBUG4) << "Parition goes to cache entirely";
 
-				return data_t { -1, -1, -1, -1, -1, -1 };
+				return data_t { X, X, X, X, X, X };
 				// frame 445 is beyond this update
 			}
 		}
@@ -1312,10 +1315,10 @@ public:
 			// end of frame 454: cache before, don't cache afterwards
 			const auto ec = ptrdiff_t { 455 * 588 - shift_m };
 
-			points[1] = (drive_offsets && sc <= ssize) ? sc : -1;
-			points[2] = (s4 <= ssize) ? s4 : -1;
-			points[3] = (e4 <= ssize) ? e4 : -1;
-			points[4] = (drive_offsets && ec <= ssize) ? ec : -1;
+			points[1] = (drive_offsets && sc <= ssize) ? sc : X;
+			points[2] = (s4 <= ssize) ? s4 : X;
+			points[3] = (e4 <= ssize) ? e4 : X;
+			points[4] = (drive_offsets && ec <= ssize) ? ec : X;
 		}
 
 		// Now, every point that is > 0 is a split point,
