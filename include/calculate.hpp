@@ -557,6 +557,7 @@ void complete_track(Updateable<A>& algorithm,
 
 	algorithm.finalize_track(track_number, track_length);
 
+	// TODO drive offset?
 	auto value = algorithm.track(track_number);
 
 	ARCS_LOG(DEBUG3) << "Save checksum for track " << track_number << ": "
@@ -806,6 +807,16 @@ std::string name(const State s);
  */
 class Stateful
 {
+	/**
+	 * \brief Set state to INVALID.
+	 *
+	 * \param[in] target_state New state
+	 */
+	void set_state(State target_state) noexcept
+	{
+        state_ = target_state;
+	}
+
 protected:
 
 	/**
@@ -833,10 +844,20 @@ protected:
             throw std::logic_error(ss.str());
         }
 
-        state_ = target_state;
+		set_state(target_state);
 
 		ARCS_LOG(DEBUG2) << "New state: " << name(target_state);
     }
+
+	/**
+	 * \brief Set state to INVALID.
+	 */
+	void transition_to_invalid_state() noexcept
+	{
+		set_state(State::INVALID);
+
+		ARCS_LOG(DEBUG2) << "Set invalid state";
+	}
 
 	/**
 	 * \brief Iff state is not before \c s, throw.
@@ -1650,7 +1671,7 @@ private:
 			}
 		} catch (...)
 		{
-			transition_to(State::INVALID);
+			transition_to_invalid_state();
 			throw;
 		}
 

@@ -1744,6 +1744,9 @@ class ARCSAlgorithm final : public Algorithm
 	template <enum checksum::type TYPE>
 	void add_checksum(const int t, const int k, ChecksumSet& s) const
 	{
+		ARCS_LOG(DEBUG3) << "Insert Checksum for type " << TYPE
+			<< " to track result";
+
 		const auto [ it, success ] =
 			s.insert(TYPE, Checksum { shift<TYPE>(t, k) });
 
