@@ -522,6 +522,9 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 
 		CHECK ( st.subtotals_v1[ 5880] == v32(68466478921) ); // (445 * 588 + 1) ^ 2
+		CHECK ( st.subtotals_v1[ 8819] == v32(70013160000) ); // (450 * 588) ^ 2
+															  //
+		CHECK ( st.subtotals_v1[ 8820] == v32(70013689201) ); // (450 * 588 + 1) ^ 2
 		CHECK ( st.subtotals_v1[11759] == v32(71577651600) ); // (455 * 588) ^ 2
 
 		// TODO Check more indices for correct values
