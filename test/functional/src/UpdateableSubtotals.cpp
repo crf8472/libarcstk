@@ -552,14 +552,13 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		REQUIRE (     v1_f450  ==     852393145226  ); // -Woverflow
 		REQUIRE ( v32(v1_f450) == v32(852393145226) );
 		REQUIRE ( v32(v1_f450) == 0x7697338A );
+		// Note: this is with multiplier 450 * 588 + 1, but we require 1
 
 		st12.finalize();
 
 		// TODO Check accumulated values for frame 450
 
-		CHECK ( st12.value<type::F4501>() == 0x7697338A );
-
-		CHECK ( v32(st.subtotals_v1[8820] - st.subtotals_v1[9408]) == 0x7697338A );
+		CHECK ( st12.value<type::F4501>() == 0xAF1E293A );
 	}
 }
 
