@@ -415,7 +415,7 @@ struct Access<checksum::type::F4502>
 /**
  * \brief Current subtotal of checksum type \c TYPE.
  *
- * \tparam TYPE Checksum type to acquire value of
+ * \tparam T Checksum type to acquire value of
  *
  * \param[in] st Subtotals to get checksum of
  *
@@ -433,7 +433,7 @@ auto checksum(const Subtotals& st) -> Checksum::value_type
  *
  * For <tt>i == 0</tt> this function returns \c 0.
  *
- * \tparam TYPE Checksum type to acquire value of
+ * \tparam T Checksum type to acquire value of
  *
  * \param[in] k  Offset value in range [-2939,2940] (unchecked)
  * \param[in] st Subtotals to access
@@ -454,7 +454,7 @@ auto first(const std::size_t k, const Subtotals& st) -> Checksum::value_type
  *
  * For <tt>i == 0</tt> this function returns \c 0.
  *
- * \tparam TYPE Checksum type to acquire value of
+ * \tparam T Checksum type to acquire value of
  *
  * \param[in] k  Offset value in range [-2939,2940] (unchecked)
  * \param[in] st Subtotals to access
@@ -473,65 +473,67 @@ auto last(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 /**
  * \brief Current sum of combined samples.
  *
+ * \tparam T Checksum type to use access logic for
+ *
  * \param[in] st Subtotals to get sum of
  *
  * \return Current sum of combined samples
  */
-inline auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
+template <enum checksum::type T>
+auto current_cs_sum(const Subtotals& st) -> Checksum::value_type
 {
-	return AccessSt::to_value(st.current_cs_sum);
+	using checksum::type;
+
+	if constexpr (T == type::F4501 || T == type::F4502)
+	{
+		//return current_cs_sum_f450(st);
+		return AccessSt::to_value(st.sums[8820] - st.sums[9408]);
+	} else
+	{
+		//return current_cs_sum_arcs(st);
+		return AccessSt::to_value(st.current_cs_sum);
+	}
 }
-
-
-// TODO Implement variant for frame450: st.sums[8820] - st.sums[9408]
 
 
 /**
  * \brief Simple sum of first \c k combined samples with \c k in
  * <tt>[1,2940]</tt> and value \c 0 otherwise.
  *
+ * \tparam T Checksum type to use access logic for
+ *
  * \param[in] k  Amount of values
  * \param[in] st Subtotals to access
  *
  * \return Sum of first \c k combined samples
  */
-inline auto cs_sum_first(const std::size_t k, const Subtotals& st)
-	-> Checksum::value_type
+template <enum checksum::type T>
+auto cs_sum_first(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
-	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return AccessSt::to_value(st.sums[AccessSt::idx_front(k)]);
+	return st.sums[Access<T>::idx_front(k)];
 }
-
-
-// TODO Index for frame450: st.sums[AccessSt::idx_front(k) + 5880]
-// or
-// TODO Index for frame450: st.sums[Access<T>::idx_front(k)]
 
 
 /**
  * \brief Simple sum of last \c k combined samples with \c k in
  * <tt>[1,2940]</tt> and value \c 0 otherwise.
  *
+ * \tparam T Checksum type to use access logic for
+ *
  * \param[in] k  Amount of values
  * \param[in] st Subtotals to access
  *
  * \return Sum of last \c k combined samples
  */
-inline auto cs_sum_last(const std::size_t k, const Subtotals& st)
-	-> Checksum::value_type
+template <enum checksum::type T>
+auto cs_sum_last(const std::size_t k, const Subtotals& st) -> Checksum::value_type
 {
 	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
-	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-	return AccessSt::to_value(st.sums[AccessSt::idx_back(k)]);
+	return st.sums[Access<T>::idx_back(k)];
 }
-
-
-// TODO Index for frame450: st.sums[AccessSt::idx_back(k) + 5880]
-// or
-// TODO Index for frame450: st.sums[Access<T>::idx_back(k)]
 
 
 /**
@@ -1636,7 +1638,11 @@ class ARCSAlgorithm final : public Algorithm
 			throw std::runtime_error("Illegal drive offset requested");
 		}
 
-		const auto t = static_cast<std::size_t>(track_no - 1);
+		using std::int64_t;
+		using std::size_t;
+		using std::uint32_t;
+
+		const auto t = static_cast<size_t>(track_no - 1);
 
 		if (t >= total_tracks() || t > CDDA::MAX_TRACKCOUNT)
 		{
@@ -1652,28 +1658,30 @@ class ARCSAlgorithm final : public Algorithm
 
 		// persistent part: present in previous and shifted sum
 		auto wsum   = checksum<TYPE>(st); // weighted sum
-		auto ssum   = current_cs_sum(st); // simple sum
+		auto ssum   = current_cs_sum<TYPE>(st); // simple sum
 		auto factor = int64_t { std::abs(drive_offset) }; // multiplier (signed)
 
 		// added correction: present only in shifted sum
-		auto a_wsum   = uint32_t { 0 };   // weighted sum
-		auto a_ssum   = uint32_t { 0 };   // simple sum
-		auto a_factor =  int64_t { 0 };   // multiplier (signed)
+		auto a_wsum   = uint32_t { 0 }; // weighted sum
+		auto a_ssum   = uint32_t { 0 }; // simple sum
+		auto a_factor =  int64_t { 0 }; // multiplier (signed)
 
 		// absolute (unsigned) amount of drive_offset
-		const auto k = static_cast<std::size_t>(std::abs(drive_offset));
+		const auto k = static_cast<size_t>(std::abs(drive_offset));
 
 		if (drive_offset < 0)
 		{
-			// shift "leftwards": remove k highest indices, add k lower indices
+			// shift "leftwards":
+			// remove k highest indices, add k lower indices from previous track
 
 			wsum -= last<TYPE> (k, st);
-			ssum -= cs_sum_last(k, st);
+			ssum -= cs_sum_last<TYPE>(k, st);
 
 			if (t == 0) // first track
 			{
-				a_wsum = first<TYPE> (2939, st) - first<TYPE> (2939 - k, st);
-				a_ssum = cs_sum_first(2939, st) - cs_sum_first(2939 - k, st);
+				a_wsum = first<TYPE>(2939, st) - first<TYPE>(2939 - k, st);
+				a_ssum = cs_sum_first<TYPE>(2939, st)
+					- cs_sum_first<TYPE>(2939 - k, st);
 				a_factor = -drive_offset;
 			} else // other than first
 			{
@@ -1681,23 +1689,26 @@ class ARCSAlgorithm final : public Algorithm
 				const auto sz = AccessSt::track_size(prev.multiplier).samples();
 
 				a_wsum   = last<TYPE> (k, prev);
-				a_ssum   = cs_sum_last(k, prev);
+				a_ssum   = cs_sum_last<TYPE>(k, prev);
 				a_factor = -(sz - static_cast<int>(k));
 			}
 		}
+		else
 
 		if (drive_offset > 0)
 		{
-			// shift "rightwards": remove k lowest indices, add k higher indices
+			// shift "rightwards":
+			// remove k lowest indices, add k higher indices from next track
 
 			wsum  -= first<TYPE> (k, st);
-			ssum  -= cs_sum_first(k, st);
+			ssum  -= cs_sum_first<TYPE>(k, st);
 			factor = -factor;
 
 			if (t == this->total_tracks() - 1) // last track
 			{
-				a_wsum = last<TYPE> (2940, st) - last<TYPE> (2940 - k, st);
-				a_ssum = cs_sum_last(2940, st) - cs_sum_last(2940 - k, st);
+				a_wsum = last<TYPE>(2940, st) - last<TYPE>(2940 - k, st);
+				a_ssum = cs_sum_last<TYPE>(2940, st)
+					- cs_sum_last<TYPE>(2940 - k, st);
 				a_factor = -drive_offset;
 			} else // other than last
 			{
@@ -1705,7 +1716,7 @@ class ARCSAlgorithm final : public Algorithm
 				const auto sz = AccessSt::track_size(st.multiplier).samples();
 
 				a_wsum   = first<TYPE> (k, next);
-				a_ssum   = cs_sum_first(k, next);
+				a_ssum   = cs_sum_first<TYPE>(k, next);
 				a_factor = sz - static_cast<int>(k);
 			}
 		}
