@@ -549,7 +549,6 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 		}
 		const auto v1_f450 = cachevar;
 
-		REQUIRE (     v1_f450  ==     852393145226  ); // -Woverflow
 		REQUIRE ( v32(v1_f450) == v32(852393145226) );
 		REQUIRE ( v32(v1_f450) == 0x7697338A );
 		// Note: this is with multiplier 450 * 588 + 1, but we require 1
