@@ -634,7 +634,6 @@ struct UpdateImpl<checksum::type::ARCS1>
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
 	 * \param[in] st    Subtotals to update
-	 * \param[in] cache TRUE requests caching values, FALSE discards caching
 	 * \param[in,out] idx Cache index to start
 	 */
 	template <bool KEEP, class B, class E>
@@ -753,7 +752,6 @@ struct UpdateImpl<checksum::type::ARCS2>
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
 	 * \param[in] st    Subtotals to update
-	 * \param[in] cache TRUE requests caching values, FALSE discards caching
 	 * \param[in,out] idx Cache index to start
 	 */
 	template <bool KEEP, class B, class E>
@@ -852,7 +850,6 @@ struct UpdateImpl<checksum::type::ARCS1, checksum::type::ARCS2>
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
 	 * \param[in] st    Subtotals to update
-	 * \param[in] cache TRUE requests caching values, FALSE discards caching
 	 * \param[in,out] idx Cache index to start
 	 */
 	template <bool KEEP, class B, class E>
@@ -957,9 +954,11 @@ template <enum checksum::type... TARGETS>
 struct Contains
 {
 	/**
-	 * \brief TRUE iff \c VALUES contain each of \c TARGET, otherwise FALSE.
+	 * \brief TRUE iff \c VALUES contain each of \c TARGETS, otherwise FALSE.
 	 *
 	 * \tparam VALUES Values to search
+	 *
+	 * \return TRUE iff \c VALUES are contained in \c TARGETS, otherwise FALSE
 	 */
     template <enum checksum::type... VALUES>
     static constexpr bool all()
@@ -1282,11 +1281,20 @@ public:
 	/**
 	 * \brief Update sections for caching and optional frame450.
 	 *
+	 * Returns up to 6 split points for caching front and back samples and
+	 * samples around frame 450 on request.
+	 *
+	 * In the resulting array, point with a value > 0 are true split points.
+	 * Points < 0 are to be ignored. Points with value 0 mean that the current
+	 * sample is a split point.
+	 *
 	 * \param[in] m             Current 1-based track-relative index
 	 * \param[in] usize         Total number of samples in the current update
 	 * \param[in] tsize         Total number of samples in the current track
 	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
 	 * \param[in] frame450      Add sections for frame450 iff TRUE
+	 *
+	 * \return Split points
 	 */
 	auto sections(const Subtotals::factor_type m, const std::size_t usize,
 			const std::size_t tsize,
