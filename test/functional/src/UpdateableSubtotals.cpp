@@ -33,8 +33,7 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	using std::cbegin;
 	using std::cend;
 
-	auto st12 = UpdateableSubtotals<
-		type::ARCS1, type::ARCS2, type::F4501, type::F4502> {};
+	auto st12 = UpdateableSubtotals<type::ARCS1, type::ARCS2, type::F4501> {};
 
 	const auto& st = st12.subtotals();
 
@@ -42,6 +41,9 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	REQUIRE ( st.subtotals_v2[0] == 0 );
 	REQUIRE ( st.sums[0]         == 0 );
 	REQUIRE ( st.multiplier      == 1 );
+
+	REQUIRE ( st12.cache_size()  == 11760 );
+	REQUIRE ( st12.do_frame450() == true );
 
 
 	auto to_ptrdiff = [](const int64_t amount) -> std::ptrdiff_t
@@ -461,9 +463,6 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "sections() provides correct split points" )
 	{
-		REQUIRE ( st12.cache_size()  == 11760 );
-		REQUIRE ( st12.do_frame450() == true );
-
 		// frames 445 - 454
 		st12.set_current_length(sdata.size());
 		st12.set_multiplier((445 * 588) + 1);
@@ -498,8 +497,6 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 
 	SECTION ( "Update over frame 450 values is correct" )
 	{
-		REQUIRE ( st12.cache_size()  == 11760 );
-		REQUIRE ( st12.do_frame450() == true );
 
 		// frames 445 - 454
 		st12.set_current_length(sdata.size());
