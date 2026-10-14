@@ -20,7 +20,7 @@
 
 TEST_CASE ( "Interval<> Old", "[interval] [calc] [calculate]" )
 {
-	using arcstk::details::Interval;
+	using arcstk::Interval;
 
 	const auto i1 = Interval<int32_t> {  10,  17 };
 	const auto i2 = Interval<int32_t> { -12, 123 };
@@ -71,7 +71,7 @@ TEST_CASE ( "Interval<>", "[interval] [calc] [calculate]" )
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::details::Interval;
+	using arcstk::Interval;
 
 	auto instance = Interval<int> { 0, 100 };
 
@@ -134,7 +134,7 @@ TEST_CASE ( "Interval<>", "[interval] [calc] [calculate]" )
 TEST_CASE ( "Interval<> default constructed instance",
 		"[interval] [calc] [calculate]" )
 {
-	const auto defaulted = arcstk::details::Interval<int>{};
+	const auto defaulted = arcstk::Interval<int>{};
 
 
 	SECTION ( "lower and upper were default initialized")
@@ -147,7 +147,7 @@ TEST_CASE ( "Interval<> default constructed instance",
 
 TEST_CASE ( "Interval<> property", "[interval] [calc] [calculate]" )
 {
-	using arcstk::details::Interval;
+	using arcstk::Interval;
 
 	auto instance = Interval<int> { -863, 915 };
 
@@ -166,7 +166,7 @@ TEST_CASE ( "Interval<> property", "[interval] [calc] [calculate]" )
 
 TEST_CASE ( "Interval<> functions", "[interval] [calc] [calculate]" )
 {
-	using arcstk::details::Interval;
+	using arcstk::Interval;
 
 	auto instance = Interval<int> { 17, 96 };
 

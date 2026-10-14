@@ -47,7 +47,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate] [calc] [calculate]" )
 		};
 
 		state1.update(1000000, time_elapsed);
-		state1.track_finished();
+		state1.track_finalized();
 
 		//state1.increment_update_time_elapsed(time_elapsed);
 	}
@@ -276,9 +276,9 @@ TEST_CASE ( "CalculationState default constructed instance",
 // 		FAIL ("update test is missing");
 // 	}
 //
-// 	SECTION ("track_finished is correct")
+// 	SECTION ("track_finalized is correct")
 // 	{
-// 		FAIL ("track_finished test is missing");
+// 		FAIL ("track_finalized test is missing");
 // 	}
 //
 // 	SECTION ("swap is correct")

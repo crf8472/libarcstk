@@ -15,10 +15,14 @@
  * Part of the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
+#include <algorithm>      // for fill, any_of
+#include <array>          // for array
+#include <cmath>          // for abs
+#include <cstddef>        // for ptrdiff_t
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
 #include <string>         // for string
-#include <utility>        // for pair
+#include <vector>         // for vector
 
 #ifndef LIBARCSTK_ALGORITHM_HPP_
 #include "algorithm.hpp"    // for Algorithm, Updateable
@@ -91,32 +95,89 @@ struct NUM_SKIP_SAMPLES final
 	constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
-
 /**
- * \brief Helper for masking the lower 32 bits of a sample.
+ * \brief Available cache sizes.
  */
-constexpr static uint_fast32_t LOWER_32_BITS_ { 0xFFFFFFFF };
-
+enum class CacheSize : std::size_t //NOLINT(performance-enum-size)
+{
+	ZERO     =          0,
+	SHIFTING =       5880,
+	FRAME450 = 2ul * 5880u
+};
 
 /**
  * \brief Values of a calculation state.
+ *
+ * -    0 -  2939 : first i samples of the track (in order starting i == 1)
+ * - 2940 -  5879 : last 2940-i samples of the track (in order starting i == 0)
+ * - 5880 -  8819 : from 1st sample of frame 445 to last sample of 449
+ * - 8820 - 11759 : from 1st sample of frame 450 to last sample of 454
  */
 struct Subtotals final
 {
 	/**
+	 * \brief Type for the multiplier.
+	 *
+	 * An unsigned type of at least 64 bit.
+	 */
+	using factor_type = uint_fast64_t;
+
+	/**
+	 * \brief Type for variables accumulating weighted and simple sums.
+	 *
+	 * An unsigned type of at least 32 bit.
+	 *
+	 * Note that this type may be in fact bigger than 32 bit and hence must
+	 * be casted to uint32_t to before representing a checksum value.
+	 */
+	using cache_type = uint_fast32_t;
+
+	/**
+	 * \brief Type of subtotals buffer.
+	 */
+	using storage_type = std::vector<cache_type>;
+
+	/**
+	 * \brief Actual subtotals for required indices.
+	 *
+	 * Weighted sum of samples, contains lower bits of <tt>i * sample_i</tt>.
+	 */
+	storage_type subtotals_v1 {/* all 0 */};
+
+	/**
+	 * \brief Actual subtotals for required indices.
+	 *
+	 * Either higher bits required for weighted sum for v2, or maybe higher and
+	 * lower bits of <tt>i * sample_i</tt>.
+	 */
+	storage_type subtotals_v2 {/* all 0 */};
+
+	/**
+	 * \brief Unweighted samples sums for required indices.
+	 *
+	 * Simple sum of sample_i from 0 to i.
+	 */
+	storage_type sums {/* all 0 */};
+
+	/**
 	 * \brief Current multiplier.
 	 */
-	uint_fast64_t multiplier  { 1 };
+	factor_type multiplier { 1 };
 
 	/**
 	 * \brief Current subtotal for ARCSv1.
 	 */
-	uint_fast32_t subtotal_v1 { 0 };
+	cache_type current_subtotal_v1 { 0 };
 
 	/**
 	 * \brief Current subtotal for ARCSv2.
 	 */
-	uint_fast32_t subtotal_v2 { 0 };
+	cache_type current_subtotal_v2 { 0 };
+
+	/**
+	 * \brief Current sum of subtotals.
+	 */
+	cache_type current_cs_sum { 0 };
 
 	/**
 	 * \copydoc SNPT_nf_swap
@@ -125,40 +186,784 @@ struct Subtotals final
 	{
 		using std::swap;
 
-		swap(lhs.multiplier,  rhs.multiplier);
-		swap(lhs.subtotal_v1, rhs.subtotal_v1);
-		swap(lhs.subtotal_v2, rhs.subtotal_v2);
+		swap(lhs.subtotals_v1, rhs.subtotals_v1);
+		swap(lhs.subtotals_v2, rhs.subtotals_v2);
+		swap(lhs.sums,         rhs.sums);
+
+		swap(lhs.multiplier,          rhs.multiplier);
+		swap(lhs.current_subtotal_v1, rhs.current_subtotal_v1);
+		swap(lhs.current_subtotal_v2, rhs.current_subtotal_v2);
 	}
 };
 
 
 /**
- * \brief Return Checksum value type.
- *
- * \param[in] v Subtotal
- *
- * \return Result as Checksum value
+ * \brief Helper for masking the lower 32 bits of a sample.
  */
-inline Checksum::value_type to_value(const uint_fast32_t v)
+constexpr static Subtotals::cache_type LOWER_32_BITS_ { 0xFFFFFFFF };
+
+
+/**
+ * \brief Provide service functions for all AccessSt<> specializations.
+ */
+struct AccessSt
 {
-	return static_cast<Checksum::value_type>(v);
+	/**
+	 * \brief Constant \c 0.
+	 */
+	static constexpr Subtotals::cache_type ZERO = 0;
+
+	/**
+	 * \brief Return Checksum value type from a value of cache_type.
+	 *
+	 * \param[in] v Subtotal
+	 *
+	 * \return Result as Checksum value
+	 */
+	static Checksum::value_type to_value(const Subtotals::cache_type v)
+	{
+		return static_cast<Checksum::value_type>(v);
+	}
+
+	/**
+	 * \brief Convert multiplier to AudioSize.
+	 *
+	 * \param[in] m Multiplier to convert
+	 *
+	 * \return AudioSize of track
+	 */
+	static AudioSize track_size(const Subtotals::factor_type m)
+	{
+		using arcstk::UNIT;
+
+		// cast is save for valid input data
+		return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
+	}
+
+	/**
+	 * \brief Index for representing first \c k positions.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return Subtotals index for first \c k positions
+	 */
+	static std::size_t idx_front(const std::size_t k)
+	{
+		return k - 1u; // 0 - 2939
+	}
+
+	/**
+	 * \brief Index for representing last \c k positions.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return Subtotals index for first \c k positions
+	 */
+	static std::size_t idx_back(const std::size_t k)
+	{
+		return 5879u - k + 1u; // 2940 - 5879
+	}
+
+	/**
+	 * \brief TRUE iff \c k is in <tt>[1,2940]</tt>.
+	 *
+	 * \param[in] k Amount in [1,2940]
+	 *
+	 * \return TRUE iff \c k is valid
+	 */
+	static bool valid(const std::size_t k)
+	{
+		return !(k == 0 || k > 2940u);
+	}
+};
+
+
+/**
+ * \brief Access actual Subtotals
+ *
+ * \tparam T1 First checksum type
+ * \tparam T2 More checksum types
+ */
+template <enum checksum::type T>
+struct Access;
+
+
+// AccurateRip v1
+template <>
+struct Access<checksum::type::ARCS1>
+{
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return AccessSt::idx_front(k);
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return AccessSt::idx_back(k);
+	}
+
+	static inline Checksum::value_type subtotal(const Subtotals& st,
+			const std::size_t i)
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+        return AccessSt::to_value(st.subtotals_v1[i]);
+    }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+		return AccessSt::to_value(st.current_subtotal_v1);
+	}
+};
+
+
+// AccurateRip v2
+template <>
+struct Access<checksum::type::ARCS2>
+{
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return AccessSt::idx_front(k);
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return AccessSt::idx_back(k);
+	}
+
+	static inline Checksum::value_type subtotal(const Subtotals& st,
+			const std::size_t i)
+	{
+		// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+		return AccessSt::to_value(st.subtotals_v1[i])/* == 0 */
+			+  AccessSt::to_value(st.subtotals_v2[i]);
+		// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+    }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+		return AccessSt::to_value(st.current_subtotal_v1)
+			+  AccessSt::to_value(st.current_subtotal_v2);
+	}
+};
+
+
+// AccurateRip v1 of Frame 450
+template <>
+struct Access<checksum::type::F4501>
+{
+	using type = arcstk::checksum::type;
+
+	static inline std::size_t idx_front(const std::size_t k)
+	{
+		return Access<type::ARCS1>::idx_front(k) + 5880;
+	}
+
+	static inline std::size_t idx_back(const std::size_t k)
+	{
+		return Access<type::ARCS1>::idx_back(k) + 5880;
+	}
+
+	static inline Checksum::value_type subtotal(const Subtotals& st,
+			const std::size_t i)
+	{
+        return Access<type::ARCS1>::subtotal(st, i);
+    }
+
+	static inline Checksum::value_type checksum(const Subtotals& st)
+	{
+		const auto wsum = subtotal(st, 8820) - subtotal(st, 9408);
+		const auto ssum = st.sums[8820]      - st.sums[9408];
+
+		// shift leftwards, so first multiplier is 1
+		return wsum - (450l * 588) * ssum;
+	}
+};
+
+
+/**
+ * \brief Current subtotal of checksum type \c TYPE.
+ *
+ * \tparam T Checksum type to acquire value of
+ *
+ * \param[in] st Subtotals to get checksum of
+ *
+ * \return Value of checksum type \c TYPE
+ */
+template <enum checksum::type T>
+Checksum::value_type checksum(const Subtotals& st)
+{
+	return Access<T>::checksum(st);
 }
 
 
 /**
- * \brief Convert multiplier to AudioSize.
+ * \brief Current subtotals of type \c TYPE for the first \c k values.
  *
- * \param[in] m Multiplier to convert
+ * For <tt>i == 0</tt> this function returns \c 0.
  *
- * \return AudioSize of track
+ * \tparam T Checksum type to acquire value of
+ *
+ * \param[in] k  Offset value in range [-2939,2940] (unchecked)
+ * \param[in] st Subtotals to access
+ *
+ * \return Current subtotal of first \c k values for type \c TYPE
  */
-inline AudioSize track_size(const uint_fast64_t m)
+template <enum checksum::type T>
+Checksum::value_type first(const std::size_t k, const Subtotals& st)
 {
-	using arcstk::UNIT;
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
 
-	// cast is save for valid input data
-	return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
+	return Access<T>::subtotal(st, Access<T>::idx_front(k));
 }
+
+
+/**
+ * \brief Current subtotals of type \c TYPE for the last \c k values.
+ *
+ * For <tt>i == 0</tt> this function returns \c 0.
+ *
+ * \tparam T Checksum type to acquire value of
+ *
+ * \param[in] k  Offset value in range [-2939,2940] (unchecked)
+ * \param[in] st Subtotals to access
+ *
+ * \return Current subtotal of last \c k values for type \c TYPE
+ */
+template <enum checksum::type T>
+Checksum::value_type last(const std::size_t k, const Subtotals& st)
+{
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	return Access<T>::subtotal(st, Access<T>::idx_back(k));
+}
+
+
+/**
+ * \brief Current sum of combined samples.
+ *
+ * \tparam T Checksum type to use access logic for
+ *
+ * \param[in] st Subtotals to get sum of
+ *
+ * \return Current sum of combined samples
+ */
+template <enum checksum::type T>
+Checksum::value_type current_cs_sum(const Subtotals& st)
+{
+	using checksum::type;
+
+	if constexpr (T == type::F4501)
+	{
+		//return current_cs_sum_f450(st);
+		return AccessSt::to_value(st.sums[8820] - st.sums[9408]);
+	} else
+	{
+		//return current_cs_sum_arcs(st);
+		return AccessSt::to_value(st.current_cs_sum);
+	}
+}
+
+
+/**
+ * \brief Simple sum of first \c k combined samples with \c k in
+ * <tt>[1,2940]</tt> and value \c 0 otherwise.
+ *
+ * \tparam T Checksum type to use access logic for
+ *
+ * \param[in] k  Amount of values
+ * \param[in] st Subtotals to access
+ *
+ * \return Sum of first \c k combined samples
+ */
+template <enum checksum::type T>
+Checksum::value_type cs_sum_first(const std::size_t k, const Subtotals& st)
+{
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	return st.sums[Access<T>::idx_front(k)];
+}
+
+
+/**
+ * \brief Simple sum of last \c k combined samples with \c k in
+ * <tt>[1,2940]</tt> and value \c 0 otherwise.
+ *
+ * \tparam T Checksum type to use access logic for
+ *
+ * \param[in] k  Amount of values
+ * \param[in] st Subtotals to access
+ *
+ * \return Sum of last \c k combined samples
+ */
+template <enum checksum::type T>
+Checksum::value_type cs_sum_last(const std::size_t k, const Subtotals& st)
+{
+	if (!AccessSt::valid(k)) { return AccessSt::ZERO; }
+
+	return st.sums[Access<T>::idx_back(k)];
+}
+
+
+/**
+ * \brief Worker: reset every value in a Subtotals cache to 0.
+ *
+ * \param[in] s Storage instance to reset
+ */
+inline void set_to_zero(Subtotals::storage_type& s)
+{
+	using std::begin;
+	using std::end;
+
+	std::fill(begin(s), end(s), 0);
+}
+
+
+/**
+ * \brief Accumulate subtotals and samples sums.
+ */
+class Accumulate final
+{
+	/**
+	 * \brief Accumulate values from index \c from up to index \c upto.
+	 *
+	 * \param[in] from Start index
+	 * \param[in] upto Included end index
+	 * \param[in] st   Subtotals to accumulate
+	 */
+	static void upwards(const std::size_t from, const std::size_t upto,
+			Subtotals& st)
+	{
+		for (auto i = std::size_t { from }; i <= upto; ++i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i] += st.subtotals_v1[i - 1];
+			st.subtotals_v2[i] += st.subtotals_v2[i - 1];
+			st.sums[i]         += st.sums[i - 1];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
+	/**
+	 * \brief Accumulate values from index \c from down to index \c downto.
+	 *
+	 * \param[in] from   Start index
+	 * \param[in] downto Not-included stop index
+	 * \param[in] st     Subtotals to accumulate
+	 */
+	static void downwards(const std::size_t from, const std::size_t downto,
+			Subtotals& st)
+	{
+		for (auto i = std::size_t { from }; i > downto; --i)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[i - 1] += st.subtotals_v1[i];
+			st.subtotals_v2[i - 1] += st.subtotals_v2[i];
+			st.sums[i - 1]         += st.sums[i];
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+		}
+	}
+
+public:
+
+	/**
+	 * \brief Accumulate values from 1 to 2939 and from (n - 2940) to n.
+	 *
+	 * \param[in] st Subtotals to accumulate
+	 */
+	static void drive_offsets_cache(Subtotals& st)
+	{
+		upwards  (   1, 2939, st);
+		downwards(5879, 2940, st);
+	}
+
+	/**
+	 * \brief Accumulate values from 5880 to 8819 and from (n - 2940) to n.
+	 *
+	 * \param[in] st Subtotals to accumulate
+	 */
+	static void frame450_cache(Subtotals& st)
+	{
+		upwards  ( 5881, 8819, st);
+		downwards(11759, 8820, st);
+	}
+};
+
+
+/**
+ * \brief Implementation of the actual update.
+ *
+ * \tparam T1 First checksum type
+ * \tparam T2 More checksum types
+ */
+template <enum checksum::type T1, enum checksum::type... T2>
+struct UpdateImpl;
+
+
+// Specialization: Implementation of ARCSv1
+template <>
+struct UpdateImpl<checksum::type::ARCS1>
+{
+	/**
+	 * \brief Calculate ARCSv1.
+	 *
+	 * Also known as ARCF ("AccurateRip Checksum Flawed").
+	 *
+	 * \param[in] multiplier Multiplier
+	 * \param[in] csample    Value of the combined sample
+	 *
+	 * \return ARCSv1 value
+	 */
+	uint32_t arcs_v1(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
+	{
+		return multiplier * csample & LOWER_32_BITS_;
+	}
+
+	/**
+	 * \brief Implementation of update operation.
+	 *
+	 * Perform a full ARCSv1 update on the current subtotals.
+	 *
+	 * Caching can be either turned on or off for the entire input.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <bool KEEP, class B, class E>
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		Subtotals::factor_type update { 0 };
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			update = arcs_v1(st.multiplier, *pos);
+
+			st.current_subtotal_v1 += update;
+			st.current_cs_sum      += *pos;
+
+			if constexpr (KEEP)
+			{
+				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				st.subtotals_v1[idx] = update;
+				st.sums[idx]         = *pos;
+				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				++idx;
+			}
+		}
+	}
+
+	/**
+	 * \brief Implementation of cache function.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[idx] = arcs_v1(st.multiplier, *pos);
+			st.sums[idx]         = *pos;
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+			++idx;
+		}
+	}
+
+	/**
+	 * \brief Implementation of reset function.
+	 *
+	 * \param[in] st Subtotals to reset
+	 */
+	void reset_impl(Subtotals& st) const
+	{
+		set_to_zero(st.subtotals_v1);
+		set_to_zero(st.sums);
+	}
+
+	/**
+	 * \brief ID of ARCSv1 implementation.
+	 *
+	 * Can be used for logging and output. Not intended for identity check.
+	 *
+	 * \return Implementation ID
+	 */
+	std::string id_string() const
+	{
+		return "v1";
+	}
+};
+
+
+// Specialization: Implementation of ARCSv2
+template <>
+struct UpdateImpl<checksum::type::ARCS2>
+{
+	/**
+	 * \brief Current update factor.
+	 */
+	mutable Subtotals::factor_type update_ { 0 };
+
+	/**
+	 * \brief Calculate ARCSv2.
+	 *
+	 * Also known as ARCF ("AccurateRip Checksum Flawed").
+	 *
+	 * \param[in] multiplier Multiplier
+	 * \param[in] csample    Value of the combined sample
+	 *
+	 * \return ARCSv2 value
+	 */
+	uint32_t arcs_v2(const Subtotals::factor_type multiplier,
+			const uint32_t csample) const
+	{
+		update_ = multiplier * csample; // TODO Make update_ local?
+
+		return (update_ & LOWER_32_BITS_) + (update_ >> 32u);
+	}
+
+	/**
+	 * \brief Implementation of update operation.
+	 *
+	 * Perform a full ARCSv2 update on the current subtotals.
+	 *
+	 * Caching can be either turned on or off for the entire input.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <bool KEEP, class B, class E>
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			update_ = arcs_v2(st.multiplier, *pos);
+
+			st.current_subtotal_v2 += update_;
+			st.current_cs_sum      += *pos;
+
+			if constexpr (KEEP)
+			{
+				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				st.subtotals_v2[idx] = update_;
+				st.sums[idx]         = *pos;
+				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				++idx;
+			}
+		}
+	}
+
+	/**
+	 * \brief Implementation of cache function.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v2[idx] = arcs_v2(st.multiplier, *pos);
+			st.sums[idx]         = *pos;
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+			++idx;
+		}
+	}
+
+	/**
+	 * \brief Implementation of reset function.
+	 *
+	 * \param[in] st Subtotals to reset
+	 */
+	void reset_impl(Subtotals& st) const
+	{
+		set_to_zero(st.subtotals_v2);
+		set_to_zero(st.sums);
+	}
+
+	/**
+	 * \brief ID of ARCSv2 implementation.
+	 *
+	 * Can be used for logging and output. Not intended for identity check.
+	 *
+	 * \return Implementation ID
+	 */
+	std::string id_string() const
+	{
+		return "v2";
+	}
+};
+
+
+// Specialization: Implementation of ARCSv1 + ARCSv2
+template <>
+struct UpdateImpl<checksum::type::ARCS1, checksum::type::ARCS2>
+{
+	/**
+	 * \brief Current update factor.
+	 */
+	mutable Subtotals::factor_type update_ { 0 };
+
+	/**
+	 * \brief Implementation of update operation.
+	 *
+	 * Perform a full ARCSv2 update on the current subtotals.
+	 *
+	 * Caching can be either turned on or off for the entire input.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <bool KEEP, class B, class E>
+	void calloperator_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			update_ = st.multiplier * (*pos);
+
+			st.current_subtotal_v1 += update_ & LOWER_32_BITS_;
+			st.current_subtotal_v2 += (update_ >> 32u);
+			st.current_cs_sum      += *pos;
+
+			if constexpr (KEEP)
+			{
+				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				st.subtotals_v1[idx] = update_ & LOWER_32_BITS_;
+				st.subtotals_v2[idx] = (update_ >> 32u);
+				st.sums[idx]         = *pos;
+				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				++idx;
+			}
+		}
+	}
+
+	/**
+	 * \brief Implementation of cache function.
+	 *
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void cache_impl(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
+	{
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		{
+			update_ = st.multiplier * (*pos);
+
+			// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+			st.subtotals_v1[idx] = update_ & LOWER_32_BITS_;
+			st.subtotals_v2[idx] = (update_ >> 32u);
+			st.sums[idx]         = *pos;
+			// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+			++idx;
+		}
+	}
+
+	/**
+	 * \brief Implementation of reset function.
+	 *
+	 * \param[in] st Subtotals to reset
+	 */
+	void reset_impl(Subtotals& st) const
+	{
+		set_to_zero(st.subtotals_v1);
+		set_to_zero(st.subtotals_v2);
+		set_to_zero(st.sums);
+	}
+
+	/**
+	 * \brief ID of ARCSv1+ARCSv2 implementation.
+	 *
+	 * Can be used for logging and output. Not intended for identity check.
+	 *
+	 * \return Implementation ID
+	 */
+	std::string id_string() const
+	{
+		return "v1+2";
+	}
+};
+
+
+/**
+ * \brief Check whether value \c TARGET occurrs in \c VALUES.
+ *
+ * \tparam TARGET Values to find
+ * \tparam VALUES Values to search
+ */
+template <enum checksum::type TARGET, enum checksum::type... VALUES>
+struct ContainsValue
+{
+    static constexpr bool value = ((TARGET == VALUES) || ...);
+};
+
+
+/**
+ * \brief Check whether each of values \c TARGETS occurrs in \c VALUES.
+ *
+ * \tparam TARGETS Values to find
+ */
+template <enum checksum::type... TARGETS>
+struct Contains
+{
+	/**
+	 * \brief TRUE iff \c VALUES contain each of \c TARGETS, otherwise FALSE.
+	 *
+	 * \tparam VALUES Values to search
+	 *
+	 * \return TRUE iff \c VALUES are contained in \c TARGETS, otherwise FALSE
+	 */
+    template <enum checksum::type... VALUES>
+    static constexpr bool all()
+    {
+        return (ContainsValue<TARGETS, VALUES...>::value && ...);
+    }
+};
 
 
 /**
@@ -168,181 +973,106 @@ inline AudioSize track_size(const uint_fast64_t m)
  * \tparam T2 More checksum types
  */
 template <enum checksum::type T1, enum checksum::type... T2>
-class Update;
-
-
-// AccurateRip v1
-template <>
-class Update<checksum::type::ARCS1>
+class Update
 {
-	using type = checksum::type;
+	/**
+	 * \brief Internal implementation.
+	 */
+	UpdateImpl<T1, T2...> impl_ {};
 
 public:
 
-	std::string id_string() const
-	{
-		return "v1";
-	}
-
-	template <class B, class E>
-	void operator()(const B& start, const E& stop, Subtotals& st) const
-	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
-		{
-			st.subtotal_v1 += st.multiplier * (*pos) & LOWER_32_BITS_;
-		}
-	}
-
-	ChecksumSet value(const Subtotals& st) const
-	{
-		return {
-			track_size(st.multiplier),
-			{{ type::ARCS1, Checksum { to_value(st.subtotal_v1) } }}
-		};
-	}
-};
-
-
-// AccurateRip v2
-template <>
-class Update<checksum::type::ARCS2>
-{
 	/**
-	 * \brief Current update factor.
-	 */
-	mutable uint_fast64_t update_ { 0 };
-
-	using type = checksum::type;
-
-public:
-
-	std::string id_string() const
-	{
-		return "v2";
-	}
-
-	template <class B, class E>
-	void operator()(const B& start, const E& stop, Subtotals& st) const
-	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
-		{
-			update_ = st.multiplier * (*pos);
-
-			st.subtotal_v2 += (update_ & LOWER_32_BITS_) + (update_ >> 32u);
-		}
-	}
-
-	ChecksumSet value(const Subtotals& st) const
-	{
-		return {
-			track_size(st.multiplier),
-			{{ type::ARCS2, Checksum { to_value(st.subtotal_v2) } }}
-		};
-	}
-};
-
-
-// AccurateRip v1+2
-template <>
-class Update<checksum::type::ARCS1, checksum::type::ARCS2>
-{
-	/**
-	 * \brief Current update factor.
-	 */
-	mutable uint_fast64_t update_ { 0 };
-
-	/**
-	 * \brief Provide subtotal for type ARCS2.
+	 * \brief Call operator.
 	 *
-	 * \param[in] st Subtotals
+	 * Perform a full update on the current subtotals.
 	 *
-	 * \return Subtotal for type ARCS2
+	 * Caching can be either turned on or off for the entire input.
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in] cache TRUE requests caching values, FALSE discards caching
+	 * \param[in,out] idx Cache index to start
 	 */
-	uint32_t subtotal_v2(const Subtotals& st) const
-	{
-		return st.subtotal_v1 + st.subtotal_v2;
-	}
-
-	using type = checksum::type;
-
-public:
-
-	std::string id_string() const
-	{
-		return "v1+2";
-	}
-
 	template <class B, class E>
-	void operator()(const B& start, const E& stop, Subtotals& st) const
+	void operator()(const B& start, const E& stop, Subtotals& st, bool cache,
+			std::size_t& idx) const
 	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		for (auto pos = start; pos != stop; ++pos, ++st.multiplier)
+		if (cache)
 		{
-			update_ = st.multiplier * (*pos);
-
-			st.subtotal_v1 += update_ & LOWER_32_BITS_;
-			st.subtotal_v2 += (update_ >> 32u);
+			impl_.template calloperator_impl<true>(start, stop, st, idx);
+		} else
+		{
+			impl_.template calloperator_impl<false>(start, stop, st, idx);
 		}
 	}
 
-	ChecksumSet value(const Subtotals& st) const
+	/**
+	 * \brief Cache this sequence.
+	 *
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] st    Subtotals to update
+	 * \param[in,out] idx Cache index to start
+	 */
+	template <class B, class E>
+	void cache(const B& start, const E& stop, Subtotals& st,
+			std::size_t& idx) const
 	{
-		return {
-			track_size(st.multiplier),
-			{
-				{ type::ARCS1, Checksum { to_value(st.subtotal_v1)  } },
-				{ type::ARCS2, Checksum { to_value(subtotal_v2(st)) } },
-			}
-		};
+		impl_.template cache_impl<B, E>(start, stop, st, idx);
+	}
+
+	/**
+	 * \brief Reset specified Subtotals instance.
+	 *
+	 * \param[in] st Subtotals to reset
+	 */
+	void reset(Subtotals& st) const
+	{
+		impl_.reset_impl(st);
+	}
+
+	/**
+	 * \brief ID string of the update operation.
+	 *
+	 * Can be used for logging and output. Not intended for identity check.
+	 *
+	 * \return Implementation ID
+	 */
+	std::string id_string() const
+	{
+		return impl_.id_string();
 	}
 };
 
 
-// /**
-//  * \brief Set of specified Checksum types.
-//  *
-//  * \tparam T1 First Checksum type
-//  * \tparam T2 Trailing Checksum types
-//  *
-//  * \return Set of Checksum types
-//  */
-// template <enum checksum::type T1, enum checksum::type... T2>
-// inline ChecksumtypeSet types_set()
-// {
-// 	return { T1, T2... };
-// }
+// Specialization: Implement F4501 by ARCSv1
+template <>
+class Update<checksum::type::ARCS1, checksum::type::F4501> final
+	: public Update<checksum::type::ARCS1>
+{
+	// empty
+};
 
 
-// /**
-//  * \brief AccurateRip algorithm name string.
-//  *
-//  * \tparam T1 First Checksum type
-//  * \tparam T2 Trailing Checksum types
-//  *
-//  * \return Name of the Algorithm computing the specified Checksum types
-//  */
-// template <enum checksum::type T1, enum checksum::type... T2>
-// inline std::string name_string()
-// {
-// 	auto ss = std::ostringstream {};
-//
-// 	#pragma GCC diagnostic push
-// 	#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-//
-// 	const auto append = [&ss](const auto& type_val)
-// 	{
-// 		ss << ", " << type_val;
-// 	};
-//
-// 	#pragma GCC diagnostic pop
-//
-// 	ss <<  "AccurateRip " << T1;
-// 	(append(T2), ...);
-//
-// 	return ss.str();
-// }
+// Specialization: Implement F4501 by ARCSv1
+template <>
+class Update<checksum::type::ARCS2, checksum::type::F4501> final
+	: public Update<checksum::type::ARCS1, checksum::type::ARCS2>
+{
+	// empty
+};
+
+
+// Specialization: Implement F4501 by ARCSv1
+template <>
+class Update<checksum::type::ARCS1, checksum::type::ARCS2,
+	  checksum::type::F4501> final
+	: public Update<checksum::type::ARCS1, checksum::type::ARCS2>
+{
+	// empty
+};
 
 
 /**
@@ -354,7 +1084,7 @@ public:
  *
  * \return Input range of 1-based sample indices to use for calculation
  */
-inline std::pair<int32_t, int32_t> legal_range(const Context ctx,
+inline SampleRange legal_range(const Context ctx,
 		const AudioSize& size, const Points& points)
 {   // required inline since used in ARCSAlgorithm::do_range()
 	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
@@ -402,23 +1132,93 @@ template <enum checksum::type T1, enum checksum::type... T2>
 class UpdateableSubtotals final
 {
 	/**
-	 * \brief Internal subtotals.
+	 * \brief Anticipated length of the current track.
+	 */
+	std::size_t current_length_ {};
+
+	/**
+	 * \brief Internal subtotals for track.
 	 */
 	Subtotals st_ {};
 
 	/**
-	 * \brief Internal update strategy.
+	 * \brief Internal update strategy for subtotals.
 	 */
 	Update<T1, T2...> update_ {};
 
+	/**
+	 * \brief Initialize subtotals size.
+	 *
+	 * \param[in] st Subtotals
+	 */
+	void init_cache_size(Subtotals& st)
+	{
+		using checksum::type;
+
+		auto size = CacheSize::ZERO;
+
+		if (do_frame450())
+		{
+			size = CacheSize::FRAME450;
+		} else if (do_drive_offsets())
+		{
+			size = CacheSize::SHIFTING;
+		}
+
+		st.subtotals_v1.resize(static_cast<size_t>(size));
+		st.subtotals_v2.resize(static_cast<size_t>(size));
+		st.sums.resize(static_cast<size_t>(size));
+	}
+
 public:
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 */
+	UpdateableSubtotals()
+	{
+		init_cache_size(st_);
+	}
+
+	/**
+	 * \brief Current subtotal of checksum type \c TYPE.
+	 *
+	 * \tparam TYPE Checksum type to acquire value of
+	 *
+	 * \return Value of checksum type \c TYPE
+	 */
+	template <enum checksum::type TYPE>
+	Checksum::value_type value() const
+	{
+		return checksum<TYPE>(st_);
+	}
+
+	/**
+	 * \brief Size of the internal cache.
+	 *
+	 * \return Internal cache size
+	 */
+	std::size_t cache_size() const
+	{
+		return st_.subtotals_v1.size();
+	}
+
+	/**
+	 * \brief Return the inner subtotals of this instance.
+	 *
+	 * \return Subtotals of this instance.
+	 */
+	const Subtotals& subtotals() const
+	{
+		return st_;
+	}
 
 	/**
 	 * \brief Current Multiplier of this instance.
 	 *
 	 * \return Current multiplier
 	 */
-	uint_fast64_t multiplier() const
+	Subtotals::factor_type multiplier() const
 	{
 		return st_.multiplier;
 	}
@@ -428,10 +1228,177 @@ public:
 	 *
 	 * \param[in] m New value for multiplier
 	 */
-	void set_multiplier(const uint_fast64_t m)
+	void set_multiplier(const Subtotals::factor_type m)
 	{
 		st_.multiplier = m;
 	}
+
+	/**
+	 * \brief Return the current track length (in samples).
+	 *
+	 * \return Current track length
+	 */
+	std::size_t current_length() const
+	{
+		return current_length_;
+	}
+
+	/**
+	 * \brief Set the length of the current track.
+	 *
+	 * \param[in] samples Total amount of samples
+	 */
+	void set_current_length(const std::size_t samples)
+	{
+		current_length_ = samples;
+	}
+
+	/**
+	 * \brief TRUE iff this instance calculates drive offsets, otherwise FALSE.
+	 *
+	 * \return TRUE iff drive offsets are calculated
+	 */
+	constexpr bool do_drive_offsets() const
+	{
+		return true; // TODO Implement on/off logic
+	}
+
+	/**
+	 * \brief TRUE iff this instance calculates checksums for frame 450,
+	 * otherwise FALSE.
+	 *
+	 * \return TRUE iff checksums for frame450 are calculated
+	 */
+	constexpr bool do_frame450() const
+	{
+		using checksum::type;
+
+		return Contains<type::F4501>::all<T1, T2...>();
+	}
+
+	/**
+	 * \brief Update sections for caching and optional frame450.
+	 *
+	 * Returns up to 6 split points for caching front and back samples and
+	 * samples around frame 450 on request.
+	 *
+	 * In the resulting array, point with a value > 0 are true split points.
+	 * Points < 0 are to be ignored. Points with value 0 mean that the current
+	 * sample is a split point.
+	 *
+	 * \param[in] m             Current 1-based track-relative index
+	 * \param[in] usize         Total number of samples in the current update
+	 * \param[in] tsize         Total number of samples in the current track
+	 * \param[in] drive_offsets Add sections for caching subtotals iff TRUE
+	 * \param[in] frame450      Add sections for frame450 iff TRUE
+	 *
+	 * \return Split points
+	 */
+	auto sections(const Subtotals::factor_type m, const std::size_t usize,
+			const std::size_t tsize,
+			const bool drive_offsets, const bool frame450)
+	{
+		using std::ptrdiff_t;
+		using std::size_t;
+
+		// return type
+		using data_t = std::array<ptrdiff_t, 6>;
+
+		// "no value" value
+		const auto X = ptrdiff_t { -1 };
+
+		if (!drive_offsets && !frame450) // no sections required
+		{
+			return data_t { X, X, X, X, X, X };
+		}
+
+		// signed representation of update size
+		const auto ssize = static_cast<ptrdiff_t>(usize);
+
+		// samples already processed in the track
+		const auto curr_idx = ptrdiff_t { static_cast<uint32_t>(m) - 1 };
+
+		// collect potential split points: offsets to the start iterator
+		auto points = data_t { X, X, X, X, X, X };
+
+
+		if (drive_offsets) // cache subtotals for first + last 2940 samples
+		{
+			// end of first 2939: cache before, don't cache afterwards
+			points[0] = ptrdiff_t { 2940 - curr_idx };
+
+			// samples left to process in the track
+			const auto track_remain = static_cast<ptrdiff_t>(tsize) - curr_idx;
+
+			ARCS_LOG(DEBUG4) << "samples remain in track: " << track_remain;
+
+			// samples left to process in the track after this update
+			const auto remainder = track_remain - ssize;
+
+			ARCS_LOG(DEBUG4) << "samples remain in update: " << remainder;
+
+			if (remainder > 0) // update does not end track
+			{
+				// a part of the last 2940 samples is in this update
+				if (remainder < 2940)
+				{
+					// begin of last 2940: don't cache before, cache afterwards
+					points[5] = ptrdiff_t { ssize - (2940 - remainder) };
+				}
+			} else // update ends track
+			{
+				// last 2940: don't cache before, cache afterwards
+				points[5] = ptrdiff_t { ssize - 2940 };
+			}
+
+			ARCS_LOG(DEBUG4) << "m: " << m << ", ssize: " << ssize
+				<< ", f: " << points[0] << ", b: " << points[5];
+
+			// Shortcut: entire update must go to cache
+			if (ssize <= points[0] || (ssize <= points[5] && ssize <= 2940) )
+			{
+				ARCS_LOG(DEBUG4) << "Parition goes to cache entirely";
+
+				return data_t { X, X, X, X, X, X };
+				// frame 445 is beyond this update
+			}
+		}
+
+		if (frame450) // cache frames 445-454 + update frame 450
+		{
+			// Frame 450 is 0-based, i.e. it is the 451. frame in the input.
+			// 450 * 588 == 264.600 Samples  ->  264.601 is 1st sample in f450
+			// 451 * 588 == 265.188 Samples  ->  265.188 is last sample in f450
+			// To shift -2939 we need the 5 frames before: 445 - 449
+			// To shift +2940 we need the 4 frames after:  451 - 454
+			// 445 * 588 == 261.660 Samples  ->  261.661 is 1st sample in f445
+			// 454 * 588 == 266.952 Samples  ->  266.952 is last sample in f454
+
+			// begin of frame 445: don't cache before, cache afterwards
+			const auto sc = ptrdiff_t { 445 * 588 - curr_idx };
+
+			// begin of frame 450: don't update before, update afterwards
+			const auto s4 = ptrdiff_t { 450 * 588 - curr_idx };
+
+			// end of frame 450: update before, don't update afterwards
+			const auto e4 = ptrdiff_t { 451 * 588 - curr_idx };
+
+			// end of frame 454: cache before, don't cache afterwards
+			const auto ec = ptrdiff_t { 455 * 588 - curr_idx };
+
+			points[1] = (drive_offsets && sc <= ssize) ? sc : X;
+			points[2] = (s4 <= ssize) ? s4 : X;
+			points[3] = (e4 <= ssize) ? e4 : X;
+			points[4] = (drive_offsets && ec <= ssize) ? ec : X;
+		}
+
+		// Now:
+		// - point > 0 means "split on this point once reached"
+		// - point == 0 means "split right on the spot" and
+		// - before points 1 and 5 no caching is done
+		return points;
+	}
+
 
 	/**
 	 * \brief Update the instance by a sequence of samples.
@@ -441,33 +1408,153 @@ public:
 	 *
 	 * \param[in] start The start position
 	 * \param[in] stop  The stop position
+	 * \param[in] size  Size of the partition
+	 * \param[in] idx   Cache position
+	 * \param[in] idx_f450 Cache position for frame 450
 	 */
 	template <class B, class E>
-	void update(B start, E stop)
+	void update(B start, E stop, const std::size_t size, std::size_t& idx,
+			std::size_t& idx_f450)
 	{
-		update_(start, stop, st_);
+		using std::ptrdiff_t;
+		using std::size_t;
+		using std::cbegin;
+		using std::cend;
+
+		const auto cache_requested = bool { do_drive_offsets() };
+
+		const auto points = sections(multiplier(), size, current_length(),
+				cache_requested, do_frame450());
+
+		ARCS_LOG(DEBUG4) << "Update splits on points: 0:" << points[0]
+			<< ", 1:" << points[1] << ", 2:" << points[2]
+			<< ", 3:" << points[3] << ", 4:" << points[4]
+			<< ", 5:" << points[5];
+
+		const auto has_points { std::any_of(cbegin(points), cend(points),
+                               [](int x) { return x > 0; }) };
+
+		// flag to turn caching on/off (while updating)
+		auto is_cache_point = bool { false };
+
+		if (has_points)
+		{
+			auto last = ptrdiff_t { 0 }; // last split point, 0 == start
+			auto i    = size_t    { 0 }; // counter
+
+			for (; i < points.size(); ++i)
+			{
+				// use the positive points for splitting the update
+				if (points[i] > 0)
+				{
+					// don't cache section before points 1 and 5
+					is_cache_point = ((i - 1) * (i - 5)) > 0;
+
+					ARCS_LOG(DEBUG4) << "update section " << i
+						<< ": from " << last << " to " << points[i]
+						<< " (" << (points[i] - last) << "),"
+						<< " cache point: " << std::boolalpha << is_cache_point;
+
+					if (i >= 2 && i <= 4)
+					{
+						// update the cache values for frame 450
+						update_(start + last, start + points[i], st_,
+								do_frame450(), idx_f450);
+
+					} else
+					{
+						// update the cache values for track checksum
+						update_(start + last, start + points[i], st_,
+								cache_requested && is_cache_point, idx);
+					}
+
+					last = points[i];
+				}
+			}
+
+			// section between point 5 and the end of the update
+			if (static_cast<size_t>(last) < size)
+			{
+				// cache iff this is the section from points[5] to end
+				is_cache_point = (points.size() == i) && (points.back() > 0);
+
+				const auto amount = size - static_cast<size_t>(last);
+
+				// TODO If (amount == 2940 && is_last_track) { return };
+
+				ARCS_LOG(DEBUG4) << "update _: from "
+						<< last << " to " << size << " (" << amount << ")"
+						<< ", cache: " << std::boolalpha << is_cache_point;
+
+				update_(start + last, stop, st_,
+						cache_requested && is_cache_point, idx);
+			}
+		} else
+		{
+			// without points, the update has to be either entirely cached or
+			// entirely uncached
+
+			if (cache_requested)
+			{
+				// pressing/drive offsets requested but no actual split points:
+				// cache iff the update is entirely in the first or last 2940
+				// samples.
+
+				const auto track_remain { current_length_ - (multiplier() - 1) };
+				const auto remainder    { track_remain - size };
+
+				is_cache_point =
+					remainder <= 2940 || remainder >= track_remain - 2940;
+
+				ARCS_LOG(DEBUG4) << "update is for cache: "
+					<< (do_drive_offsets() && is_cache_point)
+					<< " (" << size << " samples)";
+			}
+
+			if (do_frame450())
+			{
+				// TODO Must this case be handled?
+			}
+
+			update_(start, stop, st_, cache_requested && is_cache_point, idx);
+		}
 	}
 
 	/**
-	 * \brief Get the current updated value from the Updatable.
+	 * \brief Cache a sequence of samples.
 	 *
-	 * The length is the actual length based on the total number of samples the
-	 * instance has been updated.
+	 * \tparam B Type of the begin iterator
+	 * \tparam E Type of the end iterator
 	 *
-	 * \return The current subtotal
+	 * \param[in] start The start position
+	 * \param[in] stop  The stop position
+	 * \param[in] idx   Cache position
 	 */
-	ChecksumSet value() const
+	template <class B, class E>
+	void cache(B start, E stop, std::size_t& idx)
 	{
-		return update_.value(st_);
+		update_.cache(start, stop, st_, idx);
 	}
 
 	/**
-	 * \brief Reset the instance to its initial state.
+	 * \brief Finalize this track.
+	 *
+	 * This function must be called exactly once after the last update
+	 * contributing to the current track.
 	 */
-	void reset()
+	void finalize()
 	{
-		st_.subtotal_v1 = 0;
-		st_.subtotal_v2 = 0;
+		ARCS_LOG(DEBUG4) << "Finalize track";
+
+		if (do_drive_offsets())
+		{
+			Accumulate::drive_offsets_cache(st_); // do this exactly 1x
+		}
+
+		if (do_frame450())
+		{
+			Accumulate::frame450_cache(st_); // do this exactly 1x
+		}
 	}
 
 	/**
@@ -497,8 +1584,9 @@ public:
 	{
 		using std::swap;
 
-		swap(this->st_,     rhs.st_);
-		swap(this->update_, rhs.update_);
+		swap(this->current_length_, rhs.current_length_);
+		swap(this->st_,             rhs.st_);
+		swap(this->update_,         rhs.update_);
 	}
 
 	/**
@@ -522,14 +1610,54 @@ template <enum checksum::type T1, enum checksum::type... T2>
 class ARCSAlgorithm final : public Algorithm
 {
 	/**
-	 * \brief Algorithm state.
+	 * \brief Internal subtotals type.
 	 */
-	UpdateableSubtotals<T1, T2...> state_ {};
+	using subtotals_t = UpdateableSubtotals<T1, T2...>;
 
 	/**
-	 * \brief Current result of performing the algorithm.
+	 * \brief Track subtotals.
 	 */
-	ChecksumSet current_result_ {};
+	mutable std::vector<subtotals_t> tracks_ { {/*first*/} };
+
+	/**
+	 * \brief Next index of subtotals.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 0, ends on index 5879.
+	 */
+	std::size_t idx_ { 0 };
+
+	/**
+	 * \brief Next index of subtotals for frame 450.
+	 *
+	 * This is a transitional state helper. It is only increased during the
+	 * UPDATE state and remains unchanged thereafter.
+	 *
+	 * Starts on index 5880, ends on index 11759.
+	 */
+	std::size_t idx_f450_ { 5880 };
+
+	/**
+	 * \brief Current track subtotals.
+	 *
+	 * \return Current track
+	 */
+	const subtotals_t& current_track() const
+	{
+		return tracks_.back();
+	}
+
+	/**
+	 * \brief Current track subtotals.
+	 *
+	 * \return Current track
+	 */
+	subtotals_t& current_subtotals() const
+	{
+		return tracks_.back();
+	}
 
 	/**
 	 * \brief Non-virtual implementation of do_setup() for constructor.
@@ -539,12 +1667,169 @@ class ARCSAlgorithm final : public Algorithm
 		ARCS_LOG(DEBUG1) << "Context for Algorithm: " << to_string(c);
 
 		// Adjust multiplier only for Context FIRST_TRACK
-		if (any(Context::FIRST_TRACK & c))
+
+		// Commented out: wrong since pre_range() is implemented
+		// if (any(Context::FIRST_TRACK & c))
+		// {
+		// 	tracks_[0].set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
+		// }
+		// Context LAST_TRACK is correctly handled by do_range()
+
+		ARCS_LOG(DEBUG1) << "Initialize multiplier to: "
+			<< current_track().multiplier();
+	}
+
+	/**
+	 * \brief Reset internal cache index to its initial value.
+	 */
+	void reset_idx()
+	{
+		idx_ = 0;
+	}
+
+	/**
+	 * \brief Reset internal cache index to its initial value.
+	 */
+	void reset_idx_f450()
+	{
+		idx_f450_ = 5880;
+	}
+
+	/**
+	 * \brief Get checksum for track \c track_no, shifted by offset \c k.
+	 *
+	 * \tparam TYPE Checksum type to shift
+	 *
+	 * \param[in] track_no     Track number from [1,99] (checked)
+	 * \param[in] drive_offset Drive offset from [-2939,2940] (checked)
+	 *
+	 * \return Checksum value for track \c track_no, shifted by value
+	 * \c drive_offset
+	 */
+	template <enum checksum::type TYPE>
+	Checksum::value_type shift(const TrackNo track_no,
+			const int drive_offset) const
+	{
+		if (drive_offset < -2939 || drive_offset > 2940)
 		{
-			state_.set_multiplier(NUM_SKIP_SAMPLES::FRONT + 1);
+			throw std::runtime_error("Illegal drive offset requested");
 		}
 
-		ARCS_LOG(DEBUG1) << "Initialize multiplier to: " << state_.multiplier();
+		using std::int64_t;
+		using std::size_t;
+		using std::uint32_t;
+
+		const auto t = static_cast<size_t>(track_no - 1);
+
+		if (t >= total_tracks() || t > CDDA::MAX_TRACKCOUNT)
+		{
+			throw std::runtime_error("Illegal track number requested");
+		}
+
+		const auto st = tracks_[t].subtotals();
+
+		if (drive_offset == 0) // no actual shift required
+		{
+			return checksum<TYPE>(st);
+		}
+
+		// persistent part: present in previous and shifted sum
+		auto wsum   = checksum<TYPE>(st); // weighted sum
+		auto ssum   = current_cs_sum<TYPE>(st); // simple sum
+		auto factor = int64_t { std::abs(drive_offset) }; // multiplier (signed)
+
+		// added correction: present only in shifted sum
+		auto a_wsum   = uint32_t { 0 }; // weighted sum
+		auto a_ssum   = uint32_t { 0 }; // simple sum
+		auto a_factor =  int64_t { 0 }; // multiplier (signed)
+
+		// absolute (unsigned) amount of drive_offset
+		const auto k = static_cast<size_t>(std::abs(drive_offset));
+
+		if (drive_offset < 0)
+		{
+			// shift "leftwards":
+			// remove k highest indices, add k lower indices from previous track
+
+			wsum -= last<TYPE> (k, st);
+			ssum -= cs_sum_last<TYPE>(k, st);
+
+			if (t == 0) // first track
+			{
+				a_wsum = first<TYPE>(2939, st) - first<TYPE>(2939 - k, st);
+				a_ssum = cs_sum_first<TYPE>(2939, st)
+					- cs_sum_first<TYPE>(2939 - k, st);
+				a_factor = -drive_offset;
+			} else // other than first
+			{
+				const auto prev = tracks_[t - 1].subtotals();
+				const auto sz = AccessSt::track_size(prev.multiplier).samples();
+
+				a_wsum   = last<TYPE> (k, prev);
+				a_ssum   = cs_sum_last<TYPE>(k, prev);
+				a_factor = -(sz - static_cast<int>(k));
+			}
+		}
+		else
+
+		if (drive_offset > 0)
+		{
+			// shift "rightwards":
+			// remove k lowest indices, add k higher indices from next track
+
+			wsum  -= first<TYPE> (k, st);
+			ssum  -= cs_sum_first<TYPE>(k, st);
+			factor = -factor;
+
+			if (t == this->total_tracks() - 1) // last track
+			{
+				a_wsum = last<TYPE>(2940, st) - last<TYPE>(2940 - k, st);
+				a_ssum = cs_sum_last<TYPE>(2940, st)
+					- cs_sum_last<TYPE>(2940 - k, st);
+				a_factor = -drive_offset;
+			} else // other than last
+			{
+				const auto next = tracks_[t + 1].subtotals();
+				const auto sz = AccessSt::track_size(st.multiplier).samples();
+
+				a_wsum   = first<TYPE> (k, next);
+				a_ssum   = cs_sum_first<TYPE>(k, next);
+				a_factor = sz - static_cast<int>(k);
+			}
+		}
+
+		// Shift the part persistent in unshifted as well as shifted checksum.
+		// Add shifted correction of incoming samples.
+		return wsum + factor * ssum + (a_wsum + a_factor * a_ssum);
+
+		// Note that the silent overflows are correct since we ignore the
+		// overflows also deliberately on the original checksum.
+	}
+
+	/**
+	 * \brief Add checksum of type \c TYPE and drive offset \c k to a set.
+	 *
+	 * \tparam TYPE Checksum type
+	 *
+	 * \param[in] t Track number
+	 * \param[in] k Drive offset
+	 * \param[in] s ChecksumSet to add track checksum to
+	 */
+	template <enum checksum::type TYPE>
+	void add_checksum(const int t, const int k, ChecksumSet& s) const
+	{
+		ARCS_LOG(DEBUG3) << "Insert Checksum for type " << TYPE
+			<< " to track result";
+
+		const auto [ it, success ] =
+			s.insert(TYPE, Checksum { shift<TYPE>(t, k) });
+
+		if (!success)
+		{
+			// TODO Throw?
+			ARCS_LOG_ERROR << "Could not insert Checksum for type " << TYPE;
+			//throw std::runtime_error("Could not insert Checksum");
+		}
 	}
 
 	// Algorithm
@@ -556,23 +1841,49 @@ class ARCSAlgorithm final : public Algorithm
 
 	std::string do_name() const final
 	{
-		return "AccurateRip " + state_.id_string();
+		return "AccurateRip " + current_track().id_string();
 	}
 
 	ChecksumtypeSet do_types() const final
 	{
-		return state_.types();
+		return ChecksumtypeSet { T1, T2... };
 	}
 
-	std::pair<int32_t, int32_t> do_range(const AudioSize& size,
-			const Points& points) const final
+	SampleRange do_range(const AudioSize& size, const Points& points) const
+		final
 	{
 		return legal_range(this->context(), size, points);
 	}
 
-	ChecksumSet do_result() const final
+	std::unique_ptr<Partitioner> do_partitioner(
+			const Points& offsets, const AudioSize& leadout) const final
 	{
-		return current_result_;
+		return std::make_unique<arcstk::details::TrackPartitioner>(
+				offsets, leadout, range(leadout, offsets));
+	}
+
+	std::size_t do_total_tracks() const final
+	{
+		return tracks_.size() - 1;
+	}
+
+	ChecksumSet do_track(const TrackNo t, const int k) const final
+	{
+        auto result = ChecksumSet {};
+
+		if (t < 1 || t > CDDA::MAX_TRACKCOUNT)
+		{
+			return result;
+		}
+
+		add_checksum<T1>(t, k, result);
+		(..., add_checksum<T2>(t, k, result));
+
+		result.set_length(AccessSt::track_size(
+					tracks_[static_cast<std::size_t>(t - 1)].multiplier()));
+		// FIXME For the last track, this will be 2940 samples too less
+
+        return result;
 	}
 
 	std::unique_ptr<Algorithm> do_clone() const final
@@ -604,7 +1915,7 @@ public:
 	~ARCSAlgorithm() final = default;
 
 	/**
-	 * \brief Pass samples coming before the actual range of the algorithm.
+	 * \brief Pass track samples before the actual range of the algorithm.
 	 *
 	 * Implements Algorithm::pre_range().
 	 *
@@ -613,11 +1924,30 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_pre_range(B /* start */, E /* stop */)
+	void perform_pre_range(B start, E stop, const std::size_t /*size*/)
 	{
-		//this->skip(start, stop, pre_);
+		current_subtotals().cache(start, stop, idx_); // increases multiplier
+
+		ARCS_LOG(DEBUG2) << "Multiplier after caching is: "
+			<< current_track().multiplier();
+	}
+
+	/**
+	 * \brief Called when starting a new track.
+	 *
+	 * \param[in] trackno Track number
+	 * \param[in] length  Track length as calculated
+	 */
+	void perform_start_track(const int /*trackno*/, const AudioSize& length)
+	{
+		current_subtotals().set_current_length(
+				static_cast<std::size_t>(length.samples()));
+
+		ARCS_LOG(DEBUG2) << "Set current length of this track: "
+			<< current_subtotals().current_length();
 	}
 
 	/**
@@ -628,20 +1958,24 @@ public:
 	 *
 	 * \param[in] start The start position (part of update)
 	 * \param[in] stop  The stop position (not part of update)
+	 * \param[in] size  The input size of the update
 	 */
 	template <class B, class E>
-	void perform_update(B start, E stop)
+	void perform_update(B start, E stop, const std::size_t size)
 	{
-		ARCS_LOG(DEBUG3) << "First multiplier: " << state_.multiplier();
+		const auto m { current_track().multiplier() };
 
-		state_.update(start, stop);
+		ARCS_LOG(DEBUG3) << "First multiplier: " << m;
 
-		ARCS_LOG(DEBUG3) << "Last multiplier:  " << state_.multiplier() - 1;
+		current_subtotals().update(start, stop, size, idx_, idx_f450_);
+
+		ARCS_LOG(DEBUG3) << "Last multiplier:  "
+			<< (current_track().multiplier() - 1);
 		// -1 because multiplier_ has already been updated to next input
 	}
 
 	/**
-	 * \brief Pass samples coming after the actual range of the algorithm.
+	 * \brief Pass track samples after the actual range of the algorithm.
 	 *
 	 * Implements Algorithm::post_range().
 	 *
@@ -650,29 +1984,42 @@ public:
 	 *
 	 * \param[in] start Iterator pointing to the begin of the sample sequence
 	 * \param[in] stop  Iterator pointing to the end   of the sample sequence
+	 * \param[in] size  The input size
 	 */
 	template <class B, class E>
-	void perform_post_range(B /* start */, E /* stop */)
+	void perform_post_range(B start, E stop, const std::size_t /*size*/)
 	{
-		//this->skip(start, stop, post_);
+		// Note that update() wouldn't have known that it saw the last track.
+		// We will have to overwrite the last 2940 cache values.
+		// TODO Avoid useless caching of update() by publishing total samples
+		idx_ = 2940;
+
+		current_subtotals().cache(start, stop, idx_);
+
+		ARCS_LOG(DEBUG1) << "After caching post-range samples, multiplier is: "
+			<< current_track().multiplier();
+
+		// FIXME Multiplier is reset to 1 by perform_finalize_track() when
+		// entering here. This means, shifting forward into false indices!
+		// FIXME Restore multiplier of current_track to the value of
+		// tracks_[tracks_.size() - 2].multiplier()
 	}
 
 	/**
-	 * \brief Finish current track.
+	 * \brief Finalize current track.
 	 *
 	 * Save the subtotals for current track and start next track.
 	 *
 	 * \param[in] t       Track number (ignored)
-	 * \param[in] length  Track length as calculated
+	 * \param[in] updated Track length as calculated (only legal range)
 	 */
-	void perform_finish_track(const int /*t*/, const AudioSize& /*length*/)
+	void perform_finalize_track(const int /*t*/, const AudioSize& /*updated*/)
 	{
-		current_result_ = state_.value();
-		//current_result_.set_length(length);
-		//Commented out: already done in Update<>::value(), not fixed by length
+		current_subtotals().finalize();
 
-		state_.reset();
-		state_.set_multiplier(1);
+		reset_idx();
+		reset_idx_f450();
+		tracks_.emplace_back(subtotals_t {});
 	}
 
 	/**
@@ -684,8 +2031,7 @@ public:
 
 		using std::swap;
 
-		swap(this->state_,          rhs.state_);
-		swap(this->current_result_, rhs.current_result_);
+		swap(this->tracks_, rhs.tracks_);
 	}
 
 	/**

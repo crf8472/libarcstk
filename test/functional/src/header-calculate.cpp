@@ -35,6 +35,7 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 	using arcstk::Checksums;
 	using arcstk::ChecksumtypeSet;
 	using arcstk::Context;
+	using arcstk::Interval;
 	using arcstk::Points;
 	using arcstk::Settings;
 	using arcstk::Updateable;
@@ -42,7 +43,6 @@ TEST_CASE ( "perform_update", "[perform_update] [calc]" )
 	using arcstk::checksum::type;
 
 	using arcstk::details::ind2am;
-	using arcstk::details::Interval;
 	using arcstk::details::TrackPartitioner;
 	using arcstk::details::CalculationState;
 	using arcstk::details::update::perform_update;

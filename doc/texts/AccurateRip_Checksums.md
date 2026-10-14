@@ -91,7 +91,7 @@ The definitions for first and last track are corresponding to ARCSv1: the first
 track skips the first 2939 samples while increasing the index. The last track
 skips the last 2940 samples.
 
-### Drive Offsets
+### Offsets of Pressings or CD Drive
 
 Supporting drive offsets requires to adjust the weights of the sum by an integer
 amount \f$ k\f$ without having to re-read the entire input. This is an index
@@ -196,7 +196,15 @@ the right thing.
 ### Frame 450
 
 The ARCS of the 0-based frame 450 (which is the 451. frame in total) is provided
-in the AccurateRip answer of any request.
+in the AccurateRip answer of any request. It is the ARCSv1 of the 588 samples in
+frame 450 starting on an index of 1. On 0-based sample count, this means:
+
+\f[
+	\textrm{F450}\bigl(\langle cs_1,cs_2,...,cs_{n}\rangle\bigr) %
+	\; := \; %
+	\sum_{i=1}^{588}\; %
+	\bigl[ \bigl( i * cs_{450 * 588 + i}\bigr) \:\textrm{mod}\: {2^{32}}\bigr]
+\f]
 
 
 ## Implementation

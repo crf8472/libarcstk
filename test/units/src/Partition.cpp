@@ -20,7 +20,7 @@ TEST_CASE ( "Partition", "[partition] [calc] [calculate]" )
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
 
-	using arcstk::details::Partition;
+	using arcstk::Partition;
 
 	auto instance = Partition { 33 * 588, 5225 * 588 - 1, true, true, 1 };
 
@@ -94,7 +94,7 @@ TEST_CASE ( "Partition", "[partition] [calc] [calculate]" )
 
 // TEST_CASE ( "Partition property", "[partition] [calc] [calculate]" )
 // {
-// 	using arcstk::details::Partition;
+// 	using arcstk::Partition;
 //
 // 	auto instance = Partition {};
 //

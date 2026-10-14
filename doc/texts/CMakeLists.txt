@@ -42,9 +42,9 @@ endforeach()
 
 ## --- Provide Static Pages {{{1
 
-# TODO Write and include page "Accuraterip_algorithms"
-foreach (FILE IN ITEMS "How_to_calculate.md" "How_to_verify.md"
-		"How_to_get_ids.md" "How_to_parse_DBARs.md" "snippets.dox" )
+foreach (FILE IN ITEMS "AccurateRip_Checksums.md" "How_to_calculate.md"
+		"How_to_verify.md" "How_to_get_ids.md" "How_to_parse_DBARs.md"
+		"snippets.dox" )
 
 	set (DOC_SOURCES  ${DOC_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}" )
 	string (REPLACE "." "_" PAGE_TITLE ${FILE})

@@ -50,14 +50,16 @@ namespace checksum
 /**
  * \brief Pre-defined checksum types.
  *
- * ARCS1 is AccurateRip v1 and ARCS2 is AccurateRip v2.
+ * ARCS1 is AccurateRip v1, ARCS2 is AccurateRip v2, and
+ * F4501 is AccurateRip v1 of frame 450.
  */
 enum class type : uint8_t
 {
 	ARCS1   = 1,
-	ARCS2   = 2
-	//THIRD_TYPE  = 4,
-	//FOURTH_TYPE = 8 ...
+	ARCS2   = 2,
+	F4501   = 4,
+	//FOURTH_TYPE = 8,
+	//FIFTH_TYPE = 16 ...
 };
 
 
@@ -67,11 +69,10 @@ enum class type : uint8_t
  * The order of the types is identical to the total order of numeric values the
  * types have in enum class checksum::type.
  */
-static const std::array<type, 2> types = {
+static const std::array<type, 4> types = {
 	type::ARCS1,
-	type::ARCS2
-	// type::THIRD_TYPE,
-	// type::FOURTH_TYPE ...
+	type::ARCS2,
+	type::F4501
 };
 
 

@@ -19,6 +19,7 @@ TEST_CASE ( "checksum::name provides correct names",
 
 	CHECK ( name(type::ARCS1) == "ARCSv1" );
 	CHECK ( name(type::ARCS2) == "ARCSv2" );
+	CHECK ( name(type::F4501) == "F450v1" );
 	//CHECK ( name(type::CRC32)   == "CRC32" );
 	//CHECK ( name(type::CRC32ns) == "CRC32ns" );
 }

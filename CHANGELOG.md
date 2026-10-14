@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+  - API: provide pressing/drive offset calculation
+  - API: provide ARCSv1 for Frame 450
   - API: provide class CalculationSet for multi-algorithm calculations
   - API: provide include-all header libarcstk.hpp
   - API: Provide class CheckingDBARBuilder
