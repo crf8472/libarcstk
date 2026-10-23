@@ -77,7 +77,7 @@ using Checksums = std::vector<ChecksumSet>;
  *
  * \see DBARSource
  *
- * \todo Does ChecksumSource specify a good method for iterating a 2-level obj?
+ * \todo Is ChecksumSource a good solution for iterating a 2-level obj?
  */
 class ChecksumSource
 {
