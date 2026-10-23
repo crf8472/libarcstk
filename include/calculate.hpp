@@ -1356,7 +1356,7 @@ public:
 	 *
 	 * \return The calculated Checksums
 	 */
-	Checksums result() const noexcept
+	Checksums result() const
 	{
 		return this->result(0);
 	}
