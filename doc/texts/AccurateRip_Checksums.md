@@ -10,7 +10,7 @@ values for this rip.
 This requirement includes that rips created with an unknown or unintentional rip
 offset (caused by either a drive offset or a pressing offset or a combination of
 both) can also be verified. This entails that the rip offset has to be detected
-locally given that reference checkskums with sufficient confidence are
+locally given that reference checksums with sufficient confidence are
 available.
 
 
@@ -316,4 +316,35 @@ offset applications in the legal range. The reason is that applying an offset to
 a checksum implies constant cost regardless whether over how many samples this
 checksum was generated. Thus, the condition that motivated providing this
 checksum is not given.
+
+
+## Implementations under free and open-source licenses (incomplete list)
+
+- https://github.com/leo-bogert/accuraterip-checksum
+- https://github.com/gchudov/cuetools.net
+- https://github.com/arcctgx/ARver
+- https://github.com/neheb/cdverify
+- https://github.com/whipper-team/whipper
+- https://github.com/cyanreg/cyanrip
+- https://github.com/spadev/cdrip-tools
+- https://github.com/jonls/accuraterip-tools
+
+
+## References
+
+The AccurateRip checksums were described by Spoon in [1]. The flaw in ARCSv1 was
+originally described by Steve Gabriel in 2008 in [2]. The approach for utilizing
+linearity for offset detection and the data structure described above was
+brought to my attention by several posts of Gregory S. Chudov, the author of
+CUETools.NET, e.g. [3] and the source of CUETools.NET.
+
+The AccurateRip DB is (c) by illustrate. Access requires permission. See [4].
+
+[1] [Spoon: AccurateRip CRC Calculation](https://forum.dbpoweramp.com/forum/other-topics/developers-corner/20117-accuraterip-crc-calculation?20641=)
+
+[2] [Steve Gabriel: Reply \#1](https://hydrogenaudio.org/index.php/topic,61468.msg548711.html#msg548711)
+
+[3] [Gregory S. Chudov: Reply \#27](https://hydrogenaudio.org/index.php/topic,66233.msg592342.html#msg592342)
+
+[4] https://www.accuraterip.com/3rdparty-access.htm
 
