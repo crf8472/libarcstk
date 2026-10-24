@@ -216,5 +216,75 @@ frame 450 starting on an index of 1. On 0-based sample count, this means:
 	track is reached.
   - For shifting, the relevant 5880 subtotals of each track are cached. Drive
 	offset detection is therefore performant. All possible 5880 values can be
-	brute-forced.
+	brute-forced. It would be possible to only use the 588 values of frame 450
+	instead but the values in the database do not seem very reliable, so
+	brute-forcing seems the safe way.
 
+### Data structure for detecting pressing offsets
+
+Since AccurateRip skips the first 2939 and the last 2940 samples, the codomain
+for offset \f$k\f$ is thereby fixated to the range [-2939,2940]. We can have
+minimal negative \f$k\f$ of -2939 since we cannot shift the window before the
+first sample. For the equivalent reason, we can have a maximal positive \f$k\f$
+of 2940. With the additional case of \f$k = 0\f$, the set of possible values has
+a cardinality of 5880.
+
+We read the samples sequentially and do not have random access to them.
+Furthermore, since reading is IO and supposed to be expensive, we are motivated
+to avoid any re-reading. The solution is to provide the accumulated subtotals
+for every possible \f$k\f$ for each track to be able to access any possibly
+required subtotals after having read all the samples.
+
+We call the first 2940 samples of a track /prefix/ samples and the last 2940
+samples /suffix/ samples.
+
+Each track bound is in the middle of a 5880-samples-wide window of relevant
+subtotals, so we have an array of size 5880 for each track that contains the
+accumulated values for the first \f$k\f$ and the last \f$k\f$ samples of the
+track. When shifting forward, which means \f$k > 0\f$ we subtract prefices from
+the current track and add prefices of the next track. When shifting backwards,
+which means \f$k < 0\f$ we add suffices of the previous track and subtract
+suffices of the current track. This is the reason we have to cache 2940 instead
+of 2939 samples off the start of each track: we may have to add the start of the
+track as the end of a +2940 offset.
+
+To make this convenient, we store prefices and suffices in different orders. We
+then have for a track \f$t\f$ with total samples L the following subtotals for
+the prefix samples with index j:
+
+ARCS[j] := (1+0) * cs_(1+0) + (1+1) * cs_(1+1) + ... + (1+j) * cs_(1+j)
+
+which comes down to:
+
+ARCS[0] := (1+0) * cs_(1+0)
+ARCS[1] := (1+0) * cs_(1+0) + (1+0) * cs_(1+0)
+ARCS[2] := (1+0) * cs_(1+0) + (1+1) * cs_(1+1) + (1+2) * cs_(1+2)
+...
+ARCS[2939] := (1+0) * cs_(1+0) + (1+1) * cs_(1+1) + ... + (1+2939) * cs_(1+2939)
+
+With index 2940 we switch to the suffices:
+
+ARCS[j] := (L-j) * cs_(L-j) + (L-(j-1)) * cs_(L-(j-1)) + ... + (L-1)) * cs_(L-1))
+
+ARCS[2940] := (L-2940) * cs_(L-2940) + (L-2939) * cs_(L-2939) + ... + (L-1) * cs_(L-1)
+ARCS[2941] := (L-2939) * cs_(L-2939) + (L-2938) * cs_(L-2938) + ... + (L-1) * cs_(L-1)
+...
+ARCS[L-1]  := (L-1) * cs_(L-1)
+
+These arrays are accessed as follows:
+
+To get the \f$\textrm{ARCS}(t,k)\f$ for track \f$t\f$ with an offset
+\f$k > 0\f$, you subtract the first k samples and add the sums of additional
+\f$k\f$ suffix samples \f$k\f$ times:
+
+ARCS(t,k) = ARCS(t,0) - ARCS_t[k] + k * (CSUM_t - CSUM_t[k])
+
+To get the \f$\textrm{ARCS}(t,k)\f$ for track \f$t\f$ with an offset
+\f$k < 0\f$, you subtract the last \f$k\f$ samples of the current track and add
+the sums of additional \f$k\f$ suffix samples of the previous track \f$k\f$
+times:
+
+ARCS(t,k) = ARCS(t,0) - ARCS_(t-1)[2940 - |k| - 1] + k * (CSUM_t - CSUM_(t-1)[2940 - |k|
+- 1])
+
+Note that since \f$k\f$ is negative in fact a subtraction is performed.
