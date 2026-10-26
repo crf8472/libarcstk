@@ -146,8 +146,6 @@ template<typename CharT, typename TraitsT>
 		block_bytes_total = 0;
 		bytes_read = 0;
 
-		p->start_block();
-
 		// Read header of current block
 
 		if (!in.read(&id[0], TOTAL_HEADER_BYTES))
@@ -189,6 +187,8 @@ template<typename CharT, typename TraitsT>
 		{
 			// At least 1 byte has been read. We want to pass the bytes parsed
 			// so far to the content handler
+
+			p->start_block();
 
 			total_tracks = id[0] & 0xFF;
 
