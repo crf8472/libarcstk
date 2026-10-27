@@ -21,6 +21,7 @@
 #include <cstddef>        // for ptrdiff_t
 #include <cstdint>        // for uint_fast32_t, uint_fast64_t, int32_t
 #include <memory>         // for make_unique, unique_ptr, swap
+#include <stdexcept>      // for invalid_argument
 #include <string>         // for string
 #include <vector>         // for vector
 
@@ -1719,6 +1720,8 @@ class ARCSAlgorithm final : public Algorithm
 		using std::size_t;
 		using std::uint32_t;
 
+		using accuraterip::details::checksum;
+
 		const auto t = static_cast<size_t>(track_no - 1);
 
 		if (t >= total_tracks() || t > CDDA::MAX_TRACKCOUNT)
@@ -1806,32 +1809,6 @@ class ARCSAlgorithm final : public Algorithm
 		// overflows also deliberately on the original checksum.
 	}
 
-	/**
-	 * \brief Add checksum of type \c TYPE and drive offset \c k to a set.
-	 *
-	 * \tparam TYPE Checksum type
-	 *
-	 * \param[in] t Track number
-	 * \param[in] k Drive offset
-	 * \param[in] s ChecksumSet to add track checksum to
-	 */
-	template <enum checksum::type TYPE>
-	void add_checksum(const int t, const int k, ChecksumSet& s) const
-	{
-		ARCS_LOG(DEBUG3) << "Insert Checksum for type " << TYPE
-			<< " to track result";
-
-		const auto [ it, success ] =
-			s.insert(TYPE, Checksum { shift<TYPE>(t, k) });
-
-		if (!success)
-		{
-			// TODO Throw?
-			ARCS_LOG_ERROR << "Could not insert Checksum for type " << TYPE;
-			//throw std::runtime_error("Could not insert Checksum");
-		}
-	}
-
 	// Algorithm
 
 	void do_setup(const Context c) final
@@ -1867,6 +1844,19 @@ class ARCSAlgorithm final : public Algorithm
 		return tracks_.size() - 1;
 	}
 
+	ChecksumList do_checksums(const checksum::type type, const int k)
+		const final
+	{
+		auto track_list = ChecksumList(total_tracks()); /* parentheses */
+
+		for (auto t = std::size_t { 0 }; t < total_tracks(); ++t)
+		{
+			track_list[t] = this->checksum(type, t + 1, k);
+		}
+
+		return track_list;
+	}
+
 	ChecksumSet do_track(const TrackNo t, const int k) const final
 	{
         auto result = ChecksumSet {};
@@ -1884,6 +1874,69 @@ class ARCSAlgorithm final : public Algorithm
 		// FIXME For the last track, this will be 2940 samples too less
 
         return result;
+	}
+
+	Checksum do_checksum(const checksum::type type, const TrackNo t,
+			const int k) const final
+	{
+		return Checksum { shift_dispatch<T1, T2...>(type, t, k) };
+	}
+
+	/**
+	 * \brief Add checksum of type \c TYPE and drive offset \c k to a set.
+	 *
+	 * \tparam TYPE Checksum type
+	 *
+	 * \param[in] t Track number
+	 * \param[in] k Drive offset
+	 * \param[in] s ChecksumSet to add track checksum to
+	 */
+	template <enum checksum::type TYPE>
+	void add_checksum(const int t, const int k, ChecksumSet& s) const
+	{
+		ARCS_LOG(DEBUG3) << "Insert Checksum for type " << TYPE
+			<< " to track result";
+
+		const auto [ it, success ] =
+			s.insert(TYPE, Checksum { shift<TYPE>(t, k) });
+
+		if (!success)
+		{
+			// TODO Throw?
+			ARCS_LOG_ERROR << "Could not insert Checksum for type " << TYPE;
+			//throw std::invalid_argument("Could not insert Checksum");
+		}
+	}
+
+	/**
+	 * \brief Internal type dispatcher: calls shift with type \c type.
+	 *
+	 * Dispatches \c type to the correct template type to call shift<>().
+	 *
+	 * \tparam T_FIRST First Checksum type
+	 * \tparam T_OTHER Other optional Checksum types
+	 *
+	 * \param[in] type Checksum type
+	 * \param[in] t    Track number
+	 * \param[in] k    Drive offset
+	 *
+	 * \return Result of shift<>() with runtime type \c type
+	 */
+	template <enum checksum::type T_FIRST, enum checksum::type... T_OTHER>
+	Checksum::value_type shift_dispatch(checksum::type type,
+			const TrackNo t, const int k) const
+	{
+		if (type == T_FIRST) // only one checksum::type? => finished
+		{
+			return shift<T_FIRST>(t, k);
+		}
+
+		if constexpr (sizeof...(T_OTHER) > 0) // dispatch other types if any
+		{
+			return shift_dispatch<T_OTHER...>(type, t, k);
+		}
+
+		throw std::invalid_argument("Unrecognized checksum type");
 	}
 
 	std::unique_ptr<Algorithm> do_clone() const final

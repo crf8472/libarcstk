@@ -536,6 +536,14 @@ public:
  */
 using Checksums = std::vector<ChecksumSet>; // also defined in verify.hpp
 
+/**
+ * \brief List of Checksum values.
+ *
+ * Each Checksum represents a track. The order of the Checksum values follows
+ * the order of tracks on the original compact disc.
+ */
+using ChecksumList = std::vector<Checksum>;
+
 /** @} */ // group calc
 
 

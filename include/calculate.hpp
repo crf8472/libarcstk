@@ -1371,6 +1371,75 @@ public:
 	Checksums result(const int k) const;
 
 	/**
+	 * \brief Acquire a list of Checksums of type \c type of all tracks.
+	 *
+	 * \param[in] type Checksum type to get values for
+	 *
+	 * \return Checksum values of type \c type for all tracks
+	 */
+	ChecksumList checksums(const checksum::type type) const
+	{
+		return this->checksums(type, 0);
+	}
+
+	/**
+	 * \brief Acquire a list of Checksums of type \c type of all tracks.
+	 *
+	 * \param[in] type Checksum type to get values for
+	 * \param[in] k    Offset
+	 *
+	 * \return Checksum values of type \c type for all tracks
+	 */
+	ChecksumList checksums(const checksum::type type, const int k) const;
+
+	/**
+	 * \brief Acquire Checksums for track \c t.
+	 *
+	 * \param[in] t Track number
+	 *
+	 * \return Checksum values of type \c type for track \c t
+	 */
+	ChecksumSet track(const TrackNo t) const
+	{
+		return this->track(t, 0);
+	}
+
+	/**
+	 * \brief Acquire Checksums for track \c t.
+	 *
+	 * \param[in] t Track number
+	 * \param[in] k Offset
+	 *
+	 * \return Checksum values of type \c type for track \c t
+	 */
+	ChecksumSet track(const TrackNo t, const int k) const;
+
+	/**
+	 * \brief Acquire Checksum of type \c type for track \c t.
+	 *
+	 * \param[in] type Checksum type to get values for
+	 * \param[in] t    Track number
+	 *
+	 * \return Checksum values of type \c type for track \c t
+	 */
+	Checksum checksum(const checksum::type type, const TrackNo t) const
+	{
+		return this->checksum(type, t, 0);
+	}
+
+	/**
+	 * \brief Acquire Checksum of type \c type for track \c t.
+	 *
+	 * \param[in] type Checksum type to get values for
+	 * \param[in] t    Track number
+	 * \param[in] k    Offset
+	 *
+	 * \return Checksum values of type \c type for track \c t
+	 */
+	Checksum checksum(const checksum::type type, const TrackNo t, const int k)
+		const;
+
+	/**
 	 * \brief Update the instance with a new AudioSize.
 	 *
 	 * \param[in] audiosize The updated AudioSize

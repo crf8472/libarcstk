@@ -724,6 +724,59 @@ public:
 	}
 
 	/**
+	 * \brief Checksums of type \c type for all tracks in order.
+	 *
+	 * \param[in] type Checksum type
+	 *
+	 * \return Checksums of type \c type for all tracks in order
+	 */
+	ChecksumList checksums(const checksum::type type) const
+	{
+		return this->checksums(type, 0);
+	}
+
+	/**
+	 * \brief Checksums of type \c type for all tracks in order with offset \c k.
+	 *
+	 * \param[in] type Checksum type
+	 * \param[in] k    Offset to apply
+	 *
+	 * \return Checksums of type \c type for all tracks in order
+	 */
+	ChecksumList checksums(const checksum::type type, const int k) const
+	{
+		return this->do_checksums(type, k);
+	}
+
+	/**
+	 * \brief Checksum of type \c type for track \c t.
+	 *
+	 * \param[in] type Checksum type to get
+	 * \param[in] t    Track number
+	 *
+	 * \return Checksum of type \c type for track \c t
+	 */
+	Checksum checksum(const checksum::type type, const TrackNo t) const
+	{
+		return this->checksum(type, t, 0);
+	}
+
+	/**
+	 * \brief Checksum of type \c type for track \c t with offset \c k.
+	 *
+	 * \param[in] type Checksum type to get
+	 * \param[in] t    Track number
+	 * \param[in] k    Offset to apply
+	 *
+	 * \return Checksum of type \c type for track \c t with offset \c k
+	 */
+	Checksum checksum(const checksum::type type, const TrackNo t,
+			const int k) const
+	{
+		return this->do_checksum(type, t, k);
+	}
+
+	/**
 	 * \brief Checksums for track \c t.
 	 *
 	 * \param[in] t Track number
@@ -739,7 +792,7 @@ public:
 	 * \brief Checksums for track \c t, thereby applying drive offset \c k.
 	 *
 	 * \param[in] t Track number
-	 * \param[in] k Drive offset to apply
+	 * \param[in] k Offset to apply
 	 *
 	 * \return Checksums for track \c t, shifted by \c k
 	 */
@@ -836,7 +889,15 @@ private:
 	virtual std::size_t do_total_tracks() const
 	= 0;
 
+	virtual ChecksumList do_checksums(const checksum::type type, const int k)
+			const
+	= 0;
+
 	virtual ChecksumSet do_track(const TrackNo t, const int k) const
+	= 0;
+
+	virtual Checksum do_checksum(const checksum::type type, const TrackNo t,
+			const int k) const
 	= 0;
 
 	virtual std::unique_ptr<Algorithm> do_clone() const

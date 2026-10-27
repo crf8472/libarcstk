@@ -361,15 +361,66 @@ Checksums Calculation::result(const int k) const
 		ARCS_LOG_WARNING << "Calculation result accessed before completion";
 	}
 
-	if (0 == k)
+	if (k != 0)
 	{
-		return result_buffer_;
+		return algorithm()->tracks(k);
 	}
 
-	// TODO get algorithm.track(t, k) for every t
-	ARCS_LOG_ERROR << "Drive offsets not fully implemented";
-
 	return result_buffer_;
+}
+
+
+ChecksumList Calculation::checksums(const checksum::type type, const int k)
+	const
+{
+	// TODO Check state
+
+	if (k != 0)
+	{
+		return algorithm()->checksums(type, k);
+	}
+
+	// no type dispatching required, just pick type from result
+
+	auto album = ChecksumList(result_buffer_.size()); // parentheses
+	auto i = std::size_t { 0 };
+
+	for (const auto& track : result_buffer_)
+	{
+		album[i] = track.checksum(type);
+		++i;
+	}
+
+	return album;
+}
+
+
+ChecksumSet Calculation::track(const TrackNo t, const int k) const
+{
+	// TODO Check state
+
+	if (k != 0)
+	{
+		return algorithm()->track(t, k);
+	}
+
+	return result_buffer_[static_cast<std::size_t>(t) - 1];
+}
+
+
+Checksum Calculation::checksum(const checksum::type type, const TrackNo t,
+		const int k) const
+{
+	// TODO Check state
+
+	if (k != 0)
+	{
+		return algorithm()->checksum(type, t, k);
+	}
+
+	// no type dispatching required, just pick from result
+
+	return result_buffer_[static_cast<std::size_t>(t) - 1].checksum(type);
 }
 
 
