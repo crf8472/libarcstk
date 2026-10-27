@@ -455,11 +455,9 @@ Checksum::value_type current_cs_sum(const Subtotals& st)
 
 	if constexpr (T == type::F4501)
 	{
-		//return current_cs_sum_f450(st);
 		return AccessSt::to_value(st.sums[8820] - st.sums[9408]);
 	} else
 	{
-		//return current_cs_sum_arcs(st);
 		return AccessSt::to_value(st.current_cs_sum);
 	}
 }
