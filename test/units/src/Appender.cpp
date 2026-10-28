@@ -18,6 +18,7 @@
 #include "construction.hpp"     // for Copy, Move
 #endif
 
+namespace {
 
 /**
  * \brief A simple temporary file with a name hint.
@@ -86,6 +87,8 @@ public:
 	TemporaryFile& operator=(TemporaryFile&&)      = default;
 };
 
+} // namespace
+
 
 TEST_CASE ( "Appender", "[appender] [logging]" )
 {
@@ -127,7 +130,12 @@ TEST_CASE ( "Appender", "[appender] [logging]" )
 
 		REQUIRE ( path.find(tempfile_prefix) != std::string::npos );
 
-		auto moved = Appender { "any_string_would_do_here" };
+		const auto tempfile2_prefix = std::string {
+			"LIBARCSTK-TEST-UNIT-Appender2" };
+
+		TemporaryFile tempfile2 { tempfile2_prefix };
+
+		auto moved = Appender { tempfile2.string() };
 		Move<Appender>::assign(moved, instance);
 
         CHECK ( moved.name().find(tempfile_prefix) != std::string::npos );
