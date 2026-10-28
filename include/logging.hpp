@@ -35,7 +35,7 @@
 #include <string>         // for string, operator==, char_traits, operator<<
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
 #include <unordered_set>  // for unordered_set
-#include <utility>        // for move
+#include <utility>        // for exchange, move
 
 namespace arcstk
 {
@@ -64,14 +64,14 @@ inline namespace v_1_0_0
 std::string now_time();
 
 /**
- * \brief A named logging output channel.
+ * \brief A named logging output channel to a file.
  *
  * An Appender can be constructed for either a <tt>std::string</tt> representing
  * a filename or a <tt>FILE*</tt> along with a name.
  *
  * An Appender always has a name. If the Appender is constructed with just a
  * filename, this filename becomes its name. If it is constructed with a
- * <tt>FILE*</tt> and a name, the name is arbitrary.
+ * <tt>FILE*</tt> and a name, the name can be chosen arbitrarily.
  */
 class Appender final
 {
@@ -84,6 +84,19 @@ class Appender final
 	 * \brief Internal stream to append to
 	 */
 	FILE* stream_ {};
+
+	/**
+	 * \brief Ensure that internal output stream is closed and nullified.
+	 */
+	void reset_stream() noexcept
+    {
+        if (stream_)
+        {
+			// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+            std::fclose(stream_);
+            stream_ = nullptr;
+        }
+    }
 
 public:
 
@@ -103,7 +116,6 @@ public:
 		{
 			auto ss = std::ostringstream{};
 			ss << "Appender " << name_.c_str() << " has no stream to append to";
-
 			throw std::runtime_error(ss.str());
 		}
 	}
@@ -132,29 +144,45 @@ public:
 	Appender& operator = (const Appender&) = delete;
 
 	/**
-	 * \copydoc SNPT_sm_move_ctor
+	 * \brief Move constructor.
+	 *
+	 * \param[in] rhs Instance to be moved
 	 */
-	Appender(Appender&& rhs) noexcept = default;
+	Appender(Appender&& rhs) noexcept
+		: name_   { std::move(rhs.name_) }
+		, stream_ { std::exchange(rhs.stream_, nullptr) }
+	{
+		// empty
+	}
 
 	/**
-	 * \copydoc SNPT_sm_move_op
+	 * \brief Move assignment operator.
+	 *
+	 * \param[in] rhs Instance to be moved
 	 */
-	Appender& operator = (Appender&& rhs) noexcept = default;
+	Appender& operator = (Appender&& rhs) noexcept
+	{
+		if (this != &rhs)
+		{
+			reset_stream();
+
+			name_   = std::move(rhs.name_);
+			stream_ = std::exchange(rhs.stream_, nullptr);
+		}
+
+		return *this;
+	}
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~Appender() noexcept
 	{
-		if (stream_)
-		{
-			// NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-			std::fclose(stream_);
-		}
+		reset_stream();
 	}
 
 	/**
-	 * \brief Append the specified message
+	 * \brief Append the specified message.
 	 *
 	 * \param[in] msg The message to append
 	 */
@@ -162,17 +190,34 @@ public:
 	{
 		if (!stream_)
 		{
-			return;
+			auto ss = std::ostringstream{};
+			ss << "Appender " << name_.c_str() << " has no valid output";
+			throw std::runtime_error(ss.str());
 		}
 
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
-		std::fprintf(stream_, "%s", msg.c_str());
-		std::fflush(stream_);
 		// Note: According to
 		// http://www.gnu.org/software/libc/manual/html_node/Streams-and-Threads.html
 		// all stream operations are thread safe, ergo using fprintf buys us
-		// thread-safety in principle. This at least ensures that no lines are
-		// scrambled.
+		// thread-safety in principle. This at least ensures that no lines
+		// are scrambled.
+
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
+		if (std::fprintf(stream_, "%s", msg.c_str()) < 0)
+		{
+			// Clear error flag so subsequent append()s have a chance to succeed
+			std::clearerr(stream_);
+
+			auto ss = std::ostringstream{};
+			ss << "Appender " << name_.c_str() << " failed to write";
+			throw std::runtime_error(ss.str());
+		}
+
+		if (std::fflush(stream_) != 0)
+		{
+			auto ss = std::ostringstream{};
+			ss << "Appender " << name_.c_str() << " failed to flush";
+			throw std::runtime_error(ss.str());
+		}
 	}
 
 	/**
@@ -180,10 +225,19 @@ public:
 	 *
 	 * \return Name of the Appender
 	 */
-	std::string name() const noexcept
+	const std::string& name() const noexcept
 	{
 		return name_;
 	}
+
+
+    friend void swap(Appender& lhs, Appender& rhs) noexcept
+    {
+		using std::swap;
+
+        std::swap(lhs.stream_, rhs.stream_);
+        std::swap(lhs.name_,   rhs.name_);
+    }
 };
 
 
@@ -320,6 +374,8 @@ public:
  */
 class Log final
 {
+	using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
+
 	/**
 	 * Internal output stream representation
 	 */
@@ -328,12 +384,58 @@ class Log final
 	/**
 	 * Internal Logger to use
 	 */
-	const Logger *logger_ {};
+	const Logger* logger_ {};
 
 	/**
 	 * Loglevel of the message to log
 	 */
 	LOGLEVEL msg_level_ {};
+
+	/**
+	 * \brief Internal indent step.
+	 */
+	loglevel_type step_ { 2 };
+
+	/**
+	 * \brief Internal indent char.
+	 */
+	char indent_char_ { ' ' };
+
+	/**
+	 * \brief Determine width of the indent.
+	 */
+	std::string::size_type indent_width() const
+	{
+		static constexpr auto threshold_level = LOGLEVEL::DEBUG;
+
+		if (msg_level_ > threshold_level)
+		{
+			// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
+			const auto indent =
+				step_ * (static_cast<loglevel_type>(msg_level_)
+						- static_cast<loglevel_type>(threshold_level));
+
+			return static_cast<std::string::size_type>(indent);
+		}
+
+		return 0;
+	}
+
+	/**
+	 * \brief Produce indent according to message level.
+	 *
+	 * \return Indent string (whitespace)
+	 */
+	std::string indent() const
+	{
+		if (const auto width = indent_width(); width > 0)
+		{
+			// NOLINTNEXTLINE(modernize-return-braced-init-list)
+			return std::string(width, indent_char_); // parentheses
+		}
+
+		return std::string{}; // FIXME do not produce new empty string
+	}
 
 public:
 
@@ -378,42 +480,13 @@ public:
 	 */
 	~Log() noexcept
 	{
-		// NOLINTNEXTLINE(performance-avoid-endl)
-		os_ << std::endl; // We intend to flush here, endl is ok
-
-		if (logger_)
-		{
-			logger_->log(os_.str());
-		}
-	}
-
-	/**
-	 * \brief Produce indent according to message level.
-	 *
-	 * \return Indent string (whitespace)
-	 */
-	std::string indent() const
-	{
-		using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
-
-		static constexpr auto step            = int { 2 };
-		static constexpr auto threshold_level = LOGLEVEL::DEBUG;
-		static constexpr auto whitespace      = char { ' ' };
-
-		// Indent messages with level 'threshold_level' and higher
-
-		// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
-		// NOLINTBEGIN(modernize-return-braced-init-list)
-		return std::string(
-			static_cast<std::string::size_type>(
-				msg_level_ > threshold_level
-				? step * (static_cast<loglevel_type>(msg_level_)
-						- static_cast<loglevel_type>(threshold_level)
-					)
-				: 0),
-			whitespace
-		);
-		// NOLINTEND(modernize-return-braced-init-list)
+	 	// NOLINTNEXTLINE(performance-avoid-endl)
+	 	os_ << std::endl; // We intend to flush here, endl is ok
+	// Commented out: must be noexcept
+	// 	if (logger_)
+	// 	{
+	// 		logger_->log(os_.str());
+	// 	}
 	}
 
 	/**
@@ -424,7 +497,6 @@ public:
 	std::ostringstream& get()
 	{
 		using std::to_string;
-
 
 		if (logger_->has_timestamps())
 		{
