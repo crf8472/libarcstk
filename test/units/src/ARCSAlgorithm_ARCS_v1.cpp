@@ -104,6 +104,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1> default constructed instance",
 
 	SECTION ( "is ok")
 	{
+		// just to call sth
 		CHECK ( instance.name() == "AccurateRip v1" ); // just to call sth
 	}
 
@@ -234,5 +235,10 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1> functions",
 	// SECTION ("perform_post_range() is correct")
 
 	// SECTION ("perform_finalize_track() is correct")
+
+	// SECTION ("result() is correct")
+	// {
+	// 	FAIL ("do_result test is missing");
+	// }
 }
 

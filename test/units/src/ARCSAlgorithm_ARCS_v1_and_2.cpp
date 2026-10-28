@@ -208,20 +208,40 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> functions",
 	// {
 	// 	FAIL ("do_range test is missing");
 	// }
-	//
-	// SECTION ("track_finished() is correct")
+
+	// SECTION ("partitioner() is correct")
 	// {
-	// 	FAIL ("do_track_finished test is missing");
+	// 	FAIL ("do_partitioner test is missing");
 	// }
-	//
-	// SECTION ("result() is correct")
+
+	// SECTION ("total_tracks() is correct")
+
+	// SECTION ("track() is correct")
 	// {
-	// 	FAIL ("do_result test is missing");
-	// }
 	//
+	// }
+
+	// SECTION ("checksum() is correct")
+	// {
+	// 	FAIL ("do_checksum test is missing");
+	// }
+
+	// SECTION ("perform_pre_range() is correct")
+
+	// SECTION ("perform_start_track() is correct")
+
 	// SECTION ("perform_update() is correct")
 	// {
 	// 	FAIL ("perform_update test is missing");
+	// }
+
+	// SECTION ("perform_post_range() is correct")
+
+	// SECTION ("perform_finalize_track() is correct")
+
+	// SECTION ("result() is correct")
+	// {
+	// 	FAIL ("do_result test is missing");
 	// }
 }
 
