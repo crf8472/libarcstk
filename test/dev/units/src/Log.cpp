@@ -9,16 +9,13 @@
 #ifndef LIBARCSTK_LOGGING_HPP_
 #include "logging.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_LOGGING_HPP_
-#include "logging_details.hpp"  // for
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"     // for Copy, Move
 #endif
 
 
-TEST_CASE ( "Log", "[log] [logging] [logging]" )
+TEST_CASE ( "Log", "[log] [logging]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -81,8 +78,7 @@ TEST_CASE ( "Log", "[log] [logging] [logging]" )
 }
 
 
-TEST_CASE ( "Log default constructed instance",
-		"[log] [logging] [logging]" )
+TEST_CASE ( "Log default constructed instance", "[log] [logging]" )
 {
 	const auto defaulted = arcstk::Log{};
 
@@ -98,7 +94,7 @@ TEST_CASE ( "Log default constructed instance",
 }
 
 
-TEST_CASE ( "Log property", "[log] [logging] [logging]" )
+TEST_CASE ( "Log property", "[log] [logging]" )
 {
 	using arcstk::Log;
 
@@ -147,7 +143,7 @@ TEST_CASE ( "Log property", "[log] [logging] [logging]" )
 }
 
 
-TEST_CASE ( "Log functions", "[log] [logging] [logging]" )
+TEST_CASE ( "Log functions", "[log] [logging]" )
 {
 	using arcstk::Log;
 
@@ -177,6 +173,5 @@ TEST_CASE ( "Log functions", "[log] [logging] [logging]" )
 	{
 		FAIL ("get() test is missing");
 	}
-
 }
 
