@@ -23,6 +23,7 @@
 #include "loglevel.hpp"
 #endif
 
+#include <algorithm>      // for find_if
 #include <atomic>         // for atomic
 #include <chrono>         // for milliseconds, seconds, duration_cast, opera...
 #include <cstdio>         // for fclose, fflush, FILE, fopen, fprintf
@@ -34,8 +35,8 @@
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string, operator==, char_traits, operator<<
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
-#include <unordered_set>  // for unordered_set
 #include <utility>        // for exchange, move
+#include <vector>         // for vector, erase_if
 
 namespace arcstk
 {
@@ -253,7 +254,7 @@ class Logger final
 	/**
 	 * \brief Internal set of \link Appender Appenders \endlink
 	 */
-	std::unordered_set<std::unique_ptr<Appender>> appenders_ {};
+	std::vector<std::unique_ptr<Appender>> appenders_ {};
 
 	/**
 	 * \brief Flag to activate/deactivate the logging of timestamps
@@ -266,10 +267,8 @@ public:
 	 * \brief Constructor
 	 */
 	Logger()
-		: appenders_      { /* empty */ }
-		, log_timestamps_ { true }
 	{
-		// empty
+		appenders_.reserve(8); // random
 	}
 
 	/**
@@ -302,7 +301,7 @@ public:
 	 *
 	 * \param[in] on_or_off TRUE activates the logging of timestamps
 	 */
-	void set_timestamps(const bool& on_or_off) noexcept
+	void set_timestamps(const bool on_or_off) noexcept
 	{
 		log_timestamps_ = on_or_off;
 	}
@@ -324,31 +323,35 @@ public:
 	 */
 	void add_appender(std::unique_ptr<Appender> appender)
 	{
-		appenders_.emplace(std::move(appender));
+		appenders_.push_back(std::move(appender));
 	}
 
 	/**
-	 * \brief Remove the given Appender from this Logger.
+	 * \brief Remove the specified Appender from this Logger.
 	 *
 	 * \param[in] appender An Appender to remove
 	 */
 	void remove_appender(const Appender *appender)
 	{
 		using std::begin;
+		using std::end;
 		using std::cend;
 
-		auto it = begin(appenders_);
+		const auto it = std::find_if(begin(appenders_), end(appenders_),
+				[appender](const auto& app)
+				{
+					return app.get() == appender;
+				});
 
-		while (it != cend(appenders_))
+		if (it != cend(appenders_))
 		{
-			if (it->get() == appender)
-			{
-				it = appenders_.erase(it);
-			} else
-			{
-				++it;
-			}
+			appenders_.erase(it);
 		}
+
+		// In C++20, this would just be:
+		// std::erase_if(appenders_,
+		// 		[appender](const auto& app) { return app.get() == appender; });
+
 	}
 
 	/**
@@ -358,7 +361,7 @@ public:
 	 */
 	void log(const std::string& msg) const
 	{
-		for (auto& appender : appenders_)
+		for (const auto& appender : appenders_)
 		{
 			appender->append(msg);
 		}
