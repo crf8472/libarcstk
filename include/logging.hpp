@@ -13,9 +13,11 @@
  *
  * The code in this file is based on ideas by Petru Marginean published in:
  * Marginean, P: "Logging in C++: A typesafe, threadsafe, portable logging
- * mechanism", 10/2007, http://www.ddj.com/cpp/201804215
+ * mechanism", 09/05/2007, http://www.ddj.com/cpp/201804215
+ * https://web.archive.org/web/20250617151125/https://www.drdobbs.com/cpp/logging-in-c/201804215
  * and
  * Marginean, P: "Logging in C++: Part 2", 11/20/2009, http://www.ddj.com/cpp/221900468
+ * https://web.archive.org/web/20160731182814/http://www.drdobbs.com/cpp/logging-in-c-part-2/221900468
  */
 
 
@@ -760,6 +762,57 @@ public:
 	bool has_timestamps() const noexcept
 	{
 		return logger().has_timestamps();
+	}
+
+	/**
+	 * \brief Set indent step.
+	 *
+	 * Any new indent level will be increased by this amount.
+	 *
+	 * Default is 2.
+	 *
+	 * \param[in] step Indent step
+	 */
+	void set_step(const loglevel_type step)
+	{
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
+		on_logger_do().set_step(step);
+	}
+
+	/**
+	 * \brief Current indent step.
+	 *
+	 * \return Current indent step
+	 */
+	int step() const
+	{
+		return logger().step();
+	}
+
+	/**
+	 * \brief Set indent char.
+	 *
+	 * The indent char is a single char that is repeated \c indent_width() times
+	 * on a new line before the log info starts.
+	 *
+	 * Default is blank (ASCII \#0x20).
+	 *
+	 * \param[in] c Indent char
+	 */
+	void set_indent_char(const char c)
+	{
+		auto lock = std::scoped_lock<decltype( mutex_ )> { mutex_ };
+		on_logger_do().set_indent_char(c);
+	}
+
+	/**
+	 * \brief Indent char.
+	 *
+	 * \return Indent char
+	 */
+	char indent_char() const
+	{
+		return logger().indent_char();
 	}
 
 	/**
