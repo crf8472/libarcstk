@@ -29,6 +29,7 @@
 #include <cstdio>         // for fclose, fflush, FILE, fopen, fprintf
 #include <ctime>          // for localtime, time_t
 #include <iomanip>        // for operator<<, put_time
+#include <iostream>       // for cerr
 #include <memory>         // for unique_ptr, hash, operator==
 #include <mutex>          // for mutex, scoped_lock
 #include <sstream>        // for operator<<, basic_ostream, ostringstream
@@ -52,6 +53,8 @@ inline namespace v_1_0_0
  *
  * @{
  */
+
+using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
 
 /**
  * \brief Returns the current time in the format
@@ -261,6 +264,59 @@ class Logger final
 	 */
 	bool log_timestamps_ {};
 
+	/**
+	 * \brief Internal indent step.
+	 */
+	loglevel_type step_ { 2 };
+
+	/**
+	 * \brief Internal indent char.
+	 */
+	char indent_char_ { ' ' };
+
+	/**
+	 * \brief Determine width of the indent.
+	 *
+	 * \param[in] msg_level Loglevel of the message
+	 *
+	 * \return Width of the indent for the specified message level
+	 */
+	std::string::size_type indent_width(LOGLEVEL msg_level) const
+	{
+		// TODO Make Configurable?
+		static constexpr auto threshold_level = LOGLEVEL::DEBUG;
+
+		if (msg_level > threshold_level)
+		{
+			// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
+			const auto indent =
+				step_ * (static_cast<loglevel_type>(msg_level)
+						- static_cast<loglevel_type>(threshold_level));
+
+			return static_cast<std::string::size_type>(indent);
+		}
+
+		return 0;
+	}
+
+	/**
+	 * \brief Produce indent according to message level.
+	 *
+	 * \param[in] msg_level Loglevel of the message
+	 *
+	 * \return Indent string (whitespace)
+	 */
+	std::string indent(LOGLEVEL msg_level) const
+	{
+		if (const auto width = indent_width(msg_level); width > 0)
+		{
+			// NOLINTNEXTLINE(modernize-return-braced-init-list)
+			return std::string(width, indent_char_); // parentheses
+		}
+
+		return std::string{}; // FIXME do not produce new empty string
+	}
+
 public:
 
 	/**
@@ -366,6 +422,24 @@ public:
 			appender->append(msg);
 		}
 	}
+
+	/**
+	 * \brief Write prefix for the specified loglevel.
+	 *
+	 * \param[in] out       Output stream to print to
+	 * \param[in] msg_level Loglevel of subsequent message
+	 */
+	void write_prefix(std::ostringstream& out, const LOGLEVEL msg_level) const
+	{
+		using std::to_string;
+
+		if (has_timestamps())
+		{
+			out << "- " << now_time() << ' ';
+		}
+
+		out << to_string(msg_level) << ": " << indent(msg_level);
+	}
 };
 
 
@@ -377,8 +451,6 @@ public:
  */
 class Log final
 {
-	using loglevel_type = typename std::underlying_type_t<LOGLEVEL>;
-
 	/**
 	 * Internal output stream representation
 	 */
@@ -393,52 +465,6 @@ class Log final
 	 * Loglevel of the message to log
 	 */
 	LOGLEVEL msg_level_ {};
-
-	/**
-	 * \brief Internal indent step.
-	 */
-	loglevel_type step_ { 2 };
-
-	/**
-	 * \brief Internal indent char.
-	 */
-	char indent_char_ { ' ' };
-
-	/**
-	 * \brief Determine width of the indent.
-	 */
-	std::string::size_type indent_width() const
-	{
-		static constexpr auto threshold_level = LOGLEVEL::DEBUG;
-
-		if (msg_level_ > threshold_level)
-		{
-			// Produces 2, 4, 6, 8 for levels 5, 6, 7, 8
-			const auto indent =
-				step_ * (static_cast<loglevel_type>(msg_level_)
-						- static_cast<loglevel_type>(threshold_level));
-
-			return static_cast<std::string::size_type>(indent);
-		}
-
-		return 0;
-	}
-
-	/**
-	 * \brief Produce indent according to message level.
-	 *
-	 * \return Indent string (whitespace)
-	 */
-	std::string indent() const
-	{
-		if (const auto width = indent_width(); width > 0)
-		{
-			// NOLINTNEXTLINE(modernize-return-braced-init-list)
-			return std::string(width, indent_char_); // parentheses
-		}
-
-		return std::string{}; // FIXME do not produce new empty string
-	}
 
 public:
 
@@ -483,30 +509,39 @@ public:
 	 */
 	~Log() noexcept
 	{
-	 	// NOLINTNEXTLINE(performance-avoid-endl)
-	 	os_ << std::endl; // We intend to flush here, endl is ok
-	// Commented out: must be noexcept
-	// 	if (logger_)
-	// 	{
-	// 		logger_->log(os_.str());
-	// 	}
+		try {
+
+			// NOLINTNEXTLINE(performance-avoid-endl)
+			os_ << std::endl; // We intend to flush here, endl is ok
+
+			if (logger_)
+			{
+				logger_->log(os_.str());
+			}
+
+		} catch (const std::exception& e)
+		{
+			std::cerr << "ERROR when logging: " << e.what();
+		}
 	}
 
 	/**
 	 * \brief Get the output stream to write to.
 	 *
+	 * Internal logger will write its prefix before returning the log stream.
+	 *
 	 * \return Get the output stream to write to
 	 */
-	std::ostringstream& get()
+	std::ostringstream& get() noexcept
 	{
-		using std::to_string;
+		try {
 
-		if (logger_->has_timestamps())
+			logger_->write_prefix(os_, msg_level_);
+
+		} catch (const std::exception& e)
 		{
-			os_ << "- " << now_time() << ' ';
+			std::cerr << "ERROR when writing log prefix: " << e.what();
 		}
-
-		os_ << to_string(msg_level_) << ": " << indent();
 
 		return os_;
 	}
@@ -536,7 +571,7 @@ class Logging final
 	 */
 	Logging()
 		: mutex_ { /* default */ }
-		, level_ { LOGLEVEL::WARNING }
+		, level_ { DEFAULT_LOGLEVEL_BUILD_RELEASE }
 	{
 		// empty
 	}
@@ -584,7 +619,7 @@ public:
 	 *
 	 * \return This instance
 	 */
-	static Logging& instance()
+	static Logging& instance() noexcept // C++23: make this function constexpr
 	{
 		static Logging logging{};
 
@@ -630,7 +665,7 @@ public:
 	 *
 	 * \param[in] level The level to check for
 	 *
-	 * \return TRUE iff Logger has at least the level passed
+	 * \return TRUE iff level is at least the level passed
 	 */
 	bool has_level(LOGLEVEL level) noexcept
 	{

@@ -76,6 +76,17 @@ constexpr int LOGLEVEL_MIN = 0;
 constexpr int LOGLEVEL_MAX = 8;
 
 /**
+ * \brief Default loglevel for debug builds (LOGLEVEL_MAX).
+ */
+constexpr LOGLEVEL DEFAULT_LOGLEVEL_BUILD_DEBUG =
+											static_cast<LOGLEVEL>(LOGLEVEL_MAX);
+
+/**
+ * \brief Default loglevel for release builds (INFO).
+ */
+constexpr LOGLEVEL DEFAULT_LOGLEVEL_BUILD_RELEASE = arcstk::LOGLEVEL::INFO;
+
+/**
  * \brief Compile-time logging level clipping.
  *
  * Messages with a level GREATER than this constant are eliminated
@@ -84,7 +95,7 @@ constexpr int LOGLEVEL_MAX = 8;
  * - Debug builds:   All levels enabled (DEBUG4)
  * - Release builds: Only ERROR, WARNING, INFO (production logging)
  */
-constexpr LOGLEVEL CLIP_LOGGING_LEVEL = arcstk::LOGLEVEL::DEBUG4;
+constexpr LOGLEVEL CLIP_LOGGING_LEVEL = DEFAULT_LOGLEVEL_BUILD_DEBUG;
 
 // TODO Make this CMake-configurable:
 //constexpr LOGLEVEL CLIP_LOGGING_LEVEL = arcstk::LOGLEVEL::@LIBARCSTK_LOG_LEVEL@;
