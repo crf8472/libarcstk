@@ -355,6 +355,8 @@ public:
 	/**
 	 * \brief Activates or deactivates the output of timestamps.
 	 *
+	 * Default is off (FALSE).
+	 *
 	 * \param[in] on_or_off TRUE activates the logging of timestamps
 	 */
 	void set_timestamps(const bool on_or_off) noexcept
@@ -370,6 +372,55 @@ public:
 	bool has_timestamps() const noexcept
 	{
 		return log_timestamps_;
+	}
+
+	/**
+	 * \brief Set indent step.
+	 *
+	 * Any new indent level will be increased by this amount.
+	 *
+	 * Default is 2.
+	 *
+	 * \param[in] step Indent step
+	 */
+	void set_step(const loglevel_type step)
+	{
+		step_ = step;
+	}
+
+	/**
+	 * \brief Current indent step.
+	 *
+	 * \return Current indent step
+	 */
+	int step() const
+	{
+		return step_;
+	}
+
+	/**
+	 * \brief Set indent char.
+	 *
+	 * The indent char is a single char that is repeated \c indent_width() times
+	 * on a new line before the log info starts.
+	 *
+	 * Default is blank (ASCII \#0x20).
+	 *
+	 * \param[in] c Indent char
+	 */
+	void set_indent_char(const char c)
+	{
+		indent_char_ = c;
+	}
+
+	/**
+	 * \brief Indent char.
+	 *
+	 * \return Indent char
+	 */
+	char indent_char() const
+	{
+		return indent_char_;
 	}
 
 	/**
