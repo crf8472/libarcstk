@@ -6,8 +6,6 @@
  * \brief Unit tests for Appender.
  */
 
-#include <ctime>                // for time
-#include <filesystem>           // for temp_directory_path, exists, remove
 #include <string>               // for to_string
 
 #ifndef LIBARCSTK_LOGGING_HPP_
@@ -17,83 +15,16 @@
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"     // for Copy, Move
 #endif
-
-namespace {
-
-/**
- * \brief A simple temporary file with a name hint.
- *
- * The file will be persisted under the system temp path.
- */
-class TemporaryFile final
-{
-	/**
-	 * \brief Internal file path.
-	 */
-	std::filesystem::path path_;
-
-public:
-
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param[in] name_hint Hint for the filename
-	 */
-	explicit TemporaryFile(const std::string& name_hint)
-	{
-		const auto temp_dir = std::filesystem::temp_directory_path();
-
-		path_ = temp_dir / (name_hint + "_" +
-				std::to_string(std::time(nullptr)) + ".txt");
-	}
-
-	/**
-	 * \brief Destructor.
-	 */
-	~TemporaryFile() noexcept
-	{
-		if (std::filesystem::exists(path_))
-		{
-			std::filesystem::remove(path_);
-		}
-	}
-
-	/**
-	 * \brief Actual file path.
-	 *
-	 * \return File path
-	 */
-	const std::filesystem::path& path() const
-	{
-		return path_;
-	}
-
-	/**
-	 * \brief String representation of the file path.
-	 *
-	 * \return File path as a string
-	 */
-	std::string string() const
-	{
-		return path_.string();
-	}
-
-	// Non-copyable
-	TemporaryFile(const TemporaryFile&)            = delete;
-	TemporaryFile& operator=(const TemporaryFile&) = delete;
-
-	// Moveable
-	TemporaryFile(TemporaryFile&&)                 = default;
-	TemporaryFile& operator=(TemporaryFile&&)      = default;
-};
-
-} // namespace
+#ifndef LIBARCSTK_TEMPFILE_HPP_
+#include "tempfile.hpp"         // for TemporaryFile
+#endif
 
 
 TEST_CASE ( "Appender", "[appender] [logging]" )
 {
 	//using arcstk::testing::Copy; // no copy possible
 	using arcstk::testing::Move;
+	using arcstk::testing::TemporaryFile;
 
 	using arcstk::Appender;
 
@@ -146,6 +77,7 @@ TEST_CASE ( "Appender", "[appender] [logging]" )
 TEST_CASE ( "Appender property", "[appender] [logging]" )
 {
 	using arcstk::Appender;
+	using arcstk::testing::TemporaryFile;
 
 	SECTION ("swap() is correct")
 	{
@@ -178,6 +110,7 @@ TEST_CASE ( "Appender property", "[appender] [logging]" )
 TEST_CASE ( "Appender functions", "[appender] [logging]" )
 {
 	using arcstk::Appender;
+	using arcstk::testing::TemporaryFile;
 
 	SECTION ("append() is correct")
 	{
