@@ -517,6 +517,28 @@ class Log final
 	 */
 	LOGLEVEL msg_level_ {};
 
+	/**
+	 * \brief Perform log operation.
+	 *
+	 * Passes the internal stringstream to the internal Logger.
+	 */
+	void perform_log() noexcept
+	{
+		try {
+
+			os_ << std::endl; /* NOLINT(performance-avoid-endl) */ // we flush
+
+			if (logger_)
+			{
+				logger_->log(os_.str());
+			}
+
+		} catch (const std::exception& e)
+		{
+			std::cerr << "ERROR when logging: " << e.what();
+		}
+	}
+
 public:
 
 	/**
@@ -526,7 +548,7 @@ public:
 	 * \param[in] msg_level Loglevel of the message to log
 	 */
 	Log(const Logger& logger, LOGLEVEL msg_level)
-		: os_        {}
+		: os_        { /* default */ }
 		, logger_    { &logger   }
 		, msg_level_ { msg_level }
 	{
@@ -554,26 +576,21 @@ public:
 	Log& operator = (Log&&) noexcept = delete;
 
 	/**
-	 * \brief Destructor
-	 *
-	 * Add newline, immediately flush stream and log the resulting string.
+	 * \brief Destructor.
 	 */
 	~Log() noexcept
 	{
-		try {
+		perform_log();
+	}
 
-			// NOLINTNEXTLINE(performance-avoid-endl)
-			os_ << std::endl; // We intend to flush here, endl is ok
-
-			if (logger_)
-			{
-				logger_->log(os_.str());
-			}
-
-		} catch (const std::exception& e)
-		{
-			std::cerr << "ERROR when logging: " << e.what();
-		}
+	/**
+	 * \brief Loglevel of this operation.
+	 *
+	 * \return Loglevel of this operation
+	 */
+	LOGLEVEL level() const
+	{
+		return msg_level_;
 	}
 
 	/**
