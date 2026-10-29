@@ -843,8 +843,8 @@ public:
 
 inline std::string now_time()
 {
-	const auto now { std::chrono::system_clock::now() };
 	auto ss = std::ostringstream {};
+	const auto now { std::chrono::system_clock::now() };
 
 	// Print year, month, day, hour, minute, second
 
