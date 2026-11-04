@@ -13,7 +13,7 @@
 
 TEST_CASE ( "Combine samples", "[combine]" )
 {
-	using arcstk::details::combine;
+	using arcstk::combine;
 
 	SECTION ( "combine" )
 	{

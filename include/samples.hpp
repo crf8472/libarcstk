@@ -86,7 +86,7 @@ using csample_t = uint32_t;
  * \see PlanarSamples
  * \see InterleavedSamples
  */
-template<typename T, bool is_planar, typename = details::is_sample_type<T>>
+template<typename T, bool is_planar, typename = is_sample_type<T>>
 class SampleSequence; // IWYU pragma keep
 // forward declaration required by SampleSequenceBase::cbegin()/cend()
 
@@ -929,7 +929,7 @@ private:
 
 // specialization for 'true'
 template<typename T>
-class SampleSequence<T, true/*PLANAR*/, details::is_sample_type<T>> final
+class SampleSequence<T, true/*PLANAR*/, is_sample_type<T>> final
     : public details::SampleSequenceBase<T, true>
 {
     using Base = details::SampleSequenceBase<T, true>;
@@ -979,7 +979,7 @@ public:
 
 // specialization for 'false'
 template<typename T>
-class SampleSequence<T, false/*INTERLEAVED*/, details::is_sample_type<T>> final
+class SampleSequence<T, false/*INTERLEAVED*/, is_sample_type<T>> final
     : public details::SampleSequenceBase<T, false>
 {
     using Base = details::SampleSequenceBase<T, false>;

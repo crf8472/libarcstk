@@ -7,10 +7,9 @@
  * \brief Byte operations.
  */
 
-#include <cstdint>       // for int16_t, int32_t, uint8_t, uint32_t,...
+#include <cstdint>       // for int16_t, int32_t, uint16_t, uint32_t
 #include <cstddef>       // for byte
-#include <type_traits>   // for is_same, enable_if_t
-
+#include <type_traits>   // for is_same, is_same_v, enable_if_t
 
 namespace arcstk
 {
@@ -24,33 +23,49 @@ namespace details
 /**
  * \brief Worker template to mimic a disjunction.
  *
+ * \tparam T     First input type
+ * \tparam Types Optional subsequent input types
+ *
  * Intended for static_asserts.
  */
 template <typename T, typename... Types>
 constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ...);
 
-/**
- * \brief Worker template to mimic a disjunction.
- *
- * Intended for SFINAE.
- */
-template <typename T, typename... Types>
-using is_one_of = std::enable_if_t<is_one_of_v<T, Types...>>;
 
 /**
  * \brief TRUE iff T is one of the supported sample types, otherwise FALSE.
  *
  * \tparam T Type to check
  */
-template <typename T, typename... Types>
+template <typename T>
 constexpr bool supported_sample_type =
-	is_one_of_v<T, int16_t, int32_t, uint16_t, uint32_t>;
+	is_one_of_v<T, std::int16_t, std::int32_t, std::uint16_t, std::uint32_t>;
+
 
 /**
- * \brief Defined iff T is a legal sample type, an integral type of 16 or 32 bit
+ * \brief Implementation of combine() for all platforms.
+ *
+ * The caller decides which byte is the most significant one by the order of
+ * the arguments.
+ *
+ * The first byte is shifted 24 bits left, the second 16 bits, the third 8 bits
+ * and the fourth is not shifted.
+ *
+ * \param[in] b1 First input byte
+ * \param[in] b2 Second input byte
+ * \param[in] b3 Third input byte
+ * \param[in] b4 Fourth input byte
+ *
+ * \return The bytes as 32 bit unsigned integer
  */
-template <typename T>
-using is_sample_type = std::enable_if_t<supported_sample_type<T>>;
+inline constexpr std::uint32_t combine_impl(const std::byte b1,
+		const std::byte b2, const std::byte b3, const std::byte b4) noexcept
+{
+	return  static_cast<std::uint32_t>(b1) << 24 |
+            static_cast<std::uint32_t>(b2) << 16 |
+            static_cast<std::uint32_t>(b3) <<  8 |
+            static_cast<std::uint32_t>(b4);
+}
 
 
 /**
@@ -60,10 +75,12 @@ namespace cpp17
 {
 
 /**
- * \brief Provide plattform endianess
+ * \brief Provide platform endianness.
  *
- * Recognize plattform endianess at compile time. Mimics C++20's std::endian.
- * Recognizes big endian and little endian plattforms and fails with an error.
+ * Mimics C++20's std::endian.
+ *
+ * Recognizes big endian and little endian platforms. On any other platform,
+ * compilation fails with an error.
  */        // NOLINTNEXTLINE(performance-enum-size)
 enum class endian
 {
@@ -77,93 +94,88 @@ enum class endian
 		big    = 4321,
 		native = big
 	#else
-	#error "Unknown byte order"
+		#error "Unknown byte order"
 	#endif
 #elif defined(_WIN32) || defined(_WIN64)
 		little = 1234,
 		big    = 4321,
 		native = little
-#elif defined(__APPLE__)
-	#include <machine/endian.h>
-	#if __BYTE_ORDER == __LITTLE_ENDIAN
-		little = 1234,
-		big    = 4321,
-		native = little
-	#elif __BYTE_ORDER == __BIG_ENDIAN
-		little = 1234,
-		big    = 4321,
-		native = big
-	#endif
 #else
-#error "Cannot detect byte order"
+	#error "Unknown byte order"
 #endif
 };
 
 } // namespace cpp17
 
-namespace little
-{
-	// b4 becomes the most significant bit
-	uint32_t combine(const std::byte b1, const std::byte b2,
-		const std::byte b3, const std::byte b4);
+} // namespace details
 
-	template <typename T, typename = is_sample_type<T>>
-	uint32_t combine(const T higher, const T lower)
-	{
-		// Previous implementation, commented out:
-		//return (static_cast<uint32_t>(higher) << 16) |
-		//	(static_cast<uint32_t>(lower) & 0xFFFF);
-		// NOTE: This works because T cannot be anything but only signed or
-		// unsigned integers of either 16  or 32 bit length. Those variants can
-		// all be handled correctly by just casting them to csample_t.
 
-		// Mask negative signed types correctly
-		auto high = static_cast<uint32_t>(static_cast<uint16_t>(higher));
+/**
+ * \brief Defined (as void) iff \c T is one of int16_t, int32_t, uint16_t,
+ * uint32_t.
+ *
+ * \tparam T Input type
+ */
+template <typename T>
+using is_sample_type = std::enable_if_t<details::supported_sample_type<T>>;
 
-		// Only use the lower 16 bits of the input values
-		auto low = static_cast<uint32_t>(static_cast<uint16_t>(lower));
-
-		return (high << 16) | (low & 0xFFFF);
-	}
-
-} // namespace little
-
-namespace big
-{
-	// b1 becomes the most significant bit
-	uint32_t combine(const std::byte b1, const std::byte b2,
-		const std::byte b3, const std::byte b4);
-
-	template <typename T, typename = is_sample_type<T>>
-	uint32_t combine(const T /* higher */, const T /* lower */)
-	{
-		// TODO Implement big endian variant of combine()
-		return 0;
-	}
-} // namespace big
 
 /**
  * \brief Service method: Interpret 4 bytes as a 32 bit unsigned integer.
  *
- * \param[in] b1 First input byte
- * \param[in] b2 Second input byte
- * \param[in] b3 Third input byte
- * \param[in] b4 Fourth input byte
+ * Interprets four bytes, given in memory order, as one 32 bit unsigned integer
+ * in native byte order.
+ *
+ * On little endian platforms, \c b4 becomes the most significant byte and
+ * \c b1 the least significant one. On big endian platforms, \c b1 becomes the
+ * most significant byte and \c b4 the least significant one.
+ *
+ * \param[in] b1 First input byte to read
+ * \param[in] b2 Second input byte to read
+ * \param[in] b3 Third input byte to read
+ * \param[in] b4 Fourth input byte to read
  *
  * \return The bytes as 32 bit unsigned integer
  */
-uint32_t combine(const std::byte b1, const std::byte b2,
-		const std::byte b3, const std::byte b4);
+constexpr std::uint32_t combine(const std::byte b1, const std::byte b2,
+		const std::byte b3, const std::byte b4) noexcept
+{
+	using details::cpp17::endian;
+
+	// Note that the following check is actually redundant since a value other
+	// than 'little' or 'big' just won't compile (due to #error above).
+	// Kept as a defense against further enum values.
+	static_assert(endian::native == endian::little ||
+			endian::native == endian::big, "unsupported byte order");
+
+	if constexpr (endian::native == endian::little)
+	{
+		return details::combine_impl(b4, b3, b2, b1);
+	}
+	else
+	{
+		// endian::native == endian::big is guaranteed due to #error above
+
+		return details::combine_impl(b1, b2, b3, b4);
+	}
+}
+
 
 /**
  * \brief Combine 2 16-bit samples to a 32-bit value.
+ *
+ * While the input type \c T is supposed to be a 16-bit type, 32-bit types
+ * are accepted as well, in which case only the lower 16 bits of \c higher and
+ * \c lower are respected.
  *
  * Output format is:
  *
  * - Bits 31-24: Right Channel MSB
  * - Bits 23-16: Right Channel LSB
- * - Bits 15-09: Left  Channel MSB
- * - Bits 08-00: Left  Channel LSB
+ * - Bits 15-08: Left  Channel MSB
+ * - Bits 07-00: Left  Channel LSB
+ *
+ * \tparam T Input type
  *
  * \param[in] higher The bits to become the higher bits in output
  * \param[in] lower  The bits to become the lower bits in output
@@ -171,24 +183,16 @@ uint32_t combine(const std::byte b1, const std::byte b2,
  * \return 32-bit value representing 2 16-bit stereo samples
  */
 template <typename T, typename = is_sample_type<T>>
-uint32_t combine(const T higher, const T lower)
+std::uint32_t constexpr combine(const T higher, const T lower) noexcept
 {
-	using cpp17::endian;
+	// Mask negative signed types correctly
+	auto high = static_cast<std::uint32_t>(static_cast<std::uint16_t>(higher));
 
-	if constexpr (endian::native == endian::little)
-	{
-		return little::combine(higher, lower);
-	}
+	// Only use the lower 16 bits of the input values
+	auto low = static_cast<std::uint32_t>(static_cast<std::uint16_t>(lower));
 
-	if constexpr (endian::native == endian::big)
-	{
-		return big::combine(higher, lower);
-	}
-
-	return 0;
+	return (high << 16) | low;
 }
-
-} // namespace details
                                                   /** \cond NAMESPACE_v_1_0_0 */
 } // namespace v_1_0_0
                                                                  /** \endcond */
