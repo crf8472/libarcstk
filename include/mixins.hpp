@@ -12,7 +12,9 @@
  */
 
 #include <string>           // for string
-#include <type_traits>      // for is_convertible_v
+#include <type_traits>      // for false_type, true_type, enable_if_t,
+                            // is_convertible_v
+#include <utility>          // for declval
 
 namespace arcstk
 {
@@ -20,6 +22,67 @@ namespace arcstk
 inline namespace v_1_0_0
 {
                                                                  /** \endcond */
+
+namespace details
+{
+	/**
+	 * \internal
+	 *
+	 * \brief Primary template for any type \c T that does not have a member
+	 * function swap() that is <tt>noexcept</tt>.
+	 *
+	 * \tparam T Input type
+	 */
+	template <typename T, typename = void>
+	struct has_swap : std::false_type {};
+
+	/**
+	 * \internal
+	 *
+	 * \brief Partial specialization for any type \c T that has a member
+	 * function swap() that is <tt>noexcept</tt>.
+	 *
+	 * \tparam T Input type
+	 */
+	template <typename T>
+	struct has_swap<T, std::enable_if_t<
+		noexcept(std::declval<const T&>().equals(std::declval<const T&>()))
+		&&
+		std::is_convertible_v<decltype(
+			std::declval<const T&>().equals(std::declval<const T&>())), bool>
+	>> : std::true_type {};
+
+	/**
+	 * \internal
+	 *
+	 * \brief Primary template for any type \c T that does not have a member
+	 * function equals() that is <tt>const noexcept</tt> and returns a type
+	 * convertible to \c bool.
+	 *
+	 * \tparam T Input type
+	 */
+	template <typename T, typename = void>
+	struct has_equals : std::false_type {};
+
+	/**
+	 * \internal
+	 *
+	 * \brief Partial specialization for any type \c T that has a member
+	 * function equals() that is <tt>const noexcept</tt> and returns a type
+	 * convertible to \c bool.
+	 *
+	 * \tparam T Input type
+	 */
+	template <typename T>
+	struct has_equals<T, std::enable_if_t<
+		noexcept(std::declval<const T&>().equals(std::declval<const T&>()))
+		&&
+		std::is_convertible_v<decltype(
+			std::declval<const T&>().equals(std::declval<const T&>())), bool>
+	>> : std::true_type {};
+
+} // namespace details
+
 // NOLINTBEGIN(bugprone-crtp-constructor-accessibility)
 // deactivated due to over-warning: protected constructor + no virtual functions
 
@@ -27,6 +90,12 @@ inline namespace v_1_0_0
  * \internal
  *
  * \brief Adds a non-member friend swap() calling a member swap() noexcept.
+ *
+ * Any type \c T must implement a member function <tt>void swap(T&)
+ * noexcept</tt>, because the friend swap() is declared noexcept
+ * unconditionally and terminates the program if the member function throws.
+ *
+ * \tparam T Input type
  */
 template <typename T>
 struct Swap
@@ -34,9 +103,9 @@ struct Swap
 	/**
 	 * \copydoc SNPT_nf_swap
 	 */
-	friend void swap(const T& lhs, const T& rhs) noexcept
+	friend void swap(T& lhs, T& rhs) noexcept
 	{
-		return lhs.swap(rhs);
+		lhs.swap(rhs);
 	}
 
 protected:
@@ -50,7 +119,9 @@ protected:
  * \internal
  *
  * \brief Adds a non-member friend operator==() calling a member equals()
- * noexcept.
+ * const noexcept whose result type must be convertible to bool.
+ *
+ * \tparam T Input type
  */
 template <typename T>
 struct Equality
@@ -60,8 +131,9 @@ struct Equality
 	 */
 	friend bool operator == (const T& lhs, const T& rhs) noexcept
 	{
-		static_assert(has_equals<T>::value,
-			"Derived class must implement: bool equals(const T&) const");
+		static_assert(details::has_equals<T>::value,
+			"derived class must implement: "
+			"bool equals(const T&) const noexcept");
 
 		return lhs.equals(rhs);
 	}
@@ -70,19 +142,6 @@ protected:
 
 	Equality() = default;
 	~Equality() noexcept = default;
-
-private:
-
-		template <typename U, typename = void>
-		struct has_equals : std::false_type {};
-
-		template<typename... Args>
-		using void_type = std::void_t<Args...>;
-
-		template <typename U>
-		struct has_equals<U, void_type<
-			decltype(std::declval<const U>().equals(std::declval<const U&>()))
-		>> : std::true_type {};
 };
 
 
@@ -90,6 +149,8 @@ private:
  * \internal
  *
  * \brief Adds inequality to classes defining equality operator==.
+ *
+ * \tparam T Input type
  */
 template <typename T>
 struct Comparable
@@ -118,7 +179,12 @@ protected:
  * \internal
  *
  * \brief Adds all relational operators to classes defining operator<
- * (less-than).
+ * (less-than) and operator== (is-equal-to).
+ *
+ * Any type \c T must either only inherit from TotallyOrdered<T> or only from
+ * Comparable<T>, never from both which would duplicate operator!=.
+ *
+ * \tparam T Input type
  */
 template <typename T>
 struct TotallyOrdered : public Comparable<T>
@@ -146,7 +212,7 @@ struct TotallyOrdered : public Comparable<T>
 	 */
 	friend bool operator >= (const T& lhs, const T& rhs) noexcept
 	{
-		return !(rhs > lhs);
+		return !(lhs < rhs);
 	}
 
 	/**
@@ -159,7 +225,7 @@ struct TotallyOrdered : public Comparable<T>
 	 */
 	friend bool operator <= (const T& lhs, const T& rhs) noexcept
 	{
-		return !(lhs > rhs);
+		return !(rhs < lhs);
 	}
 
 protected:
@@ -173,6 +239,8 @@ protected:
  * \internal
  *
  * \brief Adds a non-member friend to_string() calling a member to_string().
+ *
+ * \tparam T Input type
  */
 template <typename T>
 struct ToString
