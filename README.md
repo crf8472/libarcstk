@@ -1,7 +1,7 @@
 # Calculate and Verify AccurateRip Checksums and Ids
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![C++17](https://img.shields.io/badge/C++-17-darkblue.svg)](./DESIGN.md)
+[![C++17](https://img.shields.io/badge/C++-17-darkblue.svg)](./CODING.md)
 [![Release](https://img.shields.io/github/v/release/crf8472/libarcstk?display_name=tag&include_prereleases)](https://github.com/crf8472/libarcstk/releases)
 [![Build & Test](https://github.com/crf8472/libarcstk/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/crf8472/libarcstk/actions/workflows/build-and-test.yml)
 [![Sanitizers](https://github.com/crf8472/libarcstk/actions/workflows/sanitizers.yml/badge.svg)](https://github.com/crf8472/libarcstk/actions/workflows/sanitizers.yml)
