@@ -46,10 +46,7 @@ namespace details
 	 */
 	template <typename T>
 	struct has_swap<T, std::enable_if_t<
-		noexcept(std::declval<const T&>().equals(std::declval<const T&>()))
-		&&
-		std::is_convertible_v<decltype(
-			std::declval<const T&>().equals(std::declval<const T&>())), bool>
+		noexcept(std::declval<T&>().swap(std::declval<T&>()))
 	>> : std::true_type {};
 
 	/**
@@ -105,6 +102,10 @@ struct Swap
 	 */
 	friend void swap(T& lhs, T& rhs) noexcept
 	{
+		static_assert(details::has_swap<T>::value,
+			"derived class must implement: "
+			"void swap(T&) noexcept");
+
 		lhs.swap(rhs);
 	}
 

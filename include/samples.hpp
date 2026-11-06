@@ -14,12 +14,13 @@
 
 #include <array>                // for array
 #include <cstddef>              // for ptrdiff_t, size_t
-#include <cstdint>              // for int16_t, int32_t, uint32_t,...
+#include <cstdint>              // for uint32_t
 #include <cstring>              // for memcpy
 #include <iterator>             // for input_iterator_tag
+#include <limits>               // for numeric_limits
 #include <sstream>              // for ostringstream
 #include <stdexcept>            // for invalid_argument, out_of_range
-#include <type_traits>          // for is_same
+#include <utility>              // for swap
 
 #ifndef LIBARCSTK_BYTES_HPP_
 #include "bytes.hpp"            // for is_sample_type, combine
@@ -42,7 +43,7 @@ inline namespace v_1_0_0
  */
 
 // redefined as in calculate.hpp, documented there
-using csample_t = uint32_t;
+using csample_t = std::uint32_t;
 
 /**
  * \brief Template: sequence of samples of an integral type of 16 or 32 bit.
@@ -98,8 +99,8 @@ namespace details
 /**
  * \brief Provide adopted size, which is the total number of casted values.
  *
- * \tparam T Type as interpreted
- * \tparam U Original type
+ * \tparam T Requested type for reading
+ * \tparam U Original buffer type
  *
  * \param[in] size Total number of Us
  *
@@ -111,7 +112,32 @@ namespace details
 template <typename T, typename U = T>
 auto adopt_size(const std::size_t size) -> std::size_t
 {
-	const std::size_t total_bytes = size * sizeof(U);
+	if (sizeof(U) > 8) // must not be greater than 64 bit
+	{
+		auto msg = std::ostringstream {};
+		msg << "Size of buffer type ("
+			<< sizeof(U)
+			<< ") must not be greater than 64 bit";
+
+        throw std::invalid_argument(msg.str());
+	}
+
+	using local_size_type = std::size_t;
+
+	static constexpr local_size_type MAX_SIZE =
+		std::numeric_limits<local_size_type>::max() / sizeof(U);
+
+	if (size > MAX_SIZE)
+	{
+	 	auto msg = std::ostringstream {};
+	 	msg << "Requested buffer size of "
+	 		<< size
+	 		<< " samples exceeds available size";
+
+	    throw std::invalid_argument(msg.str());
+	}
+
+	const local_size_type total_bytes = size * sizeof(U);
 
     if (total_bytes % sizeof(T) != 0)
     {
@@ -126,6 +152,25 @@ auto adopt_size(const std::size_t size) -> std::size_t
 
     return total_bytes / sizeof(T);
 }
+
+
+/**
+ * \brief Read a value of type \c T from a generic buffer.
+ *
+ * \param[in] buffer Buffer to read from
+ * \param[in] i      Buffer index to read
+ *
+ * \return Value on index \c i
+ */
+template <typename T>
+auto read_sample(const unsigned char* buffer, const std::size_t i) noexcept -> T
+{
+	T v {};
+	// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+	std::memcpy(&v, buffer + i * sizeof(T), sizeof(T));
+	return v;
+}
+
 
 /**
  * \brief Reference values for indices for swapped an non-swapped channels.
@@ -216,6 +261,10 @@ public:
 	/**
 	 * \brief TRUE indicates channels are swapped, FALSE is not swapped.
 	 *
+	 * Order refers to the position in the buffer: index 0/index 1.
+	 *
+	 * If TRUE, left is 1, right is 0. If FALSE, left is 0, right is 1.
+	 *
 	 * \return TRUE for swapped channels, FALSE for default channel order
 	 */
 	bool channels_swapped() const noexcept
@@ -257,6 +306,9 @@ class SampleBufferWrapper;
 template <typename T>
 class SampleBufferWrapper<T, true/* PLANAR */> final : public BufferBase
 {
+	static_assert(details::supported_sample_type<T>,
+				"Type T must be a supported_sample_type");
+
 public:
 
 	/**
@@ -275,22 +327,6 @@ private:
 	 * \brief Internal planar buffer of 16 bit samples for two channels.
 	 */
 	std::array<const unsigned char*, 2> buffer_ {};
-
-	/**
-	 * \brief Read a value of type \c T from buffer.
-	 *
-	 * \param[in] buffer Buffer to read from
-	 * \param[in] i      Buffer index to read
-	 *
-	 * \return Value on index \c i
-	 */
-	T load(const unsigned char* buffer, const size_type i) const noexcept
-	{
-		T v;
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		std::memcpy(&v, buffer + i * sizeof(T), sizeof(T));
-		return v;
-	}
 
 public:
 
@@ -320,12 +356,10 @@ public:
 		// reinterpret_cast to unsigned char* does not violate
 		// strict aliasing.
 
-		static_assert(details::supported_sample_type<T>,
-				"Type T must be a supported_sample_type");
-
-		if (!buffer0 || !buffer1)
+		if (size > 0 && (!buffer0 || !buffer1))
 		{
-			throw std::invalid_argument("Buffers cannot be null");
+			throw std::invalid_argument(
+					"Buffer of non-zero size cannot be null");
 		}
 	}
 
@@ -338,7 +372,7 @@ public:
 	 */
 	auto left_channel(const size_type index) const -> T
 	{
-		return load(buffer_[left()], index);
+		return read_sample<T>(buffer_[left()], index);
 	}
 
 	/**
@@ -350,22 +384,16 @@ public:
 	 */
 	auto right_channel(const size_type index) const -> T
 	{
-		return load(buffer_[right()], index);
+		return read_sample<T>(buffer_[right()], index);
 	}
-
-	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-	// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
-	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 
 	/**
 	 * \brief Provides access to the samples in a uniform format (32 bit PCM).
 	 *
-	 * - Bits 31-24: Left Channel MSB
-	 * - Bits 23-16: Left Channel LSB
-	 * - Bits 15-09: Right Channel MSB
-	 * - Bits 08-00: Right Channel LSB
+	 * - Bits 31-24: Right Channel MSB
+	 * - Bits 23-16: Right Channel LSB
+	 * - Bits 15-08: Left  Channel MSB
+	 * - Bits 07-00: Left  Channel LSB
 	 *
 	 * \param[in] index Index of a virtual 32 bit PCM sample
 	 *
@@ -383,6 +411,9 @@ public:
 template <typename T>
 class SampleBufferWrapper<T, false/* INTERLEAVED */> final : public BufferBase
 {
+	static_assert(details::supported_sample_type<T>,
+				"Type T must be a supported_sample_type");
+
 public:
 
 	/**
@@ -403,18 +434,29 @@ private:
 	const unsigned char* buffer_ {};
 
 	/**
-	 * \brief Read a value of type \c T from buffer.
+	 * \brief Adopt and check buffer size for interleaved buffer.
 	 *
-	 * \param[in] i Buffer index to read
+	 * \tparam U Original buffer type
 	 *
-	 * \return Value on index \c i
+	 * \param[in] size Total number of Us
+	 *
+	 * \return Total number of sample pairs
+	 *
+	 * \throw invalid_argument If the number of total bytes is not convertible
+	 *     to type T or not even
 	 */
-	T load(const size_type i) const noexcept
+	template <typename U>
+	static auto adopt_interleaved_size(const std::size_t size) -> std::size_t
 	{
-		T v;
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		std::memcpy(&v, buffer_ + i * sizeof(T), sizeof(T));
-		return v;
+		const auto adopted_size { adopt_size<T, U>(size) };
+
+		if (adopted_size % 2 != 0)
+		{
+			throw std::invalid_argument(
+				"Interleaved buffer size must be even (2 channels)");
+		}
+
+		return adopted_size / 2;
 	}
 
 public:
@@ -437,24 +479,16 @@ public:
 	template <typename U = T>
 	SampleBufferWrapper(const U* buffer, const size_type size,
 			const bool channels_swapped)
-		: BufferBase { adopt_size<T,U>(size) / 2, channels_swapped }
+		: BufferBase { adopt_interleaved_size<U>(size), channels_swapped }
 		, buffer_    { reinterpret_cast<const unsigned char*>(buffer) }
 	{
 		// reinterpret_cast to unsigned char* does not violate
 		// strict aliasing.
 
-		static_assert(details::supported_sample_type<T>,
-				"Type T must be a supported_sample_type");
-
-		if (!buffer)
+		if (size > 0 && !buffer)
 		{
-			throw std::invalid_argument("Buffer cannot be null");
-		}
-
-		if (adopt_size<T,U>(size) % 2 != 0) {
-
 			throw std::invalid_argument(
-				"Interleaved buffer size must be even (2 channels)");
+					"Buffer of non-zero size cannot be null");
 		}
 	}
 
@@ -467,7 +501,7 @@ public:
 	 */
 	auto left_channel(const size_type index) const -> T
 	{
-		return load(left() + 2 * index);
+		return read_sample<T>(buffer_, left() + 2 * index);
 	}
 
 	/**
@@ -479,7 +513,7 @@ public:
 	 */
 	auto right_channel(const size_type index) const -> T
 	{
-		return load(right() + 2 * index);
+		return read_sample<T>(buffer_, right() + 2 * index);
 	}
 
 	/**
@@ -522,8 +556,8 @@ class SampleSequenceBase;
  * SampleIterator provides InputIterator semantics with the following notes:
  * - operator* returns a temporary value (not a true reference).
  *   Do not bind it to auto& or expect it to outlive the statement.
- * - Iterator can be positioned outside valid range (pos >= size()).
- *   Dereferencing such an iterator is undefined behavior.
+ * - Iterator can be positioned outside valid range (pos >= size()) in
+ *   release builds. Dereferencing such an iterator is undefined behavior.
  * - Iterator becomes invalid if the SampleSequence is destroyed.
  *   This cannot be detected at runtime; it is the caller's responsibility.
  */
@@ -581,8 +615,8 @@ public:
 	/**
 	 * \brief Return the iterator position.
 	 *
-	 * Beginning of the sequence is 0 and a legal position is a positive integer
-	 * that is smaller than the size() of the sequence.
+	 * Beginning of the sequence is 0 and a legal position is a non-negative
+	 * integer not greater than size() of the sequence.
 	 *
 	 * \return Iterator position relative to the beginning.
 	 */
@@ -594,7 +628,7 @@ public:
 	/**
 	 * \copydoc SNPT_mf_deref
 	 *
-	 * Out-of-bounds checked.
+	 * Out-of-bounds checked in debug builds.
 	 */
 	reference operator * () const
 	{
@@ -633,12 +667,15 @@ public:
 
 	/**
 	 * \copydoc SNPT_mf_inc_amount
+	 *
+	 * Out-of-bounds checked in debug builds.
 	 */
 	SampleIterator& operator += (const difference_type amount)
 	{
-		 #ifndef NDEBUG
+		#ifndef NDEBUG
         if (pos_ + amount > end_pos_) { out_of_bounds(); }
         #endif
+
 		pos_ += amount;
 		return *this;
 	}
@@ -647,7 +684,7 @@ public:
 	 * \copydoc SNPT_nf_inc_amount_lhs
 	 */
 	friend SampleIterator operator + (SampleIterator lhs,
-			const difference_type amount) noexcept
+			const difference_type amount)
 	{
 		lhs += amount;
 		return lhs;
@@ -657,7 +694,7 @@ public:
 	 * \copydoc SNPT_nf_inc_amount_rhs
 	 */
 	friend SampleIterator operator + (const difference_type amount,
-			SampleIterator rhs) noexcept
+			SampleIterator rhs)
 	{
 		return rhs + amount;
 	}
@@ -734,7 +771,7 @@ private:
 	 * \brief Sequence end position.
 	 *
 	 * Make dereferencing bounds check more efficient: Local stack variable,
-	 * L1-Hit guaranteed.
+	 * L1-Hit to expect.
 	 *
 	 * Since the size of a SampleSequence is fix during is lifetime, it can just
 	 * be cached.
@@ -755,12 +792,8 @@ class SampleSequenceBase
 	/**
 	 * \brief Internal sample buffer.
 	 */
-	buffer_type buffer_ {};
-
-	/**
-	 * \brief SNPT_sm_default_ctor.
-	 */
-	SampleSequenceBase() = default;
+	buffer_type buffer_;
+	// no default member initializer since no default constructor available
 
 protected:
 
@@ -783,7 +816,7 @@ public:
 	/**
 	 * \brief SNPT_tp_value.
 	 */
-	using value_type = typename buffer_type::size_type;
+	using value_type = csample_t;
 
 	/**
 	 * \brief SNPT_tp_size.
@@ -843,11 +876,13 @@ public:
 	}
 
 	/**
-	 * \brief TRUE means LEFT/RIGHT, FALSE means RIGHT/LEFT.
+	 * \brief TRUE means RIGHT/LEFT, FALSE means LEFT/RIGHT.
+	 *
+	 * Order refers to the position in the buffer: index 0/index 1.
 	 *
 	 * If TRUE, left is 1, right is 0. If FALSE, left is 0, right is 1.
 	 *
-	 * \return TRUE if channels are swapped
+	 * \return TRUE for swapped channels, FALSE for default channel order
 	 */
 	bool channels_swapped() const noexcept
 	{

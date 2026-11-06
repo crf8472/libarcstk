@@ -9,7 +9,7 @@
 
 #include <cstdint>       // for int16_t, int32_t, uint16_t, uint32_t
 #include <cstddef>       // for byte
-#include <type_traits>   // for is_same, is_same_v, enable_if_t
+#include <type_traits>   // for is_same_v, enable_if_t
 
 namespace arcstk
 {
@@ -183,7 +183,7 @@ constexpr std::uint32_t combine(const std::byte b1, const std::byte b2,
  * \return 32-bit value representing 2 16-bit stereo samples
  */
 template <typename T, typename = is_sample_type<T>>
-std::uint32_t constexpr combine(const T higher, const T lower) noexcept
+constexpr std::uint32_t combine(const T higher, const T lower) noexcept
 {
 	// Mask negative signed types correctly
 	auto high = static_cast<std::uint32_t>(static_cast<std::uint16_t>(higher));
