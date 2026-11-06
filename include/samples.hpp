@@ -14,10 +14,11 @@
 
 #include <array>                // for array
 #include <cstddef>              // for ptrdiff_t, size_t
-#include <cstdint>              // for int16_t, int32_t, uint8_t, uint32_t,...
+#include <cstdint>              // for int16_t, int32_t, uint32_t,...
+#include <cstring>              // for memcpy
 #include <iterator>             // for input_iterator_tag
 #include <sstream>              // for ostringstream
-#include <stdexcept>            // for out_of_range
+#include <stdexcept>            // for invalid_argument, out_of_range
 #include <type_traits>          // for is_same
 
 #ifndef LIBARCSTK_BYTES_HPP_
@@ -93,53 +94,6 @@ class SampleSequence; // IWYU pragma keep
 
 namespace details
 {
-
-/**
- * \brief Interpret a buffer as of another type.
- *
- * Transparent if types are identical. Performs an alignment check.
- *
- * \tparam T  The target/output type
- * \tparam U  The original type of the buffer
- *
- * \param[in] buffer_ptr Buffer to cast
- *
- * \return buffer converted to sample type
- *
- * \throw invalid_argument If alignment of T and alignment of U are incompatible
- */
-template <typename T, typename U = T>
-auto get_buffer(const U* buffer_ptr) -> const T*
-{
-	if constexpr (std::is_same_v<T, U>)
-	{
-		return buffer_ptr;
-	}
-
-	// If there is some vector<uint8_t> v with size 1024,
-	// we could reinterpret it like:
-	//
-	// auto buf = SampleBufferWrapper<int16_t, true> {
-    //     v.data(), v.data() + 512, 512, false };
-	//
-	// But if v.data() is _not_ 2-byte aligned, doing a
-	// reinterpret_cast<const int16_t*>(v.data()) will be undefined behavior!
-	//
-	// Example:
-	// std::vector<uint8_t> bytes { ... };  // Alignment: 1 byte
-	// auto ptr = bytes.data() + 1;         // now: odd address!
-	// auto as_int16 = reinterpret_cast<const int16_t*>(ptr);  // UB!
-
-	// check alignment
-    if (const auto uint_buffer = reinterpret_cast<uintptr_t>(buffer_ptr);
-			uint_buffer % alignof(T) != 0)
-    {
-        throw std::invalid_argument(
-				"Buffer pointer alignment does not allow reinterpreting");
-    }
-
-	return reinterpret_cast<const T*>(buffer_ptr);
-}
 
 /**
  * \brief Provide adopted size, which is the total number of casted values.
@@ -320,7 +274,23 @@ private:
 	/**
 	 * \brief Internal planar buffer of 16 bit samples for two channels.
 	 */
-	std::array<const T*, 2> buffer_ {};
+	std::array<const unsigned char*, 2> buffer_ {};
+
+	/**
+	 * \brief Read a value of type \c T from buffer.
+	 *
+	 * \param[in] buffer Buffer to read from
+	 * \param[in] i      Buffer index to read
+	 *
+	 * \return Value on index \c i
+	 */
+	T load(const unsigned char* buffer, const size_type i) const noexcept
+	{
+		T v;
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		std::memcpy(&v, buffer + i * sizeof(T), sizeof(T));
+		return v;
+	}
 
 public:
 
@@ -344,8 +314,12 @@ public:
 	SampleBufferWrapper(const U* buffer0, const U* buffer1,
 			const size_type size, const bool channels_swapped)
 		: BufferBase { adopt_size<T,U>(size), channels_swapped }
-		, buffer_    { { get_buffer<T>(buffer0), get_buffer<T>(buffer1) } }
+		, buffer_    { reinterpret_cast<const unsigned char*>(buffer0),
+			           reinterpret_cast<const unsigned char*>(buffer1) }
 	{
+		// reinterpret_cast to unsigned char* does not violate
+		// strict aliasing.
+
 		static_assert(details::supported_sample_type<T>,
 				"Type T must be a supported_sample_type");
 
@@ -354,9 +328,6 @@ public:
 			throw std::invalid_argument("Buffers cannot be null");
 		}
 	}
-
-	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
-	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 	/**
 	 * \brief Virtual value under index \c index from left channel.
@@ -367,7 +338,7 @@ public:
 	 */
 	auto left_channel(const size_type index) const -> T
 	{
-		return buffer_[left()][index];
+		return load(buffer_[left()], index);
 	}
 
 	/**
@@ -379,10 +350,13 @@ public:
 	 */
 	auto right_channel(const size_type index) const -> T
 	{
-		return buffer_[right()][index];
+		return load(buffer_[right()], index);
 	}
 
+	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
 	// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+	// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 	// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
 
 	/**
@@ -426,7 +400,22 @@ private:
 	/**
 	 * \brief Internal interleaved buffer of 16 bit samples for two channels.
 	 */
-	const T* buffer_ {};
+	const unsigned char* buffer_ {};
+
+	/**
+	 * \brief Read a value of type \c T from buffer.
+	 *
+	 * \param[in] i Buffer index to read
+	 *
+	 * \return Value on index \c i
+	 */
+	T load(const size_type i) const noexcept
+	{
+		T v;
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+		std::memcpy(&v, buffer_ + i * sizeof(T), sizeof(T));
+		return v;
+	}
 
 public:
 
@@ -449,8 +438,11 @@ public:
 	SampleBufferWrapper(const U* buffer, const size_type size,
 			const bool channels_swapped)
 		: BufferBase { adopt_size<T,U>(size) / 2, channels_swapped }
-		, buffer_    { get_buffer<T>(buffer) }
+		, buffer_    { reinterpret_cast<const unsigned char*>(buffer) }
 	{
+		// reinterpret_cast to unsigned char* does not violate
+		// strict aliasing.
+
 		static_assert(details::supported_sample_type<T>,
 				"Type T must be a supported_sample_type");
 
@@ -475,8 +467,7 @@ public:
 	 */
 	auto left_channel(const size_type index) const -> T
 	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		return buffer_[left() + 2 * index];
+		return load(left() + 2 * index);
 	}
 
 	/**
@@ -488,8 +479,7 @@ public:
 	 */
 	auto right_channel(const size_type index) const -> T
 	{
-		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		return buffer_[right() + 2 * index];
+		return load(right() + 2 * index);
 	}
 
 	/**
