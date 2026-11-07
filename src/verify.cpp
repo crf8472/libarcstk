@@ -22,12 +22,15 @@
 #include <sstream>        // for ostringstream
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
-#include <tuple>          // for tuple
+#include <tuple>          // for tuple, make_tuple
 #include <utility>        // for move
 #include <vector>         // for vector
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"                   // for Checksums, checksum::
+#endif
+#ifndef LIBARCSTK_CALCULATE_HPP_
+#include "calculate.hpp"                  // for Calculation
 #endif
 #ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"                       // for DBAR
@@ -1053,6 +1056,56 @@ std::unique_ptr<VerificationResult> verify(
 }
 
 
+// verify_best
+
+
+std::tuple<std::unique_ptr<VerificationResult>, int> verify_best(
+		const Calculation& calculation, const int begin, const int end,
+		const ARId& actual_id, const ChecksumSource& ref_sums,
+		const TraversalPolicy& traversal, const MatchPolicy& order)
+{
+	// AccurateRip specific:
+	// if (begin < -2939 || begin > 2940 || end < -2939 || end > 2940)
+	// {
+	// 	// FIXME error message
+	// 	return { nullptr, 0 };
+	// }
+
+	if (begin >= end)
+	{
+		// FIXME error message
+		return { nullptr, 0 };
+	}
+
+	auto result = std::unique_ptr<VerificationResult> {};
+	auto k = int { 0 };
+
+	// current values
+	auto best_so_far = CDDA::MAX_TRACKCOUNT;
+	auto current = create_result(ref_sums.size()/* total blocks */,
+			calculation.total_tracks()/* total tracks per block */,
+			traversal.get_policy());
+	auto actual_sums = Checksums {};
+
+	const auto v = Verification {};
+
+	for (int i = begin; i < end; ++i)
+	{
+		actual_sums = calculation.result(i);
+		v.perform(*current, actual_sums, actual_id, ref_sums, traversal, order);
+
+		// pick first offset with best difference
+		if (current->best_block_difference() < best_so_far)
+		{
+			*result = *current;
+			k = i;
+		}
+	}
+
+	return std::make_tuple(std::move(result), k);
+}
+
+
 // VerifierBase
 
 
@@ -1523,7 +1576,6 @@ const ARId* AlbumVerifier::do_actual_id() const noexcept
 
 const Checksums* AlbumVerifier::do_actual_checksums() const noexcept
 {
-
 	return impl_->actual_checksums();
 }
 

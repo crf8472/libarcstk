@@ -35,6 +35,7 @@ inline namespace v_1_0_0
                                                                  /** \endcond */
 // avoid includes
 class ARId;
+class Calculation;
 
 /**
  * \addtogroup verify
@@ -145,7 +146,7 @@ public:
 	 *
 	 * \return Absolute index position to be set
 	 *
-	 * \throws Iff \c b or \c t are out of range
+	 * \throw Iff \c b or \c t are out of range
 	 */
 	index_type set_track(index_type b, index_type t, bool v2, bool value);
 
@@ -167,7 +168,7 @@ public:
 	 *
 	 * \return Absolute index position to be set
 	 *
-	 * \throws Iff \c b is out of range
+	 * \throw Iff \c b is out of range
 	 */
 	index_type set_id(index_type b, bool value);
 
@@ -268,7 +269,7 @@ private:
 	 *
 	 * \param[in] b 0-based index of the block in \c response
 	 *
-	 * \throws Iff \c b is out of range
+	 * \throw Iff \c b is out of range
 	 */
 	void bounds_check_block(index_type b) const;
 
@@ -277,7 +278,7 @@ private:
 	 *
 	 * \param[in] t 0-based index of the track in \c response
 	 *
-	 * \throws Iff \c t is out of range
+	 * \throw Iff \c t is out of range
 	 */
 	void bounds_check_track(index_type t) const;
 
@@ -866,7 +867,7 @@ protected:
 	/**
 	 * \brief Worker for checking whether source() is a nullptr.
 	 *
-	 * \throws invalid_argument If source is nullptr
+	 * \throw invalid_argument If source is nullptr
 	 */
 	void check_source_for_null() const;
 
@@ -1216,7 +1217,7 @@ public:
  * \brief Worker: perform a verification.
  *
  * The implementation uses create_result() to create a VerificationResult.
- * It thereby uses the VerificationPolicy provided by the MatchTraversal. While
+ * It thereby uses the VerificationPolicy provided by the TraversalPolicy. While
  * traversing it uses the MatchPolicy passed.
  *
  * This can be considered the "default implementation" of a verification
@@ -1233,6 +1234,33 @@ public:
  */
 std::unique_ptr<VerificationResult> verify(
 		const Checksums& actual_sums, const ARId& actual_id,
+		const ChecksumSource& ref_sums,
+		const TraversalPolicy& traversal, const MatchPolicy& match);
+
+
+/**
+ * \brief Worker: perform a verification over pressing offsets.
+ *
+ * Verifies all Checksums in the range of [begin, end] and returns the
+ * VerificationResult and pressing offset for the best match.
+ *
+ * The implementation uses create_result() to create a VerificationResult.
+ * It thereby uses the VerificationPolicy provided by the TraversalPolicy. While
+ * traversing it uses the MatchPolicy passed.
+ *
+ * \param[in] calculation Calculation of actual checksums
+ * \param[in] begin       Start offset
+ * \param[in] end         End offset
+ * \param[in] actual_id   Actual ARId to check for
+ * \param[in] ref_sums    Reference checksums to match against
+ * \param[in] traversal   TraversalPolicy to apply
+ * \param[in] match       MatchPolicy to apply
+ *
+ * \return The verification result object and the best offset found
+ */
+std::tuple<std::unique_ptr<VerificationResult>, int> verify_best(
+		const Calculation& calculation, const int begin, const int end,
+		const ARId& actual_id,
 		const ChecksumSource& ref_sums,
 		const TraversalPolicy& traversal, const MatchPolicy& match);
 
