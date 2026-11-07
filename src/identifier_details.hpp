@@ -17,7 +17,9 @@
 #include "identifier.hpp"
 #endif
 
+#include <cstddef>  // for size_t
 #include <cstdint>  // for uint32_t, int32_t
+#include <ostream>  // for ostream
 #include <string>   // for string
 #include <vector>   // for vector
 
@@ -107,9 +109,9 @@ public:
 			const uint32_t id_2,
 			const uint32_t cddb_id) noexcept;
 
-	std::string url() const noexcept;
+	std::string url() const;
 
-	std::string filename() const noexcept;
+	std::string filename() const;
 
 	unsigned total_tracks() const noexcept;
 

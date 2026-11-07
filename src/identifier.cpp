@@ -99,14 +99,14 @@ ARId::Impl::Impl(const unsigned total_tracks, const uint32_t id_1,
 }
 
 
-std::string ARId::Impl::url() const noexcept
+std::string ARId::Impl::url() const
 {
 	return accuraterip::id::construct_url(total_tracks_, disc_id_1_, disc_id_2_,
 			cddb_id_);
 }
 
 
-std::string ARId::Impl::filename() const noexcept
+std::string ARId::Impl::filename() const
 {
 	return accuraterip::id::construct_filename(total_tracks_, disc_id_1_,
 			disc_id_2_, cddb_id_);
