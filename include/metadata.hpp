@@ -822,7 +822,7 @@ std::size_t total_tracks(const ToCData& data) noexcept;
  *
  * \return Offset of track \c track
  *
- * \throws out_of_range If track == 0 or track > total_tracks()
+ * \throw out_of_range If track == 0 or track > total_tracks()
  */
 AudioSize offset(const ToCData::size_type track, const ToCData& data);
 
@@ -834,7 +834,7 @@ AudioSize offset(const ToCData::size_type track, const ToCData& data);
  *
  * \return Length of track \c track
  *
- * \throws out_of_range If track == 0 or track > total_tracks()
+ * \throw out_of_range If track == 0 or track > total_tracks()
  */
 AudioSize length(const ToCData::size_type track, const ToCData& data);
 
@@ -853,7 +853,7 @@ void set_leadout(const AudioSize& leadout, ToCData& data);
  * \param[in] offset Offset to set
  * \param[in] data   ToCData to update
  *
- * \throws out_of_range If track == 0 or track > total_tracks()
+ * \throw out_of_range If track == 0 or track > total_tracks()
  */
 void set_offset(const ToCData::size_type track, const int32_t offset,
 		ToCData& data);
@@ -911,7 +911,7 @@ bool complete(const ToCData& data);
  *
  * \param[in] toc_data ToCData object to be validated
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 void validate(const ToCData& toc_data);
 
@@ -922,7 +922,7 @@ void validate(const ToCData& toc_data);
  *
  * \param[in] toc_data ToCData object to be validated
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 void validate_with_completeness(const ToCData& toc_data);
 
@@ -1081,7 +1081,7 @@ public:
 	 * If the instance is complete, the leadout will also be validated, but an
 	 * incomplete instance may be validated correctly without a leadout.
 	 *
-	 * \throws InvalidMetadataException If validation fails
+	 * \throw InvalidMetadataException If validation fails
 	 */
 	void validate() const;
 
@@ -1189,7 +1189,7 @@ public:
  *
  * \return ToC created from leadout, offsets and filenames
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 [[nodiscard]] ToC validated_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets,
@@ -1203,7 +1203,7 @@ public:
  *
  * \return ToC created from leadout and offsets
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 [[nodiscard]] ToC validated_toc(const int32_t leadout,
 		const std::vector<int32_t>& offsets);
@@ -1216,7 +1216,7 @@ public:
  *
  * \return ToC created from offsets and filenames
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 [[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets,
 		const std::vector<std::string>& filenames);
@@ -1228,7 +1228,7 @@ public:
  *
  * \return ToC created from offsets.
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 [[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets);
 

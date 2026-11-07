@@ -398,7 +398,7 @@ public:
 	 *
 	 * \return The checksum for the specified type
 	 *
-	 * \throws std::invalid_argument If the ChecksumSet does not contain a
+	 * \throw std::invalid_argument If the ChecksumSet does not contain a
 	 * Checksum of the specified \c type
 	 */
 	Checksum checksum(const checksum::type type) const;
@@ -444,7 +444,7 @@ public:
 	 *
 	 * \param[in] rhs The list to be merged into the instance
 	 *
-	 * \throws std::domain_error If \c rhs.length() != \c length() and both
+	 * \throw std::domain_error If \c rhs.length() != \c length() and both
 	 *							 are != 0
 	 */
 	void merge(ChecksumSet& rhs);

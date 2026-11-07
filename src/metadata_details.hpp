@@ -52,7 +52,7 @@ void print(std::ostream& out, const ToCData& d);
  *
  * \param[in] toc_data ToCData to validate
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 void validate_offsets(const ToCData& toc_data);
 
@@ -63,7 +63,7 @@ void validate_offsets(const ToCData& toc_data);
  *
  * \param[in] toc_data ToCData to validate
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 void validate_offsets_and_leadout(const ToCData& toc_data);
 
@@ -73,7 +73,7 @@ void validate_offsets_and_leadout(const ToCData& toc_data);
  * \param[in] toc_data  ToC data to validate
  * \param[in] filenames Audio filenames
  *
- * \throws InvalidMetadataException If validation fails
+ * \throw InvalidMetadataException If validation fails
  */
 void validate_filenames(const ToCData& toc_data,
 		const std::vector<std::string>& filenames);
@@ -110,7 +110,7 @@ std::string name(const MetadataRequirement r);
  * \param[in] v   Value that violated the requirement
  * \param[in] i   Index position that violated the requirement
  *
- * \throws InvalidMetadataException On every call
+ * \throw InvalidMetadataException On every call
  */
 void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
 		const std::int32_t v, const ToCData::size_type i);
@@ -126,7 +126,7 @@ void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
  * \param[in] v   Value that violated the requirement
  * \param[in] i   Index position that violated the requirement
  *
- * \throws InvalidMetadataException On every call
+ * \throw InvalidMetadataException On every call
  */
 void on_invalid_tocdata(const MetadataRequirement r, const std::int32_t v,
 		const ToCData::size_type i);

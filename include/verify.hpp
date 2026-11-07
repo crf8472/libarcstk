@@ -393,7 +393,7 @@ public:
 	 * \param[in] t  0-based index of the track to verify in the ChecksumSource
 	 * \param[in] type Verifies the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
-	 * \throws std::runtime_error Iff \c b or \c t are out of range
+	 * \throw std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Index position to store the verification flag
 	 */
@@ -417,7 +417,7 @@ public:
 	 * \param[in] t  0-based index of the track to verify in the ChecksumSource
 	 * \param[in] type Returns the ARCSv2 flag iff \c TRUE, otherwise ARCSv1
 	 *
-	 * \throws std::runtime_error Iff \c b or \c t are out of range
+	 * \throw std::runtime_error Iff \c b or \c t are out of range
 	 *
 	 * \return Flag for ARCS of track \c t in block \c b
 	 */
@@ -429,7 +429,7 @@ public:
 	 *
 	 * \param[in] block 0-based index of the block to verify
 	 *
-	 * \throws std::runtime_error Iff \c b is out of range
+	 * \throw std::runtime_error Iff \c b is out of range
 	 *
 	 * \return Index position to store the verification flag
 	 */
@@ -441,7 +441,7 @@ public:
 	 *
 	 * \param[in] b 0-based index of the block to verify in \c response
 	 *
-	 * \throws std::runtime_error Iff \c b is out of range
+	 * \throw std::runtime_error Iff \c b is out of range
 	 *
 	 * \return \c TRUE iff the ARId of block \c b matches the ARId of the
 	 *         request
@@ -467,7 +467,7 @@ public:
 	 * \param[in] b  0-based index of the block to verify in the ChecksumSource
 	 * \param[in] type Returns the ARCSv2 iff \c TRUE, otherwise ARCSv1
 	 *
-	 * \throws std::runtime_error Iff \c b is out of range
+	 * \throw std::runtime_error Iff \c b is out of range
 	 *
 	 * \return Difference of block \c b
 	 */

@@ -933,7 +933,7 @@ private:
 	 *
 	 * \param[in] index Index to check
 	 *
-	 * \throws std::out_of_range if \c index is out of legal range
+	 * \throw std::out_of_range if \c index is out of legal range
 	 */
 	void bounds_check(const size_type index) const
 	{

@@ -110,7 +110,7 @@ static constexpr unsigned UNPARSED_CONFIDENCE = 0;
  * \param[in] block_byte_pos Last 1-based block byte pos before exception
  * \param[in] e              Error handler
  *
- * \throws SteamParseException On behalf of default behaviour if \c e is nullptr
+ * \throw SteamParseException On behalf of default behaviour if \c e is nullptr
  */
 void on_parse_error(const byte_position_t byte_pos, const unsigned block,
 			const byte_position_t block_byte_pos, ParseErrorHandler* e);
@@ -124,7 +124,7 @@ void on_parse_error(const byte_position_t byte_pos, const unsigned block,
  * \param[in] block          Current block index (1-based)
  * \param[in] block_byte_pos Last 1-based block byte pos before exception
  *
- * \throws SteamParseException On every call, thereby providing positional data
+ * \throw SteamParseException On every call, thereby providing positional data
  */
 void on_parse_error_default(const byte_position_t byte_pos,
 		const unsigned block, const byte_position_t block_byte_pos);
@@ -254,7 +254,7 @@ std::uintmax_t file_size_or_throw(const std::string &filepath);
  * \param[in] filepath Name of the file to load
  * \param[in] max_size Do not load file if size in bytes exceeds this value
  *
- * \throws runtime_error If file size is bigger than \c max_size
+ * \throw runtime_error If file size is bigger than \c max_size
  *
  * \return File content as a sequence of bytes
  */
