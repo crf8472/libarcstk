@@ -197,10 +197,10 @@ TEST_CASE ( "ToC functions", "[toc] [metadata] [metadata]" )
 
 
 
-	// SECTION ("total_tracks is correct")
-	// {
-	// 	FAIL ("total_tracks test is missing");
-	// }
+	SECTION ("total_tracks is correct")
+	{
+		CHECK ( 15 == toc.total_tracks() );
+	}
 
 	SECTION ("offsets is correct")
 	{
@@ -272,31 +272,6 @@ TEST_CASE ( "ToC functions", "[toc] [metadata] [metadata]" )
 	// SECTION ("complete is correct")
 	// {
 	// 	FAIL ("complete test is missing");
-	// }
-
-	// SECTION ("empty is correct")
-	// {
-	// 	FAIL ("empty test is missing");
-	// }
-
-	// SECTION ("operator bool is correct")
-	// {
-	// 	FAIL ("operator bool test is missing");
-	// }
-
-	// SECTION ("swap is correct")
-	// {
-	// 	FAIL ("swap test is missing");
-	// }
-
-	// SECTION ("equals is correct")
-	// {
-	// 	FAIL ("equals test is missing");
-	// }
-
-	// SECTION ("to_string is correct")
-	// {
-	// 	FAIL ("to_string test is missing");
 	// }
 }
 
