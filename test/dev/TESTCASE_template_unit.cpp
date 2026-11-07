@@ -9,7 +9,7 @@
 #ifndef LIBARCSTK_${HEADER:u}_HPP_
 #include "${HEADER}.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_${HEADER:u}_HPP_
+#ifndef LIBARCSTK_${HEADER:u}_DETAILS_HPP_
 #include "${HEADER}_details.hpp"  // for
 #endif
 
@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "${CLASS}", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,9 +82,9 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 
 
 TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+		"[${CLASS:l}][${MODULE}][${HEADER:l}]" )
 {
-	const auto defaulted = arcstk::${CLASS}{};
+	const auto defaulted = arcstk::${CLASS} {};
 
 	SECTION ( "is empty()")
 	{
@@ -98,7 +98,7 @@ TEST_CASE ( "${CLASS} default constructed instance",
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "${CLASS} property", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::${CLASS};
 
@@ -147,7 +147,7 @@ TEST_CASE ( "${CLASS} property", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "${CLASS} functions", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::${CLASS};
 
