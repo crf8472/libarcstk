@@ -69,7 +69,7 @@ enum class type : uint8_t
  * The order of the types is identical to the total order of numeric values the
  * types have in enum class checksum::type.
  */
-static const std::array<type, 4> types = {
+static const std::array<type, 3> types = {
 	type::ARCS1,
 	type::ARCS2,
 	type::F4501

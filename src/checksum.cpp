@@ -107,13 +107,12 @@ std::string name(const type t)
 {
 	// The order of names in this aggregate must match the order of types in
 	// enum class checksum::type, otherwise function type_name() will fail.
-	static const std::array<std::string, 4> names {
+	static const std::array<std::string, 3> names {
 		"ARCSv1",
 		"ARCSv2",
 		"F450v1",
-		"F450v2"
-		//FIFTH_TYPE
-		//SIXTH_TYPE ...
+		//FOURTH_TYPE
+		//FIFTH_TYPE ...
 	};
 
 	using index_type = typename std::underlying_type_t<checksum::type>;
