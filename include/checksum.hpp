@@ -16,6 +16,7 @@
 #include <climits>          // for CHAR_BIT
 #include <cstdint>          // for int32_t, uint32_t
 #include <initializer_list> // for initializer_list
+#include <ios>              // for fmtflags
 #include <ostream>          // for ostream
 #include <set>              // for set
 #include <unordered_map>    // for unordered_map
@@ -69,7 +70,7 @@ enum class type : uint8_t
  * The order of the types is identical to the total order of numeric values the
  * types have in enum class checksum::type.
  */
-static const std::array<type, 3> types = {
+inline constexpr std::array<type, 3> types = {
 	type::ARCS1,
 	type::ARCS2,
 	type::F4501
@@ -130,7 +131,7 @@ void print(std::ostream& stream, const Checksum& checksum);
  * zero() converts to TRUE.
  *
  * Operator << is overloaded for printing Checksums to streams. The Checksum
- * will then occurr in its standard layout: as a hexadecimal number without the
+ * will then occur in its standard layout: as a hexadecimal number without the
  * base '0x', all digits in upper case, and filled with leading zeros up to a
  * width of 8 digits.
  */
@@ -149,8 +150,8 @@ public:
 	/**
 	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
-	constexpr static std::size_t TOTAL_HEX_DIGITS = static_cast<std::size_t>(
-		static_cast<int>(sizeof(Checksum::value_type) * CHAR_BIT) / 4);
+	constexpr static std::size_t TOTAL_HEX_DIGITS =
+		(sizeof(Checksum::value_type) * CHAR_BIT) / 4;
 	// 4 bits are required to represent a single hexadecimal digit
 	// (since 2^4 == 16). We could express 4 as log_2(16).
 
@@ -348,8 +349,8 @@ public:
 	 * identical to the parsed length hold in the ToC. The parsed length might
 	 * be smaller since it is possible that it does not contain the silence
 	 * adjacent to the respective track. Hence, a mismatch between the length()
-	 * of a ChecksumSet and the parsed_length() of the ToC used in the
-	 * Calculation that created the ChecksumSet is not an error.
+	 * of a ChecksumSet and the length() of the ToC used in the Calculation that
+	 * created the ChecksumSet is not an error.
 	 *
 	 * \return Length of this track in LBA frames
 	 */
@@ -390,15 +391,15 @@ public:
 	/**
 	 * \brief Return the \ref Checksum for the specified \c type or throw.
 	 *
-	 * If there is no Checksum represented for the \c type, a runtime_error will
-	 * be thrown.
+	 * If there is no Checksum represented for the \c type, a
+	 * std::invalid_argument will be thrown.
 	 *
 	 * \param[in] type The checksum::type to return the value
 	 *
 	 * \return The checksum for the specified type
 	 *
-	 * \throws std::runtime_error If the ChecksumSet does not contain a Checksum
-	 * of the specified \c type
+	 * \throws std::invalid_argument If the ChecksumSet does not contain a
+	 * Checksum of the specified \c type
 	 */
 	Checksum checksum(const checksum::type type) const;
 
@@ -420,13 +421,13 @@ public:
 	 * was not successful, the value \c FALSE is returned for the bool and the
 	 * iterator will point to the element that prevented the insertion.
 	 *
-	 * \param[in] type     The key to use
-	 * \param[in] checksum The checksum for the given key
+	 * \param[in] type  The key to use
+	 * \param[in] value The checksum for the given key
 	 *
 	 * \return Pair with an iterator to the inserted value and a status flag
 	 */
 	std::pair<iterator, bool> insert(const checksum::type type,
-			const Checksum& checksum);
+			const Checksum& value);
 
 	/**
 	 * \brief Merge the elements of another instance into this instance.
@@ -438,9 +439,13 @@ public:
 	 * length of different value will cause a std::domain_error. If either
 	 * \c rhs or \c this has zero length, the merge will succeed.
 	 *
+	 * After a successful merge, \c rhs will contain only duplicates. The length
+	 * of \c rhs is never modified.
+	 *
 	 * \param[in] rhs The list to be merged into the instance
 	 *
-	 * \throws domain_error If \c rhs.length() != \c length() and both are != 0
+	 * \throws std::domain_error If \c rhs.length() != \c length() and both
+	 *							 are != 0
 	 */
 	void merge(ChecksumSet& rhs);
 
@@ -504,6 +509,8 @@ public:
 
 	/**
 	 * \copydoc SNPT_mf_op_bool_if_empty
+	 *
+	 * A ChecksumSet with a length but without elements is FALSE.
 	 */
 	explicit operator bool() const noexcept;
 
@@ -551,35 +558,85 @@ namespace details
 {
 
 /**
- * \brief Guard to ensure that any ostream gets its original flags back.
+ * \brief RAII guard that restores the formatting state of a stream.
+ *
+ * Saves and restores flags, fill character, width and precision of the original
+ * stream. Does not touch the stream's iostate or locale.
  */
-class StreamFlagsGuard final
+template <typename CharT, typename Traits = std::char_traits<CharT>>
+class BasicStreamFlagsGuard final
 {
-    std::ostream& out_;
-    std::ios_base::fmtflags prev_flags_;
+	/**
+	 * \brief Internal reference to the stream to be guarded.
+	 */
+	std::basic_ios<CharT, Traits>& stream_;
+
+	/**
+	 * \brief Previous flags.
+	 */
+	typename std::basic_ios<CharT, Traits>::fmtflags prev_flags_;
+
+	/**
+	 * \brief Previous fill character.
+	 */
+	CharT prev_fill_;
+
+	/**
+	 * \brief Previous width.
+	 */
+	std::streamsize  prev_width_;
+
+	/**
+	 * \brief Previous precision.
+	 */
+	std::streamsize  prev_precision_;
 
 public:
 
-    explicit StreamFlagsGuard(std::ostream& out) noexcept
-        : out_        { out         }
-		, prev_flags_ { out.flags() }
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param[in] s Stream to save + restore
+	 */
+	explicit BasicStreamFlagsGuard(std::basic_ios<CharT, Traits>& s) noexcept
+		: stream_         { s             }
+		, prev_flags_     { s.flags()     } // iostate is not touched, no throw
+		, prev_fill_      { s.fill()      }
+		, prev_width_     { s.width()     }
+		, prev_precision_ { s.precision() }
 	{
 		// empty
 	}
 
-    ~StreamFlagsGuard() noexcept
+	/**
+	 * \copydoc SNPT_sm_default_dtor.
+	 */
+	~BasicStreamFlagsGuard() noexcept
 	{
-        out_.flags(prev_flags_);
-    }
+		stream_.flags(prev_flags_);
+		stream_.fill (prev_fill_);
+		stream_.width(prev_width_);
+		stream_.precision(prev_precision_);
+		// getloc() + imbue() must be restored once the locale is saved
+	}
 
-    StreamFlagsGuard(const StreamFlagsGuard&) = delete;
+	BasicStreamFlagsGuard(const BasicStreamFlagsGuard&)
+		= delete;
 
-    StreamFlagsGuard& operator = (const StreamFlagsGuard&) = delete;
+	BasicStreamFlagsGuard& operator = (const BasicStreamFlagsGuard&)
+		= delete;
 
-	StreamFlagsGuard(StreamFlagsGuard&&) noexcept = delete;
+	BasicStreamFlagsGuard(BasicStreamFlagsGuard&&) noexcept
+		= delete;
 
-    StreamFlagsGuard& operator =(StreamFlagsGuard&&) noexcept = delete;
+	BasicStreamFlagsGuard& operator =(BasicStreamFlagsGuard&&) noexcept
+		= delete;
 };
+
+/**
+ * \brief Properties guard for character streams.
+ */
+using StreamFlagsGuard = BasicStreamFlagsGuard<char>;
 
 } // namespace details
                                                   /** \cond NAMESPACE_v_1_0_0 */

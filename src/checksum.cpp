@@ -19,7 +19,7 @@
 #include <iterator>         // for begin, end, inserter
 #include <ostream>          // for ostream
 #include <set>              // for set
-#include <stdexcept>        // for domain_error
+#include <stdexcept>        // for domain_error, invalid_argument
 #include <sstream>          // for ostringstream
 #include <string>           // for string
 #include <type_traits>      // for underlying_type
@@ -106,7 +106,7 @@ namespace checksum
 std::string name(const type t)
 {
 	// The order of names in this aggregate must match the order of types in
-	// enum class checksum::type, otherwise function type_name() will fail.
+	// enum class checksum::type, otherwise function name() will fail.
 	static const std::array<std::string, 3> names {
 		"ARCSv1",
 		"ARCSv2",
@@ -131,7 +131,7 @@ void print(std::ostream& out, const Checksum& c)
 
 	[[maybe_unused]] const details::StreamFlagsGuard guard { out };
 
-	static const auto hex_flags =
+	const auto hex_flags =
 		[](const std::ostream& stream) -> std::ios_base::fmtflags
 		{
 			auto flags = std::ios_base::fmtflags { stream.flags() };
@@ -159,7 +159,7 @@ void print(std::ostream& out, const Checksum& c)
 
 
 ChecksumSet::ChecksumSet()
-	: ChecksumSet { AudioSize{ /* zero */} }
+	: ChecksumSet { AudioSize { /* zero */} }
 {
 	// empty
 }
@@ -233,12 +233,11 @@ Checksum ChecksumSet::checksum(const checksum::type type) const
 	if (const auto result { get(type ) }; result.second)
 	{
 		return result.first;
+	} else
+	{
+		throw std::invalid_argument(
+				"No checksum of type " + checksum::name(type) + " in set");
 	}
-
-	throw std::runtime_error("No checksum of type " + checksum::name(type)
-			+ " in set");
-
-	return {}; // unreachable
 }
 
 
@@ -263,9 +262,9 @@ std::set<checksum::type> ChecksumSet::types() const
 
 
 std::pair<ChecksumSet::iterator, bool> ChecksumSet::insert(
-		const checksum::type type, const Checksum& checksum)
+		const checksum::type type, const Checksum& value)
 {
-	return set_.insert({ type, checksum });
+	return set_.insert({ type, value });
 }
 
 
@@ -279,11 +278,16 @@ void ChecksumSet::merge(ChecksumSet& rhs)
 			throw std::domain_error(
 					"Refuse to merge checksums of different track");
 		}
-
-		// Sets with zero length may be merged without constraint
 	}
 
+	// Sets with zero length may be merged without constraint
+
 	set_.merge(rhs.set_);
+
+	if (this->length().zero())
+	{
+		this->length_ = rhs.length();
+	}
 }
 
 
