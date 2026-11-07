@@ -13,6 +13,7 @@
 
 #include <cstddef>               // for size_t
 #include <cstdint>               // for uint32_t, int32_t, uint64_t
+#include <iosfwd>                // for ostream
 #include <memory>                // for unique_ptr
 #include <string>                // for string
 #include <vector>                // for vector
