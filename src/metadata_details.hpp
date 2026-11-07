@@ -113,7 +113,7 @@ std::string name(const MetadataRequirement r);
  * \throws InvalidMetadataException On every call
  */
 void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
-		const int32_t v, const ToCData::size_type i);
+		const std::int32_t v, const ToCData::size_type i);
 
 /**
  * \internal
@@ -128,7 +128,7 @@ void on_invalid_tocdata(const std::string& msg, const MetadataRequirement r,
  *
  * \throws InvalidMetadataException On every call
  */
-void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
+void on_invalid_tocdata(const MetadataRequirement r, const std::int32_t v,
 		const ToCData::size_type i);
 
 /**
@@ -141,7 +141,7 @@ void on_invalid_tocdata(const MetadataRequirement r, const int32_t v,
  * \return Default error message
  */
 std::string default_error_message(const MetadataRequirement r,
-		const int32_t v, const ToCData::size_type i);
+		const std::int32_t v, const ToCData::size_type i);
 
 } // namespace req
 } // namespace toc
@@ -154,17 +154,17 @@ namespace details
  * \brief Maximal valid offset value for a non-redbook 90 min CD (in LBA
  * frames).
  *
- * Non-redbook 90-min CD has 89:59.74 which is equivalent to 405.000 frames.
+ * Non-redbook 90-min CD has 89:59.74 which is equivalent to 404.999 frames.
  */
-static constexpr int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
+static constexpr std::int32_t MAX_OFFSET_90 { (89 * 60 + 59) * 75 + 74 };
 
 /**
  * \brief Maximal valid offset value for a non-redbook 99 min CD (in LBA
  * frames).
  *
- * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.500 frames.
+ * Non-redbook 99-min CD has 98:59.74 which is equivalent to 445.499 frames.
  */
-static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
+static constexpr std::int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
 
 /**
  * \brief Worker: Check LBA frame offset for exceeding some maximums.
@@ -181,7 +181,7 @@ static constexpr int32_t MAX_OFFSET_99 { (98 * 60 + 59) * 75 + 74 };
  *
  * \return Return highest max value that was exceeded, 0 for no exceeding
  */
-int32_t exceeds_maximum(const int32_t offset);
+std::int32_t exceeds_maximum(const std::int32_t offset);
 
 } // namespace details
 
@@ -208,7 +208,7 @@ public:
 
 	Impl(ToCData toc_data, std::vector<std::string> filenames);
 
-	unsigned total_tracks() const noexcept;
+	std::size_t total_tracks() const noexcept;
 
 	std::vector<AudioSize> offsets() const;
 
@@ -218,7 +218,7 @@ public:
 
 	void set_leadout(const AudioSize& leadout);
 
-	std::vector<std::string> filenames() const noexcept;
+	std::vector<std::string> filenames() const;
 
 	void set_filenames(const std::vector<std::string>& filenames);
 
@@ -230,7 +230,7 @@ public:
 
 	bool complete() const noexcept;
 
-	void print(std::ostream& out); // implements ToC::operator <<
+	void print(std::ostream& out) const; // implements ToC::operator <<
 
 	bool empty() const noexcept;
 

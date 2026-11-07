@@ -24,6 +24,7 @@
 #include <array>          // for array
 #include <cstdint>        // for uint16_t, int32_t
 #include <memory>         // for unique_ptr
+#include <ostream>        // for ostream
 #include <sstream>        // for ostringstream
 #include <stdexcept>      // for runtime_error
 #include <string>         // for string
@@ -63,15 +64,15 @@ inline namespace v_1_0_0
  *
  * - the total number of tracks is positive and not bigger than
  *   CDDA::MAX_TRACKCOUNT,
- * - no offset is negative or bigger than CDDA::MAX_OFFSET,
+ * - no offset is negative or bigger than CDDA::MAX_BLOCK_ADDRESS,
  * - each two offset have at least positive distance
  *   CDDA::MIN_TRACK_OFFSET_DIST, and
  * - each track length is at least CDDA::MIN_TRACK_LEN_FRAMES.
  *
  * ToCData can be validated with or without the requirement for being complete
  * by either toc::validate_with_completeness() or
- * toc::validate_without_completeness(). Any ToC instance can be validated by
- * member function ToC::valid().
+ * toc::validate(). Any ToC instance can be validated by member function
+ * ToC::valid(). To qualify as valid(), a ToC does not need to be complete().
  *
  * Validated ToCs can be constructed by using functions validated_toc().
  *
@@ -144,7 +145,7 @@ struct CDDA final
 	/**
 	 * \brief Redbook maximal value for a valid LBA frame index is 449.999.
 	 *
-	 * Redbook defines 99:59.74 (MSF) as maximal valid block adress. This is
+	 * Redbook defines 99:59.74 (MSF) as maximal valid block address. This is
 	 * equivalent to 449.999 frames.
 	 */
 	constexpr static int32_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
@@ -159,7 +160,7 @@ struct CDDA final
 	constexpr static int32_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
-	 * \brief Two subsequenct offsets must have a distance of at least 300 LBA
+	 * \brief Two subsequent offsets must have a distance of at least 300 LBA
 	 * frames.
 	 *
 	 * The CDDA conforming minimal track length is 4 seconds including 2 seconds
@@ -170,9 +171,9 @@ struct CDDA final
 	/**
 	 * \brief Minimal number of LBA frames a track contains is 150.
 	 *
-	 * The CDDA conforming minmal track length is 4 seconds including 2 seconds
-	 * pause but the pause does not contribute to the track length, thus
-	 * 2 sec * 75 frames/sec == 150 frames.
+	 * The CDDA conforming minimal track length is 4 seconds including 2
+	 * seconds pause but the pause does not contribute to the track length,
+	 * thus 2 sec * 75 frames/sec == 150 frames.
 	 */
 	constexpr static int32_t MIN_TRACK_LEN_FRAMES { 150 };
 };
@@ -462,6 +463,11 @@ auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
 		static constexpr auto count_trailing_zeros =
 			[](unit_type v) -> unit_type
 			{
+				if (v == 0)
+				{
+					throw std::invalid_argument("No UNIT whose value is 0");
+				}
+
 				auto count = unsigned { 0 };
 
 				// How many shifts to the right until an 1 occurrs on rightmost
@@ -767,7 +773,8 @@ namespace toc
  *
  * \return ToCData object
  */
-ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets);
+[[nodiscard]] ToCData construct(const int32_t leadout,
+		const std::vector<int32_t>& offsets);
 
 /**
  * \brief Construct ToCData from leadout and offsets.
@@ -777,7 +784,7 @@ ToCData construct(const int32_t leadout, const std::vector<int32_t>& offsets);
  *
  * \return ToCData object
  */
-ToCData construct(const AudioSize& leadout,
+[[nodiscard]] ToCData construct(const AudioSize& leadout,
 		const std::vector<AudioSize>& offsets);
 
 /**
@@ -787,7 +794,7 @@ ToCData construct(const AudioSize& leadout,
  *
  * \return Total number of tracks
  */
-unsigned total_tracks(const ToCData& data);
+std::size_t total_tracks(const ToCData& data) noexcept;
 
 /**
  * \brief Offsets of a ToC object.
@@ -796,7 +803,7 @@ unsigned total_tracks(const ToCData& data);
  *
  * \return Offsets of a ToC object
  */
-std::vector<AudioSize> offsets(const ToCData& data);
+[[nodiscard]] std::vector<AudioSize> offsets(const ToCData& data);
 
 /**
  * \brief Leadout of a ToC object.
@@ -805,7 +812,7 @@ std::vector<AudioSize> offsets(const ToCData& data);
  *
  * \return Leadout of a ToC object
  */
-AudioSize leadout(const ToCData& data);
+[[nodiscard]] AudioSize leadout(const ToCData& data) noexcept;
 
 /**
  * \brief Offset of track \c track.
@@ -814,6 +821,8 @@ AudioSize leadout(const ToCData& data);
  * \param[in] data  ToCData to read from
  *
  * \return Offset of track \c track
+ *
+ * \throws out_of_range If track == 0 or track > total_tracks()
  */
 AudioSize offset(const ToCData::size_type track, const ToCData& data);
 
@@ -824,6 +833,8 @@ AudioSize offset(const ToCData::size_type track, const ToCData& data);
  * \param[in] data  ToCData to read from
  *
  * \return Length of track \c track
+ *
+ * \throws out_of_range If track == 0 or track > total_tracks()
  */
 AudioSize length(const ToCData::size_type track, const ToCData& data);
 
@@ -841,12 +852,17 @@ void set_leadout(const AudioSize& leadout, ToCData& data);
  * \param[in] track  Track number
  * \param[in] offset Offset to set
  * \param[in] data   ToCData to update
+ *
+ * \throws out_of_range If track == 0 or track > total_tracks()
  */
 void set_offset(const ToCData::size_type track, const int32_t offset,
 		ToCData& data);
 
 /**
  * \brief Set the offsets for this ToCData.
+ *
+ * For empty data and empty offsets, a vector with size 1 and leadout 0 is
+ * returned.
  *
  * \param[in] offsets Offsets, interpreted as LBA frames
  * \param[in] data    ToCData to update
@@ -866,12 +882,15 @@ void set_offsets(const std::vector<AudioSize>& offsets, ToCData& data);
  *
  * If the leadout is zero, the length of the last track is unknown and the
  * size of the returned container will be smaller than total_tracks().
+ * Hence using <tt>lengths()[i]</tt> for track <tt>i + 1</tt> without checking
+ * <tt>size()</tt> is error-prone. The caller is responsible for checking the
+ * size of the result of lengths().
  *
  * \param[in] data ToCData to read from
  *
  * \return Track lengths
  */
-std::vector<AudioSize> lengths(const ToCData& data);
+[[nodiscard]] std::vector<AudioSize> lengths(const ToCData& data);
 
 /**
  * \brief TRUE iff non-zero leadout and non-empty sequence of offsets are
@@ -879,7 +898,7 @@ std::vector<AudioSize> lengths(const ToCData& data);
  *
  * This does not entail a validation of the specified values.
  *
- * \param[in] data TocData instance to check for completeness
+ * \param[in] data ToCData instance to check for completeness
  *
  * \return TRUE iff non-zero leadout and non-empty offsets exist
  */
@@ -921,7 +940,7 @@ bool is_empty(const ToCData& toc_data);
  *
  * \return String representation
  */
-std::string to_string(const ToCData& toc_data);
+[[nodiscard]] std::string to_string(const ToCData& toc_data);
 
 } // namespace toc
 
@@ -933,6 +952,9 @@ std::ostream& operator << (std::ostream& out, const ToC& i);
 
 /**
  * \brief Table of contents of a compact disc.
+ *
+ * When in the moved-from state, only assignment or destruction is supported.
+ * Calling accessors on a moved-from ToC instance is undefined behaviour.
  */
 class ToC final : Equality<ToC>, Comparable<ToC>, Swap<ToC>, ToString<ToC>
 {
@@ -993,7 +1015,7 @@ public:
 	 *
 	 * \return Total tracks
 	 */
-	unsigned total_tracks() const noexcept;
+	std::size_t total_tracks() const noexcept;
 
 	/**
 	 * \brief Offsets of this ToC.
@@ -1030,7 +1052,7 @@ public:
 	 *
 	 * \param[in] leadout The leadout frame to set
 	 */
-	void set_leadout(const AudioSize& leadout) noexcept;
+	void set_leadout(const AudioSize& leadout);
 
 	/**
 	 * \brief Set the filenames.
@@ -1056,8 +1078,8 @@ public:
 	/**
 	 * \brief Validate the instance.
 	 *
-	 * The ToC instance is not required to be complete validation success. If
-	 * the instance is complete, the leadout will be validated.
+	 * If the instance is complete, the leadout will also be validated, but an
+	 * incomplete instance may be validated correctly without a leadout.
 	 *
 	 * \throws InvalidMetadataException If validation fails
 	 */
@@ -1066,11 +1088,12 @@ public:
 	/**
 	 * \brief TRUE iff the ToC instance is valid.
 	 *
-	 * Calls validate() and returns TRUE iff no exception was thrown.
+	 * Calls validate() and returns TRUE iff no InvalidMetadataExcpetion was
+	 * thrown.
 	 *
 	 * \return TRUE iff ToC contains only valid data.
 	 */
-	bool valid() const noexcept;
+	bool valid() const;
 
 	/**
 	 * \brief TRUE iff offsets and non-zero leadout are present, otherwise
@@ -1095,7 +1118,7 @@ public:
 	/**
 	 * \copydoc SNPT_mf_swap
 	 */
-	void swap(const ToC& rhs) const noexcept;
+	void swap(ToC& rhs) noexcept;
 
 	/**
 	 * \copydoc SNPT_mf_equals
@@ -1223,7 +1246,7 @@ enum class MetadataRequirement : uint8_t
 	TOTAL_TRACKS_IS_POSITIVE,
 	TOTAL_TRACKS_IS_NOT_GREATER_THAN_MAX,
 	// optional
-	LEADOUT_IS_NONNEGATIVE,
+	LEADOUT_IS_POSITIVE,
 	TOTAL_FILENAMES_MATCH_TOTAL_TRACKS
 };
 
@@ -1290,25 +1313,25 @@ public:
 	 *
 	 * \return Requirement having been violated
 	 */
-	MetadataRequirement requirement() const;
+	MetadataRequirement requirement() const noexcept;
 
 	/**
 	 * \brief Value that has violated the requirement.
 	 *
 	 * \return Value that caused the violation
 	 */
-	int32_t violating_value() const;
+	int32_t violating_value() const noexcept;
 
 	/**
 	 * \brief Index position where the violation occurred.
 	 *
 	 * A value greater than CDDA::MAX_TRACKCOUNT indicates that the violation
-	 * did not occurr on a specific index position. This is the case for
-	 * illegal or mismatiching values for the total number of tracks.
+	 * did not occur on a specific index position. This is the case for
+	 * illegal or mismatching values for the total number of tracks.
 	 *
 	 * \return Index position for a track offset, 0 for leadout
 	 */
-	ToCData::size_type pos() const;
+	ToCData::size_type pos() const noexcept;
 };
 
 /** @} */

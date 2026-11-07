@@ -281,7 +281,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 		CHECK_THROWS_AS ( validate_offsets(fail), InvalidMetadataException );
 	}
 
-	SECTION ( "Fails if LEADOUT_IS_NONNEGATIVE is violated" )
+	SECTION ( "Fails if LEADOUT_IS_POSITIVE is violated" )
 	{
 		try
 		{
@@ -290,7 +290,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
 		{
-			CHECK ( e.requirement()     == Req::LEADOUT_IS_NONNEGATIVE );
+			CHECK ( e.requirement()     == Req::LEADOUT_IS_POSITIVE );
 			CHECK ( e.violating_value() == 0 );
 			CHECK ( e.pos()             == 0 );
 		}
@@ -302,7 +302,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 			FAIL ( "Expected InvalidMetadataException was not thrown" );
 		} catch (const InvalidMetadataException& e)
 		{
-			CHECK ( e.requirement()     == Req::LEADOUT_IS_NONNEGATIVE );
+			CHECK ( e.requirement()     == Req::LEADOUT_IS_POSITIVE );
 			CHECK ( e.violating_value() == 0 );
 			CHECK ( e.pos()             == 0 );
 		}
