@@ -2261,11 +2261,13 @@ void print(std::ostream& out, const unsigned total_tracks,
 class ACCURATERIP final
 {
 	/**
-	 * \brief Current request URL prefix.
+	 * \brief Internal reference to current prefix.
 	 */
-	static std::string request_url_prefix_;
-
-	// ... may contain more constants
+	static std::string& request_url_prefix_storage() noexcept
+	{
+		static std::string prefix { default_request_url_prefix() };
+		return prefix;
+	}
 
 public:
 
@@ -2274,14 +2276,14 @@ public:
 	 *
 	 * \return Current prefix to construct request URLs.
 	 */
-	static std::string request_url_prefix() noexcept;
+	static const std::string& request_url_prefix() noexcept;
 
 	/**
 	 * \brief The default URL prefix to construct request URLs.
 	 *
 	 * \return Default prefix to construct request URLs.
 	 */
-	static std::string default_request_url_prefix() noexcept;
+	static const std::string& default_request_url_prefix() noexcept;
 
 	/**
 	 * \brief Set the global URL prefix for AccurateRip request URLs.
@@ -2302,8 +2304,7 @@ public:
 	/**
 	 * \brief Format an unsigned 32bit integer as an ARCS in the default format.
 	 *
-	 * The default format is the format in which ARCSs are printed in most
-	 * client applications.
+	 * The default format is the format in which ARCSs are printed by default.
 	 *
 	 * The ARCS default format entails:
 	 * - hexadecimal representation

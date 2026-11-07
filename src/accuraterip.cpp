@@ -254,33 +254,29 @@ void print(std::ostream& out, const unsigned total_tracks,
 // ACCURATERIP
 
 
-std::string ACCURATERIP::request_url_prefix_ =
-		ACCURATERIP::default_request_url_prefix();
-
-
-std::string ACCURATERIP::request_url_prefix() noexcept
+const std::string& ACCURATERIP::request_url_prefix() noexcept
 {
-	return ACCURATERIP::request_url_prefix_;
+	return request_url_prefix_storage();
 }
 
 
-std::string ACCURATERIP::default_request_url_prefix() noexcept
+const std::string& ACCURATERIP::default_request_url_prefix() noexcept
 {
 	/* this defines the default URL prefix for AccurateRip requests */
-	return "http://www.accuraterip.com/accuraterip/";
+	static const std::string p { "http://www.accuraterip.com/accuraterip/" };
+	return p;
 }
 
 
 void ACCURATERIP::set_request_url_prefix(const std::string& prefix) noexcept
 {
-	ACCURATERIP::request_url_prefix_ = prefix;
+	request_url_prefix_storage() = prefix;
 }
 
 
 void ACCURATERIP::reset_request_url_prefix() noexcept
 {
-	ACCURATERIP::set_request_url_prefix(
-			ACCURATERIP::default_request_url_prefix());
+	set_request_url_prefix(default_request_url_prefix());
 }
 
 
