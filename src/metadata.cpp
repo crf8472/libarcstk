@@ -20,7 +20,7 @@
 #include <memory>        // for make_unique
 #include <ostream>       // for ostream
 #include <sstream>       // for ostringstream
-#include <stdexcept>     // for invalid_argument
+#include <stdexcept>     // for runtime_error, out_of_range
 #include <string>        // for string
 #include <set>           // for set
 #include <type_traits>   // for underlying_type
@@ -443,16 +443,17 @@ AudioSize length(const ToCData::size_type track, const ToCData& data)
 	{
 		auto msg = std::ostringstream {};
 		msg << "Requested length for track " << track << " but last track is "
-			<< total_tracks(data);
+			<< toc::total_tracks(data);
 
 		throw std::out_of_range { msg.str() };
 	}
 
 	const auto next_track = (track + 1 == data.size()) ? 0 : track + 1;
 
-	if (next_track == 0) // leadout 0 conforming to validate_offsets()
+	if (next_track == 0 && data.front().zero())
 	{
-		return { 0, UNIT::BYTES };
+		// leadout 0 means length 0 conforming to validate_offsets()
+		return { 0, UNIT::FRAMES };
 	}
 
 	return { data.at(next_track).frames() - data.at(track).frames(),
