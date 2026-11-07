@@ -27,9 +27,7 @@
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"      // for AudioSize, CDDA, ToC
 #endif
-#ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"      // for Checksum
-#endif
+
 
 namespace arcstk
 {
