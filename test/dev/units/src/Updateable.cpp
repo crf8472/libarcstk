@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Updateable", "[updateable] [calc] [algorithm]" )
+TEST_CASE ( "Updateable", "[updateable][calc][algorithm]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "Updateable", "[updateable] [calc] [algorithm]" )
 
 
 TEST_CASE ( "Updateable default constructed instance",
-		"[updateable] [calc] [algorithm]" )
+		"[updateable][calc][algorithm]" )
 {
 	const auto defaulted = arcstk::Updateable{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "Updateable default constructed instance",
 }
 
 
-TEST_CASE ( "Updateable property", "[updateable] [calc] [algorithm]" )
+TEST_CASE ( "Updateable property", "[updateable][calc][algorithm]" )
 {
 	using arcstk::Updateable;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "Updateable property", "[updateable] [calc] [algorithm]" )
 }
 
 
-TEST_CASE ( "Updateable functions", "[updateable] [calc] [algorithm]" )
+TEST_CASE ( "Updateable functions", "[updateable][calc][algorithm]" )
 {
 	using arcstk::Updateable;
 

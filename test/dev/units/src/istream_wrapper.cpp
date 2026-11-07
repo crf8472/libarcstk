@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "istream_wrapper", "[istream_wrapper] [dbar] [dbar]" )
+TEST_CASE ( "istream_wrapper", "[istream_wrapper][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "istream_wrapper", "[istream_wrapper] [dbar] [dbar]" )
 
 
 TEST_CASE ( "istream_wrapper default constructed instance",
-		"[istream_wrapper] [dbar] [dbar]" )
+		"[istream_wrapper][dbar]" )
 {
 	const auto defaulted = arcstk::istream_wrapper{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "istream_wrapper default constructed instance",
 }
 
 
-TEST_CASE ( "istream_wrapper property", "[istream_wrapper] [dbar] [dbar]" )
+TEST_CASE ( "istream_wrapper property", "[istream_wrapper][dbar]" )
 {
 	using arcstk::istream_wrapper;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "istream_wrapper property", "[istream_wrapper] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "istream_wrapper functions", "[istream_wrapper] [dbar] [dbar]" )
+TEST_CASE ( "istream_wrapper functions", "[istream_wrapper][dbar]" )
 {
 	using arcstk::istream_wrapper;
 

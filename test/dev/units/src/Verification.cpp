@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Verification", "[verification] [verify] [verify]" )
+TEST_CASE ( "Verification", "[verification][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "Verification", "[verification] [verify] [verify]" )
 
 
 TEST_CASE ( "Verification default constructed instance",
-		"[verification] [verify] [verify]" )
+		"[verification][verify]" )
 {
 	const auto defaulted = arcstk::Verification{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "Verification default constructed instance",
 }
 
 
-TEST_CASE ( "Verification property", "[verification] [verify] [verify]" )
+TEST_CASE ( "Verification property", "[verification][verify]" )
 {
 	using arcstk::Verification;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "Verification property", "[verification] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "Verification functions", "[verification] [verify] [verify]" )
+TEST_CASE ( "Verification functions", "[verification][verify]" )
 {
 	using arcstk::Verification;
 

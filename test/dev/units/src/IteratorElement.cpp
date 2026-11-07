@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "IteratorElement", "[iteratorelement] [dbar] [dbar]" )
+TEST_CASE ( "IteratorElement", "[iteratorelement][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "IteratorElement", "[iteratorelement] [dbar] [dbar]" )
 
 
 TEST_CASE ( "IteratorElement default constructed instance",
-		"[iteratorelement] [dbar] [dbar]" )
+		"[iteratorelement][dbar]" )
 {
 	const auto defaulted = arcstk::IteratorElement{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "IteratorElement default constructed instance",
 }
 
 
-TEST_CASE ( "IteratorElement property", "[iteratorelement] [dbar] [dbar]" )
+TEST_CASE ( "IteratorElement property", "[iteratorelement][dbar]" )
 {
 	using arcstk::IteratorElement;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "IteratorElement property", "[iteratorelement] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "IteratorElement functions", "[iteratorelement] [dbar] [dbar]" )
+TEST_CASE ( "IteratorElement functions", "[iteratorelement][dbar]" )
 {
 	using arcstk::IteratorElement;
 

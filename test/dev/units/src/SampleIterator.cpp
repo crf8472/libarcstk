@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "SampleIterator", "[sampleiterator] [calc] [samples]" )
+TEST_CASE ( "SampleIterator", "[sampleiterator][calc][samples]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "SampleIterator", "[sampleiterator] [calc] [samples]" )
 
 
 TEST_CASE ( "SampleIterator default constructed instance",
-		"[sampleiterator] [calc] [samples]" )
+		"[sampleiterator][calc][samples]" )
 {
 	const auto defaulted = arcstk::SampleIterator{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "SampleIterator default constructed instance",
 }
 
 
-TEST_CASE ( "SampleIterator property", "[sampleiterator] [calc] [samples]" )
+TEST_CASE ( "SampleIterator property", "[sampleiterator][calc][samples]" )
 {
 	using arcstk::SampleIterator;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "SampleIterator property", "[sampleiterator] [calc] [samples]" )
 }
 
 
-TEST_CASE ( "SampleIterator functions", "[sampleiterator] [calc] [samples]" )
+TEST_CASE ( "SampleIterator functions", "[sampleiterator][calc][samples]" )
 {
 	using arcstk::SampleIterator;
 

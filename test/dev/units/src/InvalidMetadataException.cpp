@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "InvalidMetadataException", "[invalidmetadataexception] [metadata] [metadata]" )
+TEST_CASE ( "InvalidMetadataException", "[invalidmetadataexception][metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "InvalidMetadataException", "[invalidmetadataexception] [metadata] [
 
 
 TEST_CASE ( "InvalidMetadataException default constructed instance",
-		"[invalidmetadataexception] [metadata] [metadata]" )
+		"[invalidmetadataexception][metadata]" )
 {
 	const auto defaulted = arcstk::InvalidMetadataException{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "InvalidMetadataException default constructed instance",
 }
 
 
-TEST_CASE ( "InvalidMetadataException property", "[invalidmetadataexception] [metadata] [metadata]" )
+TEST_CASE ( "InvalidMetadataException property", "[invalidmetadataexception][metadata]" )
 {
 	using arcstk::InvalidMetadataException;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "InvalidMetadataException property", "[invalidmetadataexception] [me
 }
 
 
-TEST_CASE ( "InvalidMetadataException functions", "[invalidmetadataexception] [metadata] [metadata]" )
+TEST_CASE ( "InvalidMetadataException functions", "[invalidmetadataexception][metadata]" )
 {
 	using arcstk::InvalidMetadataException;
 

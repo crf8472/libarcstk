@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "DBARForwardIterator", "[dbarforwarditerator] [dbar] [dbar]" )
+TEST_CASE ( "DBARForwardIterator", "[dbarforwarditerator][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "DBARForwardIterator", "[dbarforwarditerator] [dbar] [dbar]" )
 
 
 TEST_CASE ( "DBARForwardIterator default constructed instance",
-		"[dbarforwarditerator] [dbar] [dbar]" )
+		"[dbarforwarditerator][dbar]" )
 {
 	const auto defaulted = arcstk::DBARForwardIterator{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "DBARForwardIterator default constructed instance",
 }
 
 
-TEST_CASE ( "DBARForwardIterator property", "[dbarforwarditerator] [dbar] [dbar]" )
+TEST_CASE ( "DBARForwardIterator property", "[dbarforwarditerator][dbar]" )
 {
 	using arcstk::DBARForwardIterator;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "DBARForwardIterator property", "[dbarforwarditerator] [dbar] [dbar]
 }
 
 
-TEST_CASE ( "DBARForwardIterator functions", "[dbarforwarditerator] [dbar] [dbar]" )
+TEST_CASE ( "DBARForwardIterator functions", "[dbarforwarditerator][dbar]" )
 {
 	using arcstk::DBARForwardIterator;
 

@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "BestBlock", "[bestblock] [verify] [verify]" )
+TEST_CASE ( "BestBlock", "[bestblock][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "BestBlock", "[bestblock] [verify] [verify]" )
 
 
 TEST_CASE ( "BestBlock default constructed instance",
-		"[bestblock] [verify] [verify]" )
+		"[bestblock][verify]" )
 {
 	const auto defaulted = arcstk::BestBlock{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "BestBlock default constructed instance",
 }
 
 
-TEST_CASE ( "BestBlock property", "[bestblock] [verify] [verify]" )
+TEST_CASE ( "BestBlock property", "[bestblock][verify]" )
 {
 	using arcstk::BestBlock;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "BestBlock property", "[bestblock] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "BestBlock functions", "[bestblock] [verify] [verify]" )
+TEST_CASE ( "BestBlock functions", "[bestblock][verify]" )
 {
 	using arcstk::BestBlock;
 

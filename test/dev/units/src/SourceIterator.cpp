@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "SourceIterator", "[sourceiterator] [verify] [verify]" )
+TEST_CASE ( "SourceIterator", "[sourceiterator][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "SourceIterator", "[sourceiterator] [verify] [verify]" )
 
 
 TEST_CASE ( "SourceIterator default constructed instance",
-		"[sourceiterator] [verify] [verify]" )
+		"[sourceiterator][verify]" )
 {
 	const auto defaulted = arcstk::SourceIterator{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "SourceIterator default constructed instance",
 }
 
 
-TEST_CASE ( "SourceIterator property", "[sourceiterator] [verify] [verify]" )
+TEST_CASE ( "SourceIterator property", "[sourceiterator][verify]" )
 {
 	using arcstk::SourceIterator;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "SourceIterator functions", "[sourceiterator] [verify] [verify]" )
+TEST_CASE ( "SourceIterator functions", "[sourceiterator][verify]" )
 {
 	using arcstk::SourceIterator;
 

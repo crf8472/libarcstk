@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "DBARSource", "[dbarsource] [verify] [verify]" )
+TEST_CASE ( "DBARSource", "[dbarsource][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "DBARSource", "[dbarsource] [verify] [verify]" )
 
 
 TEST_CASE ( "DBARSource default constructed instance",
-		"[dbarsource] [verify] [verify]" )
+		"[dbarsource][verify]" )
 {
 	const auto defaulted = arcstk::DBARSource{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "DBARSource default constructed instance",
 }
 
 
-TEST_CASE ( "DBARSource property", "[dbarsource] [verify] [verify]" )
+TEST_CASE ( "DBARSource property", "[dbarsource][verify]" )
 {
 	using arcstk::DBARSource;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "DBARSource property", "[dbarsource] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "DBARSource functions", "[dbarsource] [verify] [verify]" )
+TEST_CASE ( "DBARSource functions", "[dbarsource][verify]" )
 {
 	using arcstk::DBARSource;
 

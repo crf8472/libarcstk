@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "DBARTriplet", "[dbartriplet] [dbar] [dbar]" )
+TEST_CASE ( "DBARTriplet", "[dbartriplet][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "DBARTriplet", "[dbartriplet] [dbar] [dbar]" )
 
 
 TEST_CASE ( "DBARTriplet default constructed instance",
-		"[dbartriplet] [dbar] [dbar]" )
+		"[dbartriplet][dbar]" )
 {
 	const auto defaulted = arcstk::DBARTriplet{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "DBARTriplet default constructed instance",
 }
 
 
-TEST_CASE ( "DBARTriplet property", "[dbartriplet] [dbar] [dbar]" )
+TEST_CASE ( "DBARTriplet property", "[dbartriplet][dbar]" )
 {
 	using arcstk::DBARTriplet;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "DBARTriplet property", "[dbartriplet] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "DBARTriplet functions", "[dbartriplet] [dbar] [dbar]" )
+TEST_CASE ( "DBARTriplet functions", "[dbartriplet][dbar]" )
 {
 	using arcstk::DBARTriplet;
 

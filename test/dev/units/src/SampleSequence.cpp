@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "SampleSequence", "[samplesequence] [calc] [samples]" )
+TEST_CASE ( "SampleSequence", "[samplesequence][calc][samples]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "SampleSequence", "[samplesequence] [calc] [samples]" )
 
 
 TEST_CASE ( "SampleSequence default constructed instance",
-		"[samplesequence] [calc] [samples]" )
+		"[samplesequence][calc][samples]" )
 {
 	const auto defaulted = arcstk::SampleSequence{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "SampleSequence default constructed instance",
 }
 
 
-TEST_CASE ( "SampleSequence property", "[samplesequence] [calc] [samples]" )
+TEST_CASE ( "SampleSequence property", "[samplesequence][calc][samples]" )
 {
 	using arcstk::SampleSequence;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "SampleSequence property", "[samplesequence] [calc] [samples]" )
 }
 
 
-TEST_CASE ( "SampleSequence functions", "[samplesequence] [calc] [samples]" )
+TEST_CASE ( "SampleSequence functions", "[samplesequence][calc][samples]" )
 {
 	using arcstk::SampleSequence;
 

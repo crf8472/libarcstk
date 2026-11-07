@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "CheckingDBARBuilderState", "[checkingdbarbuilderstate] [dbar] [dbar]" )
+TEST_CASE ( "CheckingDBARBuilderState", "[checkingdbarbuilderstate][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "CheckingDBARBuilderState", "[checkingdbarbuilderstate] [dbar] [dbar
 
 
 TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
-		"[checkingdbarbuilderstate] [dbar] [dbar]" )
+		"[checkingdbarbuilderstate][dbar]" )
 {
 	const auto defaulted = arcstk::CheckingDBARBuilderState{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
 }
 
 
-TEST_CASE ( "CheckingDBARBuilderState property", "[checkingdbarbuilderstate] [dbar] [dbar]" )
+TEST_CASE ( "CheckingDBARBuilderState property", "[checkingdbarbuilderstate][dbar]" )
 {
 	using arcstk::CheckingDBARBuilderState;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "CheckingDBARBuilderState property", "[checkingdbarbuilderstate] [db
 }
 
 
-TEST_CASE ( "CheckingDBARBuilderState functions", "[checkingdbarbuilderstate] [dbar] [dbar]" )
+TEST_CASE ( "CheckingDBARBuilderState functions", "[checkingdbarbuilderstate][dbar]" )
 {
 	using arcstk::CheckingDBARBuilderState;
 

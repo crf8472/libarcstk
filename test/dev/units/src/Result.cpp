@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Result", "[result] [verify] [verify]" )
+TEST_CASE ( "Result", "[result][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "Result", "[result] [verify] [verify]" )
 
 
 TEST_CASE ( "Result default constructed instance",
-		"[result] [verify] [verify]" )
+		"[result][verify]" )
 {
 	const auto defaulted = arcstk::Result{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "Result default constructed instance",
 }
 
 
-TEST_CASE ( "Result property", "[result] [verify] [verify]" )
+TEST_CASE ( "Result property", "[result][verify]" )
 {
 	using arcstk::Result;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "Result property", "[result] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "Result functions", "[result] [verify] [verify]" )
+TEST_CASE ( "Result functions", "[result][verify]" )
 {
 	using arcstk::Result;
 

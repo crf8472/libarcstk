@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "StreamParseException", "[streamparseexception] [dbar] [dbar]" )
+TEST_CASE ( "StreamParseException", "[streamparseexception][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "StreamParseException", "[streamparseexception] [dbar] [dbar]" )
 
 
 TEST_CASE ( "StreamParseException default constructed instance",
-		"[streamparseexception] [dbar] [dbar]" )
+		"[streamparseexception][dbar]" )
 {
 	const auto defaulted = arcstk::StreamParseException{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "StreamParseException default constructed instance",
 }
 
 
-TEST_CASE ( "StreamParseException property", "[streamparseexception] [dbar] [dbar]" )
+TEST_CASE ( "StreamParseException property", "[streamparseexception][dbar]" )
 {
 	using arcstk::StreamParseException;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "StreamParseException property", "[streamparseexception] [dbar] [dba
 }
 
 
-TEST_CASE ( "StreamParseException functions", "[streamparseexception] [dbar] [dbar]" )
+TEST_CASE ( "StreamParseException functions", "[streamparseexception][dbar]" )
 {
 	using arcstk::StreamParseException;
 

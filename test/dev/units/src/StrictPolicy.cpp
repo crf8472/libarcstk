@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify] [verify]" )
+TEST_CASE ( "StrictPolicy", "[strictpolicy][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify] [verify]" )
 
 
 TEST_CASE ( "StrictPolicy default constructed instance",
-		"[strictpolicy] [verify] [verify]" )
+		"[strictpolicy][verify]" )
 {
 	const auto defaulted = arcstk::StrictPolicy{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "StrictPolicy default constructed instance",
 }
 
 
-TEST_CASE ( "StrictPolicy property", "[strictpolicy] [verify] [verify]" )
+TEST_CASE ( "StrictPolicy property", "[strictpolicy][verify]" )
 {
 	using arcstk::StrictPolicy;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "StrictPolicy property", "[strictpolicy] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "StrictPolicy functions", "[strictpolicy] [verify] [verify]" )
+TEST_CASE ( "StrictPolicy functions", "[strictpolicy][verify]" )
 {
 	using arcstk::StrictPolicy;
 

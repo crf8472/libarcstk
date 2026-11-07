@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "TrackTraversal", "[tracktraversal] [verify] [verify]" )
+TEST_CASE ( "TrackTraversal", "[tracktraversal][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "TrackTraversal", "[tracktraversal] [verify] [verify]" )
 
 
 TEST_CASE ( "TrackTraversal default constructed instance",
-		"[tracktraversal] [verify] [verify]" )
+		"[tracktraversal][verify]" )
 {
 	const auto defaulted = arcstk::TrackTraversal{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 }
 
 
-TEST_CASE ( "TrackTraversal property", "[tracktraversal] [verify] [verify]" )
+TEST_CASE ( "TrackTraversal property", "[tracktraversal][verify]" )
 {
 	using arcstk::TrackTraversal;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "TrackTraversal property", "[tracktraversal] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "TrackTraversal functions", "[tracktraversal] [verify] [verify]" )
+TEST_CASE ( "TrackTraversal functions", "[tracktraversal][verify]" )
 {
 	using arcstk::TrackTraversal;
 

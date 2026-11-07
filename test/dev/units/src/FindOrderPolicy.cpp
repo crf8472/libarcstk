@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify] [verify]" )
+TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify] [verify]" )
 
 
 TEST_CASE ( "FindOrderPolicy default constructed instance",
-		"[findorderpolicy] [verify] [verify]" )
+		"[findorderpolicy][verify]" )
 {
 	const auto defaulted = arcstk::FindOrderPolicy{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "FindOrderPolicy default constructed instance",
 }
 
 
-TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy] [verify] [verify]" )
+TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy][verify]" )
 {
 	using arcstk::FindOrderPolicy;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "FindOrderPolicy functions", "[findorderpolicy] [verify] [verify]" )
+TEST_CASE ( "FindOrderPolicy functions", "[findorderpolicy][verify]" )
 {
 	using arcstk::FindOrderPolicy;
 

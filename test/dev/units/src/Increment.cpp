@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Increment", "[increment] [dbar] [dbar]" )
+TEST_CASE ( "Increment", "[increment][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "Increment", "[increment] [dbar] [dbar]" )
 
 
 TEST_CASE ( "Increment default constructed instance",
-		"[increment] [dbar] [dbar]" )
+		"[increment][dbar]" )
 {
 	const auto defaulted = arcstk::Increment{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "Increment default constructed instance",
 }
 
 
-TEST_CASE ( "Increment property", "[increment] [dbar] [dbar]" )
+TEST_CASE ( "Increment property", "[increment][dbar]" )
 {
 	using arcstk::Increment;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "Increment property", "[increment] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "Increment functions", "[increment] [dbar] [dbar]" )
+TEST_CASE ( "Increment functions", "[increment][dbar]" )
 {
 	using arcstk::Increment;
 

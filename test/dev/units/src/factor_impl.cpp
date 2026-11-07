@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "factor_impl", "[factor_impl] [metadata] [metadata]" )
+TEST_CASE ( "factor_impl", "[factor_impl][metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "factor_impl", "[factor_impl] [metadata] [metadata]" )
 
 
 TEST_CASE ( "factor_impl default constructed instance",
-		"[factor_impl] [metadata] [metadata]" )
+		"[factor_impl][metadata]" )
 {
 	const auto defaulted = arcstk::factor_impl{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "factor_impl default constructed instance",
 }
 
 
-TEST_CASE ( "factor_impl property", "[factor_impl] [metadata] [metadata]" )
+TEST_CASE ( "factor_impl property", "[factor_impl][metadata]" )
 {
 	using arcstk::factor_impl;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "factor_impl property", "[factor_impl] [metadata] [metadata]" )
 }
 
 
-TEST_CASE ( "factor_impl functions", "[factor_impl] [metadata] [metadata]" )
+TEST_CASE ( "factor_impl functions", "[factor_impl][metadata]" )
 {
 	using arcstk::factor_impl;
 

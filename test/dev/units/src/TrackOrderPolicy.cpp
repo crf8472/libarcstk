@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify] [verify]" )
+TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify] [verify]" )
 
 
 TEST_CASE ( "TrackOrderPolicy default constructed instance",
-		"[trackorderpolicy] [verify] [verify]" )
+		"[trackorderpolicy][verify]" )
 {
 	const auto defaulted = arcstk::TrackOrderPolicy{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "TrackOrderPolicy default constructed instance",
 }
 
 
-TEST_CASE ( "TrackOrderPolicy property", "[trackorderpolicy] [verify] [verify]" )
+TEST_CASE ( "TrackOrderPolicy property", "[trackorderpolicy][verify]" )
 {
 	using arcstk::TrackOrderPolicy;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "TrackOrderPolicy property", "[trackorderpolicy] [verify] [verify]" 
 }
 
 
-TEST_CASE ( "TrackOrderPolicy functions", "[trackorderpolicy] [verify] [verify]" )
+TEST_CASE ( "TrackOrderPolicy functions", "[trackorderpolicy][verify]" )
 {
 	using arcstk::TrackOrderPolicy;
 

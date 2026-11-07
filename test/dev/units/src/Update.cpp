@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Update", "[update] [calc] [accuraterip]" )
+TEST_CASE ( "Update", "[update][calc][accuraterip]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "Update", "[update] [calc] [accuraterip]" )
 
 
 TEST_CASE ( "Update default constructed instance",
-		"[update] [calc] [accuraterip]" )
+		"[update][calc][accuraterip]" )
 {
 	const auto defaulted = arcstk::Update{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "Update default constructed instance",
 }
 
 
-TEST_CASE ( "Update property", "[update] [calc] [accuraterip]" )
+TEST_CASE ( "Update property", "[update][calc][accuraterip]" )
 {
 	using arcstk::Update;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "Update property", "[update] [calc] [accuraterip]" )
 }
 
 
-TEST_CASE ( "Update functions", "[update] [calc] [accuraterip]" )
+TEST_CASE ( "Update functions", "[update][calc][accuraterip]" )
 {
 	using arcstk::Update;
 

@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "CDDA", "[cdda] [metadata] [metadata]" )
+TEST_CASE ( "CDDA", "[cdda][metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "CDDA", "[cdda] [metadata] [metadata]" )
 
 
 TEST_CASE ( "CDDA default constructed instance",
-		"[cdda] [metadata] [metadata]" )
+		"[cdda][metadata]" )
 {
 	const auto defaulted = arcstk::CDDA{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "CDDA default constructed instance",
 }
 
 
-TEST_CASE ( "CDDA property", "[cdda] [metadata] [metadata]" )
+TEST_CASE ( "CDDA property", "[cdda][metadata]" )
 {
 	using arcstk::CDDA;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "CDDA property", "[cdda] [metadata] [metadata]" )
 }
 
 
-TEST_CASE ( "CDDA functions", "[cdda] [metadata] [metadata]" )
+TEST_CASE ( "CDDA functions", "[cdda][metadata]" )
 {
 	using arcstk::CDDA;
 

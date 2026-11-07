@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify] [verify]" )
+TEST_CASE ( "TracksetVerifier", "[tracksetverifier][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify] [verify]" )
 
 
 TEST_CASE ( "TracksetVerifier default constructed instance",
-		"[tracksetverifier] [verify] [verify]" )
+		"[tracksetverifier][verify]" )
 {
 	const auto defaulted = arcstk::TracksetVerifier{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "TracksetVerifier default constructed instance",
 }
 
 
-TEST_CASE ( "TracksetVerifier property", "[tracksetverifier] [verify] [verify]" )
+TEST_CASE ( "TracksetVerifier property", "[tracksetverifier][verify]" )
 {
 	using arcstk::TracksetVerifier;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "TracksetVerifier property", "[tracksetverifier] [verify] [verify]" 
 }
 
 
-TEST_CASE ( "TracksetVerifier functions", "[tracksetverifier] [verify] [verify]" )
+TEST_CASE ( "TracksetVerifier functions", "[tracksetverifier][verify]" )
 {
 	using arcstk::TracksetVerifier;
 

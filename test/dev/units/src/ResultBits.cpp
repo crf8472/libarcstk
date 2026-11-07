@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "ResultBits", "[resultbits] [verify] [verify]" )
+TEST_CASE ( "ResultBits", "[resultbits][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "ResultBits", "[resultbits] [verify] [verify]" )
 
 
 TEST_CASE ( "ResultBits default constructed instance",
-		"[resultbits] [verify] [verify]" )
+		"[resultbits][verify]" )
 {
 	const auto defaulted = arcstk::ResultBits{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "ResultBits default constructed instance",
 }
 
 
-TEST_CASE ( "ResultBits property", "[resultbits] [verify] [verify]" )
+TEST_CASE ( "ResultBits property", "[resultbits][verify]" )
 {
 	using arcstk::ResultBits;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "ResultBits property", "[resultbits] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "ResultBits functions", "[resultbits] [verify] [verify]" )
+TEST_CASE ( "ResultBits functions", "[resultbits][verify]" )
 {
 	using arcstk::ResultBits;
 

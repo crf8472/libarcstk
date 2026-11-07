@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "BlockSelector", "[blockselector] [verify] [verify]" )
+TEST_CASE ( "BlockSelector", "[blockselector][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "BlockSelector", "[blockselector] [verify] [verify]" )
 
 
 TEST_CASE ( "BlockSelector default constructed instance",
-		"[blockselector] [verify] [verify]" )
+		"[blockselector][verify]" )
 {
 	const auto defaulted = arcstk::BlockSelector{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "BlockSelector default constructed instance",
 }
 
 
-TEST_CASE ( "BlockSelector property", "[blockselector] [verify] [verify]" )
+TEST_CASE ( "BlockSelector property", "[blockselector][verify]" )
 {
 	using arcstk::BlockSelector;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "BlockSelector property", "[blockselector] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "BlockSelector functions", "[blockselector] [verify] [verify]" )
+TEST_CASE ( "BlockSelector functions", "[blockselector][verify]" )
 {
 	using arcstk::BlockSelector;
 

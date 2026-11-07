@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "BlockTraversal", "[blocktraversal] [verify] [verify]" )
+TEST_CASE ( "BlockTraversal", "[blocktraversal][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "BlockTraversal", "[blocktraversal] [verify] [verify]" )
 
 
 TEST_CASE ( "BlockTraversal default constructed instance",
-		"[blocktraversal] [verify] [verify]" )
+		"[blocktraversal][verify]" )
 {
 	const auto defaulted = arcstk::BlockTraversal{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "BlockTraversal default constructed instance",
 }
 
 
-TEST_CASE ( "BlockTraversal property", "[blocktraversal] [verify] [verify]" )
+TEST_CASE ( "BlockTraversal property", "[blocktraversal][verify]" )
 {
 	using arcstk::BlockTraversal;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "BlockTraversal property", "[blocktraversal] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "BlockTraversal functions", "[blocktraversal] [verify] [verify]" )
+TEST_CASE ( "BlockTraversal functions", "[blocktraversal][verify]" )
 {
 	using arcstk::BlockTraversal;
 

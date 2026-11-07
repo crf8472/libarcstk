@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "DBARBlockHeader", "[dbarblockheader] [dbar] [dbar]" )
+TEST_CASE ( "DBARBlockHeader", "[dbarblockheader][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "DBARBlockHeader", "[dbarblockheader] [dbar] [dbar]" )
 
 
 TEST_CASE ( "DBARBlockHeader default constructed instance",
-		"[dbarblockheader] [dbar] [dbar]" )
+		"[dbarblockheader][dbar]" )
 {
 	const auto defaulted = arcstk::DBARBlockHeader{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "DBARBlockHeader default constructed instance",
 }
 
 
-TEST_CASE ( "DBARBlockHeader property", "[dbarblockheader] [dbar] [dbar]" )
+TEST_CASE ( "DBARBlockHeader property", "[dbarblockheader][dbar]" )
 {
 	using arcstk::DBARBlockHeader;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "DBARBlockHeader property", "[dbarblockheader] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "DBARBlockHeader functions", "[dbarblockheader] [dbar] [dbar]" )
+TEST_CASE ( "DBARBlockHeader functions", "[dbarblockheader][dbar]" )
 {
 	using arcstk::DBARBlockHeader;
 

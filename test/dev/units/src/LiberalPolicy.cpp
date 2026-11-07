@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify] [verify]" )
+TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify] [verify]" )
 
 
 TEST_CASE ( "LiberalPolicy default constructed instance",
-		"[liberalpolicy] [verify] [verify]" )
+		"[liberalpolicy][verify]" )
 {
 	const auto defaulted = arcstk::LiberalPolicy{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "LiberalPolicy default constructed instance",
 }
 
 
-TEST_CASE ( "LiberalPolicy property", "[liberalpolicy] [verify] [verify]" )
+TEST_CASE ( "LiberalPolicy property", "[liberalpolicy][verify]" )
 {
 	using arcstk::LiberalPolicy;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "LiberalPolicy property", "[liberalpolicy] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "LiberalPolicy functions", "[liberalpolicy] [verify] [verify]" )
+TEST_CASE ( "LiberalPolicy functions", "[liberalpolicy][verify]" )
 {
 	using arcstk::LiberalPolicy;
 

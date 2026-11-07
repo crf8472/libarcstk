@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "TrackSelector", "[trackselector] [verify] [verify]" )
+TEST_CASE ( "TrackSelector", "[trackselector][verify]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "TrackSelector", "[trackselector] [verify] [verify]" )
 
 
 TEST_CASE ( "TrackSelector default constructed instance",
-		"[trackselector] [verify] [verify]" )
+		"[trackselector][verify]" )
 {
 	const auto defaulted = arcstk::TrackSelector{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "TrackSelector default constructed instance",
 }
 
 
-TEST_CASE ( "TrackSelector property", "[trackselector] [verify] [verify]" )
+TEST_CASE ( "TrackSelector property", "[trackselector][verify]" )
 {
 	using arcstk::TrackSelector;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "TrackSelector property", "[trackselector] [verify] [verify]" )
 }
 
 
-TEST_CASE ( "TrackSelector functions", "[trackselector] [verify] [verify]" )
+TEST_CASE ( "TrackSelector functions", "[trackselector][verify]" )
 {
 	using arcstk::TrackSelector;
 

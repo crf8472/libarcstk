@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "StreamFlagsGuard", "[streamflagsguard] [calc] [checksum]" )
+TEST_CASE ( "StreamFlagsGuard", "[streamflagsguard][calc][checksum]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "StreamFlagsGuard", "[streamflagsguard] [calc] [checksum]" )
 
 
 TEST_CASE ( "StreamFlagsGuard default constructed instance",
-		"[streamflagsguard] [calc] [checksum]" )
+		"[streamflagsguard][calc][checksum]" )
 {
 	const auto defaulted = arcstk::StreamFlagsGuard{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "StreamFlagsGuard default constructed instance",
 }
 
 
-TEST_CASE ( "StreamFlagsGuard property", "[streamflagsguard] [calc] [checksum]" )
+TEST_CASE ( "StreamFlagsGuard property", "[streamflagsguard][calc][checksum]" )
 {
 	using arcstk::StreamFlagsGuard;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "StreamFlagsGuard property", "[streamflagsguard] [calc] [checksum]" 
 }
 
 
-TEST_CASE ( "StreamFlagsGuard functions", "[streamflagsguard] [calc] [checksum]" )
+TEST_CASE ( "StreamFlagsGuard functions", "[streamflagsguard][calc][checksum]" )
 {
 	using arcstk::StreamFlagsGuard;
 

@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "channel", "[channel] [calc] [samples]" )
+TEST_CASE ( "channel", "[channel][calc][samples]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@ TEST_CASE ( "channel", "[channel] [calc] [samples]" )
 
 
 TEST_CASE ( "channel default constructed instance",
-		"[channel] [calc] [samples]" )
+		"[channel][calc][samples]" )
 {
 	const auto defaulted = arcstk::channel{};
 
@@ -98,7 +98,7 @@ TEST_CASE ( "channel default constructed instance",
 }
 
 
-TEST_CASE ( "channel property", "[channel] [calc] [samples]" )
+TEST_CASE ( "channel property", "[channel][calc][samples]" )
 {
 	using arcstk::channel;
 
@@ -147,7 +147,7 @@ TEST_CASE ( "channel property", "[channel] [calc] [samples]" )
 }
 
 
-TEST_CASE ( "channel functions", "[channel] [calc] [samples]" )
+TEST_CASE ( "channel functions", "[channel][calc][samples]" )
 {
 	using arcstk::channel;
 
