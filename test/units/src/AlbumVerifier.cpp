@@ -7,14 +7,11 @@
  */
 
 #ifndef LIBARCSTK_VERIFY_HPP_
-#include "verify.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_VERIFY_HPP_
-#include "verify_details.hpp"  // for
+#include "verify.hpp"             // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"      // for ARId
+#include "identifier.hpp"         // for ARId
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_

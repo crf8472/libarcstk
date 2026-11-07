@@ -58,7 +58,7 @@ namespace details
 
 constexpr int BestBlock::MAX_DIFFERENCE;
 
-best_block_info_t BestBlock::from(const VerificationResult& result) const
+best_block_info_t BestBlock::from(const VerificationResult& result)
 {
 	ARCS_LOG(DEBUG1) << "Find best block:";
 

@@ -133,7 +133,7 @@ TEST_CASE ( "StrictPolicy property", "[strictpolicy][verify]" )
 	{
 		const auto cloned = instance.clone();
 
-		CHECK ( ! cloned->is_strict() );
+		CHECK ( cloned->is_strict() );
 	}
 
 	// SECTION ("size() is correct")

@@ -70,7 +70,7 @@ struct BestBlock final
 	 *
 	 * \param[in] r The result to get the best block of
 	 */
-	best_block_info_t from(const VerificationResult& r) const;
+	static best_block_info_t from(const VerificationResult& r);
 };
 
 
