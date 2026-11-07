@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "ARId is non-abstract, final and non-empty",
-		"[arid] [id] [identifier]" )
+		"[arid][id][identifier]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "ARId is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "ARId special members",
-		"[arid] [id] [identifier]" )
+		"[arid][id][identifier]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "ARId special members",
 
 
 TEST_CASE ( "ARId is swappable, comparable, string convertible",
-		"[arid] [id] [identifier]" )
+		"[arid][id][identifier]" )
 {
 	SECTION ("is nothrow swappable")
 	{

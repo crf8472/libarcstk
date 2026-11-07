@@ -14,7 +14,7 @@
 
 
 // TODO Is this even required since Checksums is an aliased vector?
-TEST_CASE ( "Checksums", "[checksums] [calc]" )
+TEST_CASE ( "Checksums", "[checksums][calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;

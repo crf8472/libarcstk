@@ -18,7 +18,7 @@
 #endif
 
 
-// TEST_CASE ( "Logger", "[logger] [logging]" )
+// TEST_CASE ( "Logger", "[logger][logging]" )
 // {
 	// using arcstk::testing::Copy;
 	// using arcstk::testing::Move;
@@ -89,7 +89,7 @@
 // }
 
 
-// TEST_CASE ( "Logger default constructed instance", "[logger] [logging]" )
+// TEST_CASE ( "Logger default constructed instance", "[logger][logging]" )
 // {
 // 	using arcstk::Logger;
 //
@@ -112,7 +112,7 @@
 // }
 
 
-// TEST_CASE ( "Logger property", "[logger] [logging] [logging]" )
+// TEST_CASE ( "Logger property", "[logger][logging][logging]" )
 // {
 // 	using arcstk::Logger;
 //
@@ -161,7 +161,7 @@
 // }
 
 
-TEST_CASE ( "Logger functions", "[logger] [logging]" )
+TEST_CASE ( "Logger functions", "[logger][logging]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;

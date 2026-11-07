@@ -19,7 +19,7 @@
 
 
 // TODO Implement testcases
-//TEST_CASE ( "SampleBufferWrapper", "[samplebufferwrapper] [calc] [samples]" )
+//TEST_CASE ( "SampleBufferWrapper", "[samplebufferwrapper][calc][samples]" )
 //{
 //	using arcstk::testing::Copy;
 //	using arcstk::testing::Move;
@@ -83,7 +83,7 @@
 //
 //
 //TEST_CASE ( "SampleBufferWrapper default constructed instance",
-//		"[samplebufferwrapper] [calc] [samples]" )
+//		"[samplebufferwrapper][calc][samples]" )
 //{
 //	const auto instance = arcstk::SampleBufferWrapper{};
 //
@@ -99,7 +99,7 @@
 //}
 //
 //
-//TEST_CASE ( "SampleBufferWrapper property", "[samplebufferwrapper] [calc] [samples]" )
+//TEST_CASE ( "SampleBufferWrapper property", "[samplebufferwrapper][calc][samples]" )
 //{
 //	using arcstk::SampleBufferWrapper;
 //
@@ -149,7 +149,7 @@
 
 
 TEST_CASE ( "SampleBufferWrapper functions",
-		"[samplebufferwrapper] [calc] [samples]" )
+		"[samplebufferwrapper][calc][samples]" )
 {
 	using arcstk::details::SampleBufferWrapper;
 	using v_int32_t = std::vector<int32_t>;

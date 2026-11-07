@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc] [calculate]" )
+TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -102,7 +102,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc] [calculate]" )
 
 // TODO Implement function test
 // TEST_CASE ( "TrackPartitioner functions",
-// 		"[trackpartitioner] [calc] [calculate]" )
+// 		"[trackpartitioner][calc][calculate]" )
 // {
 // 	using arcstk::details::TrackPartitioner;
 //
@@ -116,7 +116,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner] [calc] [calculate]" )
 // }
 
 TEST_CASE ( "TrackPartitioner functions",
-		"[trackpartitioner] [calc] [calculate]" )
+		"[trackpartitioner][calc][calculate]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;

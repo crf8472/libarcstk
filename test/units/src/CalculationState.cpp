@@ -23,7 +23,7 @@
 #include <vector>                 // for vector
 
 
-TEST_CASE ( "CalculationState-Old", "[calculationstate] [calc] [calculate]" )
+TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;
@@ -121,7 +121,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate] [calc] [calculate]" )
 }
 
 
-TEST_CASE ( "CalculationState", "[calculationstate] [calc] [calculate]" )
+TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -178,7 +178,7 @@ TEST_CASE ( "CalculationState", "[calculationstate] [calc] [calculate]" )
 
 
 TEST_CASE ( "CalculationState default constructed instance",
-		"[calculationstate] [calc] [calculate]" )
+		"[calculationstate][calc][calculate]" )
 {
 	using duration = std::chrono::duration<float>;
 
@@ -200,7 +200,7 @@ TEST_CASE ( "CalculationState default constructed instance",
 
 
 // TEST_CASE ( "CalculationState property",
-// 		"[calculationstate] [calc] [calculate]" )
+// 		"[calculationstate][calc][calculate]" )
 // {
 // 	using arcstk::details::CalculationState;
 //
@@ -215,7 +215,7 @@ TEST_CASE ( "CalculationState default constructed instance",
 
 
 // TEST_CASE ( "CalculationState functions",
-// 		"[calculationstate] [calc] [calculate]" )
+// 		"[calculationstate][calc][calculate]" )
 // {
 // 	using arcstk::details::CalculationState;
 //

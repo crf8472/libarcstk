@@ -25,7 +25,7 @@
 
 
 TEST_CASE ( "UpdateableSubtotals",
-		"[updateablesubtotals] [calc] [accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -99,7 +99,7 @@ TEST_CASE ( "UpdateableSubtotals",
 
 
 TEST_CASE ( "UpdateableSubtotals property",
-		"[updateablesubtotals] [calc] [accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::checksum::type;
@@ -183,7 +183,7 @@ TEST_CASE ( "UpdateableSubtotals property",
 
 // TODO Implement tests for functions
 // TEST_CASE ( "UpdateableSubtotals functions",
-// 		"[updateablesubtotals] [calc] [accuraterip]" )
+// 		"[updateablesubtotals][calc][accuraterip]" )
 // {
 // 	using arcstk::accuraterip::details::UpdateableSubtotals;
 // 	using arcstk::checksum::type;

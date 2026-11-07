@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "AudioSize is non-abstract, final and non-empty",
-		"[audiosize] [meta] [metadata]" )
+		"[audiosize][meta][metadata]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -37,7 +37,7 @@ TEST_CASE ( "AudioSize is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "AudioSize special members", "[audiosize] [meta] [metadata]" )
+TEST_CASE ( "AudioSize special members", "[audiosize][meta][metadata]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -76,7 +76,7 @@ TEST_CASE ( "AudioSize special members", "[audiosize] [meta] [metadata]" )
 }
 
 
-TEST_CASE ( "AudioSize is a trivial type", "[audiosize] [meta] [metadata]" )
+TEST_CASE ( "AudioSize is a trivial type", "[audiosize][meta][metadata]" )
 {
 	// not trivially constructible
 
@@ -99,7 +99,7 @@ TEST_CASE ( "AudioSize is a trivial type", "[audiosize] [meta] [metadata]" )
 }
 
 
-TEST_CASE ( "AudioSize default construction", "[arid] [id] [identifier]" )
+TEST_CASE ( "AudioSize default construction", "[arid][id][identifier]" )
 {
 	const auto s = arcstk::AudioSize{};
 
@@ -116,7 +116,7 @@ TEST_CASE ( "AudioSize default construction", "[arid] [id] [identifier]" )
 
 
 TEST_CASE ( "AudioSize is swappable, comparable, string convertible",
-		"[audiosize] [meta] [metadata]" )
+		"[audiosize][meta][metadata]" )
 {
 	SECTION ("is nothrow swappable")
 	{

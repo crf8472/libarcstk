@@ -17,7 +17,7 @@
 // make_arid
 
 
-TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
+TEST_CASE ( "make_arid builds valid ARIds", "[make_arid][id]" )
 {
 	SECTION ( "ARId from total_tracks, offsets, leadout, example 1" )
 	{
@@ -170,7 +170,7 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid] [id]" )
 // TODO validated_arid
 
 // TEST_CASE ( "make_arid refuses to build invalid ARIds",
-// 		"[identifier] [id] [aridbuilder]" )
+// 		"[identifier][id][aridbuilder]" )
 // {
 // 	using arcstk::CDDA;
 //

@@ -35,7 +35,7 @@ TEST_CASE ( "cdda_max<>", "[meta]" )
 // 		CDDA::MIN_TRACK_LEN_FRAMES - 1, UNIT::FRAMES };
 
 
-TEST_CASE ( "convert<>()", "[convert] [meta]" )
+TEST_CASE ( "convert<>()", "[convert][meta]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::convert;
@@ -167,7 +167,7 @@ TEST_CASE ( "convert<>()", "[convert] [meta]" )
 }
 
 
-TEST_CASE ( "convert_to<>()", "[convert_to] [meta]" )
+TEST_CASE ( "convert_to<>()", "[convert_to][meta]" )
 {
 	using arcstk::convert_to;
 	using arcstk::UNIT;

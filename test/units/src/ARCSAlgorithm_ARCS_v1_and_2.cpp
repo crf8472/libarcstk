@@ -18,7 +18,7 @@
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -98,7 +98,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default constructed instance",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
 
@@ -123,7 +123,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default constructed instance",
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> property",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
 
@@ -173,7 +173,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> property",
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> functions",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::ChecksumtypeSet;

@@ -18,7 +18,7 @@
 #endif
 
 
-// TEST_CASE ( "DBARBlock", "[dbarblock] [dbar] [dbar]" )
+// TEST_CASE ( "DBARBlock", "[dbarblock][dbar][dbar]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -82,7 +82,7 @@
 
 
 // TEST_CASE ( "DBARBlock default constructed instance",
-// 		"[dbarblock] [dbar] [dbar]" )
+// 		"[dbarblock][dbar][dbar]" )
 // {
 // 	const auto instance = arcstk::DBARBlock{};
 //
@@ -93,7 +93,7 @@
 // }
 
 
-// TEST_CASE ( "DBARBlock property", "[dbarblock] [dbar] [dbar]" )
+// TEST_CASE ( "DBARBlock property", "[dbarblock][dbar][dbar]" )
 // {
 // 	using arcstk::DBARBlock;
 //
@@ -142,7 +142,7 @@
 // }
 
 
-TEST_CASE ( "DBARBlock functions", "[dbarblock] [dbar] [dbar]" )
+TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][dbar]" )
 {
 	using arcstk::DBARBlock;
 

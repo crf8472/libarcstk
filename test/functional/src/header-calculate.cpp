@@ -27,7 +27,7 @@
 #endif
 
 
-TEST_CASE ( "perform_update", "[perform_update] [calc]" )
+TEST_CASE ( "perform_update", "[perform_update][calc]" )
 {
 	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;

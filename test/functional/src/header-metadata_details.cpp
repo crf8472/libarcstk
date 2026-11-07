@@ -527,7 +527,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 // // TOCBuilder
 //
 //
-// TEST_CASE ( "TOCBuilder: build with leadout", "[identifier] [tocbuilder]" )
+// TEST_CASE ( "TOCBuilder: build with leadout", "[identifier][tocbuilder]" )
 // {
 // 	using arcstk::details::TOCBuilder;
 //
@@ -536,7 +536,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 //
 //
 // TEST_CASE ( "TOCBuilder: build with lengths and files",
-// 	"[identifier] [tocbuilder]" )
+// 	"[identifier][tocbuilder]" )
 // {
 // 	using arcstk::details::TOCBuilder;
 //
@@ -661,7 +661,7 @@ TEST_CASE ("validate_offsets()", "[meta]")
 //
 //
 // TEST_CASE ( "TOCBuilder: build fails with illegal values",
-// 	"[identifier] [tocbuilder]" )
+// 	"[identifier][tocbuilder]" )
 // {
 // 	using arcstk::details::TOCBuilder;
 // 	using arcstk::CDDA;

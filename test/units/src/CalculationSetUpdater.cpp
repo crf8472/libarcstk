@@ -16,7 +16,7 @@
 
 
 // TEST_CASE ( "CalculationSetUpdater",
-// 		"[calculationsetupdater] [calc] [calculate]" )
+// 		"[calculationsetupdater][calc][calculate]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -86,7 +86,7 @@
 
 
 TEST_CASE ( "CalculationSetUpdater default constructed instance",
-		"[calculationsetupdater] [calc] [calculate]" )
+		"[calculationsetupdater][calc][calculate]" )
 {
 	using arcstk::csample_t;
 	using ci_t = std::vector<csample_t>::const_iterator;
@@ -103,7 +103,7 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 
 
 // TEST_CASE ( "CalculationSetUpdater property",
-// 		"[calculationsetupdater] [calc] [calculate]" )
+// 		"[calculationsetupdater][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
 // 	using arcstk::AccurateRip::V2;
@@ -155,7 +155,7 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 
 
 // TEST_CASE ( "CalculationSetUpdater functions",
-// 		"[calculationsetupdater] [calc] [calculate]" )
+// 		"[calculationsetupdater][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
 // 	using arcstk::AccurateRip::V2;
@@ -232,7 +232,7 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 
 
 // This test is broken due to false partitioning
-// TEST_CASE ( "CalculationSet", "[calculationset] [calc]" )
+// TEST_CASE ( "CalculationSet", "[calculationset][calc]" )
 // {
 // 	using arcstk::AlgorithmTypes;
 // 	using arcstk::AccurateRip::V1andV2;

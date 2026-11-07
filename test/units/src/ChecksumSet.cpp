@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "ChecksumSet", "[checksumset] [calc] [checksum]" )
+TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -94,7 +94,7 @@ TEST_CASE ( "ChecksumSet", "[checksumset] [calc] [checksum]" )
 
 
 TEST_CASE ( "ChecksumSet default constructed instance",
-		"[checksumset] [calc] [checksum]" )
+		"[checksumset][calc][checksum]" )
 {
 	const auto instance = arcstk::ChecksumSet{};
 
@@ -110,7 +110,7 @@ TEST_CASE ( "ChecksumSet default constructed instance",
 }
 
 
-TEST_CASE ( "ChecksumSet property", "[checksumset] [calc] [checksum]" )
+TEST_CASE ( "ChecksumSet property", "[checksumset][calc][checksum]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
@@ -182,7 +182,7 @@ TEST_CASE ( "ChecksumSet property", "[checksumset] [calc] [checksum]" )
 }
 
 
-TEST_CASE ( "ChecksumSet functions", "[checksumset] [calc] [checksum]" )
+TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Checksum is swappable, comparable, string convertible",
-		"[checksum] [calc] [calculate]" )
+		"[checksum][calc][calculate]" )
 {
 	SECTION ("is nothrow swappable")
 	{

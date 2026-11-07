@@ -33,7 +33,7 @@
 #include "ref_data.hpp"           // for standard_data
 
 
-TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
+TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm][calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
@@ -405,7 +405,7 @@ TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm] [calc]" )
 }
 
 
-TEST_CASE ( "first<>() is correct", "[arcsalgorithm] [calc]" )
+TEST_CASE ( "first<>() is correct", "[arcsalgorithm][calc]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::accuraterip::details::first;
@@ -449,7 +449,7 @@ TEST_CASE ( "first<>() is correct", "[arcsalgorithm] [calc]" )
 }
 
 
-TEST_CASE ( "last<>() is correct", "[arcsalgorithm] [calc]" )
+TEST_CASE ( "last<>() is correct", "[arcsalgorithm][calc]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::accuraterip::details::last;
@@ -495,7 +495,7 @@ TEST_CASE ( "last<>() is correct", "[arcsalgorithm] [calc]" )
 }
 
 
-// TEST_CASE ( "cs_sum() is correct", "[arcsalgorithm] [calc]" )
+// TEST_CASE ( "cs_sum() is correct", "[arcsalgorithm][calc]" )
 // {
 // 	using arcstk::accuraterip::details::UpdateableSubtotals;
 // 	using arcstk::accuraterip::details::cs_sum;
@@ -538,7 +538,7 @@ TEST_CASE ( "last<>() is correct", "[arcsalgorithm] [calc]" )
 // }
 
 
-TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
+TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm][calc]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::checksum::type;
@@ -986,7 +986,7 @@ TEST_CASE ( "Updating ARCS v1+v2 with drive offset", "[arcsalgorithm] [calc]" )
 }
 
 
-TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid] [id]" )
+TEST_CASE ( "Current AccurateRip Request URL", "[make_empty_arid][id]" )
 {
 	using arcstk::ACCURATERIP;
 

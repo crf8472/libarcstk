@@ -43,7 +43,7 @@
  *
  * Confer: https://github.com/catchorg/Catch2/issues/394
 */
-TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream] [dbar]" )
+TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream][dbar]" )
 {
 	using arcstk::details::parse_dbar_stream;
 	using arcstk::DBARBuilder;

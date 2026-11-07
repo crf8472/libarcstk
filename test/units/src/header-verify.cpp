@@ -23,7 +23,7 @@
 #endif
 
 
-TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
+TEST_CASE ( "DBARSource", "[dbarsource][verify]" )
 {
 	using arcstk::ARId;
 	using arcstk::DBAR;
@@ -167,7 +167,7 @@ TEST_CASE ( "DBARSource", "[dbarsource] [verify]" )
 }
 
 
-TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
+TEST_CASE ( "AlbumVerifier", "[albumverifier][verify]" )
 {
 	using arcstk::ARId;
 	using arcstk::AudioSize;
@@ -765,7 +765,7 @@ TEST_CASE ( "AlbumVerifier", "[albumverifier] [verify]" )
 }
 
 
-TEST_CASE ( "TracksetVerifier", "[tracksetverifier] [verify]" )
+TEST_CASE ( "TracksetVerifier", "[tracksetverifier][verify]" )
 {
 	using arcstk::ARId;
 	using arcstk::AudioSize;

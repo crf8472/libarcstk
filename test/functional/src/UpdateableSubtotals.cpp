@@ -25,7 +25,7 @@
 //TODO no linting for cppcoreguidelines-avoid-do-while
 
 TEST_CASE ( "UpdateableSubtotals caches values correctly",
-		"[updateablesubtotals] [calc] [accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::checksum::type;

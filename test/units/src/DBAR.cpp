@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "DBAR", "[dbar] [dbar] [dbar]" )
+TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -280,7 +280,7 @@ TEST_CASE ( "DBAR", "[dbar] [dbar] [dbar]" )
 
 
 TEST_CASE ( "DBAR default constructed instance",
-		"[dbar] [dbar] [dbar]" )
+		"[dbar][dbar][dbar]" )
 {
 	const auto instance = arcstk::DBAR{};
 
@@ -301,7 +301,7 @@ TEST_CASE ( "DBAR default constructed instance",
 }
 
 
-TEST_CASE ( "DBAR property", "[dbar] [dbar] [dbar]" )
+TEST_CASE ( "DBAR property", "[dbar][dbar][dbar]" )
 {
 	using arcstk::DBAR;
 
@@ -350,7 +350,7 @@ TEST_CASE ( "DBAR property", "[dbar] [dbar] [dbar]" )
 }
 
 
-TEST_CASE ( "DBAR functions", "[dbar] [dbar] [dbar]" )
+TEST_CASE ( "DBAR functions", "[dbar][dbar][dbar]" )
 {
 	using arcstk::DBAR;
 

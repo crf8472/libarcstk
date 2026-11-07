@@ -19,7 +19,7 @@
 
 
 TEST_CASE ( "CalculationUpdater<> Old",
-		"[calculationupdater] [calc] [calculate]" )
+		"[calculationupdater][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1;
 	using arcstk::AccurateRip::V1andV2;
@@ -244,7 +244,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // New from template
 
 
-// TEST_CASE ( "CalculationUpdater<>", "[calculationupdater] [calc] [calculate]" )
+// TEST_CASE ( "CalculationUpdater<>", "[calculationupdater][calc][calculate]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -307,7 +307,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 //
 //
 // TEST_CASE ( "CalculationUpdater<> default constructed instance",
-// 		"[calculationupdater] [calc] [calculate]" )
+// 		"[calculationupdater][calc][calculate]" )
 // {
 // 	using AccurateRipV1 = arcstk::AccurateRip::V1;
 // 	using arcstk::CalculationUpdater;
@@ -323,7 +323,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 //
 //
 // // TEST_CASE ( "CalculationUpdater property",
-// // 		"[calculationupdater] [calc] [calculate]" )
+// // 		"[calculationupdater][calc][calculate]" )
 // // {
 // // 	using AccurateRipV1 = arcstk::AccurateRip::V1;
 // // 	using arcstk::CalculationUpdater;
@@ -339,7 +339,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 //
 //
 // TEST_CASE ( "CalculationUpdater<> functions",
-// 		"[calculationupdater] [calc] [calculate]" )
+// 		"[calculationupdater][calc][calculate]" )
 // {
 // 	using AccurateRipV1 = arcstk::AccurateRip::V1;
 // 	using arcstk::CalculationUpdater;

@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "Settings", "[settings] [calc] [calculate]" )
+TEST_CASE ( "Settings", "[settings][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -74,7 +74,7 @@ TEST_CASE ( "Settings", "[settings] [calc] [calculate]" )
 
 
 TEST_CASE ( "Settings default constructed instance",
-		"[settings] [calc] [calculate]" )
+		"[settings][calc][calculate]" )
 {
 	using arcstk::Context;
 
@@ -88,7 +88,7 @@ TEST_CASE ( "Settings default constructed instance",
 }
 
 
-TEST_CASE ( "Settings property", "[settings] [calc] [calculate]" )
+TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
 {
 	using arcstk::Context;
 	using arcstk::Settings;

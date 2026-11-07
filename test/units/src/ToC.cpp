@@ -19,7 +19,7 @@
 
 
 /*
-TEST_CASE ( "ToC", "[toc] [metadata] [metadata]" )
+TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -104,7 +104,7 @@ TEST_CASE ( "ToC", "[toc] [metadata] [metadata]" )
 */
 
 TEST_CASE ( "ToC default constructed instance",
-		"[toc] [metadata] [metadata]" )
+		"[toc][metadata][metadata]" )
 {
 	const auto instance = arcstk::ToC{};
 
@@ -120,7 +120,7 @@ TEST_CASE ( "ToC default constructed instance",
 }
 
 /*
-TEST_CASE ( "ToC property", "[toc] [metadata] [metadata]" )
+TEST_CASE ( "ToC property", "[toc][metadata][metadata]" )
 {
 	using arcstk::ToC;
 
@@ -169,7 +169,7 @@ TEST_CASE ( "ToC property", "[toc] [metadata] [metadata]" )
 }
 */
 
-TEST_CASE ( "ToC functions", "[toc] [metadata] [metadata]" )
+TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::make_toc;

@@ -12,7 +12,7 @@
 
 
 TEST_CASE ( "checksum::name provides correct names",
-		"[checksum::name] [calc]" )
+		"[checksum::name][calc]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::checksum::name;
@@ -25,7 +25,7 @@ TEST_CASE ( "checksum::name provides correct names",
 }
 
 
-TEST_CASE ( "TOTAL_HEX_DIGITS", "[checksum] [calc]" )
+TEST_CASE ( "TOTAL_HEX_DIGITS", "[checksum][calc]" )
 {
 	using arcstk::Checksum;
 

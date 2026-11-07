@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "ARId", "[arid] [id] [identifier]" )
+TEST_CASE ( "ARId", "[arid][id][identifier]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -191,7 +191,7 @@ TEST_CASE ( "ARId", "[arid] [id] [identifier]" )
 }
 
 
-TEST_CASE ( "ARId default constructed instance", "[arid] [id] [identifier]" )
+TEST_CASE ( "ARId default constructed instance", "[arid][id][identifier]" )
 {
 	const auto instance = arcstk::ARId {};
 
@@ -207,7 +207,7 @@ TEST_CASE ( "ARId default constructed instance", "[arid] [id] [identifier]" )
 }
 
 
-TEST_CASE ( "ARId property", "[arid] [id] [identifier]" )
+TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 {
 	using arcstk::ARId;
 
@@ -320,7 +320,7 @@ TEST_CASE ( "ARId property", "[arid] [id] [identifier]" )
 
 // TODO Implement ARId property tests
 
-// TEST_CASE ( "ARId functions", "[arid] [id] [identifier]" )
+// TEST_CASE ( "ARId functions", "[arid][id][identifier]" )
 // {
 // 	using arcstk::ARId;
 //
@@ -407,7 +407,7 @@ TEST_CASE ( "ARId property", "[arid] [id] [identifier]" )
 // ARId specific
 
 
-TEST_CASE ( "Empty ARIds", "[arid] [id] [identifier]" )
+TEST_CASE ( "Empty ARIds", "[arid][id][identifier]" )
 {
 	const auto id { arcstk::ARId{} };
 

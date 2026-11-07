@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "AudioSize", "[audiosize] [metadata] [metadata]" )
+TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -131,7 +131,7 @@ TEST_CASE ( "AudioSize", "[audiosize] [metadata] [metadata]" )
 
 
 TEST_CASE ( "AudioSize default constructed instance",
-		"[audiosize] [metadata] [metadata]" )
+		"[audiosize][metadata][metadata]" )
 {
 	const auto instance = arcstk::AudioSize{};
 
@@ -147,7 +147,7 @@ TEST_CASE ( "AudioSize default constructed instance",
 }
 
 
-TEST_CASE ( "AudioSize property", "[audiosize] [metadata] [metadata]" )
+TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;
@@ -253,7 +253,7 @@ TEST_CASE ( "AudioSize property", "[audiosize] [metadata] [metadata]" )
 }
 
 
-TEST_CASE ( "AudioSize functions", "[audiosize] [metadata] [metadata]" )
+TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;

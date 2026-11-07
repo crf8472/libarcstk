@@ -15,7 +15,7 @@
 
 
 TEST_CASE ( "ACCURATERIP default constructed instance",
-		"[accuraterip] [calc] [accuraterip]" )
+		"[accuraterip][calc][accuraterip]" )
 {
 	const auto defaulted = arcstk::ACCURATERIP {};
 
@@ -27,7 +27,7 @@ TEST_CASE ( "ACCURATERIP default constructed instance",
 }
 
 
-TEST_CASE ( "ACCURATERIP functions", "[accuraterip] [calc] [accuraterip]" )
+TEST_CASE ( "ACCURATERIP functions", "[accuraterip][calc][accuraterip]" )
 {
 	using arcstk::ACCURATERIP;
 

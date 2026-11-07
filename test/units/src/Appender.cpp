@@ -20,7 +20,7 @@
 #endif
 
 
-TEST_CASE ( "Appender", "[appender] [logging]" )
+TEST_CASE ( "Appender", "[appender][logging]" )
 {
 	//using arcstk::testing::Copy; // no copy possible
 	using arcstk::testing::Move;
@@ -74,7 +74,7 @@ TEST_CASE ( "Appender", "[appender] [logging]" )
 }
 
 
-TEST_CASE ( "Appender property", "[appender] [logging]" )
+TEST_CASE ( "Appender property", "[appender][logging]" )
 {
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;
@@ -107,7 +107,7 @@ TEST_CASE ( "Appender property", "[appender] [logging]" )
 }
 
 
-TEST_CASE ( "Appender functions", "[appender] [logging]" )
+TEST_CASE ( "Appender functions", "[appender][logging]" )
 {
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;

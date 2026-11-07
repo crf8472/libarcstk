@@ -11,7 +11,7 @@
 #endif
 
 
-TEST_CASE ( "Context", "[context] [calc]" )
+TEST_CASE ( "Context", "[context][calc]" )
 {
 	using arcstk::Context;
 

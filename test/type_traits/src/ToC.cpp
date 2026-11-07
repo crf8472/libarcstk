@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "ToC is non-abstract, final and non-empty",
-		"[toc] [meta] [metadata]" )
+		"[toc][meta][metadata]" )
 {
 	SECTION ("is non-abstract final class")
 	{
@@ -37,7 +37,7 @@ TEST_CASE ( "ToC is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "ToC special members", "[toc] [meta] [metadata]" )
+TEST_CASE ( "ToC special members", "[toc][meta][metadata]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "ToC special members", "[toc] [meta] [metadata]" )
 }
 
 
-TEST_CASE ( "ToC default construction", "[toc] [meta] [metadata]" )
+TEST_CASE ( "ToC default construction", "[toc][meta][metadata]" )
 {
 	SECTION ( "Default constructed instance is empty")
 	{
@@ -86,7 +86,7 @@ TEST_CASE ( "ToC default construction", "[toc] [meta] [metadata]" )
 
 
 TEST_CASE ( "ToC is swappable, comparable, string convertible",
-		"[toc] [meta] [metadata]" )
+		"[toc][meta][metadata]" )
 {
 	SECTION ("is nothrow swappable")
 	{

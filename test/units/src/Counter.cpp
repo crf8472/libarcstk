@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "Counter<>", "[counter] [calc] [calculate]" )
+TEST_CASE ( "Counter<>", "[counter][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -79,7 +79,7 @@ TEST_CASE ( "Counter<>", "[counter] [calc] [calculate]" )
 
 
 TEST_CASE ( "Counter<> default constructed instance",
-		"[counter] [calc] [calculate]" )
+		"[counter][calc][calculate]" )
 {
 	using arcstk::details::Counter;
 
@@ -97,7 +97,7 @@ TEST_CASE ( "Counter<> default constructed instance",
 }
 
 
-// TEST_CASE ( "Counter<> property", "[counter] [calc] [calculate]" )
+// TEST_CASE ( "Counter<> property", "[counter][calc][calculate]" )
 // {
 // 	using arcstk::details::Counter;
 //
@@ -146,7 +146,7 @@ TEST_CASE ( "Counter<> default constructed instance",
 // }
 
 
-TEST_CASE ( "Counter<> functions", "[counter] [calc] [calculate]" )
+TEST_CASE ( "Counter<> functions", "[counter][calc][calculate]" )
 {
 	using arcstk::details::Counter;
 

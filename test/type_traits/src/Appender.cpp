@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Appender is non-abstract, final and non-empty",
-		"[appender] [logging]" )
+		"[appender][logging]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "Appender is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "Appender special members",
-		"[appender] [logging] [logging]" )
+		"[appender][logging][logging]" )
 {
 	SECTION ( "is not default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "Appender special members",
 
 
 TEST_CASE ( "Appender is swappable, comparable, string convertible",
-		"[appender] [logging] [logging]" )
+		"[appender][logging][logging]" )
 {
 	SECTION ("is nothrow swappable")
 	{

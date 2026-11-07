@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "ARCSAlgorithm<> is non-abstract, final and non-empty",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1  = arcstk::accuraterip::algorithm::Version1;
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;
@@ -52,7 +52,7 @@ TEST_CASE ( "ARCSAlgorithm<> is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "ARCSAlgorithm<> special members",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1  = arcstk::accuraterip::algorithm::Version1;
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;
@@ -113,7 +113,7 @@ TEST_CASE ( "ARCSAlgorithm<> special members",
 
 
 TEST_CASE ( "ARCSAlgorithm<> is swappable, comparable, string convertible",
-		"[arcsalgorithm] [calc] [accuraterip]" )
+		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1  = arcstk::accuraterip::algorithm::Version1;
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;

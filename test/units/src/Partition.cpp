@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "Partition", "[partition] [calc] [calculate]" )
+TEST_CASE ( "Partition", "[partition][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -92,7 +92,7 @@ TEST_CASE ( "Partition", "[partition] [calc] [calculate]" )
 }
 
 
-// TEST_CASE ( "Partition property", "[partition] [calc] [calculate]" )
+// TEST_CASE ( "Partition property", "[partition][calc][calculate]" )
 // {
 // 	using arcstk::Partition;
 //

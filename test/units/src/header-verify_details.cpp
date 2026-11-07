@@ -29,7 +29,7 @@
 #endif
 
 
-TEST_CASE ( "BestBlock", "[bestblock] [verify]" )
+TEST_CASE ( "BestBlock", "[bestblock][verify]" )
 {
 	using arcstk::details::BestBlock;
 	using arcstk::details::create_result;
@@ -96,7 +96,7 @@ TEST_CASE ( "ResultBits", "[verify]" )
 }
 
 
-TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify]" )
+TEST_CASE ( "StrictPolicy", "[strictpolicy][verify]" )
 {
 	using arcstk::best_block::index;
 	using arcstk::best_block::checksumtype;
@@ -179,7 +179,7 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy] [verify]" )
 }
 
 
-TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify]" )
+TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
 {
 	using arcstk::details::create_result;
 	using arcstk::details::LiberalPolicy;
@@ -254,7 +254,7 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy] [verify]" )
 }
 
 
-TEST_CASE ( "Result", "[result] [verify]" )
+TEST_CASE ( "Result", "[result][verify]" )
 {
 	using arcstk::details::create_result;
 	using arcstk::details::StrictPolicy;
@@ -455,7 +455,7 @@ TEST_CASE ( "Result", "[result] [verify]" )
 // TODO details::VerifierBase
 
 
-TEST_CASE ( "BlockSelector", "[blockselector] [verify]")
+TEST_CASE ( "BlockSelector", "[blockselector][verify]")
 {
 	using arcstk::details::BlockSelector;
 	using arcstk::ARId;
@@ -554,7 +554,7 @@ TEST_CASE ( "BlockSelector", "[blockselector] [verify]")
 }
 
 
-TEST_CASE ( "TrackSelector", "[trackselector] [verify]")
+TEST_CASE ( "TrackSelector", "[trackselector][verify]")
 {
 	using arcstk::details::TrackSelector;
 	using arcstk::ARId;
@@ -630,7 +630,7 @@ TEST_CASE ( "TrackSelector", "[trackselector] [verify]")
 }
 
 
-TEST_CASE( "SourceIterator", "[sourceiterator] [verify]" )
+TEST_CASE( "SourceIterator", "[sourceiterator][verify]" )
 {
 	using arcstk::details::SourceIterator;
 	using arcstk::details::BlockSelector;
@@ -744,7 +744,7 @@ TEST_CASE( "SourceIterator", "[sourceiterator] [verify]" )
 }
 
 
-TEST_CASE ( "BlockTraversal", "[blocktraversal] [verify]" )
+TEST_CASE ( "BlockTraversal", "[blocktraversal][verify]" )
 {
 	using arcstk::details::BlockTraversal;
 
@@ -882,7 +882,7 @@ TEST_CASE ( "BlockTraversal", "[blocktraversal] [verify]" )
 }
 
 
-TEST_CASE ( "TrackTraversal", "[tracktraversal] [verify]" )
+TEST_CASE ( "TrackTraversal", "[tracktraversal][verify]" )
 {
 	using arcstk::details::TrackTraversal;
 	using arcstk::ARId;
@@ -988,7 +988,7 @@ TEST_CASE ( "TrackTraversal", "[tracktraversal] [verify]" )
 }
 
 
-TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
+TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy][verify]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::details::TrackOrderPolicy;
@@ -1175,7 +1175,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy] [verify]" )
 }
 
 
-TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify]" )
+TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::Checksum;
@@ -1360,7 +1360,7 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy] [verify]" )
 }
 
 
-TEST_CASE ( "Verification", "[verififcation] [verify]" )
+TEST_CASE ( "Verification", "[verififcation][verify]" )
 {
 	using arcstk::ARId;
 	using arcstk::AudioSize;

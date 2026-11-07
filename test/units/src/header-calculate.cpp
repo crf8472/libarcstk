@@ -33,7 +33,7 @@
 // TODO make_calculationset
 
 
-TEST_CASE ( "get_partitioning", "[get_partitioning] [calc]" )
+TEST_CASE ( "get_partitioning", "[get_partitioning][calc]" )
 {
 	// Use samples as points, not frames
 	const auto points = std::vector<int32_t> {

@@ -15,7 +15,7 @@
 #endif
 
 
-TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes] [calc] [calculate]" )
+TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -78,7 +78,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes] [calc] [calculate]" )
 
 
 TEST_CASE ( "AlgorithmTypes<> default constructed instance",
-		"[algorithmtypes] [calc] [calculate]" )
+		"[algorithmtypes][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1;
 	using arcstk::AccurateRip::V2;
@@ -95,7 +95,7 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 }
 
 
-// TEST_CASE ( "AlgorithmTypes<> property", "[algorithmtypes] [calc] [calculate]" )
+// TEST_CASE ( "AlgorithmTypes<> property", "[algorithmtypes][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
 // 	using arcstk::AccurateRip::V2;
@@ -122,7 +122,7 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 
 
 // TEST_CASE ( "AlgorithmTypes<> functions",
-// 		"[algorithmtypes] [calc] [calculate]" )
+// 		"[algorithmtypes][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
 // 	using arcstk::AccurateRip::V2;

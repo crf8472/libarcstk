@@ -16,7 +16,7 @@
 								  // has_tostring_functionality
 
 
-TEST_CASE ( "Log is non-abstract, final and non-empty", "[log] [logging]" )
+TEST_CASE ( "Log is non-abstract, final and non-empty", "[log][logging]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -36,7 +36,7 @@ TEST_CASE ( "Log is non-abstract, final and non-empty", "[log] [logging]" )
 }
 
 
-TEST_CASE ( "Log special members", "[log] [logging]" )
+TEST_CASE ( "Log special members", "[log][logging]" )
 {
 	SECTION ( "is not default constructable")
 	{

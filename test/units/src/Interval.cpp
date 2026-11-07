@@ -18,7 +18,7 @@
 #endif
 
 
-TEST_CASE ( "Interval<> Old", "[interval] [calc] [calculate]" )
+TEST_CASE ( "Interval<> Old", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
@@ -66,7 +66,7 @@ TEST_CASE ( "Interval<> Old", "[interval] [calc] [calculate]" )
 }
 
 
-TEST_CASE ( "Interval<>", "[interval] [calc] [calculate]" )
+TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -132,7 +132,7 @@ TEST_CASE ( "Interval<>", "[interval] [calc] [calculate]" )
 
 
 TEST_CASE ( "Interval<> default constructed instance",
-		"[interval] [calc] [calculate]" )
+		"[interval][calc][calculate]" )
 {
 	const auto defaulted = arcstk::Interval<int>{};
 
@@ -145,7 +145,7 @@ TEST_CASE ( "Interval<> default constructed instance",
 }
 
 
-TEST_CASE ( "Interval<> property", "[interval] [calc] [calculate]" )
+TEST_CASE ( "Interval<> property", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
@@ -164,7 +164,7 @@ TEST_CASE ( "Interval<> property", "[interval] [calc] [calculate]" )
 }
 
 
-TEST_CASE ( "Interval<> functions", "[interval] [calc] [calculate]" )
+TEST_CASE ( "Interval<> functions", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
