@@ -49,10 +49,8 @@ public:
 	 */
 	~TemporaryFile() noexcept
 	{
-		if (std::filesystem::exists(path_))
-		{
-			std::filesystem::remove(path_);
-		}
+		std::error_code ec;
+		std::filesystem::remove(path_, ec); // 'false' if file does not exist
 	}
 
 	/**
