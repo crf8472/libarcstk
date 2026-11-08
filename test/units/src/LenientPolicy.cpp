@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Unit tests for LiberalPolicy.
+ * \brief Unit tests for LenientPolicy.
  */
 
 #ifndef LIBARCSTK_VERIFY_HPP_
@@ -18,14 +18,14 @@
 #endif
 
 
-// TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
+// TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
 //
-// 	using arcstk::LiberalPolicy;
+// 	using arcstk::LenientPolicy;
 //
-// 	auto instance = LiberalPolicy {};
+// 	auto instance = LenientPolicy {};
 //
 //
 // 	SECTION ("Parametized construction is correct")
@@ -35,7 +35,7 @@
 //
 // 	SECTION ("Copy construction is correct")
 // 	{
-// 		const LiberalPolicy copied { Copy<LiberalPolicy>::construct(instance) };
+// 		const LenientPolicy copied { Copy<LenientPolicy>::construct(instance) };
 //
 // 		// --
 //
@@ -46,7 +46,7 @@
 //
 // 	SECTION ("Move construction is correct")
 // 	{
-// 		const LiberalPolicy moved { Move<LiberalPolicy>::construct(instance) };
+// 		const LenientPolicy moved { Move<LenientPolicy>::construct(instance) };
 //
 // 		// --
 //
@@ -57,8 +57,8 @@
 //
 // 	SECTION ("Copy assignment is correct")
 // 	{
-// 		auto copied = LiberalPolicy {};
-// 		Copy<LiberalPolicy>::assign(copied, instance);
+// 		auto copied = LenientPolicy {};
+// 		Copy<LenientPolicy>::assign(copied, instance);
 //
 // 		// --
 //
@@ -69,8 +69,8 @@
 //
 // 	SECTION ("Move assignment is correct")
 // 	{
-// 		auto moved = LiberalPolicy {};
-// 		Move<LiberalPolicy>::assign(moved, instance);
+// 		auto moved = LenientPolicy {};
+// 		Move<LenientPolicy>::assign(moved, instance);
 //
 // 		// --
 //
@@ -81,10 +81,10 @@
 // }
 
 
-TEST_CASE ( "LiberalPolicy default constructed instance",
-		"[liberalpolicy][verify]" )
+TEST_CASE ( "LenientPolicy default constructed instance",
+		"[lenientpolicy][verify]" )
 {
-	const auto defaulted  = arcstk::details::LiberalPolicy {};
+	const auto defaulted  = arcstk::details::LenientPolicy {};
 
 	SECTION ( "not is_strict()")
 	{
@@ -100,9 +100,9 @@ TEST_CASE ( "LiberalPolicy default constructed instance",
 }
 
 
-TEST_CASE ( "LiberalPolicy property", "[liberalpolicy][verify]" )
+TEST_CASE ( "LenientPolicy property", "[lenientpolicy][verify]" )
 {
-	auto instance = arcstk::details::LiberalPolicy {};
+	auto instance = arcstk::details::LenientPolicy {};
 
 
 	// SECTION ("Equality operator == is correct")
@@ -149,9 +149,9 @@ TEST_CASE ( "LiberalPolicy property", "[liberalpolicy][verify]" )
 }
 
 
-TEST_CASE ( "LiberalPolicy functions", "[liberalpolicy][verify]" )
+TEST_CASE ( "LenientPolicy functions", "[lenientpolicy][verify]" )
 {
-	auto instance = arcstk::details::LiberalPolicy {};
+	auto instance = arcstk::details::LenientPolicy {};
 
 // 	SECTION ("is_verified() is correct")
 // 	{

@@ -179,15 +179,15 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy][verify]" )
 }
 
 
-TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
+TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify]" )
 {
 	using arcstk::details::create_result;
-	using arcstk::details::LiberalPolicy;
+	using arcstk::details::LenientPolicy;
 
 	const auto ARCS1 = arcstk::checksum::type::ARCS1;
 	const auto ARCS2 = arcstk::checksum::type::ARCS2;
 
-	auto result = create_result(4, 8, std::make_unique<LiberalPolicy>());
+	auto result = create_result(4, 8, std::make_unique<LenientPolicy>());
 
 	REQUIRE ( result->total_blocks() == 4 );
 	REQUIRE ( result->tracks_per_block() == 8 );
@@ -233,7 +233,7 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
 
 	SECTION( "is_verified() yields verified tracks correctly" )
 	{
-		const auto policy = std::make_unique<LiberalPolicy>();
+		const auto policy = std::make_unique<LenientPolicy>();
 
 		CHECK ( not policy->is_verified(0, *result) );
 		CHECK ( policy->is_verified(1, *result) );
@@ -247,7 +247,7 @@ TEST_CASE ( "LiberalPolicy", "[liberalpolicy][verify]" )
 
 	SECTION( "total_unverified_tracks() counts unverified tracks correctly" )
 	{
-		const auto policy = std::make_unique<LiberalPolicy>();
+		const auto policy = std::make_unique<LenientPolicy>();
 
 		CHECK ( policy->total_unverified_tracks(*result) == 3 );
 	}

@@ -96,7 +96,7 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 		CHECK_THROWS ( defaulted.end(0) );
 	}
 
-	SECTION ( "Creates a non-strict/liberal VerificationPolicy")
+	SECTION ( "Creates a non-strict/lenient VerificationPolicy")
 	{
 		CHECK ( ! defaulted.get_policy()->is_strict() );
 	}

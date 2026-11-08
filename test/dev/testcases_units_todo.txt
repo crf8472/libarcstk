@@ -19,7 +19,7 @@ MODULE=verify   HEADER=verify      CLASS=TracksetVerifier
 MODULE=verify   HEADER=verify      CLASS=BlockSelector
 MODULE=verify   HEADER=verify      CLASS=BlockTraversal
 MODULE=verify   HEADER=verify      CLASS=FindOrderPolicy
-MODULE=verify   HEADER=verify      CLASS=LiberalPolicy
+MODULE=verify   HEADER=verify      CLASS=LenientPolicy
 MODULE=verify   HEADER=verify      CLASS=ResultBits
 MODULE=verify   HEADER=verify      CLASS=Result
 MODULE=verify   HEADER=verify      CLASS=SourceIterator

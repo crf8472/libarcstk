@@ -377,10 +377,10 @@ std::unique_ptr<VerificationPolicy> StrictPolicy::do_clone() const
 }
 
 
-// LiberalPolicy
+// LenientPolicy
 
 
-bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
+bool LenientPolicy::do_is_verified(const int track, const VerificationResult& r)
 	const
 {
 	for (auto b = int { 0 }; b < static_cast<int>(r.total_blocks()); ++b)
@@ -396,15 +396,15 @@ bool LiberalPolicy::do_is_verified(const int track, const VerificationResult& r)
 }
 
 
-bool LiberalPolicy::do_is_strict() const
+bool LenientPolicy::do_is_strict() const
 {
 	return false;
 }
 
 
-std::unique_ptr<VerificationPolicy> LiberalPolicy::do_clone() const
+std::unique_ptr<VerificationPolicy> LenientPolicy::do_clone() const
 {
-	return std::make_unique<LiberalPolicy>(*this);
+	return std::make_unique<LenientPolicy>(*this);
 }
 
 
@@ -856,7 +856,7 @@ TrackTraversal::TrackTraversal()
 
 std::unique_ptr<VerificationPolicy> TrackTraversal::create_track_policy() const
 {
-	return std::make_unique<LiberalPolicy>();
+	return std::make_unique<LenientPolicy>();
 }
 
 

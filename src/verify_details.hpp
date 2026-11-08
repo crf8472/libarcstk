@@ -426,7 +426,7 @@ class StrictPolicy final : public VerificationPolicy
 /**
  * \brief VerificationPolicy that accepts matches in any block as verified.
  */
-class LiberalPolicy final : public VerificationPolicy
+class LenientPolicy final : public VerificationPolicy
 {
 	// VerificationPolicy
 

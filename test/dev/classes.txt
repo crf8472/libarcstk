@@ -36,7 +36,7 @@ Interval
 InvalidMetadataException
 istream_wrapper
 IteratorElement
-LiberalPolicy
+LenientPolicy
 Log
 Logger
 Logging
