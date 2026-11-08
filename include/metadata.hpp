@@ -103,7 +103,7 @@ struct CDDA final
 	/**
 	 * \brief CDDA: 16 bits per sample.
 	 */
-	constexpr static int BITS_PER_SAMPLE    { 16 };
+	constexpr static int BITS_PER_SAMPLE    { 16 }; // TODO SAMPLE == stereo s.
 
 	/**
 	 * \brief CDDA: stereo involves 2 channels.
@@ -121,7 +121,7 @@ struct CDDA final
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
 	 */
-	constexpr static int BYTES_PER_SAMPLE   { 4 };
+	constexpr static int BYTES_PER_SAMPLE   { 4 }; // TODO SAMPLE == csample
 
 	/**
 	 * \brief Total number of samples per frame is 588.
