@@ -232,8 +232,8 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 			"LIBARCSTK-TEST-UNIT-Logger-add_appender" };
 		TemporaryFile tempfile { tempfile_prefix };
 
-		const auto ptr = appender.get();
 		auto appender = std::make_unique<Appender>(tempfile.string());
+		const auto ptr = appender.get();
 
 		CHECK_NOTHROW ( instance.add_appender(std::move(appender)) );
 
