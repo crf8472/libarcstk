@@ -211,17 +211,6 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 		CHECK ( ' ' == instance.indent_char() );
 	}
 
-	SECTION ("add_appender() is correct")
-	{
-		using arcstk::Appender;
-		const auto tempfile_prefix = std::string {
-			"LIBARCSTK-TEST-UNIT-Logger-add_appender" };
-		TemporaryFile tempfile { tempfile_prefix };
-		auto appender = std::make_unique<Appender>(tempfile.string());
-
-		CHECK_NOTHROW ( instance.add_appender(std::move(appender)) );
-	}
-
 	SECTION ("remove_appender() is correct")
 	{
 		using arcstk::Appender;
@@ -234,6 +223,21 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 		instance.add_appender(std::move(appender));
 
 		CHECK_NOTHROW ( instance.remove_appender(ptr) );
+	}
+
+	SECTION ("add_appender() is correct")
+	{
+		using arcstk::Appender;
+		const auto tempfile_prefix = std::string {
+			"LIBARCSTK-TEST-UNIT-Logger-add_appender" };
+		TemporaryFile tempfile { tempfile_prefix };
+
+		const auto ptr = appender.get();
+		auto appender = std::make_unique<Appender>(tempfile.string());
+
+		CHECK_NOTHROW ( instance.add_appender(std::move(appender)) );
+
+		instance.remove_appender(ptr);
 	}
 
 	// SECTION ("log() is correct")
