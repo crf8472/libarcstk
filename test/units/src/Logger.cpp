@@ -214,7 +214,8 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 	SECTION ("add_appender() is correct")
 	{
 		using arcstk::Appender;
-		const auto tempfile_prefix = std::string { "LIBARCSTK-TEST-UNIT-Logger" };
+		const auto tempfile_prefix = std::string {
+			"LIBARCSTK-TEST-UNIT-Logger-add_appender" };
 		TemporaryFile tempfile { tempfile_prefix };
 		auto appender = std::make_unique<Appender>(tempfile.string());
 
@@ -224,7 +225,8 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 	SECTION ("remove_appender() is correct")
 	{
 		using arcstk::Appender;
-		const auto tempfile_prefix = std::string { "LIBARCSTK-TEST-UNIT-Logger" };
+		const auto tempfile_prefix = std::string {
+			"LIBARCSTK-TEST-UNIT-Logger-remove_appender" };
 		TemporaryFile tempfile { tempfile_prefix };
 		auto appender = std::make_unique<Appender>(tempfile.string());
 
