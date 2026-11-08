@@ -963,6 +963,8 @@ class SampleSequence<T, true/*PLANAR*/, is_sample_type<T>> final
 
 public:
 
+	// FIXME Provide value_type, size_type, const_iterator
+
 	/**
 	 * \brief Constructor.
 	 *
