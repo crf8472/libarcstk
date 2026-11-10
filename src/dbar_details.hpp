@@ -432,6 +432,9 @@ private: /* use size_type */
 };
 
 
+namespace details
+{
+
 /**
  * \brief State of a CheckingDBARBuilder.
  */
@@ -529,6 +532,8 @@ public:
 	void reset();
 };
 
+} // namespace details
+
 
 /**
  * \brief ParseHandler to build a DBAR object and check for regularity.
@@ -543,7 +548,7 @@ class CheckingDBARBuilder::Impl final
 	/**
 	 * \brief Internal state.
 	 */
-	CheckingDBARBuilderState state_ {};
+	details::CheckingDBARBuilderState state_ {};
 
 public:
 

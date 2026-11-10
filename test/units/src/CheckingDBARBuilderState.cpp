@@ -89,12 +89,12 @@ TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
 
 	SECTION ( "is_valid()")
 	{
-		CHECK ( ! defaulted.is_valid() );
+		CHECK ( defaulted.is_valid() );
 	}
 
 	SECTION ( "is_uniform()")
 	{
-		CHECK ( ! defaulted.is_uniform() );
+		CHECK ( defaulted.is_uniform() );
 	}
 }
 

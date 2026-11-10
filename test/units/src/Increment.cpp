@@ -149,28 +149,50 @@ TEST_CASE ( "Increment functions", "[increment][dbar][details]" )
 {
 	using arcstk::details::Increment;
 
-	SECTION ( "Increment<T, true>::operator() works" )
-	{
-		const auto instance_inc = Increment<std::int32_t, true> {};
-
-		CHECK ( instance_inc(467) == 468 );
-		CHECK ( instance_inc(17)  ==  18 );
-		CHECK ( instance_inc(1)   ==   2 );
-		CHECK ( instance_inc(0)   ==   1 );
-		CHECK ( instance_inc(-1)  ==   0 );
-		CHECK ( instance_inc(-2)  ==  -1 );
-	}
+	auto i = int { 467 };
+	auto j = int {  17 };
+	auto k = int {   1 };
+	auto l = int {   0 };
+	auto m = int {  -1 };
+	auto n = int {  -2 };
 
 	SECTION ( "Increment<T, false>::operator() works" )
 	{
-		const auto instance_dec = Increment<std::int32_t, false> {};
+		const auto instance_inc = Increment<std::int32_t, false> {};
+		//auto i = int { 0 };
 
-		CHECK ( instance_dec(467) == 466 );
-		CHECK ( instance_dec(17)  ==  16 );
-		CHECK ( instance_dec(1)   ==   0 );
-		CHECK ( instance_dec(0)   ==  -1 );
-		CHECK ( instance_dec(-1)  ==  -2 );
-		CHECK ( instance_dec(-2)  ==  -3 );
+		instance_inc(i);
+		instance_inc(j);
+		instance_inc(k);
+		instance_inc(l);
+		instance_inc(m);
+		instance_inc(n);
+
+		CHECK ( i == 468 );
+		CHECK ( j ==  18 );
+		CHECK ( k ==   2 );
+		CHECK ( l ==   1 );
+		CHECK ( m ==   0 );
+		CHECK ( n ==  -1 );
+	}
+
+	SECTION ( "Increment<T, true>::operator() works" )
+	{
+		const auto instance_dec = Increment<std::int32_t, true> {};
+
+		instance_dec(i);
+		instance_dec(j);
+		instance_dec(k);
+		instance_dec(l);
+		instance_dec(m);
+		instance_dec(n);
+
+		CHECK ( i == 466 );
+		CHECK ( j ==  16 );
+		CHECK ( k ==   0 );
+		CHECK ( l ==  -1 );
+		CHECK ( m ==  -2 );
+		CHECK ( n ==  -3 );
 	}
 }
 

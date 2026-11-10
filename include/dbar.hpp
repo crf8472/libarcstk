@@ -460,7 +460,7 @@ class Increment<T, false>
 {
 public:
 
-	void operator() (T& i)
+	void operator() (T& i) const
 	{
 		++i;
 	}
@@ -472,7 +472,7 @@ class Increment<T, true>
 {
 public:
 
-	void operator() (T& i)
+	void operator() (T& i) const
 	{
 		--i;
 	}
@@ -1477,6 +1477,11 @@ public:
 	 * \copydoc SNPT_sm_default_ctor
 	 */
 	CheckingDBARBuilder();
+
+	/**
+	 * \copydoc SNPT_sm_default_dtor
+	 */
+	~CheckingDBARBuilder() noexcept;
 
 	/**
 	 * \brief Return validity state.

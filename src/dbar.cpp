@@ -1441,6 +1441,9 @@ void DBARBuilder::reset()
 }
 
 
+namespace details
+{
+
 // CheckingDBARBuilderState
 
 
@@ -1514,6 +1517,8 @@ void CheckingDBARBuilderState::reset()
 	is_valid_        = true;
 	is_uniform_      = true;
 }
+
+} // namespace details
 
 
 // CheckingDBARBuilder::Impl
@@ -1605,6 +1610,9 @@ CheckingDBARBuilder::CheckingDBARBuilder()
 {
 	// empty
 }
+
+
+CheckingDBARBuilder::~CheckingDBARBuilder() noexcept = default;
 
 
 void CheckingDBARBuilder::do_start_input()
