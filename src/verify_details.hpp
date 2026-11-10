@@ -760,7 +760,7 @@ public:
 	 * \copydoc SNPT_nf_equality
 	 */
 	friend bool operator == (const SourceIterator& lhs, const SourceIterator&
-			rhs)
+			rhs) noexcept
 	{
 		return lhs.source_  == rhs.source_
 			&& lhs.current_ == rhs.current_
