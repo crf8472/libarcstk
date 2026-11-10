@@ -57,10 +57,11 @@ def expand_template(line, replacements)
       line = ""
       function_list = extract_member_functions_from_class(replacements['CLASS'])
       function_list.each do |f|
+        line << "\n"
         line << "\tSECTION (\"#{f}() is correct\")\n"
         line << "\t{\n"
         line << "\t\tFAIL (\"#{f}() test is missing\");\n"
-        line << "\t}\n\n"
+        line << "\t}\n"
       end
       return line
     end

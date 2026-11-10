@@ -7,14 +7,14 @@
  */
 
 #ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // TO BE TESTED
+#include "${HEADER}.hpp"           // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_${HEADER:u}_DETAILS_HPP_
-#include "${HEADER}_details.hpp"  // for
+#include "${HEADER}_details.hpp"   // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
