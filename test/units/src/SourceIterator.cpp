@@ -14,7 +14,7 @@
 #endif
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"
+#include "dbar.hpp"                // for DBAR
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
