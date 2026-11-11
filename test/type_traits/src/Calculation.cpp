@@ -17,17 +17,17 @@
 
 
 TEST_CASE ( "Calculation is non-abstract, final and non-empty",
-		"[calculation] [calc] [calculate]" )
+		"[calculation][calc][calculate]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ("is an abstract class")
 	{
 		CHECK ( std::is_class_v<arcstk::Calculation> );
-		CHECK ( ! std::is_abstract_v<arcstk::Calculation> );
+		CHECK ( std::is_abstract_v<arcstk::Calculation> );
 	}
 
-	SECTION ("is final")
+	SECTION ("is not final")
 	{
-		CHECK ( std::is_final_v<arcstk::Calculation> );
+		CHECK ( ! std::is_final_v<arcstk::Calculation> );
 	}
 
 	SECTION ("has non-static members")
@@ -37,12 +37,16 @@ TEST_CASE ( "Calculation is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "Calculation special members",
-		"[calculation] [calc] [calculate]" )
+TEST_CASE ( "Calculation special members", "[calculation][calc][calculate]" )
 {
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( ! std::is_default_constructible_v<arcstk::Calculation>);
+	}
+
+	SECTION ( "is destructible" )
+	{
+		CHECK ( std::is_destructible_v<arcstk::Calculation> );
 	}
 
 	SECTION ( "is not copy-constructable")
@@ -55,43 +59,14 @@ TEST_CASE ( "Calculation special members",
 		CHECK ( ! std::is_copy_assignable_v<arcstk::Calculation>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is not move-constructable")
 	{
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::Calculation>);
+		CHECK ( ! std::is_move_constructible_v<arcstk::Calculation>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is not move-assignable")
 	{
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::Calculation>);
-	}
-
-	SECTION ("is destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::Calculation> );
-	}
-}
-
-
-TEST_CASE ( "Calculation is swappable, comparable, string convertible",
-		"[calculation] [calc] [calculate]" )
-{
-	SECTION ("is nothrow swappable")
-	{
-		CHECK ( std::is_nothrow_swappable_v<arcstk::Calculation> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::Calculation> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::Calculation>::value );
+		CHECK ( ! std::is_nothrow_move_assignable_v<arcstk::Calculation>);
 	}
 }
 

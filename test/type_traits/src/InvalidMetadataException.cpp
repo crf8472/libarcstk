@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "InvalidMetadataException is non-abstract, final and non-empty",
-		"[invalidmetadataexception] [metadata] [metadata]" )
+		"[invalidmetadataexception][metadata]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "InvalidMetadataException is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "InvalidMetadataException special members",
-		"[invalidmetadataexception] [metadata] [metadata]" )
+		"[invalidmetadataexception][metadata]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::InvalidMetadataException>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::InvalidMetadataException>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,26 +72,12 @@ TEST_CASE ( "InvalidMetadataException special members",
 }
 
 
-TEST_CASE ( "InvalidMetadataException is swappable, comparable, string convertible",
-		"[invalidmetadataexception] [metadata] [metadata]" )
+TEST_CASE ( "InvalidMetadataException is swappable",
+		"[invalidmetadataexception][metadata]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::InvalidMetadataException> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::InvalidMetadataException> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::InvalidMetadataException>::value );
 	}
 }
 

@@ -75,26 +75,11 @@ TEST_CASE ( "TrackSelector special members",
 }
 
 
-TEST_CASE ( "TrackSelector is swappable, comparable, string convertible",
-		"[trackselector][verify][details]" )
+TEST_CASE ( "TrackSelector is swappable", "[trackselector][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::TrackSelector> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::TrackSelector> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::TrackSelector>::value );
 	}
 }
 

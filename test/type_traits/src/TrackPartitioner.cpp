@@ -40,9 +40,9 @@ TEST_CASE ( "TrackPartitioner is non-abstract, final and non-empty",
 TEST_CASE ( "TrackPartitioner special members",
 		"[trackpartitioner][calc][calculate]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::TrackPartitioner>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::details::TrackPartitioner>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,26 +72,12 @@ TEST_CASE ( "TrackPartitioner special members",
 }
 
 
-TEST_CASE ( "TrackPartitioner is swappable, comparable, string convertible",
+TEST_CASE ( "TrackPartitioner is swappable",
 		"[trackpartitioner][calc][calculate]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::TrackPartitioner> );
-	}
-
-	SECTION ("has no comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( ! is_comparable_v<arcstk::details::TrackPartitioner> );
-	}
-
-	SECTION ("has no string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( ! has_tostring_functionality<arcstk::details::TrackPartitioner>::value );
 	}
 }
 

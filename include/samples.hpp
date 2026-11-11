@@ -404,6 +404,24 @@ public:
 		// This returns 0 == 1.0 | 0.0,  1 == 1.1 | 0.1,  2 == 1.2 | 0.2, ...
 		return combine(right_channel(index), left_channel(index));
 	}
+
+	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const SampleBufferWrapper& rhs) const noexcept
+	{
+		return buffer_ == rhs.buffer_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(SampleBufferWrapper& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(buffer_, rhs.buffer_);
+	}
 };
 
 
@@ -527,6 +545,24 @@ public:
 	{
 		// This returns 0 = 1|0,  1 = 3|2,  2 = 5|4, ...
 		return combine(right_channel(index), left_channel(index));
+	}
+
+	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const SampleBufferWrapper& rhs) const noexcept
+	{
+		return buffer_ == rhs.buffer_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(SampleBufferWrapper& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(buffer_, rhs.buffer_);
 	}
 };
 
@@ -814,12 +850,12 @@ protected:
 public:
 
 	/**
-	 * \brief SNPT_tp_value.
+	 * \copydoc SNPT_tp_value
 	 */
 	using value_type = csample_t;
 
 	/**
-	 * \brief SNPT_tp_size.
+	 * \copydoc SNPT_tp_size
 	 */
 	using size_type = typename buffer_type::size_type;
 

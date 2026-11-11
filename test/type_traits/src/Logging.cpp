@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Logging is non-abstract, final and non-empty",
-		"[logging][logging][logging]" )
+		"[logging]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -37,7 +37,7 @@ TEST_CASE ( "Logging is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "Logging special members", "[logging][logging]" )
+TEST_CASE ( "Logging special members", "[logging]" )
 {
 	SECTION ( "is not default constructable")
 	{

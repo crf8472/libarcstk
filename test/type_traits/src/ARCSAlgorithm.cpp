@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Type traits testcases for ARCSAlgorithm.
+ * \brief Type traits testcases for ARCSAlgorithm<>.
  */
 
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
@@ -112,7 +112,7 @@ TEST_CASE ( "ARCSAlgorithm<> special members",
 }
 
 
-TEST_CASE ( "ARCSAlgorithm<> is swappable, comparable, string convertible",
+TEST_CASE ( "ARCSAlgorithm<> is swappable",
 		"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1  = arcstk::accuraterip::algorithm::Version1;

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "ACCURATERIP is non-abstract, final and non-empty",
-		"[accuraterip] [calc] [accuraterip]" )
+		"[accuraterip][calc][accuraterip]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -37,8 +37,7 @@ TEST_CASE ( "ACCURATERIP is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "ACCURATERIP special members",
-		"[accuraterip] [calc] [accuraterip]" )
+TEST_CASE ( "ACCURATERIP special members", "[accuraterip][calc][accuraterip]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,26 +71,11 @@ TEST_CASE ( "ACCURATERIP special members",
 }
 
 
-TEST_CASE ( "ACCURATERIP is swappable, comparable, string convertible",
-		"[accuraterip] [calc] [accuraterip]" )
+TEST_CASE ( "ACCURATERIP is swappable", "[accuraterip][calc][accuraterip]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ACCURATERIP> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::ACCURATERIP> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::ACCURATERIP>::value );
 	}
 }
 

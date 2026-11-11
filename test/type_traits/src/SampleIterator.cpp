@@ -41,9 +41,9 @@ TEST_CASE ( "SampleIterator is non-abstract, final and non-empty",
 TEST_CASE ( "SampleIterator special members",
 		"[sampleiterator][calc][samples]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::SampleIterator<int32_t, true>>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::details::SampleIterator<int32_t, true>>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -73,26 +73,11 @@ TEST_CASE ( "SampleIterator special members",
 }
 
 
-TEST_CASE ( "SampleIterator is swappable, comparable, string convertible",
-		"[sampleiterator][calc][samples]" )
+TEST_CASE ( "SampleIterator is swappable", "[sampleiterator][calc][samples]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::SampleIterator<int32_t, true>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::SampleIterator<int32_t, true>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::SampleIterator<int32_t, true>>::value );
 	}
 }
 

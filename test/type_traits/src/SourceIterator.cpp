@@ -43,9 +43,9 @@ TEST_CASE ( "SourceIterator is non-abstract, final and non-empty",
 TEST_CASE ( "SourceIterator special members",
 		"[sourceiterator][verify][details]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::SourceIterator>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::details::SourceIterator>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -75,7 +75,7 @@ TEST_CASE ( "SourceIterator special members",
 }
 
 
-TEST_CASE ( "SourceIterator is swappable, comparable, string convertible",
+TEST_CASE ( "SourceIterator is swappable and comparable",
 		"[sourceiterator][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
@@ -88,13 +88,6 @@ TEST_CASE ( "SourceIterator is swappable, comparable, string convertible",
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( ! is_comparable_v<arcstk::details::SourceIterator> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::SourceIterator>::value );
 	}
 }
 

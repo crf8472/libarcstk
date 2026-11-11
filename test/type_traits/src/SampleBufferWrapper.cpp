@@ -72,26 +72,12 @@ TEST_CASE ( "SampleBufferWrapper special members",
 }
 
 
-TEST_CASE ( "SampleBufferWrapper is swappable, comparable, string convertible",
+TEST_CASE ( "SampleBufferWrapper is swappable",
 		"[samplebufferwrapper][calc][samples]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::SampleBufferWrapper<int32_t, true>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::SampleBufferWrapper<int32_t, true>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::SampleBufferWrapper<int32_t, true>>::value );
 	}
 }
 

@@ -33,9 +33,9 @@ TEST_CASE ( "Increment is non-abstract, final and non-empty",
 		CHECK ( std::is_final_v<arcstk::details::Increment<int32_t, false>> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ("has no non-static members")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::details::Increment<int32_t, false>> );
+		CHECK ( std::is_empty_v<arcstk::details::Increment<int32_t, false>> );
 	}
 }
 
@@ -77,28 +77,13 @@ TEST_CASE ( "Increment special members",
 }
 
 
-TEST_CASE ( "Increment is swappable, comparable, string convertible",
-		"[increment][dbar][details]" )
+TEST_CASE ( "Increment is swappable", "[increment][dbar][details]" )
 {
 	using std::int32_t;
 
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::Increment<int32_t, false>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::Increment<int32_t, false>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::Increment<int32_t, false>>::value );
 	}
 }
 

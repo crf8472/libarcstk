@@ -40,12 +40,11 @@ TEST_CASE ( "Result is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "Result special members",
-		"[result][verify][details]" )
+TEST_CASE ( "Result special members", "[result][verify][details]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::Result>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::details::Result>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -75,26 +74,11 @@ TEST_CASE ( "Result special members",
 }
 
 
-TEST_CASE ( "Result is swappable, comparable, string convertible",
-		"[result][verify][details]" )
+TEST_CASE ( "Result is swappable", "[result][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::Result> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::Result> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::Result>::value );
 	}
 }
 

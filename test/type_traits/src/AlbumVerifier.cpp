@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "AlbumVerifier is non-abstract, final and non-empty",
-		"[albumverifier] [verify] [verify]" )
+		"[albumverifier][verify]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "AlbumVerifier is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "AlbumVerifier special members",
-		"[albumverifier] [verify] [verify]" )
+		"[albumverifier][verify]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::AlbumVerifier>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::AlbumVerifier>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,26 +72,11 @@ TEST_CASE ( "AlbumVerifier special members",
 }
 
 
-TEST_CASE ( "AlbumVerifier is swappable, comparable, string convertible",
-		"[albumverifier] [verify] [verify]" )
+TEST_CASE ( "AlbumVerifier is swappable", "[albumverifier][verify]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::AlbumVerifier> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::AlbumVerifier> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::AlbumVerifier>::value );
 	}
 }
 

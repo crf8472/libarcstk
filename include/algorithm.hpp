@@ -133,6 +133,25 @@ public:
 	}
 
 	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const Interval& rhs) const noexcept
+	{
+		return a_ == rhs.a_ && b_ == rhs.b_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(Interval& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(a_, rhs.a_);
+		swap(b_, rhs.b_);
+	}
+
+	/**
 	 * \brief Return a string representation of the interval.
 	 *
 	 * \return Interval as a string
@@ -142,6 +161,25 @@ public:
 		using std::to_string;
 
 		return "[" + to_string(lower()) + "," + to_string(upper()) + "]";
+	}
+
+	// TODO Inherit from Comparable?
+
+	friend bool operator == (const Interval& lhs, const Interval& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend bool operator != (const Interval& lhs, const Interval& rhs) noexcept
+	{
+		return !(lhs == rhs);
+	}
+
+	// TODO Inherit from ToString
+
+	friend std::string to_string(const Interval& i)
+	{
+		return i.to_string();
 	}
 };
 
@@ -251,6 +289,28 @@ public:
 	 * \return Number of samples in this partition
 	 */
 	std::size_t size() const;
+
+	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const Partition& rhs) const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(Partition& rhs) noexcept;
+
+	// TODO Inherit from Comparable?
+
+	friend bool operator==(const Partition& lhs, const Partition& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend bool operator!=(const Partition& lhs, const Partition& rhs) noexcept
+	{
+		return !(lhs == rhs);
+	}
 };
 
 
@@ -963,7 +1023,7 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_sm_copy_ctor.
+	 * \copydoc SNPT_sm_copy_ctor
 	 */
 	Updateable(const Updateable& rhs)
 		: algorithm_ { std::make_unique<A>(*rhs.algorithm_) }
@@ -972,7 +1032,7 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_sm_copy_op.
+	 * \copydoc SNPT_sm_copy_op
 	 */
 	Updateable& operator= (const Updateable& rhs)
 	{

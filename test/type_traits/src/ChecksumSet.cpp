@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "ChecksumSet is non-abstract, final and non-empty",
-		"[checksumset] [calc] [checksum]" )
+		"[checksumset][calc][checksum]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "ChecksumSet is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "ChecksumSet special members",
-		"[checksumset] [calc] [checksum]" )
+		"[checksumset][calc][checksum]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "ChecksumSet special members",
 
 
 TEST_CASE ( "ChecksumSet is swappable, comparable, string convertible",
-		"[checksumset] [calc] [checksum]" )
+		"[checksumset][calc][checksum]" )
 {
 	SECTION ("is nothrow swappable")
 	{

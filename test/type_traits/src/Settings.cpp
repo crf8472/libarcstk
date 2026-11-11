@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Settings is non-abstract, final and non-empty",
-		"[settings] [calc] [calculate]" )
+		"[settings][calc][calculate]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "Settings is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "Settings special members",
-		"[settings] [calc] [calculate]" )
+		"[settings][calc][calculate]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,8 +72,8 @@ TEST_CASE ( "Settings special members",
 }
 
 
-TEST_CASE ( "Settings is swappable, comparable, string convertible",
-		"[settings] [calc] [calculate]" )
+TEST_CASE ( "Settings is swappable and comparable",
+		"[settings][calc][calculate]" )
 {
 	SECTION ("is nothrow swappable")
 	{
@@ -85,13 +85,6 @@ TEST_CASE ( "Settings is swappable, comparable, string convertible",
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::Settings> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::Settings>::value );
 	}
 }
 

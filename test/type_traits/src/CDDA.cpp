@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "CDDA is non-abstract, final and non-empty",
-		"[cdda] [metadata] [metadata]" )
+		"[cdda][metadata]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -30,15 +30,15 @@ TEST_CASE ( "CDDA is non-abstract, final and non-empty",
 		CHECK ( std::is_final_v<arcstk::CDDA> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ("has no non-static members")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::CDDA> );
+		CHECK ( std::is_empty_v<arcstk::CDDA> );
 	}
 }
 
 
 TEST_CASE ( "CDDA special members",
-		"[cdda] [metadata] [metadata]" )
+		"[cdda][metadata]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,26 +72,25 @@ TEST_CASE ( "CDDA special members",
 }
 
 
-TEST_CASE ( "CDDA is swappable, comparable, string convertible",
-		"[cdda] [metadata] [metadata]" )
+TEST_CASE ( "CDDA capabilities", "[cdda][metadata]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::CDDA> );
 	}
 
-	SECTION ("has comparability")
+	SECTION ("has no comparability")
 	{
 		using arcstk::meta::is_comparable_v;
 
-		CHECK ( is_comparable_v<arcstk::CDDA> );
+		CHECK ( ! is_comparable_v<arcstk::CDDA> );
 	}
 
-	SECTION ("has string convertibility")
+	SECTION ("has no string convertibility")
 	{
 		using arcstk::meta::has_tostring_functionality;
 
-		CHECK ( has_tostring_functionality<arcstk::CDDA>::value );
+		CHECK ( ! has_tostring_functionality<arcstk::CDDA>::value );
 	}
 }
 

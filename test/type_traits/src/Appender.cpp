@@ -37,8 +37,7 @@ TEST_CASE ( "Appender is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "Appender special members",
-		"[appender][logging][logging]" )
+TEST_CASE ( "Appender special members", "[appender][logging]" )
 {
 	SECTION ( "is not default constructable")
 	{
@@ -73,7 +72,7 @@ TEST_CASE ( "Appender special members",
 
 
 TEST_CASE ( "Appender is swappable, comparable, string convertible",
-		"[appender][logging][logging]" )
+		"[appender][logging]" )
 {
 	SECTION ("is nothrow swappable")
 	{

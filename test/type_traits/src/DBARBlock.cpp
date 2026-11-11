@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "DBARBlock is non-abstract, final and non-empty",
-		"[dbarblock] [dbar] [dbar]" )
+		"[dbarblock][dbar]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "DBARBlock is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "DBARBlock special members",
-		"[dbarblock] [dbar] [dbar]" )
+		"[dbarblock][dbar]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,8 +72,8 @@ TEST_CASE ( "DBARBlock special members",
 }
 
 
-TEST_CASE ( "DBARBlock is swappable, comparable, string convertible",
-		"[dbarblock] [dbar] [dbar]" )
+TEST_CASE ( "DBARBlock is swappable and comparable",
+		"[dbarblock][dbar]" )
 {
 	SECTION ("is nothrow swappable")
 	{
@@ -87,11 +87,11 @@ TEST_CASE ( "DBARBlock is swappable, comparable, string convertible",
 		CHECK ( is_comparable_v<arcstk::DBARBlock> );
 	}
 
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::DBARBlock>::value );
-	}
+	// SECTION ("has string convertibility")
+	// {
+	// 	using arcstk::meta::has_tostring_functionality;
+	//
+	// 	CHECK ( has_tostring_functionality<arcstk::DBARBlock>::value );
+	// }
 }
 

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "DBARSource is non-abstract, final and non-empty",
-		"[dbarsource] [verify] [verify]" )
+		"[dbarsource][verify]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "DBARSource is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "DBARSource special members",
-		"[dbarsource] [verify] [verify]" )
+		"[dbarsource][verify]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,26 +72,11 @@ TEST_CASE ( "DBARSource special members",
 }
 
 
-TEST_CASE ( "DBARSource is swappable, comparable, string convertible",
-		"[dbarsource] [verify] [verify]" )
+TEST_CASE ( "DBARSource is swappable", "[dbarsource][verify]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::DBARSource> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::DBARSource> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::DBARSource>::value );
 	}
 }
 

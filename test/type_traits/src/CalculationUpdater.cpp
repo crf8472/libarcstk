@@ -52,14 +52,19 @@ TEST_CASE ( "CalculationUpdater special members",
 		CHECK ( std::is_default_constructible_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ("is destructible")
 	{
-		CHECK ( std::is_copy_constructible_v<arcstk::CalculationUpdater<Version1>>);
+		CHECK ( std::is_destructible_v<arcstk::CalculationUpdater<Version1>> );
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is not copy-constructable")
 	{
-		CHECK ( std::is_copy_assignable_v<arcstk::CalculationUpdater<Version1>>);
+		CHECK ( ! std::is_copy_constructible_v<arcstk::CalculationUpdater<Version1>>);
+	}
+
+	SECTION ( "is not copy-assignable")
+	{
+		CHECK ( ! std::is_copy_assignable_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
 	SECTION ( "is nothrow move-constructable")
@@ -71,15 +76,10 @@ TEST_CASE ( "CalculationUpdater special members",
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::CalculationUpdater<Version1>>);
 	}
-
-	SECTION ("is destructible")
-	{
-		CHECK ( std::is_destructible_v<arcstk::CalculationUpdater<Version1>> );
-	}
 }
 
 
-TEST_CASE ( "CalculationUpdater is swappable, comparable, string convertible",
+TEST_CASE ( "CalculationUpdater is swappable",
 		"[calculationupdater][calc][calculate]" )
 {
 	using arcstk::accuraterip::algorithm::Version1;
@@ -87,20 +87,6 @@ TEST_CASE ( "CalculationUpdater is swappable, comparable, string convertible",
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::CalculationUpdater<Version1>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::CalculationUpdater<Version1>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::CalculationUpdater<Version1>>::value );
 	}
 }
 

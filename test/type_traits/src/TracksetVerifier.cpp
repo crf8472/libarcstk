@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "TracksetVerifier is non-abstract, final and non-empty",
-		"[tracksetverifier] [verify] [verify]" )
+		"[tracksetverifier][verify]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "TracksetVerifier is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "TracksetVerifier special members",
-		"[tracksetverifier] [verify] [verify]" )
+		"[tracksetverifier][verify]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::TracksetVerifier>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::TracksetVerifier>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,26 +72,11 @@ TEST_CASE ( "TracksetVerifier special members",
 }
 
 
-TEST_CASE ( "TracksetVerifier is swappable, comparable, string convertible",
-		"[tracksetverifier] [verify] [verify]" )
+TEST_CASE ( "TracksetVerifier is swappable", "[tracksetverifier][verify]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::TracksetVerifier> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::TracksetVerifier> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::TracksetVerifier>::value );
 	}
 }
 

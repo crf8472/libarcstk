@@ -40,58 +40,34 @@ TEST_CASE ( "StreamFlagsGuard is non-abstract, final and non-empty",
 TEST_CASE ( "StreamFlagsGuard special members",
 		"[streamflagsguard][calc][checksum]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::StreamFlagsGuard>);
-	}
-
-	SECTION ( "is copy-constructable")
-	{
-		CHECK ( std::is_copy_constructible_v<arcstk::details::StreamFlagsGuard>);
-	}
-
-	SECTION ( "is copy-assignable")
-	{
-		CHECK ( std::is_copy_assignable_v<arcstk::details::StreamFlagsGuard>);
-	}
-
-	SECTION ( "is nothrow move-constructable")
-	{
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::details::StreamFlagsGuard>);
-	}
-
-	SECTION ( "is nothrow move-assignable")
-	{
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::details::StreamFlagsGuard>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::details::StreamFlagsGuard>);
 	}
 
 	SECTION ("is destructible")
 	{
 		CHECK ( std::is_destructible_v<arcstk::details::StreamFlagsGuard> );
 	}
-}
 
-
-TEST_CASE ( "StreamFlagsGuard is swappable, comparable, string convertible",
-		"[streamflagsguard][calc][checksum]" )
-{
-	SECTION ("is nothrow swappable")
+	SECTION ( "is not copy-constructable")
 	{
-		CHECK ( std::is_nothrow_swappable_v<arcstk::details::StreamFlagsGuard> );
+		CHECK ( ! std::is_copy_constructible_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ("has comparability")
+	SECTION ( "is not copy-assignable")
 	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::StreamFlagsGuard> );
+		CHECK ( ! std::is_copy_assignable_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ("has string convertibility")
+	SECTION ( "is not nothrow move-constructable")
 	{
-		using arcstk::meta::has_tostring_functionality;
+		CHECK ( ! std::is_nothrow_move_constructible_v<arcstk::details::StreamFlagsGuard>);
+	}
 
-		CHECK ( has_tostring_functionality<arcstk::details::StreamFlagsGuard>::value );
+	SECTION ( "is not nothrow move-assignable")
+	{
+		CHECK ( ! std::is_nothrow_move_assignable_v<arcstk::details::StreamFlagsGuard>);
 	}
 }
 

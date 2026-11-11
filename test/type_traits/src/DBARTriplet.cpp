@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "DBARTriplet is non-abstract, final and non-empty",
-		"[dbartriplet] [dbar] [dbar]" )
+		"[dbartriplet][dbar]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "DBARTriplet is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "DBARTriplet special members",
-		"[dbartriplet] [dbar] [dbar]" )
+		"[dbartriplet][dbar]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "DBARTriplet special members",
 
 
 TEST_CASE ( "DBARTriplet is swappable, comparable, string convertible",
-		"[dbartriplet] [dbar] [dbar]" )
+		"[dbartriplet][dbar]" )
 {
 	SECTION ("is nothrow swappable")
 	{

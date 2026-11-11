@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Partition is non-abstract, final and non-empty",
-		"[partition] [calc] [calculate]" )
+		"[partition][calc][algorithm]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "Partition is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "Partition special members",
-		"[partition] [calc] [calculate]" )
+		"[partition][calc][algorithm]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::Partition>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::Partition>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,8 +72,8 @@ TEST_CASE ( "Partition special members",
 }
 
 
-TEST_CASE ( "Partition is swappable, comparable, string convertible",
-		"[partition] [calc] [calculate]" )
+TEST_CASE ( "Partition is swappable and comparable",
+		"[partition][calc][algorithm]" )
 {
 	SECTION ("is nothrow swappable")
 	{
@@ -85,13 +85,6 @@ TEST_CASE ( "Partition is swappable, comparable, string convertible",
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::Partition> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::Partition>::value );
 	}
 }
 

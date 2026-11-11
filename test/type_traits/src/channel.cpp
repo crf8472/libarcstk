@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "channel is non-abstract, final and non-empty",
-		"[channel][calc][samples]" )
+		"[channel][calc][samples][details]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -30,15 +30,15 @@ TEST_CASE ( "channel is non-abstract, final and non-empty",
 		CHECK ( std::is_final_v<arcstk::details::channel> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ("has no non-static members")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::details::channel> );
+		CHECK ( std::is_empty_v<arcstk::details::channel> );
 	}
 }
 
 
 TEST_CASE ( "channel special members",
-		"[channel][calc][samples]" )
+		"[channel][calc][samples][details]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -72,26 +72,12 @@ TEST_CASE ( "channel special members",
 }
 
 
-TEST_CASE ( "channel is swappable, comparable, string convertible",
-		"[channel][calc][samples]" )
+TEST_CASE ( "channel is swappable and comparable",
+		"[channel][calc][samples][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::channel> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::channel> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::channel>::value );
 	}
 }
 

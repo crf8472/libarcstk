@@ -609,7 +609,7 @@ public:
 	}
 
 	/**
-	 * \copydoc SNPT_sm_default_dtor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	~BasicStreamFlagsGuard() noexcept
 	{

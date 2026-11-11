@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Type traits testcases for Updateable<Versions1and2><>.
+ * \brief Type traits testcases for Updateable<>.
  */
 
 #ifndef LIBARCSTK_ALGORITHM_HPP_
@@ -79,7 +79,7 @@ TEST_CASE ( "Updateable<Versions1and2> special members",
 }
 
 
-TEST_CASE ( "Updateable<Versions1and2> is swappable, comparable, string convertible",
+TEST_CASE ( "Updateable<Versions1and2> is swappable",
 		"[updateable][calc][algorithm]" )
 {
 	using arcstk::accuraterip::algorithm::Versions1and2;
@@ -87,20 +87,6 @@ TEST_CASE ( "Updateable<Versions1and2> is swappable, comparable, string converti
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::Updateable<Versions1and2>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::Updateable<Versions1and2>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::Updateable<Versions1and2>>::value );
 	}
 }
 

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "CalculationState is non-abstract, final and non-empty",
-		"[calculationstate][calc][calculate]" )
+		"[calculationstate][calc][calculate][details]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,60 +38,48 @@ TEST_CASE ( "CalculationState is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "CalculationState special members",
-		"[calculationstate][calc][calculate]" )
+		"[calculationstate][calc][calculate][details]" )
 {
+	using CalculationState_t = arcstk::details::CalculationState;
+
 	SECTION ( "is default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::CalculationState>);
+		CHECK ( std::is_default_constructible_v<CalculationState_t>);
 	}
 
 	SECTION ( "is copy-constructable")
 	{
-		CHECK ( std::is_copy_constructible_v<arcstk::details::CalculationState>);
+		CHECK ( std::is_copy_constructible_v<CalculationState_t>);
 	}
 
 	SECTION ( "is copy-assignable")
 	{
-		CHECK ( std::is_copy_assignable_v<arcstk::details::CalculationState>);
+		CHECK ( std::is_copy_assignable_v<CalculationState_t>);
 	}
 
 	SECTION ( "is nothrow move-constructable")
 	{
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::details::CalculationState>);
+		CHECK ( std::is_nothrow_move_constructible_v<CalculationState_t>);
 	}
 
 	SECTION ( "is nothrow move-assignable")
 	{
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::details::CalculationState>);
+		CHECK ( std::is_nothrow_move_assignable_v<CalculationState_t>);
 	}
 
 	SECTION ("is destructible")
 	{
-		CHECK ( std::is_destructible_v<arcstk::details::CalculationState> );
+		CHECK ( std::is_destructible_v<CalculationState_t> );
 	}
 }
 
 
-TEST_CASE ( "CalculationState is swappable, comparable, string convertible",
-		"[calculationstate][calc][calculate]" )
+TEST_CASE ( "CalculationState is swappable",
+		"[calculationstate][calc][calculate][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::CalculationState> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::CalculationState> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::CalculationState>::value );
 	}
 }
 

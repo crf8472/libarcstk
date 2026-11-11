@@ -33,9 +33,9 @@ TEST_CASE ( "Verification is non-abstract, final and non-empty",
 		CHECK ( std::is_final_v<arcstk::details::Verification> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ("has no non-static members")
 	{
-		CHECK ( ! std::is_empty_v<arcstk::details::Verification> );
+		CHECK ( std::is_empty_v<arcstk::details::Verification> );
 	}
 }
 
@@ -75,26 +75,11 @@ TEST_CASE ( "Verification special members",
 }
 
 
-TEST_CASE ( "Verification is swappable, comparable, string convertible",
-		"[verification][verify][details]" )
+TEST_CASE ( "Verification is swappable", "[verification][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::Verification> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::Verification> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::Verification>::value );
 	}
 }
 

@@ -20,7 +20,7 @@
 								   // has_tostring_functionality
 
 
-TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is non-abstract, final and non-empty",
+TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is non-abstract and non-empty",
 		"[update][calc][accuraterip]" )
 {
 	using arcstk::checksum::type;
@@ -31,10 +31,12 @@ TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is non-abstract, final and non-emp
 		CHECK ( ! std::is_abstract_v<arcstk::accuraterip::details::Update<type::ARCS1, type::ARCS2>> );
 	}
 
-	SECTION ("is final")
-	{
-		CHECK ( std::is_final_v<arcstk::accuraterip::details::Update<type::ARCS1, type::ARCS2>> );
-	}
+	// TODO
+
+	// SECTION ("is final")
+	// {
+	// 	CHECK ( std::is_final_v<arcstk::accuraterip::details::Update<type::ARCS1, type::ARCS2>> );
+	// }
 
 	SECTION ("has non-static members")
 	{

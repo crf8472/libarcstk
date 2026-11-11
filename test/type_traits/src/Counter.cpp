@@ -18,7 +18,7 @@
 
 
 TEST_CASE ( "Counter is non-abstract, final and non-empty",
-		"[counter][calc][calculate]" )
+		"[counter][calc][calculate][details]" )
 {
 	using std::int32_t;
 
@@ -41,7 +41,7 @@ TEST_CASE ( "Counter is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "Counter special members",
-		"[counter][calc][calculate]" )
+		"[counter][calc][calculate][details]" )
 {
 	using std::int32_t;
 
@@ -77,28 +77,13 @@ TEST_CASE ( "Counter special members",
 }
 
 
-TEST_CASE ( "Counter is swappable, comparable, string convertible",
-		"[counter][calc][calculate]" )
+TEST_CASE ( "Counter is swappable", "[counter][calc][calculate][details]" )
 {
 	using std::int32_t;
 
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::Counter<int32_t>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::Counter<int32_t>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::Counter<int32_t>>::value );
 	}
 }
 

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "Checksum is non-abstract, final and non-empty",
-		"[checksum] [calc] [checksum]" )
+		"[checksum][calc][checksum]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "Checksum is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "Checksum special members",
-		"[checksum] [calc] [checksum]" )
+		"[checksum][calc][checksum]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "Checksum special members",
 
 
 TEST_CASE ( "Checksum is swappable, comparable, string convertible",
-		"[checksum] [calc] [checksum]" )
+		"[checksum][calc][checksum]" )
 {
 	SECTION ("is nothrow swappable")
 	{

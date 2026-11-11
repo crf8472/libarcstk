@@ -958,7 +958,7 @@ private:
 public:
 
 	/**
-	 * \copydoc SNPT_sm_default_dtor.
+	 * \copydoc SNPT_sm_default_dtor
 	 */
 	virtual ~Stateful() noexcept = default;
 
@@ -2256,6 +2256,29 @@ struct AlgorithmTypes final
 		return std::make_unique<CalculationSetUpdater<B, E>>(settings,
 			&AlgorithmTypes<A1, Args...>::configure<B,E>);
 	}
+
+	template <typename... OTHERS>
+	constexpr bool equals(const AlgorithmTypes<OTHERS...>&) const
+		noexcept
+	{
+		return std::is_same_v<std::tuple<A1, Args...>, std::tuple<OTHERS...>>;
+	}
+
+	// TODO Inherit from Comparable?
+
+	friend bool operator == (const AlgorithmTypes& lhs,
+			const AlgorithmTypes& rhs) noexcept
+	{
+		return lhs.equals(rhs);
+	}
+
+	friend bool operator != (const AlgorithmTypes& lhs,
+			const AlgorithmTypes& rhs) noexcept
+	{
+		return !(lhs == rhs);
+	}
+
+	// TODO to_string
 };
 
 

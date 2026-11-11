@@ -91,6 +91,29 @@ std::size_t Partition::size() const
 }
 
 
+bool Partition::equals(const Partition& rhs) const noexcept
+{
+	return
+		   begin_offset_ == rhs.begin_offset_
+		&& end_offset_   == rhs.end_offset_
+		&& starts_track_ == rhs.starts_track_
+		&& ends_track_   == rhs.ends_track_
+		&& track_        == rhs.track_;
+}
+
+
+void Partition::swap(Partition& rhs) noexcept
+{
+	using std::swap;
+
+	swap(begin_offset_, rhs.begin_offset_);
+	swap(end_offset_  , rhs.end_offset_  );
+	swap(starts_track_, rhs.starts_track_);
+	swap(ends_track_  , rhs.ends_track_  );
+	swap(track_       , rhs.track_       );
+}
+
+
 // Partitioner
 
 

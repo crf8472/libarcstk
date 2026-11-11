@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "AudioSize is non-abstract, final and non-empty",
-		"[audiosize] [metadata] [metadata]" )
+		"[audiosize][metadata]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -37,8 +37,7 @@ TEST_CASE ( "AudioSize is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "AudioSize special members",
-		"[audiosize] [metadata] [metadata]" )
+TEST_CASE ( "AudioSize special members", "[audiosize][metadata]" )
 {
 	SECTION ( "is default constructable")
 	{
@@ -73,7 +72,7 @@ TEST_CASE ( "AudioSize special members",
 
 
 TEST_CASE ( "AudioSize is swappable, comparable, string convertible",
-		"[audiosize] [metadata] [metadata]" )
+		"[audiosize][metadata]" )
 {
 	SECTION ("is nothrow swappable")
 	{

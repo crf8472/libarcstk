@@ -44,39 +44,42 @@ TEST_CASE ( "DBARForwardIterator special members",
 {
 	using arcstk::DBAR;
 
-	SECTION ( "is default constructable")
+	using DBARForwardIterator_t =
+		arcstk::details::DBARForwardIterator<DBAR, true>;
+
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::details::DBARForwardIterator<DBAR, true>>);
+		CHECK ( ! std::is_default_constructible_v<DBARForwardIterator_t>);
 	}
 
 	SECTION ( "is copy-constructable")
 	{
-		CHECK ( std::is_copy_constructible_v<arcstk::details::DBARForwardIterator<DBAR, true>>);
+		CHECK ( std::is_copy_constructible_v<DBARForwardIterator_t>);
 	}
 
 	SECTION ( "is copy-assignable")
 	{
-		CHECK ( std::is_copy_assignable_v<arcstk::details::DBARForwardIterator<DBAR, true>>);
+		CHECK ( std::is_copy_assignable_v<DBARForwardIterator_t>);
 	}
 
 	SECTION ( "is nothrow move-constructable")
 	{
-		CHECK ( std::is_nothrow_move_constructible_v<arcstk::details::DBARForwardIterator<DBAR, true>>);
+		CHECK ( std::is_nothrow_move_constructible_v<DBARForwardIterator_t>);
 	}
 
 	SECTION ( "is nothrow move-assignable")
 	{
-		CHECK ( std::is_nothrow_move_assignable_v<arcstk::details::DBARForwardIterator<DBAR, true>>);
+		CHECK ( std::is_nothrow_move_assignable_v<DBARForwardIterator_t>);
 	}
 
 	SECTION ("is destructible")
 	{
-		CHECK ( std::is_destructible_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
+		CHECK ( std::is_destructible_v<DBARForwardIterator_t> );
 	}
 }
 
 
-TEST_CASE ( "DBARForwardIterator is swappable, comparable, string convertible",
+TEST_CASE ( "DBARForwardIterator is swappable and comparable",
 		"[dbarforwarditerator][dbar][details]" )
 {
 	using arcstk::DBAR;
@@ -91,13 +94,6 @@ TEST_CASE ( "DBARForwardIterator is swappable, comparable, string convertible",
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::DBARForwardIterator<DBAR, true>>::value );
 	}
 }
 

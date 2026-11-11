@@ -37,8 +37,7 @@ TEST_CASE ( "ARId is non-abstract, final and non-empty",
 }
 
 
-TEST_CASE ( "ARId special members",
-		"[arid][id][identifier]" )
+TEST_CASE ( "ARId special members", "[arid][id][identifier]" )
 {
 	SECTION ( "is default constructable")
 	{

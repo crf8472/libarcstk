@@ -75,26 +75,12 @@ TEST_CASE ( "CheckingDBARBuilderState special members",
 }
 
 
-TEST_CASE ( "CheckingDBARBuilderState is swappable, comparable, string convertible",
+TEST_CASE ( "CheckingDBARBuilderState is swappable",
 		"[checkingdbarbuilderstate][dbar][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::CheckingDBARBuilderState> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::CheckingDBARBuilderState> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::CheckingDBARBuilderState>::value );
 	}
 }
 

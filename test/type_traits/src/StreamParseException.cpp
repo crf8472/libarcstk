@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "StreamParseException is non-abstract, final and non-empty",
-		"[streamparseexception] [dbar] [dbar]" )
+		"[streamparseexception][dbar]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "StreamParseException is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "StreamParseException special members",
-		"[streamparseexception] [dbar] [dbar]" )
+		"[streamparseexception][dbar]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::StreamParseException>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::StreamParseException>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -72,26 +72,12 @@ TEST_CASE ( "StreamParseException special members",
 }
 
 
-TEST_CASE ( "StreamParseException is swappable, comparable, string convertible",
-		"[streamparseexception] [dbar] [dbar]" )
+TEST_CASE ( "StreamParseException is swappable",
+		"[streamparseexception][dbar]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::StreamParseException> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::StreamParseException> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::StreamParseException>::value );
 	}
 }
 

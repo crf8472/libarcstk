@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "DBARBlockHeader is non-abstract, final and non-empty",
-		"[dbarblockheader] [dbar] [dbar]" )
+		"[dbarblockheader][dbar]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,11 +38,11 @@ TEST_CASE ( "DBARBlockHeader is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "DBARBlockHeader special members",
-		"[dbarblockheader] [dbar] [dbar]" )
+		"[dbarblockheader][dbar]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is not default constructable")
 	{
-		CHECK ( std::is_default_constructible_v<arcstk::DBARBlockHeader>);
+		CHECK ( ! std::is_default_constructible_v<arcstk::DBARBlockHeader>);
 	}
 
 	SECTION ( "is copy-constructable")
@@ -73,7 +73,7 @@ TEST_CASE ( "DBARBlockHeader special members",
 
 
 TEST_CASE ( "DBARBlockHeader is swappable, comparable, string convertible",
-		"[dbarblockheader] [dbar] [dbar]" )
+		"[dbarblockheader][dbar]" )
 {
 	SECTION ("is nothrow swappable")
 	{

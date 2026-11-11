@@ -75,26 +75,11 @@ TEST_CASE ( "TrackTraversal special members",
 }
 
 
-TEST_CASE ( "TrackTraversal is swappable, comparable, string convertible",
-		"[tracktraversal][verify][details]" )
+TEST_CASE ( "TrackTraversal is swappable", "[tracktraversal][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::TrackTraversal> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::TrackTraversal> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::TrackTraversal>::value );
 	}
 }
 

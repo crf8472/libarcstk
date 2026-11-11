@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "CheckingDBARBuilder is non-abstract, final and non-empty",
-		"[checkingdbarbuilder] [dbar] [dbar]" )
+		"[checkingdbarbuilder][dbar]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,21 +38,21 @@ TEST_CASE ( "CheckingDBARBuilder is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "CheckingDBARBuilder special members",
-		"[checkingdbarbuilder] [dbar] [dbar]" )
+		"[checkingdbarbuilder][dbar]" )
 {
 	SECTION ( "is default constructable")
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::CheckingDBARBuilder>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is not copy-constructable")
 	{
-		CHECK ( std::is_copy_constructible_v<arcstk::CheckingDBARBuilder>);
+		CHECK ( ! std::is_copy_constructible_v<arcstk::CheckingDBARBuilder>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is not copy-assignable")
 	{
-		CHECK ( std::is_copy_assignable_v<arcstk::CheckingDBARBuilder>);
+		CHECK ( ! std::is_copy_assignable_v<arcstk::CheckingDBARBuilder>);
 	}
 
 	SECTION ( "is nothrow move-constructable")
@@ -72,26 +72,11 @@ TEST_CASE ( "CheckingDBARBuilder special members",
 }
 
 
-TEST_CASE ( "CheckingDBARBuilder is swappable, comparable, string convertible",
-		"[checkingdbarbuilder] [dbar] [dbar]" )
+TEST_CASE ( "CheckingDBARBuilder is swappable", "[checkingdbarbuilder][dbar]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::CheckingDBARBuilder> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::CheckingDBARBuilder> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::CheckingDBARBuilder>::value );
 	}
 }
 

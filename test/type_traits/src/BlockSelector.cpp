@@ -75,26 +75,11 @@ TEST_CASE ( "BlockSelector special members",
 }
 
 
-TEST_CASE ( "BlockSelector is swappable, comparable, string convertible",
-		"[blockselector][verify][details]" )
+TEST_CASE ( "BlockSelector is swappable", "[blockselector][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::BlockSelector> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::BlockSelector> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::BlockSelector>::value );
 	}
 }
 

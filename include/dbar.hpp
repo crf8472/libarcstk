@@ -448,15 +448,15 @@ auto get_element(const T& /*container*/, const typename T::size_type /*index*/)
  * \tparam T The value to increment
  * \tparam R Indicator for reverse increment
  */
-template<typename T, bool R>
-class Increment
+template <typename T, bool R>
+class Increment final
 {
 	// empty
 };
 
 
-template<typename T>
-class Increment<T, false>
+template <typename T>
+class Increment<T, false> final
 {
 public:
 
@@ -467,8 +467,8 @@ public:
 };
 
 
-template<typename T>
-class Increment<T, true>
+template <typename T>
+class Increment<T, true> final
 {
 public:
 
@@ -664,26 +664,42 @@ public:
 	}
 
 	/**
+	 * \copydoc SNPT_mf_equals
+	 */
+	bool equals(const DBARForwardIterator& rhs) const noexcept
+	{
+		return container_ == rhs.container_
+			&& idx_       == rhs.idx_;
+	}
+
+	/**
+	 * \copydoc SNPT_mf_swap
+	 */
+	void swap(DBARForwardIterator& rhs) noexcept
+	{
+		using std::swap;
+
+		swap(container_, rhs.container_);
+		swap(idx_,       rhs.idx_);
+		// increment_ is not swapped
+	}
+
+	/**
 	 * \copydoc SNPT_nf_swap
 	 */
 	friend void swap(DBARForwardIterator& lhs, DBARForwardIterator& rhs)
 		noexcept
 	{
-		using std::swap;
-
-		swap(lhs.container_, rhs.container_);
-		swap(lhs.index_,     rhs.index_);
-		// increment_ is not swapped
+		lhs.swap(rhs);
 	} // required by LegacyIterator
 
 	/**
 	 * \copydoc SNPT_nf_equality
 	 */
     friend bool operator == (const DBARForwardIterator& lhs,
-			const DBARForwardIterator& rhs)
+			const DBARForwardIterator& rhs) noexcept
 	{
-		return lhs.container_ == rhs.container_
-			&& lhs.idx_       == rhs.idx_;
+		return lhs.equals(rhs);
 	}
 };
 
@@ -1414,6 +1430,19 @@ public:
 	 */
 	DBARBuilder();
 
+	DBARBuilder(const DBARBuilder& rhs) = delete;
+	DBARBuilder& operator= (const DBARBuilder& rhs) = delete;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	DBARBuilder(DBARBuilder&& rhs) noexcept = default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	DBARBuilder& operator= (DBARBuilder&& rhs) noexcept = default;
+
 	/**
 	 * \copydoc SNPT_sm_default_dtor
 	 */
@@ -1477,6 +1506,21 @@ public:
 	 * \copydoc SNPT_sm_default_ctor
 	 */
 	CheckingDBARBuilder();
+
+	CheckingDBARBuilder (const CheckingDBARBuilder& rhs) = delete;
+	CheckingDBARBuilder& operator= (const CheckingDBARBuilder& rhs) = delete;
+
+	/**
+	 * \copydoc SNPT_sm_move_ctor
+	 */
+	CheckingDBARBuilder (CheckingDBARBuilder&& rhs) noexcept
+		= default;
+
+	/**
+	 * \copydoc SNPT_sm_move_op
+	 */
+	CheckingDBARBuilder& operator= (CheckingDBARBuilder&& rhs) noexcept
+		= default;
 
 	/**
 	 * \copydoc SNPT_sm_default_dtor

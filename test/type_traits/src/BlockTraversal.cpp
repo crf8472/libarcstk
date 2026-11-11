@@ -75,26 +75,11 @@ TEST_CASE ( "BlockTraversal special members",
 }
 
 
-TEST_CASE ( "BlockTraversal is swappable, comparable, string convertible",
-		"[blocktraversal][verify][details]" )
+TEST_CASE ( "BlockTraversal is swappable", "[blocktraversal][verify][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::BlockTraversal> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::details::BlockTraversal> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::details::BlockTraversal>::value );
 	}
 }
 

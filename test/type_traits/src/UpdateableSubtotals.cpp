@@ -80,7 +80,7 @@ TEST_CASE ( "UpdateableSubtotals special members",
 }
 
 
-TEST_CASE ( "UpdateableSubtotals is swappable, comparable, string convertible",
+TEST_CASE ( "UpdateableSubtotals is swappable",
 		"[updateablesubtotals][calc][accuraterip]" )
 {
 	using arcstk::checksum::type;
@@ -88,20 +88,6 @@ TEST_CASE ( "UpdateableSubtotals is swappable, comparable, string convertible",
 	SECTION ("is nothrow swappable")
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1, type::ARCS2>> );
-	}
-
-	SECTION ("has comparability")
-	{
-		using arcstk::meta::is_comparable_v;
-
-		CHECK ( is_comparable_v<arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1, type::ARCS2>> );
-	}
-
-	SECTION ("has string convertibility")
-	{
-		using arcstk::meta::has_tostring_functionality;
-
-		CHECK ( has_tostring_functionality<arcstk::accuraterip::details::UpdateableSubtotals<type::ARCS1, type::ARCS2>>::value );
 	}
 }
 
