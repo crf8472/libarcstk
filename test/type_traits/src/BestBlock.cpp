@@ -13,10 +13,10 @@
 #include "verify_details.hpp"      // TO BE TESTED
 #endif
 
-#include <type_traits>            // for is_*_{constructible,assignable}
+#include <type_traits>             // for is_*_{constructible,assignable}
 
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
+#include "type_traits.hpp"         // for is_comparable,
+                                   // has_tostring_functionality
 
 
 TEST_CASE ( "BestBlock is non-abstract, final and non-empty",

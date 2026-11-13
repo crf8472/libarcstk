@@ -7,15 +7,15 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
+TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate][details]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -47,7 +47,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 	};
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( instance.total_samples()       ==
 				AudioSize { 253038 * 588, UNIT::SAMPLES } );
@@ -55,7 +55,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 		CHECK ( instance.legal_range().upper() == 253038 * 588 - 2940 );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const TrackPartitioner copied {
 			Copy<TrackPartitioner>::construct(instance) };
@@ -66,7 +66,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const TrackPartitioner moved {
 			Move<TrackPartitioner>::construct(instance) };
@@ -77,7 +77,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = TrackPartitioner { /* empty */ {}, {}, {} };
 		Copy<TrackPartitioner>::assign(copied, instance);
@@ -88,7 +88,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 				AudioSize { 253038 * 588, UNIT::SAMPLES } );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = TrackPartitioner { /* empty */ {}, {}, {} };
 		Move<TrackPartitioner>::assign(moved, instance);
@@ -102,21 +102,21 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate]" )
 
 // TODO Implement function test
 // TEST_CASE ( "TrackPartitioner functions",
-// 		"[trackpartitioner][calc][calculate]" )
+// 		"[trackpartitioner][calc][calculate][details]" )
 // {
 // 	using arcstk::details::TrackPartitioner;
 //
 // 	auto instance = TrackPartitioner {};
 //
 //
-// 	SECTION ("create_partitioning() is correct")
+// 	SECTION ( "create_partitioning() is correct" )
 // 	{
 // 		FAIL ("do_create_partitioning() test is missing");
 // 	}
 // }
 
 TEST_CASE ( "TrackPartitioner functions",
-		"[trackpartitioner][calc][calculate]" )
+	"[trackpartitioner][calc][calculate][details]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;
@@ -145,7 +145,7 @@ TEST_CASE ( "TrackPartitioner functions",
 	};
 
 
-	SECTION ("length() is correct")
+	SECTION ( "length() is correct" )
 	{
 		CHECK ( instance.length( 1).samples() == (  5225 -     33) * 588 );
 		CHECK ( instance.length( 2).samples() == (  7390 -   5225) * 588 );

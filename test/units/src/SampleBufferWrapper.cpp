@@ -7,19 +7,20 @@
  */
 
 #ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples.hpp"          // TO BE TESTED
+#include "samples.hpp"
 #endif
 #ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples_details.hpp"  // for
+#include "samples_details.hpp"     // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
 // TODO Implement testcases
-//TEST_CASE ( "SampleBufferWrapper", "[samplebufferwrapper][calc][samples]" )
+//TEST_CASE ( "SampleBufferWrapper",
+//   "[samplebufferwrapper][calc][samples][details]" )
 //{
 //	using arcstk::testing::Copy;
 //	using arcstk::testing::Move;
@@ -29,12 +30,12 @@
 //	auto instance = SampleBufferWrapper {};
 //
 //
-//	SECTION ("Parametized construction is correct")
+//	SECTION ( "Parametized construction is correct" )
 //	{
 //		FAIL ( "Parametized construction test is missing" );
 //	}
 //
-//	SECTION ("Copy construction is correct")
+//	SECTION ( "Copy construction is correct" )
 //	{
 //		const SampleBufferWrapper copied { Copy<SampleBufferWrapper>::construct(instance) };
 //
@@ -45,7 +46,7 @@
 //		FAIL ( "Copy construction test is missing" );
 //	}
 //
-//	SECTION ("Move construction is correct")
+//	SECTION ( "Move construction is correct" )
 //	{
 //		const SampleBufferWrapper moved { Move<SampleBufferWrapper>::construct(instance) };
 //
@@ -56,7 +57,7 @@
 //		FAIL ( "Move construction test is missing" );
 //	}
 //
-//	SECTION ("Copy assignment is correct")
+//	SECTION ( "Copy assignment is correct" )
 //	{
 //		auto copied = SampleBufferWrapper {};
 //		Copy<SampleBufferWrapper>::assign(copied, instance);
@@ -68,7 +69,7 @@
 //		FAIL ( "Copy assignment test is missing" );
 //	}
 //
-//	SECTION ("Move assignment is correct")
+//	SECTION ( "Move assignment is correct" )
 //	{
 //		auto moved = SampleBufferWrapper {};
 //		Move<SampleBufferWrapper>::assign(moved, instance);
@@ -83,65 +84,66 @@
 //
 //
 //TEST_CASE ( "SampleBufferWrapper default constructed instance",
-//		"[samplebufferwrapper][calc][samples]" )
+//		"[samplebufferwrapper][calc][samples][details]" )
 //{
 //	const auto instance = arcstk::SampleBufferWrapper{};
 //
-//	SECTION ( "is empty()")
+//	SECTION ( "is empty()" )
 //	{
 //		CHECK ( instance.empty() );
 //	}
 //
-//	SECTION ( "converts to FALSE")
+//	SECTION ( "converts to FALSE" )
 //	{
 //		CHECK ( !instance );
 //	}
 //}
 //
 //
-//TEST_CASE ( "SampleBufferWrapper property", "[samplebufferwrapper][calc][samples]" )
+//TEST_CASE ( "SampleBufferWrapper property",
+//    "[samplebufferwrapper][calc][samples][details]" )
 //{
 //	using arcstk::SampleBufferWrapper;
 //
 //	auto defaulted = SampleBufferWrapper {};
 //
 //
-//	SECTION ("Equality operator == is correct")
+//	SECTION ( "Equality operator == is correct" )
 //	{
 //		FAIL ( "Equality operator test is missing" );
 //	}
 //
-//	SECTION ("Stream-in operator << is correct")
+//	SECTION ( "Stream-in operator << is correct" )
 //	{
 //		FAIL ( "Stream-in operator << test is missing" );
 //	}
 //
-//	SECTION ("operator bool() is correct")
+//	SECTION ( "operator bool() is correct" )
 //	{
 //		FAIL ( "operator bool() test is missing" );
 //	}
 //
-//	SECTION ("swap() is correct")
+//	SECTION ( "swap() is correct" )
 //	{
 //		FAIL ( "swap() test is missing" );
 //	}
 //
-//	SECTION ("to_string() is correct")
+//	SECTION ( "to_string() is correct" )
 //	{
 //		FAIL ( "to_string() test is missing" );
 //	}
 //
-//	SECTION ("clone() is correct")
+//	SECTION ( "clone() is correct" )
 //	{
 //		FAIL ( "clone() test is missing" );
 //	}
 //
-//	SECTION ("size() is correct")
+//	SECTION ( "size() is correct" )
 //	{
 //		FAIL ( "size() test is missing" );
 //	}
 //
-//	SECTION ("empty() is correct")
+//	SECTION ( "empty() is correct" )
 //	{
 //		FAIL ( "empty() test is missing" );
 //	}
@@ -149,7 +151,7 @@
 
 
 TEST_CASE ( "SampleBufferWrapper functions",
-		"[samplebufferwrapper][calc][samples]" )
+	"[samplebufferwrapper][calc][samples][details]" )
 {
 	using arcstk::details::SampleBufferWrapper;
 	using v_int32_t = std::vector<int32_t>;

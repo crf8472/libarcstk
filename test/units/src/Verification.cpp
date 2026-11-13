@@ -10,15 +10,15 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "Verification", "[verification][verify]" )
+// TEST_CASE ( "Verification", "[verification][verify][details]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -28,12 +28,12 @@
 // 	auto instance = Verification {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const Verification copied { Copy<Verification>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const Verification moved { Move<Verification>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = Verification {};
 // 		Copy<Verification>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = Verification {};
 // 		Move<Verification>::assign(moved, instance);
@@ -82,86 +82,86 @@
 
 
 TEST_CASE ( "Verification default constructed instance",
-		"[verification][verify]" )
+	"[verification][verify][details]" )
 {
 	const auto defaulted = arcstk::details::Verification {};
 
-	SECTION ( "is an instance")
+	SECTION ( "is an instance" )
 	{
 		CHECK ( &defaulted != nullptr );
 	}
 }
 
 
-// TEST_CASE ( "Verification property", "[verification][verify]" )
+// TEST_CASE ( "Verification property", "[verification][verify][details]" )
 // {
 // 	using arcstk::Verification;
 //
 // 	auto instance = Verification {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
 // }
 
 
-// TEST_CASE ( "Verification functions", "[verification][verify]" )
+// TEST_CASE ( "Verification functions", "[verification][verify][details]" )
 // {
 // 	auto instance = arcstk::details::Verification {};
 //
-// 	// SECTION ("set_all_ids_verified() is correct")
+// 	// SECTION ( "set_all_ids_verified() is correct" )
 // 	// {
 // 	// 	FAIL ("set_all_ids_verified() test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("perform_ids() is correct")
+// 	// SECTION ( "perform_ids() is correct" )
 // 	// {
 // 	// 	FAIL ("perform_ids() test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("perform_checksums() is correct")
+// 	// SECTION ( "perform_checksums() is correct" )
 // 	// {
 // 	// 	FAIL ("perform_checksums() test is missing");
 // 	// }
 //
-// 	SECTION ("perform() is correct")
+// 	SECTION ( "perform() is correct" )
 // 	{
 // 		FAIL ("perform() test is missing");
 // 	}

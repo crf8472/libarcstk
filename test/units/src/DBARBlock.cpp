@@ -7,18 +7,18 @@
  */
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"          // TO BE TESTED
+#include "dbar.hpp"                // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar_details.hpp"  // for
+#include "dbar_details.hpp"        // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "DBARBlock", "[dbarblock][dbar][dbar]" )
+// TEST_CASE ( "DBARBlock", "[dbarblock][dbar][details]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -28,12 +28,12 @@
 // 	auto instance = DBARBlock {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const DBARBlock copied { Copy<DBARBlock>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const DBARBlock moved { Move<DBARBlock>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = DBARBlock {};
 // 		Copy<DBARBlock>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = DBARBlock {};
 // 		Move<DBARBlock>::assign(moved, instance);
@@ -82,67 +82,67 @@
 
 
 // TEST_CASE ( "DBARBlock default constructed instance",
-// 		"[dbarblock][dbar][dbar]" )
+// 		"[dbarblock][dbar][details]" )
 // {
 // 	const auto instance = arcstk::DBARBlock{};
 //
-// 	SECTION ( "is empty()")
+// 	SECTION ( "is empty()" )
 // 	{
 // 		CHECK ( instance.empty() );
 // 	}
 // }
 
 
-// TEST_CASE ( "DBARBlock property", "[dbarblock][dbar][dbar]" )
+// TEST_CASE ( "DBARBlock property", "[dbarblock][dbar][details]" )
 // {
 // 	using arcstk::DBARBlock;
 //
 // 	auto defaulted = DBARBlock {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
 // }
 
 
-TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][dbar]" )
+TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][details]" )
 {
 	using arcstk::DBARBlock;
 
@@ -195,87 +195,87 @@ TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][dbar]" )
 
 	REQUIRE ( instance.size() == 15 );
 
-	// SECTION ("set is correct")
+	// SECTION ( "set is correct" )
 	// {
 	// 	FAIL ("set test is missing");
 	// }
 	//
-	// SECTION ("index is correct")
+	// SECTION ( "index is correct" )
 	// {
 	// 	FAIL ("index test is missing");
 	// }
 	//
-	// SECTION ("size is correct")
+	// SECTION ( "size is correct" )
 	// {
 	// 	FAIL ("size test is missing");
 	// }
 	//
-	// SECTION ("header is correct")
+	// SECTION ( "header is correct" )
 	// {
 	// 	FAIL ("header test is missing");
 	// }
 	//
-	// SECTION ("triplet is correct")
+	// SECTION ( "triplet is correct" )
 	// {
 	// 	FAIL ("triplet test is missing");
 	// }
 	//
-	// SECTION ("id is correct")
+	// SECTION ( "id is correct" )
 	// {
 	// 	FAIL ("id test is missing");
 	// }
 	//
-	// SECTION ("begin is correct")
+	// SECTION ( "begin is correct" )
 	// {
 	// 	FAIL ("begin test is missing");
 	// }
 	//
-	// SECTION ("end is correct")
+	// SECTION ( "end is correct" )
 	// {
 	// 	FAIL ("end test is missing");
 	// }
 	//
-	// SECTION ("cbegin is correct")
+	// SECTION ( "cbegin is correct" )
 	// {
 	// 	FAIL ("cbegin test is missing");
 	// }
 	//
-	// SECTION ("cend is correct")
+	// SECTION ( "cend is correct" )
 	// {
 	// 	FAIL ("cend test is missing");
 	// }
 	//
-	// SECTION ("rbegin is correct")
+	// SECTION ( "rbegin is correct" )
 	// {
 	// 	FAIL ("rbegin test is missing");
 	// }
 	//
-	// SECTION ("rend is correct")
+	// SECTION ( "rend is correct" )
 	// {
 	// 	FAIL ("rend test is missing");
 	// }
 	//
-	// SECTION ("crbegin is correct")
+	// SECTION ( "crbegin is correct" )
 	// {
 	// 	FAIL ("crbegin test is missing");
 	// }
 	//
-	// SECTION ("crend is correct")
+	// SECTION ( "crend is correct" )
 	// {
 	// 	FAIL ("crend test is missing");
 	// }
 	//
-	// SECTION ("empty is correct")
+	// SECTION ( "empty is correct" )
 	// {
 	// 	FAIL ("empty test is missing");
 	// }
 	//
-	// SECTION ("swap is correct")
+	// SECTION ( "swap is correct" )
 	// {
 	// 	FAIL ("swap test is missing");
 	// }
 	//
-	// SECTION ("equals is correct")
+	// SECTION ( "equals is correct" )
 	// {
 	// 	FAIL ("equals test is missing");
 	// }

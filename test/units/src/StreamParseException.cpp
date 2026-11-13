@@ -7,14 +7,11 @@
  */
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"
-#endif
-#ifndef LIBARCSTK_DBAR_DETAILS_HPP_
-#include "dbar_details.hpp"       // TO BE TESTED
+#include "dbar.hpp"                // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -28,12 +25,12 @@
 // 	auto instance = StreamParseException {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const StreamParseException copied { Copy<StreamParseException>::construct(instance) };
 //
@@ -44,7 +41,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const StreamParseException moved { Move<StreamParseException>::construct(instance) };
 //
@@ -55,7 +52,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = StreamParseException {};
 // 		Copy<StreamParseException>::assign(copied, instance);
@@ -67,7 +64,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = StreamParseException {};
 // 		Move<StreamParseException>::assign(moved, instance);
@@ -86,12 +83,12 @@
 // {
 // 	const auto defaulted = arcstk::StreamParseException{};
 //
-// 	SECTION ( "is empty()")
+// 	SECTION ( "is empty()" )
 // 	{
 // 		CHECK ( defaulted.empty() );
 // 	}
 //
-// 	SECTION ( "converts to FALSE")
+// 	SECTION ( "converts to FALSE" )
 // 	{
 // 		CHECK ( !defaulted );
 // 	}
@@ -105,42 +102,42 @@
 // 	auto instance = StreamParseException {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -151,17 +148,17 @@ TEST_CASE ( "StreamParseException functions", "[streamparseexception][dbar]" )
 {
 	auto instance = arcstk::StreamParseException { 1337, 8, 67 };
 
-	SECTION ("byte_position() is correct")
+	SECTION ( "byte_position() is correct" )
 	{
 		CHECK ( instance.byte_position() == 1337 );
 	}
 
-	SECTION ("block() is correct")
+	SECTION ( "block() is correct" )
 	{
 		CHECK ( instance.block() == 8 );
 	}
 
-	SECTION ("block_byte_position() is correct")
+	SECTION ( "block_byte_position() is correct" )
 	{
 		CHECK ( instance.block_byte_position() == 67 );
 	}

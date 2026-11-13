@@ -21,7 +21,7 @@
 
 
 TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is non-abstract and non-empty",
-		"[update][calc][accuraterip]" )
+		"[update][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 
@@ -46,7 +46,7 @@ TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is non-abstract and non-empty",
 
 
 TEST_CASE ( "Update<type::ARCS1, type::ARCS2> special members",
-		"[update][calc][accuraterip]" )
+		"[update][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 
@@ -83,7 +83,7 @@ TEST_CASE ( "Update<type::ARCS1, type::ARCS2> special members",
 
 
 TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is swappable, comparable, string convertible",
-		"[update][calc][accuraterip]" )
+		"[update][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 

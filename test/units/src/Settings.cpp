@@ -7,11 +7,11 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -26,14 +26,14 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
 	auto instance = Settings { Context::LAST_TRACK };
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		auto settings = Settings { Context::TRACK };
 
 		CHECK ( settings.context() == Context::TRACK );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const Settings copied { Copy<Settings>::construct(instance) };
 
@@ -42,7 +42,7 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
         CHECK ( copied.context() == Context::LAST_TRACK );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const Settings moved { Move<Settings>::construct(instance) };
 
@@ -51,7 +51,7 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
         CHECK ( moved.context() == Context::LAST_TRACK );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = Settings {};
 		Copy<Settings>::assign(copied, instance);
@@ -61,7 +61,7 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
         CHECK ( copied.context() == Context::LAST_TRACK );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = Settings {};
 		Move<Settings>::assign(moved, instance);
@@ -74,14 +74,14 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
 
 
 TEST_CASE ( "Settings default constructed instance",
-		"[settings][calc][calculate]" )
+	"[settings][calc][calculate]" )
 {
 	using arcstk::Context;
 
 	const auto defaulted = arcstk::Settings{};
 
 
-	SECTION ( "has default values")
+	SECTION ( "has default values" )
 	{
 		CHECK ( defaulted.context() == Context::ALBUM );
 	}
@@ -96,7 +96,7 @@ TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
 	auto instance = Settings {};
 
 
-	SECTION ("swap() is correct")
+	SECTION ( "swap() is correct" )
 	{
 		auto instance2 = Settings { Context::FIRST_TRACK };
 
@@ -109,7 +109,7 @@ TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
 		CHECK ( instance2.context() == Context::ALBUM );
 	}
 
-	SECTION ("equals() is correct")
+	SECTION ( "equals() is correct" )
 	{
 		const auto instance_not_equal = Settings { Context::FIRST_TRACK };
 		const auto instance_equal     = Settings { instance };
@@ -120,7 +120,7 @@ TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
 		CHECK ( ! instance.equals(instance_not_equal) );
 	}
 
-	SECTION ("to_string() is correct")
+	SECTION ( "to_string() is correct" )
 	{
 		CHECK ( instance.to_string() == "Context: ALBUM" );
 	}

@@ -10,15 +10,15 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify]" )
+// TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify][details]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -28,12 +28,12 @@
 // 	auto instance = FindOrderPolicy {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const FindOrderPolicy copied { Copy<FindOrderPolicy>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const FindOrderPolicy moved { Move<FindOrderPolicy>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = FindOrderPolicy {};
 // 		Copy<FindOrderPolicy>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = FindOrderPolicy {};
 // 		Move<FindOrderPolicy>::assign(moved, instance);
@@ -82,11 +82,11 @@
 
 
 TEST_CASE ( "FindOrderPolicy default constructed instance",
-		"[findorderpolicy][verify]" )
+	"[findorderpolicy][verify][details]" )
 {
 	const auto defaulted = arcstk::details::FindOrderPolicy {};
 
-	SECTION ( "is a MatchPolicy")
+	SECTION ( "is a MatchPolicy" )
 	{
 		const arcstk::details::MatchPolicy* m = &defaulted;
 
@@ -95,58 +95,58 @@ TEST_CASE ( "FindOrderPolicy default constructed instance",
 }
 
 
-// TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy][verify]" )
+// TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::FindOrderPolicy {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
 // }
 
 
-// TEST_CASE ( "FindOrderPolicy functions", "[findorderpolicy][verify]" )
+// TEST_CASE ( "FindOrderPolicy functions", "[findorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::FindOrderPolicy {};
 //
-// 	SECTION ("perform() is correct")
+// 	SECTION ( "perform() is correct" )
 // 	{
 // 		FAIL ("perform() test is missing");
 // 	}

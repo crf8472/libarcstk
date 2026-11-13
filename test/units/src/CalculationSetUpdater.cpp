@@ -7,11 +7,11 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -28,12 +28,12 @@
 // 	auto instance = CalculationSetUpdater<V1,V2> {};
 //
 //
-// 	// SECTION ("Parametized construction is correct")
+// 	// SECTION ( "Parametized construction is correct" )
 // 	// {
 // 	// 	FAIL ( "Parametized construction test is missing" );
 // 	// }
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		using MyType = CalculationSetUpdater<V1,V2>;
 //
@@ -45,7 +45,7 @@
 //         //CHECK ( copied.name()  == instance.name() );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		using MyType = CalculationSetUpdater<V1,V2>;
 //
@@ -57,7 +57,7 @@
 //         //CHECK ( moved.name()  == instance.name() );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		using MyType = CalculationSetUpdater<V1,V2>;
 //
@@ -70,7 +70,7 @@
 //         //CHECK ( copied.name()  == instance.name() );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		using MyType = CalculationSetUpdater<V1,V2>;
 //
@@ -86,7 +86,7 @@
 
 
 TEST_CASE ( "CalculationSetUpdater default constructed instance",
-		"[calculationsetupdater][calc][calculate]" )
+	"[calculationsetupdater][calc][calculate]" )
 {
 	using arcstk::csample_t;
 	using ci_t = std::vector<csample_t>::const_iterator;
@@ -94,7 +94,7 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 
 	const auto defaulted = CalculationSetUpdater<ci_t,ci_t> {};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( ! defaulted.empty() ); // V1andV2 is default
 		CHECK ( defaulted.size() == 1 );
@@ -112,42 +112,42 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 // 	auto instance = CalculationSetUpdater<V1,V2> {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -163,67 +163,67 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 //
 // 	auto instance = CalculationSetUpdater<V1,V2> {};
 //
-// 	SECTION ("CalculationSetUpdater() is correct")
+// 	SECTION ( "CalculationSetUpdater() is correct" )
 // 	{
 // 		FAIL ("CalculationSetUpdater() test is missing");
 // 	}
 //
-// 	SECTION ("add() is correct")
+// 	SECTION ( "add() is correct" )
 // 	{
 // 		FAIL ("add() test is missing");
 // 	}
 //
-// 	SECTION ("update() is correct")
+// 	SECTION ( "update() is correct" )
 // 	{
 // 		FAIL ("update() test is missing");
 // 	}
 //
-// 	SECTION ("do_init() is correct")
+// 	SECTION ( "do_init() is correct" )
 // 	{
 // 		FAIL ("do_init() test is missing");
 // 	}
 //
-// 	SECTION ("do_total_tracks() is correct")
+// 	SECTION ( "do_total_tracks() is correct" )
 // 	{
 // 		FAIL ("do_total_tracks() test is missing");
 // 	}
 //
-// 	SECTION ("do_offsets() is correct")
+// 	SECTION ( "do_offsets() is correct" )
 // 	{
 // 		FAIL ("do_offsets() test is missing");
 // 	}
 //
-// 	SECTION ("do_leadout() is correct")
+// 	SECTION ( "do_leadout() is correct" )
 // 	{
 // 		FAIL ("do_leadout() test is missing");
 // 	}
 //
-// 	SECTION ("do_update() is correct")
+// 	SECTION ( "do_update() is correct" )
 // 	{
 // 		FAIL ("do_update() test is missing");
 // 	}
 //
-// 	SECTION ("do_result() is correct")
+// 	SECTION ( "do_result() is correct" )
 // 	{
 // 		FAIL ("do_result() test is missing");
 // 	}
 //
-// 	SECTION ("do_size() is correct")
+// 	SECTION ( "do_size() is correct" )
 // 	{
 // 		FAIL ("do_size() test is missing");
 // 	}
 //
-// 	SECTION ("do_empty() is correct")
+// 	SECTION ( "do_empty() is correct" )
 // 	{
 // 		FAIL ("do_empty() test is missing");
 // 	}
 //
-// 	SECTION ("do_complete() is correct")
+// 	SECTION ( "do_complete() is correct" )
 // 	{
 // 		FAIL ("do_complete() test is missing");
 // 	}
 //
-// 	SECTION ("merge_results() is correct")
+// 	SECTION ( "merge_results() is correct" )
 // 	{
 // 		FAIL ("merge_results() test is missing");
 // 	}
@@ -266,7 +266,7 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 // 	const auto [ checksum1, exists1 ] = track.get(type::ARCS1);
 // 	const auto [ checksum2, exists2 ] = track.get(type::ARCS2);
 //
-// 	SECTION ("Result of an instantiated CalculationSet is as expected")
+// 	SECTION ( "Result of an instantiated CalculationSet is as expected" )
 // 	{
 // 		CHECK ( not checksums.empty() );
 // 		CHECK ( checksums.size() == 1 );

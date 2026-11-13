@@ -10,11 +10,11 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -28,12 +28,12 @@
 // 	auto instance = TrackTraversal {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const TrackTraversal copied { Copy<TrackTraversal>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const TrackTraversal moved { Move<TrackTraversal>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = TrackTraversal {};
 // 		Copy<TrackTraversal>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = TrackTraversal {};
 // 		Move<TrackTraversal>::assign(moved, instance);
@@ -82,7 +82,7 @@
 
 
 TEST_CASE ( "TrackTraversal default constructed instance",
-		"[blocktraversal][verify]" )
+	"[blocktraversal][verify]" )
 {
 	const auto defaulted = arcstk::details::TrackTraversal {};
 
@@ -139,42 +139,42 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 // 	auto instance = TrackTraversal {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -189,37 +189,37 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 //
 // 	// TODO Test from TraversalPolicy:
 //
-// 	SECTION ("set_source() is correct")
+// 	SECTION ( "set_source() is correct" )
 // 	{
 // 		FAIL ("set_source() test is missing");
 // 	}
 //
-// 	SECTION ("current() is correct")
+// 	SECTION ( "current() is correct" )
 // 	{
 // 		FAIL ("current() test is missing");
 // 	}
 //
-// 	SECTION ("set_current() is correct")
+// 	SECTION ( "set_current() is correct" )
 // 	{
 // 		FAIL ("set_current() test is missing");
 // 	}
 //
-// 	SECTION ("end_current() is correct")
+// 	SECTION ( "end_current() is correct" )
 // 	{
 // 		FAIL ("end_current() test is missing");
 // 	}
 //
-// 	SECTION ("end_counter() is correct")
+// 	SECTION ( "end_counter() is correct" )
 // 	{
 // 		FAIL ("end_counter() test is missing");
 // 	}
 //
-// 	SECTION ("get_policy() is correct")
+// 	SECTION ( "get_policy() is correct" )
 // 	{
 // 		FAIL ("get_policy() test is missing");
 // 	}
 //
-// 	SECTION ("get_selector() is correct")
+// 	SECTION ( "get_selector() is correct" )
 // 	{
 // 		FAIL ("get_selector() test is missing");
 // 	}
@@ -227,32 +227,32 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 // 	// begin()
 // 	// end()
 //
-// 	SECTION ("create_track_policy() is correct")
+// 	SECTION ( "create_track_policy() is correct" )
 // 	{
 // 		FAIL ("create_track_policy() test is missing");
 // 	}
 //
-// 	SECTION ("create_selector() is correct")
+// 	SECTION ( "create_selector() is correct" )
 // 	{
 // 		FAIL ("create_selector() test is missing");
 // 	}
 //
-// 	SECTION ("current_block() is correct")
+// 	SECTION ( "current_block() is correct" )
 // 	{
 // 		FAIL ("do_current_block() test is missing");
 // 	}
 //
-// 	SECTION ("current_track() is correct")
+// 	SECTION ( "current_track() is correct" )
 // 	{
 // 		FAIL ("do_current_track() test is missing");
 // 	}
 //
-// 	SECTION ("end_current() is correct")
+// 	SECTION ( "end_current() is correct" )
 // 	{
 // 		FAIL ("do_end_current() test is missing");
 // 	}
 //
-// 	SECTION ("end_counter() is correct")
+// 	SECTION ( "end_counter() is correct" )
 // 	{
 // 		FAIL ("do_end_counter() test is missing");
 // 	}

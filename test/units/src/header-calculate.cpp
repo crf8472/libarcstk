@@ -7,14 +7,14 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
-#include <cstdint>                // for int32_t
-#include <vector>                 // for vector
+#include <cstdint>                 // for int32_t
+#include <vector>                  // for vector
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"           // for AudioSize, ToC, make_toc, UNIT
+#include "metadata.hpp"            // for AudioSize, ToC, make_toc, UNIT
 #endif
 
 
@@ -33,7 +33,7 @@
 // TODO make_calculationset
 
 
-TEST_CASE ( "get_partitioning", "[get_partitioning][calc]" )
+TEST_CASE ( "get_partitioning", "[get_partitioning][calc][details]" )
 {
 	// Use samples as points, not frames
 	const auto points = std::vector<int32_t> {

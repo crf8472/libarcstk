@@ -7,10 +7,10 @@
  */
 
 #ifndef LIBARCSTK_LOGGING_HPP_
-#include "logging.hpp"          // TO BE TESTED
+#include "logging.hpp"             // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_LOGLEVEL_HPP_
-#include "loglevel.hpp"         // for LOGLEVEL
+#include "loglevel.hpp"            // for LOGLEVEL
 #endif
 
 
@@ -22,7 +22,7 @@ TEST_CASE ( "Log", "[log][logging]" )
 
 	auto logger = Logger {};
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		auto instance = Log { logger, LOGLEVEL::ERROR };
 
@@ -39,7 +39,7 @@ TEST_CASE ( "Log functions", "[log][logging]" )
 
 	auto logger = Logger {};
 
-	SECTION ("get() is correct")
+	SECTION ( "get() is correct" )
 	{
 		auto instance = Log { logger, LOGLEVEL::ERROR };
 

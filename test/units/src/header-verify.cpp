@@ -10,8 +10,6 @@
 #include "verify.hpp"             // TO BE TESTED
 #endif
 
-#include <tuple>                  // for get
-
 #ifndef LIBARCSTK_CHECKSUM_HPP_
 #include "checksum.hpp"           // for Checksum, ChecksumSet, Checksums,...
 #endif
@@ -21,6 +19,8 @@
 #ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"               // for DBAR
 #endif
+
+#include <tuple>                  // for get
 
 
 TEST_CASE ( "DBARSource", "[dbarsource][verify]" )

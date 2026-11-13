@@ -9,9 +9,6 @@
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
 #include "identifier.hpp"          // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier_details.hpp"  // for
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"        // for Copy, Move
@@ -30,7 +27,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 	auto id = ARId { 10, 0x02c34fd0, 0x01f880cc, 0xbc55023f };
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( id.total_tracks() == 10 );
 		CHECK ( id.disc_id_1()    == 0x02c34fd0 );
@@ -48,7 +45,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 		CHECK ( not id.empty() );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const ARId copied { Copy<ARId>::construct(id) };
 
@@ -70,7 +67,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 		CHECK ( not copied.empty() );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		auto moved = ARId {};
 		Copy<ARId>::assign(moved, id);
@@ -110,7 +107,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 		CHECK ( not moved.empty() );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = ARId {};
 		Copy<ARId>::assign(copied, id);
@@ -150,7 +147,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 		CHECK ( not copied.empty() );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = ARId {};
 		Move<ARId>::assign(moved, id);
@@ -195,12 +192,12 @@ TEST_CASE ( "ARId default constructed instance", "[arid][id][identifier]" )
 {
 	const auto instance = arcstk::ARId {};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( instance.empty() );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !instance );
 	}
@@ -214,9 +211,9 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 	auto defaulted = ARId {};
 
 
-	SECTION ("Equality operator == is correct")
+	SECTION ( "Equality operator == is correct" )
 	{
-		SECTION ("for equal objects")
+		SECTION ( "for equal objects" )
 		{
 			const auto id1 = ARId { 10, 0x02c34fd0, 0x01f880cc, 0xbc55023f };
 			const auto id2 = ARId { 10, 0x02c34fd0, 0x01f880cc, 0xbc55023f };
@@ -230,7 +227,7 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 			CHECK ( not (id1 != id2) );
 		}
 
-		SECTION ("for non-equal objects")
+		SECTION ( "for non-equal objects" )
 		{
 			const auto id1 = ARId { 15, 0x001B9178, 0x014BE24E, 0xB40D2D0F } ;
 
@@ -282,37 +279,37 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 
 	// TODO Implement ARId property tests
 
-	// SECTION ("Stream-in operator << is correct")
+	// SECTION ( "Stream-in operator << is correct" )
 	// {
 	// 	FAIL ( "Stream-in operator << test is missing" );
 	// }
 	//
-	// SECTION ("operator bool() is correct")
+	// SECTION ( "operator bool() is correct" )
 	// {
 	// 	FAIL ( "operator bool() test is missing" );
 	// }
 	//
-	// SECTION ("swap() is correct")
+	// SECTION ( "swap() is correct" )
 	// {
 	// 	FAIL ( "swap() test is missing" );
 	// }
 	//
-	// SECTION ("to_string() is correct")
+	// SECTION ( "to_string() is correct" )
 	// {
 	// 	FAIL ( "to_string() test is missing" );
 	// }
 	//
-	// SECTION ("clone() is correct")
+	// SECTION ( "clone() is correct" )
 	// {
 	// 	FAIL ( "clone() test is missing" );
 	// }
 	//
-	// SECTION ("size() is correct")
+	// SECTION ( "size() is correct" )
 	// {
 	// 	FAIL ( "size() test is missing" );
 	// }
 	//
-	// SECTION ("empty() is correct")
+	// SECTION ( "empty() is correct" )
 	// {
 	// 	FAIL ( "empty() test is missing" );
 	// }
@@ -327,77 +324,77 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 // 	auto instance = ARId {};
 //
 //
-// 	SECTION ("ARId is correct")
+// 	SECTION ( "ARId is correct" )
 // 	{
 // 		FAIL ("ARId test is missing");
 // 	}
 //
-// 	SECTION ("operator= is correct")
+// 	SECTION ( "operator= is correct" )
 // 	{
 // 		FAIL ("operator= test is missing");
 // 	}
 //
-// 	SECTION ("~ARId is correct")
+// 	SECTION ( "~ARId is correct" )
 // 	{
 // 		FAIL ("~ARId test is missing");
 // 	}
 //
-// 	SECTION ("url is correct")
+// 	SECTION ( "url is correct" )
 // 	{
 // 		FAIL ("url test is missing");
 // 	}
 //
-// 	SECTION ("filename is correct")
+// 	SECTION ( "filename is correct" )
 // 	{
 // 		FAIL ("filename test is missing");
 // 	}
 //
-// 	SECTION ("total_tracks is correct")
+// 	SECTION ( "total_tracks is correct" )
 // 	{
 // 		FAIL ("total_tracks test is missing");
 // 	}
 //
-// 	SECTION ("disc_id_1 is correct")
+// 	SECTION ( "disc_id_1 is correct" )
 // 	{
 // 		FAIL ("disc_id_1 test is missing");
 // 	}
 //
-// 	SECTION ("disc_id_2 is correct")
+// 	SECTION ( "disc_id_2 is correct" )
 // 	{
 // 		FAIL ("disc_id_2 test is missing");
 // 	}
 //
-// 	SECTION ("cddb_id is correct")
+// 	SECTION ( "cddb_id is correct" )
 // 	{
 // 		FAIL ("cddb_id test is missing");
 // 	}
 //
-// 	SECTION ("prefix is correct")
+// 	SECTION ( "prefix is correct" )
 // 	{
 // 		FAIL ("prefix test is missing");
 // 	}
 //
-// 	SECTION ("empty is correct")
+// 	SECTION ( "empty is correct" )
 // 	{
 // 		FAIL ("empty test is missing");
 // 	}
 //
-// 	SECTION ("operator bool is correct")
+// 	SECTION ( "operator bool is correct" )
 // 	{
 // 		FAIL ("operator bool test is missing");
 // 	}
 //
-// 	SECTION ("swap is correct")
+// 	SECTION ( "swap is correct" )
 // 	{
 // 		FAIL ("swap test is missing");
 // 	}
 //
-// 	SECTION ("equals is correct")
+// 	SECTION ( "equals is correct" )
 // 	{
 // 		FAIL ("equals test is missing");
 // 	}
 //
-// 	SECTION ("to_string is correct")
+// 	SECTION ( "to_string is correct" )
 // 	{
 // 		FAIL ("to_string test is missing");
 // 	}

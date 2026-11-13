@@ -10,26 +10,26 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
-
-#include <memory>                 // for make_unique
-#include <tuple>                  // for get, tuple
-#include <utility>                // for move
-#include <vector>                 // for vector
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"           // for checksum::type, Checksum
+#include "checksum.hpp"            // for checksum::type, Checksum
 #endif
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"               // for DBAR
+#include "dbar.hpp"                // for DBAR
 #endif
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"         // for ARId
+#include "identifier.hpp"          // for ARId
 #endif
 
+#include <memory>                  // for make_unique
+#include <tuple>                   // for get, tuple
+#include <utility>                 // for move
+#include <vector>                  // for vector
 
-TEST_CASE ( "BestBlock", "[bestblock][verify]" )
+
+TEST_CASE ( "BestBlock", "[bestblock][verify][details]" )
 {
 	using arcstk::details::BestBlock;
 	using arcstk::details::create_result;
@@ -69,7 +69,7 @@ TEST_CASE ( "BestBlock", "[bestblock][verify]" )
 }
 
 
-TEST_CASE ( "ResultBits", "[verify]" )
+TEST_CASE ( "ResultBits", "[verify][details]" )
 {
 	using arcstk::details::ResultBits;
 
@@ -96,7 +96,7 @@ TEST_CASE ( "ResultBits", "[verify]" )
 }
 
 
-TEST_CASE ( "StrictPolicy", "[strictpolicy][verify]" )
+TEST_CASE ( "StrictPolicy", "[strictpolicy][verify][details]" )
 {
 	using arcstk::best_block::index;
 	using arcstk::best_block::checksumtype;
@@ -179,7 +179,7 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy][verify]" )
 }
 
 
-TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify]" )
+TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify][details]" )
 {
 	using arcstk::details::create_result;
 	using arcstk::details::LenientPolicy;
@@ -254,7 +254,7 @@ TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify]" )
 }
 
 
-TEST_CASE ( "Result", "[result][verify]" )
+TEST_CASE ( "Result", "[result][verify][details]" )
 {
 	using arcstk::details::create_result;
 	using arcstk::details::StrictPolicy;
@@ -455,7 +455,7 @@ TEST_CASE ( "Result", "[result][verify]" )
 // TODO details::VerifierBase
 
 
-TEST_CASE ( "BlockSelector", "[blockselector][verify]")
+TEST_CASE ( "BlockSelector", "[blockselector][verify][details]")
 {
 	using arcstk::details::BlockSelector;
 	using arcstk::ARId;
@@ -554,7 +554,7 @@ TEST_CASE ( "BlockSelector", "[blockselector][verify]")
 }
 
 
-TEST_CASE ( "TrackSelector", "[trackselector][verify]")
+TEST_CASE ( "TrackSelector", "[trackselector][verify][details]")
 {
 	using arcstk::details::TrackSelector;
 	using arcstk::ARId;
@@ -630,7 +630,7 @@ TEST_CASE ( "TrackSelector", "[trackselector][verify]")
 }
 
 
-TEST_CASE( "SourceIterator", "[sourceiterator][verify]" )
+TEST_CASE( "SourceIterator", "[sourceiterator][verify][details]" )
 {
 	using arcstk::details::SourceIterator;
 	using arcstk::details::BlockSelector;
@@ -744,7 +744,7 @@ TEST_CASE( "SourceIterator", "[sourceiterator][verify]" )
 }
 
 
-TEST_CASE ( "BlockTraversal", "[blocktraversal][verify]" )
+TEST_CASE ( "BlockTraversal", "[blocktraversal][verify][details]" )
 {
 	using arcstk::details::BlockTraversal;
 
@@ -882,7 +882,7 @@ TEST_CASE ( "BlockTraversal", "[blocktraversal][verify]" )
 }
 
 
-TEST_CASE ( "TrackTraversal", "[tracktraversal][verify]" )
+TEST_CASE ( "TrackTraversal", "[tracktraversal][verify][details]" )
 {
 	using arcstk::details::TrackTraversal;
 	using arcstk::ARId;
@@ -988,7 +988,7 @@ TEST_CASE ( "TrackTraversal", "[tracktraversal][verify]" )
 }
 
 
-TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy][verify]" )
+TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy][verify][details]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::details::TrackOrderPolicy;
@@ -1175,7 +1175,7 @@ TEST_CASE ( "TrackOrderPolicy", "[trackorderpolicy][verify]" )
 }
 
 
-TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify]" )
+TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify][details]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::Checksum;
@@ -1360,7 +1360,7 @@ TEST_CASE ( "FindOrderPolicy", "[findorderpolicy][verify]" )
 }
 
 
-TEST_CASE ( "Verification", "[verififcation][verify]" )
+TEST_CASE ( "Verification", "[verififcation][verify][details]" )
 {
 	using arcstk::ARId;
 	using arcstk::AudioSize;
@@ -1445,7 +1445,7 @@ TEST_CASE ( "Verification", "[verififcation][verify]" )
 
 	auto v = std::make_unique<Verification>();
 
-	SECTION ("Strict verification by track order finds best block")
+	SECTION ( "Strict verification by track order finds best block" )
 	{
 		ChecksumSet track01 { { 5192, UNIT::FRAMES } };
 		track01.insert(type::ARCS2, Checksum(0xB89992E5));
@@ -1578,7 +1578,7 @@ TEST_CASE ( "Verification", "[verififcation][verify]" )
 		CHECK ( result->difference(2, ARCS1) == 16);
 	}
 
-	SECTION ("Verification by track order is correct")
+	SECTION ( "Verification by track order is correct" )
 	{
 		ChecksumSet track01 { { 5192, UNIT::FRAMES } };
 		track01.insert(type::ARCS2, Checksum(0xB89992E5));

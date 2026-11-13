@@ -7,21 +7,21 @@
  */
 
 #ifndef LIBARCSTK_SAMPLESEQ_HPP_
-#include "samples.hpp"          // TO BE TESTED
+#include "samples.hpp"             // TO BE TESTED
 #endif
 
 
-TEST_CASE ( "channel", "[channel]" )
+TEST_CASE ( "channel", "[channel][details]" )
 {
 	using arcstk::details::channel;
 
-	SECTION ( "left()")
+	SECTION ( "left()" )
 	{
 		CHECK ( channel::left(false) == 0 );
 		CHECK ( channel::left(true)  == 1 );
 	}
 
-	SECTION ( "right()")
+	SECTION ( "right()" )
 	{
 		CHECK ( channel::right(false) == 1 );
 		CHECK ( channel::right(true)  == 0 );

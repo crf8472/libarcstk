@@ -21,7 +21,7 @@
 
 
 TEST_CASE ( "UpdateableSubtotals is non-abstract, final and non-empty",
-		"[updateablesubtotals][calc][accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 
@@ -44,7 +44,7 @@ TEST_CASE ( "UpdateableSubtotals is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "UpdateableSubtotals special members",
-		"[updateablesubtotals][calc][accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 
@@ -81,7 +81,7 @@ TEST_CASE ( "UpdateableSubtotals special members",
 
 
 TEST_CASE ( "UpdateableSubtotals is swappable",
-		"[updateablesubtotals][calc][accuraterip]" )
+		"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 

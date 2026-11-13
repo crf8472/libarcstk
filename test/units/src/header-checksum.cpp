@@ -7,12 +7,12 @@
  */
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"           // TO BE TESTED
+#include "checksum.hpp"            // TO BE TESTED
 #endif
 
 
 TEST_CASE ( "checksum::name provides correct names",
-		"[checksum::name][calc]" )
+	"[checksum::name][calc]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::checksum::name;

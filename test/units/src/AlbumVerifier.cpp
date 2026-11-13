@@ -7,15 +7,15 @@
  */
 
 #ifndef LIBARCSTK_VERIFY_HPP_
-#include "verify.hpp"             // TO BE TESTED
+#include "verify.hpp"              // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"         // for ARId
+#include "identifier.hpp"          // for ARId
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -29,12 +29,12 @@
 // 	auto instance = AlbumVerifier {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const AlbumVerifier copied { Copy<AlbumVerifier>::construct(instance) };
 //
@@ -45,7 +45,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const AlbumVerifier moved { Move<AlbumVerifier>::construct(instance) };
 //
@@ -56,7 +56,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = AlbumVerifier {};
 // 		Copy<AlbumVerifier>::assign(copied, instance);
@@ -68,7 +68,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = AlbumVerifier {};
 // 		Move<AlbumVerifier>::assign(moved, instance);
@@ -83,14 +83,14 @@
 
 
 TEST_CASE ( "AlbumVerifier default constructed instance",
-		"[albumverifier][verify]" )
+	"[albumverifier][verify]" )
 {
 	using arcstk::Checksums;
 	using arcstk::ARId;
 
 	const auto defaulted = arcstk::AlbumVerifier { Checksums {}, ARId {} };
 
-	SECTION ( "is strict()")
+	SECTION ( "is strict()" )
 	{
 		CHECK ( defaulted.strict() );
 	}
@@ -104,42 +104,42 @@ TEST_CASE ( "AlbumVerifier default constructed instance",
 // 	auto instance = AlbumVerifier {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -152,47 +152,47 @@ TEST_CASE ( "AlbumVerifier default constructed instance",
 //
 // 	auto instance = AlbumVerifier {};
 //
-// 	SECTION ("do_actual_id() is correct")
+// 	SECTION ( "do_actual_id() is correct" )
 // 	{
 // 		FAIL ("do_actual_id() test is missing");
 // 	}
 //
-// 	SECTION ("do_actual_checksums() is correct")
+// 	SECTION ( "do_actual_checksums() is correct" )
 // 	{
 // 		FAIL ("do_actual_checksums() test is missing");
 // 	}
 //
-// 	SECTION ("do_strict() is correct")
+// 	SECTION ( "do_strict() is correct" )
 // 	{
 // 		FAIL ("do_strict() test is missing");
 // 	}
 //
-// 	SECTION ("do_set_strict() is correct")
+// 	SECTION ( "do_set_strict() is correct" )
 // 	{
 // 		FAIL ("do_set_strict() test is missing");
 // 	}
 //
-// 	SECTION ("do_perform() is correct")
+// 	SECTION ( "do_perform() is correct" )
 // 	{
 // 		FAIL ("do_perform() test is missing");
 // 	}
 //
-// 	SECTION ("do_clone() is correct")
+// 	SECTION ( "do_clone() is correct" )
 // 	{
 // 		FAIL ("do_clone() test is missing");
 // 	}
 //
-// 	SECTION ("AlbumVerifier() is correct")
+// 	SECTION ( "AlbumVerifier() is correct" )
 // 	{
 // 		FAIL ("AlbumVerifier() test is missing");
 // 	}
 //
-// 	SECTION ("operator=() is correct")
+// 	SECTION ( "operator=() is correct" )
 // 	{
 // 		FAIL ("operator=() test is missing");
 // 	}
 //
-// 	SECTION ("~AlbumVerifier() is correct")
+// 	SECTION ( "~AlbumVerifier() is correct" )
 // 	{
 // 		FAIL ("~AlbumVerifier() test is missing");
 // 	}

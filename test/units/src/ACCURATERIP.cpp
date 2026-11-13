@@ -7,19 +7,16 @@
  */
 
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip_func.hpp"     // for
+#include "accuraterip.hpp"         // TO BE TESTED
 #endif
 
 
 TEST_CASE ( "ACCURATERIP default constructed instance",
-		"[accuraterip][calc][accuraterip]" )
+	"[accuraterip][calc][accuraterip]" )
 {
 	const auto defaulted = arcstk::ACCURATERIP {};
 
-	SECTION ("url prefix has default value")
+	SECTION ( "url prefix has default value" )
 	{
 		CHECK( defaulted.request_url_prefix() ==
 				defaulted.default_request_url_prefix() );
@@ -32,27 +29,27 @@ TEST_CASE ( "ACCURATERIP functions", "[accuraterip][calc][accuraterip]" )
 	using arcstk::ACCURATERIP;
 
 
-	SECTION ("request_url_prefix() has default value")
+	SECTION ( "request_url_prefix() has default value" )
 	{
 		CHECK( ACCURATERIP::request_url_prefix() ==
 				ACCURATERIP::default_request_url_prefix() );
 	}
 
-	SECTION ("default_request_url_prefix() is correct")
+	SECTION ( "default_request_url_prefix() is correct" )
 	{
 		CHECK( "http://www.accuraterip.com/accuraterip/" ==
 				ACCURATERIP::default_request_url_prefix() );
 	}
 
-	// SECTION ("set_request_url_prefix() is correct")
+	// SECTION ( "set_request_url_prefix() is correct" )
 	// {
 	// }
 	//
-	// SECTION ("reset_request_url_prefix() is correct")
+	// SECTION ( "reset_request_url_prefix() is correct" )
 	// {
 	// }
 
-	SECTION ("default_arcs_format() is correct")
+	SECTION ( "default_arcs_format() is correct" )
 	{
 		CHECK( ACCURATERIP::default_arcs_format( 0) == "00000000" );
 		CHECK( ACCURATERIP::default_arcs_format(16) == "00000010" );

@@ -7,23 +7,23 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
-#include <chrono>                 // for steady_clock::now
-#include <iterator>               // for begin, cbegin, cend, end
-#include <memory>                 // for make_unique, unique_ptr
-#include <numeric>                // for iota
-#include <type_traits>            // for is_default_constructible,....
-#include <utility>                // for move
-#include <vector>                 // for vector
+#include <chrono>                  // for steady_clock::now
+#include <iterator>                // for begin, end
+#include <memory>                  // for make_unique, unique_ptr
+#include <numeric>                 // for iota
+#include <utility>                 // for move
+#include <vector>                  // for vector
 
 
-TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
+TEST_CASE ( "CalculationState-Old", // TODO What to do with this TEST_CASE
+	"[calculationstate][calc][calculate][details]" )
 {
 	using arcstk::AccurateRip::V1andV2;
 	using arcstk::Algorithm;
@@ -38,6 +38,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	{
 		const auto start_time { std::chrono::steady_clock::now() };
 
+		// TODO use data from header
 		auto dummy_data = std::vector<uint32_t>(1000000);
 		std::iota(begin(dummy_data), end(dummy_data), 1);
 
@@ -53,7 +54,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("Construction is correct")
+	SECTION ( "Construction is correct" )
 	{
 		auto impl { CalculationState {} };
 
@@ -61,7 +62,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("Copy construction is as declared")
+	SECTION ( "Copy construction is as declared" )
 	{
 		CHECK ( std::is_copy_constructible<CalculationState>::value );
 
@@ -70,7 +71,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("Move construction is as declared")
+	SECTION ( "Move construction is as declared" )
 	{
 		CHECK ( std::is_move_constructible<CalculationState>::value );
 
@@ -78,7 +79,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		auto impl2 { state1 };
 
@@ -91,7 +92,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		auto impl3 { std::move(state1) };
 
@@ -106,14 +107,14 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 	}
 
 
-	SECTION ("update() counts the amount of samples processed correctly")
+	SECTION ( "update() counts the amount of samples processed correctly" )
 	{
 		CHECK ( state1.samples_processed() == 1000000 );
 	}
 
 
 	/*
-	SECTION ("increment_update_time_elapsed() updates time counter")
+	SECTION ( "increment_update_time_elapsed() updates time counter" )
 	{
 		CHECK ( state1.update_time_elapsed() > std::chrono::milliseconds::zero() );
 	}
@@ -121,7 +122,7 @@ TEST_CASE ( "CalculationState-Old", "[calculationstate][calc][calculate]" )
 }
 
 
-TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
+TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate][details]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -135,7 +136,7 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 	REQUIRE ( instance.current_offset() == 237 );
 
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const CalculationState copied {
 			Copy<CalculationState>::construct(instance) };
@@ -145,7 +146,7 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 		CHECK ( copied.current_offset() == 237 );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const CalculationState moved {
 			Move<CalculationState>::construct(instance) };
@@ -155,7 +156,7 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 		CHECK ( moved.current_offset() == 237 );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = CalculationState {};
 		Copy<CalculationState>::assign(copied, instance);
@@ -165,7 +166,7 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 		CHECK ( copied.current_offset() == 237 );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = CalculationState {};
 		Move<CalculationState>::assign(moved, instance);
@@ -178,13 +179,13 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate]" )
 
 
 TEST_CASE ( "CalculationState default constructed instance",
-		"[calculationstate][calc][calculate]" )
+	"[calculationstate][calc][calculate][details]" )
 {
 	using duration = std::chrono::duration<float>;
 
 	const auto instance = arcstk::details::CalculationState{};
 
-	SECTION ( "offset & all counters & all times == zero")
+	SECTION ( "offset & all counters & all times == zero" )
 	{
 		CHECK ( instance.current_offset()          == 0 );
 
@@ -200,14 +201,14 @@ TEST_CASE ( "CalculationState default constructed instance",
 
 
 // TEST_CASE ( "CalculationState property",
-// 		"[calculationstate][calc][calculate]" )
+// 		"[calculationstate][calc][calculate][details]" )
 // {
 // 	using arcstk::details::CalculationState;
 //
 // 	auto defaulted = CalculationState {};
 //
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
@@ -215,73 +216,73 @@ TEST_CASE ( "CalculationState default constructed instance",
 
 
 // TEST_CASE ( "CalculationState functions",
-// 		"[calculationstate][calc][calculate]" )
+// 		"[calculationstate][calc][calculate][details]" )
 // {
 // 	using arcstk::details::CalculationState;
 //
 // 	auto instance = CalculationState {};
 //
-// 	SECTION ("current_offset is correct")
+// 	SECTION ( "current_offset is correct" )
 // 	{
 // 		FAIL ("current_offset test is missing");
 // 	}
 //
-// 	SECTION ("samples_processed is correct")
+// 	SECTION ( "samples_processed is correct" )
 // 	{
 // 		FAIL ("samples_processed test is missing");
 // 	}
 //
-// 	SECTION ("track_samples_processed is correct")
+// 	SECTION ( "track_samples_processed is correct" )
 // 	{
 // 		FAIL ("track_samples_processed test is missing");
 // 	}
 //
-// 	SECTION ("tracks_processed is correct")
+// 	SECTION ( "tracks_processed is correct" )
 // 	{
 // 		FAIL ("tracks_processed test is missing");
 // 	}
 //
-// 	SECTION ("sequences_processed is correct")
+// 	SECTION ( "sequences_processed is correct" )
 // 	{
 // 		FAIL ("sequences_processed test is missing");
 // 	}
 //
-// 	SECTION ("algo_time_elapsed is correct")
+// 	SECTION ( "algo_time_elapsed is correct" )
 // 	{
 // 		FAIL ("algo_time_elapsed test is missing");
 // 	}
 //
-// 	SECTION ("increment_algo_time_elapsed is correct")
+// 	SECTION ( "increment_algo_time_elapsed is correct" )
 // 	{
 // 		FAIL ("increment_algo_time_elapsed test is missing");
 // 	}
 //
-// 	SECTION ("update_time_elapsed is correct")
+// 	SECTION ( "update_time_elapsed is correct" )
 // 	{
 // 		FAIL ("update_time_elapsed test is missing");
 // 	}
 //
-// 	SECTION ("increment_update_time_elapsed is correct")
+// 	SECTION ( "increment_update_time_elapsed is correct" )
 // 	{
 // 		FAIL ("increment_update_time_elapsed test is missing");
 // 	}
 //
-// 	SECTION ("advance is correct")
+// 	SECTION ( "advance is correct" )
 // 	{
 // 		FAIL ("advance test is missing");
 // 	}
 //
-// 	SECTION ("update is correct")
+// 	SECTION ( "update is correct" )
 // 	{
 // 		FAIL ("update test is missing");
 // 	}
 //
-// 	SECTION ("track_finalized is correct")
+// 	SECTION ( "track_finalized is correct" )
 // 	{
 // 		FAIL ("track_finalized test is missing");
 // 	}
 //
-// 	SECTION ("swap is correct")
+// 	SECTION ( "swap is correct" )
 // 	{
 // 		FAIL ("swap test is missing");
 // 	}

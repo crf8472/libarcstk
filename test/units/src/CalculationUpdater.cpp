@@ -7,19 +7,19 @@
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_ALGORITHMS_HPP_
-#include "algorithms.hpp"         // for AccurateRip::V1
+#include "algorithms.hpp"          // for AccurateRip::V1
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
 TEST_CASE ( "CalculationUpdater<> Old",
-		"[calculationupdater][calc][calculate]" )
+	"[calculationupdater][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1;
 	using arcstk::AccurateRip::V1andV2;
@@ -56,14 +56,14 @@ TEST_CASE ( "CalculationUpdater<> Old",
 
 	//
 
-	SECTION ("Is default constructible")
+	SECTION ( "Is default constructible" )
 	{
 		CHECK ( std::is_default_constructible<
 				CalculationUpdater<V1andV2>>::value );
 	}
 
 
-	SECTION ("Parametized construction is as declared")
+	SECTION ( "Parametized construction is as declared" )
 	{
 		CHECK ( std::is_constructible<CalculationUpdater<V1andV2>,
 				const Settings&,
@@ -82,7 +82,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( calculation.algorithm() == algorithm );
 		CHECK ( calculation.algorithm()->types() ==
@@ -104,7 +104,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 
 
 	/*
-	SECTION ("Copy construction is as declared")
+	SECTION ( "Copy construction is as declared" )
 	{
 		CHECK ( std::is_copy_constructible<Calculation<V1andV2>>::value );
 
@@ -112,7 +112,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		auto c2 { calculation };
 
@@ -139,7 +139,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	*/
 
 
-	SECTION ("Move construction is as declared")
+	SECTION ( "Move construction is as declared" )
 	{
 		CHECK ( std::is_move_constructible<
 				CalculationUpdater<V1andV2>>::value );
@@ -149,7 +149,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		auto c3 { std::move(calculation) };
 
@@ -174,7 +174,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Instantiating a vector<Calculation> succeeds")
+	SECTION ( "Instantiating a vector<Calculation> succeeds" )
 	{
 		auto calculations = std::vector<CalculationUpdater<V1andV2>>();
 		calculations.reserve(5);
@@ -183,7 +183,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Construction with complete ToC succeeds")
+	SECTION ( "Construction with complete ToC succeeds" )
 	{
 		using arcstk::checksum::type;
 
@@ -215,7 +215,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 	}
 
 
-	SECTION ("Construction with incomplete ToC succeeds")
+	SECTION ( "Construction with incomplete ToC succeeds" )
 	{
 		using arcstk::checksum::type;
 
@@ -255,14 +255,14 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 	auto instance = CalculationUpdater<AccurateRipV1> {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		auto v1 = CalculationUpdater<AccurateRipV1> {};
 //
 // 		CHECK ( v1.algorithm_name() == "AccurateRip v1" );
 // 	}
 //
-// 	// SECTION ("Copy construction is correct")
+// 	// SECTION ( "Copy construction is correct" )
 // 	// {
 // 	// 	using UpdaterType = CalculationUpdater<AccurateRipV1>;
 // 	// 	const UpdaterType copied { Copy<UpdaterType>::construct(instance) };
@@ -272,7 +272,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 	// 	CHECK ( copied.algorithm_name() == "AccurateRip v1" );
 // 	// }
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		using UpdaterType = CalculationUpdater<AccurateRipV1>;
 // 		const UpdaterType moved { Move<UpdaterType>::construct(instance) };
@@ -282,7 +282,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 		CHECK ( moved.algorithm_name() == "AccurateRip v1" );
 // 	}
 //
-// 	// SECTION ("Copy assignment is correct")
+// 	// SECTION ( "Copy assignment is correct" )
 // 	// {
 // 	// 	using UpdaterType = CalculationUpdater<AccurateRipV1>;
 // 	// 	auto copied = UpdaterType {};
@@ -293,7 +293,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 	// 	CHECK ( copied.algorithm_name() == "AccurateRip v1" );
 // 	// }
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		using UpdaterType = CalculationUpdater<AccurateRipV1>;
 // 		auto moved = UpdaterType {};
@@ -315,7 +315,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 //
 // 	auto defaulted = CalculationUpdater<AccurateRipV1> {};
 //
-// 	SECTION ( "has default Context")
+// 	SECTION ( "has default Context" )
 // 	{
 // 		CHECK ( defaulted.settings().context() == Context::ALBUM );
 // 	}
@@ -331,7 +331,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // // 	auto defaulted = CalculationUpdater<AccurateRipV1> {};
 // //
 // //
-// // 	SECTION ("swap() is correct")
+// // 	SECTION ( "swap() is correct" )
 // // 	{
 // // 		FAIL ( "swap() test is missing" );
 // // 	}
@@ -348,57 +348,57 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 	auto instance = CalculationUpdater<AccurateRipV1> {};
 //
 //
-// 	SECTION ("algorithm_name() is correct")
+// 	SECTION ( "algorithm_name() is correct" )
 // 	{
 // 		CHECK ( instance.algorithm_name() == "AccurateRip v1" );
 // 	}
 //
-// 	// SECTION ("update() is correct")
+// 	// SECTION ( "update() is correct" )
 // 	// {
 // 	// 	FAIL ("update test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("swap() is correct")
+// 	// SECTION ( "swap() is correct" )
 // 	// {
 // 	// 	FAIL ("swap test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("do_algorithm() is correct")
+// 	// SECTION ( "do_algorithm() is correct" )
 // 	// {
 // 	// 	FAIL ("do_algorithm test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("do_total_tracks() is correct")
+// 	// SECTION ( "do_total_tracks() is correct" )
 // 	// {
 // 	// 	FAIL ("do_total_tracks test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("do_offsets() is correct")
+// 	// SECTION ( "do_offsets() is correct" )
 // 	// {
 // 	// 	FAIL ("do_offsets test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("do_leadout() is correct")
+// 	// SECTION ( "do_leadout() is correct" )
 // 	// {
 // 	// 	FAIL ("do_leadout test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("do_init() is correct")
+// 	// SECTION ( "do_init() is correct" )
 // 	// {
 // 	// 	FAIL ("do_init test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("on_settings_changed() is correct")
+// 	// SECTION ( "on_settings_changed() is correct" )
 // 	// {
 // 	// 	FAIL ("on_settings_changed test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("on_completion() is correct")
+// 	// SECTION ( "on_completion() is correct" )
 // 	// {
 // 	// 	FAIL ("on_completion test is missing");
 // 	// }
 // 	//
-// 	// SECTION ("update_impl() is correct")
+// 	// SECTION ( "update_impl() is correct" )
 // 	// {
 // 	// 	FAIL ("update_impl test is missing");
 // 	// }

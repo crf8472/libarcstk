@@ -32,12 +32,12 @@
 // 	auto instance = SourceIterator {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const SourceIterator copied { Copy<SourceIterator>::construct(instance) };
 //
@@ -48,7 +48,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const SourceIterator moved { Move<SourceIterator>::construct(instance) };
 //
@@ -59,7 +59,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = SourceIterator {};
 // 		Copy<SourceIterator>::assign(copied, instance);
@@ -71,7 +71,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = SourceIterator {};
 // 		Move<SourceIterator>::assign(moved, instance);
@@ -88,7 +88,7 @@
 // TEST_CASE ( "SourceIterator default constructed instance",
 // 		"[sourceiterator][verify][details]" )
 // {
-// 	SECTION ( "converts to FALSE")
+// 	SECTION ( "converts to FALSE" )
 // 	{
 // 		CHECK ( !defaulted );
 // 	}
@@ -125,22 +125,22 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
 	auto instance = arcstk::details::SourceIterator { source, 0, 0, selector };
 
 
-	// SECTION ("Equality operator == is correct")
+	// SECTION ( "Equality operator == is correct" )
 	// {
 	// 	FAIL ( "Equality operator test is missing" );
 	// }
 	//
-	// SECTION ("Stream-in operator << is correct")
+	// SECTION ( "Stream-in operator << is correct" )
 	// {
 	// 	FAIL ( "Stream-in operator << test is missing" );
 	// }
 	//
-	// SECTION ("operator bool() is correct")
+	// SECTION ( "operator bool() is correct" )
 	// {
 	// 	FAIL ( "operator bool() test is missing" );
 	// }
 
-	SECTION ("swap() is correct")
+	SECTION ( "swap() is correct" )
 	{
 		using arcstk::details::TrackSelector;
 		auto selector2 = TrackSelector {};
@@ -161,22 +161,22 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
 		CHECK ( instance2.current() == 0 );
 	}
 
-	// SECTION ("to_string() is correct")
+	// SECTION ( "to_string() is correct" )
 	// {
 	// 	FAIL ( "to_string() test is missing" );
 	// }
 	//
-	// SECTION ("clone() is correct")
+	// SECTION ( "clone() is correct" )
 	// {
 	// 	FAIL ( "clone() test is missing" );
 	// }
 
-	// SECTION ("size() is correct")
+	// SECTION ( "size() is correct" )
 	// {
 	// 	FAIL ( "size() test is missing" );
 	// }
 	//
-	// SECTION ("empty() is correct")
+	// SECTION ( "empty() is correct" )
 	// {
 	// 	FAIL ( "empty() test is missing" );
 	// }
@@ -189,32 +189,32 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
 //
 // 	auto instance = SourceIterator {};
 //
-// 	SECTION ("SourceIterator() is correct")
+// 	SECTION ( "SourceIterator() is correct" )
 // 	{
 // 		FAIL ("SourceIterator() test is missing");
 // 	}
 //
-// 	SECTION ("counter() is correct")
+// 	SECTION ( "counter() is correct" )
 // 	{
 // 		FAIL ("counter() test is missing");
 // 	}
 //
-// 	SECTION ("current() is correct")
+// 	SECTION ( "current() is correct" )
 // 	{
 // 		FAIL ("current() test is missing");
 // 	}
 //
-// 	SECTION ("operator*() is correct")
+// 	SECTION ( "operator*() is correct" )
 // 	{
 // 		FAIL ("operator*() test is missing");
 // 	}
 //
-// 	SECTION ("operator->() is correct")
+// 	SECTION ( "operator->() is correct" )
 // 	{
 // 		FAIL ("operator->() test is missing");
 // 	}
 //
-// 	SECTION ("operator++() is correct")
+// 	SECTION ( "operator++() is correct" )
 // 	{
 // 		FAIL ("operator++() test is missing");
 // 	}

@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "TrackPartitioner is non-abstract, final and non-empty",
-		"[trackpartitioner][calc][calculate]" )
+		"[trackpartitioner][calc][calculate][details]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "TrackPartitioner is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "TrackPartitioner special members",
-		"[trackpartitioner][calc][calculate]" )
+		"[trackpartitioner][calc][calculate][details]" )
 {
 	SECTION ( "is not default constructable")
 	{
@@ -73,7 +73,7 @@ TEST_CASE ( "TrackPartitioner special members",
 
 
 TEST_CASE ( "TrackPartitioner is swappable",
-		"[trackpartitioner][calc][calculate]" )
+		"[trackpartitioner][calc][calculate][details]" )
 {
 	SECTION ("is nothrow swappable")
 	{

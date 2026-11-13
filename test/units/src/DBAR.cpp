@@ -7,18 +7,15 @@
  */
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar_details.hpp"  // for
+#include "dbar.hpp"                // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
+TEST_CASE ( "DBAR", "[dbar]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -74,7 +71,7 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 		}
 	};
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( instance.size() == 2 );
 
@@ -95,7 +92,7 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 		CHECK ( block1.size() == 15 );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const DBAR copied { Copy<DBAR>::construct(instance) };
 
@@ -140,7 +137,7 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 		CHECK ( block1.triplet(14).frame450_arcs() == 0x765EE0C8 );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const DBAR moved { Move<DBAR>::construct(instance) };
 
@@ -185,7 +182,7 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 		CHECK ( block1.triplet(14).frame450_arcs() == 0x765EE0C8 );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = DBAR {};
 		Copy<DBAR>::assign(copied, instance);
@@ -231,7 +228,7 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 		CHECK ( block1.triplet(14).frame450_arcs() == 0x765EE0C8 );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = DBAR {};
 		Move<DBAR>::assign(moved, instance);
@@ -280,77 +277,77 @@ TEST_CASE ( "DBAR", "[dbar][dbar][dbar]" )
 
 
 TEST_CASE ( "DBAR default constructed instance",
-		"[dbar][dbar][dbar]" )
+	"[dbar]" )
 {
 	const auto instance = arcstk::DBAR{};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( instance.empty() );
 	}
 
-	SECTION ( "has size() of 0")
+	SECTION ( "has size() of 0" )
 	{
 		CHECK ( instance.size() == 0 );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !instance );
 	}
 }
 
 
-TEST_CASE ( "DBAR property", "[dbar][dbar][dbar]" )
+TEST_CASE ( "DBAR property", "[dbar]" )
 {
 	using arcstk::DBAR;
 
 	auto defaulted = DBAR {};
 
 
-	// SECTION ("Equality operator == is correct")
+	// SECTION ( "Equality operator == is correct" )
 	// {
 	// 	FAIL ( "Equality operator test is missing" );
 	// }
 	//
-	// SECTION ("Stream-in operator << is correct")
+	// SECTION ( "Stream-in operator << is correct" )
 	// {
 	// 	FAIL ( "Stream-in operator << test is missing" );
 	// }
 	//
-	// SECTION ("operator bool() is correct")
+	// SECTION ( "operator bool() is correct" )
 	// {
 	// 	FAIL ( "operator bool() test is missing" );
 	// }
 	//
-	// SECTION ("swap() is correct")
+	// SECTION ( "swap() is correct" )
 	// {
 	// 	FAIL ( "swap() test is missing" );
 	// }
 	//
-	// SECTION ("to_string() is correct")
+	// SECTION ( "to_string() is correct" )
 	// {
 	// 	FAIL ( "to_string() test is missing" );
 	// }
 	//
-	// SECTION ("clone() is correct")
+	// SECTION ( "clone() is correct" )
 	// {
 	// 	FAIL ( "clone() test is missing" );
 	// }
 	//
-	// SECTION ("size() is correct")
+	// SECTION ( "size() is correct" )
 	// {
 	// 	FAIL ( "size() test is missing" );
 	// }
 	//
-	// SECTION ("empty() is correct")
+	// SECTION ( "empty() is correct" )
 	// {
 	// 	FAIL ( "empty() test is missing" );
 	// }
 }
 
 
-TEST_CASE ( "DBAR functions", "[dbar][dbar][dbar]" )
+TEST_CASE ( "DBAR functions", "[dbar]" )
 {
 	using arcstk::DBAR;
 
@@ -406,102 +403,102 @@ TEST_CASE ( "DBAR functions", "[dbar][dbar][dbar]" )
 	REQUIRE ( instance.size() == 2 );
 
 
-	// SECTION ("size is correct")
+	// SECTION ( "size is correct" )
 	// {
 	// 	FAIL ("size test is missing");
 	// }
 	//
-	// SECTION ("arcs_value is correct")
+	// SECTION ( "arcs_value is correct" )
 	// {
 	// 	FAIL ("arcs_value test is missing");
 	// }
 	//
-	// SECTION ("confidence_value is correct")
+	// SECTION ( "confidence_value is correct" )
 	// {
 	// 	FAIL ("confidence_value test is missing");
 	// }
 	//
-	// SECTION ("frame450_arcs_value is correct")
+	// SECTION ( "frame450_arcs_value is correct" )
 	// {
 	// 	FAIL ("frame450_arcs_value test is missing");
 	// }
 	//
-	// SECTION ("total_tracks is correct")
+	// SECTION ( "total_tracks is correct" )
 	// {
 	// 	FAIL ("total_tracks test is missing");
 	// }
 	//
-	// SECTION ("header is correct")
+	// SECTION ( "header is correct" )
 	// {
 	// 	FAIL ("header test is missing");
 	// }
 	//
-	// SECTION ("triplet is correct")
+	// SECTION ( "triplet is correct" )
 	// {
 	// 	FAIL ("triplet test is missing");
 	// }
 	//
-	// SECTION ("block is correct")
+	// SECTION ( "block is correct" )
 	// {
 	// 	FAIL ("block test is missing");
 	// }
 	//
-	// SECTION ("begin is correct")
+	// SECTION ( "begin is correct" )
 	// {
 	// 	FAIL ("begin test is missing");
 	// }
 	//
-	// SECTION ("end is correct")
+	// SECTION ( "end is correct" )
 	// {
 	// 	FAIL ("end test is missing");
 	// }
 	//
-	// SECTION ("cbegin is correct")
+	// SECTION ( "cbegin is correct" )
 	// {
 	// 	FAIL ("cbegin test is missing");
 	// }
 	//
-	// SECTION ("cend is correct")
+	// SECTION ( "cend is correct" )
 	// {
 	// 	FAIL ("cend test is missing");
 	// }
 	//
-	// SECTION ("rbegin is correct")
+	// SECTION ( "rbegin is correct" )
 	// {
 	// 	FAIL ("rbegin test is missing");
 	// }
 	//
-	// SECTION ("rend is correct")
+	// SECTION ( "rend is correct" )
 	// {
 	// 	FAIL ("rend test is missing");
 	// }
 	//
-	// SECTION ("crbegin is correct")
+	// SECTION ( "crbegin is correct" )
 	// {
 	// 	FAIL ("crbegin test is missing");
 	// }
 	//
-	// SECTION ("crend is correct")
+	// SECTION ( "crend is correct" )
 	// {
 	// 	FAIL ("crend test is missing");
 	// }
 	//
-	// SECTION ("empty is correct")
+	// SECTION ( "empty is correct" )
 	// {
 	// 	FAIL ("empty test is missing");
 	// }
 	//
-	// SECTION ("operator bool is correct")
+	// SECTION ( "operator bool is correct" )
 	// {
 	// 	FAIL ("operator bool test is missing");
 	// }
 	//
-	// SECTION ("swap is correct")
+	// SECTION ( "swap is correct" )
 	// {
 	// 	FAIL ("swap test is missing");
 	// }
 	//
-	// SECTION ("equals is correct")
+	// SECTION ( "equals is correct" )
 	// {
 	// 	FAIL ("equals test is missing");
 	// }

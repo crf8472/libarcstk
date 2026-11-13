@@ -7,11 +7,11 @@
  */
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"          // TO BE TESTED
+#include "checksum.hpp"            // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -38,12 +38,12 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 	REQUIRE ( instance.size() == 2 );
 
 
-	// SECTION ("Parametized construction is correct")
+	// SECTION ( "Parametized construction is correct" )
 	// {
 	// 	FAIL ( "Parametized construction test is missing" );
 	// }
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const ChecksumSet copied { Copy<ChecksumSet>::construct(instance) };
 
@@ -56,7 +56,7 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 		CHECK ( copied.get(type::ARCS1).first == Checksum { 0x98B10E0F }  );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const ChecksumSet moved { Move<ChecksumSet>::construct(instance) };
 
@@ -66,7 +66,7 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 		CHECK ( moved.get(type::ARCS1).first == Checksum { 0x98B10E0F }  );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = ChecksumSet {};
 		Copy<ChecksumSet>::assign(copied, instance);
@@ -80,7 +80,7 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 		CHECK ( copied.get(type::ARCS1).first == Checksum { 0x98B10E0F }  );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = ChecksumSet {};
 		Move<ChecksumSet>::assign(moved, instance);
@@ -94,16 +94,16 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 
 
 TEST_CASE ( "ChecksumSet default constructed instance",
-		"[checksumset][calc][checksum]" )
+	"[checksumset][calc][checksum]" )
 {
 	const auto instance = arcstk::ChecksumSet{};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( instance.empty() );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !instance );
 	}
@@ -130,7 +130,7 @@ TEST_CASE ( "ChecksumSet property", "[checksumset][calc][checksum]" )
 	REQUIRE ( instance.size() == 2 );
 
 
-	SECTION ("Equality operator == is correct")
+	SECTION ( "Equality operator == is correct" )
 	{
 		ChecksumSet track02 {};
 
@@ -144,37 +144,37 @@ TEST_CASE ( "ChecksumSet property", "[checksumset][calc][checksum]" )
 		CHECK ( not (instance != track02) );
 	}
 /*
-	SECTION ("Stream-in operator << is correct")
+	SECTION ( "Stream-in operator << is correct" )
 	{
 		FAIL ( "Stream-in operator << test is missing" );
 	}
 
-	SECTION ("operator bool() is correct")
+	SECTION ( "operator bool() is correct" )
 	{
 		FAIL ( "operator bool() test is missing" );
 	}
 
-	SECTION ("swap() is correct")
+	SECTION ( "swap() is correct" )
 	{
 		FAIL ( "swap() test is missing" );
 	}
 
-	SECTION ("to_string() is correct")
+	SECTION ( "to_string() is correct" )
 	{
 		FAIL ( "to_string() test is missing" );
 	}
 
-	SECTION ("clone() is correct")
+	SECTION ( "clone() is correct" )
 	{
 		FAIL ( "clone() test is missing" );
 	}
 
-	SECTION ("size() is correct")
+	SECTION ( "size() is correct" )
 	{
 		FAIL ( "size() test is missing" );
 	}
 
-	SECTION ("empty() is correct")
+	SECTION ( "empty() is correct" )
 	{
 		FAIL ( "empty() test is missing" );
 	}
@@ -202,34 +202,34 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 	REQUIRE ( instance.size() == 2 );
 
 /*
-	SECTION ("length is correct")
+	SECTION ( "length is correct" )
 	{
 		FAIL ("length test is missing");
 	}
 
-	SECTION ("set_length is correct")
+	SECTION ( "set_length is correct" )
 	{
 		FAIL ("set_length test is missing");
 	}
 */
-	SECTION ("contains is correct")
+	SECTION ( "contains is correct" )
 	{
 		CHECK ( instance.contains(type::ARCS2) );
 		CHECK ( instance.contains(type::ARCS1) );
 	}
 
-	SECTION ("get is correct")
+	SECTION ( "get is correct" )
 	{
 		CHECK ( instance.get(type::ARCS2).first == Checksum { 0xB89992E5 }  );
 		CHECK ( instance.get(type::ARCS1).first == Checksum { 0x98B10E0F }  );
 	}
 /*
-	SECTION ("types is correct")
+	SECTION ( "types is correct" )
 	{
 		FAIL ("types test is missing");
 	}
 */
-	SECTION ("insert is correct")
+	SECTION ( "insert is correct" )
 	{
 		CHECK ( instance.get(type::ARCS2).first == Checksum { 0xB89992E5 });
 		CHECK ( instance.get(type::ARCS1).first == Checksum { 0x98B10E0F });
@@ -246,7 +246,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( instance.get(type::ARCS1).first == Checksum { 0x98B10E0F });
 	}
 
-	SECTION ("merge() new elements is correct")
+	SECTION ( "merge() new elements is correct" )
 	{
 		ChecksumSet track02;
 
@@ -264,7 +264,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( track03.get(type::ARCS2).first == Checksum { 0x4F77EB03 }  );
 	}
 
-	SECTION ("merge() existing elements does nothing")
+	SECTION ( "merge() existing elements does nothing" )
 	{
 		ChecksumSet track02;
 
@@ -278,7 +278,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( instance.get(type::ARCS1).first == Checksum { 0x98B10E0F }  );
 	}
 
-	SECTION ("erase is correct")
+	SECTION ( "erase is correct" )
 	{
 		instance.erase(type::ARCS1);
 
@@ -287,7 +287,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( instance.contains(type::ARCS2) );
 	}
 
-	SECTION ("clear is correct")
+	SECTION ( "clear is correct" )
 	{
 		instance.clear();
 
@@ -298,7 +298,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( not instance.contains(type::ARCS1) );
 	}
 
-	SECTION ("begin is correct")
+	SECTION ( "begin is correct" )
 	{
 		auto it { instance.begin()  };
 
@@ -308,7 +308,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( not it->second.zero() );
 	}
 
-	SECTION ("end is correct")
+	SECTION ( "end is correct" )
 	{
 		auto it { instance.begin()  };
 
@@ -318,7 +318,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( it == instance.end() );
 	}
 
-	SECTION ("cbegin is correct")
+	SECTION ( "cbegin is correct" )
 	{
 		auto cit { instance.cbegin() };
 
@@ -328,7 +328,7 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( not cit->second.zero() );
 	}
 
-	SECTION ("cend is correct")
+	SECTION ( "cend is correct" )
 	{
 		auto cit { instance.cbegin() };
 
@@ -338,32 +338,32 @@ TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
 		CHECK ( cit == instance.cend() );
 	}
 /*
-	SECTION ("size is correct")
+	SECTION ( "size is correct" )
 	{
 		FAIL ("size test is missing");
 	}
 
-	SECTION ("empty is correct")
+	SECTION ( "empty is correct" )
 	{
 		FAIL ("empty test is missing");
 	}
 
-	SECTION ("operator bool is correct")
+	SECTION ( "operator bool is correct" )
 	{
 		FAIL ("operator bool test is missing");
 	}
 
-	SECTION ("swap is correct")
+	SECTION ( "swap is correct" )
 	{
 		FAIL ("swap test is missing");
 	}
 
-	SECTION ("equals is correct")
+	SECTION ( "equals is correct" )
 	{
 		FAIL ("equals test is missing");
 	}
 
-	SECTION ("to_string is correct")
+	SECTION ( "to_string is correct" )
 	{
 		FAIL ("to_string test is missing");
 	}

@@ -9,16 +9,14 @@
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"
 #endif
-#ifndef LIBARCSTK_METADATA_DETAILS_HPP_
-#include "metadata_details.hpp"  // TO BE TESTED
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "InvalidMetadataException", "[invalidmetadataexception][metadata]" )
+// TEST_CASE ( "InvalidMetadataException",
+//		"[invalidmetadataexception][metadata]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -28,12 +26,12 @@
 // 	auto instance = InvalidMetadataException {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const InvalidMetadataException copied { Copy<InvalidMetadataException>::construct(instance) };
 //
@@ -44,7 +42,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const InvalidMetadataException moved { Move<InvalidMetadataException>::construct(instance) };
 //
@@ -55,7 +53,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = InvalidMetadataException {};
 // 		Copy<InvalidMetadataException>::assign(copied, instance);
@@ -67,7 +65,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = InvalidMetadataException {};
 // 		Move<InvalidMetadataException>::assign(moved, instance);
@@ -82,7 +80,7 @@
 
 
 TEST_CASE ( "InvalidMetadataException default constructed instance",
-		"[invalidmetadataexception][metadata]" )
+	"[invalidmetadataexception][metadata]" )
 {
 	using arcstk::MetadataRequirement;
 	using arcstk::ToCData;
@@ -106,42 +104,42 @@ TEST_CASE ( "InvalidMetadataException default constructed instance",
 // 	auto instance = InvalidMetadataException {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -154,22 +152,22 @@ TEST_CASE ( "InvalidMetadataException default constructed instance",
 //
 // 	auto instance = InvalidMetadataException {};
 //
-// 	SECTION ("InvalidMetadataException() is correct")
+// 	SECTION ( "InvalidMetadataException() is correct" )
 // 	{
 // 		FAIL ("InvalidMetadataException() test is missing");
 // 	}
 //
-// 	SECTION ("requirement() is correct")
+// 	SECTION ( "requirement() is correct" )
 // 	{
 // 		FAIL ("requirement() test is missing");
 // 	}
 //
-// 	SECTION ("violating_value() is correct")
+// 	SECTION ( "violating_value() is correct" )
 // 	{
 // 		FAIL ("violating_value() test is missing");
 // 	}
 //
-// 	SECTION ("pos() is correct")
+// 	SECTION ( "pos() is correct" )
 // 	{
 // 		FAIL ("pos() test is missing");
 // 	}

@@ -7,16 +7,16 @@
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"           // TO BE TESTED
+#include "metadata.hpp"            // TO BE TESTED
 #endif
 
-#include <cstdint>                // for int32_t
-#include <vector>                 // for vector
+#include <cstdint>                 // for int32_t
+#include <vector>                  // for vector
 
 
 TEST_CASE ( "cdda_max<>", "[meta]" )
 {
-	SECTION ("cdda_max<>() yields correct maximum values")
+	SECTION ( "cdda_max<>() yields correct maximum values" )
 	{
 		using arcstk::UNIT;
 		using arcstk::cdda_max;

@@ -7,11 +7,11 @@
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"           // TO BE TESTED
+#include "metadata.hpp"            // TO BE TESTED
 #endif
 
-#include <cstdint>                // for int32_t
-#include <vector>                 // for vector
+#include <cstdint>                 // for int32_t
+#include <vector>                  // for vector
 
 
 TEST_CASE ( "toc::construct()", "[meta]" )
@@ -627,7 +627,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 */
 
 
-// TEST_CASE ( "get_track", "[identifier][make_toc]" )
+// TEST_CASE ( "get_track", "[identifier][get_track][details]" )
 // {
 // 	using arcstk::details::get_track;
 //
@@ -667,7 +667,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "calculate_leadout", "[identifier][make_toc]" )
+// TEST_CASE ( "calculate_leadout", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::calculate_leadout;
 //
@@ -692,7 +692,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "is_lba_type", "[identifier][make_toc]" )
+// TEST_CASE ( "is_lba_type", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::is_lba_type;
 //
@@ -727,7 +727,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_lba_value_type", "[identifier][make_toc]" )
+// TEST_CASE ( "has_lba_value_type", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_lba_value_type;
 //
@@ -746,7 +746,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_const_iterator", "[identifier][make_toc]" )
+// TEST_CASE ( "has_const_iterator", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_const_iterator;
 //
@@ -766,7 +766,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_size", "[identifier][make_toc]" )
+// TEST_CASE ( "has_size", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_size;
 //
@@ -785,7 +785,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_begin", "[identifier][make_toc]" )
+// TEST_CASE ( "has_begin", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_begin;
 //
@@ -800,7 +800,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_end", "[identifier][make_toc]" )
+// TEST_CASE ( "has_end", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_end;
 //
@@ -815,7 +815,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "is_container", "[identifier][make_toc]" )
+// TEST_CASE ( "is_container", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::is_container;
 //
@@ -830,7 +830,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "is_lba_container", "[identifier][make_toc]" )
+// TEST_CASE ( "is_lba_container", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::is_lba_container;
 //
@@ -868,7 +868,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ( "has_filename_value_type", "[identifier][make_toc]" )
+// TEST_CASE ( "has_filename_value_type", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::has_filename_value_type;
 //
@@ -886,7 +886,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ("is_filename_container", "[identifier][make_toc]")
+// TEST_CASE ("is_filename_container", "[identifier][make_toc][details]")
 // {
 // 	using arcstk::details::is_filename_container;
 //

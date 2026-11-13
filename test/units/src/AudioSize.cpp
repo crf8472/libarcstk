@@ -7,14 +7,11 @@
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata_details.hpp"  // for
+#include "metadata.hpp"            // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -37,7 +34,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 	auto different_size = AudioSize { 14827, UNIT::FRAMES };
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( instance.zero() );
 		CHECK ( 0 == instance.bytes() );
@@ -74,7 +71,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 		CHECK ( different_size.bytes() == 34873104 );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		instance.set_frames(253038);
 
@@ -87,7 +84,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 		CHECK ( copied.frames() == 253038 );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		instance.set_frames(253038);
 
@@ -100,7 +97,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 		CHECK ( moved.frames() == 253038 );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		instance.set_frames(253038);
 
@@ -114,7 +111,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 		CHECK ( copied.frames() == 253038 );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		instance.set_frames(253038);
 
@@ -131,16 +128,16 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 
 
 TEST_CASE ( "AudioSize default constructed instance",
-		"[audiosize][metadata][metadata]" )
+	"[audiosize][metadata][metadata]" )
 {
 	const auto instance = arcstk::AudioSize{};
 
-	SECTION ( "is zero()")
+	SECTION ( "is zero()" )
 	{
 		CHECK ( instance.zero() );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !instance );
 	}
@@ -162,7 +159,7 @@ TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
 
 	auto different_size = AudioSize { 14827, UNIT::FRAMES };
 
-	SECTION ("Equality operator == is correct")
+	SECTION ( "Equality operator == is correct" )
 	{
 		// equal to self
 
@@ -199,7 +196,7 @@ TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
 		CHECK ( different_size != size5 );
 	}
 
-	SECTION ("Less-than operator <= is correct")
+	SECTION ( "Less-than operator <= is correct" )
 	{
 		CHECK ( different_size < size1 );
 		CHECK ( different_size < size2 );
@@ -216,37 +213,37 @@ TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
 		CHECK ( AudioSize {} < different_size );
 	}
 
-//	SECTION ("Stream-in operator << is correct")
+//	SECTION ( "Stream-in operator << is correct" )
 //	{
 //		FAIL ( "Stream-in operator << test is missing" );
 //	}
 //
-//	SECTION ("operator bool() is correct")
+//	SECTION ( "operator bool() is correct" )
 //	{
 //		FAIL ( "operator bool() test is missing" );
 //	}
 //
-//	SECTION ("swap() is correct")
+//	SECTION ( "swap() is correct" )
 //	{
 //		FAIL ( "swap() test is missing" );
 //	}
 //
-//	SECTION ("to_string() is correct")
+//	SECTION ( "to_string() is correct" )
 //	{
 //		FAIL ( "to_string() test is missing" );
 //	}
 //
-//	SECTION ("clone() is correct")
+//	SECTION ( "clone() is correct" )
 //	{
 //		FAIL ( "clone() test is missing" );
 //	}
 //
-//	SECTION ("size() is correct")
+//	SECTION ( "size() is correct" )
 //	{
 //		FAIL ( "size() test is missing" );
 //	}
 //
-//	SECTION ("empty() is correct")
+//	SECTION ( "empty() is correct" )
 //	{
 //		FAIL ( "empty() test is missing" );
 //	}
@@ -261,12 +258,12 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 	auto instance = AudioSize {};
 
 
-	// SECTION ("frames is correct")
+	// SECTION ( "frames is correct" )
 	// {
 	// 	FAIL ("frames test is missing");
 	// }
 
-	SECTION ("set_frames is correct")
+	SECTION ( "set_frames is correct" )
 	{
 		instance.set_frames(253038);
 
@@ -275,12 +272,12 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 		CHECK ( instance.bytes()   == 595145376 );
 	}
 
-	// SECTION ("samples is correct")
+	// SECTION ( "samples is correct" )
 	// {
 	// 	FAIL ("samples test is missing");
 	// }
 
-	SECTION ("set_samples is correct")
+	SECTION ( "set_samples is correct" )
 	{
 		instance.set_samples(148786344);
 
@@ -289,12 +286,12 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 		CHECK ( instance.bytes()   == 595145376 );
 	}
 
-	// SECTION ("bytes is correct")
+	// SECTION ( "bytes is correct" )
 	// {
 	// 	FAIL ("bytes test is missing");
 	// }
 
-	SECTION ("set_bytes is correct")
+	SECTION ( "set_bytes is correct" )
 	{
 		instance.set_bytes(595145376);
 
@@ -305,7 +302,7 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 		CHECK ( instance.bytes()   == 595145376 );
 	}
 
-	SECTION ("zero is correct")
+	SECTION ( "zero is correct" )
 	{
 		auto zero_size = AudioSize { 0, UNIT::BYTES };
 
@@ -315,12 +312,12 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 		CHECK ( zero_size.zero() );
 	}
 
-	// SECTION ("operator bool is correct")
+	// SECTION ( "operator bool is correct" )
 	// {
 	// 	FAIL ("operator bool test is missing");
 	// }
 
-	SECTION ("swap is correct")
+	SECTION ( "swap is correct" )
 	{
 		auto size1 = AudioSize {};
 		size1.set_frames(253038);
@@ -346,12 +343,12 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 	}
 
 	/*
-	SECTION ("equals is correct")
+	SECTION ( "equals is correct" )
 	{
 		FAIL ("equals test is missing");
 	}
 
-	SECTION ("to_string is correct")
+	SECTION ( "to_string is correct" )
 	{
 		FAIL ("to_string test is missing");
 	}

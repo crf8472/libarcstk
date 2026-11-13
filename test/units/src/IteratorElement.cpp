@@ -9,9 +9,6 @@
 #ifndef LIBARCSTK_DBAR_HPP_
 #include "dbar.hpp"                // TO BE TESTED
 #endif
-#ifndef LIBARCSTK_DBAR_DETAILS_HPP_
-#include "dbar_details.hpp"        // TO BE TESTED
-#endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"        // for Copy, Move
@@ -28,12 +25,12 @@
 // 	auto instance = IteratorElement {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const IteratorElement copied { Copy<IteratorElement>::construct(instance) };
 //
@@ -44,7 +41,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const IteratorElement moved { Move<IteratorElement>::construct(instance) };
 //
@@ -55,7 +52,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = IteratorElement {};
 // 		Copy<IteratorElement>::assign(copied, instance);
@@ -67,7 +64,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = IteratorElement {};
 // 		Move<IteratorElement>::assign(moved, instance);
@@ -82,18 +79,18 @@
 
 
 TEST_CASE ( "IteratorElement default constructed instance",
-		"[iteratorelement][dbar]" )
+	"[iteratorelement][dbar]" )
 {
 	const auto v = std::int32_t { 184 };
 
 	const auto defaulted = arcstk::IteratorElement<std::int32_t, int> { 2, v };
 
-	SECTION ( "element()")
+	SECTION ( "element()" )
 	{
 		CHECK ( defaulted.element() == 184 );
 	}
 
-	SECTION ( "index()")
+	SECTION ( "index()" )
 	{
 		CHECK ( defaulted.index() == 2 );
 	}
@@ -107,42 +104,42 @@ TEST_CASE ( "IteratorElement default constructed instance",
 // 	auto instance = IteratorElement {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -155,32 +152,32 @@ TEST_CASE ( "IteratorElement default constructed instance",
 //
 // 	auto instance = IteratorElement {};
 //
-// 	SECTION ("IteratorElement() is correct")
+// 	SECTION ( "IteratorElement() is correct" )
 // 	{
 // 		FAIL ("IteratorElement() test is missing");
 // 	}
 //
-// 	SECTION ("index() is correct")
+// 	SECTION ( "index() is correct" )
 // 	{
 // 		FAIL ("index() test is missing");
 // 	}
 //
-// 	SECTION ("element() is correct")
+// 	SECTION ( "element() is correct" )
 // 	{
 // 		FAIL ("element() test is missing");
 // 	}
 //
-// 	SECTION ("operator value_type() is correct")
+// 	SECTION ( "operator value_type() is correct" )
 // 	{
 // 		FAIL ("operator value_type() test is missing");
 // 	}
 //
-// 	SECTION ("operator*() is correct")
+// 	SECTION ( "operator*() is correct" )
 // 	{
 // 		FAIL ("operator*() test is missing");
 // 	}
 //
-// 	SECTION ("operator->() is correct")
+// 	SECTION ( "operator->() is correct" )
 // 	{
 // 		FAIL ("operator->() test is missing");
 // 	}

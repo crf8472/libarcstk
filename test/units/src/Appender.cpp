@@ -6,18 +6,18 @@
  * \brief Unit tests for Appender.
  */
 
-#include <string>               // for to_string
-
 #ifndef LIBARCSTK_LOGGING_HPP_
-#include "logging.hpp"          // TO BE TESTED
+#include "logging.hpp"             // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"     // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 #ifndef LIBARCSTK_TEMPFILE_HPP_
-#include "tempfile.hpp"         // for TemporaryFile
+#include "tempfile.hpp"            // for TemporaryFile
 #endif
+
+#include <string>                  // for to_string
 
 
 TEST_CASE ( "Appender", "[appender][logging]" )
@@ -35,12 +35,12 @@ TEST_CASE ( "Appender", "[appender][logging]" )
 	auto instance = Appender { tempfile.string() };
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( ! instance.name().empty() );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const auto path = instance.name();
 
@@ -53,7 +53,7 @@ TEST_CASE ( "Appender", "[appender][logging]" )
         CHECK ( moved.name().find(tempfile_prefix) != std::string::npos );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		const auto path = instance.name();
 
@@ -79,7 +79,7 @@ TEST_CASE ( "Appender property", "[appender][logging]" )
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;
 
-	SECTION ("swap() is correct")
+	SECTION ( "swap() is correct" )
 	{
 		const auto file1_prefix = std::string {
 			"LIBARCSTK-TEST-UNIT-Appender-52307562316"
@@ -112,7 +112,7 @@ TEST_CASE ( "Appender functions", "[appender][logging]" )
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;
 
-	SECTION ("append() is correct")
+	SECTION ( "append() is correct" )
 	{
 		const auto file_prefix = std::string {
 			"LIBARCSTK-TEST-UNIT-Appender-63418673427"
@@ -125,7 +125,7 @@ TEST_CASE ( "Appender functions", "[appender][logging]" )
 		CHECK_NOTHROW ( apdr.append("This does not cause an exception") );
 	}
 
-	SECTION ("name() is correct")
+	SECTION ( "name() is correct" )
 	{
 		const auto file_prefix = std::string {
 			"LIBARCSTK-TEST-UNIT-Appender-74529784538"
@@ -141,4 +141,6 @@ TEST_CASE ( "Appender functions", "[appender][logging]" )
 		CHECK ( apdr.name().find(file_prefix) != std::string::npos );
 	}
 }
+
+// vim:fdm=syntax
 

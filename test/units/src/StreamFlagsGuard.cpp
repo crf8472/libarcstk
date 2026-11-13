@@ -27,12 +27,12 @@
 // 	auto instance = StreamFlagsGuard {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const StreamFlagsGuard copied { Copy<StreamFlagsGuard>::construct(instance) };
 //
@@ -43,7 +43,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const StreamFlagsGuard moved { Move<StreamFlagsGuard>::construct(instance) };
 //
@@ -54,7 +54,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = StreamFlagsGuard {};
 // 		Copy<StreamFlagsGuard>::assign(copied, instance);
@@ -66,7 +66,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = StreamFlagsGuard {};
 // 		Move<StreamFlagsGuard>::assign(moved, instance);
@@ -81,7 +81,7 @@
 
 
 TEST_CASE ( "StreamFlagsGuard default constructed instance",
-		"[streamflagsguard][calc][checksum][details]" )
+	"[streamflagsguard][calc][checksum][details]" )
 {
 	auto stream = std::ostringstream {};
 
@@ -99,42 +99,42 @@ TEST_CASE ( "StreamFlagsGuard default constructed instance",
 // 	auto instance = StreamFlagsGuard {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -148,7 +148,7 @@ TEST_CASE ( "StreamFlagsGuard default constructed instance",
 //
 // 	auto instance = StreamFlagsGuard {};
 //
-// 	SECTION ("operator=() is correct")
+// 	SECTION ( "operator=() is correct" )
 // 	{
 // 		FAIL ("operator=() test is missing");
 // 	}

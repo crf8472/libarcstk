@@ -7,11 +7,11 @@
  */
 
 #ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples.hpp"            // TO BE TESTED
+#include "samples.hpp"             // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 #include <cstdint>   // for int32_t
@@ -28,12 +28,12 @@
 // 	auto instance = SampleSequence {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const SampleSequence copied { Copy<SampleSequence>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const SampleSequence moved { Move<SampleSequence>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = SampleSequence {};
 // 		Copy<SampleSequence>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = SampleSequence {};
 // 		Move<SampleSequence>::assign(moved, instance);
@@ -86,12 +86,12 @@
 // {
 // 	const auto defaulted = arcstk::SampleSequence{};
 //
-// 	SECTION ( "is empty()")
+// 	SECTION ( "is empty()" )
 // 	{
 // 		CHECK ( defaulted.empty() );
 // 	}
 //
-// 	SECTION ( "converts to FALSE")
+// 	SECTION ( "converts to FALSE" )
 // 	{
 // 		CHECK ( !defaulted );
 // 	}
@@ -105,42 +105,42 @@
 // 	auto instance = SampleSequence {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -154,17 +154,17 @@ TEST_CASE ( "SampleSequence functions", "[samplesequence][calc][samples]" )
 	auto instance = arcstk::SampleSequence<std::int32_t, false> {
 		buffer.data(), 0, false }; // planar
 
-	// SECTION ("value_type is csample_t")
+	// SECTION ( "value_type is csample_t" )
 	// {
 	// 	CHECK ( decltype( instance )::value_type == arcstk::csample_t );
 	// }
 
-	SECTION ("size() is correct")
+	SECTION ( "size() is correct" )
 	{
 		CHECK ( instance.size() == 0 );
 	}
 
-	SECTION ("planar() is correct")
+	SECTION ( "planar() is correct" )
 	{
 		CHECK ( ! instance.planar() );
 	}

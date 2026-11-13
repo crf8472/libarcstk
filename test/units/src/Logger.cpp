@@ -7,14 +7,14 @@
  */
 
 #ifndef LIBARCSTK_LOGGING_HPP_
-#include "logging.hpp"          // TO BE TESTED
+#include "logging.hpp"             // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"     // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 #ifndef LIBARCSTK_TEMPFILE_HPP_
-#include "tempfile.hpp"         // for TemporaryFile
+#include "tempfile.hpp"            // for TemporaryFile
 #endif
 
 
@@ -36,12 +36,12 @@
 // 	auto instance = Logger {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const Logger copied { Copy<Logger>::construct(instance) };
 //
@@ -52,7 +52,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const Logger moved { Move<Logger>::construct(instance) };
 //
@@ -63,7 +63,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = Logger {};
 // 		Copy<Logger>::assign(copied, instance);
@@ -75,7 +75,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = Logger {};
 // 		Move<Logger>::assign(moved, instance);
@@ -95,17 +95,17 @@
 //
 // 	auto defaulted = Logger {};
 //
-// 	SECTION ( "has_timestamps() provides default value")
+// 	SECTION ( "has_timestamps() provides default value" )
 // 	{
 // 		CHECK ( !defaulted.has_timestamps() );
 // 	}
 //
-// 	SECTION ( "step() provides default value")
+// 	SECTION ( "step() provides default value" )
 // 	{
 // 		CHECK ( defaulted.step() == 2 );
 // 	}
 //
-// 	SECTION ( "indent_char() provides default value")
+// 	SECTION ( "indent_char() provides default value" )
 // 	{
 // 		CHECK ( defaulted.indent_char() == ' ' );
 // 	}
@@ -119,42 +119,42 @@
 // 	auto instance = Logger {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -175,43 +175,43 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 	REQUIRE ( instance.indent_char() == ' ' );
 
 
-	SECTION ("set_timestamps() is correct")
+	SECTION ( "set_timestamps() is correct" )
 	{
 		instance.set_timestamps(true);
 
 		CHECK ( instance.has_timestamps() );
 	}
 
-	SECTION ("has_timestamps() is correct")
+	SECTION ( "has_timestamps() is correct" )
 	{
 		CHECK ( !instance.has_timestamps() );
 	}
 
-	SECTION ("set_step() is correct")
+	SECTION ( "set_step() is correct" )
 	{
 		instance.set_step(5);
 
 		CHECK ( 5 == instance.step() );
 	}
 
-	SECTION ("step() is correct")
+	SECTION ( "step() is correct" )
 	{
 		CHECK ( 2 == instance.step() );
 	}
 
-	SECTION ("set_indent_char() is correct")
+	SECTION ( "set_indent_char() is correct" )
 	{
 		instance.set_indent_char('?');
 
 		CHECK ( '?' == instance.indent_char() );
 	}
 
-	SECTION ("indent_char() is correct")
+	SECTION ( "indent_char() is correct" )
 	{
 		CHECK ( ' ' == instance.indent_char() );
 	}
 
-	SECTION ("remove_appender() is correct")
+	SECTION ( "remove_appender() is correct" )
 	{
 		using arcstk::Appender;
 		const auto tempfile_prefix = std::string {
@@ -225,7 +225,7 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 		CHECK_NOTHROW ( instance.remove_appender(ptr) );
 	}
 
-	SECTION ("add_appender() is correct")
+	SECTION ( "add_appender() is correct" )
 	{
 		using arcstk::Appender;
 		const auto tempfile_prefix = std::string {
@@ -240,7 +240,7 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 		instance.remove_appender(ptr);
 	}
 
-	// SECTION ("log() is correct")
+	// SECTION ( "log() is correct" )
 	// {
 	// 	FAIL ("log() test is missing");
 	// }

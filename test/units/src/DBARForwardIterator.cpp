@@ -7,7 +7,7 @@
  */
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"
+#include "dbar.hpp"                // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
@@ -25,12 +25,12 @@
 // 	auto instance = DBARForwardIterator {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const DBARForwardIterator copied { Copy<DBARForwardIterator>::construct(instance) };
 //
@@ -41,7 +41,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const DBARForwardIterator moved { Move<DBARForwardIterator>::construct(instance) };
 //
@@ -52,7 +52,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = DBARForwardIterator {};
 // 		Copy<DBARForwardIterator>::assign(copied, instance);
@@ -64,7 +64,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = DBARForwardIterator {};
 // 		Move<DBARForwardIterator>::assign(moved, instance);
@@ -79,7 +79,7 @@
 
 
 TEST_CASE ( "DBARForwardIterator default constructed instance",
-		"[dbarforwarditerator][dbar][details]" )
+	"[dbarforwarditerator][dbar][details]" )
 {
 	using arcstk::DBAR;
 
@@ -103,7 +103,7 @@ TEST_CASE ( "DBARForwardIterator default constructed instance",
 	const auto defaulted = arcstk::details::DBARForwardIterator<DBAR, true>
 			{ dbar, 0 };
 
-	SECTION ( "index()")
+	SECTION ( "index()" )
 	{
 		CHECK ( defaulted.index() == 0 );
 	}
@@ -116,42 +116,42 @@ TEST_CASE ( "DBARForwardIterator default constructed instance",
 // 	auto instance = arcstk::details::DBARForwardIterator {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -165,37 +165,37 @@ TEST_CASE ( "DBARForwardIterator default constructed instance",
 //
 // 	auto instance = DBARForwardIterator {};
 //
-// 	SECTION ("DBARForwardIterator() is correct")
+// 	SECTION ( "DBARForwardIterator() is correct" )
 // 	{
 // 		FAIL ("DBARForwardIterator() test is missing");
 // 	}
 //
-// 	SECTION ("operator=() is correct")
+// 	SECTION ( "operator=() is correct" )
 // 	{
 // 		FAIL ("operator=() test is missing");
 // 	}
 //
-// 	SECTION ("~DBARForwardIterator() is correct")
+// 	SECTION ( "~DBARForwardIterator() is correct" )
 // 	{
 // 		FAIL ("~DBARForwardIterator() test is missing");
 // 	}
 //
-// 	SECTION ("index() is correct")
+// 	SECTION ( "index() is correct" )
 // 	{
 // 		FAIL ("index() test is missing");
 // 	}
 //
-// 	SECTION ("operator*() is correct")
+// 	SECTION ( "operator*() is correct" )
 // 	{
 // 		FAIL ("operator*() test is missing");
 // 	}
 //
-// 	SECTION ("operator->() is correct")
+// 	SECTION ( "operator->() is correct" )
 // 	{
 // 		FAIL ("operator->() test is missing");
 // 	}
 //
-// 	SECTION ("operator++() is correct")
+// 	SECTION ( "operator++() is correct" )
 // 	{
 // 		FAIL ("operator++() test is missing");
 // 	}

@@ -3,18 +3,15 @@
 /**
  * \file
  *
- * \brief Unit tests for Interval.
+ * \brief Unit tests for Interval<>.
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate_details.hpp"  // for
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -26,7 +23,7 @@ TEST_CASE ( "Interval<> Old", "[interval][calc][calculate]" )
 	const auto i2 = Interval<int32_t> { -12, 123 };
 	const auto i3 = Interval<int32_t> {   2,   1 };
 
-	SECTION ("Construction is correct")
+	SECTION ( "Construction is correct" )
 	{
 		CHECK ( i1.lower() ==  10 );
 		CHECK ( i2.lower() == -12 );
@@ -37,7 +34,7 @@ TEST_CASE ( "Interval<> Old", "[interval][calc][calculate]" )
 		CHECK ( i3.upper() ==   2 );
 	}
 
-	SECTION ("contains() is correct")
+	SECTION ( "contains() is correct" )
 	{
 		CHECK ( !i1.contains( 9) );
 		CHECK (  i1.contains(10) );
@@ -76,13 +73,13 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 	auto instance = Interval<int> { 0, 100 };
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		CHECK ( instance.lower() ==   0 );
 		CHECK ( instance.upper() == 100 );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		using IntervalType = Interval<int>;
 
@@ -94,7 +91,7 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		CHECK ( copied.upper() == 100 );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		using IntervalType = Interval<int>;
 		const IntervalType moved { Move<IntervalType>::construct(instance) };
@@ -105,7 +102,7 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		CHECK ( moved.upper() == 100 );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		using IntervalType = Interval<int>;
 		auto copied = IntervalType {};
@@ -117,7 +114,7 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		CHECK ( copied.upper() == 100 );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		using IntervalType = Interval<int>;
 		auto moved = IntervalType {};
@@ -132,12 +129,12 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 
 
 TEST_CASE ( "Interval<> default constructed instance",
-		"[interval][calc][calculate]" )
+	"[interval][calc][calculate]" )
 {
 	const auto defaulted = arcstk::Interval<int>{};
 
 
-	SECTION ( "lower and upper were default initialized")
+	SECTION ( "lower and upper were default initialized" )
 	{
 		CHECK ( defaulted.lower() == 0 );
 		CHECK ( defaulted.upper() == 0 );
@@ -152,12 +149,12 @@ TEST_CASE ( "Interval<> property", "[interval][calc][calculate]" )
 	auto instance = Interval<int> { -863, 915 };
 
 
-	// SECTION ("swap() is correct")
+	// SECTION ( "swap() is correct" )
 	// {
 	// 	FAIL ( "swap() test is missing" );
 	// }
 
-	SECTION ("to_string() is correct")
+	SECTION ( "to_string() is correct" )
 	{
 		CHECK ( instance.to_string() == "[-863,915]" );
 	}
@@ -171,17 +168,17 @@ TEST_CASE ( "Interval<> functions", "[interval][calc][calculate]" )
 	auto instance = Interval<int> { 17, 96 };
 
 
-	SECTION ("lower() is correct")
+	SECTION ( "lower() is correct" )
 	{
 		CHECK ( instance.lower() == 17 );
 	}
 
-	SECTION ("upper() is correct")
+	SECTION ( "upper() is correct" )
 	{
 		CHECK ( instance.upper() == 96 );
 	}
 
-	SECTION ("contains() is correct")
+	SECTION ( "contains() is correct" )
 	{
 		CHECK ( ! instance.contains(10) );
 		CHECK ( ! instance.contains(11) );

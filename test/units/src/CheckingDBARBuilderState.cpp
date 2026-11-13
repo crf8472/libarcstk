@@ -29,12 +29,12 @@
 // 	auto instance = CheckingDBARBuilderState {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const CheckingDBARBuilderState copied { Copy<CheckingDBARBuilderState>::construct(instance) };
 //
@@ -45,7 +45,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const CheckingDBARBuilderState moved { Move<CheckingDBARBuilderState>::construct(instance) };
 //
@@ -56,7 +56,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = CheckingDBARBuilderState {};
 // 		Copy<CheckingDBARBuilderState>::assign(copied, instance);
@@ -68,7 +68,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = CheckingDBARBuilderState {};
 // 		Move<CheckingDBARBuilderState>::assign(moved, instance);
@@ -83,16 +83,16 @@
 
 
 TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
-		"[checkingdbarbuilderstate][dbar][details]" )
+	"[checkingdbarbuilderstate][dbar][details]" )
 {
 	const auto defaulted = arcstk::details::CheckingDBARBuilderState {};
 
-	SECTION ( "is_valid()")
+	SECTION ( "is_valid()" )
 	{
 		CHECK ( defaulted.is_valid() );
 	}
 
-	SECTION ( "is_uniform()")
+	SECTION ( "is_uniform()" )
 	{
 		CHECK ( defaulted.is_uniform() );
 	}
@@ -107,42 +107,42 @@ TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
 // 	auto instance = CheckingDBARBuilderState {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -156,47 +156,47 @@ TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
 //
 // 	auto instance = CheckingDBARBuilderState {};
 //
-// 	SECTION ("update_uniformity() is correct")
+// 	SECTION ( "update_uniformity() is correct" )
 // 	{
 // 		FAIL ("update_uniformity() test is missing");
 // 	}
 //
-// 	SECTION ("update_validity() is correct")
+// 	SECTION ( "update_validity() is correct" )
 // 	{
 // 		FAIL ("update_validity() test is missing");
 // 	}
 //
-// 	SECTION ("CheckingDBARBuilderState() is correct")
+// 	SECTION ( "CheckingDBARBuilderState() is correct" )
 // 	{
 // 		FAIL ("CheckingDBARBuilderState() test is missing");
 // 	}
 //
-// 	SECTION ("header() is correct")
+// 	SECTION ( "header() is correct" )
 // 	{
 // 		FAIL ("header() test is missing");
 // 	}
 //
-// 	SECTION ("triplet() is correct")
+// 	SECTION ( "triplet() is correct" )
 // 	{
 // 		FAIL ("triplet() test is missing");
 // 	}
 //
-// 	SECTION ("end_block() is correct")
+// 	SECTION ( "end_block() is correct" )
 // 	{
 // 		FAIL ("end_block() test is missing");
 // 	}
 //
-// 	SECTION ("is_valid() is correct")
+// 	SECTION ( "is_valid() is correct" )
 // 	{
 // 		FAIL ("is_valid() test is missing");
 // 	}
 //
-// 	SECTION ("is_uniform() is correct")
+// 	SECTION ( "is_uniform() is correct" )
 // 	{
 // 		FAIL ("is_uniform() test is missing");
 // 	}
 //
-// 	SECTION ("reset() is correct")
+// 	SECTION ( "reset() is correct" )
 // 	{
 // 		FAIL ("reset() test is missing");
 // 	}

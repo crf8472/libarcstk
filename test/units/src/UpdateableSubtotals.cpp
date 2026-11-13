@@ -7,25 +7,25 @@
  */
 
 #ifndef LIBARCSTK_ALGORITHMS_HPP_
-#define LIBARCSTK_ALGORITHMS_HPP_ // allow accuraterip.hpp
+#include "algorithms.hpp"          // for accuraterip.hpp
 #endif
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip.hpp"        // TO BE TESTED
+#include "accuraterip.hpp"         // TO BE TESTED
 #endif
 
-#include <vector>                 // for vector
+#include <vector>                  // for vector
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"           // for checksum::type
+#include "checksum.hpp"            // for checksum::type
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
 TEST_CASE ( "UpdateableSubtotals",
-		"[updateablesubtotals][calc][accuraterip]" )
+	"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;
@@ -39,12 +39,12 @@ TEST_CASE ( "UpdateableSubtotals",
 	auto instance = UpdateableSubtotalsForV1andV2 {};
 
 
-	// SECTION ("Parametized construction is correct")
+	// SECTION ( "Parametized construction is correct" )
 	// {
 	// 	FAIL ( "Parametized construction test is missing" );
 	// }
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		instance.set_multiplier(49);
 		REQUIRE (instance.multiplier() == 49);
@@ -57,7 +57,7 @@ TEST_CASE ( "UpdateableSubtotals",
         CHECK(copied.multiplier() == instance.multiplier());
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		instance.set_multiplier(127);
 		REQUIRE (instance.multiplier() == 127);
@@ -70,7 +70,7 @@ TEST_CASE ( "UpdateableSubtotals",
         CHECK(moved.multiplier() == 127);
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		instance.set_multiplier(91);
 		REQUIRE (instance.multiplier() == 91);
@@ -83,7 +83,7 @@ TEST_CASE ( "UpdateableSubtotals",
         CHECK(copied.multiplier() == instance.multiplier());
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		instance.set_multiplier(23);
 		REQUIRE (instance.multiplier() == 23);
@@ -99,7 +99,7 @@ TEST_CASE ( "UpdateableSubtotals",
 
 
 TEST_CASE ( "UpdateableSubtotals property",
-		"[updateablesubtotals][calc][accuraterip]" )
+	"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
 	using arcstk::checksum::type;
@@ -123,22 +123,22 @@ TEST_CASE ( "UpdateableSubtotals property",
 
 	auto u2 = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 
-	// SECTION ("Equality operator == is correct")
+	// SECTION ( "Equality operator == is correct" )
 	// {
 	// 	FAIL ( "Equality operator test is missing" );
 	// }
 	//
-	// SECTION ("Stream-in operator << is correct")
+	// SECTION ( "Stream-in operator << is correct" )
 	// {
 	// 	FAIL ( "Stream-in operator << test is missing" );
 	// }
 	//
-	// SECTION ("operator bool() is correct")
+	// SECTION ( "operator bool() is correct" )
 	// {
 	// 	FAIL ( "operator bool() test is missing" );
 	// }
 
-	SECTION ("swap() is correct")
+	SECTION ( "swap() is correct" )
 	{
 		// REQUIRE ( u1.value().get(type::ARCS2).first.value() == 650 );
 		// REQUIRE ( u2.value().get(type::ARCS2).first.value() ==   0 );
@@ -159,22 +159,22 @@ TEST_CASE ( "UpdateableSubtotals property",
 		CHECK ( u2.value<type::ARCS2>() == 650 );
 	}
 
-	// SECTION ("to_string() is correct")
+	// SECTION ( "to_string() is correct" )
 	// {
 	// 	FAIL ( "to_string() test is missing" );
 	// }
 	//
-	// SECTION ("clone() is correct")
+	// SECTION ( "clone() is correct" )
 	// {
 	// 	FAIL ( "clone() test is missing" );
 	// }
 	//
-	// SECTION ("size() is correct")
+	// SECTION ( "size() is correct" )
 	// {
 	// 	FAIL ( "size() test is missing" );
 	// }
 	//
-	// SECTION ("empty() is correct")
+	// SECTION ( "empty() is correct" )
 	// {
 	// 	FAIL ( "empty() test is missing" );
 	// }
@@ -183,7 +183,7 @@ TEST_CASE ( "UpdateableSubtotals property",
 
 // TODO Implement tests for functions
 // TEST_CASE ( "UpdateableSubtotals functions",
-// 		"[updateablesubtotals][calc][accuraterip]" )
+// 		"[updateablesubtotals][calc][accuraterip][details]" )
 // {
 // 	using arcstk::accuraterip::details::UpdateableSubtotals;
 // 	using arcstk::checksum::type;
@@ -191,37 +191,37 @@ TEST_CASE ( "UpdateableSubtotals property",
 // 	auto instance = UpdateableSubtotals<type::ARCS1,type::ARCS2> {};
 //
 //
-// 	SECTION ("multiplier() is correct")
+// 	SECTION ( "multiplier() is correct" )
 // 	{
 // 		FAIL ( "multiplier() test is missing" );
 // 	}
 //
-// 	SECTION ("set_multiplier() is correct")
+// 	SECTION ( "set_multiplier() is correct" )
 // 	{
 // 		FAIL ( "set_multiplier() test is missing" );
 // 	}
 //
-// 	SECTION ("update<B,E>() is correct")
+// 	SECTION ( "update<B,E>() is correct" )
 // 	{
 // 		FAIL ( "update<B,E>() test is missing" );
 // 	}
 //
-// 	SECTION ("value() is correct")
+// 	SECTION ( "value() is correct" )
 // 	{
 // 		FAIL ( "value() test is missing" );
 // 	}
 //
-// 	SECTION ("reset() is correct")
+// 	SECTION ( "reset() is correct" )
 // 	{
 // 		FAIL ( "reset() test is missing" );
 // 	}
 //
-// 	SECTION ("id_string() is correct")
+// 	SECTION ( "id_string() is correct" )
 // 	{
 // 		FAIL ( "id_string() test is missing" );
 // 	}
 //
-// 	SECTION ("types() is correct")
+// 	SECTION ( "types() is correct" )
 // 	{
 // 		FAIL ( "types() test is missing" );
 // 	}

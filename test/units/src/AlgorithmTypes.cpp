@@ -3,15 +3,15 @@
 /**
  * \file
  *
- * \brief Unit tests for AlgorithmTypes.
+ * \brief Unit tests for AlgorithmTypes<>.
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
-#include "calculate.hpp"          // TO BE TESTED
+#include "calculate.hpp"           // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -29,7 +29,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
 	REQUIRE ( instance.count == 2 );
 
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		using MyTypes = AlgorithmTypes<V1, V2>;
 
@@ -40,7 +40,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
         CHECK ( copied.count == 2 );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		using MyTypes = AlgorithmTypes<V1, V2>;
 
@@ -51,7 +51,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
         CHECK ( moved.count == 2 );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		using MyTypes = AlgorithmTypes<V1, V2>;
 
@@ -63,7 +63,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
         CHECK ( copied.count == 2 );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		using MyTypes = AlgorithmTypes<V1, V2>;
 
@@ -78,7 +78,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
 
 
 TEST_CASE ( "AlgorithmTypes<> default constructed instance",
-		"[algorithmtypes][calc][calculate]" )
+	"[algorithmtypes][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1;
 	using arcstk::AccurateRip::V2;
@@ -104,17 +104,17 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 // 	auto instance = AlgorithmTypes<V1, V2> {};
 //
 //
-// 	// SECTION ("Equality operator == is correct")
+// 	// SECTION ( "Equality operator == is correct" )
 // 	// {
 // 	// 	FAIL ( "Equality operator test is missing" );
 // 	// }
 // 	//
-// 	// SECTION ("Stream-in operator << is correct")
+// 	// SECTION ( "Stream-in operator << is correct" )
 // 	// {
 // 	// 	FAIL ( "Stream-in operator << test is missing" );
 // 	// }
 //
-// 	// SECTION ("to_string() is correct")
+// 	// SECTION ( "to_string() is correct" )
 // 	// {
 // 	// 	FAIL ( "to_string() test is missing" );
 // 	// }
@@ -130,12 +130,12 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 //
 // 	using Types = AlgorithmTypes<V1, V2> {};
 //
-// 	SECTION ("configure() is correct")
+// 	SECTION ( "configure() is correct" )
 // 	{
 // 		Types::configure(...);
 // 	}
 //
-// 	SECTION ("typed_calculationset_for() is correct")
+// 	SECTION ( "typed_calculationset_for() is correct" )
 // 	{
 // 		using arcstk::CalculationSet;
 // 		using arcstk::Context;
@@ -147,7 +147,7 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 // 			Types::typed_calculationset_for<B, E>( { Context::LAST_TRACK }) };
 // 	}
 //
-// 	SECTION ("calculationset_for() is correct")
+// 	SECTION ( "calculationset_for() is correct" )
 // 	{
 // 		using arcstk::Context;
 //

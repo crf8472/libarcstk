@@ -1,6 +1,4 @@
-#include "algorithm.hpp"
 #include "catch2/catch_test_macros.hpp"
-#include "checksum.hpp"
 
 /**
  * \file
@@ -9,11 +7,18 @@
  */
 
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip.hpp"        // TO BE TESTED
+#include "accuraterip.hpp"         // TO BE TESTED
+#endif
+
+#ifndef LIBARCSTK_ALGORITHM_HPP_
+#include "algorithm.hpp"           // for accurateripVersion1, ...
+#endif
+#ifndef LIBARCSTK_CHECKSUM_HPP_
+#include "checksum.hpp"            // for Checksum
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -34,12 +39,12 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1>", "[arcsalgorithm][calc][accuraterip]" )
 	REQUIRE ( instance.types()   == ChecksumtypeSet { type::ARCS1 } );
 
 
-	// SECTION ("Parametized construction is correct")
+	// SECTION ( "Parametized construction is correct" )
 	// {
 	// 	FAIL ( "Parametized construction test is missing" );
 	// }
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		// Change Context to have a different property
 		instance.set_context(Context::FIRST_TRACK);
@@ -52,7 +57,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1>", "[arcsalgorithm][calc][accuraterip]" )
         CHECK ( copied.context() == Context::FIRST_TRACK );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		// Change Context to have a different property
 		instance.set_context(Context::TRACK);
@@ -65,7 +70,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1>", "[arcsalgorithm][calc][accuraterip]" )
         CHECK ( moved.context() == Context::TRACK );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		// Change Context to have a different property
 		instance.set_context(Context::FIRST_TRACK);
@@ -79,7 +84,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1>", "[arcsalgorithm][calc][accuraterip]" )
         CHECK ( copied.context() == Context::FIRST_TRACK );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		// Change Context to have a different property
 		instance.set_context(Context::TRACK);
@@ -96,24 +101,24 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1>", "[arcsalgorithm][calc][accuraterip]" )
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1> default constructed instance",
-		"[arcsalgorithm][calc][accuraterip]" )
+	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1 = arcstk::accuraterip::algorithm::Version1;
 
 	const auto instance = ARv1 {};
 
-	SECTION ( "is ok")
+	SECTION ( "is ok" )
 	{
 		// just to call sth
 		CHECK ( instance.name() == "AccurateRip v1" ); // just to call sth
 	}
 
-	// SECTION ( "is empty()")
+	// SECTION ( "is empty()" )
 	// {
 	// 	CHECK ( instance.empty() );
 	// }
 	//
-	// SECTION ( "converts to FALSE")
+	// SECTION ( "converts to FALSE" )
 	// {
 	// 	CHECK ( !instance );
 	// }
@@ -121,49 +126,49 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1> default constructed instance",
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1> property",
-		"[arcsalgorithm][calc][accuraterip]" )
+	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv1 = arcstk::accuraterip::algorithm::Version1;
 
 	auto defaulted = ARv1 {};
 
 
-	// SECTION ("Equality operator == is correct")
+	// SECTION ( "Equality operator == is correct" )
 	// {
 	// 	FAIL ( "Equality operator test is missing" );
 	// }
 	//
-	// SECTION ("Stream-in operator << is correct")
+	// SECTION ( "Stream-in operator << is correct" )
 	// {
 	// 	FAIL ( "Stream-in operator << test is missing" );
 	// }
 	//
-	// SECTION ("operator bool() is correct")
+	// SECTION ( "operator bool() is correct" )
 	// {
 	// 	FAIL ( "operator bool() test is missing" );
 	// }
 
-	// SECTION ("swap() is correct")
+	// SECTION ( "swap() is correct" )
 	// {
 	// 	FAIL ( "swap() test is missing" );
 	// }
 
-	// SECTION ("to_string() is correct")
+	// SECTION ( "to_string() is correct" )
 	// {
 	// 	FAIL ( "to_string() test is missing" );
 	// }
 
-	// SECTION ("clone() is correct")
+	// SECTION ( "clone() is correct" )
 	// {
 	// 	FAIL ( "clone() test is missing" );
 	// }
 
-	// SECTION ("size() is correct")
+	// SECTION ( "size() is correct" )
 	// {
 	// 	FAIL ( "size() test is missing" );
 	// }
 	//
-	// SECTION ("empty() is correct")
+	// SECTION ( "empty() is correct" )
 	// {
 	// 	FAIL ( "empty() test is missing" );
 	// }
@@ -171,7 +176,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1> property",
 
 
 TEST_CASE ( "ARCSAlgorithm<ARCS1> functions",
-		"[arcsalgorithm][calc][accuraterip]" )
+	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::ChecksumtypeSet;
@@ -184,59 +189,59 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1> functions",
 	REQUIRE ( instance.context() == Context::ALBUM );
 
 
-	SECTION ("set_context() is correct")
+	SECTION ( "set_context() is correct" )
 	{
 		instance.set_context(Context::LAST_TRACK);
 
 		CHECK ( instance.context() == Context::LAST_TRACK );
 	}
 
-	SECTION ("name() is correct")
+	SECTION ( "name() is correct" )
 	{
 		CHECK ( instance.name() == "AccurateRip v1" );
 	}
 
-	SECTION ("types() is correct")
+	SECTION ( "types() is correct" )
 	{
 		CHECK ( instance.types() == ChecksumtypeSet { type::ARCS1 } );
 	}
 
-	// SECTION ("range() is correct")
+	// SECTION ( "range() is correct" )
 	// {
 	// 	FAIL ("do_range test is missing");
 	// }
 
-	// SECTION ("partitioner() is correct")
+	// SECTION ( "partitioner() is correct" )
 	// {
 	// 	FAIL ("do_partitioner test is missing");
 	// }
 
-	// SECTION ("total_tracks() is correct")
+	// SECTION ( "total_tracks() is correct" )
 
-	// SECTION ("track() is correct")
+	// SECTION ( "track() is correct" )
 	// {
 	//
 	// }
 
-	// SECTION ("checksum() is correct")
+	// SECTION ( "checksum() is correct" )
 	// {
 	// 	FAIL ("do_checksum test is missing");
 	// }
 
-	// SECTION ("perform_pre_range() is correct")
+	// SECTION ( "perform_pre_range() is correct" )
 
-	// SECTION ("perform_start_track() is correct")
+	// SECTION ( "perform_start_track() is correct" )
 
-	// SECTION ("perform_update() is correct")
+	// SECTION ( "perform_update() is correct" )
 	// {
 	// 	FAIL ("perform_update test is missing");
 	// }
 
-	// SECTION ("perform_post_range() is correct")
+	// SECTION ( "perform_post_range() is correct" )
 
-	// SECTION ("perform_finalize_track() is correct")
+	// SECTION ( "perform_finalize_track() is correct" )
 
-	// SECTION ("result() is correct")
+	// SECTION ( "result() is correct" )
 	// {
 	// 	FAIL ("do_result test is missing");
 	// }

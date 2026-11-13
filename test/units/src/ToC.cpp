@@ -7,14 +7,11 @@
  */
 
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"          // TO BE TESTED
-#endif
-#ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata_details.hpp"  // for
+#include "metadata.hpp"            // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -50,12 +47,12 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "Parametized construction is correct" )
 	{
 		FAIL ( "Parametized construction test is missing" );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "Copy construction is correct" )
 	{
 		const ToC copied { Copy<ToC>::construct(instance) };
 
@@ -66,7 +63,7 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 		FAIL ( "Copy construction test is missing" );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "Move construction is correct" )
 	{
 		const ToC moved { Move<ToC>::construct(instance) };
 
@@ -77,7 +74,7 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 		FAIL ( "Move construction test is missing" );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "Copy assignment is correct" )
 	{
 		auto copied = ToC {};
 		Copy<ToC>::assign(copied, instance);
@@ -89,7 +86,7 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 		FAIL ( "Copy assignment test is missing" );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "Move assignment is correct" )
 	{
 		auto moved = ToC {};
 		Move<ToC>::assign(moved, instance);
@@ -104,16 +101,16 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 */
 
 TEST_CASE ( "ToC default constructed instance",
-		"[toc][metadata][metadata]" )
+	"[toc][metadata][metadata]" )
 {
 	const auto instance = arcstk::ToC{};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( instance.empty() );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !instance );
 	}
@@ -127,42 +124,42 @@ TEST_CASE ( "ToC property", "[toc][metadata][metadata]" )
 	auto defaulted = ToC {};
 
 
-//	SECTION ("Equality operator == is correct")
+//	SECTION ( "Equality operator == is correct" )
 //	{
 //		FAIL ( "Equality operator test is missing" );
 //	}
 //
-//	SECTION ("Stream-in operator << is correct")
+//	SECTION ( "Stream-in operator << is correct" )
 //	{
 //		FAIL ( "Stream-in operator << test is missing" );
 //	}
 //
-//	SECTION ("operator bool() is correct")
+//	SECTION ( "operator bool() is correct" )
 //	{
 //		FAIL ( "operator bool() test is missing" );
 //	}
 //
-//	SECTION ("swap() is correct")
+//	SECTION ( "swap() is correct" )
 //	{
 //		FAIL ( "swap() test is missing" );
 //	}
 //
-//	SECTION ("to_string() is correct")
+//	SECTION ( "to_string() is correct" )
 //	{
 //		FAIL ( "to_string() test is missing" );
 //	}
 //
-//	SECTION ("clone() is correct")
+//	SECTION ( "clone() is correct" )
 //	{
 //		FAIL ( "clone() test is missing" );
 //	}
 //
-//	SECTION ("size() is correct")
+//	SECTION ( "size() is correct" )
 //	{
 //		FAIL ( "size() test is missing" );
 //	}
 //
-//	SECTION ("empty() is correct")
+//	SECTION ( "empty() is correct" )
 //	{
 //		FAIL ( "empty() test is missing" );
 //	}
@@ -197,12 +194,12 @@ TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
 
 
 
-	SECTION ("total_tracks is correct")
+	SECTION ( "total_tracks is correct" )
 	{
 		CHECK ( 15 == toc.total_tracks() );
 	}
 
-	SECTION ("offsets is correct")
+	SECTION ( "offsets is correct" )
 	{
 		const auto offsets = toc.offsets();
 
@@ -225,12 +222,12 @@ TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
 		CHECK ( offsets[14] == AudioSize { 234103, UNIT::FRAMES } );
 	}
 
-	SECTION ("leadout is correct")
+	SECTION ( "leadout is correct" )
 	{
 		CHECK ( toc.leadout().frames() == 253038 );
 	}
 
-	SECTION ("filenames is correct")
+	SECTION ( "filenames is correct" )
 	{
 		const auto filenames = toc.filenames();
 
@@ -239,37 +236,37 @@ TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
 		CHECK ( filenames[0] == "file" );
 	}
 
-	// SECTION ("set_offsets is correct")
+	// SECTION ( "set_offsets is correct" )
 	// {
 	// 	FAIL ("set_offsets test is missing");
 	// }
 
-	// SECTION ("set_leadout is correct")
+	// SECTION ( "set_leadout is correct" )
 	// {
 	// 	FAIL ("set_leadout test is missing");
 	// }
 
-	// SECTION ("set_filenames is correct")
+	// SECTION ( "set_filenames is correct" )
 	// {
 	// 	FAIL ("set_filenames test is missing");
 	// }
 
-	// SECTION ("is_single_file is correct")
+	// SECTION ( "is_single_file is correct" )
 	// {
 	// 	FAIL ("is_single_file test is missing");
 	// }
 
-	// SECTION ("validate is correct")
+	// SECTION ( "validate is correct" )
 	// {
 	// 	FAIL ("validate test is missing");
 	// }
 
-	// SECTION ("valid is correct")
+	// SECTION ( "valid is correct" )
 	// {
 	// 	FAIL ("valid test is missing");
 	// }
 
-	// SECTION ("complete is correct")
+	// SECTION ( "complete is correct" )
 	// {
 	// 	FAIL ("complete test is missing");
 	// }

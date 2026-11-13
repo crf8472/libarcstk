@@ -17,7 +17,7 @@
 
 
 TEST_CASE ( "StreamFlagsGuard is non-abstract, final and non-empty",
-		"[streamflagsguard][calc][checksum]" )
+		"[streamflagsguard][calc][checksum][details]" )
 {
 	SECTION ("is a non-abstract class")
 	{
@@ -38,7 +38,7 @@ TEST_CASE ( "StreamFlagsGuard is non-abstract, final and non-empty",
 
 
 TEST_CASE ( "StreamFlagsGuard special members",
-		"[streamflagsguard][calc][checksum]" )
+		"[streamflagsguard][calc][checksum][details]" )
 {
 	SECTION ( "is not default constructable")
 	{

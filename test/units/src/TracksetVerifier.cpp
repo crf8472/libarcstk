@@ -7,14 +7,14 @@
  */
 
 #ifndef LIBARCSTK_VERIFY_HPP_
-#include "verify.hpp"             // TO BE TESTED
+#include "verify.hpp"              // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // for
+#include "verify_details.hpp"      // for
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
@@ -28,12 +28,12 @@
 // 	auto instance = TracksetVerifier {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const TracksetVerifier copied { Copy<TracksetVerifier>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const TracksetVerifier moved { Move<TracksetVerifier>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = TracksetVerifier {};
 // 		Copy<TracksetVerifier>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = TracksetVerifier {};
 // 		Move<TracksetVerifier>::assign(moved, instance);
@@ -82,7 +82,7 @@
 
 
 TEST_CASE ( "TracksetVerifier default constructed instance",
-		"[tracksetverifier][verify]" )
+	"[tracksetverifier][verify]" )
 {
 	using arcstk::Checksums;
 
@@ -95,49 +95,50 @@ TEST_CASE ( "TracksetVerifier default constructed instance",
 }
 
 
-// TEST_CASE ( "TracksetVerifier property", "[tracksetverifier][verify]" )
+// TEST_CASE ( "TracksetVerifier property",
+//	"[tracksetverifier][verify][details]" )
 // {
 // 	using arcstk::TracksetVerifier;
 //
 // 	auto instance = TracksetVerifier {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
@@ -150,50 +151,49 @@ TEST_CASE ( "TracksetVerifier default constructed instance",
 //
 // 	auto instance = TracksetVerifier {};
 //
-// 	SECTION ("do_actual_id() is correct")
+// 	SECTION ( "do_actual_id() is correct" )
 // 	{
 // 		FAIL ("do_actual_id() test is missing");
 // 	}
 //
-// 	SECTION ("do_actual_checksums() is correct")
+// 	SECTION ( "do_actual_checksums() is correct" )
 // 	{
 // 		FAIL ("do_actual_checksums() test is missing");
 // 	}
 //
-// 	SECTION ("do_strict() is correct")
+// 	SECTION ( "do_strict() is correct" )
 // 	{
 // 		FAIL ("do_strict() test is missing");
 // 	}
 //
-// 	SECTION ("do_set_strict() is correct")
+// 	SECTION ( "do_set_strict() is correct" )
 // 	{
 // 		FAIL ("do_set_strict() test is missing");
 // 	}
 //
-// 	SECTION ("do_perform() is correct")
+// 	SECTION ( "do_perform() is correct" )
 // 	{
 // 		FAIL ("do_perform() test is missing");
 // 	}
 //
-// 	SECTION ("do_clone() is correct")
+// 	SECTION ( "do_clone() is correct" )
 // 	{
 // 		FAIL ("do_clone() test is missing");
 // 	}
 //
-// 	SECTION ("TracksetVerifier() is correct")
+// 	SECTION ( "TracksetVerifier() is correct" )
 // 	{
 // 		FAIL ("TracksetVerifier() test is missing");
 // 	}
 //
-// 	SECTION ("operator=() is correct")
+// 	SECTION ( "operator=() is correct" )
 // 	{
 // 		FAIL ("operator=() test is missing");
 // 	}
 //
-// 	SECTION ("~TracksetVerifier() is correct")
+// 	SECTION ( "~TracksetVerifier() is correct" )
 // 	{
 // 		FAIL ("~TracksetVerifier() test is missing");
 // 	}
-//
 // }
 

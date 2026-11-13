@@ -7,10 +7,10 @@
  */
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"           // TO BE TESTED
+#include "checksum.hpp"            // TO BE TESTED
 #endif
 
-#include <utility>                // for move
+#include <utility>                 // for move
 
 
 // TODO Is this even required since Checksums is an aliased vector?

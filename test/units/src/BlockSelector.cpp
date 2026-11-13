@@ -10,19 +10,19 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"  // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"            // for DBAR
+#include "dbar.hpp"                // for DBAR
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"    // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "BlockSelector", "[trackselector][verify]" )
+// TEST_CASE ( "BlockSelector", "[trackselector][verify][details]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -32,12 +32,12 @@
 // 	auto instance = BlockSelector {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const BlockSelector copied { Copy<BlockSelector>::construct(instance) };
 //
@@ -48,7 +48,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const BlockSelector moved { Move<BlockSelector>::construct(instance) };
 //
@@ -59,7 +59,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = BlockSelector {};
 // 		Copy<BlockSelector>::assign(copied, instance);
@@ -71,7 +71,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = BlockSelector {};
 // 		Move<BlockSelector>::assign(moved, instance);
@@ -86,18 +86,18 @@
 
 
 TEST_CASE ( "BlockSelector default constructed instance",
-		"[trackselector][verify]" )
+	"[trackselector][verify][details]" )
 {
 	const auto defaulted = arcstk::details::BlockSelector{};
 
-	// SECTION ( "is empty()")
+	// SECTION ( "is empty()" )
 	// {
 	// 	CHECK ( defaulted.empty() );
 	// }
 }
 
 
-TEST_CASE ( "BlockSelector property", "[trackselector][verify]" )
+TEST_CASE ( "BlockSelector property", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:
@@ -131,7 +131,7 @@ TEST_CASE ( "BlockSelector property", "[trackselector][verify]" )
 
 	REQUIRE ( instance.get(source, 0, 0) == 0xB89992E5 );
 
-	SECTION ("clone() is correct")
+	SECTION ( "clone() is correct" )
 	{
 		const auto cloned = instance.clone();
 
@@ -140,7 +140,7 @@ TEST_CASE ( "BlockSelector property", "[trackselector][verify]" )
 }
 
 
-TEST_CASE ( "BlockSelector functions", "[trackselector][verify]" )
+TEST_CASE ( "BlockSelector functions", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:
@@ -172,7 +172,7 @@ TEST_CASE ( "BlockSelector functions", "[trackselector][verify]" )
 
 	auto instance = arcstk::details::BlockSelector {};
 
-	SECTION ("get() is correct")
+	SECTION ( "get() is correct" )
 	{
 		CHECK ( instance.get(source, 0, 0) == 0xB89992E5 );
 		CHECK ( instance.get(source, 0, 1) == 0x4F77EB03 );

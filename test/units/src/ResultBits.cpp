@@ -10,15 +10,15 @@
 #include "verify.hpp"
 #endif
 #ifndef LIBARCSTK_VERIFY_DETAILS_HPP_
-#include "verify_details.hpp"     // TO BE TESTED
+#include "verify_details.hpp"      // TO BE TESTED
 #endif
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
-#include "construction.hpp"       // for Copy, Move
+#include "construction.hpp"        // for Copy, Move
 #endif
 
 
-// TEST_CASE ( "ResultBits", "[resultbits][verify]" )
+// TEST_CASE ( "ResultBits", "[resultbits][verify][details]" )
 // {
 // 	using arcstk::testing::Copy;
 // 	using arcstk::testing::Move;
@@ -28,12 +28,12 @@
 // 	auto instance = ResultBits {};
 //
 //
-// 	SECTION ("Parametized construction is correct")
+// 	SECTION ( "Parametized construction is correct" )
 // 	{
 // 		FAIL ( "Parametized construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy construction is correct")
+// 	SECTION ( "Copy construction is correct" )
 // 	{
 // 		const ResultBits copied { Copy<ResultBits>::construct(instance) };
 //
@@ -44,7 +44,7 @@
 // 		FAIL ( "Copy construction test is missing" );
 // 	}
 //
-// 	SECTION ("Move construction is correct")
+// 	SECTION ( "Move construction is correct" )
 // 	{
 // 		const ResultBits moved { Move<ResultBits>::construct(instance) };
 //
@@ -55,7 +55,7 @@
 // 		FAIL ( "Move construction test is missing" );
 // 	}
 //
-// 	SECTION ("Copy assignment is correct")
+// 	SECTION ( "Copy assignment is correct" )
 // 	{
 // 		auto copied = ResultBits {};
 // 		Copy<ResultBits>::assign(copied, instance);
@@ -67,7 +67,7 @@
 // 		FAIL ( "Copy assignment test is missing" );
 // 	}
 //
-// 	SECTION ("Move assignment is correct")
+// 	SECTION ( "Move assignment is correct" )
 // 	{
 // 		auto moved = ResultBits {};
 // 		Move<ResultBits>::assign(moved, instance);
@@ -82,154 +82,154 @@
 
 
 TEST_CASE ( "ResultBits default constructed instance",
-		"[resultbits][verify]" )
+	"[resultbits][verify][details]" )
 {
 	const auto defaulted = arcstk::details::ResultBits {};
 
-	SECTION ( "size() is zero")
+	SECTION ( "size() is zero" )
 	{
 		CHECK ( defaulted.size() == 0 );
 	}
 }
 
 
-// TEST_CASE ( "ResultBits property", "[resultbits][verify]" )
+// TEST_CASE ( "ResultBits property", "[resultbits][verify][details]" )
 // {
 // 	auto instance = arcstk::details::ResultBits {};
 //
 //
-// 	SECTION ("Equality operator == is correct")
+// 	SECTION ( "Equality operator == is correct" )
 // 	{
 // 		FAIL ( "Equality operator test is missing" );
 // 	}
 //
-// 	SECTION ("Stream-in operator << is correct")
+// 	SECTION ( "Stream-in operator << is correct" )
 // 	{
 // 		FAIL ( "Stream-in operator << test is missing" );
 // 	}
 //
-// 	SECTION ("operator bool() is correct")
+// 	SECTION ( "operator bool() is correct" )
 // 	{
 // 		FAIL ( "operator bool() test is missing" );
 // 	}
 //
-// 	SECTION ("swap() is correct")
+// 	SECTION ( "swap() is correct" )
 // 	{
 // 		FAIL ( "swap() test is missing" );
 // 	}
 //
-// 	SECTION ("to_string() is correct")
+// 	SECTION ( "to_string() is correct" )
 // 	{
 // 		FAIL ( "to_string() test is missing" );
 // 	}
 //
-// 	SECTION ("clone() is correct")
+// 	SECTION ( "clone() is correct" )
 // 	{
 // 		FAIL ( "clone() test is missing" );
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ( "size() test is missing" );
 // 	}
 //
-// 	SECTION ("empty() is correct")
+// 	SECTION ( "empty() is correct" )
 // 	{
 // 		FAIL ( "empty() test is missing" );
 // 	}
 // }
 
 
-// TEST_CASE ( "ResultBits functions", "[resultbits][verify]" )
+// TEST_CASE ( "ResultBits functions", "[resultbits][verify][details]" )
 // {
 // 	auto instance = arcstk::details::ResultBits {};
 //
-// 	SECTION ("total_blocks() is correct")
+// 	SECTION ( "total_blocks() is correct" )
 // 	{
 // 		FAIL ("total_blocks() test is missing");
 // 	}
 //
-// 	SECTION ("tracks_per_block() is correct")
+// 	SECTION ( "tracks_per_block() is correct" )
 // 	{
 // 		FAIL ("tracks_per_block() test is missing");
 // 	}
 //
-// 	SECTION ("size() is correct")
+// 	SECTION ( "size() is correct" )
 // 	{
 // 		FAIL ("size() test is missing");
 // 	}
 //
-// 	SECTION ("set_track() is correct")
+// 	SECTION ( "set_track() is correct" )
 // 	{
 // 		FAIL ("set_track() test is missing");
 // 	}
 //
-// 	SECTION ("track() is correct")
+// 	SECTION ( "track() is correct" )
 // 	{
 // 		FAIL ("track() test is missing");
 // 	}
 //
-// 	SECTION ("set_id() is correct")
+// 	SECTION ( "set_id() is correct" )
 // 	{
 // 		FAIL ("set_id() test is missing");
 // 	}
 //
-// 	SECTION ("id() is correct")
+// 	SECTION ( "id() is correct" )
 // 	{
 // 		FAIL ("id() test is missing");
 // 	}
 //
-// 	SECTION ("total_tracks_set() is correct")
+// 	SECTION ( "total_tracks_set() is correct" )
 // 	{
 // 		FAIL ("total_tracks_set() test is missing");
 // 	}
 //
-// 	SECTION ("operator[]() is correct")
+// 	SECTION ( "operator[]() is correct" )
 // 	{
 // 		FAIL ("operator[]() test is missing");
 // 	}
 //
-// 	SECTION ("index() is correct")
+// 	SECTION ( "index() is correct" )
 // 	{
 // 		FAIL ("index() test is missing");
 // 	}
 //
-// 	SECTION ("block_offset() is correct")
+// 	SECTION ( "block_offset() is correct" )
 // 	{
 // 		FAIL ("block_offset() test is missing");
 // 	}
 //
-// 	SECTION ("track_offset() is correct")
+// 	SECTION ( "track_offset() is correct" )
 // 	{
 // 		FAIL ("track_offset() test is missing");
 // 	}
 //
-// 	SECTION ("set_flag() is correct")
+// 	SECTION ( "set_flag() is correct" )
 // 	{
 // 		FAIL ("set_flag() test is missing");
 // 	}
 //
-// 	SECTION ("flags_per_block() is correct")
+// 	SECTION ( "flags_per_block() is correct" )
 // 	{
 // 		FAIL ("flags_per_block() test is missing");
 // 	}
 //
-// 	SECTION ("check_maximums() is correct")
+// 	SECTION ( "check_maximums() is correct" )
 // 	{
 // 		FAIL ("check_maximums() test is missing");
 // 	}
 //
-// 	SECTION ("bounds_check_block() is correct")
+// 	SECTION ( "bounds_check_block() is correct" )
 // 	{
 // 		FAIL ("bounds_check_block() test is missing");
 // 	}
 //
-// 	SECTION ("bounds_check_track() is correct")
+// 	SECTION ( "bounds_check_track() is correct" )
 // 	{
 // 		FAIL ("bounds_check_track() test is missing");
 // 	}
 //
-// 	SECTION ("create_flag_store() is correct")
+// 	SECTION ( "create_flag_store() is correct" )
 // 	{
 // 		FAIL ("create_flag_store() test is missing");
 // 	}
