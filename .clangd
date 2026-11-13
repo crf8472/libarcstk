@@ -1,0 +1,22 @@
+# Ensure that all includes are visible (avoid errors in testcase files)
+CompileFlags:
+    Add: [
+        -Ibuild/_deps/catch2-src/src,
+        -Ibuild/_deps/catch2-build/generated-includes,
+        -Itest/functional/include,
+        -Itest/type_traits/include,
+        -Itest/units/include,
+        -Iinclude,
+        -Isrc
+    ]
+
+# Disable some diagnostics in testcase files
+If:
+    PathMatch: test/.*
+Diagnostics:
+    ClangTidy:
+        Remove: [
+            cppcoreguidelines-avoid-do-while,  # Warns on assertions
+            misc-use-anonymous-namespace       # Warns on TEST_CASEs
+        ]
+
