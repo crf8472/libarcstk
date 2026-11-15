@@ -135,7 +135,6 @@ TEST_CASE ( "${CLASS} value", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 		auto rhs = ${CLASS} {};
 
 		//CHECK ( instance.equals(rhs) );
-		//CHECK ( instance == rhs );
 
 		FAIL ( "equals() test is missing" );
 	}
