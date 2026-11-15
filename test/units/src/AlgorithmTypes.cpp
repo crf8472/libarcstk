@@ -77,8 +77,7 @@ TEST_CASE ( "AlgorithmTypes<>", "[algorithmtypes][calc][calculate]" )
 }
 
 
-TEST_CASE ( "AlgorithmTypes<> default",
-	"[algorithmtypes][calc][calculate]" )
+TEST_CASE ( "AlgorithmTypes<> default", "[algorithmtypes][calc][calculate]" )
 {
 	using arcstk::AccurateRip::V1;
 	using arcstk::AccurateRip::V2;

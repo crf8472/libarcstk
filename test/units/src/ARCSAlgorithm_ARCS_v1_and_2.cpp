@@ -22,8 +22,7 @@
 #endif
 
 
-TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
-	"[arcsalgorithm][calc][accuraterip]" )
+TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>", "[arcsalgorithm][calc][accuraterip]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;

@@ -82,8 +82,7 @@
 // }
 
 
-TEST_CASE ( "AlbumVerifier default",
-		"[albumverifier][verify]" )
+TEST_CASE ( "AlbumVerifier default", "[albumverifier][verify]" )
 {
 	using arcstk::Checksums;
 	using arcstk::ARId;
