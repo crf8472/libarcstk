@@ -156,7 +156,7 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy][verify][details]" )
 	REQUIRE ( not result->is_verified(7) );
 
 
-	SECTION( "is_verified() yields verified tracks correctly" )
+	SECTION ( "is_verified() yields verified tracks correctly" )
 	{
 		const auto policy = std::make_unique<StrictPolicy>();
 
@@ -170,7 +170,7 @@ TEST_CASE ( "StrictPolicy", "[strictpolicy][verify][details]" )
 		CHECK ( not policy->is_verified(7, *result) );
 	}
 
-	SECTION( "total_unverified_tracks() counts unverified tracks correctly" )
+	SECTION ( "total_unverified_tracks() counts unverified tracks correctly" )
 	{
 		const auto policy = std::make_unique<StrictPolicy>();
 
@@ -231,7 +231,7 @@ TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify][details]" )
 	REQUIRE ( not result->is_verified(7) );
 	REQUIRE ( result->total_unverified_tracks() == 3 );
 
-	SECTION( "is_verified() yields verified tracks correctly" )
+	SECTION ( "is_verified() yields verified tracks correctly" )
 	{
 		const auto policy = std::make_unique<LenientPolicy>();
 
@@ -245,7 +245,7 @@ TEST_CASE ( "LenientPolicy", "[lenientpolicy][verify][details]" )
 		CHECK ( not policy->is_verified(7, *result) );
 	}
 
-	SECTION( "total_unverified_tracks() counts unverified tracks correctly" )
+	SECTION ( "total_unverified_tracks() counts unverified tracks correctly" )
 	{
 		const auto policy = std::make_unique<LenientPolicy>();
 
@@ -455,7 +455,7 @@ TEST_CASE ( "Result", "[result][verify][details]" )
 // TODO details::VerifierBase
 
 
-TEST_CASE ( "BlockSelector", "[blockselector][verify][details]")
+TEST_CASE ( "BlockSelector", "[blockselector][verify][details]" )
 {
 	using arcstk::details::BlockSelector;
 	using arcstk::ARId;
@@ -554,7 +554,7 @@ TEST_CASE ( "BlockSelector", "[blockselector][verify][details]")
 }
 
 
-TEST_CASE ( "TrackSelector", "[trackselector][verify][details]")
+TEST_CASE ( "TrackSelector", "[trackselector][verify][details]" )
 {
 	using arcstk::details::TrackSelector;
 	using arcstk::ARId;

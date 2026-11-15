@@ -93,7 +93,7 @@ TEST_CASE ( "ResultBits default",
 }
 
 
-// TEST_CASE ( "ResultBits property", "[resultbits][verify][details]" )
+// TEST_CASE ( "ResultBits value", "[resultbits][verify][details]" )
 // {
 // 	auto instance = arcstk::details::ResultBits {};
 //
@@ -140,7 +140,7 @@ TEST_CASE ( "ResultBits default",
 // }
 
 
-// TEST_CASE ( "ResultBits functions", "[resultbits][verify][details]" )
+// TEST_CASE ( "ResultBits behavior", "[resultbits][verify][details]" )
 // {
 // 	auto instance = arcstk::details::ResultBits {};
 //

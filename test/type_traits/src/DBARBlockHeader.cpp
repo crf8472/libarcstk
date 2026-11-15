@@ -19,18 +19,18 @@
 TEST_CASE ( "DBARBlockHeader is non-abstract, final and non-empty",
 		"[dbarblockheader][dbar]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::DBARBlockHeader> );
 		CHECK ( ! std::is_abstract_v<arcstk::DBARBlockHeader> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::DBARBlockHeader> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::DBARBlockHeader> );
 	}
@@ -40,32 +40,32 @@ TEST_CASE ( "DBARBlockHeader is non-abstract, final and non-empty",
 TEST_CASE ( "DBARBlockHeader special members",
 		"[dbarblockheader][dbar]" )
 {
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( ! std::is_default_constructible_v<arcstk::DBARBlockHeader>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::DBARBlockHeader>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::DBARBlockHeader>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::DBARBlockHeader>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::DBARBlockHeader>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::DBARBlockHeader> );
 	}
@@ -75,19 +75,19 @@ TEST_CASE ( "DBARBlockHeader special members",
 TEST_CASE ( "DBARBlockHeader is swappable, comparable, string convertible",
 		"[dbarblockheader][dbar]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::DBARBlockHeader> );
 	}
 
-	SECTION ("has comparability")
+	SECTION ( "has comparability" )
 	{
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::DBARBlockHeader> );
 	}
 
-	SECTION ("has string convertibility")
+	SECTION ( "has string convertibility" )
 	{
 		using arcstk::meta::has_tostring_functionality;
 

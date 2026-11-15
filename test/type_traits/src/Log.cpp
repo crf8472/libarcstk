@@ -18,18 +18,18 @@
 
 TEST_CASE ( "Log is non-abstract, final and non-empty", "[log][logging]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::Log> );
 		CHECK ( ! std::is_abstract_v<arcstk::Log> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::Log> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::Log> );
 	}
@@ -38,32 +38,32 @@ TEST_CASE ( "Log is non-abstract, final and non-empty", "[log][logging]" )
 
 TEST_CASE ( "Log special members", "[log][logging]" )
 {
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( !std::is_default_constructible_v<arcstk::Log>);
 	}
 
-	SECTION ( "is not copy-constructable")
+	SECTION ( "is not copy-constructable" )
 	{
 		CHECK ( !std::is_copy_constructible_v<arcstk::Log>);
 	}
 
-	SECTION ( "is not copy-assignable")
+	SECTION ( "is not copy-assignable" )
 	{
 		CHECK ( !std::is_copy_assignable_v<arcstk::Log>);
 	}
 
-	SECTION ( "is not nothrow move-constructable")
+	SECTION ( "is not nothrow move-constructable" )
 	{
 		CHECK ( !std::is_nothrow_move_constructible_v<arcstk::Log>);
 	}
 
-	SECTION ( "is not nothrow move-assignable")
+	SECTION ( "is not nothrow move-assignable" )
 	{
 		CHECK ( !std::is_nothrow_move_assignable_v<arcstk::Log>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::Log> );
 	}

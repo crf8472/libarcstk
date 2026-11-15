@@ -100,7 +100,7 @@ TEST_CASE ( "LenientPolicy default",
 }
 
 
-TEST_CASE ( "LenientPolicy property", "[lenientpolicy][verify][details]" )
+TEST_CASE ( "LenientPolicy value", "[lenientpolicy][verify][details]" )
 {
 	auto instance = arcstk::details::LenientPolicy {};
 
@@ -149,7 +149,7 @@ TEST_CASE ( "LenientPolicy property", "[lenientpolicy][verify][details]" )
 }
 
 
-TEST_CASE ( "LenientPolicy functions", "[lenientpolicy][verify][details]" )
+TEST_CASE ( "LenientPolicy behavior", "[lenientpolicy][verify][details]" )
 {
 	auto instance = arcstk::details::LenientPolicy {};
 

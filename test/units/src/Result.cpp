@@ -106,7 +106,7 @@ TEST_CASE ( "Result default",
 }
 
 
-TEST_CASE ( "Result property", "[result][verify][details]" )
+TEST_CASE ( "Result value", "[result][verify][details]" )
 {
 	using arcstk::details::StrictPolicy;
 
@@ -158,7 +158,7 @@ TEST_CASE ( "Result property", "[result][verify][details]" )
 }
 
 
-// TEST_CASE ( "Result functions", "[result][verify][details]" )
+// TEST_CASE ( "Result behavior", "[result][verify][details]" )
 // {
 // 	auto instance = arcstk::details::Result {};
 //

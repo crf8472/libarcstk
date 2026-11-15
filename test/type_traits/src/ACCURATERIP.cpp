@@ -19,18 +19,18 @@
 TEST_CASE ( "ACCURATERIP is non-abstract, final and non-empty",
 		"[accuraterip][calc][accuraterip]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::ACCURATERIP> );
 		CHECK ( ! std::is_abstract_v<arcstk::ACCURATERIP> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::ACCURATERIP> );
 	}
 
-	SECTION ("has no non-static members")
+	SECTION ( "has no non-static members" )
 	{
 		CHECK ( std::is_empty_v<arcstk::ACCURATERIP> );
 	}
@@ -39,32 +39,32 @@ TEST_CASE ( "ACCURATERIP is non-abstract, final and non-empty",
 
 TEST_CASE ( "ACCURATERIP special members", "[accuraterip][calc][accuraterip]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::ACCURATERIP>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::ACCURATERIP>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::ACCURATERIP>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ACCURATERIP>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ACCURATERIP>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::ACCURATERIP> );
 	}
@@ -73,7 +73,7 @@ TEST_CASE ( "ACCURATERIP special members", "[accuraterip][calc][accuraterip]" )
 
 TEST_CASE ( "ACCURATERIP is swappable", "[accuraterip][calc][accuraterip]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ACCURATERIP> );
 	}

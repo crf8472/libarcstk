@@ -144,7 +144,7 @@ TEST_CASE ( "AudioSize default",
 }
 
 
-TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
+TEST_CASE ( "AudioSize value", "[audiosize][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;
@@ -250,7 +250,7 @@ TEST_CASE ( "AudioSize property", "[audiosize][metadata][metadata]" )
 }
 
 
-TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
+TEST_CASE ( "AudioSize behavior", "[audiosize][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::UNIT;

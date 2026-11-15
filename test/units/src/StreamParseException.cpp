@@ -95,7 +95,7 @@
 // }
 
 
-// TEST_CASE ( "StreamParseException property", "[streamparseexception][dbar]" )
+// TEST_CASE ( "StreamParseException value", "[streamparseexception][dbar]" )
 // {
 // 	using arcstk::StreamParseException;
 //
@@ -144,7 +144,7 @@
 // }
 
 
-TEST_CASE ( "StreamParseException functions", "[streamparseexception][dbar]" )
+TEST_CASE ( "StreamParseException behavior", "[streamparseexception][dbar]" )
 {
 	auto instance = arcstk::StreamParseException { 1337, 8, 67 };
 

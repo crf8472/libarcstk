@@ -81,8 +81,7 @@
 // }
 
 
-TEST_CASE ( "Verification default",
-	"[verification][verify][details]" )
+TEST_CASE ( "Verification default", "[verification][verify][details]" )
 {
 	const auto defaulted = arcstk::details::Verification {};
 
@@ -93,7 +92,7 @@ TEST_CASE ( "Verification default",
 }
 
 
-// TEST_CASE ( "Verification property", "[verification][verify][details]" )
+// TEST_CASE ( "Verification value", "[verification][verify][details]" )
 // {
 // 	using arcstk::Verification;
 //
@@ -142,7 +141,7 @@ TEST_CASE ( "Verification default",
 // }
 
 
-// TEST_CASE ( "Verification functions", "[verification][verify][details]" )
+// TEST_CASE ( "Verification behavior", "[verification][verify][details]" )
 // {
 // 	auto instance = arcstk::details::Verification {};
 //

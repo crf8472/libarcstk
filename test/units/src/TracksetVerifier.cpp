@@ -88,14 +88,14 @@ TEST_CASE ( "TracksetVerifier default",
 
 	const auto defaulted = arcstk::TracksetVerifier { Checksums {} };
 
-	SECTION ( "is strict()")
+	SECTION ( "is strict()" )
 	{
 		CHECK ( defaulted.strict() );
 	}
 }
 
 
-// TEST_CASE ( "TracksetVerifier property",
+// TEST_CASE ( "TracksetVerifier value",
 //	"[tracksetverifier][verify][details]" )
 // {
 // 	using arcstk::TracksetVerifier;
@@ -145,7 +145,7 @@ TEST_CASE ( "TracksetVerifier default",
 // }
 
 
-// TEST_CASE ( "TracksetVerifier functions", "[tracksetverifier][verify]" )
+// TEST_CASE ( "TracksetVerifier behavior", "[tracksetverifier][verify]" )
 // {
 // 	using arcstk::TracksetVerifier;
 //

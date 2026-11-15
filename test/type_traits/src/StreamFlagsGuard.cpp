@@ -19,18 +19,18 @@
 TEST_CASE ( "StreamFlagsGuard is non-abstract, final and non-empty",
 		"[streamflagsguard][calc][checksum][details]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::details::StreamFlagsGuard> );
 		CHECK ( ! std::is_abstract_v<arcstk::details::StreamFlagsGuard> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::details::StreamFlagsGuard> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::details::StreamFlagsGuard> );
 	}
@@ -40,32 +40,32 @@ TEST_CASE ( "StreamFlagsGuard is non-abstract, final and non-empty",
 TEST_CASE ( "StreamFlagsGuard special members",
 		"[streamflagsguard][calc][checksum][details]" )
 {
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( ! std::is_default_constructible_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::details::StreamFlagsGuard> );
 	}
 
-	SECTION ( "is not copy-constructable")
+	SECTION ( "is not copy-constructable" )
 	{
 		CHECK ( ! std::is_copy_constructible_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ( "is not copy-assignable")
+	SECTION ( "is not copy-assignable" )
 	{
 		CHECK ( ! std::is_copy_assignable_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ( "is not nothrow move-constructable")
+	SECTION ( "is not nothrow move-constructable" )
 	{
 		CHECK ( ! std::is_nothrow_move_constructible_v<arcstk::details::StreamFlagsGuard>);
 	}
 
-	SECTION ( "is not nothrow move-assignable")
+	SECTION ( "is not nothrow move-assignable" )
 	{
 		CHECK ( ! std::is_nothrow_move_assignable_v<arcstk::details::StreamFlagsGuard>);
 	}

@@ -110,7 +110,7 @@ TEST_CASE ( "DBARForwardIterator default",
 }
 
 
-// TEST_CASE ( "DBARForwardIterator property",
+// TEST_CASE ( "DBARForwardIterator value",
 // 		"[dbarforwarditerator][dbar][details]" )
 // {
 // 	auto instance = arcstk::details::DBARForwardIterator {};
@@ -158,7 +158,7 @@ TEST_CASE ( "DBARForwardIterator default",
 // }
 
 
-// TEST_CASE ( "DBARForwardIterator functions",
+// TEST_CASE ( "DBARForwardIterator behavior",
 // 		"[dbarforwarditerator][dbar][details]" )
 // {
 // 	using arcstk::DBARForwardIterator;

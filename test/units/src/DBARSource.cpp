@@ -99,7 +99,7 @@
 // }
 
 
-// TEST_CASE ( "DBARSource property", "[dbarsource][verify]" )
+// TEST_CASE ( "DBARSource value", "[dbarsource][verify]" )
 // {
 // 	using arcstk::DBARSource;
 //
@@ -148,7 +148,7 @@
 // }
 
 
-TEST_CASE ( "DBARSource functions", "[dbarsource][verify]" )
+TEST_CASE ( "DBARSource behavior", "[dbarsource][verify]" )
 {
 	const auto dbar = arcstk::DBAR {
 		{ // pair

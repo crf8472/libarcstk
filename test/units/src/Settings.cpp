@@ -88,7 +88,7 @@ TEST_CASE ( "Settings default",
 }
 
 
-TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
+TEST_CASE ( "Settings value", "[settings][calc][calculate]" )
 {
 	using arcstk::Context;
 	using arcstk::Settings;

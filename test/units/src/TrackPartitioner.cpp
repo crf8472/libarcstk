@@ -101,7 +101,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate][details]" )
 }
 
 // TODO Implement function test
-// TEST_CASE ( "TrackPartitioner functions",
+// TEST_CASE ( "TrackPartitioner behavior",
 // 		"[trackpartitioner][calc][calculate][details]" )
 // {
 // 	using arcstk::details::TrackPartitioner;
@@ -115,7 +115,7 @@ TEST_CASE ( "TrackPartitioner", "[trackpartitioner][calc][calculate][details]" )
 // 	}
 // }
 
-TEST_CASE ( "TrackPartitioner functions",
+TEST_CASE ( "TrackPartitioner behavior",
 	"[trackpartitioner][calc][calculate][details]" )
 {
 	using arcstk::AudioSize;

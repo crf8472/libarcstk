@@ -97,7 +97,7 @@ TEST_CASE ( "IteratorElement default",
 }
 
 
-// TEST_CASE ( "IteratorElement property", "[iteratorelement][dbar]" )
+// TEST_CASE ( "IteratorElement value", "[iteratorelement][dbar]" )
 // {
 // 	using arcstk::IteratorElement;
 //
@@ -146,7 +146,7 @@ TEST_CASE ( "IteratorElement default",
 // }
 
 
-// TEST_CASE ( "IteratorElement functions", "[iteratorelement][dbar]" )
+// TEST_CASE ( "IteratorElement behavior", "[iteratorelement][dbar]" )
 // {
 // 	using arcstk::IteratorElement;
 //

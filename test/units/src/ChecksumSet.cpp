@@ -110,7 +110,7 @@ TEST_CASE ( "ChecksumSet default",
 }
 
 
-TEST_CASE ( "ChecksumSet property", "[checksumset][calc][checksum]" )
+TEST_CASE ( "ChecksumSet value", "[checksumset][calc][checksum]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;
@@ -182,7 +182,7 @@ TEST_CASE ( "ChecksumSet property", "[checksumset][calc][checksum]" )
 }
 
 
-TEST_CASE ( "ChecksumSet functions", "[checksumset][calc][checksum]" )
+TEST_CASE ( "ChecksumSet behavior", "[checksumset][calc][checksum]" )
 {
 	using arcstk::checksum::type;
 	using arcstk::Checksum;

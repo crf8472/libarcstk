@@ -96,7 +96,7 @@
 // }
 
 
-// TEST_CASE ( "Increment property", "[increment][dbar][details]" )
+// TEST_CASE ( "Increment value", "[increment][dbar][details]" )
 // {
 // 	using arcstk::Increment;
 //
@@ -145,7 +145,7 @@
 // }
 
 
-TEST_CASE ( "Increment functions", "[increment][dbar][details]" )
+TEST_CASE ( "Increment behavior", "[increment][dbar][details]" )
 {
 	using arcstk::details::Increment;
 

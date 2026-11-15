@@ -102,7 +102,7 @@ TEST_CASE ( "TrackSelector default",
 }
 
 
-TEST_CASE ( "TrackSelector property", "[trackselector][verify][details]" )
+TEST_CASE ( "TrackSelector value", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:
@@ -145,7 +145,7 @@ TEST_CASE ( "TrackSelector property", "[trackselector][verify][details]" )
 }
 
 
-TEST_CASE ( "TrackSelector functions", "[trackselector][verify][details]" )
+TEST_CASE ( "TrackSelector behavior", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:

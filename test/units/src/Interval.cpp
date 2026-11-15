@@ -142,7 +142,7 @@ TEST_CASE ( "Interval<> default",
 }
 
 
-TEST_CASE ( "Interval<> property", "[interval][calc][calculate]" )
+TEST_CASE ( "Interval<> value", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
@@ -161,7 +161,7 @@ TEST_CASE ( "Interval<> property", "[interval][calc][calculate]" )
 }
 
 
-TEST_CASE ( "Interval<> functions", "[interval][calc][calculate]" )
+TEST_CASE ( "Interval<> behavior", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 

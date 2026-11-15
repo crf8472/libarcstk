@@ -95,7 +95,7 @@
 // }
 
 
-// TEST_CASE ( "DBARTriplet property", "[dbartriplet][dbar]" )
+// TEST_CASE ( "DBARTriplet value", "[dbartriplet][dbar]" )
 // {
 // 	using arcstk::DBARTriplet;
 //
@@ -144,7 +144,7 @@
 // }
 
 
-TEST_CASE ( "DBARTriplet functions", "[dbartriplet][dbar]" )
+TEST_CASE ( "DBARTriplet behavior", "[dbartriplet][dbar]" )
 {
 	auto instance = arcstk::DBARTriplet { 0xF1A0C8BB, 73, 0xABCDEF00 };
 

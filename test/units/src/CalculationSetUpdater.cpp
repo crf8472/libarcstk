@@ -102,7 +102,7 @@ TEST_CASE ( "CalculationSetUpdater default",
 }
 
 
-// TEST_CASE ( "CalculationSetUpdater property",
+// TEST_CASE ( "CalculationSetUpdater value",
 // 		"[calculationsetupdater][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
@@ -154,7 +154,7 @@ TEST_CASE ( "CalculationSetUpdater default",
 // }
 
 
-// TEST_CASE ( "CalculationSetUpdater functions",
+// TEST_CASE ( "CalculationSetUpdater behavior",
 // 		"[calculationsetupdater][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;

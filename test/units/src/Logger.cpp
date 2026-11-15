@@ -112,7 +112,7 @@
 // }
 
 
-// TEST_CASE ( "Logger property", "[logger][logging][logging]" )
+// TEST_CASE ( "Logger value", "[logger][logging][logging]" )
 // {
 // 	using arcstk::Logger;
 //
@@ -161,7 +161,7 @@
 // }
 
 
-TEST_CASE ( "Logger functions", "[logger][logging]" )
+TEST_CASE ( "Logger behavior", "[logger][logging]" )
 {
 	using arcstk::testing::Copy;
 	using arcstk::testing::Move;

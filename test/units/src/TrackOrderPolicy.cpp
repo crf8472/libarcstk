@@ -95,7 +95,7 @@ TEST_CASE ( "TrackOrderPolicy default",
 }
 
 
-// TEST_CASE ( "TrackOrderPolicy property",
+// TEST_CASE ( "TrackOrderPolicy value",
 //	"[trackorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::TrackOrderPolicy {};
@@ -143,7 +143,7 @@ TEST_CASE ( "TrackOrderPolicy default",
 // }
 
 
-// TEST_CASE ( "TrackOrderPolicy functions",
+// TEST_CASE ( "TrackOrderPolicy behavior",
 //	"[trackorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::TrackOrderPolicy {};

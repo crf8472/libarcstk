@@ -97,7 +97,7 @@ TEST_CASE ( "AlbumVerifier default",
 }
 
 
-// TEST_CASE ( "AlbumVerifier property", "[albumverifier][verify]" )
+// TEST_CASE ( "AlbumVerifier value", "[albumverifier][verify]" )
 // {
 // 	using arcstk::AlbumVerifier;
 //
@@ -146,7 +146,7 @@ TEST_CASE ( "AlbumVerifier default",
 // }
 //
 //
-// TEST_CASE ( "AlbumVerifier functions", "[albumverifier][verify]" )
+// TEST_CASE ( "AlbumVerifier behavior", "[albumverifier][verify]" )
 // {
 // 	using arcstk::AlbumVerifier;
 //

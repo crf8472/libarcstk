@@ -78,8 +78,7 @@
 // }
 
 
-TEST_CASE ( "Update<ARCS1> default",
-	"[update][calc][accuraterip][details]" )
+TEST_CASE ( "Update<ARCS1> default", "[update][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;
 
@@ -92,7 +91,7 @@ TEST_CASE ( "Update<ARCS1> default",
 }
 
 
-// TEST_CASE ( "Update<ARCS1> property",
+// TEST_CASE ( "Update<ARCS1> value",
 //		"[update][calc][accuraterip][details]" )
 // {
 // 	using arcstk::Update;
@@ -142,7 +141,7 @@ TEST_CASE ( "Update<ARCS1> default",
 // }
 
 
-// TEST_CASE ( "Update<ARCS1> functions",
+// TEST_CASE ( "Update<ARCS1> behavior",
 //		"[update][calc][accuraterip][details]" )
 // {
 // 	using arcstk::Update;

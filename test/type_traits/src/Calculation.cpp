@@ -19,18 +19,18 @@
 TEST_CASE ( "Calculation is non-abstract, final and non-empty",
 		"[calculation][calc][calculate]" )
 {
-	SECTION ("is an abstract class")
+	SECTION ( "is an abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::Calculation> );
 		CHECK ( std::is_abstract_v<arcstk::Calculation> );
 	}
 
-	SECTION ("is not final")
+	SECTION ( "is not final" )
 	{
 		CHECK ( ! std::is_final_v<arcstk::Calculation> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::Calculation> );
 	}
@@ -49,22 +49,22 @@ TEST_CASE ( "Calculation special members", "[calculation][calc][calculate]" )
 		CHECK ( std::is_destructible_v<arcstk::Calculation> );
 	}
 
-	SECTION ( "is not copy-constructable")
+	SECTION ( "is not copy-constructable" )
 	{
 		CHECK ( ! std::is_copy_constructible_v<arcstk::Calculation>);
 	}
 
-	SECTION ( "is not copy-assignable")
+	SECTION ( "is not copy-assignable" )
 	{
 		CHECK ( ! std::is_copy_assignable_v<arcstk::Calculation>);
 	}
 
-	SECTION ( "is not move-constructable")
+	SECTION ( "is not move-constructable" )
 	{
 		CHECK ( ! std::is_move_constructible_v<arcstk::Calculation>);
 	}
 
-	SECTION ( "is not move-assignable")
+	SECTION ( "is not move-assignable" )
 	{
 		CHECK ( ! std::is_nothrow_move_assignable_v<arcstk::Calculation>);
 	}

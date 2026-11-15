@@ -19,18 +19,18 @@
 TEST_CASE ( "InvalidMetadataException is non-abstract, final and non-empty",
 		"[invalidmetadataexception][metadata]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::InvalidMetadataException> );
 		CHECK ( ! std::is_abstract_v<arcstk::InvalidMetadataException> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::InvalidMetadataException> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::InvalidMetadataException> );
 	}
@@ -40,32 +40,32 @@ TEST_CASE ( "InvalidMetadataException is non-abstract, final and non-empty",
 TEST_CASE ( "InvalidMetadataException special members",
 		"[invalidmetadataexception][metadata]" )
 {
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( ! std::is_default_constructible_v<arcstk::InvalidMetadataException>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::InvalidMetadataException>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::InvalidMetadataException>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::InvalidMetadataException>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::InvalidMetadataException>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::InvalidMetadataException> );
 	}
@@ -75,7 +75,7 @@ TEST_CASE ( "InvalidMetadataException special members",
 TEST_CASE ( "InvalidMetadataException is swappable",
 		"[invalidmetadataexception][metadata]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::InvalidMetadataException> );
 	}

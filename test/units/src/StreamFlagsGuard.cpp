@@ -91,7 +91,7 @@ TEST_CASE ( "StreamFlagsGuard default",
 }
 
 
-// TEST_CASE ( "StreamFlagsGuard property",
+// TEST_CASE ( "StreamFlagsGuard value",
 // 		"[streamflagsguard][calc][checksum][details]" )
 // {
 // 	using arcstk::StreamFlagsGuard;
@@ -141,7 +141,7 @@ TEST_CASE ( "StreamFlagsGuard default",
 // }
 
 
-// TEST_CASE ( "StreamFlagsGuard functions",
+// TEST_CASE ( "StreamFlagsGuard behavior",
 // 		"[streamflagsguard][calc][checksum][details]" )
 // {
 // 	using arcstk::StreamFlagsGuard;

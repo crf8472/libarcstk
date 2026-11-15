@@ -100,7 +100,7 @@
 //}
 //
 //
-//TEST_CASE ( "SampleBufferWrapper property",
+//TEST_CASE ( "SampleBufferWrapper value",
 //    "[samplebufferwrapper][calc][samples][details]" )
 //{
 //	using arcstk::SampleBufferWrapper;
@@ -150,7 +150,7 @@
 //}
 
 
-TEST_CASE ( "SampleBufferWrapper functions",
+TEST_CASE ( "SampleBufferWrapper behavior",
 	"[samplebufferwrapper][calc][samples][details]" )
 {
 	using arcstk::details::SampleBufferWrapper;

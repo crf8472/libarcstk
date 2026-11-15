@@ -204,7 +204,7 @@ TEST_CASE ( "ARId default", "[arid][id][identifier]" )
 }
 
 
-TEST_CASE ( "ARId property", "[arid][id][identifier]" )
+TEST_CASE ( "ARId value", "[arid][id][identifier]" )
 {
 	using arcstk::ARId;
 
@@ -277,7 +277,7 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 		}
 	}
 
-	// TODO Implement ARId property tests
+	// TODO Implement ARId valuetests
 
 	// SECTION ( "Stream-in operator << is correct" )
 	// {
@@ -315,9 +315,9 @@ TEST_CASE ( "ARId property", "[arid][id][identifier]" )
 	// }
 }
 
-// TODO Implement ARId property tests
+// TODO Implement ARId valuetests
 
-// TEST_CASE ( "ARId functions", "[arid][id][identifier]" )
+// TEST_CASE ( "ARId behavior", "[arid][id][identifier]" )
 // {
 // 	using arcstk::ARId;
 //

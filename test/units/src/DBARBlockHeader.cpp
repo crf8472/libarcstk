@@ -95,7 +95,7 @@
 // }
 
 
-// TEST_CASE ( "DBARBlockHeader property", "[dbarblockheader][dbar]" )
+// TEST_CASE ( "DBARBlockHeader value", "[dbarblockheader][dbar]" )
 // {
 // 	using arcstk::DBARBlockHeader;
 //
@@ -144,7 +144,7 @@
 // }
 
 
-TEST_CASE ( "DBARBlockHeader functions", "[dbarblockheader][dbar]" )
+TEST_CASE ( "DBARBlockHeader behavior", "[dbarblockheader][dbar]" )
 {
 	auto instance = arcstk::DBARBlockHeader { 15, 1, 2, 3, };
 

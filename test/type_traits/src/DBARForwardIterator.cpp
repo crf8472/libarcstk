@@ -21,18 +21,18 @@ TEST_CASE ( "DBARForwardIterator is non-abstract, final and non-empty",
 {
 	using arcstk::DBAR;
 
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
 		CHECK ( ! std::is_abstract_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
 	}
@@ -47,32 +47,32 @@ TEST_CASE ( "DBARForwardIterator special members",
 	using DBARForwardIterator_t =
 		arcstk::details::DBARForwardIterator<DBAR, true>;
 
-	SECTION ( "is not default constructable")
+	SECTION ( "is not default constructable" )
 	{
 		CHECK ( ! std::is_default_constructible_v<DBARForwardIterator_t>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<DBARForwardIterator_t>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<DBARForwardIterator_t>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<DBARForwardIterator_t>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<DBARForwardIterator_t>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<DBARForwardIterator_t> );
 	}
@@ -84,12 +84,12 @@ TEST_CASE ( "DBARForwardIterator is swappable and comparable",
 {
 	using arcstk::DBAR;
 
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::DBARForwardIterator<DBAR, true>> );
 	}
 
-	SECTION ("has comparability")
+	SECTION ( "has comparability" )
 	{
 		using arcstk::meta::is_comparable_v;
 

@@ -23,7 +23,7 @@ TEST_CASE ( "ARCSAlgorithm<> is non-abstract, final and non-empty",
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
 
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<ARv1> );
 		CHECK ( ! std::is_abstract_v<ARv1> );
@@ -35,14 +35,14 @@ TEST_CASE ( "ARCSAlgorithm<> is non-abstract, final and non-empty",
 		CHECK ( ! std::is_abstract_v<ARv12> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<ARv1> );
 		CHECK ( std::is_final_v<ARv2> );
 		CHECK ( std::is_final_v<ARv12> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<ARv1> );
 		CHECK ( ! std::is_empty_v<ARv2> );
@@ -58,28 +58,28 @@ TEST_CASE ( "ARCSAlgorithm<> special members",
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
 
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<ARv1>);
 		CHECK ( std::is_default_constructible_v<ARv2>);
 		CHECK ( std::is_default_constructible_v<ARv12>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<ARv1>);
 		CHECK ( std::is_copy_constructible_v<ARv2>);
 		CHECK ( std::is_copy_constructible_v<ARv12>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<ARv1>);
 		CHECK ( std::is_copy_assignable_v<ARv2>);
 		CHECK ( std::is_copy_assignable_v<ARv12>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_move_constructible_v<ARv1>);
 		CHECK ( std::is_move_constructible_v<ARv2>);
@@ -91,7 +91,7 @@ TEST_CASE ( "ARCSAlgorithm<> special members",
 		// CHECK ( std::is_nothrow_move_constructible_v<ARv12>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_move_assignable_v<ARv1>);
 		CHECK ( std::is_move_assignable_v<ARv2>);
@@ -103,7 +103,7 @@ TEST_CASE ( "ARCSAlgorithm<> special members",
 		// CHECK ( std::is_nothrow_move_assignable_v<ARv12>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<ARv1> );
 		CHECK ( std::is_destructible_v<ARv2> );
@@ -119,14 +119,14 @@ TEST_CASE ( "ARCSAlgorithm<> is swappable",
 	using ARv2  = arcstk::accuraterip::algorithm::Version2;
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
 
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<ARv1> );
 		CHECK ( std::is_nothrow_swappable_v<ARv2> );
 		CHECK ( std::is_nothrow_swappable_v<ARv12> );
 	}
 
-	// SECTION ("has comparability")
+	// SECTION ( "has comparability" )
 	// {
 	// 	using arcstk::meta::is_comparable_v;
 	//
@@ -135,7 +135,7 @@ TEST_CASE ( "ARCSAlgorithm<> is swappable",
 	// 	CHECK ( is_comparable_v<ARv12> );
 	// }
 
-	// SECTION ("has string convertibility")
+	// SECTION ( "has string convertibility" )
 	// {
 	// 	using arcstk::meta::has_tostring_functionality;
 	//

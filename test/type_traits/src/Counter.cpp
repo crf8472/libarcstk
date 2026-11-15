@@ -22,18 +22,18 @@ TEST_CASE ( "Counter is non-abstract, final and non-empty",
 {
 	using std::int32_t;
 
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::details::Counter<int32_t>> );
 		CHECK ( ! std::is_abstract_v<arcstk::details::Counter<int32_t>> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::details::Counter<int32_t>> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::details::Counter<int32_t>> );
 	}
@@ -45,32 +45,32 @@ TEST_CASE ( "Counter special members",
 {
 	using std::int32_t;
 
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::details::Counter<int32_t>>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::details::Counter<int32_t>>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::details::Counter<int32_t>>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::details::Counter<int32_t>>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::details::Counter<int32_t>>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::details::Counter<int32_t>> );
 	}
@@ -81,7 +81,7 @@ TEST_CASE ( "Counter is swappable", "[counter][calc][calculate][details]" )
 {
 	using std::int32_t;
 
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::Counter<int32_t>> );
 	}

@@ -97,7 +97,7 @@ TEST_CASE ( "BlockSelector default",
 }
 
 
-TEST_CASE ( "BlockSelector property", "[trackselector][verify][details]" )
+TEST_CASE ( "BlockSelector value", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:
@@ -140,7 +140,7 @@ TEST_CASE ( "BlockSelector property", "[trackselector][verify][details]" )
 }
 
 
-TEST_CASE ( "BlockSelector functions", "[trackselector][verify][details]" )
+TEST_CASE ( "BlockSelector behavior", "[trackselector][verify][details]" )
 {
 	const auto dbar = arcstk::DBAR {
 		// 0:

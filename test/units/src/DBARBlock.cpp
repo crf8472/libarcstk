@@ -93,7 +93,7 @@
 // }
 
 
-// TEST_CASE ( "DBARBlock property", "[dbarblock][dbar][details]" )
+// TEST_CASE ( "DBARBlock value", "[dbarblock][dbar][details]" )
 // {
 // 	using arcstk::DBARBlock;
 //
@@ -142,7 +142,7 @@
 // }
 
 
-TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][details]" )
+TEST_CASE ( "DBARBlock behavior", "[dbarblock][dbar][details]" )
 {
 	using arcstk::DBARBlock;
 

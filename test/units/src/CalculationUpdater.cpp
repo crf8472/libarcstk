@@ -322,7 +322,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // }
 //
 //
-// // TEST_CASE ( "CalculationUpdater property",
+// // TEST_CASE ( "CalculationUpdater value",
 // // 		"[calculationupdater][calc][calculate]" )
 // // {
 // // 	using AccurateRipV1 = arcstk::AccurateRip::V1;
@@ -338,7 +338,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // // }
 //
 //
-// TEST_CASE ( "CalculationUpdater<> functions",
+// TEST_CASE ( "CalculationUpdater<> behavior",
 // 		"[calculationupdater][calc][calculate]" )
 // {
 // 	using AccurateRipV1 = arcstk::AccurateRip::V1;

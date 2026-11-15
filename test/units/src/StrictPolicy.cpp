@@ -100,7 +100,7 @@ TEST_CASE ( "StrictPolicy default",
 }
 
 
-TEST_CASE ( "StrictPolicy property", "[strictpolicy][verify][details]" )
+TEST_CASE ( "StrictPolicy value", "[strictpolicy][verify][details]" )
 {
 	auto instance = arcstk::details::StrictPolicy {};
 
@@ -148,7 +148,7 @@ TEST_CASE ( "StrictPolicy property", "[strictpolicy][verify][details]" )
 }
 
 
-TEST_CASE ( "StrictPolicy functions", "[strictpolicy][verify][details]" )
+TEST_CASE ( "StrictPolicy behavior", "[strictpolicy][verify][details]" )
 {
 	auto instance = arcstk::details::StrictPolicy {};
 

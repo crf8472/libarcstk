@@ -886,7 +886,7 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // }
 //
 //
-// TEST_CASE ("is_filename_container", "[identifier][make_toc][details]")
+// TEST_CASE ( "is_filename_container", "[identifier][make_toc][details]" )
 // {
 // 	using arcstk::details::is_filename_container;
 //

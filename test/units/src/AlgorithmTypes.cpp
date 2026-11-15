@@ -95,7 +95,7 @@ TEST_CASE ( "AlgorithmTypes<> default",
 }
 
 
-// TEST_CASE ( "AlgorithmTypes<> property", "[algorithmtypes][calc][calculate]" )
+// TEST_CASE ( "AlgorithmTypes<> value", "[algorithmtypes][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;
 // 	using arcstk::AccurateRip::V2;
@@ -121,7 +121,7 @@ TEST_CASE ( "AlgorithmTypes<> default",
 // }
 
 
-// TEST_CASE ( "AlgorithmTypes<> functions",
+// TEST_CASE ( "AlgorithmTypes<> behavior",
 // 		"[algorithmtypes][calc][calculate]" )
 // {
 // 	using arcstk::AccurateRip::V1;

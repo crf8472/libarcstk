@@ -24,7 +24,7 @@ TEST_CASE ( "ACCURATERIP default",
 }
 
 
-TEST_CASE ( "ACCURATERIP functions", "[accuraterip][calc][accuraterip]" )
+TEST_CASE ( "ACCURATERIP behavior", "[accuraterip][calc][accuraterip]" )
 {
 	using arcstk::ACCURATERIP;
 

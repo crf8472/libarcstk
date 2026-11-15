@@ -22,18 +22,18 @@
 TEST_CASE ( "CheckingDBARBuilderState is non-abstract, final and non-empty",
 		"[checkingdbarbuilderstate][dbar][details]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::details::CheckingDBARBuilderState> );
 		CHECK ( ! std::is_abstract_v<arcstk::details::CheckingDBARBuilderState> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::details::CheckingDBARBuilderState> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::details::CheckingDBARBuilderState> );
 	}
@@ -43,32 +43,32 @@ TEST_CASE ( "CheckingDBARBuilderState is non-abstract, final and non-empty",
 TEST_CASE ( "CheckingDBARBuilderState special members",
 		"[checkingdbarbuilderstate][dbar][details]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::details::CheckingDBARBuilderState>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::details::CheckingDBARBuilderState>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::details::CheckingDBARBuilderState>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::details::CheckingDBARBuilderState>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::details::CheckingDBARBuilderState>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::details::CheckingDBARBuilderState> );
 	}
@@ -78,7 +78,7 @@ TEST_CASE ( "CheckingDBARBuilderState special members",
 TEST_CASE ( "CheckingDBARBuilderState is swappable",
 		"[checkingdbarbuilderstate][dbar][details]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::details::CheckingDBARBuilderState> );
 	}

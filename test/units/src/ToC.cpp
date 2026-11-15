@@ -117,7 +117,7 @@ TEST_CASE ( "ToC default",
 }
 
 /*
-TEST_CASE ( "ToC property", "[toc][metadata][metadata]" )
+TEST_CASE ( "ToC value", "[toc][metadata][metadata]" )
 {
 	using arcstk::ToC;
 
@@ -166,7 +166,7 @@ TEST_CASE ( "ToC property", "[toc][metadata][metadata]" )
 }
 */
 
-TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
+TEST_CASE ( "ToC behavior", "[toc][metadata][metadata]" )
 {
 	using arcstk::AudioSize;
 	using arcstk::make_toc;

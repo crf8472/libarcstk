@@ -95,7 +95,7 @@
 // }
 
 
-// TEST_CASE ( "channel property", "[channel][calc][samples][details]" )
+// TEST_CASE ( "channel value", "[channel][calc][samples][details]" )
 // {
 // 	using arcstk::channel;
 //
@@ -144,7 +144,7 @@
 // }
 
 
-TEST_CASE ( "channel functions", "[channel][calc][samples][details]" )
+TEST_CASE ( "channel behavior", "[channel][calc][samples][details]" )
 {
 	using arcstk::details::channel;
 

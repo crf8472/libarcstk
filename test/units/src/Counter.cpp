@@ -97,7 +97,7 @@ TEST_CASE ( "Counter<> default",
 }
 
 
-// TEST_CASE ( "Counter<> property", "[counter][calc][calculate][details]" )
+// TEST_CASE ( "Counter<> value", "[counter][calc][calculate][details]" )
 // {
 // 	using arcstk::details::Counter;
 //
@@ -146,7 +146,7 @@ TEST_CASE ( "Counter<> default",
 // }
 
 
-TEST_CASE ( "Counter<> functions", "[counter][calc][calculate][details]" )
+TEST_CASE ( "Counter<> behavior", "[counter][calc][calculate][details]" )
 {
 	using arcstk::details::Counter;
 

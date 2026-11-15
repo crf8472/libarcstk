@@ -107,7 +107,7 @@ TEST_CASE ( "Appender value", "[appender][logging]" )
 }
 
 
-TEST_CASE ( "Appender functions", "[appender][logging]" )
+TEST_CASE ( "Appender behavior", "[appender][logging]" )
 {
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;

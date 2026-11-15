@@ -97,7 +97,7 @@ TEST_CASE ( "InvalidMetadataException default",
 }
 
 
-// TEST_CASE ( "InvalidMetadataException property", "[invalidmetadataexception][metadata]" )
+// TEST_CASE ( "InvalidMetadataException value", "[invalidmetadataexception][metadata]" )
 // {
 // 	using arcstk::InvalidMetadataException;
 //
@@ -146,7 +146,7 @@ TEST_CASE ( "InvalidMetadataException default",
 // }
 
 
-// TEST_CASE ( "InvalidMetadataException functions", "[invalidmetadataexception][metadata]" )
+// TEST_CASE ( "InvalidMetadataException behavior", "[invalidmetadataexception][metadata]" )
 // {
 // 	using arcstk::InvalidMetadataException;
 //

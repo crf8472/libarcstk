@@ -92,7 +92,7 @@ TEST_CASE ( "Partition", "[partition][calc][calculate]" )
 }
 
 
-// TEST_CASE ( "Partition property", "[partition][calc][calculate]" )
+// TEST_CASE ( "Partition value", "[partition][calc][calculate]" )
 // {
 // 	using arcstk::Partition;
 //

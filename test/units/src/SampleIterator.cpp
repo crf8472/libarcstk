@@ -98,7 +98,7 @@
 // }
 
 
-// TEST_CASE ( "SampleIterator property", "[sampleiterator][calc][samples]" )
+// TEST_CASE ( "SampleIterator value", "[sampleiterator][calc][samples]" )
 // {
 // 	using arcstk::SampleIterator;
 //
@@ -147,7 +147,7 @@
 // }
 
 
-TEST_CASE ( "SampleIterator functions", "[sampleiterator][calc][samples]" )
+TEST_CASE ( "SampleIterator behavior", "[sampleiterator][calc][samples]" )
 {
 	auto buffer = std::vector<std::int32_t> {};      // empty
 	auto sequence = arcstk::InterleavedSamples<std::int32_t> {

@@ -95,7 +95,7 @@
 // }
 
 
-TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
+TEST_CASE ( "SourceIterator value", "[sourceiterator][verify][details]" )
 {
 	using arcstk::DBAR;
 	using arcstk::DBARSource;
@@ -183,7 +183,7 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
 }
 
 
-// TEST_CASE ( "SourceIterator functions", "[sourceiterator][verify][details]" )
+// TEST_CASE ( "SourceIterator behavior", "[sourceiterator][verify][details]" )
 // {
 // 	using arcstk::details::SourceIterator;
 //

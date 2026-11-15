@@ -200,7 +200,7 @@ TEST_CASE ( "CalculationState default",
 }
 
 
-// TEST_CASE ( "CalculationState property",
+// TEST_CASE ( "CalculationState value",
 // 		"[calculationstate][calc][calculate][details]" )
 // {
 // 	using arcstk::details::CalculationState;
@@ -215,7 +215,7 @@ TEST_CASE ( "CalculationState default",
 // }
 
 
-// TEST_CASE ( "CalculationState functions",
+// TEST_CASE ( "CalculationState behavior",
 // 		"[calculationstate][calc][calculate][details]" )
 // {
 // 	using arcstk::details::CalculationState;

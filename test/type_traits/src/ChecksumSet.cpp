@@ -19,18 +19,18 @@
 TEST_CASE ( "ChecksumSet is non-abstract, final and non-empty",
 		"[checksumset][calc][checksum]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::ChecksumSet> );
 		CHECK ( ! std::is_abstract_v<arcstk::ChecksumSet> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::ChecksumSet> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::ChecksumSet> );
 	}
@@ -40,32 +40,32 @@ TEST_CASE ( "ChecksumSet is non-abstract, final and non-empty",
 TEST_CASE ( "ChecksumSet special members",
 		"[checksumset][calc][checksum]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::ChecksumSet>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::ChecksumSet>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::ChecksumSet>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::ChecksumSet>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::ChecksumSet>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::ChecksumSet> );
 	}
@@ -75,19 +75,19 @@ TEST_CASE ( "ChecksumSet special members",
 TEST_CASE ( "ChecksumSet is swappable, comparable, string convertible",
 		"[checksumset][calc][checksum]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::ChecksumSet> );
 	}
 
-	SECTION ("has comparability")
+	SECTION ( "has comparability" )
 	{
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::ChecksumSet> );
 	}
 
-	SECTION ("has string convertibility")
+	SECTION ( "has string convertibility" )
 	{
 		using arcstk::meta::has_tostring_functionality;
 

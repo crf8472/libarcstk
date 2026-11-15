@@ -98,7 +98,7 @@ TEST_CASE ( "UpdateableSubtotals",
 }
 
 
-TEST_CASE ( "UpdateableSubtotals property",
+TEST_CASE ( "UpdateableSubtotals value",
 	"[updateablesubtotals][calc][accuraterip][details]" )
 {
 	using arcstk::accuraterip::details::UpdateableSubtotals;
@@ -181,8 +181,8 @@ TEST_CASE ( "UpdateableSubtotals property",
 }
 
 
-// TODO Implement tests for functions
-// TEST_CASE ( "UpdateableSubtotals functions",
+// TODO Implement tests for behavior
+// TEST_CASE ( "UpdateableSubtotals behavior",
 // 		"[updateablesubtotals][calc][accuraterip][details]" )
 // {
 // 	using arcstk::accuraterip::details::UpdateableSubtotals;

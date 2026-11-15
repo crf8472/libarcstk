@@ -158,7 +158,7 @@ TEST_CASE ( "convert<>()", "[convert][meta]" )
 
 	// same
 
-	SECTION ( "converts same unit correctly")
+	SECTION ( "converts same unit correctly" )
 	{
 		CHECK ( convert<UNIT::FRAMES,  UNIT::FRAMES> (12289237) == 12289237 );
 		CHECK ( convert<UNIT::SAMPLES, UNIT::SAMPLES>(12289237) == 12289237 );
@@ -284,7 +284,7 @@ TEST_CASE ( "convert_to<>()", "[convert_to][meta]" )
 
 	// same
 
-	SECTION ( "converts same unit correctly")
+	SECTION ( "converts same unit correctly" )
 	{
 		CHECK ( convert_to<UNIT::FRAMES>( 12289237, UNIT::FRAMES)  == 12289237 );
 		CHECK ( convert_to<UNIT::SAMPLES>(12289237, UNIT::SAMPLES) == 12289237 );

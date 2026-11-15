@@ -48,7 +48,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 
 	SECTION ( "Copy construction is correct" )
 	{
-		// Change Context to have a different property
+		// Change Context to have a different value
 		instance.set_context(Context::FIRST_TRACK);
 		REQUIRE ( instance.context() == Context::FIRST_TRACK );
 
@@ -61,7 +61,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 
 	SECTION ( "Move construction is correct" )
 	{
-		// Change Context to have a different property
+		// Change Context to have a different value
 		instance.set_context(Context::TRACK);
 		REQUIRE ( instance.context() == Context::TRACK );
 
@@ -74,7 +74,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 
 	SECTION ( "Copy assignment is correct" )
 	{
-		// Change Context to have a different property
+		// Change Context to have a different value
 		instance.set_context(Context::FIRST_TRACK);
 		REQUIRE ( instance.context() == Context::FIRST_TRACK );
 
@@ -88,7 +88,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 
 	SECTION ( "Move assignment is correct" )
 	{
-		// Change Context to have a different property
+		// Change Context to have a different value
 		instance.set_context(Context::TRACK);
 		REQUIRE ( instance.context() == Context::TRACK );
 
@@ -127,7 +127,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default",
 }
 
 
-TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> property",
+TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> value",
 	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;
@@ -177,7 +177,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> property",
 }
 
 
-TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> functions",
+TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> behavior",
 	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using arcstk::checksum::type;

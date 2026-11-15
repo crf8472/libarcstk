@@ -99,7 +99,7 @@ TEST_CASE ( "CheckingDBARBuilderState default",
 }
 
 
-// TEST_CASE ( "CheckingDBARBuilderState property",
+// TEST_CASE ( "CheckingDBARBuilderState value",
 // 		"[checkingdbarbuilderstate][dbar][details]" )
 // {
 // 	using arcstk::CheckingDBARBuilderState;
@@ -149,7 +149,7 @@ TEST_CASE ( "CheckingDBARBuilderState default",
 // }
 
 
-// TEST_CASE ( "CheckingDBARBuilderState functions",
+// TEST_CASE ( "CheckingDBARBuilderState behavior",
 // 		"[checkingdbarbuilderstate][dbar][details]" )
 // {
 // 	using arcstk::CheckingDBARBuilderState;

@@ -98,7 +98,7 @@
 // }
 
 
-// TEST_CASE ( "SampleSequence property", "[samplesequence][calc][samples]" )
+// TEST_CASE ( "SampleSequence value", "[samplesequence][calc][samples]" )
 // {
 // 	using arcstk::SampleSequence;
 //
@@ -147,7 +147,7 @@
 // }
 
 
-TEST_CASE ( "SampleSequence functions", "[samplesequence][calc][samples]" )
+TEST_CASE ( "SampleSequence behavior", "[samplesequence][calc][samples]" )
 {
 	auto buffer = std::vector<std::int32_t> {};      // empty
 
@@ -169,7 +169,7 @@ TEST_CASE ( "SampleSequence functions", "[samplesequence][calc][samples]" )
 		CHECK ( ! instance.planar() );
 	}
 
-	// TODO functions
+	// TODO behavior
 
 	// cbegin, cend
 	// begin, end

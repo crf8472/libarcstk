@@ -132,7 +132,7 @@ TEST_CASE ( "BlockTraversal default",
 }
 
 
-// TEST_CASE ( "BlockTraversal property", "[blocktraversal][verify][details]" )
+// TEST_CASE ( "BlockTraversal value", "[blocktraversal][verify][details]" )
 // {
 // 	using arcstk::BlockTraversal;
 //
@@ -181,7 +181,7 @@ TEST_CASE ( "BlockTraversal default",
 // }
 
 
-// TEST_CASE ( "BlockTraversal functions", "[blocktraversal][verify][details]" )
+// TEST_CASE ( "BlockTraversal behavior", "[blocktraversal][verify][details]" )
 // {
 // 	using arcstk::BlockTraversal;
 //

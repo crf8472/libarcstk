@@ -24,18 +24,18 @@ TEST_CASE ( "CalculationUpdater is non-abstract, final and non-empty",
 {
 	using arcstk::accuraterip::algorithm::Version1;
 
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::CalculationUpdater<Version1>> );
 		CHECK ( ! std::is_abstract_v<arcstk::CalculationUpdater<Version1>> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::CalculationUpdater<Version1>> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::CalculationUpdater<Version1>> );
 	}
@@ -47,32 +47,32 @@ TEST_CASE ( "CalculationUpdater special members",
 {
 	using arcstk::accuraterip::algorithm::Version1;
 
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::CalculationUpdater<Version1>> );
 	}
 
-	SECTION ( "is not copy-constructable")
+	SECTION ( "is not copy-constructable" )
 	{
 		CHECK ( ! std::is_copy_constructible_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
-	SECTION ( "is not copy-assignable")
+	SECTION ( "is not copy-assignable" )
 	{
 		CHECK ( ! std::is_copy_assignable_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::CalculationUpdater<Version1>>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::CalculationUpdater<Version1>>);
 	}
@@ -84,7 +84,7 @@ TEST_CASE ( "CalculationUpdater is swappable",
 {
 	using arcstk::accuraterip::algorithm::Version1;
 
-	SECTION ("is nothrow swappable")
+	SECTION ( "is nothrow swappable" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::CalculationUpdater<Version1>> );
 	}

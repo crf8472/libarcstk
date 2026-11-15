@@ -90,7 +90,7 @@ TEST_CASE ( "DBARBuilder default",
 }
 
 
-// TEST_CASE ( "DBARBuilder property", "[dbarbuilder][dbar]" )
+// TEST_CASE ( "DBARBuilder value", "[dbarbuilder][dbar]" )
 // {
 // 	using arcstk::DBARBuilder;
 //
@@ -139,7 +139,7 @@ TEST_CASE ( "DBARBuilder default",
 // }
 
 
-// TEST_CASE ( "DBARBuilder functions", "[dbarbuilder][dbar]" )
+// TEST_CASE ( "DBARBuilder behavior", "[dbarbuilder][dbar]" )
 // {
 // 	using arcstk::DBARBuilder;
 //

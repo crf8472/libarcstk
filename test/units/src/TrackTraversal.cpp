@@ -86,53 +86,53 @@ TEST_CASE ( "TrackTraversal default",
 {
 	const auto defaulted = arcstk::details::TrackTraversal {};
 
-	SECTION ( "begin() throws")
+	SECTION ( "begin() throws" )
 	{
 		CHECK_THROWS ( defaulted.begin(0) );
 	}
 
-	SECTION ( "end() throws")
+	SECTION ( "end() throws" )
 	{
 		CHECK_THROWS ( defaulted.end(0) );
 	}
 
-	SECTION ( "Creates a non-strict/lenient VerificationPolicy")
+	SECTION ( "Creates a non-strict/lenient VerificationPolicy" )
 	{
 		CHECK ( ! defaulted.get_policy()->is_strict() );
 	}
 
-	SECTION ( "Creates a Selector")
+	SECTION ( "Creates a Selector" )
 	{
 		CHECK ( defaulted.get_selector() != nullptr );
 	}
 
-	// SECTION ( "current_block() is 0")
+	// SECTION ( "current_block() is 0" )
 	// {
 	// 	auto b = defaulted.begin(0);
 	//
 	// 	CHECK ( defaulted.current_block(b) == 0 );
 	// }
 	//
-	// SECTION ( "current_track() is 0")
+	// SECTION ( "current_track() is 0" )
 	// {
 	// 	auto b = defaulted.begin(0);
 	//
 	// 	CHECK ( defaulted.current_track(b) == 0 );
 	// }
 	//
-	// SECTION ( "end_current() is 0")
+	// SECTION ( "end_current() is 0" )
 	// {
 	// 	CHECK ( defaulted.end_current(0) == 0 );
 	// }
 	//
-	// SECTION ( "end_counter() is 0")
+	// SECTION ( "end_counter() is 0" )
 	// {
 	// 	CHECK ( defaulted.end_counter(0) == 0 );
 	// }
 }
 
 
-// TEST_CASE ( "TrackTraversal property", "[blocktraversal][verify]" )
+// TEST_CASE ( "TrackTraversal value", "[blocktraversal][verify]" )
 // {
 // 	using arcstk::TrackTraversal;
 //
@@ -181,7 +181,7 @@ TEST_CASE ( "TrackTraversal default",
 // }
 
 
-// TEST_CASE ( "TrackTraversal functions", "[blocktraversal][verify]" )
+// TEST_CASE ( "TrackTraversal behavior", "[blocktraversal][verify]" )
 // {
 // 	using arcstk::TrackTraversal;
 //

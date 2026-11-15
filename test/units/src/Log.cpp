@@ -31,7 +31,7 @@ TEST_CASE ( "Log", "[log][logging]" )
 }
 
 
-TEST_CASE ( "Log functions", "[log][logging]" )
+TEST_CASE ( "Log behavior", "[log][logging]" )
 {
 	using arcstk::Log;
 	using arcstk::Logger;

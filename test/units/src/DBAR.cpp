@@ -298,7 +298,7 @@ TEST_CASE ( "DBAR default",
 }
 
 
-TEST_CASE ( "DBAR property", "[dbar]" )
+TEST_CASE ( "DBAR value", "[dbar]" )
 {
 	using arcstk::DBAR;
 
@@ -347,7 +347,7 @@ TEST_CASE ( "DBAR property", "[dbar]" )
 }
 
 
-TEST_CASE ( "DBAR functions", "[dbar]" )
+TEST_CASE ( "DBAR behavior", "[dbar]" )
 {
 	using arcstk::DBAR;
 

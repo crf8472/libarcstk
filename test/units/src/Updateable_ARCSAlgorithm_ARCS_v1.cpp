@@ -94,7 +94,7 @@ TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv1>> default",
 
 	auto defaulted = arcstk::Updateable<Version1>{};
 
-	SECTION ( "has specified Algorithm")
+	SECTION ( "has specified Algorithm" )
 	{
 		CHECK ( defaulted.types() == cs_types { type::ARCS1 } );
 	}
@@ -150,7 +150,7 @@ TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv1>> default",
 // }
 
 
-// TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv1>> functions", "[updateable][calc][algorithm]" )
+// TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv1>> behavior", "[updateable][calc][algorithm]" )
 // {
 // 	using arcstk::Updateable;
 //

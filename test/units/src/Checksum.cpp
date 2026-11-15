@@ -98,9 +98,9 @@ TEST_CASE ( "Checksum default",
 	}
 }
 
-// TODO Implement Checksum property tests
+// TODO Implement Checksum valuetests
 	/*
-TEST_CASE ( "Checksum property", "[checksum][calc][checksum]" )
+TEST_CASE ( "Checksum value", "[checksum][calc][checksum]" )
 {
 	using arcstk::Checksum;
 
@@ -136,7 +136,7 @@ TEST_CASE ( "Checksum property", "[checksum][calc][checksum]" )
 
 
 	/*
-TEST_CASE ( "Checksum functions", "[checksum][calc][checksum]" )
+TEST_CASE ( "Checksum behavior", "[checksum][calc][checksum]" )
 {
 	using arcstk::Checksum;
 

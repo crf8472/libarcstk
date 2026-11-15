@@ -95,7 +95,7 @@ TEST_CASE ( "FindOrderPolicy default",
 }
 
 
-// TEST_CASE ( "FindOrderPolicy property", "[findorderpolicy][verify][details]" )
+// TEST_CASE ( "FindOrderPolicy value", "[findorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::FindOrderPolicy {};
 //
@@ -142,7 +142,7 @@ TEST_CASE ( "FindOrderPolicy default",
 // }
 
 
-// TEST_CASE ( "FindOrderPolicy functions", "[findorderpolicy][verify][details]" )
+// TEST_CASE ( "FindOrderPolicy behavior", "[findorderpolicy][verify][details]" )
 // {
 // 	auto instance = arcstk::details::FindOrderPolicy {};
 //
