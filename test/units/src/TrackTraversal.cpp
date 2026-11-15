@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "TrackTraversal default constructed instance",
+TEST_CASE ( "TrackTraversal default",
 	"[blocktraversal][verify]" )
 {
 	const auto defaulted = arcstk::details::TrackTraversal {};

@@ -276,7 +276,7 @@ TEST_CASE ( "DBAR", "[dbar]" )
 }
 
 
-TEST_CASE ( "DBAR default constructed instance",
+TEST_CASE ( "DBAR default",
 	"[dbar]" )
 {
 	const auto instance = arcstk::DBAR{};

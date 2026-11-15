@@ -78,7 +78,7 @@
 // }
 
 
-// TEST_CASE ( "DBARTriplet default constructed instance",
+// TEST_CASE ( "DBARTriplet default",
 // 		"[dbartriplet][dbar]" )
 // {
 // 	const auto defaulted = arcstk::DBARTriplet{};

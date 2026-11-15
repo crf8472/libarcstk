@@ -78,7 +78,7 @@
 // }
 
 
-// TEST_CASE ( "DBARBlockHeader default constructed instance",
+// TEST_CASE ( "DBARBlockHeader default",
 // 		"[dbarblockheader][dbar]" )
 // {
 // 	const auto defaulted = arcstk::DBARBlockHeader{};

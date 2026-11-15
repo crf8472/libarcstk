@@ -306,7 +306,7 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // }
 //
 //
-// TEST_CASE ( "CalculationUpdater<> default constructed instance",
+// TEST_CASE ( "CalculationUpdater<> default",
 // 		"[calculationupdater][calc][calculate]" )
 // {
 // 	using AccurateRipV1 = arcstk::AccurateRip::V1;

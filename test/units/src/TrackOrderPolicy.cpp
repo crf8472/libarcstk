@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "TrackOrderPolicy default constructed instance",
+TEST_CASE ( "TrackOrderPolicy default",
 	"[trackorderpolicy][verify][details]" )
 {
 	const auto defaulted = arcstk::details::TrackOrderPolicy {};

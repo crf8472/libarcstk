@@ -127,7 +127,7 @@ TEST_CASE ( "AudioSize", "[audiosize][metadata][metadata]" )
 }
 
 
-TEST_CASE ( "AudioSize default constructed instance",
+TEST_CASE ( "AudioSize default",
 	"[audiosize][metadata][metadata]" )
 {
 	const auto instance = arcstk::AudioSize{};

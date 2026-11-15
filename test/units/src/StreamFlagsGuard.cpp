@@ -80,7 +80,7 @@
 // }
 
 
-TEST_CASE ( "StreamFlagsGuard default constructed instance",
+TEST_CASE ( "StreamFlagsGuard default",
 	"[streamflagsguard][calc][checksum][details]" )
 {
 	auto stream = std::ostringstream {};

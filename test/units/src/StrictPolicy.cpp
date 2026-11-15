@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "StrictPolicy default constructed instance",
+TEST_CASE ( "StrictPolicy default",
 	"[strictpolicy][verify][details]" )
 {
 	const auto defaulted  = arcstk::details::StrictPolicy {};

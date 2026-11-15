@@ -78,7 +78,7 @@
 // }
 
 
-TEST_CASE ( "Update<ARCS1> default constructed instance",
+TEST_CASE ( "Update<ARCS1> default",
 	"[update][calc][accuraterip][details]" )
 {
 	using arcstk::checksum::type;

@@ -81,7 +81,7 @@
 // }
 
 
-// TEST_CASE ( "SampleIterator default constructed instance",
+// TEST_CASE ( "SampleIterator default",
 // 		"[sampleiterator][calc][samples]" )
 // {
 // 	const auto defaulted = arcstk::SampleIterator{};

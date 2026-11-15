@@ -78,7 +78,7 @@
 // }
 
 
-TEST_CASE ( "IteratorElement default constructed instance",
+TEST_CASE ( "IteratorElement default",
 	"[iteratorelement][dbar]" )
 {
 	const auto v = std::int32_t { 184 };

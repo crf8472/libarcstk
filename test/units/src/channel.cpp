@@ -78,7 +78,7 @@
 // }
 
 
-// TEST_CASE ( "channel default constructed instance",
+// TEST_CASE ( "channel default",
 // 		"[channel][calc][samples][details]" )
 // {
 // 	const auto defaulted = arcstk::channel{};

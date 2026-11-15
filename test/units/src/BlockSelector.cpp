@@ -85,7 +85,7 @@
 // }
 
 
-TEST_CASE ( "BlockSelector default constructed instance",
+TEST_CASE ( "BlockSelector default",
 	"[trackselector][verify][details]" )
 {
 	const auto defaulted = arcstk::details::BlockSelector{};

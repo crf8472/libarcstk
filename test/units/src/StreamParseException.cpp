@@ -78,7 +78,7 @@
 // }
 
 
-// TEST_CASE ( "StreamParseException default constructed instance",
+// TEST_CASE ( "StreamParseException default",
 // 		"[streamparseexception][dbar]" )
 // {
 // 	const auto defaulted = arcstk::StreamParseException{};

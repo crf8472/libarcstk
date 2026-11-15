@@ -89,7 +89,7 @@
 // }
 
 
-// TEST_CASE ( "Logger default constructed instance", "[logger][logging]" )
+// TEST_CASE ( "Logger default", "[logger][logging]" )
 // {
 // 	using arcstk::Logger;
 //

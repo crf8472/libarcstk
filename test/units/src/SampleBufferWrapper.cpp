@@ -83,7 +83,7 @@
 //}
 //
 //
-//TEST_CASE ( "SampleBufferWrapper default constructed instance",
+//TEST_CASE ( "SampleBufferWrapper default",
 //		"[samplebufferwrapper][calc][samples][details]" )
 //{
 //	const auto instance = arcstk::SampleBufferWrapper{};

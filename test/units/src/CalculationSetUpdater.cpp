@@ -85,7 +85,7 @@
 // }
 
 
-TEST_CASE ( "CalculationSetUpdater default constructed instance",
+TEST_CASE ( "CalculationSetUpdater default",
 	"[calculationsetupdater][calc][calculate]" )
 {
 	using arcstk::csample_t;

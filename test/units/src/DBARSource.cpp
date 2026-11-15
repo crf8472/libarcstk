@@ -82,7 +82,7 @@
 // }
 
 
-// TEST_CASE ( "DBARSource default constructed instance",
+// TEST_CASE ( "DBARSource default",
 // 		"[dbarsource][verify]" )
 // {
 // 	const auto defaulted = arcstk::DBARSource{};

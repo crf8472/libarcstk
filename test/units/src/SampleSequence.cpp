@@ -81,7 +81,7 @@
 // }
 
 
-// TEST_CASE ( "SampleSequence default constructed instance",
+// TEST_CASE ( "SampleSequence default",
 // 		"[samplesequence][calc][samples]" )
 // {
 // 	const auto defaulted = arcstk::SampleSequence{};

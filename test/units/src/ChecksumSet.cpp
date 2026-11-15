@@ -93,7 +93,7 @@ TEST_CASE ( "ChecksumSet", "[checksumset][calc][checksum]" )
 }
 
 
-TEST_CASE ( "ChecksumSet default constructed instance",
+TEST_CASE ( "ChecksumSet default",
 	"[checksumset][calc][checksum]" )
 {
 	const auto instance = arcstk::ChecksumSet{};

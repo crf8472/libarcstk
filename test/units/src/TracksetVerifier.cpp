@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "TracksetVerifier default constructed instance",
+TEST_CASE ( "TracksetVerifier default",
 	"[tracksetverifier][verify]" )
 {
 	using arcstk::Checksums;

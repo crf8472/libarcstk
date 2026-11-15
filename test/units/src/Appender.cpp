@@ -74,12 +74,12 @@ TEST_CASE ( "Appender", "[appender][logging]" )
 }
 
 
-TEST_CASE ( "Appender property", "[appender][logging]" )
+TEST_CASE ( "Appender value", "[appender][logging]" )
 {
 	using arcstk::Appender;
 	using arcstk::testing::TemporaryFile;
 
-	SECTION ( "swap() is correct" )
+	SECTION ( "is correctly swap()ped" )
 	{
 		const auto file1_prefix = std::string {
 			"LIBARCSTK-TEST-UNIT-Appender-52307562316"

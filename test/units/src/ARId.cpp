@@ -188,7 +188,7 @@ TEST_CASE ( "ARId", "[arid][id][identifier]" )
 }
 
 
-TEST_CASE ( "ARId default constructed instance", "[arid][id][identifier]" )
+TEST_CASE ( "ARId default", "[arid][id][identifier]" )
 {
 	const auto instance = arcstk::ARId {};
 

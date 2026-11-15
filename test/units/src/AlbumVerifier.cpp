@@ -82,7 +82,7 @@
 // }
 
 
-TEST_CASE ( "AlbumVerifier default constructed instance",
+TEST_CASE ( "AlbumVerifier default",
 		"[albumverifier][verify]" )
 {
 	using arcstk::Checksums;

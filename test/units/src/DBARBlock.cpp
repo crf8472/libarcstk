@@ -81,7 +81,7 @@
 // }
 
 
-// TEST_CASE ( "DBARBlock default constructed instance",
+// TEST_CASE ( "DBARBlock default",
 // 		"[dbarblock][dbar][details]" )
 // {
 // 	const auto instance = arcstk::DBARBlock{};

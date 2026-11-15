@@ -73,7 +73,7 @@ TEST_CASE ( "Settings", "[settings][calc][calculate]" )
 }
 
 
-TEST_CASE ( "Settings default constructed instance",
+TEST_CASE ( "Settings default",
 	"[settings][calc][calculate]" )
 {
 	using arcstk::Context;

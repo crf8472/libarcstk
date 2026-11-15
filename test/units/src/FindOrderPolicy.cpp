@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "FindOrderPolicy default constructed instance",
+TEST_CASE ( "FindOrderPolicy default",
 	"[findorderpolicy][verify][details]" )
 {
 	const auto defaulted = arcstk::details::FindOrderPolicy {};

@@ -78,7 +78,7 @@
 // }
 
 
-TEST_CASE ( "CheckingDBARBuilder default constructed instance",
+TEST_CASE ( "CheckingDBARBuilder default",
 	"[checkingdbarbuilder][dbar][details]" )
 {
 	auto defaulted = arcstk::CheckingDBARBuilder{};

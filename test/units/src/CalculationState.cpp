@@ -178,7 +178,7 @@ TEST_CASE ( "CalculationState", "[calculationstate][calc][calculate][details]" )
 }
 
 
-TEST_CASE ( "CalculationState default constructed instance",
+TEST_CASE ( "CalculationState default",
 	"[calculationstate][calc][calculate][details]" )
 {
 	using duration = std::chrono::duration<float>;

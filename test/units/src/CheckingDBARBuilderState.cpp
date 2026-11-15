@@ -82,7 +82,7 @@
 // }
 
 
-TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
+TEST_CASE ( "CheckingDBARBuilderState default",
 	"[checkingdbarbuilderstate][dbar][details]" )
 {
 	const auto defaulted = arcstk::details::CheckingDBARBuilderState {};

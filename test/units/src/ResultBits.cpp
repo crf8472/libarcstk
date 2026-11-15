@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "ResultBits default constructed instance",
+TEST_CASE ( "ResultBits default",
 	"[resultbits][verify][details]" )
 {
 	const auto defaulted = arcstk::details::ResultBits {};

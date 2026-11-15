@@ -100,7 +100,7 @@ TEST_CASE ( "ToC", "[toc][metadata][metadata]" )
 }
 */
 
-TEST_CASE ( "ToC default constructed instance",
+TEST_CASE ( "ToC default",
 	"[toc][metadata][metadata]" )
 {
 	const auto instance = arcstk::ToC{};

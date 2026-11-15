@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "Verification default constructed instance",
+TEST_CASE ( "Verification default",
 	"[verification][verify][details]" )
 {
 	const auto defaulted = arcstk::details::Verification {};

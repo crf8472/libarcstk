@@ -85,7 +85,7 @@
 // }
 
 
-TEST_CASE ( "TrackSelector default constructed instance",
+TEST_CASE ( "TrackSelector default",
 	"[trackselector][verify][details]" )
 {
 	const auto defaulted = arcstk::details::TrackSelector {};

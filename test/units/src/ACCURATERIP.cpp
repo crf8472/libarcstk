@@ -11,7 +11,7 @@
 #endif
 
 
-TEST_CASE ( "ACCURATERIP default constructed instance",
+TEST_CASE ( "ACCURATERIP default",
 	"[accuraterip][calc][accuraterip]" )
 {
 	const auto defaulted = arcstk::ACCURATERIP {};

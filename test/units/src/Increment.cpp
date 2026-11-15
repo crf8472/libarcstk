@@ -79,7 +79,7 @@
 // }
 
 
-// TEST_CASE ( "Increment default constructed instance",
+// TEST_CASE ( "Increment default",
 // 		"[increment][dbar][details]" )
 // {
 // 	const auto defaulted = arcstk::Increment{};

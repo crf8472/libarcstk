@@ -84,7 +84,7 @@
 // }
 
 
-TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv2>> default constructed instance",
+TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv2>> default",
 	"[updateable][calc][algorithm]" )
 {
 	using arcstk::accuraterip::algorithm::Version2;

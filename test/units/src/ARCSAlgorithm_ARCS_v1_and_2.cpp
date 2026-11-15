@@ -102,7 +102,7 @@ TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2>",
 }
 
 
-TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default constructed instance",
+TEST_CASE ( "ARCSAlgorithm<ARCS1,ARCS2> default",
 	"[arcsalgorithm][calc][accuraterip]" )
 {
 	using ARv12 = arcstk::accuraterip::algorithm::Versions1and2;

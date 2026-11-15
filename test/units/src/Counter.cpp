@@ -78,7 +78,7 @@ TEST_CASE ( "Counter<>", "[counter][calc][calculate][details]" )
 }
 
 
-TEST_CASE ( "Counter<> default constructed instance",
+TEST_CASE ( "Counter<> default",
 	"[counter][calc][calculate][details]" )
 {
 	using arcstk::details::Counter;

@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "Result default constructed instance",
+TEST_CASE ( "Result default",
 	"[result][verify][details]" )
 {
 	using arcstk::details::StrictPolicy;

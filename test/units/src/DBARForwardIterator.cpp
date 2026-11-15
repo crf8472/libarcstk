@@ -78,7 +78,7 @@
 // }
 
 
-TEST_CASE ( "DBARForwardIterator default constructed instance",
+TEST_CASE ( "DBARForwardIterator default",
 	"[dbarforwarditerator][dbar][details]" )
 {
 	using arcstk::DBAR;

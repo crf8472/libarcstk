@@ -81,7 +81,7 @@
 // }
 
 
-TEST_CASE ( "LenientPolicy default constructed instance",
+TEST_CASE ( "LenientPolicy default",
 	"[lenientpolicy][verify][details]" )
 {
 	const auto defaulted  = arcstk::details::LenientPolicy {};

@@ -85,7 +85,7 @@
 // }
 
 
-// TEST_CASE ( "SourceIterator default constructed instance",
+// TEST_CASE ( "SourceIterator default",
 // 		"[sourceiterator][verify][details]" )
 // {
 // 	SECTION ( "converts to FALSE" )

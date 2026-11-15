@@ -128,7 +128,7 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 }
 
 
-TEST_CASE ( "Interval<> default constructed instance",
+TEST_CASE ( "Interval<> default",
 	"[interval][calc][calculate]" )
 {
 	const auto defaulted = arcstk::Interval<int>{};

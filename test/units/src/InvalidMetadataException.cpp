@@ -79,7 +79,7 @@
 // }
 
 
-TEST_CASE ( "InvalidMetadataException default constructed instance",
+TEST_CASE ( "InvalidMetadataException default",
 	"[invalidmetadataexception][metadata]" )
 {
 	using arcstk::MetadataRequirement;
