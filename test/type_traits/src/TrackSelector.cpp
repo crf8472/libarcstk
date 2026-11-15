@@ -83,3 +83,5 @@ TEST_CASE ( "TrackSelector is swappable", "[trackselector][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

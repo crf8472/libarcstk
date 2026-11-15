@@ -46,3 +46,5 @@ TEST_CASE ( "functions", "[version]" )
 	}
 }
 
+// vim:fdm=syntax
+

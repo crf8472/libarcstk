@@ -283,3 +283,5 @@ TEST_CASE ( "CalculationSetUpdater default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

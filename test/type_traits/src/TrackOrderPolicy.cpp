@@ -84,3 +84,5 @@ TEST_CASE ( "TrackOrderPolicy is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

@@ -71,3 +71,5 @@ TEST_CASE ( "StreamFlagsGuard special members",
 	}
 }
 
+// vim:fdm=syntax
+

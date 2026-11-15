@@ -107,3 +107,5 @@ TEST_CASE ( "Update<type::ARCS1, type::ARCS2> is swappable, comparable, string c
 	}
 }
 
+// vim:fdm=syntax
+

@@ -81,3 +81,5 @@ TEST_CASE ( "channel is swappable and comparable",
 	}
 }
 
+// vim:fdm=syntax
+

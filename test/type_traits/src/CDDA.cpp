@@ -94,3 +94,5 @@ TEST_CASE ( "CDDA capabilities", "[cdda][metadata]" )
 	}
 }
 
+// vim:fdm=syntax
+

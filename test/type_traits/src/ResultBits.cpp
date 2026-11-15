@@ -83,3 +83,5 @@ TEST_CASE ( "ResultBits is swappable", "[resultbits][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

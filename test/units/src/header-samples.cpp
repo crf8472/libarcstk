@@ -28,3 +28,5 @@ TEST_CASE ( "channel", "[channel][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

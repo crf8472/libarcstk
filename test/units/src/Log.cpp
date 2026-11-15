@@ -47,3 +47,5 @@ TEST_CASE ( "Log functions", "[log][logging]" )
 	}
 }
 
+// vim:fdm=syntax
+

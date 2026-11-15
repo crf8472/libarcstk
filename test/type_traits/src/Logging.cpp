@@ -70,3 +70,5 @@ TEST_CASE ( "Logging special members", "[logging]" )
 	}
 }
 
+// vim:fdm=syntax
+

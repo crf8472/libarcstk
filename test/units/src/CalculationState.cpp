@@ -289,3 +289,5 @@ TEST_CASE ( "CalculationState default constructed instance",
 //
 // }
 
+// vim:fdm=syntax
+

@@ -189,3 +189,5 @@ TEST_CASE ( "Checksum functions", "[checksum][calc][checksum]" )
 }
 	*/
 
+// vim:fdm=syntax
+

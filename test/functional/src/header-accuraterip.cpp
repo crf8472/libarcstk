@@ -1442,3 +1442,5 @@ TEST_CASE ( "construct_id", "[id]" )
 */
 //}
 
+// vim:fdm=syntax
+

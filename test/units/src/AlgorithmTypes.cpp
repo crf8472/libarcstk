@@ -158,3 +158,5 @@ TEST_CASE ( "AlgorithmTypes<> default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

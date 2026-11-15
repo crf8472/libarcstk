@@ -221,3 +221,5 @@ TEST_CASE ( "SourceIterator property", "[sourceiterator][verify][details]" )
 //
 // }
 
+// vim:fdm=syntax
+

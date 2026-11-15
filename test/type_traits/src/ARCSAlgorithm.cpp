@@ -145,3 +145,5 @@ TEST_CASE ( "ARCSAlgorithm<> is swappable",
 	// }
 }
 
+// vim:fdm=syntax
+

@@ -197,3 +197,5 @@ TEST_CASE ( "SampleIterator functions", "[sampleiterator][calc][samples]" )
 	// }
 }
 
+// vim:fdm=syntax
+

@@ -126,3 +126,5 @@ TEST_CASE ( "Settings property", "[settings][calc][calculate]" )
 	}
 }
 
+// vim:fdm=syntax
+

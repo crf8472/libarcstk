@@ -653,3 +653,5 @@ TEST_CASE ( "DBAR functions", "[dbar]" )
 	}
 }
 
+// vim:fdm=syntax
+

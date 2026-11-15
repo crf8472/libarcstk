@@ -239,3 +239,5 @@ TEST_CASE ( "SampleBufferWrapper functions",
 	}
 }
 
+// vim:fdm=syntax
+

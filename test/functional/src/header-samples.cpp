@@ -451,3 +451,5 @@ TEST_CASE ( "SampleBufferWrapper interleaved file", "[samplebufferwrapper]" )
 	}
 }
 
+// vim:fdm=syntax
+

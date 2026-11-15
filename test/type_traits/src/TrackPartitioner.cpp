@@ -81,3 +81,5 @@ TEST_CASE ( "TrackPartitioner is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

@@ -197,3 +197,5 @@ TEST_CASE ( "TracksetVerifier default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

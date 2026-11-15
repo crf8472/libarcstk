@@ -43,3 +43,5 @@ TEST_CASE ( "Context", "[context][calc]" )
 	}
 }
 
+// vim:fdm=syntax
+

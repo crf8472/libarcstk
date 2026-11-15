@@ -358,3 +358,5 @@ TEST_CASE ( "DBARBlock functions", "[dbarblock][dbar][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

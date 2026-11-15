@@ -84,3 +84,5 @@ TEST_CASE ( "CheckingDBARBuilderState is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

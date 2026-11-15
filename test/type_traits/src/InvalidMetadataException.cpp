@@ -81,3 +81,5 @@ TEST_CASE ( "InvalidMetadataException is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

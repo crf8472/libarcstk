@@ -154,3 +154,5 @@ TEST_CASE ( "TrackOrderPolicy default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

@@ -83,3 +83,5 @@ TEST_CASE ( "BlockSelector is swappable", "[blockselector][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

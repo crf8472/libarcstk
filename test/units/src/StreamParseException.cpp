@@ -164,3 +164,5 @@ TEST_CASE ( "StreamParseException functions", "[streamparseexception][dbar]" )
 	}
 }
 
+// vim:fdm=syntax
+

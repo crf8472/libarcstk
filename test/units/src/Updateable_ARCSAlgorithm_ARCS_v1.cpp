@@ -202,3 +202,5 @@ TEST_CASE ( "Updateable<ARCSAlgorithm<ARCSv1>> default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

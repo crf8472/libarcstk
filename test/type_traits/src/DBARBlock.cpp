@@ -95,3 +95,5 @@ TEST_CASE ( "DBARBlock is swappable and comparable",
 	// }
 }
 
+// vim:fdm=syntax
+

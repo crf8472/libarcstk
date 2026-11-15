@@ -81,3 +81,5 @@ TEST_CASE ( "StreamParseException is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

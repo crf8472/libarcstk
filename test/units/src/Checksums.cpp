@@ -306,3 +306,5 @@ TEST_CASE ( "Checksums", "[checksums][calc]" )
 
 }
 
+// vim:fdm=syntax
+

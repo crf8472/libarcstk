@@ -409,3 +409,5 @@ TEST_CASE ( "get_partitioning", "[get_partitioning][calc][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

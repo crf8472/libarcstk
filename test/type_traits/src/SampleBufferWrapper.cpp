@@ -81,3 +81,5 @@ TEST_CASE ( "SampleBufferWrapper is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

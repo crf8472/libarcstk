@@ -164,3 +164,5 @@ TEST_CASE ( "channel functions", "[channel][calc][samples][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

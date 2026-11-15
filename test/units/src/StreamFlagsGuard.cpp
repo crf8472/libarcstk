@@ -154,3 +154,5 @@ TEST_CASE ( "StreamFlagsGuard default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

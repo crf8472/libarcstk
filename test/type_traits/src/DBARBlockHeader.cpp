@@ -95,3 +95,5 @@ TEST_CASE ( "DBARBlockHeader is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

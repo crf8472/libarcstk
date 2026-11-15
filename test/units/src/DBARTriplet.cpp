@@ -164,3 +164,5 @@ TEST_CASE ( "DBARTriplet functions", "[dbartriplet][dbar]" )
 	}
 }
 
+// vim:fdm=syntax
+

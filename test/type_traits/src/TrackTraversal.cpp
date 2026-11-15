@@ -83,3 +83,5 @@ TEST_CASE ( "TrackTraversal is swappable", "[tracktraversal][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

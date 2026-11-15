@@ -83,7 +83,7 @@
 
 
 TEST_CASE ( "AlbumVerifier default constructed instance",
-	"[albumverifier][verify]" )
+		"[albumverifier][verify]" )
 {
 	using arcstk::Checksums;
 	using arcstk::ARId;
@@ -198,4 +198,6 @@ TEST_CASE ( "AlbumVerifier default constructed instance",
 // 	}
 //
 // }
+
+// vim:fdm=syntax
 

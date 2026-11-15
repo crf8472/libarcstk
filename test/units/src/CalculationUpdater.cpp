@@ -404,3 +404,5 @@ TEST_CASE ( "CalculationUpdater<> Old",
 // 	// }
 // }
 
+// vim:fdm=syntax
+

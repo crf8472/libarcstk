@@ -292,3 +292,5 @@ TEST_CASE ( "convert_to<>()", "[convert_to][meta]" )
 	}
 }
 
+// vim:fdm=syntax
+

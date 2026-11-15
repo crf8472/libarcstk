@@ -84,3 +84,5 @@ TEST_CASE ( "FindOrderPolicy is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

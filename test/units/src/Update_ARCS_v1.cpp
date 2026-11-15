@@ -151,3 +151,5 @@ TEST_CASE ( "Update<ARCS1> default constructed instance",
 //
 // }
 
+// vim:fdm=syntax
+

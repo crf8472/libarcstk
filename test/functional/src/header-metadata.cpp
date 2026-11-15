@@ -76,3 +76,5 @@ TEST_CASE ( "CDDA", "[meta]" )
 	}
 }
 
+// vim:fdm=syntax
+

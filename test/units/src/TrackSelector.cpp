@@ -184,3 +184,5 @@ TEST_CASE ( "TrackSelector functions", "[trackselector][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

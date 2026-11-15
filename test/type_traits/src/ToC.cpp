@@ -109,3 +109,5 @@ TEST_CASE ( "ToC is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

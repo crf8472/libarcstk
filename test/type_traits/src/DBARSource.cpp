@@ -80,3 +80,5 @@ TEST_CASE ( "DBARSource is swappable", "[dbarsource][verify]" )
 	}
 }
 
+// vim:fdm=syntax
+

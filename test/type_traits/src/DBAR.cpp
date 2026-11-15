@@ -86,3 +86,5 @@ TEST_CASE ( "DBAR is swappable and comparable", "[dbar]" )
 	}
 }
 
+// vim:fdm=syntax
+

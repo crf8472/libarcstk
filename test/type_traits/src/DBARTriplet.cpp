@@ -95,3 +95,5 @@ TEST_CASE ( "DBARTriplet is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

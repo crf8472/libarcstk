@@ -767,3 +767,5 @@ TEST_CASE ( "parse_dbar_stream", "[parse_dbar_stream][dbar]" )
 	}
 }
 
+// vim:fdm=syntax
+

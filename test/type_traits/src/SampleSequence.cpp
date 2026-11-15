@@ -90,3 +90,5 @@ TEST_CASE ( "SampleSequence is swappable",
 	// }
 }
 
+// vim:fdm=syntax
+

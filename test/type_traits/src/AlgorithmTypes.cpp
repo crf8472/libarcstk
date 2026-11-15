@@ -111,3 +111,5 @@ TEST_CASE (
 	// }
 }
 
+// vim:fdm=syntax
+

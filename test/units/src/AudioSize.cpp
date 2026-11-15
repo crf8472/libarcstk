@@ -355,3 +355,5 @@ TEST_CASE ( "AudioSize functions", "[audiosize][metadata][metadata]" )
 	*/
 }
 
+// vim:fdm=syntax
+

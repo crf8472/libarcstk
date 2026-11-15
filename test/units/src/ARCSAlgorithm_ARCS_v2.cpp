@@ -247,3 +247,5 @@ TEST_CASE ( "ARCSAlgorithm<ARCS2> functions",
 	// }
 }
 
+// vim:fdm=syntax
+

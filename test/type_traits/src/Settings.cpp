@@ -88,3 +88,5 @@ TEST_CASE ( "Settings is swappable and comparable",
 	}
 }
 
+// vim:fdm=syntax
+

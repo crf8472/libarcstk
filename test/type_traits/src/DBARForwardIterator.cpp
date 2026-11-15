@@ -97,3 +97,5 @@ TEST_CASE ( "DBARForwardIterator is swappable and comparable",
 	}
 }
 
+// vim:fdm=syntax
+

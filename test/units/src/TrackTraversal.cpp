@@ -258,3 +258,5 @@ TEST_CASE ( "TrackTraversal default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

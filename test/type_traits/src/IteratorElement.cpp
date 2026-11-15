@@ -102,3 +102,5 @@ TEST_CASE ( "IteratorElement is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

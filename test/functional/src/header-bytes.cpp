@@ -31,3 +31,5 @@ TEST_CASE ( "Combine samples", "[combine]" )
 	}
 }
 
+// vim:fdm=syntax
+

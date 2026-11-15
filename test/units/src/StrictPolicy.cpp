@@ -168,3 +168,5 @@ TEST_CASE ( "StrictPolicy functions", "[strictpolicy][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

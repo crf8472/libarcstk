@@ -83,3 +83,5 @@ TEST_CASE ( "CalculationState is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

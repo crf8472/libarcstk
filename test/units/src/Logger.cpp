@@ -246,3 +246,5 @@ TEST_CASE ( "Logger functions", "[logger][logging]" )
 	// }
 }
 
+// vim:fdm=syntax
+

@@ -88,3 +88,5 @@ TEST_CASE ( "Partition is swappable and comparable",
 	}
 }
 
+// vim:fdm=syntax
+

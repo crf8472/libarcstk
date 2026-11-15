@@ -58,3 +58,5 @@ TEST_CASE ( "ACCURATERIP functions", "[accuraterip][calc][accuraterip]" )
 	}
 }
 
+// vim:fdm=syntax
+

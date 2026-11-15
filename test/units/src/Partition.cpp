@@ -135,3 +135,5 @@ TEST_CASE ( "Partition", "[partition][calc][calculate]" )
 // 	}
 // }
 
+// vim:fdm=syntax
+

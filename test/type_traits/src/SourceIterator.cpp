@@ -91,3 +91,5 @@ TEST_CASE ( "SourceIterator is swappable and comparable",
 	}
 }
 
+// vim:fdm=syntax
+

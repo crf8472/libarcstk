@@ -179,3 +179,5 @@ TEST_CASE ( "BlockSelector functions", "[trackselector][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

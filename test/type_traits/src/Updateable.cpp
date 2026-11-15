@@ -90,3 +90,5 @@ TEST_CASE ( "Updateable<Versions1and2> is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

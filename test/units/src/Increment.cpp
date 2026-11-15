@@ -196,3 +196,5 @@ TEST_CASE ( "Increment functions", "[increment][dbar][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

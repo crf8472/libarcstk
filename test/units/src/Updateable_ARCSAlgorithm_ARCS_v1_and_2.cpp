@@ -204,3 +204,5 @@ TEST_CASE ( "Updateable<ARCSAlgorithm<ARCS1,ARCS2>> default constructed instance
 // 	}
 // }
 
+// vim:fdm=syntax
+

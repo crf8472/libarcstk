@@ -290,3 +290,5 @@ TEST_CASE ( "perform_update", "[perform_update][calc]" )
 	// TODO Simulate the same album but with block_size 4096 like ffmpeg does
 }
 
+// vim:fdm=syntax
+

@@ -272,3 +272,5 @@ TEST_CASE ( "ToC functions", "[toc][metadata][metadata]" )
 	// }
 }
 
+// vim:fdm=syntax
+

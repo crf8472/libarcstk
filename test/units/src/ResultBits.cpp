@@ -235,3 +235,5 @@ TEST_CASE ( "ResultBits default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

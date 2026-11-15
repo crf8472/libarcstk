@@ -227,3 +227,5 @@ TEST_CASE ( "DBARSource functions", "[dbarsource][verify]" )
 
 }
 
+// vim:fdm=syntax
+

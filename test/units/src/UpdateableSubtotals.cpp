@@ -227,3 +227,5 @@ TEST_CASE ( "UpdateableSubtotals property",
 // 	}
 // }
 
+// vim:fdm=syntax
+

@@ -183,3 +183,5 @@ TEST_CASE ( "IteratorElement default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

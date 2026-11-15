@@ -33,3 +33,5 @@ TEST_CASE ( "sum_digits", "[id]" )
 
 // TODO print_impl()
 
+// vim:fdm=syntax
+

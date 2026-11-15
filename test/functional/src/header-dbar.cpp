@@ -316,3 +316,5 @@ TEST_CASE ( "DBAR Construction by DBARBuilder", "[dbar]")
 	}
 }
 
+// vim:fdm=syntax
+

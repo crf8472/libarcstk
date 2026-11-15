@@ -91,3 +91,5 @@ TEST_CASE ( "UpdateableSubtotals is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

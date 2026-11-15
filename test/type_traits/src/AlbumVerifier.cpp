@@ -80,3 +80,5 @@ TEST_CASE ( "AlbumVerifier is swappable", "[albumverifier][verify]" )
 	}
 }
 
+// vim:fdm=syntax
+

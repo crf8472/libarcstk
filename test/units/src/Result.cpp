@@ -233,3 +233,5 @@ TEST_CASE ( "Result property", "[result][verify][details]" )
 // 	}
 // }
 
+// vim:fdm=syntax
+

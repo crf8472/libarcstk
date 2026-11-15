@@ -558,3 +558,5 @@ TEST_CASE ( "UpdateableSubtotals caches values correctly",
 	}
 }
 
+// vim:fdm=syntax
+

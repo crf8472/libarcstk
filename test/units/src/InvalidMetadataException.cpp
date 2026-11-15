@@ -174,3 +174,5 @@ TEST_CASE ( "InvalidMetadataException default constructed instance",
 //
 // }
 
+// vim:fdm=syntax
+

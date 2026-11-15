@@ -179,3 +179,5 @@ TEST_CASE ( "SampleSequence functions", "[samplesequence][calc][samples]" )
 	// operator[]
 }
 
+// vim:fdm=syntax
+

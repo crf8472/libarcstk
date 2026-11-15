@@ -152,3 +152,5 @@ TEST_CASE ( "FindOrderPolicy default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

@@ -209,3 +209,5 @@ TEST_CASE ( "Counter<> functions", "[counter][calc][calculate][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

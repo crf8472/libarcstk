@@ -87,3 +87,5 @@ TEST_CASE ( "Increment is swappable", "[increment][dbar][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

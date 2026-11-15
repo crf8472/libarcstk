@@ -70,3 +70,5 @@ TEST_CASE ( "Calculation special members", "[calculation][calc][calculate]" )
 	}
 }
 
+// vim:fdm=syntax
+

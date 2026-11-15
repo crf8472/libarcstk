@@ -167,3 +167,5 @@ TEST_CASE ( "Verification default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

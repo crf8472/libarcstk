@@ -169,3 +169,5 @@ TEST_CASE ( "LenientPolicy functions", "[lenientpolicy][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

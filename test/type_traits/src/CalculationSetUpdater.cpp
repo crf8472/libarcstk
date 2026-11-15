@@ -87,3 +87,5 @@ TEST_CASE ( "CalculationSetUpdater is swappable",
 	}
 }
 
+// vim:fdm=syntax
+

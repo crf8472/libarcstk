@@ -94,3 +94,5 @@ TEST_CASE ( "ARId is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

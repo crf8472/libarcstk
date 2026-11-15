@@ -202,3 +202,5 @@ TEST_CASE ( "CheckingDBARBuilderState default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

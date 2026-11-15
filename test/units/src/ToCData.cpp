@@ -913,3 +913,5 @@ TEST_CASE ( "get_offset_sample_indices", "[get_offset_sample_indices]" )
 // 	}
 // }
 
+// vim:fdm=syntax
+

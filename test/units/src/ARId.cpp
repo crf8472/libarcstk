@@ -441,3 +441,5 @@ TEST_CASE ( "Empty ARIds", "[arid][id][identifier]" )
 	}
 }
 
+// vim:fdm=syntax
+

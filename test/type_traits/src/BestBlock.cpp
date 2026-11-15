@@ -82,3 +82,5 @@ TEST_CASE ( "BestBlock is swappable", "[bestblock][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

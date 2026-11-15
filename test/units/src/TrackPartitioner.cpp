@@ -165,3 +165,5 @@ TEST_CASE ( "TrackPartitioner functions",
 	}
 }
 
+// vim:fdm=syntax
+

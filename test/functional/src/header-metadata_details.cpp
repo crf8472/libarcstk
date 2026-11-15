@@ -965,3 +965,5 @@ TEST_CASE ("validate_offsets()", "[meta]")
 // 	}
 // }
 
+// vim:fdm=syntax
+

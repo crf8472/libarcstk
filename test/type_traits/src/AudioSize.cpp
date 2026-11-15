@@ -94,3 +94,5 @@ TEST_CASE ( "AudioSize is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

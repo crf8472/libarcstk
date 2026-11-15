@@ -79,3 +79,5 @@ TEST_CASE ( "ACCURATERIP is swappable", "[accuraterip][calc][accuraterip]" )
 	}
 }
 
+// vim:fdm=syntax
+

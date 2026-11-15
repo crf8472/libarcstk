@@ -98,3 +98,5 @@ TEST_CASE ( "StrictPolicy is swappable, comparable, string convertible",
 	}
 }
 
+// vim:fdm=syntax
+

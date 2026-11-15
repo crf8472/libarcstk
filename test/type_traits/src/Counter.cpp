@@ -87,3 +87,5 @@ TEST_CASE ( "Counter is swappable", "[counter][calc][calculate][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

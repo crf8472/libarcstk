@@ -201,3 +201,5 @@ TEST_CASE ( "DBARForwardIterator default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

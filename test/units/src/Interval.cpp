@@ -199,3 +199,5 @@ TEST_CASE ( "Interval<> functions", "[interval][calc][calculate]" )
 	}
 }
 
+// vim:fdm=syntax
+

@@ -368,3 +368,5 @@ TEST_CASE ( "make_arid builds valid ARIds", "[make_arid][id]" )
 // 	}
 // }
 
+// vim:fdm=syntax
+

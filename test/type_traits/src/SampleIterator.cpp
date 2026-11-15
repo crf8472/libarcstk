@@ -81,3 +81,5 @@ TEST_CASE ( "SampleIterator is swappable", "[sampleiterator][calc][samples]" )
 	}
 }
 
+// vim:fdm=syntax
+

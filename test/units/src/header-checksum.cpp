@@ -35,3 +35,5 @@ TEST_CASE ( "TOTAL_HEX_DIGITS", "[checksum][calc]" )
 	}
 }
 
+// vim:fdm=syntax
+

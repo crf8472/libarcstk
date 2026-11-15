@@ -80,3 +80,5 @@ TEST_CASE ( "TracksetVerifier is swappable", "[tracksetverifier][verify]" )
 	}
 }
 
+// vim:fdm=syntax
+

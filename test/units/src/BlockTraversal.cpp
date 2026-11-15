@@ -258,3 +258,5 @@ TEST_CASE ( "BlockTraversal default constructed instance",
 // 	}
 // }
 
+// vim:fdm=syntax
+

@@ -1765,3 +1765,5 @@ TEST_CASE ( "Verification", "[verififcation][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

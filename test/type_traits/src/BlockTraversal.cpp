@@ -83,3 +83,5 @@ TEST_CASE ( "BlockTraversal is swappable", "[blocktraversal][verify][details]" )
 	}
 }
 
+// vim:fdm=syntax
+

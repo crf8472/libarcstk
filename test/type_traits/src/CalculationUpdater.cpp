@@ -90,3 +90,5 @@ TEST_CASE ( "CalculationUpdater is swappable",
 	}
 }
 
+// vim:fdm=syntax
+
