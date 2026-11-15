@@ -7,91 +7,108 @@
  */
 
 #ifndef LIBARCSTK_${HEADER:u}_HPP_
-#include "${HEADER}.hpp"          // for ${CLASS}
+#include "${HEADER}.hpp"           // for ${CLASS}
 #endif
 
-#include <type_traits>            // for is_*_{constructible,assignable}
+// testing
 
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
+#ifndef LIBARCSTK_TYPE_TRAITS_HPP_
+#include "type_traits.hpp"         // for is_comparable,
+#endif                             // has_tostring_functionality
+
+#include <type_traits>             // for is_*_{constructible,assignable}
 
 
-TEST_CASE ( "${CLASS} is non-abstract, final and non-empty",
-		"[${CLASS:l}] [${MODULE}] [${HEADER}]" )
+TEST_CASE ( "${CLASS} traits", "[${CLASS:l}] [${MODULE}] [${HEADER}]" )
 {
-	SECTION ("is a non-abstract class")
+	SECTION ( "is a class" )
 	{
 		CHECK ( std::is_class_v<arcstk::${CLASS}> );
+	}
+
+	SECTION ( "is non-abstract" )
+	{
 		CHECK ( ! std::is_abstract_v<arcstk::${CLASS}> );
 	}
 
-	SECTION ("is final")
+	SECTION ( "is final" )
 	{
 		CHECK ( std::is_final_v<arcstk::${CLASS}> );
 	}
 
-	SECTION ("has non-static members")
+	SECTION ( "has non-static members" )
 	{
 		CHECK ( ! std::is_empty_v<arcstk::${CLASS}> );
 	}
 }
 
 
-TEST_CASE ( "${CLASS} special members",
+TEST_CASE ( "${CLASS} construction traits",
 		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
 {
-	SECTION ( "is default constructable")
+	SECTION ( "is default constructable" )
 	{
 		CHECK ( std::is_default_constructible_v<arcstk::${CLASS}>);
 	}
 
-	SECTION ( "is copy-constructable")
+	SECTION ( "is copy-constructable" )
 	{
 		CHECK ( std::is_copy_constructible_v<arcstk::${CLASS}>);
 	}
 
-	SECTION ( "is copy-assignable")
+	SECTION ( "is copy-assignable" )
 	{
 		CHECK ( std::is_copy_assignable_v<arcstk::${CLASS}>);
 	}
 
-	SECTION ( "is nothrow move-constructable")
+	SECTION ( "is nothrow move-constructable" )
 	{
 		CHECK ( std::is_nothrow_move_constructible_v<arcstk::${CLASS}>);
 	}
 
-	SECTION ( "is nothrow move-assignable")
+	SECTION ( "is nothrow move-assignable" )
 	{
 		CHECK ( std::is_nothrow_move_assignable_v<arcstk::${CLASS}>);
 	}
 
-	SECTION ("is destructible")
+	SECTION ( "is destructible" )
 	{
 		CHECK ( std::is_destructible_v<arcstk::${CLASS}> );
 	}
 }
 
 
-TEST_CASE ( "${CLASS} is swappable, comparable, string convertible",
-		"[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
+TEST_CASE ( "${CLASS} value traits", "[${CLASS:l}] [${MODULE}] [${HEADER:l}]" )
 {
-	SECTION ("is nothrow swappable")
+	SECTION ( "is swappable without throwing" )
 	{
 		CHECK ( std::is_nothrow_swappable_v<arcstk::${CLASS}> );
 	}
 
-	SECTION ("has comparability")
+	SECTION ( "is convertible to bool" )
+	{
+		CHECK ( );
+	}
+
+	SECTION ( "is comparable" )
 	{
 		using arcstk::meta::is_comparable_v;
 
 		CHECK ( is_comparable_v<arcstk::${CLASS}> );
 	}
 
-	SECTION ("has string convertibility")
+	// equals() noexcept?
+	// size() noexcept
+	// empty() noexcept
+
+	SECTION ( "is convertible to string" )
 	{
 		using arcstk::meta::has_tostring_functionality;
 
 		CHECK ( has_tostring_functionality<arcstk::${CLASS}>::value );
 	}
+
+	// <<
+	// clone
 }
 

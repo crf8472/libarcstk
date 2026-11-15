@@ -10,14 +10,19 @@
 #include "${HEADER}.hpp"           // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_${HEADER:u}_DETAILS_HPP_
-#include "${HEADER}_details.hpp"   // for
+#include "${HEADER}_details.hpp"   // TO BE TESTED
 #endif
+
+// testing
 
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"        // for Copy, Move
 #endif
 
+#include <sstream>                 // for ostringstream
 
+
+// get an instance of this class (== how this class can be constructed)
 TEST_CASE ( "${CLASS}", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::testing::Copy;
@@ -28,126 +33,157 @@ TEST_CASE ( "${CLASS}", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 	auto instance = ${CLASS} {};
 
 
-	SECTION ("Parametized construction is correct")
+	SECTION ( "can be constructed with  parameters correctly" )
 	{
+		//auto object = ${CLASS} { };
+
+		//CHECK ( object == );
+
 		FAIL ( "Parametized construction test is missing" );
 	}
 
-	SECTION ("Copy construction is correct")
+	SECTION ( "can be copy-constructied correctly" )
 	{
 		const ${CLASS} copied { Copy<${CLASS}>::construct(instance) };
 
-		// --
-
         //CHECK ( copied.value() == instance.value() );
         //CHECK ( copied.name()  == instance.name() );
+
 		FAIL ( "Copy construction test is missing" );
 	}
 
-	SECTION ("Move construction is correct")
+	SECTION ( "can be move-constructied correctly" )
 	{
 		const ${CLASS} moved { Move<${CLASS}>::construct(instance) };
 
-		// --
-
         //CHECK ( moved.value() == instance.value() );
         //CHECK ( moved.name()  == instance.name() );
+
 		FAIL ( "Move construction test is missing" );
 	}
 
-	SECTION ("Copy assignment is correct")
+	SECTION ( "can be copy-assigned correctly" )
 	{
 		auto copied = ${CLASS} {};
 		Copy<${CLASS}>::assign(copied, instance);
 
-		// --
-
         //CHECK ( copied.value() == instance.value() );
         //CHECK ( copied.name()  == instance.name() );
+
 		FAIL ( "Copy assignment test is missing" );
 	}
 
-	SECTION ("Move assignment is correct")
+	SECTION ( "can be move-assigned correctly" )
 	{
 		auto moved = ${CLASS} {};
 		Move<${CLASS}>::assign(moved, instance);
 
-		// --
-
         //CHECK ( moved.value() == instance.value() );
         //CHECK ( moved.name()  == instance.name() );
+
 		FAIL ( "Move assignment test is missing" );
 	}
 }
 
 
-TEST_CASE ( "${CLASS} default constructed instance",
-		"[${CLASS:l}][${MODULE}][${HEADER:l}]" )
+// guarantees on a default constructed instance (== state)
+TEST_CASE ( "${CLASS} default", "[${CLASS:l}][${MODULE}][${HEADER:l}]" )
 {
 	const auto defaulted = arcstk::${CLASS} {};
 
-	SECTION ( "is empty()")
+	SECTION ( "is empty()" )
 	{
 		CHECK ( defaulted.empty() );
 	}
 
-	SECTION ( "converts to FALSE")
+	SECTION ( "converts to FALSE" )
 	{
 		CHECK ( !defaulted );
 	}
 }
 
 
-TEST_CASE ( "${CLASS} property", "[${CLASS:l}][${MODULE}][${HEADER}]" )
+// capabilities of this class as a value (== what every class like this does)
+TEST_CASE ( "${CLASS} value", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::${CLASS};
 
 	auto instance = ${CLASS} {};
 
 
-	SECTION ("Equality operator == is correct")
+	SECTION ( "swap()s correctly" )
 	{
-		FAIL ( "Equality operator test is missing" );
-	}
+		auto rhs = ${CLASS} {};
 
-	SECTION ("Stream-in operator << is correct")
-	{
-		FAIL ( "Stream-in operator << test is missing" );
-	}
+		using std::swap;
+		swap(instance, rhs);
 
-	SECTION ("operator bool() is correct")
-	{
-		FAIL ( "operator bool() test is missing" );
-	}
+		//CHECK ( instance == );
 
-	SECTION ("swap() is correct")
-	{
 		FAIL ( "swap() test is missing" );
 	}
 
-	SECTION ("to_string() is correct")
+	SECTION ( "converts to bool() correctly" )
 	{
-		FAIL ( "to_string() test is missing" );
+		//CHECK ( instance == true );
+
+		FAIL ( "operator bool() test is missing" );
 	}
 
-	SECTION ("clone() is correct")
+	SECTION ( "can be compared for equality correctly" )
 	{
-		FAIL ( "clone() test is missing" );
+		auto rhs = ${CLASS} {};
+
+		//CHECK ( instance.equals(rhs) );
+		//CHECK ( instance == rhs );
+
+		FAIL ( "equals() test is missing" );
 	}
 
-	SECTION ("size() is correct")
+	SECTION ( "reports its size() correctly" )
 	{
+		//CHECK ( instance.size() == 23 );
+
 		FAIL ( "size() test is missing" );
 	}
 
-	SECTION ("empty() is correct")
+	SECTION ( "knows correctly whether it is empty()" )
 	{
+		//CHECK ( instance.empty() );
+
 		FAIL ( "empty() test is missing" );
+	}
+
+	SECTION ( "converts to_string() correctly" )
+	{
+		//CHECK ( instance.to_string() == "instance" );
+
+		FAIL ( "to_string() test is missing" );
+	}
+
+	SECTION ( "can be written to a stream correctly" )
+	{
+		auto stream = std::ostringstream {};
+		stream << instance;
+
+		//CHECK ( stream.str() == "instance" );
+
+		FAIL ( "Stream-in operator << test is missing" );
+	}
+
+	SECTION ( "can be clone()d correctly" )
+	{
+		const auto clone = instance.clone();
+
+		//CHECK ( clone->foo() == bar );
+
+		FAIL ( "clone() test is missing" );
 	}
 }
 
 
-TEST_CASE ( "${CLASS} functions", "[${CLASS:l}][${MODULE}][${HEADER}]" )
+// public members specific for this class (== what this class does)
+TEST_CASE ( "${CLASS} behavior", "[${CLASS:l}][${MODULE}][${HEADER}]" )
 {
 	using arcstk::${CLASS};
 
