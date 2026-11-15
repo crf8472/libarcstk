@@ -9,6 +9,7 @@
 
 #include <utility>  // for move
 
+
 namespace arcstk
 {
 namespace testing

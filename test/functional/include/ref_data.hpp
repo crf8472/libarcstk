@@ -15,6 +15,7 @@
 #include "metadata.hpp"            // for AudioSize, ToC, make_toc, UNIT
 #endif
 
+
 namespace arcstk
 {
 namespace testing

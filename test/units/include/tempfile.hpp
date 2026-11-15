@@ -7,9 +7,9 @@
  * \brief Test helpers for unit tests: temporary file.
  */
 
-#include <ctime>                // for time
-#include <filesystem>           // for temp_directory_path, exists, remove
-#include <string>               // for string
+#include <ctime>       // for time
+#include <filesystem>  // for temp_directory_path, exists, remove
+#include <string>      // for string
 
 
 namespace arcstk
