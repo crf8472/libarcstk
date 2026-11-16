@@ -24,7 +24,7 @@ exists named ``header-<name>.cpp``.
 There are currently 3 labels for tests: ``type_traits``, ``units`` and
 ``functional`` tests. The test labels correspond to source subdirectories in
 ``${PROJECT_ROOT}/test/``. Labels are on CMake-Level. For documentation, see
-[1][here].
+[here][1].
 
 For each of those labels there exists one binary that contains all the tests
 with the respective label. For instance, for the unit tests there exists
@@ -39,16 +39,21 @@ Verify design properties of any class in public or non-public headers:
   - Verify whether class is swappable, comparable or supports to_string
 	functionality.
 
+[Here](type_traits/README.md)
+
 #### units
 
 Units are classes. Verify special members, member functions and dedicated friend
 functions of a class.
+
+[Here](units/README.md)
 
 #### functional
 
 Integrational non-unit tests for key functionality, e.g. whether ARCSs are
 correctly calculated or dBAR-files are correctly parsed.
 
+[Here](functional/README.md)
 
 ### Tags (Catch2)
 
@@ -70,7 +75,7 @@ like ``[verify]``, so ``./libarcstk_unit_tests --list-tests "[calc]"`` lists all
 tests tagged as ``calc`` while
 ``./libarcstk_functional_tests -s "[perform_update]"`` executes all tests
 tagged with ``[perform_update]``. Option ``--help`` is implemented and the
-entire documentation is found [2][here].
+entire documentation is found [here][2].
 
 
 [1]: https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html
