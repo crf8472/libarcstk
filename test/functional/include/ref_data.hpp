@@ -29,8 +29,8 @@ namespace data
 inline auto standard_data(const std::size_t s, const uint32_t i)
 	-> std::vector<uint32_t>
 {
-	using std::cbegin;
-	using std::cend;
+	using std::begin;
+	using std::end;
 
 	auto sdata = std::vector<uint32_t>(s);
 	std::iota(begin(sdata), end(sdata), i);
