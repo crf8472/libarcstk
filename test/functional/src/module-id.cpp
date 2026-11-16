@@ -7,10 +7,10 @@
  */
 
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"         // TO BE TESTED
+#include "identifier.hpp"          // TO BE TESTED
 #endif
 #ifndef LIBARCSTK_IDENTIFIER_DETAILS_HPP_
-#include "identifier_details.hpp" // for make_arid
+#include "identifier_details.hpp"  // for arid::make
 #endif
 
 

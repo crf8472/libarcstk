@@ -7,30 +7,34 @@
  */
 
 #ifndef LIBARCSTK_ALGORITHMS_HPP_
-#define LIBARCSTK_ALGORITHMS_HPP_ // allow accuraterip.hpp
+#define LIBARCSTK_ALGORITHMS_HPP_  // allow accuraterip.hpp
 #endif
 #ifndef LIBARCSTK_ACCURATERIP_HPP_
-#include "accuraterip.hpp"        // TO BE TESTED
+#include "accuraterip.hpp"         // TO BE TESTED
 #endif
-
-#include <fstream>                // for ifstream
-#include <unordered_set>          // for unordered_set
-#include <vector>                 // for vector
 
 #ifndef LIBARCSTK_CHECKSUM_HPP_
-#include "checksum.hpp"           // for checksum::type
+#include "checksum.hpp"            // for checksum::type
 #endif
 #ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"         // for make_arid
+#include "identifier.hpp"          // for make_arid
 #endif
 #ifndef LIBARCSTK_METADATA_HPP_
-#include "metadata.hpp"           // for AudioSize
+#include "metadata.hpp"            // for AudioSize
 #endif
 #ifndef LIBARCSTK_SAMPLES_HPP_
-#include "samples.hpp"            // for csample_t
+#include "samples.hpp"             // for csample_t
 #endif
 
-#include "ref_data.hpp"           // for standard_data
+// testing
+
+#ifndef LIBARCSTK_REFDATA_HPP_
+#include "ref_data.hpp"            // for standard_data
+#endif
+
+#include <fstream>                 // for ifstream
+#include <unordered_set>           // for unordered_set
+#include <vector>                  // for vector
 
 
 TEST_CASE ( "Updating ARCS v1+v2", "[arcsalgorithm][calc]" )
