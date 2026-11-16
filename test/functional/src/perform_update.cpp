@@ -163,7 +163,7 @@ SCENARIO ( "Checksums of an album", "[perform_update][calc][details]" )
 			auto stop_offs  = std::ptrdiff_t { 0 }; // block end offset
 
 			// Read entire data in 9 blocks of specified size
-			for (std::size_t i = 0; i < 9; ++i)
+			for (std::size_t i = 0; i < BLOCKS; ++i)
 			{
 				start_offs = static_cast<std::ptrdiff_t>( i      * BLOCK_SIZE);
 				stop_offs  = static_cast<std::ptrdiff_t>((i + 1) * BLOCK_SIZE);
@@ -175,7 +175,7 @@ SCENARIO ( "Checksums of an album", "[perform_update][calc][details]" )
 				flags[i] = arcstk::details::update::perform_update(
 						cbegin(dummy_data) + start_offs,
 						cbegin(dummy_data) + stop_offs,
-						partitioner, algorithm, state, buffer);;
+						partitioner, algorithm, state, buffer);
 
 				pos[i]   = state.current_offset();
 				total[i] = state.samples_processed();
