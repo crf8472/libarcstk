@@ -19,6 +19,7 @@
 #include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
 #include <sstream>          // for ostream
+#include <stdexcept>        // for invalid_argument
 #include <string>           // for string
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
 #include <unordered_set>    // for unordered_set
@@ -468,7 +469,10 @@ void update_partition(const Partition& partition,
 	const auto offset_last  = partition.end_offset()   - start_pos;
 	const auto total        = offset_last + 1 - offset_first;
 
-	// TODO total < 0 ?
+	if (total < 0)
+	{
+		throw std::invalid_argument("Negative partition size is not allowed");
+	}
 
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
