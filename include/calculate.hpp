@@ -71,15 +71,15 @@ using ToCData = std::vector<AudioSize>;
  * instance.
  *
  * A Calculation represents the technical process of calculating Checksums by an
- * Algorithm thereby respecting Settings. A Calculation has to be parametized
+ * Algorithm thereby respecting Settings. A Calculation has to be parameterized
  * with an Algorithm, initialized with the offsets and the leadout of the audio
  * image and then subsequently be updated with portions of samples in their
  * correct order.
  *
  * Calculation is therefore a \link arcstk::Stateful stateful \endlink class
- * that is designed to transist four consecutive \link arcstk::State
- * states\endlink: INSTANTIATED, INITIALIZED, UPDATED, and COMPLETED.
- * Improper input may change the state to INVALID.
+ * that is designed to transit four consecutive \link arcstk::State
+ * states\endlink: INSTANTIATED, INITIALIZED, UPDATED, and COMPLETED. Improper
+ * input may change the state to INVALID.
  *
  * After instantiation Calculation is in state INSTANTIATED. When passing toc
  * data to it, it changes to state INITIALIZED and will accept updates only from
@@ -94,9 +94,9 @@ using ToCData = std::vector<AudioSize>;
  *
  * Updating an CalculationUpdater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any C++-LegacyInputIterator with a
- * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
- * is the declared type for a combined representation of two PCM 16 bit stereo
+ * represent start and stop of the update. Any C++-LegacyInputIterator with a \c
+ * value_type of csample_t is allowed. Type csample_t (combined sample type) is
+ * the declared type for a combined representation of two PCM 16 bit stereo
  * samples. Algorithm instances process samples in this format. Using a
  * SampleSequence may be of convenience for establishing compatibility of the
  * sample input format.
@@ -129,12 +129,12 @@ using ToCData = std::vector<AudioSize>;
  * CalculationUpdaters with the same portion of samples. For now, the
  * recommended way to calculate AccurateRip v1 and v2 checksums is not to use a
  * CalculationSet but to just use Algorithm AccurateRip::V1andV2 on a single
- * CalculationUpdater.
+* CalculationUpdater.
  *
- * The ususal way to create a CalculationSet is via a list of requested
+ * The usual way to create a CalculationSet is via a list of requested
  * algorithms, represented by template class AlgorithmTypes.
  *
- * A Calculation is parametized by an Algorithm. While the Calculation defines
+ * A Calculation is parameterized by an Algorithm. While the Calculation defines
  * how to calculate the result, the Algorithm defines which kind of results are
  * to be calculated.
  *
@@ -1179,7 +1179,7 @@ public:
 	~Calculation() override = default;
 
 	/**
-	 * \brief Initialize this Upater with input data.
+	 * \brief Initialize this Updater with input data.
 	 *
 	 * \param[in] offsets Offsets
 	 * \param[in] leadout Leadout
@@ -1930,7 +1930,7 @@ public:
  * \tparam B Type of begin iterator
  * \tparam E Type of end   iterator
  *
- * Specifiy a set of calculations updateable by types B and E.
+ * Specify a set of calculations updateable by types B and E.
  *
  * \see make_calculationset
  */
