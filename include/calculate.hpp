@@ -19,6 +19,7 @@
 #include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
 #include <sstream>          // for ostream
+#include <stdexcept>        // for invalid_argument
 #include <string>           // for string
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
 #include <unordered_set>    // for unordered_set
@@ -94,8 +95,9 @@ using ToCData = std::vector<AudioSize>;
  *
  * Updating an CalculationUpdater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any C++-LegacyInputIterator with a
- * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
+ * represent start and stop of the update. Any C++-RandomAccessIterator (or
+ * ForwardIterator having std::next and std::advance) with a \c value_type of
+ * csample_t is allowed. Type csample_t (combined sample type)
  * is the declared type for a combined representation of two PCM 16 bit stereo
  * samples. Algorithm instances process samples in this format. Using a
  * SampleSequence may be of convenience for establishing compatibility of the
@@ -261,10 +263,18 @@ public:
 	 */
 	void reset()
 	{
-		value_ = T{};
+		value_ = T {};
 	}
 
-	// TODO explicit operator bool()
+	/**
+	 * \brief Convert to bool.
+	 *
+	 * Counter converts to bool by converting its value to bool.
+	 */
+	explicit operator bool() const
+	{
+		return value_;
+	}
 };
 
 /**
@@ -469,7 +479,11 @@ void update_partition(const Partition& partition,
 	const auto offset_last  = partition.end_offset()   - start_pos;
 	const auto total        = offset_last + 1 - offset_first;
 
-	// TODO total < 0 ?
+	if (total < 0)
+	{
+		throw std::invalid_argument
+				{ "No partition with zero or negative length allowed" };
+	}
 
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
@@ -598,10 +612,7 @@ template <typename A, typename B, typename E>
 		Updateable<A>& updateable, CalculationState& state,
 		Checksums& result_buffer)
 {
-	using std::int32_t;
-	using std::ptrdiff_t;
-	using std::size_t;
-	using std::uint16_t;
+	using std::min;
 
 	const auto samples_in_block {
 		static_cast<std::int32_t>(std::distance(start, stop)) };
@@ -613,10 +624,12 @@ template <typename A, typename B, typename E>
 		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
-		const auto dist1 = static_cast<ptrdiff_t>(first_phys_smpl) - start_pos;
 		const auto diff  = partitioner.legal_range().lower() - start_pos;
-		const auto dist2 = static_cast<ptrdiff_t>(
-				std::min(diff, last_pos - start_pos - 1));
+
+		const auto dist1 =
+			static_cast<std::ptrdiff_t>(first_phys_smpl) - start_pos;
+		const auto dist2 =
+			static_cast<std::ptrdiff_t>(min(diff, last_pos - start_pos - 1));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< start_pos
@@ -631,7 +644,7 @@ template <typename A, typename B, typename E>
 			<< " do not contribute to current checksum";
 
 		updateable.pre_range(start + dist1, start + dist2,
-				static_cast<size_t>(dist2 - dist1));
+				static_cast<std::size_t>(dist2 - dist1));
 	}
 
 	const auto partitioning { partitioner.create_partitioning(
@@ -690,8 +703,9 @@ template <typename A, typename B, typename E>
 	{
 		const auto diff = partitioner.total_samples().samples()
 			- state.current_offset();
-		const auto dist = static_cast<ptrdiff_t>(
-				std::min(diff, last_pos - state.current_offset()));
+
+		const auto dist = static_cast<std::ptrdiff_t>(
+				min(diff, last_pos - state.current_offset()));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< state.current_offset()
@@ -699,11 +713,11 @@ template <typename A, typename B, typename E>
 			<< state.current_offset() + dist
 			<< " do not contribute to current checksum";
 
-		const auto offset = static_cast<ptrdiff_t>(
+		const auto offset = static_cast<std::ptrdiff_t>(
 				state.current_offset() - start_pos);
 
 		updateable.post_range(start + offset, start + (offset + dist),
-				static_cast<size_t>(dist));
+				static_cast<std::size_t>(dist));
 	}
 
 	/* Return TRUE iff the last relevant sample was in the current block. */
@@ -835,7 +849,7 @@ protected:
 	{
         if (!is_valid_transition(state_, target_state))
 		{
-			auto ss = std::ostringstream{};
+			auto ss = std::ostringstream {};
 			ss << "Illegal state transition requested from state "
 				<< static_cast<int>(state_)
 				<< " to state "
@@ -1671,12 +1685,12 @@ private:
 
 	Points do_offsets() const final
 	{
-		return partitioner() ? partitioner()->points() : Points{};
+		return partitioner() ? partitioner()->points() : Points {};
 	}
 
 	AudioSize do_leadout() const final
 	{
-		return partitioner() ? partitioner()->total_samples() : AudioSize{};
+		return partitioner() ? partitioner()->total_samples() : AudioSize {};
 	}
 
 	void do_init(const Points& offsets, const AudioSize& leadout) final
@@ -1976,7 +1990,7 @@ public:
 	 */
     explicit CalculationSetUpdater(
 			const RegistrationFunc_t& register_algorithms)
-		: CalculationSetUpdater { Settings{}, register_algorithms }
+		: CalculationSetUpdater { Settings {}, register_algorithms }
 	{
 		// empty
 	}
@@ -2151,7 +2165,7 @@ private:
 		ARCS_LOG(DEBUG3) << "Allocate result for " << total_tracks << " tracks";
 
 		//auto tracks { Checksums(total_tracks, ChecksumSet { {/*0*/} }) };
-		auto tracks = Checksums{};
+		auto tracks = Checksums {};
 		tracks.resize(total_tracks);
 
 		using std::begin;
