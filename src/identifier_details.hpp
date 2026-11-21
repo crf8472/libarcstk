@@ -51,7 +51,7 @@ void print(std::ostream& out, const ARId& id);
  *
  * \return ARId
  */
-ARId make(const std::vector<int32_t>& offsets, const int32_t leadout);
+ARId make(const std::vector<std::int32_t>& offsets, const std::int32_t leadout);
 
 } //namespace arid
 
@@ -90,24 +90,24 @@ class ARId::Impl final
 	/**
 	 * \brief Disc id no. 1
 	 */
-	uint32_t disc_id_1_ {};
+	std::uint32_t disc_id_1_ {};
 
 	/**
 	 * \brief Disc id no. 2
 	 */
-	uint32_t disc_id_2_ {};
+	std::uint32_t disc_id_2_ {};
 
 	/**
 	 * \brief CDDB disc id
 	 */
-	uint32_t cddb_id_ {};
+	std::uint32_t cddb_id_ {};
 
 public:
 
 	Impl(const unsigned total_tracks,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id) noexcept;
+			const std::uint32_t id_1,
+			const std::uint32_t id_2,
+			const std::uint32_t cddb_id) noexcept;
 
 	std::string url() const;
 
@@ -115,11 +115,11 @@ public:
 
 	unsigned total_tracks() const noexcept;
 
-	uint32_t disc_id_1() const noexcept;
+	std::uint32_t disc_id_1() const noexcept;
 
-	uint32_t disc_id_2() const noexcept;
+	std::uint32_t disc_id_2() const noexcept;
 
-	uint32_t cddb_id() const noexcept;
+	std::uint32_t cddb_id() const noexcept;
 
 	bool empty() const noexcept;
 

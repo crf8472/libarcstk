@@ -474,7 +474,7 @@ int Result::do_difference(const index_type b, const checksum::type type) const
 {
 	const auto total_tracks = static_cast<int>(flags_.tracks_per_block());
 
-	auto difference = int { (id(b) ? 0 : 1) }; // also calls bounds_check_block()
+	auto difference = int { (id(b) ? 0 : 1) }; // calls bounds_check_block()
 
 	for (auto t = int { 0 }; t < total_tracks; ++t)
 	{
@@ -567,7 +567,7 @@ std::unique_ptr<VerificationResult> create_result(const std::size_t blocks,
 // Selector
 
 
-const uint32_t& Selector::get(const ChecksumSource& s,
+const std::uint32_t& Selector::get(const ChecksumSource& s,
 		const ChecksumSource::size_type current,
 		const ChecksumSource::size_type counter) const
 {
@@ -584,7 +584,7 @@ std::unique_ptr<Selector> Selector::clone() const
 // BlockSelector
 
 
-const uint32_t& BlockSelector::do_get(const ChecksumSource& s,
+const std::uint32_t& BlockSelector::do_get(const ChecksumSource& s,
 		const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {
@@ -601,7 +601,7 @@ std::unique_ptr<Selector> BlockSelector::do_clone() const
 // TrackSelector
 
 
-const uint32_t& TrackSelector::do_get(const ChecksumSource& s,
+const std::uint32_t& TrackSelector::do_get(const ChecksumSource& s,
 		const ChecksumSource::size_type track,
 		const ChecksumSource::size_type block) const
 {
@@ -1188,21 +1188,21 @@ Checksum ChecksumSource::checksum(
 	return this->do_checksum(block_idx, idx);
 }
 
-const uint32_t& ChecksumSource::arcs_value(
+const std::uint32_t& ChecksumSource::arcs_value(
 		const ChecksumSource::size_type block_idx,
 		const ChecksumSource::size_type idx) const
 {
 	return this->do_arcs_value(block_idx, idx);
 }
 
-const uint32_t& ChecksumSource::confidence(
+const std::uint32_t& ChecksumSource::confidence(
 		const ChecksumSource::size_type block_idx,
 		const ChecksumSource::size_type idx) const
 {
 	return this->do_confidence(block_idx, idx);
 }
 
-const uint32_t& ChecksumSource::frame450_arcs_value(
+const std::uint32_t& ChecksumSource::frame450_arcs_value(
 		const ChecksumSource::size_type block_idx,
 		const ChecksumSource::size_type idx) const
 {
@@ -1258,7 +1258,7 @@ Checksum DBARSource::do_checksum(const ChecksumSource::size_type block_idx,
 }
 
 
-const uint32_t& DBARSource::do_arcs_value(
+const std::uint32_t& DBARSource::do_arcs_value(
 		const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {
@@ -1273,7 +1273,7 @@ const unsigned& DBARSource::do_confidence(const ChecksumSource::size_type block,
 }
 
 
-const uint32_t& DBARSource::do_frame450_arcs_value(
+const std::uint32_t& DBARSource::do_frame450_arcs_value(
 		const ChecksumSource::size_type block,
 		const ChecksumSource::size_type track) const
 {

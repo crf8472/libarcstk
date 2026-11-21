@@ -39,8 +39,8 @@ inline namespace v_1_0_0
 
 
 Partition::Partition(
-		const int32_t begin_offset,
-		const int32_t end_offset,
+		const std::int32_t begin_offset,
+		const std::int32_t end_offset,
 		const bool    starts_track,
 		const bool    ends_track,
 		const TrackNo track
@@ -55,13 +55,13 @@ Partition::Partition(
 }
 
 
-int32_t Partition::begin_offset() const
+std::int32_t Partition::begin_offset() const
 {
 	return begin_offset_;
 }
 
 
-int32_t Partition::end_offset() const
+std::int32_t Partition::end_offset() const
 {
 	return end_offset_;
 }
@@ -128,8 +128,8 @@ Partitioner::Partitioner(Points points, AudioSize total_samples,
 
 
 Partitioning Partitioner::create_partitioning(
-		const int32_t offset,
-		const int32_t total_samples_in_block) const
+		const std::int32_t offset,
+		const std::int32_t total_samples_in_block) const
 {
 	ARCS_LOG(DEBUG2) << "Create partitioning for offset " << offset;
 
@@ -385,7 +385,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 // ind2am()
 
 
-int32_t ind2am(const int32_t index)
+std::int32_t ind2am(const std::int32_t index)
 {
 	return index + 1;
 }
@@ -394,7 +394,7 @@ int32_t ind2am(const int32_t index)
 // am2ind()
 
 
-int32_t am2ind(const int32_t amount)
+std::int32_t am2ind(const std::int32_t amount)
 {
 	return amount - 1;
 }

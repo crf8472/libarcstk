@@ -36,9 +36,9 @@ namespace id
  * \param[in] delim         Delimiter
  */
 void print_impl(std::ostream& out, const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id, const std::string& delim);
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id, const std::string& delim);
 
 } // namespace id
 
@@ -53,7 +53,7 @@ namespace details
  *
  * \return The sum of the digits of the number
  */
-uint64_t sum_digits(const uint32_t number) noexcept;
+std::uint64_t sum_digits(const std::uint32_t number) noexcept;
 
 } // namespace details
 

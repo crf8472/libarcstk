@@ -187,7 +187,7 @@ public:
 /**
  * \brief Range of samples.
  */
-using SampleRange = Interval<int32_t>;
+using SampleRange = Interval<std::int32_t>;
 
 
 /**
@@ -203,12 +203,12 @@ class Partition final
 	/**
 	 * \brief Relative offset of the first sample in this partition
 	 */
-	int32_t begin_offset_ {};
+	std::int32_t begin_offset_ {};
 
 	/**
 	 * \brief Relative offset of the last sample in this partition + 1
 	 */
-	int32_t end_offset_ {};
+	std::int32_t end_offset_ {};
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
@@ -240,8 +240,8 @@ public:
 	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
-			const int32_t begin_offset,
-			const int32_t end_offset,
+			const std::int32_t begin_offset,
+			const std::int32_t end_offset,
 			const bool    starts_track,
 			const bool    ends_track,
 			const TrackNo track);
@@ -251,14 +251,14 @@ public:
 	 *
 	 * \return Relative offset of the first sample in the partition.
 	 */
-	int32_t begin_offset() const;
+	std::int32_t begin_offset() const;
 
 	/**
 	 * \brief Relative offset of the last sample in the partition + 1.
 	 *
 	 * \return Relative offset of the last sample in the partition + 1.
 	 */
-	int32_t end_offset() const;
+	std::int32_t end_offset() const;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the
@@ -365,8 +365,8 @@ public:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
-			const int32_t offset,
-			const int32_t total_samples_in_block) const;
+			const std::int32_t offset,
+			const std::int32_t total_samples_in_block) const;
 
 	/**
 	 * \brief Total number of samples.
@@ -520,7 +520,7 @@ Partitioning get_partitioning(
  *
  * \return Amount of samples equivalent to the index passed
  */
-int32_t ind2am(const int32_t index);
+std::int32_t ind2am(const std::int32_t index);
 
 /**
  * \brief Convert a 1-based amount of samples to an equivalent index.
@@ -529,7 +529,7 @@ int32_t ind2am(const int32_t index);
  *
  * \return Sample index equivalent to the amount passed
  */
-int32_t am2ind(const int32_t amount);
+std::int32_t am2ind(const std::int32_t amount);
 
 } // namespace details
 
@@ -549,7 +549,7 @@ using ChecksumtypeSet = std::unordered_set<checksum::type>;
  * checksums of the the first and last track of an album. Context represents
  * this information.
  */
-enum class Context : uint8_t
+enum class Context : std::uint8_t
 {
 	/**
 	 * \brief Single track that is neither first or last track.
@@ -796,7 +796,8 @@ public:
 	}
 
 	/**
-	 * \brief Checksums of type \c type for all tracks in order with offset \c k.
+	 * \brief Checksums of type \c type for all tracks in order with offset
+	 * \c k.
 	 *
 	 * \param[in] type Checksum type
 	 * \param[in] k    Offset to apply
@@ -1154,7 +1155,7 @@ public:
 		return algorithm_->context();
 	}
 
-	std::pair<int32_t,int32_t> range(const AudioSize& size,
+	std::pair<std::int32_t,std::int32_t> range(const AudioSize& size,
 			const Points& points) const
 	{
 		return algorithm_->range(size, points);

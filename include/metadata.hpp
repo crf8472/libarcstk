@@ -148,7 +148,8 @@ struct CDDA final
 	 * Redbook defines 99:59.74 (MSF) as maximal valid block address. This is
 	 * equivalent to 449.999 frames.
 	 */
-	static constexpr int32_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
+	static constexpr std::int32_t MAX_BLOCK_ADDRESS
+			{ ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Redbook maximal valid offset value is 359.999 LBA frames.
@@ -157,7 +158,7 @@ struct CDDA final
 	 * duration. This is equivalent to 360.000 frames, thus the maximal valid
 	 * offset is LBA frame index 359.999.
 	 */
-	static constexpr int32_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
+	static constexpr std::int32_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Two subsequent offsets must have a distance of at least 300 LBA
@@ -166,7 +167,7 @@ struct CDDA final
 	 * The CDDA conforming minimal track length is 4 seconds including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
-	static constexpr int32_t MIN_TRACK_OFFSET_DIST { 300 };
+	static constexpr std::int32_t MIN_TRACK_OFFSET_DIST { 300 };
 
 	/**
 	 * \brief Minimal number of LBA frames a track contains is 150.
@@ -175,7 +176,7 @@ struct CDDA final
 	 * seconds pause but the pause does not contribute to the track length,
 	 * thus 2 sec * 75 frames/sec == 150 frames.
 	 */
-	static constexpr int32_t MIN_TRACK_LEN_FRAMES { 150 };
+	static constexpr std::int32_t MIN_TRACK_LEN_FRAMES { 150 };
 };
 
 
@@ -184,7 +185,7 @@ struct CDDA final
  *
  * Units are frames, samples or bytes.
  */
-enum class UNIT : uint16_t
+enum class UNIT : std::uint16_t
 {
 	FRAMES  = 1,
 	SAMPLES = CDDA::SAMPLES_PER_FRAME,
@@ -201,24 +202,24 @@ namespace details
  * \return Maximum CDDA compatible value for \c U
  */
 template <enum UNIT U>
-constexpr int32_t cdda_max_value() noexcept;
+constexpr std::int32_t cdda_max_value() noexcept;
 
 // full specializations
 
 template <>
-inline constexpr int32_t cdda_max_value<UNIT::FRAMES>() noexcept
+inline constexpr std::int32_t cdda_max_value<UNIT::FRAMES>() noexcept
 {
 	return CDDA::MAX_BLOCK_ADDRESS;
 }
 
 template <>
-inline constexpr int32_t cdda_max_value<UNIT::SAMPLES>() noexcept
+inline constexpr std::int32_t cdda_max_value<UNIT::SAMPLES>() noexcept
 {
 	return cdda_max_value<UNIT::FRAMES>() * CDDA::SAMPLES_PER_FRAME;
 }
 
 template <>
-inline constexpr int32_t cdda_max_value<UNIT::BYTES>() noexcept
+inline constexpr std::int32_t cdda_max_value<UNIT::BYTES>() noexcept
 {
 	return cdda_max_value<UNIT::FRAMES>() * CDDA::BYTES_PER_FRAME;
 }
@@ -232,7 +233,7 @@ inline constexpr int32_t cdda_max_value<UNIT::BYTES>() noexcept
  * \tparam U The UNIT the determine the maximum legal CDDA value of
  */
 template <enum UNIT U>
-constexpr int32_t cdda_max { details::cdda_max_value<U>() };
+constexpr std::int32_t cdda_max { details::cdda_max_value<U>() };
 
 
 /**
@@ -353,18 +354,21 @@ constexpr auto factor() -> int
  * \return Result of applying \c factor to \c value
  */
 template <bool>
-constexpr auto op(const int32_t value, const int32_t factor) -> int32_t;
+constexpr auto op(const std::int32_t value, const std::int32_t factor)
+	-> std::int32_t;
 
 // full specialization
 
 template <>
-constexpr auto op<true>(const int32_t value, const int32_t factor) -> int32_t
+constexpr auto op<true>(const std::int32_t value, const std::int32_t factor)
+	-> std::int32_t
 {
 	return value * factor;
 };
 
 template <>
-constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
+constexpr auto op<false>(const std::int32_t value, const std::int32_t factor)
+	-> std::int32_t
 {
 	return value / factor;
 };
@@ -384,7 +388,7 @@ constexpr auto op<false>(const int32_t value, const int32_t factor) -> int32_t
  * \return The equivalent amount in UNIT T
  */
 template <enum UNIT F, enum UNIT T>
-constexpr auto convert_impl(const int32_t amount) -> int32_t
+constexpr auto convert_impl(const std::int32_t amount) -> std::int32_t
 {
 	return op<per_frame(F) < per_frame(T)>(amount, factor<F, T>());
 };
@@ -404,7 +408,7 @@ constexpr auto convert_impl(const int32_t amount) -> int32_t
  * \return The equivalent amount in UNIT T
  */
 template <enum UNIT F, enum UNIT T>
-constexpr auto convert(const int32_t amount) -> int32_t
+constexpr auto convert(const std::int32_t amount) -> std::int32_t
 {
 	if constexpr (F == T)
 	{
@@ -428,7 +432,7 @@ constexpr auto convert(const int32_t amount) -> int32_t
  * \return Value of the specified unit
  */
 template <UNIT U>
-auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
+auto convert_to(std::int32_t value, UNIT unit) noexcept -> std::int32_t
 {
 	// Note: this type must be unsigned!
 	using unit_type  = typename std::underlying_type_t<UNIT>;
@@ -438,17 +442,17 @@ auto convert_to(int32_t value, UNIT unit) noexcept -> int32_t
 		return value;
 	} else
 	{
-		using int_func   = int32_t(*)(const int32_t);
+		using int_func   = std::int32_t(*)(const std::int32_t);
 		using array_type = typename std::array<int_func, 3>;
 		using size_type  = typename array_type::size_type;
 
 		const array_type converters =
 		{
-			+[](const int32_t v) noexcept {
+			+[](const std::int32_t v) noexcept {
 					return conv::convert_impl<UNIT::FRAMES,  U>(v); },
-			+[](const int32_t v) noexcept {
+			+[](const std::int32_t v) noexcept {
 					return conv::convert_impl<UNIT::SAMPLES, U>(v); },
-			+[](const int32_t v) noexcept {
+			+[](const std::int32_t v) noexcept {
 					return conv::convert_impl<UNIT::BYTES,   U>(v); },
 		};
 
@@ -527,7 +531,7 @@ class AudioSize final : Equality<AudioSize>, TotallyOrdered<AudioSize>,
 	/**
 	 * \brief Data: Total number of bytes.
 	 */
-	int32_t bytes_ {};
+	std::int32_t bytes_ {};
 
 public:
 
@@ -537,7 +541,7 @@ public:
 	 * \param[in] value Size value
 	 * \param[in] unit  Unit for \c value
 	 */
-	AudioSize(const int32_t value, const UNIT unit) noexcept
+	AudioSize(const std::int32_t value, const UNIT unit) noexcept
 		: bytes_ { convert_to<UNIT::BYTES>(value, unit) }
 	{
 		// empty
@@ -559,7 +563,7 @@ public:
 	 *
 	 * \return The size in LBA frames
 	 */
-	int32_t frames() const noexcept
+	std::int32_t frames() const noexcept
 	{
 		return convert<UNIT::BYTES, UNIT::FRAMES>(bytes_);
 	}
@@ -569,7 +573,7 @@ public:
 	 *
 	 * \param[in] frames Updated size to set as an amount of LBA frames
 	 */
-	void set_frames(const int32_t frames) noexcept
+	void set_frames(const std::int32_t frames) noexcept
 	{
 		bytes_ = convert<UNIT::FRAMES, UNIT::BYTES>(frames);
 	}
@@ -579,7 +583,7 @@ public:
 	 *
 	 * \return The size in stereo PCM samples
 	 */
-	int32_t samples() const noexcept
+	std::int32_t samples() const noexcept
 	{
 		return convert<UNIT::BYTES, UNIT::SAMPLES>(bytes_);
 	}
@@ -589,7 +593,7 @@ public:
 	 *
 	 * \param[in] samples Updated size to set as an amount of stereo PCM samples
 	 */
-	void set_samples(const int32_t samples) noexcept
+	void set_samples(const std::int32_t samples) noexcept
 	{
 		bytes_ = convert<UNIT::SAMPLES, UNIT::BYTES>(samples);
 	}
@@ -599,7 +603,7 @@ public:
 	 *
 	 * \return The size in bytes
 	 */
-	int32_t bytes() const noexcept
+	std::int32_t bytes() const noexcept
 	{
 		return bytes_;
 	}
@@ -609,7 +613,7 @@ public:
 	 *
 	 * \param[in] bytes Updated size to set as an amount of bytes
 	 */
-	void set_bytes(const int32_t bytes) noexcept
+	void set_bytes(const std::int32_t bytes) noexcept
 	{
 		bytes_ = bytes;
 	}
@@ -693,24 +697,24 @@ public:
  * \return Value of the specified unit
  */
 template <enum UNIT U>
-int32_t convert_to(const AudioSize& v);
+std::int32_t convert_to(const AudioSize& v);
 
 // full specializations
 
 template <>
-inline int32_t convert_to<UNIT::FRAMES>(const AudioSize& v)
+inline std::int32_t convert_to<UNIT::FRAMES>(const AudioSize& v)
 {
 	return v.frames();
 }
 
 template <>
-inline int32_t convert_to<UNIT::SAMPLES>(const AudioSize& v)
+inline std::int32_t convert_to<UNIT::SAMPLES>(const AudioSize& v)
 {
 	return v.samples();
 }
 
 template <>
-inline int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
+inline std::int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
 {
 	return v.bytes();
 }
@@ -726,16 +730,16 @@ inline int32_t convert_to<UNIT::BYTES>(const AudioSize& v)
  * \return Converted values of the specified unit
  */
 template <enum UNIT U>
-inline std::vector<int32_t> convert(const std::vector<AudioSize>& values)
+inline std::vector<std::int32_t> convert(const std::vector<AudioSize>& values)
 {
-	auto integers { std::vector<int32_t>(values.size()) };
+	auto integers { std::vector<std::int32_t>(values.size()) };
 
 	using std::cbegin;
 	using std::cend;
 	using std::begin;
 
 	std::transform(cbegin(values), cend(values), begin(integers),
-			[](const AudioSize& a) -> int32_t
+			[](const AudioSize& a) -> std::int32_t
 			{
 				return convert_to<U>(a);
 			});
@@ -773,8 +777,8 @@ namespace toc
  *
  * \return ToCData object
  */
-[[nodiscard]] ToCData construct(const int32_t leadout,
-		const std::vector<int32_t>& offsets);
+[[nodiscard]] ToCData construct(const std::int32_t leadout,
+		const std::vector<std::int32_t>& offsets);
 
 /**
  * \brief Construct ToCData from leadout and offsets.
@@ -855,7 +859,7 @@ void set_leadout(const AudioSize& leadout, ToCData& data);
  *
  * \throw out_of_range If track == 0 or track > total_tracks()
  */
-void set_offset(const ToCData::size_type track, const int32_t offset,
+void set_offset(const ToCData::size_type track, const std::int32_t offset,
 		ToCData& data);
 
 /**
@@ -867,7 +871,7 @@ void set_offset(const ToCData::size_type track, const int32_t offset,
  * \param[in] offsets Offsets, interpreted as LBA frames
  * \param[in] data    ToCData to update
  */
-void set_offsets(const std::vector<int32_t>& offsets, ToCData& data);
+void set_offsets(const std::vector<std::int32_t>& offsets, ToCData& data);
 
 /**
  * \brief Set the offsets for this ToCData.
@@ -1145,8 +1149,8 @@ public:
  *
  * \return ToC created from leadout, offsets and filenames
  */
-[[nodiscard]] ToC make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC make_toc(const std::int32_t leadout,
+		const std::vector<std::int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1157,8 +1161,8 @@ public:
  *
  * \return ToC created from leadout and offsets
  */
-[[nodiscard]] ToC make_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC make_toc(const std::int32_t leadout,
+		const std::vector<std::int32_t>& offsets);
 
 /**
  * \brief Create a ToC from offsets and filenames.
@@ -1168,7 +1172,7 @@ public:
  *
  * \return ToC created from offsets and filenames
  */
-[[nodiscard]] ToC make_toc(const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC make_toc(const std::vector<std::int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1178,7 +1182,7 @@ public:
  *
  * \return ToC created from offsets.
  */
-[[nodiscard]] ToC make_toc(const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC make_toc(const std::vector<std::int32_t>& offsets);
 
 /**
  * \brief Create a validated ToC from leadout, offsets and filenames.
@@ -1191,8 +1195,8 @@ public:
  *
  * \throw InvalidMetadataException If validation fails
  */
-[[nodiscard]] ToC validated_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC validated_toc(const std::int32_t leadout,
+		const std::vector<std::int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1205,8 +1209,8 @@ public:
  *
  * \throw InvalidMetadataException If validation fails
  */
-[[nodiscard]] ToC validated_toc(const int32_t leadout,
-		const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC validated_toc(const std::int32_t leadout,
+		const std::vector<std::int32_t>& offsets);
 
 /**
  * \brief Create a validated ToC from offsets and filenames.
@@ -1218,7 +1222,7 @@ public:
  *
  * \throw InvalidMetadataException If validation fails
  */
-[[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets,
+[[nodiscard]] ToC validated_toc(const std::vector<std::int32_t>& offsets,
 		const std::vector<std::string>& filenames);
 
 /**
@@ -1230,12 +1234,12 @@ public:
  *
  * \throw InvalidMetadataException If validation fails
  */
-[[nodiscard]] ToC validated_toc(const std::vector<int32_t>& offsets);
+[[nodiscard]] ToC validated_toc(const std::vector<std::int32_t>& offsets);
 
 /**
  * \brief Requirements for metadata validity.
  */
-enum class MetadataRequirement : uint8_t
+enum class MetadataRequirement : std::uint8_t
 {
 	// mandatory for each ToC data
 	OFFSETS_ARE_NONNEGATIVE,
@@ -1263,7 +1267,7 @@ class InvalidMetadataException final : public std::runtime_error
 	/**
 	 * \brief Value that violated the requirement.
 	 */
-	int32_t value_ {};
+	std::int32_t value_ {};
 
 	/**
 	 * \brief Index position where the violation occurred.
@@ -1281,7 +1285,7 @@ public:
 	 * \param[in] i        Index position that violated the requirement
 	 */
 	InvalidMetadataException(const std::string& what_arg,
-		const MetadataRequirement r, const int32_t v,
+		const MetadataRequirement r, const std::int32_t v,
 		const ToCData::size_type i);
 
 	/**
@@ -1292,7 +1296,7 @@ public:
 	 * \param[in] i Index position that violated the requirement
 	 */
 	InvalidMetadataException(const MetadataRequirement r,
-		const int32_t v, const ToCData::size_type i);
+		const std::int32_t v, const ToCData::size_type i);
 
 	/**
 	 * \brief Constructor.
@@ -1320,7 +1324,7 @@ public:
 	 *
 	 * \return Value that caused the violation
 	 */
-	int32_t violating_value() const noexcept;
+	std::int32_t violating_value() const noexcept;
 
 	/**
 	 * \brief Index position where the violation occurred.

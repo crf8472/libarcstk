@@ -12,7 +12,7 @@
  * clipping based on the build type (Debug vs Release).
  */
 
-#include <cstdint>        // for int16_t
+#include <cstdint>        // for uint8_t
 #include <string>         // for string
 #include <unordered_map>  // for unordered_map
 
@@ -29,7 +29,7 @@ inline namespace v_1_0_0
  * The loglevels are totally ordered in ascending order of verbosity starting
  * on the value 0 that represents the level where nothing is logged at all.
  */
-enum class LOGLEVEL : uint8_t
+enum class LOGLEVEL : std::uint8_t
 {
 	NONE     = 0,
 	//
@@ -97,8 +97,7 @@ constexpr LOGLEVEL DEFAULT_LOGLEVEL_BUILD_RELEASE = arcstk::LOGLEVEL::INFO;
  */
 constexpr LOGLEVEL CLIP_LOGGING_LEVEL = DEFAULT_LOGLEVEL_BUILD_DEBUG;
 
-// TODO Make this CMake-configurable:
-//constexpr LOGLEVEL CLIP_LOGGING_LEVEL = arcstk::LOGLEVEL::@LIBARCSTK_LOG_LEVEL@;
+// TODO Make CLIP_LOGGING_LEVEL CMake-configurable
 
 
 

@@ -127,9 +127,9 @@ public:
 	 * \param[in] cddb_id      CDDB id of this medium
 	 */
 	ARId(const std::size_t total_tracks,
-			const uint32_t id_1,
-			const uint32_t id_2,
-			const uint32_t cddb_id);
+			const std::uint32_t id_1,
+			const std::uint32_t id_2,
+			const std::uint32_t cddb_id);
 
 	/**
 	 * \copydoc SNPT_sm_copy_ctor
@@ -182,21 +182,21 @@ public:
 	 *
 	 * \return Disc id 1 of this medium
 	 */
-	uint32_t disc_id_1() const noexcept;
+	std::uint32_t disc_id_1() const noexcept;
 
 	/**
 	 * \brief Return the disc_id 2.
 	 *
 	 * \return Disc id 2 of this medium
 	 */
-	uint32_t disc_id_2() const noexcept;
+	std::uint32_t disc_id_2() const noexcept;
 
 	/**
 	 * \brief Return the CDDB id.
 	 *
 	 * \return CDDB id of this medium
 	 */
-	uint32_t cddb_id() const noexcept;
+	std::uint32_t cddb_id() const noexcept;
 
 	/**
 	 * \brief Return the current URL prefix for AccurateRip request urls.

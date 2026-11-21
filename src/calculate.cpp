@@ -52,31 +52,31 @@ namespace details
 // CalculationState
 
 
-int32_t CalculationState::current_offset() const noexcept
+std::int32_t CalculationState::current_offset() const noexcept
 {
 	return current_offset_.value();
 }
 
 
-int32_t CalculationState::samples_processed() const noexcept
+std::int32_t CalculationState::samples_processed() const noexcept
 {
 	return samples_processed_.value();
 }
 
 
-int32_t CalculationState::track_samples_processed() const noexcept
+std::int32_t CalculationState::track_samples_processed() const noexcept
 {
 	return track_samples_processed_.value();
 }
 
 
-int32_t CalculationState::tracks_processed() const noexcept
+std::int32_t CalculationState::tracks_processed() const noexcept
 {
 	return tracks_processed_.value();
 }
 
 
-int32_t CalculationState::sequences_processed() const noexcept
+std::int32_t CalculationState::sequences_processed() const noexcept
 {
 	return sequences_processed_.value();
 }
@@ -110,13 +110,13 @@ void CalculationState::increment_update_time_elapsed(
 }
 
 
-void CalculationState::advance(const int32_t amount)
+void CalculationState::advance(const std::int32_t amount)
 {
 	current_offset_.increment(amount);
 }
 
 
-void CalculationState::update(const int32_t samples_amount,
+void CalculationState::update(const std::int32_t samples_amount,
 		const std::chrono::duration<float>& algo_duration)
 {
 	samples_processed_.increment(samples_amount);
@@ -129,7 +129,7 @@ void CalculationState::update(const int32_t samples_amount,
 }
 
 
-int32_t CalculationState::track_finalized()
+std::int32_t CalculationState::track_finalized()
 {
 	const auto track_samples = track_samples_processed();
 
@@ -154,7 +154,8 @@ void CalculationState::swap(CalculationState& rhs) noexcept
 
 
 void log_sample_stats(const Partition& partition,
-		const int32_t from, const int32_t to, const int32_t total)
+		const std::int32_t from, const std::int32_t to,
+		const std::int32_t total)
 {
 	ARCS_LOG(DEBUG2) << "Samples "
 		<< std::setw(9) << std::right << from
@@ -200,8 +201,8 @@ namespace update
 {
 
 
-std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
-		CalculationState& state)
+std::pair<std::int32_t, std::int32_t> positions(
+		const std::int32_t& samples_in_block, CalculationState& state)
 {
 	const auto first_pos { state.current_offset() };
 	const auto last_pos  { first_pos + am2ind(samples_in_block) };
@@ -213,7 +214,7 @@ std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
 }
 
 
-bool complete_after_skip_block(const int32_t& samples_in_block,
+bool complete_after_skip_block(const std::int32_t& samples_in_block,
 		const Partitioner& partitioner,
 		CalculationState& state)
 {
@@ -224,8 +225,8 @@ bool complete_after_skip_block(const int32_t& samples_in_block,
 }
 
 
-void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
-		CalculationState& state)
+void skip_amount(const std::int32_t& start_pos,
+		const Partitioning& partitioning, CalculationState& state)
 {
 	const auto diff { partitioning.front().begin_offset() - start_pos };
 
@@ -437,32 +438,32 @@ template class CalculationUpdater<AccurateRip::V1andV2>;
 template void CalculationUpdater<Algorithm>::update<Type, IsPlanar>( \
 			const SampleSequence<Type, IsPlanar>&);
 
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2,  std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1andV2, std::uint32_t, false);
 
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,       std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V2,      std::uint32_t, false);
 
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,       std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION(AccurateRip::V1,      std::uint32_t, false);
 
 // NOLINTBEGIN(bugprone-macro-parentheses)
 #define INSTANTIATE_UPDATE_FUNCTION_IT(Algorithm, Type, IsPlanar) \
@@ -472,32 +473,32 @@ template void CalculationUpdater<Algorithm>::update \
 			details::SampleIterator<Type, IsPlanar> );
 // NOLINTEND(bugprone-macro-parentheses)
 
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2,  std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1andV2, std::uint32_t, false);
 
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,       std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V2,      std::uint32_t, false);
 
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       int32_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint16_t, false);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, true);
-INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      uint32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       std::int16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       std::int16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       std::int32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,       std::int32_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      std::uint16_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      std::uint16_t, false);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      std::uint32_t, true);
+INSTANTIATE_UPDATE_FUNCTION_IT(AccurateRip::V1,      std::uint32_t, false);
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 } // namespace v_1_0_0

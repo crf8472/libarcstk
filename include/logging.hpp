@@ -892,7 +892,7 @@ inline std::string now_time()
 // *
 // * Example:
 // *   - Development: CLIP_LOGGING_LEVEL = DEBUG4 -> All statements remain
-// *   - Production:  CLIP_LOGGING_LEVEL = INFO   -> All DEBUG* statements removed
+// *   - Production:  CLIP_LOGGING_LEVEL = INFO   -> No DEBUG* statements
 // *
 // * This is a compile-time constant, so the optimizer recognizes the comparison
 // * and eliminates code via dead-code elimination.

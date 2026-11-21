@@ -165,7 +165,7 @@ using ToCData = std::vector<AudioSize>;
  *
  * Bitwise operators are guaranteed to work as on unsigned types.
  */
-using csample_t = uint32_t; // also defined in samples.hpp
+using csample_t = std::uint32_t; // also defined in samples.hpp
 
 
 namespace details
@@ -277,27 +277,27 @@ class CalculationState final
 	/**
 	 * \brief Internal 0-based current sample offset.
 	 */
-	Counter<int32_t> current_offset_ {};
+	Counter<std::int32_t> current_offset_ {};
 
 	/**
 	 * \brief Internal 0-based counter for samples processed.
 	 */
-	Counter<int32_t> samples_processed_ {};
+	Counter<std::int32_t> samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for track samples processed.
 	 */
-	Counter<int32_t> track_samples_processed_ {};
+	Counter<std::int32_t> track_samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for tracks.
 	 */
-	Counter<int32_t> tracks_processed_ {};
+	Counter<std::int32_t> tracks_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for sample sequences.
 	 */
-	Counter<int32_t> sequences_processed_ {};
+	Counter<std::int32_t> sequences_processed_ {};
 
 	/**
 	 * \brief Internal time elapsed by processing.
@@ -318,7 +318,7 @@ public:
 	 *
 	 * \return Current sample
 	 */
-	int32_t current_offset() const noexcept;
+	std::int32_t current_offset() const noexcept;
 
 	/**
 	 * \brief Return the total number of PCM 32 bit samples yet processed.
@@ -329,14 +329,14 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t samples_processed() const noexcept;
+	std::int32_t samples_processed() const noexcept;
 
 	/**
 	 * \brief Return the total number of PCM 32 bit samples in current track.
 	 *
 	 * \return Total number of PCM 32 bit samples processed in current track.
 	 */
-	int32_t track_samples_processed() const noexcept;
+	std::int32_t track_samples_processed() const noexcept;
 
 	/**
 	 * \brief Return the total number of tracks yet processed.
@@ -345,14 +345,14 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t tracks_processed() const noexcept;
+	std::int32_t tracks_processed() const noexcept;
 
 	/**
 	 * \brief Returns the total number of sample sequences yet processed.
 	 *
 	 * \return Total number of sample sequences processed.
 	 */
-	int32_t sequences_processed() const noexcept;
+	std::int32_t sequences_processed() const noexcept;
 
 	/**
 	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
@@ -389,7 +389,7 @@ public:
 	 *
 	 * \param[in] amount Amount (in samples) to advance
 	 */
-	void advance(const int32_t amount);
+	void advance(const std::int32_t amount);
 
 	/**
 	 * \brief Update the calculation state with amounts of samples and time.
@@ -397,7 +397,7 @@ public:
 	 * \param[in] amount    Samples processed in current algorithm update
 	 * \param[in] algo_time Time consumed by algorithm in current update
 	 */
-	void update(const int32_t amount,
+	void update(const std::int32_t amount,
 		const std::chrono::duration<float>& algo_time);
 
 	/**
@@ -405,7 +405,7 @@ public:
 	 *
 	 * \return Samples processed in the course of this track
 	 */
-	int32_t track_finalized();
+	std::int32_t track_finalized();
 
 	/**
 	 * \brief Swap abstract part of the concrete subclass..
@@ -433,7 +433,8 @@ public:
  * \param[in] total     Total samples
  */
 void log_sample_stats(const Partition& partition,
-		const int32_t from, const int32_t to, const int32_t total);
+		const std::int32_t from, const std::int32_t to,
+		const std::int32_t total);
 
 /**
  * \brief Worker: log processing stats.
@@ -461,7 +462,7 @@ namespace update
  */
 template <typename A, typename I>
 void update_partition(const Partition& partition,
-		I start, const int32_t start_pos,
+		I start, const std::int32_t start_pos,
 		Updateable<A>& algorithm, CalculationState& state)
 {
 	const auto offset_first = partition.begin_offset() - start_pos;
@@ -507,8 +508,8 @@ void update_partition(const Partition& partition,
  *
  * \return First and last samples
  */
-std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
-		CalculationState& state);
+std::pair<std::int32_t, std::int32_t> positions(
+		const std::int32_t& samples_in_block, CalculationState& state);
 
 /**
  * \brief Skip block and return whether this completed the Calculation.
@@ -519,9 +520,8 @@ std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
  *
  * \return TRUE if Calculation is complete after skipping the specified amount
  */
-bool complete_after_skip_block(const int32_t& samples_in_block,
-		const Partitioner& partitioner,
-		CalculationState& state);
+bool complete_after_skip_block(const std::int32_t& samples_in_block,
+		const Partitioner& partitioner, CalculationState& state);
 
 /**
  * \brief Skip amount of samples.
@@ -530,8 +530,8 @@ bool complete_after_skip_block(const int32_t& samples_in_block,
  * \param[in] partitioning Partitioning
  * \param[in] state        Calculation state
  */
-void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
-		CalculationState& state);
+void skip_amount(const std::int32_t& start_pos,
+		const Partitioning& partitioning, CalculationState& state);
 
 /**
  * \brief Inform all instances about the completion of a track.
@@ -604,7 +604,7 @@ template <typename A, typename B, typename E>
 	using std::uint16_t;
 
 	const auto samples_in_block {
-		static_cast<int32_t>(std::distance(start, stop)) };
+		static_cast<std::int32_t>(std::distance(start, stop)) };
 
 	const auto [ start_pos, last_pos ] = positions(samples_in_block, state);
 
@@ -653,7 +653,7 @@ template <typename A, typename B, typename E>
 
 	// Update the state with each partition in this partitioning
 
-	auto partition_counter = uint16_t { 0 };
+	auto partition_counter = std::uint16_t { 0 };
 
 	for (const auto& partition : partitioning)
 	{
@@ -777,7 +777,7 @@ public:
 /**
  * \brief Consecutive state of a Calculation.
  */
-enum class State : uint8_t
+enum class State : std::uint8_t
 {
     INSTANTIATED,
     INITIALIZED,
@@ -1272,7 +1272,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t samples_processed() const noexcept
+	std::int32_t samples_processed() const noexcept
 	{
 		return state_.samples_processed();
 	}
@@ -1287,7 +1287,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples expected.
 	 */
-	int32_t samples_expected() const noexcept
+	std::int32_t samples_expected() const noexcept
 	{
 		// Expected total number of input samples
 		return partitioner_ ? partitioner_->total_samples().samples() : 0;
@@ -1303,7 +1303,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples yet to process.
 	 */
-	int32_t samples_todo() const noexcept
+	std::int32_t samples_todo() const noexcept
 	{
 		return this->samples_expected() - this->samples_processed();
 	}
@@ -1315,7 +1315,7 @@ public:
 	 *
 	 * \return Total number of sample sequences processed.
 	 */
-	int32_t sequences_processed() const noexcept
+	std::int32_t sequences_processed() const noexcept
 	{
 		return state_.sequences_processed();
 	}

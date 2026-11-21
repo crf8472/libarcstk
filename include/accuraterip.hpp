@@ -85,7 +85,7 @@ struct NUM_SKIP_SAMPLES final
 	 * = 2940 samples. We derive the number of samples to be skipped at the
 	 * start of the first track by just subtracting 1 from this constant.
 	 */
-	static constexpr int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
+	static constexpr std::int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
 	/**
 	 * \brief Number of samples to be skipped after start of the first track.
@@ -93,7 +93,7 @@ struct NUM_SKIP_SAMPLES final
 	 * There are 5 frames - 1 sample to be skipped, i.e.
 	 * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
 	 */
-	static constexpr int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
+	static constexpr std::int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
 /**
@@ -121,7 +121,7 @@ struct Subtotals final
 	 *
 	 * An unsigned type of at least 64 bit.
 	 */
-	using factor_type = uint_fast64_t;
+	using factor_type = std::uint_fast64_t;
 
 	/**
 	 * \brief Type for variables accumulating weighted and simple sums.
@@ -131,7 +131,7 @@ struct Subtotals final
 	 * Note that this type may be in fact bigger than 32 bit and hence must
 	 * be casted to uint32_t to before representing a checksum value.
 	 */
-	using cache_type = uint_fast32_t;
+	using cache_type = std::uint_fast32_t;
 
 	/**
 	 * \brief Type of subtotals buffer.
@@ -238,7 +238,7 @@ struct AccessSt
 		using arcstk::UNIT;
 
 		// cast is save for valid input data
-		return { static_cast<int32_t>(m - 1), UNIT::SAMPLES };
+		return { static_cast<std::int32_t>(m - 1), UNIT::SAMPLES };
 	}
 
 	/**
@@ -612,8 +612,8 @@ struct UpdateImpl<checksum::type::ARCS1>
 	 *
 	 * \return ARCSv1 value
 	 */
-	uint32_t arcs_v1(const Subtotals::factor_type multiplier,
-			const uint32_t csample) const
+	std::uint32_t arcs_v1(const Subtotals::factor_type multiplier,
+			const std::uint32_t csample) const
 	{
 		return multiplier * csample & LOWER_32_BITS_;
 	}
@@ -649,10 +649,12 @@ struct UpdateImpl<checksum::type::ARCS1>
 
 			if constexpr (KEEP)
 			{
-				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				/*
+				NOLINTBEGIN (cppcoreguidelines-pro-bounds-constant-array-index)
+				*/
 				st.subtotals_v1[idx] = update;
 				st.sums[idx]         = *pos;
-				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				// NOLINTEND (cppcoreguidelines-pro-bounds-constant-array-index)
 				++idx;
 			}
 		}
@@ -728,8 +730,8 @@ struct UpdateImpl<checksum::type::ARCS2>
 	 *
 	 * \return ARCSv2 value
 	 */
-	uint32_t arcs_v2(const Subtotals::factor_type multiplier,
-			const uint32_t csample) const
+	std::uint32_t arcs_v2(const Subtotals::factor_type multiplier,
+			const std::uint32_t csample) const
 	{
 		update_ = multiplier * csample; // TODO Make update_ local?
 
@@ -765,10 +767,12 @@ struct UpdateImpl<checksum::type::ARCS2>
 
 			if constexpr (KEEP)
 			{
-				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				/*
+				NOLINTBEGIN (cppcoreguidelines-pro-bounds-constant-array-index)
+				*/
 				st.subtotals_v2[idx] = update_;
 				st.sums[idx]         = *pos;
-				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				// NOLINTEND (cppcoreguidelines-pro-bounds-constant-array-index)
 				++idx;
 			}
 		}
@@ -864,11 +868,13 @@ struct UpdateImpl<checksum::type::ARCS1, checksum::type::ARCS2>
 
 			if constexpr (KEEP)
 			{
-				// NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+				/*
+				NOLINTBEGIN (cppcoreguidelines-pro-bounds-constant-array-index)
+				*/
 				st.subtotals_v1[idx] = update_ & LOWER_32_BITS_;
 				st.subtotals_v2[idx] = (update_ >> 32u);
 				st.sums[idx]         = *pos;
-				// NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+				// NOLINTEND (cppcoreguidelines-pro-bounds-constant-array-index)
 				++idx;
 			}
 		}
@@ -1088,8 +1094,8 @@ inline SampleRange legal_range(const Context ctx,
 {   // required inline since used in ARCSAlgorithm::do_range()
 	ARCS_LOG(DEBUG2) << "Get legal range for context " << to_string(ctx);
 
-	auto from = int32_t { 0 };
-	auto to   = int32_t { size.samples() - 1 };
+	auto from = std::int32_t { 0 };
+	auto to   = std::int32_t { size.samples() - 1 };
 
 	if (!points.empty())
 	{
@@ -1315,7 +1321,7 @@ public:
 		const auto ssize = static_cast<ptrdiff_t>(usize);
 
 		// samples already processed in the track
-		const auto curr_idx = ptrdiff_t { static_cast<uint32_t>(m) - 1 };
+		const auto curr_idx = ptrdiff_t { static_cast<std::uint32_t>(m) - 1 };
 
 		// collect potential split points: offsets to the start iterator
 		auto points = data_t { X, X, X, X, X, X };
@@ -1499,11 +1505,11 @@ public:
 				// cache iff the update is entirely in the first or last 2940
 				// samples.
 
-				const auto track_remain { current_length_ - (multiplier() - 1) };
-				const auto remainder    { track_remain - size };
+				const auto trk_remain { current_length_ - (multiplier() - 1) };
+				const auto remainder  { trk_remain - size };
 
 				is_cache_point =
-					remainder <= 2940 || remainder >= track_remain - 2940;
+					remainder <= 2940 || remainder >= trk_remain - 2940;
 
 				ARCS_LOG(DEBUG4) << "update is for cache: "
 					<< (do_drive_offsets() && is_cache_point)
@@ -1737,12 +1743,12 @@ class ARCSAlgorithm final : public Algorithm
 		// persistent part: present in previous and shifted sum
 		auto wsum   = checksum<TYPE>(st); // weighted sum
 		auto ssum   = current_cs_sum<TYPE>(st); // simple sum
-		auto factor = int64_t { std::abs(drive_offset) }; // multiplier (signed)
+		auto factor = std::int64_t { std::abs(drive_offset) }; // multiplier
 
 		// added correction: present only in shifted sum
-		auto a_wsum   = uint32_t { 0 }; // weighted sum
-		auto a_ssum   = uint32_t { 0 }; // simple sum
-		auto a_factor =  int64_t { 0 }; // multiplier (signed)
+		auto a_wsum   = std::uint32_t { 0 }; // weighted sum
+		auto a_ssum   = std::uint32_t { 0 }; // simple sum
+		auto a_factor =  std::int64_t { 0 }; // multiplier (signed)
 
 		// absolute (unsigned) amount of drive_offset
 		const auto k = static_cast<size_t>(std::abs(drive_offset));
@@ -2142,8 +2148,8 @@ namespace id
  *
  * \return AccurateRip disc id 1
  */
-uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
-	noexcept;
+std::uint32_t disc_id_1(const std::vector<std::int32_t>& offsets,
+		const std::int32_t leadout) noexcept;
 
 /**
  * \brief Service function: Compute the disc id 2 from offsets and leadout.
@@ -2153,8 +2159,8 @@ uint32_t disc_id_1(const std::vector<int32_t>& offsets, const int32_t leadout)
  *
  * \return AccurateRip disc id 2
  */
-uint32_t disc_id_2(const std::vector<int32_t>& offsets, const int32_t leadout)
-	noexcept;
+std::uint32_t disc_id_2(const std::vector<std::int32_t>& offsets,
+		const std::int32_t leadout) noexcept;
 
 /**
  * \brief Service function: Compute the CDDB id from offsets and leadout.
@@ -2170,7 +2176,8 @@ uint32_t disc_id_2(const std::vector<int32_t>& offsets, const int32_t leadout)
  *
  * \return CDDB id
  */
-uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout);
+std::uint32_t cddb_id(const std::vector<std::int32_t>& offsets,
+		const std::int32_t leadout);
 
 /**
  * \brief Service function: Compute the AccurateRip response filename
@@ -2183,9 +2190,9 @@ uint32_t cddb_id(const std::vector<int32_t>& offsets, const int32_t leadout);
  * \return AccurateRip response filename
  */
 std::string construct_filename(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) noexcept;
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id) noexcept;
 
 /**
  * \brief Service function: Compute the AccurateRip request URL
@@ -2199,9 +2206,9 @@ std::string construct_filename(const unsigned total_tracks,
  * \return AccurateRip request URL
  */
 std::string construct_url(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id,
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id,
 		const std::string& prefix) noexcept;
 
 /**
@@ -2217,9 +2224,9 @@ std::string construct_url(const unsigned total_tracks,
  * \return AccurateRip request URL
  */
 std::string construct_url(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) noexcept;
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id) noexcept;
 
 /**
  * \brief Service function: Compute the AccurateRip request ID
@@ -2232,9 +2239,9 @@ std::string construct_url(const unsigned total_tracks,
  * \return AccurateRip request URL
  */
 std::string construct_id(const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id) noexcept;
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id) noexcept;
 
 /**
  * \brief Service function: Print an ARId by its ids.
@@ -2246,9 +2253,9 @@ std::string construct_id(const unsigned total_tracks,
  * \param[in] cddb_id       CDDB id of this medium
  */
 void print(std::ostream& out, const unsigned total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id);
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id);
 
 } // namespace id
 
@@ -2316,7 +2323,7 @@ public:
 	 *
 	 * \return Default-ARCS-formatted representation of the input number
 	 */
-	static std::string default_arcs_format(const uint32_t number);
+	static std::string default_arcs_format(const std::uint32_t number);
 };
 
 /** @} */ // group calc

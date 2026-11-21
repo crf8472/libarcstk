@@ -159,17 +159,17 @@ class DBARBlockHeader final : Equality<DBARBlockHeader>,
 	/**
 	 * \brief Id1.
 	 */
-	uint32_t id1_ {};
+	std::uint32_t id1_ {};
 
 	/**
 	 * \brief Id2.
 	 */
-	uint32_t id2_ {};
+	std::uint32_t id2_ {};
 
 	/**
 	 * \brief CDDB Id.
 	 */
-	uint32_t cddb_id_ {};
+	std::uint32_t cddb_id_ {};
 
 public:
 
@@ -181,8 +181,8 @@ public:
 	 * \param[in] id2          Id2 of the ARId
 	 * \param[in] cddb_id      CDDB Id
 	 */
-	DBARBlockHeader(const unsigned total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
+	DBARBlockHeader(const unsigned total_tracks, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id);
 
 	/**
 	 * \brief Total number of tracks in this block.
@@ -196,21 +196,21 @@ public:
 	 *
 	 * \return Id1
 	 */
-	uint32_t id1() const noexcept;
+	std::uint32_t id1() const noexcept;
 
 	/**
 	 * \brief Id2.
 	 *
 	 * \return Id2
 	 */
-	uint32_t id2() const noexcept;
+	std::uint32_t id2() const noexcept;
 
 	/**
 	 * \brief CDDB Id.
 	 *
 	 * \return CDDB Id
 	 */
-	uint32_t cddb_id() const noexcept;
+	std::uint32_t cddb_id() const noexcept;
 
 	/**
 	 * \copydoc SNPT_mf_swap
@@ -244,7 +244,7 @@ class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>,
 	/**
 	 * \brief ARCS value.
 	 */
-	uint32_t arcs_ {};
+	std::uint32_t arcs_ {};
 
 	/**
 	 * \brief Confidence value.
@@ -254,7 +254,7 @@ class DBARTriplet final : Equality<DBARTriplet>, Comparable<DBARTriplet>,
 	/**
 	 * \brief ARCS value of frame 450 of this track.
 	 */
-	uint32_t frame450_arcs_ {};
+	std::uint32_t frame450_arcs_ {};
 
 public:
 
@@ -270,15 +270,15 @@ public:
 	 * \param[in] confidence    Confidence value
 	 * \param[in] frame450_arcs ARCS value of frame 450 of this track
 	 */
-	DBARTriplet(const uint32_t arcs, const unsigned confidence,
-			const uint32_t frame450_arcs);
+	DBARTriplet(const std::uint32_t arcs, const unsigned confidence,
+			const std::uint32_t frame450_arcs);
 
 	/**
 	 * \brief ARCS value.
 	 *
 	 * \return ARCS value.
 	 */
-	uint32_t arcs() const noexcept;
+	std::uint32_t arcs() const noexcept;
 
 	/**
 	 * \brief Confidence value.
@@ -292,7 +292,7 @@ public:
 	 *
 	 * \return ARCS value of frame 450.
 	 */
-	uint32_t frame450_arcs() const noexcept;
+	std::uint32_t frame450_arcs() const noexcept;
 
 	/**
 	 * \copydoc SNPT_mf_swap
@@ -785,8 +785,10 @@ public:
 	 */
 	DBAR(std::initializer_list<
 			std::pair<
-				std::tuple<unsigned, uint32_t, uint32_t, uint32_t>,
-				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
+				std::tuple<unsigned, std::uint32_t, std::uint32_t,
+					std::uint32_t>,
+				std::initializer_list<std::tuple<std::uint32_t, int,
+					std::uint32_t>>>>
 			blocks);
 
 	/**
@@ -838,7 +840,7 @@ public:
 	 *
 	 * \return ARCS value of the specified track
 	 */
-	const uint32_t& arcs_value(const size_type block_idx,
+	const std::uint32_t& arcs_value(const size_type block_idx,
 			const size_type track_idx) const;
 
 	/**
@@ -860,7 +862,7 @@ public:
 	 *
 	 * \return ARCS value frame 450 of the specified track
 	 */
-	const uint32_t& frame450_arcs_value(const size_type block_idx,
+	const std::uint32_t& frame450_arcs_value(const size_type block_idx,
 			const size_type track_idx) const;
 
 	/**
@@ -1287,8 +1289,9 @@ class ParseHandler
 	 * \param[in] id2          Id2 of the ARId
 	 * \param[in] cddb_id      CDDB Id
 	 */
-	virtual void do_header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id)
+	virtual void do_header(const std::uint8_t total_tracks,
+			const std::uint32_t id1, const std::uint32_t id2,
+			const std::uint32_t cddb_id)
 	= 0;
 
 	/**
@@ -1304,9 +1307,9 @@ class ParseHandler
 	 * \param[in] confidence    Confidence value
 	 * \param[in] frame450_arcs ARCS value of frame 450 of this track
 	 */
-	virtual void do_triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs)
+	virtual void do_triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs)
 	= 0;
 
 	/**
@@ -1352,8 +1355,8 @@ public:
 	 * \param[in] id2          Id2 of the ARId
 	 * \param[in] cddb_id      CDDB Id
 	 */
-	void header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
+	void header(const std::uint8_t total_tracks, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id);
 
 	/**
 	 * \brief On starting a sequence of triplets.
@@ -1367,9 +1370,9 @@ public:
 	 * \param[in] confidence    Confidence value
 	 * \param[in] frame450_arcs ARCS value of frame 450 of this track
 	 */
-	void triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs);
+	void triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs);
 
 	/**
 	 * \brief On ending a sequence of triplets.
@@ -1408,14 +1411,14 @@ class DBARBuilder final : public ParseHandler
 
 	void do_start_block() final;
 
-	void do_header(const uint8_t track_count, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id) final;
+	void do_header(const std::uint8_t track_count, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id) final;
 
 	void do_start_triplets() final;
 
-	void do_triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs) final;
+	void do_triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs) final;
 
 	void do_end_triplets() final;
 
@@ -1485,14 +1488,14 @@ class CheckingDBARBuilder final : public ParseHandler
 
 	void do_start_block() final;
 
-	void do_header(const uint8_t track_count, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id) final;
+	void do_header(const std::uint8_t track_count, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id) final;
 
 	void do_start_triplets() final;
 
-	void do_triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs) final;
+	void do_triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs) final;
 
 	void do_end_triplets() final;
 
@@ -1731,7 +1734,7 @@ std::size_t parse_stream<char>(std::basic_istream<char>&, ParseHandler*,
  *
  * \see parse_stream
  */
-uint32_t parse_file(const std::string& filename, ParseHandler* p,
+std::uint32_t parse_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e);
 
 /**
