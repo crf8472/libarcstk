@@ -13,15 +13,15 @@
  * \brief Implementation details for identifier.hpp.
  */
 
-#ifndef LIBARCSTK_IDENTIFIER_HPP_
-#include "identifier.hpp"
-#endif
-
 #include <cstddef>  // for size_t
 #include <cstdint>  // for uint32_t, int32_t
 #include <ostream>  // for ostream
 #include <string>   // for string
 #include <vector>   // for vector
+
+#ifndef LIBARCSTK_IDENTIFIER_HPP_
+#include "identifier.hpp"
+#endif
 
 namespace arcstk
 {

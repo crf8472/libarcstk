@@ -13,11 +13,11 @@
  * \brief Implementation details for metadata.hpp.
  */
 
+#include <cstdint>        // for int32_t
+
 #ifndef LIBARCSTK_METADATA_HPP_
 #include "metadata.hpp"   // for MetadataRequirement
 #endif
-
-#include <cstdint>        // for int32_t
 
 namespace arcstk
 {

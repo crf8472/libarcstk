@@ -16,11 +16,15 @@
 #include <cstdint>          // for int32_t
 #include <functional>       // for function
 #include <iterator>         // for advance, input_iterator_tag
+#include <limits>           // for numeric_limits
 #include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
+#include <set>              // for set
 #include <sstream>          // for ostream
 #include <stdexcept>        // for invalid_argument
 #include <string>           // for string
+#include <string_view>      // for string_view
+#include <tuple>            // for tuple
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
 #include <unordered_set>    // for unordered_set
 #include <utility>          // for declval, move, pair
@@ -72,7 +76,7 @@ using ToCData = std::vector<AudioSize>;
  * instance.
  *
  * A Calculation represents the technical process of calculating Checksums by an
- * Algorithm thereby respecting Settings. A Calculation has to be parametized
+ * Algorithm thereby respecting Settings. A Calculation has to be parameterized
  * with an Algorithm, initialized with the offsets and the leadout of the audio
  * image and then subsequently be updated with portions of samples in their
  * correct order.
@@ -95,9 +99,8 @@ using ToCData = std::vector<AudioSize>;
  *
  * Updating an CalculationUpdater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any C++-RandomAccessIterator (or
- * ForwardIterator having std::next and std::advance) with a \c value_type of
- * csample_t is allowed. Type csample_t (combined sample type)
+ * represent start and stop of the update. Any RandomAccessIterator with a
+ * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
  * is the declared type for a combined representation of two PCM 16 bit stereo
  * samples. Algorithm instances process samples in this format. Using a
  * SampleSequence may be of convenience for establishing compatibility of the
@@ -133,10 +136,10 @@ using ToCData = std::vector<AudioSize>;
  * CalculationSet but to just use Algorithm AccurateRip::V1andV2 on a single
  * CalculationUpdater.
  *
- * The ususal way to create a CalculationSet is via a list of requested
+ * The usual way to create a CalculationSet is via a list of requested
  * algorithms, represented by template class AlgorithmTypes.
  *
- * A Calculation is parametized by an Algorithm. While the Calculation defines
+ * A Calculation is parameterized by an Algorithm. While the Calculation defines
  * how to calculate the result, the Algorithm defines which kind of results are
  * to be calculated.
  *
@@ -475,15 +478,33 @@ void update_partition(const Partition& partition,
 		I start, const std::int32_t start_pos,
 		Updateable<A>& algorithm, CalculationState& state)
 {
+	static constexpr std::int32_t MAX_OFFSET =
+		std::numeric_limits<std::int32_t>::max();
+
 	const auto offset_first = partition.begin_offset() - start_pos;
 	const auto offset_last  = partition.end_offset()   - start_pos;
-	const auto total        = offset_last + 1 - offset_first;
 
-	if (total < 0)
+	if (offset_last >= MAX_OFFSET)
+	{
+		throw std::invalid_argument {
+			"Upper bound of the partition exceeds maximum" };
+		// TODO value
+	}
+
+	if (offset_first >= MAX_OFFSET)
+	{
+		throw std::invalid_argument {
+			"Lower bound of the partition exceeds maximum" };
+		// TODO value
+	}
+
+	if (offset_first > offset_last)
 	{
 		throw std::invalid_argument
 				{ "No partition with zero or negative length allowed" };
 	}
+
+	const auto total = offset_last + 1 - offset_first;
 
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
@@ -600,7 +621,7 @@ void complete_track(Updateable<A>& algorithm,
  * \param[in]     start         Iterator pointing to first sample in block
  * \param[in]     stop          Iterator pointing behind last sample in block
  * \param[in]     partitioner   Partition provider
- * \param[in]     updateable    Algorithm to use for calculation
+ * \param[in,out] updateable    Algorithm to use for calculation
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Buffer for collecting results
  *
@@ -614,13 +635,35 @@ template <typename A, typename B, typename E>
 {
 	using std::min;
 
-	const auto samples_in_block {
-		static_cast<std::int32_t>(std::distance(start, stop)) };
+	const auto pdist = std::distance(start, stop);
+	// TODO B and E are allowed to be different, but distance requires them
+	// in C++17 to be the same.
+
+	if (pdist <= 0)
+	{
+		throw std::invalid_argument
+				{ "No sequence with zero or negative length allowed" };
+	}
+
+	if (pdist > std::numeric_limits<std::int32_t>::max())
+	{
+		throw std::invalid_argument
+				{ "Sequence length must not exceed std::int32_t" };
+	}
+
+	if (partitioner.empty())
+	{
+		throw std::invalid_argument
+				{ "Partitioner for update must not be empty" };
+	}
+
+	const auto samples_in_block { static_cast<std::int32_t>(pdist) };
+	// samples_in_block is a positive integer in a legal range
 
 	const auto [ start_pos, last_pos ] = positions(samples_in_block, state);
 
 	// starts before legal range + ends after first physical sample
-	if (const auto first_phys_smpl = partitioner.points()[0].samples();
+	if (const auto first_phys_smpl = partitioner.offset(1).samples();
 		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
@@ -652,7 +695,7 @@ template <typename A, typename B, typename E>
 
 	if (partitioning.empty())
 	{
-		// TODO This is not actually allowed. Throw?
+		// TODO Unser about whether skipping+completion is the right thing to do
 		return complete_after_skip_block(samples_in_block, partitioner, state);
 	} else
 	{
@@ -1089,8 +1132,14 @@ protected:
 		allowed_only_before(State::UPDATED,
 				"Cannot modify offsets, leadout or range after first update");
 
-		ARCS_LOG(DEBUG1) << "Calculation interval is "
-			<< partitioner->legal_range().to_string();
+		if (partitioner)
+		{
+			ARCS_LOG(DEBUG1) << "Calculation interval is "
+				<< partitioner->legal_range().to_string();
+		} else
+		{
+			ARCS_LOG(DEBUG1) << "Calculation interval is removed";
+		}
 
 		partitioner_ = std::move(partitioner);
 	}
@@ -1193,7 +1242,7 @@ public:
 	~Calculation() override = default;
 
 	/**
-	 * \brief Initialize this Upater with input data.
+	 * \brief Initialize this Updater with input data.
 	 *
 	 * \param[in] offsets Offsets
 	 * \param[in] leadout Leadout
@@ -1466,6 +1515,9 @@ public:
 		if (partitioner_)
 		{
 			partitioner_->set_total_samples(audiosize);
+		} else
+		{
+			throw std::logic_error { "Updating by size requires Partitioner" };
 		}
 	}
 };
@@ -1944,7 +1996,7 @@ public:
  * \tparam B Type of begin iterator
  * \tparam E Type of end   iterator
  *
- * Specifiy a set of calculations updateable by types B and E.
+ * Specify a set of calculations updateable by types B and E.
  *
  * \see make_calculationset
  */
@@ -2113,9 +2165,8 @@ private:
 			return this->merge_results(updaters_);
 		}
 
-		ARCS_LOG_ERROR << "CalculationSet does not implement drive offsets";
-
-		return this->merge_results(updaters_);
+		throw std::runtime_error
+			{ "CalculationSet does not implement drive offsets" };
 	}
 
 	size_type do_size() const final

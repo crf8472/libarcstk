@@ -11,10 +11,6 @@
  * Parse dBAR-formatted data from files and streams.
  */
 
-#ifndef LIBARCSTK_MIXINS_HPP_
-#include "mixins.hpp"       // for Comparable
-#endif
-
 #include <cstddef>          // for size_t, nullptr
 #include <cstdint>          // for uint32_t
 #include <initializer_list> // for initializer_list
@@ -26,6 +22,10 @@
 #include <string>           // for string
 #include <tuple>            // for tuple
 #include <utility>          // for pair
+
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"       // for Comparable
+#endif
 
 namespace arcstk
 {

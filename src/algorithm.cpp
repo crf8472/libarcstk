@@ -191,6 +191,18 @@ Points Partitioner::points() const noexcept
 }
 
 
+std::size_t Partitioner::size() const noexcept
+{
+	return points_.size();
+}
+
+
+bool Partitioner::empty() const noexcept
+{
+	return points_.empty();
+}
+
+
 std::unique_ptr<Partitioner> Partitioner::clone() const
 {
 	return do_clone();

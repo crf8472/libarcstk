@@ -16,10 +16,6 @@
  * Part of the API for \link meta calculating AccurateRip checksums\endlink.
  */
 
-#ifndef LIBARCSTK_MIXINS_HPP_
-#include "mixins.hpp"     // for Comparable, TotallyOrdered
-#endif
-
 #include <algorithm>      // for transform
 #include <array>          // for array
 #include <cstdint>        // for uint16_t, int32_t
@@ -30,6 +26,10 @@
 #include <string>         // for string
 #include <type_traits>    // for underlying_type
 #include <vector>         // for vector
+
+#ifndef LIBARCSTK_MIXINS_HPP_
+#include "mixins.hpp"     // for Comparable, TotallyOrdered
+#endif
 
 namespace arcstk
 {

@@ -20,11 +20,6 @@
  * https://web.archive.org/web/20160731182814/http://www.drdobbs.com/cpp/logging-in-c-part-2/221900468
  */
 
-
-#ifndef LIBARCSTK_LOGLEVEL_HPP_
-#include "loglevel.hpp"
-#endif
-
 #include <algorithm>      // for find_if
 #include <atomic>         // for atomic
 #include <chrono>         // for milliseconds, seconds, duration_cast, opera...
@@ -40,6 +35,10 @@
 #include <type_traits>    // for __underlying_type_impl<>::type, underlying_...
 #include <utility>        // for exchange, move
 #include <vector>         // for vector, erase_if
+
+#ifndef LIBARCSTK_LOGLEVEL_HPP_
+#include "loglevel.hpp"
+#endif
 
 namespace arcstk
 {

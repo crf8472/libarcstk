@@ -13,10 +13,6 @@
  * \brief Implementation details for dbar.hpp.
  */
 
-#ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"            // for DBAR::size_type + ...
-#endif
-
 #include <cassert>   // for assert
 #include <cstring>   // for memmove, memcpy, memset, memchr
 #include <cstddef>   // for byte
@@ -26,6 +22,10 @@
 #include <optional>  // for optional
 #include <string>    // for string
 #include <vector>    // for vector
+
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar.hpp"            // for DBAR::size_type + ...
+#endif
 
 namespace arcstk
 {

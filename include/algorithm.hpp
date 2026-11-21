@@ -420,6 +420,18 @@ public:
 	Points points() const noexcept;
 
 	/**
+	 * \brief Total number of partitioning points.
+	 *
+	 * \return Total number of partitioning points
+	 */
+	std::size_t size() const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_empty
+	 */
+	bool empty() const noexcept;
+
+	/**
 	 * \copydoc SNPT_mf_clone
 	 */
 	std::unique_ptr<Partitioner> clone() const;
