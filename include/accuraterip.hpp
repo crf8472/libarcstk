@@ -85,7 +85,7 @@ struct NUM_SKIP_SAMPLES final
 	 * = 2940 samples. We derive the number of samples to be skipped at the
 	 * start of the first track by just subtracting 1 from this constant.
 	 */
-	constexpr static int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
+	static constexpr int32_t BACK  = 5/*frames*/ * 588/*samples/frame*/;
 
 	/**
 	 * \brief Number of samples to be skipped after start of the first track.
@@ -93,7 +93,7 @@ struct NUM_SKIP_SAMPLES final
 	 * There are 5 frames - 1 sample to be skipped, i.e.
 	 * 5 frames * 588 samples/frame - 1 sample = 2939 samples.
 	 */
-	constexpr static int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
+	static constexpr int32_t FRONT = NUM_SKIP_SAMPLES::BACK - 1;
 };
 
 /**
@@ -201,7 +201,7 @@ struct Subtotals final
 /**
  * \brief Helper for masking the lower 32 bits of a sample.
  */
-constexpr static Subtotals::cache_type LOWER_32_BITS_ { 0xFFFFFFFF };
+static constexpr Subtotals::cache_type LOWER_32_BITS_ { 0xFFFFFFFF };
 
 
 /**

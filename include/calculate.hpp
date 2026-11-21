@@ -2257,30 +2257,66 @@ struct AlgorithmTypes final
 			&AlgorithmTypes<A1, Args...>::configure<B,E>);
 	}
 
-	template <typename... OTHERS>
-	constexpr bool equals(const AlgorithmTypes<OTHERS...>&) const
-		noexcept
+	/**
+	 * \copydoc SNPT_mf_equals
+	 *
+	 * \tparam RHS Types on the right side
+	 */
+	template <typename... RHS>
+	static constexpr bool equals(const AlgorithmTypes<RHS...>& /*rhs*/) noexcept
 	{
-		return std::is_same_v<std::tuple<A1, Args...>, std::tuple<OTHERS...>>;
+		return std::is_same_v<std::tuple<A1, Args...>, std::tuple<RHS...>>;
 	}
 
-	// TODO Inherit from Comparable?
-
-	friend bool operator == (const AlgorithmTypes& lhs,
-			const AlgorithmTypes& rhs) noexcept
+	/**
+	 * \copydoc SNPT_mf_to_string
+	 */
+	static std::string to_string()
 	{
-		return lhs.equals(rhs);
-	}
+		std::string result;
+		std::string_view separator {};
 
-	friend bool operator != (const AlgorithmTypes& lhs,
-			const AlgorithmTypes& rhs) noexcept
-	{
-		return !(lhs == rhs);
-	}
+		auto append = [&](std::string_view name)
+		{
+			result += separator; // empty on first call
+			result += name;
 
-	// TODO to_string
+			separator = ", ";
+		};
+
+		// TODO: Make name() for Algorithm available without an instance
+		// This requires a static name constant for each class, which implies
+		// for this class a kind of name template.
+
+		append(A1{}.name());
+		(append(Args{}.name()), ...);
+		// TODO: This gives "AccurateRip v1, AccurateRip v2" for V1andV2
+
+		return result;
+	}
 };
 
+
+template <typename... LHS, typename... RHS>
+constexpr bool operator == (const AlgorithmTypes<LHS...>& /*lhs*/,
+		const AlgorithmTypes<RHS...>& rhs) noexcept
+{
+	return AlgorithmTypes<LHS...>::equals(rhs);
+}
+
+template <typename... LHS, typename... RHS>
+constexpr bool operator != (const AlgorithmTypes<LHS...>& lhs,
+		const AlgorithmTypes<RHS...>& rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
+// TODO Comparable operators can be hidden friends in C++20.
+
+// The compiler will create the converse version "T2 == T1" automatically. If we
+// implement this as hidden friend in C++17, we would be forced to implement 2
+// variants, "T2 == T1" and "T1 == T2", which introduces an ambiguity for "Tx ==
+// Tx". So, for C++17 the namespace-placed version is ok. Change this for C++20.
 
 /**
  * \brief Create a CalculationSet for specified checksum types and Settings.

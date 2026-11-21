@@ -98,22 +98,22 @@ struct CDDA final
 	/**
 	 * \brief CDDA: sampling rate of 44100 samples per second.
 	 */
-	constexpr static int SAMPLES_PER_SECOND { 44100 };
+	static constexpr int SAMPLES_PER_SECOND { 44100 };
 
 	/**
 	 * \brief CDDA: 16 bits per sample.
 	 */
-	constexpr static int BITS_PER_SAMPLE    { 16 }; // TODO SAMPLE == stereo s.
+	static constexpr int BITS_PER_SAMPLE    { 16 }; // TODO SAMPLE == stereo s.
 
 	/**
 	 * \brief CDDA: stereo involves 2 channels.
 	 */
-	constexpr static int NUMBER_OF_CHANNELS { 2 };
+	static constexpr int NUMBER_OF_CHANNELS { 2 };
 
 	/**
 	 * \brief Total number of frames per second is 75.
 	 */
-	constexpr static int FRAMES_PER_SEC     { 75 };
+	static constexpr int FRAMES_PER_SEC     { 75 };
 
 	/**
 	 * \brief Total number of bytes per sample is 4.
@@ -121,26 +121,26 @@ struct CDDA final
 	 * This follows from CDDA where
 	 * 1 sample == 16 bit/sample * 2 channels / 8 bits/byte
 	 */
-	constexpr static int BYTES_PER_SAMPLE   { 4 }; // TODO SAMPLE == csample
+	static constexpr int BYTES_PER_SAMPLE   { 4 }; // TODO SAMPLE == csample
 
 	/**
 	 * \brief Total number of samples per frame is 588.
 	 *
 	 * This follows from CDDA where 1 frame == 44100 samples/sec / 75 frames/sec
 	 */
-	constexpr static int SAMPLES_PER_FRAME  { 588 };
+	static constexpr int SAMPLES_PER_FRAME  { 588 };
 
 	/**
 	 * \brief Total number of bytes per frame is 2352.
 	 *
 	 * This follows from CDDA where 1 frame == 588 samples * 4 bytes/sample
 	 */
-	constexpr static int BYTES_PER_FRAME    { 2352 };
+	static constexpr int BYTES_PER_FRAME    { 2352 };
 
 	/**
 	 * \brief Maximal valid track count is 99.
 	 */
-	constexpr static int MAX_TRACKCOUNT { 99 };
+	static constexpr int MAX_TRACKCOUNT { 99 };
 
 	/**
 	 * \brief Redbook maximal value for a valid LBA frame index is 449.999.
@@ -148,7 +148,7 @@ struct CDDA final
 	 * Redbook defines 99:59.74 (MSF) as maximal valid block address. This is
 	 * equivalent to 449.999 frames.
 	 */
-	constexpr static int32_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
+	static constexpr int32_t MAX_BLOCK_ADDRESS { ( 99 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Redbook maximal valid offset value is 359.999 LBA frames.
@@ -157,7 +157,7 @@ struct CDDA final
 	 * duration. This is equivalent to 360.000 frames, thus the maximal valid
 	 * offset is LBA frame index 359.999.
 	 */
-	constexpr static int32_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
+	static constexpr int32_t MAX_OFFSET { ( 79 * 60 + 59 ) * 75 + 74 };
 
 	/**
 	 * \brief Two subsequent offsets must have a distance of at least 300 LBA
@@ -166,7 +166,7 @@ struct CDDA final
 	 * The CDDA conforming minimal track length is 4 seconds including 2 seconds
 	 * pause, thus 4 sec * 75 frames/sec == 300 frames.
 	 */
-	constexpr static int32_t MIN_TRACK_OFFSET_DIST { 300 };
+	static constexpr int32_t MIN_TRACK_OFFSET_DIST { 300 };
 
 	/**
 	 * \brief Minimal number of LBA frames a track contains is 150.
@@ -175,7 +175,7 @@ struct CDDA final
 	 * seconds pause but the pause does not contribute to the track length,
 	 * thus 2 sec * 75 frames/sec == 150 frames.
 	 */
-	constexpr static int32_t MIN_TRACK_LEN_FRAMES { 150 };
+	static constexpr int32_t MIN_TRACK_LEN_FRAMES { 150 };
 };
 
 

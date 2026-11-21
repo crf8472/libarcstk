@@ -70,7 +70,7 @@ static constexpr int TRIPLET_BYTES { 9 };
 template <int n, typename CharT>
 struct size_of_bytes
 {
-	constexpr static int value = n * static_cast<int>(sizeof(CharT));
+	static constexpr int value = n * static_cast<int>(sizeof(CharT));
 };
 
 /**

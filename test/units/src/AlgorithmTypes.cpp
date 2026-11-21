@@ -94,30 +94,32 @@ TEST_CASE ( "AlgorithmTypes<> default", "[algorithmtypes][calc][calculate]" )
 }
 
 
-// TEST_CASE ( "AlgorithmTypes<> value", "[algorithmtypes][calc][calculate]" )
-// {
-// 	using arcstk::AccurateRip::V1;
-// 	using arcstk::AccurateRip::V2;
-// 	using arcstk::AlgorithmTypes;
-//
-// 	auto instance = AlgorithmTypes<V1, V2> {};
-//
-//
-// 	// SECTION ( "Equality operator == is correct" )
-// 	// {
-// 	// 	FAIL ( "Equality operator test is missing" );
-// 	// }
-// 	//
+TEST_CASE ( "AlgorithmTypes<> value", "[algorithmtypes][calc][calculate]" )
+{
+	using arcstk::AccurateRip::V1;
+	using arcstk::AccurateRip::V2;
+	using arcstk::AlgorithmTypes;
+
+	auto instance = AlgorithmTypes<V1, V2> {};
+
+
+	SECTION ( "Equality operator == is correct" )
+	{
+		auto rhs = AlgorithmTypes<V2> {}; // different from instance!
+
+		CHECK_FALSE ( instance.equals(rhs) );
+	}
+
 // 	// SECTION ( "Stream-in operator << is correct" )
 // 	// {
 // 	// 	FAIL ( "Stream-in operator << test is missing" );
 // 	// }
-//
-// 	// SECTION ( "to_string() is correct" )
-// 	// {
-// 	// 	FAIL ( "to_string() test is missing" );
-// 	// }
-// }
+
+	SECTION ( "to_string() is correct" )
+	{
+		CHECK ( "AccurateRip v1, AccurateRip v2" == instance.to_string() );
+	}
+}
 
 
 // TEST_CASE ( "AlgorithmTypes<> behavior",

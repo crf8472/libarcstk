@@ -150,7 +150,7 @@ public:
 	/**
 	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
-	constexpr static std::size_t TOTAL_HEX_DIGITS =
+	static constexpr std::size_t TOTAL_HEX_DIGITS =
 		(sizeof(Checksum::value_type) * CHAR_BIT) / 4;
 	// 4 bits are required to represent a single hexadecimal digit
 	// (since 2^4 == 16). We could express 4 as log_2(16).
