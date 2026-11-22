@@ -84,6 +84,9 @@ lists all tests tagged as 'calc' while ``./libarcstk_functional_tests -s
 "[perform_update]"`` executes all tests tagged with ``[perform_update]``. Option
 ``--help`` is implemented and the entire documentation is found [here][3].
 
+## TODO
+
+  - Compile each public header separately
 
 [1]: https://github.com/catchorg/catch2
 [2]: https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html

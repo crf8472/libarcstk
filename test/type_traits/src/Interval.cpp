@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Type traits testcases for Interval<>.
+ * \brief Type traits testcases for Interval<int32_t> (SampleRange).
  */
 
 #ifndef LIBARCSTK_ALGORITHM_HPP_
@@ -13,19 +13,19 @@
 #include <cstdint>                 // for int32_t
 #include <type_traits>             // for is_*_{constructible,assignable}
 
+#ifndef LIBARCSTK_TYPE_TRAITS_HPP_
 #include "type_traits.hpp"         // for is_comparable,
-								   // has_tostring_functionality
+#endif                             // has_tostring_functionality
 
 
-TEST_CASE ( "Interval is non-abstract, final and non-empty",
-		"[interval][calc][calculate]" )
+TEST_CASE ( "Interval<int32_t> traits", "[interval][calc][calculate]" )
 {
 	using std::int32_t;
 
 	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::Interval<int32_t>> );
-		CHECK ( ! std::is_abstract_v<arcstk::Interval<int32_t>> );
+		CHECK_FALSE ( std::is_abstract_v<arcstk::Interval<int32_t>> );
 	}
 
 	SECTION ( "is final" )
@@ -35,12 +35,12 @@ TEST_CASE ( "Interval is non-abstract, final and non-empty",
 
 	SECTION ( "has non-static members" )
 	{
-		CHECK ( ! std::is_empty_v<arcstk::Interval<int32_t>> );
+		CHECK_FALSE ( std::is_empty_v<arcstk::Interval<int32_t>> );
 	}
 }
 
 
-TEST_CASE ( "Interval special members",
+TEST_CASE ( "Interval<int32_t> construction traits",
 		"[interval][calc][calculate]" )
 {
 	using std::int32_t;
@@ -77,7 +77,7 @@ TEST_CASE ( "Interval special members",
 }
 
 
-TEST_CASE ( "Interval is swappable, comparable, string convertible",
+TEST_CASE ( "Interval<int32_t> value traits",
 		"[interval][calc][calculate]" )
 {
 	using std::int32_t;

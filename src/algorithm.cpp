@@ -55,37 +55,37 @@ Partition::Partition(
 }
 
 
-std::int32_t Partition::begin_offset() const
+std::int32_t Partition::begin_offset() const noexcept
 {
 	return begin_offset_;
 }
 
 
-std::int32_t Partition::end_offset() const
+std::int32_t Partition::end_offset() const noexcept
 {
 	return end_offset_;
 }
 
 
-bool Partition::starts_track() const
+bool Partition::starts_track() const noexcept
 {
 	return starts_track_;
 }
 
 
-bool Partition::ends_track() const
+bool Partition::ends_track() const noexcept
 {
 	return ends_track_;
 }
 
 
-int Partition::track() const
+int Partition::track() const noexcept
 {
 	return track_;
 }
 
 
-std::size_t Partition::size() const
+std::size_t Partition::size() const noexcept
 {
 	return static_cast<std::size_t>(end_offset() - begin_offset());
 }

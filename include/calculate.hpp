@@ -11,6 +11,7 @@
  * Provides the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
+#include <algorithm>        // for for_each, transform, min
 #include <chrono>           // for duration
 #include <cstddef>          // for ptrdiff_t
 #include <cstdint>          // for int32_t
@@ -481,30 +482,48 @@ void update_partition(const Partition& partition,
 	static constexpr std::int32_t MAX_OFFSET =
 		std::numeric_limits<std::int32_t>::max();
 
-	const auto offset_first = partition.begin_offset() - start_pos;
-	const auto offset_last  = partition.end_offset()   - start_pos;
-
-	if (offset_last >= MAX_OFFSET)
+	if (start_pos < 0)
 	{
-		throw std::invalid_argument {
-			"Upper bound of the partition exceeds maximum" };
+		throw std::invalid_argument { "Start position must not be negative" };
 		// TODO value
 	}
 
-	if (offset_first >= MAX_OFFSET)
+	const std::int32_t offset_start = partition.begin_offset();
+	const std::int32_t offset_end   = partition.end_offset();
+
+	if (offset_start < 0 || offset_end < 0)
 	{
-		throw std::invalid_argument {
-			"Lower bound of the partition exceeds maximum" };
-		// TODO value
+		throw std::invalid_argument { "Partition bounds must not be negative" };
 	}
 
-	if (offset_first > offset_last)
+	if (offset_start > offset_end)
 	{
 		throw std::invalid_argument
-				{ "No partition with zero or negative length allowed" };
+				{ "Partition must not end before its declared start" };
 	}
 
-	const auto total = offset_last + 1 - offset_first;
+	if (offset_start < start_pos)
+	{
+		throw std::invalid_argument
+				{ "Partition must not begin before declared start" };
+	}
+
+	// thereby guaranteed:  0 <= start_pos <= offset_start <= offset_end
+
+	const std::int32_t offset_first = offset_start - start_pos;
+	// in [0, INT32_MAX]
+
+	const std::int32_t offset_last  = offset_end   - start_pos;
+	// in [offset_first, INT32_MAX]
+
+	if (offset_last == MAX_OFFSET)
+	{
+		throw std::invalid_argument {
+			"Partition length must be less than INT32_MAX" };
+		// TODO value
+	}
+
+	const std::int32_t total = offset_last + 1 - offset_first;
 
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
@@ -636,8 +655,8 @@ template <typename A, typename B, typename E>
 	using std::min;
 
 	const auto pdist = std::distance(start, stop);
-	// TODO B and E are allowed to be different, but distance requires them
-	// in C++17 to be the same.
+	// TODO B and E are allowed to be different, but std::distance in C++17
+	// requires them to be the same.
 
 	if (pdist <= 0)
 	{
