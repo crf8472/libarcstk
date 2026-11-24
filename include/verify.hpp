@@ -89,16 +89,16 @@ private:
 		const
 	= 0;
 
-	virtual const uint32_t& do_arcs_value(const size_type block_idx,
+	virtual const std::uint32_t& do_arcs_value(const size_type block_idx,
 		const size_type track_idx) const
 	= 0;
 
-	virtual const uint32_t& do_confidence(const size_type block_idx,
+	virtual const std::uint32_t& do_confidence(const size_type block_idx,
 		const size_type idx) const
 	= 0;
 
-	virtual const uint32_t& do_frame450_arcs_value(const size_type block_idx,
-			const size_type track_idx) const
+	virtual const std::uint32_t& do_frame450_arcs_value(
+			const size_type block_idx, const size_type track_idx) const
 	= 0;
 
 	virtual std::size_t do_size(const size_type block_idx) const
@@ -158,7 +158,7 @@ public:
 	 *
 	 * \return The ARCS value of the specified index position
 	 */
-	const uint32_t& arcs_value(const size_type block_idx,
+	const std::uint32_t& arcs_value(const size_type block_idx,
 			const size_type track_idx) const;
 
 	/**
@@ -180,7 +180,7 @@ public:
 	 *
 	 * \return The ARCS value of frame 450 of the specified index position
 	 */
-	const uint32_t& frame450_arcs_value(const size_type block_idx,
+	const std::uint32_t& frame450_arcs_value(const size_type block_idx,
 			const size_type track_idx) const;
 
 	/**
@@ -218,13 +218,13 @@ class DBARSource final : public ChecksumSource
 	Checksum do_checksum(const size_type block_idx,
 			const size_type idx) const final;
 
-	const uint32_t& do_arcs_value(const size_type block_idx,
+	const std::uint32_t& do_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
 
 	const unsigned& do_confidence(const size_type block_idx,
 			const size_type idx) const final;
 
-	const uint32_t& do_frame450_arcs_value(const size_type block_idx,
+	const std::uint32_t& do_frame450_arcs_value(const size_type block_idx,
 			const size_type idx) const final;
 
 	std::size_t do_size(const size_type block_idx) const final;

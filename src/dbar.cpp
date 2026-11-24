@@ -120,12 +120,12 @@ template<typename CharT, typename TraitsT>
 
 	// parsed entities
 	auto total_tracks  = unsigned { 0 };
-	auto disc_id_1     = uint32_t { 0 };
-	auto disc_id_2     = uint32_t { 0 };
-	auto cddb_id       = uint32_t { 0 };
+	auto disc_id_1     = std::uint32_t { 0 };
+	auto disc_id_2     = std::uint32_t { 0 };
+	auto cddb_id       = std::uint32_t { 0 };
 	auto confidence    = unsigned { 0 };
-	auto trk_arcs      = uint32_t { 0 };
-	auto frame450_arcs = uint32_t { 0 };
+	auto trk_arcs      = std::uint32_t { 0 };
+	auto frame450_arcs = std::uint32_t { 0 };
 
 	// counters
 	auto bytes_read        = std::streamsize { 0 };
@@ -654,7 +654,8 @@ auto get_element(const DBARBlock& object, const typename DBARBlock::size_type i)
 
 
 DBARBlockHeader::DBARBlockHeader(const unsigned total_tracks,
-		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 	: total_tracks_ { total_tracks }
 	, id1_          { id1 }
 	, id2_          { id2 }
@@ -670,19 +671,19 @@ unsigned DBARBlockHeader::total_tracks() const noexcept
 }
 
 
-uint32_t DBARBlockHeader::id1() const noexcept
+std::uint32_t DBARBlockHeader::id1() const noexcept
 {
 	return id1_;
 }
 
 
-uint32_t DBARBlockHeader::id2() const noexcept
+std::uint32_t DBARBlockHeader::id2() const noexcept
 {
 	return id2_;
 }
 
 
-uint32_t DBARBlockHeader::cddb_id() const noexcept
+std::uint32_t DBARBlockHeader::cddb_id() const noexcept
 {
 	return cddb_id_;
 }
@@ -720,8 +721,8 @@ std::string DBARBlockHeader::to_string() const
 // DBARTriplet
 
 
-DBARTriplet::DBARTriplet(const uint32_t arcs, const unsigned confidence,
-		const uint32_t frame450_arcs)
+DBARTriplet::DBARTriplet(const std::uint32_t arcs, const unsigned confidence,
+		const std::uint32_t frame450_arcs)
 	: arcs_          { arcs }
 	, confidence_    { confidence }
 	, frame450_arcs_ { frame450_arcs }
@@ -730,13 +731,13 @@ DBARTriplet::DBARTriplet(const uint32_t arcs, const unsigned confidence,
 }
 
 
-uint32_t DBARTriplet::arcs() const noexcept
+std::uint32_t DBARTriplet::arcs() const noexcept
 {
 	return arcs_;
 }
 
 
-uint32_t DBARTriplet::frame450_arcs() const noexcept
+std::uint32_t DBARTriplet::frame450_arcs() const noexcept
 {
 	return frame450_arcs_;
 }
@@ -952,7 +953,7 @@ DBAR::Impl::size_type DBAR::Impl::size(const size_type block_idx) const
 }
 
 
-const uint32_t& DBAR::Impl::arcs_value(const size_type block_idx,
+const std::uint32_t& DBAR::Impl::arcs_value(const size_type block_idx,
 		const size_type track_idx) const
 {
 	return sums_[arcs_idx(block_idx, track_idx)];
@@ -967,15 +968,16 @@ const unsigned& DBAR::Impl::confidence_value(
 }
 
 
-const uint32_t& DBAR::Impl::frame450_arcs_value(const size_type block_idx,
+const std::uint32_t& DBAR::Impl::frame450_arcs_value(const size_type block_idx,
 		const size_type track_idx) const
 {
 	return sums_[frame450_arcs_idx(block_idx, track_idx)];
 }
 
 
-void DBAR::Impl::add_header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id)
+void DBAR::Impl::add_header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	total_tracks_.push_back(total_tracks);
 
@@ -985,8 +987,8 @@ void DBAR::Impl::add_header(const uint8_t total_tracks, const uint32_t id1,
 }
 
 
-void DBAR::Impl::add_triplet(const uint32_t arcs,
-			const uint8_t confidence, const uint32_t frame450_arcs)
+void DBAR::Impl::add_triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence, const std::uint32_t frame450_arcs)
 {
 	confidence_.push_back(confidence);
 
@@ -1095,8 +1097,10 @@ DBAR::DBAR()
 
 DBAR::DBAR(std::initializer_list<
 			std::pair<
-				std::tuple<unsigned, uint32_t, uint32_t, uint32_t>,
-				std::initializer_list<std::tuple<uint32_t, int, uint32_t>>>>
+				std::tuple<unsigned, std::uint32_t, std::uint32_t,
+						std::uint32_t>,
+				std::initializer_list<std::tuple<std::uint32_t, int,
+						std::uint32_t>>>>
 			blocks)
 	: impl_ { std::make_unique<DBAR::Impl>() }
 {
@@ -1167,7 +1171,7 @@ DBAR::size_type DBAR::size(const DBAR::size_type block_idx) const
 }
 
 
-const uint32_t& DBAR::arcs_value(const DBAR::size_type block,
+const std::uint32_t& DBAR::arcs_value(const DBAR::size_type block,
 		const DBAR::size_type track) const
 {
 	return impl_->arcs_value(block, track);
@@ -1181,7 +1185,7 @@ const unsigned& DBAR::confidence_value(const DBAR::size_type block,
 }
 
 
-const uint32_t& DBAR::frame450_arcs_value(const DBAR::size_type block,
+const std::uint32_t& DBAR::frame450_arcs_value(const DBAR::size_type block,
 		const DBAR::size_type track) const
 {
 	return impl_->frame450_arcs_value(block, track);
@@ -1326,8 +1330,9 @@ void ParseHandler::start_block()
 }
 
 
-void ParseHandler::header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id)
+void ParseHandler::header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	do_header(total_tracks, id1, id2, cddb_id);
 }
@@ -1339,9 +1344,9 @@ void ParseHandler::start_triplets()
 }
 
 
-void ParseHandler::triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs)
+void ParseHandler::triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs)
 {
 	do_triplet(arcs, confidence, frame450_arcs);
 }
@@ -1386,8 +1391,9 @@ void DBARBuilder::do_start_block()
 }
 
 
-void DBARBuilder::do_header(const uint8_t total_tracks, const uint32_t id1,
-	const uint32_t id2, const uint32_t cddb_id)
+void DBARBuilder::do_header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	result_->add_header(total_tracks, id1, id2, cddb_id);
 }
@@ -1399,8 +1405,8 @@ void DBARBuilder::do_start_triplets()
 }
 
 
-void DBARBuilder::do_triplet(const uint32_t arcs,
-	const uint8_t confidence, const uint32_t frame450_arcs)
+void DBARBuilder::do_triplet(const std::uint32_t arcs,
+	const std::uint8_t confidence, const std::uint32_t frame450_arcs)
 {
 	result_->add_triplet(arcs, confidence, frame450_arcs);
 }
@@ -1470,8 +1476,9 @@ void CheckingDBARBuilderState::update_validity(const std::size_t& total_tracks)
 }
 
 
-void CheckingDBARBuilderState::header(const uint8_t total_tracks,
-		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+void CheckingDBARBuilderState::header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	if (is_uniform_ && current_id_ != UNINITIALIZED_ID)
 	{
@@ -1481,8 +1488,9 @@ void CheckingDBARBuilderState::header(const uint8_t total_tracks,
 }
 
 
-void CheckingDBARBuilderState::triplet(const uint32_t /*arcs*/,
-		const uint8_t /*confidence*/, const uint32_t /*frame450_arcs*/)
+void CheckingDBARBuilderState::triplet(const std::uint32_t /*arcs*/,
+		const std::uint8_t /*confidence*/,
+		const std::uint32_t /*frame450_arcs*/)
 {
 	++triplet_counter_;
 }
@@ -1536,8 +1544,9 @@ void CheckingDBARBuilder::Impl::start_block()
 }
 
 
-void CheckingDBARBuilder::Impl::header(const uint8_t total_tracks,
-		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+void CheckingDBARBuilder::Impl::header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	builder_.header(total_tracks, id1, id2, cddb_id);
 	state_  .header(total_tracks, id1, id2, cddb_id); // for checks
@@ -1550,8 +1559,8 @@ void CheckingDBARBuilder::Impl::start_triplets()
 }
 
 
-void CheckingDBARBuilder::Impl::triplet(const uint32_t arcs,
-	const uint8_t confidence, const uint32_t frame450_arcs)
+void CheckingDBARBuilder::Impl::triplet(const std::uint32_t arcs,
+	const std::uint8_t confidence, const std::uint32_t frame450_arcs)
 {
 	builder_.triplet(arcs, confidence, frame450_arcs);
 	state_  .triplet(arcs, confidence, frame450_arcs); // for checks
@@ -1627,8 +1636,9 @@ void CheckingDBARBuilder::do_start_block()
 }
 
 
-void CheckingDBARBuilder::do_header(const uint8_t total_tracks,
-		const uint32_t id1, const uint32_t id2, const uint32_t cddb_id)
+void CheckingDBARBuilder::do_header(const std::uint8_t total_tracks,
+		const std::uint32_t id1, const std::uint32_t id2,
+		const std::uint32_t cddb_id)
 {
 	impl_->header(total_tracks, id1, id2, cddb_id);
 }
@@ -1640,8 +1650,8 @@ void CheckingDBARBuilder::do_start_triplets()
 }
 
 
-void CheckingDBARBuilder::do_triplet(const uint32_t arcs,
-	const uint8_t confidence, const uint32_t frame450_arcs)
+void CheckingDBARBuilder::do_triplet(const std::uint32_t arcs,
+	const std::uint8_t confidence, const std::uint32_t frame450_arcs)
 {
 	impl_->triplet(arcs, confidence, frame450_arcs);
 }
@@ -1767,7 +1777,7 @@ template std::size_t parse_stream<char>(std::basic_istream<char>&,
 // parse_file()
 
 
-uint32_t parse_file(const std::string& filename, ParseHandler* p,
+std::uint32_t parse_file(const std::string& filename, ParseHandler* p,
 		ParseErrorHandler* e)
 {
 	return details::parse_dbar_file(filename, p, e);

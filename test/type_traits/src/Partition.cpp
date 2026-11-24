@@ -12,17 +12,17 @@
 
 #include <type_traits>            // for is_*_{constructible,assignable}
 
-#include "type_traits.hpp"        // for is_comparable,
-								  // has_tostring_functionality
+#ifndef LIBARCSTK_TYPE_TRAITS_HPP_
+#include "type_traits.hpp"         // for is_comparable,
+#endif                             // has_tostring_functionality
 
 
-TEST_CASE ( "Partition is non-abstract, final and non-empty",
-		"[partition][calc][algorithm]" )
+TEST_CASE ( "Partition traits", "[partition][calc][algorithm]" )
 {
 	SECTION ( "is a non-abstract class" )
 	{
 		CHECK ( std::is_class_v<arcstk::Partition> );
-		CHECK ( ! std::is_abstract_v<arcstk::Partition> );
+		CHECK_FALSE ( std::is_abstract_v<arcstk::Partition> );
 	}
 
 	SECTION ( "is final" )
@@ -32,17 +32,16 @@ TEST_CASE ( "Partition is non-abstract, final and non-empty",
 
 	SECTION ( "has non-static members" )
 	{
-		CHECK ( ! std::is_empty_v<arcstk::Partition> );
+		CHECK_FALSE ( std::is_empty_v<arcstk::Partition> );
 	}
 }
 
 
-TEST_CASE ( "Partition special members",
-		"[partition][calc][algorithm]" )
+TEST_CASE ( "Partition construction traits", "[partition][calc][algorithm]" )
 {
 	SECTION ( "is not default constructable" )
 	{
-		CHECK ( ! std::is_default_constructible_v<arcstk::Partition>);
+		CHECK_FALSE ( std::is_default_constructible_v<arcstk::Partition>);
 	}
 
 	SECTION ( "is copy-constructable" )
@@ -72,8 +71,7 @@ TEST_CASE ( "Partition special members",
 }
 
 
-TEST_CASE ( "Partition is swappable and comparable",
-		"[partition][calc][algorithm]" )
+TEST_CASE ( "Partition value traits", "[partition][calc][algorithm]" )
 {
 	SECTION ( "is nothrow swappable" )
 	{

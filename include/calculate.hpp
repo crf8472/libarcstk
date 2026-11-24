@@ -11,16 +11,21 @@
  * Provides the API for \link calc calculating AccurateRip checksums\endlink.
  */
 
+#include <algorithm>        // for for_each, transform, min
 #include <chrono>           // for duration
 #include <cstddef>          // for ptrdiff_t
 #include <cstdint>          // for int32_t
 #include <functional>       // for function
 #include <iterator>         // for advance, input_iterator_tag
+#include <limits>           // for numeric_limits
 #include <map>              // for map
 #include <memory>           // for make_unique, unique_ptr
+#include <set>              // for set
 #include <sstream>          // for ostream
 #include <stdexcept>        // for invalid_argument
 #include <string>           // for string
+#include <string_view>      // for string_view
+#include <tuple>            // for tuple
 #include <type_traits>      // for decay_t, enable_if_t, is_same, decay
 #include <unordered_set>    // for unordered_set
 #include <utility>          // for declval, move, pair
@@ -95,9 +100,9 @@ using ToCData = std::vector<AudioSize>;
  *
  * Updating an CalculationUpdater with an actual sequence of samples is done by
  * providing a sequence of samples represented by two iterators. Those iterators
- * represent start and stop of the update. Any C++-LegacyInputIterator with a \c
- * value_type of csample_t is allowed. Type csample_t (combined sample type) is
- * the declared type for a combined representation of two PCM 16 bit stereo
+ * represent start and stop of the update. Any RandomAccessIterator with a
+ * \c value_type of csample_t is allowed. Type csample_t (combined sample type)
+ * is the declared type for a combined representation of two PCM 16 bit stereo
  * samples. Algorithm instances process samples in this format. Using a
  * SampleSequence may be of convenience for establishing compatibility of the
  * sample input format.
@@ -166,7 +171,7 @@ using ToCData = std::vector<AudioSize>;
  *
  * Bitwise operators are guaranteed to work as on unsigned types.
  */
-using csample_t = uint32_t; // also defined in samples.hpp
+using csample_t = std::uint32_t; // also defined in samples.hpp
 
 
 namespace details
@@ -262,10 +267,18 @@ public:
 	 */
 	void reset()
 	{
-		value_ = T{};
+		value_ = T {};
 	}
 
-	// TODO explicit operator bool()
+	/**
+	 * \brief Convert to bool.
+	 *
+	 * Counter converts to bool by converting its value to bool.
+	 */
+	explicit operator bool() const
+	{
+		return value_;
+	}
 };
 
 /**
@@ -278,27 +291,27 @@ class CalculationState final
 	/**
 	 * \brief Internal 0-based current sample offset.
 	 */
-	Counter<int32_t> current_offset_ {};
+	Counter<std::int32_t> current_offset_ {};
 
 	/**
 	 * \brief Internal 0-based counter for samples processed.
 	 */
-	Counter<int32_t> samples_processed_ {};
+	Counter<std::int32_t> samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for track samples processed.
 	 */
-	Counter<int32_t> track_samples_processed_ {};
+	Counter<std::int32_t> track_samples_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for tracks.
 	 */
-	Counter<int32_t> tracks_processed_ {};
+	Counter<std::int32_t> tracks_processed_ {};
 
 	/**
 	 * \brief Internal 0-based counter for sample sequences.
 	 */
-	Counter<int32_t> sequences_processed_ {};
+	Counter<std::int32_t> sequences_processed_ {};
 
 	/**
 	 * \brief Internal time elapsed by processing.
@@ -319,7 +332,7 @@ public:
 	 *
 	 * \return Current sample
 	 */
-	int32_t current_offset() const noexcept;
+	std::int32_t current_offset() const noexcept;
 
 	/**
 	 * \brief Return the total number of PCM 32 bit samples yet processed.
@@ -330,14 +343,14 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t samples_processed() const noexcept;
+	std::int32_t samples_processed() const noexcept;
 
 	/**
 	 * \brief Return the total number of PCM 32 bit samples in current track.
 	 *
 	 * \return Total number of PCM 32 bit samples processed in current track.
 	 */
-	int32_t track_samples_processed() const noexcept;
+	std::int32_t track_samples_processed() const noexcept;
 
 	/**
 	 * \brief Return the total number of tracks yet processed.
@@ -346,14 +359,14 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t tracks_processed() const noexcept;
+	std::int32_t tracks_processed() const noexcept;
 
 	/**
 	 * \brief Returns the total number of sample sequences yet processed.
 	 *
 	 * \return Total number of sample sequences processed.
 	 */
-	int32_t sequences_processed() const noexcept;
+	std::int32_t sequences_processed() const noexcept;
 
 	/**
 	 * \brief Amount of milliseconds elapsed so far by Algorithm::update().
@@ -390,7 +403,7 @@ public:
 	 *
 	 * \param[in] amount Amount (in samples) to advance
 	 */
-	void advance(const int32_t amount);
+	void advance(const std::int32_t amount);
 
 	/**
 	 * \brief Update the calculation state with amounts of samples and time.
@@ -398,7 +411,7 @@ public:
 	 * \param[in] amount    Samples processed in current algorithm update
 	 * \param[in] algo_time Time consumed by algorithm in current update
 	 */
-	void update(const int32_t amount,
+	void update(const std::int32_t amount,
 		const std::chrono::duration<float>& algo_time);
 
 	/**
@@ -406,7 +419,7 @@ public:
 	 *
 	 * \return Samples processed in the course of this track
 	 */
-	int32_t track_finalized();
+	std::int32_t track_finalized();
 
 	/**
 	 * \brief Swap abstract part of the concrete subclass..
@@ -434,7 +447,8 @@ public:
  * \param[in] total     Total samples
  */
 void log_sample_stats(const Partition& partition,
-		const int32_t from, const int32_t to, const int32_t total);
+		const std::int32_t from, const std::int32_t to,
+		const std::int32_t total);
 
 /**
  * \brief Worker: log processing stats.
@@ -462,17 +476,54 @@ namespace update
  */
 template <typename A, typename I>
 void update_partition(const Partition& partition,
-		I start, const int32_t start_pos,
+		I start, const std::int32_t start_pos,
 		Updateable<A>& algorithm, CalculationState& state)
 {
-	const auto offset_first = partition.begin_offset() - start_pos;
-	const auto offset_last  = partition.end_offset()   - start_pos;
-	const auto total        = offset_last + 1 - offset_first;
+	static constexpr std::int32_t MAX_OFFSET =
+		std::numeric_limits<std::int32_t>::max();
 
-	if (total < 0)
+	if (start_pos < 0)
 	{
-		throw std::invalid_argument("Negative partition size is not allowed");
+		throw std::invalid_argument { "Start position must not be negative" };
+		// TODO value
 	}
+
+	const std::int32_t offset_start = partition.begin_offset();
+	const std::int32_t offset_end   = partition.end_offset();
+
+	if (offset_start < 0 || offset_end < 0)
+	{
+		throw std::invalid_argument { "Partition bounds must not be negative" };
+	}
+
+	if (offset_start > offset_end)
+	{
+		throw std::invalid_argument
+				{ "Partition must not end before its declared start" };
+	}
+
+	if (offset_start < start_pos)
+	{
+		throw std::invalid_argument
+				{ "Partition must not begin before declared start" };
+	}
+
+	// thereby guaranteed:  0 <= start_pos <= offset_start <= offset_end
+
+	const std::int32_t offset_first = offset_start - start_pos;
+	// in [0, INT32_MAX]
+
+	const std::int32_t offset_last  = offset_end   - start_pos;
+	// in [offset_first, INT32_MAX]
+
+	if (offset_last == MAX_OFFSET)
+	{
+		throw std::invalid_argument {
+			"Partition length must be less than INT32_MAX" };
+		// TODO value
+	}
+
+	const std::int32_t total = offset_last + 1 - offset_first;
 
 	log_sample_stats(partition, start_pos + offset_first,
 				start_pos + offset_last, total);
@@ -511,8 +562,8 @@ void update_partition(const Partition& partition,
  *
  * \return First and last samples
  */
-std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
-		CalculationState& state);
+std::pair<std::int32_t, std::int32_t> positions(
+		const std::int32_t& samples_in_block, CalculationState& state);
 
 /**
  * \brief Skip block and return whether this completed the Calculation.
@@ -523,9 +574,8 @@ std::pair<int32_t, int32_t> positions(const int32_t& samples_in_block,
  *
  * \return TRUE if Calculation is complete after skipping the specified amount
  */
-bool complete_after_skip_block(const int32_t& samples_in_block,
-		const Partitioner& partitioner,
-		CalculationState& state);
+bool complete_after_skip_block(const std::int32_t& samples_in_block,
+		const Partitioner& partitioner, CalculationState& state);
 
 /**
  * \brief Skip amount of samples.
@@ -534,8 +584,8 @@ bool complete_after_skip_block(const int32_t& samples_in_block,
  * \param[in] partitioning Partitioning
  * \param[in] state        Calculation state
  */
-void skip_amount(const int32_t& start_pos, const Partitioning& partitioning,
-		CalculationState& state);
+void skip_amount(const std::int32_t& start_pos,
+		const Partitioning& partitioning, CalculationState& state);
 
 /**
  * \brief Inform all instances about the completion of a track.
@@ -590,7 +640,7 @@ void complete_track(Updateable<A>& algorithm,
  * \param[in]     start         Iterator pointing to first sample in block
  * \param[in]     stop          Iterator pointing behind last sample in block
  * \param[in]     partitioner   Partition provider
- * \param[in]     updateable    Algorithm to use for calculation
+ * \param[in,out] updateable    Algorithm to use for calculation
  * \param[in,out] state         Current calculation state
  * \param[in,out] result_buffer Buffer for collecting results
  *
@@ -602,25 +652,46 @@ template <typename A, typename B, typename E>
 		Updateable<A>& updateable, CalculationState& state,
 		Checksums& result_buffer)
 {
-	using std::int32_t;
-	using std::ptrdiff_t;
-	using std::size_t;
-	using std::uint16_t;
+	using std::min;
 
-	const auto samples_in_block {
-		static_cast<int32_t>(std::distance(start, stop)) };
+	const auto pdist = std::distance(start, stop);
+	// TODO B and E are allowed to be different, but std::distance in C++17
+	// requires them to be the same.
+
+	if (pdist <= 0)
+	{
+		throw std::invalid_argument
+				{ "No sequence with zero or negative length allowed" };
+	}
+
+	if (pdist > std::numeric_limits<std::int32_t>::max())
+	{
+		throw std::invalid_argument
+				{ "Sequence length must not exceed std::int32_t" };
+	}
+
+	if (partitioner.empty())
+	{
+		throw std::invalid_argument
+				{ "Partitioner for update must not be empty" };
+	}
+
+	const auto samples_in_block { static_cast<std::int32_t>(pdist) };
+	// samples_in_block is a positive integer in a legal range
 
 	const auto [ start_pos, last_pos ] = positions(samples_in_block, state);
 
 	// starts before legal range + ends after first physical sample
-	if (const auto first_phys_smpl = partitioner.points()[0].samples();
+	if (const auto first_phys_smpl = partitioner.offset(1).samples();
 		start_pos < partitioner.legal_range().lower()
 			&& last_pos >= first_phys_smpl)
 	{
-		const auto dist1 = static_cast<ptrdiff_t>(first_phys_smpl) - start_pos;
 		const auto diff  = partitioner.legal_range().lower() - start_pos;
-		const auto dist2 = static_cast<ptrdiff_t>(
-				std::min(diff, last_pos - start_pos - 1));
+
+		const auto dist1 =
+			static_cast<std::ptrdiff_t>(first_phys_smpl) - start_pos;
+		const auto dist2 =
+			static_cast<std::ptrdiff_t>(min(diff, last_pos - start_pos - 1));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< start_pos
@@ -635,7 +706,7 @@ template <typename A, typename B, typename E>
 			<< " do not contribute to current checksum";
 
 		updateable.pre_range(start + dist1, start + dist2,
-				static_cast<size_t>(dist2 - dist1));
+				static_cast<std::size_t>(dist2 - dist1));
 	}
 
 	const auto partitioning { partitioner.create_partitioning(
@@ -643,7 +714,7 @@ template <typename A, typename B, typename E>
 
 	if (partitioning.empty())
 	{
-		// TODO This is not actually allowed. Throw?
+		// TODO Unser about whether skipping+completion is the right thing to do
 		return complete_after_skip_block(samples_in_block, partitioner, state);
 	} else
 	{
@@ -657,7 +728,7 @@ template <typename A, typename B, typename E>
 
 	// Update the state with each partition in this partitioning
 
-	auto partition_counter = uint16_t { 0 };
+	auto partition_counter = std::uint16_t { 0 };
 
 	for (const auto& partition : partitioning)
 	{
@@ -694,8 +765,9 @@ template <typename A, typename B, typename E>
 	{
 		const auto diff = partitioner.total_samples().samples()
 			- state.current_offset();
-		const auto dist = static_cast<ptrdiff_t>(
-				std::min(diff, last_pos - state.current_offset()));
+
+		const auto dist = static_cast<std::ptrdiff_t>(
+				min(diff, last_pos - state.current_offset()));
 
 		ARCS_LOG(DEBUG2) << "Samples "
 			<< state.current_offset()
@@ -703,11 +775,11 @@ template <typename A, typename B, typename E>
 			<< state.current_offset() + dist
 			<< " do not contribute to current checksum";
 
-		const auto offset = static_cast<ptrdiff_t>(
+		const auto offset = static_cast<std::ptrdiff_t>(
 				state.current_offset() - start_pos);
 
 		updateable.post_range(start + offset, start + (offset + dist),
-				static_cast<size_t>(dist));
+				static_cast<std::size_t>(dist));
 	}
 
 	/* Return TRUE iff the last relevant sample was in the current block. */
@@ -781,7 +853,7 @@ public:
 /**
  * \brief Consecutive state of a Calculation.
  */
-enum class State : uint8_t
+enum class State : std::uint8_t
 {
     INSTANTIATED,
     INITIALIZED,
@@ -839,7 +911,7 @@ protected:
 	{
         if (!is_valid_transition(state_, target_state))
 		{
-			auto ss = std::ostringstream{};
+			auto ss = std::ostringstream {};
 			ss << "Illegal state transition requested from state "
 				<< static_cast<int>(state_)
 				<< " to state "
@@ -1079,8 +1151,14 @@ protected:
 		allowed_only_before(State::UPDATED,
 				"Cannot modify offsets, leadout or range after first update");
 
-		ARCS_LOG(DEBUG1) << "Calculation interval is "
-			<< partitioner->legal_range().to_string();
+		if (partitioner)
+		{
+			ARCS_LOG(DEBUG1) << "Calculation interval is "
+				<< partitioner->legal_range().to_string();
+		} else
+		{
+			ARCS_LOG(DEBUG1) << "Calculation interval is removed";
+		}
 
 		partitioner_ = std::move(partitioner);
 	}
@@ -1276,7 +1354,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples processed.
 	 */
-	int32_t samples_processed() const noexcept
+	std::int32_t samples_processed() const noexcept
 	{
 		return state_.samples_processed();
 	}
@@ -1291,7 +1369,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples expected.
 	 */
-	int32_t samples_expected() const noexcept
+	std::int32_t samples_expected() const noexcept
 	{
 		// Expected total number of input samples
 		return partitioner_ ? partitioner_->total_samples().samples() : 0;
@@ -1307,7 +1385,7 @@ public:
 	 *
 	 * \return Total number of PCM 32 bit samples yet to process.
 	 */
-	int32_t samples_todo() const noexcept
+	std::int32_t samples_todo() const noexcept
 	{
 		return this->samples_expected() - this->samples_processed();
 	}
@@ -1319,7 +1397,7 @@ public:
 	 *
 	 * \return Total number of sample sequences processed.
 	 */
-	int32_t sequences_processed() const noexcept
+	std::int32_t sequences_processed() const noexcept
 	{
 		return state_.sequences_processed();
 	}
@@ -1456,6 +1534,9 @@ public:
 		if (partitioner_)
 		{
 			partitioner_->set_total_samples(audiosize);
+		} else
+		{
+			throw std::logic_error { "Updating by size requires Partitioner" };
 		}
 	}
 };
@@ -1675,12 +1756,12 @@ private:
 
 	Points do_offsets() const final
 	{
-		return partitioner() ? partitioner()->points() : Points{};
+		return partitioner() ? partitioner()->points() : Points {};
 	}
 
 	AudioSize do_leadout() const final
 	{
-		return partitioner() ? partitioner()->total_samples() : AudioSize{};
+		return partitioner() ? partitioner()->total_samples() : AudioSize {};
 	}
 
 	void do_init(const Points& offsets, const AudioSize& leadout) final
@@ -1980,7 +2061,7 @@ public:
 	 */
     explicit CalculationSetUpdater(
 			const RegistrationFunc_t& register_algorithms)
-		: CalculationSetUpdater { Settings{}, register_algorithms }
+		: CalculationSetUpdater { Settings {}, register_algorithms }
 	{
 		// empty
 	}
@@ -2103,9 +2184,8 @@ private:
 			return this->merge_results(updaters_);
 		}
 
-		ARCS_LOG_ERROR << "CalculationSet does not implement drive offsets";
-
-		return this->merge_results(updaters_);
+		throw std::runtime_error
+			{ "CalculationSet does not implement drive offsets" };
 	}
 
 	size_type do_size() const final
@@ -2155,7 +2235,7 @@ private:
 		ARCS_LOG(DEBUG3) << "Allocate result for " << total_tracks << " tracks";
 
 		//auto tracks { Checksums(total_tracks, ChecksumSet { {/*0*/} }) };
-		auto tracks = Checksums{};
+		auto tracks = Checksums {};
 		tracks.resize(total_tracks);
 
 		using std::begin;
@@ -2261,30 +2341,66 @@ struct AlgorithmTypes final
 			&AlgorithmTypes<A1, Args...>::configure<B,E>);
 	}
 
-	template <typename... OTHERS>
-	constexpr bool equals(const AlgorithmTypes<OTHERS...>&) const
-		noexcept
+	/**
+	 * \copydoc SNPT_mf_equals
+	 *
+	 * \tparam RHS Types on the right side
+	 */
+	template <typename... RHS>
+	static constexpr bool equals(const AlgorithmTypes<RHS...>& /*rhs*/) noexcept
 	{
-		return std::is_same_v<std::tuple<A1, Args...>, std::tuple<OTHERS...>>;
+		return std::is_same_v<std::tuple<A1, Args...>, std::tuple<RHS...>>;
 	}
 
-	// TODO Inherit from Comparable?
-
-	friend bool operator == (const AlgorithmTypes& lhs,
-			const AlgorithmTypes& rhs) noexcept
+	/**
+	 * \copydoc SNPT_mf_to_string
+	 */
+	static std::string to_string()
 	{
-		return lhs.equals(rhs);
-	}
+		std::string result;
+		std::string_view separator {};
 
-	friend bool operator != (const AlgorithmTypes& lhs,
-			const AlgorithmTypes& rhs) noexcept
-	{
-		return !(lhs == rhs);
-	}
+		auto append = [&](std::string_view name)
+		{
+			result += separator; // empty on first call
+			result += name;
 
-	// TODO to_string
+			separator = ", ";
+		};
+
+		// TODO: Make name() for Algorithm available without an instance
+		// This requires a static name constant for each class, which implies
+		// for this class a kind of name template.
+
+		append(A1{}.name());
+		(append(Args{}.name()), ...);
+		// TODO: This gives "AccurateRip v1, AccurateRip v2" for V1andV2
+
+		return result;
+	}
 };
 
+
+template <typename... LHS, typename... RHS>
+constexpr bool operator == (const AlgorithmTypes<LHS...>& /*lhs*/,
+		const AlgorithmTypes<RHS...>& rhs) noexcept
+{
+	return AlgorithmTypes<LHS...>::equals(rhs);
+}
+
+template <typename... LHS, typename... RHS>
+constexpr bool operator != (const AlgorithmTypes<LHS...>& lhs,
+		const AlgorithmTypes<RHS...>& rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
+// TODO Comparable operators can be hidden friends in C++20.
+
+// The compiler will create the converse version "T2 == T1" automatically. If we
+// implement this as hidden friend in C++17, we would be forced to implement 2
+// variants, "T2 == T1" and "T1 == T2", which introduces an ambiguity for "Tx ==
+// Tx". So, for C++17 the namespace-placed version is ok. Change this for C++20.
 
 /**
  * \brief Create a CalculationSet for specified checksum types and Settings.

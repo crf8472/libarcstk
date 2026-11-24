@@ -54,7 +54,7 @@ namespace checksum
  * ARCS1 is AccurateRip v1, ARCS2 is AccurateRip v2, and
  * F4501 is AccurateRip v1 of frame 450.
  */
-enum class type : uint8_t
+enum class type : std::uint8_t
 {
 	ARCS1   = 1,
 	ARCS2   = 2,
@@ -145,12 +145,12 @@ public:
 	 *
 	 * \details Numerical type of checksums: an unsigned 32-bit integer.
 	 */
-	using value_type = uint32_t;
+	using value_type = std::uint32_t;
 
 	/**
 	 * \brief Total number of printed hexadecimal digits of an ARCS.
 	 */
-	constexpr static std::size_t TOTAL_HEX_DIGITS =
+	static constexpr std::size_t TOTAL_HEX_DIGITS =
 		(sizeof(Checksum::value_type) * CHAR_BIT) / 4;
 	// 4 bits are required to represent a single hexadecimal digit
 	// (since 2^4 == 16). We could express 4 as log_2(16).
@@ -369,7 +369,8 @@ public:
 	 *
 	 * \param[in] type The type to lookup the Checksum for
 	 *
-	 * \return \c TRUE iff \c type is present in the instance, otherwise \c FALSE
+	 * \return \c TRUE iff \c type is present in the instance, otherwise
+	 * \c FALSE
 	 */
 	bool contains(const checksum::type& type) const;
 
@@ -653,7 +654,7 @@ namespace std
 	{
 		std::size_t operator()(const arcstk::Checksum& c) const noexcept
 		{
-			return std::hash<uint32_t>{}(c.value());
+			return std::hash<std::uint32_t>{}(c.value());
 		}
 	};
 } // namespace std

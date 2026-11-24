@@ -3,7 +3,7 @@
 /**
  * \file
  *
- * \brief Unit tests for Interval<>.
+ * \brief Unit tests for Interval<int32_t> (SampleRange).
  */
 
 #ifndef LIBARCSTK_CALCULATE_HPP_
@@ -13,54 +13,6 @@
 #ifndef LIBARCSTK_CONSTRUCTION_HPP_
 #include "construction.hpp"        // for Copy, Move
 #endif
-
-
-TEST_CASE ( "Interval<> Old", "[interval][calc][calculate]" )
-{
-	using arcstk::Interval;
-
-	const auto i1 = Interval<int32_t> {  10,  17 };
-	const auto i2 = Interval<int32_t> { -12, 123 };
-	const auto i3 = Interval<int32_t> {   2,   1 };
-
-	SECTION ( "Construction is correct" )
-	{
-		CHECK ( i1.lower() ==  10 );
-		CHECK ( i2.lower() == -12 );
-		CHECK ( i3.lower() ==   1 );
-
-		CHECK ( i1.upper() ==  17 );
-		CHECK ( i2.upper() == 123 );
-		CHECK ( i3.upper() ==   2 );
-	}
-
-	SECTION ( "contains() is correct" )
-	{
-		CHECK ( !i1.contains( 9) );
-		CHECK (  i1.contains(10) );
-		CHECK (  i1.contains(11) );
-		CHECK (  i1.contains(12) );
-		CHECK (  i1.contains(13) );
-		CHECK (  i1.contains(14) );
-		CHECK (  i1.contains(15) );
-		CHECK (  i1.contains(16) );
-		CHECK (  i1.contains(17) );
-		CHECK ( !i1.contains(18) );
-
-		CHECK ( !i2.contains(-13) );
-		CHECK (  i2.contains(-12) );
-		CHECK (  i2.contains(-11) );
-		CHECK (  i2.contains(-10) );
-		CHECK (  i2.contains(122) );
-		CHECK (  i2.contains(123) );
-		CHECK ( !i2.contains(124) );
-
-		CHECK ( !i3.contains(0) );
-		CHECK (  i3.contains(1) );
-		CHECK (  i3.contains(2) );
-		CHECK ( !i3.contains(3) );
-	}
-}
 
 
 TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
@@ -77,6 +29,15 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 	{
 		CHECK ( instance.lower() ==   0 );
 		CHECK ( instance.upper() == 100 );
+
+		const auto i2 = Interval<int32_t> { -12, 123 };
+		const auto i3 = Interval<int32_t> { -99, -200 };
+
+		CHECK ( i2.lower() == -12 );
+		CHECK ( i2.upper() == 123 );
+
+		CHECK ( i3.lower() == -200 );
+		CHECK ( i3.upper() ==  -99 );
 	}
 
 	SECTION ( "Copy construction is correct" )
@@ -84,8 +45,6 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		using IntervalType = Interval<int>;
 
 		const IntervalType copied { Copy<IntervalType>::construct(instance) };
-
-		// --
 
 		CHECK ( copied.lower() ==   0 );
 		CHECK ( copied.upper() == 100 );
@@ -95,8 +54,6 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 	{
 		using IntervalType = Interval<int>;
 		const IntervalType moved { Move<IntervalType>::construct(instance) };
-
-		// --
 
 		CHECK ( moved.lower() ==   0 );
 		CHECK ( moved.upper() == 100 );
@@ -108,8 +65,6 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		auto copied = IntervalType {};
 		Copy<IntervalType>::assign(copied, instance);
 
-		// --
-
 		CHECK ( copied.lower() ==   0 );
 		CHECK ( copied.upper() == 100 );
 	}
@@ -120,21 +75,17 @@ TEST_CASE ( "Interval<>", "[interval][calc][calculate]" )
 		auto moved = IntervalType {};
 		Move<IntervalType>::assign(moved, instance);
 
-		// --
-
 		CHECK ( moved.lower() ==   0 );
 		CHECK ( moved.upper() == 100 );
 	}
 }
 
 
-TEST_CASE ( "Interval<> default",
-	"[interval][calc][calculate]" )
+TEST_CASE ( "Interval<> default", "[interval][calc][calculate]" )
 {
-	const auto defaulted = arcstk::Interval<int>{};
+	const auto defaulted = arcstk::Interval<int32_t> {};
 
-
-	SECTION ( "lower and upper were default initialized" )
+	SECTION ( "lower() and upper() are zero (provides [0,0])" )
 	{
 		CHECK ( defaulted.lower() == 0 );
 		CHECK ( defaulted.upper() == 0 );
@@ -142,17 +93,26 @@ TEST_CASE ( "Interval<> default",
 }
 
 
-TEST_CASE ( "Interval<> value", "[interval][calc][calculate]" )
+TEST_CASE ( "Interval<int32_t> value", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
-	auto instance = Interval<int> { -863, 915 };
+	auto instance = Interval<int32_t> { -863, 915 };
 
 
-	// SECTION ( "swap() is correct" )
-	// {
-	// 	FAIL ( "swap() test is missing" );
-	// }
+	SECTION ( "swap() is correct" )
+	{
+		auto rhs = Interval<int32_t> { -2, -100 };
+
+		using std::swap;
+
+		swap(instance, rhs);
+
+		CHECK ( instance.lower() == -100 );
+		CHECK ( instance.upper() ==   -2 );
+		CHECK ( rhs.lower()      == -863 );
+		CHECK ( rhs.upper()      ==  915 );
+	}
 
 	SECTION ( "to_string() is correct" )
 	{
@@ -161,11 +121,13 @@ TEST_CASE ( "Interval<> value", "[interval][calc][calculate]" )
 }
 
 
-TEST_CASE ( "Interval<> behavior", "[interval][calc][calculate]" )
+TEST_CASE ( "Interval<int32_t> behavior", "[interval][calc][calculate]" )
 {
 	using arcstk::Interval;
 
-	auto instance = Interval<int> { 17, 96 };
+	using std::int32_t;
+
+	const auto instance = Interval<int32_t> { 96, 17 };
 
 
 	SECTION ( "lower() is correct" )
@@ -178,24 +140,68 @@ TEST_CASE ( "Interval<> behavior", "[interval][calc][calculate]" )
 		CHECK ( instance.upper() == 96 );
 	}
 
-	SECTION ( "contains() is correct" )
+	SECTION ( "count() is correct" )
 	{
-		CHECK ( ! instance.contains(10) );
-		CHECK ( ! instance.contains(11) );
-		CHECK ( ! instance.contains(12) );
-		CHECK ( ! instance.contains(13) );
-		CHECK ( ! instance.contains(14) );
-		CHECK ( ! instance.contains(15) );
-		CHECK ( ! instance.contains(16) );
+		CHECK ( Interval<int32_t> { 96, 17 }.count() == 80 );
+		CHECK ( Interval<int32_t> {  1,  1 }.count() ==  1 );
+		CHECK ( Interval<int32_t> {  1,  2 }.count() ==  2 );
+	}
 
-		for (auto i = int { instance.lower() }; i <= instance.upper(); ++i)
+	SECTION ( "contains() is FALSE for positive values not contained" )
+	{
+		CHECK_FALSE ( instance.contains(10) );
+		CHECK_FALSE ( instance.contains(11) );
+		CHECK_FALSE ( instance.contains(12) );
+		CHECK_FALSE ( instance.contains(13) );
+		CHECK_FALSE ( instance.contains(14) );
+		CHECK_FALSE ( instance.contains(15) );
+		CHECK_FALSE ( instance.contains(16) );
+		// 17 -96
+		CHECK_FALSE ( instance.contains(97) );
+		CHECK_FALSE ( instance.contains(98) );
+		CHECK_FALSE ( instance.contains(99) );
+	}
+
+	SECTION ( "contains() is TRUE for every positive contained value" )
+	{
+		for (auto i = int32_t { instance.lower()/*17*/ };
+				i <= instance.upper()/*96*/; ++i)
 		{
 			CHECK ( instance.contains(i) );
 		}
+	}
 
-		CHECK ( ! instance.contains(97) );
-		CHECK ( ! instance.contains(98) );
-		CHECK ( ! instance.contains(99) );
+	SECTION ( "contains() is correct for a partly negative interval" )
+	{
+		const auto i2 = Interval<int32_t> { -12, 123 };
+
+		CHECK_FALSE ( i2.contains(-13) );
+		CHECK       ( i2.contains(-12) );
+		CHECK       ( i2.contains(-11) );
+		CHECK       ( i2.contains(-10) );
+		CHECK       ( i2.contains(122) );
+		CHECK       ( i2.contains(123) );
+		CHECK_FALSE ( i2.contains(124) );
+	}
+
+	SECTION ( "contains() is correct for a positiv interval of count() 1" )
+	{
+		const auto i = Interval<int32_t> { 1, 1 };
+
+		REQUIRE ( 1 == i.count() );
+
+		CHECK_FALSE ( i.contains(0) );
+		CHECK       ( i.contains(1) );
+		CHECK_FALSE ( i.contains(2) );
+	}
+
+	SECTION ( "equals() is correct" )
+	{
+		CHECK ( instance.equals(Interval<int32_t> { 96, 17 }) );
+		CHECK ( instance.equals(Interval<int32_t> { 17, 96 }) );
+
+		CHECK_FALSE ( instance.equals(Interval<int32_t> { 18, 96 }) );
+		CHECK_FALSE ( instance.equals(Interval<int32_t> { 95, 17 }) );
 	}
 }
 

@@ -13,10 +13,6 @@
  * \brief Implementation details for dbar.hpp.
  */
 
-#ifndef LIBARCSTK_DBAR_HPP_
-#include "dbar.hpp"            // for DBAR::size_type + ...
-#endif
-
 #include <cassert>   // for assert
 #include <cstring>   // for memmove, memcpy, memset, memchr
 #include <cstddef>   // for byte
@@ -26,6 +22,10 @@
 #include <optional>  // for optional
 #include <string>    // for string
 #include <vector>    // for vector
+
+#ifndef LIBARCSTK_DBAR_HPP_
+#include "dbar.hpp"            // for DBAR::size_type + ...
+#endif
 
 namespace arcstk
 {
@@ -70,7 +70,7 @@ static constexpr int TRIPLET_BYTES { 9 };
 template <int n, typename CharT>
 struct size_of_bytes
 {
-	constexpr static int value = n * static_cast<int>(sizeof(CharT));
+	static constexpr int value = n * static_cast<int>(sizeof(CharT));
 };
 
 /**
@@ -87,12 +87,12 @@ constexpr int size_of_bytes_v = size_of_bytes<n, CharT>::value;
 /**
  * \brief Indicates an invalid disc_id_1, disc_id_2 or cddb_id value.
  */
-static constexpr uint32_t UNPARSED_DISC_ID = 0;
+static constexpr std::uint32_t UNPARSED_DISC_ID = 0;
 
 /**
  * \brief Indicates an invalid ARCS value.
  */
-static constexpr uint32_t UNPARSED_ARCS = 0;
+static constexpr std::uint32_t UNPARSED_ARCS = 0;
 
 /**
  * \brief Indicates an invalid confidence value.
@@ -328,7 +328,7 @@ class DBAR::Impl final
 	 * the sum of the constant header size (== 3) plus the product of the total
 	 * number of tracks in this block and the constant track size (== 2).
 	 */
-	std::vector<uint32_t> sums_ {};  // header ids + arcss + frame450s
+	std::vector<std::uint32_t> sums_ {};  // header ids + arcss + frame450s
 
 	/**
 	 * \brief Number of index positions of a header.
@@ -348,13 +348,13 @@ public:
 
 	size_type size(const size_type block_idx) const;
 
-	const uint32_t& arcs_value(const size_type block_idx, const size_type track)
-		const;
+	const std::uint32_t& arcs_value(const size_type block_idx,
+			const size_type track) const;
 
 	const unsigned& confidence_value(const size_type block_idx,
 			const size_type track) const;
 
-	const uint32_t& frame450_arcs_value(const size_type block_idx,
+	const std::uint32_t& frame450_arcs_value(const size_type block_idx,
 			const size_type track) const;
 
 	unsigned total_tracks(const size_type block_idx) const;
@@ -364,11 +364,11 @@ public:
 	DBARTriplet triplet(const size_type block_idx,
 		const size_type track_idx) const;
 
-	void add_header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
+	void add_header(const std::uint8_t total_tracks, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id);
 
-	void add_triplet(const uint32_t arcs, const uint8_t confidence,
-			const uint32_t frame450_arcs);
+	void add_triplet(const std::uint32_t arcs, const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs);
 
 
 	void swap(Impl& rhs) noexcept;
@@ -443,7 +443,8 @@ class CheckingDBARBuilderState final
 	/**
 	 * \brief Type of the not yet parsed ARId.
 	 */
-	using id_type = std::tuple<uint8_t, uint32_t, uint32_t, uint32_t>;
+	using id_type = std::tuple<std::uint8_t, std::uint32_t, std::uint32_t,
+		  std::uint32_t>;
 
 	/**
 	 * \brief Initial value for the internal ARId.
@@ -497,15 +498,15 @@ public:
 	/**
 	 * \brief Inform about a header.
 	 */
-	void header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
+	void header(const std::uint8_t total_tracks, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id);
 
 	/**
 	 * \brief Inform about a triplet.
 	 */
-	void triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs);
+	void triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs);
 
 	/**
 	 * \brief Inform about end of current block.
@@ -558,14 +559,14 @@ public:
 
 	void start_block();
 
-	void header(const uint8_t total_tracks, const uint32_t id1,
-			const uint32_t id2, const uint32_t cddb_id);
+	void header(const std::uint8_t total_tracks, const std::uint32_t id1,
+			const std::uint32_t id2, const std::uint32_t cddb_id);
 
 	void start_triplets();
 
-	void triplet(const uint32_t arcs,
-			const uint8_t confidence,
-			const uint32_t frame450_arcs);
+	void triplet(const std::uint32_t arcs,
+			const std::uint8_t confidence,
+			const std::uint32_t frame450_arcs);
 
 	void end_triplets();
 

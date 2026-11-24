@@ -47,7 +47,7 @@ void print(std::ostream& out, const ARId& id)
 }
 
 
-ARId make(const std::vector<int32_t>& offsets, const int32_t leadout)
+ARId make(const std::vector<std::int32_t>& offsets, const std::int32_t leadout)
 {
 	return ARId {
 			offsets.size(),
@@ -86,8 +86,8 @@ std::ostream& operator << (std::ostream& out, const ARId& arid)
 // ARId::Impl
 
 
-ARId::Impl::Impl(const unsigned total_tracks, const uint32_t id_1,
-		const uint32_t id_2, const uint32_t cddb_id) noexcept
+ARId::Impl::Impl(const unsigned total_tracks, const std::uint32_t id_1,
+		const std::uint32_t id_2, const std::uint32_t cddb_id) noexcept
 	: total_tracks_ { total_tracks }
 	, disc_id_1_    { id_1         }
 	, disc_id_2_    { id_2         }
@@ -117,19 +117,19 @@ unsigned ARId::Impl::total_tracks() const noexcept
 }
 
 
-uint32_t ARId::Impl::disc_id_1() const noexcept
+std::uint32_t ARId::Impl::disc_id_1() const noexcept
 {
 	return disc_id_1_;
 }
 
 
-uint32_t ARId::Impl::disc_id_2() const noexcept
+std::uint32_t ARId::Impl::disc_id_2() const noexcept
 {
 	return disc_id_2_;
 }
 
 
-uint32_t ARId::Impl::cddb_id() const noexcept
+std::uint32_t ARId::Impl::cddb_id() const noexcept
 {
 	return cddb_id_;
 }
@@ -174,9 +174,9 @@ std::string ARId::Impl::to_string() const
 
 
 ARId::ARId(const std::size_t total_tracks,
-		const uint32_t id_1,
-		const uint32_t id_2,
-		const uint32_t cddb_id)
+		const std::uint32_t id_1,
+		const std::uint32_t id_2,
+		const std::uint32_t cddb_id)
 	: impl_ {
 		std::make_unique<ARId::Impl>(
 			details::normalize_total_tracks(total_tracks), id_1, id_2, cddb_id)
@@ -231,19 +231,19 @@ unsigned ARId::total_tracks() const noexcept
 }
 
 
-uint32_t ARId::disc_id_1() const noexcept
+std::uint32_t ARId::disc_id_1() const noexcept
 {
 	return impl_->disc_id_1();
 }
 
 
-uint32_t ARId::disc_id_2() const noexcept
+std::uint32_t ARId::disc_id_2() const noexcept
 {
 	return impl_->disc_id_2();
 }
 
 
-uint32_t ARId::cddb_id() const noexcept
+std::uint32_t ARId::cddb_id() const noexcept
 {
 	return impl_->cddb_id();
 }

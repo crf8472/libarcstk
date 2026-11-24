@@ -578,7 +578,7 @@ std::unique_ptr<VerificationResult> create_result(const std::size_t blocks,
  */
 class Selector
 {
-	virtual const uint32_t& do_get(const ChecksumSource& source,
+	virtual const std::uint32_t& do_get(const ChecksumSource& source,
 			const ChecksumSource::size_type current,
 			const ChecksumSource::size_type counter) const
 	= 0;
@@ -600,7 +600,7 @@ public:
 	 * \param[in] current Current fixed position
 	 * \param[in] counter Counted position
 	 */
-	const uint32_t& get(const ChecksumSource& source,
+	const std::uint32_t& get(const ChecksumSource& source,
 			const ChecksumSource::size_type current,
 			const ChecksumSource::size_type counter) const;
 
@@ -620,7 +620,7 @@ class BlockSelector final : public Selector
 
 	std::unique_ptr<Selector> do_clone() const final;
 
-	const uint32_t& do_get(const ChecksumSource& s,
+	const std::uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type block,
 			const ChecksumSource::size_type track) const final;
 };
@@ -635,7 +635,7 @@ class TrackSelector final : public Selector
 
 	std::unique_ptr<Selector> do_clone() const final;
 
-	const uint32_t& do_get(const ChecksumSource& s,
+	const std::uint32_t& do_get(const ChecksumSource& s,
 			const ChecksumSource::size_type track,
 			const ChecksumSource::size_type block) const final;
 };
@@ -681,7 +681,7 @@ public:
 	/**
 	 * \copydoc SNPT_tp_value
 	 */
-	using value_type        = uint32_t;
+	using value_type        = std::uint32_t;
 
 	/**
 	 * \copydoc SNPT_tp_reference
@@ -1192,7 +1192,8 @@ class Verification final
 	void perform_checksums(VerificationResult& result,
 		const Checksums& actual_sums,
 		const TraversalPolicy& traversal,
-		const ChecksumSource::size_type current, const MatchPolicy& match) const;
+		const ChecksumSource::size_type current, const MatchPolicy& match)
+		const;
 
 public:
 
@@ -1389,7 +1390,7 @@ namespace details
 /**
  * \brief Element indices of type best_block_info_t.
  */
-enum class TUPLE_IDX : uint8_t
+enum class TUPLE_IDX : std::uint8_t
 {
 	INDEX         = 0,
 	CHECKSUM_TYPE = 1,

@@ -39,8 +39,8 @@ inline namespace v_1_0_0
 
 
 Partition::Partition(
-		const int32_t begin_offset,
-		const int32_t end_offset,
+		const std::int32_t begin_offset,
+		const std::int32_t end_offset,
 		const bool    starts_track,
 		const bool    ends_track,
 		const TrackNo track
@@ -55,37 +55,37 @@ Partition::Partition(
 }
 
 
-int32_t Partition::begin_offset() const
+std::int32_t Partition::begin_offset() const noexcept
 {
 	return begin_offset_;
 }
 
 
-int32_t Partition::end_offset() const
+std::int32_t Partition::end_offset() const noexcept
 {
 	return end_offset_;
 }
 
 
-bool Partition::starts_track() const
+bool Partition::starts_track() const noexcept
 {
 	return starts_track_;
 }
 
 
-bool Partition::ends_track() const
+bool Partition::ends_track() const noexcept
 {
 	return ends_track_;
 }
 
 
-int Partition::track() const
+int Partition::track() const noexcept
 {
 	return track_;
 }
 
 
-std::size_t Partition::size() const
+std::size_t Partition::size() const noexcept
 {
 	return static_cast<std::size_t>(end_offset() - begin_offset());
 }
@@ -128,8 +128,8 @@ Partitioner::Partitioner(Points points, AudioSize total_samples,
 
 
 Partitioning Partitioner::create_partitioning(
-		const int32_t offset,
-		const int32_t total_samples_in_block) const
+		const std::int32_t offset,
+		const std::int32_t total_samples_in_block) const
 {
 	ARCS_LOG(DEBUG2) << "Create partitioning for offset " << offset;
 
@@ -188,6 +188,18 @@ AudioSize Partitioner::offset(const TrackNo t) const
 Points Partitioner::points() const noexcept
 {
 	return points_;
+}
+
+
+std::size_t Partitioner::size() const noexcept
+{
+	return points_.size();
+}
+
+
+bool Partitioner::empty() const noexcept
+{
+	return points_.empty();
 }
 
 
@@ -385,7 +397,7 @@ Partitioning get_partitioning(const SampleRange& interval,
 // ind2am()
 
 
-int32_t ind2am(const int32_t index)
+std::int32_t ind2am(const std::int32_t index)
 {
 	return index + 1;
 }
@@ -394,7 +406,7 @@ int32_t ind2am(const int32_t index)
 // am2ind()
 
 
-int32_t am2ind(const int32_t amount)
+std::int32_t am2ind(const std::int32_t amount)
 {
 	return amount - 1;
 }

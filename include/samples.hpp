@@ -25,7 +25,6 @@
 #ifndef LIBARCSTK_BYTES_HPP_
 #include "bytes.hpp"            // for is_sample_type, combine
 #endif
-
 #ifndef LIBARCSTK_MIXINS_HPP_
 #include "mixins.hpp"           // for Comparable
 #endif

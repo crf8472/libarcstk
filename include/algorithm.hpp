@@ -45,35 +45,47 @@ inline namespace v_1_0_0
  * It is not encouraged to use TrackNo in client code.
  */
 using TrackNo = int;
-
+// TODO Define this as a template and assert legal range
 
 /**
  * \ingroup calc
  *
- * \brief A closed interval <tt>[a,b]</tt>.
+ * \brief A closed interval <tt>[a,b]</tt> for integral types.
  *
- * \tparam T Type with definition of <=
+ * Class asserts that \c T is integral.
+ *
+ * \tparam T Type with definition of <=, ==, std::max, and std::min that is
+ * convertible via std::make_unsigned_t.
  */
 template <typename T>
 class Interval final
 {
-	/**
-	 * \brief First number in interval.
-	 */
-	T a_ {};
+	static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>,
+			"Interval supports integral types only (not bool)");
 
 	/**
-	 * \brief Last number in interval.
+	 * \brief Lower bound in interval.
 	 */
-	T b_ {};
+	T lo_ {};
+
+	/**
+	 * \brief Higher bound in interval.
+	 */
+	T hi_ {};
 
 public:
 
 	/**
-	 * \brief Default constructor.
+	 * \brief Unsigned equivalent of type \c T.
+	 */
+	using unsigned_type = std::make_unsigned_t<T>;
+
+	/**
+	 * \copydoc SNPT_sm_default_ctor
+	 *
+	 * Provides <tt>[0,0]</tt>.
 	 */
 	Interval() = default;
-
 
 	/**
 	 * \brief Constructor for <tt>[a,b]</tt>.
@@ -82,8 +94,8 @@ public:
 	 * \param[in] b Last number in closed interval
 	 */
 	Interval(const T a, const T b)
-		: a_ { a }
-		, b_ { b }
+		: lo_ { std::min(a, b) }
+		, hi_ { std::max(a, b) }
 	{
 		// empty
 	}
@@ -104,19 +116,19 @@ public:
 	 *
 	 * \return Smallest value of the interval
 	 */
-	T lower() const
+	T lower() const noexcept
 	{
-		return a_ <= b_ ? a_ : b_;
+		return lo_;
 	}
 
 	/**
 	 * \brief Greatest value of the interval.
 	 *
-	 * \return Greates value of the interval
+	 * \return Greatest value of the interval
 	 */
-	T upper() const
+	T upper() const noexcept
 	{
-		return a_ <= b_ ? b_ : a_;
+		return hi_;
 	}
 
 	/**
@@ -129,15 +141,30 @@ public:
 	 */
 	bool contains(const T& i) const
 	{
-		return (a_ <= b_) ? a_ <= i && i <= b_ : b_ <= i && i <= a_;
+		return lower() <= i && i <= upper();
+	}
+
+	/**
+	 * \brief Returns the total number of values in the interval.
+	 *
+	 * \return Total number of values in the interval
+	 */
+	unsigned_type count() const noexcept
+	{
+		return (static_cast<unsigned_type>(upper())
+				- static_cast<unsigned_type>(lower())) + 1u;
 	}
 
 	/**
 	 * \copydoc SNPT_mf_equals
+	 *
+	 * If the unordered pairs of values are equal, the instances qualify as
+	 * equals, too. For example, Interval(5, -1) qualifies as equal to
+	 * Interval(-1, 5).
 	 */
 	bool equals(const Interval& rhs) const noexcept
 	{
-		return a_ == rhs.a_ && b_ == rhs.b_;
+		return lower() == rhs.lower() && upper() == rhs.upper();
 	}
 
 	/**
@@ -147,8 +174,8 @@ public:
 	{
 		using std::swap;
 
-		swap(a_, rhs.a_);
-		swap(b_, rhs.b_);
+		swap(lo_, rhs.lo_);
+		swap(hi_, rhs.hi_);
 	}
 
 	/**
@@ -187,7 +214,7 @@ public:
 /**
  * \brief Range of samples.
  */
-using SampleRange = Interval<int32_t>;
+using SampleRange = Interval<std::int32_t>;
 
 
 /**
@@ -196,35 +223,36 @@ using SampleRange = Interval<int32_t>;
  * \brief A contigous part of a sequence of samples.
  *
  * A partition does not hold any samples but provides access to a slice of the
- * underlying sequence of samples.
+ * underlying sequence of samples. Partition is inclusive. It represents
+ * [begin_offset, end_offset].
  */
 class Partition final
 {
 	/**
-	 * \brief Relative offset of the first sample in this partition
+	 * \brief Relative offset of the first sample in this partition.
 	 */
-	int32_t begin_offset_ {};
+	std::int32_t begin_offset_ {};
 
 	/**
-	 * \brief Relative offset of the last sample in this partition + 1
+	 * \brief Relative offset of the last sample in this partition.
 	 */
-	int32_t end_offset_ {};
+	std::int32_t end_offset_ {};
 
 	/**
 	 * \brief TRUE iff the first sample in this partition is also the first
-	 * sample in the track
+	 * sample in the track.
 	 */
 	bool starts_track_ {};
 
 	/**
 	 * \brief TRUE iff the last sample in this partition is also the last sample
-	 * in the track
+	 * in the track.
 	 */
 	bool ends_track_ {};
 
 	/**
 	 * \brief 1-based number of the track of which the samples in the partition
-	 * are part of
+	 * are part of.
 	 */
 	int track_ {};
 
@@ -240,25 +268,27 @@ public:
 	 * \param[in] track        Number of the track that contains the partition
 	 */
 	Partition(
-			const int32_t begin_offset,
-			const int32_t end_offset,
-			const bool    starts_track,
-			const bool    ends_track,
-			const TrackNo track);
+			const std::int32_t begin_offset,
+			const std::int32_t end_offset,
+			const bool         starts_track,
+			const bool         ends_track,
+			const TrackNo      track);
 
 	/**
 	 * \brief Relative offset of the first sample in the partition.
 	 *
 	 * \return Relative offset of the first sample in the partition.
 	 */
-	int32_t begin_offset() const;
+	std::int32_t begin_offset() const noexcept;
 
 	/**
-	 * \brief Relative offset of the last sample in the partition + 1.
+	 * \brief Relative offset of the last sample in the partition.
 	 *
-	 * \return Relative offset of the last sample in the partition + 1.
+	 * To use this value for end-iterators, add +1.
+	 *
+	 * \return Relative offset of the last sample in the partition.
 	 */
-	int32_t end_offset() const;
+	std::int32_t end_offset() const noexcept;
 
 	/**
 	 * \brief Returns TRUE iff the first sample of this partition is also the
@@ -266,7 +296,7 @@ public:
 	 *
 	 * \return TRUE iff this is partition starts a track
 	 */
-	bool starts_track() const;
+	bool starts_track() const noexcept;
 
 	/**
 	 * \brief Returns TRUE if the last sample of this partition is also the last
@@ -274,21 +304,21 @@ public:
 	 *
 	 * \return TRUE iff this is partition ends a track
 	 */
-	bool ends_track() const;
+	bool ends_track() const noexcept;
 
 	/**
 	 * \brief The track of which the samples in the partition are part of.
 	 *
 	 * \return The track that contains this partition
 	 */
-	int track() const;
+	int track() const noexcept;
 
 	/**
 	 * \brief Number of samples in this partition.
 	 *
 	 * \return Number of samples in this partition
 	 */
-	std::size_t size() const;
+	std::size_t size() const noexcept;
 
 	/**
 	 * \copydoc SNPT_mf_equals
@@ -365,8 +395,8 @@ public:
 	 * \return Partitioning of \c samples as a sequence of partitions.
 	 */
 	Partitioning create_partitioning(
-			const int32_t offset,
-			const int32_t total_samples_in_block) const;
+			const std::int32_t offset,
+			const std::int32_t total_samples_in_block) const;
 
 	/**
 	 * \brief Total number of samples.
@@ -418,6 +448,18 @@ public:
 	 * \return Points to separate partitions.
 	 */
 	Points points() const noexcept;
+
+	/**
+	 * \brief Total number of partitioning points.
+	 *
+	 * \return Total number of partitioning points
+	 */
+	std::size_t size() const noexcept;
+
+	/**
+	 * \copydoc SNPT_mf_empty
+	 */
+	bool empty() const noexcept;
 
 	/**
 	 * \copydoc SNPT_mf_clone
@@ -520,7 +562,7 @@ Partitioning get_partitioning(
  *
  * \return Amount of samples equivalent to the index passed
  */
-int32_t ind2am(const int32_t index);
+std::int32_t ind2am(const std::int32_t index);
 
 /**
  * \brief Convert a 1-based amount of samples to an equivalent index.
@@ -529,7 +571,7 @@ int32_t ind2am(const int32_t index);
  *
  * \return Sample index equivalent to the amount passed
  */
-int32_t am2ind(const int32_t amount);
+std::int32_t am2ind(const std::int32_t amount);
 
 } // namespace details
 
@@ -549,7 +591,7 @@ using ChecksumtypeSet = std::unordered_set<checksum::type>;
  * checksums of the the first and last track of an album. Context represents
  * this information.
  */
-enum class Context : uint8_t
+enum class Context : std::uint8_t
 {
 	/**
 	 * \brief Single track that is neither first or last track.
@@ -796,7 +838,8 @@ public:
 	}
 
 	/**
-	 * \brief Checksums of type \c type for all tracks in order with offset \c k.
+	 * \brief Checksums of type \c type for all tracks in order with offset
+	 * \c k.
 	 *
 	 * \param[in] type Checksum type
 	 * \param[in] k    Offset to apply
@@ -1154,7 +1197,7 @@ public:
 		return algorithm_->context();
 	}
 
-	std::pair<int32_t,int32_t> range(const AudioSize& size,
+	std::pair<std::int32_t,std::int32_t> range(const AudioSize& size,
 			const Points& points) const
 	{
 		return algorithm_->range(size, points);
